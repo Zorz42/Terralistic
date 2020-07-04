@@ -6,6 +6,7 @@
 //
 
 #include "singleWindowLibrary.hpp"
+#include "objectedGraphicsLibrary.hpp"
 #include "terrainGenerator.hpp"
 
 void terrainGenerator::generatingScreen() {
@@ -18,10 +19,10 @@ void terrainGenerator::generatingScreen() {
 #define LOADING_RECT_WIDTH (swl::window_width / 5 * 4)
 #define LOADING_RECT_ELAVATION 50
     
-    SDL_Rect text_rect = {0, 0, 0, 0};
-    SDL_Texture *text_texture = swl::loadTextureFromText("Generating world", SDL_Color{255, 255, 255}, &text_rect.w, &text_rect.h);
-    text_rect.w *= TEXT_SCALE;
-    text_rect.h *= TEXT_SCALE;
+    ogl::texture loading_texture;
+    loading_texture.setScale(TEXT_SCALE);
+    loading_texture.setCenterRectBoundsOffset(0, -LOADING_RECT_HEIGHT - LOADING_RECT_ELAVATION, 0, 0);
+    loading_texture.loadFromText("Generating world", SDL_Color{255, 255, 255});
     
     SDL_Rect rect, outline_rect;
     while(running) {
@@ -47,9 +48,7 @@ void terrainGenerator::generatingScreen() {
         swl::setDrawColor(255, 255, 255);
         swl::render(rect);
         
-        text_rect.y = (swl::window_height - LOADING_RECT_HEIGHT - LOADING_RECT_ELAVATION) / 2 - text_rect.h / 2;
-        text_rect.x = swl::window_width / 2 - text_rect.w / 2;
-        swl::render(text_texture, text_rect);
+        loading_texture.render();
         
         swl::update();
         if(loading_current >= loading_total)

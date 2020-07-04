@@ -10,8 +10,6 @@
 #include "caveGenerator.hpp"
 #include "singleWindowLibrary.hpp"
 
-#include <SDL2/SDL_thread.h>
-
 // terrain generation perameters
 
 // TERRAIN

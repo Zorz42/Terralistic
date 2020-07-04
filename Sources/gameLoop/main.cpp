@@ -1,9 +1,10 @@
-//Using SDL and standard IO
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "terrainGenerator.hpp"
-#include "movementHandler.hpp"
+#include "playerHandler.hpp"
 #include "frameLengthMeasurer.hpp"
+
+#include "objectedGraphicsLibrary.hpp"
 
 int main() {
     swl::loadFont("pixel_font.ttf", 8);
@@ -18,10 +19,10 @@ int main() {
         while(SDL_PollEvent(&event)) {
             if(swl::handleBasicEvents(event, &running));
             else
-                movementHandler::handleMovement(event);
+                playerHandler::handleMovement(event);
         }
         
-        movementHandler::move();
+        playerHandler::move();
         frameLengthMeasurer::measureFrameLength();
         
         swl::setDrawColor(135, 206, 235);

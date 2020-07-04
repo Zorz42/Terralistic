@@ -6,6 +6,7 @@
 //
 
 #include "frameLengthMeasurer.hpp"
+
 #include "SDL2/SDL.h"
 
 void frameLengthMeasurer::measureFrameLength() {

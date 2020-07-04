@@ -10,7 +10,7 @@
 
 #include "SDL2/SDL.h"
 
-namespace movementHandler {
+namespace playerHandler {
 
 bool handleMovement(SDL_Event& event);
 void move();

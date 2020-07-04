@@ -4,11 +4,11 @@
 //
 //  Created by Jakob Zorz on 01/07/2020.
 //
-#include "movementHandler.hpp"
+#include "playerHandler.hpp"
 #include "blockEngine.hpp"
 #include "frameLengthMeasurer.hpp"
 
-bool movementHandler::handleMovement(SDL_Event& event) {
+bool playerHandler::handleMovement(SDL_Event& event) {
     static bool key_up = false, key_down = false, key_left = false, key_right = false;
     if(event.type == SDL_KEYDOWN)
         switch (event.key.keysym.sym) {
@@ -61,7 +61,7 @@ bool movementHandler::handleMovement(SDL_Event& event) {
     return true;
 }
 
-void movementHandler::move() {
+void playerHandler::move() {
     block_engine::position_x += velocity_x * frameLengthMeasurer::frame_length;
     block_engine::position_y += velocity_y * frameLengthMeasurer::frame_length;
 }
