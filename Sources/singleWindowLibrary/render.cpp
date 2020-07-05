@@ -22,6 +22,9 @@ void swl::render(SDL_Texture* texture) {
     SDL_RenderCopy(__swl_private::renderer, texture, nullptr, nullptr);
 }
 
-void swl::render(SDL_Rect &rect) {
-    SDL_RenderFillRect(__swl_private::renderer, &rect);
+void swl::render(SDL_Rect &rect, bool fill) {
+    if(fill)
+        SDL_RenderFillRect(__swl_private::renderer, &rect);
+    else
+        SDL_RenderDrawRect(__swl_private::renderer, &rect);
 }

@@ -12,8 +12,10 @@
 
 namespace playerHandler {
 
+void init();
 bool handleMovement(SDL_Event& event);
 void move();
+void render();
 
 inline int velocity_x = 0, velocity_y = 0;
 

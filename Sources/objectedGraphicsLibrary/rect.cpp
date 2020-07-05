@@ -27,5 +27,5 @@ void ogl::rect::render() {
         height,
     };
     swl::setDrawColor(r, g, b);
-    swl::render(render_rect);
+    swl::render(render_rect, fill);
 }

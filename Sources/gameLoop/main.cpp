@@ -9,7 +9,8 @@
 int main() {
     swl::loadFont("pixel_font.ttf", 8);
     
-    block_engine::init();
+    blockEngine::init();
+    playerHandler::init();
     terrainGenerator::generateTerrain(0);
     
     bool running = true;
@@ -23,13 +24,15 @@ int main() {
         }
         
         playerHandler::move();
+        
         frameLengthMeasurer::measureFrameLength();
         
         swl::setDrawColor(135, 206, 235);
         swl::clear();
         
-        block_engine::render_blocks();
-
+        blockEngine::render_blocks();
+        playerHandler::render();
+        
         swl::update();
     }
     

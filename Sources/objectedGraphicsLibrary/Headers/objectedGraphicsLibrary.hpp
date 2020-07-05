@@ -74,6 +74,8 @@ public:
     
     void render();
     
+    bool fill{true};
+    
 private:
     Uint8 r, g, b;
 };

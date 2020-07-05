@@ -13,14 +13,20 @@
 #include <iostream>
 #include <vector>
 
-namespace block_engine {
+#define BLOCK_WIDTH 16
+
+namespace blockEngine {
 
 enum blockType {BLOCK_AIR, BLOCK_DIRT};
 
 struct block {
+    block() : block_id(BLOCK_AIR) {}
     block(unsigned short block_id) : block_id(block_id) {}
     
-    void draw(unsigned int x, unsigned int y);
+    void draw();
+    SDL_Rect getRect();
+    unsigned int getX();
+    unsigned int getY();
     unsigned short block_id;
 };
 
@@ -35,9 +41,9 @@ void init();
 
 void render_blocks();
 
-inline std::vector<block> world;
+inline block *world;
 inline unsigned int world_width;
-unsigned int getWorldHeight();
+inline unsigned int world_height;
 
 block& getBlock(unsigned int x, unsigned int y);
 

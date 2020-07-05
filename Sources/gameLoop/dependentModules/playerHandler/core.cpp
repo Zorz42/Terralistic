@@ -7,6 +7,16 @@
 #include "playerHandler.hpp"
 #include "blockEngine.hpp"
 #include "frameLengthMeasurer.hpp"
+#include "objectedGraphicsLibrary.hpp"
+
+ogl::rect player_rect(ogl::centered);
+
+void playerHandler::init() {
+    player_rect.setWidth(BLOCK_WIDTH * 2 - 5);
+    player_rect.setHeight(BLOCK_WIDTH * 3 - 5);
+    player_rect.setColor(0, 0, 0);
+    player_rect.fill = false;
+}
 
 bool playerHandler::handleMovement(SDL_Event& event) {
     static bool key_up = false, key_down = false, key_left = false, key_right = false;
@@ -62,6 +72,10 @@ bool playerHandler::handleMovement(SDL_Event& event) {
 }
 
 void playerHandler::move() {
-    block_engine::position_x += velocity_x * frameLengthMeasurer::frame_length;
-    block_engine::position_y += velocity_y * frameLengthMeasurer::frame_length;
+    blockEngine::position_x += velocity_x * frameLengthMeasurer::frame_length;
+    blockEngine::position_y += velocity_y * frameLengthMeasurer::frame_length;
+}
+
+void playerHandler::render() {
+    player_rect.render();
 }

@@ -64,18 +64,18 @@ void terrainGenerator::generateTerrain(unsigned int seed) {
 }
 
 void stackBlocks(unsigned int x, unsigned int height) {
-    for(unsigned int y = block_engine::getWorldHeight() - 1; y > block_engine::getWorldHeight() - height; y--)
-        block_engine::getBlock(x, y).block_id = block_engine::BLOCK_DIRT;
+    for(unsigned int y = blockEngine::world_height - 1; y > blockEngine::world_height - height; y--)
+        blockEngine::getBlock(x, y).block_id = blockEngine::BLOCK_DIRT;
 }
 
 void generateSurface(unsigned int seed) {
-#define TERRAIN_HORIZONT (block_engine::getWorldHeight() / 2)
+#define TERRAIN_HORIZONT (blockEngine::world_height / 2)
     PerlinNoise noise(seed);
     
-    unsigned int heights[block_engine::world_width];
+    unsigned int heights[blockEngine::world_width];
     
     // generate terrain
-    for(unsigned int x = 0; x < block_engine::world_width; x++) {
+    for(unsigned int x = 0; x < blockEngine::world_width; x++) {
         // apply multiple layers of perlin noise
         unsigned int height = TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double)x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, 64, noise);
         
@@ -89,13 +89,13 @@ void generateSurface(unsigned int seed) {
         heights[x] = (heights[x-1] + heights[x+1]) / 2;*/
     
     // apply terrain to world
-    for(unsigned int x = 0; x < block_engine::world_width; x++)
+    for(unsigned int x = 0; x < blockEngine::world_width; x++)
         stackBlocks(x, heights[x]);
     LOADING_NEXT
 }
 
 void generateCaves(unsigned int seed) {
-    caveGenerator main_cm(block_engine::world_width, highest_height - CAVE_CAP, seed);
+    caveGenerator main_cm(blockEngine::world_width, highest_height - CAVE_CAP, seed);
     
     main_cm.generateMap(CAVE_START, CAVE_LENGTH, CAVE_CAP, X_PERIOD, Y_PERIOD, TURB_POWER, TURB_SIZE, highest_height);
     LOADING_NEXT
@@ -110,15 +110,15 @@ void generateCaves(unsigned int seed) {
     }
     
     // make a transition from cave cap
-    for(unsigned int x = 0; x < block_engine::world_width; x++)
+    for(unsigned int x = 0; x < blockEngine::world_width; x++)
         for(unsigned int y = 0; main_cm.getElement(x, y) && y < 5; y++)
             main_cm.getElement(x, y) = 0;
     LOADING_NEXT
     
     // apply caves to the world
     for(unsigned int y = CAVE_CAP; y < highest_height; y++)
-        for(unsigned int x = 0; x < block_engine::world_width; x++)
+        for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(main_cm.getElement(x, y - CAVE_CAP))
-                block_engine::getBlock(x, y + (block_engine::getWorldHeight() - highest_height)).block_id = block_engine::BLOCK_AIR;
+                blockEngine::getBlock(x, y + (blockEngine::world_height - highest_height)).block_id = blockEngine::BLOCK_AIR;
     LOADING_NEXT
 }

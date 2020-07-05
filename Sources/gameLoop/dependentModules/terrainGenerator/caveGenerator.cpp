@@ -63,7 +63,7 @@ bool caveGenerator::isWall(int x, int y) {
 void caveGenerator::generateMap(double cave_start, double cave_length, int cave_cap, double x_period, double y_period, double turb_power, double turb_size, unsigned int highest_height) {
     // generate perlin noise caves into a cellular map
     for(unsigned int y = cave_cap; y < highest_height; y++)
-        for(unsigned int x = 0; x < block_engine::world_width; x++)
+        for(unsigned int x = 0; x < blockEngine::world_width; x++)
             getElement(x, y - cave_cap) = turbulence(x, y - cave_cap, turb_size, x_period, y_period, turb_power, highest_height) > cave_start + (cave_length - (double)y / highest_height * cave_length);
 }
 
@@ -74,6 +74,6 @@ double caveGenerator::turbulence(double x, double y, double size, double x_perio
         size /= 2.0;
     }
     
-    double xy_value = x * x_period / block_engine::world_width + y * y_period / highest_height + turb_power * (value / initial_size) / 2.0;
+    double xy_value = x * x_period / blockEngine::world_width + y * y_period / highest_height + turb_power * (value / initial_size) / 2.0;
     return fabs(sin(xy_value * 3.14159));
 }
