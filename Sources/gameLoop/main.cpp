@@ -6,6 +6,7 @@
 
 #include "objectedGraphicsLibrary.hpp"
 
+
 int main() {
     swl::loadFont("pixel_font.ttf", 8);
     

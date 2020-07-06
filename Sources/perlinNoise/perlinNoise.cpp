@@ -1,7 +1,7 @@
 #include "perlinNoise.hpp"
 //#include <cmath>
 #include <random>
-//#include <algorithm>
+#include <algorithm>
 //#include <numeric>
 
 // THIS IS A DIRECT TRANSLATION TO C++11 FROM THE REFERENCE

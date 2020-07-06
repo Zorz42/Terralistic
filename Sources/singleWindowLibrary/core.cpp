@@ -17,7 +17,7 @@ void swl::quit() {
     SDL_Quit();
 }
 
-int main(int argc, char** argv) {
+int swl::main(int argc, char** argv) {
     swl::window_width = 1000;
     swl::window_height = 500;
     

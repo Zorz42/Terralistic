@@ -15,8 +15,6 @@
 
 #define main swl_main
 
-int swl_main();
-
 namespace swl {
     
 void clear();

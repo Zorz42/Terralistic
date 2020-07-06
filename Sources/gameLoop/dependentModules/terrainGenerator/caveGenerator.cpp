@@ -1,5 +1,6 @@
 #include "blockEngine.hpp"
 #include "caveGenerator.hpp"
+#include <cmath>
 
 caveGenerator::caveGenerator(int width, int height, unsigned int seed) : height(height), width(width), noise(seed) {
     map = new int[height*width];
