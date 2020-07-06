@@ -13,8 +13,15 @@ int main() {
     playerHandler::init();
     terrainGenerator::generateTerrain(0);
     
+    ogl::texture fps_text(ogl::absolute);
+    fps_text.setScale(3);
+    fps_text.setX(10);
+    fps_text.setY(10);
+    
     bool running = true;
     SDL_Event event;
+    
+    unsigned int count = 0, fps_count = 0;
     
     while(running) {
         while(SDL_PollEvent(&event)) {
@@ -23,15 +30,22 @@ int main() {
                 playerHandler::handleMovement(event);
         }
         
-        playerHandler::move();
-        
         frameLengthMeasurer::measureFrameLength();
+        fps_count++;
+        if(SDL_GetTicks() / 1000 > count) {
+            count++;
+            fps_text.loadFromText(std::to_string(fps_count) + " fps", SDL_Color{0, 0, 0});
+            fps_count = 0;
+        }
+        
+        playerHandler::move();
         
         swl::setDrawColor(135, 206, 235);
         swl::clear();
         
         blockEngine::render_blocks();
         playerHandler::render();
+        fps_text.render();
         
         swl::update();
     }

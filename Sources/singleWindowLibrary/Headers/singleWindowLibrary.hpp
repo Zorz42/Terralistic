@@ -40,6 +40,8 @@ inline int window_height, window_width;
 void setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a=255);
 
 void loadFont(std::string path, int size);
+
+bool colliding(SDL_Rect a, SDL_Rect b);
 }
 
 namespace __swl_private {

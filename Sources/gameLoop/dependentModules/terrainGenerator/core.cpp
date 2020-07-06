@@ -92,6 +92,8 @@ void generateSurface(unsigned int seed) {
     for(unsigned int x = 0; x < blockEngine::world_width; x++)
         stackBlocks(x, heights[x]);
     LOADING_NEXT
+    
+    blockEngine::getBlock(0, 0) = blockEngine::BLOCK_DIRT;
 }
 
 void generateCaves(unsigned int seed) {

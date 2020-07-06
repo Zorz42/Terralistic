@@ -20,12 +20,16 @@ void ogl::rect::setColor(Uint8 r_, Uint8 g_, Uint8 b_) {
 }
 
 void ogl::rect::render() {
-    SDL_Rect render_rect = {
+    SDL_Rect render_rect = getRect();
+    swl::setDrawColor(r, g, b);
+    swl::render(render_rect, fill);
+}
+
+SDL_Rect ogl::rect::getRect() {
+    return {
         getX(width),
         getY(height),
         width,
         height,
     };
-    swl::setDrawColor(r, g, b);
-    swl::render(render_rect, fill);
 }

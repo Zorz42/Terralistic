@@ -48,6 +48,7 @@ inline unsigned int world_height;
 block& getBlock(unsigned int x, unsigned int y);
 
 inline long position_x, position_y;
+inline long view_x, view_y;
 
 inline std::vector<unique_block> block_types;
 }

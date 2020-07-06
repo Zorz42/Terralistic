@@ -76,6 +76,8 @@ public:
     
     bool fill{true};
     
+    SDL_Rect getRect();
+    
 private:
     Uint8 r, g, b;
 };

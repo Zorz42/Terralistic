@@ -20,16 +20,27 @@ void blockEngine::init() {
     
     position_x = world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     position_y = world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
+    view_x = position_x;
+    view_y = position_y;
 }
 
 void blockEngine::render_blocks() {
-#define WIEW_PADDING 2
+#define VIEW_PADDING 2
 
-    int begin_x = (int)position_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH - (WIEW_PADDING);
-    int end_x = (int)position_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH + (WIEW_PADDING);
+    if(view_x < swl::window_width / 2)
+        view_x = swl::window_width / 2;
+    if(view_y < swl::window_height / 2)
+        view_y = swl::window_height / 2;
+    if(view_x >= blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2)
+        view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
+    if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
+        view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
     
-    int begin_y = (int)position_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH - (WIEW_PADDING);
-    int end_y = (int)position_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH + (WIEW_PADDING);
+    int begin_x = (int)view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH - VIEW_PADDING;
+    int end_x = (int)view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH + VIEW_PADDING;
+    
+    int begin_y = (int)view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH - VIEW_PADDING;
+    int end_y = (int)view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH + VIEW_PADDING;
     
     if(begin_x < 0)
         begin_x = 0;
@@ -59,8 +70,8 @@ blockEngine::block& blockEngine::getBlock(unsigned int x, unsigned int y) {
 
 SDL_Rect blockEngine::block::getRect() {
     SDL_Rect rect = {0, 0, BLOCK_WIDTH, BLOCK_WIDTH};
-    rect.x = int(getX() * BLOCK_WIDTH - position_x + swl::window_width / 2);
-    rect.y = int(getY() * BLOCK_WIDTH - position_y + swl::window_height / 2);
+    rect.x = int(getX() * BLOCK_WIDTH - view_x + swl::window_width / 2);
+    rect.y = int(getY() * BLOCK_WIDTH - view_y + swl::window_height / 2);
     return rect;
 }
 
