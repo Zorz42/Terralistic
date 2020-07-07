@@ -14,8 +14,6 @@ int startMenu::main() {
     bool running = true;
     SDL_Event event;
     
-    std::cout << sizeof(ogl::texture) << std::endl;
-    
     ui::button play_button;
     play_button.setY(-50);
     play_button.setColor(0, 0, 0);
