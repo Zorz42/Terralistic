@@ -46,9 +46,12 @@ unsigned int highest_height = CAVE_CAP;
 
 int generateTerrainDaemon(void* seed) {
     unsigned int seed_int = *((unsigned int*)seed);
-    terrainGenerator::loading_total = 5 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
+    terrainGenerator::loading_total = 6 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
     generateSurface(seed_int);
     generateCaves(seed_int);
+    LOADING_NEXT
+    for(unsigned long i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
+        blockEngine::world[i].update();
     return 0;
 }
 

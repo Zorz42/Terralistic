@@ -57,10 +57,10 @@ void blockEngine::render_blocks() {
 }
 
 void blockEngine::block::draw() {
-    unique_block* this_block_type = &block_types.at(block_id);
-    if(this_block_type->texture) {
-        SDL_Rect rect = getRect();
-        swl::render(this_block_type->texture, rect);
+#define THIS_BLOCK_TYPE block_types.at(block_id)
+    if(THIS_BLOCK_TYPE.texture) {
+        SDL_Rect rect = getRect(), cutout_rect = {0, 8 * block_orientation, 8, 8};
+        swl::render(THIS_BLOCK_TYPE.texture, rect, cutout_rect);
     }
 }
 
@@ -81,4 +81,24 @@ unsigned int blockEngine::block::getX() {
 
 unsigned int blockEngine::block::getY() {
     return (unsigned int)(this - world) / world_width;
+}
+
+void blockEngine::block::update() {
+    char x[] = {0, 1, 0, -1};
+    char y[] = {-1, 0, 1, 0};
+    Uint8 c = 1;
+    block_orientation = 0;
+    for(int i = 0; i < 4; i++) {
+        if(getX() + x[i] >= world_width || getX() + x[i] < 0) {
+            block_orientation += c;
+            continue;
+        }
+        if(getY() + y[i] >= world_height || getY() + y[i] < 0) {
+            block_orientation += c;
+            continue;
+        }
+        if(getBlock(getX() + x[i], getY() + y[i]).block_id == block_id)
+            block_orientation += c;
+        c += c;
+    }
 }

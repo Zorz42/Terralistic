@@ -27,7 +27,10 @@ struct block {
     SDL_Rect getRect();
     unsigned int getX();
     unsigned int getY();
+    void update();
+    
     unsigned short block_id;
+    Uint8 block_orientation;
 };
 
 struct unique_block {

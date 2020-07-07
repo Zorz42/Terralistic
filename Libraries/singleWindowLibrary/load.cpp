@@ -15,6 +15,8 @@ SDL_Texture* swl::loadTextureFromFile(std::string path, int* w, int* h) {
     if(!loaded_surface)
         swl::popupError(path + " could not be loaded!");
     
+    SDL_SetColorKey(loaded_surface, SDL_TRUE, SDL_MapRGB(loaded_surface->format, 0, 255, 0));
+    
     SDL_Texture* result = SDL_CreateTextureFromSurface(__swl_private::renderer, loaded_surface);
     if(!result)
         swl::popupError(path + " could not be transformed into a texture!");

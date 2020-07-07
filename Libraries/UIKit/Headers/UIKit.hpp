@@ -31,6 +31,9 @@ public:
     using ogl::rect::setX;
     using ogl::rect::setY;
     
+    using ogl::rect::getWidth;
+    using ogl::rect::getHeight;
+    
 protected:
     Uint8 hover_r, hover_g, hover_b;
     Uint8 text_r, text_g, text_b;
