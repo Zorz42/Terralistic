@@ -7,7 +7,6 @@
 
 #include <SDL2_image/SDL_image.h>
 #include "singleWindowLibrary.hpp"
-#undef main
 
 void swl::quit() {
     SDL_DestroyRenderer(__swl_private::renderer);
@@ -35,7 +34,7 @@ int main(int argc, char** argv) {
     if(!__swl_private::window)
         swl::popupError("Window could not be created!");
     
-    __swl_private::renderer = SDL_CreateRenderer(__swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    __swl_private::renderer = SDL_CreateRenderer(__swl_private::window, -1, SDL_RENDERER_ACCELERATED);
     if(!__swl_private::renderer)
         swl::popupError("Renderer could not be created!");
     
@@ -99,9 +98,14 @@ bool swl::handleBasicEvents(SDL_Event &event, bool *running) {
         if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
             window_width = event.window.data1;
             window_height = event.window.data2;
+            return true;
         }
         else
             return false;
+    }
+    else if(event.type == SDL_MOUSEMOTION) {
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+        return true;
     }
     return false;
 }

@@ -6,7 +6,7 @@
 //
 #include "playerHandler.hpp"
 #include "blockEngine.hpp"
-#include "frameLengthMeasurer.hpp"
+#include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 
@@ -107,28 +107,28 @@ void playerHandler::move() {
 #define DEC_X blockEngine::position_x--;blockEngine::view_x--
 #define INC_Y blockEngine::position_y++;blockEngine::view_y++
 #define DEC_Y blockEngine::position_y--;blockEngine::view_y--
-    for(int i = 0; i < velocity_x * frameLengthMeasurer::frame_length; i++) {
+    for(int i = 0; i < velocity_x * framerateRegulator::frame_length; i++) {
         INC_X;
         if(isPlayerColliding()) {
             DEC_X;
             break;
         }
     }
-    for(int i = 0; i > velocity_x * frameLengthMeasurer::frame_length; i--) {
+    for(int i = 0; i > velocity_x * framerateRegulator::frame_length; i--) {
         DEC_X;
         if(isPlayerColliding()) {
             INC_X;
             break;
         }
     }
-    for(int i = 0; i < velocity_y * frameLengthMeasurer::frame_length; i++) {
+    for(int i = 0; i < velocity_y * framerateRegulator::frame_length; i++) {
         INC_Y;
         if(isPlayerColliding()) {
             DEC_Y;
             break;
         }
     }
-    for(int i = 0; i > velocity_y * frameLengthMeasurer::frame_length; i--) {
+    for(int i = 0; i > velocity_y * framerateRegulator::frame_length; i--) {
         DEC_Y;
         if(isPlayerColliding()) {
             INC_Y;

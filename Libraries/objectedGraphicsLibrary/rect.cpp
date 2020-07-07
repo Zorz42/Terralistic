@@ -33,3 +33,8 @@ SDL_Rect ogl::rect::getRect() {
         height,
     };
 }
+
+bool ogl::rect::touchesPoint(int x, int y) {
+    SDL_Rect temp_rect = getRect();
+    return x > temp_rect.x && y > temp_rect.y && x < temp_rect.x + temp_rect.w && y < temp_rect.y + temp_rect.h;
+}

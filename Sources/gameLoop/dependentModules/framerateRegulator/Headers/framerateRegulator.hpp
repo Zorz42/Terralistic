@@ -8,10 +8,11 @@
 #ifndef frameLengthMeasurer_h
 #define frameLengthMeasurer_h
 
-namespace frameLengthMeasurer {
+namespace framerateRegulator {
 
-void measureFrameLength();
+void regulateFramerate();
 inline int frame_length = 0;
+inline int fps_limit = 0;
 
 }
 

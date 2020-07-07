@@ -8,6 +8,7 @@
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "terrainGenerator.hpp"
+#include "framerateRegulator.hpp"
 
 void terrainGenerator::generatingScreen() {
     bool running = true;
@@ -20,7 +21,7 @@ void terrainGenerator::generatingScreen() {
 #define LOADING_RECT_ELAVATION 50
     
     ogl::texture loading_texture(ogl::centered);
-    loading_texture.setScale(TEXT_SCALE);
+    loading_texture.scale = TEXT_SCALE;
     loading_texture.setY((LOADING_RECT_HEIGHT - LOADING_RECT_ELAVATION) / 2);
     loading_texture.loadFromText("Generating world", SDL_Color{255, 255, 255});
     
@@ -31,6 +32,7 @@ void terrainGenerator::generatingScreen() {
     short width = 0;
     
     while(running && loading_current < loading_total) {
+        framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event))
             swl::handleBasicEvents(event, &running);
         

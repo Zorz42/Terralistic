@@ -13,8 +13,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2_ttf/SDL_ttf.h>
 
-#define main swl_main
-
 int swl_main();
 
 namespace swl {
@@ -42,6 +40,9 @@ void setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a=255);
 void loadFont(std::string path, int size);
 
 bool colliding(SDL_Rect a, SDL_Rect b);
+
+inline int mouse_x, mouse_y;
+
 }
 
 namespace __swl_private {

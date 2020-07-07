@@ -25,7 +25,7 @@ public:
     
 protected:
     short x = 0, y = 0;
-    short width = 0, height = 0;
+    unsigned short width = 0, height = 0;
     
     short getX(short width_);
     short getY(short height_);
@@ -51,15 +51,14 @@ public:
     void loadFromText(std::string text, SDL_Color text_color);
     void loadFromFile(std::string path);
     
-    inline void setScale(short scale_) { scale = scale_; };
+    Uint8 scale = 1;
     
     inline short getWidth() { return width * scale; };
     inline short getHeight() { return height * scale; };
     
-private:
+protected:
     SDL_Texture* texture_ = nullptr;
     void freeTexture();
-    short scale{1};
 };
 
 // rect that gets centered in window
@@ -71,14 +70,13 @@ public:
     inline void setHeight(short height_) { height = height_; }
     
     void setColor(Uint8 r_, Uint8 g_, Uint8 b_);
-    
     void render();
-    
-    bool fill{true};
-    
     SDL_Rect getRect();
+    bool touchesPoint(int x, int y);
     
-private:
+    bool fill = true;
+    
+protected:
     Uint8 r, g, b;
 };
 

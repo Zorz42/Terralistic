@@ -1,20 +1,19 @@
+#include "gameLoop.hpp"
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "terrainGenerator.hpp"
 #include "playerHandler.hpp"
-#include "frameLengthMeasurer.hpp"
-
+#include "framerateRegulator.hpp"
 #include "objectedGraphicsLibrary.hpp"
 
-int main() {
-    swl::loadFont("pixel_font.ttf", 8);
-    
+
+int gameLoop::main() {
     blockEngine::init();
     playerHandler::init();
     terrainGenerator::generateTerrain(0);
     
     ogl::texture fps_text(ogl::absolute);
-    fps_text.setScale(3);
+    fps_text.scale = 3;
     fps_text.setX(10);
     fps_text.setY(10);
     
@@ -24,18 +23,19 @@ int main() {
     unsigned int count = 0, fps_count = 0;
     
     while(running) {
-        while(SDL_PollEvent(&event)) {
-            if(swl::handleBasicEvents(event, &running));
-            else
-                playerHandler::handleMovement(event);
-        }
+        framerateRegulator::regulateFramerate();
         
-        frameLengthMeasurer::measureFrameLength();
         fps_count++;
         if(SDL_GetTicks() / 1000 > count) {
             count++;
             fps_text.loadFromText(std::to_string(fps_count) + " fps", SDL_Color{0, 0, 0});
             fps_count = 0;
+        }
+        
+        while(SDL_PollEvent(&event)) {
+            if(swl::handleBasicEvents(event, &running));
+            else
+                playerHandler::handleMovement(event);
         }
         
         playerHandler::move();
@@ -46,7 +46,6 @@ int main() {
         blockEngine::render_blocks();
         playerHandler::render();
         fps_text.render();
-        
         swl::update();
     }
     
