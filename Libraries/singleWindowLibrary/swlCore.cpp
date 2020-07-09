@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     if(!__swl_private::window)
         swl::popupError("Window could not be created!");
     
-    __swl_private::renderer = SDL_CreateRenderer(__swl_private::window, -1, SDL_RENDERER_ACCELERATED);
+    __swl_private::renderer = SDL_CreateRenderer(__swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if(!__swl_private::renderer)
         swl::popupError("Renderer could not be created!");
     

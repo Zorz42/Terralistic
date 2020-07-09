@@ -9,8 +9,7 @@
 #include "objectedGraphicsLibrary.hpp"
 
 ogl::rect::rect(ogl::objectType type) {
-    centered_x = type == ogl::centered;
-    centered_y = type == ogl::centered;
+    setOrientation(type);
 }
 
 void ogl::rect::setColor(Uint8 r_, Uint8 g_, Uint8 b_) {
@@ -20,18 +19,9 @@ void ogl::rect::setColor(Uint8 r_, Uint8 g_, Uint8 b_) {
 }
 
 void ogl::rect::render() {
-    SDL_Rect render_rect = getRect();
     swl::setDrawColor(r, g, b);
+    SDL_Rect render_rect = getRect();
     swl::render(render_rect, fill);
-}
-
-SDL_Rect ogl::rect::getRect() {
-    return {
-        getX(width),
-        getY(height),
-        width,
-        height,
-    };
 }
 
 bool ogl::rect::touchesPoint(int x, int y) {

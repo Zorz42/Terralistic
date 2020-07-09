@@ -9,8 +9,7 @@
 #include "objectedGraphicsLibrary.hpp"
 
 ogl::texture::texture(ogl::objectType type) {
-    centered_x = type == ogl::centered;
-    centered_y = type == ogl::centered;
+    setOrientation(type);
 }
 
 void ogl::texture::setTexture(SDL_Texture* input_texture) {
@@ -19,12 +18,7 @@ void ogl::texture::setTexture(SDL_Texture* input_texture) {
 }
 
 void ogl::texture::render() {
-    SDL_Rect render_rect = {
-        getX(getWidth()),
-        getY(getHeight()),
-        getWidth(),
-        getHeight(),
-    };
+    SDL_Rect render_rect = getRect();
     swl::render(texture_, render_rect);
 }
 
@@ -50,3 +44,4 @@ void ogl::texture::loadFromFile(std::string path) {
     width = temp_width;
     height = temp_height;
 }
+

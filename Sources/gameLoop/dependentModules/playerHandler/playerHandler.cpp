@@ -10,7 +10,7 @@
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 
-ogl::rect player_rect(ogl::centered);
+ogl::rect player_rect(ogl::center);
 
 void playerHandler::init() {
     player_rect.setWidth(BLOCK_WIDTH * 2 - 5);
@@ -74,7 +74,7 @@ bool playerHandler::handleMovement(SDL_Event& event) {
 
 bool isPlayerColliding() {
 #define COLLISION_PADDING 2
-
+    
     if(blockEngine::position_x < player_rect.getWidth() / 2 || blockEngine::position_y < player_rect.getHeight() / 2 ||
        blockEngine::position_y >= blockEngine::world_height * BLOCK_WIDTH - player_rect.getHeight() / 2 ||
        blockEngine::position_x >= blockEngine::world_width * BLOCK_WIDTH - player_rect.getWidth() / 2)

@@ -12,7 +12,7 @@ int gameLoop::main() {
     playerHandler::init();
     terrainGenerator::generateTerrain(0);
     
-    ogl::texture fps_text(ogl::absolute);
+    ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
     fps_text.setX(10);
     fps_text.setY(10);

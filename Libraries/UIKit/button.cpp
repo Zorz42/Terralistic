@@ -9,8 +9,8 @@
 #include "UIKit.hpp"
 
 ui::button::button(ogl::objectType type) {
-    setCenteredX(type == ogl::centered);
-    setCenteredY(type == ogl::centered);
+    setOrientation(type);
+    text.setOrientation(ogl::top_left);
     setMargin(10);
     setText(" ");
 }
@@ -34,15 +34,11 @@ void ui::button::render() {
     else
         swl::setDrawColor(r, g, b);
     swl::render(render_rect, fill);
-    if(centered_x)
-        text.setX(x);
-    else
-        text.setX(x + margin * text.scale);
     
-    if(centered_y)
-        text.setY(y);
-    else
-        text.setY(y + margin * text.scale);
+    text.setX(getX() + margin * text.scale);
+    
+    text.setY(getY() + margin * text.scale);
+    
     text.render();
 }
 
@@ -68,14 +64,4 @@ void ui::button::setMargin(unsigned short margin_) {
     margin = margin_;
     setWidth(text.getWidth() + 2 * margin * text.scale);
     setHeight(text.getHeight() + 2 * margin * text.scale);
-}
-
-void ui::button::setCenteredX(bool input) {
-    centered_x = input;
-    text.centered_x = input;
-}
-
-void ui::button::setCenteredY(bool input) {
-    centered_y = input;
-    text.centered_y = input;
 }

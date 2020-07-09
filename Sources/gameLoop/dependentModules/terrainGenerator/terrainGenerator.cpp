@@ -28,7 +28,7 @@
 #define Y_PERIOD 1.0 //defines repetition of marble lines in y direction
 //turbPower = 0 ==> it becomes a normal sine pattern
 #define TURB_POWER 5.0 //makes twists
-#define TURB_SIZE 32.0 //initial size of the turbulence
+#define TURB_SIZE 45.0 //initial size of the turbulence
 
 #define CAVE_CONSERVATIVE 4
 #define CAVE_SMOOTH 2
@@ -46,7 +46,6 @@ unsigned int highest_height = CAVE_CAP;
 
 int generateTerrainDaemon(void* seed) {
     unsigned int seed_int = *((unsigned int*)seed);
-    terrainGenerator::loading_total = 6 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
     generateSurface(seed_int);
     generateCaves(seed_int);
     LOADING_NEXT
@@ -56,6 +55,7 @@ int generateTerrainDaemon(void* seed) {
 }
 
 void terrainGenerator::generateTerrain(unsigned int seed) {
+    terrainGenerator::loading_total = 6 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
     SDL_Thread *thread = SDL_CreateThread(generateTerrainDaemon, "terrain generator", (void*)&seed);
     
     generatingScreen();

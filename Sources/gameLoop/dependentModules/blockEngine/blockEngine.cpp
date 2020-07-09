@@ -13,10 +13,14 @@ void blockEngine::init() {
     world_width = 4200;
     world = new block[world_width * world_height];
     
-    block_types.push_back(unique_block("air"));
-    block_types.at(0).texture = nullptr;
-    block_types.push_back(unique_block("dirt"));
-    block_types.at(1).texture = swl::loadTextureFromFile("texturePack/dirt_block.png");
+    std::vector<std::string> block_types_arr = {
+        "air",
+        "dirt",
+        "stone",
+    };
+    
+    for(auto& i : block_types_arr)
+        block_types.push_back(unique_block(i));
     
     position_x = world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     position_y = world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
@@ -101,4 +105,11 @@ void blockEngine::block::update() {
             block_orientation += c;
         c += c;
     }
+}
+
+blockEngine::unique_block::unique_block(std::string name) : name(name) {
+    if(name == "air")
+        texture = nullptr;
+    else
+        texture = swl::loadTextureFromFile("texturePack/" + name + ".png");
 }

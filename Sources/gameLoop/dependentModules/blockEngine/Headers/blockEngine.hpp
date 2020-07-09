@@ -17,7 +17,7 @@
 
 namespace blockEngine {
 
-enum blockType {BLOCK_AIR, BLOCK_DIRT};
+enum blockType {BLOCK_AIR, BLOCK_DIRT, BLOCK_STONE};
 
 struct block {
     block() : block_id(BLOCK_AIR) {}
@@ -37,7 +37,7 @@ struct unique_block {
     std::string name;
     SDL_Texture* texture;
     
-    unique_block(std::string name) : name(name) {}
+    unique_block(std::string name);
 };
 
 void init();
