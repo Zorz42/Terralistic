@@ -18,8 +18,8 @@ public:
     void setX(short x_);
     void setY(short y_);
     
-    inline short getWidth() { return width * scale; };
-    inline short getHeight() { return height * scale; };
+    inline virtual short getWidth() { return width; };
+    inline virtual short getHeight() { return height; };
     
     void setOrientation(Uint8 objectType);
     
@@ -33,7 +33,6 @@ protected:
     short getY();
     
     Uint8 orientation_x, orientation_y;
-    Uint8 scale = 1;
 };
 
 }
@@ -59,7 +58,7 @@ public:
     inline short getWidth() { return width * scale; };
     inline short getHeight() { return height * scale; };
     
-    using __ogl_private::centeredObject::scale;
+    Uint8 scale = 1;
     
 protected:
     SDL_Texture* texture_ = nullptr;
