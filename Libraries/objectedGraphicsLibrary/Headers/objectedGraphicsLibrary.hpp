@@ -48,7 +48,6 @@ public:
     ~texture();
     
     void setTexture(SDL_Texture* input_texture);
-    inline SDL_Texture* getTexture() { return texture_; }
     
     void render();
     
