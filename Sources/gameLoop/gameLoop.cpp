@@ -5,12 +5,13 @@
 #include "playerHandler.hpp"
 #include "framerateRegulator.hpp"
 #include "objectedGraphicsLibrary.hpp"
-
+#include "blockSelector.hpp"
 
 int gameLoop::main() {
     blockEngine::init();
     playerHandler::init();
     terrainGenerator::generateTerrain(0);
+    blockSelector::init();
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
@@ -36,6 +37,7 @@ int gameLoop::main() {
             if(swl::handleBasicEvents(event, &running));
             else
                 playerHandler::handleMovement(event);
+            blockSelector::handleEvent(event);
         }
         
         playerHandler::move();
@@ -45,6 +47,8 @@ int gameLoop::main() {
         
         blockEngine::render_blocks();
         playerHandler::render();
+        blockSelector::render();
+        
         fps_text.render();
         swl::update();
     }

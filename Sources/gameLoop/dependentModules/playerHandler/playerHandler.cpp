@@ -23,25 +23,25 @@ bool playerHandler::handleMovement(SDL_Event& event) {
     static bool key_up = false, key_down = false, key_left = false, key_right = false;
     if(event.type == SDL_KEYDOWN)
         switch (event.key.keysym.sym) {
-            case SDLK_UP:
+            case SDLK_SPACE:
                 if(!key_up) {
                     key_up = true;
                     velocity_y -= 1;
                 }
                 break;
-            case SDLK_DOWN:
+            case SDLK_s:
                 if(!key_down) {
                     key_down = true;
                     velocity_y += 1;
                 }
                 break;
-            case SDLK_LEFT:
+            case SDLK_a:
                 if(!key_left) {
                     key_left = true;
                     velocity_x -= 1;
                 }
                 break;
-            case SDLK_RIGHT:
+            case SDLK_d:
                 if(!key_right) {
                     key_right = true;
                     velocity_x += 1;
@@ -50,19 +50,19 @@ bool playerHandler::handleMovement(SDL_Event& event) {
         }
     else if(event.type == SDL_KEYUP)
         switch (event.key.keysym.sym) {
-            case SDLK_UP:
+            case SDLK_SPACE:
                 key_up = false;
                 velocity_y += 1;
                 break;
-            case SDLK_DOWN:
+            case SDLK_s:
                 key_down = false;
                 velocity_y -= 1;
                 break;
-            case SDLK_LEFT:
+            case SDLK_a:
                 key_left = false;
                 velocity_x += 1;
                 break;
-            case SDLK_RIGHT:
+            case SDLK_d:
                 key_right = false;
                 velocity_x -= 1;
                 break;
