@@ -55,4 +55,3 @@ void blockSelector::handleEvent(SDL_Event& event) {
             blockEngine::getBlock(selectedBlockX + x[i], selectedBlockY + y[i]).update();
     }
 }
-s
