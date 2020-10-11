@@ -14,13 +14,7 @@ int swl_main() {
     swl::loadFont("pixel_font.ttf", 8);
     framerateRegulator::fps_limit = 60;
     
-    int result = startMenu::main();
-    if(result == -1)
-        return 1;
-    if(!result)
+    if(!startMenu::main())
         return 0;
-    result = gameLoop::main();
-    if(result)
-        return result;
-    return 0;
+    return gameLoop::main();
 }

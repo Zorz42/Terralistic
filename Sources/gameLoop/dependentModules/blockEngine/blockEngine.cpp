@@ -108,8 +108,5 @@ void blockEngine::block::update() {
 }
 
 blockEngine::unique_block::unique_block(std::string name) : name(name) {
-    if(name == "air")
-        texture = nullptr;
-    else
-        texture = swl::loadTextureFromFile("texturePack/" + name + ".png");
+    texture = name == "air" ? nullptr : swl::loadTextureFromFile("texturePack/" + name + ".png");
 }
