@@ -16,6 +16,9 @@ void init();
 bool handleMovement(SDL_Event& event);
 void move();
 void render();
+bool isPlayerColliding();
+void doPhysics();
+bool touchingGround();
 
 inline int velocity_x = 0, velocity_y = 0;
 

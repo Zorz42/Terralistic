@@ -6,12 +6,17 @@
 #include "framerateRegulator.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "blockSelector.hpp"
+#include "worldSaver.hpp"
+
 
 int gameLoop::main() {
     blockEngine::init();
     playerHandler::init();
-    terrainGenerator::generateTerrain(0);
     blockSelector::init();
+    //terrainGenerator::generateTerrain(0);
+    //worldSaver::saveToFile("/Users/jakobzorz/Downloads/world.txt")
+    
+    worldSaver::loadWorld("world");
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
@@ -39,7 +44,7 @@ int gameLoop::main() {
                 playerHandler::handleMovement(event);
             blockSelector::handleEvent(event);
         }
-        
+        playerHandler::doPhysics();
         playerHandler::move();
         
         swl::setDrawColor(135, 206, 235);
@@ -52,6 +57,8 @@ int gameLoop::main() {
         fps_text.render();
         swl::update();
     }
+    
+    worldSaver::saveWorld("world");
     
     return 0;
 }

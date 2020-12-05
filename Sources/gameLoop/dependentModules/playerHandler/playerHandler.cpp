@@ -20,51 +20,46 @@ void playerHandler::init() {
 }
 
 bool playerHandler::handleMovement(SDL_Event& event) {
-    static bool key_up = false, key_down = false, key_left = false, key_right = false;
+#define VELOCITY 20
+#define JUMP_VELOCITY 80
+    static bool key_up = false, key_left = false, key_right = false;
     if(event.type == SDL_KEYDOWN)
         switch (event.key.keysym.sym) {
             case SDLK_SPACE:
-                if(!key_up) {
+                if(!key_up && touchingGround()) {
                     key_up = true;
-                    velocity_y -= 1;
-                }
-                break;
-            case SDLK_s:
-                if(!key_down) {
-                    key_down = true;
-                    velocity_y += 1;
+                    velocity_y -= JUMP_VELOCITY;
                 }
                 break;
             case SDLK_a:
                 if(!key_left) {
                     key_left = true;
-                    velocity_x -= 1;
+                    velocity_x -= VELOCITY;
                 }
                 break;
             case SDLK_d:
                 if(!key_right) {
                     key_right = true;
-                    velocity_x += 1;
+                    velocity_x += VELOCITY;
                 }
                 break;
         }
     else if(event.type == SDL_KEYUP)
         switch (event.key.keysym.sym) {
             case SDLK_SPACE:
-                key_up = false;
-                velocity_y += 1;
-                break;
-            case SDLK_s:
-                key_down = false;
-                velocity_y -= 1;
+                if(key_up) {
+                    key_up = false;
+                    if(velocity_y < -10)
+                        velocity_y = -10;
+                }
                 break;
             case SDLK_a:
                 key_left = false;
-                velocity_x += 1;
+                velocity_x += VELOCITY;
                 break;
             case SDLK_d:
                 key_right = false;
-                velocity_x -= 1;
+                velocity_x -= VELOCITY;
                 break;
         }
     else
@@ -72,7 +67,7 @@ bool playerHandler::handleMovement(SDL_Event& event) {
     return true;
 }
 
-bool isPlayerColliding() {
+bool playerHandler::isPlayerColliding() {
 #define COLLISION_PADDING 2
     
     if(blockEngine::position_x < player_rect.getWidth() / 2 || blockEngine::position_y < player_rect.getHeight() / 2 ||
@@ -107,36 +102,37 @@ void playerHandler::move() {
 #define DEC_X blockEngine::position_x--;blockEngine::view_x--
 #define INC_Y blockEngine::position_y++;blockEngine::view_y++
 #define DEC_Y blockEngine::position_y--;blockEngine::view_y--
-    for(int i = 0; i < velocity_x * framerateRegulator::frame_length; i++) {
+    int move_x = velocity_x * framerateRegulator::frame_length / 100, move_y = velocity_y * framerateRegulator::frame_length / 100;
+    for(int i = 0; i < move_x; i++) {
         INC_X;
         if(isPlayerColliding()) {
             DEC_X;
             break;
         }
     }
-    for(int i = 0; i > velocity_x * framerateRegulator::frame_length; i--) {
+    for(int i = 0; i > move_x; i--) {
         DEC_X;
         if(isPlayerColliding()) {
             INC_X;
             break;
         }
     }
-    for(int i = 0; i < velocity_y * framerateRegulator::frame_length; i++) {
+    for(int i = 0; i < move_y; i++) {
         INC_Y;
         if(isPlayerColliding()) {
             DEC_Y;
             break;
         }
     }
-    for(int i = 0; i > velocity_y * framerateRegulator::frame_length; i--) {
+    for(int i = 0; i > move_y; i--) {
         DEC_Y;
         if(isPlayerColliding()) {
             INC_Y;
             break;
         }
     }
-    blockEngine::view_x = blockEngine::position_x;
-    blockEngine::view_y = blockEngine::position_y;
+    //blockEngine::view_x = blockEngine::position_x;
+    //blockEngine::view_y = blockEngine::position_y;
 }
 
 void playerHandler::render() {
