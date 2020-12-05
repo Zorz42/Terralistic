@@ -137,6 +137,8 @@ void playerHandler::move() {
         velocity_y -= JUMP_VELOCITY;
         jump = false;
     }
+    blockEngine::view_x = blockEngine::position_x;
+    blockEngine::view_y = blockEngine::position_y;
 }
 
 void playerHandler::render() {
