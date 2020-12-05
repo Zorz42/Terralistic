@@ -14,6 +14,7 @@
 #include "pauseScreen.hpp"
 #include "blockEngine.hpp"
 #include "worldSaver.hpp"
+#include "worldSelector.hpp"
 
 int swl_main() {
     swl::loadFont("pixel_font.ttf", 8);
@@ -24,6 +25,7 @@ int swl_main() {
     pauseScreen::init();
     blockEngine::init();
     worldSaver::init();
+    worldSelector::init();
     
     startMenu::main();
     return 0;

@@ -1,5 +1,5 @@
 //
-//  main.cpp
+//  startMenu.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 06/07/2020.
@@ -10,6 +10,7 @@
 #include "UIKit.hpp"
 #include "framerateRegulator.hpp"
 #include "gameLoop.hpp"
+#include "worldSelector.hpp"
 
 void startMenu::main() {
     bool running = true;
@@ -36,7 +37,7 @@ void startMenu::main() {
         while(SDL_PollEvent(&event)) {
             if(swl::handleBasicEvents(event, &running));
             else if(play_button.isPressed(event))
-                gameLoop::main();
+                worldSelector::loop();
             else if(exit_button.isPressed(event))
                 running = false;
         }

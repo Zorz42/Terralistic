@@ -1,5 +1,5 @@
 //
-//  core.cpp
+//  swl.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 24/06/2020.

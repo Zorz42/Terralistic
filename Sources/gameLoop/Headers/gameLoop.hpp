@@ -8,9 +8,11 @@
 #ifndef gameLoop_h
 #define gameLoop_h
 
+#include <string>
+
 namespace gameLoop {
 
-int main();
+int main(std::string world_name);
 inline bool running, quit = false;
 
 }

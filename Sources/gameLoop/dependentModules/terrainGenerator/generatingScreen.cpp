@@ -15,7 +15,7 @@ void terrainGenerator::generatingScreen() {
     bool running = true;
     SDL_Event event;
 
-#define TEXT_SCALE 4
+#define TEXT_SCALE 3
     
 #define LOADING_RECT_HEIGHT 20
 #define LOADING_RECT_WIDTH (swl::window_width / 5 * 4)

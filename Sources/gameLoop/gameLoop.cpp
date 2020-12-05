@@ -8,14 +8,18 @@
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
+#include <filesystem>
+#include "fileSystem.hpp"
 
 
-int gameLoop::main() {
+int gameLoop::main(std::string world_name) {
     blockEngine::prepare();
-    //terrainGenerator::generateTerrain(0);
-    //worldSaver::saveToFile("/Users/jakobzorz/Downloads/world.txt")
-    
-    worldSaver::loadWorld("world");
+    if(std::filesystem::exists(fileSystem::worlds_dir + world_name))
+        worldSaver::loadWorld(world_name);
+    else {
+        terrainGenerator::generateTerrain(0);
+        worldSaver::saveWorld(world_name);
+    }
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
@@ -62,7 +66,7 @@ int gameLoop::main() {
         swl::update();
     }
     
-    worldSaver::saveWorld("world");
+    worldSaver::saveWorld(world_name);
     blockEngine::close();
     
     return 0;

@@ -17,9 +17,9 @@ ogl::texture loading_text, saving_text;
 
 void worldSaver::init() {
     loading_text.loadFromText("Loading world", {255, 255, 255});
-    loading_text.scale = 4;
+    loading_text.scale = 3;
     saving_text.loadFromText("Saving world", {255, 255, 255});
-    saving_text.scale = 4;
+    saving_text.scale = 3;
 }
 
 void worldSaver::saveWorld(std::string world_name) {

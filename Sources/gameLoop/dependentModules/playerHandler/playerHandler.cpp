@@ -11,6 +11,7 @@
 #include "objectedGraphicsLibrary.hpp"
 
 ogl::rect player_rect(ogl::center);
+bool key_up = false, jump = false;
 
 void playerHandler::init() {
     player_rect.setWidth(BLOCK_WIDTH * 2 - 5);
@@ -22,13 +23,13 @@ void playerHandler::init() {
 bool playerHandler::handleMovement(SDL_Event& event) {
 #define VELOCITY 20
 #define JUMP_VELOCITY 80
-    static bool key_up = false, key_left = false, key_right = false;
+    static bool key_left = false, key_right = false;
     if(event.type == SDL_KEYDOWN)
         switch (event.key.keysym.sym) {
             case SDLK_SPACE:
-                if(!key_up && touchingGround()) {
+                if(!key_up) {
                     key_up = true;
-                    velocity_y -= JUMP_VELOCITY;
+                    jump = true;
                 }
                 break;
             case SDLK_a:
@@ -49,6 +50,7 @@ bool playerHandler::handleMovement(SDL_Event& event) {
             case SDLK_SPACE:
                 if(key_up) {
                     key_up = false;
+                    jump = false;
                     if(velocity_y < -10)
                         velocity_y = -10;
                 }
@@ -131,8 +133,10 @@ void playerHandler::move() {
             break;
         }
     }
-    //blockEngine::view_x = blockEngine::position_x;
-    //blockEngine::view_y = blockEngine::position_y;
+    if(touchingGround() && jump) {
+        velocity_y -= JUMP_VELOCITY;
+        jump = false;
+    }
 }
 
 void playerHandler::render() {
