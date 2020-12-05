@@ -9,8 +9,9 @@
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
 #include "framerateRegulator.hpp"
+#include "gameLoop.hpp"
 
-int startMenu::main() {
+void startMenu::main() {
     bool running = true;
     SDL_Event event;
     
@@ -30,14 +31,14 @@ int startMenu::main() {
     exit_button.setText("Exit");
     exit_button.setY(exit_button.getHeight() / 2);
     
-    while(running) {
+    while(running && !gameLoop::quit) {
         framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
             if(swl::handleBasicEvents(event, &running));
             else if(play_button.isPressed(event))
-                return 1;
+                gameLoop::main();
             else if(exit_button.isPressed(event))
-                return 0;
+                running = false;
         }
         
         swl::setDrawColor(0, 0, 0);
@@ -48,5 +49,4 @@ int startMenu::main() {
         
         swl::update();
     }
-    return 0;
 }

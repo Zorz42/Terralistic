@@ -41,11 +41,11 @@ void swl::loadFont(std::string path, int size) {
 SDL_Texture* swl::loadTextureFromText(std::string text, SDL_Color text_color, int *w, int *h) {
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(__swl_private::font, text.c_str(), text_color);
     if(!rendered_surface)
-        swl::popupError("Surface with text " + text + " could not be rendered!");
+        swl::popupError("Surface with text \"" + text + "\" could not be rendered!");
     
     SDL_Texture* result = SDL_CreateTextureFromSurface(__swl_private::renderer, rendered_surface);
     if(!result)
-        swl::popupError("Surface with text " + text + " could not be transformed into a texture!");
+        swl::popupError("Surface with text \"" + text + "\" could not be transformed into a texture!");
     
     if(w)
         *w = rendered_surface->w;

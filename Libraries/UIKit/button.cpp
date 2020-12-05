@@ -12,7 +12,6 @@ ui::button::button(ogl::objectType type) {
     setOrientation(type);
     text.setOrientation(ogl::top_left);
     setMargin(10);
-    setText(" ");
 }
 
 void ui::button::setHoverColor(Uint8 r, Uint8 g, Uint8 b) {

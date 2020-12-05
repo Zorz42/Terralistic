@@ -9,7 +9,10 @@
 #define gameLoop_h
 
 namespace gameLoop {
+
 int main();
+inline bool running, quit = false;
+
 }
 
 #endif /* gameLoop_h */

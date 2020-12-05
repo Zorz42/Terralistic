@@ -7,12 +7,10 @@
 #include "objectedGraphicsLibrary.hpp"
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
+#include "pauseScreen.hpp"
 
 
 int gameLoop::main() {
-    blockEngine::init();
-    playerHandler::init();
-    blockSelector::init();
     //terrainGenerator::generateTerrain(0);
     //worldSaver::saveToFile("/Users/jakobzorz/Downloads/world.txt")
     
@@ -23,7 +21,7 @@ int gameLoop::main() {
     fps_text.setX(10);
     fps_text.setY(10);
     
-    bool running = true;
+    running = true;
     SDL_Event event;
     
     unsigned int count = 0, fps_count = 0;
@@ -39,7 +37,9 @@ int gameLoop::main() {
         }
         
         while(SDL_PollEvent(&event)) {
-            if(swl::handleBasicEvents(event, &running));
+            if(swl::handleBasicEvents(event, &running) && !running)
+                quit = true;
+            else if(pauseScreen::handleEvents(event));
             else
                 playerHandler::handleMovement(event);
             blockSelector::handleEvent(event);
@@ -52,9 +52,12 @@ int gameLoop::main() {
         
         blockEngine::render_blocks();
         playerHandler::render();
-        blockSelector::render();
-        
-        fps_text.render();
+        if(pauseScreen::paused)
+            pauseScreen::render();
+        else {
+            blockSelector::render();
+            fps_text.render();
+        }
         swl::update();
     }
     

@@ -9,7 +9,7 @@
 #define startMenu_h
 
 namespace startMenu {
-int main();
+void main();
 }
 
 #endif /* startMenu_h */

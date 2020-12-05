@@ -10,13 +10,20 @@
 #include "startMenu.hpp"
 #include "framerateRegulator.hpp"
 #include "fileSystem.hpp"
+#include "blockEngine.hpp"
+#include "playerHandler.hpp"
+#include "blockSelector.hpp"
+#include "pauseScreen.hpp"
 
 int swl_main() {
     swl::loadFont("pixel_font.ttf", 8);
     framerateRegulator::fps_limit = 60;
     fileSystem::setDataPath();
+    blockEngine::init();
+    playerHandler::init();
+    blockSelector::init();
+    pauseScreen::init();
     
-    if(!startMenu::main())
-        return 0;
-    return gameLoop::main();
+    startMenu::main();
+    return 0;
 }
