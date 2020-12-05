@@ -10,7 +10,7 @@
 
 #include <SDL2/SDL.h>
 
-#include <iostream>
+#include <string>
 #include <vector>
 
 #define BLOCK_WIDTH 16
@@ -41,6 +41,8 @@ struct unique_block {
 };
 
 void init();
+void prepare();
+void close();
 
 void render_blocks();
 

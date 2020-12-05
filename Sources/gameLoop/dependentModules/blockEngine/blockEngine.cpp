@@ -9,10 +9,6 @@
 #include "blockEngine.hpp"
 
 void blockEngine::init() {
-    world_height = 1200;
-    world_width = 4200;
-    world = new block[world_width * world_height];
-    
     std::vector<std::string> block_types_arr = {
         "air",
         "dirt",
@@ -21,11 +17,21 @@ void blockEngine::init() {
     
     for(auto& i : block_types_arr)
         block_types.push_back(unique_block(i));
+}
+
+void blockEngine::prepare() {
+    world_height = 1200;
+    world_width = 4200;
+    world = new block[world_width * world_height];
     
     position_x = world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     position_y = world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     view_x = position_x;
     view_y = position_y;
+}
+
+void blockEngine::close() {
+    delete[] world;
 }
 
 void blockEngine::render_blocks() {

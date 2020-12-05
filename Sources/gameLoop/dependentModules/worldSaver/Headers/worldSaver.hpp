@@ -11,7 +11,8 @@
 #include <string>
 
 namespace worldSaver {
-    
+
+void init();
 void saveWorld(std::string world_name);
 void loadWorld(std::string world_name);
 

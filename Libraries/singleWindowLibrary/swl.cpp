@@ -18,7 +18,7 @@ void swl::quit() {
 
 int main(int argc, char** argv) {
     swl::window_width = 1000;
-    swl::window_height = 500;
+    swl::window_height = 600;
     
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         swl::popupError("SDL could not initialize properly!");

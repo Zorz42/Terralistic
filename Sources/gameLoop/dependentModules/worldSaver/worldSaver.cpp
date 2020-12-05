@@ -10,8 +10,24 @@
 #include "fileSystem.hpp"
 #include <fileSystem>
 #include <fstream>
+#include "objectedGraphicsLibrary.hpp"
+#include "singleWindowLibrary.hpp"
+
+ogl::texture loading_text, saving_text;
+
+void worldSaver::init() {
+    loading_text.loadFromText("Loading world", {255, 255, 255});
+    loading_text.scale = 4;
+    saving_text.loadFromText("Saving world", {255, 255, 255});
+    saving_text.scale = 4;
+}
 
 void worldSaver::saveWorld(std::string world_name) {
+    swl::setDrawColor(0, 0, 0);
+    swl::clear();
+    saving_text.render();
+    swl::update();
+    
     std::string path = fileSystem::worlds_dir + world_name + "/";
     if(!std::filesystem::exists(path))
         std::filesystem::create_directory(path);
@@ -22,6 +38,10 @@ void worldSaver::saveWorld(std::string world_name) {
 }
 
 void worldSaver::loadWorld(std::string world_name) {
+    swl::setDrawColor(0, 0, 0);
+    swl::clear();
+    loading_text.render();
+    swl::update();
     std::string path = fileSystem::worlds_dir + world_name + "/";
     
     std::ifstream world_file(path + "blockdata");

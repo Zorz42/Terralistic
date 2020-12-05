@@ -9,8 +9,6 @@
 #define core_hpp
 
 #include <iostream>
-
-#include <SDL2/SDL.h>
 #include <SDL2_ttf/SDL_ttf.h>
 
 int swl_main();

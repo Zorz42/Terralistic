@@ -6,10 +6,7 @@
 //
 
 #include "pauseScreen.hpp"
-#include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
-#include "framerateRegulator.hpp"
-#include "playerHandler.hpp"
 #include "gameLoop.hpp"
 
 ui::button resume_button(ogl::objectType::top_left), quit_button(ogl::objectType::top_left);

@@ -11,6 +11,7 @@
 
 
 int gameLoop::main() {
+    blockEngine::prepare();
     //terrainGenerator::generateTerrain(0);
     //worldSaver::saveToFile("/Users/jakobzorz/Downloads/world.txt")
     
@@ -62,6 +63,7 @@ int gameLoop::main() {
     }
     
     worldSaver::saveWorld("world");
+    blockEngine::close();
     
     return 0;
 }
