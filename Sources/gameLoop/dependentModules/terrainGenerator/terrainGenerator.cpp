@@ -56,6 +56,7 @@ int generateTerrainDaemon(void* seed) {
 
 void terrainGenerator::generateTerrain(unsigned int seed) {
     terrainGenerator::loading_total = 6 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
+    terrainGenerator::loading_current = 0;
     SDL_Thread *thread = SDL_CreateThread(generateTerrainDaemon, "terrain generator", (void*)&seed);
     
     generatingScreen();

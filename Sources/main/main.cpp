@@ -15,6 +15,7 @@
 #include "blockEngine.hpp"
 #include "worldSaver.hpp"
 #include "worldSelector.hpp"
+#include "worldCreator.hpp"
 
 int swl_main() {
     swl::loadFont("pixel_font.ttf", 8);
@@ -26,6 +27,7 @@ int swl_main() {
     blockEngine::init();
     worldSaver::init();
     worldSelector::init();
+    worldCreator::init();
     
     startMenu::main();
     return 0;

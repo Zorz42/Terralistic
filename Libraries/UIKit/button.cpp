@@ -26,9 +26,9 @@ void ui::button::setTextColor(Uint8 r, Uint8 g, Uint8 b) {
     text_b = b;
 }
 
-void ui::button::render() {
+void ui::button::render(bool display_hover) {
     SDL_Rect render_rect = getRect();
-    if(hovered())
+    if(hovered() && display_hover)
         swl::setDrawColor(hover_r, hover_g, hover_b);
     else
         swl::setDrawColor(r, g, b);

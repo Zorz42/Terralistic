@@ -20,7 +20,7 @@ public:
     using ogl::rect::setColor;
     
     void setText(std::string text_);
-    void render();
+    void render(bool display_hover=true);
     bool hovered();
     void setScale(Uint8 scale);
     bool isPressed(SDL_Event& event);
@@ -31,7 +31,6 @@ public:
     
     using ogl::rect::getWidth;
     using ogl::rect::getHeight;
-    
 protected:
     Uint8 hover_r, hover_g, hover_b;
     Uint8 text_r, text_g, text_b;
