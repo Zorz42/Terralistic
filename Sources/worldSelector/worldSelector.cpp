@@ -16,10 +16,6 @@
 #include "fileSystem.hpp"
 #include "worldCreator.hpp"
 
-ogl::texture title(ogl::objectType::top);
-ui::button back_button(ogl::objectType::bottom), new_button(ogl::objectType::bottom_right);
-ogl::rect top_rect(ogl::objectType::top), bottom_rect(ogl::objectType::bottom);
-int position;
 
 struct world_to_select {
     std::string name;
@@ -29,6 +25,14 @@ struct world_to_select {
     int button_y;
 };
 
+ogl::texture title(ogl::objectType::top);
+ui::button back_button(ogl::objectType::bottom), new_button(ogl::objectType::bottom_right);
+ogl::rect top_rect(ogl::objectType::top), bottom_rect(ogl::objectType::bottom), top_line_rect(ogl::objectType::top), bottom_line_rect(ogl::objectType::bottom);
+int position;
+std::vector<std::string> worlds_names;
+std::vector<world_to_select> worlds;
+int scroll_limit;
+
 void world_to_select::render(bool display_hover) {
     button.setY(button_y - position);
     button.render(display_hover);
@@ -36,7 +40,8 @@ void world_to_select::render(bool display_hover) {
 
 #define PADDING 20
 #define TOP_HEIGHT 70
-#define BOTTOM_HEIGHT 130
+#define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
+#define LINE_HEIGHT 2
 
 void worldSelector::init() {
     title.scale = 3;
@@ -63,16 +68,23 @@ void worldSelector::init() {
     
     bottom_rect.setHeight(BOTTOM_HEIGHT);
     bottom_rect.setColor(0, 0, 0);
+    
+    top_line_rect.setColor(100, 100, 100);
+    top_line_rect.setHeight(LINE_HEIGHT);
+    top_line_rect.setY(TOP_HEIGHT);
+    
+    bottom_line_rect.setColor(100, 100, 100);
+    bottom_line_rect.setHeight(LINE_HEIGHT);
+    bottom_line_rect.setY(-BOTTOM_HEIGHT);
 }
 
-void worldSelector::loop() {
-    bool running = true, display_hover = true;
-    SDL_Event event;
+void reload() {
     position = 0;
-    int scroll_limit = 0;
+    scroll_limit = 0;
     
-    std::vector<std::string> worlds_names;
-    std::vector<world_to_select> worlds;
+    worlds.clear();
+    worlds_names.clear();
+    
     for(const auto& world : std::filesystem::directory_iterator(fileSystem::worlds_dir))
         if(world.path().filename().string() != ".DS_Store")
             worlds.push_back(world.path().filename().string());
@@ -89,6 +101,13 @@ void worldSelector::loop() {
         
         worlds_names.push_back(world.name);
     }
+}
+
+void worldSelector::loop() {
+    bool running = true, display_hover = true;
+    SDL_Event event;
+    
+    reload();
     
     while(running && !gameLoop::quit) {
         framerateRegulator::regulateFramerate();
@@ -97,20 +116,23 @@ void worldSelector::loop() {
                 gameLoop::quit = true;
             else if(back_button.isPressed(event))
                 running = false;
-            else if(new_button.isPressed(event))
+            else if(new_button.isPressed(event)) {
                 worldCreator::loop(worlds_names);
+                reload();
+            }
             else if(event.type == SDL_MOUSEWHEEL) {
                 position -= event.wheel.y * 4;
                 if(position < 0)
                     position = 0;
                 int scroll_limit_ = scroll_limit - swl::window_height + TOP_HEIGHT + BOTTOM_HEIGHT;
-                if(position > scroll_limit_ && scroll_limit_ > 0)
-                    position = scroll_limit_;
+                if(position > scroll_limit_)
+                    position = scroll_limit_ > 0 ? scroll_limit_ : 0;
             }
             else
                 for(world_to_select& world : worlds)
                     if(world.button.isPressed(event)) {
                         gameLoop::main(world.name);
+                        reload();
                         break;
                     }
         }
@@ -119,6 +141,8 @@ void worldSelector::loop() {
         
         top_rect.setWidth(swl::window_width);
         bottom_rect.setWidth(swl::window_width);
+        top_line_rect.setWidth(swl::window_width);
+        bottom_line_rect.setWidth(swl::window_width);
         
         swl::setDrawColor(0, 0, 0);
         swl::clear();
@@ -131,6 +155,8 @@ void worldSelector::loop() {
         title.render();
         back_button.render();
         new_button.render();
+        top_line_rect.render();
+        bottom_line_rect.render();
         
         swl::update();
     }

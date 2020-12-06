@@ -64,7 +64,7 @@ void worldCreator::loop(std::vector<std::string> worlds) {
     renderText();
     
     while(running && !gameLoop::quit) {
-        can_create = !name.empty();
+        can_create = !name.empty() && !std::count(worlds.begin(), worlds.end(), name);
         
         framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {

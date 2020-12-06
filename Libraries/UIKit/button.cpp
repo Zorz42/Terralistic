@@ -35,7 +35,6 @@ void ui::button::render(bool display_hover) {
     swl::render(render_rect, fill);
     
     text.setX(getX() + margin * text.scale);
-    
     text.setY(getY() + margin * text.scale);
     
     text.render();
