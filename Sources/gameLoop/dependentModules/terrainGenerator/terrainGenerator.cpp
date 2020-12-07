@@ -105,7 +105,7 @@ void generateSurface(unsigned int seed) {
     blockEngine::getBlock(0, 0) = blockEngine::BLOCK_DIRT;
 }
 
-double turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, unsigned int highest_height, PerlinNoise noise) {
+double terrainGenerator::turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, unsigned int highest_height, PerlinNoise noise) {
     double value = 0.0, initial_size = size;
     while(size >= 1) {
         value += noise.noise(x / size, y / size, 0.8) * size;
@@ -150,7 +150,7 @@ void generateStone(unsigned int seed) {
     PerlinNoise noise(seed);
     for(unsigned int y = blockEngine::world_height - highest_height; y < blockEngine::world_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
-            if(blockEngine::getBlock(x, y).block_id && turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, highest_height, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
+            if(blockEngine::getBlock(x, y).block_id && terrainGenerator::turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, highest_height, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
                 blockEngine::getBlock(x, y).block_id = blockEngine::blockType::BLOCK_STONE;
     LOADING_NEXT
 }
