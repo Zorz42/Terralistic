@@ -22,9 +22,9 @@ void quit();
 
 void popupError(std::string message);
 
-void render(SDL_Texture* texture, SDL_Rect destination_rectangle, SDL_Rect source_rectangle);
-void render(SDL_Texture* texture, SDL_Rect destination_rectangle);
-void render(SDL_Texture* texture);
+void render(SDL_Texture* texture, SDL_Rect destination_rectangle, SDL_Rect source_rectangle, bool flipped=false);
+void render(SDL_Texture* texture, SDL_Rect destination_rectangle, bool flipped=false);
+void render(SDL_Texture* texture, bool flipped=false);
 void render(SDL_Rect& rect, bool fill=true);
 
 SDL_Texture* loadTextureFromFile(std::string path, int* w=nullptr, int* h=nullptr);

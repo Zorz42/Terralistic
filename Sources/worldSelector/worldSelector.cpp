@@ -20,14 +20,14 @@
 struct world_to_select {
     std::string name;
     world_to_select(std::string name) : name(name) {}
-    ui::button button{(ogl::objectType::top)};
+    ui::button button{(ogl::top)};
     void render(bool display_hover);
     int button_y;
 };
 
-ogl::texture title(ogl::objectType::top);
-ui::button back_button(ogl::objectType::bottom), new_button(ogl::objectType::bottom_right);
-ogl::rect top_rect(ogl::objectType::top), bottom_rect(ogl::objectType::bottom), top_line_rect(ogl::objectType::top), bottom_line_rect(ogl::objectType::bottom);
+ogl::texture title(ogl::top);
+ui::button back_button(ogl::bottom), new_button(ogl::bottom_right);
+ogl::rect top_rect(ogl::top), bottom_rect(ogl::bottom), top_line_rect(ogl::top), bottom_line_rect(ogl::bottom);
 int position;
 std::vector<std::string> worlds_names;
 std::vector<world_to_select> worlds;

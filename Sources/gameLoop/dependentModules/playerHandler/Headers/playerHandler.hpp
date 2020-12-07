@@ -21,7 +21,7 @@ void doPhysics();
 bool touchingGround();
 
 inline int velocity_x = 0, velocity_y = 0;
-inline ogl::rect player_rect(ogl::center);
+inline ogl::texture player(ogl::center);
 
 }
 

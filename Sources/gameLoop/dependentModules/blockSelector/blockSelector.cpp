@@ -47,7 +47,7 @@ void blockSelector::handleEvent(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
         if(event.button.button == SDL_BUTTON_LEFT)
             blockEngine::getBlock(selectedBlockX, selectedBlockY) = blockEngine::AIR;
-        else if(event.button.button == SDL_BUTTON_RIGHT && blockEngine::getBlock(selectedBlockX, selectedBlockY).block_id == blockEngine::AIR && !swl::colliding(playerHandler::player_rect.getRect(), selectRect.getRect()))
+        else if(event.button.button == SDL_BUTTON_RIGHT && blockEngine::getBlock(selectedBlockX, selectedBlockY).block_id == blockEngine::AIR && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()))
             blockEngine::getBlock(selectedBlockX, selectedBlockY) = blockEngine::GRASS_BLOCK;
         char x[] = {0, 0, 0, -1, 1};
         char y[] = {0, -1, 1, 0, 0};

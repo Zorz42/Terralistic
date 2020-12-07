@@ -13,8 +13,8 @@
 #include "worldSelector.hpp"
 #include "gameLoop.hpp"
 
-ui::button back_button_creator(ogl::objectType::bottom), create_button(ogl::objectType::bottom);
-ogl::texture new_world_title(ogl::objectType::top), world_name, faded_create(ogl::objectType::bottom);
+ui::button back_button_creator(ogl::bottom), create_button(ogl::bottom);
+ogl::texture new_world_title(ogl::top), world_name, faded_create(ogl::bottom);
 std::string name;
 
 #define PADDING 20

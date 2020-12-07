@@ -19,7 +19,7 @@ void ogl::texture::setTexture(SDL_Texture* input_texture) {
 
 void ogl::texture::render() {
     SDL_Rect render_rect = getRect();
-    swl::render(texture_, render_rect);
+    swl::render(texture_, render_rect, flipped);
 }
 
 void ogl::texture::freeTexture() {
@@ -44,4 +44,3 @@ void ogl::texture::loadFromFile(std::string path) {
     width = temp_width;
     height = temp_height;
 }
-

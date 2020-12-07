@@ -12,9 +12,7 @@ void framerateRegulator::regulateFramerate() {
     static int a = 0, b = 0;
     a = SDL_GetTicks();
     frame_length = a - b;
-    do {
-        a = SDL_GetTicks();
-        frame_length = a - b;
-    } while (frame_length <= 1000/60.0);
+    if(frame_length < 16)
+        SDL_Delay(16 - frame_length);
     b = a;
 }

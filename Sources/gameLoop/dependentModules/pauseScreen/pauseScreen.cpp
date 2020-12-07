@@ -9,7 +9,7 @@
 #include "UIKit.hpp"
 #include "gameLoop.hpp"
 
-ui::button resume_button(ogl::objectType::top_left), quit_button(ogl::objectType::top_left);
+ui::button resume_button(ogl::top_left), quit_button(ogl::top_left);
 
 #define PADDING 20
 

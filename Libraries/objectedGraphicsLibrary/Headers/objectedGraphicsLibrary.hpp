@@ -57,6 +57,8 @@ public:
     inline short getWidth() { return width * scale; };
     inline short getHeight() { return height * scale; };
     
+    bool flipped{false};
+    
     Uint8 scale = 1;
     
 protected:
