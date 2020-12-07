@@ -64,7 +64,7 @@ void caveGenerator::generateMap(double cave_start, double cave_length, int cave_
     // generate perlin noise caves into a cellular map
     for(unsigned int y = cave_cap; y < highest_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
-            getElement(x, y - cave_cap) = turbulence(x, y - cave_cap, turb_size, x_period, y_period, turb_power, highest_height) > cave_start + (cave_length - (double)y / highest_height * cave_length);
+            getElement(x, y - cave_cap) = caveGenerator::turbulence(x, y - cave_cap, turb_size, x_period, y_period, turb_power, highest_height) > cave_start + cave_length - (double)y / highest_height * cave_length;
 }
 
 double caveGenerator::turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, unsigned int highest_height) {

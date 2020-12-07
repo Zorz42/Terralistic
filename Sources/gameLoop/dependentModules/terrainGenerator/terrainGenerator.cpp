@@ -22,6 +22,9 @@
 #define CAVE_LENGTH 0.3
 #define CAVE_CAP 30
 
+#define STONE_START 0.7
+#define STONE_LENGTH 1
+
 //xPeriod and yPeriod together define the angle of the lines
 //xPeriod and yPeriod both 0 ==> it becomes a normal clouds or turbulence pattern
 #define X_PERIOD 0.0 //defines repetition of marble lines in x direction
@@ -37,6 +40,7 @@ void stackBlocks(unsigned int x, unsigned int height);
 
 void generateSurface(unsigned int seed);
 void generateCaves(unsigned int seed);
+void generateStone(unsigned int seed);
 
 void generateNoise();
 
@@ -48,6 +52,7 @@ int generateTerrainDaemon(void* seed) {
     unsigned int seed_int = *((unsigned int*)seed);
     generateSurface(seed_int);
     generateCaves(seed_int);
+    generateStone(seed_int);
     LOADING_NEXT
     for(unsigned long i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
         blockEngine::world[i].update();
@@ -55,7 +60,7 @@ int generateTerrainDaemon(void* seed) {
 }
 
 void terrainGenerator::generateTerrain(unsigned int seed) {
-    terrainGenerator::loading_total = 6 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
+    terrainGenerator::loading_total = 7 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
     terrainGenerator::loading_current = 0;
     SDL_Thread *thread = SDL_CreateThread(generateTerrainDaemon, "terrain generator", (void*)&seed);
     
@@ -100,6 +105,17 @@ void generateSurface(unsigned int seed) {
     blockEngine::getBlock(0, 0) = blockEngine::BLOCK_DIRT;
 }
 
+double turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, unsigned int highest_height, PerlinNoise noise) {
+    double value = 0.0, initial_size = size;
+    while(size >= 1) {
+        value += noise.noise(x / size, y / size, 0.8) * size;
+        size /= 2.0;
+    }
+    
+    double xy_value = x * x_period / blockEngine::world_width + y * y_period / highest_height + turb_power * (value / initial_size) / 2.0;
+    return fabs(sin(xy_value * 3.14159));
+}
+
 void generateCaves(unsigned int seed) {
     caveGenerator main_cm(blockEngine::world_width, highest_height - CAVE_CAP, seed);
     
@@ -126,5 +142,15 @@ void generateCaves(unsigned int seed) {
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(main_cm.getElement(x, y - CAVE_CAP))
                 blockEngine::getBlock(x, y + (blockEngine::world_height - highest_height)).block_id = blockEngine::BLOCK_AIR;
+    LOADING_NEXT
+}
+
+
+void generateStone(unsigned int seed) {
+    PerlinNoise noise(seed);
+    for(unsigned int y = blockEngine::world_height - highest_height; y < blockEngine::world_height; y++)
+        for(unsigned int x = 0; x < blockEngine::world_width; x++)
+            if(blockEngine::getBlock(x, y).block_id && turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, highest_height, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
+                blockEngine::getBlock(x, y).block_id = blockEngine::blockType::BLOCK_STONE;
     LOADING_NEXT
 }
