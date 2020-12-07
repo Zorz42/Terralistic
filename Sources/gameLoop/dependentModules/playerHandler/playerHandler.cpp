@@ -134,7 +134,7 @@ void playerHandler::move() {
         }
     }
     if(touchingGround() && jump) {
-        velocity_y -= JUMP_VELOCITY;
+        velocity_y = -JUMP_VELOCITY;
         jump = false;
     }
     blockEngine::view_x = blockEngine::position_x;
