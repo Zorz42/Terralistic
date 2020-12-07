@@ -48,7 +48,7 @@ void worldSaver::loadWorld(std::string world_name) {
     for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++) {
         char c;
         world_file >> std::noskipws >> c;
-        blockEngine::world[i].block_id = (unsigned short) c;
+        blockEngine::world[i].block_id = (blockEngine::blockType) c;
     }
     for(unsigned long i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
         blockEngine::world[i].update();

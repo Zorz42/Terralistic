@@ -13,10 +13,20 @@ void blockEngine::init() {
         "air",
         "dirt",
         "stone",
+        "grass_block",
     };
     
     for(auto& i : block_types_arr)
         block_types.push_back(unique_block(i));
+    
+    std::vector<std::pair<blockType, blockType>> connections = {
+        {blockType::GRASS_BLOCK, blockType::DIRT},
+    };
+    
+    for(std::pair<blockType, blockType> i : connections) {
+        block_types.at(i.first).connects_to.push_back(i.second);
+        block_types.at(i.second).connects_to.push_back(i.first);
+    }
 }
 
 void blockEngine::prepare() {
@@ -107,7 +117,7 @@ void blockEngine::block::update() {
             block_orientation += c;
             continue;
         }
-        if(getBlock(getX() + x[i], getY() + y[i]).block_id == block_id)
+        if(getBlock(getX() + x[i], getY() + y[i]).block_id == block_id || std::count(block_types.at(block_id).connects_to.begin(), block_types.at(block_id).connects_to.end(), getBlock(getX() + x[i], getY() + y[i]).block_id))
             block_orientation += c;
         c += c;
     }

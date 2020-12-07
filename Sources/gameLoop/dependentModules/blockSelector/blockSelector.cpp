@@ -8,7 +8,7 @@
 #include "blockSelector.hpp"
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
-#include "objectedGraphicsLibrary.hpp"
+#include "playerHandler.hpp"
 
 ogl::rect selectRect(ogl::top_left);
 
@@ -46,9 +46,9 @@ void blockSelector::render() {
 void blockSelector::handleEvent(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
         if(event.button.button == SDL_BUTTON_LEFT)
-            blockEngine::getBlock(selectedBlockX, selectedBlockY) = blockEngine::BLOCK_AIR;
-        else if(event.button.button == SDL_BUTTON_RIGHT && blockEngine::getBlock(selectedBlockX, selectedBlockY).block_id == blockEngine::BLOCK_AIR)
-            blockEngine::getBlock(selectedBlockX, selectedBlockY) = blockEngine::BLOCK_STONE;
+            blockEngine::getBlock(selectedBlockX, selectedBlockY) = blockEngine::AIR;
+        else if(event.button.button == SDL_BUTTON_RIGHT && blockEngine::getBlock(selectedBlockX, selectedBlockY).block_id == blockEngine::AIR && !swl::colliding(playerHandler::player_rect.getRect(), selectRect.getRect()))
+            blockEngine::getBlock(selectedBlockX, selectedBlockY) = blockEngine::GRASS_BLOCK;
         char x[] = {0, 0, 0, -1, 1};
         char y[] = {0, -1, 1, 0, 0};
         for(char i = 0; i < 5; i++)

@@ -17,11 +17,11 @@
 
 namespace blockEngine {
 
-enum blockType {BLOCK_AIR, BLOCK_DIRT, BLOCK_STONE};
+enum blockType {AIR, DIRT, STONE, GRASS_BLOCK};
 
 struct block {
-    block() : block_id(BLOCK_AIR) {}
-    block(unsigned short block_id) : block_id(block_id) {}
+    block() : block_id(AIR) {}
+    block(blockType block_id) : block_id(block_id) {}
     
     void draw();
     SDL_Rect getRect();
@@ -29,13 +29,14 @@ struct block {
     unsigned int getY();
     void update();
     
-    unsigned short block_id;
+    blockType block_id;
     Uint8 block_orientation;
 };
 
 struct unique_block {
     std::string name;
     SDL_Texture* texture;
+    std::vector<blockType> connects_to;
     
     unique_block(std::string name);
 };

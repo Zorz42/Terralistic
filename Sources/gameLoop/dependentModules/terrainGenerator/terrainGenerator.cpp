@@ -36,7 +36,7 @@
 #define CAVE_CONSERVATIVE 4
 #define CAVE_SMOOTH 2
 
-void stackBlocks(unsigned int x, unsigned int height);
+void stackDirt(unsigned int x, unsigned int height);
 
 void generateSurface(unsigned int seed);
 void generateCaves(unsigned int seed);
@@ -72,9 +72,10 @@ void terrainGenerator::generateTerrain(unsigned int seed) {
         swl::popupError("Loading total is " + std::to_string(loading_total) + ", but loading current got to " + std::to_string(loading_current));
 }
 
-void stackBlocks(unsigned int x, unsigned int height) {
-    for(unsigned int y = blockEngine::world_height - 1; y > blockEngine::world_height - height; y--)
-        blockEngine::getBlock(x, y).block_id = blockEngine::BLOCK_DIRT;
+void stackDirt(unsigned int x, unsigned int height) {
+    for(unsigned int y = blockEngine::world_height - 1; y > blockEngine::world_height - height - 1; y--)
+        blockEngine::getBlock(x, y).block_id = blockEngine::DIRT;
+    blockEngine::getBlock(x, blockEngine::world_height - height - 1).block_id = blockEngine::GRASS_BLOCK;
 }
 
 void generateSurface(unsigned int seed) {
@@ -93,16 +94,13 @@ void generateSurface(unsigned int seed) {
             highest_height = height;
     }
     LOADING_NEXT
-    /*// make terrain softer
-    for(unsigned int x = 1; x < block_engine::world_width - 1; x++)
-        heights[x] = (heights[x-1] + heights[x+1]) / 2;*/
     
     // apply terrain to world
     for(unsigned int x = 0; x < blockEngine::world_width; x++)
-        stackBlocks(x, heights[x]);
+        stackDirt(x, heights[x]);
     LOADING_NEXT
     
-    blockEngine::getBlock(0, 0) = blockEngine::BLOCK_DIRT;
+    blockEngine::getBlock(0, 0) = blockEngine::DIRT;
 }
 
 double terrainGenerator::turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, unsigned int highest_height, PerlinNoise noise) {
@@ -141,7 +139,7 @@ void generateCaves(unsigned int seed) {
     for(unsigned int y = CAVE_CAP; y < highest_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(main_cm.getElement(x, y - CAVE_CAP))
-                blockEngine::getBlock(x, y + (blockEngine::world_height - highest_height)).block_id = blockEngine::BLOCK_AIR;
+                blockEngine::getBlock(x, y + (blockEngine::world_height - highest_height)).block_id = blockEngine::AIR;
     LOADING_NEXT
 }
 
@@ -151,6 +149,6 @@ void generateStone(unsigned int seed) {
     for(unsigned int y = blockEngine::world_height - highest_height; y < blockEngine::world_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(blockEngine::getBlock(x, y).block_id && terrainGenerator::turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, highest_height, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
-                blockEngine::getBlock(x, y).block_id = blockEngine::blockType::BLOCK_STONE;
+                blockEngine::getBlock(x, y).block_id = blockEngine::blockType::STONE;
     LOADING_NEXT
 }

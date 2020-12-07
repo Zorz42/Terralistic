@@ -8,7 +8,7 @@
 #ifndef movementHandler_h
 #define movementHandler_h
 
-#include "SDL2/SDL.h"
+#include "objectedGraphicsLibrary.hpp"
 
 namespace playerHandler {
 
@@ -21,6 +21,7 @@ void doPhysics();
 bool touchingGround();
 
 inline int velocity_x = 0, velocity_y = 0;
+inline ogl::rect player_rect(ogl::center);
 
 }
 

@@ -10,7 +10,6 @@
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 
-ogl::rect player_rect(ogl::center);
 bool key_up = false, jump = false;
 
 void playerHandler::init() {
@@ -94,7 +93,7 @@ bool playerHandler::isPlayerColliding() {
     
     for(int x = begin_x; x < end_x; x++)
         for(int y = begin_y; y < end_y; y++)
-            if(swl::colliding(blockEngine::getBlock(x, y).getRect(), player_rect.getRect()) && blockEngine::getBlock(x, y).block_id != blockEngine::BLOCK_AIR)
+            if(swl::colliding(blockEngine::getBlock(x, y).getRect(), player_rect.getRect()) && blockEngine::getBlock(x, y).block_id != blockEngine::AIR)
                 return true;
     return false;
 }
