@@ -1,6 +1,7 @@
 #include "perlinNoise.hpp"
 //#include <cmath>
 #include <random>
+#include <algorithm>
 //#include <algorithm>
 //#include <numeric>
 

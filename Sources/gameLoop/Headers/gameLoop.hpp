@@ -10,6 +10,8 @@
 
 #include <string>
 
+#undef main
+
 namespace gameLoop {
 
 int main(std::string world_name);

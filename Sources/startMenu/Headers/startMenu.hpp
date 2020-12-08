@@ -8,6 +8,8 @@
 #ifndef startMenu_h
 #define startMenu_h
 
+#undef main
+
 namespace startMenu {
 void main();
 }

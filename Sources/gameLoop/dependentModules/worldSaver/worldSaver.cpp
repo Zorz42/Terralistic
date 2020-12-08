@@ -8,7 +8,6 @@
 #include "worldSaver.hpp"
 #include "blockEngine.hpp"
 #include "fileSystem.hpp"
-#include <fileSystem>
 #include <fstream>
 #include "objectedGraphicsLibrary.hpp"
 #include "singleWindowLibrary.hpp"
@@ -27,11 +26,9 @@ void worldSaver::saveWorld(std::string world_name) {
     swl::clear();
     saving_text.render();
     swl::update();
-    
-    std::string path = fileSystem::worlds_dir + world_name + "/";
-    if(!std::filesystem::exists(path))
-        std::filesystem::create_directory(path);
-    std::ofstream world_file(path + "blockdata");
+
+    fileSystem::createDirIfNotExists(fileSystem::worlds_dir + world_name + "/");
+    std::ofstream world_file(fileSystem::worlds_dir + world_name + "/blockdata");
     for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
         world_file << (char)blockEngine::world[i].block_id;
     world_file.close();

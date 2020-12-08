@@ -17,6 +17,8 @@
 #include "worldSelector.hpp"
 #include "worldCreator.hpp"
 
+#undef main
+
 int swl_main() {
     swl::loadFont("pixel_font.ttf", 8);
     framerateRegulator::fps_limit = 60;

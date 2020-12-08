@@ -16,13 +16,15 @@ void swl::quit() {
     SDL_Quit();
 }
 
-int main(int argc, char** argv) {
+//#undef main
+
+int main(int argc, char **argv) {
     swl::window_width = 1000;
     swl::window_height = 600;
     
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         swl::popupError("SDL could not initialize properly!");
-    
+
     int img_flags = IMG_INIT_PNG;
     if(!(IMG_Init(img_flags) & img_flags))
         swl::popupError("SDL_image could not initialize properly!");
@@ -33,18 +35,18 @@ int main(int argc, char** argv) {
     __swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE);
     if(!__swl_private::window)
         swl::popupError("Window could not be created!");
-    
+
     __swl_private::renderer = SDL_CreateRenderer(__swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if(!__swl_private::renderer)
         swl::popupError("Renderer could not be created!");
-    
+
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
     SDL_SetWindowDisplayMode(__swl_private::window, &dm);
-    
+
     __swl_private::setResourcePath(argv[0]); // get path of resources folder
     
     int result = swl_main();
-    
+
     swl::quit();
     return result;
 }

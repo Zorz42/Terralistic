@@ -12,6 +12,8 @@
 #include "gameLoop.hpp"
 #include "worldSelector.hpp"
 
+#undef main
+
 void startMenu::main() {
     bool running = true;
     SDL_Event event;

@@ -8,13 +8,13 @@
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
-#include <filesystem>
 #include "fileSystem.hpp"
 
+#undef main
 
 int gameLoop::main(std::string world_name) {
     blockEngine::prepare();
-    if(std::filesystem::exists(fileSystem::worlds_dir + world_name))
+    if(fileSystem::dirExists(fileSystem::worlds_dir + world_name))
         worldSaver::loadWorld(world_name);
     else {
         terrainGenerator::generateTerrain(0);

@@ -9,6 +9,8 @@
 #include "terrainGenerator.hpp"
 #include "caveGenerator.hpp"
 #include "singleWindowLibrary.hpp"
+#include <cmath>
+#include <thread>
 
 // terrain generation perameters
 
@@ -48,11 +50,10 @@ unsigned int highest_height = CAVE_CAP;
 
 #define LOADING_NEXT terrainGenerator::loading_current++;
 
-int generateTerrainDaemon(void* seed) {
-    unsigned int seed_int = *((unsigned int*)seed);
-    generateSurface(seed_int);
-    generateCaves(seed_int);
-    generateStone(seed_int);
+int generateTerrainDaemon(unsigned int seed) {
+    generateSurface(seed);
+    generateCaves(seed);
+    generateStone(seed);
     LOADING_NEXT
     for(unsigned long i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
         blockEngine::world[i].update();
@@ -62,11 +63,11 @@ int generateTerrainDaemon(void* seed) {
 void terrainGenerator::generateTerrain(unsigned int seed) {
     terrainGenerator::loading_total = 7 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
     terrainGenerator::loading_current = 0;
-    SDL_Thread *thread = SDL_CreateThread(generateTerrainDaemon, "terrain generator", (void*)&seed);
+    std::thread thread(generateTerrainDaemon, seed);
     
     generatingScreen();
-    
-    SDL_WaitThread(thread, nullptr);
+
+    thread.join();
     
     if(loading_current != loading_total)
         swl::popupError("Loading total is " + std::to_string(loading_total) + ", but loading current got to " + std::to_string(loading_current));

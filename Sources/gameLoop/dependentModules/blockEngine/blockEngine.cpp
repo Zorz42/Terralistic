@@ -5,6 +5,7 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
+#include <algorithm>
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 

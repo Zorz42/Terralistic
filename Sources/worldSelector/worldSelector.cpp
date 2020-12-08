@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#include <filesystem>
+#include <utility>
 #include <vector>
 
 #include "worldSelector.hpp"
@@ -15,14 +15,17 @@
 #include "gameLoop.hpp"
 #include "fileSystem.hpp"
 #include "worldCreator.hpp"
+#include <dirent.h>
+#include <algorithm>
 
+#undef main
 
 struct world_to_select {
     std::string name;
-    world_to_select(std::string name) : name(name) {}
+    explicit world_to_select(std::string name) : name(std::move(name)) {}
     ui::button button{(ogl::top)};
     void render(bool display_hover);
-    int button_y;
+    int button_y{};
 };
 
 ogl::texture title(ogl::top);
@@ -84,13 +87,23 @@ void reload() {
     
     worlds.clear();
     worlds_names.clear();
+
+    std::vector<std::string> banned_dirs = {
+            "..",
+            ".",
+            ".DS_Store",
+    };
+
+    DIR *dir = opendir(fileSystem::worlds_dir.c_str());
+    dirent *ent;
+    while((ent = readdir(dir)) != nullptr) {
+        std::string name = ent->d_name;
+        if(!std::count(banned_dirs.begin(), banned_dirs.end(), name))
+            worlds.emplace_back(name);
+    }
+    closedir (dir);
     
-    for(const auto& world : std::filesystem::directory_iterator(fileSystem::worlds_dir))
-        if(world.path().filename().string() != ".DS_Store")
-            worlds.push_back(world.path().filename().string());
-    
-    for(int i = 0; i < worlds.size(); i++) {
-        world_to_select& world = worlds.at(i);
+    for(auto & world : worlds) {
         world.button.setScale(3);
         world.button.setColor(0, 0, 0);
         world.button.setHoverColor(100, 100, 100);
