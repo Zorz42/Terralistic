@@ -150,6 +150,6 @@ void generateStone(unsigned int seed) {
     for(unsigned int y = blockEngine::world_height - highest_height; y < blockEngine::world_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(blockEngine::getBlock(x, y).block_id && terrainGenerator::turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, highest_height, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
-                blockEngine::getBlock(x, y).block_id = blockEngine::blockType::STONE;
+                blockEngine::getBlock(x, y).block_id = blockEngine::STONE;
     LOADING_NEXT
 }

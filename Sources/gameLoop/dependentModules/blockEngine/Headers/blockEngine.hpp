@@ -39,6 +39,9 @@ struct unique_block {
     std::vector<blockType> connects_to;
     
     unique_block(std::string name);
+    
+    void (*rightClickEvent)(block*) = nullptr;
+    void (*leftClickEvent)(block*) = nullptr;
 };
 
 void init();
@@ -57,6 +60,10 @@ inline long position_x, position_y;
 inline long view_x, view_y;
 
 inline std::vector<unique_block> block_types;
+
+void rightClickEvent(int x, int y);
+void leftClickEvent(int x, int y);
+
 }
 
 #endif /* blockEngine_h */

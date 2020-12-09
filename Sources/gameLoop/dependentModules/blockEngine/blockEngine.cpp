@@ -9,6 +9,10 @@
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 
+void grass_block_leftClickEvent(blockEngine::block* block) {
+    block->block_id = blockEngine::DIRT;
+}
+
 void blockEngine::init() {
     std::vector<std::string> block_types_arr = {
         "air",
@@ -21,13 +25,15 @@ void blockEngine::init() {
         block_types.push_back(unique_block(i));
     
     std::vector<std::pair<blockType, blockType>> connections = {
-        {blockType::GRASS_BLOCK, blockType::DIRT},
+        {GRASS_BLOCK, DIRT},
     };
     
     for(std::pair<blockType, blockType> i : connections) {
         block_types.at(i.first).connects_to.push_back(i.second);
         block_types.at(i.second).connects_to.push_back(i.first);
     }
+    
+    block_types.at(GRASS_BLOCK).leftClickEvent = &grass_block_leftClickEvent;
 }
 
 void blockEngine::prepare() {
@@ -126,4 +132,31 @@ void blockEngine::block::update() {
 
 blockEngine::unique_block::unique_block(std::string name) : name(name) {
     texture = name == "air" ? nullptr : swl::loadTextureFromFile("texturePack/blocks/" + name + ".png");
+}
+
+void updateNearestBlocks(int x, int y) {
+    char x_[] = {0, 0, 0, -1, 1};
+    char y_[] = {0, -1, 1, 0, 0};
+    for(char i = 0; i < 5; i++)
+        blockEngine::getBlock(x + x_[i], y + y_[i]).update();
+}
+
+void blockEngine::rightClickEvent(int x, int y) {
+    block* block = &getBlock(x, y);
+    if(block_types.at(block->block_id).rightClickEvent)
+        block_types.at(block->block_id).rightClickEvent(block);
+    else {
+        getBlock(x, y) = blockEngine::GRASS_BLOCK;
+        updateNearestBlocks(x, y);
+    }
+}
+
+void blockEngine::leftClickEvent(int x, int y) {
+    block* block = &getBlock(x, y);
+    if(block_types.at(block->block_id).leftClickEvent)
+        block_types.at(block->block_id).leftClickEvent(block);
+    else {
+        getBlock(x, y) = blockEngine::AIR;
+        updateNearestBlocks(x, y);
+    }
 }
