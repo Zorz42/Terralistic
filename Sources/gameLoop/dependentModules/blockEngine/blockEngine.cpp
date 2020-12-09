@@ -1,11 +1,10 @@
 //
-//  core.cpp
+//  blockEngine.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
-#include <algorithm>
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 
@@ -19,33 +18,25 @@ void air_rightClickEvent(blockEngine::block* block) {
 }
 
 void blockEngine::init() {
-    std::vector<std::string> block_types_arr = {
-        "air",
-        "dirt",
-        "stone_block",
-        "grass_block",
-        "stone",
+    unique_blocks = {
+        unique_block("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true ),
+        unique_block("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
+        unique_block("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
+        unique_block("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
+        unique_block("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true ),
     };
-    
-    for(auto& i : block_types_arr)
-        block_types.push_back(unique_block(i));
     
     std::vector<std::pair<blockType, blockType>> connections = {
         {GRASS_BLOCK, DIRT},
     };
     
     for(std::pair<blockType, blockType> i : connections) {
-        block_types.at(i.first).connects_to.push_back(i.second);
-        block_types.at(i.second).connects_to.push_back(i.first);
+        unique_blocks.at(i.first).connects_to.push_back(i.second);
+        unique_blocks.at(i.second).connects_to.push_back(i.first);
     }
     
-    block_types.at(GRASS_BLOCK).leftClickEvent = &grass_block_leftClickEvent;
-    block_types.at(AIR).rightClickEvent = &air_rightClickEvent;
-    block_types.at(AIR).ghost = true;
-    block_types.at(STONE).ghost = true;
-    block_types.at(STONE).only_on_floor = true;
-    block_types.at(AIR).transparent = true;
-    block_types.at(STONE).transparent = true;
+    unique_blocks.at(GRASS_BLOCK).leftClickEvent = &grass_block_leftClickEvent;
+    unique_blocks.at(AIR).rightClickEvent = &air_rightClickEvent;
 }
 
 void blockEngine::prepare() {
@@ -95,65 +86,8 @@ void blockEngine::render_blocks() {
             getBlock(x, y).draw();
 }
 
-void blockEngine::block::draw() {
-#define THIS_BLOCK_TYPE block_types.at(block_id)
-    if(THIS_BLOCK_TYPE.texture) {
-        SDL_Rect rect = getRect(), cutout_rect = {0, 8 * block_orientation, 8, 8};
-        swl::render(THIS_BLOCK_TYPE.texture, rect, cutout_rect);
-    }
-}
-
 blockEngine::block& blockEngine::getBlock(unsigned int x, unsigned int y) {
     return world[y * world_width + x];
-}
-
-SDL_Rect blockEngine::block::getRect() {
-    SDL_Rect rect = {0, 0, BLOCK_WIDTH, BLOCK_WIDTH};
-    rect.x = int(getX() * BLOCK_WIDTH - view_x + swl::window_width / 2);
-    rect.y = int(getY() * BLOCK_WIDTH - view_y + swl::window_height / 2);
-    return rect;
-}
-
-unsigned int blockEngine::block::getX() {
-    return (unsigned int)(this - world) % world_width;
-}
-
-unsigned int blockEngine::block::getY() {
-    return (unsigned int)(this - world) / world_width;
-}
-
-void blockEngine::block::update() {
-    block_orientation = 0;
-    
-    if(block_types.at(block_id).only_on_floor) {
-        if(block_types.at(getBlock(getX(), getY() + 1).block_id).transparent)
-            getBlock(getX(), getY()).block_id = AIR;
-    }
-    
-    if(!block_types.at(block_id).single_texture) {
-        char x[] = {0, 1, 0, -1};
-        char y[] = {-1, 0, 1, 0};
-        Uint8 c = 1;
-        for(int i = 0; i < 4; i++) {
-            if(getX() + x[i] >= world_width || getX() + x[i] < 0) {
-                block_orientation += c;
-                continue;
-            }
-            if(getY() + y[i] >= world_height || getY() + y[i] < 0) {
-                block_orientation += c;
-                continue;
-            }
-            if(getBlock(getX() + x[i], getY() + y[i]).block_id == block_id || std::count(block_types.at(block_id).connects_to.begin(), block_types.at(block_id).connects_to.end(), getBlock(getX() + x[i], getY() + y[i]).block_id))
-                block_orientation += c;
-            c += c;
-        }
-    }
-}
-
-blockEngine::unique_block::unique_block(std::string name) : name(name) {
-    int h = 0;
-    texture = name == "air" ? nullptr : swl::loadTextureFromFile("texturePack/blocks/" + name + ".png", nullptr, &h);
-    single_texture = h == 8;
 }
 
 void blockEngine::updateNearestBlocks(int x, int y) {
@@ -165,14 +99,14 @@ void blockEngine::updateNearestBlocks(int x, int y) {
 
 void blockEngine::rightClickEvent(int x, int y) {
     block* block = &getBlock(x, y);
-    if(block_types.at(block->block_id).rightClickEvent)
-        block_types.at(block->block_id).rightClickEvent(block);
+    if(block->getUniqueBlock().rightClickEvent)
+        block->getUniqueBlock().rightClickEvent(block);
 }
 
 void blockEngine::leftClickEvent(int x, int y) {
     block* block = &getBlock(x, y);
-    if(block_types.at(block->block_id).leftClickEvent)
-        block_types.at(block->block_id).leftClickEvent(block);
+    if(block->getUniqueBlock().leftClickEvent)
+        block->getUniqueBlock().leftClickEvent(block);
     else {
         getBlock(x, y) = blockEngine::AIR;
         updateNearestBlocks(x, y);

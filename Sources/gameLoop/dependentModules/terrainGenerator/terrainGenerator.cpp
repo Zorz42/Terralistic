@@ -107,9 +107,16 @@ void generateSurface(unsigned int seed) {
     }
     LOADING_NEXT
     
+    srand(seed);
+    
     // apply terrain to world
-    for(unsigned int x = 0; x < blockEngine::world_width; x++)
+    for(unsigned int x = 0; x < blockEngine::world_width; x++) {
         stackDirt(x, heights[x]);
+        if(rand() % 7 == 0) {
+            blockEngine::getBlock(x, blockEngine::world_height - heights[x] - 2).block_id = blockEngine::STONE;
+            //blockEngine::getBlock(x, blockEngine::world_height - heights[x] - 2).update();
+        }
+    }
     LOADING_NEXT
     
     blockEngine::getBlock(0, 0) = blockEngine::DIRT;
