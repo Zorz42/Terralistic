@@ -49,33 +49,31 @@ PerlinNoise::PerlinNoise(unsigned int seed) {
     p.insert(p.end(), p.begin(), p.end());
 }
 
-double PerlinNoise::noise(double x, double y, double z) {
+double PerlinNoise::noise(double x, double y) {
     // Find the unit cube that contains the point
     int X = (int) floor(x) & 255;
     int Y = (int) floor(y) & 255;
-    int Z = (int) floor(z) & 255;
 
-    // Find relative x, y,z of point in cube
+    // Find relative x, y of point in cube
     x -= floor(x);
     y -= floor(y);
-    z -= floor(z);
 
     // Compute fade curves for each of x, y, z
     double u = fade(x);
     double v = fade(y);
-    double w = fade(z);
+    double w = fade(0.8);
 
     // Hash coordinates of the 8 cube corners
     int A = p[X] + Y;
-    int AA = p[A] + Z;
-    int AB = p[A + 1] + Z;
+    int AA = p[A];
+    int AB = p[A + 1];
     int B = p[X + 1] + Y;
-    int BA = p[B] + Z;
-    int BB = p[B + 1] + Z;
+    int BA = p[B];
+    int BB = p[B + 1];
 
     // Add blended results from 8 corners of cube
-    double res = lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z), grad(p[BA], x-1, y, z)), lerp(u, grad(p[AB], x, y-1, z), grad(p[BB], x-1, y-1, z))),    lerp(v, lerp(u, grad(p[AA+1], x, y, z-1), grad(p[BA+1], x-1, y, z-1)), lerp(u, grad(p[AB+1], x, y-1, z-1),    grad(p[BB+1], x-1, y-1, z-1))));
-    return (res + 1.0)/2.0;
+    double res = lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, 0.8), grad(p[BA], x-1, y, 0.8)), lerp(u, grad(p[AB], x, y-1, 0.8), grad(p[BB], x-1, y-1, 0.8))), lerp(v, lerp(u, grad(p[AA+1], x, y, -0.2), grad(p[BA+1], x-1, y, -0.2)), lerp(u, grad(p[AB+1], x, y-1, -0.2), grad(p[BB+1], x-1, y-1, -0.2))));
+    return (res + 1.0) / 2.0;
 }
 
 double PerlinNoise::fade(double t) {
@@ -92,15 +90,4 @@ double PerlinNoise::grad(int hash, double x, double y, double z) {
     double u = h < 8 ? x : y,
            v = h < 4 ? y : h == 12 || h == 14 ? x : z;
     return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
-}
-
-double turbulence(double x, double y, double size, PerlinNoise& noise) {
-  double value = 0.0, initialSize = size;
-
-  while(size >= 1) {
-    value += noise.noise(x / size, y / size, 0.8) * size;
-    size /= 2.0;
-  }
-
-  return value / initialSize;
 }

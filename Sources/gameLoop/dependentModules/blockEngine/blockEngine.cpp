@@ -13,12 +13,18 @@ void grass_block_leftClickEvent(blockEngine::block* block) {
     block->block_id = blockEngine::DIRT;
 }
 
+void air_rightClickEvent(blockEngine::block* block) {
+    block->block_id = blockEngine::STONE;
+    blockEngine::updateNearestBlocks(block->getX(), block->getY());
+}
+
 void blockEngine::init() {
     std::vector<std::string> block_types_arr = {
         "air",
         "dirt",
-        "stone",
+        "stone_block",
         "grass_block",
+        "stone",
     };
     
     for(auto& i : block_types_arr)
@@ -34,6 +40,12 @@ void blockEngine::init() {
     }
     
     block_types.at(GRASS_BLOCK).leftClickEvent = &grass_block_leftClickEvent;
+    block_types.at(AIR).rightClickEvent = &air_rightClickEvent;
+    block_types.at(AIR).ghost = true;
+    block_types.at(STONE).ghost = true;
+    block_types.at(STONE).only_on_floor = true;
+    block_types.at(AIR).transparent = true;
+    block_types.at(STONE).transparent = true;
 }
 
 void blockEngine::prepare() {
@@ -111,30 +123,40 @@ unsigned int blockEngine::block::getY() {
 }
 
 void blockEngine::block::update() {
-    char x[] = {0, 1, 0, -1};
-    char y[] = {-1, 0, 1, 0};
-    Uint8 c = 1;
     block_orientation = 0;
-    for(int i = 0; i < 4; i++) {
-        if(getX() + x[i] >= world_width || getX() + x[i] < 0) {
-            block_orientation += c;
-            continue;
+    
+    if(block_types.at(block_id).only_on_floor) {
+        if(block_types.at(getBlock(getX(), getY() + 1).block_id).transparent)
+            getBlock(getX(), getY()).block_id = AIR;
+    }
+    
+    if(!block_types.at(block_id).single_texture) {
+        char x[] = {0, 1, 0, -1};
+        char y[] = {-1, 0, 1, 0};
+        Uint8 c = 1;
+        for(int i = 0; i < 4; i++) {
+            if(getX() + x[i] >= world_width || getX() + x[i] < 0) {
+                block_orientation += c;
+                continue;
+            }
+            if(getY() + y[i] >= world_height || getY() + y[i] < 0) {
+                block_orientation += c;
+                continue;
+            }
+            if(getBlock(getX() + x[i], getY() + y[i]).block_id == block_id || std::count(block_types.at(block_id).connects_to.begin(), block_types.at(block_id).connects_to.end(), getBlock(getX() + x[i], getY() + y[i]).block_id))
+                block_orientation += c;
+            c += c;
         }
-        if(getY() + y[i] >= world_height || getY() + y[i] < 0) {
-            block_orientation += c;
-            continue;
-        }
-        if(getBlock(getX() + x[i], getY() + y[i]).block_id == block_id || std::count(block_types.at(block_id).connects_to.begin(), block_types.at(block_id).connects_to.end(), getBlock(getX() + x[i], getY() + y[i]).block_id))
-            block_orientation += c;
-        c += c;
     }
 }
 
 blockEngine::unique_block::unique_block(std::string name) : name(name) {
-    texture = name == "air" ? nullptr : swl::loadTextureFromFile("texturePack/blocks/" + name + ".png");
+    int h = 0;
+    texture = name == "air" ? nullptr : swl::loadTextureFromFile("texturePack/blocks/" + name + ".png", nullptr, &h);
+    single_texture = h == 8;
 }
 
-void updateNearestBlocks(int x, int y) {
+void blockEngine::updateNearestBlocks(int x, int y) {
     char x_[] = {0, 0, 0, -1, 1};
     char y_[] = {0, -1, 1, 0, 0};
     for(char i = 0; i < 5; i++)
@@ -145,10 +167,6 @@ void blockEngine::rightClickEvent(int x, int y) {
     block* block = &getBlock(x, y);
     if(block_types.at(block->block_id).rightClickEvent)
         block_types.at(block->block_id).rightClickEvent(block);
-    else {
-        getBlock(x, y) = blockEngine::GRASS_BLOCK;
-        updateNearestBlocks(x, y);
-    }
 }
 
 void blockEngine::leftClickEvent(int x, int y) {

@@ -93,7 +93,7 @@ bool playerHandler::isPlayerColliding() {
     
     for(int x = begin_x; x < end_x; x++)
         for(int y = begin_y; y < end_y; y++)
-            if(swl::colliding(blockEngine::getBlock(x, y).getRect(),  playerHandler::player.getRect()) && blockEngine::getBlock(x, y).block_id != blockEngine::AIR)
+        if(swl::colliding(blockEngine::getBlock(x, y).getRect(),  playerHandler::player.getRect()) && !blockEngine::block_types.at(blockEngine::getBlock(x, y).block_id).ghost)
                 return true;
     return false;
 }

@@ -17,7 +17,7 @@
 
 namespace blockEngine {
 
-enum blockType {AIR, DIRT, STONE, GRASS_BLOCK};
+enum blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE};
 
 struct block {
     block() : block_id(AIR) {}
@@ -34,6 +34,11 @@ struct block {
 };
 
 struct unique_block {
+    bool single_texture = false;
+    bool ghost = false;
+    bool only_on_floor = false;
+    bool transparent = false;
+    
     std::string name;
     SDL_Texture* texture;
     std::vector<blockType> connects_to;
@@ -63,6 +68,8 @@ inline std::vector<unique_block> block_types;
 
 void rightClickEvent(int x, int y);
 void leftClickEvent(int x, int y);
+
+void updateNearestBlocks(int x, int y);
 
 }
 

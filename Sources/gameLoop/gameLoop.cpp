@@ -55,8 +55,8 @@ int gameLoop::main(std::string world_name) {
         swl::setDrawColor(135, 206, 235);
         swl::clear();
         
-        blockEngine::render_blocks();
         playerHandler::render();
+        blockEngine::render_blocks();
         if(pauseScreen::paused)
             pauseScreen::render();
         else {
