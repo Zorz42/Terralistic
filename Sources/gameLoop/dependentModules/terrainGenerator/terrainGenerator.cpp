@@ -21,11 +21,11 @@
 
 // CAVES
 
-#define CAVE_START 0.71
+#define CAVE_START 0.70
 #define CAVE_LENGTH 0.3
 #define CAVE_CAP 0
 
-#define STONE_START 0.65
+#define STONE_START 0.69
 #define STONE_LENGTH 1
 
 //xPeriod and yPeriod together define the angle of the lines
@@ -34,10 +34,10 @@
 #define Y_PERIOD 1.0 //defines repetition of marble lines in y direction
 //turbPower = 0 ==> it becomes a normal sine pattern
 #define TURB_POWER 5.0 //makes twists
-#define TURB_SIZE 50.0 //initial size of the turbulence
+#define TURB_SIZE 64.0 //initial size of the turbulence
 
-#define CAVE_CONSERVATIVE 4
-#define CAVE_SMOOTH 2
+#define CAVE_CONSERVATIVE 1
+#define CAVE_SMOOTH 1
 
 void stackDirt(unsigned int x, unsigned int height);
 
@@ -83,7 +83,7 @@ void stackDirt(unsigned int x, unsigned int height) {
 double turbulence(double x, double y, double size, PerlinNoise& noise) {
   double value = 0.0, initialSize = size;
 
-  while(size >= 1) {
+  while(size >= 2) {
     value += noise.noise(x / size, y / size) * size;
     size /= 2.0;
   }
@@ -112,10 +112,8 @@ void generateSurface(unsigned int seed) {
     // apply terrain to world
     for(unsigned int x = 0; x < blockEngine::world_width; x++) {
         stackDirt(x, heights[x]);
-        if(rand() % 7 == 0) {
+        if(rand() % 7 == 0) // generate stones
             blockEngine::getBlock(x, blockEngine::world_height - heights[x] - 2).block_id = blockEngine::STONE;
-            //blockEngine::getBlock(x, blockEngine::world_height - heights[x] - 2).update();
-        }
     }
     LOADING_NEXT
     

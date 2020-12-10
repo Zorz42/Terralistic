@@ -59,6 +59,6 @@ void blockEngine::block::update() {
     }
 }
 
-blockEngine::unique_block& blockEngine::block::getUniqueBlock() {
+blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() {
     return unique_blocks.at(block_id);
 }

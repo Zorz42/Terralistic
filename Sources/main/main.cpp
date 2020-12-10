@@ -16,6 +16,7 @@
 #include "worldSaver.hpp"
 #include "worldSelector.hpp"
 #include "worldCreator.hpp"
+#include "itemEngine.hpp"
 
 #undef main
 
@@ -30,6 +31,7 @@ int swl_main() {
     worldSaver::init();
     worldSelector::init();
     worldCreator::init();
+    itemEngine::init();
     
     startMenu::main();
     return 0;

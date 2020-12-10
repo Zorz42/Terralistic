@@ -9,11 +9,14 @@
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
 #include "fileSystem.hpp"
+#include "itemEngine.hpp"
 
 #undef main
 
 int gameLoop::main(std::string world_name) {
     blockEngine::prepare();
+    itemEngine::prepare();
+    
     if(fileSystem::dirExists(fileSystem::worlds_dir + world_name))
         worldSaver::loadWorld(world_name);
     else {
@@ -51,12 +54,14 @@ int gameLoop::main(std::string world_name) {
         }
         playerHandler::doPhysics();
         playerHandler::move();
+        itemEngine::updateItems();
         
         swl::setDrawColor(135, 206, 235);
         swl::clear();
         
         playerHandler::render();
         blockEngine::render_blocks();
+        itemEngine::renderItems();
         if(pauseScreen::paused)
             pauseScreen::render();
         else {
@@ -68,6 +73,7 @@ int gameLoop::main(std::string world_name) {
     
     worldSaver::saveWorld(world_name);
     blockEngine::close();
+    itemEngine::close();
     
     return 0;
 }

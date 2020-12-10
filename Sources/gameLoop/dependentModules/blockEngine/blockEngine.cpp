@@ -19,11 +19,11 @@ void air_rightClickEvent(blockEngine::block* block) {
 
 void blockEngine::init() {
     unique_blocks = {
-        unique_block("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true ),
-        unique_block("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
-        unique_block("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
-        unique_block("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
-        unique_block("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true ),
+        uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true ),
+        uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
+        uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
+        uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
+        uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true ),
     };
     
     std::vector<std::pair<blockType, blockType>> connections = {

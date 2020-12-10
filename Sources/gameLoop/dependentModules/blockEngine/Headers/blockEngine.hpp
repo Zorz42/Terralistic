@@ -21,7 +21,7 @@ enum blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE};
 
 struct block;
 
-struct unique_block {
+struct uniqueBlock {
     bool single_texture = false;
     bool ghost = false;
     bool only_on_floor = false;
@@ -31,7 +31,7 @@ struct unique_block {
     SDL_Texture* texture;
     std::vector<blockType> connects_to;
     
-    unique_block(std::string name, bool ghost, bool only_on_floor, bool transparent);
+    uniqueBlock(std::string name, bool ghost, bool only_on_floor, bool transparent);
     
     void (*rightClickEvent)(block*) = nullptr;
     void (*leftClickEvent)(block*) = nullptr;
@@ -50,7 +50,7 @@ struct block {
     blockType block_id;
     Uint8 block_orientation;
     
-    unique_block& getUniqueBlock();
+    uniqueBlock& getUniqueBlock();
 };
 
 void init();
@@ -68,7 +68,7 @@ block& getBlock(unsigned int x, unsigned int y);
 inline long position_x, position_y;
 inline long view_x, view_y;
 
-inline std::vector<unique_block> unique_blocks;
+inline std::vector<uniqueBlock> unique_blocks;
 
 void rightClickEvent(int x, int y);
 void leftClickEvent(int x, int y);
