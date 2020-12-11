@@ -108,9 +108,8 @@ void blockEngine::leftClickEvent(int x, int y) {
     if(block->getUniqueBlock().leftClickEvent)
         block->getUniqueBlock().leftClickEvent(block);
     else {
-        if(block->getUniqueBlock().drop != itemEngine::NOTHING) {
+        if(block->getUniqueBlock().drop != itemEngine::NOTHING)
             itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
-        }
         getBlock(x, y) = blockEngine::AIR;
         updateNearestBlocks(x, y);
     }
