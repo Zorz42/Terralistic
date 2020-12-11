@@ -23,7 +23,8 @@ void itemEngine::close() {
 }
 
 void itemEngine::updateItems() {
-    
+    for(item& i : items)
+        i.update();
 }
 
 void itemEngine::renderItems() {

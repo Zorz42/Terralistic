@@ -26,11 +26,12 @@ struct uniqueItem {
 struct item {
     item(itemType item_id, int x, int y);
     itemType item_id;
-    int x, y;
+    int x, y, velocity_x, velocity_y;
     
     void draw();
     SDL_Rect getRect();
-    
+    void update();
+    bool colliding();
     uniqueItem& getUniqueItem();
 };
 
