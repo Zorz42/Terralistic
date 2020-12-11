@@ -15,15 +15,23 @@
 
 namespace itemEngine {
 
-enum itemType {STONE};
+enum itemType {NOTHING, STONE};
 
-class uniqueItem {
-    
+struct uniqueItem {
+    uniqueItem(std::string name);
+    std::string name;
+    SDL_Texture* texture;
 };
 
-class item {
+struct item {
+    item(itemType item_id, int x, int y);
     itemType item_id;
     int x, y;
+    
+    void draw();
+    SDL_Rect getRect();
+    
+    uniqueItem& getUniqueItem();
 };
 
 void init();
@@ -34,6 +42,8 @@ void updateItems();
 
 inline std::vector<uniqueItem> unique_items;
 inline std::vector<item> items;
+
+void spawnItem(itemType item_id, int x, int y);
 
 }
 

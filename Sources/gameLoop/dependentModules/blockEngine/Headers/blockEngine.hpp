@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "itemEngine.hpp"
+
 #define BLOCK_WIDTH 16
 
 namespace blockEngine {
@@ -31,10 +33,12 @@ struct uniqueBlock {
     SDL_Texture* texture;
     std::vector<blockType> connects_to;
     
-    uniqueBlock(std::string name, bool ghost, bool only_on_floor, bool transparent);
+    uniqueBlock(std::string name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop);
     
     void (*rightClickEvent)(block*) = nullptr;
     void (*leftClickEvent)(block*) = nullptr;
+    
+    itemEngine::itemType drop;
 };
 
 struct block {

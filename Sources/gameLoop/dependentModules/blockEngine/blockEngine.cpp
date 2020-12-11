@@ -13,17 +13,17 @@ void grass_block_leftClickEvent(blockEngine::block* block) {
 }
 
 void air_rightClickEvent(blockEngine::block* block) {
-    block->block_id = blockEngine::STONE;
+    block->block_id = blockEngine::STONE_BLOCK;
     blockEngine::updateNearestBlocks(block->getX(), block->getY());
 }
 
 void blockEngine::init() {
     unique_blocks = {
-        uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true ),
-        uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
-        uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
-        uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false),
-        uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true ),
+        uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING),
+        uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::NOTHING),
+        uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::NOTHING),
+        uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::NOTHING),
+        uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemEngine::STONE),
     };
     
     std::vector<std::pair<blockType, blockType>> connections = {
@@ -108,6 +108,9 @@ void blockEngine::leftClickEvent(int x, int y) {
     if(block->getUniqueBlock().leftClickEvent)
         block->getUniqueBlock().leftClickEvent(block);
     else {
+        if(block->getUniqueBlock().drop != itemEngine::NOTHING) {
+            itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+        }
         getBlock(x, y) = blockEngine::AIR;
         updateNearestBlocks(x, y);
     }

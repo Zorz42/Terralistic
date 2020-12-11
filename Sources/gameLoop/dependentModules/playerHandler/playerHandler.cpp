@@ -129,6 +129,8 @@ void playerHandler::move() {
         DEC_Y;
         if(isPlayerColliding()) {
             INC_Y;
+            if(velocity_y < 0)
+                velocity_y = 0;
             break;
         }
     }

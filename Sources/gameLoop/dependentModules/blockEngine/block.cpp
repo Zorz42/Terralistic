@@ -10,17 +10,12 @@
 #include "blockEngine.hpp"
 
 void blockEngine::block::draw() {
-    if(getUniqueBlock().texture) {
-        SDL_Rect rect = getRect(), cutout_rect = {0, 8 * block_orientation, 8, 8};
-        swl::render(getUniqueBlock().texture, rect, cutout_rect);
-    }
+    if(getUniqueBlock().texture)
+        swl::render(getUniqueBlock().texture, getRect(), {0, 8 * block_orientation, 8, 8});
 }
 
 SDL_Rect blockEngine::block::getRect() {
-    SDL_Rect rect = {0, 0, BLOCK_WIDTH, BLOCK_WIDTH};
-    rect.x = int(getX() * BLOCK_WIDTH - view_x + swl::window_width / 2);
-    rect.y = int(getY() * BLOCK_WIDTH - view_y + swl::window_height / 2);
-    return rect;
+    return {int(getX() * BLOCK_WIDTH - view_x + swl::window_width / 2), int(getY() * BLOCK_WIDTH - view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
 unsigned int blockEngine::block::getX() {
