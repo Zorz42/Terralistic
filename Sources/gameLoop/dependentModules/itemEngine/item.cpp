@@ -8,6 +8,7 @@
 #include "itemEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
+#include "framerateRegulator.hpp"
 
 itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100), velocity_x(rand() % 100 - 50), velocity_y(-rand() % 100 - 20) {}
 
@@ -24,29 +25,29 @@ itemEngine::uniqueItem& itemEngine::item::getUniqueItem() {
 }
 
 void itemEngine::item::update() {
-    velocity_y += 5;
-    for(int i = 0; i < velocity_x; i++) {
+    velocity_y += (float)framerateRegulator::frame_length / 16 * 5;
+    for(int i = 0; i < (float)framerateRegulator::frame_length / 16 * velocity_x; i++) {
         x++;
         if(colliding()) {
             x--;
             break;
         }
     }
-    for(int i = 0; i > velocity_x; i--) {
+    for(int i = 0; i > (float)framerateRegulator::frame_length / 16 * velocity_x; i--) {
         x--;
         if(colliding()) {
             x++;
             break;
         }
     }
-    for(int i = 0; i < velocity_y; i++) {
+    for(int i = 0; i < (float)framerateRegulator::frame_length / 16 * velocity_y; i++) {
         y++;
         if(colliding()) {
             y--;
             break;
         }
     }
-    for(int i = 0; i > velocity_y; i--) {
+    for(int i = 0; i > (float)framerateRegulator::frame_length / 16 * velocity_y; i--) {
         y--;
         if(colliding()) {
             y++;
@@ -60,12 +61,12 @@ void itemEngine::item::update() {
     y--;
     
     if(velocity_x > 0) {
-        velocity_x -= 2;
+        velocity_x -= (float)framerateRegulator::frame_length / 8;
         if(velocity_x < 0)
             velocity_x = 0;
     }
     else if(velocity_x < 0) {
-        velocity_x += 2;
+        velocity_x += (float)framerateRegulator::frame_length / 8;
         if(velocity_x > 0)
             velocity_x = 0;
     }

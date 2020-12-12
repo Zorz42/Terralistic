@@ -20,12 +20,6 @@ void ui::button::setHoverColor(Uint8 r, Uint8 g, Uint8 b) {
     hover_b = b;
 }
 
-void ui::button::setTextColor(Uint8 r, Uint8 g, Uint8 b) {
-    text_r = r;
-    text_g = g;
-    text_b = b;
-}
-
 void ui::button::render(bool display_hover) {
     SDL_Rect render_rect = getRect();
     if(hovered() && display_hover)
@@ -44,8 +38,13 @@ bool ui::button::hovered() {
     return touchesPoint(swl::mouse_x, swl::mouse_y);
 }
 
-void ui::button::setText(std::string text_) {
-    text.loadFromText(text_, SDL_Color{text_r, text_g, text_b});
+void ui::button::setText(std::string text_, Uint8 r, Uint8 g, Uint8 b) {
+    text.loadFromText(text_, SDL_Color{r, g, b});
+    setMargin(margin);
+}
+
+void ui::button::setTexture(SDL_Texture* texture, int width_, int height_) {
+    text.setTexture(texture, width_, height_);
     setMargin(margin);
 }
 
@@ -62,4 +61,8 @@ void ui::button::setMargin(unsigned short margin_) {
     margin = margin_;
     setWidth(text.getWidth() + 2 * margin * text.scale);
     setHeight(text.getHeight() + 2 * margin * text.scale);
+}
+
+void ui::button::setFreeTexture(bool free) {
+    text.free_texture = free;
 }

@@ -23,12 +23,14 @@
 struct world_to_select {
     std::string name;
     explicit world_to_select(std::string name) : name(std::move(name)) {}
-    ui::button button{(ogl::top)};
+    ui::button button{ogl::top}, delete_button{ogl::top};
     void render(bool display_hover);
     int button_y{};
 };
 
 ogl::texture title(ogl::top);
+SDL_Texture* x_texture = nullptr;
+int x_width, x_height;
 ui::button back_button(ogl::bottom), new_button(ogl::bottom_right);
 ogl::rect top_rect(ogl::top), bottom_rect(ogl::bottom), top_line_rect(ogl::top), bottom_line_rect(ogl::bottom);
 int position;
@@ -37,8 +39,10 @@ std::vector<world_to_select> worlds;
 int scroll_limit;
 
 void world_to_select::render(bool display_hover) {
-    button.setY(button_y - position);
+    button.y = button_y - position;
     button.render(display_hover);
+    delete_button.y = button_y - position + (button.getHeight() - delete_button.getHeight()) / 2;
+    delete_button.render(display_hover);
 }
 
 #define PADDING 20
@@ -53,18 +57,16 @@ void worldSelector::init() {
     
     back_button.setColor(0, 0, 0);
     back_button.setHoverColor(100, 100, 100);
-    back_button.setTextColor(255, 255, 255);
     back_button.setScale(3);
-    back_button.setText("Back");
-    back_button.setY(-PADDING);
+    back_button.setText("Back", 255, 255, 255);
+    back_button.y = -PADDING;
     
     new_button.setColor(0, 0, 0);
     new_button.setHoverColor(100, 100, 100);
-    new_button.setTextColor(255, 255, 255);
     new_button.setScale(3);
-    new_button.setText("New");
-    new_button.setY(-PADDING);
-    new_button.setX(-PADDING);
+    new_button.setText("New", 255, 255, 255);
+    new_button.y = -PADDING;
+    new_button.x = -PADDING;
 
     top_rect.setHeight(TOP_HEIGHT);
     top_rect.setColor(0, 0, 0);
@@ -79,6 +81,8 @@ void worldSelector::init() {
     bottom_line_rect.setColor(100, 100, 100);
     bottom_line_rect.setHeight(LINE_HEIGHT);
     bottom_line_rect.setY(-BOTTOM_HEIGHT);
+    
+    x_texture = swl::loadTextureFromFile("texturePack/x-button.png", &x_width, &x_height);
 }
 
 void reload() {
@@ -107,9 +111,16 @@ void reload() {
         world.button.setScale(3);
         world.button.setColor(0, 0, 0);
         world.button.setHoverColor(100, 100, 100);
-        world.button.setTextColor(255, 255, 255);
-        world.button.setText(world.name);
+        world.button.setText(world.name, 255, 255, 255);
         world.button_y = scroll_limit + title.getHeight() + 2 * PADDING;
+        
+        world.delete_button.setFreeTexture(false);
+        world.delete_button.setTexture(x_texture, x_width, x_height);
+        world.delete_button.setScale(3);
+        world.delete_button.setColor(0, 0, 0);
+        world.delete_button.setHoverColor(100, 100, 100);
+        world.delete_button.x = world.button.getWidth() / 2 + world.delete_button.getWidth() / 2 + PADDING;
+        
         scroll_limit += world.button.getHeight() + PADDING;
         
         worlds_names.push_back(world.name);
@@ -147,6 +158,9 @@ void worldSelector::loop() {
                         gameLoop::main(world.name);
                         reload();
                         break;
+                    } else if(world.delete_button.isPressed(event)) {
+                        fileSystem::removeDir(fileSystem::worlds_dir + world.name);
+                        reload();
                     }
         }
         

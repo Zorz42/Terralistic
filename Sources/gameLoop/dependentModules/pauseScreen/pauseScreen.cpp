@@ -16,19 +16,17 @@ ui::button resume_button(ogl::top_left), quit_button(ogl::top_left);
 void pauseScreen::init() {
     resume_button.setColor(0, 0, 0);
     resume_button.setHoverColor(100, 100, 100);
-    resume_button.setTextColor(255, 255, 255);
     resume_button.setScale(3);
-    resume_button.setText("Resume");
-    resume_button.setX(PADDING);
-    resume_button.setY(PADDING);
+    resume_button.setText("Resume", 255, 255, 255);
+    resume_button.x = PADDING;
+    resume_button.y = PADDING;
 
     quit_button.setColor(0, 0, 0);
     quit_button.setHoverColor(100, 100, 100);
-    quit_button.setTextColor(255, 255, 255);
     quit_button.setScale(3);
-    quit_button.setText("Save & Quit");
-    quit_button.setX(PADDING);
-    quit_button.setY(resume_button.getHeight() + 2 * PADDING);
+    quit_button.setText("Save & Quit", 255, 255, 255);
+    quit_button.x = PADDING;
+    quit_button.y = resume_button.getHeight() + 2 * PADDING;
 }
 
 void pauseScreen::render() {

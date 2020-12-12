@@ -19,21 +19,23 @@ public:
     void setTextColor(Uint8 r, Uint8 g, Uint8 b);
     using ogl::rect::setColor;
     
-    void setText(std::string text_);
+    void setText(std::string text_, Uint8 r, Uint8 g, Uint8 b);
+    void setTexture(SDL_Texture* texture, int width_, int height_);
     void render(bool display_hover=true);
     bool hovered();
     void setScale(Uint8 scale);
     bool isPressed(SDL_Event& event);
     void setMargin(unsigned short margin_);
     
-    inline void setX(short x_) { x = x_; };
-    inline void setY(short y_) { y = y_; };
+    using ogl::rect::x;
+    using ogl::rect::y;
     
     using ogl::rect::getWidth;
     using ogl::rect::getHeight;
+    
+    void setFreeTexture(bool free);
 protected:
     Uint8 hover_r, hover_g, hover_b;
-    Uint8 text_r, text_g, text_b;
     ogl::texture text;
     unsigned short margin;
 };

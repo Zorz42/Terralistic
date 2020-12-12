@@ -47,7 +47,7 @@ public:
     texture(objectType type=center);
     ~texture();
     
-    void setTexture(SDL_Texture* input_texture);
+    void setTexture(SDL_Texture* input_texture, int width_, int height_);
     
     void render();
     
@@ -60,6 +60,7 @@ public:
     bool flipped{false};
     
     Uint8 scale = 1;
+    bool free_texture = true;
     
 protected:
     SDL_Texture* texture_ = nullptr;

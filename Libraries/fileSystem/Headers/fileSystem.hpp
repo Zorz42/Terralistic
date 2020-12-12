@@ -16,6 +16,7 @@ inline std::string data_path, worlds_dir;
 void setDataPath();
 bool dirExists(const std::string& path);
 void createDirIfNotExists(const std::string& path);
+int removeDir(const std::string& path);
 
 }
 
