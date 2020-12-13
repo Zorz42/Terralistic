@@ -41,6 +41,7 @@ bool colliding(SDL_Rect a, SDL_Rect b);
 
 inline int mouse_x, mouse_y;
 
+void setWindowMinimumSize(int width, int height);
 }
 
 namespace __swl_private {

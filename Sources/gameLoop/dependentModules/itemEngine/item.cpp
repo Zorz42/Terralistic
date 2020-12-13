@@ -12,6 +12,10 @@
 
 itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100), velocity_x(rand() % 100 - 50), velocity_y(-rand() % 100 - 20) {}
 
+itemEngine::uniqueItem::uniqueItem(std::string name) : name(name), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")) {}
+
+itemEngine::inventoryItem::inventoryItem(itemType item_id, unsigned int stack) : item_id(item_id), stack(stack) {}
+
 void itemEngine::item::draw() {
     swl::render(getUniqueItem().texture, getRect());
 }
@@ -70,6 +74,8 @@ void itemEngine::item::update() {
         if(velocity_x > 0)
             velocity_x = 0;
     }
+    
+    
 }
 
 bool itemEngine::item::colliding() {
@@ -84,4 +90,13 @@ bool itemEngine::item::colliding() {
             if(!blockEngine::getBlock(block_x + x_, block_y + y_).getUniqueBlock().transparent)
                 return true;
     return false;
+}
+
+itemEngine::uniqueItem& itemEngine::inventoryItem::getUniqueItem() {
+    return unique_items.at(item_id);
+}
+
+void itemEngine::inventoryItem::render(int x, int y) {
+    if(getUniqueItem().texture != nullptr)
+        swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
 }

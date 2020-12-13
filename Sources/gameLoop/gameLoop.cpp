@@ -10,6 +10,7 @@
 #include "pauseScreen.hpp"
 #include "fileSystem.hpp"
 #include "itemEngine.hpp"
+#include "inventoryRenderer.hpp"
 
 #undef main
 
@@ -68,6 +69,7 @@ int gameLoop::main(std::string world_name) {
             blockSelector::render();
             fps_text.render();
         }
+        inventoryRenderer::render();
         swl::update();
     }
     

@@ -81,6 +81,9 @@ public:
     bool touchesPoint(int x, int y);
     bool fill = true;
     
+    using __ogl_private::centeredObject::getX;
+    using __ogl_private::centeredObject::getY;
+    
 protected:
     Uint8 r, g, b;
 };

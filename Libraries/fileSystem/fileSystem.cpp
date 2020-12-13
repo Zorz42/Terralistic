@@ -63,6 +63,7 @@ int fileSystem::removeDir(const std::string &path) {
 
             if(buf) {
                 struct stat statbuf;
+                snprintf(buf, len, "%s/%s", path.c_str(), p->d_name);
                 if(!stat(buf, &statbuf))
                     r2 = S_ISDIR(statbuf.st_mode) ? removeDir(buf) : unlink(buf);
                 free(buf);
