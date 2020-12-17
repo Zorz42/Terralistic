@@ -11,11 +11,9 @@
 
 void itemEngine::init() {
     unique_items = {
-        uniqueItem("nothing"),
-        uniqueItem("stone"),
+        uniqueItem("nothing", 0),
+        uniqueItem("stone", 99),
     };
-    inventory[0].item_id = STONE;
-    inventory[0].setStack(1);
 }
 
 void itemEngine::prepare() {
@@ -30,7 +28,7 @@ void itemEngine::updateItems() {
     for(unsigned long i = 0; i < items.size(); i++) {
         items.at(i).update();
         if(abs(items.at(i).x / 100 + BLOCK_WIDTH / 2  - blockEngine::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(items.at(i).y / 100 + BLOCK_WIDTH / 2 - blockEngine::position_y - playerHandler::player.getHeight() / 2) < 50)
-            if(addItemToInventory(items.at(i).item_id))
+            if(addItemToInventory(items.at(i).item_id, 1))
                 items.erase(items.begin() + i);
     }
 }
@@ -44,11 +42,19 @@ void itemEngine::spawnItem(itemType item_id, int x, int y) {
     items.emplace_back(item_id, x, y);
 }
 
-bool itemEngine::addItemToInventory(itemType id) {
+bool itemEngine::addItemToInventory(itemType id, int quantity) {
+    for(int i = 0; i < 10; i++)
+        if(inventory[i].item_id == id) {
+            quantity -= inventory[i].increaseStack(quantity);
+            if(!quantity)
+                return true;
+        }
     for(int i = 0; i < 10; i++)
         if(inventory[i].item_id == NOTHING) {
             inventory[i].item_id = id;
-            return true;
+            quantity -= inventory[i].increaseStack(quantity);
+            if(!quantity)
+                return true;
         }
     return false;
 }

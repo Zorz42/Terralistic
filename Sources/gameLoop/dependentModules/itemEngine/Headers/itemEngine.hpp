@@ -19,7 +19,7 @@ namespace itemEngine {
 enum itemType {NOTHING, STONE};
 
 struct uniqueItem {
-    uniqueItem(std::string name);
+    uniqueItem(std::string name, unsigned short stack_size);
     std::string name;
     SDL_Texture* texture;
     unsigned short stack_size;
@@ -38,13 +38,17 @@ struct item {
 };
 
 struct inventoryItem {
-    inventoryItem(itemType item_id=NOTHING, unsigned int stack=0);
-    unsigned short stack;
+public:
+    inventoryItem();
     itemType item_id;
     uniqueItem& getUniqueItem();
     void render(int x, int y);
     ogl::texture stack_texture{(ogl::top_left)};
-    void setStack(int stack_);
+    void setStack(unsigned short stack_);
+    unsigned short getStack();
+    unsigned short increaseStack(int stack_);
+private:
+    unsigned short stack;
 };
 
 void init();
@@ -60,7 +64,7 @@ inline inventoryItem inventory[20];
 
 void spawnItem(itemType item_id, int x, int y);
 
-bool addItemToInventory(itemType id);
+bool addItemToInventory(itemType id, int quantity);
 
 }
 

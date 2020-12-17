@@ -12,11 +12,9 @@
 
 itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100), velocity_x(rand() % 100 - 50), velocity_y(-rand() % 100 - 20) {}
 
-itemEngine::uniqueItem::uniqueItem(std::string name) : name(name), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")) {}
+itemEngine::uniqueItem::uniqueItem(std::string name, unsigned short stack_size) : name(name), stack_size(stack_size), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")) {}
 
-itemEngine::inventoryItem::inventoryItem(itemType item_id, unsigned int stack) : item_id(item_id) {
-    setStack(stack);
-}
+itemEngine::inventoryItem::inventoryItem() : item_id(NOTHING), stack(0) {}
 
 void itemEngine::item::draw() {
     swl::render(getUniqueItem().texture, getRect());
@@ -101,13 +99,28 @@ itemEngine::uniqueItem& itemEngine::inventoryItem::getUniqueItem() {
 void itemEngine::inventoryItem::render(int x, int y) {
     if(getUniqueItem().texture != nullptr)
         swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-    stack_texture.setX(x + BLOCK_WIDTH * 2 - stack_texture.getWidth());
-    stack_texture.setY(y + BLOCK_WIDTH * 2 - stack_texture.getHeight());
-    stack_texture.render();
+    if(stack > 1) {
+        stack_texture.setX(x + BLOCK_WIDTH * 2 - stack_texture.getWidth());
+        stack_texture.setY(y + BLOCK_WIDTH * 2 - stack_texture.getHeight());
+        stack_texture.render();
+    }
 }
 
-void itemEngine::inventoryItem::setStack(int stack_) {
+void itemEngine::inventoryItem::setStack(unsigned short stack_) {
     stack = stack_;
-    if(stack > 0)
+    if(stack > 1)
         stack_texture.loadFromText(std::to_string(stack_), {255, 255, 255});
+}
+
+unsigned short itemEngine::inventoryItem::getStack() {
+    return stack;
+}
+
+unsigned short itemEngine::inventoryItem::increaseStack(int stack_) {
+    int stack_to_be = stack + stack_, result;
+    if(stack_to_be > getUniqueItem().stack_size)
+        stack_to_be = getUniqueItem().stack_size;
+    result = stack_to_be - stack;
+    setStack(stack_to_be);
+    return result;
 }
