@@ -14,7 +14,9 @@ itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x *
 
 itemEngine::uniqueItem::uniqueItem(std::string name) : name(name), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")) {}
 
-itemEngine::inventoryItem::inventoryItem(itemType item_id, unsigned int stack) : item_id(item_id), stack(stack) {}
+itemEngine::inventoryItem::inventoryItem(itemType item_id, unsigned int stack) : item_id(item_id) {
+    setStack(stack);
+}
 
 void itemEngine::item::draw() {
     swl::render(getUniqueItem().texture, getRect());
@@ -99,4 +101,13 @@ itemEngine::uniqueItem& itemEngine::inventoryItem::getUniqueItem() {
 void itemEngine::inventoryItem::render(int x, int y) {
     if(getUniqueItem().texture != nullptr)
         swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+    stack_texture.setX(x + BLOCK_WIDTH * 2 - stack_texture.getWidth());
+    stack_texture.setY(y + BLOCK_WIDTH * 2 - stack_texture.getHeight());
+    stack_texture.render();
+}
+
+void itemEngine::inventoryItem::setStack(int stack_) {
+    stack = stack_;
+    if(stack > 0)
+        stack_texture.loadFromText(std::to_string(stack_), {255, 255, 255});
 }

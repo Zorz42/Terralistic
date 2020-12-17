@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include "objectedGraphicsLibrary.hpp"
 
 namespace itemEngine {
 
@@ -42,6 +43,8 @@ struct inventoryItem {
     itemType item_id;
     uniqueItem& getUniqueItem();
     void render(int x, int y);
+    ogl::texture stack_texture{(ogl::top_left)};
+    void setStack(int stack_);
 };
 
 void init();

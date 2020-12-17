@@ -15,6 +15,7 @@ void itemEngine::init() {
         uniqueItem("stone"),
     };
     inventory[0].item_id = STONE;
+    inventory[0].setStack(1);
 }
 
 void itemEngine::prepare() {
