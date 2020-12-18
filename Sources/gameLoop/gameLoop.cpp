@@ -18,9 +18,13 @@ int gameLoop::main(std::string world_name) {
     blockEngine::prepare();
     itemEngine::prepare();
     
-    if(fileSystem::dirExists(fileSystem::worlds_dir + world_name))
+    if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
     else {
+        for(itemEngine::inventoryItem& i : itemEngine::inventory) {
+            i.setStack(0);
+            i.item_id = itemEngine::NOTHING;
+        }
         terrainGenerator::generateTerrain(0);
         worldSaver::saveWorld(world_name);
     }

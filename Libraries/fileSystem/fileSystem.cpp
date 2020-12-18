@@ -81,3 +81,7 @@ int fileSystem::removeDir(const std::string &path) {
 void fileSystem::removeFile(const std::string &path) {
     unlink(path.c_str());
 }
+
+bool fileSystem::fileExists(const std::string& path) {
+    return !stat(path.c_str(), &info);
+}
