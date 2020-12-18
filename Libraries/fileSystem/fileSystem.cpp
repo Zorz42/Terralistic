@@ -77,3 +77,7 @@ int fileSystem::removeDir(const std::string &path) {
         r = rmdir(path.c_str());
     return r;
 }
+
+void fileSystem::removeFile(const std::string &path) {
+    unlink(path.c_str());
+}

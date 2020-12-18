@@ -16,7 +16,7 @@
 
 namespace itemEngine {
 
-enum itemType {NOTHING, STONE};
+enum itemType {NOTHING, STONE, DIRT};
 
 struct uniqueItem {
     uniqueItem(std::string name, unsigned short stack_size);

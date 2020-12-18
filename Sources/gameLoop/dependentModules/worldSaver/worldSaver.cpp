@@ -27,8 +27,7 @@ void worldSaver::saveWorld(std::string world_name) {
     saving_text.render();
     swl::update();
 
-    fileSystem::createDirIfNotExists(fileSystem::worlds_dir + world_name + "/");
-    std::ofstream world_file(fileSystem::worlds_dir + world_name + "/blockdata");
+    std::ofstream world_file(fileSystem::worlds_dir + world_name + ".world");
     for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
         world_file << (char)blockEngine::world[i].block_id;
     world_file.close();
@@ -39,11 +38,10 @@ void worldSaver::loadWorld(std::string world_name) {
     swl::clear();
     loading_text.render();
     swl::update();
-    std::string path = fileSystem::worlds_dir + world_name + "/";
     
-    std::ifstream world_file(path + "blockdata");
+    std::ifstream world_file(fileSystem::worlds_dir + world_name + ".world");
+    char c;
     for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++) {
-        char c;
         world_file >> std::noskipws >> c;
         blockEngine::world[i].block_id = (blockEngine::blockType) c;
     }

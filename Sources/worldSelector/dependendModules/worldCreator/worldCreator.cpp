@@ -69,7 +69,7 @@ void worldCreator::loop(std::vector<std::string> worlds) {
             SDL_StartTextInput();
             if(swl::handleBasicEvents(event, &running) && !running)
                 gameLoop::quit = true;
-            else if(can_create && create_button.isPressed(event)) {
+            else if((can_create && create_button.isPressed(event)) || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN)) {
                 gameLoop::main(name);
                 running = false;
             }

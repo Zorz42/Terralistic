@@ -85,6 +85,10 @@ void worldSelector::init() {
     x_texture = swl::loadTextureFromFile("texturePack/x-button.png", &x_width, &x_height);
 }
 
+bool ends_with(const std::string& value, std::string ending) {
+    return ending.size() > value.size() ? false : std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
 void reload() {
     position = 0;
     scroll_limit = 0;
@@ -102,12 +106,12 @@ void reload() {
     dirent *ent;
     while((ent = readdir(dir)) != nullptr) {
         std::string name = ent->d_name;
-        if(!std::count(banned_dirs.begin(), banned_dirs.end(), name))
-            worlds.emplace_back(name);
+        if(!std::count(banned_dirs.begin(), banned_dirs.end(), name) && ends_with(name, ".world"))
+            worlds.emplace_back(name.substr(0, name.size()-6));
     }
     closedir (dir);
     
-    for(auto & world : worlds) {
+    for(auto& world : worlds) {
         world.button.setScale(3);
         world.button.setColor(0, 0, 0);
         world.button.setHoverColor(100, 100, 100);
@@ -159,7 +163,7 @@ void worldSelector::loop() {
                         reload();
                         break;
                     } else if(world.delete_button.isPressed(event)) {
-                        fileSystem::removeDir(fileSystem::worlds_dir + world.name);
+                        fileSystem::removeFile(fileSystem::worlds_dir + world.name + ".world");
                         reload();
                     }
         }

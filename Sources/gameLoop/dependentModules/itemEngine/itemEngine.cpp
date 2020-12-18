@@ -13,6 +13,7 @@ void itemEngine::init() {
     unique_items = {
         uniqueItem("nothing", 0),
         uniqueItem("stone", 99),
+        uniqueItem("dirt", 99),
     };
 }
 

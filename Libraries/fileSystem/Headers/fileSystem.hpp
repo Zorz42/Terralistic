@@ -17,6 +17,7 @@ void setDataPath();
 bool dirExists(const std::string& path);
 void createDirIfNotExists(const std::string& path);
 int removeDir(const std::string& path);
+void removeFile(const std::string& path);
 
 }
 
