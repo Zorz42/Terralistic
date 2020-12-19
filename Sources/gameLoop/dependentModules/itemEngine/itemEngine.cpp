@@ -14,6 +14,7 @@ void itemEngine::init() {
         uniqueItem("nothing", 0),
         uniqueItem("stone", 99),
         uniqueItem("dirt", 99),
+        uniqueItem("stone_block", 99),
     };
 }
 

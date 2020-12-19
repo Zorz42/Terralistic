@@ -9,14 +9,13 @@
 #define itemEngine_hpp
 
 #include <SDL2/SDL.h>
-
 #include <string>
 #include <vector>
 #include "objectedGraphicsLibrary.hpp"
 
 namespace itemEngine {
 
-enum itemType {NOTHING, STONE, DIRT};
+enum itemType {NOTHING, STONE, DIRT, STONE_BLOCK};
 
 struct uniqueItem {
     uniqueItem(std::string name, unsigned short stack_size);
@@ -59,11 +58,9 @@ void updateItems();
 
 inline std::vector<uniqueItem> unique_items;
 inline std::vector<item> items;
-
 inline inventoryItem inventory[20];
 
 void spawnItem(itemType item_id, int x, int y);
-
 bool addItemToInventory(itemType id, int quantity);
 
 }
