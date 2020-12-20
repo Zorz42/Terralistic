@@ -63,6 +63,13 @@ inline inventoryItem inventory[20];
 void spawnItem(itemType item_id, int x, int y);
 bool addItemToInventory(itemType id, int quantity);
 
+void selectSlot(char slot);
+
+inline inventoryItem* selected_item = nullptr;
+inline char selected_slot = 0;
+
+bool handleEvents(SDL_Event& event);
+
 }
 
 #endif /* itemEngine_hpp */

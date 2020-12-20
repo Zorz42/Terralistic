@@ -19,7 +19,7 @@ void itemEngine::init() {
 }
 
 void itemEngine::prepare() {
-    
+    selectSlot(0);
 }
 
 void itemEngine::close() {
@@ -58,5 +58,23 @@ bool itemEngine::addItemToInventory(itemType id, int quantity) {
             if(!quantity)
                 return true;
         }
+    return false;
+}
+
+void itemEngine::selectSlot(char slot) {
+    selected_slot = slot;
+    selected_item = &inventory[slot];
+}
+
+bool itemEngine::handleEvents(SDL_Event &event) {
+    if(event.type == SDL_TEXTINPUT) {
+        char c = event.text.text[0];
+        if(c >= '0' && c <= '9') {
+            if(c == '0')
+                c = ':';
+            selectSlot(c - '1');
+            return true;
+        }
+    }
     return false;
 }

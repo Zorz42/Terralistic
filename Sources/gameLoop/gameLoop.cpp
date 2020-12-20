@@ -50,12 +50,14 @@ int gameLoop::main(std::string world_name) {
         }
         
         while(SDL_PollEvent(&event)) {
+            SDL_StartTextInput();
             if(swl::handleBasicEvents(event, &running) && !running)
                 quit = true;
             else if(pauseScreen::handleEvents(event));
+            else if(playerHandler::handleMovement(event));
+            else if(itemEngine::handleEvents(event));
             else
-                playerHandler::handleMovement(event);
-            blockSelector::handleEvent(event);
+                blockSelector::handleEvent(event);
         }
         playerHandler::doPhysics();
         playerHandler::move();

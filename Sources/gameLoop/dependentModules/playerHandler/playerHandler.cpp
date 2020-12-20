@@ -43,6 +43,8 @@ bool playerHandler::handleMovement(SDL_Event& event) {
                     player.flipped = false;
                 }
                 break;
+            default:
+                return false;
         }
     else if(event.type == SDL_KEYUP)
         switch (event.key.keysym.sym) {
@@ -62,6 +64,8 @@ bool playerHandler::handleMovement(SDL_Event& event) {
                 key_right = false;
                 velocity_x -= VELOCITY;
                 break;
+            default:
+                return false;
         }
     else
         return false;
