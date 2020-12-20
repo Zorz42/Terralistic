@@ -12,14 +12,12 @@
 
 #include <string>
 #include <vector>
-
-#include "itemEngine.hpp"
+#include "itemType.hpp"
+#include "blockType.hpp"
 
 #define BLOCK_WIDTH 16
 
 namespace blockEngine {
-
-enum blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE};
 
 struct block;
 

@@ -8,6 +8,7 @@
 #include "inventoryRenderer.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "blockEngine.hpp"
+#include "itemEngine.hpp"
 
 ogl::rect inventory_slots[10], select_rect;
 

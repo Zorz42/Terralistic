@@ -12,16 +12,17 @@
 #include <string>
 #include <vector>
 #include "objectedGraphicsLibrary.hpp"
+#include "itemType.hpp"
+#include "blockType.hpp"
 
 namespace itemEngine {
 
-enum itemType {NOTHING, STONE, DIRT, STONE_BLOCK};
-
 struct uniqueItem {
-    uniqueItem(std::string name, unsigned short stack_size);
+    uniqueItem(std::string name, unsigned short stack_size, blockEngine::blockType places);
     std::string name;
     SDL_Texture* texture;
     unsigned short stack_size;
+    blockEngine::blockType places;
 };
 
 struct item {
@@ -46,6 +47,7 @@ public:
     void setStack(unsigned short stack_);
     unsigned short getStack();
     unsigned short increaseStack(int stack_);
+    bool decreaseStack(int stack_);
 private:
     unsigned short stack;
 };

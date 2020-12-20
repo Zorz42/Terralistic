@@ -12,7 +12,7 @@
 
 itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100), velocity_x(rand() % 100 - 50), velocity_y(-rand() % 100 - 20) {}
 
-itemEngine::uniqueItem::uniqueItem(std::string name, unsigned short stack_size) : name(name), stack_size(stack_size), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")) {}
+itemEngine::uniqueItem::uniqueItem(std::string name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), places(places) {}
 
 itemEngine::inventoryItem::inventoryItem() : item_id(NOTHING), stack(0) {}
 
@@ -110,6 +110,8 @@ void itemEngine::inventoryItem::setStack(unsigned short stack_) {
     stack = stack_;
     if(stack > 1)
         stack_texture.loadFromText(std::to_string(stack_), {255, 255, 255});
+    else if(!stack)
+        item_id = NOTHING;
 }
 
 unsigned short itemEngine::inventoryItem::getStack() {
@@ -123,4 +125,13 @@ unsigned short itemEngine::inventoryItem::increaseStack(int stack_) {
     result = stack_to_be - stack;
     setStack(stack_to_be);
     return result;
+}
+
+bool itemEngine::inventoryItem::decreaseStack(int stack_) {
+    if(stack_ > stack)
+        return false;
+    else {
+        setStack(stack - stack_);
+        return true;
+    }
 }

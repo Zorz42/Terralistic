@@ -7,14 +7,18 @@
 
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
+#include "itemEngine.hpp"
 
 void grass_block_leftClickEvent(blockEngine::block* block) {
     block->block_id = blockEngine::DIRT;
 }
 
 void air_rightClickEvent(blockEngine::block* block) {
-    block->block_id = blockEngine::STONE_BLOCK;
-    blockEngine::updateNearestBlocks(block->getX(), block->getY());
+    blockEngine::blockType type = itemEngine::selected_item->getUniqueItem().places;
+    if(type != blockEngine::AIR && itemEngine::selected_item->decreaseStack(1)) {
+        block->block_id = type;
+        blockEngine::updateNearestBlocks(block->getX(), block->getY());
+    }
 }
 
 void blockEngine::init() {
