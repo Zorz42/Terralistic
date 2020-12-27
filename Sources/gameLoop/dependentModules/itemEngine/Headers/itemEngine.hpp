@@ -71,6 +71,7 @@ inline inventoryItem* selected_item = nullptr;
 inline char selected_slot = 0;
 
 bool handleEvents(SDL_Event& event);
+inline bool inventory_open = false;
 
 }
 

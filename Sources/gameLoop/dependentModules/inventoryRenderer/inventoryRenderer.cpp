@@ -10,7 +10,7 @@
 #include "blockEngine.hpp"
 #include "itemEngine.hpp"
 
-ogl::rect inventory_slots[10], select_rect;
+ogl::rect inventory_slots[20], select_rect;
 
 #define MARGIN 10
 
@@ -22,6 +22,14 @@ void inventoryRenderer::init() {
         inventory_slots[i].setWidth(2 * BLOCK_WIDTH + MARGIN);
         inventory_slots[i].setY(MARGIN);
         inventory_slots[i].setX((i - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN);
+    }
+    for(int i = 10; i < 20; i++) {
+        inventory_slots[i].setOrientation(ogl::top);
+        inventory_slots[i].setColor(100, 100, 100);
+        inventory_slots[i].setHeight(2 * BLOCK_WIDTH + MARGIN);
+        inventory_slots[i].setWidth(2 * BLOCK_WIDTH + MARGIN);
+        inventory_slots[i].setY(2 * BLOCK_WIDTH + 3 * MARGIN);
+        inventory_slots[i].setX((i - 15) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN);
     }
     
     select_rect.setOrientation(ogl::top);
@@ -38,4 +46,9 @@ void inventoryRenderer::render() {
         inventory_slots[i].render();
         itemEngine::inventory[i].render(inventory_slots[i].getX() + MARGIN / 2, inventory_slots[i].getY() + MARGIN / 2);
     }
+    if(itemEngine::inventory_open)
+        for(int i = 10; i < 20; i++) {
+            inventory_slots[i].render();
+            itemEngine::inventory[i].render(inventory_slots[i].getX() + MARGIN / 2, inventory_slots[i].getY() + MARGIN / 2);
+        }
 }

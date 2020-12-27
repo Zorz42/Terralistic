@@ -29,7 +29,7 @@ void worldSaver::saveWorld(std::string world_name) {
     swl::update();
 
     std::ofstream world_file(fileSystem::worlds_dir + world_name + ".world");
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 20; i++)
         world_file << (char)itemEngine::inventory[i].item_id << (char)itemEngine::inventory[i].getStack() << (char(itemEngine::inventory[i].getStack() >> 4));
     for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
         world_file << (char)blockEngine::world[i].block_id;
@@ -44,7 +44,7 @@ void worldSaver::loadWorld(std::string world_name) {
     
     std::ifstream world_file(fileSystem::worlds_dir + world_name + ".world");
     char c;
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 20; i++) {
         world_file >> std::noskipws >> c;
         itemEngine::inventory[i].item_id = (itemEngine::itemType)c;
         world_file >> std::noskipws >> c;

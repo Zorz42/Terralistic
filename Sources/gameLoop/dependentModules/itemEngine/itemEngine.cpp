@@ -20,6 +20,7 @@ void itemEngine::init() {
 
 void itemEngine::prepare() {
     selectSlot(0);
+    inventory_open = false;
 }
 
 void itemEngine::close() {
@@ -45,13 +46,13 @@ void itemEngine::spawnItem(itemType item_id, int x, int y) {
 }
 
 bool itemEngine::addItemToInventory(itemType id, int quantity) {
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 20; i++)
         if(inventory[i].item_id == id) {
             quantity -= inventory[i].increaseStack(quantity);
             if(!quantity)
                 return true;
         }
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 20; i++)
         if(inventory[i].item_id == NOTHING) {
             inventory[i].item_id = id;
             quantity -= inventory[i].increaseStack(quantity);
@@ -75,6 +76,7 @@ bool itemEngine::handleEvents(SDL_Event &event) {
             selectSlot(c - '1');
             return true;
         }
-    }
+    } else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e)
+        inventory_open = !inventory_open;
     return false;
 }
