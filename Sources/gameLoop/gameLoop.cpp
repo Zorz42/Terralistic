@@ -11,12 +11,14 @@
 #include "fileSystem.hpp"
 #include "itemEngine.hpp"
 #include "inventoryRenderer.hpp"
+#include "lightingEngine.hpp"
 
 #undef main
 
 int gameLoop::main(std::string world_name) {
     blockEngine::prepare();
     itemEngine::prepare();
+    lightingEngine::prepare();
     
     if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
@@ -28,6 +30,9 @@ int gameLoop::main(std::string world_name) {
         terrainGenerator::generateTerrain(0);
         worldSaver::saveWorld(world_name);
     }
+    
+    for(unsigned short x = 0; x < blockEngine::world_width; x++)
+        lightingEngine::setNaturalLight(x);
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
@@ -67,8 +72,8 @@ int gameLoop::main(std::string world_name) {
         swl::clear();
         
         playerHandler::render();
-        blockEngine::render_blocks();
         itemEngine::renderItems();
+        blockEngine::render_blocks();
         if(pauseScreen::paused)
             pauseScreen::render();
         else {
@@ -82,6 +87,7 @@ int gameLoop::main(std::string world_name) {
     worldSaver::saveWorld(world_name);
     blockEngine::close();
     itemEngine::close();
+    lightingEngine::close();
     
     return 0;
 }

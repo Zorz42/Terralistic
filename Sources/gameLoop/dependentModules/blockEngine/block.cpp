@@ -8,10 +8,13 @@
 #include <algorithm>
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
+#include "lightingEngine.hpp"
 
 void blockEngine::block::draw() {
+    SDL_Rect rect = getRect();
     if(getUniqueBlock().texture)
-        swl::render(getUniqueBlock().texture, getRect(), {0, 8 * block_orientation, 8, 8});
+        swl::render(getUniqueBlock().texture, rect, {0, 8 * block_orientation, 8, 8});
+    lightingEngine::light_map[this - world].render(rect.x, rect.y);
 }
 
 SDL_Rect blockEngine::block::getRect() {

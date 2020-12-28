@@ -18,6 +18,7 @@
 #include "worldCreator.hpp"
 #include "itemEngine.hpp"
 #include "inventoryRenderer.hpp"
+#include "lightingEngine.hpp"
 
 #undef main
 
@@ -34,6 +35,7 @@ int swl_main() {
     worldCreator::init();
     itemEngine::init();
     inventoryRenderer::init();
+    lightingEngine::init();
     
     swl::setWindowMinimumSize(swl::window_width, swl::window_height);
     

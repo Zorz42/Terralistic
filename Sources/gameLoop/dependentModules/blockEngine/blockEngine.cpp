@@ -8,6 +8,7 @@
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "itemEngine.hpp"
+#include "lightingEngine.hpp"
 
 void grass_block_leftClickEvent(blockEngine::block* block) {
     block->block_id = blockEngine::DIRT;
@@ -16,7 +17,9 @@ void grass_block_leftClickEvent(blockEngine::block* block) {
 void air_rightClickEvent(blockEngine::block* block) {
     blockEngine::blockType type = itemEngine::selected_item->getUniqueItem().places;
     if(type != blockEngine::AIR && itemEngine::selected_item->decreaseStack(1)) {
+        lightingEngine::removeNaturalLight(block->getX());
         block->block_id = type;
+        lightingEngine::setNaturalLight(block->getX());
         blockEngine::updateNearestBlocks(block->getX(), block->getY());
     }
 }

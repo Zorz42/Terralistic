@@ -135,7 +135,6 @@ void generateCaves(unsigned int seed) {
     LOADING_NEXT
 }
 
-
 void generateStone(unsigned int seed) {
     PerlinNoise noise(seed);
     for(unsigned int y = blockEngine::world_height - highest_height; y < blockEngine::world_height; y++)

@@ -39,7 +39,8 @@ int main(int argc, char **argv) {
     __swl_private::renderer = SDL_CreateRenderer(__swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if(!__swl_private::renderer)
         swl::popupError("Renderer could not be created!");
-
+    
+    SDL_SetRenderDrawBlendMode(__swl_private::renderer, SDL_BLENDMODE_BLEND);
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
     SDL_SetWindowDisplayMode(__swl_private::window, &dm);
 
