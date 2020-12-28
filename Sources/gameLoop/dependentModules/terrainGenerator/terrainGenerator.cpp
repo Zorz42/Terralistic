@@ -7,8 +7,8 @@
 
 #include "blockEngine.hpp"
 #include "terrainGenerator.hpp"
-#include "caveGenerator.hpp"
 #include "singleWindowLibrary.hpp"
+#include "simplex-noise.hpp"
 #include <cmath>
 #include <thread>
 
@@ -21,9 +21,8 @@
 
 // CAVES
 
-#define CAVE_START 0.70
+#define CAVE_START 0.15
 #define CAVE_LENGTH 0.3
-#define CAVE_CAP 0
 
 #define STONE_START 0.69
 #define STONE_LENGTH 1
@@ -36,9 +35,6 @@
 #define TURB_POWER 5.0 //makes twists
 #define TURB_SIZE 64.0 //initial size of the turbulence
 
-#define CAVE_CONSERVATIVE 1
-#define CAVE_SMOOTH 1
-
 void stackDirt(unsigned int x, unsigned int height);
 
 void generateSurface(unsigned int seed);
@@ -47,7 +43,7 @@ void generateStone(unsigned int seed);
 
 void generateNoise();
 
-unsigned int highest_height = CAVE_CAP;
+unsigned int highest_height = 0;
 
 #define LOADING_NEXT terrainGenerator::loading_current++;
 
@@ -62,7 +58,7 @@ int generateTerrainDaemon(unsigned int seed) {
 }
 
 void terrainGenerator::generateTerrain(unsigned int seed) {
-    terrainGenerator::loading_total = 7 + CAVE_CONSERVATIVE + CAVE_SMOOTH;
+    terrainGenerator::loading_total = 5;
     terrainGenerator::loading_current = 0;
     std::thread thread(generateTerrainDaemon, seed);
     
@@ -128,31 +124,14 @@ double terrainGenerator::turbulence(double x, double y, double size, double x_pe
 }
 
 void generateCaves(unsigned int seed) {
-    caveGenerator main_cm(blockEngine::world_width, highest_height - CAVE_CAP, seed);
+    osn_context* ctx;
+    open_simplex_noise(77374, &ctx);
     
-    main_cm.generateMap(CAVE_START, CAVE_LENGTH, CAVE_CAP, X_PERIOD, Y_PERIOD, TURB_POWER, TURB_SIZE, highest_height);
-    LOADING_NEXT
-    // smoothen map
-    for(int i = 0; i < CAVE_CONSERVATIVE; i++) {
-        main_cm.evolveMap(caveGenerator::CM_CONSERVATIVE);
-        LOADING_NEXT
-    }
-    for(int i = 0; i < CAVE_SMOOTH; i++) {
-        main_cm.evolveMap(caveGenerator::CM_SMOOTH);
-        LOADING_NEXT
-    }
-    
-    // make a transition from cave cap
-    for(unsigned int x = 0; x < blockEngine::world_width; x++)
-        for(unsigned int y = 0; main_cm.getElement(x, y) && y < 5; y++)
-            main_cm.getElement(x, y) = 0;
-    LOADING_NEXT
-    
-    // apply caves to the world
-    for(unsigned int y = CAVE_CAP; y < highest_height; y++)
+    for(unsigned int y = 0; y < highest_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
-            if(main_cm.getElement(x, y - CAVE_CAP))
+            if(open_simplex_noise2(ctx, (double)x / 10, (double)y / 10) > CAVE_START + CAVE_LENGTH - (double)y / highest_height * CAVE_LENGTH)
                 blockEngine::getBlock(x, y + (blockEngine::world_height - highest_height)).block_id = blockEngine::AIR;
+    open_simplex_noise_free(ctx);
     LOADING_NEXT
 }
 
