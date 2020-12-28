@@ -43,12 +43,16 @@ void lightingEngine::lightBlock::update() {
     bool update_neighbors = false;
     if(!source) {
         unsigned char level_to_be = 0;
-        for(unsigned char i = 0; i < 4; i++)
-            if(neighbors[i] != nullptr && neighbors[i]->level > level_to_be)
-                level_to_be = neighbors[i]->level;
+        for(unsigned char i = 0; i < 4; i++) {
+            if(neighbors[i] != nullptr) {
+                unsigned char light_step = blockEngine::world[neighbors[i] - light_map].getUniqueBlock().transparent ? 3 : 15;
+                unsigned char light = light_step > neighbors[i]->level ? 0 : neighbors[i]->level - light_step;
+                if(light > level_to_be)
+                    level_to_be = light;
+            }
+        }
         if(!level_to_be)
             return;
-        level_to_be--;
         if(level_to_be != level) {
             level = level_to_be;
             update_neighbors = true;
@@ -80,7 +84,7 @@ void lightingEngine::setNaturalLight(unsigned short x) {
     unsigned short y;
     for(y = 0; blockEngine::getBlock(x, y).getUniqueBlock().transparent; y++) {
         getLightBlock(x, y).source = true;
-        getLightBlock(x, y).level = 10;
+        getLightBlock(x, y).level = MAX_LIGHT;
     }
     getLightBlock(x, y).update();
 }

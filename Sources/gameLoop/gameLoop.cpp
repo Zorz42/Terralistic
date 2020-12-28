@@ -30,11 +30,9 @@ int gameLoop::main(std::string world_name) {
         terrainGenerator::generateTerrain(0);
         worldSaver::saveWorld(world_name);
     }
-    
-    int start = SDL_GetTicks();
+
     for(unsigned short x = 0; x < blockEngine::world_width; x++)
         lightingEngine::setNaturalLight(x);
-    std::cout << float(SDL_GetTicks() - start) / 1000 << " s" << std::endl;
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;

@@ -8,7 +8,7 @@
 #ifndef lightingEngine_hpp
 #define lightingEngine_hpp
 
-#define MAX_LIGHT 10
+#define MAX_LIGHT 100
 
 namespace lightingEngine {
 
