@@ -21,6 +21,7 @@ void air_rightClickEvent(blockEngine::block* block) {
         block->block_id = type;
         lightingEngine::setNaturalLight(block->getX());
         blockEngine::updateNearestBlocks(block->getX(), block->getY());
+        lightingEngine::getLightBlock(block->getX(), block->getY()).update();
     }
 }
 
@@ -121,5 +122,6 @@ void blockEngine::leftClickEvent(int x, int y) {
         getBlock(x, y) = blockEngine::AIR;
         updateNearestBlocks(x, y);
         lightingEngine::setNaturalLight(x);
+        lightingEngine::getLightBlock(x, y).update();
     }
 }
