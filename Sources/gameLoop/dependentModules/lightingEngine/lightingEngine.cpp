@@ -9,9 +9,6 @@
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
 
-
-#include <iostream>
-
 void lightingEngine::init() {
     
 }
@@ -31,23 +28,30 @@ void lightingEngine::lightBlock::render(short x, short y) {
 }
 
 void lightingEngine::lightBlock::update() {
-    std::vector<lightBlock*> neighbors;
-    if(getX() != 0)
-        neighbors.push_back(&getLightBlock(getX() - 1, getY()));
-    if(getX() != blockEngine::world_width - 1)
-        neighbors.push_back(&getLightBlock(getX() + 1, getY()));
-    if(getY() != 0)
-        neighbors.push_back(&getLightBlock(getX(), getY() - 1));
-    if(getY() != blockEngine::world_height - 1)
-        neighbors.push_back(&getLightBlock(getX(), getY() + 1));
+    lightBlock* neighbors[4];
+    unsigned char neighbors_len = 0;
+    if(getX() != 0) {
+        neighbors[neighbors_len] = &getLightBlock(getX() - 1, getY());
+        neighbors_len++;
+    }
+    if(getX() != blockEngine::world_width - 1){
+        neighbors[neighbors_len] = &getLightBlock(getX() + 1, getY());
+        neighbors_len++;
+    }
+    if(getY() != 0){
+        neighbors[neighbors_len] = &getLightBlock(getX(), getY() - 1);
+        neighbors_len++;
+    }
+    if(getY() != blockEngine::world_height - 1){
+        neighbors[neighbors_len] = &getLightBlock(getX(), getY() + 1);
+        neighbors_len++;
+    }
     bool update_neighbors = false;
-    if(source)
-        update_neighbors = true;
-    else {
+    if(!source) {
         unsigned char level_to_be = 0;
-        for(lightBlock* neighbor : neighbors)
-            if(neighbor->level > level_to_be)
-                level_to_be = neighbor->level;
+        for(unsigned char i = 0; i < neighbors_len; i++)
+            if(neighbors[i]->level > level_to_be)
+                level_to_be = neighbors[i]->level;
         if(!level_to_be)
             return;
         level_to_be--;
@@ -56,10 +60,10 @@ void lightingEngine::lightBlock::update() {
             update_neighbors = true;
         }
     }
-    if(update_neighbors)
-        for(lightBlock* neighbor : neighbors)
-            if(!neighbor->source)
-                neighbor->update();
+    if(update_neighbors || source)
+        for(unsigned char i = 0; i < neighbors_len; i++)
+            if(!neighbors[i]->source)
+                neighbors[i]->update();
 }
 
 unsigned short lightingEngine::lightBlock::getX() {
