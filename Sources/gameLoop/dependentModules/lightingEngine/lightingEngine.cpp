@@ -22,35 +22,29 @@ void lightingEngine::close() {
 }
 
 void lightingEngine::lightBlock::render(short x, short y) {
-    SDL_Rect rect = {x, y, BLOCK_WIDTH, BLOCK_WIDTH};
-    swl::setDrawColor(0, 0, 0, 255 - 255.0 / MAX_LIGHT * level);
-    swl::render(rect);
+    if(level != MAX_LIGHT) {
+        SDL_Rect rect = {x, y, BLOCK_WIDTH, BLOCK_WIDTH};
+        unsigned char light_level = 255 - 255.0 / MAX_LIGHT * level;
+        swl::setDrawColor(0, 0, 0, light_level);
+        swl::render(rect);
+    }
 }
 
 void lightingEngine::lightBlock::update() {
-    lightBlock* neighbors[4];
-    unsigned char neighbors_len = 0;
-    if(getX() != 0) {
-        neighbors[neighbors_len] = &getLightBlock(getX() - 1, getY());
-        neighbors_len++;
-    }
-    if(getX() != blockEngine::world_width - 1){
-        neighbors[neighbors_len] = &getLightBlock(getX() + 1, getY());
-        neighbors_len++;
-    }
-    if(getY() != 0){
-        neighbors[neighbors_len] = &getLightBlock(getX(), getY() - 1);
-        neighbors_len++;
-    }
-    if(getY() != blockEngine::world_height - 1){
-        neighbors[neighbors_len] = &getLightBlock(getX(), getY() + 1);
-        neighbors_len++;
-    }
+    lightBlock* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
+    if(getX() != 0)
+        neighbors[0] = this - 1;
+    if(getX() != blockEngine::world_width - 1)
+        neighbors[1] = this + 1;
+    if(getY() != 0)
+        neighbors[2] = this - blockEngine::world_width;
+    if(getY() != blockEngine::world_height - 1)
+        neighbors[3] = this + blockEngine::world_width;
     bool update_neighbors = false;
     if(!source) {
         unsigned char level_to_be = 0;
-        for(unsigned char i = 0; i < neighbors_len; i++)
-            if(neighbors[i]->level > level_to_be)
+        for(unsigned char i = 0; i < 4; i++)
+            if(neighbors[i] != nullptr && neighbors[i]->level > level_to_be)
                 level_to_be = neighbors[i]->level;
         if(!level_to_be)
             return;
@@ -61,8 +55,8 @@ void lightingEngine::lightBlock::update() {
         }
     }
     if(update_neighbors || source)
-        for(unsigned char i = 0; i < neighbors_len; i++)
-            if(!neighbors[i]->source)
+        for(unsigned char i = 0; i < 4; i++)
+            if(neighbors[i] != nullptr && !neighbors[i]->source)
                 neighbors[i]->update();
 }
 

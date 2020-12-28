@@ -117,7 +117,9 @@ void blockEngine::leftClickEvent(int x, int y) {
     else {
         if(block->getUniqueBlock().drop != itemEngine::NOTHING)
             itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+        lightingEngine::removeNaturalLight(x);
         getBlock(x, y) = blockEngine::AIR;
         updateNearestBlocks(x, y);
+        lightingEngine::setNaturalLight(x);
     }
 }

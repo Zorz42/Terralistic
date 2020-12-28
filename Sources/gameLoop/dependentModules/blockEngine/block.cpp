@@ -12,13 +12,13 @@
 
 void blockEngine::block::draw() {
     SDL_Rect rect = getRect();
-    if(getUniqueBlock().texture)
+    if(getUniqueBlock().texture && lightingEngine::light_map[this - world].level)
         swl::render(getUniqueBlock().texture, rect, {0, 8 * block_orientation, 8, 8});
     lightingEngine::light_map[this - world].render(rect.x, rect.y);
 }
 
 SDL_Rect blockEngine::block::getRect() {
-    return {int(getX() * BLOCK_WIDTH - view_x + swl::window_width / 2), int(getY() * BLOCK_WIDTH - view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
+    return {int(getX() * BLOCK_WIDTH - view_x + swl::window_width * 0.5), int(getY() * BLOCK_WIDTH - view_y + swl::window_height * 0.5), BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
 unsigned int blockEngine::block::getX() {
