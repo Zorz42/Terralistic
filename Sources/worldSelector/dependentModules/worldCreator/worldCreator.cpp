@@ -23,10 +23,9 @@ std::string name;
 void worldCreator::init() {
     back_button_creator.setColor(0, 0, 0);
     back_button_creator.setHoverColor(100, 100, 100);
-    back_button_creator.setTextColor(255, 255, 255);
     back_button_creator.setScale(3);
-    back_button_creator.setText("Back");
-    back_button_creator.setY(-PADDING);
+    back_button_creator.setText("Back", 255, 255, 255);
+    back_button_creator.y = -PADDING;
     
     new_world_title.loadFromText("New world name:", {255, 255, 255});
     new_world_title.scale = 3;
@@ -34,13 +33,12 @@ void worldCreator::init() {
     
     create_button.setColor(0, 0, 0);
     create_button.setHoverColor(100, 100, 100);
-    create_button.setTextColor(255, 255, 255);
     create_button.setScale(3);
-    create_button.setText("Create world");
-    create_button.setY(-PADDING);
+    create_button.setText("Create world", 255, 255, 255);
+    create_button.y = -PADDING;
     
-    back_button_creator.setX((-create_button.getWidth() - back_button_creator.getWidth() + back_button_creator.getWidth() - PADDING) / 2);
-    create_button.setX((create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2);
+    back_button_creator.x = (-create_button.getWidth() - back_button_creator.getWidth() + back_button_creator.getWidth() - PADDING) / 2;
+    create_button.x = (create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2;
     
     faded_create.loadFromText("Create world", {100, 100, 100});
     faded_create.scale = 3;
@@ -72,7 +70,7 @@ void worldCreator::loop(std::vector<std::string> worlds) {
             SDL_StartTextInput();
             if(swl::handleBasicEvents(event, &running) && !running)
                 gameLoop::quit = true;
-            else if(can_create && create_button.isPressed(event)) {
+            else if(can_create && (create_button.isPressed(event) || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN))) {
                 gameLoop::main(name);
                 running = false;
             }
