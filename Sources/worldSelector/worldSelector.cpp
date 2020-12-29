@@ -71,7 +71,7 @@ void worldSelector::init() {
     top_rect.setHeight(TOP_HEIGHT);
     top_rect.setColor(0, 0, 0);
     
-    bottom_rect.setHeight(static_cast<short>());
+    bottom_rect.setHeight(BOTTOM_HEIGHT);
     bottom_rect.setColor(0, 0, 0);
     
     top_line_rect.setColor(100, 100, 100);

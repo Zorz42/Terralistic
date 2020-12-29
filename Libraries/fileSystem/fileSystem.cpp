@@ -9,7 +9,7 @@
 #include "platform_folders.h"
 #include <sys/stat.h>
 #include <dirent.h>
-//#include <unistd.h>
+#include <unistd.h>
 
 struct stat info;
 

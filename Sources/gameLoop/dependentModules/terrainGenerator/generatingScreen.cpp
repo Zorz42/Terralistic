@@ -26,9 +26,9 @@ void terrainGenerator::generatingScreen() {
     loading_text.setY((LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2);
     loading_text.loadFromText("Generating world", SDL_Color{255, 255, 255});
     
-    ui::loadingBar loading_bar(static_cast<unsigned short>(loading_total), ogl::bottom);
+    ui::loadingBar loading_bar(loading_total, ogl::bottom);
     loading_bar.setHeight(LOADING_RECT_HEIGHT);
-    loading_bar.setWidth(static_cast<short>());
+    loading_bar.setWidth(LOADING_RECT_WIDTH);
     loading_bar.setColor(255, 255, 255);
     loading_bar.setBackColor(100, 100, 100);
     loading_bar.setY(-LOADING_RECT_ELEVATION);
@@ -45,7 +45,7 @@ void terrainGenerator::generatingScreen() {
         
         loading_text.render();
         
-        loading_bar.setWidth(static_cast<short>());
+        loading_bar.setWidth(LOADING_RECT_WIDTH);
         loading_bar.render();
         
         swl::update();
