@@ -15,7 +15,7 @@ namespace lightingEngine {
 struct lightBlock {
     unsigned char level = 0;
     bool source = false;
-    void render(short x, short y);
+    void render(short x, short y) const;
     void update(bool update=true);
     unsigned short getX();
     unsigned short getY();

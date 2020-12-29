@@ -4,7 +4,6 @@
 #include "terrainGenerator.hpp"
 #include "playerHandler.hpp"
 #include "framerateRegulator.hpp"
-#include "objectedGraphicsLibrary.hpp"
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
@@ -15,7 +14,7 @@
 
 #undef main
 
-int gameLoop::main(std::string world_name) {
+int gameLoop::main(const std::string& world_name) {
     blockEngine::prepare();
     itemEngine::prepare();
     lightingEngine::prepare();

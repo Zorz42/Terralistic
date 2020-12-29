@@ -18,7 +18,7 @@
 namespace itemEngine {
 
 struct uniqueItem {
-    uniqueItem(std::string name, unsigned short stack_size, blockEngine::blockType places);
+    uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places);
     std::string name;
     SDL_Texture* texture;
     unsigned short stack_size;
@@ -31,23 +31,23 @@ struct item {
     int x, y, velocity_x, velocity_y;
     
     void draw();
-    SDL_Rect getRect();
+    SDL_Rect getRect() const;
     void update();
-    bool colliding();
-    uniqueItem& getUniqueItem();
+    bool colliding() const;
+    uniqueItem& getUniqueItem() const;
 };
 
 struct inventoryItem {
 public:
     inventoryItem();
     itemType item_id;
-    uniqueItem& getUniqueItem();
+    uniqueItem& getUniqueItem() const;
     void render(int x, int y);
     ogl::texture stack_texture{(ogl::top_left)};
     void setStack(unsigned short stack_);
-    unsigned short getStack();
-    unsigned short increaseStack(int stack_);
-    bool decreaseStack(int stack_);
+    unsigned short getStack() const;
+    unsigned short increaseStack(unsigned short stack_);
+    bool decreaseStack(unsigned short stack_);
 private:
     unsigned short stack;
 };

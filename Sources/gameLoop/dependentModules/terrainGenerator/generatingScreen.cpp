@@ -19,19 +19,19 @@ void terrainGenerator::generatingScreen() {
     
 #define LOADING_RECT_HEIGHT 20
 #define LOADING_RECT_WIDTH (swl::window_width / 5 * 4)
-#define LOADING_RECT_ELAVATION 50
+#define LOADING_RECT_ELEVATION 50
     
     ogl::texture loading_text(ogl::center);
     loading_text.scale = TEXT_SCALE;
-    loading_text.setY((LOADING_RECT_HEIGHT - LOADING_RECT_ELAVATION) / 2);
+    loading_text.setY((LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2);
     loading_text.loadFromText("Generating world", SDL_Color{255, 255, 255});
     
-    ui::loadingBar loading_bar(loading_total, ogl::bottom);
+    ui::loadingBar loading_bar(static_cast<unsigned short>(loading_total), ogl::bottom);
     loading_bar.setHeight(LOADING_RECT_HEIGHT);
-    loading_bar.setWidth(LOADING_RECT_WIDTH);
+    loading_bar.setWidth(static_cast<short>());
     loading_bar.setColor(255, 255, 255);
     loading_bar.setBackColor(100, 100, 100);
-    loading_bar.setY(-LOADING_RECT_ELAVATION);
+    loading_bar.setY(-LOADING_RECT_ELEVATION);
     loading_bar.bind(&loading_current);
     
     while(running && loading_current < loading_total) {
@@ -45,7 +45,7 @@ void terrainGenerator::generatingScreen() {
         
         loading_text.render();
         
-        loading_bar.setWidth(LOADING_RECT_WIDTH);
+        loading_bar.setWidth(static_cast<short>());
         loading_bar.render();
         
         swl::update();

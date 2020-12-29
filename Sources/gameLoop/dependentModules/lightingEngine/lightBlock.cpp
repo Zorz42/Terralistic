@@ -9,10 +9,10 @@
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
 
-void lightingEngine::lightBlock::render(short x, short y) {
+void lightingEngine::lightBlock::render(short x, short y) const {
     if(level != MAX_LIGHT) {
         SDL_Rect rect = {x, y, BLOCK_WIDTH, BLOCK_WIDTH};
-        unsigned char light_level = 255 - 255.0 / MAX_LIGHT * level;
+        auto light_level = static_cast<unsigned char>(255 - 255.0 / MAX_LIGHT * level);
         swl::setDrawColor(0, 0, 0, light_level);
         swl::render(rect);
     }
@@ -31,10 +31,13 @@ void lightingEngine::lightBlock::update(bool update) {
     bool update_neighbors = false;
     if(!source) {
         unsigned char level_to_be = 0;
-        for(unsigned char i = 0; i < 4; i++) {
-            if(neighbors[i] != nullptr) {
-                unsigned char light_step = blockEngine::world[neighbors[i] - light_map].getUniqueBlock().transparent ? 3 : 15;
-                unsigned char light = light_step > neighbors[i]->level ? 0 : neighbors[i]->level - light_step;
+        for(auto & neighbor : neighbors) {
+            if(neighbor != nullptr) {
+                unsigned char light_step = static_cast<unsigned char>(blockEngine::world[neighbor -
+                                                                                         light_map].getUniqueBlock().transparent
+                                                                      ? 3 : 15);
+                unsigned char light = static_cast<unsigned char>(light_step > neighbor->level ? 0 : neighbor->level -
+                                                                                                    light_step);
                 if(light > level_to_be)
                     level_to_be = light;
             }
@@ -47,16 +50,16 @@ void lightingEngine::lightBlock::update(bool update) {
         }
     }
     if((update_neighbors || source) && update)
-        for(unsigned char i = 0; i < 4; i++)
-            if(neighbors[i] != nullptr && !neighbors[i]->source)
-                neighbors[i]->update();
+        for(auto & neighbor : neighbors)
+            if(neighbor != nullptr && !neighbor->source)
+                neighbor->update();
 }
 
 unsigned short lightingEngine::lightBlock::getX() {
-    return (unsigned int)(this - light_map) % blockEngine::world_width;
+    return static_cast<unsigned short>((unsigned int) (this - light_map) % blockEngine::world_width);
 }
 
 unsigned short lightingEngine::lightBlock::getY() {
-    return (unsigned int)(this - light_map) / blockEngine::world_width;
+    return static_cast<unsigned short>((unsigned int) (this - light_map) / blockEngine::world_width);
 }
 

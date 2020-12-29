@@ -12,11 +12,11 @@
 
 namespace blockSelector {
 
-int mouseOnMapX();
-int mouseOnMapY();
+unsigned int mouseOnMapX();
+unsigned int mouseOnMapY();
 
-int onMapX(unsigned int x);
-int onMapY(unsigned int y);
+unsigned int onMapX(unsigned int x);
+unsigned int onMapY(unsigned int y);
 
 void init();
 void render();

@@ -23,14 +23,14 @@ void startMenu::main() {
     play_button.setHoverColor(100, 100, 100);
     play_button.setScale(3);
     play_button.setText("Play", 255, 255, 255);
-    play_button.y = -play_button.getHeight() / 2 - 1;
+    play_button.y = short(-play_button.getHeight() / 2 - 1);
     
     ui::button exit_button;
     exit_button.setColor(0, 0, 0);
     exit_button.setHoverColor(100, 100, 100);
     exit_button.setScale(3);
     exit_button.setText("Exit", 255, 255, 255);
-    exit_button.y = exit_button.getHeight() / 2;
+    exit_button.y = short(exit_button.getHeight() / 2);
     
     while(running && !gameLoop::quit) {
         framerateRegulator::regulateFramerate();

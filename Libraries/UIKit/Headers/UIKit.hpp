@@ -16,7 +16,7 @@ public:
     button(ogl::objectType type=ogl::center);
     
     void setHoverColor(Uint8 r, Uint8 g, Uint8 b);
-    void setTextColor(Uint8 r, Uint8 g, Uint8 b);
+
     using ogl::rect::setColor;
     
     void setText(std::string text_, Uint8 r, Uint8 g, Uint8 b);
@@ -35,9 +35,9 @@ public:
     
     void setFreeTexture(bool free);
 protected:
-    Uint8 hover_r, hover_g, hover_b;
+    Uint8 hover_r{}, hover_g{}, hover_b{};
     ogl::texture text;
-    unsigned short margin;
+    unsigned short margin{};
 };
 
 class loadingBar : protected ogl::rect {
@@ -59,7 +59,7 @@ public:
 protected:
     unsigned short progress_width = 0, *current_progress = nullptr;
     unsigned short total_progress;
-    Uint8 back_r, back_g, back_b;
+    Uint8 back_r{}, back_g{}, back_b{};
 };
 
 }

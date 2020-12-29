@@ -13,32 +13,19 @@
  *   of any particular randomization library, so results
  *   will be the same when ported to other languages.
  */
-#include <math.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cstdint>
+#include <cerrno>
 
 #include "simplex-noise.hpp"
 
 #define STRETCH_CONSTANT_2D (-0.211324865405187)    /* (1 / sqrt(2 + 1) - 1 ) / 2; */
 #define SQUISH_CONSTANT_2D  (0.366025403784439)     /* (sqrt(2 + 1) -1) / 2; */
-#define STRETCH_CONSTANT_3D (-1.0 / 6.0)            /* (1 / sqrt(3 + 1) - 1) / 3; */
-#define SQUISH_CONSTANT_3D  (1.0 / 3.0)             /* (sqrt(3+1)-1)/3; */
-#define STRETCH_CONSTANT_4D (-0.138196601125011)    /* (1 / sqrt(4 + 1) - 1) / 4; */
-#define SQUISH_CONSTANT_4D  (0.309016994374947)     /* (sqrt(4 + 1) - 1) / 4; */
-    
 #define NORM_CONSTANT_2D (47.0)
-#define NORM_CONSTANT_3D (103.0)
-#define NORM_CONSTANT_4D (30.0)
-    
-#define DEFAULT_SEED (0LL)
 
 struct osn_context {
     int16_t *perm;
 };
-
-#define ARRAYSIZE(x) (sizeof((x)) / sizeof((x)[0]))
 
 /*
  * Gradients for 2D. They approximate the directions to the
@@ -63,7 +50,7 @@ static INLINE int fastFloor(double x) {
     return x < xi ? xi - 1 : xi;
 }
     
-static int allocate_perm(struct osn_context *ctx, int nperm, int ngrad) {
+static int allocate_perm(struct osn_context *ctx, int nperm) {
     if (ctx->perm)
         free(ctx->perm);
     ctx->perm = (int16_t *) malloc(sizeof(*ctx->perm) * nperm);
@@ -87,9 +74,9 @@ int open_simplex_noise(int64_t seed, struct osn_context **ctx) {
     *ctx = (struct osn_context *) malloc(sizeof(**ctx));
     if (!(*ctx))
         return -ENOMEM;
-    (*ctx)->perm = NULL;
+    (*ctx)->perm = nullptr;
 
-    rc = allocate_perm(*ctx, 256, 256);
+    rc = allocate_perm(*ctx, 256);
     if (rc) {
         free(*ctx);
         return rc;
@@ -97,7 +84,7 @@ int open_simplex_noise(int64_t seed, struct osn_context **ctx) {
 
     perm = (*ctx)->perm;
 
-    uint64_t seedU = seed;
+    uint64_t seedU = static_cast<uint64_t>(seed);
     for (i = 0; i < 256; i++)
         source[i] = (int16_t) i;
     seedU = seedU * 6364136223846793005ULL + 1442695040888963407ULL;
@@ -119,7 +106,7 @@ void open_simplex_noise_free(struct osn_context *ctx) {
         return;
     if (ctx->perm) {
         free(ctx->perm);
-        ctx->perm = NULL;
+        ctx->perm = nullptr;
     }
     free(ctx);
 }

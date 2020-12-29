@@ -38,7 +38,7 @@ void swl::loadFont(std::string path, int size) {
         swl::popupError(path + " could not be loaded!");
 }
 
-SDL_Texture* swl::loadTextureFromText(std::string text, SDL_Color text_color, int *w, int *h) {
+SDL_Texture* swl::loadTextureFromText(const std::string& text, SDL_Color text_color, int *w, int *h) {
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(__swl_private::font, text.c_str(), text_color);
     if(!rendered_surface)
         swl::popupError("Surface with text \"" + text + "\" could not be rendered!");

@@ -59,8 +59,8 @@ bool ui::button::isPressed(SDL_Event &event) {
 
 void ui::button::setMargin(unsigned short margin_) {
     margin = margin_;
-    setWidth(text.getWidth() + 2 * margin * text.scale);
-    setHeight(text.getHeight() + 2 * margin * text.scale);
+    setWidth(static_cast<short>(text.getWidth() + 2 * margin * text.scale));
+    setHeight(static_cast<short>(text.getHeight() + 2 * margin * text.scale));
 }
 
 void ui::button::setFreeTexture(bool free) {

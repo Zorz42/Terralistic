@@ -7,7 +7,6 @@
 
 #include "lightingEngine.hpp"
 #include "blockEngine.hpp"
-#include "singleWindowLibrary.hpp"
 
 void lightingEngine::init() {
     
@@ -38,7 +37,7 @@ lightingEngine::lightBlock& lightingEngine::getLightBlock(unsigned short x, unsi
 void lightingEngine::addLightSource(unsigned short x, unsigned short y, unsigned char power) {
     lightBlock& block = getLightBlock(x, y);
     block.source = true;
-    block.level = MAX_LIGHT;
+    block.level = power;
     block.update();
 }
 

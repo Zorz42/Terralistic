@@ -39,9 +39,9 @@ std::vector<world_to_select> worlds;
 int scroll_limit;
 
 void world_to_select::render(bool display_hover) {
-    button.y = button_y - position;
+    button.y = short(button_y - position);
     button.render(display_hover);
-    delete_button.y = button_y - position + (button.getHeight() - delete_button.getHeight()) / 2;
+    delete_button.y = short(button_y - position + (button.getHeight() - delete_button.getHeight()) / 2);
     delete_button.render(display_hover);
 }
 
@@ -71,7 +71,7 @@ void worldSelector::init() {
     top_rect.setHeight(TOP_HEIGHT);
     top_rect.setColor(0, 0, 0);
     
-    bottom_rect.setHeight(BOTTOM_HEIGHT);
+    bottom_rect.setHeight(static_cast<short>());
     bottom_rect.setColor(0, 0, 0);
     
     top_line_rect.setColor(100, 100, 100);
@@ -80,13 +80,13 @@ void worldSelector::init() {
     
     bottom_line_rect.setColor(100, 100, 100);
     bottom_line_rect.setHeight(LINE_HEIGHT);
-    bottom_line_rect.setY(-BOTTOM_HEIGHT);
+    bottom_line_rect.setY(short(-BOTTOM_HEIGHT));
     
     x_texture = swl::loadTextureFromFile("texturePack/x-button.png", &x_width, &x_height);
 }
 
 bool ends_with(const std::string& value, std::string ending) {
-    return ending.size() > value.size() ? false : std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+    return ending.size() <= value.size() && std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
 void reload() {
@@ -123,7 +123,7 @@ void reload() {
         world.delete_button.setScale(3);
         world.delete_button.setColor(0, 0, 0);
         world.delete_button.setHoverColor(100, 100, 100);
-        world.delete_button.x = world.button.getWidth() / 2 + world.delete_button.getWidth() / 2 + PADDING;
+        world.delete_button.x = short(world.button.getWidth() / 2 + world.delete_button.getWidth() / 2 + PADDING);
         
         scroll_limit += world.button.getHeight() + PADDING;
         
@@ -132,7 +132,7 @@ void reload() {
 }
 
 void worldSelector::loop() {
-    bool running = true, display_hover = true;
+    bool running = true, display_hover;
     SDL_Event event;
     
     reload();
@@ -170,10 +170,10 @@ void worldSelector::loop() {
         
         display_hover = swl::mouse_y > TOP_HEIGHT && swl::mouse_y < swl::window_height - BOTTOM_HEIGHT;
         
-        top_rect.setWidth(swl::window_width);
-        bottom_rect.setWidth(swl::window_width);
-        top_line_rect.setWidth(swl::window_width);
-        bottom_line_rect.setWidth(swl::window_width);
+        top_rect.setWidth(short(swl::window_width));
+        bottom_rect.setWidth(short(swl::window_width));
+        top_line_rect.setWidth(short(swl::window_width));
+        bottom_line_rect.setWidth(short(swl::window_width));
         
         swl::setDrawColor(0, 0, 0);
         swl::clear();

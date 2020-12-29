@@ -11,7 +11,6 @@
 #include "UIKit.hpp"
 #include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
-#include "worldSelector.hpp"
 #include "gameLoop.hpp"
 
 ui::button back_button_creator(ogl::bottom), create_button(ogl::bottom);
@@ -37,13 +36,13 @@ void worldCreator::init() {
     create_button.setText("Create world", 255, 255, 255);
     create_button.y = -PADDING;
     
-    back_button_creator.x = (-create_button.getWidth() - back_button_creator.getWidth() + back_button_creator.getWidth() - PADDING) / 2;
-    create_button.x = (create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2;
+    back_button_creator.x = short((-create_button.getWidth() - back_button_creator.getWidth() + back_button_creator.getWidth() - PADDING) / 2);
+    create_button.x = short((create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2);
     
     faded_create.loadFromText("Create world", {100, 100, 100});
     faded_create.scale = 3;
-    faded_create.setX((create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2);
-    faded_create.setY(-PADDING - 10 * faded_create.scale);
+    faded_create.setX(short((create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2));
+    faded_create.setY(short(-PADDING - 10 * faded_create.scale));
     
     world_name.scale = 3;
 }
@@ -51,12 +50,12 @@ void worldCreator::init() {
 void renderText() {
     if(!name.empty()) {
         world_name.loadFromText(name, {255, 255, 255});
-        world_name.setY(-world_name.getHeight() / 7);
+        world_name.setY(short(-world_name.getHeight() / 7));
     }
 }
 
 void worldCreator::loop(std::vector<std::string> worlds) {
-    bool running = true, can_create = false;
+    bool running = true, can_create;
     SDL_Event event;
     name = "";
     

@@ -12,7 +12,7 @@
 
 itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100), velocity_x(rand() % 100 - 50), velocity_y(-rand() % 100 - 20) {}
 
-itemEngine::uniqueItem::uniqueItem(std::string name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), places(places) {}
+itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), places(places) {}
 
 itemEngine::inventoryItem::inventoryItem() : item_id(NOTHING), stack(0) {}
 
@@ -20,11 +20,12 @@ void itemEngine::item::draw() {
     swl::render(getUniqueItem().texture, getRect());
 }
 
-SDL_Rect itemEngine::item::getRect() {
-    return {int(x / 100 - blockEngine::view_x + swl::window_width / 2), int(y / 100 - blockEngine::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
+SDL_Rect itemEngine::item::getRect() const {
+    return {(x / 100 - blockEngine::view_x + swl::window_width / 2),
+            (y / 100 - blockEngine::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
-itemEngine::uniqueItem& itemEngine::item::getUniqueItem() {
+itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
     return unique_items.at(item_id);
 }
 
@@ -78,7 +79,7 @@ void itemEngine::item::update() {
     
 }
 
-bool itemEngine::item::colliding() {
+bool itemEngine::item::colliding() const {
     int height_x = 1, height_y = 1;
     if(x / 100 % BLOCK_WIDTH)
         height_x++;
@@ -87,12 +88,13 @@ bool itemEngine::item::colliding() {
     int block_x = x / 100 / BLOCK_WIDTH, block_y = y / 100 / BLOCK_WIDTH;
     for(int x_ = 0; x_ < height_x; x_++)
         for(int y_ = 0; y_ < height_y; y_++)
-            if(!blockEngine::getBlock(block_x + x_, block_y + y_).getUniqueBlock().transparent)
+            if(!blockEngine::getBlock(static_cast<unsigned short>(block_x + x_),
+                                      static_cast<unsigned short>(block_y + y_)).getUniqueBlock().transparent)
                 return true;
     return false;
 }
 
-itemEngine::uniqueItem& itemEngine::inventoryItem::getUniqueItem() {
+itemEngine::uniqueItem& itemEngine::inventoryItem::getUniqueItem() const {
     return unique_items.at(item_id);
 }
 
@@ -100,8 +102,8 @@ void itemEngine::inventoryItem::render(int x, int y) {
     if(getUniqueItem().texture != nullptr)
         swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     if(stack > 1) {
-        stack_texture.setX(x + BLOCK_WIDTH * 2 - stack_texture.getWidth());
-        stack_texture.setY(y + BLOCK_WIDTH * 2 - stack_texture.getHeight());
+        stack_texture.setX(static_cast<short>(x + BLOCK_WIDTH * 2 - stack_texture.getWidth()));
+        stack_texture.setY(static_cast<short>(y + BLOCK_WIDTH * 2 - stack_texture.getHeight()));
         stack_texture.render();
     }
 }
@@ -114,20 +116,20 @@ void itemEngine::inventoryItem::setStack(unsigned short stack_) {
         item_id = NOTHING;
 }
 
-unsigned short itemEngine::inventoryItem::getStack() {
+unsigned short itemEngine::inventoryItem::getStack() const {
     return stack;
 }
 
-unsigned short itemEngine::inventoryItem::increaseStack(int stack_) {
+unsigned short itemEngine::inventoryItem::increaseStack(unsigned short stack_) {
     int stack_to_be = stack + stack_, result;
     if(stack_to_be > getUniqueItem().stack_size)
         stack_to_be = getUniqueItem().stack_size;
     result = stack_to_be - stack;
-    setStack(stack_to_be);
-    return result;
+    setStack(static_cast<unsigned short>(stack_to_be));
+    return static_cast<unsigned short>(result);
 }
 
-bool itemEngine::inventoryItem::decreaseStack(int stack_) {
+bool itemEngine::inventoryItem::decreaseStack(unsigned short stack_) {
     if(stack_ > stack)
         return false;
     else {

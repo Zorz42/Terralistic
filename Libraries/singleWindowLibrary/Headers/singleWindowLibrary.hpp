@@ -20,7 +20,7 @@ void update();
 
 void quit();
 
-void popupError(std::string message);
+void popupError(const std::string& message);
 
 void render(SDL_Texture* texture, SDL_Rect destination_rectangle, SDL_Rect source_rectangle, bool flipped=false);
 void render(SDL_Texture* texture, SDL_Rect destination_rectangle, bool flipped=false);
@@ -28,7 +28,7 @@ void render(SDL_Texture* texture, bool flipped=false);
 void render(SDL_Rect& rect, bool fill=true);
 
 SDL_Texture* loadTextureFromFile(std::string path, int* w=nullptr, int* h=nullptr);
-SDL_Texture* loadTextureFromText(std::string text, SDL_Color text_color, int *w=nullptr, int *h=nullptr);
+SDL_Texture* loadTextureFromText(const std::string& text, SDL_Color text_color, int *w=nullptr, int *h=nullptr);
 
 bool handleBasicEvents(SDL_Event &event, bool* running);
 inline int window_height, window_width;

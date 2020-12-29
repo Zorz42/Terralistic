@@ -22,10 +22,9 @@ SOFTWARE.
 */
 
 #include "platform_folders.h"
-#include <iostream>
+//#include <iostream>
 #include <stdexcept>
-#include <cstdio>
-#include <cstdlib>
+//#include <cstdio>
 
 #ifndef _WIN32
 
@@ -77,14 +76,11 @@ static std::string getHome() {
 // stringapiset.h depends on this
 #include <windows.h>
 // For SUCCEEDED macro
-#include <winerror.h>
 // For WideCharToMultiByte
-#include <stringapiset.h>
 // For SHGetFolderPathW and various CSIDL "magic numbers"
 #include <shlobj.h>
 
-namespace sago {
-    namespace internal {
+namespace sago::internal {
 
         std::string win32_utf16_to_utf8(const wchar_t* wstr) {
             std::string res;
@@ -92,7 +88,7 @@ namespace sago {
             int actualSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
             if (actualSize > 0) {
                 //If the converted UTF-8 string could not be in the initial buffer. Allocate one that can hold it.
-                std::vector<char> buffer(actualSize);
+                std::vector<char> buffer(static_cast<unsigned int>(actualSize));
                 actualSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &buffer[0], static_cast<int>(buffer.size()), nullptr, nullptr);
                 res = buffer.data();
             }
@@ -103,11 +99,10 @@ namespace sago {
             return res;
         }
 
-    }  // namesapce internal
-}  // namespace sago
+    }  // namespace sago
 
 class FreeCoTaskMemory {
-    LPWSTR pointer = NULL;
+    LPWSTR pointer = nullptr;
 public:
     explicit FreeCoTaskMemory(LPWSTR pointer) : pointer(pointer) {};
     ~FreeCoTaskMemory() {
@@ -116,8 +111,8 @@ public:
 };
 
 static std::string GetKnownWindowsFolder(REFKNOWNFOLDERID folderId, const char* errorMsg) {
-    LPWSTR wszPath = NULL;
-    HRESULT hr;
+    LPWSTR wszPath = nullptr;
+    HRESULT hr = 0;
     //hr = SHGetKnownFolderPath(folderId, KF_FLAG_CREATE, NULL, &wszPath);
     FreeCoTaskMemory scopeBoundMemory(wszPath);
 
@@ -131,13 +126,13 @@ static std::string GetAppData() {
     return GetKnownWindowsFolder(FOLDERID_RoamingAppData, "RoamingAppData could not be found");
 }
 
-static std::string GetAppDataCommon() {
+/*static std::string GetAppDataCommon() {
     return GetKnownWindowsFolder(FOLDERID_ProgramData, "ProgramData could not be found");
-}
+}*/
 
-static std::string GetAppDataLocal() {
+/*static std::string GetAppDataLocal() {
     return GetKnownWindowsFolder(FOLDERID_LocalAppData, "LocalAppData could not be found");
-}
+}*/
 #elif defined(__APPLE__)
 #else
 #include <map>
@@ -222,7 +217,7 @@ void appendExtraFoldersTokenizer(const char* envName, const char* envValue, std:
 #endif
     }
 
-    std::string getCacheDir() {
+    /*std::string getCacheDir() {
 #ifdef _WIN32
         return GetAppDataLocal();
 #elif defined(__APPLE__)
@@ -230,23 +225,23 @@ void appendExtraFoldersTokenizer(const char* envName, const char* envValue, std:
 #else
 	return getLinuxFolderDefault("XDG_CACHE_HOME", ".cache");
 #endif
-    }
+    }*/
 
-    void appendAdditionalDataDirectories(std::vector<std::string>& homes) {
+    /*void appendAdditionalDataDirectories(std::vector<std::string>& homes) {
 #ifdef _WIN32
         homes.push_back(GetAppDataCommon());
 #elif !defined(__APPLE__)
         appendExtraFolders("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/", homes);
 #endif
-    }
+    }*/
 
-    void appendAdditionalConfigDirectories(std::vector<std::string>& homes) {
+    /*void appendAdditionalConfigDirectories(std::vector<std::string>& homes) {
 #ifdef _WIN32
         homes.push_back(GetAppDataCommon());
 #elif !defined(__APPLE__)
         appendExtraFolders("XDG_CONFIG_DIRS", "/etc/xdg", homes);
 #endif
-    }
+    }*/
 
 #if !defined(_WIN32) && !defined(__APPLE__)
     struct PlatformFolders::PlatformFoldersData {
@@ -294,7 +289,7 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 }
 #endif
 
-    PlatformFolders::PlatformFolders() {
+    /*PlatformFolders::PlatformFolders() {
 #if !defined(_WIN32) && !defined(__APPLE__)
         this->data = new PlatformFolders::PlatformFoldersData();
 	try {
@@ -305,15 +300,15 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 		throw;
 	}
 #endif
-    }
+    }*/
 
-    PlatformFolders::~PlatformFolders() {
+    /*PlatformFolders::~PlatformFolders() {
 #if !defined(_WIN32) && !defined(__APPLE__)
         delete this->data;
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getDocumentsFolder() const {
+    /*std::string PlatformFolders::getDocumentsFolder() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_Documents, "Failed to find My Documents folder");
 #elif defined(__APPLE__)
@@ -321,9 +316,9 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return data->folders["XDG_DOCUMENTS_DIR"];
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getDesktopFolder() const {
+    /*std::string PlatformFolders::getDesktopFolder() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_Desktop, "Failed to find Desktop folder");
 #elif defined(__APPLE__)
@@ -331,9 +326,9 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return data->folders["XDG_DESKTOP_DIR"];
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getPicturesFolder() const {
+    /*std::string PlatformFolders::getPicturesFolder() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_Pictures, "Failed to find My Pictures folder");
 #elif defined(__APPLE__)
@@ -341,9 +336,9 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return data->folders["XDG_PICTURES_DIR"];
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getPublicFolder() const {
+    /*std::string PlatformFolders::getPublicFolder() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_Public, "Failed to find the Public folder");
 #elif defined(__APPLE__)
@@ -351,9 +346,9 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return data->folders["XDG_PUBLICSHARE_DIR"];
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getDownloadFolder1() const {
+    /*std::string PlatformFolders::getDownloadFolder1() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_Downloads, "Failed to find My Downloads folder");
 #elif defined(__APPLE__)
@@ -361,9 +356,9 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return data->folders["XDG_DOWNLOAD_DIR"];
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getMusicFolder() const {
+    /*std::string PlatformFolders::getMusicFolder() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_Music, "Failed to find My Music folder");
 #elif defined(__APPLE__)
@@ -371,9 +366,9 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return data->folders["XDG_MUSIC_DIR"];
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getVideoFolder() const {
+    /*std::string PlatformFolders::getVideoFolder() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_Videos, "Failed to find My Video folder");
 #elif defined(__APPLE__)
@@ -381,9 +376,9 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return data->folders["XDG_VIDEOS_DIR"];
 #endif
-    }
+    }*/
 
-    std::string PlatformFolders::getSaveGamesFolder1() const {
+    /*std::string PlatformFolders::getSaveGamesFolder1() {
 #ifdef _WIN32
         //A dedicated Save Games folder was not introduced until Vista. For XP and older save games are most often saved in a normal folder named "My Games".
         //Data that should not be user accessible should be placed under GetDataHome() instead
@@ -393,50 +388,50 @@ static void PlatformFoldersFillData(std::map<std::string, std::string>& folders)
 #else
 	return getDataHome();
 #endif
-    }
+    }*/
 
-    std::string getDesktopFolder() {
+    /*std::string getDesktopFolder() {
         return PlatformFolders().getDesktopFolder();
-    }
+    }*/
 
-    std::string getDocumentsFolder() {
+    /*std::string getDocumentsFolder() {
         return PlatformFolders().getDocumentsFolder();
-    }
+    }*/
 
-    std::string getDownloadFolder() {
+    /*std::string getDownloadFolder() {
         return PlatformFolders().getDownloadFolder1();
-    }
+    }*/
 
-    std::string getDownloadFolder1() {
+    /*std::string getDownloadFolder1() {
         return getDownloadFolder();
-    }
+    }*/
 
-    std::string getPicturesFolder() {
+    /*std::string getPicturesFolder() {
         return PlatformFolders().getPicturesFolder();
-    }
+    }*/
 
-    std::string getPublicFolder() {
+    /*std::string getPublicFolder() {
         return PlatformFolders().getPublicFolder();
-    }
+    }*/
 
-    std::string getMusicFolder() {
+    /*std::string getMusicFolder() {
         return PlatformFolders().getMusicFolder();
-    }
+    }*/
 
-    std::string getVideoFolder() {
+    /*std::string getVideoFolder() {
         return PlatformFolders().getVideoFolder();
-    }
+    }*/
 
-    std::string getSaveGamesFolder1() {
+    /*std::string getSaveGamesFolder1() {
         return PlatformFolders().getSaveGamesFolder1();
-    }
+    }*/
 
-    std::string getSaveGamesFolder2() {
+    /*std::string getSaveGamesFolder2() {
 #ifdef _WIN32
         return GetKnownWindowsFolder(FOLDERID_SavedGames, "Failed to find Saved Games folder");
 #else
         return PlatformFolders().getSaveGamesFolder1();
 #endif
-    }
+    }*/
 
 }  //namespace sago

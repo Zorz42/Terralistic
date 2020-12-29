@@ -18,7 +18,7 @@ void swl::quit() {
 
 //#undef main
 
-int main(int argc, char **argv) {
+int main([[maybe_unused]] int argc, char **argv) {
     swl::window_width = 1000;
     swl::window_height = 600;
     
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
         swl::popupError("Renderer could not be created!");
     
     SDL_SetRenderDrawBlendMode(__swl_private::renderer, SDL_BLENDMODE_BLEND);
-    SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+    SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};
     SDL_SetWindowDisplayMode(__swl_private::window, &dm);
 
     __swl_private::setResourcePath(argv[0]); // get path of resources folder
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
     return result;
 }
 
-void swl::popupError(std::string message) {
+void swl::popupError(const std::string& message) {
     quit();
     const SDL_MessageBoxButtonData buttons[] = {
         {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "close"},
@@ -73,7 +73,7 @@ void swl::popupError(std::string message) {
     };
     const SDL_MessageBoxData messageboxdata = {
         SDL_MESSAGEBOX_INFORMATION, /* .flags */
-        NULL, /* .window */
+        nullptr, /* .window */
         "Terralistic encountered an critical error!", /* .title */
         message.c_str(), /* .message */
         SDL_arraysize(buttons), /* .numbuttons */

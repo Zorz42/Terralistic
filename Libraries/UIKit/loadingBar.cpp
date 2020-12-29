@@ -10,7 +10,7 @@
 
 ui::loadingBar::loadingBar(unsigned short total_progress_, ogl::objectType type) : total_progress(total_progress_) {
     setOrientation(type);
-};
+}
 
 void ui::loadingBar::setBackColor(Uint8 r_, Uint8 g_, Uint8 b_) {
     back_r = r_;

@@ -22,35 +22,35 @@ void worldSaver::init() {
     saving_text.scale = 3;
 }
 
-void worldSaver::saveWorld(std::string world_name) {
+void worldSaver::saveWorld(const std::string& world_name) {
     swl::setDrawColor(0, 0, 0);
     swl::clear();
     saving_text.render();
     swl::update();
 
     std::ofstream world_file(fileSystem::worlds_dir + world_name + ".world");
-    for(int i = 0; i < 20; i++)
-        world_file << (char)itemEngine::inventory[i].item_id << (char)itemEngine::inventory[i].getStack() << (char(itemEngine::inventory[i].getStack() >> 4));
+    for(auto & i : itemEngine::inventory)
+        world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
     for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
         world_file << (char)blockEngine::world[i].block_id;
     world_file.close();
 }
 
-void worldSaver::loadWorld(std::string world_name) {
+void worldSaver::loadWorld(const std::string& world_name) {
     swl::setDrawColor(0, 0, 0);
     swl::clear();
     loading_text.render();
     swl::update();
     
     std::ifstream world_file(fileSystem::worlds_dir + world_name + ".world");
-    char c;
-    for(int i = 0; i < 20; i++) {
+    char c = 0;
+    for(auto & i : itemEngine::inventory) {
         world_file >> std::noskipws >> c;
-        itemEngine::inventory[i].item_id = (itemEngine::itemType)c;
+        i.item_id = (itemEngine::itemType)c;
         world_file >> std::noskipws >> c;
-        unsigned short stack = (unsigned short)c;
+        unsigned short stack = (unsigned char)c;
         world_file >> std::noskipws >> c;
-        itemEngine::inventory[i].setStack(stack + ((unsigned short)(c) >> 4));
+        i.setStack(stack + ((unsigned short)(c) >> 4));
     }
     for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++) {
         world_file >> std::noskipws >> c;

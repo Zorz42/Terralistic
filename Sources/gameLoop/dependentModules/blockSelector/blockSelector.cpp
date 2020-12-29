@@ -19,35 +19,37 @@ void blockSelector::init() {
     selectRect.setHeight(BLOCK_WIDTH);
 }
 
-int blockSelector::mouseOnMapX() {
+unsigned int blockSelector::mouseOnMapX() {
     return swl::mouse_x - onMapX(0);
 }
 
-int blockSelector::mouseOnMapY() {
+unsigned int blockSelector::mouseOnMapY() {
     return swl::mouse_y - onMapY(0);
 }
 
-int blockSelector::onMapX(unsigned int x) {
-    return (int)-blockEngine::view_x + swl::window_width / 2 + x;
+unsigned int blockSelector::onMapX(unsigned int x) {
+    return -blockEngine::view_x + swl::window_width / 2 + x;
 }
 
-int blockSelector::onMapY(unsigned int y) {
-    return (int)-blockEngine::view_y + swl::window_height / 2 + y;
+unsigned int blockSelector::onMapY(unsigned int y) {
+    return -blockEngine::view_y + swl::window_height / 2 + y;
 }
 
 void blockSelector::render() {
     selectedBlockX = mouseOnMapX() / BLOCK_WIDTH;
     selectedBlockY = mouseOnMapY() / BLOCK_WIDTH;
-    selectRect.setX(onMapX(selectedBlockX * BLOCK_WIDTH));
-    selectRect.setY(onMapY(selectedBlockY * BLOCK_WIDTH));
+    selectRect.setX(static_cast<short>(onMapX(static_cast<unsigned int>(selectedBlockX * BLOCK_WIDTH))));
+    selectRect.setY(static_cast<short>(onMapY(static_cast<unsigned int>(selectedBlockY * BLOCK_WIDTH))));
     selectRect.render();
 }
 
 void blockSelector::handleEvent(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
         if(event.button.button == SDL_BUTTON_LEFT)
-            blockEngine::leftClickEvent(selectedBlockX, selectedBlockY);
+            blockEngine::leftClickEvent(static_cast<unsigned short>(selectedBlockX),
+                                        static_cast<unsigned short>(selectedBlockY));
         else if(event.button.button == SDL_BUTTON_RIGHT && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()))
-            blockEngine::rightClickEvent(selectedBlockX, selectedBlockY);
+            blockEngine::rightClickEvent(static_cast<unsigned short>(selectedBlockX),
+                                         static_cast<unsigned short>(selectedBlockY));
     }
 }

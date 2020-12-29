@@ -31,7 +31,7 @@ struct uniqueBlock {
     SDL_Texture* texture;
     std::vector<blockType> connects_to;
     
-    uniqueBlock(std::string name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop);
+    uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop);
     
     void (*rightClickEvent)(block*) = nullptr;
     void (*leftClickEvent)(block*) = nullptr;
@@ -41,18 +41,18 @@ struct uniqueBlock {
 
 struct block {
     block() : block_id(AIR) {}
-    block(blockType block_id) : block_id(block_id) {}
-    
+    explicit block(blockType block_id) : block_id(block_id) {}
+
     void draw();
     SDL_Rect getRect();
-    unsigned int getX();
-    unsigned int getY();
+    unsigned short getX();
+    unsigned short getY();
     void update();
     
     blockType block_id;
-    Uint8 block_orientation;
+    Uint8 block_orientation{};
     
-    uniqueBlock& getUniqueBlock();
+    [[nodiscard]] uniqueBlock& getUniqueBlock() const;
 };
 
 void init();
@@ -62,20 +62,20 @@ void close();
 void render_blocks();
 
 inline block *world;
-inline unsigned int world_width;
-inline unsigned int world_height;
+inline unsigned short world_width;
+inline unsigned short world_height;
 
-block& getBlock(unsigned int x, unsigned int y);
+block& getBlock(unsigned short x, unsigned short y);
 
-inline long position_x, position_y;
-inline long view_x, view_y;
+inline int position_x, position_y;
+inline int view_x, view_y;
 
 inline std::vector<uniqueBlock> unique_blocks;
 
-void rightClickEvent(int x, int y);
-void leftClickEvent(int x, int y);
+void rightClickEvent(unsigned short x, unsigned short y);
+void leftClickEvent(unsigned short x, unsigned short y);
 
-void updateNearestBlocks(int x, int y);
+void updateNearestBlocks(unsigned short x, unsigned short y);
 
 }
 

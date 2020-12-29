@@ -21,7 +21,7 @@
  */
 
 #if ((__GNUC_STDC_INLINE__) || (__STDC_VERSION__ >= 199901L))
-    #include <stdint.h>
+    #include <cstdint>
     #define INLINE inline
 #elif (defined (_MSC_VER) || defined (__GNUC_GNU_INLINE__))
     #include <stdint.h>

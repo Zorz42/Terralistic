@@ -11,8 +11,8 @@
 namespace framerateRegulator {
 
 void regulateFramerate();
-inline int frame_length = 0;
-inline int fps_limit = 0;
+inline unsigned short frame_length = 0;
+inline unsigned short fps_limit = 0;
 
 }
 

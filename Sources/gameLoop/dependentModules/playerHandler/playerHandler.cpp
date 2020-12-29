@@ -8,7 +8,6 @@
 #include "blockEngine.hpp"
 #include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
-#include "objectedGraphicsLibrary.hpp"
 
 bool key_up = false, jump = false;
 
@@ -80,11 +79,11 @@ bool playerHandler::isPlayerColliding() {
        blockEngine::position_x >= blockEngine::world_width * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
         return true;
     
-    int begin_x = (int)blockEngine::position_x / BLOCK_WIDTH -  playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    int end_x = (int)blockEngine::position_x / BLOCK_WIDTH +  playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    int begin_x = blockEngine::position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    int end_x = blockEngine::position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
     
-    int begin_y = (int)blockEngine::position_y / BLOCK_WIDTH -  playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    int end_y = (int)blockEngine::position_y / BLOCK_WIDTH +  playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    int begin_y = blockEngine::position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    int end_y = blockEngine::position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
     
     if(begin_x < 0)
         begin_x = 0;
@@ -97,7 +96,8 @@ bool playerHandler::isPlayerColliding() {
     
     for(int x = begin_x; x < end_x; x++)
         for(int y = begin_y; y < end_y; y++)
-        if(swl::colliding(blockEngine::getBlock(x, y).getRect(),  playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost)
+        if(swl::colliding(blockEngine::getBlock(static_cast<unsigned short>(x), static_cast<unsigned short>(y)).getRect(), playerHandler::player.getRect()) && !blockEngine::getBlock(
+                static_cast<unsigned short>(x), static_cast<unsigned short>(y)).getUniqueBlock().ghost)
                 return true;
     return false;
 }
@@ -147,8 +147,8 @@ void playerHandler::move() {
 }
 
 void playerHandler::render() {    
-    player.setX(blockEngine::position_x - blockEngine::view_x);
-    player.setY(blockEngine::position_y - blockEngine::view_y);
+    player.setX(static_cast<short>(blockEngine::position_x - blockEngine::view_x));
+    player.setY(static_cast<short>(blockEngine::position_y - blockEngine::view_y));
     player.render();
 }
 

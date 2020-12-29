@@ -26,7 +26,7 @@ void pauseScreen::init() {
     quit_button.setScale(3);
     quit_button.setText("Save & Quit", 255, 255, 255);
     quit_button.x = PADDING;
-    quit_button.y = resume_button.getHeight() + 2 * PADDING;
+    quit_button.y = static_cast<short>(resume_button.getHeight() + 2 * PADDING);
 }
 
 void pauseScreen::render() {

@@ -13,8 +13,8 @@
 namespace worldSaver {
 
 void init();
-void saveWorld(std::string world_name);
-void loadWorld(std::string world_name);
+void saveWorld(const std::string& world_name);
+void loadWorld(const std::string& world_name);
 
 }
 

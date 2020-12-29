@@ -9,7 +9,7 @@
 #include "platform_folders.h"
 #include <sys/stat.h>
 #include <dirent.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 struct stat info;
 
@@ -62,7 +62,7 @@ int fileSystem::removeDir(const std::string &path) {
             buf = (char *) malloc(len);
 
             if(buf) {
-                struct stat statbuf;
+                struct stat statbuf{};
                 snprintf(buf, len, "%s/%s", path.c_str(), p->d_name);
                 if(!stat(buf, &statbuf))
                     r2 = S_ISDIR(statbuf.st_mode) ? removeDir(buf) : unlink(buf);

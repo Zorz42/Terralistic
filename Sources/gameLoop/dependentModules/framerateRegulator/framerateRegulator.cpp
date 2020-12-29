@@ -11,8 +11,8 @@
 void framerateRegulator::regulateFramerate() {
     static int a = 0, b = 0;
     a = SDL_GetTicks();
-    frame_length = a - b;
-    if(frame_length < 16)
-        SDL_Delay(16 - frame_length);
+    frame_length = static_cast<unsigned short>(a - b);
+    if(frame_length < 1000 / fps_limit)
+        SDL_Delay(static_cast<Uint32>(1000 / fps_limit - frame_length));
     b = a;
 }

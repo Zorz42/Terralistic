@@ -20,7 +20,7 @@ bool isPlayerColliding();
 void doPhysics();
 bool touchingGround();
 
-inline int velocity_x = 0, velocity_y = 0;
+inline short velocity_x = 0, velocity_y = 0;
 inline ogl::texture player(ogl::center);
 
 }

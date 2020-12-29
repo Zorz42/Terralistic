@@ -46,16 +46,16 @@ void itemEngine::spawnItem(itemType item_id, int x, int y) {
 }
 
 bool itemEngine::addItemToInventory(itemType id, int quantity) {
-    for(int i = 0; i < 20; i++)
-        if(inventory[i].item_id == id) {
-            quantity -= inventory[i].increaseStack(quantity);
+    for(auto & i : inventory)
+        if(i.item_id == id) {
+            quantity -= i.increaseStack(static_cast<unsigned short>(quantity));
             if(!quantity)
                 return true;
         }
-    for(int i = 0; i < 20; i++)
-        if(inventory[i].item_id == NOTHING) {
-            inventory[i].item_id = id;
-            quantity -= inventory[i].increaseStack(quantity);
+    for(auto & i : inventory)
+        if(i.item_id == NOTHING) {
+            i.item_id = id;
+            quantity -= i.increaseStack(static_cast<unsigned short>(quantity));
             if(!quantity)
                 return true;
         }

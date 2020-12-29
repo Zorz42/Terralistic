@@ -14,26 +14,27 @@ void blockEngine::block::draw() {
     SDL_Rect rect = getRect();
     if(getUniqueBlock().texture && lightingEngine::light_map[this - world].level)
         swl::render(getUniqueBlock().texture, rect, {0, 8 * block_orientation, 8, 8});
-    lightingEngine::light_map[this - world].render(rect.x, rect.y);
+    lightingEngine::light_map[this - world].render((short)rect.x, (short)rect.y);
 }
 
 SDL_Rect blockEngine::block::getRect() {
-    return {int(getX() * BLOCK_WIDTH - view_x + swl::window_width * 0.5), int(getY() * BLOCK_WIDTH - view_y + swl::window_height * 0.5), BLOCK_WIDTH, BLOCK_WIDTH};
+    return {(getX() * BLOCK_WIDTH - view_x + swl::window_width / 2),
+            (getY() * BLOCK_WIDTH - view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
-unsigned int blockEngine::block::getX() {
-    return (unsigned int)(this - world) % world_width;
+unsigned short blockEngine::block::getX() {
+    return static_cast<unsigned short>((unsigned int) (this - world) % world_width);
 }
 
-unsigned int blockEngine::block::getY() {
-    return (unsigned int)(this - world) / world_width;
+unsigned short blockEngine::block::getY() {
+    return static_cast<unsigned short>((unsigned int) (this - world) / world_width);
 }
 
 void blockEngine::block::update() {
     block_orientation = 0;
     
     if(getUniqueBlock().only_on_floor) {
-        if(getBlock(getX(), getY() + 1).getUniqueBlock().transparent)
+        if(getBlock(getX(), static_cast<unsigned short>(getY() + 1)).getUniqueBlock().transparent)
             getBlock(getX(), getY()).block_id = AIR;
     }
     
@@ -57,6 +58,6 @@ void blockEngine::block::update() {
     }
 }
 
-blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() {
+blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() const {
     return unique_blocks.at(block_id);
 }

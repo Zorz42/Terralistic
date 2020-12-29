@@ -20,7 +20,8 @@ void air_rightClickEvent(blockEngine::block* block) {
         lightingEngine::removeNaturalLight(block->getX());
         block->block_id = type;
         lightingEngine::setNaturalLight(block->getX());
-        blockEngine::updateNearestBlocks(block->getX(), block->getY());
+        blockEngine::updateNearestBlocks(static_cast<unsigned short>((int) block->getX()),
+                                         static_cast<unsigned short>((int) block->getY()));
         lightingEngine::getLightBlock(block->getX(), block->getY()).update();
     }
 }
@@ -52,8 +53,8 @@ void blockEngine::prepare() {
     world_width = 4200;
     world = new block[world_width * world_height];
     
-    position_x = world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
-    position_y = world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
+    position_x = long(world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH);
+    position_y = long(world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH);
     view_x = position_x;
     view_y = position_y;
 }
@@ -70,48 +71,48 @@ void blockEngine::render_blocks() {
     if(view_y < swl::window_height / 2)
         view_y = swl::window_height / 2;
     if(view_x >= blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2)
-        view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
+        view_x = long(blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2);
     if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
-        view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
+        view_y = long(blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2);
     
-    int begin_x = (int)view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH - VIEW_PADDING;
-    int end_x = (int)view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH + VIEW_PADDING;
+    int begin_x = view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH - VIEW_PADDING;
+    int end_x = view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH + VIEW_PADDING;
     
-    int begin_y = (int)view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH - VIEW_PADDING;
-    int end_y = (int)view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH + VIEW_PADDING;
+    int begin_y = view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH - VIEW_PADDING;
+    int end_y = view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH + VIEW_PADDING;
     
     if(begin_x < 0)
         begin_x = 0;
     if(end_x > world_width)
-        end_x = world_width;
+        end_x = (int)world_width;
     if(begin_y < 0)
         begin_y = 0;
     if(end_y > world_height)
-        end_y = world_height;
+        end_y = (int)world_height;
     
     for(int x = begin_x; x < end_x; x++)
         for(int y = begin_y; y < end_y; y++)
-            getBlock(x, y).draw();
+            getBlock(static_cast<unsigned short>(x), static_cast<unsigned short>(y)).draw();
 }
 
-blockEngine::block& blockEngine::getBlock(unsigned int x, unsigned int y) {
+blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
     return world[y * world_width + x];
 }
 
-void blockEngine::updateNearestBlocks(int x, int y) {
+void blockEngine::updateNearestBlocks(unsigned short x, unsigned short y) {
     char x_[] = {0, 0, 0, -1, 1};
     char y_[] = {0, -1, 1, 0, 0};
     for(char i = 0; i < 5; i++)
         blockEngine::getBlock(x + x_[i], y + y_[i]).update();
 }
 
-void blockEngine::rightClickEvent(int x, int y) {
+void blockEngine::rightClickEvent(unsigned short x, unsigned short y) {
     block* block = &getBlock(x, y);
     if(block->getUniqueBlock().rightClickEvent)
         block->getUniqueBlock().rightClickEvent(block);
 }
 
-void blockEngine::leftClickEvent(int x, int y) {
+void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
     block* block = &getBlock(x, y);
     if(block->getUniqueBlock().leftClickEvent)
         block->getUniqueBlock().leftClickEvent(block);
@@ -119,7 +120,7 @@ void blockEngine::leftClickEvent(int x, int y) {
         if(block->getUniqueBlock().drop != itemEngine::NOTHING)
             itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
         lightingEngine::removeNaturalLight(x);
-        getBlock(x, y) = blockEngine::AIR;
+        getBlock(x, y).block_id = blockEngine::AIR;
         updateNearestBlocks(x, y);
         lightingEngine::setNaturalLight(x);
         lightingEngine::getLightBlock(x, y).update();
