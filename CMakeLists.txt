@@ -16,7 +16,7 @@ file(GLOB SOURCES "Sources/*/*.cpp")
 file(GLOB SOURCES2 "Sources/*/dependentModules/*/*.cpp")
 file(GLOB SOURCES_LIBS "Libraries/*/*.cpp")
 
-add_executable(Terralistic ${SOURCES} ${SOURCES2} ${SOURCES_LIBS})
+add_executable(Terralistic WIN32 ${SOURCES} ${SOURCES2} ${SOURCES_LIBS})
 
 include_directories(${INCLUDES}  ${INCLUDES2} ${LIB_INCLUDES} OtherLibs OtherLibs/SDL2)
 
