@@ -17,7 +17,7 @@
 void startMenu::main() {
     bool running = true;
     SDL_Event event;
-    
+
     ui::button play_button;
     play_button.setColor(0, 0, 0);
     play_button.setHoverColor(100, 100, 100);

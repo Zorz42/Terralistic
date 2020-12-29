@@ -48,6 +48,7 @@ public:
     ~texture();
     
     void setTexture(SDL_Texture* input_texture, int width_, int height_);
+    void setTexture(SDL_Texture* input_texture);
     
     void render();
     
