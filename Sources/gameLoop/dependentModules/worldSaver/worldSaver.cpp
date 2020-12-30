@@ -31,8 +31,11 @@ void worldSaver::saveWorld(const std::string& world_name) {
     std::ofstream world_file(fileSystem::worlds_dir + world_name + ".world");
     for(auto & i : itemEngine::inventory)
         world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
-    for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
-        world_file << (char)blockEngine::world[i].block_id;
+    
+    for(int y = 0; y < blockEngine::world_height; y++)
+        for(int x = 0; x < blockEngine::world_width; x++) {
+            world_file << (char)blockEngine::getBlock(x, y).block_id;
+        }
     world_file.close();
 }
 
@@ -52,10 +55,14 @@ void worldSaver::loadWorld(const std::string& world_name) {
         world_file >> std::noskipws >> c;
         i.setStack(stack + ((unsigned short)(c) >> 4));
     }
-    for(int i = 0; i < blockEngine::world_width * blockEngine::world_height; i++) {
-        world_file >> std::noskipws >> c;
-        blockEngine::world[i].block_id = (blockEngine::blockType) c;
-    }
-    for(unsigned long i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
-        blockEngine::world[i].update();
+    
+    for(int y = 0; y < blockEngine::world_height; y++)
+        for(int x = 0; x < blockEngine::world_width; x++) {
+            world_file >> std::noskipws >> c;
+            blockEngine::getBlock(x, y).block_id = (blockEngine::blockType) c;
+        }
+    
+    for(int y = 0; y < blockEngine::world_height; y++)
+        for(int x = 0; x < blockEngine::world_width; x++)
+            blockEngine::getBlock(x, y).update(x, y);
 }

@@ -29,9 +29,13 @@ int gameLoop::main(const std::string& world_name) {
         terrainGenerator::generateTerrain(0);
         worldSaver::saveWorld(world_name);
     }
-
+    
     for(unsigned short x = 0; x < blockEngine::world_width; x++)
         lightingEngine::setNaturalLight(x);
+    
+    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
+        for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
+            blockEngine::getChunk(x, y).updateTexture();
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
@@ -67,12 +71,9 @@ int gameLoop::main(const std::string& world_name) {
         playerHandler::move();
         itemEngine::updateItems();
         
-        swl::setDrawColor(135, 206, 235);
-        swl::clear();
-        
-        playerHandler::render();
-        itemEngine::renderItems();
         blockEngine::render_blocks();
+        itemEngine::renderItems();
+        playerHandler::render();
         if(pauseScreen::paused)
             pauseScreen::render();
         else {

@@ -154,3 +154,18 @@ bool swl::colliding(SDL_Rect a, SDL_Rect b) {
 void swl::setWindowMinimumSize(unsigned short width, unsigned short height) {
     SDL_SetWindowMinimumSize(swl_private::window, width, height);
 }
+
+void swl::setRenderTarget(SDL_Texture* texture) {
+    SDL_SetRenderTarget(swl_private::renderer, texture);
+}
+
+void swl::resetRenderTarget() {
+    setRenderTarget(nullptr);
+}
+
+SDL_Texture* swl::createBlankTexture(unsigned short width, unsigned short height) {
+    SDL_Texture* result = SDL_CreateTexture(swl_private::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+    if(!result)
+        swl::popupError("Blank texture could not be created!");
+    return result;
+}

@@ -94,10 +94,9 @@ bool playerHandler::isPlayerColliding() {
     if(end_y > blockEngine::world_height)
         end_y = blockEngine::world_height;
     
-    for(int x = begin_x; x < end_x; x++)
-        for(int y = begin_y; y < end_y; y++)
-        if(swl::colliding(blockEngine::getBlock((unsigned short)x, (unsigned short)y).getRect(), playerHandler::player.getRect()) && !blockEngine::getBlock(
-                (unsigned short)x, (unsigned short)y).getUniqueBlock().ghost)
+    for(unsigned short x = begin_x; x < end_x; x++)
+        for(unsigned short y = begin_y; y < end_y; y++)
+            if(swl::colliding(blockEngine::getBlock(x, y).getRect(x, y), playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost)
                 return true;
     return false;
 }

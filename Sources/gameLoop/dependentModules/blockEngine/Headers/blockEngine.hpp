@@ -14,6 +14,7 @@
 #include <vector>
 #include "itemType.hpp"
 #include "blockType.hpp"
+#include "lightingEngine.hpp"
 
 #define BLOCK_WIDTH 16
 
@@ -33,8 +34,8 @@ struct uniqueBlock {
     
     uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop);
     
-    void (*rightClickEvent)(block*) = nullptr;
-    void (*leftClickEvent)(block*) = nullptr;
+    void (*rightClickEvent)(block*, unsigned short, unsigned short) = nullptr;
+    void (*leftClickEvent)(block*, unsigned short, unsigned short) = nullptr;
     
     itemEngine::itemType drop;
 };
@@ -43,16 +44,22 @@ struct block {
     block() : block_id(AIR) {}
     explicit block(blockType block_id) : block_id(block_id) {}
 
-    void draw();
-    SDL_Rect getRect();
-    unsigned short getX();
-    unsigned short getY();
-    void update();
+    void draw(unsigned short x, unsigned short y);
+    SDL_Rect getRect(unsigned short x, unsigned short y);
+    void update(unsigned short x, unsigned short y);
     
     blockType block_id;
     Uint8 block_orientation{};
     
     [[nodiscard]] uniqueBlock& getUniqueBlock() const;
+};
+
+struct chunk {
+    void render(unsigned short x, unsigned short y);
+    block blocks[16][16];
+    lightingEngine::lightBlock light_blocks[16][16];
+    SDL_Texture* texture = nullptr;
+    void updateTexture();
 };
 
 void init();
@@ -61,11 +68,13 @@ void close();
 
 void render_blocks();
 
-inline block *world;
+inline chunk *world;
+inline block *world_;
 inline unsigned short world_width;
 inline unsigned short world_height;
 
 block& getBlock(unsigned short x, unsigned short y);
+chunk& getChunk(unsigned short x, unsigned short y);
 
 inline int position_x, position_y;
 inline int view_x, view_y;

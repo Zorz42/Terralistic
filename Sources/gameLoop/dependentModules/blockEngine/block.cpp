@@ -10,48 +10,38 @@
 #include "blockEngine.hpp"
 #include "lightingEngine.hpp"
 
-void blockEngine::block::draw() {
-    SDL_Rect rect = getRect();
-    if(getUniqueBlock().texture && lightingEngine::light_map[this - world].level)
+void blockEngine::block::draw(unsigned short x, unsigned short y) {
+    SDL_Rect rect = {x * BLOCK_WIDTH, y * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH};
+    if(getUniqueBlock().texture && lightingEngine::getLightBlock(x, y).level)
         swl::render(getUniqueBlock().texture, rect, {0, 8 * block_orientation, 8, 8});
-    lightingEngine::light_map[this - world].render((short)rect.x, (short)rect.y);
 }
 
-SDL_Rect blockEngine::block::getRect() {
-    return {(getX() * BLOCK_WIDTH - view_x + swl::window_width / 2),
-            (getY() * BLOCK_WIDTH - view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
+SDL_Rect blockEngine::block::getRect(unsigned short x, unsigned short y) {
+    return {(x * BLOCK_WIDTH - view_x + swl::window_width / 2), (y * BLOCK_WIDTH - view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
-unsigned short blockEngine::block::getX() {
-    return (unsigned short)((this - world) % world_width);
-}
-
-unsigned short blockEngine::block::getY() {
-    return (unsigned short)((this - world) / world_width);
-}
-
-void blockEngine::block::update() {
+void blockEngine::block::update(unsigned short x, unsigned short y) {
     block_orientation = 0;
     
     if(getUniqueBlock().only_on_floor) {
-        if(getBlock(getX(), (unsigned short)(getY() + 1)).getUniqueBlock().transparent)
-            getBlock(getX(), getY()).block_id = AIR;
+        if(getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
+            getBlock(x, y).block_id = AIR;
     }
     
     if(!getUniqueBlock().single_texture) {
-        char x[] = {0, 1, 0, -1};
-        char y[] = {-1, 0, 1, 0};
+        char x_[] = {0, 1, 0, -1};
+        char y_[] = {-1, 0, 1, 0};
         Uint8 c = 1;
         for(int i = 0; i < 4; i++) {
-            if(getX() + x[i] >= world_width || getX() + x[i] < 0) {
+            if(x + x_[i] >= world_width || x + x_[i] < 0) {
                 block_orientation += c;
                 continue;
             }
-            if(getY() + y[i] >= world_height || getY() + y[i] < 0) {
+            if(y + y_[i] >= world_height || y + y_[i] < 0) {
                 block_orientation += c;
                 continue;
             }
-            if(getBlock(getX() + x[i], getY() + y[i]).block_id == block_id || std::count(getUniqueBlock().connects_to.begin(), getUniqueBlock().connects_to.end(), getBlock(getX() + x[i], getY() + y[i]).block_id))
+            if(getBlock(x + x_[i], y + y_[i]).block_id == block_id || std::count(getUniqueBlock().connects_to.begin(), getUniqueBlock().connects_to.end(), getBlock(x + x_[i], y + y_[i]).block_id))
                 block_orientation += c;
             c += c;
         }

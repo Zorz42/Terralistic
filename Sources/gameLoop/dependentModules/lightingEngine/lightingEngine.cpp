@@ -31,19 +31,19 @@ void lightingEngine::setNaturalLight(unsigned short x) {
 }
 
 lightingEngine::lightBlock& lightingEngine::getLightBlock(unsigned short x, unsigned short y) {
-    return light_map[y * blockEngine::world_width + x];
+    return blockEngine::getChunk(x >> 4, y >> 4).light_blocks[x & 15][y & 15];
 }
 
 void lightingEngine::addLightSource(unsigned short x, unsigned short y, unsigned char power) {
     lightBlock& block = getLightBlock(x, y);
     block.source = true;
     block.level = power;
-    block.update();
+    block.update(x, y);
 }
 
 void lightingEngine::removeLightSource(unsigned short x, unsigned short y) {
     lightBlock& block = getLightBlock(x, y);
     block.source = false;
     block.level = 0;
-    block.update();
+    block.update(x, y);
 }

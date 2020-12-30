@@ -51,8 +51,9 @@ int generateTerrainDaemon(unsigned int seed) {
     generateCaves(seed);
     generateStone(seed);
     LOADING_NEXT
-    for(unsigned long i = 0; i < blockEngine::world_width * blockEngine::world_height; i++)
-        blockEngine::world[i].update();
+    for(int y = 0; y < blockEngine::world_height; y++)
+        for(int x = 0; x < blockEngine::world_width; x++)
+            blockEngine::getBlock(x, y).update(x, y);
     return 0;
 }
 

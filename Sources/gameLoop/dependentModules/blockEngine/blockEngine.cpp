@@ -10,19 +10,18 @@
 #include "itemEngine.hpp"
 #include "lightingEngine.hpp"
 
-void grass_block_leftClickEvent(blockEngine::block* block) {
+void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
     block->block_id = blockEngine::DIRT;
 }
 
-void air_rightClickEvent(blockEngine::block* block) {
+void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
     blockEngine::blockType type = itemEngine::selected_item->getUniqueItem().places;
     if(type != blockEngine::AIR && itemEngine::selected_item->decreaseStack(1)) {
-        lightingEngine::removeNaturalLight(block->getX());
+        lightingEngine::removeNaturalLight(x);
         block->block_id = type;
-        lightingEngine::setNaturalLight(block->getX());
-        blockEngine::updateNearestBlocks((unsigned short)block->getX(),
-                                         (unsigned short)block->getY());
-        lightingEngine::getLightBlock(block->getX(), block->getY()).update();
+        lightingEngine::setNaturalLight(x);
+        blockEngine::updateNearestBlocks(x, y);
+        lightingEngine::getLightBlock(x, y).update(x, y);
     }
 }
 
@@ -50,8 +49,9 @@ void blockEngine::init() {
 
 void blockEngine::prepare() {
     world_height = 1200;
-    world_width = 4200;
-    world = new block[world_width * world_height];
+    world_width = 4400;
+    world_ = new block[world_width * world_height];
+    world = new chunk[(world_width >> 4) * (world_height >> 4)];
     
     position_x = world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     position_y = world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
@@ -60,12 +60,11 @@ void blockEngine::prepare() {
 }
 
 void blockEngine::close() {
+    delete[] world_;
     delete[] world;
 }
 
 void blockEngine::render_blocks() {
-#define VIEW_PADDING 2
-
     if(view_x < swl::window_width / 2)
         view_x = swl::window_width / 2;
     if(view_y < swl::window_height / 2)
@@ -75,11 +74,11 @@ void blockEngine::render_blocks() {
     if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
         view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
     
-    int begin_x = view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH - VIEW_PADDING;
-    int end_x = view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH + VIEW_PADDING;
+    int begin_x = view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH;
+    int end_x = view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH;
     
-    int begin_y = view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH - VIEW_PADDING;
-    int end_y = view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH + VIEW_PADDING;
+    int begin_y = view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH;
+    int end_y = view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH;
     
     if(begin_x < 0)
         begin_x = 0;
@@ -90,32 +89,36 @@ void blockEngine::render_blocks() {
     if(end_y > world_height)
         end_y = (int)world_height;
     
-    for(int x = begin_x; x < end_x; x++)
-        for(int y = begin_y; y < end_y; y++)
-            getBlock((unsigned short)x, (unsigned short)y).draw();
+    for(unsigned short x = (begin_x >> 4) - 1; x < (end_x >> 4) + 1; x++)
+        for(unsigned short y = (begin_y >> 4) - 1; y < (end_y >> 4) + 1; y++)
+            getChunk(x, y).render(x, y);
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
-    return world[y * world_width + x];
+    return getChunk(x >> 4, y >> 4).blocks[x & 15][y & 15];
+}
+
+blockEngine::chunk& blockEngine::getChunk(unsigned short x, unsigned short y) {
+    return world[y * (world_width >> 4) + x];
 }
 
 void blockEngine::updateNearestBlocks(unsigned short x, unsigned short y) {
     char x_[] = {0, 0, 0, -1, 1};
     char y_[] = {0, -1, 1, 0, 0};
     for(int i = 0; i < 5; i++)
-        blockEngine::getBlock(x + x_[i], y + y_[i]).update();
+        blockEngine::getBlock(x + x_[i], y + y_[i]).update(x + x_[i], y + y_[i]);
 }
 
 void blockEngine::rightClickEvent(unsigned short x, unsigned short y) {
     block* block = &getBlock(x, y);
     if(block->getUniqueBlock().rightClickEvent)
-        block->getUniqueBlock().rightClickEvent(block);
+        block->getUniqueBlock().rightClickEvent(block, x, y);
 }
 
 void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
     block* block = &getBlock(x, y);
     if(block->getUniqueBlock().leftClickEvent)
-        block->getUniqueBlock().leftClickEvent(block);
+        block->getUniqueBlock().leftClickEvent(block, x, y);
     else {
         if(block->getUniqueBlock().drop != itemEngine::NOTHING)
             itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
@@ -123,6 +126,6 @@ void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
         getBlock(x, y).block_id = blockEngine::AIR;
         updateNearestBlocks(x, y);
         lightingEngine::setNaturalLight(x);
-        lightingEngine::getLightBlock(x, y).update();
+        lightingEngine::getLightBlock(x, y).update(x, y);
     }
 }

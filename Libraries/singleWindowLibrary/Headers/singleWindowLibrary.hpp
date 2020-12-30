@@ -42,6 +42,12 @@ bool colliding(SDL_Rect a, SDL_Rect b);
 inline unsigned short mouse_x, mouse_y;
 
 void setWindowMinimumSize(unsigned short width, unsigned short height);
+
+void setRenderTarget(SDL_Texture* texture);
+void resetRenderTarget();
+
+SDL_Texture* createBlankTexture(unsigned short width, unsigned short height);
+
 }
 
 namespace swl_private {
@@ -52,6 +58,7 @@ inline TTF_Font *font = nullptr;
 
 inline std::string resourcePath;
 void setResourcePath(std::string executable_path);
+
 }
 
 #endif /* core_hpp */
