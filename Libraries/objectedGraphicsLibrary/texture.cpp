@@ -14,11 +14,11 @@ ogl::texture::texture(ogl::objectType type) {
     setOrientation(type);
 }
 
-void ogl::texture::setTexture(SDL_Texture* input_texture, int width_, int height_) {
+void ogl::texture::setTexture(SDL_Texture* input_texture, unsigned short width_, unsigned short height_) {
     freeTexture();
     texture_ = input_texture;
-    width = static_cast<unsigned short>(width_);
-    height = static_cast<unsigned short>(height_);
+    width = width_;
+    height = height_;
 }
 
 void ogl::texture::setTexture(SDL_Texture* input_texture) {
@@ -40,16 +40,16 @@ ogl::texture::~texture() {
     freeTexture();
 }
 
-void ogl::texture::loadFromText(std::string text, SDL_Color text_color) {
-    int temp_width, temp_height;
+void ogl::texture::loadFromText(const std::string& text, SDL_Color text_color) {
+    unsigned short temp_width, temp_height;
     setTexture(swl::loadTextureFromText(text, text_color, &temp_width, &temp_height));
-    width = static_cast<unsigned short>(temp_width);
-    height = static_cast<unsigned short>(temp_height);
+    width = temp_width;
+    height = temp_height;
 }
 
 void ogl::texture::loadFromFile(std::string path) {
-    int temp_width, temp_height;
-    setTexture(swl::loadTextureFromFile(path, &temp_width, &temp_height));
-    width = static_cast<unsigned short>(temp_width);
-    height = static_cast<unsigned short>(temp_height);
+    unsigned short temp_width, temp_height;
+    setTexture(swl::loadTextureFromFile(std::move(path), &temp_width, &temp_height));
+    width = temp_width;
+    height = temp_height;
 }

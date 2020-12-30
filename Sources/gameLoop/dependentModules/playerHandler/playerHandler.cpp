@@ -96,8 +96,8 @@ bool playerHandler::isPlayerColliding() {
     
     for(int x = begin_x; x < end_x; x++)
         for(int y = begin_y; y < end_y; y++)
-        if(swl::colliding(blockEngine::getBlock(static_cast<unsigned short>(x), static_cast<unsigned short>(y)).getRect(), playerHandler::player.getRect()) && !blockEngine::getBlock(
-                static_cast<unsigned short>(x), static_cast<unsigned short>(y)).getUniqueBlock().ghost)
+        if(swl::colliding(blockEngine::getBlock((unsigned short)x, (unsigned short)y).getRect(), playerHandler::player.getRect()) && !blockEngine::getBlock(
+                (unsigned short)x, (unsigned short)y).getUniqueBlock().ghost)
                 return true;
     return false;
 }
@@ -147,23 +147,16 @@ void playerHandler::move() {
 }
 
 void playerHandler::render() {    
-    player.setX(static_cast<short>(blockEngine::position_x - blockEngine::view_x));
-    player.setY(static_cast<short>(blockEngine::position_y - blockEngine::view_y));
+    player.setX(short(blockEngine::position_x - blockEngine::view_x));
+    player.setY(short(blockEngine::position_y - blockEngine::view_y));
     player.render();
 }
 
 void playerHandler::doPhysics() {
-    if(touchingGround() && velocity_y >= 0)
-        velocity_y = 0;
-    else
-        velocity_y += framerateRegulator::frame_length / 4;
+    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + framerateRegulator::frame_length / 4);
 }
 
 bool playerHandler::touchingGround() {
-#define INC_X blockEngine::position_x++;blockEngine::view_x++
-#define DEC_X blockEngine::position_x--;blockEngine::view_x--
-#define INC_Y blockEngine::position_y++;blockEngine::view_y++
-#define DEC_Y blockEngine::position_y--;blockEngine::view_y--
     INC_Y;
     bool result = isPlayerColliding();
     DEC_Y;

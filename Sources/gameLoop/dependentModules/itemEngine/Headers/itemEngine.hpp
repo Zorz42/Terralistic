@@ -30,22 +30,22 @@ struct item {
     itemType item_id;
     int x, y, velocity_x, velocity_y;
     
-    void draw();
-    SDL_Rect getRect() const;
+    void draw() const;
+    [[nodiscard]] SDL_Rect getRect() const;
     void update();
-    bool colliding() const;
-    uniqueItem& getUniqueItem() const;
+    [[nodiscard]] bool colliding() const;
+    [[nodiscard]] uniqueItem& getUniqueItem() const;
 };
 
 struct inventoryItem {
 public:
     inventoryItem();
     itemType item_id;
-    uniqueItem& getUniqueItem() const;
+    [[nodiscard]] uniqueItem& getUniqueItem() const;
     void render(int x, int y);
     ogl::texture stack_texture{(ogl::top_left)};
     void setStack(unsigned short stack_);
-    unsigned short getStack() const;
+    [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
 private:

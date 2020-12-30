@@ -21,7 +21,7 @@ unsigned int onMapY(unsigned int y);
 void init();
 void render();
 
-inline int selectedBlockX, selectedBlockY;
+inline unsigned short selectedBlockX, selectedBlockY;
 
 void handleEvent(SDL_Event& event);
 

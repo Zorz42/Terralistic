@@ -28,22 +28,22 @@ void ui::button::render(bool display_hover) {
         swl::setDrawColor(r, g, b);
     swl::render(render_rect, fill);
     
-    text.setX(getX() + margin * text.scale);
-    text.setY(getY() + margin * text.scale);
+    text.setX(short(getX() + margin * text.scale));
+    text.setY(short(getY() + margin * text.scale));
     
     text.render();
 }
 
 bool ui::button::hovered() {
-    return touchesPoint(swl::mouse_x, swl::mouse_y);
+    return touchesPoint((short)swl::mouse_x, (short)swl::mouse_y);
 }
 
-void ui::button::setText(std::string text_, Uint8 r, Uint8 g, Uint8 b) {
+void ui::button::setText(const std::string& text_, Uint8 r, Uint8 g, Uint8 b) {
     text.loadFromText(text_, SDL_Color{r, g, b});
     setMargin(margin);
 }
 
-void ui::button::setTexture(SDL_Texture* texture, int width_, int height_) {
+void ui::button::setTexture(SDL_Texture* texture, unsigned short width_, unsigned short height_) {
     text.setTexture(texture, width_, height_);
     setMargin(margin);
 }
@@ -59,8 +59,8 @@ bool ui::button::isPressed(SDL_Event &event) {
 
 void ui::button::setMargin(unsigned short margin_) {
     margin = margin_;
-    setWidth(static_cast<short>(text.getWidth() + 2 * margin * text.scale));
-    setHeight(static_cast<short>(text.getHeight() + 2 * margin * text.scale));
+    setWidth((unsigned short)(text.getWidth() + 2 * margin * text.scale));
+    setHeight((unsigned short)(text.getHeight() + 2 * margin * text.scale));
 }
 
 void ui::button::setFreeTexture(bool free) {

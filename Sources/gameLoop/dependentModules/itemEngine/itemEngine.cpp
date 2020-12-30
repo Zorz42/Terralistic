@@ -48,14 +48,14 @@ void itemEngine::spawnItem(itemType item_id, int x, int y) {
 bool itemEngine::addItemToInventory(itemType id, int quantity) {
     for(auto & i : inventory)
         if(i.item_id == id) {
-            quantity -= i.increaseStack(static_cast<unsigned short>(quantity));
+            quantity -= i.increaseStack((unsigned short)quantity);
             if(!quantity)
                 return true;
         }
     for(auto & i : inventory)
         if(i.item_id == NOTHING) {
             i.item_id = id;
-            quantity -= i.increaseStack(static_cast<unsigned short>(quantity));
+            quantity -= i.increaseStack((unsigned short)quantity);
             if(!quantity)
                 return true;
         }
@@ -64,7 +64,7 @@ bool itemEngine::addItemToInventory(itemType id, int quantity) {
 
 void itemEngine::selectSlot(char slot) {
     selected_slot = slot;
-    selected_item = &inventory[slot];
+    selected_item = &inventory[(unsigned char)slot];
 }
 
 bool itemEngine::handleEvents(SDL_Event &event) {

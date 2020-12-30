@@ -9,10 +9,10 @@
 #include "singleWindowLibrary.hpp"
 
 void swl::quit() {
-    SDL_DestroyRenderer(__swl_private::renderer);
-    __swl_private::renderer = nullptr;
-    SDL_DestroyWindow(__swl_private::window);
-    __swl_private::window = nullptr;
+    SDL_DestroyRenderer(swl_private::renderer);
+    swl_private::renderer = nullptr;
+    SDL_DestroyWindow(swl_private::window);
+    swl_private::window = nullptr;
     SDL_Quit();
 }
 
@@ -32,19 +32,19 @@ int main([[maybe_unused]] int argc, char **argv) {
     if(TTF_Init() == -1)
         swl::popupError("SDL_ttf could not initialize properly!");
     
-    __swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE);
-    if(!__swl_private::window)
+    swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE);
+    if(!swl_private::window)
         swl::popupError("Window could not be created!");
 
-    __swl_private::renderer = SDL_CreateRenderer(__swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if(!__swl_private::renderer)
+    swl_private::renderer = SDL_CreateRenderer(swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if(!swl_private::renderer)
         swl::popupError("Renderer could not be created!");
     
-    SDL_SetRenderDrawBlendMode(__swl_private::renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawBlendMode(swl_private::renderer, SDL_BLENDMODE_BLEND);
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};
-    SDL_SetWindowDisplayMode(__swl_private::window, &dm);
+    SDL_SetWindowDisplayMode(swl_private::window, &dm);
 
-    __swl_private::setResourcePath(argv[0]); // get path of resources folder
+    swl_private::setResourcePath(argv[0]); // get path of resources folder
     
     int result = swl_main();
 
@@ -85,11 +85,11 @@ void swl::popupError(const std::string& message) {
 }
 
 void swl::update() {
-    SDL_RenderPresent(__swl_private::renderer);
+    SDL_RenderPresent(swl_private::renderer);
 }
 
 void swl::clear() {
-    SDL_RenderClear(__swl_private::renderer);
+    SDL_RenderClear(swl_private::renderer);
 }
 
 bool swl::handleBasicEvents(SDL_Event &event, bool *running) {
@@ -99,15 +99,18 @@ bool swl::handleBasicEvents(SDL_Event &event, bool *running) {
     }
     else if(event.type == SDL_WINDOWEVENT) {
         if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            window_width = event.window.data1;
-            window_height = event.window.data2;
+            window_width = (unsigned short)event.window.data1;
+            window_height = (unsigned short)event.window.data2;
             return true;
         }
         else
             return false;
     }
     else if(event.type == SDL_MOUSEMOTION) {
-        SDL_GetMouseState(&mouse_x, &mouse_y);
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        mouse_x = (unsigned short)x;
+        mouse_y = (unsigned short)y;
         return true;
     }
     return false;
@@ -148,6 +151,6 @@ bool swl::colliding(SDL_Rect a, SDL_Rect b) {
     return true;
 }
 
-void swl::setWindowMinimumSize(int width, int height) {
-    SDL_SetWindowMinimumSize(__swl_private::window, width, height);
+void swl::setWindowMinimumSize(unsigned short width, unsigned short height) {
+    SDL_SetWindowMinimumSize(swl_private::window, width, height);
 }

@@ -1,5 +1,4 @@
 #ifndef OPEN_SIMPLEX_NOISE_H__
-#define OPEN_SIMPLEX_NOISE_H__
 
 /*
  * OpenSimplex (Simplectic) Noise in C.

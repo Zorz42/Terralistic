@@ -22,7 +22,7 @@ void inventoryRenderer::init() {
         inventory_slots[i].setWidth(2 * BLOCK_WIDTH + MARGIN);
         inventory_slots[i].setY(MARGIN);
         inventory_slots[i].setX(
-                static_cast<short>((i - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
+                short((i - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
     }
     for(int i = 10; i < 20; i++) {
         inventory_slots[i].setOrientation(ogl::top);
@@ -31,7 +31,7 @@ void inventoryRenderer::init() {
         inventory_slots[i].setWidth(2 * BLOCK_WIDTH + MARGIN);
         inventory_slots[i].setY(2 * BLOCK_WIDTH + 3 * MARGIN);
         inventory_slots[i].setX(
-                static_cast<short>((i - 15) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
+                short((i - 15) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
     }
     
     select_rect.setOrientation(ogl::top);
@@ -43,7 +43,7 @@ void inventoryRenderer::init() {
 
 void inventoryRenderer::render() {
     select_rect.setX(
-            static_cast<short>((itemEngine::selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 +
+            short((itemEngine::selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 +
                                MARGIN));
     select_rect.render();
     for(int i = 0; i < 10; i++) {

@@ -19,7 +19,7 @@ void ui::loadingBar::setBackColor(Uint8 r_, Uint8 g_, Uint8 b_) {
 }
 
 void ui::loadingBar::render() {
-    short temp_width = getWidth(); // back up width
+    unsigned short temp_width = getWidth(); // back up width
     SDL_Rect render_rect = getRect();
     swl::setDrawColor(back_r, back_g, back_b);
     swl::render(render_rect);

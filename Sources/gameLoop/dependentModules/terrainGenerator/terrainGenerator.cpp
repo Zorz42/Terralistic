@@ -17,7 +17,7 @@
 // TERRAIN
 #define TERRAIN_VERTICAL_MULTIPLIER 140
 #define TERRAIN_HORIZONTAL_DIVIDER 4
-#define TERRAIN_HORIZONT (blockEngine::world_height / 2 - 50)
+#define TERRAIN_HORIZONT ((float)blockEngine::world_height / 2 - 50)
 
 // CAVES
 
@@ -69,10 +69,10 @@ void terrainGenerator::generateTerrain(unsigned int seed) {
 }
 
 void stackDirt(unsigned int x, unsigned int height) {
-    for(unsigned int y = static_cast<unsigned int>(blockEngine::world_height - 1); y > blockEngine::world_height - height - 1; y--)
-        blockEngine::getBlock(static_cast<unsigned short>(x), static_cast<unsigned short>(y)).block_id = blockEngine::DIRT;
-    blockEngine::getBlock(static_cast<unsigned short>(x),
-                          static_cast<unsigned short>(blockEngine::world_height - height - 1)).block_id = blockEngine::GRASS_BLOCK;
+    for(auto y = (unsigned int)(blockEngine::world_height - 1); y > blockEngine::world_height - height - 1; y--)
+        blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id = blockEngine::DIRT;
+    blockEngine::getBlock((unsigned short)x,
+                          (unsigned short)(blockEngine::world_height - height - 1)).block_id = blockEngine::GRASS_BLOCK;
 }
 
 double turbulence(double x, double y, double size, PerlinNoise& noise) {
@@ -94,8 +94,7 @@ void generateSurface(unsigned int seed) {
     // generate terrain
     for(unsigned int x = 0; x < blockEngine::world_width; x++) {
         // apply multiple layers of perlin noise
-        unsigned int height = static_cast<unsigned int>(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence(
-                (double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, 64, noise));
+        auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, 64, noise));
         
         heights[x] = height;
         if(height > highest_height)
@@ -109,8 +108,8 @@ void generateSurface(unsigned int seed) {
     for(unsigned int x = 0; x < blockEngine::world_width; x++) {
         stackDirt(x, heights[x]);
         if(rand() % 7 == 0) // generate stones
-            blockEngine::getBlock(static_cast<unsigned short>(x),
-                                  static_cast<unsigned short>(blockEngine::world_height - heights[x] - 2)).block_id = blockEngine::STONE;
+            blockEngine::getBlock((unsigned short)x,
+                                  (unsigned short)(blockEngine::world_height - heights[x] - 2)).block_id = blockEngine::STONE;
     }
     LOADING_NEXT
     
@@ -131,8 +130,8 @@ void generateCaves(unsigned int seed) {
     for(unsigned int y = 0; y < highest_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(open_simplex_noise2(ctx, (double)x / 10, (double)y / 10) > CAVE_START + CAVE_LENGTH - (double)y / highest_height * CAVE_LENGTH)
-                blockEngine::getBlock(static_cast<unsigned short>(x),
-                                      static_cast<unsigned short>(y + (blockEngine::world_height - highest_height))).block_id = blockEngine::AIR;
+                blockEngine::getBlock((unsigned short)x,
+                                      (unsigned short)(y + (blockEngine::world_height - highest_height))).block_id = blockEngine::AIR;
     open_simplex_noise_free(ctx);
     LOADING_NEXT
 }
@@ -141,7 +140,7 @@ void generateStone(unsigned int seed) {
     PerlinNoise noise(seed);
     for(unsigned int y = blockEngine::world_height - highest_height; y < blockEngine::world_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
-            if(blockEngine::getBlock(static_cast<unsigned short>(x), static_cast<unsigned short>(y)).block_id && terrainGenerator::turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
-                blockEngine::getBlock(static_cast<unsigned short>(x), static_cast<unsigned short>(y)).block_id = blockEngine::STONE_BLOCK;
+            if(blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id && terrainGenerator::turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
+                blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id = blockEngine::STONE_BLOCK;
     LOADING_NEXT
 }

@@ -20,8 +20,8 @@ void air_rightClickEvent(blockEngine::block* block) {
         lightingEngine::removeNaturalLight(block->getX());
         block->block_id = type;
         lightingEngine::setNaturalLight(block->getX());
-        blockEngine::updateNearestBlocks(static_cast<unsigned short>((int) block->getX()),
-                                         static_cast<unsigned short>((int) block->getY()));
+        blockEngine::updateNearestBlocks((unsigned short)block->getX(),
+                                         (unsigned short)block->getY());
         lightingEngine::getLightBlock(block->getX(), block->getY()).update();
     }
 }
@@ -92,7 +92,7 @@ void blockEngine::render_blocks() {
     
     for(int x = begin_x; x < end_x; x++)
         for(int y = begin_y; y < end_y; y++)
-            getBlock(static_cast<unsigned short>(x), static_cast<unsigned short>(y)).draw();
+            getBlock((unsigned short)x, (unsigned short)y).draw();
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
@@ -102,7 +102,7 @@ blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
 void blockEngine::updateNearestBlocks(unsigned short x, unsigned short y) {
     char x_[] = {0, 0, 0, -1, 1};
     char y_[] = {0, -1, 1, 0, 0};
-    for(char i = 0; i < 5; i++)
+    for(int i = 0; i < 5; i++)
         blockEngine::getBlock(x + x_[i], y + y_[i]).update();
 }
 

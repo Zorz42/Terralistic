@@ -27,24 +27,24 @@ void render(SDL_Texture* texture, SDL_Rect destination_rectangle, bool flipped=f
 void render(SDL_Texture* texture, bool flipped=false);
 void render(SDL_Rect& rect, bool fill=true);
 
-SDL_Texture* loadTextureFromFile(std::string path, int* w=nullptr, int* h=nullptr);
-SDL_Texture* loadTextureFromText(const std::string& text, SDL_Color text_color, int *w=nullptr, int *h=nullptr);
+SDL_Texture* loadTextureFromFile(std::string path, unsigned short* w=nullptr, unsigned short* h=nullptr);
+SDL_Texture* loadTextureFromText(const std::string& text, SDL_Color text_color, unsigned short* w=nullptr, unsigned short* h=nullptr);
 
 bool handleBasicEvents(SDL_Event &event, bool* running);
-inline int window_height, window_width;
+inline unsigned short window_height, window_width;
 
 void setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a=255);
 
-void loadFont(std::string path, int size);
+void loadFont(std::string path, unsigned char size);
 
 bool colliding(SDL_Rect a, SDL_Rect b);
 
-inline int mouse_x, mouse_y;
+inline unsigned short mouse_x, mouse_y;
 
-void setWindowMinimumSize(int width, int height);
+void setWindowMinimumSize(unsigned short width, unsigned short height);
 }
 
-namespace __swl_private {
+namespace swl_private {
 
 inline SDL_Window* window = nullptr;
 inline SDL_Renderer* renderer = nullptr;

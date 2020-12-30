@@ -24,7 +24,7 @@ void ogl::rect::render() {
     swl::render(render_rect, fill);
 }
 
-bool ogl::rect::touchesPoint(int x, int y) {
+bool ogl::rect::touchesPoint(short x, short y) {
     SDL_Rect temp_rect = getRect();
     return x > temp_rect.x && y > temp_rect.y && x < temp_rect.x + temp_rect.w && y < temp_rect.y + temp_rect.h;
 }

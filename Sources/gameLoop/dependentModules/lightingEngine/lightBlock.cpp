@@ -12,7 +12,7 @@
 void lightingEngine::lightBlock::render(short x, short y) const {
     if(level != MAX_LIGHT) {
         SDL_Rect rect = {x, y, BLOCK_WIDTH, BLOCK_WIDTH};
-        auto light_level = static_cast<unsigned char>(255 - 255.0 / MAX_LIGHT * level);
+        auto light_level = (unsigned char)(255 - 255.0 / MAX_LIGHT * level);
         swl::setDrawColor(0, 0, 0, light_level);
         swl::render(rect);
     }
@@ -33,11 +33,8 @@ void lightingEngine::lightBlock::update(bool update) {
         unsigned char level_to_be = 0;
         for(auto & neighbor : neighbors) {
             if(neighbor != nullptr) {
-                unsigned char light_step = static_cast<unsigned char>(blockEngine::world[neighbor -
-                                                                                         light_map].getUniqueBlock().transparent
-                                                                      ? 3 : 15);
-                unsigned char light = static_cast<unsigned char>(light_step > neighbor->level ? 0 : neighbor->level -
-                                                                                                    light_step);
+                auto light_step = (unsigned char)(blockEngine::world[neighbor - light_map].getUniqueBlock().transparent ? 3 : 15);
+                auto light = (unsigned char)(light_step > neighbor->level ? 0 : neighbor->level - light_step);
                 if(light > level_to_be)
                     level_to_be = light;
             }
@@ -56,10 +53,10 @@ void lightingEngine::lightBlock::update(bool update) {
 }
 
 unsigned short lightingEngine::lightBlock::getX() {
-    return static_cast<unsigned short>((unsigned int) (this - light_map) % blockEngine::world_width);
+    return (unsigned short)((this - light_map) % blockEngine::world_width);
 }
 
 unsigned short lightingEngine::lightBlock::getY() {
-    return static_cast<unsigned short>((unsigned int) (this - light_map) / blockEngine::world_width);
+    return (unsigned short)((this - light_map) / blockEngine::world_width);
 }
 

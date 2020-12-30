@@ -16,7 +16,7 @@ itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack
 
 itemEngine::inventoryItem::inventoryItem() : item_id(NOTHING), stack(0) {}
 
-void itemEngine::item::draw() {
+void itemEngine::item::draw() const {
     swl::render(getUniqueItem().texture, getRect());
 }
 
@@ -30,29 +30,29 @@ itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
 }
 
 void itemEngine::item::update() {
-    velocity_y += (float)framerateRegulator::frame_length / 16 * 5;
-    for(int i = 0; i < (float)framerateRegulator::frame_length / 16 * velocity_x; i++) {
+    velocity_y += (int)framerateRegulator::frame_length / 16 * 5;
+    for(int i = 0; i < framerateRegulator::frame_length / 16 * velocity_x; i++) {
         x++;
         if(colliding()) {
             x--;
             break;
         }
     }
-    for(int i = 0; i > (float)framerateRegulator::frame_length / 16 * velocity_x; i--) {
+    for(int i = 0; i > framerateRegulator::frame_length / 16 * velocity_x; i--) {
         x--;
         if(colliding()) {
             x++;
             break;
         }
     }
-    for(int i = 0; i < (float)framerateRegulator::frame_length / 16 * velocity_y; i++) {
+    for(int i = 0; i < framerateRegulator::frame_length / 16 * velocity_y; i++) {
         y++;
         if(colliding()) {
             y--;
             break;
         }
     }
-    for(int i = 0; i > (float)framerateRegulator::frame_length / 16 * velocity_y; i--) {
+    for(int i = 0; i > framerateRegulator::frame_length / 16 * velocity_y; i--) {
         y--;
         if(colliding()) {
             y++;
@@ -66,12 +66,12 @@ void itemEngine::item::update() {
     y--;
     
     if(velocity_x > 0) {
-        velocity_x -= (float)framerateRegulator::frame_length / 8;
+        velocity_x -= framerateRegulator::frame_length / 8;
         if(velocity_x < 0)
             velocity_x = 0;
     }
     else if(velocity_x < 0) {
-        velocity_x += (float)framerateRegulator::frame_length / 8;
+        velocity_x += framerateRegulator::frame_length / 8;
         if(velocity_x > 0)
             velocity_x = 0;
     }
@@ -88,8 +88,8 @@ bool itemEngine::item::colliding() const {
     int block_x = x / 100 / BLOCK_WIDTH, block_y = y / 100 / BLOCK_WIDTH;
     for(int x_ = 0; x_ < height_x; x_++)
         for(int y_ = 0; y_ < height_y; y_++)
-            if(!blockEngine::getBlock(static_cast<unsigned short>(block_x + x_),
-                                      static_cast<unsigned short>(block_y + y_)).getUniqueBlock().transparent)
+            if(!blockEngine::getBlock((unsigned short)(block_x + x_),
+                                      (unsigned short)(block_y + y_)).getUniqueBlock().transparent)
                 return true;
     return false;
 }
@@ -102,8 +102,8 @@ void itemEngine::inventoryItem::render(int x, int y) {
     if(getUniqueItem().texture != nullptr)
         swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     if(stack > 1) {
-        stack_texture.setX(static_cast<short>(x + BLOCK_WIDTH * 2 - stack_texture.getWidth()));
-        stack_texture.setY(static_cast<short>(y + BLOCK_WIDTH * 2 - stack_texture.getHeight()));
+        stack_texture.setX(short(x + BLOCK_WIDTH * 2 - stack_texture.getWidth()));
+        stack_texture.setY(short(y + BLOCK_WIDTH * 2 - stack_texture.getHeight()));
         stack_texture.render();
     }
 }
@@ -125,8 +125,8 @@ unsigned short itemEngine::inventoryItem::increaseStack(unsigned short stack_) {
     if(stack_to_be > getUniqueItem().stack_size)
         stack_to_be = getUniqueItem().stack_size;
     result = stack_to_be - stack;
-    setStack(static_cast<unsigned short>(stack_to_be));
-    return static_cast<unsigned short>(result);
+    setStack((unsigned short)stack_to_be);
+    return (unsigned short)result;
 }
 
 bool itemEngine::inventoryItem::decreaseStack(unsigned short stack_) {

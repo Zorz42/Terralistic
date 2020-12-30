@@ -23,18 +23,18 @@ SDL_Rect blockEngine::block::getRect() {
 }
 
 unsigned short blockEngine::block::getX() {
-    return static_cast<unsigned short>((unsigned int) (this - world) % world_width);
+    return (unsigned short)((this - world) % world_width);
 }
 
 unsigned short blockEngine::block::getY() {
-    return static_cast<unsigned short>((unsigned int) (this - world) / world_width);
+    return (unsigned short)((this - world) / world_width);
 }
 
 void blockEngine::block::update() {
     block_orientation = 0;
     
     if(getUniqueBlock().only_on_floor) {
-        if(getBlock(getX(), static_cast<unsigned short>(getY() + 1)).getUniqueBlock().transparent)
+        if(getBlock(getX(), (unsigned short)(getY() + 1)).getUniqueBlock().transparent)
             getBlock(getX(), getY()).block_id = AIR;
     }
     

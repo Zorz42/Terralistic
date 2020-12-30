@@ -36,20 +36,18 @@ unsigned int blockSelector::onMapY(unsigned int y) {
 }
 
 void blockSelector::render() {
-    selectedBlockX = mouseOnMapX() / BLOCK_WIDTH;
-    selectedBlockY = mouseOnMapY() / BLOCK_WIDTH;
-    selectRect.setX(static_cast<short>(onMapX(static_cast<unsigned int>(selectedBlockX * BLOCK_WIDTH))));
-    selectRect.setY(static_cast<short>(onMapY(static_cast<unsigned int>(selectedBlockY * BLOCK_WIDTH))));
+    selectedBlockX = (unsigned short)(mouseOnMapX() / BLOCK_WIDTH);
+    selectedBlockY = (unsigned short)(mouseOnMapY() / BLOCK_WIDTH);
+    selectRect.setX(short(onMapX((unsigned int)(selectedBlockX * BLOCK_WIDTH))));
+    selectRect.setY(short(onMapY((unsigned int)(selectedBlockY * BLOCK_WIDTH))));
     selectRect.render();
 }
 
 void blockSelector::handleEvent(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
         if(event.button.button == SDL_BUTTON_LEFT)
-            blockEngine::leftClickEvent(static_cast<unsigned short>(selectedBlockX),
-                                        static_cast<unsigned short>(selectedBlockY));
+            blockEngine::leftClickEvent(selectedBlockX, selectedBlockY);
         else if(event.button.button == SDL_BUTTON_RIGHT && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()))
-            blockEngine::rightClickEvent(static_cast<unsigned short>(selectedBlockX),
-                                         static_cast<unsigned short>(selectedBlockY));
+            blockEngine::rightClickEvent(selectedBlockX, selectedBlockY);
     }
 }

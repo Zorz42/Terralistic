@@ -88,8 +88,8 @@ namespace sago::internal {
             int actualSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
             if (actualSize > 0) {
                 //If the converted UTF-8 string could not be in the initial buffer. Allocate one that can hold it.
-                std::vector<char> buffer(static_cast<unsigned int>(actualSize));
-                actualSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &buffer[0], static_cast<int>(buffer.size()), nullptr, nullptr);
+                std::vector<char> buffer((unsigned int)actualSize);
+                actualSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &buffer[0], int(buffer.size()), nullptr, nullptr);
                 res = buffer.data();
             }
             if (actualSize == 0) {

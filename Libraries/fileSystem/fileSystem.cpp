@@ -9,7 +9,9 @@
 #include "platform_folders.h"
 #include <sys/stat.h>
 #include <dirent.h>
+#ifdef __APPLE__
 #include <unistd.h>
+#endif
 
 struct stat info;
 

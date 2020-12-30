@@ -30,7 +30,7 @@ struct world_to_select {
 
 ogl::texture title(ogl::top);
 SDL_Texture* x_texture = nullptr;
-int x_width, x_height;
+unsigned short x_width, x_height;
 ui::button back_button(ogl::bottom), new_button(ogl::bottom_right);
 ogl::rect top_rect(ogl::top), bottom_rect(ogl::bottom), top_line_rect(ogl::top), bottom_line_rect(ogl::bottom);
 int position;
@@ -71,7 +71,7 @@ void worldSelector::init() {
     top_rect.setHeight(TOP_HEIGHT);
     top_rect.setColor(0, 0, 0);
     
-    bottom_rect.setHeight(BOTTOM_HEIGHT);
+    bottom_rect.setHeight((unsigned short)BOTTOM_HEIGHT);
     bottom_rect.setColor(0, 0, 0);
     
     top_line_rect.setColor(100, 100, 100);
@@ -80,7 +80,7 @@ void worldSelector::init() {
     
     bottom_line_rect.setColor(100, 100, 100);
     bottom_line_rect.setHeight(LINE_HEIGHT);
-    bottom_line_rect.setY(short(-BOTTOM_HEIGHT));
+    bottom_line_rect.setY((short)-BOTTOM_HEIGHT);
     
     x_texture = swl::loadTextureFromFile("texturePack/x-button.png", &x_width, &x_height);
 }
@@ -170,10 +170,10 @@ void worldSelector::loop() {
         
         display_hover = swl::mouse_y > TOP_HEIGHT && swl::mouse_y < swl::window_height - BOTTOM_HEIGHT;
         
-        top_rect.setWidth(short(swl::window_width));
-        bottom_rect.setWidth(short(swl::window_width));
-        top_line_rect.setWidth(short(swl::window_width));
-        bottom_line_rect.setWidth(short(swl::window_width));
+        top_rect.setWidth(swl::window_width);
+        bottom_rect.setWidth(swl::window_width);
+        top_line_rect.setWidth(swl::window_width);
+        bottom_line_rect.setWidth(swl::window_width);
         
         swl::setDrawColor(0, 0, 0);
         swl::clear();

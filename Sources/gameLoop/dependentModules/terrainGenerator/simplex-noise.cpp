@@ -84,7 +84,7 @@ int open_simplex_noise(int64_t seed, struct osn_context **ctx) {
 
     perm = (*ctx)->perm;
 
-    uint64_t seedU = static_cast<uint64_t>(seed);
+    auto seedU = uint64_t(seed);
     for (i = 0; i < 256; i++)
         source[i] = (int16_t) i;
     seedU = seedU * 6364136223846793005ULL + 1442695040888963407ULL;

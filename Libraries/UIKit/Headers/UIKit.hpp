@@ -13,14 +13,14 @@
 namespace ui {
 class button : protected ogl::rect {
 public:
-    button(ogl::objectType type=ogl::center);
+    explicit button(ogl::objectType type=ogl::center);
     
     void setHoverColor(Uint8 r, Uint8 g, Uint8 b);
 
     using ogl::rect::setColor;
     
-    void setText(std::string text_, Uint8 r, Uint8 g, Uint8 b);
-    void setTexture(SDL_Texture* texture, int width_, int height_);
+    void setText(const std::string& text_, Uint8 r, Uint8 g, Uint8 b);
+    void setTexture(SDL_Texture* texture, unsigned short width_, unsigned short height_);
     void render(bool display_hover=true);
     bool hovered();
     void setScale(Uint8 scale);
@@ -42,14 +42,14 @@ protected:
 
 class loadingBar : protected ogl::rect {
 public:
-    loadingBar(unsigned short total_progress_, ogl::objectType type=ogl::center);
+    explicit loadingBar(unsigned short total_progress_, ogl::objectType type=ogl::center);
     
     using ogl::rect::setWidth;
     using ogl::rect::setHeight;
     using ogl::rect::render;
     using ogl::rect::setColor;
     void setBackColor(Uint8 r_, Uint8 g_, Uint8 b_);
-    void render();
+    void render() override;
     
     void bind(void* progress_variable);
     
