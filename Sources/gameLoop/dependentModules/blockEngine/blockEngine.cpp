@@ -53,8 +53,8 @@ void blockEngine::prepare() {
     world_width = 4200;
     world = new block[world_width * world_height];
     
-    position_x = long(world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH);
-    position_y = long(world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH);
+    position_x = world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
+    position_y = world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     view_x = position_x;
     view_y = position_y;
 }
@@ -71,9 +71,9 @@ void blockEngine::render_blocks() {
     if(view_y < swl::window_height / 2)
         view_y = swl::window_height / 2;
     if(view_x >= blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2)
-        view_x = long(blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2);
+        view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
     if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
-        view_y = long(blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2);
+        view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
     
     int begin_x = view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH - VIEW_PADDING;
     int end_x = view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH + VIEW_PADDING;

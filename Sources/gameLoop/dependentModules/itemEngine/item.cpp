@@ -10,7 +10,15 @@
 #include "blockEngine.hpp"
 #include "framerateRegulator.hpp"
 
-itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100), velocity_x(rand() % 100 - 50), velocity_y(-rand() % 100 - 20) {}
+#include <random>
+
+std::random_device device;
+
+itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100) {
+    std::mt19937 engine(device());
+    velocity_x = engine() % 200 - 100;
+    velocity_y = -(engine() % 100) - 50;
+}
 
 itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), places(places) {}
 
@@ -21,8 +29,7 @@ void itemEngine::item::draw() const {
 }
 
 SDL_Rect itemEngine::item::getRect() const {
-    return {(x / 100 - blockEngine::view_x + swl::window_width / 2),
-            (y / 100 - blockEngine::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
+    return {x / 100 - blockEngine::view_x + swl::window_width / 2, y / 100 - blockEngine::view_y + swl::window_height / 2, BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {

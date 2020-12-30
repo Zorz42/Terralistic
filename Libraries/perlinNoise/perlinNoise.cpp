@@ -40,8 +40,8 @@ PerlinNoise::PerlinNoise(unsigned int seed) {
     std::iota(p.begin(), p.end(), 0);
 
     // Initialize a random engine with seed
-    std::default_random_engine engine(seed);
-
+    std::mt19937 engine(seed);
+    
     // Shuffle using the above random engine
     std::shuffle(p.begin(), p.end(), engine);
 

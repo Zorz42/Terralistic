@@ -11,6 +11,7 @@
 #include "simplex-noise.hpp"
 #include <cmath>
 #include <thread>
+#include <random>
 
 // terrain generation parameters
 
@@ -102,12 +103,12 @@ void generateSurface(unsigned int seed) {
     }
     LOADING_NEXT
     
-    srand(seed);
-    
+    std::mt19937 engine(seed);
+
     // apply terrain to world
     for(unsigned int x = 0; x < blockEngine::world_width; x++) {
         stackDirt(x, heights[x]);
-        if(rand() % 7 == 0) // generate stones
+        if(!(engine() % 7)) // generate stones
             blockEngine::getBlock((unsigned short)x,
                                   (unsigned short)(blockEngine::world_height - heights[x] - 2)).block_id = blockEngine::STONE;
     }
