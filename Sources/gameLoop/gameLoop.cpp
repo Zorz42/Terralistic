@@ -17,7 +17,6 @@
 int gameLoop::main(const std::string& world_name) {
     blockEngine::prepare();
     itemEngine::prepare();
-    lightingEngine::prepare();
     
     if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
@@ -87,7 +86,6 @@ int gameLoop::main(const std::string& world_name) {
     worldSaver::saveWorld(world_name);
     blockEngine::close();
     itemEngine::close();
-    lightingEngine::close();
-    
+
     return 0;
 }

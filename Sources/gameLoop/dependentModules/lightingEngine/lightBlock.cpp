@@ -47,8 +47,11 @@ void lightingEngine::lightBlock::update(unsigned short x, unsigned short y, bool
             update_neighbors = true;
         }
     }
-    if((update_neighbors || source) && update)
+    if((update_neighbors || source) && update) {
+        blockEngine::setUpdateBlock(x, y, true);
+        blockEngine::getChunk(x >> 4, y >> 4).update = true;
         for(int i = 0; i < 4; i++)
             if(neighbors[i] != nullptr && !neighbors[i]->source)
                 neighbors[i]->update(x_[i], y_[i]);
+    }
 }

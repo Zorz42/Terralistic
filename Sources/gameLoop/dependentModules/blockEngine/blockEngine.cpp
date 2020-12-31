@@ -50,7 +50,6 @@ void blockEngine::init() {
 void blockEngine::prepare() {
     world_height = 1200;
     world_width = 4400;
-    world_ = new block[world_width * world_height];
     world = new chunk[(world_width >> 4) * (world_height >> 4)];
     
     position_x = world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
@@ -66,7 +65,6 @@ void blockEngine::prepare() {
 }
 
 void blockEngine::close() {
-    delete[] world_;
     delete[] world;
 }
 
@@ -116,10 +114,19 @@ void blockEngine::setUpdateBlock(unsigned short x, unsigned short y, bool value)
 }
 
 void blockEngine::updateNearestBlocks(unsigned short x, unsigned short y) {
-    char x_[] = {0, 0, 0, -1, 1};
-    char y_[] = {0, -1, 1, 0, 0};
-    for(int i = 0; i < 5; i++)
-        blockEngine::getBlock(x + x_[i], y + y_[i]).update(x + x_[i], y + y_[i]);
+    block* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
+    unsigned short x_[4] = {(unsigned short)(x - 1), (unsigned short)(x + 1), x, x}, y_[4] = {y, y, (unsigned short)(y - 1), (unsigned short)(y + 1)};
+    if(x != 0)
+        neighbors[0] = &getBlock(x - 1, y);
+    if(x != blockEngine::world_width - 1)
+        neighbors[1] = &getBlock(x + 1, y);
+    if(y != 0)
+        neighbors[2] = &getBlock(x, y - 1);
+    if(y != blockEngine::world_height - 1)
+        neighbors[3] = &getBlock(x, y + 1);
+    for(int i = 0; i < 4; i++)
+        if(neighbors[i] != nullptr)
+            neighbors[i]->update(x_[i], y_[i]);
 }
 
 void blockEngine::rightClickEvent(unsigned short x, unsigned short y) {

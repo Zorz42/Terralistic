@@ -8,18 +8,6 @@
 #include "lightingEngine.hpp"
 #include "blockEngine.hpp"
 
-void lightingEngine::init() {
-    
-}
-
-void lightingEngine::prepare() {
-    light_map = new lightBlock[blockEngine::world_width * blockEngine::world_height];
-}
-
-void lightingEngine::close() {
-    delete[] light_map;
-}
-
 void lightingEngine::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; blockEngine::getBlock(x, y).getUniqueBlock().transparent; y++)
         removeLightSource(x, y);

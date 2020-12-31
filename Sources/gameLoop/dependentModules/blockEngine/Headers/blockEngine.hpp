@@ -72,7 +72,6 @@ void close();
 void render_blocks();
 
 inline chunk *world;
-inline block *world_;
 inline unsigned short world_width;
 inline unsigned short world_height;
 

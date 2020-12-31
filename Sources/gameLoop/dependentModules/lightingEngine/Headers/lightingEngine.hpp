@@ -19,12 +19,6 @@ struct lightBlock {
     void update(unsigned short x, unsigned short y, bool update=true);
 };
 
-void init();
-void prepare();
-void close();
-
-inline lightBlock* light_map;
-
 void removeNaturalLight(unsigned short x);
 void setNaturalLight(unsigned short x);
 
