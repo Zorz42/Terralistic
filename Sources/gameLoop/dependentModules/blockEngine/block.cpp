@@ -46,8 +46,19 @@ void blockEngine::block::update(unsigned short x, unsigned short y) {
             c += c;
         }
     }
+    
+    setUpdateBlock(x, y, true);
+    getChunk(x >> 4, y >> 4).update = true;
 }
 
 blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() const {
     return unique_blocks.at(block_id);
+}
+
+void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned short y) {
+    if(id != block_id) {
+        block_id = id;
+        setUpdateBlock(x, y, true);
+        getChunk(x >> 4, y >> 4).update = true;
+    }
 }

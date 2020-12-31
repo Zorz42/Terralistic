@@ -52,14 +52,17 @@ struct block {
     Uint8 block_orientation{};
     
     [[nodiscard]] uniqueBlock& getUniqueBlock() const;
+    void setBlockType(blockType id, unsigned short x, unsigned short y);
 };
 
 struct chunk {
     void render(unsigned short x, unsigned short y);
     block blocks[16][16];
     lightingEngine::lightBlock light_blocks[16][16];
+    bool updates[16][16], update = true;
     SDL_Texture* texture = nullptr;
     void updateTexture();
+    void createTexture();
 };
 
 void init();
@@ -75,6 +78,7 @@ inline unsigned short world_height;
 
 block& getBlock(unsigned short x, unsigned short y);
 chunk& getChunk(unsigned short x, unsigned short y);
+void setUpdateBlock(unsigned short x, unsigned short y, bool value);
 
 inline int position_x, position_y;
 inline int view_x, view_y;

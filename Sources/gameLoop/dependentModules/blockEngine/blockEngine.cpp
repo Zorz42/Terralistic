@@ -11,14 +11,14 @@
 #include "lightingEngine.hpp"
 
 void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
-    block->block_id = blockEngine::DIRT;
+    block->setBlockType(blockEngine::DIRT, x, y);
 }
 
 void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
     blockEngine::blockType type = itemEngine::selected_item->getUniqueItem().places;
     if(type != blockEngine::AIR && itemEngine::selected_item->decreaseStack(1)) {
         lightingEngine::removeNaturalLight(x);
-        block->block_id = type;
+        block->setBlockType(type, x, y);
         lightingEngine::setNaturalLight(x);
         blockEngine::updateNearestBlocks(x, y);
         lightingEngine::getLightBlock(x, y).update(x, y);
@@ -57,6 +57,12 @@ void blockEngine::prepare() {
     position_y = world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     view_x = position_x;
     view_y = position_y;
+    
+    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
+        for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
+            for(unsigned short x_ = 0; x_ < 16; x_++)
+                for(unsigned short y_ = 0; y_ < 16; y_++)
+                    getChunk(x, y).updates[x_][y_] = true;
 }
 
 void blockEngine::close() {
@@ -90,8 +96,11 @@ void blockEngine::render_blocks() {
         end_y = (int)world_height;
     
     for(unsigned short x = (begin_x >> 4) - 1; x < (end_x >> 4) + 1; x++)
-        for(unsigned short y = (begin_y >> 4) - 1; y < (end_y >> 4) + 1; y++)
+        for(unsigned short y = (begin_y >> 4) - 1; y < (end_y >> 4) + 1; y++) {
+            if(getChunk(x, y).update)
+                getChunk(x, y).updateTexture();
             getChunk(x, y).render(x, y);
+        }
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
@@ -100,6 +109,10 @@ blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
 
 blockEngine::chunk& blockEngine::getChunk(unsigned short x, unsigned short y) {
     return world[y * (world_width >> 4) + x];
+}
+
+void blockEngine::setUpdateBlock(unsigned short x, unsigned short y, bool value) {
+    getChunk(x >> 4, y >> 4).updates[x & 15][y & 15] = value;
 }
 
 void blockEngine::updateNearestBlocks(unsigned short x, unsigned short y) {
@@ -123,7 +136,7 @@ void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
         if(block->getUniqueBlock().drop != itemEngine::NOTHING)
             itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
         lightingEngine::removeNaturalLight(x);
-        getBlock(x, y).block_id = blockEngine::AIR;
+        getBlock(x, y).setBlockType(blockEngine::AIR, x, y);
         updateNearestBlocks(x, y);
         lightingEngine::setNaturalLight(x);
         lightingEngine::getLightBlock(x, y).update(x, y);
