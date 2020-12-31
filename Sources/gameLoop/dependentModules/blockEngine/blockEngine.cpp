@@ -20,6 +20,7 @@ void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned s
         lightingEngine::removeNaturalLight(x);
         block->setBlockType(type, x, y);
         lightingEngine::setNaturalLight(x);
+        blockEngine::getBlock(x, y).update(x, y);
         blockEngine::updateNearestBlocks(x, y);
         lightingEngine::getLightBlock(x, y).update(x, y);
     }
