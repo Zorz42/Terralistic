@@ -29,12 +29,8 @@ int gameLoop::main(const std::string& world_name) {
         worldSaver::saveWorld(world_name);
     }
     
-    for(unsigned short x = 0; x < blockEngine::world_width; x++)
-        lightingEngine::setNaturalLight(x);
-    
-    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
-        for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
-            blockEngine::getChunk(x, y).createTexture();
+    lightingEngine::prepareLights();
+    blockEngine::prepareChunks();
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;

@@ -67,6 +67,7 @@ struct chunk {
 
 void init();
 void prepare();
+void prepareChunks();
 void close();
 
 void render_blocks();

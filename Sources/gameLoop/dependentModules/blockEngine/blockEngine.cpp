@@ -9,6 +9,9 @@
 #include "blockEngine.hpp"
 #include "itemEngine.hpp"
 #include "lightingEngine.hpp"
+#include "objectedGraphicsLibrary.hpp"
+
+ogl::texture chunk_text;
 
 void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
     block->setBlockType(blockEngine::DIRT, x, y);
@@ -46,6 +49,9 @@ void blockEngine::init() {
     
     unique_blocks.at(GRASS_BLOCK).leftClickEvent = &grass_block_leftClickEvent;
     unique_blocks.at(AIR).rightClickEvent = &air_rightClickEvent;
+    
+    chunk_text.loadFromText("Preparing chunks", {255, 255, 255});
+    chunk_text.scale = 3;
 }
 
 void blockEngine::prepare() {
@@ -149,4 +155,15 @@ void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
         lightingEngine::setNaturalLight(x);
         lightingEngine::getLightBlock(x, y).update(x, y);
     }
+}
+
+void blockEngine::prepareChunks() {
+    swl::setDrawColor(0, 0, 0);
+    swl::clear();
+    chunk_text.render();
+    swl::update();
+    
+    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
+        for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
+            blockEngine::getChunk(x, y).createTexture();
 }

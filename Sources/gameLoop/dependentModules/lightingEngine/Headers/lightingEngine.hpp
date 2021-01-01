@@ -12,6 +12,9 @@
 
 namespace lightingEngine {
 
+void init();
+void prepareLights();
+
 struct lightBlock {
     unsigned char level = 0;
     bool source = false;
