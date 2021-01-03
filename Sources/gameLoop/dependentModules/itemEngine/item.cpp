@@ -20,7 +20,11 @@ itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x *
     velocity_y = -(engine() % 100) - 50;
 }
 
-itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), places(places) {}
+itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), stack_size(stack_size), places(places) {
+    text_texture.loadFromText(name, {255, 255, 255});
+    text_texture.scale = 2;
+    text_texture.free_texture = false;
+}
 
 itemEngine::inventoryItem::inventoryItem() : item_id(NOTHING), stack(0) {}
 

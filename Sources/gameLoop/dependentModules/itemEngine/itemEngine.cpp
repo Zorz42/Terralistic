@@ -11,10 +11,10 @@
 
 void itemEngine::init() {
     unique_items = {
-        uniqueItem("nothing",     0,  blockEngine::AIR        ),
-        uniqueItem("stone",       99, blockEngine::STONE      ),
-        uniqueItem("dirt",        99, blockEngine::DIRT       ),
-        uniqueItem("stone_block", 99, blockEngine::STONE_BLOCK),
+        {"nothing",     0,  blockEngine::AIR        },
+        {"stone",       99, blockEngine::STONE      },
+        {"dirt",        99, blockEngine::DIRT       },
+        {"stone_block", 99, blockEngine::STONE_BLOCK},
     };
 }
 

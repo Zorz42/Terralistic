@@ -40,7 +40,7 @@ int gameLoop::main(const std::string& world_name) {
     running = true;
     SDL_Event event;
     
-    unsigned int count = 0, fps_count = 0;
+    unsigned int count = SDL_GetTicks() / 1000 - 1, fps_count = 0;
     
     while(running) {
         framerateRegulator::regulateFramerate();

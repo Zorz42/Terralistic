@@ -23,6 +23,7 @@ struct uniqueItem {
     SDL_Texture* texture;
     unsigned short stack_size;
     blockEngine::blockType places;
+    ogl::texture text_texture{ogl::top_left};
 };
 
 struct item {
@@ -43,7 +44,7 @@ public:
     itemType item_id;
     [[nodiscard]] uniqueItem& getUniqueItem() const;
     void render(int x, int y);
-    ogl::texture stack_texture{(ogl::top_left)};
+    ogl::texture stack_texture{ogl::top_left};
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);

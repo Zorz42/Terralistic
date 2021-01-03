@@ -47,9 +47,9 @@ void ogl::texture::loadFromText(const std::string& text, SDL_Color text_color) {
     height = temp_height;
 }
 
-void ogl::texture::loadFromFile(std::string path) {
+void ogl::texture::loadFromFile(const std::string& path) {
     unsigned short temp_width, temp_height;
-    setTexture(swl::loadTextureFromFile(std::move(path), &temp_width, &temp_height));
+    setTexture(swl::loadTextureFromFile(path, &temp_width, &temp_height));
     width = temp_width;
     height = temp_height;
 }

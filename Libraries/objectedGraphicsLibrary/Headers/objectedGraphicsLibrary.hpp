@@ -53,7 +53,7 @@ public:
     void render();
     
     void loadFromText(const std::string& text, SDL_Color text_color);
-    void loadFromFile(std::string path);
+    void loadFromFile(const std::string& path);
     
     inline unsigned short getWidth() override { return width * scale; };
     inline unsigned short getHeight() override { return height * scale; };
