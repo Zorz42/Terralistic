@@ -6,6 +6,7 @@
 //
 
 #include "blockSelector.hpp"
+#include "inventoryRenderer.hpp"
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
@@ -36,18 +37,20 @@ unsigned int blockSelector::onMapY(unsigned int y) {
 }
 
 void blockSelector::render() {
-    selectedBlockX = (unsigned short)(mouseOnMapX() / BLOCK_WIDTH);
-    selectedBlockY = (unsigned short)(mouseOnMapY() / BLOCK_WIDTH);
-    selectRect.setX(short(onMapX((unsigned int)(selectedBlockX * BLOCK_WIDTH))));
-    selectRect.setY(short(onMapY((unsigned int)(selectedBlockY * BLOCK_WIDTH))));
-    selectRect.render();
+    if(!inventoryRenderer::hovered) {
+        selectedBlockX = (unsigned short)(mouseOnMapX() / BLOCK_WIDTH);
+        selectedBlockY = (unsigned short)(mouseOnMapY() / BLOCK_WIDTH);
+        selectRect.setX(short(onMapX((unsigned int)(selectedBlockX * BLOCK_WIDTH))));
+        selectRect.setY(short(onMapY((unsigned int)(selectedBlockY * BLOCK_WIDTH))));
+        selectRect.render();
+    }
 }
 
 void blockSelector::handleEvent(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
-        if(event.button.button == SDL_BUTTON_LEFT)
+        if(event.button.button == SDL_BUTTON_LEFT && !inventoryRenderer::hovered)
             blockEngine::leftClickEvent(selectedBlockX, selectedBlockY);
-        else if(event.button.button == SDL_BUTTON_RIGHT && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()))
+        else if(event.button.button == SDL_BUTTON_RIGHT && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()) && !inventoryRenderer::hovered)
             blockEngine::rightClickEvent(selectedBlockX, selectedBlockY);
     }
 }

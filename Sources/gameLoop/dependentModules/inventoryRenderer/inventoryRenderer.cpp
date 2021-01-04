@@ -41,16 +41,20 @@ void inventoryRenderer::render() {
     select_rect.setX(short((itemEngine::selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
     select_rect.render();
     ogl::texture* text_texture = nullptr;
+    hovered = false;
     for(int i = 0; i < (itemEngine::inventory_open ? 20 : 10); i++) {
-        if(swl::colliding(inventory_slots[i].getRect(), {swl::mouse_x, swl::mouse_y, 0, 0}) && itemEngine::inventory_open && itemEngine::inventory[i].item_id != itemEngine::NOTHING) {
+        if(swl::colliding(inventory_slots[i].getRect(), {swl::mouse_x, swl::mouse_y, 0, 0}) && itemEngine::inventory_open) {
+            hovered = true;
             inventory_slots[i].setColor(70, 70, 70);
-            text_texture = &itemEngine::inventory[i].getUniqueItem().text_texture;
-            text_texture->setX(swl::mouse_x + 20);
-            text_texture->setY(swl::mouse_y + 20);
-            under_text_rect.setHeight(text_texture->getHeight() + 2 * MARGIN);
-            under_text_rect.setWidth(text_texture->getWidth() + 2 * MARGIN);
-            under_text_rect.setX(swl::mouse_x + 20 - MARGIN);
-            under_text_rect.setY(swl::mouse_y + 20 - MARGIN);
+            if(itemEngine::inventory[i].item_id != itemEngine::NOTHING) {
+                text_texture = &itemEngine::inventory[i].getUniqueItem().text_texture;
+                text_texture->setX(swl::mouse_x + 20);
+                text_texture->setY(swl::mouse_y + 20);
+                under_text_rect.setHeight(text_texture->getHeight() + 2 * MARGIN);
+                under_text_rect.setWidth(text_texture->getWidth() + 2 * MARGIN);
+                under_text_rect.setX(swl::mouse_x + 20 - MARGIN);
+                under_text_rect.setY(swl::mouse_y + 20 - MARGIN);
+            }
         }
         else
             inventory_slots[i].setColor(100, 100, 100);

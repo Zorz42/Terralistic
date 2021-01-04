@@ -12,6 +12,7 @@ namespace inventoryRenderer {
 
 void init();
 void render();
+inline bool hovered = false;
 
 }
 
