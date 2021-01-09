@@ -55,3 +55,7 @@ bool inventory::inventoryItem::decreaseStack(unsigned short stack_) {
     }
 }
 
+void inventory::inventoryItem::operator=(inventoryItem& item) {
+    item_id = item.item_id;
+    setStack(item.stack);
+}

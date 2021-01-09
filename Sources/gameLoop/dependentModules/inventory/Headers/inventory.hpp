@@ -25,6 +25,7 @@ public:
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
+    void operator=(inventoryItem& item);
 private:
     unsigned short stack;
 };
@@ -37,7 +38,7 @@ bool handleEvents(SDL_Event& event);
 bool addItemToInventory(itemEngine::itemType id, int quantity);
 void selectSlot(char slot);
 
-inline bool hovered = false;
+inline inventoryItem* hovered = nullptr;
 inline bool inventory_open = false;
 inline inventoryItem *selected_item = nullptr, mouse_item{itemEngine::NOTHING};
 inline char selected_slot = 0;

@@ -43,10 +43,10 @@ void inventory::render() {
     select_rect.setX(short((inventory::selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
     select_rect.render();
     ogl::texture* text_texture = nullptr;
-    hovered = false;
+    hovered = nullptr;
     for(int i = 0; i < (inventory::inventory_open ? 20 : 10); i++) {
         if(swl::colliding(inventory_slots[i].getRect(), {swl::mouse_x, swl::mouse_y, 0, 0}) && inventory::inventory_open) {
-            hovered = true;
+            hovered = &player_inventory[i];
             inventory_slots[i].setColor(70, 70, 70);
             if(inventory::player_inventory[i].item_id != itemEngine::NOTHING) {
                 text_texture = &inventory::player_inventory[i].getUniqueItem().text_texture;
@@ -67,6 +67,7 @@ void inventory::render() {
         under_text_rect.render();
         text_texture->render();
     }
+    mouse_item.render(swl::mouse_x, swl::mouse_y);
 }
 
 bool inventory::handleEvents(SDL_Event &event) {
@@ -80,8 +81,16 @@ bool inventory::handleEvents(SDL_Event &event) {
         }
     } else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) {
         inventory_open = !inventory_open;
-        if(!inventory_open && mouse_item.item_id != itemEngine::NOTHING)
+        if(!inventory_open && mouse_item.item_id != itemEngine::NOTHING) {
             addItemToInventory(mouse_item.item_id, mouse_item.getStack());
+            mouse_item.item_id = itemEngine::NOTHING;
+            mouse_item.setStack(0);
+        }
+        return true;
+    } else if(hovered && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+        inventoryItem temp = *hovered;
+        *hovered = mouse_item;
+        mouse_item = temp;
     }
     return false;
 }
