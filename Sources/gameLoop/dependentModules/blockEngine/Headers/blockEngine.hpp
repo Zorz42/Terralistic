@@ -9,7 +9,6 @@
 #define blockEngine_h
 
 #include <SDL2/SDL.h>
-
 #include <string>
 #include <vector>
 #include "itemType.hpp"

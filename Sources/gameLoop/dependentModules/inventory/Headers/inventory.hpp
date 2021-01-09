@@ -8,8 +8,7 @@
 #ifndef inventory_hpp
 #define inventory_hpp
 
-#include <SDL2/SDL.h>
-#include "itemType.hpp"
+
 #include "itemEngine.hpp"
 
 namespace inventory {

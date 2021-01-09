@@ -7,7 +7,8 @@
 
 #include <utility>
 #include <vector>
-
+#include <dirent.h>
+#include <algorithm>
 #include "worldSelector.hpp"
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
@@ -15,8 +16,6 @@
 #include "gameLoop.hpp"
 #include "fileSystem.hpp"
 #include "worldCreator.hpp"
-#include <dirent.h>
-#include <algorithm>
 
 #undef main
 

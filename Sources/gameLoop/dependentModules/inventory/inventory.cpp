@@ -6,9 +6,7 @@
 //
 
 #include "inventory.hpp"
-#include "objectedGraphicsLibrary.hpp"
 #include "blockEngine.hpp"
-#include "itemEngine.hpp"
 #include "singleWindowLibrary.hpp"
 
 ogl::rect inventory_slots[20], select_rect, under_text_rect(ogl::top_left);

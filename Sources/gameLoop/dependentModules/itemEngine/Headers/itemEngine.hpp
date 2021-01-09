@@ -8,8 +8,6 @@
 #ifndef itemEngine_hpp
 #define itemEngine_hpp
 
-#include <SDL2/SDL.h>
-#include <string>
 #include <vector>
 #include "objectedGraphicsLibrary.hpp"
 #include "itemType.hpp"

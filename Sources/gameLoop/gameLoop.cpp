@@ -8,9 +8,7 @@
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
 #include "fileSystem.hpp"
-#include "itemEngine.hpp"
 #include "inventory.hpp"
-#include "lightingEngine.hpp"
 
 #undef main
 
