@@ -6,7 +6,7 @@
 //
 
 #include "blockSelector.hpp"
-#include "inventoryRenderer.hpp"
+#include "inventory.hpp"
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
@@ -37,7 +37,7 @@ unsigned int blockSelector::onMapY(unsigned int y) {
 }
 
 void blockSelector::render() {
-    if(!inventoryRenderer::hovered) {
+    if(!inventory::hovered) {
         selectedBlockX = (unsigned short)(mouseOnMapX() / BLOCK_WIDTH);
         selectedBlockY = (unsigned short)(mouseOnMapY() / BLOCK_WIDTH);
         selectRect.setX(short(onMapX((unsigned int)(selectedBlockX * BLOCK_WIDTH))));
@@ -48,9 +48,9 @@ void blockSelector::render() {
 
 void blockSelector::handleEvent(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
-        if(event.button.button == SDL_BUTTON_LEFT && !inventoryRenderer::hovered)
+        if(event.button.button == SDL_BUTTON_LEFT && !inventory::hovered)
             blockEngine::leftClickEvent(selectedBlockX, selectedBlockY);
-        else if(event.button.button == SDL_BUTTON_RIGHT && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()) && !inventoryRenderer::hovered)
+        else if(event.button.button == SDL_BUTTON_RIGHT && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()) && !inventory::hovered)
             blockEngine::rightClickEvent(selectedBlockX, selectedBlockY);
     }
 }

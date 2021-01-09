@@ -10,6 +10,7 @@
 #include "itemEngine.hpp"
 #include "lightingEngine.hpp"
 #include "objectedGraphicsLibrary.hpp"
+#include "inventory.hpp"
 
 ogl::texture chunk_text;
 
@@ -18,8 +19,8 @@ void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, uns
 }
 
 void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
-    blockEngine::blockType type = itemEngine::selected_item->getUniqueItem().places;
-    if(type != blockEngine::AIR && itemEngine::selected_item->decreaseStack(1)) {
+    blockEngine::blockType type = inventory::selected_item->getUniqueItem().places;
+    if(type != blockEngine::AIR && inventory::selected_item->decreaseStack(1)) {
         lightingEngine::removeNaturalLight(x);
         block->setBlockType(type, x, y);
         lightingEngine::setNaturalLight(x);

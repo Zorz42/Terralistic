@@ -9,19 +9,19 @@
 #include "pauseScreen.hpp"
 #include "fileSystem.hpp"
 #include "itemEngine.hpp"
-#include "inventoryRenderer.hpp"
+#include "inventory.hpp"
 #include "lightingEngine.hpp"
 
 #undef main
 
 int gameLoop::main(const std::string& world_name) {
     blockEngine::prepare();
-    itemEngine::prepare();
+    inventory::prepare();
     
     if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
     else {
-        for(itemEngine::inventoryItem& i : itemEngine::inventory) {
+        for(inventory::inventoryItem& i : inventory::player_inventory) {
             i.setStack(0);
             i.item_id = itemEngine::NOTHING;
         }
@@ -58,7 +58,7 @@ int gameLoop::main(const std::string& world_name) {
                 quit = true;
             else if(pauseScreen::handleEvents(event));
             else if(playerHandler::handleMovement(event));
-            else if(itemEngine::handleEvents(event));
+            else if(inventory::handleEvents(event));
             else
                 blockSelector::handleEvent(event);
         }
@@ -75,7 +75,7 @@ int gameLoop::main(const std::string& world_name) {
             blockSelector::render();
             fps_text.render();
         }
-        inventoryRenderer::render();
+        inventory::render();
         swl::update();
     }
     

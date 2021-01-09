@@ -26,8 +26,6 @@ itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack
     text_texture.free_texture = false;
 }
 
-itemEngine::inventoryItem::inventoryItem() : item_id(NOTHING), stack(0) {}
-
 void itemEngine::item::draw() const {
     swl::render(getUniqueItem().texture, getRect());
 }
@@ -103,48 +101,4 @@ bool itemEngine::item::colliding() const {
                                       (unsigned short)(block_y + y_)).getUniqueBlock().transparent)
                 return true;
     return false;
-}
-
-itemEngine::uniqueItem& itemEngine::inventoryItem::getUniqueItem() const {
-    return unique_items.at(item_id);
-}
-
-void itemEngine::inventoryItem::render(int x, int y) {
-    if(getUniqueItem().texture != nullptr)
-        swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-    if(stack > 1) {
-        stack_texture.setX(short(x + BLOCK_WIDTH * 2 - stack_texture.getWidth()));
-        stack_texture.setY(short(y + BLOCK_WIDTH * 2 - stack_texture.getHeight()));
-        stack_texture.render();
-    }
-}
-
-void itemEngine::inventoryItem::setStack(unsigned short stack_) {
-    stack = stack_;
-    if(stack > 1)
-        stack_texture.loadFromText(std::to_string(stack_), {255, 255, 255});
-    else if(!stack)
-        item_id = NOTHING;
-}
-
-unsigned short itemEngine::inventoryItem::getStack() const {
-    return stack;
-}
-
-unsigned short itemEngine::inventoryItem::increaseStack(unsigned short stack_) {
-    int stack_to_be = stack + stack_, result;
-    if(stack_to_be > getUniqueItem().stack_size)
-        stack_to_be = getUniqueItem().stack_size;
-    result = stack_to_be - stack;
-    setStack((unsigned short)stack_to_be);
-    return (unsigned short)result;
-}
-
-bool itemEngine::inventoryItem::decreaseStack(unsigned short stack_) {
-    if(stack_ > stack)
-        return false;
-    else {
-        setStack(stack - stack_);
-        return true;
-    }
 }

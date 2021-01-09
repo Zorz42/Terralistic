@@ -12,6 +12,7 @@
 #include "objectedGraphicsLibrary.hpp"
 #include "singleWindowLibrary.hpp"
 #include "itemEngine.hpp"
+#include "inventory.hpp"
 
 ogl::texture loading_text, saving_text;
 
@@ -29,7 +30,7 @@ void worldSaver::saveWorld(const std::string& world_name) {
     swl::update();
 
     std::ofstream world_file(fileSystem::worlds_dir + world_name + ".world");
-    for(auto & i : itemEngine::inventory)
+    for(auto & i : inventory::player_inventory)
         world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
     
     for(int y = 0; y < blockEngine::world_height; y++)
@@ -47,7 +48,7 @@ void worldSaver::loadWorld(const std::string& world_name) {
     
     std::ifstream world_file(fileSystem::worlds_dir + world_name + ".world");
     char c = 0;
-    for(auto & i : itemEngine::inventory) {
+    for(auto & i : inventory::player_inventory) {
         world_file >> std::noskipws >> c;
         i.item_id = (itemEngine::itemType)c;
         world_file >> std::noskipws >> c;
