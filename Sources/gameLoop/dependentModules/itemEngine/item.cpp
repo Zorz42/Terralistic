@@ -35,7 +35,7 @@ SDL_Rect itemEngine::item::getRect() const {
 }
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
-    return unique_items.at(item_id);
+    return unique_items[item_id];
 }
 
 void itemEngine::item::update() {

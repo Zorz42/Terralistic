@@ -24,9 +24,9 @@ void itemEngine::close() {
 
 void itemEngine::updateItems() {
     for(unsigned long i = 0; i < items.size(); i++) {
-        items.at(i).update();
-        if(abs(items.at(i).x / 100 + BLOCK_WIDTH / 2  - blockEngine::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(items.at(i).y / 100 + BLOCK_WIDTH / 2 - blockEngine::position_y - playerHandler::player.getHeight() / 2) < 50)
-            if(inventory::addItemToInventory(items.at(i).item_id, 1))
+        items[i].update();
+        if(abs(items[i].x / 100 + BLOCK_WIDTH / 2  - blockEngine::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(items[i].y / 100 + BLOCK_WIDTH / 2 - blockEngine::position_y - playerHandler::player.getHeight() / 2) < 50)
+            if(inventory::addItemToInventory(items[i].item_id, 1))
                 items.erase(items.begin() + i);
     }
 }

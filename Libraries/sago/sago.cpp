@@ -252,7 +252,7 @@ static void PlatformFoldersAddFromFile(const std::string& filename, std::map<std
 	std::ifstream infile(filename.c_str());
 	std::string line;
 	while (std::getline(infile, line)) {
-		if (line.length() == 0 || line.at(0) == '#' || line.substr(0, 4) != "XDG_" || line.find("_DIR") == std::string::npos) {
+		if (line.length() == 0 || line[0] == '#' || line.substr(0, 4) != "XDG_" || line.find("_DIR") == std::string::npos) {
 			continue;
 		}
 		try {

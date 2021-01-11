@@ -44,12 +44,12 @@ void blockEngine::init() {
     };
     
     for(std::pair<blockType, blockType> i : connections) {
-        unique_blocks.at(i.first).connects_to.push_back(i.second);
-        unique_blocks.at(i.second).connects_to.push_back(i.first);
+        unique_blocks[i.first].connects_to.push_back(i.second);
+        unique_blocks[i.second].connects_to.push_back(i.first);
     }
     
-    unique_blocks.at(GRASS_BLOCK).leftClickEvent = &grass_block_leftClickEvent;
-    unique_blocks.at(AIR).rightClickEvent = &air_rightClickEvent;
+    unique_blocks[GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
+    unique_blocks[AIR].rightClickEvent = &air_rightClickEvent;
     
     chunk_text.loadFromText("Preparing chunks", {255, 255, 255});
     chunk_text.scale = 3;

@@ -12,7 +12,7 @@
 inventory::inventoryItem::inventoryItem() : item_id(itemEngine::NOTHING), stack(0) {}
 
 itemEngine::uniqueItem& inventory::inventoryItem::getUniqueItem() const {
-    return itemEngine::unique_items.at(item_id);
+    return itemEngine::unique_items[item_id];
 }
 
 void inventory::inventoryItem::render(int x, int y) {
