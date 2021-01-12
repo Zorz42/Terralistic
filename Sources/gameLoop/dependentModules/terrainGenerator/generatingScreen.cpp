@@ -8,6 +8,7 @@
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "terrainGenerator.hpp"
+#include "generatingScreen.hpp"
 #include "framerateRegulator.hpp"
 #include "UIKit.hpp"
 

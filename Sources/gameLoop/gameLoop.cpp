@@ -9,8 +9,23 @@
 #include "pauseScreen.hpp"
 #include "fileSystem.hpp"
 #include "inventory.hpp"
+#include "generatingScreen.hpp"
+#include <thread>
 
 #undef main
+
+void generateTerrain(unsigned int seed) {
+    terrainGenerator::loading_total = 5;
+    terrainGenerator::loading_current = 0;
+    std::thread thread(terrainGenerator::generateTerrainDaemon, seed);
+    
+    terrainGenerator::generatingScreen();
+
+    thread.join();
+    
+    if(terrainGenerator::loading_current != terrainGenerator::loading_total)
+        swl::popupError("Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));
+}
 
 int gameLoop::main(const std::string& world_name) {
     blockEngine::prepare();
@@ -23,7 +38,7 @@ int gameLoop::main(const std::string& world_name) {
             i.setStack(0);
             i.item_id = itemEngine::NOTHING;
         }
-        terrainGenerator::generateTerrain(0);
+        generateTerrain(0);
         worldSaver::saveWorld(world_name);
     }
     

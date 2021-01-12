@@ -7,7 +7,6 @@
 
 #include "blockEngine.hpp"
 #include "terrainGenerator.hpp"
-#include "singleWindowLibrary.hpp"
 #include "simplex-noise.hpp"
 #include <cmath>
 #include <thread>
@@ -46,7 +45,7 @@ unsigned int highest_height = 0;
 
 #define LOADING_NEXT terrainGenerator::loading_current++;
 
-int generateTerrainDaemon(unsigned int seed) {
+int terrainGenerator::generateTerrainDaemon(unsigned int seed) {
     generateSurface(seed);
     generateCaves(seed);
     generateStone(seed);
@@ -55,19 +54,6 @@ int generateTerrainDaemon(unsigned int seed) {
         for(int x = 0; x < blockEngine::world_width; x++)
             blockEngine::getBlock(x, y).update(x, y);
     return 0;
-}
-
-void terrainGenerator::generateTerrain(unsigned int seed) {
-    terrainGenerator::loading_total = 5;
-    terrainGenerator::loading_current = 0;
-    std::thread thread(generateTerrainDaemon, seed);
-    
-    generatingScreen();
-
-    thread.join();
-    
-    if(loading_current != loading_total)
-        swl::popupError("Loading total is " + std::to_string(loading_total) + ", but loading current got to " + std::to_string(loading_current));
 }
 
 void stackDirt(unsigned int x, unsigned int height) {
