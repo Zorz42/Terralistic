@@ -47,7 +47,7 @@ void worldCreator::init() {
     world_name.scale = 3;
 }
 
-void renderText() {
+void renderTextCreator() {
     if(!name.empty()) {
         world_name.loadFromText(name, {255, 255, 255});
         world_name.setY(short(-world_name.getHeight() / 7));
@@ -59,7 +59,7 @@ void worldCreator::loop(std::vector<std::string> worlds) {
     SDL_Event event;
     name = "";
     
-    renderText();
+    renderTextCreator();
     
     while(running && !gameLoop::quit) {
         can_create = !name.empty() && !std::count(worlds.begin(), worlds.end(), name);
@@ -70,7 +70,7 @@ void worldCreator::loop(std::vector<std::string> worlds) {
             if(swl::handleBasicEvents(event, &running) && !running)
                 gameLoop::quit = true;
             else if(can_create && (create_button.isPressed(event) || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN))) {
-                gameLoop::main(name);
+                gameLoop::main(name, false);
                 running = false;
             }
             else if(back_button_creator.isPressed(event))
@@ -81,12 +81,12 @@ void worldCreator::loop(std::vector<std::string> worlds) {
                     c = '-';
                 if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-') {
                     name.push_back(c);
-                    renderText();
+                    renderTextCreator();
                 }
             }
             else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKSPACE && !name.empty()) {
                 name.pop_back();
-                renderText();
+                renderTextCreator();
             }
         }
         

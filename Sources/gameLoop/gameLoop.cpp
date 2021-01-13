@@ -1,3 +1,4 @@
+#include <thread>
 #include "gameLoop.hpp"
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
@@ -10,7 +11,7 @@
 #include "fileSystem.hpp"
 #include "inventory.hpp"
 #include "generatingScreen.hpp"
-#include <thread>
+#include "networkingModule.hpp"
 
 #undef main
 
@@ -27,11 +28,16 @@ void generateTerrain(unsigned int seed) {
         swl::popupError("Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));
 }
 
-int gameLoop::main(const std::string& world_name) {
+int gameLoop::main(const std::string& world_name, bool multiplayer) {
     blockEngine::prepare();
     inventory::prepare();
     
-    if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
+    if(multiplayer) {
+        if(!networking::establishConnection(world_name))
+            return 0;
+        networking::downloadWorld();
+    }
+    else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
     else {
         for(inventory::inventoryItem& i : inventory::player_inventory) {

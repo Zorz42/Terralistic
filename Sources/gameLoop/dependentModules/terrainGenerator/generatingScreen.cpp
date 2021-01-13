@@ -51,8 +51,8 @@ void terrainGenerator::generatingScreen() {
         
         swl::update();
     }
-    if(!running) {
+    /*if(!running) {
         swl::quit();
         exit(0);
-    }
+    }*/
 }

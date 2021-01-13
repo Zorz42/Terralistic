@@ -52,7 +52,7 @@ void blockEngine::block::update(unsigned short x, unsigned short y) {
 }
 
 blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() const {
-    return unique_blocks[block_id];
+     return unique_blocks[block_id];
 }
 
 void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned short y) {

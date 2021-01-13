@@ -158,7 +158,7 @@ void worldSelector::loop() {
             else
                 for(world_to_select& world : worlds)
                     if(world.button.isPressed(event)) {
-                        gameLoop::main(world.name);
+                        gameLoop::main(world.name, false);
                         reload();
                         break;
                     } else if(world.delete_button.isPressed(event)) {

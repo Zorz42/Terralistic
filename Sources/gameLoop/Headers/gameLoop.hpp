@@ -14,7 +14,7 @@
 
 namespace gameLoop {
 
-int main(const std::string& world_name);
+int main(const std::string& world_name, bool multiplayer);
 inline bool running, quit = false;
 
 }

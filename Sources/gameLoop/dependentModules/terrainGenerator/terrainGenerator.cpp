@@ -9,7 +9,6 @@
 #include "terrainGenerator.hpp"
 #include "simplex-noise.hpp"
 #include <cmath>
-#include <thread>
 #include <random>
 
 // terrain generation parameters
