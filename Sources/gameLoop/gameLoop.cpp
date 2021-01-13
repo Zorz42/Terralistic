@@ -98,6 +98,9 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         swl::update();
     }
     
+    if(multiplayer)
+        networking::sendPacket({networking::DISCONNECT});
+    
     worldSaver::saveWorld(world_name);
     blockEngine::close();
     itemEngine::close();
