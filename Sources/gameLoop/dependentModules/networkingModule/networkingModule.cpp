@@ -11,28 +11,10 @@
 #include <unistd.h>
 #include "networkingModule.hpp"
 #include "blockEngine.hpp"
+#include "packets.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
-
-int sock = 0;
-
-networking::packet networking::getPacket() {
-    std::vector<char> buffer(BUFFER_SIZE);
-    std::string rcv;
-    long bytesReceived = 0;
-    do {
-        bytesReceived = recv(sock, &buffer[0], buffer.size(), 0);
-        if(bytesReceived != -1)
-            rcv.append(buffer.cbegin(), buffer.cend());
-    } while (bytesReceived == BUFFER_SIZE);
-    return {(networking::packetType)rcv[0], rcv.substr(1)};
-}
-
-void networking::sendPacket(packet packet_) {
-    std::string content = (char)packet_.type + packet_.contents;
-    send(sock, content.c_str(), content.length(), 0);
-}
 
 bool networking::establishConnection(const std::string &ip) {
     struct sockaddr_in serv_addr;
@@ -52,11 +34,11 @@ bool networking::establishConnection(const std::string &ip) {
 void networking::downloadWorld() {
     for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++) {
         for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++) {
-            packet chunk_packet = getPacket();
+            packets::packet chunk_packet = packets::getPacket(sock);
             blockEngine::chunk& chunk = blockEngine::getChunk(x, y);
             for(int i = 0; i < 16 * 16; i++)
-                chunk.blocks[i % 16][i / 16].block_id = (blockEngine::blockType)chunk_packet.contents[i];
-            sendPacket({networking::PING});
+                chunk.blocks[i % 16][i / 16].block_id = (blockEngine::blockType)chunk_packet.getChar();
+            packets::sendPacket(sock, {packets::PING});
         }
     }
     

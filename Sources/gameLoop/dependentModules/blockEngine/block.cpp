@@ -9,6 +9,10 @@
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "lightingEngine.hpp"
+#include "itemEngine.hpp"
+#include "gameLoop.hpp"
+#include "networkingModule.hpp"
+#include "packets.hpp"
 
 void blockEngine::block::draw(unsigned short x, unsigned short y) {
     SDL_Rect rect = {x * BLOCK_WIDTH, y * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH};
@@ -23,9 +27,10 @@ SDL_Rect blockEngine::block::getRect(unsigned short x, unsigned short y) {
 void blockEngine::block::update(unsigned short x, unsigned short y) {
     block_orientation = 0;
     
-    if(getUniqueBlock().only_on_floor) {
-        if(getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
-            getBlock(x, y).block_id = AIR;
+    if(!gameLoop::online && getUniqueBlock().only_on_floor && getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent) {
+        itemEngine::spawnItem(getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+        getBlock(x, y).setBlockType(AIR, x, y);
+        updateNearestBlocks(x, y);
     }
     
     if(!getUniqueBlock().single_texture) {
@@ -60,5 +65,10 @@ void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned s
         block_id = id;
         setUpdateBlock(x, y, true);
         getChunk(x >> 4, y >> 4).update = true;
+        if(gameLoop::online) {
+            packets::packet packet(packets::BLOCK_CHANGE);
+            packet << x << y << (unsigned char) id;
+            packets::sendPacket(networking::sock, packet);
+        }
     }
 }

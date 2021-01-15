@@ -12,6 +12,7 @@
 #include "inventory.hpp"
 #include "generatingScreen.hpp"
 #include "networkingModule.hpp"
+#include "packets.hpp"
 
 #undef main
 
@@ -29,6 +30,8 @@ void generateTerrain(unsigned int seed) {
 }
 
 int gameLoop::main(const std::string& world_name, bool multiplayer) {
+    online = multiplayer;
+    
     blockEngine::prepare();
     inventory::prepare();
     
@@ -99,7 +102,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     }
     
     if(multiplayer)
-        networking::sendPacket({networking::DISCONNECT});
+        packets::sendPacket(networking::sock, {packets::DISCONNECT});
     
     worldSaver::saveWorld(world_name);
     blockEngine::close();
