@@ -65,7 +65,7 @@ void listenerLoop() {
             case packets::BLOCK_CHANGE: {
                 blockEngine::blockType type = (blockEngine::blockType)packet.getUChar();
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
-                blockEngine::getBlock(x, y).block_id = type;
+                blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
                 blockEngine::updateNearestBlocks(x, y);
                 break;
             }

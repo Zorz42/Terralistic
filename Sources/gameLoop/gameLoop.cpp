@@ -34,10 +34,13 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     blockEngine::prepare();
     inventory::prepare();
     
+    running = true;
+    
     if(multiplayer) {
         if(!networking::establishConnection(world_name))
             return 0;
         networking::downloadWorld();
+        networking::spawnListener();
     }
     else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
@@ -58,7 +61,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     fps_text.setX(10);
     fps_text.setY(10);
     
-    running = true;
     SDL_Event event;
     
     unsigned int count = SDL_GetTicks() / 1000 - 1, fps_count = 0;

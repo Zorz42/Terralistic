@@ -51,7 +51,7 @@ struct block {
     Uint8 block_orientation{};
     
     [[nodiscard]] uniqueBlock& getUniqueBlock() const;
-    void setBlockType(blockType id, unsigned short x, unsigned short y);
+    void setBlockType(blockType id, unsigned short x, unsigned short y, bool send_packet=true);
 };
 
 struct chunk {
