@@ -9,16 +9,25 @@
 #include "packets.hpp"
 
 #define BUFFER_SIZE 1024
+#define define_operator(T) packets::packet& packets::packet::operator<<(T x) {for(int i = sizeof(T) - 1; i >= 0; i--) contents.push_back((x >> i * 8) & 0xFF); return *this;}
+#define define_get(T, name) T packets::packet::name() {T result = 0; for(int i = 0; i < sizeof(T); i++) {result += (T)contents.back() << i * 8; contents.pop_back();} return result;}
 
 packets::packet packets::getPacket(int socket) {
     std::vector<unsigned char> buffer(BUFFER_SIZE);
     long bytesReceived = recv(socket, &buffer[0], buffer.size(), 0);
     if(bytesReceived != -1)
         buffer.resize(bytesReceived);
-    packet result((packets::packetType)buffer[0]);
-    buffer.erase(buffer.begin());
-    result.contents = buffer;
-    return result;
+    
+    if(bytesReceived) {
+        packet result((packets::packetType)buffer[0]);
+        buffer.erase(buffer.begin());
+        result.contents = buffer;
+        return result;
+    }
+    else {
+        packet result(packets::NONE_PACKET);
+        return result;
+    }
 }
 
 void packets::sendPacket(int socket, packet packet_) {
@@ -28,54 +37,16 @@ void packets::sendPacket(int socket, packet packet_) {
     send(socket, &content[0], content.size(), 0);
 }
 
-packets::packet& packets::packet::operator<<(char x) {
-    contents.push_back(x);
-    return *this;
-}
+define_operator(char)
+define_operator(unsigned char)
+define_operator(short)
+define_operator(unsigned short)
+define_operator(int)
+define_operator(unsigned int)
 
-packets::packet& packets::packet::operator<<(unsigned char x) {
-    contents.push_back(x);
-    return *this;
-}
-
-packets::packet& packets::packet::operator<<(short x) {
-    for(int i = 1; i >= 0; i--)
-        contents.push_back((x >> i * 8) & 0xFF);
-    return *this;
-}
-
-packets::packet& packets::packet::operator<<(unsigned short x) {
-    for(int i = 1; i >= 0; i--)
-        contents.push_back((x >> i * 8) & 0xFF);
-    return *this;
-}
-
-char packets::packet::getChar() {
-    char result = contents.back();
-    contents.pop_back();
-    return result;
-}
-
-unsigned char packets::packet::getUChar() {
-    unsigned char result = contents.back();
-    contents.pop_back();
-    return result;
-}
-
-short packets::packet::getShort() {
-    short result = 0;
-    for(int i = 0; i < 2; i++) {
-        result += (int)contents.back() << i * 8;
-        contents.pop_back();
-    }
-    return result;
-}
-
-unsigned short packets::packet::getUShort() {
-    short result = 0;
-    for(int i = 0; i < 2; i++) {
-        result += (int)contents.back() << i * 8;
-        contents.pop_back();
-    }
-    return result;
-}
+define_get(char, getChar)
+define_get(unsigned char, getUChar)
+define_get(short, getShort)
+define_get(unsigned short, getUShort)
+define_get(int, getInt)
+define_get(unsigned int, getUInt)

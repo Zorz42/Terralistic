@@ -13,6 +13,7 @@
 #include "networkingModule.hpp"
 #include "blockEngine.hpp"
 #include "gameLoop.hpp"
+#include "otherPlayers.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
@@ -36,13 +37,17 @@ bool networking::establishConnection(const std::string &ip) {
     serv_addr.sin_port = htons(PORT);
        
     // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
+    if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr)<=0)
         return false;
     
     return connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0;
 }
 
 void networking::downloadWorld() {
+    packets::packet join_packet(packets::PLAYER_JOIN);
+    join_packet << blockEngine::position_x << blockEngine::position_y;
+    sendPacket(join_packet);
+    
     for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++) {
         for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++) {
             packets::packet chunk_packet = getPacket();
@@ -67,11 +72,34 @@ void listenerLoop() {
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
                 blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
                 blockEngine::updateNearestBlocks(x, y);
+                std::cout << "received block change" << std::endl;
                 break;
             }
-            case packets::DISCONNECT:
-            case packets::PING:
-            case packets::CHUNK:;
+            case packets::PLAYER_JOIN: {
+                players::player player;
+                player.id = packet.getUShort();
+                player.y = packet.getInt();
+                player.x = packet.getInt();
+                players::players.push_back(player);
+            }
+            case packets::PLAYER_QUIT: {
+                unsigned short id = packet.getUShort();
+                for(auto i = players::players.begin(); i != players::players.end(); i++)
+                    if(i->id == id) {
+                        players::players.erase(i);
+                        break;
+                    }
+            }
+            case packets::PLAYER_MOVEMENT: {
+                unsigned short id = packet.getUShort();
+                for(auto i = players::players.begin(); i != players::players.end(); i++)
+                    if(i->id == id) {
+                        i->y = packet.getInt();
+                        i->x = packet.getInt();
+                        break;
+                    }
+            }
+            default:;
         }
     }
 }

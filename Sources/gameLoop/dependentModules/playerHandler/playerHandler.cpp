@@ -8,6 +8,8 @@
 #include "blockEngine.hpp"
 #include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
+#include "networkingModule.hpp"
+#include "gameLoop.hpp"
 
 bool key_up = false, jump = false;
 
@@ -143,6 +145,12 @@ void playerHandler::move() {
     }
     blockEngine::view_x = blockEngine::position_x;
     blockEngine::view_y = blockEngine::position_y;
+    
+    if(gameLoop::online && (move_x || move_y)) {
+        packets::packet packet(packets::PLAYER_MOVEMENT);
+        packet << blockEngine::position_x << blockEngine::position_y;
+        networking::sendPacket(packet);
+    }
 }
 
 void playerHandler::render() {    
