@@ -12,7 +12,6 @@
 #include "inventory.hpp"
 #include "generatingScreen.hpp"
 #include "networkingModule.hpp"
-#include "packets.hpp"
 
 #undef main
 
@@ -102,7 +101,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     }
     
     if(multiplayer)
-        packets::sendPacket(networking::sock, {packets::DISCONNECT});
+        networking::sendPacket({packets::DISCONNECT});
     
     worldSaver::saveWorld(world_name);
     blockEngine::close();

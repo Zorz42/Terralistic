@@ -9,13 +9,16 @@
 #define networkingModule_hpp
 
 #include <string>
+#include "packets.hpp"
 
 namespace networking {
 
 bool establishConnection(const std::string& ip);
 void downloadWorld();
+void spawnListener();
 
-inline int sock;
+packets::packet getPacket();
+void sendPacket(packets::packet packet_);
 
 }
 

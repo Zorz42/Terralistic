@@ -68,7 +68,7 @@ void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned s
         if(gameLoop::online) {
             packets::packet packet(packets::BLOCK_CHANGE);
             packet << x << y << (unsigned char) id;
-            packets::sendPacket(networking::sock, packet);
+            networking::sendPacket(packet);
         }
     }
 }
