@@ -70,7 +70,11 @@ void listenerLoop() {
             case packets::BLOCK_CHANGE: {
                 blockEngine::blockType type = (blockEngine::blockType)packet.getUChar();
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
+                lightingEngine::removeNaturalLight(x);
                 blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
+                lightingEngine::setNaturalLight(x);
+                blockEngine::getBlock(x, y).update(x, y);
+                lightingEngine::getLightBlock(x, y).update(x, y);
                 blockEngine::updateNearestBlocks(x, y);
                 break;
             }
