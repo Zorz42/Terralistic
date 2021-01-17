@@ -12,6 +12,7 @@
 #include "inventory.hpp"
 #include "generatingScreen.hpp"
 #include "networkingModule.hpp"
+#include "otherPlayers.hpp"
 
 #undef main
 
@@ -33,6 +34,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     
     blockEngine::prepare();
     inventory::prepare();
+    players::prepare();
     
     running = true;
     
@@ -91,6 +93,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         
         blockEngine::render_blocks();
         itemEngine::renderItems();
+        players::render();
         playerHandler::render();
         if(pauseScreen::paused)
             pauseScreen::render();

@@ -72,7 +72,6 @@ void listenerLoop() {
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
                 blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
                 blockEngine::updateNearestBlocks(x, y);
-                std::cout << "received block change" << std::endl;
                 break;
             }
             case packets::PLAYER_JOIN: {
@@ -81,6 +80,7 @@ void listenerLoop() {
                 player.y = packet.getInt();
                 player.x = packet.getInt();
                 players::players.push_back(player);
+                break;
             }
             case packets::PLAYER_QUIT: {
                 unsigned short id = packet.getUShort();
@@ -98,6 +98,7 @@ void listenerLoop() {
                         i->x = packet.getInt();
                         break;
                     }
+                break;
             }
             default:;
         }

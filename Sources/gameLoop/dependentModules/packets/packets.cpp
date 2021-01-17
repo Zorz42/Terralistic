@@ -25,7 +25,7 @@ packets::packet packets::getPacket(int socket) {
         return result;
     }
     else {
-        packet result(packets::NONE_PACKET);
+        packet result(packets::DISCONNECT);
         return result;
     }
 }

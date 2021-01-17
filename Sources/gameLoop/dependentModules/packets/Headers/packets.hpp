@@ -12,7 +12,7 @@
 
 namespace packets {
 
-enum packetType {NONE_PACKET, DISCONNECT, PING, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT};
+enum packetType {DISCONNECT, PING, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT};
 
 struct packet {
     packet(packetType type) : type(type) {}
