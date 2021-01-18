@@ -98,6 +98,7 @@ void listenerLoop() {
                 unsigned short id = packet.getUShort();
                 for(auto i = players::players.begin(); i != players::players.end(); i++)
                     if(i->id == id) {
+                        i->flipped = packet.getChar();
                         i->y = packet.getInt();
                         i->x = packet.getInt();
                         break;

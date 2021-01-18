@@ -148,12 +148,12 @@ void playerHandler::move() {
     
     if(gameLoop::online && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
-        packet << blockEngine::position_x << blockEngine::position_y;
+        packet << blockEngine::position_x << blockEngine::position_y << (char)player.flipped;
         networking::sendPacket(packet);
     }
 }
 
-void playerHandler::render() {    
+void playerHandler::render() {
     player.setX(short(blockEngine::position_x - blockEngine::view_x));
     player.setY(short(blockEngine::position_y - blockEngine::view_y));
     player.render();

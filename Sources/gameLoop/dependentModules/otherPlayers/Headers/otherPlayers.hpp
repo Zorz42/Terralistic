@@ -18,6 +18,7 @@ void render();
 struct player {
     unsigned short id;
     int x, y;
+    bool flipped = false;
 };
 
 inline std::vector<player> players;
