@@ -14,6 +14,7 @@
 #include "blockEngine.hpp"
 #include "gameLoop.hpp"
 #include "otherPlayers.hpp"
+#include "itemEngine.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
@@ -70,6 +71,8 @@ void listenerLoop() {
             case packets::BLOCK_CHANGE: {
                 blockEngine::blockType type = (blockEngine::blockType)packet.getUChar();
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
+                //if(y >= blockEngine::world_height || x >= blockEngine::world_width) // a bug
+                    //break;
                 lightingEngine::removeNaturalLight(x);
                 blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
                 lightingEngine::setNaturalLight(x);
@@ -93,6 +96,7 @@ void listenerLoop() {
                         players::players.erase(i);
                         break;
                     }
+                break;
             }
             case packets::PLAYER_MOVEMENT: {
                 unsigned short id = packet.getUShort();
@@ -101,6 +105,34 @@ void listenerLoop() {
                         i->flipped = packet.getChar();
                         i->y = packet.getInt();
                         i->x = packet.getInt();
+                        break;
+                    }
+                break;
+            }
+            case packets::ITEM_CREATION: {
+                itemEngine::itemType type = (itemEngine::itemType)packet.getChar();
+                unsigned short id = packet.getUShort();
+                int y = packet.getInt(), x = packet.getInt();
+                itemEngine::spawnItem(type, x, y);
+                itemEngine::items.back().id = id;
+                break;
+            }
+            case packets::ITEM_DELETION: {
+                unsigned short id = packet.getUShort();
+                for(auto i = itemEngine::items.begin(); i != itemEngine::items.end(); i++)
+                    if(i->id == id) {
+                        itemEngine::items.erase(i);
+                        break;
+                    }
+                break;
+            }
+            case packets::ITEM_MOVEMENT: {
+                unsigned short id = packet.getUShort();
+                int y = packet.getInt(), x = packet.getInt();
+                for(auto i = itemEngine::items.begin(); i != itemEngine::items.end(); i++)
+                    if(i->id == id) {
+                        i->x = x;
+                        i->y = y;
                         break;
                     }
                 break;

@@ -89,7 +89,8 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         }
         playerHandler::doPhysics();
         playerHandler::move();
-        itemEngine::updateItems();
+        if(!online)
+            itemEngine::updateItems();
         
         blockEngine::render_blocks();
         itemEngine::renderItems();

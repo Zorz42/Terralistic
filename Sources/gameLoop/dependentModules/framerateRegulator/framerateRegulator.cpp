@@ -9,7 +9,7 @@
 #include "SDL2/SDL.h"
 
 void framerateRegulator::regulateFramerate() {
-    static int a = 0, b = 0;
+    static int a = 0, b = SDL_GetTicks();
     a = SDL_GetTicks();
     frame_length = (unsigned short)(a - b);
     if(frame_length < 1000 / fps_limit)

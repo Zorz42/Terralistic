@@ -11,6 +11,7 @@
 #include "lightingEngine.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "inventory.hpp"
+#include "gameLoop.hpp"
 
 ogl::texture chunk_text;
 
@@ -148,7 +149,7 @@ void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
     if(block->getUniqueBlock().leftClickEvent)
         block->getUniqueBlock().leftClickEvent(block, x, y);
     else {
-        if(block->getUniqueBlock().drop != itemEngine::NOTHING)
+        if(block->getUniqueBlock().drop != itemEngine::NOTHING && !gameLoop::online)
             itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
         lightingEngine::removeNaturalLight(x);
         getBlock(x, y).setBlockType(blockEngine::AIR, x, y);
