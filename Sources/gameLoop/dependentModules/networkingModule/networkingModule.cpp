@@ -58,7 +58,6 @@ void networking::downloadWorld() {
             sendPacket({packets::PING});
         }
     }
-    
     for(int y = 0; y < blockEngine::world_height; y++)
         for(int x = 0; x < blockEngine::world_width; x++)
             blockEngine::getBlock(x, y).update(x, y);
@@ -71,8 +70,6 @@ void listenerLoop() {
             case packets::BLOCK_CHANGE: {
                 blockEngine::blockType type = (blockEngine::blockType)packet.getUChar();
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
-                //if(y >= blockEngine::world_height || x >= blockEngine::world_width) // a bug
-                    //break;
                 lightingEngine::removeNaturalLight(x);
                 blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
                 lightingEngine::setNaturalLight(x);
