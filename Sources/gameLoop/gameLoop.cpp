@@ -43,8 +43,11 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
             return 0;
         networking::downloadWorld();
         networking::spawnListener();
-    }
-    else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
+        for(inventory::inventoryItem& i : inventory::player_inventory) {
+            i.setStack(0);
+            i.item_id = itemEngine::NOTHING;
+        }
+    } else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
     else {
         for(inventory::inventoryItem& i : inventory::player_inventory) {
@@ -108,8 +111,8 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     
     if(multiplayer)
         networking::sendPacket({packets::DISCONNECT});
-    
-    worldSaver::saveWorld(world_name);
+    else
+        worldSaver::saveWorld(world_name);
     blockEngine::close();
     itemEngine::close();
 
