@@ -19,8 +19,10 @@ void lightingEngine::lightBlock::render(unsigned short x, unsigned short y) cons
 }
 
 void lightingEngine::lightBlock::update(unsigned short x, unsigned short y, bool update) {
+    if(update)
+        to_update = false;
     lightBlock* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
-    unsigned short x_[4] = {(unsigned short)(x - 1), (unsigned short)(x + 1), x, x}, y_[4] = {y, y, (unsigned short)(y - 1), (unsigned short)(y + 1)};
+    unsigned short x_[] = {(unsigned short)(x - 1), (unsigned short)(x + 1), x, x}, y_[] = {y, y, (unsigned short)(y - 1), (unsigned short)(y + 1)};
     if(x != 0)
         neighbors[0] = &getLightBlock(x - 1, y);
     if(x != blockEngine::world_width - 1)

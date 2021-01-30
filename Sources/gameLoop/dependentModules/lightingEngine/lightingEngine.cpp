@@ -35,17 +35,18 @@ void lightingEngine::addLightSource(unsigned short x, unsigned short y, unsigned
     lightBlock& block = getLightBlock(x, y);
     block.source = true;
     block.level = power;
-    block.update(x, y);
+    block.to_update = true;
 }
 
 void lightingEngine::removeLightSource(unsigned short x, unsigned short y) {
     lightBlock& block = getLightBlock(x, y);
     block.source = false;
     block.level = 0;
-    block.update(x, y);
+    block.to_update = true;
 }
 
 void lightingEngine::prepareLights() {
+    int start = SDL_GetTicks();
     swl::setDrawColor(0, 0, 0);
     swl::clear();
     light_text.render();
@@ -53,4 +54,5 @@ void lightingEngine::prepareLights() {
     
     for(unsigned short x = 0; x < blockEngine::world_width; x++)
         lightingEngine::setNaturalLight(x);
+    std::cout << float(SDL_GetTicks() - start) / 1000 << "s" << std::endl;
 }

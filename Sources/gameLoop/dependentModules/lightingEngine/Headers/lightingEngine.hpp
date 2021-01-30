@@ -20,6 +20,7 @@ struct lightBlock {
     bool source = false;
     void render(unsigned short x, unsigned short y) const;
     void update(unsigned short x, unsigned short y, bool update=true);
+    bool to_update = true;
 };
 
 void removeNaturalLight(unsigned short x);

@@ -103,11 +103,15 @@ void blockEngine::render_blocks() {
         end_y = (int)world_height;
     
     for(unsigned short x = (begin_x >> 4) - 1; x < (end_x >> 4) + 1; x++)
-        for(unsigned short y = (begin_y >> 4) - 1; y < (end_y >> 4) + 1; y++) {
+        for(unsigned short y = (begin_y >> 4) - 1; y < (end_y >> 4) + 2; y++) {
             if(getChunk(x, y).update)
                 getChunk(x, y).updateTexture();
             getChunk(x, y).render(x, y);
         }
+    for(unsigned short x = begin_x; x < end_x; x++)
+        for(unsigned short y = begin_y; y < end_y; y++)
+            if(lightingEngine::getLightBlock(x, y).to_update)
+                lightingEngine::getLightBlock(x, y).update(x, y);
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
