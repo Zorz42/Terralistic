@@ -13,6 +13,7 @@
 
 namespace networking {
 
+void init();
 bool establishConnection(const std::string& ip);
 void downloadWorld();
 void spawnListener();

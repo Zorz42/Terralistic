@@ -10,13 +10,6 @@
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 
-ogl::texture light_text;
-
-void lightingEngine::init() {
-    light_text.loadFromText("Initializing lights", {255, 255, 255});
-    light_text.scale = 3;
-}
-
 void lightingEngine::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; blockEngine::getBlock(x, y).getUniqueBlock().transparent; y++)
         removeLightSource(x, y);
@@ -46,13 +39,6 @@ void lightingEngine::removeLightSource(unsigned short x, unsigned short y) {
 }
 
 void lightingEngine::prepareLights() {
-    int start = SDL_GetTicks();
-    swl::setDrawColor(0, 0, 0);
-    swl::clear();
-    light_text.render();
-    swl::update();
-    
     for(unsigned short x = 0; x < blockEngine::world_width; x++)
         lightingEngine::setNaturalLight(x);
-    std::cout << float(SDL_GetTicks() - start) / 1000 << "s" << std::endl;
 }

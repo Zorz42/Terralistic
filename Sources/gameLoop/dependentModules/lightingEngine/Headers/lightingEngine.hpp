@@ -12,7 +12,6 @@
 
 namespace lightingEngine {
 
-void init();
 void prepareLights();
 
 struct lightBlock {

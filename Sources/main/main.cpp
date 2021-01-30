@@ -37,8 +37,8 @@ int swl_main() {
     worldCreator::init();
     itemEngine::init();
     inventory::init();
-    lightingEngine::init();
     multiplayerSelector::init();
+    networking::init();
     
     swl::setWindowMinimumSize(swl::window_width, swl::window_height);
     

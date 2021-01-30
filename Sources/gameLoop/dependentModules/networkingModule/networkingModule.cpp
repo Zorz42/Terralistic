@@ -15,11 +15,14 @@
 #include "gameLoop.hpp"
 #include "otherPlayers.hpp"
 #include "itemEngine.hpp"
+#include "objectedGraphicsLibrary.hpp"
+#include "singleWindowLibrary.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
 
 int sock;
+ogl::texture connecting_text;
 
 packets::packet networking::getPacket() {
     return packets::getPacket(sock);
@@ -29,19 +32,22 @@ void networking::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, packet_);
 }
 
+void networking::init() {
+    connecting_text.loadFromText("Connecting to server", {255, 255, 255});
+    connecting_text.scale = 3;
+}
+
 bool networking::establishConnection(const std::string &ip) {
+    swl::setDrawColor(0, 0, 0);
+    swl::clear();
+    connecting_text.render();
+    swl::update();
     struct sockaddr_in serv_addr;
     if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return false;
-
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-       
-    // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr)<=0)
-        return false;
-    
-    return connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0;
+    return inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) > 0 && connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0;
 }
 
 void networking::downloadWorld() {
