@@ -33,7 +33,7 @@ private:
 void init();
 void prepare();
 void render();
-bool handleEvents(SDL_Event& event);
+void handleEvents(SDL_Event& event);
 
 bool addItemToInventory(itemEngine::itemType id, int quantity);
 void selectSlot(char slot);

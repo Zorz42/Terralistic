@@ -34,10 +34,9 @@ void pauseScreen::render() {
     quit_button.render();
 }
 
-bool pauseScreen::handleEvents(SDL_Event& event) {
+void pauseScreen::handleEvents(SDL_Event& event) {
     if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
         paused = !paused;
-        return true;
     }
     else if(paused) {
         if(resume_button.isPressed(event))
@@ -47,5 +46,4 @@ bool pauseScreen::handleEvents(SDL_Event& event) {
             gameLoop::running = false;
         }
     }
-    return false;
 }

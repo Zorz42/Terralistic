@@ -70,14 +70,13 @@ void inventory::render() {
     mouse_item.render(swl::mouse_x, swl::mouse_y);
 }
 
-bool inventory::handleEvents(SDL_Event &event) {
+void inventory::handleEvents(SDL_Event &event) {
     if(event.type == SDL_TEXTINPUT) {
         char c = event.text.text[0];
         if(c >= '0' && c <= '9') {
             if(c == '0')
                 c = ':';
             selectSlot(c - '1');
-            return true;
         }
     } else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) {
         inventory_open = !inventory_open;
@@ -86,13 +85,11 @@ bool inventory::handleEvents(SDL_Event &event) {
             mouse_item.item_id = itemEngine::NOTHING;
             mouse_item.setStack(0);
         }
-        return true;
     } else if(hovered && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
         inventoryItem temp = *hovered;
         *hovered = mouse_item;
         mouse_item = temp;
     }
-    return false;
 }
 
 bool inventory::addItemToInventory(itemEngine::itemType id, int quantity) {

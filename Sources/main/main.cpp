@@ -18,7 +18,6 @@
 #include "worldCreator.hpp"
 #include "itemEngine.hpp"
 #include "inventory.hpp"
-#include "lightingEngine.hpp"
 #include "multiplayerSelector.hpp"
 #include "networkingModule.hpp"
 

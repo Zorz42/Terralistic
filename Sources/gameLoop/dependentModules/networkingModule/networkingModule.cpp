@@ -17,6 +17,7 @@
 #include "itemEngine.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "singleWindowLibrary.hpp"
+#include "playerHandler.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
@@ -52,7 +53,7 @@ bool networking::establishConnection(const std::string &ip) {
 
 void networking::downloadWorld() {
     packets::packet join_packet(packets::PLAYER_JOIN);
-    join_packet << blockEngine::position_x << blockEngine::position_y;
+    join_packet << playerHandler::position_x << playerHandler::position_y;
     sendPacket(join_packet);
     
     for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++) {
@@ -76,11 +77,11 @@ void listenerLoop() {
             case packets::BLOCK_CHANGE: {
                 blockEngine::blockType type = (blockEngine::blockType)packet.getUChar();
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
-                lightingEngine::removeNaturalLight(x);
+                blockEngine::removeNaturalLight(x);
                 blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
-                lightingEngine::setNaturalLight(x);
+                blockEngine::setNaturalLight(x);
                 blockEngine::getBlock(x, y).update(x, y);
-                lightingEngine::getLightBlock(x, y).update(x, y);
+                blockEngine::getBlock(x, y).light_update(x, y);
                 blockEngine::updateNearestBlocks(x, y);
                 break;
             }

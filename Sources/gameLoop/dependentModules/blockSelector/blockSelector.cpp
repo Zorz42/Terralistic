@@ -20,37 +20,16 @@ void blockSelector::init() {
     selectRect.setHeight(BLOCK_WIDTH);
 }
 
-unsigned int blockSelector::mouseOnMapX() {
-    return swl::mouse_x - onMapX(0);
-}
-
-unsigned int blockSelector::mouseOnMapY() {
-    return swl::mouse_y - onMapY(0);
-}
-
-unsigned int blockSelector::onMapX(unsigned int x) {
-    return -blockEngine::view_x + swl::window_width / 2 + x;
-}
-
-unsigned int blockSelector::onMapY(unsigned int y) {
-    return -blockEngine::view_y + swl::window_height / 2 + y;
-}
-
 void blockSelector::render() {
     if(!inventory::hovered) {
-        selectedBlockX = (unsigned short)(mouseOnMapX() / BLOCK_WIDTH);
-        selectedBlockY = (unsigned short)(mouseOnMapY() / BLOCK_WIDTH);
-        selectRect.setX(short(onMapX((unsigned int)(selectedBlockX * BLOCK_WIDTH))));
-        selectRect.setY(short(onMapY((unsigned int)(selectedBlockY * BLOCK_WIDTH))));
+        selectedBlockX = (unsigned short)(swl::mouse_x + playerHandler::view_x - swl::window_width / 2) / BLOCK_WIDTH;
+        selectedBlockY = (unsigned short)(swl::mouse_y + playerHandler::view_y - swl::window_height / 2) / BLOCK_WIDTH;
+        selectRect.setX(short(-playerHandler::view_x + swl::window_width / 2 + selectedBlockX * BLOCK_WIDTH));
+        selectRect.setY(short(-playerHandler::view_y + swl::window_height / 2 + selectedBlockY * BLOCK_WIDTH));
         selectRect.render();
     }
 }
 
-void blockSelector::handleEvent(SDL_Event& event) {
-    if(event.type == SDL_MOUSEBUTTONDOWN) {
-        if(event.button.button == SDL_BUTTON_LEFT && !inventory::hovered)
-            blockEngine::leftClickEvent(selectedBlockX, selectedBlockY);
-        else if(event.button.button == SDL_BUTTON_RIGHT && !swl::colliding(playerHandler::player.getRect(), selectRect.getRect()) && !inventory::hovered)
-            blockEngine::rightClickEvent(selectedBlockX, selectedBlockY);
-    }
+bool blockSelector::collidingWithPlayer() {
+    return swl::colliding(playerHandler::player.getRect(), selectRect.getRect());
 }

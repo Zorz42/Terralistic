@@ -12,18 +12,11 @@
 
 namespace blockSelector {
 
-unsigned int mouseOnMapX();
-unsigned int mouseOnMapY();
-
-unsigned int onMapX(unsigned int x);
-unsigned int onMapY(unsigned int y);
-
 void init();
 void render();
+bool collidingWithPlayer();
 
 inline unsigned short selectedBlockX, selectedBlockY;
-
-void handleEvent(SDL_Event& event);
 
 }
 

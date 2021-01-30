@@ -13,12 +13,14 @@
 namespace playerHandler {
 
 void init();
-bool handleMovement(SDL_Event& event);
+void handleEvents(SDL_Event& event);
 void move();
 void render();
-bool isPlayerColliding();
 void doPhysics();
-bool touchingGround();
+void prepare();
+
+inline int position_x, position_y;
+inline int view_x, view_y;
 
 inline short velocity_x = 0, velocity_y = 0;
 inline ogl::texture player(ogl::center);

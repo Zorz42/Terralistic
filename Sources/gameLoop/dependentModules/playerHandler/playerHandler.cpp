@@ -11,6 +11,11 @@
 #include "networkingModule.hpp"
 #include "gameLoop.hpp"
 
+#define INC_X playerHandler::position_x++;playerHandler::view_x++
+#define DEC_X playerHandler::position_x--;playerHandler::view_x--
+#define INC_Y playerHandler::position_y++;playerHandler::view_y++
+#define DEC_Y playerHandler::position_y--;playerHandler::view_y--
+
 bool key_up = false, jump = false;
 
 void playerHandler::init() {
@@ -18,7 +23,14 @@ void playerHandler::init() {
     player.scale = 2;
 }
 
-bool playerHandler::handleMovement(SDL_Event& event) {
+void playerHandler::prepare() {
+    position_x = blockEngine::world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
+    position_y = blockEngine::world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
+    view_x = position_x;
+    view_y = position_y;
+}
+
+void playerHandler::handleEvents(SDL_Event& event) {
 #define VELOCITY 20
 #define JUMP_VELOCITY 80
     static bool key_left = false, key_right = false;
@@ -44,8 +56,7 @@ bool playerHandler::handleMovement(SDL_Event& event) {
                     player.flipped = false;
                 }
                 break;
-            default:
-                return false;
+            default:;
         }
     else if(event.type == SDL_KEYUP)
         switch (event.key.keysym.sym) {
@@ -65,27 +76,23 @@ bool playerHandler::handleMovement(SDL_Event& event) {
                 key_right = false;
                 velocity_x -= VELOCITY;
                 break;
-            default:
-                return false;
+            default:;
         }
-    else
-        return false;
-    return true;
 }
 
-bool playerHandler::isPlayerColliding() {
+bool isPlayerColliding() {
 #define COLLISION_PADDING 2
     
-    if(blockEngine::position_x < playerHandler::player.getWidth() / 2 || blockEngine::position_y < playerHandler::player.getHeight() / 2 ||
-       blockEngine::position_y >= blockEngine::world_height * BLOCK_WIDTH - playerHandler::player.getHeight() / 2 ||
-       blockEngine::position_x >= blockEngine::world_width * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
+    if(playerHandler::position_x < playerHandler::player.getWidth() / 2 || playerHandler::position_y < playerHandler::player.getHeight() / 2 ||
+       playerHandler::position_y >= blockEngine::world_height * BLOCK_WIDTH - playerHandler::player.getHeight() / 2 ||
+       playerHandler::position_x >= blockEngine::world_width * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
         return true;
     
-    int begin_x = blockEngine::position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    int end_x = blockEngine::position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    int begin_x = playerHandler::position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    int end_x = playerHandler::position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
     
-    int begin_y = blockEngine::position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    int end_y = blockEngine::position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    int begin_y = playerHandler::position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    int end_y = playerHandler::position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
     
     if(begin_x < 0)
         begin_x = 0;
@@ -98,16 +105,27 @@ bool playerHandler::isPlayerColliding() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(swl::colliding(blockEngine::getBlock(x, y).getRect(x, y), playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost)
+            if(swl::colliding({(x * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), (y * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost)
                 return true;
     return false;
 }
 
+bool touchingGround() {
+    INC_Y;
+    bool result = isPlayerColliding();
+    DEC_Y;
+    return result;
+}
+
 void playerHandler::move() {
-#define INC_X blockEngine::position_x++;blockEngine::view_x++
-#define DEC_X blockEngine::position_x--;blockEngine::view_x--
-#define INC_Y blockEngine::position_y++;blockEngine::view_y++
-#define DEC_Y blockEngine::position_y--;blockEngine::view_y--
+    if(view_x < swl::window_width / 2)
+        view_x = swl::window_width / 2;
+    if(view_y < swl::window_height / 2)
+        view_y = swl::window_height / 2;
+    if(view_x >= blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2)
+        view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
+    if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
+        view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
     int move_x = velocity_x * framerateRegulator::frame_length / 100, move_y = velocity_y * framerateRegulator::frame_length / 100;
     for(int i = 0; i < move_x; i++) {
         INC_X;
@@ -143,29 +161,22 @@ void playerHandler::move() {
         velocity_y = -JUMP_VELOCITY;
         jump = false;
     }
-    blockEngine::view_x = blockEngine::position_x;
-    blockEngine::view_y = blockEngine::position_y;
+    view_x = position_x;
+    view_y = position_y;
     
     if(gameLoop::online && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
-        packet << blockEngine::position_x << blockEngine::position_y << (char)player.flipped;
+        packet << position_x << position_y << (char)player.flipped;
         networking::sendPacket(packet);
     }
 }
 
 void playerHandler::render() {
-    player.setX(short(blockEngine::position_x - blockEngine::view_x));
-    player.setY(short(blockEngine::position_y - blockEngine::view_y));
+    player.setX(short(position_x - view_x));
+    player.setY(short(position_y - view_y));
     player.render();
 }
 
 void playerHandler::doPhysics() {
     velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + framerateRegulator::frame_length / 4);
-}
-
-bool playerHandler::touchingGround() {
-    INC_Y;
-    bool result = isPlayerColliding();
-    DEC_Y;
-    return result;
 }

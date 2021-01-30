@@ -35,6 +35,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     blockEngine::prepare();
     inventory::prepare();
     players::prepare();
+    playerHandler::prepare();
     
     running = true;
     
@@ -58,8 +59,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         worldSaver::saveWorld(world_name);
     }
     
-    lightingEngine::prepareLights();
-    blockEngine::prepareChunks();
+    blockEngine::prepareWorld();
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
@@ -84,11 +84,10 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
             SDL_StartTextInput();
             if(swl::handleBasicEvents(event, &running) && !running)
                 quit = true;
-            else if(pauseScreen::handleEvents(event));
-            else if(playerHandler::handleMovement(event));
-            else if(inventory::handleEvents(event));
-            else
-                blockSelector::handleEvent(event);
+            pauseScreen::handleEvents(event);
+            playerHandler::handleEvents(event);
+            inventory::handleEvents(event);
+            blockEngine::handleEvents(event);
         }
         playerHandler::doPhysics();
         playerHandler::move();

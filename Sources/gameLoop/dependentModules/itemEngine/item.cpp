@@ -9,6 +9,7 @@
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "framerateRegulator.hpp"
+#include "playerHandler.hpp"
 
 #include <random>
 
@@ -31,7 +32,7 @@ void itemEngine::item::draw() const {
 }
 
 SDL_Rect itemEngine::item::getRect() const {
-    return {x / 100 - blockEngine::view_x + swl::window_width / 2, y / 100 - blockEngine::view_y + swl::window_height / 2, BLOCK_WIDTH, BLOCK_WIDTH};
+    return {x / 100 - playerHandler::view_x + swl::window_width / 2, y / 100 - playerHandler::view_y + swl::window_height / 2, BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
