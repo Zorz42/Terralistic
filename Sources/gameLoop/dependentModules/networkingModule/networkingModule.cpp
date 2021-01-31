@@ -62,8 +62,8 @@ void networking::downloadWorld() {
             blockEngine::chunk& chunk = blockEngine::getChunk(x, y);
             for(int i = 0; i < 16 * 16; i++)
                 chunk.blocks[i % 16][i / 16].block_id = (blockEngine::blockType)chunk_packet.getChar();
-            sendPacket({packets::PING});
         }
+        sendPacket({packets::PING});
     }
     for(int y = 0; y < blockEngine::world_height; y++)
         for(int x = 0; x < blockEngine::world_width; x++)
