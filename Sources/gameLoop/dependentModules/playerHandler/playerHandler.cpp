@@ -126,7 +126,9 @@ void playerHandler::move() {
         view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
     if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
         view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
+    
     int move_x = velocity_x * framerateRegulator::frame_length / 100, move_y = velocity_y * framerateRegulator::frame_length / 100;
+    
     for(int i = 0; i < move_x; i++) {
         INC_X;
         if(isPlayerColliding()) {

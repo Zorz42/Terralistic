@@ -115,7 +115,7 @@ bool swl::handleBasicEvents(SDL_Event &event, bool *running) {
 }
 
 bool swl::colliding(SDL_Rect a, SDL_Rect b) {
-    return a.y > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
+    return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
 }
 
 void swl::setWindowMinimumSize(unsigned short width, unsigned short height) {
