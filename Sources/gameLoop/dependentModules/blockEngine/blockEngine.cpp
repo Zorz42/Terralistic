@@ -39,10 +39,12 @@ void blockEngine::init() {
         uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::STONE_BLOCK),
         uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::NOTHING),
         uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemEngine::STONE),
+        uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING),
     };
     
     std::vector<std::pair<blockType, blockType>> connections = {
         {GRASS_BLOCK, DIRT},
+        {WOOD, GRASS_BLOCK},
     };
     
     for(std::pair<blockType, blockType> i : connections) {

@@ -17,7 +17,7 @@
 #undef main
 
 void generateTerrain(unsigned int seed) {
-    terrainGenerator::loading_total = 5;
+    terrainGenerator::loading_total = 6;
     terrainGenerator::loading_current = 0;
     std::thread thread(terrainGenerator::generateTerrainDaemon, seed);
     
