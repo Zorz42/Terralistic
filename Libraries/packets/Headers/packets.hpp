@@ -15,7 +15,7 @@ namespace packets {
 enum packetType {DISCONNECT, PING, CHUNK [[maybe_unused]], BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT};
 
 struct packet {
-    explicit packet(packetType type) : type(type) {}
+    packet(packetType type) : type(type) {}
     std::vector<unsigned char> contents;
     packetType type;
     packet& operator<<(char x);

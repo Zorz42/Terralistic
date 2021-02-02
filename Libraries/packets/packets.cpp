@@ -15,7 +15,7 @@
 #include <iostream>
 
 #define BUFFER_SIZE 1024
-#define define_operator(T) (packets::packet& packets::packet::operator<<(T x) {for(int i = sizeof(T) - 1; i >= 0; i--) contents.push_back((x >> i * 8) & 0xFF); return *this;})
+#define define_operator(T) packets::packet& packets::packet::operator<<(T x) {for(int i = sizeof(T) - 1; i >= 0; i--) contents.push_back((x >> i * 8) & 0xFF); return *this;}
 #define define_get(T, name) T packets::packet::name() {T result = 0; for(int i = 0; i < sizeof(T); i++) {result += (T)contents.back() << i * 8; contents.pop_back();} return result;}
 
 packets::packet packets::getPacket(int socket) {
