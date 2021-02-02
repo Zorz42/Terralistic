@@ -54,67 +54,26 @@ bool networking::establishConnection(const std::string &ip) {
     WSADATA wsaData;
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
         return false;
+#endif
 
-    auto ConnectSocket = INVALID_SOCKET;
-    struct addrinfo *result = nullptr, *ptr, hints{};
-    int iResult;
-
-    ZeroMemory(&hints, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-
-    // Resolve the server address and port
-    iResult = getaddrinfo(ip.c_str(), (const char *)PORT_STR, &hints, &result);
-    if ( iResult != 0 ) {
-        printf("getaddrinfo failed with error: %d\n", iResult);
-        WSACleanup();
-        return false;
-    }
-
-    // Attempt to connect to an address until one succeeds
-    for(ptr=result; ptr != NULL ;ptr=ptr->ai_next) {
-
-        // Create a SOCKET for connecting to server
-        ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype,
-                               ptr->ai_protocol);
-        if (ConnectSocket == INVALID_SOCKET) {
-            printf("socket failed with error: %ld\n", WSAGetLastError());
-            WSACleanup();
-            return false;
-        }
-
-        // Connect to server.
-        iResult = connect( ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
-        if (iResult == SOCKET_ERROR) {
-            closesocket(ConnectSocket);
-            ConnectSocket = INVALID_SOCKET;
-            continue;
-        }
-        break;
-    }
-
-    freeaddrinfo(result);
-
-    if (ConnectSocket == INVALID_SOCKET) {
-        printf("Unable to connect to server!\n");
-        WSACleanup();
-        return false;
-    }
-
-    sock = ConnectSocket;
-
-    return true;
-#else
     sockaddr_in serv_addr{};
     if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return false;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
 
+#ifdef WIN32
+    struct addrinfo *result = nullptr, hints{};
+    if(getaddrinfo(ip.c_str(), (const char *)PORT_STR, &hints, &result) != 0)
+        return false;
+
+    return connect(sock, result->ai_addr, (int)result->ai_addrlen) != SOCKET_ERROR;
+
+#else
     if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) <= 0)
         return false;
-    return connect(SOCKET(sock), (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0;
+
+    return connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0;
 #endif
 }
 
