@@ -23,7 +23,7 @@ packets::packet packets::getPacket(int socket) {
     static long bytesReceived;
     if(buffer.empty()) {
         buffer = std::vector<unsigned char>(BUFFER_SIZE);
-        bytesReceived = recv(SOCKET(socket), (char*)&buffer[0], buffer.size(), 0);
+        bytesReceived = recv(socket, (char*)&buffer[0], buffer.size(), 0);
         if(bytesReceived != -1)
             buffer.resize((unsigned int)(bytesReceived));
     }
@@ -43,7 +43,7 @@ void packets::sendPacket(int socket, const packet& packet_) {
     std::vector<unsigned char> content = {(unsigned char)(packet_.contents.size() & 255), (unsigned char)((packet_.contents.size() >> 8) & 255), (unsigned char)packet_.type};
     for(char i : packet_.contents)
         content.push_back((unsigned char &&)i);
-    send(SOCKET(socket), (char*)&content[0], content.size(), 0);
+    send(socket, (char*)&content[0], content.size(), 0);
 }
 
 define_operator(char)
