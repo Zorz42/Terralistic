@@ -7,10 +7,8 @@
 
 #include "blockEngine.hpp"
 #include "terrainGenerator.hpp"
-#include "singleWindowLibrary.hpp"
 #include "simplex-noise.hpp"
 #include <cmath>
-#include <thread>
 #include <random>
 
 // terrain generation parameters
@@ -41,33 +39,24 @@ void stackDirt(unsigned int x, unsigned int height);
 void generateSurface(unsigned int seed);
 void generateCaves(unsigned int seed);
 void generateStone(unsigned int seed);
+void generateTrees(unsigned int seed);
 
 unsigned int highest_height = 0;
 
+unsigned short* heights;
+
 #define LOADING_NEXT terrainGenerator::loading_current++;
 
-int generateTerrainDaemon(unsigned int seed) {
+int terrainGenerator::generateTerrainDaemon(unsigned int seed) {
     generateSurface(seed);
     generateCaves(seed);
     generateStone(seed);
+    generateTrees(seed);
     LOADING_NEXT
     for(int y = 0; y < blockEngine::world_height; y++)
         for(int x = 0; x < blockEngine::world_width; x++)
             blockEngine::getBlock(x, y).update(x, y);
     return 0;
-}
-
-void terrainGenerator::generateTerrain(unsigned int seed) {
-    terrainGenerator::loading_total = 5;
-    terrainGenerator::loading_current = 0;
-    std::thread thread(generateTerrainDaemon, seed);
-    
-    generatingScreen();
-
-    thread.join();
-    
-    if(loading_current != loading_total)
-        swl::popupError("Loading total is " + std::to_string(loading_total) + ", but loading current got to " + std::to_string(loading_current));
 }
 
 void stackDirt(unsigned int x, unsigned int height) {
@@ -91,7 +80,7 @@ double turbulence(double x, double y, double size, PerlinNoise& noise) {
 void generateSurface(unsigned int seed) {
     PerlinNoise noise(seed);
     
-    unsigned int heights[blockEngine::world_width];
+    heights = new unsigned short[blockEngine::world_width];
     
     // generate terrain
     for(unsigned int x = 0; x < blockEngine::world_width; x++) {
@@ -144,5 +133,26 @@ void generateStone(unsigned int seed) {
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id && terrainGenerator::turbulence(x, y, TURB_SIZE, X_PERIOD, Y_PERIOD, TURB_POWER, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
                 blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id = blockEngine::STONE_BLOCK;
+    LOADING_NEXT
+}
+
+void generateTrees(unsigned int seed) {
+    std::mt19937 engine(seed);
+    unsigned short x = 0;
+    while(true) {
+        x += engine() % 7 + 4;
+        if(x >= blockEngine::world_width - 1)
+            break;
+        if(blockEngine::getBlock(x, blockEngine::world_height - heights[x] - 1).block_id != blockEngine::GRASS_BLOCK)
+            continue;
+        unsigned short height = engine() % 5 + 7;
+        for(unsigned short y = blockEngine::world_height - heights[x] - 2; y > blockEngine::world_height - heights[x] - height; y--)
+            blockEngine::getBlock(x, y).block_id = blockEngine::WOOD;
+        if(blockEngine::getBlock(x - 1, blockEngine::world_height - heights[x] - 1).block_id == blockEngine::GRASS_BLOCK && blockEngine::getBlock(x - 2, blockEngine::world_height - heights[x] - 2).block_id == blockEngine::AIR)
+            blockEngine::getBlock(x - 1, blockEngine::world_height - heights[x] - 2).block_id = blockEngine::WOOD;
+        
+        if(blockEngine::getBlock(x + 1, blockEngine::world_height - heights[x] - 1).block_id == blockEngine::GRASS_BLOCK && blockEngine::getBlock(x + 2, blockEngine::world_height - heights[x] - 2).block_id == blockEngine::AIR)
+            blockEngine::getBlock(x + 1, blockEngine::world_height - heights[x] - 2).block_id = blockEngine::WOOD;
+    }
     LOADING_NEXT
 }

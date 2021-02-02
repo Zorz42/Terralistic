@@ -17,8 +17,9 @@
 #include "worldSelector.hpp"
 #include "worldCreator.hpp"
 #include "itemEngine.hpp"
-#include "inventoryRenderer.hpp"
-#include "lightingEngine.hpp"
+#include "inventory.hpp"
+#include "multiplayerSelector.hpp"
+#include "networkingModule.hpp"
 
 #undef main
 
@@ -34,8 +35,9 @@ int swl_main() {
     worldSelector::init();
     worldCreator::init();
     itemEngine::init();
-    inventoryRenderer::init();
-    lightingEngine::init();
+    inventory::init();
+    multiplayerSelector::init();
+    networking::init();
     
     swl::setWindowMinimumSize(swl::window_width, swl::window_height);
     

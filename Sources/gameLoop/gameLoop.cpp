@@ -1,3 +1,4 @@
+#include <thread>
 #include "gameLoop.hpp"
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
@@ -8,36 +9,63 @@
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
 #include "fileSystem.hpp"
-#include "itemEngine.hpp"
-#include "inventoryRenderer.hpp"
-#include "lightingEngine.hpp"
+#include "inventory.hpp"
+#include "generatingScreen.hpp"
+#include "networkingModule.hpp"
+#include "otherPlayers.hpp"
 
 #undef main
 
-int gameLoop::main(const std::string& world_name) {
-    blockEngine::prepare();
-    itemEngine::prepare();
+void generateTerrain(unsigned int seed) {
+    terrainGenerator::loading_total = 6;
+    terrainGenerator::loading_current = 0;
+    std::thread thread(terrainGenerator::generateTerrainDaemon, seed);
     
-    if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
-        worldSaver::loadWorld(world_name);
-    else {
-        for(itemEngine::inventoryItem& i : itemEngine::inventory) {
+    terrainGenerator::generatingScreen();
+
+    thread.join();
+    
+    if(terrainGenerator::loading_current != terrainGenerator::loading_total)
+        swl::popupError("Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));
+}
+
+int gameLoop::main(const std::string& world_name, bool multiplayer) {
+    online = multiplayer;
+    
+    blockEngine::prepare();
+    inventory::prepare();
+    players::prepare();
+    playerHandler::prepare();
+    
+    running = true;
+    
+    if(multiplayer) {
+        if(!networking::establishConnection(world_name))
+            return 0;
+        networking::downloadWorld();
+        networking::spawnListener();
+        for(inventory::inventoryItem& i : inventory::player_inventory) {
             i.setStack(0);
             i.item_id = itemEngine::NOTHING;
         }
-        terrainGenerator::generateTerrain(0);
+    } else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
+        worldSaver::loadWorld(world_name);
+    else {
+        for(inventory::inventoryItem& i : inventory::player_inventory) {
+            i.setStack(0);
+            i.item_id = itemEngine::NOTHING;
+        }
+        generateTerrain(0);
         worldSaver::saveWorld(world_name);
     }
     
-    lightingEngine::prepareLights();
-    blockEngine::prepareChunks();
+    blockEngine::prepareWorld();
     
     ogl::texture fps_text(ogl::top_left);
     fps_text.scale = 3;
     fps_text.setX(10);
     fps_text.setY(10);
     
-    running = true;
     SDL_Event event;
     
     unsigned int count = SDL_GetTicks() / 1000 - 1, fps_count = 0;
@@ -56,18 +84,19 @@ int gameLoop::main(const std::string& world_name) {
             SDL_StartTextInput();
             if(swl::handleBasicEvents(event, &running) && !running)
                 quit = true;
-            else if(pauseScreen::handleEvents(event));
-            else if(playerHandler::handleMovement(event));
-            else if(itemEngine::handleEvents(event));
-            else
-                blockSelector::handleEvent(event);
+            pauseScreen::handleEvents(event);
+            playerHandler::handleEvents(event);
+            inventory::handleEvents(event);
+            blockEngine::handleEvents(event);
         }
         playerHandler::doPhysics();
         playerHandler::move();
-        itemEngine::updateItems();
+        if(!online)
+            itemEngine::updateItems();
         
         blockEngine::render_blocks();
         itemEngine::renderItems();
+        players::render();
         playerHandler::render();
         if(pauseScreen::paused)
             pauseScreen::render();
@@ -75,11 +104,14 @@ int gameLoop::main(const std::string& world_name) {
             blockSelector::render();
             fps_text.render();
         }
-        inventoryRenderer::render();
+        inventory::render();
         swl::update();
     }
     
-    worldSaver::saveWorld(world_name);
+    if(multiplayer)
+        networking::sendPacket({packets::DISCONNECT});
+    else
+        worldSaver::saveWorld(world_name);
     blockEngine::close();
     itemEngine::close();
 

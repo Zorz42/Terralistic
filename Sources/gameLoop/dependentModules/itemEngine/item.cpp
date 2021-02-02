@@ -9,6 +9,7 @@
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "framerateRegulator.hpp"
+#include "playerHandler.hpp"
 
 #include <random>
 
@@ -26,18 +27,16 @@ itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack
     text_texture.free_texture = false;
 }
 
-itemEngine::inventoryItem::inventoryItem() : item_id(NOTHING), stack(0) {}
-
 void itemEngine::item::draw() const {
     swl::render(getUniqueItem().texture, getRect());
 }
 
 SDL_Rect itemEngine::item::getRect() const {
-    return {x / 100 - blockEngine::view_x + swl::window_width / 2, y / 100 - blockEngine::view_y + swl::window_height / 2, BLOCK_WIDTH, BLOCK_WIDTH};
+    return {x / 100 - playerHandler::view_x + swl::window_width / 2, y / 100 - playerHandler::view_y + swl::window_height / 2, BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
-    return unique_items.at(item_id);
+    return unique_items[item_id];
 }
 
 void itemEngine::item::update() {
@@ -99,52 +98,7 @@ bool itemEngine::item::colliding() const {
     int block_x = x / 100 / BLOCK_WIDTH, block_y = y / 100 / BLOCK_WIDTH;
     for(int x_ = 0; x_ < height_x; x_++)
         for(int y_ = 0; y_ < height_y; y_++)
-            if(!blockEngine::getBlock((unsigned short)(block_x + x_),
-                                      (unsigned short)(block_y + y_)).getUniqueBlock().transparent)
+            if(!blockEngine::getBlock((unsigned short)(block_x + x_), (unsigned short)(block_y + y_)).getUniqueBlock().transparent)
                 return true;
     return false;
-}
-
-itemEngine::uniqueItem& itemEngine::inventoryItem::getUniqueItem() const {
-    return unique_items.at(item_id);
-}
-
-void itemEngine::inventoryItem::render(int x, int y) {
-    if(getUniqueItem().texture != nullptr)
-        swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-    if(stack > 1) {
-        stack_texture.setX(short(x + BLOCK_WIDTH * 2 - stack_texture.getWidth()));
-        stack_texture.setY(short(y + BLOCK_WIDTH * 2 - stack_texture.getHeight()));
-        stack_texture.render();
-    }
-}
-
-void itemEngine::inventoryItem::setStack(unsigned short stack_) {
-    stack = stack_;
-    if(stack > 1)
-        stack_texture.loadFromText(std::to_string(stack_), {255, 255, 255});
-    else if(!stack)
-        item_id = NOTHING;
-}
-
-unsigned short itemEngine::inventoryItem::getStack() const {
-    return stack;
-}
-
-unsigned short itemEngine::inventoryItem::increaseStack(unsigned short stack_) {
-    int stack_to_be = stack + stack_, result;
-    if(stack_to_be > getUniqueItem().stack_size)
-        stack_to_be = getUniqueItem().stack_size;
-    result = stack_to_be - stack;
-    setStack((unsigned short)stack_to_be);
-    return (unsigned short)result;
-}
-
-bool itemEngine::inventoryItem::decreaseStack(unsigned short stack_) {
-    if(stack_ > stack)
-        return false;
-    else {
-        setStack(stack - stack_);
-        return true;
-    }
 }

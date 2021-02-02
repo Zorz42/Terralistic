@@ -8,6 +8,7 @@
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "terrainGenerator.hpp"
+#include "generatingScreen.hpp"
 #include "framerateRegulator.hpp"
 #include "UIKit.hpp"
 
@@ -50,8 +51,8 @@ void terrainGenerator::generatingScreen() {
         
         swl::update();
     }
-    if(!running) {
+    /*if(!running) {
         swl::quit();
         exit(0);
-    }
+    }*/
 }

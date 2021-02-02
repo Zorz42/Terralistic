@@ -9,10 +9,8 @@
 #include "singleWindowLibrary.hpp"
 
 void swl::quit() {
-    SDL_DestroyRenderer(swl_private::renderer);
-    swl_private::renderer = nullptr;
+    //SDL_DestroyRenderer(swl_private::renderer); // assertion failure on close for some reason
     SDL_DestroyWindow(swl_private::window);
-    swl_private::window = nullptr;
     SDL_Quit();
 }
 
@@ -93,62 +91,31 @@ void swl::clear() {
 }
 
 bool swl::handleBasicEvents(SDL_Event &event, bool *running) {
-    if(event.type == SDL_QUIT) {
-        *running = false;
-        return true;
-    }
-    else if(event.type == SDL_WINDOWEVENT) {
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            window_width = (unsigned short)event.window.data1;
-            window_height = (unsigned short)event.window.data2;
+    switch (event.type) {
+        case SDL_QUIT:
+            *running = false;
             return true;
-        }
-        else
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                window_width = (unsigned short)event.window.data1;
+                window_height = (unsigned short)event.window.data2;
+                return true;
+            }
+            else
+                return false;
+        case SDL_MOUSEMOTION:
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            mouse_x = (unsigned short)x;
+            mouse_y = (unsigned short)y;
+            return true;
+        default:
             return false;
     }
-    else if(event.type == SDL_MOUSEMOTION) {
-        int x, y;
-        SDL_GetMouseState(&x, &y);
-        mouse_x = (unsigned short)x;
-        mouse_y = (unsigned short)y;
-        return true;
-    }
-    return false;
 }
 
 bool swl::colliding(SDL_Rect a, SDL_Rect b) {
-    //The sides of the rectangles
-    int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
-
-    //Calculate the sides of rect A
-    leftA = a.x;
-    rightA = a.x + a.w;
-    topA = a.y;
-    bottomA = a.y + a.h;
-
-    //Calculate the sides of rect B
-    leftB = b.x;
-    rightB = b.x + b.w;
-    topB = b.y;
-    bottomB = b.y + b.h;
-    //If any of the sides from A are outside of B
-    if(bottomA <= topB)
-        return false;
-
-    if(topA >= bottomB)
-        return false;
-
-    if(rightA <= leftB)
-        return false;
-
-    if(leftA >= rightB)
-        return false;
-
-    //If none of the sides from A are outside B
-    return true;
+    return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
 }
 
 void swl::setWindowMinimumSize(unsigned short width, unsigned short height) {

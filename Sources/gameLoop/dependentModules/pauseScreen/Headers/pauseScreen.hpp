@@ -14,7 +14,7 @@ namespace pauseScreen {
 
 void init();
 void render();
-bool handleEvents(SDL_Event& event);
+void handleEvents(SDL_Event& event);
 inline bool paused = false;
 
 }

@@ -10,7 +10,7 @@
 
 namespace blockEngine {
 
-enum blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE};
+enum blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD};
 
 }
 

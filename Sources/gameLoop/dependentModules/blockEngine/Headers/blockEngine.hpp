@@ -9,24 +9,20 @@
 #define blockEngine_h
 
 #include <SDL2/SDL.h>
-
 #include <string>
 #include <vector>
 #include "itemType.hpp"
 #include "blockType.hpp"
-#include "lightingEngine.hpp"
 
 #define BLOCK_WIDTH 16
+#define MAX_LIGHT 100
 
 namespace blockEngine {
 
 struct block;
 
 struct uniqueBlock {
-    bool single_texture = false;
-    bool ghost = false;
-    bool only_on_floor = false;
-    bool transparent = false;
+    bool single_texture, ghost, only_on_floor, transparent;
     
     std::string name;
     SDL_Texture* texture;
@@ -45,21 +41,25 @@ struct block {
     explicit block(blockType block_id) : block_id(block_id) {}
 
     void draw(unsigned short x, unsigned short y);
-    SDL_Rect getRect(unsigned short x, unsigned short y);
     void update(unsigned short x, unsigned short y);
     
     blockType block_id;
     Uint8 block_orientation{};
     
     [[nodiscard]] uniqueBlock& getUniqueBlock() const;
-    void setBlockType(blockType id, unsigned short x, unsigned short y);
+    void setBlockType(blockType id, unsigned short x, unsigned short y, bool send_packet=true);
+    
+    unsigned char light_level = 0;
+    bool light_source = false;
+    void light_update(unsigned short x, unsigned short y, bool update=true);
+    
+    bool to_update = true, to_update_light = true;
 };
 
 struct chunk {
     void render(unsigned short x, unsigned short y);
     block blocks[16][16];
-    lightingEngine::lightBlock light_blocks[16][16];
-    bool updates[16][16], update = true;
+    bool update = true;
     SDL_Texture* texture = nullptr;
     void updateTexture();
     void createTexture();
@@ -67,28 +67,30 @@ struct chunk {
 
 void init();
 void prepare();
-void prepareChunks();
+void prepareWorld();
 void close();
 
 void render_blocks();
 
 inline chunk *world;
-inline unsigned short world_width;
-inline unsigned short world_height;
+inline unsigned short world_width, world_height;
+inline std::vector<uniqueBlock> unique_blocks;
 
 block& getBlock(unsigned short x, unsigned short y);
 chunk& getChunk(unsigned short x, unsigned short y);
-void setUpdateBlock(unsigned short x, unsigned short y, bool value);
-
-inline int position_x, position_y;
-inline int view_x, view_y;
-
-inline std::vector<uniqueBlock> unique_blocks;
 
 void rightClickEvent(unsigned short x, unsigned short y);
 void leftClickEvent(unsigned short x, unsigned short y);
 
 void updateNearestBlocks(unsigned short x, unsigned short y);
+
+void handleEvents(SDL_Event& event);
+
+void removeNaturalLight(unsigned short x);
+void setNaturalLight(unsigned short x);
+
+void addLightSource(unsigned short x, unsigned short y, unsigned char power);
+void removeLightSource(unsigned short x, unsigned short y);
 
 }
 

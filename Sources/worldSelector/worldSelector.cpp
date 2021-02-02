@@ -7,7 +7,8 @@
 
 #include <utility>
 #include <vector>
-
+#include <dirent.h>
+#include <algorithm>
 #include "worldSelector.hpp"
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
@@ -15,8 +16,6 @@
 #include "gameLoop.hpp"
 #include "fileSystem.hpp"
 #include "worldCreator.hpp"
-#include <dirent.h>
-#include <algorithm>
 
 #undef main
 
@@ -159,7 +158,7 @@ void worldSelector::loop() {
             else
                 for(world_to_select& world : worlds)
                     if(world.button.isPressed(event)) {
-                        gameLoop::main(world.name);
+                        gameLoop::main(world.name, false);
                         reload();
                         break;
                     } else if(world.delete_button.isPressed(event)) {
