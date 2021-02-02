@@ -26,6 +26,7 @@
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
+#define PORT_STR "33770"
 
 int sock;
 ogl::texture connecting_text;
@@ -54,22 +55,17 @@ bool networking::establishConnection(const std::string &ip) {
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
         return false;
 
-    SOCKET ConnectSocket = INVALID_SOCKET;
-    struct addrinfo *result = NULL,
-            *ptr = NULL,
-            hints;
-    const char *sendbuf = "this is a test";
-    char recvbuf[BUFFER_SIZE];
+    auto ConnectSocket = INVALID_SOCKET;
+    struct addrinfo *result = nullptr, *ptr, hints{};
     int iResult;
-    int recvbuflen = BUFFER_SIZE;
 
-    ZeroMemory( &hints, sizeof(hints) );
+    ZeroMemory(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
-    iResult = getaddrinfo(ip.c_str(), (const char *)PORT, &hints, &result);
+    iResult = getaddrinfo(ip.c_str(), (const char *)PORT_STR, &hints, &result);
     if ( iResult != 0 ) {
         printf("getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
@@ -105,6 +101,8 @@ bool networking::establishConnection(const std::string &ip) {
         WSACleanup();
         return false;
     }
+
+    sock = ConnectSocket;
 
     return true;
 #else
