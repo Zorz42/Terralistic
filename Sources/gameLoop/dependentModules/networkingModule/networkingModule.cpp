@@ -6,16 +6,19 @@
 //
 
 #include <iostream>
+#ifdef WIN32
+#include <winsock2.h>
+#else
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#endif
 #include <thread>
 #include "networkingModule.hpp"
 #include "blockEngine.hpp"
 #include "gameLoop.hpp"
 #include "otherPlayers.hpp"
 #include "itemEngine.hpp"
-#include "objectedGraphicsLibrary.hpp"
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
 
@@ -30,7 +33,7 @@ packets::packet networking::getPacket() {
 }
 
 void networking::sendPacket(packets::packet packet_) {
-    packets::sendPacket(sock, packet_);
+    packets::sendPacket(sock, std::move(packet_));
 }
 
 void networking::init() {
@@ -44,12 +47,17 @@ bool networking::establishConnection(const std::string &ip) {
     connecting_text.render();
     swl::update();
     
-    struct sockaddr_in serv_addr;
+    sockaddr_in serv_addr{};
     if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return false;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-    return inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) > 0 && connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0;
+
+#ifndef WIN32
+    if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) <= 0)
+        return false;
+#endif
+    return connect(SOCKET(sock), (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0;
 }
 
 void networking::downloadWorld() {
@@ -76,7 +84,7 @@ void listenerLoop() {
         packets::packet packet = networking::getPacket();
         switch(packet.type) {
             case packets::BLOCK_CHANGE: {
-                blockEngine::blockType type = (blockEngine::blockType)packet.getUChar();
+                auto type = (blockEngine::blockType)packet.getUChar();
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
                 blockEngine::removeNaturalLight(x);
                 blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
@@ -105,17 +113,17 @@ void listenerLoop() {
             }
             case packets::PLAYER_MOVEMENT: {
                 unsigned short id = packet.getUShort();
-                for(auto i = players::players.begin(); i != players::players.end(); i++)
-                    if(i->id == id) {
-                        i->flipped = packet.getChar();
-                        i->y = packet.getInt();
-                        i->x = packet.getInt();
+                for(auto & player : players::players)
+                    if(player.id == id) {
+                        player.flipped = packet.getChar();
+                        player.y = packet.getInt();
+                        player.x = packet.getInt();
                         break;
                     }
                 break;
             }
             case packets::ITEM_CREATION: {
-                itemEngine::itemType type = (itemEngine::itemType)packet.getChar();
+                auto type = (itemEngine::itemType)packet.getChar();
                 unsigned short id = packet.getUShort();
                 int y = packet.getInt(), x = packet.getInt();
                 itemEngine::spawnItem(type, x, y);
@@ -134,10 +142,10 @@ void listenerLoop() {
             case packets::ITEM_MOVEMENT: {
                 unsigned short id = packet.getUShort();
                 int y = packet.getInt(), x = packet.getInt();
-                for(auto i = itemEngine::items.begin(); i != itemEngine::items.end(); i++)
-                    if(i->id == id) {
-                        i->x = x;
-                        i->y = y;
+                for(auto & item : itemEngine::items)
+                    if(item.id == id) {
+                        item.x = x;
+                        item.y = y;
                         break;
                     }
                 break;

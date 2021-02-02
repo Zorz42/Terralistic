@@ -8,7 +8,6 @@
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "itemEngine.hpp"
-#include "objectedGraphicsLibrary.hpp"
 #include "inventory.hpp"
 #include "gameLoop.hpp"
 #include "blockSelector.hpp"
@@ -66,9 +65,9 @@ void blockEngine::prepare() {
     
     for(unsigned short x = 0; x < (world_width >> 4); x++)
         for(unsigned short y = 0; y < (world_height >> 4); y++)
-            for(unsigned short x_ = 0; x_ < 16; x_++)
+            for(auto & block : getChunk(x, y).blocks)
                 for(unsigned short y_ = 0; y_ < 16; y_++)
-                    getChunk(x, y).blocks[x_][y_].to_update = true;
+                    block[y_].to_update = true;
 }
 
 void blockEngine::close() {
@@ -76,11 +75,11 @@ void blockEngine::close() {
 }
 
 void blockEngine::render_blocks() {
-    int begin_x = playerHandler::view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH;
-    int end_x = playerHandler::view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH;
-    
-    int begin_y = playerHandler::view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH;
-    int end_y = playerHandler::view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH;
+    unsigned short begin_x = playerHandler::view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH;
+    unsigned short end_x = playerHandler::view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH;
+
+    unsigned short begin_y = playerHandler::view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH;
+    unsigned short end_y = playerHandler::view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH;
     
     if(begin_x < 0)
         begin_x = 0;

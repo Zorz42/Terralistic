@@ -11,16 +11,14 @@
 #include "itemEngine.hpp"
 #include "gameLoop.hpp"
 #include "networkingModule.hpp"
-#include "packets.hpp"
-#include "playerHandler.hpp"
 
-void blockEngine::block::draw(unsigned short x, unsigned short y) {
+void blockEngine::block::draw(unsigned short x, unsigned short y) const {
     SDL_Rect rect = {x * BLOCK_WIDTH, y * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH};
     if(getUniqueBlock().texture && blockEngine::getBlock(x, y).light_level)
         swl::render(getUniqueBlock().texture, rect, {0, 8 * block_orientation, 8, 8});
     
     if(light_level != MAX_LIGHT) {
-        SDL_Rect rect = {x * BLOCK_WIDTH, y * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH};
+        rect = {x * BLOCK_WIDTH, y * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH};
         swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * light_level));
         swl::render(rect);
     }
@@ -97,10 +95,10 @@ void blockEngine::block::light_update(unsigned short x, unsigned short y, bool u
     bool update_neighbors = false;
     if(!light_source) {
         unsigned char level_to_be = 0;
-        for(int i = 0; i < 4; i++) {
-            if(neighbors[i] != nullptr) {
-                auto light_step = (unsigned char)(neighbors[i]->getUniqueBlock().transparent ? 3 : 15);
-                auto light = (unsigned char)(light_step > neighbors[i]->light_level ? 0 : neighbors[i]->light_level - light_step);
+        for(auto & neighbor : neighbors) {
+            if(neighbor != nullptr) {
+                auto light_step = (unsigned char)(neighbor->getUniqueBlock().transparent ? 3 : 15);
+                auto light = (unsigned char)(light_step > neighbor->light_level ? 0 : neighbor->light_level - light_step);
                 if(light > level_to_be)
                     level_to_be = light;
             }

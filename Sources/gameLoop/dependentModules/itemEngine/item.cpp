@@ -17,8 +17,8 @@ std::random_device device;
 
 itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100) {
     std::mt19937 engine(device());
-    velocity_x = engine() % 200 - 100;
-    velocity_y = -(engine() % 100) - 50;
+    velocity_x = (int)engine() % 200 - 100;
+    velocity_y = -int(engine() % 100) - 50;
 }
 
 itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), stack_size(stack_size), places(places) {

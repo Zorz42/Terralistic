@@ -20,4 +20,4 @@ add_executable(Terralistic WIN32 ${SOURCES} ${SOURCES2} ${SOURCES_LIBS})
 
 include_directories(${INCLUDES} ${INCLUDES2} ${LIB_INCLUDES} OtherLibs OtherLibs/SDL2)
 
-target_link_libraries(Terralistic SDL2main SDL2 SDL2_image SDL2_ttf)
+target_link_libraries(Terralistic SDL2main SDL2 SDL2_image SDL2_ttf AdvApi32.lib Mswsock.lib Ws2_32.lib)

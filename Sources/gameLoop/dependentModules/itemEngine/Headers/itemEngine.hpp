@@ -34,7 +34,7 @@ struct item {
     void update();
     [[nodiscard]] bool colliding() const;
     [[nodiscard]] uniqueItem& getUniqueItem() const;
-    unsigned short id;
+    unsigned short id{};
 };
 
 void init();

@@ -32,8 +32,6 @@ void inventory::init() {
     under_text_rect.setColor(0, 0, 0);
 }
 
-#define MARGIN 10
-
 void inventory::prepare() {
     selectSlot(0);
     inventory_open = false;

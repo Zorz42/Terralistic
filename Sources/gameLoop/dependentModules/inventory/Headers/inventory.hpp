@@ -16,7 +16,7 @@ namespace inventory {
 struct inventoryItem {
 public:
     inventoryItem();
-    inventoryItem(itemEngine::itemType item_id) : item_id(item_id) {}
+    explicit inventoryItem(itemEngine::itemType item_id) : item_id(item_id), stack(1) {}
     itemEngine::itemType item_id;
     [[nodiscard]] itemEngine::uniqueItem& getUniqueItem() const;
     void render(int x, int y);
@@ -25,7 +25,7 @@ public:
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
-    void operator=(inventoryItem& item);
+    inventoryItem& operator=(const inventoryItem& item);
 private:
     unsigned short stack;
 };

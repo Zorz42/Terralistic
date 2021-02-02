@@ -5,12 +5,17 @@
 //  Created by Jakob Zorz on 15/01/2021.
 //
 
+#ifdef WIN32
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
 #include <arpa/inet.h>
+#endif
 #include "packets.hpp"
 #include <iostream>
 
 #define BUFFER_SIZE 1024
-#define define_operator(T) packets::packet& packets::packet::operator<<(T x) {for(int i = sizeof(T) - 1; i >= 0; i--) contents.push_back((x >> i * 8) & 0xFF); return *this;}
+#define define_operator(T) (packets::packet& packets::packet::operator<<(T x) {for(int i = sizeof(T) - 1; i >= 0; i--) contents.push_back((x >> i * 8) & 0xFF); return *this;})
 #define define_get(T, name) T packets::packet::name() {T result = 0; for(int i = 0; i < sizeof(T); i++) {result += (T)contents.back() << i * 8; contents.pop_back();} return result;}
 
 packets::packet packets::getPacket(int socket) {
@@ -18,9 +23,9 @@ packets::packet packets::getPacket(int socket) {
     static long bytesReceived;
     if(buffer.empty()) {
         buffer = std::vector<unsigned char>(BUFFER_SIZE);
-        bytesReceived = recv(socket, &buffer[0], buffer.size(), 0);
+        bytesReceived = recv(SOCKET(socket), (char*)&buffer[0], buffer.size(), 0);
         if(bytesReceived != -1)
-            buffer.resize(bytesReceived);
+            buffer.resize((unsigned int)(bytesReceived));
     }
     
     if(bytesReceived) {
@@ -34,11 +39,11 @@ packets::packet packets::getPacket(int socket) {
         return packet(packets::DISCONNECT);
 }
 
-void packets::sendPacket(int socket, packet packet_) {
+void packets::sendPacket(int socket, const packet& packet_) {
     std::vector<unsigned char> content = {(unsigned char)(packet_.contents.size() & 255), (unsigned char)((packet_.contents.size() >> 8) & 255), (unsigned char)packet_.type};
     for(char i : packet_.contents)
-        content.push_back(i);
-    send(socket, &content[0], content.size(), 0);
+        content.push_back((unsigned char &&)i);
+    send(SOCKET(socket), (char*)&content[0], content.size(), 0);
 }
 
 define_operator(char)

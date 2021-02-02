@@ -9,7 +9,7 @@
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
 
-void blockEngine::chunk::render(unsigned short x, unsigned short y) {
+void blockEngine::chunk::render(unsigned short x, unsigned short y) const {
     SDL_Rect rect = {((x << 4) * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), ((y << 4) * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH << 4, BLOCK_WIDTH << 4};
     swl::render(texture, rect);
 }

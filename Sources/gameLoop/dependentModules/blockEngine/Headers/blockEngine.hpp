@@ -40,7 +40,7 @@ struct block {
     block() : block_id(AIR) {}
     explicit block(blockType block_id) : block_id(block_id) {}
 
-    void draw(unsigned short x, unsigned short y);
+    void draw(unsigned short x, unsigned short y) const;
     void update(unsigned short x, unsigned short y);
     
     blockType block_id;
@@ -57,7 +57,7 @@ struct block {
 };
 
 struct chunk {
-    void render(unsigned short x, unsigned short y);
+    void render(unsigned short x, unsigned short y) const;
     block blocks[16][16];
     bool update = true;
     SDL_Texture* texture = nullptr;
