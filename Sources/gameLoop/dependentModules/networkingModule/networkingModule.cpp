@@ -23,6 +23,7 @@
 #include "itemEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
+#include "inventory.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
@@ -165,6 +166,10 @@ void listenerLoop() {
                         item.y = y;
                         break;
                     }
+                break;
+            }
+            case packets::INVENTORY_ITEM_RECEIVED: {
+                inventory::addItemToInventory((itemEngine::itemType)packet.getUChar(), 1);
                 break;
             }
             default:;
