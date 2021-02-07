@@ -33,7 +33,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     online = multiplayer;
     
     blockEngine::prepare();
-    inventory::prepare();
     players::prepare();
     playerHandler::prepare();
     
@@ -44,14 +43,14 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
             return 0;
         networking::downloadWorld();
         networking::spawnListener();
-        for(inventory::inventoryItem& i : inventory::player_inventory) {
+        for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
             i.setStack(0);
             i.item_id = itemEngine::NOTHING;
         }
     } else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
         worldSaver::loadWorld(world_name);
     else {
-        for(inventory::inventoryItem& i : inventory::player_inventory) {
+        for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
             i.setStack(0);
             i.item_id = itemEngine::NOTHING;
         }
@@ -86,7 +85,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
                 quit = true;
             pauseScreen::handleEvents(event);
             playerHandler::handleEvents(event);
-            inventory::handleEvents(event);
             blockEngine::handleEvents(event);
         }
         playerHandler::doPhysics();
@@ -104,7 +102,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
             blockSelector::render();
             fps_text.render();
         }
-        inventory::render();
         swl::update();
     }
     

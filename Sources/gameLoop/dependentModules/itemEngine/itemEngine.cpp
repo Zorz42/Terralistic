@@ -7,7 +7,6 @@
 
 #include "blockEngine.hpp"
 #include "playerHandler.hpp"
-#include "inventory.hpp"
 
 void itemEngine::init() {
     unique_items = {
@@ -25,7 +24,7 @@ void itemEngine::close() {
 void itemEngine::updateItems() {
     for(unsigned long i = 0; i < items.size(); i++) {
         items[i].update();
-        if(abs(items[i].x / 100 + BLOCK_WIDTH / 2  - playerHandler::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(items[i].y / 100 + BLOCK_WIDTH / 2 - playerHandler::position_y - playerHandler::player.getHeight() / 2) < 50 && inventory::addItemToInventory(items[i].item_id, 1))
+        if(abs(items[i].x / 100 + BLOCK_WIDTH / 2  - playerHandler::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(items[i].y / 100 + BLOCK_WIDTH / 2 - playerHandler::position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(items[i].item_id, 1))
             items.erase(items.begin() + i);
     }
 }

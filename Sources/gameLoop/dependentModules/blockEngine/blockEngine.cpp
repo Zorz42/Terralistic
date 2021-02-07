@@ -20,8 +20,8 @@ void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, uns
 }
 
 void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
-    blockEngine::blockType type = inventory::selected_item->getUniqueItem().places;
-    if(type != blockEngine::AIR && inventory::selected_item->decreaseStack(1)) {
+    blockEngine::blockType type = playerHandler::selected_item->getUniqueItem().places;
+    if(type != blockEngine::AIR && playerHandler::selected_item->decreaseStack(1)) {
         blockEngine::removeNaturalLight(x);
         block->setBlockType(type, x, y);
         blockEngine::setNaturalLight(x);
@@ -29,6 +29,7 @@ void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned s
         blockEngine::updateNearestBlocks(x, y);
         blockEngine::getBlock(x, y).light_update(x, y);
     }
+    playerHandler::updateStackTexture(playerHandler::player_inventory.selected_slot);
 }
 
 void blockEngine::init() {
@@ -159,9 +160,9 @@ void blockEngine::prepareWorld() {
 
 void blockEngine::handleEvents(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
-        if(event.button.button == SDL_BUTTON_LEFT && !inventory::hovered)
+        if(event.button.button == SDL_BUTTON_LEFT && !playerHandler::hovered)
             blockEngine::leftClickEvent(blockSelector::selectedBlockX, blockSelector::selectedBlockY);
-        else if(event.button.button == SDL_BUTTON_RIGHT && !blockSelector::collidingWithPlayer() && !inventory::hovered)
+        else if(event.button.button == SDL_BUTTON_RIGHT && !blockSelector::collidingWithPlayer() && !playerHandler::hovered)
             blockEngine::rightClickEvent(blockSelector::selectedBlockX, blockSelector::selectedBlockY);
     }
 }

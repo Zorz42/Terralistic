@@ -6,7 +6,6 @@
 //
 
 #include "inventory.hpp"
-#include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 
 inventory::inventoryItem::inventoryItem() : item_id(itemEngine::NOTHING), stack(0) {}
@@ -15,21 +14,9 @@ itemEngine::uniqueItem& inventory::inventoryItem::getUniqueItem() const {
     return itemEngine::unique_items[item_id];
 }
 
-void inventory::inventoryItem::render(int x, int y) {
-    if(getUniqueItem().texture != nullptr)
-        swl::render(getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-    if(stack > 1) {
-        stack_texture.setX(short(x + BLOCK_WIDTH * 2 - stack_texture.getWidth()));
-        stack_texture.setY(short(y + BLOCK_WIDTH * 2 - stack_texture.getHeight()));
-        stack_texture.render();
-    }
-}
-
 void inventory::inventoryItem::setStack(unsigned short stack_) {
     stack = stack_;
-    if(stack > 1)
-        stack_texture.loadFromText(std::to_string(stack_), {255, 255, 255});
-    else if(!stack)
+    if(!stack)
         item_id = itemEngine::NOTHING;
 }
 

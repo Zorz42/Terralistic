@@ -18,9 +18,33 @@
 
 bool key_up = false, jump = false;
 
+ogl::rect inventory_slots[20], select_rect, under_text_rect(ogl::top_left);
+ogl::texture stack_textures[20], mouse_stack_texture{ogl::top_left};
+
+#define MARGIN 10
+
 void playerHandler::init() {
+    for(int i = 0; i < 20; i++) {
+        inventory_slots[i].setOrientation(ogl::top);
+        inventory_slots[i].setColor(100, 100, 100);
+        inventory_slots[i].setHeight(2 * BLOCK_WIDTH + MARGIN);
+        inventory_slots[i].setWidth(2 * BLOCK_WIDTH + MARGIN);
+        inventory_slots[i].setY(MARGIN + i / 10 * 2 * MARGIN + i / 10 * 2 * BLOCK_WIDTH);
+        inventory_slots[i].setX(short((i - 5 - i / 10 * 10) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
+    }
+    
+    select_rect.setOrientation(ogl::top);
+    select_rect.setColor(50, 50, 50);
+    select_rect.setWidth(2 * BLOCK_WIDTH + 2 * MARGIN);
+    select_rect.setHeight(2 * BLOCK_WIDTH + 2 * MARGIN);
+    select_rect.setY(MARGIN / 2);
+    
+    under_text_rect.setColor(0, 0, 0);
     player.loadFromFile("texturePack/player.png");
     player.scale = 2;
+    
+    for(int i = 0; i < 20; i++)
+        stack_textures[i] = ogl::texture(ogl::top_left);
 }
 
 void playerHandler::prepare() {
@@ -28,6 +52,9 @@ void playerHandler::prepare() {
     position_y = blockEngine::world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     view_x = position_x;
     view_y = position_y;
+    
+    selectSlot(0);
+    player_inventory.open = false;
 }
 
 void playerHandler::handleEvents(SDL_Event& event) {
@@ -78,6 +105,28 @@ void playerHandler::handleEvents(SDL_Event& event) {
                 break;
             default:;
         }
+    
+    if(event.type == SDL_TEXTINPUT) {
+        char c = event.text.text[0];
+        if(c >= '0' && c <= '9') {
+            if(c == '0')
+                c = ':';
+            selectSlot(c - '1');
+        }
+    } else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) {
+        player_inventory.open = !player_inventory.open;
+        if(!player_inventory.open && player_inventory.mouse_item.item_id != itemEngine::NOTHING) {
+            player_inventory.addItem(player_inventory.mouse_item.item_id, player_inventory.mouse_item.getStack());
+            player_inventory.mouse_item.item_id = itemEngine::NOTHING;
+            player_inventory.mouse_item.setStack(0);
+            updateStackTextures();
+        }
+    } else if(hovered && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+        inventory::inventoryItem temp = *hovered;
+        *hovered = player_inventory.mouse_item;
+        player_inventory.mouse_item = temp;
+        playerHandler::updateStackTextures();
+    }
 }
 
 bool isPlayerColliding() {
@@ -173,12 +222,69 @@ void playerHandler::move() {
     }
 }
 
+void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
+    if(item->getUniqueItem().texture != nullptr)
+        swl::render(item->getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+    if(item->stack > 1) {
+        ogl::texture *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
+        stack_texture->setX(short(x + BLOCK_WIDTH * 2 - stack_texture->getWidth()));
+        stack_texture->setY(short(y + BLOCK_WIDTH * 2 - stack_texture->getHeight()));
+        stack_texture->render();
+    }
+}
+
 void playerHandler::render() {
     player.setX(short(position_x - view_x));
     player.setY(short(position_y - view_y));
     player.render();
+    
+    select_rect.setX(short((player_inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
+    select_rect.render();
+    ogl::texture* text_texture = nullptr;
+    hovered = nullptr;
+    for(int i = 0; i < (player_inventory.open ? 20 : 10); i++) {
+        if(swl::colliding(inventory_slots[i].getRect(), {swl::mouse_x, swl::mouse_y, 0, 0}) && player_inventory.open) {
+            hovered = &player_inventory.inventory[i];
+            inventory_slots[i].setColor(70, 70, 70);
+            if(player_inventory.inventory[i].item_id != itemEngine::NOTHING) {
+                text_texture = &player_inventory.inventory[i].getUniqueItem().text_texture;
+                text_texture->setX(swl::mouse_x + 20);
+                text_texture->setY(swl::mouse_y + 20);
+                under_text_rect.setHeight(text_texture->getHeight() + 2 * MARGIN);
+                under_text_rect.setWidth(text_texture->getWidth() + 2 * MARGIN);
+                under_text_rect.setX(swl::mouse_x + 20 - MARGIN);
+                under_text_rect.setY(swl::mouse_y + 20 - MARGIN);
+            }
+        }
+        else
+            inventory_slots[i].setColor(100, 100, 100);
+        inventory_slots[i].render();
+        renderItem(&player_inventory.inventory[i], inventory_slots[i].getX() + MARGIN / 2, inventory_slots[i].getY() + MARGIN / 2, i);
+    }
+    if(text_texture) {
+        under_text_rect.render();
+        text_texture->render();
+    }
+    renderItem(&player_inventory.mouse_item, swl::mouse_x, swl::mouse_y, -1);
 }
 
 void playerHandler::doPhysics() {
     velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + framerateRegulator::frame_length / 4);
+}
+
+void playerHandler::selectSlot(char slot) {
+    player_inventory.selected_slot = slot;
+    selected_item = &player_inventory.inventory[(unsigned char)slot];
+}
+
+void playerHandler::updateStackTexture(int i) {
+    inventory::inventoryItem* item = i == -1 ? &player_inventory.mouse_item : &player_inventory.inventory[i];
+    ogl::texture* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
+    if(item->stack > 1)
+        stack_texture->loadFromText(std::to_string(item->stack), {255, 255, 255});
+}
+
+void playerHandler::updateStackTextures() {
+    for(int i = -1; i < 20; i++)
+        playerHandler::updateStackTexture(i);
 }

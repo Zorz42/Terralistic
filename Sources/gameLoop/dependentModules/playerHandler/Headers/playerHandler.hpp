@@ -9,6 +9,7 @@
 #define movementHandler_h
 
 #include "objectedGraphicsLibrary.hpp"
+#include "inventory.hpp"
 
 namespace playerHandler {
 
@@ -25,6 +26,13 @@ inline int view_x, view_y;
 inline short velocity_x = 0, velocity_y = 0;
 inline ogl::texture player(ogl::center);
 
+void selectSlot(char slot);
+
+inline inventory::inventoryItem *hovered = nullptr, *selected_item = nullptr;
+inline inventory::inventory player_inventory;
+
+void updateStackTexture(int i);
+void updateStackTextures();
 }
 
 #endif /* movementHandler_h */

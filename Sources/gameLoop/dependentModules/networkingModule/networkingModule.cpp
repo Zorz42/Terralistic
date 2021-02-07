@@ -169,7 +169,8 @@ void listenerLoop() {
                 break;
             }
             case packets::INVENTORY_ITEM_RECEIVED: {
-                inventory::addItemToInventory((itemEngine::itemType)packet.getUChar(), 1);
+                playerHandler::player_inventory.addItem((itemEngine::itemType)packet.getUChar(), 1);
+                playerHandler::updateStackTextures();
                 break;
             }
             default:;

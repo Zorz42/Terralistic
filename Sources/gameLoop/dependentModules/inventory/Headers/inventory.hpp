@@ -8,41 +8,30 @@
 #ifndef inventory_hpp
 #define inventory_hpp
 
-
 #include "itemEngine.hpp"
 
 namespace inventory {
 
 struct inventoryItem {
-public:
     inventoryItem();
     explicit inventoryItem(itemEngine::itemType item_id) : item_id(item_id), stack(1) {}
     itemEngine::itemType item_id;
     [[nodiscard]] itemEngine::uniqueItem& getUniqueItem() const;
-    void render(int x, int y);
-    ogl::texture stack_texture{ogl::top_left};
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
     inventoryItem& operator=(const inventoryItem& item);
-private:
     unsigned short stack;
 };
 
-void init();
-void prepare();
-void render();
-void handleEvents(SDL_Event& event);
-
-bool addItemToInventory(itemEngine::itemType id, int quantity);
-void selectSlot(char slot);
-
-inline inventoryItem* hovered = nullptr;
-inline bool inventory_open = false;
-inline inventoryItem *selected_item = nullptr, mouse_item{itemEngine::NOTHING};
-inline char selected_slot = 0;
-inline inventoryItem player_inventory[20];
+struct inventory {
+    inventoryItem inventory[20];
+    bool addItem(itemEngine::itemType id, int quantity);
+    bool open = false;
+    char selected_slot = 0;
+    inventoryItem mouse_item{itemEngine::NOTHING};
+};
 
 }
 

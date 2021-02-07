@@ -17,7 +17,6 @@
 #include "worldSelector.hpp"
 #include "worldCreator.hpp"
 #include "itemEngine.hpp"
-#include "inventory.hpp"
 #include "multiplayerSelector.hpp"
 #include "networkingModule.hpp"
 
@@ -35,7 +34,6 @@ int swl_main() {
     worldSelector::init();
     worldCreator::init();
     itemEngine::init();
-    inventory::init();
     multiplayerSelector::init();
     networking::init();
     

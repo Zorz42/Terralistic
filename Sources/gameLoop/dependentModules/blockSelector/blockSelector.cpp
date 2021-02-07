@@ -21,7 +21,7 @@ void blockSelector::init() {
 }
 
 void blockSelector::render() {
-    if(!inventory::hovered) {
+    if(!playerHandler::hovered) {
         selectedBlockX = (unsigned short)(swl::mouse_x + playerHandler::view_x - swl::window_width / 2) / BLOCK_WIDTH;
         selectedBlockY = (unsigned short)(swl::mouse_y + playerHandler::view_y - swl::window_height / 2) / BLOCK_WIDTH;
         selectRect.setX(short(-playerHandler::view_x + swl::window_width / 2 + selectedBlockX * BLOCK_WIDTH));
