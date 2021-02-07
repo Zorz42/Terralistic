@@ -140,14 +140,31 @@ void generateTrees(unsigned int seed) {
     std::mt19937 engine(seed);
     unsigned short x = 0;
     while(true) {
-        x += engine() % 7 + 4;
+        x += engine() % 4 + 6;
         if(x >= blockEngine::world_width - 1)
             break;
         if(blockEngine::getBlock(x, blockEngine::world_height - heights[x] - 1).block_id != blockEngine::GRASS_BLOCK)
             continue;
-        unsigned short height = engine() % 5 + 7;
-        for(unsigned short y = blockEngine::world_height - heights[x] - 2; y > blockEngine::world_height - heights[x] - height; y--)
+        unsigned short height = engine() % 5 + 10;
+        unsigned short y;
+        for(y = blockEngine::world_height - heights[x] - 2; y > blockEngine::world_height - heights[x] - height; y--)
             blockEngine::getBlock(x, y).block_id = blockEngine::WOOD;
+        
+        for(unsigned short y_leave = y; y_leave < y + 5; y_leave++)
+            for(unsigned short x_leave = x - 2; x_leave <= x + 2; x_leave++)
+                if((x_leave != x - 2 || y_leave != y) && (x_leave != x + 2 || y_leave != y) && (x_leave != x - 2 || y_leave != y + 4) && (x_leave != x + 2 || y_leave != y + 4))
+                    blockEngine::getBlock(x_leave, y_leave).block_id = blockEngine::LEAVES;
+        
+        for(unsigned short y = blockEngine::world_height - heights[x] - 4; y > blockEngine::world_height - heights[x] - height + 5; y -= engine() % 4 + 3) {
+            blockEngine::getBlock(x - 1, y).block_id = blockEngine::WOOD;
+            blockEngine::getBlock(x - 2, y).block_id = blockEngine::LEAVES;
+        }
+        
+        for(unsigned short y = blockEngine::world_height - heights[x] - 4; y > blockEngine::world_height - heights[x] - height + 5; y -= engine() % 4 + 3) {
+            blockEngine::getBlock(x + 1, y).block_id = blockEngine::WOOD;
+            blockEngine::getBlock(x + 2, y).block_id = blockEngine::LEAVES;
+        }
+        
         if(blockEngine::getBlock(x - 1, blockEngine::world_height - heights[x] - 1).block_id == blockEngine::GRASS_BLOCK && blockEngine::getBlock(x - 2, blockEngine::world_height - heights[x] - 2).block_id == blockEngine::AIR)
             blockEngine::getBlock(x - 1, blockEngine::world_height - heights[x] - 2).block_id = blockEngine::WOOD;
         
