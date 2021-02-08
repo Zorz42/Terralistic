@@ -105,7 +105,7 @@ void listenerLoop() {
                 auto type = (blockEngine::blockType)packet.getUChar();
                 unsigned short y = packet.getUShort(), x = packet.getUShort();
                 blockEngine::removeNaturalLight(x);
-                blockEngine::getBlock(x, y).setBlockType(type, x, y, false);
+                blockEngine::getBlock(x, y).setBlockType(type, x, y);
                 blockEngine::setNaturalLight(x);
                 blockEngine::getBlock(x, y).update(x, y);
                 blockEngine::getBlock(x, y).light_update(x, y);
@@ -168,9 +168,10 @@ void listenerLoop() {
                     }
                 break;
             }
-            case packets::INVENTORY_ITEM_RECEIVED: {
-                playerHandler::player_inventory.addItem((itemEngine::itemType)packet.getUChar(), 1);
-                playerHandler::updateStackTextures();
+            case packets::INVENTORY_CHANGE: {
+                char pos = packet.getChar();
+                playerHandler::player_inventory.inventory[(int)pos].setStack(packet.getUShort());
+                playerHandler::player_inventory.inventory[(int)pos].item_id = (itemEngine::itemType)packet.getUChar();
                 break;
             }
             default:;

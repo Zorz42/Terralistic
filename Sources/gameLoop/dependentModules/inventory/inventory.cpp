@@ -9,19 +9,19 @@
 #include "blockEngine.hpp"
 #include "playerHandler.hpp"
 
-bool inventory::inventory::addItem(itemEngine::itemType id, int quantity) {
-    for(auto & i : inventory)
-        if(i.item_id == id) {
-            quantity -= i.increaseStack((unsigned short)quantity);
+char inventory::inventory::addItem(itemEngine::itemType id, int quantity) {
+    for(int i = 0; i < INVENTORY_SIZE; i++)
+        if(inventory[i].item_id == id) {
+            quantity -= inventory[i].increaseStack((unsigned short)quantity);
             if(!quantity)
-                return true;
+                return i;
         }
-    for(auto & i : inventory)
-        if(i.item_id == itemEngine::NOTHING) {
-            i.item_id = id;
-            quantity -= i.increaseStack((unsigned short)quantity);
+    for(int i = 0; i < INVENTORY_SIZE; i++)
+        if(inventory[i].item_id == itemEngine::NOTHING) {
+            inventory[i].item_id = id;
+            quantity -= inventory[i].increaseStack((unsigned short)quantity);
             if(!quantity)
-                return true;
+                return i;
         }
-    return false;
+    return -1;
 }

@@ -55,7 +55,6 @@ void worldSaver::loadWorld(const std::string& world_name) {
         unsigned short stack = (unsigned char)c;
         world_file >> std::noskipws >> c;
         i.setStack(stack + ((unsigned short)(c) >> 4));
-        playerHandler::updateStackTexture(int(&i - &playerHandler::player_inventory.inventory[0]));
     }
     
     for(int y = 0; y < blockEngine::world_height; y++)

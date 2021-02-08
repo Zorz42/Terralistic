@@ -116,16 +116,20 @@ void playerHandler::handleEvents(SDL_Event& event) {
     } else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) {
         player_inventory.open = !player_inventory.open;
         if(!player_inventory.open && player_inventory.mouse_item.item_id != itemEngine::NOTHING) {
-            player_inventory.addItem(player_inventory.mouse_item.item_id, player_inventory.mouse_item.getStack());
+            unsigned char result = player_inventory.addItem(player_inventory.mouse_item.item_id, player_inventory.mouse_item.getStack());
             player_inventory.mouse_item.item_id = itemEngine::NOTHING;
             player_inventory.mouse_item.setStack(0);
-            updateStackTextures();
+            packets::packet packet(packets::INVENTORY_SWAP);
+            packet << result;
+            networking::sendPacket(packet);
         }
     } else if(hovered && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
         inventory::inventoryItem temp = *hovered;
         *hovered = player_inventory.mouse_item;
         player_inventory.mouse_item = temp;
-        playerHandler::updateStackTextures();
+        packets::packet packet(packets::INVENTORY_SWAP);
+        packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
+        networking::sendPacket(packet);
     }
 }
 
@@ -225,11 +229,20 @@ void playerHandler::move() {
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
     if(item->getUniqueItem().texture != nullptr)
         swl::render(item->getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-    if(item->stack > 1) {
+    if(item->getStack() > 1) {
         ogl::texture *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         stack_texture->setX(short(x + BLOCK_WIDTH * 2 - stack_texture->getWidth()));
         stack_texture->setY(short(y + BLOCK_WIDTH * 2 - stack_texture->getHeight()));
         stack_texture->render();
+    }
+}
+
+void updateStackTexture(int i) {
+    inventory::inventoryItem* item = i == -1 ? &playerHandler::player_inventory.mouse_item : &playerHandler::player_inventory.inventory[i];
+    if(item->stack_changed) {
+        ogl::texture* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
+        if(item->getStack() > 1)
+            stack_texture->loadFromText(std::to_string(item->getStack()), {255, 255, 255});
     }
 }
 
@@ -242,6 +255,8 @@ void playerHandler::render() {
     select_rect.render();
     ogl::texture* text_texture = nullptr;
     hovered = nullptr;
+    for(int i = -1; i < 20; i++)
+        updateStackTexture(i);
     for(int i = 0; i < (player_inventory.open ? 20 : 10); i++) {
         if(swl::colliding(inventory_slots[i].getRect(), {swl::mouse_x, swl::mouse_y, 0, 0}) && player_inventory.open) {
             hovered = &player_inventory.inventory[i];
@@ -275,16 +290,7 @@ void playerHandler::doPhysics() {
 void playerHandler::selectSlot(char slot) {
     player_inventory.selected_slot = slot;
     selected_item = &player_inventory.inventory[(unsigned char)slot];
-}
-
-void playerHandler::updateStackTexture(int i) {
-    inventory::inventoryItem* item = i == -1 ? &player_inventory.mouse_item : &player_inventory.inventory[i];
-    ogl::texture* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
-    if(item->stack > 1)
-        stack_texture->loadFromText(std::to_string(item->stack), {255, 255, 255});
-}
-
-void playerHandler::updateStackTextures() {
-    for(int i = -1; i < 20; i++)
-        playerHandler::updateStackTexture(i);
+    packets::packet packet(packets::HOTBAR_SELECTION);
+    packet << slot;
+    networking::sendPacket(packet);
 }

@@ -47,7 +47,7 @@ struct block {
     Uint8 block_orientation{};
     
     [[nodiscard]] uniqueBlock& getUniqueBlock() const;
-    void setBlockType(blockType id, unsigned short x, unsigned short y, bool send_packet=true);
+    void setBlockType(blockType id, unsigned short x, unsigned short y);
     
     unsigned char light_level = 0;
     bool light_source = false;

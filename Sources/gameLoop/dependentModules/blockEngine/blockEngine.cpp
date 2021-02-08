@@ -12,6 +12,7 @@
 #include "gameLoop.hpp"
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
+#include "networkingModule.hpp"
 
 ogl::texture prepare_text;
 
@@ -29,7 +30,6 @@ void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned s
         blockEngine::updateNearestBlocks(x, y);
         blockEngine::getBlock(x, y).light_update(x, y);
     }
-    playerHandler::updateStackTexture(playerHandler::player_inventory.selected_slot);
 }
 
 void blockEngine::init() {
@@ -124,23 +124,35 @@ void blockEngine::updateNearestBlocks(unsigned short x, unsigned short y) {
 }
 
 void blockEngine::rightClickEvent(unsigned short x, unsigned short y) {
-    block* block = &getBlock(x, y);
-    if(block->getUniqueBlock().rightClickEvent)
-        block->getUniqueBlock().rightClickEvent(block, x, y);
+    if(gameLoop::online) {
+        packets::packet packet(packets::RIGHT_CLICK);
+        packet << x << y;
+        networking::sendPacket(packet);
+    } else {
+        block* block = &getBlock(x, y);
+        if(block->getUniqueBlock().rightClickEvent)
+            block->getUniqueBlock().rightClickEvent(block, x, y);
+    }
 }
 
 void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
-    block* block = &getBlock(x, y);
-    if(block->getUniqueBlock().leftClickEvent)
-        block->getUniqueBlock().leftClickEvent(block, x, y);
-    else {
-        if(block->getUniqueBlock().drop != itemEngine::NOTHING && !gameLoop::online)
-            itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
-        blockEngine::removeNaturalLight(x);
-        getBlock(x, y).setBlockType(blockEngine::AIR, x, y);
-        updateNearestBlocks(x, y);
-        blockEngine::setNaturalLight(x);
-        blockEngine::getBlock(x, y).light_update(x, y);
+    if(gameLoop::online) {
+        packets::packet packet(packets::LEFT_CLICK);
+        packet << x << y;
+        networking::sendPacket(packet);
+    } else {
+        block* block = &getBlock(x, y);
+        if(block->getUniqueBlock().leftClickEvent)
+            block->getUniqueBlock().leftClickEvent(block, x, y);
+        else {
+            if(block->getUniqueBlock().drop != itemEngine::NOTHING && !gameLoop::online)
+                itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+            blockEngine::removeNaturalLight(x);
+            getBlock(x, y).setBlockType(blockEngine::AIR, x, y);
+            updateNearestBlocks(x, y);
+            blockEngine::setNaturalLight(x);
+            blockEngine::getBlock(x, y).light_update(x, y);
+        }
     }
 }
 

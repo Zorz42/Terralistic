@@ -15,9 +15,12 @@ itemEngine::uniqueItem& inventory::inventoryItem::getUniqueItem() const {
 }
 
 void inventory::inventoryItem::setStack(unsigned short stack_) {
-    stack = stack_;
-    if(!stack)
-        item_id = itemEngine::NOTHING;
+    if(stack != stack_) {
+        stack = stack_;
+        if(!stack)
+            item_id = itemEngine::NOTHING;
+        stack_changed = true;
+    }
 }
 
 unsigned short inventory::inventoryItem::getStack() const {

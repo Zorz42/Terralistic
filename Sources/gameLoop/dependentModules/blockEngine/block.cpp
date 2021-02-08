@@ -66,16 +66,11 @@ blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() const {
      return unique_blocks[block_id];
 }
 
-void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned short y, bool send_packet) {
+void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned short y) {
     if(id != block_id) {
         block_id = id;
         getBlock(x, y).to_update = true;
         getChunk(x >> 4, y >> 4).update = true;
-        if(gameLoop::online && send_packet) {
-            packets::packet packet(packets::BLOCK_CHANGE);
-            packet << x << y << (unsigned char) id;
-            networking::sendPacket(packet);
-        }
     }
 }
 

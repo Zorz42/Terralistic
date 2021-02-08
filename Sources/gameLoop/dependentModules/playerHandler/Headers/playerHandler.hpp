@@ -31,8 +31,6 @@ void selectSlot(char slot);
 inline inventory::inventoryItem *hovered = nullptr, *selected_item = nullptr;
 inline inventory::inventory player_inventory;
 
-void updateStackTexture(int i);
-void updateStackTextures();
 }
 
 #endif /* movementHandler_h */
