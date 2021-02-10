@@ -155,12 +155,12 @@ void generateTrees(unsigned int seed) {
                 if((x_leave != x - 2 || y_leave != y) && (x_leave != x + 2 || y_leave != y) && (x_leave != x - 2 || y_leave != y + 4) && (x_leave != x + 2 || y_leave != y + 4))
                     blockEngine::getBlock(x_leave, y_leave).block_id = blockEngine::LEAVES;
         
-        for(unsigned short y = blockEngine::world_height - heights[x] - 4; y > blockEngine::world_height - heights[x] - height + 5; y -= engine() % 4 + 3) {
+        for(unsigned short y = blockEngine::world_height - heights[x] - engine() % 4 - 4; y > blockEngine::world_height - heights[x] - height + 5; y -= engine() % 4 + 2) {
             blockEngine::getBlock(x - 1, y).block_id = blockEngine::WOOD;
             blockEngine::getBlock(x - 2, y).block_id = blockEngine::LEAVES;
         }
         
-        for(unsigned short y = blockEngine::world_height - heights[x] - 4; y > blockEngine::world_height - heights[x] - height + 5; y -= engine() % 4 + 3) {
+        for(unsigned short y = blockEngine::world_height - heights[x] - engine() % 4 - 4; y > blockEngine::world_height - heights[x] - height + 5; y -= engine() % 4 + 2) {
             blockEngine::getBlock(x + 1, y).block_id = blockEngine::WOOD;
             blockEngine::getBlock(x + 2, y).block_id = blockEngine::LEAVES;
         }
