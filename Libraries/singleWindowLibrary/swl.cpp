@@ -123,7 +123,7 @@ void swl::setWindowMinimumSize(unsigned short width, unsigned short height) {
 }
 
 void swl::setRenderTarget(SDL_Texture* texture) {
-    SDL_SetRenderTarget(swl_private::renderer, texture);
+     SDL_SetRenderTarget(swl_private::renderer, texture);
 }
 
 void swl::resetRenderTarget() {

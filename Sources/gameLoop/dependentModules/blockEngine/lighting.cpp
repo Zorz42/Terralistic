@@ -8,12 +8,12 @@
 #include "blockEngine.hpp"
 
 void blockEngine::removeNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; getBlock(x, y).getUniqueBlock().transparent; y++)
+    for(unsigned short y = 0; y < world_height && getBlock(x, y).getUniqueBlock().transparent; y++)
         removeLightSource(x, y);
 }
 
 void blockEngine::setNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; getBlock(x, y).getUniqueBlock().transparent; y++)
+    for(unsigned short y = 0; y < world_height && getBlock(x, y).getUniqueBlock().transparent; y++)
         addLightSource(x, y, MAX_LIGHT);
 }
 

@@ -59,7 +59,7 @@ struct block {
 struct chunk {
     void render(unsigned short x, unsigned short y) const;
     block blocks[16][16];
-    bool update = true;
+    bool update = true, loaded = false, pending_load = false;
     SDL_Texture* texture = nullptr;
     void updateTexture();
     void createTexture();

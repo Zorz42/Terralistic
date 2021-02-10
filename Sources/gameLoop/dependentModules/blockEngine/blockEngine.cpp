@@ -61,10 +61,14 @@ void blockEngine::prepare() {
     world = new chunk[(world_width >> 4) * (world_height >> 4)];
     
     for(unsigned short x = 0; x < (world_width >> 4); x++)
-        for(unsigned short y = 0; y < (world_height >> 4); y++)
+        for(unsigned short y = 0; y < (world_height >> 4); y++) {
+            getChunk(x, y).update = true;
+            getChunk(x, y).loaded = !gameLoop::online;
+            getChunk(x, y).pending_load = !gameLoop::online;
             for(auto & block : getChunk(x, y).blocks)
                 for(unsigned short y_ = 0; y_ < 16; y_++)
                     block[y_].to_update = true;
+        }
 }
 
 void blockEngine::close() {
@@ -87,15 +91,25 @@ void blockEngine::render_blocks() {
     if(end_y > world_height)
         end_y = (int)world_height;
     
+    bool has_requested = false;
+    
     for(unsigned short x = (begin_x >> 4) - 1; x < (end_x >> 4) + 1; x++)
         for(unsigned short y = (begin_y >> 4) - 1; y < (end_y >> 4) + 2; y++) {
-            if(getChunk(x, y).update)
-                getChunk(x, y).updateTexture();
-            getChunk(x, y).render(x, y);
+            if(!getChunk(x, y).pending_load && !has_requested) {
+                packets::packet packet(packets::CHUNK);
+                packet << y << x;
+                networking::sendPacket(packet);
+                getChunk(x, y).pending_load = true;
+                has_requested = true;
+            } else if(getChunk(x, y).loaded) {
+                if(getChunk(x, y).update)
+                    getChunk(x, y).updateTexture();
+                getChunk(x, y).render(x, y);
+            }
         }
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(blockEngine::getBlock(x, y).to_update_light)
+            if(blockEngine::getBlock(x, y).to_update_light && getChunk(x >> 4, y >> 4).loaded)
                 blockEngine::getBlock(x, y).light_update(x, y);
 }
 

@@ -79,13 +79,13 @@ void blockEngine::block::light_update(unsigned short x, unsigned short y, bool u
         to_update_light = false;
     block* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
     unsigned short x_[] = {(unsigned short)(x - 1), (unsigned short)(x + 1), x, x}, y_[] = {y, y, (unsigned short)(y - 1), (unsigned short)(y + 1)};
-    if(x != 0)
+    if(x != 0 && getChunk((x - 1) >> 4, y >> 4).loaded)
         neighbors[0] = &getBlock(x - 1, y);
-    if(x != blockEngine::world_width - 1)
+    if(x != blockEngine::world_width - 1 && getChunk((x + 1) >> 4, y >> 4).loaded)
         neighbors[1] = &getBlock(x + 1, y);
-    if(y != 0)
+    if(y != 0 && getChunk(x >> 4, (y - 1) >> 4).loaded)
         neighbors[2] = &getBlock(x, y - 1);
-    if(y != blockEngine::world_height - 1)
+    if(y != blockEngine::world_height - 1 && getChunk(x >> 4, (y + 1) >> 4).loaded)
         neighbors[3] = &getBlock(x, y + 1);
     bool update_neighbors = false;
     if(!light_source) {

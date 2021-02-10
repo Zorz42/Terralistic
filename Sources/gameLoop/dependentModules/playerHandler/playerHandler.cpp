@@ -158,7 +158,7 @@ bool isPlayerColliding() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(swl::colliding({(x * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), (y * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost)
+            if(!blockEngine::getChunk(x >> 4, y >> 4).loaded || swl::colliding({(x * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), (y * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost)
                 return true;
     return false;
 }

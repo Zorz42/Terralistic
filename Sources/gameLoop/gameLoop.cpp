@@ -92,6 +92,8 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         if(!online)
             itemEngine::updateItems();
         
+        swl::setDrawColor(135, 206, 235);
+        swl::clear();
         blockEngine::render_blocks();
         itemEngine::renderItems();
         players::render();

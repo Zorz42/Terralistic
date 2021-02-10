@@ -83,7 +83,11 @@ void networking::downloadWorld() {
     join_packet << playerHandler::position_x << playerHandler::position_y;
     sendPacket(join_packet);
     
-    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++) {
+    for(unsigned short x = 0; x < blockEngine::world_width; x++)
+        for(unsigned short y = 0; y < blockEngine::world_height; y++)
+            blockEngine::getBlock(x, y).block_id = blockEngine::AIR;
+    
+    /*for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++) {
         for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++) {
             packets::packet chunk_packet = getPacket();
             blockEngine::chunk& chunk = blockEngine::getChunk(x, y);
@@ -91,10 +95,10 @@ void networking::downloadWorld() {
                 chunk.blocks[i % 16][i / 16].block_id = (blockEngine::blockType)chunk_packet.getChar();
             sendPacket({packets::PING});
         }
-    }
-    for(int y = 0; y < blockEngine::world_height; y++)
+    }*/
+    /*for(int y = 0; y < blockEngine::world_height; y++)
         for(int x = 0; x < blockEngine::world_width; x++)
-            blockEngine::getBlock(x, y).update(x, y);
+            blockEngine::getBlock(x, y).update(x, y);*/
 }
 
 void listenerLoop() {
@@ -173,6 +177,21 @@ void listenerLoop() {
                 playerHandler::player_inventory.inventory[(int)pos].setStack(packet.getUShort());
                 playerHandler::player_inventory.inventory[(int)pos].item_id = (itemEngine::itemType)packet.getUChar();
                 break;
+            }
+            case packets::CHUNK: {
+                unsigned short x = packet.getUShort(), y = packet.getUShort();
+                blockEngine::chunk& chunk = blockEngine::getChunk(x, y);
+                for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
+                    blockEngine::removeNaturalLight(x_);
+                for(int i = 0; i < 16 * 16; i++)
+                    chunk.blocks[i % 16][i / 16].block_id = (blockEngine::blockType)packet.getChar();
+                for(unsigned short x_ = (x << 4) - 1; x_ < (x << 4) + 17; x_++)
+                    for(unsigned short y_ = (y << 4) - 1; y_ < (y << 4) + 17; y_++)
+                        if((x_ && y_ && x_ != (x << 4) + 16 && y_ != (y << 4) + 16) || blockEngine::getChunk(x_ >> 4, y_ >> 4).loaded)
+                            blockEngine::getBlock(x_, y_).update(x_, y_);
+                for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
+                    blockEngine::setNaturalLight(x_);
+                chunk.loaded = true;
             }
             default:;
         }
