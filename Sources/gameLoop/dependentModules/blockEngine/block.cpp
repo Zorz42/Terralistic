@@ -18,13 +18,15 @@ void blockEngine::block::draw(unsigned short x, unsigned short y) const {
         swl::render(getUniqueBlock().texture, rect, {0, 8 * block_orientation, 8, 8});
     
     if(light_level != MAX_LIGHT) {
-        rect = {x * BLOCK_WIDTH, y * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH};
         swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * light_level));
         swl::render(rect);
     }
+    unsigned char progress = (unsigned char)((float)break_progress / (float)getUniqueBlock().break_time * 8.0f);
+    if(progress)
+        swl::render(breaking_texture, rect, {0, 8 * progress, 8, 8});
 }
 
-blockEngine::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop) {
+blockEngine::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {
     unsigned short h = 0;
     texture = name == "air" ? nullptr : swl::loadTextureFromFile("texturePack/blocks/" + name + ".png", nullptr, &h);
     single_texture = h == 8;

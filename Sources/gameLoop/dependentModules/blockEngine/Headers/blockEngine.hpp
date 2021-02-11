@@ -28,12 +28,13 @@ struct uniqueBlock {
     SDL_Texture* texture;
     std::vector<blockType> connects_to;
     
-    uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop);
+    uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time);
     
     void (*rightClickEvent)(block*, unsigned short, unsigned short) = nullptr;
     void (*leftClickEvent)(block*, unsigned short, unsigned short) = nullptr;
     
     itemEngine::itemType drop;
+    unsigned short break_time;
 };
 
 struct block {
@@ -54,6 +55,7 @@ struct block {
     void light_update(unsigned short x, unsigned short y, bool update=true);
     
     bool to_update = true, to_update_light = true;
+    unsigned short break_progress = 0;
 };
 
 struct chunk {
@@ -91,6 +93,8 @@ void setNaturalLight(unsigned short x);
 
 void addLightSource(unsigned short x, unsigned short y, unsigned char power);
 void removeLightSource(unsigned short x, unsigned short y);
+
+inline SDL_Texture *breaking_texture = nullptr;
 
 }
 

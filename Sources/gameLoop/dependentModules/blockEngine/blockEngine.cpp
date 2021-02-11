@@ -13,8 +13,11 @@
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
+#include "framerateRegulator.hpp"
 
 ogl::texture prepare_text;
+
+bool left_button_pressed = false;
 
 void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
     block->setBlockType(blockEngine::DIRT, x, y);
@@ -32,15 +35,17 @@ void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned s
     }
 }
 
+void air_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {}
+
 void blockEngine::init() {
     unique_blocks = {
-        uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING),
-        uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::DIRT),
-        uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::STONE_BLOCK),
-        uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::NOTHING),
-        uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemEngine::STONE),
-        uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING),
-        uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING),
+        uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING,     1000),
+        uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::DIRT,        1000),
+        uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::STONE_BLOCK, 1000),
+        uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemEngine::NOTHING,     1000),
+        uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemEngine::STONE,       1000),
+        uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING,     1000),
+        uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING,     1000),
     };
     
     unique_blocks[GRASS_BLOCK].connects_to.push_back(DIRT);
@@ -50,9 +55,12 @@ void blockEngine::init() {
     
     unique_blocks[GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
     unique_blocks[AIR].rightClickEvent = &air_rightClickEvent;
+    unique_blocks[AIR].leftClickEvent = &air_leftClickEvent;
     
     prepare_text.loadFromText("Preparing world", {255, 255, 255});
     prepare_text.scale = 3;
+    
+    breaking_texture = swl::loadTextureFromFile("texturePack/misc/breaking.png");
 }
 
 void blockEngine::prepare() {
@@ -76,6 +84,9 @@ void blockEngine::close() {
 }
 
 void blockEngine::render_blocks() {
+    if(left_button_pressed)
+        leftClickEvent(blockSelector::selectedBlockX, blockSelector::selectedBlockY);
+    
     unsigned short begin_x = playerHandler::view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH;
     unsigned short end_x = playerHandler::view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH;
 
@@ -159,13 +170,19 @@ void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
         if(block->getUniqueBlock().leftClickEvent)
             block->getUniqueBlock().leftClickEvent(block, x, y);
         else {
-            if(block->getUniqueBlock().drop != itemEngine::NOTHING && !gameLoop::online)
-                itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
-            blockEngine::removeNaturalLight(x);
-            getBlock(x, y).setBlockType(blockEngine::AIR, x, y);
-            updateNearestBlocks(x, y);
-            blockEngine::setNaturalLight(x);
-            blockEngine::getBlock(x, y).light_update(x, y);
+            block->break_progress += framerateRegulator::frame_length;
+            getBlock(x, y).to_update = true;
+            getChunk(x >> 4, y >> 4).update = true;
+            if(block->break_progress >= block->getUniqueBlock().break_time) {
+                if(block->getUniqueBlock().drop != itemEngine::NOTHING && !gameLoop::online)
+                    itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+                removeNaturalLight(x);
+                getBlock(x, y).setBlockType(blockEngine::AIR, x, y);
+                updateNearestBlocks(x, y);
+                setNaturalLight(x);
+                getBlock(x, y).light_update(x, y);
+                getBlock(x, y).break_progress = 0;
+            }
         }
     }
 }
@@ -187,8 +204,10 @@ void blockEngine::prepareWorld() {
 void blockEngine::handleEvents(SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
         if(event.button.button == SDL_BUTTON_LEFT && !playerHandler::hovered)
-            blockEngine::leftClickEvent(blockSelector::selectedBlockX, blockSelector::selectedBlockY);
+            left_button_pressed = true;
         else if(event.button.button == SDL_BUTTON_RIGHT && !blockSelector::collidingWithPlayer() && !playerHandler::hovered)
-            blockEngine::rightClickEvent(blockSelector::selectedBlockX, blockSelector::selectedBlockY);
+            rightClickEvent(blockSelector::selectedBlockX, blockSelector::selectedBlockY);
     }
+    else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && !playerHandler::hovered)
+        left_button_pressed = false;
 }

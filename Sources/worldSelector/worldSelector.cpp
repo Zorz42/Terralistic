@@ -81,7 +81,7 @@ void worldSelector::init() {
     bottom_line_rect.setHeight(LINE_HEIGHT);
     bottom_line_rect.setY((short)-BOTTOM_HEIGHT);
     
-    x_texture = swl::loadTextureFromFile("texturePack/x-button.png", &x_width, &x_height);
+    x_texture = swl::loadTextureFromFile("texturePack/misc/x-button.png", &x_width, &x_height);
 }
 
 bool ends_with(const std::string& value, std::string ending) {
