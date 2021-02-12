@@ -192,6 +192,14 @@ void listenerLoop() {
                 for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
                     blockEngine::setNaturalLight(x_);
                 chunk.loaded = true;
+                break;
+            }
+            case packets::BLOCK_BREAK_PROGRESS_CHANGE: {
+                unsigned short progress = packet.getUShort(), x = packet.getUShort(), y = packet.getUShort();
+                blockEngine::getBlock(x, y).break_progress = progress;
+                blockEngine::getBlock(x, y).to_update = true;
+                blockEngine::getChunk(x >> 4, y >> 4).update = true;
+                break;
             }
             default:;
         }

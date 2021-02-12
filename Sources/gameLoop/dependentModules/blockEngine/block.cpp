@@ -21,9 +21,9 @@ void blockEngine::block::draw(unsigned short x, unsigned short y) const {
         swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * light_level));
         swl::render(rect);
     }
-    unsigned char progress = (unsigned char)((float)break_progress / (float)getUniqueBlock().break_time * 8.0f);
+    unsigned char progress = (unsigned char)((float)break_progress / (float)getUniqueBlock().break_time * 9.0f);
     if(progress)
-        swl::render(breaking_texture, rect, {0, 8 * progress, 8, 8});
+        swl::render(breaking_texture, rect, {0, 8 * (progress - 1), 8, 8});
 }
 
 blockEngine::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {

@@ -23,7 +23,7 @@ packets::packet packets::getPacket(int socket) {
     static long bytesReceived;
     if(buffer.empty()) {
         buffer = std::vector<unsigned char>(BUFFER_SIZE);
-        bytesReceived = recv(socket, (char*)&buffer[0], buffer.size(), 0);
+        bytesReceived = recv(socket, (char*)&buffer[0], BUFFER_SIZE, 0);
         if(bytesReceived != -1)
             buffer.resize((unsigned int)(bytesReceived));
     }

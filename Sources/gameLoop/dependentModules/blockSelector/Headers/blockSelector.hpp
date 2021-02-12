@@ -16,7 +16,7 @@ void init();
 void render();
 bool collidingWithPlayer();
 
-inline unsigned short selectedBlockX, selectedBlockY;
+inline unsigned short selected_block_x, selected_block_y;
 
 }
 
