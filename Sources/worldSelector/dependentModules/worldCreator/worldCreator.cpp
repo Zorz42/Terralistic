@@ -12,6 +12,10 @@
 #include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
 #include "gameLoop.hpp"
+#include "main.hpp"
+
+// menu, where you create worlds
+// for guide, check multiplayer selector, which is quite similar
 
 ui::button back_button_creator(ogl::bottom), create_button(ogl::bottom);
 ogl::texture new_world_title(ogl::top), world_name, faded_create(ogl::bottom);
@@ -61,14 +65,13 @@ void worldCreator::loop(std::vector<std::string> worlds) {
     
     renderTextCreator();
     
-    while(running && !gameLoop::quit) {
+    while(running && main_::running) {
         can_create = !name.empty() && !std::count(worlds.begin(), worlds.end(), name);
         
         framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
             SDL_StartTextInput();
-            if(swl::handleBasicEvents(event, &running) && !running)
-                gameLoop::quit = true;
+            if(swl::handleBasicEvents(event, &main_::running));
             else if(can_create && (create_button.isPressed(event) || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN))) {
                 gameLoop::main(name, false);
                 running = false;

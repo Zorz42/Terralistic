@@ -12,13 +12,18 @@
 #include "gameLoop.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
+#include "main.hpp"
 
 #undef main
+
+// this is the main menu, which you see on the start of the app
 
 void startMenu::main() {
     bool running = true;
     SDL_Event event;
 
+    // all of those buttons are self explanatory
+    
     ui::button singleplayer_button;
     singleplayer_button.setColor(0, 0, 0);
     singleplayer_button.setHoverColor(100, 100, 100);
@@ -39,10 +44,10 @@ void startMenu::main() {
     exit_button.setText("Exit", 255, 255, 255);
     exit_button.y = short(exit_button.getHeight() + 5);
     
-    while(running && !gameLoop::quit) {
+    while(running && main_::running) {
         framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
-            if(swl::handleBasicEvents(event, &running));
+            if(swl::handleBasicEvents(event, &main_::running));
             else if(singleplayer_button.isPressed(event))
                 worldSelector::loop();
             else if(multiplayer_button.isPressed(event))

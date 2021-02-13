@@ -16,8 +16,13 @@
 #include "gameLoop.hpp"
 #include "fileSystem.hpp"
 #include "worldCreator.hpp"
+#include "main.hpp"
 
 #undef main
+
+// this is the menu where you select all the worlds you have
+
+// every laoded world becomes a class/struct which is in array and rendered
 
 struct world_to_select {
     std::string name;
@@ -27,16 +32,7 @@ struct world_to_select {
     int button_y{};
 };
 
-ogl::texture title(ogl::top);
-SDL_Texture* x_texture = nullptr;
-unsigned short x_width, x_height;
-ui::button back_button(ogl::bottom), new_button(ogl::bottom_right);
-ogl::rect top_rect(ogl::top), bottom_rect(ogl::bottom), top_line_rect(ogl::top), bottom_line_rect(ogl::bottom);
 int position;
-std::vector<std::string> worlds_names;
-std::vector<world_to_select> worlds;
-int scroll_limit;
-
 void world_to_select::render(bool display_hover) {
     button.y = short(button_y - position);
     button.render(display_hover);
@@ -44,12 +40,22 @@ void world_to_select::render(bool display_hover) {
     delete_button.render(display_hover);
 }
 
+ogl::texture title(ogl::top);
+SDL_Texture* x_texture = nullptr;
+unsigned short x_width, x_height;
+ui::button back_button(ogl::bottom), new_button(ogl::bottom_right);
+ogl::rect top_rect(ogl::top), bottom_rect(ogl::bottom), top_line_rect(ogl::top), bottom_line_rect(ogl::bottom);
+std::vector<std::string> worlds_names;
+std::vector<world_to_select> worlds;
+int scroll_limit;
+
 #define PADDING 20
 #define TOP_HEIGHT 70
 #define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
 #define LINE_HEIGHT 2
 
 void worldSelector::init() {
+    // set some dimensions for shapes
     title.scale = 3;
     title.loadFromText("Select a world to play!", {255, 255, 255});
     title.setY(PADDING);
@@ -89,6 +95,7 @@ bool ends_with(const std::string& value, std::string ending) {
 }
 
 void reload() {
+    // scans for worlds in world folder and sets their positions and renders them
     position = 0;
     scroll_limit = 0;
     
@@ -136,18 +143,17 @@ void worldSelector::loop() {
     
     reload();
     
-    while(running && !gameLoop::quit) {
+    while(running && main_::running) {
         framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
-            if(swl::handleBasicEvents(event, &running) && !running)
-                gameLoop::quit = true;
+            if(swl::handleBasicEvents(event, &main_::running));
             else if(back_button.isPressed(event))
                 running = false;
             else if(new_button.isPressed(event)) {
                 worldCreator::loop(worlds_names);
                 reload();
             }
-            else if(event.type == SDL_MOUSEWHEEL) {
+            else if(event.type == SDL_MOUSEWHEEL) { // scrolling
                 position -= event.wheel.y * 4;
                 if(position < 0)
                     position = 0;

@@ -13,6 +13,7 @@
 #include "generatingScreen.hpp"
 #include "networkingModule.hpp"
 #include "otherPlayers.hpp"
+#include "main.hpp"
 
 #undef main
 
@@ -35,8 +36,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     blockEngine::prepare();
     players::prepare();
     playerHandler::prepare();
-    
-    running = true;
     
     if(multiplayer) {
         if(!networking::establishConnection(world_name))
@@ -69,7 +68,9 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     
     unsigned int count = SDL_GetTicks() / 1000 - 1, fps_count = 0;
     
-    while(running) {
+    running = true;
+    
+    while(running && main_::running) {
         framerateRegulator::regulateFramerate();
         
         fps_count++;
@@ -81,8 +82,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         
         while(SDL_PollEvent(&event)) {
             SDL_StartTextInput();
-            if(swl::handleBasicEvents(event, &running) && !running)
-                quit = true;
+            swl::handleBasicEvents(event, &main_::running);
             pauseScreen::handleEvents(event);
             playerHandler::handleEvents(event);
             blockEngine::handleEvents(event);

@@ -7,7 +7,6 @@
 
 #include "fileSystem.hpp"
 #include "platform_folders.h"
-#include "singleWindowLibrary.hpp"
 #include <sys/stat.h>
 #include <dirent.h>
 #ifdef __APPLE__
@@ -33,7 +32,7 @@ void fileSystem::createDirIfNotExists(const std::string& path) {
     }
 }
 
-void fileSystem::setDataPath(std::string executable_path) {
+std::string fileSystem::getResourcePath(std::string executable_path) {
     while(executable_path[executable_path.size()-1] != '/' && executable_path[executable_path.size()-1] != '\\')
         executable_path.pop_back();
     executable_path.pop_back();
@@ -42,8 +41,10 @@ void fileSystem::setDataPath(std::string executable_path) {
         parent_directory.insert(parent_directory.begin(), executable_path[executable_path.size()-1]);
         executable_path.pop_back();
     }
-    swl::resourcePath = parent_directory == "MacOS" ? executable_path + "Resources/" : executable_path + parent_directory + "/Resources/";
-    
+    return parent_directory == "MacOS" ? executable_path + "Resources/" : executable_path + parent_directory + "/Resources/";
+}
+
+void fileSystem::setDataPath() {
     // data path is path in filesystem, where terralistic worlds are saved and other things
     data_path = sago::getDataHome() + "/Terralistic/";
     

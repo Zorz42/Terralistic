@@ -11,6 +11,8 @@
 #include "generatingScreen.hpp"
 #include "framerateRegulator.hpp"
 #include "UIKit.hpp"
+#include "gameLoop.hpp"
+#include "main.hpp"
 
 void terrainGenerator::generatingScreen() {
     bool running = true;
@@ -35,10 +37,10 @@ void terrainGenerator::generatingScreen() {
     loading_bar.setY(-LOADING_RECT_ELEVATION);
     loading_bar.bind(&loading_current);
     
-    while(running && loading_current < loading_total) {
+    while(running && loading_current < loading_total && main_::running) {
         framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
-            swl::handleBasicEvents(event, &running);
+            swl::handleBasicEvents(event, &main_::running);
         }
         
         swl::setDrawColor(0, 0, 0);
