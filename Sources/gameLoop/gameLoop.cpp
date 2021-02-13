@@ -40,7 +40,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     if(multiplayer) {
         if(!networking::establishConnection(world_name))
             return 0;
-        networking::downloadWorld();
         networking::spawnListener();
         for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
             i.setStack(0);

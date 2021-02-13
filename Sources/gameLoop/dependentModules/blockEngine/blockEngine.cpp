@@ -197,6 +197,10 @@ void blockEngine::prepareWorld() {
     prepare_text.render();
     swl::update();
     
+    for(unsigned short x = 0; x < blockEngine::world_width; x++)
+        for(unsigned short y = 0; y < blockEngine::world_height; y++)
+            blockEngine::getBlock(x, y).block_id = blockEngine::AIR;
+    
     for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
         for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
             blockEngine::getChunk(x, y).createTexture();

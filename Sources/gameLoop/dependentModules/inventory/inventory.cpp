@@ -8,6 +8,7 @@
 #include "inventory.hpp"
 #include "blockEngine.hpp"
 #include "playerHandler.hpp"
+#include "networkingModule.hpp"
 
 char inventory::inventory::addItem(itemEngine::itemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)

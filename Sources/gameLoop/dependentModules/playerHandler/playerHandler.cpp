@@ -294,3 +294,11 @@ void playerHandler::selectSlot(char slot) {
     packet << slot;
     networking::sendPacket(packet);
 }
+
+void inventoryChangeListner(packets::packet& packet) {
+    char pos = packet.getChar();
+    playerHandler::player_inventory.inventory[(int)pos].setStack(packet.getUShort());
+    playerHandler::player_inventory.inventory[(int)pos].item_id = (itemEngine::itemType)packet.getUChar();
+}
+
+networking::registerListener inventory_change_listener(inventoryChangeListner, packets::INVENTORY_CHANGE);
