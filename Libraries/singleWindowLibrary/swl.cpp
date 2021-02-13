@@ -7,6 +7,7 @@
 
 #include <SDL2_image/SDL_image.h>
 #include "singleWindowLibrary.hpp"
+#include "dev.hpp"
 
 void swl::quit() {
     //SDL_DestroyRenderer(swl_private::renderer); // assertion failure on close for some reason
@@ -14,9 +15,7 @@ void swl::quit() {
     SDL_Quit();
 }
 
-//#undef main
-
-int main([[maybe_unused]] int argc, char **argv) {
+void swl::init() {
     swl::window_width = 1000;
     swl::window_height = 600;
     
@@ -42,15 +41,11 @@ int main([[maybe_unused]] int argc, char **argv) {
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};
     SDL_SetWindowDisplayMode(swl_private::window, &dm);
 
-    swl_private::setResourcePath(argv[0]); // get path of resources folder
-    
-    int result = swl_main();
-
-    swl::quit();
-    return result;
+    //swl_private::setResourcePath(argv[0]); // get path of resources folder
 }
 
 void swl::popupError(const std::string& message) {
+    // popup window usually shown when errors occur in developer mode
     quit();
     const SDL_MessageBoxButtonData buttons[] = {
         {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "close"},
@@ -83,10 +78,12 @@ void swl::popupError(const std::string& message) {
 }
 
 void swl::update() {
+    // update screen / what has been rendered
     SDL_RenderPresent(swl_private::renderer);
 }
 
 void swl::clear() {
+    // clear screen with current draw color
     SDL_RenderClear(swl_private::renderer);
 }
 
@@ -95,7 +92,7 @@ bool swl::handleBasicEvents(SDL_Event &event, bool *running) {
         case SDL_QUIT:
             *running = false;
             return true;
-        case SDL_WINDOWEVENT:
+        case SDL_WINDOWEVENT: // if window is resized, update window data
             if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 window_width = (unsigned short)event.window.data1;
                 window_height = (unsigned short)event.window.data2;
@@ -103,18 +100,15 @@ bool swl::handleBasicEvents(SDL_Event &event, bool *running) {
             }
             else
                 return false;
-        case SDL_MOUSEMOTION:
-            int x, y;
-            SDL_GetMouseState(&x, &y);
-            mouse_x = (unsigned short)x;
-            mouse_y = (unsigned short)y;
+        case SDL_MOUSEMOTION: // if mouse is moved, update mouse data
+            SDL_GetMouseState((int*)&mouse_x, (int*)&mouse_y);
             return true;
         default:
             return false;
     }
 }
 
-bool swl::colliding(SDL_Rect a, SDL_Rect b) {
+bool swl::colliding(swl::rect a, swl::rect b) {
     return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
 }
 
@@ -123,7 +117,8 @@ void swl::setWindowMinimumSize(unsigned short width, unsigned short height) {
 }
 
 void swl::setRenderTarget(SDL_Texture* texture) {
-     SDL_SetRenderTarget(swl_private::renderer, texture);
+    // if you want to render to a texture
+    SDL_SetRenderTarget(swl_private::renderer, texture);
 }
 
 void swl::resetRenderTarget() {
@@ -132,7 +127,7 @@ void swl::resetRenderTarget() {
 
 SDL_Texture* swl::createBlankTexture(unsigned short width, unsigned short height) {
     SDL_Texture* result = SDL_CreateTexture(swl_private::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
-    if(!result)
+    IF_DEV(!result)
         swl::popupError("Blank texture could not be created!");
     return result;
 }

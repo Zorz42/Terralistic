@@ -11,10 +11,15 @@
 #include <iostream>
 #include <SDL2_ttf/SDL_ttf.h>
 
-int swl_main();
-
 namespace swl {
-    
+
+struct rect {
+    short x, y;
+    unsigned short w, h;
+};
+
+void init();
+
 void clear();
 void update();
 
@@ -22,10 +27,10 @@ void quit();
 
 void popupError(const std::string& message);
 
-void render(SDL_Texture* texture, SDL_Rect destination_rectangle, SDL_Rect source_rectangle, bool flipped=false);
-void render(SDL_Texture* texture, SDL_Rect destination_rectangle, bool flipped=false);
+void render(SDL_Texture* texture, swl::rect destination_rectangle, swl::rect source_rectangle, bool flipped=false);
+void render(SDL_Texture* texture, swl::rect destination_rectangle, bool flipped=false);
 void render(SDL_Texture* texture, bool flipped=false);
-void render(SDL_Rect& rect, bool fill=true);
+void render(swl::rect& rect, bool fill=true);
 
 SDL_Texture* loadTextureFromFile(std::string path, unsigned short* w=nullptr, unsigned short* h=nullptr);
 SDL_Texture* loadTextureFromText(const std::string& text, SDL_Color text_color, unsigned short* w=nullptr, unsigned short* h=nullptr);
@@ -37,7 +42,7 @@ void setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a=255);
 
 void loadFont(std::string path, unsigned char size);
 
-bool colliding(SDL_Rect a, SDL_Rect b);
+bool colliding(swl::rect a, swl::rect b);
 
 inline unsigned short mouse_x, mouse_y;
 
@@ -48,6 +53,8 @@ void resetRenderTarget();
 
 SDL_Texture* createBlankTexture(unsigned short width, unsigned short height);
 
+inline std::string resourcePath;
+
 }
 
 namespace swl_private {
@@ -55,9 +62,6 @@ namespace swl_private {
 inline SDL_Window* window = nullptr;
 inline SDL_Renderer* renderer = nullptr;
 inline TTF_Font *font = nullptr;
-
-inline std::string resourcePath;
-void setResourcePath(std::string executable_path);
 
 }
 

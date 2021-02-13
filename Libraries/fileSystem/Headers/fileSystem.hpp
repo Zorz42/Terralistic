@@ -13,7 +13,7 @@
 namespace fileSystem {
 
 inline std::string data_path, worlds_dir;
-void setDataPath();
+void setDataPath(std::string executable_path);
 bool dirExists(const std::string& path);
 bool fileExists(const std::string& path);
 void createDirIfNotExists(const std::string& path);

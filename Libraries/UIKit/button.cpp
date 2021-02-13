@@ -8,6 +8,8 @@
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
 
+// button has text, can be hovered and clicked
+
 ui::button::button(ogl::objectType type) {
     setOrientation(type);
     text.setOrientation(ogl::top_left);
@@ -21,15 +23,15 @@ void ui::button::setHoverColor(Uint8 r, Uint8 g, Uint8 b) {
 }
 
 void ui::button::render(bool display_hover) {
-    SDL_Rect render_rect = getRect();
+    swl::rect render_rect = getRect();
     if(hovered() && display_hover)
         swl::setDrawColor(hover_r, hover_g, hover_b);
     else
         swl::setDrawColor(r, g, b);
     swl::render(render_rect, fill);
     
-    text.setX(short(getX() + margin * text.scale));
-    text.setY(short(getY() + margin * text.scale));
+    text.setX(short(render_rect.x + margin * text.scale));
+    text.setY(short(render_rect.y + margin * text.scale));
     
     text.render();
 }

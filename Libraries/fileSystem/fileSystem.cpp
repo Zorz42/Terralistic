@@ -7,6 +7,7 @@
 
 #include "fileSystem.hpp"
 #include "platform_folders.h"
+#include "singleWindowLibrary.hpp"
 #include <sys/stat.h>
 #include <dirent.h>
 #ifdef __APPLE__
@@ -14,6 +15,8 @@
 #endif
 
 struct stat info;
+
+// most of the functions explain themselves
 
 bool fileSystem::dirExists(const std::string& path) {
     return stat(path.c_str(), &info ) == 0 && info.st_mode & S_IFDIR;
@@ -30,7 +33,18 @@ void fileSystem::createDirIfNotExists(const std::string& path) {
     }
 }
 
-void fileSystem::setDataPath() {
+void fileSystem::setDataPath(std::string executable_path) {
+    while(executable_path[executable_path.size()-1] != '/' && executable_path[executable_path.size()-1] != '\\')
+        executable_path.pop_back();
+    executable_path.pop_back();
+    std::string parent_directory;
+    while(executable_path[executable_path.size()-1] != '/' && executable_path[executable_path.size()-1] != '\\') {
+        parent_directory.insert(parent_directory.begin(), executable_path[executable_path.size()-1]);
+        executable_path.pop_back();
+    }
+    swl::resourcePath = parent_directory == "MacOS" ? executable_path + "Resources/" : executable_path + parent_directory + "/Resources/";
+    
+    // data path is path in filesystem, where terralistic worlds are saved and other things
     data_path = sago::getDataHome() + "/Terralistic/";
     
     createDirIfNotExists(data_path);
@@ -47,6 +61,7 @@ int fileSystem::removeDir(const std::string &path) {
     size_t path_len = strlen(path.c_str());
     int r = -1;
 
+    // recursively go trough each folder and file
     if(d) {
         dirent *p;
 

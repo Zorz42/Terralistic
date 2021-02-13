@@ -30,7 +30,7 @@ struct item {
     int x, y, velocity_x, velocity_y;
     
     void draw() const;
-    [[nodiscard]] SDL_Rect getRect() const;
+    [[nodiscard]] swl::rect getRect() const;
     void update();
     [[nodiscard]] bool colliding() const;
     [[nodiscard]] uniqueItem& getUniqueItem() const;

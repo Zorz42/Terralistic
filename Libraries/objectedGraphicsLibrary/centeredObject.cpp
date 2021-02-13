@@ -8,6 +8,8 @@
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 
+// centered object can have 9 positions, top left, top, top right... they are relative to window size, x and y are offsets to those positions
+
 short ogl_private::centeredObject::getX() {
     if(orientation_x == 1)
         return short(swl::window_width / 2 - getWidth() / 2 + x);
@@ -31,15 +33,7 @@ void ogl_private::centeredObject::setOrientation(Uint8 objectType) {
     orientation_y = Uint8(objectType / 3);
 }
 
-[[maybe_unused]] void ogl_private::centeredObject::setX(short x_) {
-    x = x_;
-}
-
-void ogl_private::centeredObject::setY(short y_) {
-    y = y_;
-}
-
-SDL_Rect ogl_private::centeredObject::getRect() {
+swl::rect ogl_private::centeredObject::getRect() {
     return {
         getX(),
         getY(),

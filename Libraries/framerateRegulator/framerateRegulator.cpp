@@ -9,6 +9,7 @@
 #include "SDL2/SDL.h"
 
 void framerateRegulator::regulateFramerate() {
+    // just regulate framerate, wait that much time, that the frame if fps_limit or lower. never higher
     static int a = 0, b = SDL_GetTicks();
     a = SDL_GetTicks();
     frame_length = (unsigned short)(a - b);

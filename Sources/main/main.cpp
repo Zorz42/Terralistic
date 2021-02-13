@@ -20,12 +20,11 @@
 #include "multiplayerSelector.hpp"
 #include "networkingModule.hpp"
 
-#undef main
-
-int swl_main() {
+int main([[maybe_unused]] int argc, char **argv) {
+    swl::init();
     swl::loadFont("pixel_font.ttf", 8);
     framerateRegulator::fps_limit = 60;
-    fileSystem::setDataPath();
+    fileSystem::setDataPath(argv[0]);
     playerHandler::init();
     blockSelector::init();
     pauseScreen::init();
@@ -36,9 +35,8 @@ int swl_main() {
     itemEngine::init();
     multiplayerSelector::init();
     networking::init();
-    
     swl::setWindowMinimumSize(swl::window_width, swl::window_height);
-    
     startMenu::main();
+    swl::quit();
     return 0;
 }

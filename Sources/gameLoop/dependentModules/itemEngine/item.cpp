@@ -31,8 +31,8 @@ void itemEngine::item::draw() const {
     swl::render(getUniqueItem().texture, getRect());
 }
 
-SDL_Rect itemEngine::item::getRect() const {
-    return {x / 100 - playerHandler::view_x + swl::window_width / 2, y / 100 - playerHandler::view_y + swl::window_height / 2, BLOCK_WIDTH, BLOCK_WIDTH};
+swl::rect itemEngine::item::getRect() const {
+    return {short(x / 100 - playerHandler::view_x + swl::window_width / 2), short(y / 100 - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
 }
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {

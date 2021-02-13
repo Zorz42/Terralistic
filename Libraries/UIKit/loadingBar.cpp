@@ -8,6 +8,8 @@
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
 
+// loading bar can be tied to a progress variable
+
 ui::loadingBar::loadingBar(unsigned short total_progress_, ogl::objectType type) : total_progress(total_progress_) {
     setOrientation(type);
 }
@@ -19,8 +21,8 @@ void ui::loadingBar::setBackColor(Uint8 r_, Uint8 g_, Uint8 b_) {
 }
 
 void ui::loadingBar::render() {
-    unsigned short temp_width = getWidth(); // back up width
-    SDL_Rect render_rect = getRect();
+    unsigned short temp_width = getWidth();
+    swl::rect render_rect = getRect();
     swl::setDrawColor(back_r, back_g, back_b);
     swl::render(render_rect);
     swl::setDrawColor(r, g, b);

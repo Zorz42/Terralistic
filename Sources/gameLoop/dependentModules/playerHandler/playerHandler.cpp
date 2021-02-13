@@ -158,7 +158,7 @@ bool isPlayerColliding() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(!blockEngine::getChunk(x >> 4, y >> 4).loaded || (swl::colliding({(x * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), (y * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
+            if(!blockEngine::getChunk(x >> 4, y >> 4).loaded || (swl::colliding({short(x * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
                 return true;
     return false;
 }
@@ -228,7 +228,7 @@ void playerHandler::move() {
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
     if(item->getUniqueItem().texture != nullptr)
-        swl::render(item->getUniqueItem().texture, {x, y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+        swl::render(item->getUniqueItem().texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     if(item->getStack() > 1) {
         ogl::texture *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         stack_texture->setX(short(x + BLOCK_WIDTH * 2 - stack_texture->getWidth()));
@@ -258,7 +258,7 @@ void playerHandler::render() {
     for(int i = -1; i < 20; i++)
         updateStackTexture(i);
     for(int i = 0; i < (player_inventory.open ? 20 : 10); i++) {
-        if(swl::colliding(inventory_slots[i].getRect(), {swl::mouse_x, swl::mouse_y, 0, 0}) && player_inventory.open) {
+        if(swl::colliding(inventory_slots[i].getRect(), {(short)swl::mouse_x, (short)swl::mouse_y, 0, 0}) && player_inventory.open) {
             hovered = &player_inventory.inventory[i];
             inventory_slots[i].setColor(70, 70, 70);
             if(player_inventory.inventory[i].item_id != itemEngine::NOTHING) {

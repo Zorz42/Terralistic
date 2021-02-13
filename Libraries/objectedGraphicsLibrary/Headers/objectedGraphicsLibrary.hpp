@@ -10,20 +10,21 @@
 
 #include <iostream>
 #include <SDL2/SDL.h>
+#include "singleWindowLibrary.hpp"
 
 namespace ogl_private {
 
 class centeredObject {
 public:
-    [[maybe_unused]] void setX(short x_);
-    void setY(short y_);
+    void setX(short x_) { x = x_; }
+    void setY(short y_) { y = y_; }
     
     inline virtual unsigned short getWidth() { return width; };
     inline virtual unsigned short getHeight() { return height; };
     
     void setOrientation(Uint8 objectType);
     
-    SDL_Rect getRect();
+    swl::rect getRect();
     
 protected:
     short x = 0, y = 0;

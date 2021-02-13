@@ -20,11 +20,11 @@ void ogl::rect::setColor(Uint8 r_, Uint8 g_, Uint8 b_) {
 
 void ogl::rect::render() {
     swl::setDrawColor(r, g, b);
-    SDL_Rect render_rect = getRect();
+    swl::rect render_rect = getRect();
     swl::render(render_rect, fill);
 }
 
 bool ogl::rect::touchesPoint(short x, short y) {
-    SDL_Rect temp_rect = getRect();
+    swl::rect temp_rect = getRect();
     return x > temp_rect.x && y > temp_rect.y && x < temp_rect.x + temp_rect.w && y < temp_rect.y + temp_rect.h;
 }
