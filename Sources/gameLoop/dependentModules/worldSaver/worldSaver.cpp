@@ -29,14 +29,15 @@ void worldSaver::saveWorld(const std::string& world_name) {
     saving_text.render();
     swl::update();
 
+    // saves world chunk by chunk and then inventory
+    
     std::ofstream world_file(fileSystem::worlds_dir + world_name + ".world");
     for(auto & i : playerHandler::player_inventory.inventory)
         world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
     
     for(int y = 0; y < blockEngine::world_height; y++)
-        for(int x = 0; x < blockEngine::world_width; x++) {
+        for(int x = 0; x < blockEngine::world_width; x++)
             world_file << (char)blockEngine::getBlock(x, y).block_id;
-        }
     world_file.close();
 }
 
@@ -45,6 +46,8 @@ void worldSaver::loadWorld(const std::string& world_name) {
     swl::clear();
     loading_text.render();
     swl::update();
+    
+    // loads world the same way it got saved but in reverse order
     
     std::ifstream world_file(fileSystem::worlds_dir + world_name + ".world");
     char c = 0;

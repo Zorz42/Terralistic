@@ -19,62 +19,24 @@ void swl::init() {
     swl::window_width = 1000;
     swl::window_height = 600;
     
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
-        swl::popupError("SDL could not initialize properly!");
+    // initialize basic sdl module
+    ASSERT(SDL_Init(SDL_INIT_EVERYTHING) >= 0, "SDL could not initialize properly!");
 
-    int img_flags = IMG_INIT_PNG;
-    if(!(IMG_Init(img_flags) & img_flags))
-        swl::popupError("SDL_image could not initialize properly!");
+    // initialize image loading part of sdl
+    ASSERT(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG, "SDL_image could not initialize properly!");
     
-    if(TTF_Init() == -1)
-        swl::popupError("SDL_ttf could not initialize properly!");
+    // initialize font rendering part of sdl
+    ASSERT(TTF_Init() != -1, "SDL_ttf could not initialize properly!");
     
-    swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE);
-    if(!swl_private::window)
-        swl::popupError("Window could not be created!");
+    // create actual window
+    ASSERT(swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE), "Window could not be created!");
 
-    swl_private::renderer = SDL_CreateRenderer(swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if(!swl_private::renderer)
-        swl::popupError("Renderer could not be created!");
+    // create renderer for GPU accelerated
+    ASSERT(swl_private::renderer = SDL_CreateRenderer(swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC), "Renderer could not be created!");
     
     SDL_SetRenderDrawBlendMode(swl_private::renderer, SDL_BLENDMODE_BLEND);
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};
     SDL_SetWindowDisplayMode(swl_private::window, &dm);
-
-    //swl_private::setResourcePath(argv[0]); // get path of resources folder
-}
-
-void swl::popupError(const std::string& message) {
-    // popup window usually shown when errors occur in developer mode
-    quit();
-    const SDL_MessageBoxButtonData buttons[] = {
-        {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "close"},
-    };
-    const SDL_MessageBoxColorScheme colorScheme = {
-        {
-            /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
-            { 255,   0,   0 },
-            /* [SDL_MESSAGEBOX_COLOR_TEXT] */
-            {   0, 255,   0 },
-            /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
-            { 255, 255,   0 },
-            /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
-            {   0,   0, 255 },
-            /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
-            { 255,   0, 255 }
-        }
-    };
-    const SDL_MessageBoxData messageboxdata = {
-        SDL_MESSAGEBOX_INFORMATION, /* .flags */
-        nullptr, /* .window */
-        "Terralistic encountered an critical error!", /* .title */
-        message.c_str(), /* .message */
-        SDL_arraysize(buttons), /* .numbuttons */
-        buttons, /* .buttons */
-        &colorScheme /* .colorScheme */
-    };
-    SDL_ShowMessageBox(&messageboxdata, nullptr);
-    exit(1);
 }
 
 void swl::update() {
@@ -127,7 +89,8 @@ void swl::resetRenderTarget() {
 
 SDL_Texture* swl::createBlankTexture(unsigned short width, unsigned short height) {
     SDL_Texture* result = SDL_CreateTexture(swl_private::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
-    IF_DEV(!result)
-        swl::popupError("Blank texture could not be created!");
+    ASSERT(result, "Blank texture could not be created");
     return result;
 }
+
+

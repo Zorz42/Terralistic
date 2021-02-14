@@ -14,6 +14,7 @@
 #include "networkingModule.hpp"
 #include "otherPlayers.hpp"
 #include "main.hpp"
+#include "dev.hpp"
 
 #undef main
 
@@ -26,8 +27,7 @@ void generateTerrain(unsigned int seed) {
 
     thread.join();
     
-    if(terrainGenerator::loading_current != terrainGenerator::loading_total)
-        swl::popupError("Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));
+    ASSERT(terrainGenerator::loading_current == terrainGenerator::loading_total, "Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));
 }
 
 int gameLoop::main(const std::string& world_name, bool multiplayer) {

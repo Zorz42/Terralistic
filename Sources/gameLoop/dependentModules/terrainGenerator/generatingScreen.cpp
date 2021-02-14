@@ -15,6 +15,8 @@
 #include "main.hpp"
 
 void terrainGenerator::generatingScreen() {
+    // puts generation of world into another thread and only renders progress bar and text
+    
     bool running = true;
     SDL_Event event;
 
@@ -53,8 +55,4 @@ void terrainGenerator::generatingScreen() {
         
         swl::update();
     }
-    /*if(!running) {
-        swl::quit();
-        exit(0);
-    }*/
 }

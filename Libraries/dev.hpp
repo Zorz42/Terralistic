@@ -8,14 +8,19 @@
 #ifndef dev_h
 #define dev_h
 
+#include <SDL2/SDL.h>
+#include <iostream>
+
 // enabling developer mode can slow down the game, but it will show any errors that program made, like accessing out of array
 
 #define DEVELOPER_MODE
 
 #ifdef DEVELOPER_MODE
+#define ASSERT(expression, message) if(!(expression)) { std::cout << message << std::endl; SDL_assert(expression); }
 #define IF_DEV(x) if(x)
 #else
-#define IF_DEV(x) if(false)
+#define ASSERT(x, message) x
+#define IF_DEV(x) x; if(false)
 #endif
 
 #endif /* dev_h */

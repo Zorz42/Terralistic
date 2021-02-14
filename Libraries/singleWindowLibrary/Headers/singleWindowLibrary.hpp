@@ -25,8 +25,6 @@ void update();
 
 void quit();
 
-void popupError(const std::string& message);
-
 void render(SDL_Texture* texture, swl::rect destination_rectangle, swl::rect source_rectangle, bool flipped=false);
 void render(SDL_Texture* texture, swl::rect destination_rectangle, bool flipped=false);
 void render(SDL_Texture* texture, bool flipped=false);
