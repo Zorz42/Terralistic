@@ -13,7 +13,6 @@
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "framerateRegulator.hpp"
 
 ogl::texture prepare_text;
 
@@ -26,8 +25,8 @@ void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, uns
 }
 
 void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
-    blockEngine::blockType type = playerHandler::selected_item->getUniqueItem().places;
-    if(type != blockEngine::AIR && playerHandler::selected_item->decreaseStack(1)) {
+    blockEngine::blockType type = playerHandler::player_inventory.getSelectedSlot()->getUniqueItem().places;
+    if(type != blockEngine::AIR && playerHandler::player_inventory.getSelectedSlot()->decreaseStack(1)) {
         blockEngine::removeNaturalLight(x);
         block->setBlockType(type, x, y);
         blockEngine::setNaturalLight(x);
@@ -175,7 +174,7 @@ void blockEngine::leftClickEvent(unsigned short x, unsigned short y) {
     if(block->getUniqueBlock().leftClickEvent)
         block->getUniqueBlock().leftClickEvent(block, x, y);
     else {
-        block->break_progress += framerateRegulator::frame_length;
+        block->break_progress += gameLoop::frame_length;
         getBlock(x, y).to_update = true;
         getChunk(x >> 4, y >> 4).update = true;
         if(block->break_progress >= block->getUniqueBlock().break_time) {

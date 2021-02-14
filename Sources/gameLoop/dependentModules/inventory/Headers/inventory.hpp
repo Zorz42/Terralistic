@@ -31,11 +31,14 @@ private:
 };
 
 struct inventory {
+public:
     inventoryItem inventory[INVENTORY_SIZE];
     char addItem(itemEngine::itemType id, int quantity);
     bool open = false;
     char selected_slot = 0;
-    inventoryItem mouse_item{itemEngine::NOTHING};
+    inventoryItem* getSelectedSlot();
+    inventoryItem mouse_item;
+private:
 };
 
 }

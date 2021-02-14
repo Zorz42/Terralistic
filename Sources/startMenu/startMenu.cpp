@@ -8,7 +8,6 @@
 #include "startMenu.hpp"
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
-#include "framerateRegulator.hpp"
 #include "gameLoop.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
@@ -45,7 +44,6 @@ void startMenu::main() {
     exit_button.y = short(exit_button.getHeight() + 5);
     
     while(running && main_::running) {
-        framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
             if(swl::handleBasicEvents(event, &main_::running));
             else if(singleplayer_button.isPressed(event))

@@ -9,7 +9,6 @@
 #include "objectedGraphicsLibrary.hpp"
 #include "terrainGenerator.hpp"
 #include "generatingScreen.hpp"
-#include "framerateRegulator.hpp"
 #include "UIKit.hpp"
 #include "gameLoop.hpp"
 #include "main.hpp"
@@ -40,7 +39,6 @@ void terrainGenerator::generatingScreen() {
     loading_bar.bind(&loading_current);
     
     while(running && loading_current < loading_total && main_::running) {
-        framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
             swl::handleBasicEvents(event, &main_::running);
         }

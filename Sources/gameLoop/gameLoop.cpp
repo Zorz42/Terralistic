@@ -4,7 +4,6 @@
 #include "blockEngine.hpp"
 #include "terrainGenerator.hpp"
 #include "playerHandler.hpp"
-#include "framerateRegulator.hpp"
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
@@ -70,7 +69,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     running = true;
     
     while(running && main_::running) {
-        framerateRegulator::regulateFramerate();
+        Uint64 start = SDL_GetPerformanceCounter();
         
         fps_count++;
         if(SDL_GetTicks() / 1000 > count) {
@@ -104,6 +103,9 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
             fps_text.render();
         }
         swl::update();
+        
+        Uint64 end = SDL_GetPerformanceCounter();
+        frame_length = float(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
     }
     
     if(multiplayer)

@@ -28,7 +28,7 @@ inline ogl::texture player(ogl::center);
 
 void selectSlot(char slot);
 
-inline inventory::inventoryItem *hovered = nullptr, *selected_item = nullptr;
+inline inventory::inventoryItem *hovered = nullptr;
 inline inventory::inventory player_inventory;
 
 }

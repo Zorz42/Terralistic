@@ -6,7 +6,6 @@
 //
 #include "playerHandler.hpp"
 #include "blockEngine.hpp"
-#include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
 #include "networkingModule.hpp"
 #include "gameLoop.hpp"
@@ -180,7 +179,7 @@ void playerHandler::move() {
     if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
         view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
     
-    int move_x = velocity_x * framerateRegulator::frame_length / 100, move_y = velocity_y * framerateRegulator::frame_length / 100;
+    int move_x = velocity_x * gameLoop::frame_length / 100, move_y = velocity_y * gameLoop::frame_length / 100;
     
     for(int i = 0; i < move_x; i++) {
         INC_X;
@@ -284,12 +283,11 @@ void playerHandler::render() {
 }
 
 void playerHandler::doPhysics() {
-    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + framerateRegulator::frame_length / 4);
+    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + gameLoop::frame_length / 4);
 }
 
 void playerHandler::selectSlot(char slot) {
     player_inventory.selected_slot = slot;
-    selected_item = &player_inventory.inventory[(unsigned char)slot];
     packets::packet packet(packets::HOTBAR_SELECTION);
     packet << slot;
     networking::sendPacket(packet);

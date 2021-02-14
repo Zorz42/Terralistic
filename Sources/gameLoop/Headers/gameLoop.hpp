@@ -16,6 +16,7 @@ namespace gameLoop {
 
 int main(const std::string& world_name, bool multiplayer);
 inline bool running = true, online;
+inline float frame_length;
 
 }
 

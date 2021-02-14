@@ -12,7 +12,6 @@
 #include "worldSelector.hpp"
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"
-#include "framerateRegulator.hpp"
 #include "gameLoop.hpp"
 #include "fileSystem.hpp"
 #include "worldCreator.hpp"
@@ -144,7 +143,6 @@ void worldSelector::loop() {
     reload();
     
     while(running && main_::running) {
-        framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
             if(swl::handleBasicEvents(event, &main_::running));
             else if(back_button.isPressed(event))

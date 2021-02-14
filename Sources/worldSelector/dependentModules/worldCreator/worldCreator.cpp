@@ -9,7 +9,6 @@
 #include <algorithm>
 #include "worldCreator.hpp"
 #include "UIKit.hpp"
-#include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
 #include "gameLoop.hpp"
 #include "main.hpp"
@@ -68,7 +67,6 @@ void worldCreator::loop(std::vector<std::string> worlds) {
     while(running && main_::running) {
         can_create = !name.empty() && !std::count(worlds.begin(), worlds.end(), name);
         
-        framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
             SDL_StartTextInput();
             if(swl::handleBasicEvents(event, &main_::running));

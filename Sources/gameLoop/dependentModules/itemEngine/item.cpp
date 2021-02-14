@@ -8,8 +8,8 @@
 #include "itemEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
-#include "framerateRegulator.hpp"
 #include "playerHandler.hpp"
+#include "gameLoop.hpp"
 
 #include <random>
 
@@ -40,29 +40,29 @@ itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
 }
 
 void itemEngine::item::update() {
-    velocity_y += (int)framerateRegulator::frame_length / 16 * 5;
-    for(int i = 0; i < framerateRegulator::frame_length / 16 * velocity_x; i++) {
+    velocity_y += (int)gameLoop::frame_length / 16 * 5;
+    for(int i = 0; i < gameLoop::frame_length / 16 * velocity_x; i++) {
         x++;
         if(colliding()) {
             x--;
             break;
         }
     }
-    for(int i = 0; i > framerateRegulator::frame_length / 16 * velocity_x; i--) {
+    for(int i = 0; i > gameLoop::frame_length / 16 * velocity_x; i--) {
         x--;
         if(colliding()) {
             x++;
             break;
         }
     }
-    for(int i = 0; i < framerateRegulator::frame_length / 16 * velocity_y; i++) {
+    for(int i = 0; i < gameLoop::frame_length / 16 * velocity_y; i++) {
         y++;
         if(colliding()) {
             y--;
             break;
         }
     }
-    for(int i = 0; i > framerateRegulator::frame_length / 16 * velocity_y; i--) {
+    for(int i = 0; i > gameLoop::frame_length / 16 * velocity_y; i--) {
         y--;
         if(colliding()) {
             y++;
@@ -76,12 +76,12 @@ void itemEngine::item::update() {
     y--;
     
     if(velocity_x > 0) {
-        velocity_x -= framerateRegulator::frame_length / 8;
+        velocity_x -= gameLoop::frame_length / 8;
         if(velocity_x < 0)
             velocity_x = 0;
     }
     else if(velocity_x < 0) {
-        velocity_x += framerateRegulator::frame_length / 8;
+        velocity_x += gameLoop::frame_length / 8;
         if(velocity_x > 0)
             velocity_x = 0;
     }

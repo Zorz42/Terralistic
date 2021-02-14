@@ -9,7 +9,6 @@
 #include <algorithm>
 #include "multiplayerSelector.hpp"
 #include "UIKit.hpp"
-#include "framerateRegulator.hpp"
 #include "singleWindowLibrary.hpp"
 #include "gameLoop.hpp"
 #include "main.hpp"
@@ -66,8 +65,6 @@ void multiplayerSelector::loop() {
     renderTextMultiplayer();
     
     while(running && main_::running) {
-        
-        framerateRegulator::regulateFramerate();
         while(SDL_PollEvent(&event)) {
             SDL_StartTextInput();
             if(swl::handleBasicEvents(event, &main_::running));
