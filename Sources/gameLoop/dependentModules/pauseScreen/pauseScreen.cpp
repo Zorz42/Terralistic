@@ -9,6 +9,8 @@
 #include "UIKit.hpp"
 #include "gameLoop.hpp"
 
+// pause screen is very simple for now
+
 ui::button resume_button(ogl::top_left), quit_button(ogl::top_left);
 
 #define PADDING 20

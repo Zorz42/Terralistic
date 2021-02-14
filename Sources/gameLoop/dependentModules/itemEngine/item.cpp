@@ -10,12 +10,13 @@
 #include "blockEngine.hpp"
 #include "playerHandler.hpp"
 #include "gameLoop.hpp"
+#include "dev.hpp"
 
 #include <random>
 
 std::random_device device;
 
-itemEngine::item::item(itemType item_id, int x, int y) : item_id(item_id), x(x * 100), y(y * 100) {
+itemEngine::item::item(itemType item_id, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_id(item_id) {
     std::mt19937 engine(device());
     velocity_x = (int)engine() % 200 - 100;
     velocity_y = -int(engine() % 100) - 50;
@@ -36,10 +37,12 @@ swl::rect itemEngine::item::getRect() const {
 }
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
+    ASSERT(item_id >= 0 && item_id < unique_items.size(), "item_id is not valid");
     return unique_items[item_id];
 }
 
 void itemEngine::item::update() {
+    // move and go back if colliding
     velocity_y += (int)gameLoop::frame_length / 16 * 5;
     for(int i = 0; i < gameLoop::frame_length / 16 * velocity_x; i++) {
         x++;

@@ -13,6 +13,7 @@
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
+#include "dev.hpp"
 
 ogl::texture prepare_text;
 
@@ -20,6 +21,7 @@ bool left_button_pressed = false;
 
 unsigned short prev_selected_x = 0, prev_selected_y = 0;
 
+// you can register special click events to blocks for custom behaviour
 void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
     block->setBlockType(blockEngine::DIRT, x, y);
 }
@@ -96,6 +98,8 @@ void blockEngine::render_blocks() {
     if(left_button_pressed && !gameLoop::online)
         leftClickEvent(blockSelector::selected_block_x, blockSelector::selected_block_y);
     
+    // firgure out, what the window is covering and only render that
+    
     unsigned short begin_x = playerHandler::view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH;
     unsigned short end_x = playerHandler::view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH;
 
@@ -111,6 +115,7 @@ void blockEngine::render_blocks() {
     if(end_y > world_height)
         end_y = (int)world_height;
     
+    // only request one chunk per frame from server
     bool has_requested = false;
     
     for(unsigned short x = (begin_x >> 4) - 1; x < (end_x >> 4) + 1; x++)
@@ -134,14 +139,17 @@ void blockEngine::render_blocks() {
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
+    ASSERT(y >= 0 && y < world_height && x >= 0 && x < world_width, "requested block is out of bounds");
     return getChunk(x >> 4, y >> 4).blocks[x & 15][y & 15];
 }
 
 blockEngine::chunk& blockEngine::getChunk(unsigned short x, unsigned short y) {
+    ASSERT(y >= 0 && y < (world_height >> 4) && x >= 0 && x < (world_width >> 4), "requested chunk is out of bounds");
     return world[y * (world_width >> 4) + x];
 }
 
 void blockEngine::updateNearestBlocks(unsigned short x, unsigned short y) {
+    // update upper, lower, right and left block
     block* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
     unsigned short x_[4] = {(unsigned short)(x - 1), (unsigned short)(x + 1), x, x}, y_[4] = {y, y, (unsigned short)(y - 1), (unsigned short)(y + 1)};
     if(x != 0)

@@ -7,7 +7,6 @@
 
 #include "inventory.hpp"
 #include "blockEngine.hpp"
-#include "dev.hpp"
 
 // inventoryItem is a class which exists in inventory
 
@@ -15,7 +14,6 @@ inventory::inventoryItem::inventoryItem() : item_id(itemEngine::NOTHING), stack(
 
 itemEngine::uniqueItem& inventory::inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    ASSERT(item_id >= 0 && item_id < itemEngine::unique_items.size(), "item_id is not valid");
     return itemEngine::unique_items[item_id];
 }
 
@@ -51,10 +49,4 @@ bool inventory::inventoryItem::decreaseStack(unsigned short stack_) {
         setStack(stack - stack_);
         return true;
     }
-}
-
-inventory::inventoryItem& inventory::inventoryItem::operator=(const inventoryItem& item) {
-    item_id = item.item_id;
-    setStack(item.stack);
-    return *this;
 }

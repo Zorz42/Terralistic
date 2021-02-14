@@ -1,3 +1,4 @@
+
 //
 //  core.cpp
 //  Terralistic
@@ -14,6 +15,8 @@
 #define DEC_X playerHandler::position_x--;playerHandler::view_x--
 #define INC_Y playerHandler::position_y++;playerHandler::view_y++
 #define DEC_Y playerHandler::position_y--;playerHandler::view_y--
+
+// this handles player and its movement
 
 bool key_up = false, jump = false;
 
@@ -67,8 +70,7 @@ void playerHandler::handleEvents(SDL_Event& event) {
                     key_up = true;
                     jump = true;
                 }
-                break;
-            case SDLK_a:
+                break;            case SDLK_a:
                 if(!key_left) {
                     key_left = true;
                     velocity_x -= VELOCITY;
@@ -114,18 +116,15 @@ void playerHandler::handleEvents(SDL_Event& event) {
         }
     } else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) {
         player_inventory.open = !player_inventory.open;
-        if(!player_inventory.open && player_inventory.mouse_item.item_id != itemEngine::NOTHING) {
-            unsigned char result = player_inventory.addItem(player_inventory.mouse_item.item_id, player_inventory.mouse_item.getStack());
-            player_inventory.mouse_item.item_id = itemEngine::NOTHING;
-            player_inventory.mouse_item.setStack(0);
+        if(!player_inventory.open && player_inventory.getMouseItem()->item_id != itemEngine::NOTHING) {
+            unsigned char result = player_inventory.addItem(player_inventory.getMouseItem()->item_id, player_inventory.getMouseItem()->getStack());
+            player_inventory.clearMouseItem();
             packets::packet packet(packets::INVENTORY_SWAP);
             packet << result;
             networking::sendPacket(packet);
         }
     } else if(hovered && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-        inventory::inventoryItem temp = *hovered;
-        *hovered = player_inventory.mouse_item;
-        player_inventory.mouse_item = temp;
+        player_inventory.swapWithMouseItem(hovered);
         packets::packet packet(packets::INVENTORY_SWAP);
         packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
         networking::sendPacket(packet);
@@ -237,7 +236,7 @@ void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
 }
 
 void updateStackTexture(int i) {
-    inventory::inventoryItem* item = i == -1 ? &playerHandler::player_inventory.mouse_item : &playerHandler::player_inventory.inventory[i];
+    inventory::inventoryItem* item = i == -1 ? playerHandler::player_inventory.getMouseItem() : &playerHandler::player_inventory.inventory[i];
     if(item->stack_changed) {
         ogl::texture* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         if(item->getStack() > 1)
@@ -279,7 +278,7 @@ void playerHandler::render() {
         under_text_rect.render();
         text_texture->render();
     }
-    renderItem(&player_inventory.mouse_item, swl::mouse_x, swl::mouse_y, -1);
+    renderItem(player_inventory.getMouseItem(), swl::mouse_x, swl::mouse_y, -1);
 }
 
 void playerHandler::doPhysics() {

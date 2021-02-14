@@ -30,5 +30,20 @@ char inventory::inventory::addItem(itemEngine::itemType id, int quantity) {
 }
 
 inventory::inventoryItem* inventory::inventory::getSelectedSlot() {
-    return &inventory[selected_slot];
+    return &inventory[(int)selected_slot];
+}
+
+void inventory::inventory::swapWithMouseItem(inventoryItem* item) {
+    inventoryItem temp = mouse_item;
+    mouse_item = *item;
+    *item = temp;
+}
+
+inventory::inventoryItem* inventory::inventory::getMouseItem() {
+    return &mouse_item;
+}
+
+void inventory::inventory::clearMouseItem() {
+    mouse_item.item_id = itemEngine::NOTHING;
+    mouse_item.setStack(0);
 }

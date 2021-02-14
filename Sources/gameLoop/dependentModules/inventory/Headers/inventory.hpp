@@ -24,7 +24,6 @@ public:
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
-    inventoryItem& operator=(const inventoryItem& item);
     bool stack_changed = true;
 private:
     unsigned short stack;
@@ -37,8 +36,11 @@ public:
     bool open = false;
     char selected_slot = 0;
     inventoryItem* getSelectedSlot();
-    inventoryItem mouse_item;
+    void swapWithMouseItem(inventoryItem* item);
+    void clearMouseItem();
+    inventoryItem* getMouseItem();
 private:
+    inventoryItem mouse_item;
 };
 
 }

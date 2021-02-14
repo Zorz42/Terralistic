@@ -38,6 +38,7 @@ struct uniqueBlock {
 };
 
 struct block {
+public:
     block() : block_id(AIR) {}
     explicit block(blockType block_id) : block_id(block_id) {}
 
@@ -45,7 +46,6 @@ struct block {
     void update(unsigned short x, unsigned short y);
     
     blockType block_id;
-    Uint8 block_orientation{};
     
     [[nodiscard]] uniqueBlock& getUniqueBlock() const;
     void setBlockType(blockType id, unsigned short x, unsigned short y);
@@ -56,6 +56,8 @@ struct block {
     
     bool to_update = true, to_update_light = true;
     unsigned short break_progress = 0;
+private:
+    Uint8 block_orientation{};
 };
 
 struct chunk {

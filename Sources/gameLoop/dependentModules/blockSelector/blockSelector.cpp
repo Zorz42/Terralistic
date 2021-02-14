@@ -11,6 +11,8 @@
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
 
+// this is a rectangle with which you select which block to break or where to place selected block
+
 ogl::rect selectRect(ogl::top_left);
 
 void blockSelector::init() {

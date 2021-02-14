@@ -25,16 +25,20 @@ struct uniqueItem {
 };
 
 struct item {
-    item(itemType item_id, int x, int y);
-    itemType item_id;
-    int x, y, velocity_x, velocity_y;
-    
+public:
+    item(itemType item_id, int x, int y, unsigned short id);
+    int x, y;
     void draw() const;
     [[nodiscard]] swl::rect getRect() const;
     void update();
     [[nodiscard]] bool colliding() const;
     [[nodiscard]] uniqueItem& getUniqueItem() const;
-    unsigned short id{};
+    unsigned short getId() { return id; }
+    itemType getItemId() { return item_id; }
+private:
+    int velocity_x, velocity_y;
+    unsigned short id;
+    itemType item_id;
 };
 
 void init();
@@ -45,7 +49,9 @@ void updateItems();
 inline std::vector<uniqueItem> unique_items;
 inline std::vector<item> items;
 
-void spawnItem(itemType item_id, int x, int y);
+void spawnItem(itemType item_id, int x, int y, unsigned short id=0);
+
+item* getItemById(unsigned short id);
 
 }
 
