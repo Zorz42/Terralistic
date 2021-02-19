@@ -41,7 +41,7 @@ void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned s
 
 void air_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {}
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     using namespace blockEngine;
     unique_blocks = {
         uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemEngine::NOTHING,     /*break_time*/1000),
@@ -66,7 +66,7 @@ REGISTER_INIT_FUNC
     prepare_text.scale = 3;
     
     breaking_texture = swl::loadTextureFromFile("texturePack/misc/breaking.png");
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 void blockEngine::prepare() {
     world_height = 1200;

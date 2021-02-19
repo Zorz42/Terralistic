@@ -23,7 +23,7 @@ std::string name;
 
 #define PADDING 20
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     back_button_creator.setColor(0, 0, 0);
     back_button_creator.setHoverColor(100, 100, 100);
     back_button_creator.setScale(3);
@@ -49,7 +49,7 @@ REGISTER_INIT_FUNC
     faded_create.setY(short(-PADDING - 10 * faded_create.scale));
     
     world_name.scale = 3;
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 void renderTextCreator() {
     if(!name.empty()) {

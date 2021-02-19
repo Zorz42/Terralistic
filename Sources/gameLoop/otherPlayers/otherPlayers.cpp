@@ -37,26 +37,26 @@ players::player* getPlayerById(unsigned short id) {
 }
 
 // handle all joins, quits and movements of players
-void playerJoinListener(packets::packet& packet) {
+PACKET_LISTENER(packets::PLAYER_JOIN)
     players::player player;
     player.id = packet.getUShort();
     player.y = packet.getInt();
     player.x = packet.getInt();
     players::players.push_back(player);
-}
-void playerQuitListener(packets::packet& packet) {
+PACKET_LISTENER_END
+
+PACKET_LISTENER(packets::PLAYER_QUIT)
     unsigned short id = packet.getUShort();
     for(auto i = players::players.begin(); i != players::players.end(); i++)
         if(i->id == id) {
             players::players.erase(i);
             break;
         }
-}
-void playerMovementListener(packets::packet& packet) {
+PACKET_LISTENER_END
+    
+PACKET_LISTENER(packets::PLAYER_MOVEMENT)
     players::player* player = getPlayerById(packet.getUShort());
     player->flipped = packet.getChar();
     player->y = packet.getInt();
     player->x = packet.getInt();
-}
-
-networking::registerPacketListener player_join_listener(playerJoinListener, packets::PLAYER_JOIN), player_quit_listener(playerQuitListener, packets::PLAYER_QUIT), player_movement_listener(playerMovementListener, packets::PLAYER_MOVEMENT);
+PACKET_LISTENER_END

@@ -14,12 +14,12 @@
 
 ogl::rect selectRect(ogl::top_left);
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     selectRect.fill = false;
     selectRect.setColor(255, 0, 0);
     selectRect.setWidth(BLOCK_WIDTH);
     selectRect.setHeight(BLOCK_WIDTH);
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 void blockSelector::render() {
     if(!playerHandler::hovered) {

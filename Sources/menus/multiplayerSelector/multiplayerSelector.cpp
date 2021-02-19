@@ -22,7 +22,7 @@ std::string ip;
 
 #define PADDING 20
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     // set all graphical elements
     
     // the back button
@@ -48,7 +48,7 @@ REGISTER_INIT_FUNC
     join_button.x = short((join_button.getWidth() + back_button_multiplayer.getWidth() - join_button.getWidth() + PADDING) / 2);
     
     server_ip.scale = 3;
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 void renderTextMultiplayer() {
     // update ip texture if it changed

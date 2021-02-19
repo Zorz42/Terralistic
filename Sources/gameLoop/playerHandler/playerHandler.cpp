@@ -27,7 +27,7 @@ ogl::texture stack_textures[20], mouse_stack_texture{ogl::top_left};
 
 #define MARGIN 10
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     for(int i = 0; i < 20; i++) {
         inventory_slots[i].setOrientation(ogl::top);
         inventory_slots[i].setColor(100, 100, 100);
@@ -49,7 +49,7 @@ REGISTER_INIT_FUNC
     
     for(int i = 0; i < 20; i++)
         stack_textures[i] = ogl::texture(ogl::top_left);
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 void playerHandler::prepare() {
     position_x = blockEngine::world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
@@ -294,10 +294,9 @@ void playerHandler::selectSlot(char slot) {
     networking::sendPacket(packet);
 }
 
-void inventoryChangeListner(packets::packet& packet) {
+
+PACKET_LISTENER(packets::INVENTORY_CHANGE)
     char pos = packet.getChar();
     playerHandler::player_inventory.inventory[(int)pos].setStack(packet.getUShort());
     playerHandler::player_inventory.inventory[(int)pos].item_id = (itemEngine::itemType)packet.getUChar();
-}
-
-networking::registerPacketListener inventory_change_listener(inventoryChangeListner, packets::INVENTORY_CHANGE);
+PACKET_LISTENER_END

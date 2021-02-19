@@ -10,8 +10,8 @@
 
 #define CONCAT_(x,y) x##y
 #define CONCAT(x,y) CONCAT_(x,y)
-#define REGISTER_INIT_FUNC init::registerInitFunction CONCAT(init_register, __LINE__) ([](void) {
-#define REGISTER_INIT_FUNC_END });
+#define INIT_SCRIPT init::registerInitFunction CONCAT(init_register, __LINE__) ([] {
+#define INIT_SCRIPT_END });
 
 
 namespace init {
@@ -20,6 +20,8 @@ typedef void(*initFunction)();
 struct registerInitFunction {
     registerInitFunction(initFunction function);
 };
+
+void initModules();
 
 }
 

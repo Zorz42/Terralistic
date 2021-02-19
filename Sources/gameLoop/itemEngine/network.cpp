@@ -10,26 +10,24 @@
 
 // listen to item creation, destruction and movement
 
-void itemCreationListener(packets::packet& packet) {
+PACKET_LISTENER(packets::ITEM_CREATION)
     auto type = (itemEngine::itemType)packet.getChar();
     unsigned short id = packet.getUShort();
     int y = packet.getInt(), x = packet.getInt();
     itemEngine::spawnItem(type, x, y, id);
-}
+PACKET_LISTENER_END
 
-void itemDeletionListener(packets::packet& packet) {
+PACKET_LISTENER(packets::ITEM_DELETION)
     unsigned short id = packet.getUShort();
     for(auto i = itemEngine::items.begin(); i != itemEngine::items.end(); i++)
         if(i->getId() == id) {
             itemEngine::items.erase(i);
             break;
         }
-}
+PACKET_LISTENER_END
 
-void itemMovementListener(packets::packet& packet) {
+PACKET_LISTENER(packets::ITEM_MOVEMENT)
     itemEngine::item* item = itemEngine::getItemById(packet.getUShort());
     item->y = packet.getInt();
     item->x = packet.getInt();
-}
-
-networking::registerPacketListener item_creation_listener(itemCreationListener, packets::ITEM_CREATION), item_deletion_listener(itemDeletionListener, packets::ITEM_DELETION), item_movement_listener(itemMovementListener, packets::ITEM_MOVEMENT);
+PACKET_LISTENER_END

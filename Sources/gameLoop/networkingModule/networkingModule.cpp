@@ -49,7 +49,7 @@ std::vector<packet_listener>& getListeners() {
 
 // packet listener is a function that gets executed every time a certain type of packet is received
 
-networking::registerPacketListener::registerPacketListener(listenerFunction function, packets::packetType type) {
+networking::registerPacketListener::registerPacketListener(packets::packetType type, listenerFunction function) {
     packet_listener new_listener{};
     new_listener.function = function;
     new_listener.type = type;
@@ -60,17 +60,17 @@ void networking::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, std::move(packet_));
 }
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     connecting_text.loadFromText("Connecting to server", {255, 255, 255});
     connecting_text.scale = 3;
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 bool networking::establishConnection(const std::string &ip) {
     // establish connection to server, made so it works on windows and macos
     swl::setDrawColor(0, 0, 0);
-        swl::clear();
-        connecting_text.render();
-        swl::update();
+    swl::clear();
+    connecting_text.render();
+    swl::update();
 
     #ifdef WIN32
         WSADATA wsaData;

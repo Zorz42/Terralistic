@@ -54,7 +54,7 @@ int scroll_limit;
 #define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
 #define LINE_HEIGHT 2
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     // set some dimensions for shapes
     title.scale = 3;
     title.loadFromText("Select a world to play!", {255, 255, 255});
@@ -88,7 +88,7 @@ REGISTER_INIT_FUNC
     bottom_line_rect.setY((short)-BOTTOM_HEIGHT);
     
     x_texture = swl::loadTextureFromFile("texturePack/misc/x-button.png", &x_width, &x_height);
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 bool ends_with(const std::string& value, std::string ending) {
     return ending.size() <= value.size() && std::equal(ending.rbegin(), ending.rend(), value.rbegin());

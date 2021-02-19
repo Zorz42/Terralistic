@@ -12,7 +12,7 @@
 
 // item engine updates and renders items
 
-REGISTER_INIT_FUNC
+INIT_SCRIPT
     // all currently unique items
     itemEngine::unique_items = {
         {"nothing",     0,  blockEngine::AIR        },
@@ -20,7 +20,7 @@ REGISTER_INIT_FUNC
         {"dirt",        99, blockEngine::DIRT       },
         {"stone_block", 99, blockEngine::STONE_BLOCK},
     };
-REGISTER_INIT_FUNC_END
+INIT_SCRIPT_END
 
 void itemEngine::close() {
     items.clear();
