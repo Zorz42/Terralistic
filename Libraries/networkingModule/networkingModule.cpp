@@ -24,10 +24,11 @@
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
 #include "inventory.hpp"
+#include "init.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
-#define PORT_STR "33770"
+#define PORT_STR #PORT
 
 int sock;
 ogl::texture connecting_text;
@@ -36,34 +37,33 @@ packets::packet networking::getPacket() {
     return packets::getPacket(sock);
 }
 
-struct listener {
+struct packet_listener {
     networking::listenerFunction function;
     packets::packetType type;
 };
 
-std::vector<listener>& getListeners() {
-    static std::vector<listener> listeners;
+std::vector<packet_listener>& getListeners() {
+    static std::vector<packet_listener> listeners;
     return listeners;
 }
 
 // packet listener is a function that gets executed every time a certain type of packet is received
 
-networking::registerListener::registerListener(listenerFunction function, packets::packetType type) {
-    listener new_listener{};
+networking::registerPacketListener::registerPacketListener(listenerFunction function, packets::packetType type) {
+    packet_listener new_listener{};
     new_listener.function = function;
     new_listener.type = type;
     getListeners().push_back(new_listener);
 }
 
-
 void networking::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, std::move(packet_));
 }
 
-void networking::init() {
+REGISTER_INIT_FUNC
     connecting_text.loadFromText("Connecting to server", {255, 255, 255});
     connecting_text.scale = 3;
-}
+REGISTER_INIT_FUNC_END
 
 bool networking::establishConnection(const std::string &ip) {
     // establish connection to server, made so it works on windows and macos
@@ -109,7 +109,7 @@ bool networking::establishConnection(const std::string &ip) {
 void listenerLoop() {
     while(gameLoop::running) {
         packets::packet packet = networking::getPacket();
-        for(listener& i : getListeners())
+        for(packet_listener& i : getListeners())
             if(i.type == packet.type)
                 i.function(packet);
     }
