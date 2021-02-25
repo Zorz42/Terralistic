@@ -13,8 +13,6 @@
 #define DEVELOPER_MODE
 
 #ifdef DEVELOPER_MODE
-#include <SDL2/SDL.h>
-#include <iostream>
 #define ASSERT(expression, message) if(!(expression)) { std::cout << message << std::endl; SDL_assert(expression); }
 #define IF_DEV(x) if(x)
 #else

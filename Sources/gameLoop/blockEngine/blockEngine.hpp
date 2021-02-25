@@ -9,11 +9,7 @@
 #define blockEngine_hpp
 
 #include <SDL2/SDL.h>
-#include <string>
-#include <vector>
-#include "itemType.hpp"
 #include "blockType.hpp"
-#include "events.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100

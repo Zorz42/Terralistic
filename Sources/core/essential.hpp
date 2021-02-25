@@ -18,6 +18,26 @@
 #define CONCAT(a, b) a##b
 #define JOIN(a, b) CONCAT(a, b)
 
+#define CONCAT4_(a, b, c, d) a##b##c##d
+#define CONCAT4(a, b, c, d) CONCAT4_(a, b, c, d)
+#define UNIQUE_NAME(tag) CONCAT4(tag, FILENAME, NAMESPACE, __LINE__)
+
+#include <iostream>
+#include <vector>
+#include <random>
+#include <cmath>
+#include <thread>
+#include <fstream>
+#include <algorithm>
+
+#include "init.hpp"
+#include "events.hpp"
+#include "itemEngine.hpp"
+#include "inventory.hpp"
+#include "terrainGenerator.hpp"
+#include "packets.hpp"
+#include "fileSystem.hpp"
+
 #else
 #warning Essential header has been imported multiple times
 #endif /* essential_hpp */

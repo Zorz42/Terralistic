@@ -8,8 +8,6 @@
 #ifndef gameLoop_hpp
 #define gameLoop_hpp
 
-#include <string>
-
 #undef main
 
 namespace gameLoop {

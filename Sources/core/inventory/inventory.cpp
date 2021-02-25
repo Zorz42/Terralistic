@@ -9,7 +9,6 @@
 #define NAMESPACE inventory
 #include "essential.hpp"
 
-#include "inventory.hpp"
 #include "blockEngine.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"

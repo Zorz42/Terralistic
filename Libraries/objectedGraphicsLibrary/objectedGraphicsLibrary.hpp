@@ -8,7 +8,6 @@
 #ifndef objectedGraphicsLibrary_hpp
 #define objectedGraphicsLibrary_hpp
 
-#include <iostream>
 #include <SDL2/SDL.h>
 #include "singleWindowLibrary.hpp"
 

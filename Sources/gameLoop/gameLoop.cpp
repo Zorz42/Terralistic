@@ -8,18 +8,13 @@
 #define NAMESPACE gameLoop
 #include "essential.hpp"
 
-
-#include <thread>
 #include "gameLoop.hpp"
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
-#include "terrainGenerator.hpp"
 #include "playerHandler.hpp"
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
-#include "fileSystem.hpp"
-#include "inventory.hpp"
 #include "generatingScreen.hpp"
 #include "networkingModule.hpp"
 #include "otherPlayers.hpp"

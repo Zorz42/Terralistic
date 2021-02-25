@@ -10,7 +10,6 @@
 #define NAMESPACE playerHandler
 #include "essential.hpp"
 
-#include "init.hpp"
 #include "playerHandler.hpp"
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"

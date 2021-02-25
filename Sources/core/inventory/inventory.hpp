@@ -8,8 +8,6 @@
 #ifndef inventory_hpp
 #define inventory_hpp
 
-#include "itemEngine.hpp"
-
 #define INVENTORY_SIZE 20
 
 namespace inventory {

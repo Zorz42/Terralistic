@@ -9,9 +9,6 @@
 #define NAMESPACE init
 #include "essential.hpp"
 
-#include <vector>
-#include "init.hpp"
-
 struct initScript {
     initScript(init::initFunction func) : func(func) {}
     init::initFunction func;

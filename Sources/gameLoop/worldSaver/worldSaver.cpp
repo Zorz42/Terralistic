@@ -12,12 +12,9 @@
 #include "worldSaver.hpp"
 #include "blockEngine.hpp"
 #include "fileSystem.hpp"
-#include <fstream>
 #include "objectedGraphicsLibrary.hpp"
 #include "singleWindowLibrary.hpp"
-#include "itemEngine.hpp"
 #include "playerHandler.hpp"
-#include "init.hpp"
 
 ogl::texture loading_text, saving_text;
 

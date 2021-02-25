@@ -15,8 +15,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #endif
-#include "packets.hpp"
-#include <iostream>
 
 #define BUFFER_SIZE 1024
 

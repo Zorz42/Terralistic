@@ -9,9 +9,6 @@
 #define NAMESPACE events
 #include "essential.hpp"
 
-#include <vector>
-#include "events.hpp"
-
 struct eventListener {
     events::listenerFunction func;
     events::eventType type;

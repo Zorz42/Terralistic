@@ -27,7 +27,6 @@ std::string name;
 
 #define PADDING 20
 
-
 INIT_SCRIPT
     back_button_creator.setColor(0, 0, 0);
     back_button_creator.setHoverColor(100, 100, 100);

@@ -5,11 +5,10 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#define FILENAME networking
-#define NAMESPACE terrainGenerator
+#define FILENAME networkingModule
+#define NAMESPACE networkingModule
 #include "essential.hpp"
 
-#include <iostream>
 #ifdef WIN32
 #include <windows.h>
 #include <winsock2.h>
@@ -19,16 +18,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #endif
-#include <thread>
+
 #include "networkingModule.hpp"
-#include "blockEngine.hpp"
 #include "gameLoop.hpp"
-#include "otherPlayers.hpp"
-#include "itemEngine.hpp"
-#include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
-#include "inventory.hpp"
-#include "init.hpp"
 
 #define BUFFER_SIZE 1024
 #define PORT 33770

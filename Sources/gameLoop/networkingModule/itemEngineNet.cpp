@@ -9,7 +9,6 @@
 #define NAMESPACE networkingModule
 #include "essential.hpp"
 
-#include "itemEngine.hpp"
 #include "networkingModule.hpp"
 
 // listen to item creation, destruction and movement

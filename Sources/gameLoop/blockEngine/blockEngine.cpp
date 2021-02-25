@@ -11,14 +11,11 @@
 
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
-#include "itemEngine.hpp"
-#include "inventory.hpp"
 #include "gameLoop.hpp"
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "dev.hpp"
-#include "init.hpp"
 
 ogl::texture prepare_text;
 

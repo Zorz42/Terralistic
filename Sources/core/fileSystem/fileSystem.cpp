@@ -9,9 +9,7 @@
 #define NAMESPACE fileSystem
 #include "essential.hpp"
 
-#include "fileSystem.hpp"
 #include "platform_folders.h"
-#include "init.hpp"
 #include <sys/stat.h>
 #include <dirent.h>
 #ifdef __APPLE__

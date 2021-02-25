@@ -8,8 +8,6 @@
 #ifndef itemEngine_hpp
 #define itemEngine_hpp
 
-#include <vector>
-#include <string>
 #include "itemType.hpp"
 #include "blockType.hpp"
 

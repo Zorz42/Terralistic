@@ -8,8 +8,6 @@
 #ifndef otherPlayers_hpp
 #define otherPlayers_hpp
 
-#include <vector>
-
 namespace players {
 
 void prepare();

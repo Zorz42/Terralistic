@@ -9,7 +9,6 @@
 #define movementHandler_hpp
 
 #include "objectedGraphicsLibrary.hpp"
-#include "inventory.hpp"
 
 namespace playerHandler {
 

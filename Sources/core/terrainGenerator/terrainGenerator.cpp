@@ -10,10 +10,7 @@
 #include "essential.hpp"
 
 #include "blockEngine.hpp"
-#include "terrainGenerator.hpp"
 #include "simplex-noise.hpp"
-#include <cmath>
-#include <random>
 
 // terrain generation parameters
 

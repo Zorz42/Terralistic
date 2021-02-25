@@ -9,13 +9,10 @@
 #define NAMESPACE blockEngine
 #include "essential.hpp"
 
-#include <algorithm>
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
-#include "itemEngine.hpp"
 #include "gameLoop.hpp"
 #include "networkingModule.hpp"
-#include "events.hpp"
 
 void blockEngine::block::draw(unsigned short x, unsigned short y) const {
     swl::rect rect = {short(x * BLOCK_WIDTH), short(y * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH};

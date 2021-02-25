@@ -8,7 +8,7 @@
 #ifndef events_hpp
 #define events_hpp
 
-#define EVENT_LISTENER(type) events::registerEventListener JOIN(event_listener_registrator, __COUNTER__) (type, [](void* data_) { auto data = *(JOIN(type, _data)*)data_;
+#define EVENT_LISTENER(type) events::registerEventListener UNIQUE_NAME(event_listener_registrator) (type, [](void* data_) { auto data = *(JOIN(type, _data)*)data_;
 #define EVENT_LISTENER_END });
 #define REGISTER_EVENT(event_name) inline events::eventType event_name = events::generateUniqueEvent(); struct event_name ## _data
 

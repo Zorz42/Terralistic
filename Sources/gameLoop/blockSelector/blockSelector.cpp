@@ -12,7 +12,6 @@
 #include "blockSelector.hpp"
 #include "blockEngine.hpp"
 #include "playerHandler.hpp"
-#include "init.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
 

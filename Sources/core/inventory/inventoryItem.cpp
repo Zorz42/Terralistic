@@ -9,7 +9,6 @@
 #define NAMESPACE inventory
 #include "essential.hpp"
 
-#include "inventory.hpp"
 #include "blockEngine.hpp"
 
 // inventoryItem is a class which exists in inventory

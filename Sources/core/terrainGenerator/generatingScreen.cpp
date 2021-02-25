@@ -9,9 +9,6 @@
 #define NAMESPACE generatingScreen
 #include "essential.hpp"
 
-#include "singleWindowLibrary.hpp"
-#include "objectedGraphicsLibrary.hpp"
-#include "terrainGenerator.hpp"
 #include "generatingScreen.hpp"
 #include "UIKit.hpp"
 #include "gameLoop.hpp"

@@ -10,10 +10,7 @@
 #include "essential.hpp"
 
 #include "main.hpp"
-#include "init.hpp"
 #include "singleWindowLibrary.hpp"
-#include "objectedGraphicsLibrary.hpp"
-#include "fileSystem.hpp"
 #include "startMenu.hpp"
 
 int main(int argc, char **argv) {
