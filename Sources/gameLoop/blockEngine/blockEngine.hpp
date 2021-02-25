@@ -1,18 +1,19 @@
 //
-//  blockEngine.h
+//  blockEngine.hpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
-#ifndef blockEngine_h
-#define blockEngine_h
+#ifndef blockEngine_hpp
+#define blockEngine_hpp
 
 #include <SDL2/SDL.h>
 #include <string>
 #include <vector>
 #include "itemType.hpp"
 #include "blockType.hpp"
+#include "events.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -76,7 +77,7 @@ void close();
 void render_blocks();
 
 inline chunk *world;
-inline unsigned short world_width, world_height;
+inline unsigned short world_width = 4400, world_height = 1200;
 inline std::vector<uniqueBlock> unique_blocks;
 
 block& getBlock(unsigned short x, unsigned short y);
@@ -97,6 +98,11 @@ void removeLightSource(unsigned short x, unsigned short y);
 
 inline SDL_Texture *breaking_texture = nullptr;
 
+REGISTER_EVENT(block_change) {
+    unsigned short x, y;
+    blockEngine::blockType type;
+};
+
 }
 
-#endif /* blockEngine_h */
+#endif /* blockEngine_hpp */

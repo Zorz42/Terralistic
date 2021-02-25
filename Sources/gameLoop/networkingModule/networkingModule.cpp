@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
+#define FILENAME networking
+#define NAMESPACE terrainGenerator
+#include "essential.hpp"
+
 #include <iostream>
 #ifdef WIN32
 #include <windows.h>

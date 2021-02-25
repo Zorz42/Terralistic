@@ -8,15 +8,14 @@
 #ifndef init_hpp
 #define init_hpp
 
-#define CONCAT_(x,y) x##y
-#define CONCAT(x,y) CONCAT_(x,y)
-#define INIT_SCRIPT init::registerInitFunction CONCAT(init_register, __LINE__) ([] {
-#define INIT_SCRIPT_END });
+#define INIT_SCRIPT init::registerInitFunction JOIN(init_register, __LINE__) ([] {
+#define INIT_SCRIPT_END return true;});
+#define INIT_ASSERT(condition) if(!condition) return false
 
 
 namespace init {
 
-typedef void(*initFunction)();
+typedef bool(*initFunction)();
 struct registerInitFunction {
     registerInitFunction(initFunction function);
 };
@@ -25,4 +24,4 @@ void initModules();
 
 }
 
-#endif /* init_h */
+#endif /* init_hpp */

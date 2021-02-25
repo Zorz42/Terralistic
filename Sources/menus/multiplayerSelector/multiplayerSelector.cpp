@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
+#define FILENAME multiplayerSelector
+#define NAMESPACE multiplayerSelector
+#include "essential.hpp"
+
 #include <vector>
 #include <algorithm>
 #include "multiplayerSelector.hpp"

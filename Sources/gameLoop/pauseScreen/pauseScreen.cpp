@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
+#define FILENAME pauseScreen
+#define NAMESPACE pauseScreen
+#include "essential.hpp"
+
 #include "pauseScreen.hpp"
 #include "UIKit.hpp"
 #include "gameLoop.hpp"

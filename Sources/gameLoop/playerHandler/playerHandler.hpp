@@ -5,8 +5,8 @@
 //  Created by Jakob Zorz on 01/07/2020.
 //
 
-#ifndef movementHandler_h
-#define movementHandler_h
+#ifndef movementHandler_hpp
+#define movementHandler_hpp
 
 #include "objectedGraphicsLibrary.hpp"
 #include "inventory.hpp"
@@ -18,6 +18,7 @@ void move();
 void render();
 void doPhysics();
 void prepare();
+void lookForItems();
 
 inline int position_x, position_y;
 inline int view_x, view_y;
@@ -32,4 +33,4 @@ inline inventory::inventory player_inventory;
 
 }
 
-#endif /* movementHandler_h */
+#endif /* movementHandler_hpp */

@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 06/07/2020.
 //
 
+#define FILENAME startMenu
+#define NAMESPACE startMenu
+#include "essential.hpp"
+
 #include "startMenu.hpp"
 #include "singleWindowLibrary.hpp"
 #include "UIKit.hpp"

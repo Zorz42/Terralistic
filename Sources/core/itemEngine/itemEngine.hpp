@@ -9,7 +9,7 @@
 #define itemEngine_hpp
 
 #include <vector>
-#include "objectedGraphicsLibrary.hpp"
+#include <string>
 #include "itemType.hpp"
 #include "blockType.hpp"
 
@@ -18,19 +18,15 @@ namespace itemEngine {
 struct uniqueItem {
     uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places);
     std::string name;
-    SDL_Texture* texture;
     unsigned short stack_size;
     blockEngine::blockType places;
-    ogl::texture text_texture{ogl::top_left};
 };
 
 struct item {
 public:
     item(itemType item_id, int x, int y, unsigned short id);
     int x, y;
-    void draw() const;
-    [[nodiscard]] swl::rect getRect() const;
-    void update();
+    void update(float frame_length);
     [[nodiscard]] bool colliding() const;
     [[nodiscard]] uniqueItem& getUniqueItem() const;
     unsigned short getId() { return id; }
@@ -42,8 +38,7 @@ private:
 };
 
 void close();
-void renderItems();
-void updateItems();
+void updateItems(float frame_length);
 
 inline std::vector<uniqueItem> unique_items;
 inline std::vector<item> items;

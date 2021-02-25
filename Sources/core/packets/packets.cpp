@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 15/01/2021.
 //
 
+#define FILENAME packets
+#define NAMESPACE packets
+#include "essential.hpp"
+
 #ifdef WIN32
 #include <winsock2.h>
 #else

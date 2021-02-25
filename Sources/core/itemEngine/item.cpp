@@ -5,11 +5,12 @@
 //  Created by Jakob Zorz on 10/12/2020.
 //
 
+#define FILENAME item
+#define NAMESPACE itemEngine
+#include "essential.hpp"
+
 #include "itemEngine.hpp"
-#include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
-#include "playerHandler.hpp"
-#include "gameLoop.hpp"
 #include "dev.hpp"
 
 #include <random>
@@ -22,50 +23,38 @@ itemEngine::item::item(itemType item_id, int x, int y, unsigned short id) : x(x 
     velocity_y = -int(engine() % 100) - 50;
 }
 
-itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), texture(name == "nothing" ? nullptr : swl::loadTextureFromFile("texturePack/items/" + name + ".png")), stack_size(stack_size), places(places) {
-    text_texture.loadFromText(name, {255, 255, 255});
-    text_texture.scale = 2;
-    text_texture.free_texture = false;
-}
-
-void itemEngine::item::draw() const {
-    swl::render(getUniqueItem().texture, getRect());
-}
-
-swl::rect itemEngine::item::getRect() const {
-    return {short(x / 100 - playerHandler::view_x + swl::window_width / 2), short(y / 100 - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH};
-}
+itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), places(places) {}
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
     ASSERT(item_id >= 0 && item_id < unique_items.size(), "item_id is not valid");
     return unique_items[item_id];
 }
 
-void itemEngine::item::update() {
+void itemEngine::item::update(float frame_length) {
     // move and go back if colliding
-    velocity_y += (int)gameLoop::frame_length / 16 * 5;
-    for(int i = 0; i < gameLoop::frame_length / 16 * velocity_x; i++) {
+    velocity_y += (int)frame_length / 16 * 5;
+    for(int i = 0; i < frame_length / 16 * velocity_x; i++) {
         x++;
         if(colliding()) {
             x--;
             break;
         }
     }
-    for(int i = 0; i > gameLoop::frame_length / 16 * velocity_x; i--) {
+    for(int i = 0; i > frame_length / 16 * velocity_x; i--) {
         x--;
         if(colliding()) {
             x++;
             break;
         }
     }
-    for(int i = 0; i < gameLoop::frame_length / 16 * velocity_y; i++) {
+    for(int i = 0; i < frame_length / 16 * velocity_y; i++) {
         y++;
         if(colliding()) {
             y--;
             break;
         }
     }
-    for(int i = 0; i > gameLoop::frame_length / 16 * velocity_y; i--) {
+    for(int i = 0; i > frame_length / 16 * velocity_y; i--) {
         y--;
         if(colliding()) {
             y++;
@@ -79,12 +68,12 @@ void itemEngine::item::update() {
     y--;
     
     if(velocity_x > 0) {
-        velocity_x -= gameLoop::frame_length / 8;
+        velocity_x -= frame_length / 8;
         if(velocity_x < 0)
             velocity_x = 0;
     }
     else if(velocity_x < 0) {
-        velocity_x += gameLoop::frame_length / 8;
+        velocity_x += frame_length / 8;
         if(velocity_x > 0)
             velocity_x = 0;
     }

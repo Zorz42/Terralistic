@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
+#define FILENAME blockEngine
+#define NAMESPACE blockEngine
+#include "essential.hpp"
+
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "itemEngine.hpp"
@@ -69,8 +73,6 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void blockEngine::prepare() {
-    world_height = 1200;
-    world_width = 4400;
     world = new chunk[(world_width >> 4) * (world_height >> 4)];
     
     for(unsigned short x = 0; x < (world_width >> 4); x++)

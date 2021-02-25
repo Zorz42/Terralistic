@@ -6,12 +6,17 @@
 //  Created by Jakob Zorz on 01/07/2020.
 //
 
+#define FILENAME playerHandler
+#define NAMESPACE playerHandler
+#include "essential.hpp"
+
 #include "init.hpp"
 #include "playerHandler.hpp"
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "networkingModule.hpp"
 #include "gameLoop.hpp"
+#include "renderer.hpp"
 
 #define INC_X playerHandler::position_x++;playerHandler::view_x++
 #define DEC_X playerHandler::position_x--;playerHandler::view_x--
@@ -227,8 +232,8 @@ void playerHandler::move() {
 }
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
-    if(item->getUniqueItem().texture != nullptr)
-        swl::render(item->getUniqueItem().texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+    if(renderer::getUniqueRenderItem(item->item_id).texture != nullptr)
+        swl::render(renderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     if(item->getStack() > 1) {
         ogl::texture *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         stack_texture->setX(short(x + BLOCK_WIDTH * 2 - stack_texture->getWidth()));
@@ -262,7 +267,7 @@ void playerHandler::render() {
             hovered = &player_inventory.inventory[i];
             inventory_slots[i].setColor(70, 70, 70);
             if(player_inventory.inventory[i].item_id != itemEngine::NOTHING) {
-                text_texture = &player_inventory.inventory[i].getUniqueItem().text_texture;
+                text_texture = &renderer::getUniqueRenderItem(player_inventory.inventory[i].item_id).text_texture;
                 text_texture->setX(swl::mouse_x + 20);
                 text_texture->setY(swl::mouse_y + 20);
                 under_text_rect.setHeight(text_texture->getHeight() + 2 * MARGIN);
@@ -294,6 +299,11 @@ void playerHandler::selectSlot(char slot) {
     networking::sendPacket(packet);
 }
 
+void playerHandler::lookForItems() {
+    for(unsigned long i = 0; i < itemEngine::items.size(); i++)
+        if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - playerHandler::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - playerHandler::position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1)
+            itemEngine::items.erase(itemEngine::items.begin() + i);
+}
 
 PACKET_LISTENER(packets::INVENTORY_CHANGE)
     char pos = packet.getChar();

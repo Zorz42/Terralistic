@@ -1,9 +1,13 @@
 //
-//  network.cpp
+//  blockEngineNet.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 13/02/2021.
 //
+
+#define FILENAME blockEngineNet
+#define NAMESPACE networkingModule
+#include "essential.hpp"
 
 #include "blockEngine.hpp"
 #include "networkingModule.hpp"

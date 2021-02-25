@@ -5,8 +5,8 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
-#ifndef terrainGenerator_h
-#define terrainGenerator_h
+#ifndef terrainGenerator_hpp
+#define terrainGenerator_hpp
 
 #include "perlinNoise.hpp"
 
@@ -18,4 +18,4 @@ double turbulence(double x, double y, double size, double x_period, double y_per
 
 }
 
-#endif /* terrainGenerator_h */
+#endif /* terrainGenerator_hpp */

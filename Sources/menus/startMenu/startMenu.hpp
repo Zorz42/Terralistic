@@ -5,8 +5,8 @@
 //  Created by Jakob Zorz on 06/07/2020.
 //
 
-#ifndef startMenu_h
-#define startMenu_h
+#ifndef startMenu_hpp
+#define startMenu_hpp
 
 #undef main
 
@@ -16,4 +16,4 @@ void main();
 
 }
 
-#endif /* startMenu_h */
+#endif /* startMenu_hpp */

@@ -5,8 +5,8 @@
 //  Created by Jakob Zorz on 07/07/2020.
 //
 
-#ifndef UIKit_h
-#define UIKit_h
+#ifndef UIKit_hpp
+#define UIKit_hpp
 
 #include "objectedGraphicsLibrary.hpp"
 
@@ -64,4 +64,4 @@ protected:
 
 }
 
-#endif /* UIKit_h */
+#endif /* UIKit_hpp */

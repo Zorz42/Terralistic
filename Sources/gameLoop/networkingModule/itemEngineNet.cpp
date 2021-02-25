@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 13/02/2021.
 //
 
+#define FILENAME itemEngineNet
+#define NAMESPACE networkingModule
+#include "essential.hpp"
+
 #include "itemEngine.hpp"
 #include "networkingModule.hpp"
 

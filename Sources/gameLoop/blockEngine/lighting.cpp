@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 30/01/2021.
 //
 
+#define FILENAME lighting
+#define NAMESPACE blockEngine
+#include "essential.hpp"
+
 #include "blockEngine.hpp"
 
 void blockEngine::removeNaturalLight(unsigned short x) {

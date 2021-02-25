@@ -5,17 +5,16 @@
 //  Created by Jakob Zorz on 13/02/2021.
 //
 
-#ifndef dev_h
-#define dev_h
-
-#include <SDL2/SDL.h>
-#include <iostream>
+#ifndef dev_hpp
+#define dev_hpp
 
 // enabling developer mode can slow down the game, but it will show any errors that program made, like accessing out of array
 
 #define DEVELOPER_MODE
 
 #ifdef DEVELOPER_MODE
+#include <SDL2/SDL.h>
+#include <iostream>
 #define ASSERT(expression, message) if(!(expression)) { std::cout << message << std::endl; SDL_assert(expression); }
 #define IF_DEV(x) if(x)
 #else
@@ -23,4 +22,4 @@
 #define IF_DEV(x) x; if(false)
 #endif
 
-#endif /* dev_h */
+#endif /* dev_hpp */

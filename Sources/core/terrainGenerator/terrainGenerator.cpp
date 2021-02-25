@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
+#define FILENAME terrainGenerator
+#define NAMESPACE terrainGenerator
+#include "essential.hpp"
+
 #include "blockEngine.hpp"
 #include "terrainGenerator.hpp"
 #include "simplex-noise.hpp"

@@ -5,8 +5,12 @@
 //  Created by Jakob Zorz on 10/12/2020.
 //
 
+#define FILENAME itemEngine
+#define NAMESPACE itemEngine
+#include "essential.hpp"
+
+#include "itemEngine.hpp"
 #include "blockEngine.hpp"
-#include "playerHandler.hpp"
 #include "dev.hpp"
 #include "init.hpp"
 
@@ -26,21 +30,9 @@ void itemEngine::close() {
     items.clear();
 }
 
-void itemEngine::updateItems() {
-    for(unsigned long i = 0; i < items.size(); i++) {
-        items[i].update();
-        if(abs(items[i].x / 100 + BLOCK_WIDTH / 2  - playerHandler::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(items[i].y / 100 + BLOCK_WIDTH / 2 - playerHandler::position_y - playerHandler::player.getHeight() / 2) < 50) {
-            char result = playerHandler::player_inventory.addItem(items[i].getItemId(), 1);
-            if(result != -1) {
-                items.erase(items.begin() + i);
-            }
-        }
-    }
-}
-
-void itemEngine::renderItems() {
-    for(item& i : items)
-        i.draw();
+void itemEngine::updateItems(float frame_length) {
+    for(unsigned long i = 0; i < items.size(); i++)
+        items[i].update(frame_length);
 }
 
 void itemEngine::spawnItem(itemType item_id, int x, int y, unsigned short id) {

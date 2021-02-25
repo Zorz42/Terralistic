@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 16/01/2021.
 //
 
+#define FILENAME otherPlayers
+#define NAMESPACE otherPlayers
+#include "essential.hpp"
+
 #include "otherPlayers.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"

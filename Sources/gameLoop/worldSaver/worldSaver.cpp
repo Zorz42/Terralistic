@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 04/12/2020.
 //
 
+#define FILENAME worldSaver
+#define NAMESPACE worldSaver
+#include "essential.hpp"
+
 #include "worldSaver.hpp"
 #include "blockEngine.hpp"
 #include "fileSystem.hpp"

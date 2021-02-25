@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 13/12/2020.
 //
 
+#define FILENAME inventory
+#define NAMESPACE inventory
+#include "essential.hpp"
+
 #include "inventory.hpp"
 #include "blockEngine.hpp"
 #include "playerHandler.hpp"

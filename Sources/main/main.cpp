@@ -5,6 +5,11 @@
 //  Created by Jakob Zorz on 19/02/2021.
 //
 
+#define FILENAME main
+#define NAMESPACE main
+#include "essential.hpp"
+
+#include "main.hpp"
 #include "init.hpp"
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"

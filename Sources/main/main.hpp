@@ -5,8 +5,8 @@
 //  Created by Jakob Zorz on 13/02/2021.
 //
 
-#ifndef main_h
-#define main_h
+#ifndef main_hpp
+#define main_hpp
 
 namespace main_ {
 
@@ -14,4 +14,4 @@ inline bool running = true;
 
 }
 
-#endif /* main_h */
+#endif /* main_hpp */

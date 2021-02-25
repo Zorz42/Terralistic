@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
+#define FILENAME worldCreator
+#define NAMESPACE worldCreator
+#include "essential.hpp"
+
 #include <vector>
 #include <algorithm>
 #include "worldCreator.hpp"
@@ -22,6 +26,7 @@ ogl::texture new_world_title(ogl::top), world_name, faded_create(ogl::bottom);
 std::string name;
 
 #define PADDING 20
+
 
 INIT_SCRIPT
     back_button_creator.setColor(0, 0, 0);

@@ -5,12 +5,17 @@
 //  Created by Jakob Zorz on 09/12/2020.
 //
 
+#define FILENAME block
+#define NAMESPACE blockEngine
+#include "essential.hpp"
+
 #include <algorithm>
 #include "singleWindowLibrary.hpp"
 #include "blockEngine.hpp"
 #include "itemEngine.hpp"
 #include "gameLoop.hpp"
 #include "networkingModule.hpp"
+#include "events.hpp"
 
 void blockEngine::block::draw(unsigned short x, unsigned short y) const {
     swl::rect rect = {short(x * BLOCK_WIDTH), short(y * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH};
@@ -73,6 +78,11 @@ void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned s
         block_id = id;
         getBlock(x, y).to_update = true;
         getChunk(x >> 4, y >> 4).update = true;
+        block_change_data data;
+        data.x = x;
+        data.y = y;
+        data.type = id;
+        events::callEvent(block_change, (void*)&data);
     }
 }
 

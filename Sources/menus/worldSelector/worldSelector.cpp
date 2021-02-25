@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
+#define FILENAME worldSelector
+#define NAMESPACE worldSelector
+#include "essential.hpp"
+
 #include <utility>
 #include <vector>
 #include <dirent.h>

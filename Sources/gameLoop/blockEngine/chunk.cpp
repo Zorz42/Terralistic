@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 30/12/2020.
 //
 
+#define FILENAME chunk
+#define NAMESPACE blockEngine
+#include "essential.hpp"
+
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"

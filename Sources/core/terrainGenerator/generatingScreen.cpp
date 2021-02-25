@@ -5,6 +5,10 @@
 //  Created by Jakob Zorz on 02/07/2020.
 //
 
+#define FILENAME generatingScreen
+#define NAMESPACE generatingScreen
+#include "essential.hpp"
+
 #include "singleWindowLibrary.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "terrainGenerator.hpp"

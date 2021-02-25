@@ -1,3 +1,14 @@
+//
+//  gameLoop.cpp
+//  Terralistic
+//
+//  Created by Jakob Zorz on ???.
+//
+#define FILENAME gameLoop
+#define NAMESPACE gameLoop
+#include "essential.hpp"
+
+
 #include <thread>
 #include "gameLoop.hpp"
 #include "singleWindowLibrary.hpp"
@@ -14,6 +25,7 @@
 #include "otherPlayers.hpp"
 #include "main.hpp"
 #include "dev.hpp"
+#include "renderer.hpp"
 
 #undef main
 
@@ -87,13 +99,15 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         }
         playerHandler::doPhysics();
         playerHandler::move();
-        if(!online)
-            itemEngine::updateItems();
+        if(!online) {
+            itemEngine::updateItems(frame_length);
+            playerHandler::lookForItems();
+        }
         
         swl::setDrawColor(135, 206, 235);
         swl::clear();
         blockEngine::render_blocks();
-        itemEngine::renderItems();
+        renderer::renderItems();
         players::render();
         playerHandler::render();
         if(pauseScreen::paused)
