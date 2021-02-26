@@ -56,7 +56,7 @@ packets::packet packets::getPacket(int socket) {
     }
     
     // if bytes_received is 0 that means that the other side disconnected
-    if(bytes_received) {
+    if(bytes_received > 0) {
         // size of the packet are the first two bytes
         unsigned short size = buffer[0] + (buffer[1] << 8);
         // packet type is the third byte
