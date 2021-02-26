@@ -22,7 +22,8 @@ struct uniqueItem {
 
 struct item {
 public:
-    item(itemType item_id, int x, int y, unsigned short id);
+    void create(itemType item_id, int x, int y, unsigned short id);
+    void destroy();
     int x, y;
     void update(float frame_length);
     [[nodiscard]] bool colliding() const;
@@ -41,9 +42,23 @@ void updateItems(float frame_length);
 inline std::vector<uniqueItem> unique_items;
 inline std::vector<item> items;
 
-void spawnItem(itemType item_id, int x, int y, unsigned short id=0);
+inline int curr_id = 0;
+
+void spawnItem(itemType item_id, int x, int y, unsigned short id=curr_id++);
 
 item* getItemById(unsigned short id);
+
+REGISTER_EVENT(item_movement) {
+    itemEngine::item* item;
+};
+
+REGISTER_EVENT(item_creation) {
+    itemEngine::item* item;
+};
+
+REGISTER_EVENT(item_deletion) {
+    itemEngine::item* item;
+};
 
 }
 

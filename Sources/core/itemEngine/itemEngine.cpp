@@ -34,7 +34,8 @@ void itemEngine::updateItems(float frame_length) {
 }
 
 void itemEngine::spawnItem(itemType item_id, int x, int y, unsigned short id) {
-    items.emplace_back(item_id, x, y, id);
+    items.emplace_back();
+    items.back().create(item_id, x, y, id);
 }
 
 itemEngine::item* itemEngine::getItemById(unsigned short id) {

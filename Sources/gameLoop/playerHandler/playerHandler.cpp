@@ -300,8 +300,10 @@ void playerHandler::selectSlot(char slot) {
 
 void playerHandler::lookForItems() {
     for(unsigned long i = 0; i < itemEngine::items.size(); i++)
-        if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - playerHandler::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - playerHandler::position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1)
+        if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - playerHandler::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - playerHandler::position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1) {
+            itemEngine::items[i].destroy();
             itemEngine::items.erase(itemEngine::items.begin() + i);
+        }
 }
 
 PACKET_LISTENER(packets::INVENTORY_CHANGE)

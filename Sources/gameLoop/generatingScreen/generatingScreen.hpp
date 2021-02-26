@@ -8,8 +8,10 @@
 #ifndef generatingScreen_hpp
 #define generatingScreen_hpp
 
-namespace generatingScreen {
-<#declarations#>
+namespace terrainGenerator {
+
+void generatingScreen();
+
 }
 
 #endif /* generatingScreen_hpp */

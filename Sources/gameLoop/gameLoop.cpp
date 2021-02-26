@@ -38,6 +38,7 @@ void generateTerrain(unsigned int seed) {
 
 int gameLoop::main(const std::string& world_name, bool multiplayer) {
     online = multiplayer;
+    running = true;
     
     blockEngine::prepare();
     players::prepare();
@@ -72,8 +73,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     SDL_Event event;
     
     unsigned int count = SDL_GetTicks() / 1000 - 1, fps_count = 0;
-    
-    running = true;
     
     while(running && main_::running) {
         Uint64 start = SDL_GetPerformanceCounter();

@@ -14,10 +14,25 @@
 
 std::random_device device;
 
-itemEngine::item::item(itemType item_id, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_id(item_id) {
+void itemEngine::item::create(itemType item_id, int x, int y, unsigned short id) {
     std::mt19937 engine(device());
     velocity_x = (int)engine() % 200 - 100;
     velocity_y = -int(engine() % 100) - 50;
+    
+    this->x = x * 100;
+    this->y = y * 100;
+    this->id = id;
+    this->item_id = item_id;
+    
+    item_creation_data data;
+    data.item = this;
+    events::callEvent(item_creation, (void*)&data);
+}
+
+void itemEngine::item::destroy() {
+    item_deletion_data data;
+    data.item = this;
+    events::callEvent(item_deletion, (void*)&data);
 }
 
 itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), places(places) {}
@@ -28,6 +43,8 @@ itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
 }
 
 void itemEngine::item::update(float frame_length) {
+    int prev_x = x, prev_y = y;
+    
     // move and go back if colliding
     velocity_y += (int)frame_length / 16 * 5;
     for(int i = 0; i < frame_length / 16 * velocity_x; i++) {
@@ -75,7 +92,11 @@ void itemEngine::item::update(float frame_length) {
             velocity_x = 0;
     }
     
-    
+    if(prev_x != x || prev_y != y) {
+        item_movement_data data;
+        data.item = this;
+        events::callEvent(item_movement, (void*)&data);
+    }
 }
 
 bool itemEngine::item::colliding() const {

@@ -30,9 +30,6 @@
 int sock;
 ogl::texture connecting_text;
 
-packets::packet networking::getPacket() {
-    return packets::getPacket(sock);
-}
 
 struct packet_listener {
     networking::listenerFunction function;
@@ -105,7 +102,7 @@ bool networking::establishConnection(const std::string &ip) {
 
 void listenerLoop() {
     while(gameLoop::running) {
-        packets::packet packet = networking::getPacket();
+        packets::packet packet = packets::getPacket(sock);
         for(packet_listener& i : getListeners())
             if(i.type == packet.type)
                 i.function(packet);
