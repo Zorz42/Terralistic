@@ -102,7 +102,6 @@
 		1661650C25EA249D002A3815 /* itemEngineNet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemEngineNet.cpp; sourceTree = "<group>"; };
 		1661650E25EA249D002A3815 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
 		1661650F25EA249D002A3815 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
-		1661651025EA249D002A3815 /* dev.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = dev.hpp; sourceTree = "<group>"; };
 		1661651225EA249D002A3815 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
 		1661651325EA249D002A3815 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
 		1661651525EA249D002A3815 /* playerHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playerHandler.cpp; sourceTree = "<group>"; };
@@ -114,6 +113,8 @@
 		1661651D25EA249D002A3815 /* blockEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockEngine.hpp; sourceTree = "<group>"; };
 		1661652725EA24D8002A3815 /* blockType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = blockType.hpp; path = Client/Sources/gameLoop/blockEngine/blockType.hpp; sourceTree = "<group>"; };
 		1661659E25EA2FE6002A3815 /* Terralistic-server-Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server-Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1661663425EA4C47002A3815 /* dev.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dev.hpp; sourceTree = "<group>"; };
+		1661663525EA4C47002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				166164D925EA2496002A3815 /* essential.hpp */,
+				1661663325EA4C47002A3815 /* dev */,
 				166164D625EA2496002A3815 /* init */,
 				166164DA25EA2496002A3815 /* fileSystem */,
 				166164E025EA2496002A3815 /* packets */,
@@ -267,7 +269,6 @@
 		1661650525EA249D002A3815 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				1661651025EA249D002A3815 /* dev.hpp */,
 				1661650725EA249D002A3815 /* itemEngineNet */,
 				1661650925EA249D002A3815 /* networkingModule */,
 				1661650D25EA249D002A3815 /* print */,
@@ -341,6 +342,15 @@
 				1661651D25EA249D002A3815 /* blockEngine.hpp */,
 			);
 			path = blockEngine;
+			sourceTree = "<group>";
+		};
+		1661663325EA4C47002A3815 /* dev */ = {
+			isa = PBXGroup;
+			children = (
+				1661663425EA4C47002A3815 /* dev.hpp */,
+				1661663525EA4C47002A3815 /* debugBreak.hpp */,
+			);
+			path = dev;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

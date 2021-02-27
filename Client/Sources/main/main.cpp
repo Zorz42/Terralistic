@@ -15,6 +15,7 @@
 
 int main(int argc, char **argv) {
     // initialize singleWindowLibrary and set resource path, which is a part of file loading in singleWindowLibrary
+    
     swl::init();
     swl::loadFont("pixel_font.ttf", 8);
     swl::resourcePath = fileSystem::getResourcePath(argv[0]);

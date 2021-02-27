@@ -147,6 +147,7 @@
 		166165E325EA3617002A3815 /* Terralistic-Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661662C25EA3882002A3815 /* Terralistic-Debug.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = "Terralistic-Debug.app"; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic-Debug.app"; sourceTree = "<group>"; };
 		1661662D25EA3882002A3815 /* Terralistic.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Terralistic.app; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic.app"; sourceTree = "<group>"; };
+		1661663025EA4BBA002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		1689687225E9607800D26060 /* init.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = init.hpp; sourceTree = "<group>"; };
 		1689687325E9607800D26060 /* init.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = init.cpp; sourceTree = "<group>"; };
 		1689687425E9607800D26060 /* essential.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = essential.hpp; sourceTree = "<group>"; };
@@ -267,10 +268,19 @@
 		1661662B25EA3873002A3815 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-                1661657B25EA2D0D002A3815 /* Terralistic.app */,
-                166165E325EA3617002A3815 /* Terralistic-Debug.app */,
+				1661657B25EA2D0D002A3815 /* Terralistic.app */,
+				166165E325EA3617002A3815 /* Terralistic-Debug.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1661662F25EA4BA8002A3815 /* dev */ = {
+			isa = PBXGroup;
+			children = (
+				1689694225E9607900D26060 /* dev.hpp */,
+				1661663025EA4BBA002A3815 /* debugBreak.hpp */,
+			);
+			path = dev;
 			sourceTree = "<group>";
 		};
 		1689684D25E95FD000D26060 = {
@@ -286,7 +296,6 @@
 		1689686F25E9607800D26060 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				1689694225E9607900D26060 /* dev.hpp */,
 				1689689325E9607800D26060 /* gameLoop */,
 				168968B725E9607800D26060 /* menus */,
 				168968C425E9607800D26060 /* main */,
@@ -298,6 +307,7 @@
 			isa = PBXGroup;
 			children = (
 				1689687425E9607800D26060 /* essential.hpp */,
+				1661662F25EA4BA8002A3815 /* dev */,
 				1689687125E9607800D26060 /* init */,
 				1689687525E9607800D26060 /* fileSystem */,
 				1689687B25E9607800D26060 /* packets */,
@@ -693,7 +703,7 @@
 				Base,
 			);
 			mainGroup = 1689684D25E95FD000D26060;
-			productRefGroup = 1661662B25EA3873002A3815;
+			productRefGroup = 1661662B25EA3873002A3815 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
