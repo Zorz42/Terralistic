@@ -1,0 +1,555 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		166164F825EA2496002A3815 /* init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164D825EA2496002A3815 /* init.cpp */; };
+		166164F925EA2496002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164DE25EA2496002A3815 /* sago.cpp */; };
+		166164FA25EA2496002A3815 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164DF25EA2496002A3815 /* fileSystem.cpp */; };
+		166164FB25EA2496002A3815 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164E225EA2496002A3815 /* packets.cpp */; };
+		166164FC25EA2496002A3815 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164E525EA2496002A3815 /* inventoryItem.cpp */; };
+		166164FD25EA2496002A3815 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164E625EA2496002A3815 /* inventory.cpp */; };
+		166164FE25EA2496002A3815 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164EB25EA2496002A3815 /* simplex-noise.cpp */; };
+		166164FF25EA2496002A3815 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164EC25EA2496002A3815 /* terrainGenerator.cpp */; };
+		1661650025EA2496002A3815 /* perlinNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164EE25EA2496002A3815 /* perlinNoise.cpp */; };
+		1661650125EA2496002A3815 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164F225EA2496002A3815 /* item.cpp */; };
+		1661650225EA2496002A3815 /* itemEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164F325EA2496002A3815 /* itemEngine.cpp */; };
+		1661650325EA2496002A3815 /* events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164F725EA2496002A3815 /* events.cpp */; };
+		1661651E25EA249D002A3815 /* networkingModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650A25EA249D002A3815 /* networkingModule.cpp */; };
+		1661651F25EA249D002A3815 /* itemEngineNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650C25EA249D002A3815 /* itemEngineNet.cpp */; };
+		1661652025EA249D002A3815 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650E25EA249D002A3815 /* print.cpp */; };
+		1661652125EA249D002A3815 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651325EA249D002A3815 /* worldSaver.cpp */; };
+		1661652225EA249D002A3815 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651525EA249D002A3815 /* playerHandler.cpp */; };
+		1661652325EA249D002A3815 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651925EA249D002A3815 /* main.cpp */; };
+		1661652425EA249D002A3815 /* blockEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651B25EA249D002A3815 /* blockEngine.cpp */; };
+		1661652525EA249D002A3815 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651C25EA249D002A3815 /* block.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		166164C725EA23D1002A3815 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		166164C925EA23D1002A3815 /* Terralistic-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server"; sourceTree = BUILT_PRODUCTS_DIR; };
+		166164D725EA2496002A3815 /* init.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = init.hpp; sourceTree = "<group>"; };
+		166164D825EA2496002A3815 /* init.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = init.cpp; sourceTree = "<group>"; };
+		166164D925EA2496002A3815 /* essential.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = essential.hpp; sourceTree = "<group>"; };
+		166164DB25EA2496002A3815 /* fileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fileSystem.hpp; sourceTree = "<group>"; };
+		166164DD25EA2496002A3815 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
+		166164DE25EA2496002A3815 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
+		166164DF25EA2496002A3815 /* fileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fileSystem.cpp; sourceTree = "<group>"; };
+		166164E125EA2496002A3815 /* packets.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = packets.hpp; sourceTree = "<group>"; };
+		166164E225EA2496002A3815 /* packets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
+		166164E425EA2496002A3815 /* inventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = inventory.hpp; sourceTree = "<group>"; };
+		166164E525EA2496002A3815 /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
+		166164E625EA2496002A3815 /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
+		166164E825EA2496002A3815 /* terrainGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = terrainGenerator.hpp; sourceTree = "<group>"; };
+		166164EA25EA2496002A3815 /* simplex-noise.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "simplex-noise.hpp"; sourceTree = "<group>"; };
+		166164EB25EA2496002A3815 /* simplex-noise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "simplex-noise.cpp"; sourceTree = "<group>"; };
+		166164EC25EA2496002A3815 /* terrainGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terrainGenerator.cpp; sourceTree = "<group>"; };
+		166164EE25EA2496002A3815 /* perlinNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = perlinNoise.cpp; sourceTree = "<group>"; };
+		166164EF25EA2496002A3815 /* perlinNoise.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
+		166164F125EA2496002A3815 /* itemEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = itemEngine.hpp; sourceTree = "<group>"; };
+		166164F225EA2496002A3815 /* item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = item.cpp; sourceTree = "<group>"; };
+		166164F325EA2496002A3815 /* itemEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemEngine.cpp; sourceTree = "<group>"; };
+		166164F425EA2496002A3815 /* itemType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = itemType.hpp; sourceTree = "<group>"; };
+		166164F625EA2496002A3815 /* events.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = events.hpp; sourceTree = "<group>"; };
+		166164F725EA2496002A3815 /* events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = events.cpp; sourceTree = "<group>"; };
+		1661650625EA249D002A3815 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		1661650825EA249D002A3815 /* itemEngine-old.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "itemEngine-old.hpp"; sourceTree = "<group>"; };
+		1661650A25EA249D002A3815 /* networkingModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = networkingModule.cpp; sourceTree = "<group>"; };
+		1661650B25EA249D002A3815 /* networkingModule.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = networkingModule.hpp; sourceTree = "<group>"; };
+		1661650C25EA249D002A3815 /* itemEngineNet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemEngineNet.cpp; sourceTree = "<group>"; };
+		1661650E25EA249D002A3815 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
+		1661650F25EA249D002A3815 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
+		1661651025EA249D002A3815 /* dev.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = dev.hpp; sourceTree = "<group>"; };
+		1661651225EA249D002A3815 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
+		1661651325EA249D002A3815 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
+		1661651525EA249D002A3815 /* playerHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playerHandler.cpp; sourceTree = "<group>"; };
+		1661651625EA249D002A3815 /* playerHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = playerHandler.hpp; sourceTree = "<group>"; };
+		1661651825EA249D002A3815 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = main.hpp; sourceTree = "<group>"; };
+		1661651925EA249D002A3815 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		1661651B25EA249D002A3815 /* blockEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockEngine.cpp; sourceTree = "<group>"; };
+		1661651C25EA249D002A3815 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
+		1661651D25EA249D002A3815 /* blockEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockEngine.hpp; sourceTree = "<group>"; };
+		1661652725EA24D8002A3815 /* blockType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = blockType.hpp; path = Client/Sources/gameLoop/blockEngine/blockType.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		166164C625EA23D1002A3815 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		166164C025EA23D1002A3815 = {
+			isa = PBXGroup;
+			children = (
+				1661652725EA24D8002A3815 /* blockType.hpp */,
+				1661650525EA249D002A3815 /* Server */,
+				166164D525EA2496002A3815 /* Core */,
+				166164CA25EA23D1002A3815 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		166164CA25EA23D1002A3815 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				166164C925EA23D1002A3815 /* Terralistic-server */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		166164D525EA2496002A3815 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				166164D625EA2496002A3815 /* init */,
+				166164D925EA2496002A3815 /* essential.hpp */,
+				166164DA25EA2496002A3815 /* fileSystem */,
+				166164E025EA2496002A3815 /* packets */,
+				166164E325EA2496002A3815 /* inventory */,
+				166164E725EA2496002A3815 /* terrainGenerator */,
+				166164F025EA2496002A3815 /* itemEngine */,
+				166164F525EA2496002A3815 /* events */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		166164D625EA2496002A3815 /* init */ = {
+			isa = PBXGroup;
+			children = (
+				166164D725EA2496002A3815 /* init.hpp */,
+				166164D825EA2496002A3815 /* init.cpp */,
+			);
+			path = init;
+			sourceTree = "<group>";
+		};
+		166164DA25EA2496002A3815 /* fileSystem */ = {
+			isa = PBXGroup;
+			children = (
+				166164DB25EA2496002A3815 /* fileSystem.hpp */,
+				166164DC25EA2496002A3815 /* sago */,
+				166164DF25EA2496002A3815 /* fileSystem.cpp */,
+			);
+			path = fileSystem;
+			sourceTree = "<group>";
+		};
+		166164DC25EA2496002A3815 /* sago */ = {
+			isa = PBXGroup;
+			children = (
+				166164DD25EA2496002A3815 /* platform_folders.h */,
+				166164DE25EA2496002A3815 /* sago.cpp */,
+			);
+			path = sago;
+			sourceTree = "<group>";
+		};
+		166164E025EA2496002A3815 /* packets */ = {
+			isa = PBXGroup;
+			children = (
+				166164E125EA2496002A3815 /* packets.hpp */,
+				166164E225EA2496002A3815 /* packets.cpp */,
+			);
+			path = packets;
+			sourceTree = "<group>";
+		};
+		166164E325EA2496002A3815 /* inventory */ = {
+			isa = PBXGroup;
+			children = (
+				166164E425EA2496002A3815 /* inventory.hpp */,
+				166164E525EA2496002A3815 /* inventoryItem.cpp */,
+				166164E625EA2496002A3815 /* inventory.cpp */,
+			);
+			path = inventory;
+			sourceTree = "<group>";
+		};
+		166164E725EA2496002A3815 /* terrainGenerator */ = {
+			isa = PBXGroup;
+			children = (
+				166164E825EA2496002A3815 /* terrainGenerator.hpp */,
+				166164E925EA2496002A3815 /* simplexNoise */,
+				166164EC25EA2496002A3815 /* terrainGenerator.cpp */,
+				166164ED25EA2496002A3815 /* perlinNoise */,
+			);
+			path = terrainGenerator;
+			sourceTree = "<group>";
+		};
+		166164E925EA2496002A3815 /* simplexNoise */ = {
+			isa = PBXGroup;
+			children = (
+				166164EA25EA2496002A3815 /* simplex-noise.hpp */,
+				166164EB25EA2496002A3815 /* simplex-noise.cpp */,
+			);
+			path = simplexNoise;
+			sourceTree = "<group>";
+		};
+		166164ED25EA2496002A3815 /* perlinNoise */ = {
+			isa = PBXGroup;
+			children = (
+				166164EE25EA2496002A3815 /* perlinNoise.cpp */,
+				166164EF25EA2496002A3815 /* perlinNoise.hpp */,
+			);
+			path = perlinNoise;
+			sourceTree = "<group>";
+		};
+		166164F025EA2496002A3815 /* itemEngine */ = {
+			isa = PBXGroup;
+			children = (
+				166164F125EA2496002A3815 /* itemEngine.hpp */,
+				166164F225EA2496002A3815 /* item.cpp */,
+				166164F325EA2496002A3815 /* itemEngine.cpp */,
+				166164F425EA2496002A3815 /* itemType.hpp */,
+			);
+			path = itemEngine;
+			sourceTree = "<group>";
+		};
+		166164F525EA2496002A3815 /* events */ = {
+			isa = PBXGroup;
+			children = (
+				166164F625EA2496002A3815 /* events.hpp */,
+				166164F725EA2496002A3815 /* events.cpp */,
+			);
+			path = events;
+			sourceTree = "<group>";
+		};
+		1661650525EA249D002A3815 /* Server */ = {
+			isa = PBXGroup;
+			children = (
+				1661650625EA249D002A3815 /* CMakeLists.txt */,
+				1661650725EA249D002A3815 /* itemEngineNet */,
+				1661650925EA249D002A3815 /* networkingModule */,
+				1661650D25EA249D002A3815 /* print */,
+				1661651025EA249D002A3815 /* dev.hpp */,
+				1661651125EA249D002A3815 /* worldSaver */,
+				1661651425EA249D002A3815 /* playerHandler */,
+				1661651725EA249D002A3815 /* main */,
+				1661651A25EA249D002A3815 /* blockEngine */,
+			);
+			path = Server;
+			sourceTree = "<group>";
+		};
+		1661650725EA249D002A3815 /* itemEngineNet */ = {
+			isa = PBXGroup;
+			children = (
+				1661650825EA249D002A3815 /* itemEngine-old.hpp */,
+			);
+			path = itemEngineNet;
+			sourceTree = "<group>";
+		};
+		1661650925EA249D002A3815 /* networkingModule */ = {
+			isa = PBXGroup;
+			children = (
+				1661650A25EA249D002A3815 /* networkingModule.cpp */,
+				1661650B25EA249D002A3815 /* networkingModule.hpp */,
+				1661650C25EA249D002A3815 /* itemEngineNet.cpp */,
+			);
+			path = networkingModule;
+			sourceTree = "<group>";
+		};
+		1661650D25EA249D002A3815 /* print */ = {
+			isa = PBXGroup;
+			children = (
+				1661650E25EA249D002A3815 /* print.cpp */,
+				1661650F25EA249D002A3815 /* print.hpp */,
+			);
+			path = print;
+			sourceTree = "<group>";
+		};
+		1661651125EA249D002A3815 /* worldSaver */ = {
+			isa = PBXGroup;
+			children = (
+				1661651225EA249D002A3815 /* worldSaver.hpp */,
+				1661651325EA249D002A3815 /* worldSaver.cpp */,
+			);
+			path = worldSaver;
+			sourceTree = "<group>";
+		};
+		1661651425EA249D002A3815 /* playerHandler */ = {
+			isa = PBXGroup;
+			children = (
+				1661651525EA249D002A3815 /* playerHandler.cpp */,
+				1661651625EA249D002A3815 /* playerHandler.hpp */,
+			);
+			path = playerHandler;
+			sourceTree = "<group>";
+		};
+		1661651725EA249D002A3815 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				1661651825EA249D002A3815 /* main.hpp */,
+				1661651925EA249D002A3815 /* main.cpp */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		1661651A25EA249D002A3815 /* blockEngine */ = {
+			isa = PBXGroup;
+			children = (
+				1661651B25EA249D002A3815 /* blockEngine.cpp */,
+				1661651C25EA249D002A3815 /* block.cpp */,
+				1661651D25EA249D002A3815 /* blockEngine.hpp */,
+			);
+			path = blockEngine;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		166164C825EA23D1002A3815 /* Terralistic-server */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 166164D025EA23D1002A3815 /* Build configuration list for PBXNativeTarget "Terralistic-server" */;
+			buildPhases = (
+				166164C525EA23D1002A3815 /* Sources */,
+				166164C625EA23D1002A3815 /* Frameworks */,
+				166164C725EA23D1002A3815 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Terralistic-server";
+			productName = "Terralistic-server";
+			productReference = 166164C925EA23D1002A3815 /* Terralistic-server */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		166164C125EA23D1002A3815 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					166164C825EA23D1002A3815 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = 166164C425EA23D1002A3815 /* Build configuration list for PBXProject "Terralistic-server" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 166164C025EA23D1002A3815;
+			productRefGroup = 166164CA25EA23D1002A3815 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				166164C825EA23D1002A3815 /* Terralistic-server */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		166164C525EA23D1002A3815 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1661650325EA2496002A3815 /* events.cpp in Sources */,
+				166164FA25EA2496002A3815 /* fileSystem.cpp in Sources */,
+				1661652325EA249D002A3815 /* main.cpp in Sources */,
+				1661651F25EA249D002A3815 /* itemEngineNet.cpp in Sources */,
+				166164FF25EA2496002A3815 /* terrainGenerator.cpp in Sources */,
+				166164F825EA2496002A3815 /* init.cpp in Sources */,
+				1661652025EA249D002A3815 /* print.cpp in Sources */,
+				1661652425EA249D002A3815 /* blockEngine.cpp in Sources */,
+				1661652225EA249D002A3815 /* playerHandler.cpp in Sources */,
+				166164FE25EA2496002A3815 /* simplex-noise.cpp in Sources */,
+				166164FD25EA2496002A3815 /* inventory.cpp in Sources */,
+				1661652125EA249D002A3815 /* worldSaver.cpp in Sources */,
+				1661650025EA2496002A3815 /* perlinNoise.cpp in Sources */,
+				166164F925EA2496002A3815 /* sago.cpp in Sources */,
+				166164FB25EA2496002A3815 /* packets.cpp in Sources */,
+				1661650225EA2496002A3815 /* itemEngine.cpp in Sources */,
+				1661650125EA2496002A3815 /* item.cpp in Sources */,
+				1661652525EA249D002A3815 /* block.cpp in Sources */,
+				1661651E25EA249D002A3815 /* networkingModule.cpp in Sources */,
+				166164FC25EA2496002A3815 /* inventoryItem.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		166164CE25EA23D1002A3815 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		166164CF25EA23D1002A3815 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		166164D125EA23D1002A3815 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		166164D225EA23D1002A3815 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		166164C425EA23D1002A3815 /* Build configuration list for PBXProject "Terralistic-server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				166164CE25EA23D1002A3815 /* Debug */,
+				166164CF25EA23D1002A3815 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		166164D025EA23D1002A3815 /* Build configuration list for PBXNativeTarget "Terralistic-server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				166164D125EA23D1002A3815 /* Debug */,
+				166164D225EA23D1002A3815 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 166164C125EA23D1002A3815 /* Project object */;
+}
