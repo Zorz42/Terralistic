@@ -19,7 +19,6 @@
 #include "networkingModule.hpp"
 #include "otherPlayers.hpp"
 #include "main.hpp"
-#include "dev.hpp"
 #include "renderer.hpp"
 
 #undef main

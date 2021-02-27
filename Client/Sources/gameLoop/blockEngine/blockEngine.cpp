@@ -15,7 +15,6 @@
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "dev.hpp"
 
 ogl::texture prepare_text;
 

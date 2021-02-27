@@ -12,7 +12,6 @@
 #include "otherPlayers.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "dev.hpp"
 
 // module for handling other players in online game
 
