@@ -7,7 +7,6 @@
 
 #include <SDL2_image/SDL_image.h>
 #include "singleWindowLibrary.hpp"
-#include "dev.hpp"
 
 void swl::quit() {
     //SDL_DestroyRenderer(swl_private::renderer); // assertion failure on close for some reason
@@ -20,19 +19,19 @@ void swl::init() {
     swl::window_height = 600;
     
     // initialize basic sdl module
-    ASSERT(SDL_Init(SDL_INIT_EVERYTHING) >= 0, "SDL could not initialize properly!");
+    SDL_assert(SDL_Init(SDL_INIT_EVERYTHING) >= 0);
 
     // initialize image loading part of sdl
-    ASSERT(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG, "SDL_image could not initialize properly!");
+    SDL_assert(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG);
     
     // initialize font rendering part of sdl
-    ASSERT(TTF_Init() != -1, "SDL_ttf could not initialize properly!");
+    SDL_assert(TTF_Init() != -1);
     
     // create actual window
-    ASSERT(swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE), "Window could not be created!");
+    SDL_assert(swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE));
 
     // create renderer for GPU accelerated
-    ASSERT(swl_private::renderer = SDL_CreateRenderer(swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC), "Renderer could not be created!");
+    SDL_assert(swl_private::renderer = SDL_CreateRenderer(swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
     
     SDL_SetRenderDrawBlendMode(swl_private::renderer, SDL_BLENDMODE_BLEND);
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};
@@ -89,7 +88,7 @@ void swl::resetRenderTarget() {
 
 SDL_Texture* swl::createBlankTexture(unsigned short width, unsigned short height) {
     SDL_Texture* result = SDL_CreateTexture(swl_private::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
-    ASSERT(result, "Blank texture could not be created");
+    SDL_assert(result);
     return result;
 }
 

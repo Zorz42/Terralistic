@@ -13,6 +13,7 @@
 namespace renderer {
 
 void renderItems();
+
 struct uniqueRenderItem {
     SDL_Texture* texture;
     ogl::texture text_texture{ogl::top_left};

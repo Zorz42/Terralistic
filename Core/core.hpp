@@ -38,6 +38,7 @@
 #include "packets.hpp"
 #include "fileSystem.hpp"
 #include "dev.hpp"
+#include "blockEngine.hpp"
 
 #else
 #warning Essential header has been imported multiple times

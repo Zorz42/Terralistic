@@ -10,23 +10,7 @@
 #include "core.hpp"
 
 #include "singleWindowLibrary.hpp"
-#include "blockEngine.hpp"
 #include "gameLoop.hpp"
-#include "networkingModule.hpp"
-
-void blockEngine::block::draw(unsigned short x, unsigned short y) const {
-    swl::rect rect = {short(x * BLOCK_WIDTH), short(y * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH};
-    if(getUniqueBlock().texture && blockEngine::getBlock(x, y).light_level)
-        swl::render(getUniqueBlock().texture, rect, {0, short(8 * block_orientation), 8, 8});
-    
-    if(light_level != MAX_LIGHT) {
-        swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * light_level));
-        swl::render(rect);
-    }
-    unsigned char progress = (unsigned char)((float)break_progress / (float)getUniqueBlock().break_time * 9.0f);
-    if(progress)
-        swl::render(breaking_texture, rect, {0, short(8 * (progress - 1)), 8, 8});
-}
 
 blockEngine::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {
     unsigned short h = 0;
@@ -40,7 +24,7 @@ void blockEngine::block::update(unsigned short x, unsigned short y) {
     if(!gameLoop::online && getUniqueBlock().only_on_floor && getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent) {
         itemEngine::spawnItem(getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
         getBlock(x, y).setBlockType(AIR, x, y);
-        updateNearestBlocks(x, y);
+        updateNeighbours(x, y);
     }
     
     if(!getUniqueBlock().single_texture) {

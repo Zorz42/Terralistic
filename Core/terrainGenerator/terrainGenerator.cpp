@@ -9,7 +9,6 @@
 #define NAMESPACE terrainGenerator
 #include "core.hpp"
 
-#include "blockEngine.hpp"
 #include "simplex-noise.hpp"
 
 // terrain generation parameters

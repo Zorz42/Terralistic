@@ -10,7 +10,6 @@
 
 #include "gameLoop.hpp"
 #include "singleWindowLibrary.hpp"
-#include "blockEngine.hpp"
 #include "playerHandler.hpp"
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
@@ -20,6 +19,7 @@
 #include "otherPlayers.hpp"
 #include "main.hpp"
 #include "renderer.hpp"
+#include "blockRenderer.hpp"
 
 #undef main
 
@@ -62,6 +62,8 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         worldSaver::saveWorld(world_name);
     }
     
+    
+    
     blockEngine::prepareWorld();
     
     ogl::texture fps_text(ogl::top_left);
@@ -88,7 +90,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
             swl::handleBasicEvents(event, &main_::running);
             pauseScreen::handleEvents(event);
             playerHandler::handleEvents(event);
-            blockEngine::handleEvents(event);
+            blockSelector::handleEvents(event);
         }
         playerHandler::doPhysics();
         playerHandler::move();
@@ -99,7 +101,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         
         swl::setDrawColor(135, 206, 235);
         swl::clear();
-        blockEngine::render_blocks();
+        blockRenderer::render();
         renderer::renderItems();
         players::render();
         playerHandler::render();

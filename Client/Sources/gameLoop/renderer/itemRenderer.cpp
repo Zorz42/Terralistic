@@ -10,7 +10,6 @@
 #include "core.hpp"
 
 #include "renderer.hpp"
-#include "blockEngine.hpp"
 #include "playerHandler.hpp"
 
 std::vector<renderer::uniqueRenderItem> unique_render_items;

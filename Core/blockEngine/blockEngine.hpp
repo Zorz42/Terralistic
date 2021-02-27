@@ -39,7 +39,6 @@ public:
     block() : block_id(AIR) {}
     explicit block(blockType block_id) : block_id(block_id) {}
 
-    void draw(unsigned short x, unsigned short y) const;
     void update(unsigned short x, unsigned short y);
     
     blockType block_id;
@@ -53,7 +52,7 @@ public:
     
     bool to_update = true, to_update_light = true;
     unsigned short break_progress = 0;
-private:
+//private:
     Uint8 block_orientation{};
 };
 
@@ -62,7 +61,6 @@ struct chunk {
     block blocks[16][16];
     bool update = true, loaded = false, pending_load = false;
     SDL_Texture* texture = nullptr;
-    void updateTexture();
     void createTexture();
 };
 
@@ -70,29 +68,21 @@ void prepare();
 void prepareWorld();
 void close();
 
-void render_blocks();
-
 inline chunk *world;
 inline unsigned short world_width = 4400, world_height = 1200;
+
 inline std::vector<uniqueBlock> unique_blocks;
 
 block& getBlock(unsigned short x, unsigned short y);
 chunk& getChunk(unsigned short x, unsigned short y);
 
-void rightClickEvent(unsigned short x, unsigned short y);
-void leftClickEvent(unsigned short x, unsigned short y);
-
-void updateNearestBlocks(unsigned short x, unsigned short y);
-
-void handleEvents(SDL_Event& event);
+void updateNeighbours(unsigned short x, unsigned short y);
 
 void removeNaturalLight(unsigned short x);
 void setNaturalLight(unsigned short x);
 
 void addLightSource(unsigned short x, unsigned short y, unsigned char power);
 void removeLightSource(unsigned short x, unsigned short y);
-
-inline SDL_Texture *breaking_texture = nullptr;
 
 REGISTER_EVENT(block_change) {
     unsigned short x, y;

@@ -10,7 +10,6 @@
 #include "core.hpp"
 
 #include "worldSaver.hpp"
-#include "blockEngine.hpp"
 #include "fileSystem.hpp"
 #include "objectedGraphicsLibrary.hpp"
 #include "singleWindowLibrary.hpp"

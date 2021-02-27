@@ -59,9 +59,14 @@
 		1661662525EA3689002A3815 /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C225E9607800D26060 /* worldSelector.cpp */; };
 		1661662625EA3689002A3815 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C625E9607800D26060 /* main.cpp */; };
 		1661662725EA3696002A3815 /* loadingBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689694025E9607900D26060 /* loadingBar.cpp */; };
-		1661662825EA377B002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
 		1661662925EA377B002A3815 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1661662A25EA377B002A3815 /* texturePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* texturePack */; };
+		1661663B25EA53A6002A3815 /* blockRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661663A25EA53A6002A3815 /* blockRenderer.cpp */; };
+		1661663C25EA5608002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
+		1661663D25EA561A002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
+		1661664325EA7844002A3815 /* blockClickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661664125EA7844002A3815 /* blockClickEvents.cpp */; };
+		1661664425EA7957002A3815 /* blockClickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661664125EA7844002A3815 /* blockClickEvents.cpp */; };
+		1661664525EA7957002A3815 /* blockRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661663A25EA53A6002A3815 /* blockRenderer.cpp */; };
 		1689694D25E9607900D26060 /* init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687325E9607800D26060 /* init.cpp */; };
 		1689694E25E9607900D26060 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		1689694F25E9607900D26060 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
@@ -94,7 +99,6 @@
 		1689696A25E9607900D26060 /* worldCreator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C025E9607800D26060 /* worldCreator.cpp */; };
 		1689696B25E9607900D26060 /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C225E9607800D26060 /* worldSelector.cpp */; };
 		1689696C25E9607900D26060 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C625E9607800D26060 /* main.cpp */; };
-		1689697625E9607900D26060 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1689698425E9607900D26060 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689693F25E9607900D26060 /* button.cpp */; };
 		1689698525E9607900D26060 /* loadingBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689694025E9607900D26060 /* loadingBar.cpp */; };
@@ -148,6 +152,8 @@
 		1661662C25EA3882002A3815 /* Terralistic-Debug.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = "Terralistic-Debug.app"; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic-Debug.app"; sourceTree = "<group>"; };
 		1661662D25EA3882002A3815 /* Terralistic.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Terralistic.app; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic.app"; sourceTree = "<group>"; };
 		1661663025EA4BBA002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
+		1661663A25EA53A6002A3815 /* blockRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blockRenderer.cpp; sourceTree = "<group>"; };
+		1661664125EA7844002A3815 /* blockClickEvents.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blockClickEvents.cpp; sourceTree = "<group>"; };
 		1689687225E9607800D26060 /* init.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = init.hpp; sourceTree = "<group>"; };
 		1689687325E9607800D26060 /* init.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = init.cpp; sourceTree = "<group>"; };
 		1689687425E9607800D26060 /* core.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = core.hpp; sourceTree = "<group>"; };
@@ -224,6 +230,7 @@
 		1689694C25E9607900D26060 /* swl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = swl.cpp; sourceTree = "<group>"; };
 		1689699A25E962F800D26060 /* texturePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturePack; sourceTree = "<group>"; };
 		168969AC25E968BA00D26060 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		16E6357625EAC8290025A8B4 /* blockRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blockRenderer.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -283,6 +290,14 @@
 			path = dev;
 			sourceTree = "<group>";
 		};
+		1661664025EA7826002A3815 /* blockClickEvents */ = {
+			isa = PBXGroup;
+			children = (
+				1661664125EA7844002A3815 /* blockClickEvents.cpp */,
+			);
+			path = blockClickEvents;
+			sourceTree = "<group>";
+		};
 		1689684D25E95FD000D26060 = {
 			isa = PBXGroup;
 			children = (
@@ -315,6 +330,7 @@
 				1689688225E9607800D26060 /* terrainGenerator */,
 				1689688B25E9607800D26060 /* itemEngine */,
 				1689689025E9607800D26060 /* events */,
+				168968AD25E9607800D26060 /* blockEngine */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -331,8 +347,8 @@
 		1689687525E9607800D26060 /* fileSystem */ = {
 			isa = PBXGroup;
 			children = (
-				1689687625E9607800D26060 /* fileSystem.hpp */,
 				1689687725E9607800D26060 /* sago */,
+				1689687625E9607800D26060 /* fileSystem.hpp */,
 				1689687A25E9607800D26060 /* fileSystem.cpp */,
 			);
 			path = fileSystem;
@@ -369,10 +385,10 @@
 		1689688225E9607800D26060 /* terrainGenerator */ = {
 			isa = PBXGroup;
 			children = (
-				1689688325E9607800D26060 /* terrainGenerator.hpp */,
 				1689688425E9607800D26060 /* simplexNoise */,
-				1689688725E9607800D26060 /* terrainGenerator.cpp */,
 				1689688825E9607800D26060 /* perlinNoise */,
+				1689688325E9607800D26060 /* terrainGenerator.hpp */,
+				1689688725E9607800D26060 /* terrainGenerator.cpp */,
 			);
 			path = terrainGenerator;
 			sourceTree = "<group>";
@@ -418,17 +434,17 @@
 		1689689325E9607800D26060 /* gameLoop */ = {
 			isa = PBXGroup;
 			children = (
+				1661664025EA7826002A3815 /* blockClickEvents */,
 				1689689425E9607800D26060 /* renderer */,
 				1689689725E9607800D26060 /* otherPlayers */,
 				1689689A25E9607800D26060 /* generatingScreen */,
-				1689689D25E9607800D26060 /* gameLoop.hpp */,
 				1689689E25E9607800D26060 /* networkingModule */,
-				168968A325E9607800D26060 /* gameLoop.cpp */,
 				168968A425E9607800D26060 /* worldSaver */,
 				168968A725E9607800D26060 /* pauseScreen */,
 				168968AA25E9607800D26060 /* playerHandler */,
-				168968AD25E9607800D26060 /* blockEngine */,
 				168968B425E9607800D26060 /* blockSelector */,
+				168968A325E9607800D26060 /* gameLoop.cpp */,
+				1689689D25E9607800D26060 /* gameLoop.hpp */,
 			);
 			path = gameLoop;
 			sourceTree = "<group>";
@@ -438,6 +454,7 @@
 			children = (
 				1689689525E9607800D26060 /* renderer.hpp */,
 				1689689625E9607800D26060 /* itemRenderer.cpp */,
+				16E6357525EAC8140025A8B4 /* blockRenderer */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -501,12 +518,12 @@
 		168968AD25E9607800D26060 /* blockEngine */ = {
 			isa = PBXGroup;
 			children = (
+				168968B225E9607800D26060 /* blockType.hpp */,
+				168968B325E9607800D26060 /* blockEngine.hpp */,
 				168968AE25E9607800D26060 /* blockEngine.cpp */,
 				168968AF25E9607800D26060 /* block.cpp */,
 				168968B025E9607800D26060 /* chunk.cpp */,
 				168968B125E9607800D26060 /* lighting.cpp */,
-				168968B225E9607800D26060 /* blockType.hpp */,
-				168968B325E9607800D26060 /* blockEngine.hpp */,
 			);
 			path = blockEngine;
 			sourceTree = "<group>";
@@ -514,8 +531,8 @@
 		168968B425E9607800D26060 /* blockSelector */ = {
 			isa = PBXGroup;
 			children = (
-				168968B525E9607800D26060 /* blockSelector.cpp */,
 				168968B625E9607800D26060 /* blockSelector.hpp */,
+				168968B525E9607800D26060 /* blockSelector.cpp */,
 			);
 			path = blockSelector;
 			sourceTree = "<group>";
@@ -639,6 +656,15 @@
 			path = Client;
 			sourceTree = "<group>";
 		};
+		16E6357525EAC8140025A8B4 /* blockRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				16E6357625EAC8290025A8B4 /* blockRenderer.hpp */,
+				1661663A25EA53A6002A3815 /* blockRenderer.cpp */,
+			);
+			path = blockRenderer;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -718,7 +744,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1661662825EA377B002A3815 /* icon.icns in Resources */,
+				1661663D25EA561A002A3815 /* icon.icns in Resources */,
 				1661662925EA377B002A3815 /* pixel_font.ttf in Resources */,
 				1661662A25EA377B002A3815 /* texturePack in Resources */,
 			);
@@ -728,8 +754,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1661663C25EA5608002A3815 /* icon.icns in Resources */,
 				1689697725E9607900D26060 /* pixel_font.ttf in Resources */,
-				1689697625E9607900D26060 /* icon.icns in Resources */,
 				1689699B25E962F800D26060 /* texturePack in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -741,6 +767,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1661664425EA7957002A3815 /* blockClickEvents.cpp in Sources */,
+				1661664525EA7957002A3815 /* blockRenderer.cpp in Sources */,
 				1661662725EA3696002A3815 /* loadingBar.cpp in Sources */,
 				1661660625EA3689002A3815 /* simplex-noise.cpp in Sources */,
 				1661660725EA3689002A3815 /* terrainGenerator.cpp in Sources */,
@@ -799,6 +827,7 @@
 				1689696825E9607900D26060 /* startMenu.cpp in Sources */,
 				1689698525E9607900D26060 /* loadingBar.cpp in Sources */,
 				1689695E25E9607900D26060 /* itemEngineNet.cpp in Sources */,
+				1661664325EA7844002A3815 /* blockClickEvents.cpp in Sources */,
 				1689696625E9607900D26060 /* lighting.cpp in Sources */,
 				1689696425E9607900D26060 /* block.cpp in Sources */,
 				1689695425E9607900D26060 /* terrainGenerator.cpp in Sources */,
@@ -818,6 +847,7 @@
 				1689698A25E9607900D26060 /* load.cpp in Sources */,
 				1689696A25E9607900D26060 /* worldCreator.cpp in Sources */,
 				1689695F25E9607900D26060 /* gameLoop.cpp in Sources */,
+				1661663B25EA53A6002A3815 /* blockRenderer.cpp in Sources */,
 				1689696325E9607900D26060 /* blockEngine.cpp in Sources */,
 				1689698425E9607900D26060 /* button.cpp in Sources */,
 				1689695025E9607900D26060 /* packets.cpp in Sources */,
@@ -840,7 +870,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
-				CODE_SIGN_ENTITLEMENTS = "Terralistic-Debug/Terralistic_Debug.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Client/Terralistic-Debug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
@@ -849,7 +879,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Client/Frameworks/Debug",
 				);
-				INFOPLIST_FILE = "Terralistic-Debug/Info.plist";
+				INFOPLIST_FILE = Client/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -871,7 +901,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
-				CODE_SIGN_ENTITLEMENTS = "Terralistic-Debug/Terralistic_Debug.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Client/Terralistic-Debug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
@@ -880,7 +910,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Client/Frameworks/Debug",
 				);
-				INFOPLIST_FILE = "Terralistic-Debug/Info.plist";
+				INFOPLIST_FILE = Client/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

@@ -9,8 +9,6 @@
 #define NAMESPACE blockEngine
 #include "core.hpp"
 
-#include "blockEngine.hpp"
-
 void blockEngine::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < world_height && getBlock(x, y).getUniqueBlock().transparent; y++)
         removeLightSource(x, y);

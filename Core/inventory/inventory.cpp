@@ -9,10 +9,6 @@
 #define NAMESPACE inventory
 #include "core.hpp"
 
-#include "blockEngine.hpp"
-#include "playerHandler.hpp"
-#include "networkingModule.hpp"
-
 // inventory is a class which you can easily manage with function calls
 
 char inventory::inventory::addItem(itemEngine::itemType id, int quantity) {

@@ -9,8 +9,6 @@
 #define NAMESPACE itemEngine
 #include "core.hpp"
 
-#include "blockEngine.hpp"
-
 // item engine updates and renders items
 
 INIT_SCRIPT

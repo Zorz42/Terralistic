@@ -11,7 +11,6 @@
 #include "core.hpp"
 
 #include "playerHandler.hpp"
-#include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"
 #include "networkingModule.hpp"
 #include "gameLoop.hpp"

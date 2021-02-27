@@ -10,12 +10,15 @@
 #include "core.hpp"
 
 #include "blockSelector.hpp"
-#include "blockEngine.hpp"
 #include "playerHandler.hpp"
+#include "networkingModule.hpp"
+#include "gameLoop.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
 
 ogl::rect selectRect(ogl::top_left);
+bool left_button_pressed = false;
+unsigned short prev_selected_x = 0, prev_selected_y = 0;
 
 INIT_SCRIPT
     selectRect.fill = false;
@@ -24,7 +27,51 @@ INIT_SCRIPT
     selectRect.setHeight(BLOCK_WIDTH);
 INIT_SCRIPT_END
 
+void rightClickEvent(unsigned short x, unsigned short y) {
+    if(gameLoop::online) {
+        packets::packet packet(packets::RIGHT_CLICK);
+        packet << x << y;
+        networking::sendPacket(packet);
+    } else {
+        blockEngine::block* block = &blockEngine::getBlock(x, y);
+        if(block->getUniqueBlock().rightClickEvent)
+            block->getUniqueBlock().rightClickEvent(block, x, y);
+    }
+}
+
+void leftClickEvent(unsigned short x, unsigned short y) {
+    blockEngine::block* block = &blockEngine::getBlock(x, y);
+    if(block->getUniqueBlock().leftClickEvent)
+        block->getUniqueBlock().leftClickEvent(block, x, y);
+    else {
+        block->break_progress += gameLoop::frame_length;
+        blockEngine::getBlock(x, y).to_update = true;
+        blockEngine::getChunk(x >> 4, y >> 4).update = true;
+        if(block->break_progress >= block->getUniqueBlock().break_time) {
+            if(block->getUniqueBlock().drop != itemEngine::NOTHING && !gameLoop::online)
+                itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+            blockEngine::removeNaturalLight(x);
+            blockEngine::getBlock(x, y).setBlockType(blockEngine::AIR, x, y);
+            blockEngine::updateNeighbours(x, y);
+            blockEngine::setNaturalLight(x);
+            blockEngine::getBlock(x, y).light_update(x, y);
+            blockEngine::getBlock(x, y).break_progress = 0;
+        }
+    }
+}
+
 void blockSelector::render() {
+    if((prev_selected_y != blockSelector::selected_block_y || prev_selected_x != blockSelector::selected_block_x) && left_button_pressed) {
+        packets::packet packet(packets::STARTED_BREAKING);
+        packet << blockSelector::selected_block_x << blockSelector::selected_block_y;
+        networking::sendPacket(packet);
+        prev_selected_x = blockSelector::selected_block_x;
+        prev_selected_y = blockSelector::selected_block_y;
+    }
+    
+    if(left_button_pressed && !gameLoop::online)
+        leftClickEvent(blockSelector::selected_block_x, blockSelector::selected_block_y);
+    
     if(!playerHandler::hovered) {
         selected_block_x = (unsigned short)(swl::mouse_x + playerHandler::view_x - swl::window_width / 2) / BLOCK_WIDTH;
         selected_block_y = (unsigned short)(swl::mouse_y + playerHandler::view_y - swl::window_height / 2) / BLOCK_WIDTH;
@@ -36,4 +83,21 @@ void blockSelector::render() {
 
 bool blockSelector::collidingWithPlayer() {
     return swl::colliding(playerHandler::player.getRect(), selectRect.getRect());
+}
+
+void blockSelector::handleEvents(SDL_Event& event) {
+    if(event.type == SDL_MOUSEBUTTONDOWN) {
+        if(event.button.button == SDL_BUTTON_LEFT && !playerHandler::hovered) {
+            left_button_pressed = true;
+            prev_selected_x = blockEngine::world_width;
+            prev_selected_y = blockEngine::world_height;
+        }
+        else if(event.button.button == SDL_BUTTON_RIGHT && !blockSelector::collidingWithPlayer() && !playerHandler::hovered)
+            rightClickEvent(blockSelector::selected_block_x, blockSelector::selected_block_y);
+    }
+    else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && !playerHandler::hovered) {
+        left_button_pressed = false;
+        packets::packet packet(packets::STOPPED_BREAKING);
+        networking::sendPacket(packet);
+    }
 }

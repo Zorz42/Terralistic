@@ -29,8 +29,8 @@ void init::initModules() {
     bool done_initializing = false;
     while(!done_initializing) {
         done_initializing = true;
-        for(initScript script : getInitScripts())
-            if(!script.initialized){
+        for(initScript& script : getInitScripts())
+            if(!script.initialized) {
                 if (script.func())
                     script.initialized = true;
                 else

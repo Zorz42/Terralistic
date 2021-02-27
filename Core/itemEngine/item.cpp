@@ -9,8 +9,6 @@
 #define NAMESPACE itemEngine
 #include "core.hpp"
 
-#include "blockEngine.hpp"
-
 std::random_device device;
 
 void itemEngine::item::create(itemType item_id_, int x_, int y_, unsigned short id_) {

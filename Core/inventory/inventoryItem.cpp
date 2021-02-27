@@ -9,8 +9,6 @@
 #define NAMESPACE inventory
 #include "core.hpp"
 
-#include "blockEngine.hpp"
-
 // inventoryItem is a class which exists in inventory
 
 inventory::inventoryItem::inventoryItem() : item_id(itemEngine::NOTHING), stack(0) {}

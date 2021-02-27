@@ -9,7 +9,6 @@
 #define NAMESPACE networkingModule
 #include "core.hpp"
 
-#include "blockEngine.hpp"
 #include "networkingModule.hpp"
 
 PACKET_LISTENER(packets::BLOCK_CHANGE)
@@ -20,7 +19,7 @@ PACKET_LISTENER(packets::BLOCK_CHANGE)
     blockEngine::setNaturalLight(x);
     blockEngine::getBlock(x, y).update(x, y);
     blockEngine::getBlock(x, y).light_update(x, y);
-    blockEngine::updateNearestBlocks(x, y);
+    blockEngine::updateNeighbours(x, y);
 PACKET_LISTENER_END
 
 PACKET_LISTENER(packets::CHUNK)
