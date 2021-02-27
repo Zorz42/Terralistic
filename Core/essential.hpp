@@ -37,6 +37,7 @@
 #include "terrainGenerator.hpp"
 #include "packets.hpp"
 #include "fileSystem.hpp"
+#include "dev.hpp"
 
 #else
 #warning Essential header has been imported multiple times
