@@ -1,18 +1,18 @@
 //
-//  renderer.hpp
+//  itemRenderer.hpp
 //  Terralistic
 //
-//  Created by Jakob Zorz on 20/02/2021.
+//  Created by Jakob Zorz on 27/02/2021.
 //
 
-#ifndef renderer_hpp
-#define renderer_hpp
+#ifndef itemRenderer_hpp
+#define itemRenderer_hpp
 
 #include "objectedGraphicsLibrary.hpp"
 
-namespace renderer {
+namespace itemRenderer {
 
-void renderItems();
+void render();
 
 struct uniqueRenderItem {
     SDL_Texture* texture;
@@ -22,4 +22,4 @@ uniqueRenderItem& getUniqueRenderItem(unsigned short id);
 
 }
 
-#endif /* renderer_hpp */
+#endif /* itemRenderer_hpp */

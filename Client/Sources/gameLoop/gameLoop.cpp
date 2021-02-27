@@ -18,7 +18,7 @@
 #include "networkingModule.hpp"
 #include "otherPlayers.hpp"
 #include "main.hpp"
-#include "renderer.hpp"
+#include "itemRenderer.hpp"
 #include "blockRenderer.hpp"
 
 #undef main
@@ -102,7 +102,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         swl::setDrawColor(135, 206, 235);
         swl::clear();
         blockRenderer::render();
-        renderer::renderItems();
+        itemRenderer::render();
         players::render();
         playerHandler::render();
         if(pauseScreen::paused)

@@ -14,7 +14,8 @@
 #include "singleWindowLibrary.hpp"
 #include "networkingModule.hpp"
 #include "gameLoop.hpp"
-#include "renderer.hpp"
+#include "itemRenderer.hpp"
+#include "blockRenderer.hpp"
 
 #define INC_X playerHandler::position_x++;playerHandler::view_x++
 #define DEC_X playerHandler::position_x--;playerHandler::view_x--
@@ -230,8 +231,8 @@ void playerHandler::move() {
 }
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
-    if(renderer::getUniqueRenderItem(item->item_id).texture != nullptr)
-        swl::render(renderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+    if(itemRenderer::getUniqueRenderItem(item->item_id).texture != nullptr)
+        swl::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     if(item->getStack() > 1) {
         ogl::texture *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         stack_texture->setX(short(x + BLOCK_WIDTH * 2 - stack_texture->getWidth()));
@@ -265,7 +266,7 @@ void playerHandler::render() {
             hovered = &player_inventory.inventory[i];
             inventory_slots[i].setColor(70, 70, 70);
             if(player_inventory.inventory[i].item_id != itemEngine::NOTHING) {
-                text_texture = &renderer::getUniqueRenderItem(player_inventory.inventory[i].item_id).text_texture;
+                text_texture = &itemRenderer::getUniqueRenderItem(player_inventory.inventory[i].item_id).text_texture;
                 text_texture->setX(swl::mouse_x + 20);
                 text_texture->setY(swl::mouse_y + 20);
                 under_text_rect.setHeight(text_texture->getHeight() + 2 * MARGIN);

@@ -9,16 +9,16 @@
 #define NAMESPACE renderer
 #include "core.hpp"
 
-#include "renderer.hpp"
+#include "itemRenderer.hpp"
 #include "playerHandler.hpp"
 
-std::vector<renderer::uniqueRenderItem> unique_render_items;
+std::vector<itemRenderer::uniqueRenderItem> unique_render_items;
 
-renderer::uniqueRenderItem& renderer::getUniqueRenderItem(unsigned short id) {
+itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(unsigned short id) {
     return unique_render_items[id];
 }
 
-void renderer::renderItems() {
+void itemRenderer::render() {
     for(itemEngine::item& i : itemEngine::items)
         swl::render(unique_render_items[i.getItemId()].texture, {short(i.x / 100 - playerHandler::view_x + swl::window_width / 2), short(i.y / 100 - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH});
 }

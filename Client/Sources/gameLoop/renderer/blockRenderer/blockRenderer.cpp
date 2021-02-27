@@ -9,7 +9,6 @@
 #define NAMESPACE renderer
 #include "core.hpp"
 
-#include "renderer.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "blockRenderer.hpp"

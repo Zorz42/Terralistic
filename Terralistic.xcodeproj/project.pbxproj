@@ -178,7 +178,6 @@
 		1689688F25E9607800D26060 /* itemType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = itemType.hpp; sourceTree = "<group>"; };
 		1689689125E9607800D26060 /* events.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = events.hpp; sourceTree = "<group>"; };
 		1689689225E9607800D26060 /* events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = events.cpp; sourceTree = "<group>"; };
-		1689689525E9607800D26060 /* renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = renderer.hpp; sourceTree = "<group>"; };
 		1689689625E9607800D26060 /* itemRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemRenderer.cpp; sourceTree = "<group>"; };
 		1689689825E9607800D26060 /* otherPlayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = otherPlayers.cpp; sourceTree = "<group>"; };
 		1689689925E9607800D26060 /* otherPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = otherPlayers.hpp; sourceTree = "<group>"; };
@@ -231,6 +230,7 @@
 		1689699A25E962F800D26060 /* texturePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturePack; sourceTree = "<group>"; };
 		168969AC25E968BA00D26060 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		16E6357625EAC8290025A8B4 /* blockRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blockRenderer.hpp; sourceTree = "<group>"; };
+		16E6357825EACCCB0025A8B4 /* itemRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = itemRenderer.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -452,8 +452,7 @@
 		1689689425E9607800D26060 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
-				1689689525E9607800D26060 /* renderer.hpp */,
-				1689689625E9607800D26060 /* itemRenderer.cpp */,
+				16E6357725EACCBD0025A8B4 /* itemRenderer */,
 				16E6357525EAC8140025A8B4 /* blockRenderer */,
 			);
 			path = renderer;
@@ -663,6 +662,15 @@
 				1661663A25EA53A6002A3815 /* blockRenderer.cpp */,
 			);
 			path = blockRenderer;
+			sourceTree = "<group>";
+		};
+		16E6357725EACCBD0025A8B4 /* itemRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				16E6357825EACCCB0025A8B4 /* itemRenderer.hpp */,
+				1689689625E9607800D26060 /* itemRenderer.cpp */,
+			);
+			path = itemRenderer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
