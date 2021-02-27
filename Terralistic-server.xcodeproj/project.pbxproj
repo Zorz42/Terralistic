@@ -27,10 +27,39 @@
 		1661652325EA249D002A3815 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651925EA249D002A3815 /* main.cpp */; };
 		1661652425EA249D002A3815 /* blockEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651B25EA249D002A3815 /* blockEngine.cpp */; };
 		1661652525EA249D002A3815 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651C25EA249D002A3815 /* block.cpp */; };
+		166165AB25EA3053002A3815 /* init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164D825EA2496002A3815 /* init.cpp */; };
+		166165AC25EA3053002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164DE25EA2496002A3815 /* sago.cpp */; };
+		166165AD25EA3053002A3815 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164DF25EA2496002A3815 /* fileSystem.cpp */; };
+		166165AE25EA3053002A3815 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164E225EA2496002A3815 /* packets.cpp */; };
+		166165AF25EA3053002A3815 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164E525EA2496002A3815 /* inventoryItem.cpp */; };
+		166165B025EA3053002A3815 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164E625EA2496002A3815 /* inventory.cpp */; };
+		166165B125EA3054002A3815 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164EB25EA2496002A3815 /* simplex-noise.cpp */; };
+		166165B225EA3054002A3815 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164EC25EA2496002A3815 /* terrainGenerator.cpp */; };
+		166165B325EA3054002A3815 /* perlinNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164EE25EA2496002A3815 /* perlinNoise.cpp */; };
+		166165B425EA3054002A3815 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164F225EA2496002A3815 /* item.cpp */; };
+		166165B525EA3054002A3815 /* itemEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164F325EA2496002A3815 /* itemEngine.cpp */; };
+		166165B625EA3054002A3815 /* events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166164F725EA2496002A3815 /* events.cpp */; };
+		166165B725EA3054002A3815 /* networkingModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650A25EA249D002A3815 /* networkingModule.cpp */; };
+		166165B825EA3054002A3815 /* itemEngineNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650C25EA249D002A3815 /* itemEngineNet.cpp */; };
+		166165B925EA3054002A3815 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650E25EA249D002A3815 /* print.cpp */; };
+		166165BA25EA3054002A3815 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651325EA249D002A3815 /* worldSaver.cpp */; };
+		166165BB25EA3054002A3815 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651525EA249D002A3815 /* playerHandler.cpp */; };
+		166165BC25EA3054002A3815 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651925EA249D002A3815 /* main.cpp */; };
+		166165BD25EA3054002A3815 /* blockEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651B25EA249D002A3815 /* blockEngine.cpp */; };
+		166165BE25EA3054002A3815 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651C25EA249D002A3815 /* block.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		166164C725EA23D1002A3815 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		1661659C25EA2FE6002A3815 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -84,10 +113,18 @@
 		1661651C25EA249D002A3815 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		1661651D25EA249D002A3815 /* blockEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockEngine.hpp; sourceTree = "<group>"; };
 		1661652725EA24D8002A3815 /* blockType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = blockType.hpp; path = Client/Sources/gameLoop/blockEngine/blockType.hpp; sourceTree = "<group>"; };
+		1661659E25EA2FE6002A3815 /* Terralistic-server-Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server-Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		166164C625EA23D1002A3815 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1661659B25EA2FE6002A3815 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -111,6 +148,7 @@
 			isa = PBXGroup;
 			children = (
 				166164C925EA23D1002A3815 /* Terralistic-server */,
+				1661659E25EA2FE6002A3815 /* Terralistic-server-Debug */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -325,6 +363,23 @@
 			productReference = 166164C925EA23D1002A3815 /* Terralistic-server */;
 			productType = "com.apple.product-type.tool";
 		};
+		1661659D25EA2FE6002A3815 /* Terralistic-server-Debug */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 166165A225EA2FE6002A3815 /* Build configuration list for PBXNativeTarget "Terralistic-server-Debug" */;
+			buildPhases = (
+				1661659A25EA2FE6002A3815 /* Sources */,
+				1661659B25EA2FE6002A3815 /* Frameworks */,
+				1661659C25EA2FE6002A3815 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Terralistic-server-Debug";
+			productName = "Terralistic-server-Debug";
+			productReference = 1661659E25EA2FE6002A3815 /* Terralistic-server-Debug */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -334,6 +389,9 @@
 				LastUpgradeCheck = 1240;
 				TargetAttributes = {
 					166164C825EA23D1002A3815 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					1661659D25EA2FE6002A3815 = {
 						CreatedOnToolsVersion = 12.4;
 					};
 				};
@@ -352,6 +410,7 @@
 			projectRoot = "";
 			targets = (
 				166164C825EA23D1002A3815 /* Terralistic-server */,
+				1661659D25EA2FE6002A3815 /* Terralistic-server-Debug */,
 			);
 		};
 /* End PBXProject section */
@@ -381,6 +440,33 @@
 				1661652525EA249D002A3815 /* block.cpp in Sources */,
 				1661651E25EA249D002A3815 /* networkingModule.cpp in Sources */,
 				166164FC25EA2496002A3815 /* inventoryItem.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1661659A25EA2FE6002A3815 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				166165AB25EA3053002A3815 /* init.cpp in Sources */,
+				166165AC25EA3053002A3815 /* sago.cpp in Sources */,
+				166165AD25EA3053002A3815 /* fileSystem.cpp in Sources */,
+				166165AE25EA3053002A3815 /* packets.cpp in Sources */,
+				166165AF25EA3053002A3815 /* inventoryItem.cpp in Sources */,
+				166165B025EA3053002A3815 /* inventory.cpp in Sources */,
+				166165B125EA3054002A3815 /* simplex-noise.cpp in Sources */,
+				166165B225EA3054002A3815 /* terrainGenerator.cpp in Sources */,
+				166165B325EA3054002A3815 /* perlinNoise.cpp in Sources */,
+				166165B425EA3054002A3815 /* item.cpp in Sources */,
+				166165B525EA3054002A3815 /* itemEngine.cpp in Sources */,
+				166165B625EA3054002A3815 /* events.cpp in Sources */,
+				166165B725EA3054002A3815 /* networkingModule.cpp in Sources */,
+				166165B825EA3054002A3815 /* itemEngineNet.cpp in Sources */,
+				166165B925EA3054002A3815 /* print.cpp in Sources */,
+				166165BA25EA3054002A3815 /* worldSaver.cpp in Sources */,
+				166165BB25EA3054002A3815 /* playerHandler.cpp in Sources */,
+				166165BC25EA3054002A3815 /* main.cpp in Sources */,
+				166165BD25EA3054002A3815 /* blockEngine.cpp in Sources */,
+				166165BE25EA3054002A3815 /* block.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,6 +587,7 @@
 		166164D125EA23D1002A3815 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -508,6 +595,7 @@
 					"$(OTHER_CFLAGS)",
 					"-std=c++17",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -515,6 +603,7 @@
 		166164D225EA23D1002A3815 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -522,6 +611,43 @@
 					"$(OTHER_CFLAGS)",
 					"-std=c++17",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		166165A325EA2FE6002A3815 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
+					"-D",
+					DEVELOPER_MODE,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		166165A425EA2FE6002A3815 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
+					"-D",
+					DEVELOPER_MODE,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -543,6 +669,15 @@
 			buildConfigurations = (
 				166164D125EA23D1002A3815 /* Debug */,
 				166164D225EA23D1002A3815 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		166165A225EA2FE6002A3815 /* Build configuration list for PBXNativeTarget "Terralistic-server-Debug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				166165A325EA2FE6002A3815 /* Debug */,
+				166165A425EA2FE6002A3815 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
