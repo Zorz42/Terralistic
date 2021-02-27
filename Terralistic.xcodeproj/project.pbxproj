@@ -56,7 +56,6 @@
 		168969A625E965E000D26060 /* SDL2_ttf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 168969A025E965AD00D26060 /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		168969A725E965E000D26060 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1689699F25E965AC00D26060 /* SDL2.framework */; };
 		168969A825E965E000D26060 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1689699F25E965AC00D26060 /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		168969AD25E968BA00D26060 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 168969AC25E968BA00D26060 /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -595,7 +594,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				168969AD25E968BA00D26060 /* Info.plist in Resources */,
 				1689697725E9607900D26060 /* pixel_font.ttf in Resources */,
 				1689697625E9607900D26060 /* icon.icns in Resources */,
 				1689699B25E962F800D26060 /* texturePack in Resources */,

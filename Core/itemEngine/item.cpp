@@ -14,15 +14,15 @@
 
 std::random_device device;
 
-void itemEngine::item::create(itemType item_id, int x, int y, unsigned short id) {
+void itemEngine::item::create(itemType item_id_, int x_, int y_, unsigned short id_) {
     std::mt19937 engine(device());
     velocity_x = (int)engine() % 200 - 100;
     velocity_y = -int(engine() % 100) - 50;
     
-    this->x = x * 100;
-    this->y = y * 100;
-    this->id = id;
-    this->item_id = item_id;
+    x = x_ * 100;
+    y = y_ * 100;
+    id = id_;
+    item_id = item_id_;
     
     item_creation_data data;
     data.item = this;

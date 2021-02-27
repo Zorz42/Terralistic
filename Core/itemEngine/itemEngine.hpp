@@ -22,7 +22,7 @@ struct uniqueItem {
 
 struct item {
 public:
-    void create(itemType item_id, int x, int y, unsigned short id);
+    void create(itemType item_id_, int x_, int y_, unsigned short id_);
     void destroy();
     int x, y;
     void update(float frame_length);
