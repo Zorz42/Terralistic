@@ -67,7 +67,6 @@
 		166164F425EA2496002A3815 /* itemType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = itemType.hpp; sourceTree = "<group>"; };
 		166164F625EA2496002A3815 /* events.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = events.hpp; sourceTree = "<group>"; };
 		166164F725EA2496002A3815 /* events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = events.cpp; sourceTree = "<group>"; };
-		1661650625EA249D002A3815 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		1661650825EA249D002A3815 /* itemEngine-old.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "itemEngine-old.hpp"; sourceTree = "<group>"; };
 		1661650A25EA249D002A3815 /* networkingModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = networkingModule.cpp; sourceTree = "<group>"; };
 		1661650B25EA249D002A3815 /* networkingModule.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = networkingModule.hpp; sourceTree = "<group>"; };
@@ -102,8 +101,8 @@
 			isa = PBXGroup;
 			children = (
 				1661652725EA24D8002A3815 /* blockType.hpp */,
-				1661650525EA249D002A3815 /* Server */,
 				166164D525EA2496002A3815 /* Core */,
+				1661650525EA249D002A3815 /* Server */,
 				166164CA25EA23D1002A3815 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -119,8 +118,8 @@
 		166164D525EA2496002A3815 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				166164D625EA2496002A3815 /* init */,
 				166164D925EA2496002A3815 /* essential.hpp */,
+				166164D625EA2496002A3815 /* init */,
 				166164DA25EA2496002A3815 /* fileSystem */,
 				166164E025EA2496002A3815 /* packets */,
 				166164E325EA2496002A3815 /* inventory */,
@@ -230,11 +229,10 @@
 		1661650525EA249D002A3815 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				1661650625EA249D002A3815 /* CMakeLists.txt */,
+				1661651025EA249D002A3815 /* dev.hpp */,
 				1661650725EA249D002A3815 /* itemEngineNet */,
 				1661650925EA249D002A3815 /* networkingModule */,
 				1661650D25EA249D002A3815 /* print */,
-				1661651025EA249D002A3815 /* dev.hpp */,
 				1661651125EA249D002A3815 /* worldSaver */,
 				1661651425EA249D002A3815 /* playerHandler */,
 				1661651725EA249D002A3815 /* main */,
