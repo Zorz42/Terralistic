@@ -150,7 +150,7 @@
 		1661663025EA4BBA002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		1689687225E9607800D26060 /* init.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = init.hpp; sourceTree = "<group>"; };
 		1689687325E9607800D26060 /* init.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = init.cpp; sourceTree = "<group>"; };
-		1689687425E9607800D26060 /* essential.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = essential.hpp; sourceTree = "<group>"; };
+		1689687425E9607800D26060 /* core.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = core.hpp; sourceTree = "<group>"; };
 		1689687625E9607800D26060 /* fileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fileSystem.hpp; sourceTree = "<group>"; };
 		1689687825E9607800D26060 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
 		1689687925E9607800D26060 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
@@ -306,7 +306,7 @@
 		1689687025E9607800D26060 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				1689687425E9607800D26060 /* essential.hpp */,
+				1689687425E9607800D26060 /* core.hpp */,
 				1661662F25EA4BA8002A3815 /* dev */,
 				1689687125E9607800D26060 /* init */,
 				1689687525E9607800D26060 /* fileSystem */,
@@ -589,9 +589,9 @@
 		1689693D25E9607900D26060 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				1689693E25E9607900D26060 /* UIKit */,
-				1689694325E9607900D26060 /* objectedGraphicsLibrary */,
 				1689694825E9607900D26060 /* singleWindowLibrary */,
+				1689694325E9607900D26060 /* objectedGraphicsLibrary */,
+				1689693E25E9607900D26060 /* UIKit */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";

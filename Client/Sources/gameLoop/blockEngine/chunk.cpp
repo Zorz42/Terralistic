@@ -7,7 +7,7 @@
 
 #define FILENAME chunk
 #define NAMESPACE blockEngine
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "blockEngine.hpp"
 #include "singleWindowLibrary.hpp"

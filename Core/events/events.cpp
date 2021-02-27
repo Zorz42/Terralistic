@@ -7,7 +7,7 @@
 
 #define FILENAME events
 #define NAMESPACE events
-#include "essential.hpp"
+#include "core.hpp"
 
 struct eventListener {
     events::listenerFunction func;

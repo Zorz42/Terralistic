@@ -7,7 +7,7 @@
 
 #define FILENAME worldSaver
 #define NAMESPACE worldSaver
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "worldSaver.hpp"
 #include "blockEngine.hpp"

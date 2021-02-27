@@ -74,7 +74,6 @@
 		166164C925EA23D1002A3815 /* Terralistic-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		166164D725EA2496002A3815 /* init.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = init.hpp; sourceTree = "<group>"; };
 		166164D825EA2496002A3815 /* init.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = init.cpp; sourceTree = "<group>"; };
-		166164D925EA2496002A3815 /* essential.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = essential.hpp; sourceTree = "<group>"; };
 		166164DB25EA2496002A3815 /* fileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fileSystem.hpp; sourceTree = "<group>"; };
 		166164DD25EA2496002A3815 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
 		166164DE25EA2496002A3815 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
@@ -115,6 +114,7 @@
 		1661659E25EA2FE6002A3815 /* Terralistic-server-Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server-Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661663425EA4C47002A3815 /* dev.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dev.hpp; sourceTree = "<group>"; };
 		1661663525EA4C47002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
+		1661663625EA4DA6002A3815 /* core.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = core.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,7 +157,7 @@
 		166164D525EA2496002A3815 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				166164D925EA2496002A3815 /* essential.hpp */,
+				1661663625EA4DA6002A3815 /* core.hpp */,
 				1661663325EA4C47002A3815 /* dev */,
 				166164D625EA2496002A3815 /* init */,
 				166164DA25EA2496002A3815 /* fileSystem */,

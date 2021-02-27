@@ -7,7 +7,7 @@
 
 #define FILENAME pauseScreen
 #define NAMESPACE pauseScreen
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "pauseScreen.hpp"
 #include "UIKit.hpp"

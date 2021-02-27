@@ -7,7 +7,7 @@
 
 #define FILENAME packets
 #define NAMESPACE packets
-#include "essential.hpp"
+#include "core.hpp"
 
 #ifdef WIN32
 #include <winsock2.h>

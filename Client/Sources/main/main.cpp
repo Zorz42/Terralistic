@@ -7,7 +7,7 @@
 
 #define FILENAME main
 #define NAMESPACE main
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "main.hpp"
 #include "singleWindowLibrary.hpp"

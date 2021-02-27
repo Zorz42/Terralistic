@@ -7,7 +7,7 @@
 
 #define FILENAME itemRenderer
 #define NAMESPACE renderer
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "renderer.hpp"
 #include "blockEngine.hpp"

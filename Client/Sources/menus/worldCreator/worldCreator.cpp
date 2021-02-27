@@ -7,7 +7,7 @@
 
 #define FILENAME worldCreator
 #define NAMESPACE worldCreator
-#include "essential.hpp"
+#include "core.hpp"
 
 #include <vector>
 #include <algorithm>

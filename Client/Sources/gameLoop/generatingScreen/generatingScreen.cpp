@@ -7,7 +7,7 @@
 
 #define FILENAME generatingScreen
 #define NAMESPACE generatingScreen
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "generatingScreen.hpp"
 #include "UIKit.hpp"

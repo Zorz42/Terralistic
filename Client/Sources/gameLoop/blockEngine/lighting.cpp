@@ -7,7 +7,7 @@
 
 #define FILENAME lighting
 #define NAMESPACE blockEngine
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "blockEngine.hpp"
 

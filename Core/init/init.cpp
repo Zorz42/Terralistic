@@ -7,7 +7,7 @@
 
 #define FILENAME init
 #define NAMESPACE init
-#include "essential.hpp"
+#include "core.hpp"
 
 struct initScript {
     initScript(init::initFunction func) : func(func) {}

@@ -7,7 +7,7 @@
 
 #define FILENAME blockSelector
 #define NAMESPACE blockSelector
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "blockSelector.hpp"
 #include "blockEngine.hpp"

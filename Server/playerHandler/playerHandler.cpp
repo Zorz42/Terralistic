@@ -7,7 +7,7 @@
 
 #define FILENAME playerHandler
 #define NAMESPACE playerHandler
-#include "essential.hpp"
+#include "core.hpp"
 
 #ifdef WIN32
 #include <winsock2.h>

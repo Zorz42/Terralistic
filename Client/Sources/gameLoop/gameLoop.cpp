@@ -6,7 +6,7 @@
 //
 #define FILENAME gameLoop
 #define NAMESPACE gameLoop
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "gameLoop.hpp"
 #include "singleWindowLibrary.hpp"

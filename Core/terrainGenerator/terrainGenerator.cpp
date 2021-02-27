@@ -7,7 +7,7 @@
 
 #define FILENAME terrainGenerator
 #define NAMESPACE terrainGenerator
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "blockEngine.hpp"
 #include "simplex-noise.hpp"

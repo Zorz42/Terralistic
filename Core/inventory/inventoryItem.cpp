@@ -7,7 +7,7 @@
 
 #define FILENAME inventoryItem
 #define NAMESPACE inventory
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "blockEngine.hpp"
 

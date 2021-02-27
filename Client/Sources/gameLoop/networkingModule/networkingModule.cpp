@@ -7,7 +7,7 @@
 
 #define FILENAME networkingModule
 #define NAMESPACE networkingModule
-#include "essential.hpp"
+#include "core.hpp"
 
 #ifdef WIN32
 #include <windows.h>

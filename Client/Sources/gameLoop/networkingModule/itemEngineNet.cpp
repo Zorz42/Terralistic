@@ -7,7 +7,7 @@
 
 #define FILENAME itemEngineNet
 #define NAMESPACE networkingModule
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "networkingModule.hpp"
 

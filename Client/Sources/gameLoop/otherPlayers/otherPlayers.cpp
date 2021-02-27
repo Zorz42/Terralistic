@@ -7,7 +7,7 @@
 
 #define FILENAME otherPlayers
 #define NAMESPACE otherPlayers
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "otherPlayers.hpp"
 #include "playerHandler.hpp"

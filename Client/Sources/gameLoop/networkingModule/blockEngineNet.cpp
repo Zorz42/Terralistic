@@ -7,7 +7,7 @@
 
 #define FILENAME blockEngineNet
 #define NAMESPACE networkingModule
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "blockEngine.hpp"
 #include "networkingModule.hpp"

@@ -7,7 +7,7 @@
 
 #define FILENAME fileSystem
 #define NAMESPACE fileSystem
-#include "essential.hpp"
+#include "core.hpp"
 
 #include "platform_folders.h"
 #include <sys/stat.h>
