@@ -50,8 +50,8 @@ public:
     bool to_update_light = true;
     unsigned short break_progress = 0;
     
-    unsigned short getX();
-    unsigned short getY();
+    unsigned short getX() const;
+    unsigned short getY() const;
 };
 
 struct chunk {

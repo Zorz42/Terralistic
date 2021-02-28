@@ -20,19 +20,23 @@ struct uniqueRenderBlock {
 };
 
 struct renderBlock {
-    void updateOrientation(unsigned short x, unsigned short y);
-    void draw(unsigned short x, unsigned short y);
+    void updateOrientation();
+    void draw();
     Uint8 block_orientation{0};
     bool to_update = true;
-    void scheduleTextureUpdate(unsigned short x, unsigned short y);
+    void scheduleTextureUpdate();
+    unsigned short getX() const;
+    unsigned short getY() const;
 };
 
 struct renderChunk {
-    void render(unsigned short x, unsigned short y) const;
+    void render() const;
     bool update = true;
     SDL_Texture* texture = nullptr;
     void createTexture();
-    void updateTexture(unsigned short x, unsigned short y);
+    void updateTexture();
+    unsigned short getX() const;
+    unsigned short getY() const;
 };
 
 inline renderChunk* chunks;

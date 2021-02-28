@@ -76,11 +76,11 @@ void blockEngine::block::light_update(bool update) {
                 neighbors[i]->light_update();
 }
 
-unsigned short blockEngine::block::getX() {
+unsigned short blockEngine::block::getX() const {
     return (unsigned int)(this - blocks) % world_width;
 }
 
-unsigned short blockEngine::block::getY() {
+unsigned short blockEngine::block::getY() const {
     return (unsigned int)(this - blocks) / world_width;
 }
 
