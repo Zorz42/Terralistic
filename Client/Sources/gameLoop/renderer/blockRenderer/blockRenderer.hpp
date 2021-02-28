@@ -24,6 +24,7 @@ struct renderBlock {
     void draw(unsigned short x, unsigned short y);
     Uint8 block_orientation{0};
     bool to_update = true;
+    void scheduleTextureUpdate(unsigned short x, unsigned short y);
 };
 
 struct renderChunk {

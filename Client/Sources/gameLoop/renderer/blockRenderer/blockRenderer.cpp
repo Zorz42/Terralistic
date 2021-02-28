@@ -131,7 +131,7 @@ void blockRenderer::render() {
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
             if(blockEngine::getBlock(x, y).to_update_light && blockEngine::getChunk(x >> 4, y >> 4).loaded)
-                blockEngine::getBlock(x, y).light_update(x, y);
+                blockEngine::getBlock(x, y).light_update();
 }
 
 void blockRenderer::renderChunk::render(unsigned short x, unsigned short y) const {
@@ -145,12 +145,12 @@ void blockRenderer::renderChunk::createTexture() {
 
 blockRenderer::renderBlock& blockRenderer::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < blockEngine::world_height && x >= 0 && x < blockEngine::world_width, "requested block is out of bounds");
-    return blocks[x + y * blockEngine::world_width];
+    return blocks[y * blockEngine::world_width + x];
 }
 
 blockRenderer::renderChunk& blockRenderer::getChunk(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < (blockEngine::world_height >> 4) && x >= 0 && x < (blockEngine::world_width >> 4), "requested chunk is out of bounds");
-    return chunks[x + y * (blockEngine::world_width >> 4)];
+    return chunks[y * (blockEngine::world_width >> 4) + x];
 }
 
 blockRenderer::uniqueRenderBlock::uniqueRenderBlock(blockEngine::uniqueBlock* unique_block) {
@@ -159,12 +159,15 @@ blockRenderer::uniqueRenderBlock::uniqueRenderBlock(blockEngine::uniqueBlock* un
     single_texture = h == 8;
 }
 
+void blockRenderer::renderBlock::scheduleTextureUpdate(unsigned short x, unsigned short y) {
+    to_update = true;
+    getChunk(x >> 4, y >> 4).update = true;
+}
+
 EVENT_LISTENER(blockEngine::block_change)
-    blockRenderer::getBlock(data.x, data.y).to_update = true;
-    blockRenderer::getChunk(data.x >> 4, data.y >> 4).update = true;
+    blockRenderer::getBlock(data.x, data.y).scheduleTextureUpdate(data.x, data.y);
 EVENT_LISTENER_END
 
 EVENT_LISTENER(blockEngine::light_change)
-    blockRenderer::getBlock(data.x, data.y).to_update = true;
-    blockRenderer::getChunk(data.x >> 4, data.y >> 4).update = true;
+    blockRenderer::getBlock(data.x, data.y).scheduleTextureUpdate(data.x, data.y);
 EVENT_LISTENER_END

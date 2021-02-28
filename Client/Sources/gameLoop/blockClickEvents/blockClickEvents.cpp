@@ -15,23 +15,20 @@
 
 // you can register special click events to blocks for custom behaviour
 void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
-    block->setBlockType(blockEngine::DIRT, x, y);
+    block->setBlockType(blockEngine::DIRT);
 }
 
 void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
     blockEngine::blockType type = playerHandler::player_inventory.getSelectedSlot()->getUniqueItem().places;
     if(type != blockEngine::AIR && playerHandler::player_inventory.getSelectedSlot()->decreaseStack(1)) {
         blockEngine::removeNaturalLight(x);
-        block->setBlockType(type, x, y);
+        block->setBlockType(type);
         blockEngine::setNaturalLight(x);
-        if(gameLoop::online) {
-            blockRenderer::getBlock(x, y).to_update = true;
-            blockRenderer::getChunk(x >> 4, y >> 4).update = true;
-        } else {
-            blockEngine::getBlock(x, y).update(x, y);
+        if(!gameLoop::online) {
+            blockEngine::getBlock(x, y).update();
             blockEngine::updateNeighbours(x, y);
         }
-        blockEngine::getBlock(x, y).light_update(x, y);
+        blockEngine::getBlock(x, y).light_update();
     }
 }
 

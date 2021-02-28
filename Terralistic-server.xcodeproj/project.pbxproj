@@ -114,6 +114,7 @@
 		1661663425EA4C47002A3815 /* dev.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dev.hpp; sourceTree = "<group>"; };
 		1661663525EA4C47002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		1661663625EA4DA6002A3815 /* core.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = core.hpp; sourceTree = "<group>"; };
+		16E6357A25EBA9900025A8B4 /* blockType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = blockType.hpp; path = Core/blockEngine/blockType.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +138,7 @@
 		166164C025EA23D1002A3815 = {
 			isa = PBXGroup;
 			children = (
+				16E6357A25EBA9900025A8B4 /* blockType.hpp */,
 				166164D525EA2496002A3815 /* Core */,
 				1661650525EA249D002A3815 /* Server */,
 				166164CA25EA23D1002A3815 /* Products */,

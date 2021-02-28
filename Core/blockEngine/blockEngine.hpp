@@ -36,23 +36,25 @@ public:
     block() : block_id(AIR) {}
     explicit block(blockType block_id) : block_id(block_id) {}
 
-    void update(unsigned short x, unsigned short y);
+    void update();
     
     blockType block_id;
     
     [[nodiscard]] uniqueBlock& getUniqueBlock() const;
-    void setBlockType(blockType id, unsigned short x, unsigned short y);
+    void setBlockType(blockType id);
     
     unsigned char light_level = 0;
     bool light_source = false;
-    void light_update(unsigned short x, unsigned short y, bool update=true);
+    void light_update(bool update=true);
     
     bool to_update_light = true;
     unsigned short break_progress = 0;
+    
+    unsigned short getX();
+    unsigned short getY();
 };
 
 struct chunk {
-    block blocks[16][16];
     bool loaded = false, pending_load = false;
 };
 
@@ -60,8 +62,9 @@ void prepare();
 void prepareWorld();
 void close();
 
-inline chunk *world;
 inline unsigned short world_width = 4400, world_height = 1200;
+inline chunk *chunks;
+inline block *blocks;
 
 inline std::vector<uniqueBlock> unique_blocks;
 

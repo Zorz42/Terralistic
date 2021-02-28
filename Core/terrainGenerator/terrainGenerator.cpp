@@ -55,7 +55,7 @@ int terrainGenerator::generateTerrainDaemon(unsigned int seed) {
     LOADING_NEXT
     for(int y = 0; y < blockEngine::world_height; y++)
         for(int x = 0; x < blockEngine::world_width; x++)
-            blockEngine::getBlock(x, y).update(x, y);
+            blockEngine::getBlock(x, y).update();
     return 0;
 }
 

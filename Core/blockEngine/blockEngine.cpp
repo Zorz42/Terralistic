@@ -23,31 +23,28 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void blockEngine::prepare() {
-    world = new chunk[(world_width >> 4) * (world_height >> 4)];
-    
-    for(unsigned short x = 0; x < blockEngine::world_width; x++)
-        for(unsigned short y = 0; y < blockEngine::world_height; y++)
-            blockEngine::getBlock(x, y).block_id = blockEngine::AIR;
+    chunks = new chunk[(world_width >> 4) * (world_height >> 4)];
+    blocks = new block[world_width * world_height];
 }
 
 void blockEngine::close() {
-    delete[] world;
+    delete[] chunks;
+    delete[] blocks;
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < world_height && x >= 0 && x < world_width, "requested block is out of bounds");
-    return getChunk(x >> 4, y >> 4).blocks[x & 15][y & 15];
+    return blocks[y * world_width + x];
 }
 
 blockEngine::chunk& blockEngine::getChunk(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < (world_height >> 4) && x >= 0 && x < (world_width >> 4), "requested chunk is out of bounds");
-    return world[y * (world_width >> 4) + x];
+    return chunks[y * (world_width >> 4) + x];
 }
 
 void blockEngine::updateNeighbours(unsigned short x, unsigned short y) {
     // update upper, lower, right and left block
     block* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
-    unsigned short x_[4] = {(unsigned short)(x - 1), (unsigned short)(x + 1), x, x}, y_[4] = {y, y, (unsigned short)(y - 1), (unsigned short)(y + 1)};
     if(x != 0)
         neighbors[0] = &getBlock(x - 1, y);
     if(x != blockEngine::world_width - 1)
@@ -58,10 +55,10 @@ void blockEngine::updateNeighbours(unsigned short x, unsigned short y) {
         neighbors[3] = &getBlock(x, y + 1);
     for(int i = 0; i < 4; i++)
         if(neighbors[i] != nullptr)
-            neighbors[i]->update(x_[i], y_[i]);
+            neighbors[i]->update();
 }
 
-void blockEngine::prepareWorld() {    
+void blockEngine::prepareWorld() {
     for(unsigned short x = 0; x < world_width; x++)
         setNaturalLight(x);
 }

@@ -11,11 +11,11 @@
 
 blockEngine::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {}
 
-void blockEngine::block::update(unsigned short x, unsigned short y) {
-    if(getUniqueBlock().only_on_floor && getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent) {
-        itemEngine::spawnItem(getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
-        getBlock(x, y).setBlockType(AIR, x, y);
-        updateNeighbours(x, y);
+void blockEngine::block::update() {
+    if(getUniqueBlock().only_on_floor && getBlock(getX(), (unsigned short)(getY() + 1)).getUniqueBlock().transparent) {
+        itemEngine::spawnItem(getUniqueBlock().drop, getX() * BLOCK_WIDTH, getY() * BLOCK_WIDTH);
+        getBlock(getX(), getY()).setBlockType(AIR);
+        updateNeighbours(getX(), getY());
     }
 }
 
@@ -23,23 +23,23 @@ blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() const {
      return unique_blocks[block_id];
 }
 
-void blockEngine::block::setBlockType(blockType id, unsigned short x, unsigned short y) {
+void blockEngine::block::setBlockType(blockType id) {
     if(id != block_id) {
         block_id = id;
         
         block_change_data data;
-        data.x = x;
-        data.y = y;
+        data.x = getX();
+        data.y = getY();
         data.type = id;
         events::callEvent(block_change, (void*)&data);
     }
 }
 
-void blockEngine::block::light_update(unsigned short x, unsigned short y, bool update) {
+void blockEngine::block::light_update(bool update) {
+    unsigned short x = getX(), y = getY();
     if(update)
         to_update_light = false;
     block* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
-    unsigned short x_[] = {(unsigned short)(x - 1), (unsigned short)(x + 1), x, x}, y_[] = {y, y, (unsigned short)(y - 1), (unsigned short)(y + 1)};
     if(x != 0 && getChunk((x - 1) >> 4, y >> 4).loaded)
         neighbors[0] = &getBlock(x - 1, y);
     if(x != blockEngine::world_width - 1 && getChunk((x + 1) >> 4, y >> 4).loaded)
@@ -73,5 +73,14 @@ void blockEngine::block::light_update(unsigned short x, unsigned short y, bool u
     if((update_neighbors || light_source) && update)
         for(int i = 0; i < 4; i++)
             if(neighbors[i] != nullptr && !neighbors[i]->light_source)
-                neighbors[i]->light_update(x_[i], y_[i]);
+                neighbors[i]->light_update();
 }
+
+unsigned short blockEngine::block::getX() {
+    return (unsigned int)(this - blocks) % world_width;
+}
+
+unsigned short blockEngine::block::getY() {
+    return (unsigned int)(this - blocks) / world_width;
+}
+
