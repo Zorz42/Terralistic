@@ -43,21 +43,17 @@ void blockRenderer::close() {
 }
 
 void blockRenderer::renderBlock::updateOrientation() {
-    if(!unique_render_blocks[blockEngine::getBlock(getX(), getY()).block_id].single_texture) {
+    if(!getUniqueRenderBlock().single_texture) {
         block_orientation = 0;
         char x_[] = {0, 1, 0, -1};
         char y_[] = {-1, 0, 1, 0};
         Uint8 c = 1;
         for(int i = 0; i < 4; i++) {
-            if(getX() + x_[i] >= blockEngine::world_width || getX() + x_[i] < 0) {
-                block_orientation += c;
-                continue;
-            }
-            if(getY() + y_[i] >= blockEngine::world_height || getY() + y_[i] < 0) {
-                block_orientation += c;
-                continue;
-            }
-            if(blockEngine::getBlock(getX() + x_[i], getY() + y_[i]).block_id == blockEngine::getBlock(getX(), getY()).block_id || std::count(unique_render_blocks[blockEngine::getBlock(getX(), getY()).block_id].connects_to.begin(), unique_render_blocks[blockEngine::getBlock(getX(), getY()).block_id].connects_to.end(), blockEngine::getBlock(getX() + x_[i], getY() + y_[i]).block_id))
+            if(
+               getX() + x_[i] >= blockEngine::world_width || getX() + x_[i] < 0 || getY() + y_[i] >= blockEngine::world_height || getY() + y_[i] < 0 ||
+               blockEngine::getBlock(getX() + x_[i], getY() + y_[i]).block_id == getRelatedBlock().block_id ||
+               std::count(getUniqueRenderBlock().connects_to.begin(), getUniqueRenderBlock().connects_to.end(), blockEngine::getBlock(getX() + x_[i], getY() + y_[i]).block_id)
+            )
                 block_orientation += c;
             c += c;
         }
@@ -66,14 +62,14 @@ void blockRenderer::renderBlock::updateOrientation() {
 
 void blockRenderer::renderBlock::draw() {
     swl::rect rect = {short((getX() & 15) * BLOCK_WIDTH), short((getY() & 15) * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH};
-    if(unique_render_blocks[blockEngine::getBlock(getX(), getY()).block_id].texture && blockEngine::getBlock(getX(), getY()).light_level)
-        swl::render(unique_render_blocks[blockEngine::getBlock(getX(), getY()).block_id].texture, rect, {0, short(8 * block_orientation), 8, 8});
+    if(getUniqueRenderBlock().texture && getRelatedBlock().light_level)
+        swl::render(getUniqueRenderBlock().texture, rect, {0, short(8 * block_orientation), 8, 8});
     
-    if(blockEngine::getBlock(getX(), getY()).light_level != MAX_LIGHT) {
-        swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * blockEngine::getBlock(getX(), getY()).light_level));
+    if(getRelatedBlock().light_level != MAX_LIGHT) {
+        swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level));
         swl::render(rect);
     }
-    unsigned char progress = (unsigned char)((float)blockEngine::getBlock(getX(), getY()).break_progress / (float)blockEngine::getBlock(getX(), getY()).getUniqueBlock().break_time * 9.0f);
+    unsigned char progress = (unsigned char)((float)getRelatedBlock().break_progress / (float)getRelatedBlock().getUniqueBlock().break_time * 9.0f);
     if(progress)
         swl::render(breaking_texture, rect, {0, short(8 * (progress - 1)), 8, 8});
 }
@@ -178,6 +174,18 @@ unsigned short blockRenderer::renderChunk::getX() const {
 
 unsigned short blockRenderer::renderChunk::getY() const {
     return (unsigned int)(this - chunks) / (blockEngine::world_width >> 4);
+}
+
+blockEngine::block& blockRenderer::renderBlock::getRelatedBlock() {
+    return blockEngine::blocks[this - blocks];
+}
+
+blockRenderer::uniqueRenderBlock& blockRenderer::renderBlock::getUniqueRenderBlock() {
+    return unique_render_blocks[getRelatedBlock().block_id];
+}
+
+blockEngine::uniqueBlock& blockRenderer::renderBlock::getUniqueBlock() {
+    return getRelatedBlock().getUniqueBlock();
 }
 
 EVENT_LISTENER(blockEngine::block_change)

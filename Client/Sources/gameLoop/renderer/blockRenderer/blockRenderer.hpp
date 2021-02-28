@@ -27,6 +27,9 @@ struct renderBlock {
     void scheduleTextureUpdate();
     unsigned short getX() const;
     unsigned short getY() const;
+    blockEngine::block& getRelatedBlock();
+    uniqueRenderBlock& getUniqueRenderBlock();
+    blockEngine::uniqueBlock& getUniqueBlock();
 };
 
 struct renderChunk {
