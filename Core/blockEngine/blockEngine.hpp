@@ -48,7 +48,10 @@ public:
     void light_update(bool update=true);
     
     bool to_update_light = true;
-    unsigned short break_progress = 0;
+    
+    void setBreakProgress(unsigned short ms, bool do_break_check);
+    unsigned short break_progress_ms = 0;
+    unsigned char break_progress = 0;
     
     unsigned short getX() const;
     unsigned short getY() const;
@@ -85,6 +88,10 @@ REGISTER_EVENT(block_change) {
 };
 
 REGISTER_EVENT(light_change) {
+    unsigned short x, y;
+};
+
+REGISTER_EVENT(break_progress_change) {
     unsigned short x, y;
 };
 

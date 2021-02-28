@@ -69,9 +69,9 @@ void blockRenderer::renderBlock::draw() {
         swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level));
         swl::render(rect);
     }
-    unsigned char progress = (unsigned char)((float)getRelatedBlock().break_progress / (float)getRelatedBlock().getUniqueBlock().break_time * 9.0f);
-    if(progress)
-        swl::render(breaking_texture, rect, {0, short(8 * (progress - 1)), 8, 8});
+
+    if(getRelatedBlock().break_progress)
+        swl::render(breaking_texture, rect, {0, short(8 * (getRelatedBlock().break_progress - 1)), 8, 8});
 }
 
 void blockRenderer::renderChunk::updateTexture() {
@@ -188,10 +188,31 @@ blockEngine::uniqueBlock& blockRenderer::renderBlock::getUniqueBlock() {
     return getRelatedBlock().getUniqueBlock();
 }
 
+void updateBlock(unsigned short x, unsigned short y) {
+    blockRenderer::getBlock(x, y).scheduleTextureUpdate();
+    
+    blockRenderer::renderBlock* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
+    if(x != 0)
+        neighbors[0] = &blockRenderer::getBlock(x - 1, y);
+    if(x != blockEngine::world_width - 1)
+        neighbors[1] = &blockRenderer::getBlock(x + 1, y);
+    if(y != 0)
+        neighbors[2] = &blockRenderer::getBlock(x, y - 1);
+    if(y != blockEngine::world_height - 1)
+        neighbors[3] = &blockRenderer::getBlock(x, y + 1);
+    for(int i = 0; i < 4; i++)
+        if(neighbors[i] != nullptr)
+            neighbors[i]->scheduleTextureUpdate();
+}
+
 EVENT_LISTENER(blockEngine::block_change)
-    blockRenderer::getBlock(data.x, data.y).scheduleTextureUpdate();
+    updateBlock(data.x, data.y);
 EVENT_LISTENER_END
 
 EVENT_LISTENER(blockEngine::light_change)
-    blockRenderer::getBlock(data.x, data.y).scheduleTextureUpdate();
+    updateBlock(data.x, data.y);
+EVENT_LISTENER_END
+
+EVENT_LISTENER(blockEngine::break_progress_change)
+    updateBlock(data.x, data.y);
 EVENT_LISTENER_END

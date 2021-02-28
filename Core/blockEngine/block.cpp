@@ -25,7 +25,10 @@ blockEngine::uniqueBlock& blockEngine::block::getUniqueBlock() const {
 
 void blockEngine::block::setBlockType(blockType id) {
     if(id != block_id) {
+        removeNaturalLight(getX());
         block_id = id;
+        setNaturalLight(getX());
+        light_update();
         
         block_change_data data;
         data.x = getX();
@@ -84,3 +87,23 @@ unsigned short blockEngine::block::getY() const {
     return (unsigned int)(this - blocks) / world_width;
 }
 
+void blockEngine::block::setBreakProgress(unsigned short ms, bool do_break_check) {
+    break_progress_ms = ms;
+    unsigned char progress = (unsigned char)((float)break_progress_ms / (float)getUniqueBlock().break_time * 9.0f);
+    if(do_break_check) {
+        if(progress != break_progress) {
+            break_progress = progress;
+            break_progress_change_data data;
+            data.x = getX();
+            data.y = getY();
+            events::callEvent(break_progress_change, (void*)&data);
+        }
+        
+        if(break_progress_ms >= getUniqueBlock().break_time) {
+            if(getUniqueBlock().drop != itemEngine::NOTHING && do_break_check)
+                itemEngine::spawnItem(getUniqueBlock().drop, getX() * BLOCK_WIDTH, getY() * BLOCK_WIDTH);
+            blockEngine::getBlock(getX(), getY()).setBlockType(blockEngine::AIR);
+            blockEngine::getBlock(getX(), getY()).break_progress = 0;
+        }
+    }
+}

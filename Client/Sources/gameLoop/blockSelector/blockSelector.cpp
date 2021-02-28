@@ -44,18 +44,8 @@ void leftClickEvent(unsigned short x, unsigned short y) {
     blockEngine::block* block = &blockEngine::getBlock(x, y);
     if(block->getUniqueBlock().leftClickEvent)
         block->getUniqueBlock().leftClickEvent(block, x, y);
-    else {
-        block->break_progress += gameLoop::frame_length;
-        if(block->break_progress >= block->getUniqueBlock().break_time) {
-            if(block->getUniqueBlock().drop != itemEngine::NOTHING && !gameLoop::online)
-                itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
-            blockEngine::removeNaturalLight(x);
-            blockEngine::getBlock(x, y).setBlockType(blockEngine::AIR);
-            blockEngine::setNaturalLight(x);
-            blockEngine::getBlock(x, y).light_update();
-            blockEngine::getBlock(x, y).break_progress = 0;
-        }
-    }
+    else
+        block->setBreakProgress(block->break_progress_ms + gameLoop::frame_length, !gameLoop::online);
 }
 
 void blockSelector::render() {
