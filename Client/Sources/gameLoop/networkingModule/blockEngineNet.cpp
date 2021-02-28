@@ -36,6 +36,6 @@ PACKET_LISTENER_END
 
 PACKET_LISTENER(packets::BLOCK_BREAK_PROGRESS_CHANGE)
     unsigned short progress = packet.getUShort(), x = packet.getUShort(), y = packet.getUShort();
-    blockEngine::getBlock(x, y).setBreakProgress(progress, false);
+    blockEngine::getBlock(x, y).setBreakProgress(progress);
 PACKET_LISTENER_END
 

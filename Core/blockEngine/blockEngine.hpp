@@ -49,7 +49,7 @@ public:
     
     bool to_update_light = true;
     
-    void setBreakProgress(unsigned short ms, bool do_break_check);
+    void setBreakProgress(unsigned short ms);
     unsigned short break_progress_ms = 0;
     unsigned char break_progress = 0;
     
