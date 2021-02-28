@@ -8,7 +8,6 @@
 #ifndef blockEngine_hpp
 #define blockEngine_hpp
 
-#include <SDL2/SDL.h>
 #include "blockType.hpp"
 
 #define BLOCK_WIDTH 16
@@ -19,11 +18,9 @@ namespace blockEngine {
 struct block;
 
 struct uniqueBlock {
-    bool single_texture, ghost, only_on_floor, transparent;
+    bool ghost, only_on_floor, transparent;
     
     std::string name;
-    SDL_Texture* texture;
-    std::vector<blockType> connects_to;
     
     uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time);
     
@@ -50,18 +47,13 @@ public:
     bool light_source = false;
     void light_update(unsigned short x, unsigned short y, bool update=true);
     
-    bool to_update = true, to_update_light = true;
+    bool to_update_light = true;
     unsigned short break_progress = 0;
-//private:
-    Uint8 block_orientation{};
 };
 
 struct chunk {
-    void render(unsigned short x, unsigned short y) const;
     block blocks[16][16];
-    bool update = true, loaded = false, pending_load = false;
-    SDL_Texture* texture = nullptr;
-    void createTexture();
+    bool loaded = false, pending_load = false;
 };
 
 void prepare();
@@ -87,6 +79,10 @@ void removeLightSource(unsigned short x, unsigned short y);
 REGISTER_EVENT(block_change) {
     unsigned short x, y;
     blockEngine::blockType type;
+};
+
+REGISTER_EVENT(light_change) {
+    unsigned short x, y;
 };
 
 }

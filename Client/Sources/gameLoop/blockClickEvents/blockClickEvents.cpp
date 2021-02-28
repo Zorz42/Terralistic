@@ -10,6 +10,8 @@
 #include "core.hpp"
 
 #include "playerHandler.hpp"
+#include "gameLoop.hpp"
+#include "blockRenderer.hpp"
 
 // you can register special click events to blocks for custom behaviour
 void grass_block_leftClickEvent(blockEngine::block* block, unsigned short x, unsigned short y) {
@@ -22,8 +24,13 @@ void air_rightClickEvent(blockEngine::block* block, unsigned short x, unsigned s
         blockEngine::removeNaturalLight(x);
         block->setBlockType(type, x, y);
         blockEngine::setNaturalLight(x);
-        blockEngine::getBlock(x, y).update(x, y);
-        blockEngine::updateNeighbours(x, y);
+        if(gameLoop::online) {
+            blockRenderer::getBlock(x, y).to_update = true;
+            blockRenderer::getChunk(x >> 4, y >> 4).update = true;
+        } else {
+            blockEngine::getBlock(x, y).update(x, y);
+            blockEngine::updateNeighbours(x, y);
+        }
         blockEngine::getBlock(x, y).light_update(x, y);
     }
 }

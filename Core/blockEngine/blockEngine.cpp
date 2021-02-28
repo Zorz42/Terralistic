@@ -61,11 +61,7 @@ void blockEngine::updateNeighbours(unsigned short x, unsigned short y) {
             neighbors[i]->update(x_[i], y_[i]);
 }
 
-void blockEngine::prepareWorld() {
-    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
-        for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
-            blockEngine::getChunk(x, y).createTexture();
-    
+void blockEngine::prepareWorld() {    
     for(unsigned short x = 0; x < world_width; x++)
         setNaturalLight(x);
 }

@@ -42,6 +42,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     blockEngine::prepare();
     players::prepare();
     playerHandler::prepare();
+    blockRenderer::prepare();
     
     if(multiplayer) {
         if(!networking::establishConnection(world_name))
@@ -123,6 +124,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         worldSaver::saveWorld(world_name);
     blockEngine::close();
     itemEngine::close();
+    blockRenderer::close();
 
     return 0;
 }

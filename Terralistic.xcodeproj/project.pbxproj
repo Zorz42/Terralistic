@@ -50,7 +50,6 @@
 		1661661C25EA3689002A3815 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AB25E9607800D26060 /* playerHandler.cpp */; };
 		1661661D25EA3689002A3815 /* blockEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AE25E9607800D26060 /* blockEngine.cpp */; };
 		1661661E25EA3689002A3815 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AF25E9607800D26060 /* block.cpp */; };
-		1661661F25EA3689002A3815 /* chunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B025E9607800D26060 /* chunk.cpp */; };
 		1661662025EA3689002A3815 /* lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B125E9607800D26060 /* lighting.cpp */; };
 		1661662125EA3689002A3815 /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B525E9607800D26060 /* blockSelector.cpp */; };
 		1661662225EA3689002A3815 /* startMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968BA25E9607800D26060 /* startMenu.cpp */; };
@@ -91,7 +90,6 @@
 		1689696225E9607900D26060 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AB25E9607800D26060 /* playerHandler.cpp */; };
 		1689696325E9607900D26060 /* blockEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AE25E9607800D26060 /* blockEngine.cpp */; };
 		1689696425E9607900D26060 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AF25E9607800D26060 /* block.cpp */; };
-		1689696525E9607900D26060 /* chunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B025E9607800D26060 /* chunk.cpp */; };
 		1689696625E9607900D26060 /* lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B125E9607800D26060 /* lighting.cpp */; };
 		1689696725E9607900D26060 /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B525E9607800D26060 /* blockSelector.cpp */; };
 		1689696825E9607900D26060 /* startMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968BA25E9607800D26060 /* startMenu.cpp */; };
@@ -197,7 +195,6 @@
 		168968AC25E9607800D26060 /* playerHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = playerHandler.hpp; sourceTree = "<group>"; };
 		168968AE25E9607800D26060 /* blockEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockEngine.cpp; sourceTree = "<group>"; };
 		168968AF25E9607800D26060 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
-		168968B025E9607800D26060 /* chunk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chunk.cpp; sourceTree = "<group>"; };
 		168968B125E9607800D26060 /* lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lighting.cpp; sourceTree = "<group>"; };
 		168968B225E9607800D26060 /* blockType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockType.hpp; sourceTree = "<group>"; };
 		168968B325E9607800D26060 /* blockEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockEngine.hpp; sourceTree = "<group>"; };
@@ -479,9 +476,9 @@
 		1689689E25E9607800D26060 /* networkingModule */ = {
 			isa = PBXGroup;
 			children = (
+				168968A125E9607800D26060 /* networkingModule.hpp */,
 				1689689F25E9607800D26060 /* networkingModule.cpp */,
 				168968A025E9607800D26060 /* blockEngineNet.cpp */,
-				168968A125E9607800D26060 /* networkingModule.hpp */,
 				168968A225E9607800D26060 /* itemEngineNet.cpp */,
 			);
 			path = networkingModule;
@@ -521,7 +518,6 @@
 				168968B325E9607800D26060 /* blockEngine.hpp */,
 				168968AE25E9607800D26060 /* blockEngine.cpp */,
 				168968AF25E9607800D26060 /* block.cpp */,
-				168968B025E9607800D26060 /* chunk.cpp */,
 				168968B125E9607800D26060 /* lighting.cpp */,
 			);
 			path = blockEngine;
@@ -803,7 +799,6 @@
 				1661661C25EA3689002A3815 /* playerHandler.cpp in Sources */,
 				1661661D25EA3689002A3815 /* blockEngine.cpp in Sources */,
 				1661661E25EA3689002A3815 /* block.cpp in Sources */,
-				1661661F25EA3689002A3815 /* chunk.cpp in Sources */,
 				1661662025EA3689002A3815 /* lighting.cpp in Sources */,
 				1661662125EA3689002A3815 /* blockSelector.cpp in Sources */,
 				1661662225EA3689002A3815 /* startMenu.cpp in Sources */,
@@ -849,7 +844,6 @@
 				1689695925E9607900D26060 /* itemRenderer.cpp in Sources */,
 				1689695525E9607900D26060 /* perlinNoise.cpp in Sources */,
 				1689698725E9607900D26060 /* texture.cpp in Sources */,
-				1689696525E9607900D26060 /* chunk.cpp in Sources */,
 				1689696025E9607900D26060 /* worldSaver.cpp in Sources */,
 				1689694E25E9607900D26060 /* sago.cpp in Sources */,
 				1689698A25E9607900D26060 /* load.cpp in Sources */,
