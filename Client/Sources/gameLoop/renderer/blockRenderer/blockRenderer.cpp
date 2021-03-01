@@ -124,8 +124,8 @@ void blockRenderer::render() {
                 blockRenderer::getChunk(x, y).render();
             }
         }
-    for(unsigned short x = begin_x; x < end_x; x++)
-        for(unsigned short y = begin_y; y < end_y; y++)
+    for(unsigned short x = begin_x > MAX_LIGHT ? begin_x - MAX_LIGHT : 0; x < end_x + MAX_LIGHT && x < blockEngine::world_width; x++)
+        for(unsigned short y = begin_y > MAX_LIGHT ? begin_y - MAX_LIGHT : 0; y < end_y + MAX_LIGHT && y < blockEngine::world_height; y++)
             if(blockEngine::getBlock(x, y).to_update_light && blockEngine::getChunk(x >> 4, y >> 4).loaded)
                 blockEngine::getBlock(x, y).light_update();
 }

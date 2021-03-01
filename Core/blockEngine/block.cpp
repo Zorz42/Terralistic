@@ -91,7 +91,7 @@ void blockEngine::block::light_update(bool update) {
     if((update_neighbors || light_source) && update)
         for(int i = 0; i < 4; i++)
             if(neighbors[i] != nullptr && !neighbors[i]->light_source)
-                neighbors[i]->light_update();
+                neighbors[i]->to_update_light = true;
 }
 
 unsigned short blockEngine::block::getX() const {

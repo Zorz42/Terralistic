@@ -56,7 +56,8 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void playerHandler::prepare() {
-    position_x = blockEngine::world_width / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
+    //position_x = 100 * BLOCK_WIDTH;
+    position_x = blockEngine::world_width / 2 * BLOCK_WIDTH;
     position_y = blockEngine::world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     view_x = position_x;
     view_y = position_y;
