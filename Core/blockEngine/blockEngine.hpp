@@ -24,8 +24,8 @@ struct uniqueBlock {
     
     uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time);
     
-    void (*rightClickEvent)(block*, unsigned short, unsigned short) = nullptr;
-    void (*leftClickEvent)(block*, unsigned short, unsigned short) = nullptr;
+    void (*rightClickEvent)(block*) = nullptr;
+    void (*leftClickEvent)(block*) = nullptr;
     
     itemEngine::itemType drop;
     unsigned short break_time;
@@ -55,6 +55,8 @@ public:
     
     unsigned short getX() const;
     unsigned short getY() const;
+    
+    void break_block();
 };
 
 struct chunk {
@@ -73,8 +75,6 @@ inline std::vector<uniqueBlock> unique_blocks;
 
 block& getBlock(unsigned short x, unsigned short y);
 chunk& getChunk(unsigned short x, unsigned short y);
-
-void updateNeighbours(unsigned short x, unsigned short y);
 
 void removeNaturalLight(unsigned short x);
 void setNaturalLight(unsigned short x);

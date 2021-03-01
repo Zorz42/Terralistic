@@ -42,22 +42,6 @@ blockEngine::chunk& blockEngine::getChunk(unsigned short x, unsigned short y) {
     return chunks[y * (world_width >> 4) + x];
 }
 
-void blockEngine::updateNeighbours(unsigned short x, unsigned short y) {
-    // update upper, lower, right and left block
-    block* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
-    if(x != 0)
-        neighbors[0] = &getBlock(x - 1, y);
-    if(x != blockEngine::world_width - 1)
-        neighbors[1] = &getBlock(x + 1, y);
-    if(y != 0)
-        neighbors[2] = &getBlock(x, y - 1);
-    if(y != blockEngine::world_height - 1)
-        neighbors[3] = &getBlock(x, y + 1);
-    for(int i = 0; i < 4; i++)
-        if(neighbors[i] != nullptr)
-            neighbors[i]->update();
-}
-
 void blockEngine::prepareWorld() {
     for(unsigned short x = 0; x < world_width; x++)
         setNaturalLight(x);

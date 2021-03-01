@@ -8,7 +8,7 @@
 #ifndef networkingModule_hpp
 #define networkingModule_hpp
 
-#define PACKET_LISTENER(packetType) networking::registerPacketListener UNIQUE_NAME(listener_func) (packetType, [](packets::packet& packet) {
+#define PACKET_LISTENER(packetType) static networking::registerPacketListener JOIN(listener_func, __LINE__) (packetType, [](packets::packet& packet) {
 #define PACKET_LISTENER_END });
 
 namespace networking {

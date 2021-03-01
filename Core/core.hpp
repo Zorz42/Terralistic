@@ -18,10 +18,6 @@
 #define CONCAT(a, b) a##b
 #define JOIN(a, b) CONCAT(a, b)
 
-#define CONCAT4_(a, b, c, d) a##b##c##d
-#define CONCAT4(a, b, c, d) CONCAT4_(a, b, c, d)
-#define UNIQUE_NAME(tag) CONCAT4(tag, FILENAME, NAMESPACE, __LINE__)
-
 #include <iostream>
 #include <vector>
 #include <random>

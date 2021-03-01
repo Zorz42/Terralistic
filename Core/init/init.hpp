@@ -8,7 +8,7 @@
 #ifndef init_hpp
 #define init_hpp
 
-#define INIT_SCRIPT init::registerInitFunction UNIQUE_NAME(init_register) ([] {
+#define INIT_SCRIPT static init::registerInitFunction JOIN(init_register, __LINE__) ([] {
 #define INIT_SCRIPT_END return true;});
 #define INIT_ASSERT(condition) if(!condition) return false
 

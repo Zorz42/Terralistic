@@ -36,24 +36,18 @@ void rightClickEvent(unsigned short x, unsigned short y) {
     } else {
         blockEngine::block* block = &blockEngine::getBlock(x, y);
         if(block->getUniqueBlock().rightClickEvent)
-            block->getUniqueBlock().rightClickEvent(block, x, y);
+            block->getUniqueBlock().rightClickEvent(block);
     }
 }
 
 void leftClickEvent(unsigned short x, unsigned short y) {
     blockEngine::block* block = &blockEngine::getBlock(x, y);
     if(block->getUniqueBlock().leftClickEvent)
-        block->getUniqueBlock().leftClickEvent(block, x, y);
+        block->getUniqueBlock().leftClickEvent(block);
     else {
         block->setBreakProgress(block->break_progress_ms + gameLoop::frame_length);
-        if(!gameLoop::online) {
-            if(block->break_progress_ms >= block->getUniqueBlock().break_time) {
-                if(block->getUniqueBlock().drop != itemEngine::NOTHING)
-                    itemEngine::spawnItem(block->getUniqueBlock().drop, x * BLOCK_WIDTH, y * BLOCK_WIDTH);
-                blockEngine::getBlock(x, y).setBlockType(blockEngine::AIR);
-                blockEngine::getBlock(x, y).break_progress = 0;
-            }
-        }
+        if(!gameLoop::online && block->break_progress_ms >= block->getUniqueBlock().break_time)
+            block->break_block();
     }
 }
 
