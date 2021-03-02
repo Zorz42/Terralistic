@@ -505,8 +505,8 @@
 		168968AA25E9607800D26060 /* playerHandler */ = {
 			isa = PBXGroup;
 			children = (
-				168968AB25E9607800D26060 /* playerHandler.cpp */,
 				168968AC25E9607800D26060 /* playerHandler.hpp */,
+				168968AB25E9607800D26060 /* playerHandler.cpp */,
 			);
 			path = playerHandler;
 			sourceTree = "<group>";

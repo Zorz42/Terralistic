@@ -92,26 +92,26 @@ void blockRenderer::renderChunk::updateTexture() {
 
 void blockRenderer::render() {
     // figure out, what the window is covering and only render that
-    unsigned short begin_x = playerHandler::view_x / BLOCK_WIDTH - swl::window_width / 2 / BLOCK_WIDTH;
-    unsigned short end_x = playerHandler::view_x / BLOCK_WIDTH + swl::window_width / 2 / BLOCK_WIDTH;
+    short begin_x = playerHandler::view_x / (BLOCK_WIDTH << 4) - swl::window_width / 2 / (BLOCK_WIDTH << 4) - 1;
+    short end_x = playerHandler::view_x / (BLOCK_WIDTH << 4) + swl::window_width / 2 / (BLOCK_WIDTH << 4) + 2;
 
-    unsigned short begin_y = playerHandler::view_y / BLOCK_WIDTH - swl::window_height / 2 / BLOCK_WIDTH;
-    unsigned short end_y = playerHandler::view_y / BLOCK_WIDTH + swl::window_height / 2 / BLOCK_WIDTH;
+    short begin_y = playerHandler::view_y / (BLOCK_WIDTH << 4) - swl::window_height / 2 / (BLOCK_WIDTH << 4) - 1;
+    short end_y = playerHandler::view_y / (BLOCK_WIDTH << 4) + swl::window_height / 2 / (BLOCK_WIDTH << 4) + 2;
     
     if(begin_x < 0)
         begin_x = 0;
-    if(end_x > blockEngine::world_width)
-        end_x = (int)blockEngine::world_width;
+    if(end_x > blockEngine::world_width >> 4)
+        end_x = blockEngine::world_width >> 4;
     if(begin_y < 0)
         begin_y = 0;
-    if(end_y > blockEngine::world_height)
-        end_y = (int)blockEngine::world_height;
+    if(end_y > blockEngine::world_height >> 4)
+        end_y = blockEngine::world_height >> 4;
     
     // only request one chunk per frame from server
     bool has_requested = false;
     
-    for(unsigned short x = (begin_x >> 4) - 1; x < (end_x >> 4) + 1; x++)
-        for(unsigned short y = (begin_y >> 4) - 1; y < (end_y >> 4) + 2; y++) {
+    for(unsigned short x = begin_x; x < end_x; x++)
+        for(unsigned short y = begin_y; y < end_y; y++) {
             if(!blockEngine::getChunk(x, y).pending_load && !has_requested) {
                 packets::packet packet(packets::CHUNK);
                 packet << y << x;
@@ -124,6 +124,10 @@ void blockRenderer::render() {
                 blockRenderer::getChunk(x, y).render();
             }
         }
+    begin_x <<= 4;
+    begin_y <<= 4;
+    end_x <<= 4;
+    end_y <<= 4;
     for(unsigned short x = begin_x > MAX_LIGHT ? begin_x - MAX_LIGHT : 0; x < end_x + MAX_LIGHT && x < blockEngine::world_width; x++)
         for(unsigned short y = begin_y > MAX_LIGHT ? begin_y - MAX_LIGHT : 0; y < end_y + MAX_LIGHT && y < blockEngine::world_height; y++)
             if(blockEngine::getBlock(x, y).to_update_light && blockEngine::getChunk(x >> 4, y >> 4).loaded)

@@ -56,7 +56,6 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void playerHandler::prepare() {
-    //position_x = 100 * BLOCK_WIDTH;
     position_x = blockEngine::world_width / 2 * BLOCK_WIDTH;
     position_y = blockEngine::world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
     view_x = position_x;
@@ -146,11 +145,11 @@ bool isPlayerColliding() {
        playerHandler::position_x >= blockEngine::world_width * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
         return true;
 
-    unsigned short begin_x = playerHandler::position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    unsigned short end_x = playerHandler::position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    short begin_x = playerHandler::position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    short end_x = playerHandler::position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
 
-    unsigned short begin_y = playerHandler::position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    unsigned short end_y = playerHandler::position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    short begin_y = playerHandler::position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    short end_y = playerHandler::position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
     
     if(begin_x < 0)
         begin_x = 0;
@@ -176,15 +175,6 @@ bool touchingGround() {
 }
 
 void playerHandler::move() {
-    if(view_x < swl::window_width / 2)
-        view_x = swl::window_width / 2;
-    if(view_y < swl::window_height / 2)
-        view_y = swl::window_height / 2;
-    if(view_x >= blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2)
-        view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
-    if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
-        view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
-    
     int move_x = velocity_x * gameLoop::frame_length / 100, move_y = velocity_y * gameLoop::frame_length / 100;
     
     for(int i = 0; i < move_x; i++) {
@@ -221,8 +211,17 @@ void playerHandler::move() {
         velocity_y = -JUMP_VELOCITY;
         jump = false;
     }
+    
     view_x = position_x;
     view_y = position_y;
+    if(view_x < swl::window_width / 2)
+        view_x = swl::window_width / 2;
+    if(view_y < swl::window_height / 2)
+        view_y = swl::window_height / 2;
+    if(view_x >= blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2)
+        view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
+    if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
+        view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
     
     if(gameLoop::online && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
