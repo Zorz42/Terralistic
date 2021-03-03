@@ -10,7 +10,7 @@
 
 #define MAX_PLAYERS 100
 
-#define PACKET_LISTENER(packetType) networking::registerPacketListener UNIQUE_NAME(listener_func) (packetType, [](packets::packet& packet, networking::connection& connection) {
+#define PACKET_LISTENER(packetType) static networking::registerPacketListener JOIN(listener_func, __LINE__) (packetType, [](packets::packet& packet, networking::connection& connection) {
 #define PACKET_LISTENER_END });
 
 namespace networking {

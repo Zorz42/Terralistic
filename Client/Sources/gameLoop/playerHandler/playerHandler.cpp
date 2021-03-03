@@ -55,11 +55,16 @@ INIT_SCRIPT
         stack_textures[i] = ogl::texture(ogl::top_left);
 INIT_SCRIPT_END
 
+bool isPlayerColliding();
+
 void playerHandler::prepare() {
     position_x = blockEngine::world_width / 2 * BLOCK_WIDTH;
-    position_y = blockEngine::world_height / 2 * BLOCK_WIDTH - 100 * BLOCK_WIDTH;
-    view_x = position_x;
-    view_y = position_y;
+    position_y = player.getHeight();
+    while(!isPlayerColliding()) {
+        position_y++;
+        view_x = position_x;
+        view_y = position_y;
+    }
     
     selectSlot(0);
     player_inventory.open = false;

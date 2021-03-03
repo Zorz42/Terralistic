@@ -41,7 +41,6 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
     
     blockEngine::prepare();
     players::prepare();
-    playerHandler::prepare();
     blockRenderer::prepare();
     
     if(multiplayer) {
@@ -63,8 +62,7 @@ int gameLoop::main(const std::string& world_name, bool multiplayer) {
         worldSaver::saveWorld(world_name);
     }
     
-    
-    
+    playerHandler::prepare();
     blockEngine::prepareWorld();
     
     ogl::texture fps_text(ogl::top_left);
