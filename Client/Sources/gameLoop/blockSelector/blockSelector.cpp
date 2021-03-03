@@ -35,15 +35,15 @@ void rightClickEvent(unsigned short x, unsigned short y) {
         networking::sendPacket(packet);
     } else {
         blockEngine::block* block = &blockEngine::getBlock(x, y);
-        if(block->getUniqueBlock().rightClickEvent)
-            block->getUniqueBlock().rightClickEvent(block);
+        if(blockSelector::click_events[block->block_id].rightClickEvent)
+            blockSelector::click_events[block->block_id].rightClickEvent(block);
     }
 }
 
 void leftClickEvent(unsigned short x, unsigned short y) {
     blockEngine::block* block = &blockEngine::getBlock(x, y);
-    if(block->getUniqueBlock().leftClickEvent)
-        block->getUniqueBlock().leftClickEvent(block);
+    if(blockSelector::click_events[block->block_id].leftClickEvent)
+        blockSelector::click_events[block->block_id].leftClickEvent(block);
     else {
         block->setBreakProgress(block->break_progress_ms + gameLoop::frame_length);
         if(!gameLoop::online && block->break_progress_ms >= block->getUniqueBlock().break_time)

@@ -287,14 +287,6 @@
 			path = dev;
 			sourceTree = "<group>";
 		};
-		1661664025EA7826002A3815 /* blockClickEvents */ = {
-			isa = PBXGroup;
-			children = (
-				1661664125EA7844002A3815 /* blockClickEvents.cpp */,
-			);
-			path = blockClickEvents;
-			sourceTree = "<group>";
-		};
 		1689684D25E95FD000D26060 = {
 			isa = PBXGroup;
 			children = (
@@ -411,10 +403,10 @@
 		1689688B25E9607800D26060 /* itemEngine */ = {
 			isa = PBXGroup;
 			children = (
+				1689688F25E9607800D26060 /* itemType.hpp */,
 				1689688C25E9607800D26060 /* itemEngine.hpp */,
 				1689688D25E9607800D26060 /* item.cpp */,
 				1689688E25E9607800D26060 /* itemEngine.cpp */,
-				1689688F25E9607800D26060 /* itemType.hpp */,
 			);
 			path = itemEngine;
 			sourceTree = "<group>";
@@ -431,7 +423,6 @@
 		1689689325E9607800D26060 /* gameLoop */ = {
 			isa = PBXGroup;
 			children = (
-				1661664025EA7826002A3815 /* blockClickEvents */,
 				1689689425E9607800D26060 /* renderer */,
 				1689689725E9607800D26060 /* otherPlayers */,
 				1689689A25E9607800D26060 /* generatingScreen */,
@@ -528,6 +519,7 @@
 			children = (
 				168968B625E9607800D26060 /* blockSelector.hpp */,
 				168968B525E9607800D26060 /* blockSelector.cpp */,
+				1661664125EA7844002A3815 /* blockClickEvents.cpp */,
 			);
 			path = blockSelector;
 			sourceTree = "<group>";

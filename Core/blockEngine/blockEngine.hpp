@@ -24,9 +24,6 @@ struct uniqueBlock {
     
     uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time);
     
-    void (*rightClickEvent)(block*) = nullptr;
-    void (*leftClickEvent)(block*) = nullptr;
-    
     itemEngine::itemType drop;
     unsigned short break_time;
 };

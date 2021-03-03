@@ -12,6 +12,7 @@
 #include "playerHandler.hpp"
 #include "gameLoop.hpp"
 #include "blockRenderer.hpp"
+#include "blockSelector.hpp"
 
 // you can register special click events to blocks for custom behaviour
 void grass_block_leftClickEvent(blockEngine::block* block) {
@@ -30,7 +31,9 @@ void air_leftClickEvent(blockEngine::block* block) {}
 
 INIT_SCRIPT
     INIT_ASSERT(blockEngine::unique_blocks.size());
-    blockEngine::unique_blocks[blockEngine::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
-    blockEngine::unique_blocks[blockEngine::AIR].rightClickEvent = &air_rightClickEvent;
-    blockEngine::unique_blocks[blockEngine::AIR].leftClickEvent = &air_leftClickEvent;
+    blockSelector::click_events = std::vector<blockSelector::clickEvents>(blockEngine::unique_blocks.size());
+
+    blockSelector::click_events[blockEngine::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
+    blockSelector::click_events[blockEngine::AIR].rightClickEvent = &air_rightClickEvent;
+    blockSelector::click_events[blockEngine::AIR].leftClickEvent = &air_leftClickEvent;
 INIT_SCRIPT_END
