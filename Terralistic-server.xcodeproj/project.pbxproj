@@ -337,9 +337,9 @@
 		1661651A25EA249D002A3815 /* blockEngine */ = {
 			isa = PBXGroup;
 			children = (
+				1661651D25EA249D002A3815 /* blockEngine.hpp */,
 				1661651B25EA249D002A3815 /* blockEngine.cpp */,
 				1661651C25EA249D002A3815 /* block.cpp */,
-				1661651D25EA249D002A3815 /* blockEngine.hpp */,
 			);
 			path = blockEngine;
 			sourceTree = "<group>";

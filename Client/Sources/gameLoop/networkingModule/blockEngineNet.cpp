@@ -26,9 +26,11 @@ PACKET_LISTENER(packets::CHUNK)
     blockEngine::chunk& chunk = blockEngine::getChunk(x, y);
     for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
         blockEngine::removeNaturalLight(x_);
-    for(unsigned short x_ = 0; x_ < 16; x_++)
-        for(unsigned short y_ = 0; y_ < 16; y_++)
-            blockEngine::getBlock(x + x_, y + y_).setBlockType((blockEngine::blockType)packet.getChar());
+    for(unsigned short y_ = 0; y_ < 16; y_++)
+        for(unsigned short x_ = 0; x_ < 16; x_++) {
+            blockEngine::blockType type = (blockEngine::blockType)packet.getChar();
+            blockEngine::getBlock((x << 4) + x_, (y << 4) + y_).setBlockType(type);
+        }
     for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
         blockEngine::setNaturalLight(x_);
     chunk.loaded = true;

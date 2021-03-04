@@ -431,8 +431,8 @@
 				168968A725E9607800D26060 /* pauseScreen */,
 				168968AA25E9607800D26060 /* playerHandler */,
 				168968B425E9607800D26060 /* blockSelector */,
-				168968A325E9607800D26060 /* gameLoop.cpp */,
 				1689689D25E9607800D26060 /* gameLoop.hpp */,
+				168968A325E9607800D26060 /* gameLoop.cpp */,
 			);
 			path = gameLoop;
 			sourceTree = "<group>";
