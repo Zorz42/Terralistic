@@ -42,8 +42,12 @@ PACKET_LISTENER(packets::PLAYER_JOIN)
     static unsigned int curr_id = 0;
     playerHandler::player player(curr_id++);
     player.conn = &connection;
-    player.y = packet.getInt();
-    player.x = packet.getInt();
+    player.y = blockEngine::world_height / 3 * BLOCK_WIDTH;
+    player.x = blockEngine::world_width / 2 * BLOCK_WIDTH;
+
+    packets::packet spawn_packet(packets::SPAWN_POS);
+    spawn_packet << player.y << player.x;
+    connection.sendPacket(spawn_packet);
     
     for(playerHandler::player& i : playerHandler::players) {
         packets::packet join_packet(packets::PLAYER_JOIN);

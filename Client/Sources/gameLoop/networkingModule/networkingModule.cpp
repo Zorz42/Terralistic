@@ -67,35 +67,40 @@ bool networking::establishConnection(const std::string &ip) {
     swl::update();
 
     #ifdef WIN32
-        WSADATA wsaData;
-        if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
-            return false;
+    WSADATA wsaData;
+    if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
+        return false;
     #endif
 
-        sockaddr_in serv_addr{};
-        if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-            return false;
-        serv_addr.sin_family = AF_INET;
-        serv_addr.sin_port = htons(PORT);
+    sockaddr_in serv_addr{};
+    if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        return false;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
 
     #ifdef WIN32
-        struct addrinfo *result = nullptr, hints{};
-        if(getaddrinfo(ip.c_str(), (const char *)PORT_STR, &hints, &result) != 0)
-            return false;
+    struct addrinfo *result = nullptr, hints{};
+    if(getaddrinfo(ip.c_str(), (const char *)PORT_STR, &hints, &result) != 0)
+        return false;
 
-        if(connect(sock, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR)
-            return false;
+    if(connect(sock, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR)
+        return false;
     #else
-        if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) <= 0)
-            return false;
+    if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) <= 0)
+        return false;
 
-        if(connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-            return false;
+    if(connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+        return false;
     #endif
     
-    packets::packet join_packet(packets::PLAYER_JOIN);
-    join_packet << playerHandler::position_x << playerHandler::position_y;
-    sendPacket(join_packet);
+    sendPacket(packets::PLAYER_JOIN);
+    
+    /*packets::packet packet(packets::PING);
+    while(packet.type != packets::SPAWN_POS)
+        packet = packets::getPacket(sock);
+    int x = packet.getInt(), y = packet.getInt();
+    playerHandler::player.setX(x);
+    playerHandler::player.setY(y);*/
     
     return true;
 }

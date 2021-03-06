@@ -44,21 +44,24 @@ packets::packet packets::getPacket(int socket) {
      */
     static std::vector<unsigned char> buffer;
     static long bytes_received;
+    static unsigned short size = 0;
     
     // packets can be merged so if multiple packets come in one piece,
     // it can process one buffer multiple times. Only refill it when its empty
-    if(buffer.empty()) {
+    if(size + 3 > buffer.size()) {
         // get packet/s and apply it to the buffer
-        buffer = std::vector<unsigned char>(BUFFER_SIZE);
-        bytes_received = recv(socket, (char*)&buffer[0], BUFFER_SIZE, 0);
+        std::vector<unsigned char> temp_buffer = std::vector<unsigned char>(BUFFER_SIZE);
+        bytes_received = recv(socket, (char*)&temp_buffer[0], BUFFER_SIZE, 0);
         if(bytes_received != -1)
-            buffer.resize((unsigned int)(bytes_received));
+            temp_buffer.resize((unsigned int)(bytes_received));
+        for(unsigned char i : temp_buffer)
+            buffer.push_back(i);
     }
     
     // if bytes_received is 0 that means, that the other side disconnected
     if(bytes_received > 0) {
         // size of the packet are the first two bytes
-        unsigned short size = buffer[0] + (buffer[1] << 8);
+        size = buffer[0] + (buffer[1] << 8);
         // packet type is the third byte
         packet result((packets::packetType)buffer[2]);
         for(unsigned short i = 0; i < size; i++)

@@ -58,8 +58,10 @@ INIT_SCRIPT_END
 bool isPlayerColliding();
 
 void playerHandler::prepare() {
-    position_x = blockEngine::getSpawnX();
-    position_y = blockEngine::getSpawnY() - player.getHeight() / 2;
+    if(!gameLoop::online) {
+        position_x = blockEngine::getSpawnX();
+        position_y = blockEngine::getSpawnY() - player.getHeight() / 2;
+    }
     view_x = position_x;
     view_y = position_y;
      
@@ -259,6 +261,7 @@ void playerHandler::render() {
     
     select_rect.setX(short((player_inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
     select_rect.render();
+    
     ogl::texture* text_texture = nullptr;
     hovered = nullptr;
     for(int i = -1; i < 20; i++)
@@ -312,4 +315,12 @@ PACKET_LISTENER(packets::INVENTORY_CHANGE)
     char pos = packet.getChar();
     playerHandler::player_inventory.inventory[(int)pos].setStack(packet.getUShort());
     playerHandler::player_inventory.inventory[(int)pos].item_id = (itemEngine::itemType)packet.getUChar();
+PACKET_LISTENER_END
+
+PACKET_LISTENER(packets::SPAWN_POS)
+    int x = packet.getInt(), y = packet.getInt();
+    playerHandler::position_x = x;
+    playerHandler::position_y = y;
+    playerHandler::view_x = x;
+    playerHandler::view_y = y;
 PACKET_LISTENER_END
