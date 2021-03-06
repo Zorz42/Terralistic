@@ -58,14 +58,11 @@ INIT_SCRIPT_END
 bool isPlayerColliding();
 
 void playerHandler::prepare() {
-    position_x = blockEngine::world_width / 2 * BLOCK_WIDTH;
-    position_y = player.getHeight();
-    while(!isPlayerColliding()) {
-        position_y++;
-        view_x = position_x;
-        view_y = position_y;
-    }
-    
+    position_x = blockEngine::getSpawnX();
+    position_y = blockEngine::getSpawnY() - player.getHeight() / 2;
+    view_x = position_x;
+    view_y = position_y;
+     
     selectSlot(0);
     player_inventory.open = false;
 }

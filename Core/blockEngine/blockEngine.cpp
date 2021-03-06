@@ -46,3 +46,17 @@ void blockEngine::prepareWorld() {
     for(unsigned short x = 0; x < world_width; x++)
         setNaturalLight(x);
 }
+
+int blockEngine::getSpawnX() {
+    return world_width / 2 * BLOCK_WIDTH;
+}
+
+int blockEngine::getSpawnY() {
+    int result = 0;
+    for(unsigned short y = 0; y < world_height; y++) {
+        if(!getBlock(world_width / 2 - 1, y).getUniqueBlock().transparent || !getBlock(world_width / 2, y).getUniqueBlock().transparent)
+            break;
+        result += BLOCK_WIDTH;
+    }
+    return result;
+}

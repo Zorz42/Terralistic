@@ -79,6 +79,9 @@ void setNaturalLight(unsigned short x);
 void addLightSource(unsigned short x, unsigned short y, unsigned char power);
 void removeLightSource(unsigned short x, unsigned short y);
 
+int getSpawnX();
+int getSpawnY();
+
 REGISTER_EVENT(block_change) {
     unsigned short x, y;
     blockEngine::blockType type;
