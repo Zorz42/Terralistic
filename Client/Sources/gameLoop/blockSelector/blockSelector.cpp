@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 13/07/2020.
 //
 
-#define FILENAME blockSelector
-#define NAMESPACE blockSelector
 #include "core.hpp"
 
 #include "blockSelector.hpp"

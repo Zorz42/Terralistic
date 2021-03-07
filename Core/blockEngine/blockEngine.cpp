@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
-#define FILENAME blockEngine
-#define NAMESPACE blockEngine
 #include "core.hpp"
 
 INIT_SCRIPT

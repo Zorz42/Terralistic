@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 04/12/2020.
 //
 
-#define FILENAME worldSaver
-#define NAMESPACE worldSaver
 #include "core.hpp"
 
 #include "worldSaver.hpp"

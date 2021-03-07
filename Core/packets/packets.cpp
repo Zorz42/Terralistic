@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 15/01/2021.
 //
 
-#define FILENAME packets
-#define NAMESPACE packets
 #include "core.hpp"
 
 #ifdef WIN32

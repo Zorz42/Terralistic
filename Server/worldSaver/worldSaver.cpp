@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#define FILENAME worldSaver
-#define NAMESPACE worldSaver
 #include "core.hpp"
 
 #include "worldSaver.hpp"
@@ -29,7 +27,7 @@ void worldSaver::loadWorld() {
     
     for(int y = 0; y < blockEngine::world_height; y++)
         for(int x = 0; x < blockEngine::world_width; x++)
-            blockEngine::getBlock(x, y).update(x, y);
+            blockEngine::getBlock(x, y).update();
 }
 
 void worldSaver::saveWorld() {

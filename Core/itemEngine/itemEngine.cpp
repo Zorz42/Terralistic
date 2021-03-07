@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 10/12/2020.
 //
 
-#define FILENAME itemEngine
-#define NAMESPACE itemEngine
 #include "core.hpp"
 
 // item engine updates and renders items

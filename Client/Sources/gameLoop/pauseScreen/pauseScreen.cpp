@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#define FILENAME pauseScreen
-#define NAMESPACE pauseScreen
 #include "core.hpp"
 
 #include "pauseScreen.hpp"

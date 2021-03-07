@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#define FILENAME fileSystem
-#define NAMESPACE fileSystem
 #include "core.hpp"
 
 #include "platform_folders.h"

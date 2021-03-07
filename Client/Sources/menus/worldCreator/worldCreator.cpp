@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#define FILENAME worldCreator
-#define NAMESPACE worldCreator
 #include "core.hpp"
 
 #include <vector>

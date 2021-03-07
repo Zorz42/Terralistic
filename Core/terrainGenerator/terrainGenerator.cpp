@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
-#define FILENAME terrainGenerator
-#define NAMESPACE terrainGenerator
 #include "core.hpp"
 
 #include "simplex-noise.hpp"

@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 11/01/2021.
 //
 
-#define FILENAME print
-#define NAMESPACE print
 #include "core.hpp"
 
 #include "print.hpp"

@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 20/02/2021.
 //
 
-#define FILENAME events
-#define NAMESPACE events
 #include "core.hpp"
 
 struct eventListener {

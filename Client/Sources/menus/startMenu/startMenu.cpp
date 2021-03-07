@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 06/07/2020.
 //
 
-#define FILENAME startMenu
-#define NAMESPACE startMenu
 #include "core.hpp"
 
 #include "startMenu.hpp"

@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 30/01/2021.
 //
 
-#define FILENAME playerHandler
-#define NAMESPACE playerHandler
 #include "core.hpp"
 
 #ifdef WIN32
@@ -42,8 +40,8 @@ PACKET_LISTENER(packets::PLAYER_JOIN)
     static unsigned int curr_id = 0;
     playerHandler::player player(curr_id++);
     player.conn = &connection;
-    player.y = blockEngine::world_height / 3 * BLOCK_WIDTH;
-    player.x = blockEngine::world_width / 2 * BLOCK_WIDTH;
+    player.y = blockEngine::getSpawnY() - BLOCK_WIDTH * 2;
+    player.x = blockEngine::getSpawnX();
 
     packets::packet spawn_packet(packets::SPAWN_POS);
     spawn_packet << player.y << player.x;

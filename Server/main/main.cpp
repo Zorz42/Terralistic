@@ -5,14 +5,14 @@
 //  Created by Jakob Zorz on 11/01/2021.
 //
 
-#define FILENAME main
-#define NAMESPACE main
 #include "core.hpp"
 
 #include "print.hpp"
 #include "worldSaver.hpp"
 #include "blockEngine.hpp"
 #include "main.hpp"
+#include "networkingModule.hpp"
+#include "playerHandler.hpp"
 
 volatile sig_atomic_t stop;
 
@@ -29,6 +29,7 @@ int main() {
     print::info("Initializing modules");
     init::initModules();
     
+    blockEngine::prepare();
     if(fileSystem::dirExists("world")) {
         print::info("Loading world...");
         worldSaver::loadWorld();
@@ -37,6 +38,7 @@ int main() {
         print::info("Generating world...");
         worldSaver::createWorld();
     }
+    blockEngine::prepareWorld();
     
     print::info("Post initializing modules...");
     
@@ -54,7 +56,7 @@ int main() {
         
         itemEngine::updateItems(main_::frame_length);
         playerHandler::lookForItems();
-        blockEngine::updatePlayersBreaking();
+        networking::updatePlayersBreaking();
     }
     
     std::cout << std::endl;

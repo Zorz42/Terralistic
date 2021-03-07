@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 13/12/2020.
 //
 
-#define FILENAME inventory
-#define NAMESPACE inventory
 #include "core.hpp"
 
 // inventory is a class which you can easily manage with function calls

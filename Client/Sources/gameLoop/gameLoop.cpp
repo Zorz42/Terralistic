@@ -4,8 +4,7 @@
 //
 //  Created by Jakob Zorz on ???.
 //
-#define FILENAME gameLoop
-#define NAMESPACE gameLoop
+
 #include "core.hpp"
 
 #include "gameLoop.hpp"

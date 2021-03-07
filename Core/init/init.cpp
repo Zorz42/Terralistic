@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 19/02/2021.
 //
 
-#define FILENAME init
-#define NAMESPACE init
 #include "core.hpp"
 
 struct initScript {

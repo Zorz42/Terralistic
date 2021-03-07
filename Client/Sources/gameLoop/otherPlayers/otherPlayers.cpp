@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 16/01/2021.
 //
 
-#define FILENAME otherPlayers
-#define NAMESPACE otherPlayers
 #include "core.hpp"
 
 #include "otherPlayers.hpp"

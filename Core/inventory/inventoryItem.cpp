@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 09/01/2021.
 //
 
-#define FILENAME inventoryItem
-#define NAMESPACE inventory
 #include "core.hpp"
 
 // inventoryItem is a class which exists in inventory

@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#define FILENAME networkingModule
-#define NAMESPACE networkingModule
 #include "core.hpp"
 
 #ifdef WIN32

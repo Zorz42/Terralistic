@@ -6,8 +6,6 @@
 //  Created by Jakob Zorz on 01/07/2020.
 //
 
-#define FILENAME playerHandler
-#define NAMESPACE playerHandler
 #include "core.hpp"
 
 #include "playerHandler.hpp"

@@ -8,15 +8,8 @@
 #ifndef essential_hpp
 #define essential_hpp
 
-#ifndef FILENAME
-#error Macro variable FILENAME has not been defined
-#endif
-#ifndef NAMESPACE
-#error Macro variable NAMESPACE has not been defined
-#endif
-
-#define CONCAT(a, b) a##b
-#define JOIN(a, b) CONCAT(a, b)
+#define JOIN_(a, b) a##b
+#define JOIN(a, b) JOIN_(a, b)
 
 #include <iostream>
 #include <vector>

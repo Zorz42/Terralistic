@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 20/02/2021.
 //
 
-#define FILENAME itemRenderer
-#define NAMESPACE renderer
 #include "core.hpp"
 
 #include "itemRenderer.hpp"

@@ -36,6 +36,8 @@ void sendToEveryone(const packets::packet& packet, connection* exclusion=nullptr
 
 inline networking::connection connections[MAX_PLAYERS];
 
+void updatePlayersBreaking();
+
 }
 
 #endif /* networkingModule_hpp */

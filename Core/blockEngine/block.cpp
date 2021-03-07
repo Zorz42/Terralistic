@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 09/12/2020.
 //
 
-#define FILENAME block
-#define NAMESPACE blockEngine
 #include "core.hpp"
 
 void updateNeighbours(unsigned short x, unsigned short y) {

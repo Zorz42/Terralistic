@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 27/02/2021.
 //
 
-#define FILENAME clickEvents
-#define NAMESPACE blockEngine
 #include "core.hpp"
 
 #include "playerHandler.hpp"

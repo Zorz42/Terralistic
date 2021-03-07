@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 13/02/2021.
 //
 
-#define FILENAME blockEngineNet
-#define NAMESPACE networkingModule
 #include "core.hpp"
 
 #include "networkingModule.hpp"

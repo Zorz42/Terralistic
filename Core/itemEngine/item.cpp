@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 10/12/2020.
 //
 
-#define FILENAME item
-#define NAMESPACE itemEngine
 #include "core.hpp"
 
 std::random_device device;

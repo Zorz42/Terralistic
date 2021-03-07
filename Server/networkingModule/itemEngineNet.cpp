@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 26/01/2021.
 //
 
-#define FILENAME itemEngineNet
-#define NAMESPACE networkingModule
 #include "core.hpp"
 
 #include "networkingModule.hpp"
