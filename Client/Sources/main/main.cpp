@@ -11,8 +11,12 @@
 #include "singleWindowLibrary.hpp"
 #include "startMenu.hpp"
 
+#include <Graphics/graphics.hpp>
+
 int main(int argc, char **argv) {
     // initialize singleWindowLibrary and set resource path, which is a part of file loading in singleWindowLibrary
+    
+    gfx::init();
     
     swl::init();
     swl::loadFont("pixel_font.ttf", 8);
