@@ -54,6 +54,13 @@
 		1661664525EA7957002A3815 /* blockRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661663A25EA53A6002A3815 /* blockRenderer.cpp */; };
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1689699B25E962F800D26060 /* texturePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* texturePack */; };
+		168ABE9025F796BF00BBEA74 /* graphics-internal.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		168ABE9225F79DB200BBEA74 /* scenes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9125F79DB200BBEA74 /* scenes.cpp */; };
+		168ABE9325F79DB200BBEA74 /* scenes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9125F79DB200BBEA74 /* scenes.cpp */; };
+		168ABE9525F7A1A900BBEA74 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9425F7A1A900BBEA74 /* render.cpp */; };
+		168ABE9625F7A1A900BBEA74 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9425F7A1A900BBEA74 /* render.cpp */; };
+		168D6D2B25FA8C6500A10457 /* drawables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168D6D2A25FA8C6500A10457 /* drawables.cpp */; };
+		168D6D2C25FA8C6500A10457 /* drawables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168D6D2A25FA8C6500A10457 /* drawables.cpp */; };
 		1691248F25F6B2CE00F7EB4F /* Graphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1691248825F6B2CE00F7EB4F /* Graphics.framework */; };
 		1691249025F6B2CE00F7EB4F /* Graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1691248825F6B2CE00F7EB4F /* Graphics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1691249E25F6B46800F7EB4F /* graphics.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1691249825F6B38200F7EB4F /* graphics.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -290,7 +297,10 @@
 		1689694B25E9607900D26060 /* load.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = load.cpp; sourceTree = "<group>"; };
 		1689694C25E9607900D26060 /* swl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = swl.cpp; sourceTree = "<group>"; };
 		1689699A25E962F800D26060 /* texturePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturePack; sourceTree = "<group>"; };
-		168969AC25E968BA00D26060 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "graphics-internal.hpp"; sourceTree = "<group>"; };
+		168ABE9125F79DB200BBEA74 /* scenes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = scenes.cpp; sourceTree = "<group>"; };
+		168ABE9425F7A1A900BBEA74 /* render.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = render.cpp; sourceTree = "<group>"; };
+		168D6D2A25FA8C6500A10457 /* drawables.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = drawables.cpp; sourceTree = "<group>"; };
 		1691248825F6B2CE00F7EB4F /* Graphics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Graphics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1691249825F6B38200F7EB4F /* graphics.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics.hpp; sourceTree = "<group>"; };
 		169124A125F6B70F00F7EB4F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Graphics/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
@@ -729,8 +739,8 @@
 		1689694825E9607900D26060 /* singleWindowLibrary */ = {
 			isa = PBXGroup;
 			children = (
-				1689694925E9607900D26060 /* render.cpp */,
 				1689694A25E9607900D26060 /* singleWindowLibrary.hpp */,
+				1689694925E9607900D26060 /* render.cpp */,
 				1689694B25E9607900D26060 /* load.cpp */,
 				1689694C25E9607900D26060 /* swl.cpp */,
 			);
@@ -741,7 +751,6 @@
 			isa = PBXGroup;
 			children = (
 				1691249725F6B38200F7EB4F /* Graphics */,
-				168969AC25E968BA00D26060 /* Info.plist */,
 				1689693D25E9607900D26060 /* Libraries */,
 				1689692A25E9607800D26060 /* Resources */,
 				1689686F25E9607800D26060 /* Sources */,
@@ -753,7 +762,11 @@
 			isa = PBXGroup;
 			children = (
 				1691249825F6B38200F7EB4F /* graphics.hpp */,
+				168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */,
 				169124E325F6BC2400F7EB4F /* init.cpp */,
+				168ABE9125F79DB200BBEA74 /* scenes.cpp */,
+				168ABE9425F7A1A900BBEA74 /* render.cpp */,
+				168D6D2A25FA8C6500A10457 /* drawables.cpp */,
 			);
 			path = Graphics;
 			sourceTree = "<group>";
@@ -792,6 +805,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				169124CE25F6B8ED00F7EB4F /* graphics.hpp in Headers */,
+				168ABE9025F796BF00BBEA74 /* graphics-internal.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1055,7 +1069,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				168ABE9525F7A1A900BBEA74 /* render.cpp in Sources */,
+				168ABE9225F79DB200BBEA74 /* scenes.cpp in Sources */,
 				169124E425F6BC2400F7EB4F /* init.cpp in Sources */,
+				168D6D2B25FA8C6500A10457 /* drawables.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1063,7 +1080,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				168ABE9625F7A1A900BBEA74 /* render.cpp in Sources */,
+				168ABE9325F79DB200BBEA74 /* scenes.cpp in Sources */,
 				169124E525F6BC2400F7EB4F /* init.cpp in Sources */,
+				168D6D2C25FA8C6500A10457 /* drawables.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1391,6 +1411,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Graphics;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1422,6 +1446,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Graphics;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1433,6 +1461,7 @@
 		169124C925F6B89700F7EB4F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1452,6 +1481,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Graphics-Debug";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -1464,6 +1497,7 @@
 		169124CA25F6B89700F7EB4F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1483,6 +1517,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-std=c++17",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Graphics-Debug";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";

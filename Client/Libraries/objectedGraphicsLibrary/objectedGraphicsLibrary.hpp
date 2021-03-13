@@ -39,7 +39,7 @@ protected:
 
 namespace ogl {
 
-enum objectType {top_left, top, top_right [[maybe_unused]], left, center, right, bottom_left [[maybe_unused]], bottom, bottom_right};
+enum objectType {top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right};
 
 // texture that gets centered in window
 class texture : public ogl_private::centeredObject {

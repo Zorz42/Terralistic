@@ -13,12 +13,33 @@
 
 #include <Graphics/graphics.hpp>
 
+gfx::sprite dirt;
+
+gfx::scene test_scene([]{
+    dirt.loadFromFile("texturePack/blocks/dirt.png");
+    dirt.scale = 2;
+    dirt.x = 10;
+    dirt.y = 10;
+}, []{
+    gfx::render(gfx::rect(10, 10, 400, 500, {255, 0, 0}));
+    gfx::render(dirt);
+}, []{
+    
+});
+
 int main(int argc, char **argv) {
-    // initialize singleWindowLibrary and set resource path, which is a part of file loading in singleWindowLibrary
+    // initialize graphics and set resource path, which is a part of file loading in graphics
     
-    gfx::init();
+    gfx::init(1000, 600);
+    gfx::loadFont("pixel_font.ttf", 8);
+    gfx::resource_path = fileSystem::getResourcePath(argv[0]);
+    gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
-    swl::init();
+    gfx::switchScene(&test_scene);
+    gfx::runScenes();
+    
+    gfx::quit();
+    /*swl::init();
     swl::loadFont("pixel_font.ttf", 8);
     swl::resourcePath = fileSystem::getResourcePath(argv[0]);
     swl::setWindowMinimumSize(swl::window_width, swl::window_height);
@@ -29,6 +50,6 @@ int main(int argc, char **argv) {
     startMenu::main();
     
     // exit
-    swl::quit();
+    swl::quit();*/
     return 0;
 }

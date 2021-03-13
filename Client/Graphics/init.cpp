@@ -5,8 +5,50 @@
 //  Created by Jakob Zorz on 08/03/2021.
 //
 
-#include "graphics.hpp"
+#include "graphics-internal.hpp"
 
-void gfx::init() {
-    // nothing for now
+void gfx::init(unsigned short window_width_, unsigned short window_height_) {
+    window_width = window_width_;
+    window_height = window_height_;
+    
+    // initialize basic sdl module
+    SDL_assert(SDL_Init(SDL_INIT_EVERYTHING) >= 0);
+
+    // initialize image loading part of sdl
+    SDL_assert(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG);
+    
+    // initialize font rendering part of sdl
+    SDL_assert(TTF_Init() != -1);
+    
+    // create actual window
+    SDL_assert(window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_width, window_height, SDL_WINDOW_RESIZABLE));
+
+    // create renderer for GPU accelerated
+    SDL_assert(renderer = SDL_CreateRenderer(gfx::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+    
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};
+    SDL_SetWindowDisplayMode(window, &dm);
+}
+
+void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
+    SDL_SetWindowMinimumSize(window, width, height);
+}
+
+void gfx::loadFont(const std::string& path, unsigned char size) {
+    font = TTF_OpenFont((resource_path + path).c_str(), size);
+    SDL_assert(font);
+}
+
+void gfx::quit() {
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+unsigned short gfx::getWindowWidth() {
+    return window_width;
+}
+
+unsigned short gfx::getWindowHeight() {
+    return window_height;
 }
