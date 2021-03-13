@@ -20,10 +20,12 @@ void loadFont(const std::string& path, unsigned char size);
 void runScenes();
 
 struct scene {
-    scene(void(*initFunction)(), void(*renderFunction)(), void(*stopFunction)()) : initFunction(initFunction), renderFunction(renderFunction), stopFunction(stopFunction) {}
-    void(*initFunction)();
-    void(*renderFunction)();
-    void(*stopFunction)();
+    virtual ~scene() { stop(); }
+    
+    virtual void init() {}
+    virtual void update() {}
+    virtual void render() {}
+    virtual void stop() {}
 };
 
 enum objectType {top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right};
@@ -43,6 +45,7 @@ struct _centeredObject : public rectShape {
     _centeredObject(short x, short y, unsigned short w, unsigned short h, objectType orientation=top_left) : rectShape(x, y, w, h), orientation(orientation) {}
     objectType orientation;
     gfx::rectShape getRect() const;
+    void setPos(short x_, short y_) { x = x_; y = y_; }
     unsigned char scale = 1;
 };
 
@@ -52,29 +55,24 @@ struct rect : public rectShape {
 };
 
 struct texture {
-    void loadFromFile(const std::string& path, unsigned short* w=nullptr, unsigned short* h=nullptr);
-    void loadFromText(const std::string& text, color text_color, unsigned short* w=nullptr, unsigned short* h=nullptr);
-private:
+    virtual void setSurface(void* surface);
+protected:
     void* tex=nullptr;
     friend void render(const texture& tex, short x, short y, unsigned short w, unsigned short h);
 };
 
-struct image {
-    void loadFromFile(const std::string& path);
-    void loadFromText(const std::string& text, color text_color);
+struct image : public texture {
+    void setSurface(void* surface);
     unsigned char scale = 1;
 private:
     unsigned short w, h;
-    texture tex;
     friend void render(const image& img, short x, short y);
 };
 
-struct sprite : public _centeredObject {
+struct sprite : public _centeredObject, texture {
     sprite() : _centeredObject(0, 0, 0, 0) {};
-    void loadFromFile(const std::string& path);
-    void loadFromText(const std::string& text, color text_color);
+    void setSurface(void* surface);
 private:
-    texture tex;
     friend void render(const sprite& spr);
 };
 
@@ -86,6 +84,9 @@ void render(const sprite& spr);
 
 void switchScene(scene* x);
 void returnFromScene();
+
+void* loadImageFile(const std::string& path);
+void* renderText(const std::string& text, color& text_color);
 
 unsigned short getMouseX(), getMouseY(), getWindowWidth(), getWindowHeight();
 

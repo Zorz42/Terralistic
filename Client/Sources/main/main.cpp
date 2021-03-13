@@ -13,19 +13,18 @@
 
 #include <Graphics/graphics.hpp>
 
-gfx::sprite dirt;
-
-gfx::scene test_scene([]{
-    dirt.loadFromFile("texturePack/blocks/dirt.png");
-    dirt.scale = 2;
-    dirt.x = 10;
-    dirt.y = 10;
-}, []{
-    gfx::render(gfx::rect(10, 10, 400, 500, {255, 0, 0}));
-    gfx::render(dirt);
-}, []{
-    
-});
+class test_scene : public gfx::scene {
+    gfx::sprite dirt;
+    void init() {
+        dirt.setSurface(gfx::loadImageFile("texturePack/blocks/dirt.png"));
+        dirt.scale = 2;
+        dirt.setPos(10, 10);
+    }
+    void render() {
+        gfx::render(gfx::rect(10, 10, 400, 500, {255, 0, 0}));
+        gfx::render(dirt);
+    }
+};
 
 int main(int argc, char **argv) {
     // initialize graphics and set resource path, which is a part of file loading in graphics
@@ -35,10 +34,11 @@ int main(int argc, char **argv) {
     gfx::resource_path = fileSystem::getResourcePath(argv[0]);
     gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
-    gfx::switchScene(&test_scene);
+    gfx::switchScene(new test_scene());
     gfx::runScenes();
     
     gfx::quit();
+    
     /*swl::init();
     swl::loadFont("pixel_font.ttf", 8);
     swl::resourcePath = fileSystem::getResourcePath(argv[0]);

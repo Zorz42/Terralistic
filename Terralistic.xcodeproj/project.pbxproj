@@ -89,8 +89,8 @@
 		169124DF25F6BABA00F7EB4F /* SDL2_ttf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D225F6BA7700F7EB4F /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		169124E025F6BABA00F7EB4F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D325F6BA7700F7EB4F /* SDL2.framework */; };
 		169124E125F6BABA00F7EB4F /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D325F6BA7700F7EB4F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		169124E425F6BC2400F7EB4F /* init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169124E325F6BC2400F7EB4F /* init.cpp */; };
-		169124E525F6BC2400F7EB4F /* init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169124E325F6BC2400F7EB4F /* init.cpp */; };
+		169124E425F6BC2400F7EB4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169124E325F6BC2400F7EB4F /* main.cpp */; };
+		169124E525F6BC2400F7EB4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169124E325F6BC2400F7EB4F /* main.cpp */; };
 		169124E725F6BCD400F7EB4F /* init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687325E9607800D26060 /* init.cpp */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		169124E925F6BCD400F7EB4F /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
@@ -310,7 +310,7 @@
 		169124D125F6BA7700F7EB4F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = "Client/Graphics/Frameworks-Debug/SDL2_image.framework"; sourceTree = "<group>"; };
 		169124D225F6BA7700F7EB4F /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = "Client/Graphics/Frameworks-Debug/SDL2_ttf.framework"; sourceTree = "<group>"; };
 		169124D325F6BA7700F7EB4F /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "Client/Graphics/Frameworks-Debug/SDL2.framework"; sourceTree = "<group>"; };
-		169124E325F6BC2400F7EB4F /* init.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = init.cpp; sourceTree = "<group>"; };
+		169124E325F6BC2400F7EB4F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		16E6357625EAC8290025A8B4 /* blockRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blockRenderer.hpp; sourceTree = "<group>"; };
 		16E6357825EACCCB0025A8B4 /* itemRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = itemRenderer.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -763,7 +763,7 @@
 			children = (
 				1691249825F6B38200F7EB4F /* graphics.hpp */,
 				168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */,
-				169124E325F6BC2400F7EB4F /* init.cpp */,
+				169124E325F6BC2400F7EB4F /* main.cpp */,
 				168ABE9125F79DB200BBEA74 /* scenes.cpp */,
 				168ABE9425F7A1A900BBEA74 /* render.cpp */,
 				168D6D2A25FA8C6500A10457 /* drawables.cpp */,
@@ -1071,7 +1071,7 @@
 			files = (
 				168ABE9525F7A1A900BBEA74 /* render.cpp in Sources */,
 				168ABE9225F79DB200BBEA74 /* scenes.cpp in Sources */,
-				169124E425F6BC2400F7EB4F /* init.cpp in Sources */,
+				169124E425F6BC2400F7EB4F /* main.cpp in Sources */,
 				168D6D2B25FA8C6500A10457 /* drawables.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1082,7 +1082,7 @@
 			files = (
 				168ABE9625F7A1A900BBEA74 /* render.cpp in Sources */,
 				168ABE9325F79DB200BBEA74 /* scenes.cpp in Sources */,
-				169124E525F6BC2400F7EB4F /* init.cpp in Sources */,
+				169124E525F6BC2400F7EB4F /* main.cpp in Sources */,
 				168D6D2C25FA8C6500A10457 /* drawables.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

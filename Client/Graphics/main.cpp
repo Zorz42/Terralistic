@@ -1,5 +1,5 @@
 //
-//  init.cpp
+//  main.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 08/03/2021.
@@ -51,4 +51,12 @@ unsigned short gfx::getWindowWidth() {
 
 unsigned short gfx::getWindowHeight() {
     return window_height;
+}
+
+unsigned short gfx::getMouseX() {
+    return mouse_x;
+}
+
+unsigned short gfx::getMouseY() {
+    return mouse_y;
 }
