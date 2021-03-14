@@ -29,3 +29,9 @@ void gfx::sprite::setSurface(void *surface) {
 gfx::rectShape gfx::_centeredObject::getRect() const {
     return rectShape(orientation % 3 == 1 ? window_width / 2 - w / 2 + x : (orientation % 3 == 2 ? window_width - w + x : x), orientation / 3 == 1 ? window_height / 2 - h / 2 + y : (orientation / 3 == 2 ? window_height - h + y : y), w * scale, h * scale);
 }
+
+void gfx::button::setText(const std::string &text, color text_color) {
+    this->text.setSurface(renderText(text, text_color));
+    w = this->text.getWidth();
+    h = this->text.getHeight();
+}

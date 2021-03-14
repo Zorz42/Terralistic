@@ -19,6 +19,8 @@ void loadFont(const std::string& path, unsigned char size);
 
 void runScenes();
 
+enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_SPACE, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_UNKNOWN};
+
 struct scene {
     virtual ~scene() { stop(); }
     
@@ -26,6 +28,8 @@ struct scene {
     virtual void update() {}
     virtual void render() {}
     virtual void stop() {}
+    virtual void onKeyDown(key key_) {}
+    virtual void onKeyUp(key key_) {}
 };
 
 enum objectType {top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right};
@@ -64,7 +68,9 @@ protected:
 struct image : public texture {
     void setSurface(void* surface);
     unsigned char scale = 1;
-private:
+    unsigned short getWidth() { return w; }
+    unsigned short getHeight() { return h; }
+protected:
     unsigned short w, h;
     friend void render(const image& img, short x, short y);
 };
@@ -72,8 +78,18 @@ private:
 struct sprite : public _centeredObject, texture {
     sprite() : _centeredObject(0, 0, 0, 0) {};
     void setSurface(void* surface);
-private:
+protected:
     friend void render(const sprite& spr);
+};
+
+struct button : public _centeredObject {
+    button() : _centeredObject(0, 0, 0, 0) {}
+    void setText(const std::string& text, color text_color);
+protected:
+    using _centeredObject::w;
+    using _centeredObject::h;
+    image text;
+    friend void render(const button& b);
 };
 
 void render(rectShape x, color c);
@@ -81,12 +97,13 @@ void render(rect x);
 void render(const texture& tex, short x, short y, unsigned short w, unsigned short h);
 void render(const image& img, short x, short y);
 void render(const sprite& spr);
+void render(const button& b);
 
 void switchScene(scene* x);
 void returnFromScene();
 
 void* loadImageFile(const std::string& path);
-void* renderText(const std::string& text, color& text_color);
+void* renderText(const std::string& text, color text_color);
 
 unsigned short getMouseX(), getMouseY(), getWindowWidth(), getWindowHeight();
 

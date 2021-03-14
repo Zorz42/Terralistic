@@ -19,18 +19,24 @@ void gfx::render(rect x) {
     SDL_RenderFillRect(renderer, &sdl_rect);
 }
 
-void gfx::render(const gfx::texture& tex, short x, short y, unsigned short w, unsigned short h) {
+void gfx::render(const texture& tex, short x, short y, unsigned short w, unsigned short h) {
     SDL_Rect rect = {x, y, w, h};
     SDL_RenderCopy(renderer, (SDL_Texture*)tex.tex, nullptr, &rect);
 }
 
-void gfx::render(const gfx::image& img, short x, short y) {
+void gfx::render(const image& img, short x, short y) {
     render(img, x, y, img.w * img.scale, img.h * img.scale);
 }
 
-void gfx::render(const gfx::sprite& spr) {
-    gfx::rectShape rect = spr.getRect();
+void gfx::render(const sprite& spr) {
+    rectShape rect = spr.getRect();
     render(spr, rect.x, rect.y, rect.w, rect.h);
+}
+
+void gfx::render(const button& b) {
+    rectShape rect_ = b.getRect();
+    render(rect(rect_.x, rect_.y, rect_.w, rect_.h, {100, 100, 100}));
+    render(b.text, rect_.x, rect_.y);
 }
 
 void* gfx::loadImageFile(const std::string& path) {
@@ -44,8 +50,9 @@ void* gfx::loadImageFile(const std::string& path) {
     return loaded_surface;
 }
 
-void* gfx::renderText(const std::string& text, color& text_color) {
+void* gfx::renderText(const std::string& text, color text_color) {
     // render text to texture
+    SDL_assert(font);
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
     SDL_assert(rendered_surface);
 

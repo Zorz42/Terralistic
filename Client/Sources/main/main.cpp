@@ -15,14 +15,27 @@
 
 class test_scene : public gfx::scene {
     gfx::sprite dirt;
+    gfx::button button;
     void init() {
         dirt.setSurface(gfx::loadImageFile("texturePack/blocks/dirt.png"));
         dirt.scale = 2;
         dirt.setPos(10, 10);
+        
+        button.setText("Play", {255, 255, 255});
     }
+    
+    void onKeyDown(gfx::key key) {
+        
+    }
+    
+    void onKeyUp(gfx::key key) {
+        
+    }
+    
     void render() {
         gfx::render(gfx::rect(10, 10, 400, 500, {255, 0, 0}));
         gfx::render(dirt);
+        gfx::render(button);
     }
 };
 
