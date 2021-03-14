@@ -34,9 +34,9 @@ void gfx::render(const sprite& spr) {
 }
 
 void gfx::render(const button& b) {
-    rectShape rect_ = b.getRect();
-    render(rect(rect_.x, rect_.y, rect_.w, rect_.h, {100, 100, 100}));
-    render(b.text, rect_.x, rect_.y);
+    rectShape rect = b.getRect();
+    render(rect, {100, 100, 100});
+    render(b, rect.x + b.margin, rect.y + b.margin, rect.w - b.margin * 2, rect.h - b.margin * 2);
 }
 
 void* gfx::loadImageFile(const std::string& path) {

@@ -48,7 +48,7 @@ struct rectShape {
 struct _centeredObject : public rectShape {
     _centeredObject(short x, short y, unsigned short w, unsigned short h, objectType orientation=top_left) : rectShape(x, y, w, h), orientation(orientation) {}
     objectType orientation;
-    gfx::rectShape getRect() const;
+    virtual gfx::rectShape getRect() const;
     void setPos(short x_, short y_) { x = x_; y = y_; }
     unsigned char scale = 1;
 };
@@ -82,13 +82,14 @@ protected:
     friend void render(const sprite& spr);
 };
 
-struct button : public _centeredObject {
-    button() : _centeredObject(0, 0, 0, 0) {}
+struct button : public sprite {
     void setText(const std::string& text, color text_color);
+    unsigned short margin = 20;
+    rectShape getRect() const;
 protected:
-    using _centeredObject::w;
-    using _centeredObject::h;
-    image text;
+    using sprite::setSurface;
+    using sprite::w;
+    using sprite::h;
     friend void render(const button& b);
 };
 

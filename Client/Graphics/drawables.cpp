@@ -31,7 +31,12 @@ gfx::rectShape gfx::_centeredObject::getRect() const {
 }
 
 void gfx::button::setText(const std::string &text, color text_color) {
-    this->text.setSurface(renderText(text, text_color));
-    w = this->text.getWidth();
-    h = this->text.getHeight();
+    setSurface(renderText(text, text_color));
+}
+
+gfx::rectShape gfx::button::getRect() const {
+    rectShape rect = this->_centeredObject::getRect();
+    rect.w += margin * 2;
+    rect.h += margin * 2;
+    return rect;
 }

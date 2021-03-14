@@ -22,6 +22,9 @@ class test_scene : public gfx::scene {
         dirt.setPos(10, 10);
         
         button.setText("Play", {255, 255, 255});
+        button.scale = 3;
+        button.x = 10;
+        button.y = 10;
     }
     
     void onKeyDown(gfx::key key) {
