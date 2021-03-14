@@ -60,7 +60,9 @@ struct rect : public rectShape {
 
 struct texture {
     virtual void setSurface(void* surface);
+    ~texture();
 protected:
+    void freeTexture();
     void* tex=nullptr;
     friend void render(const texture& tex, short x, short y, unsigned short w, unsigned short h);
 };

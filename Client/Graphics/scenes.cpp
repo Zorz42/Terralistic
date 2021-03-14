@@ -7,13 +7,14 @@
 
 #include "graphics-internal.hpp"
 
+#include <iostream>
+
 void gfx::switchScene(scene* x) {
     x->init();
     scene_stack.push(x);
 }
 
 void gfx::returnFromScene() {
-    scene_stack.top()->stop();
     delete scene_stack.top();
     scene_stack.pop();
 }

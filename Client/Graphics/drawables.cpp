@@ -45,3 +45,14 @@ bool gfx::button::isHovered() const {
     rectShape rect = getRect();
     return mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
+
+gfx::texture::~texture() {
+    freeTexture();
+}
+
+void gfx::texture::freeTexture() {
+    if(tex) {
+        SDL_DestroyTexture((SDL_Texture*)tex);
+        tex = nullptr;
+    }
+}
