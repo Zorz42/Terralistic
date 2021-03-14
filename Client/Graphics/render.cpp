@@ -19,24 +19,32 @@ void gfx::render(rect x) {
     SDL_RenderFillRect(renderer, &sdl_rect);
 }
 
-void gfx::render(const texture& tex, short x, short y, unsigned short w, unsigned short h) {
-    SDL_Rect rect = {x, y, w, h};
+void gfx::render(const texture& tex, rectShape dest_rect) {
+    SDL_Rect rect = {dest_rect.x, dest_rect.y, dest_rect.w, dest_rect.h};
     SDL_RenderCopy(renderer, (SDL_Texture*)tex.tex, nullptr, &rect);
 }
 
+void gfx::render(const texture& tex, rectShape dest_rect, rectShape src_rect) {
+    SDL_Rect dest_rect_sdl = {dest_rect.x, dest_rect.y, dest_rect.w, dest_rect.h}, src_rect_sdl = {src_rect.x, src_rect.y, src_rect.w, src_rect.h};
+    SDL_RenderCopy(renderer, (SDL_Texture*)tex.tex, &src_rect_sdl, &dest_rect_sdl);
+}
+
 void gfx::render(const image& img, short x, short y) {
-    render(img, x, y, img.w * img.scale, img.h * img.scale);
+    render(img, rectShape(x, y, img.w * img.scale, img.h * img.scale));
 }
 
 void gfx::render(const sprite& spr) {
-    rectShape rect = spr.getRect();
-    render(spr, rect.x, rect.y, rect.w, rect.h);
+    render(spr, spr.getRect());
 }
 
 void gfx::render(const button& b) {
     rectShape rect = b.getRect();
     render(rect, b.isHovered() ? b.hover_color : b.def_color);
-    render(b, rect.x + b.margin, rect.y + b.margin, rect.w - b.margin * 2, rect.h - b.margin * 2);
+    rect.x += b.margin;
+    rect.y += b.margin;
+    rect.w -= b.margin * 2;
+    rect.h -= b.margin * 2;
+    render(b, rect);
 }
 
 void* gfx::loadImageFile(const std::string& path) {

@@ -64,7 +64,8 @@ struct texture {
 protected:
     void freeTexture();
     void* tex=nullptr;
-    friend void render(const texture& tex, short x, short y, unsigned short w, unsigned short h);
+    friend void render(const texture& tex, rectShape dest_rect);
+    friend void render(const texture& tex, rectShape dest_rect, rectShape src_rect);
 };
 
 struct image : public texture {
@@ -99,7 +100,8 @@ protected:
 
 void render(rectShape x, color c);
 void render(rect x);
-void render(const texture& tex, short x, short y, unsigned short w, unsigned short h);
+void render(const texture& tex, rectShape dest_rect);
+void render(const texture& tex, rectShape dest_rect, rectShape src_rect);
 void render(const image& img, short x, short y);
 void render(const sprite& spr);
 void render(const button& b);

@@ -11,17 +11,13 @@
 #include "singleWindowLibrary.hpp"
 #include "startMenu.hpp"
 
-#include<mach/mach.h>
-
 #include <Graphics/graphics.hpp>
 
 class test_scene : public gfx::scene {
-    gfx::sprite dirt;
+    gfx::texture dirt;
     gfx::button button;
     void init() {
         dirt.setSurface(gfx::loadImageFile("texturePack/blocks/dirt.png"));
-        dirt.scale = 2;
-        dirt.setPos(10, 10);
         
         button.setText("Play", {255, 255, 255});
         button.scale = 3;
@@ -39,7 +35,7 @@ class test_scene : public gfx::scene {
     
     void render() {
         gfx::render(gfx::rect(10, 10, 400, 500, {255, 0, 0}));
-        gfx::render(dirt);
+        gfx::render(dirt, gfx::rectShape(10, 100, 16, 16), gfx::rectShape(0, 0, 8, 8));
         gfx::render(button);
     }
 };
