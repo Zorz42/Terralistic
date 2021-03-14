@@ -35,7 +35,7 @@ void gfx::render(const sprite& spr) {
 
 void gfx::render(const button& b) {
     rectShape rect = b.getRect();
-    render(rect, {100, 100, 100});
+    render(rect, b.isHovered() ? b.hover_color : b.def_color);
     render(b, rect.x + b.margin, rect.y + b.margin, rect.w - b.margin * 2, rect.h - b.margin * 2);
 }
 

@@ -86,6 +86,8 @@ struct button : public sprite {
     void setText(const std::string& text, color text_color);
     unsigned short margin = 20;
     rectShape getRect() const;
+    color def_color = {0, 0, 0}, hover_color = {0, 0, 0};
+    bool isHovered() const;
 protected:
     using sprite::setSurface;
     using sprite::w;

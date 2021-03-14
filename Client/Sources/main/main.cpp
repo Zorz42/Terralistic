@@ -23,8 +23,8 @@ class test_scene : public gfx::scene {
         
         button.setText("Play", {255, 255, 255});
         button.scale = 3;
-        button.x = 10;
-        button.y = 10;
+        button.setPos(10, 10);
+        button.hover_color = {100, 100, 100};
     }
     
     void onKeyDown(gfx::key key) {
