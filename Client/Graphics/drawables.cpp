@@ -35,10 +35,10 @@ void gfx::button::setText(const std::string &text, color text_color) {
 }
 
 gfx::rectShape gfx::button::getRect() const {
-    rectShape rect = this->_centeredObject::getRect();
-    rect.w += margin * 2;
-    rect.h += margin * 2;
-    return rect;
+    return rectShape(
+                     orientation % 3 == 1 ? (window_width >> 1) - (w >> 1) * scale - margin + x : (orientation % 3 == 2 ? window_width - w + x : x),
+                     orientation / 3 == 1 ? (window_height >> 1) - (h >> 1) * scale - margin + y : (orientation / 3 == 2 ? window_height - h + y : y),
+                     w * scale + margin * 2, h * scale + margin * 2);
 }
 
 bool gfx::button::isHovered() const {

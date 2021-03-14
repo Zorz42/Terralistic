@@ -10,10 +10,18 @@
 
 #undef main
 
+#include <Graphics/graphics.hpp>
+
 namespace startMenu {
 
 void main();
 
-}
+struct scene : public gfx::scene {
+    gfx::button singleplayer_button, multiplayer_button, exit_button;
+    void init();
+    void onKeyDown(gfx::key key);
+    void render();
+};
 
+}
 #endif /* startMenu_hpp */

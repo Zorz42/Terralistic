@@ -66,3 +66,32 @@ void startMenu::main() {
         swl::update();
     }
 }
+
+void startMenu::scene::init() {
+    singleplayer_button.hover_color = {100, 100, 100};
+    singleplayer_button.scale = 3;
+    singleplayer_button.setText("Singleplayer", {255, 255, 255});
+    singleplayer_button.y = short(-singleplayer_button.getRect().h - 5);
+    singleplayer_button.orientation = gfx::center;
+    
+    multiplayer_button.hover_color = {100, 100, 100};
+    multiplayer_button.scale = 3;
+    multiplayer_button.setText("Multiplayer", {255, 255, 255});
+    multiplayer_button.orientation = gfx::center;
+    
+    exit_button.hover_color = {100, 100, 100};
+    exit_button.scale = 3;
+    exit_button.setText("Exit", {255, 255, 255});
+    exit_button.y = short(exit_button.getRect().h + 5);
+    exit_button.orientation = gfx::center;
+}
+
+void startMenu::scene::onKeyDown(gfx::key key) {
+    
+}
+
+void startMenu::scene::render() {
+    gfx::render(singleplayer_button);
+    gfx::render(multiplayer_button);
+    gfx::render(exit_button);
+}
