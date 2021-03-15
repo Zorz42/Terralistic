@@ -12,8 +12,6 @@
 #include <dirent.h>
 #include <algorithm>
 #include "worldSelector.hpp"
-#include "singleWindowLibrary.hpp"
-#include "UIKit.hpp"
 #include "gameLoop.hpp"
 #include "fileSystem.hpp"
 #include "worldCreator.hpp"
@@ -44,54 +42,43 @@ void world_to_select::render(bool display_hover) {
     gfx::render(delete_button);
 }
 
-ogl::texture title(ogl::top);
-SDL_Texture* x_texture = nullptr;
-unsigned short x_width, x_height;
-ui::button back_button(ogl::bottom), new_button(ogl::bottom_right);
-ogl::rect top_rect(ogl::top), bottom_rect(ogl::bottom), top_line_rect(ogl::top), bottom_line_rect(ogl::bottom);
+#define PADDING 20
+#define TOP_HEIGHT 70
+#define BOTTOM_HEIGHT (back_button.getRect().h + PADDING + PADDING / 2)
+#define LINE_HEIGHT 2
+
+gfx::sprite title;
+gfx::image x_image;
+gfx::button back_button, new_button;
+gfx::rect top_rect(0, 0, 0, TOP_HEIGHT, {0, 0, 0}), bottom_rect(0, 0, 0, 0, {0, 0, 0}, gfx::bottom_left), top_line_rect(0, TOP_HEIGHT, 0, LINE_HEIGHT, {100, 100, 100}), bottom_line_rect(0, 0, 0, LINE_HEIGHT, {100, 100, 100}, gfx::bottom_left);
 std::vector<std::string> worlds_names;
 std::vector<world_to_select> worlds;
 int scroll_limit;
 
-#define PADDING 20
-#define TOP_HEIGHT 70
-#define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
-#define LINE_HEIGHT 2
-
 INIT_SCRIPT
     // set some dimensions for shapes
-    /*title.scale = 3;
-    title.loadFromText("Select a world to play!", {255, 255, 255});
-    title.setY(PADDING);
+    title.scale = 3;
+    title.setSurface(gfx::renderText("Select a world to play!", {255, 255, 255}));
+    title.y = PADDING;
+    title.orientation = gfx::top;
     
-    back_button.setColor(0, 0, 0);
-    back_button.setHoverColor(100, 100, 100);
-    back_button.setScale(3);
-    back_button.setText("Back", 255, 255, 255);
+    back_button.hover_color = {100, 100, 100};
+    back_button.scale = 3;
+    back_button.setText("Back", {255, 255, 255});
     back_button.y = -PADDING;
-    
-    new_button.setColor(0, 0, 0);
-    new_button.setHoverColor(100, 100, 100);
-    new_button.setScale(3);
-    new_button.setText("New", 255, 255, 255);
+    back_button.orientation = gfx::bottom;
+
+    new_button.hover_color = {100, 100, 100};
+    new_button.scale = 3;
+    new_button.setText("New", {255, 255, 255});
     new_button.y = -PADDING;
     new_button.x = -PADDING;
-
-    top_rect.setHeight(TOP_HEIGHT);
-    top_rect.setColor(0, 0, 0);
+    new_button.orientation = gfx::bottom_right;
     
-    bottom_rect.setHeight((unsigned short)BOTTOM_HEIGHT);
-    bottom_rect.setColor(0, 0, 0);
+    bottom_rect.h = BOTTOM_HEIGHT;
+    bottom_line_rect.y = -BOTTOM_HEIGHT;
     
-    top_line_rect.setColor(100, 100, 100);
-    top_line_rect.setHeight(LINE_HEIGHT);
-    top_line_rect.setY(TOP_HEIGHT);
-    
-    bottom_line_rect.setColor(100, 100, 100);
-    bottom_line_rect.setHeight(LINE_HEIGHT);
-    bottom_line_rect.setY((short)-BOTTOM_HEIGHT);
-    
-    x_texture = swl::loadTextureFromFile("texturePack/misc/x-button.png", &x_width, &x_height);*/
+    x_image.setSurface(gfx::loadImageFile("texturePack/misc/x-button.png"));
 INIT_SCRIPT_END
 
 bool ends_with(const std::string& value, std::string ending) {
@@ -126,7 +113,7 @@ void reload() {
         world.button.scale = 3;
         world.button.hover_color = {100, 100, 100};
         world.button.setText(world.name, {255, 255, 255});
-        world.button_y = scroll_limit + title.getHeight() + 2 * PADDING;
+        world.button_y = scroll_limit + title.getRect().h + 2 * PADDING;
         
         world.delete_button.orientation = gfx::top;
         //world.delete_button.setFreeTexture(false);
@@ -214,11 +201,16 @@ void worldSelector::scene::render() {
     for(world_to_select& world : worlds)
         world.render(display_hover);
     
-    //top_rect.render();
-    //bottom_rect.render();
-    //title.render();
-    //back_button.render();
-    //new_button.render();
-    //top_line_rect.render();
-    //bottom_line_rect.render();
+    top_rect.w = gfx::getWindowWidth();
+    bottom_rect.w = gfx::getWindowWidth();
+    top_line_rect.w = gfx::getWindowWidth();
+    bottom_line_rect.w = gfx::getWindowWidth();
+    
+    gfx::render(top_rect);
+    gfx::render(bottom_rect);
+    gfx::render(title);
+    gfx::render(back_button);
+    gfx::render(new_button);
+    gfx::render(top_line_rect);
+    gfx::render(bottom_line_rect);
 }

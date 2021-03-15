@@ -53,8 +53,8 @@ struct _centeredObject : public rectShape {
     unsigned char scale = 1;
 };
 
-struct rect : public rectShape {
-    rect(short x, short y, unsigned short w, unsigned short h, color c) : rectShape(x, y, w, h), c(c) {}
+struct rect : public _centeredObject {
+    rect(short x, short y, unsigned short w, unsigned short h, color c, objectType orientation=top_left) : _centeredObject(x, y, w, h, orientation), c(c) {}
     color c;
 };
 
