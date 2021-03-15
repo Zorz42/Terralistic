@@ -3,21 +3,21 @@ project(TerralisticServer)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "-O0 -static -Wall")
+set(CMAKE_CXX_FLAGS "-O2 -static -Wall")
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 
-file(GLOB INCLUDES "Sources/*/Headers/")
-file(GLOB INCLUDES2 "ClientLibraries/*/Headers/")
-file(GLOB LIB_INCLUDES "Libraries/*/Headers/")
+file(GLOB INCLUDES "*/")
+file(GLOB INCLUDES_CORE "../Core/*/")
+file(GLOB INCLUDES_CORE2 "../Core/*/*/")
 
 link_directories(OtherLibs)
 
-file(GLOB SOURCES "Sources/*.cpp")
-file(GLOB SOURCES2 "ClientLibraries/*/*.cpp")
-file(GLOB SOURCES_LIBS "Libraries/*/*.cpp")
+file(GLOB SOURCES "*/*.cpp")
+file(GLOB SOURCES_CORE "../Core/*/*.cpp")
+file(GLOB SOURCES_CORE2 "../Core/*/*/*.cpp")
 
-add_executable(TerralisticServer ${SOURCES} ${SOURCES2} ${SOURCES_LIBS})
+add_executable(TerralisticServer ${SOURCES} ${SOURCES_CORE} ${SOURCES_CORE2})
 
-include_directories(${INCLUDES} ${INCLUDES2} ${LIB_INCLUDES} OtherLibs OtherLibs/SDL2 ClientLibraries)
+include_directories(${INCLUDES} ${INCLUDES_CORE} ${INCLUDES_CORE2} ../Core/)
 
 target_link_libraries(TerralisticServer AdvApi32.lib Mswsock.lib Ws2_32.lib)
