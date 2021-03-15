@@ -23,7 +23,7 @@
 
 #define BUFFER_SIZE 1024
 #define PORT 33770
-#define PORT_STR #PORT
+#define PORT_STR "33770"
 
 int sock;
 ogl::texture connecting_text;

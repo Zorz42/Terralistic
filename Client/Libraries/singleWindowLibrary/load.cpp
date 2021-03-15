@@ -33,8 +33,7 @@ SDL_Texture* swl::loadTextureFromFile(std::string path, unsigned short* w, unsig
 }
 
 void swl::loadFont(std::string path, unsigned char size) {
-    path = swl::resourcePath + path;
-    swl_private::font = TTF_OpenFont(path.c_str(), size);
+    swl_private::font = TTF_OpenFont((swl::resourcePath + path).c_str(), size);
     SDL_assert(swl_private::font);
 }
 

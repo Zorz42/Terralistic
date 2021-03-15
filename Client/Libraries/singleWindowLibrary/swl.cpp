@@ -9,7 +9,7 @@
 #include "singleWindowLibrary.hpp"
 
 void swl::quit() {
-    //SDL_DestroyRenderer(swl_private::renderer); // assertion failure on close for some reason
+    SDL_DestroyRenderer(swl_private::renderer); // assertion failure on close for some reason
     SDL_DestroyWindow(swl_private::window);
     SDL_Quit();
 }
@@ -17,21 +17,26 @@ void swl::quit() {
 void swl::init() {
     swl::window_width = 1000;
     swl::window_height = 600;
-    
+
     // initialize basic sdl module
-    SDL_assert(SDL_Init(SDL_INIT_EVERYTHING) >= 0);
+    int result = SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_assert(result >= 0);
 
     // initialize image loading part of sdl
-    SDL_assert(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG);
+    result = IMG_Init(IMG_INIT_PNG);
+    SDL_assert(result & IMG_INIT_PNG);
     
     // initialize font rendering part of sdl
-    SDL_assert(TTF_Init() != -1);
+    result = TTF_Init();
+    SDL_assert(result != -1);
     
     // create actual window
-    SDL_assert(swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE));
+    swl_private::window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, swl::window_width, swl::window_height, SDL_WINDOW_RESIZABLE);
+    SDL_assert(swl_private::window);
 
     // create renderer for GPU accelerated
-    SDL_assert(swl_private::renderer = SDL_CreateRenderer(swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+    swl_private::renderer = SDL_CreateRenderer(swl_private::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_assert(swl_private::renderer);
     
     SDL_SetRenderDrawBlendMode(swl_private::renderer, SDL_BLENDMODE_BLEND);
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};

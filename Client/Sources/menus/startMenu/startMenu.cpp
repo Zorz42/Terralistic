@@ -19,7 +19,7 @@
 
 // this is the main menu, which you see on the start of the app
 
-void startMenu::main() {
+void startMenu::loop() {
     bool running = true;
     SDL_Event event;
 

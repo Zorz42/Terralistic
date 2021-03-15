@@ -43,15 +43,15 @@ ogl::texture::~texture() {
 }
 
 void ogl::texture::loadFromText(const std::string& text, SDL_Color text_color) {
-    //unsigned short temp_width, temp_height;
-    setTexture(swl::loadTextureFromText(text, text_color, &width, &height), width, height);
-    //width = temp_width;
-    //height = temp_height;
+    unsigned short temp_width, temp_height;
+    setTexture(swl::loadTextureFromText(text, text_color, &temp_width, &temp_height), width, height);
+    width = temp_width;
+    height = temp_height;
 }
 
 void ogl::texture::loadFromFile(const std::string& path) {
-    //unsigned short temp_width, temp_height;
-    setTexture(swl::loadTextureFromFile(path, &width, &height), width, height);
-    //width = temp_width;
-    //height = temp_height;
+    unsigned short temp_width, temp_height;
+    setTexture(swl::loadTextureFromFile(path, &temp_width, &temp_height), width, height);
+    width = temp_width;
+    height = temp_height;
 }
