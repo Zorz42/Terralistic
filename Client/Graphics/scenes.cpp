@@ -15,7 +15,6 @@ void gfx::switchScene(scene* x) {
 }
 
 void gfx::returnFromScene() {
-    delete scene_stack.top();
     scene_stack.pop();
 }
 
@@ -72,7 +71,10 @@ void gfx::runScenes() {
     scene* used_scene = nullptr;
     
     while(scene_stack.size()) {
-        used_scene = scene_stack.top();
+        if(used_scene != scene_stack.top()) {
+            delete used_scene;
+            used_scene = scene_stack.top();
+        }
         
         while(SDL_PollEvent(&event)) {
             if(event.type == SDL_QUIT)
