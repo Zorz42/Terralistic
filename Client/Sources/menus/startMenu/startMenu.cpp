@@ -90,6 +90,8 @@ void startMenu::scene::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT) {
         if(exit_button.isHovered())
             gfx::returnFromScene();
+        else if(singleplayer_button.isHovered())
+            gfx::switchScene(new worldSelector::scene());
     }
 }
 

@@ -19,7 +19,7 @@ ui::button resume_button(ogl::top_left), quit_button(ogl::top_left);
 #define PADDING 20
 
 INIT_SCRIPT
-    resume_button.setColor(0, 0, 0);
+    /*resume_button.setColor(0, 0, 0);
     resume_button.setHoverColor(100, 100, 100);
     resume_button.setScale(3);
     resume_button.setText("Resume", 255, 255, 255);
@@ -31,7 +31,7 @@ INIT_SCRIPT
     quit_button.setScale(3);
     quit_button.setText("Save & Quit", 255, 255, 255);
     quit_button.x = PADDING;
-    quit_button.y = short(resume_button.getHeight() + 2 * PADDING);
+    quit_button.y = short(resume_button.getHeight() + 2 * PADDING);*/
 INIT_SCRIPT_END
 
 void pauseScreen::render() {

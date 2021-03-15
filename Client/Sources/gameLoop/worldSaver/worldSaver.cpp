@@ -16,10 +16,10 @@
 ogl::texture loading_text, saving_text;
 
 INIT_SCRIPT
-    loading_text.loadFromText("Loading world", {255, 255, 255});
+    /*loading_text.loadFromText("Loading world", {255, 255, 255});
     loading_text.scale = 3;
     saving_text.loadFromText("Saving world", {255, 255, 255});
-    saving_text.scale = 3;
+    saving_text.scale = 3;*/
 INIT_SCRIPT_END
 
 void worldSaver::saveWorld(const std::string& world_name) {

@@ -19,6 +19,8 @@ int main(int argc, char **argv) {
     gfx::resource_path = fileSystem::getResourcePath(argv[0]);
     gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
+    init::initModules();
+    
     gfx::switchScene(new startMenu::scene());
     gfx::runScenes();
     

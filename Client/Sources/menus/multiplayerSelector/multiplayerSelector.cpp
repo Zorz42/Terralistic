@@ -28,7 +28,7 @@ INIT_SCRIPT
     // set all graphical elements
     
     // the back button
-    back_button_multiplayer.setColor(0, 0, 0);
+    /*back_button_multiplayer.setColor(0, 0, 0);
     back_button_multiplayer.setHoverColor(100, 100, 100);
     back_button_multiplayer.setScale(3);
     back_button_multiplayer.setText("Back", 255, 255, 255);
@@ -49,7 +49,7 @@ INIT_SCRIPT
     back_button_multiplayer.x = short((-join_button.getWidth() - back_button_multiplayer.getWidth() + back_button_multiplayer.getWidth() - PADDING) / 2);
     join_button.x = short((join_button.getWidth() + back_button_multiplayer.getWidth() - join_button.getWidth() + PADDING) / 2);
     
-    server_ip.scale = 3;
+    server_ip.scale = 3;*/
 INIT_SCRIPT_END
 
 void renderTextMultiplayer() {

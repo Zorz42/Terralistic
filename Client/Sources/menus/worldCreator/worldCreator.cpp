@@ -26,7 +26,7 @@ std::string name;
 #define PADDING 20
 
 INIT_SCRIPT
-    back_button_creator.setColor(0, 0, 0);
+    /*back_button_creator.setColor(0, 0, 0);
     back_button_creator.setHoverColor(100, 100, 100);
     back_button_creator.setScale(3);
     back_button_creator.setText("Back", 255, 255, 255);
@@ -50,7 +50,7 @@ INIT_SCRIPT
     faded_create.setX(short((create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2));
     faded_create.setY(short(-PADDING - 10 * faded_create.scale));
     
-    world_name.scale = 3;
+    world_name.scale = 3;*/
 INIT_SCRIPT_END
 
 void renderTextCreator() {

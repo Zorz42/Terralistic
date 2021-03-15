@@ -53,8 +53,8 @@ void networking::sendPacket(packets::packet packet_) {
 }
 
 INIT_SCRIPT
-    connecting_text.loadFromText("Connecting to server", {255, 255, 255});
-    connecting_text.scale = 3;
+    //connecting_text.loadFromText("Connecting to server", {255, 255, 255});
+    //connecting_text.scale = 3;
 INIT_SCRIPT_END
 
 bool networking::establishConnection(const std::string &ip) {
