@@ -9,9 +9,12 @@
 
 #include <iostream>
 
+gfx::scene* used_scene = nullptr;
+
 void gfx::switchScene(scene* x) {
     x->init();
     scene_stack.push(x);
+    used_scene = x;
 }
 
 void gfx::returnFromScene() {
@@ -67,8 +70,6 @@ gfx::key translateMouseKey(int sdl_button) {
 void gfx::runScenes() {
     bool quit = false;
     SDL_Event event;
-    
-    scene* used_scene = nullptr;
     
     while(scene_stack.size()) {
         if(used_scene != scene_stack.top()) {

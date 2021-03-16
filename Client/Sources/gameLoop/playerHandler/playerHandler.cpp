@@ -46,7 +46,7 @@ INIT_SCRIPT
     select_rect.setY(MARGIN / 2);
     
     under_text_rect.setColor(0, 0, 0);
-    playerHandler::player.loadFromFile("texturePack/misc/player.png");
+    //playerHandler::player.loadFromFile("texturePack/misc/player.png");
     playerHandler::player.scale = 2;
     
     for(int i = 0; i < 20; i++)

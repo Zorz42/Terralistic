@@ -15,15 +15,15 @@ SDL_Texture* breaking_texture = nullptr;
 
 INIT_SCRIPT
     INIT_ASSERT(blockEngine::unique_blocks.size());
-    for(blockEngine::uniqueBlock& unique_block : blockEngine::unique_blocks)
-        blockRenderer::unique_render_blocks.push_back(&unique_block);
+    //for(blockEngine::uniqueBlock& unique_block : blockEngine::unique_blocks)
+        //blockRenderer::unique_render_blocks.push_back(&unique_block);
 
-    blockRenderer::unique_render_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
-    blockRenderer::unique_render_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
-    blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::GRASS_BLOCK);
-    blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::LEAVES);
+    //blockRenderer::unique_render_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
+    //blockRenderer::unique_render_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
+    //blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::GRASS_BLOCK);
+    //blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::LEAVES);
 
-    breaking_texture = swl::loadTextureFromFile("texturePack/misc/breaking.png");
+    //breaking_texture = swl::loadTextureFromFile("texturePack/misc/breaking.png");
 INIT_SCRIPT_END
 
 void blockRenderer::prepare() {

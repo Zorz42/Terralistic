@@ -680,8 +680,8 @@
 		168968C125E9607800D26060 /* worldSelector */ = {
 			isa = PBXGroup;
 			children = (
-				168968C225E9607800D26060 /* worldSelector.cpp */,
 				168968C325E9607800D26060 /* worldSelector.hpp */,
+				168968C225E9607800D26060 /* worldSelector.cpp */,
 			);
 			path = worldSelector;
 			sourceTree = "<group>";

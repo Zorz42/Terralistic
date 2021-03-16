@@ -195,6 +195,13 @@ void worldSelector::scene::init() {
     reload();
 }
 
+void worldSelector::scene::onKeyDown(gfx::key key) {
+    if(key == gfx::KEY_MOUSE_LEFT) {
+        if(back_button.isHovered())
+            gfx::returnFromScene();
+    }
+}
+
 void worldSelector::scene::render() {
     display_hover = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
     
@@ -208,9 +215,9 @@ void worldSelector::scene::render() {
     
     gfx::render(top_rect);
     gfx::render(bottom_rect);
+    gfx::render(top_line_rect);
+    gfx::render(bottom_line_rect);
     gfx::render(title);
     gfx::render(back_button);
     gfx::render(new_button);
-    gfx::render(top_line_rect);
-    gfx::render(bottom_line_rect);
 }

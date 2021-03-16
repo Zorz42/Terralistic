@@ -41,10 +41,10 @@ void gfx::render(const sprite& spr) {
 void gfx::render(const button& b) {
     rectShape rect = b.getRect();
     render(rect, b.isHovered() ? b.hover_color : b.def_color);
-    rect.x += b.margin;
-    rect.y += b.margin;
-    rect.w -= b.margin * 2;
-    rect.h -= b.margin * 2;
+    rect.x += b.margin * b.scale;
+    rect.y += b.margin * b.scale;
+    rect.w -= b.margin * 2 * b.scale;
+    rect.h -= b.margin * 2 * b.scale;
     render(b, rect);
 }
 
