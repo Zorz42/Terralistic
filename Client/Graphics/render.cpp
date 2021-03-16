@@ -15,7 +15,8 @@ void gfx::render(rectShape x, color c) {
 
 void gfx::render(rect x) {
     SDL_SetRenderDrawColor(renderer, x.c.r, x.c.g, x.c.b, x.c.a);
-    SDL_Rect sdl_rect = {x.x, x.y, x.w, x.h};
+    rectShape gfx_rect = x.getRect();
+    SDL_Rect sdl_rect = {gfx_rect.x, gfx_rect.y, gfx_rect.w, gfx_rect.h};
     SDL_RenderFillRect(renderer, &sdl_rect);
 }
 

@@ -37,9 +37,9 @@ void world_to_select::render(bool display_hover) {
     button.y = short(button_y - position);
     //button.render(display_hover);
     gfx::render(button);
-    delete_button.y = short(button_y - position + (button.getRect().h - delete_button.getRect().h) / 2);
+    //delete_button.y = short(button_y - position + (button.getRect().h - delete_button.getRect().h) / 2);
     //delete_button.render(display_hover);
-    gfx::render(delete_button);
+    //gfx::render(delete_button);
 }
 
 #define PADDING 20
@@ -115,7 +115,7 @@ void reload() {
         world.button.setText(world.name, {255, 255, 255});
         world.button_y = scroll_limit + title.getRect().h + 2 * PADDING;
         
-        world.delete_button.orientation = gfx::top;
+        //world.delete_button.orientation = gfx::top;
         //world.delete_button.setFreeTexture(false);
         //world.delete_button.setTexture(x_texture, x_width, x_height);
         //world.delete_button.setScale(3);

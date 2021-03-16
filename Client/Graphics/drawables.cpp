@@ -27,7 +27,10 @@ void gfx::sprite::setSurface(void *surface) {
 }
 
 gfx::rectShape gfx::_centeredObject::getRect() const {
-    return rectShape(orientation % 3 == 1 ? (window_width >> 1) - (w >> 1) + x : (orientation % 3 == 2 ? window_width - w + x : x), orientation / 3 == 1 ? (window_height >> 1) - (h >> 1) + y : (orientation / 3 == 2 ? window_height - h + y : y), w * scale, h * scale);
+    return rectShape(
+                     orientation % 3 == 1 ? (window_width >> 1) - (w >> 1) * scale + x : (orientation % 3 == 2 ? window_width - w * scale + x : x),
+                     orientation / 3 == 1 ? (window_height >> 1) - (h >> 1) * scale + y : (orientation / 3 == 2 ? window_height - h * scale + y : y),
+                     w * scale, h * scale);
 }
 
 void gfx::button::setText(const std::string &text, color text_color) {
@@ -36,8 +39,8 @@ void gfx::button::setText(const std::string &text, color text_color) {
 
 gfx::rectShape gfx::button::getRect() const {
     return rectShape(
-                     orientation % 3 == 1 ? (window_width >> 1) - (w >> 1) * scale - margin + x : (orientation % 3 == 2 ? window_width - w + x : x),
-                     orientation / 3 == 1 ? (window_height >> 1) - (h >> 1) * scale - margin + y : (orientation / 3 == 2 ? window_height - h + y : y),
+                     orientation % 3 == 1 ? (window_width >> 1) - (w >> 1) * scale - margin + x : (orientation % 3 == 2 ? window_width - w * scale - margin * 2 + x : x),
+                     orientation / 3 == 1 ? (window_height >> 1) - (h >> 1) * scale - margin + y : (orientation / 3 == 2 ? window_height - h * scale - margin * 2 + y : y),
                      w * scale + margin * 2, h * scale + margin * 2);
 }
 
