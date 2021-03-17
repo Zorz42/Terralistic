@@ -56,15 +56,15 @@ void gfx::render(const button& b) {
 
 void gfx::render(const textInput& t) {
     rectShape rect = t.getRect();
-    render(rect, t.isHovered() ? t.hover_color : t.def_color);
-    render(rect, t.border_color, false);
+    render(rect, t.border_color);
+    render(gfx::rectShape(rect.x + t.scale, rect.y + t.scale, rect.w - t.scale * 2, rect.h - t.scale * 2), t.isHovered() ? t.hover_color : t.def_color);
     rect.x += t.margin * t.scale;
     rect.y += t.margin * t.scale;
-    rect.w -= t.margin * 2 * t.scale;
+    rect.w = t.w * t.scale;
     rect.h -= t.margin * 2 * t.scale;
-    render(t, rect);
+    render(t, rectShape(rect.x, rect.y, rect.w > t.width * t.scale ? t.width * t.scale : rect.w, rect.h), rectShape(rect.w > t.width * t.scale ? rect.w / t.scale - t.width : 0, 0, t.width, rect.h / t.scale));
     if(t.active)
-        render(gfx::rect(rect.x + rect.w, rect.y, t.scale, rect.h, t.text_color, t.orientation));
+        render(gfx::rect(rect.x + (t.text.empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color, t.orientation));
 }
 
 void* gfx::loadImageFile(const std::string& path) {

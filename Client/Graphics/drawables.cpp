@@ -66,3 +66,10 @@ void gfx::textInput::setText(const std::string& text) {
     }
     setSurface(gfx::renderText(this->text.empty() ? " " : this->text, text_color));
 }
+
+gfx::rectShape gfx::textInput::getRect() const {
+    return rectShape(
+                     orientation % 3 == 1 ? (window_width >> 1) - ((w >> 1) + margin) * scale + x : (orientation % 3 == 2 ? window_width - (w + margin * 2) * scale + x : x),
+                     orientation / 3 == 1 ? (window_height >> 1) - ((h >> 1) + margin) * scale + y : (orientation / 3 == 2 ? window_height - (h + margin * 2) * scale + y : y),
+                     (width + margin * 2) * scale, (h + margin * 2) * scale);
+}

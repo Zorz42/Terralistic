@@ -87,11 +87,14 @@ protected:
 };
 
 struct textInput : public button {
+    textInput() { margin = 3; }
     color border_color = {255, 255, 255}, text_color = {255, 255, 255};
     std::string getText() { return text; }
     void setText(const std::string& text);
     bool active = false;
     char (*textProcessing)(char c);
+    unsigned short width = 200;
+    rectShape getRect() const;
 protected:
     std::string text;
     friend void render(const textInput& b);
