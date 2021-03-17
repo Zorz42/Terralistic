@@ -71,6 +71,7 @@ void gfx::runScenes() {
     bool quit = false;
     SDL_Event event;
     
+    SDL_StartTextInput();
     while(scene_stack.size()) {
         if(used_scene != scene_stack.top()) {
             delete used_scene;
@@ -87,6 +88,9 @@ void gfx::runScenes() {
                 window_height = (unsigned short)event.window.data2;
             } else if(event.type == SDL_MOUSEBUTTONDOWN) {
                 gfx::key key = translateMouseKey(event.button.button);
+                if(key == KEY_MOUSE_LEFT)
+                    for(textInput* i : used_scene->text_inputs)
+                        i->active = i->isHovered();
                 if(key != KEY_UNKNOWN)
                     used_scene->onKeyDown(key);
             } else if(event.type == SDL_MOUSEBUTTONUP) {
@@ -95,12 +99,28 @@ void gfx::runScenes() {
                     used_scene->onKeyUp(key);
             } else if(event.type == SDL_KEYDOWN) {
                 gfx::key key = translateMouseKey(event.key.keysym.sym);
+                if(event.key.keysym.sym == SDLK_BACKSPACE)
+                    for(textInput* i : used_scene->text_inputs)
+                        if(i->active && !i->getText().empty()) {
+                            if(i->getText().size() == 1)
+                                i->setText("");
+                            else {
+                                std::string str = i->getText();
+                                str.pop_back();
+                                i->setText(str);
+                            }
+                        }
                 if(key != KEY_UNKNOWN)
                     used_scene->onKeyDown(key);
             } else if(event.type == SDL_KEYUP) {
                 gfx::key key = translateMouseKey(event.key.keysym.sym);
                 if(key != KEY_UNKNOWN)
                     used_scene->onKeyUp(key);
+            } else if(event.type == SDL_TEXTINPUT) {
+                std::string c = event.text.text;
+                for(textInput* i : used_scene->text_inputs)
+                    if(i->active)
+                        i->setText(i->getText() + c);
             }
         }
         

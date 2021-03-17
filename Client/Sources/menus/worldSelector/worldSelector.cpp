@@ -62,15 +62,13 @@ INIT_SCRIPT
     title.y = PADDING;
     title.orientation = gfx::top;
     
-    back_button.hover_color = {100, 100, 100};
     back_button.scale = 3;
-    back_button.setText("Back", {255, 255, 255});
+    back_button.setSurface(gfx::renderText("Back", {255, 255, 255}));
     back_button.y = -PADDING;
     back_button.orientation = gfx::bottom;
 
-    new_button.hover_color = {100, 100, 100};
     new_button.scale = 3;
-    new_button.setText("New", {255, 255, 255});
+    new_button.setSurface(gfx::renderText("New", {255, 255, 255}));
     new_button.y = -PADDING;
     new_button.x = -PADDING;
     new_button.orientation = gfx::bottom_right;
@@ -111,8 +109,7 @@ void reload() {
     for(auto& world : worlds) {
         world.button.orientation = gfx::top;
         world.button.scale = 3;
-        world.button.hover_color = {100, 100, 100};
-        world.button.setText(world.name, {255, 255, 255});
+        world.button.setSurface(gfx::renderText(world.name, {255, 255, 255}));
         world.button_y = scroll_limit + title.getRect().h + 2 * PADDING;
         
         //world.delete_button.orientation = gfx::top;

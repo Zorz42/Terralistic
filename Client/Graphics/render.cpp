@@ -7,17 +7,23 @@
 
 #include "graphics-internal.hpp"
 
-void gfx::render(rectShape x, color c) {
+void gfx::render(rectShape x, color c, bool fill) {
     SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
     SDL_Rect sdl_rect = {x.x, x.y, x.w, x.h};
-    SDL_RenderFillRect(renderer, &sdl_rect);
+    if(fill)
+        SDL_RenderFillRect(renderer, &sdl_rect);
+    else
+        SDL_RenderDrawRect(renderer, &sdl_rect);
 }
 
-void gfx::render(rect x) {
+void gfx::render(rect x, bool fill) {
     SDL_SetRenderDrawColor(renderer, x.c.r, x.c.g, x.c.b, x.c.a);
     rectShape gfx_rect = x.getRect();
     SDL_Rect sdl_rect = {gfx_rect.x, gfx_rect.y, gfx_rect.w, gfx_rect.h};
-    SDL_RenderFillRect(renderer, &sdl_rect);
+    if(fill)
+        SDL_RenderFillRect(renderer, &sdl_rect);
+    else
+        SDL_RenderDrawRect(renderer, &sdl_rect);
 }
 
 void gfx::render(const texture& tex, rectShape dest_rect) {
@@ -48,12 +54,25 @@ void gfx::render(const button& b) {
     render(b, rect);
 }
 
+void gfx::render(const textInput& t) {
+    rectShape rect = t.getRect();
+    render(rect, t.isHovered() ? t.hover_color : t.def_color);
+    render(rect, t.border_color, false);
+    rect.x += t.margin * t.scale;
+    rect.y += t.margin * t.scale;
+    rect.w -= t.margin * 2 * t.scale;
+    rect.h -= t.margin * 2 * t.scale;
+    render(t, rect);
+    if(t.active)
+        render(gfx::rect(rect.x + rect.w, rect.y, t.scale, rect.h, t.text_color, t.orientation));
+}
+
 void* gfx::loadImageFile(const std::string& path) {
     // load picture and return texture
     SDL_Surface *loaded_surface = IMG_Load((resource_path + path).c_str());
     SDL_assert(loaded_surface);
 
-    // green screen -> remove rgb(0, 255, 0) which is green to transparent
+    // green screen -> change rgb(0, 255, 0) to transparent
     SDL_SetColorKey(loaded_surface, SDL_TRUE, SDL_MapRGB(loaded_surface->format, 0, 255, 0));
     
     return loaded_surface;

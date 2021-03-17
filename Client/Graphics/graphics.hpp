@@ -9,6 +9,7 @@
 #define graphics_hpp
 
 #include <string>
+#include <vector>
 
 namespace gfx {
 
@@ -20,17 +21,6 @@ void loadFont(const std::string& path, unsigned char size);
 void runScenes();
 
 enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_SPACE, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_UNKNOWN};
-
-struct scene {
-    virtual ~scene() { stop(); }
-    
-    virtual void init() {}
-    virtual void update() {}
-    virtual void render() {}
-    virtual void stop() {}
-    virtual void onKeyDown(key key_) {}
-    virtual void onKeyUp(key key_) {}
-};
 
 enum objectType {top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right};
 
@@ -86,25 +76,47 @@ protected:
 };
 
 struct button : public sprite {
-    void setText(const std::string& text, color text_color);
     unsigned short margin = 10;
     rectShape getRect() const;
-    color def_color = {0, 0, 0}, hover_color = {0, 0, 0};
+    color def_color = {0, 0, 0}, hover_color = {100, 100, 100};
     bool isHovered() const;
 protected:
-    using sprite::setSurface;
     using sprite::w;
     using sprite::h;
     friend void render(const button& b);
 };
 
-void render(rectShape x, color c);
-void render(rect x);
+struct textInput : public button {
+    color border_color = {255, 255, 255}, text_color = {255, 255, 255};
+    std::string getText() { return text; }
+    void setText(const std::string& text);
+    bool active = false;
+    char (*textProcessing)(char c);
+protected:
+    std::string text;
+    friend void render(const textInput& b);
+};
+
+void render(rectShape x, color c, bool fill=true);
+void render(rect x, bool fill=true);
 void render(const texture& tex, rectShape dest_rect);
 void render(const texture& tex, rectShape dest_rect, rectShape src_rect);
 void render(const image& img, short x, short y);
 void render(const sprite& spr);
 void render(const button& b);
+void render(const textInput& b);
+
+struct scene {
+    virtual ~scene() { stop(); }
+    
+    virtual void init() {}
+    virtual void update() {}
+    virtual void render() {}
+    virtual void stop() {}
+    virtual void onKeyDown(key key_) {}
+    virtual void onKeyUp(key key_) {}
+    std::vector<textInput*> text_inputs;
+};
 
 void switchScene(scene* x);
 void returnFromScene();

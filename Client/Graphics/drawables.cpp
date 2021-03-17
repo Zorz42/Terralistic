@@ -33,10 +33,6 @@ gfx::rectShape gfx::_centeredObject::getRect() const {
                      w * scale, h * scale);
 }
 
-void gfx::button::setText(const std::string &text, color text_color) {
-    setSurface(renderText(text, text_color));
-}
-
 gfx::rectShape gfx::button::getRect() const {
     return rectShape(
                      orientation % 3 == 1 ? (window_width >> 1) - ((w >> 1) + margin) * scale + x : (orientation % 3 == 2 ? window_width - (w + margin * 2) * scale + x : x),
@@ -58,4 +54,15 @@ void gfx::texture::freeTexture() {
         SDL_DestroyTexture((SDL_Texture*)tex);
         tex = nullptr;
     }
+}
+
+void gfx::textInput::setText(const std::string& text) {
+    this->text.clear();
+    for(char c : text) {
+        if(textProcessing)
+            c = textProcessing(c);
+        if(c != 0)
+            this->text.push_back(c);
+    }
+    setSurface(gfx::renderText(this->text.empty() ? " " : this->text, text_color));
 }
