@@ -20,7 +20,6 @@
 // this is the main menu, which you see on the start of the app
 
 gfx::button singleplayer_button, multiplayer_button, exit_button;
-gfx::textInput test;
 
 INIT_SCRIPT
     singleplayer_button.scale = 3;
@@ -36,22 +35,7 @@ INIT_SCRIPT
     exit_button.setSurface(gfx::renderText("Exit", {255, 255, 255}));
     exit_button.y = short(exit_button.getRect().h + 5);
     exit_button.orientation = gfx::center;
-
-    test.setPos(10, 10);
-    test.scale = 3;
-    test.setText("");
-    test.textProcessing = [](char c){
-        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_')
-            return c;
-        if(c == ' ')
-            return '-';
-        return '\0';
-    };
 INIT_SCRIPT_END
-
-void startMenu::scene::init() {
-    text_inputs = {&test};
-}
 
 void startMenu::scene::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT) {
@@ -66,5 +50,4 @@ void startMenu::scene::render() {
     gfx::render(singleplayer_button);
     gfx::render(multiplayer_button);
     gfx::render(exit_button);
-    gfx::render(test);
 }

@@ -50,7 +50,7 @@ gfx::texture::~texture() {
 }
 
 void gfx::texture::freeTexture() {
-    if(tex) {
+    if(tex && free_texture) {
         SDL_DestroyTexture((SDL_Texture*)tex);
         tex = nullptr;
     }

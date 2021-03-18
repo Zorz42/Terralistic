@@ -109,3 +109,13 @@ void worldCreator::loop(std::vector<std::string> worlds) {
         swl::update();
     }
 }
+
+/*
+test.textProcessing = [](char c){
+    if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_')
+        return c;
+    if(c == ' ')
+        return '-';
+    return '\0';
+};
+*/

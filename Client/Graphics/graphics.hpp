@@ -51,6 +51,7 @@ struct rect : public _centeredObject {
 struct texture {
     virtual void setSurface(void* surface);
     ~texture();
+    bool free_texture = true;
 protected:
     void freeTexture();
     void* tex=nullptr;
