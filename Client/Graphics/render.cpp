@@ -18,7 +18,7 @@ void gfx::render(rectShape x, color c, bool fill) {
 
 void gfx::render(rect x, bool fill) {
     SDL_SetRenderDrawColor(renderer, x.c.r, x.c.g, x.c.b, x.c.a);
-    rectShape gfx_rect = x.getRect();
+    rectShape gfx_rect = x.getTranslatedRect();
     SDL_Rect sdl_rect = {gfx_rect.x, gfx_rect.y, gfx_rect.w, gfx_rect.h};
     if(fill)
         SDL_RenderFillRect(renderer, &sdl_rect);
@@ -26,45 +26,43 @@ void gfx::render(rect x, bool fill) {
         SDL_RenderDrawRect(renderer, &sdl_rect);
 }
 
-void gfx::render(const texture& tex, rectShape dest_rect) {
-    SDL_Rect rect = {dest_rect.x, dest_rect.y, dest_rect.w, dest_rect.h};
+void gfx::render(const texture& tex, short x, short y) {
+    SDL_Rect rect = {x, y, tex.getTextureWidth() * tex.scale, tex.getTextureHeight() * tex.scale};
     SDL_RenderCopy(renderer, (SDL_Texture*)tex.tex, nullptr, &rect);
 }
 
-void gfx::render(const texture& tex, rectShape dest_rect, rectShape src_rect) {
-    SDL_Rect dest_rect_sdl = {dest_rect.x, dest_rect.y, dest_rect.w, dest_rect.h}, src_rect_sdl = {src_rect.x, src_rect.y, src_rect.w, src_rect.h};
+void gfx::render(const texture& tex, short x, short y, rectShape src_rect) {
+    SDL_Rect dest_rect_sdl = {x, y, src_rect.w * tex.scale, src_rect.h * tex.scale}, src_rect_sdl = {src_rect.x, src_rect.y, src_rect.w, src_rect.h};
     SDL_RenderCopy(renderer, (SDL_Texture*)tex.tex, &src_rect_sdl, &dest_rect_sdl);
 }
 
-void gfx::render(const image& img, short x, short y) {
-    render(img, rectShape(x, y, img.w * img.scale, img.h * img.scale));
-}
-
 void gfx::render(const sprite& spr) {
-    render(spr, spr.getRect());
+    render(spr, spr.getTranslatedX(), spr.getTranslatedY());
 }
 
 void gfx::render(const button& b) {
-    rectShape rect = b.getRect();
+    rectShape rect = b.getTranslatedRect();
     render(rect, b.isHovered() ? b.hover_color : b.def_color);
-    rect.x += b.margin * b.scale;
-    rect.y += b.margin * b.scale;
-    rect.w -= b.margin * 2 * b.scale;
-    rect.h -= b.margin * 2 * b.scale;
-    render(b, rect);
+    render(b, rect.x + b.margin * b.scale, rect.y + b.margin * b.scale);
 }
 
 void gfx::render(const textInput& t) {
-    rectShape rect = t.getRect();
+    rectShape rect = t.getTranslatedRect();
     render(rect, t.border_color);
     render(gfx::rectShape(rect.x + t.scale, rect.y + t.scale, rect.w - t.scale * 2, rect.h - t.scale * 2), t.isHovered() ? t.hover_color : t.def_color);
     rect.x += t.margin * t.scale;
     rect.y += t.margin * t.scale;
-    rect.w = t.w * t.scale;
+    rect.w = t.getTextureWidth() * t.scale;
     rect.h -= t.margin * 2 * t.scale;
-    render(t, rectShape(rect.x, rect.y, rect.w > t.width * t.scale ? t.width * t.scale : rect.w, rect.h), rectShape(rect.w > t.width * t.scale ? rect.w / t.scale - t.width : 0, 0, t.width, rect.h / t.scale));
+    render(t, rect.x, rect.y, rectShape(rect.w > t.width * t.scale ? rect.w / t.scale - t.width : 0, 0, rect.w > t.width * t.scale ? t.width : rect.w / t.scale, rect.h / t.scale));
     if(t.active)
-        render(gfx::rect(rect.x + (t.text.empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color, t.orientation));
+        render(gfx::rect(rect.x + (t.getText().empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color, t.orientation));
+}
+
+SDL_Texture* createTextureFromSurface(SDL_Surface* surface) {
+    SDL_Texture* result = SDL_CreateTextureFromSurface(gfx::renderer, surface);
+    SDL_FreeSurface(surface);
+    return result;
 }
 
 void* gfx::loadImageFile(const std::string& path) {
@@ -75,7 +73,7 @@ void* gfx::loadImageFile(const std::string& path) {
     // green screen -> change rgb(0, 255, 0) to transparent
     SDL_SetColorKey(loaded_surface, SDL_TRUE, SDL_MapRGB(loaded_surface->format, 0, 255, 0));
     
-    return loaded_surface;
+    return (void*)createTextureFromSurface(loaded_surface);
 }
 
 void* gfx::renderText(const std::string& text, color text_color) {
@@ -84,5 +82,5 @@ void* gfx::renderText(const std::string& text, color text_color) {
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
     SDL_assert(rendered_surface);
 
-    return rendered_surface;
+    return (void*)createTextureFromSurface(rendered_surface);
 }

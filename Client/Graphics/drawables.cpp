@@ -7,41 +7,33 @@
 
 #include "graphics-internal.hpp"
 
-void gfx::texture::setSurface(void *surface) {
-    tex = SDL_CreateTextureFromSurface(renderer, (SDL_Surface*)surface);
-    SDL_FreeSurface((SDL_Surface*)surface);
+void gfx::texture::setTexture(void *texture) {
+    freeTexture();
+    tex = texture;
 }
 
-void gfx::image::setSurface(void *surface) {
-    tex = SDL_CreateTextureFromSurface(renderer, (SDL_Surface*)surface);
-    w = ((SDL_Surface*)surface)->w;
-    h = ((SDL_Surface*)surface)->h;
-    SDL_FreeSurface((SDL_Surface*)surface);
+gfx::rectShape gfx::_centeredObject::getTranslatedRect() const {
+    return rectShape(getTranslatedX(), getTranslatedY(), getWidth(), getHeight());
 }
 
-void gfx::sprite::setSurface(void *surface) {
-    tex = SDL_CreateTextureFromSurface(renderer, (SDL_Surface*)surface);
-    w = ((SDL_Surface*)surface)->w;
-    h = ((SDL_Surface*)surface)->h;
-    SDL_FreeSurface((SDL_Surface*)surface);
+short gfx::_centeredObject::getTranslatedX() const {
+    return orientation % 3 == 1 ? (window_width >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? window_width - getWidth() + x : x);
 }
 
-gfx::rectShape gfx::_centeredObject::getRect() const {
-    return rectShape(
-                     orientation % 3 == 1 ? (window_width >> 1) - (w >> 1) * scale + x : (orientation % 3 == 2 ? window_width - w * scale + x : x),
-                     orientation / 3 == 1 ? (window_height >> 1) - (h >> 1) * scale + y : (orientation / 3 == 2 ? window_height - h * scale + y : y),
-                     w * scale, h * scale);
+short gfx::_centeredObject::getTranslatedY() const {
+    return orientation / 3 == 1 ? (window_height >> 1) - (getHeight() >> 1) + y : (orientation / 3 == 2 ? window_height - getHeight() + y : y);
 }
 
-gfx::rectShape gfx::button::getRect() const {
-    return rectShape(
-                     orientation % 3 == 1 ? (window_width >> 1) - ((w >> 1) + margin) * scale + x : (orientation % 3 == 2 ? window_width - (w + margin * 2) * scale + x : x),
-                     orientation / 3 == 1 ? (window_height >> 1) - ((h >> 1) + margin) * scale + y : (orientation / 3 == 2 ? window_height - (h + margin * 2) * scale + y : y),
-                     (w + margin * 2) * scale, (h + margin * 2) * scale);
+unsigned short gfx::button::getWidth() const {
+    return (getTextureWidth() + (margin << 1)) * scale;
+}
+
+unsigned short gfx::button::getHeight() const {
+    return (getTextureHeight() + (margin << 1)) * scale;
 }
 
 bool gfx::button::isHovered() const {
-    rectShape rect = getRect();
+    rectShape rect = getTranslatedRect();
     return mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
 
@@ -64,12 +56,21 @@ void gfx::textInput::setText(const std::string& text) {
         if(c != 0)
             this->text.push_back(c);
     }
-    setSurface(gfx::renderText(this->text.empty() ? " " : this->text, text_color));
+    setTexture(gfx::renderText(this->text.empty() ? " " : this->text, text_color));
 }
 
-gfx::rectShape gfx::textInput::getRect() const {
-    return rectShape(
-                     orientation % 3 == 1 ? (window_width >> 1) - ((w >> 1) + margin) * scale + x : (orientation % 3 == 2 ? window_width - (w + margin * 2) * scale + x : x),
-                     orientation / 3 == 1 ? (window_height >> 1) - ((h >> 1) + margin) * scale + y : (orientation / 3 == 2 ? window_height - (h + margin * 2) * scale + y : y),
-                     (width + margin * 2) * scale, (h + margin * 2) * scale);
+unsigned short gfx::texture::getTextureWidth() const {
+    int width = 0;
+    SDL_QueryTexture((SDL_Texture*)tex, nullptr, nullptr, &width, nullptr);
+    return width;
+}
+
+unsigned short gfx::texture::getTextureHeight() const {
+    int height = 0;
+    SDL_QueryTexture((SDL_Texture*)tex, nullptr, nullptr, nullptr, &height);
+    return height;
+}
+
+unsigned short gfx::textInput::getWidth() const {
+    return (width + 2 * margin) * scale;
 }

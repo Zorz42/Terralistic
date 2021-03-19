@@ -35,77 +35,73 @@ struct rectShape {
     unsigned short w, h;
 };
 
-struct _centeredObject : public rectShape {
-    _centeredObject(short x, short y, unsigned short w, unsigned short h, objectType orientation=top_left) : rectShape(x, y, w, h), orientation(orientation) {}
+struct _centeredObject {
+    _centeredObject(short x, short y, objectType orientation=top_left) : orientation(orientation), x(x), y(y) {}
     objectType orientation;
-    virtual gfx::rectShape getRect() const;
-    void setPos(short x_, short y_) { x = x_; y = y_; }
-    unsigned char scale = 1;
+    rectShape getTranslatedRect() const;
+    virtual unsigned short getWidth() const { return 0; };
+    virtual unsigned short getHeight() const { return 0; };
+    short getTranslatedX() const;
+    short getTranslatedY() const;
+    short x, y;
 };
 
 struct rect : public _centeredObject {
-    rect(short x, short y, unsigned short w, unsigned short h, color c, objectType orientation=top_left) : _centeredObject(x, y, w, h, orientation), c(c) {}
+    rect(short x, short y, unsigned short w, unsigned short h, color c, objectType orientation=top_left) : _centeredObject(x, y, orientation), w(w), h(h), c(c) {}
+    unsigned short getWidth() const { return w; };
+    unsigned short getHeight() const { return h; };
+    unsigned short w, h;
     color c;
 };
 
 struct texture {
-    virtual void setSurface(void* surface);
+    void setTexture(void* surface);
+    void* getTexture() { return tex; }
     ~texture();
     bool free_texture = true;
+    unsigned short getTextureWidth() const;
+    unsigned short getTextureHeight() const;
+    unsigned char scale = 1;
 protected:
     void freeTexture();
     void* tex=nullptr;
-    friend void render(const texture& tex, rectShape dest_rect);
-    friend void render(const texture& tex, rectShape dest_rect, rectShape src_rect);
-};
-
-struct image : public texture {
-    void setSurface(void* surface);
-    unsigned char scale = 1;
-    unsigned short getWidth() { return w; }
-    unsigned short getHeight() { return h; }
-protected:
-    unsigned short w, h;
-    friend void render(const image& img, short x, short y);
+    friend void render(const texture& tex, short x, short y);
+    friend void render(const texture& tex, short x, short y, rectShape src_rect);
 };
 
 struct sprite : public _centeredObject, texture {
-    sprite() : _centeredObject(0, 0, 0, 0) {};
-    void setSurface(void* surface);
-protected:
-    friend void render(const sprite& spr);
+    unsigned short getWidth() const { return getTextureWidth() * scale; }
+    unsigned short getHeight() const { return getTextureHeight() * scale; }
+    sprite() : _centeredObject(0, 0) {};
 };
 
 struct button : public sprite {
     unsigned short margin = 10;
-    rectShape getRect() const;
+    
+    unsigned short getWidth() const;
+    unsigned short getHeight() const;
+    
     color def_color = {0, 0, 0}, hover_color = {100, 100, 100};
     bool isHovered() const;
-protected:
-    using sprite::w;
-    using sprite::h;
-    friend void render(const button& b);
 };
 
 struct textInput : public button {
+    unsigned short getWidth() const;
     textInput() { margin = 3; }
     color border_color = {255, 255, 255}, text_color = {255, 255, 255};
-    std::string getText() { return text; }
+    std::string getText() const { return text; }
     void setText(const std::string& text);
     bool active = false;
     char (*textProcessing)(char c);
     unsigned short width = 200;
-    rectShape getRect() const;
 protected:
     std::string text;
-    friend void render(const textInput& b);
 };
 
 void render(rectShape x, color c, bool fill=true);
 void render(rect x, bool fill=true);
-void render(const texture& tex, rectShape dest_rect);
-void render(const texture& tex, rectShape dest_rect, rectShape src_rect);
-void render(const image& img, short x, short y);
+void render(const texture& tex, short x, short y);
+void render(const texture& tex, short x, short y, rectShape src_rect);
 void render(const sprite& spr);
 void render(const button& b);
 void render(const textInput& b);
