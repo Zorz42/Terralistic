@@ -56,7 +56,7 @@ void gfx::render(const textInput& t) {
     rect.h -= t.margin * 2 * t.scale;
     render(t, rect.x, rect.y, rectShape(rect.w > t.width * t.scale ? rect.w / t.scale - t.width : 0, 0, rect.w > t.width * t.scale ? t.width : rect.w / t.scale, rect.h / t.scale));
     if(t.active)
-        render(gfx::rect(rect.x + (t.getText().empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color, t.orientation));
+        render(gfx::rect(rect.x + (t.getText().empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color));
 }
 
 SDL_Texture* createTextureFromSurface(SDL_Surface* surface) {

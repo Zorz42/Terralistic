@@ -9,10 +9,18 @@
 #define worldCreator_hpp
 
 #include <string>
+#include <Graphics/graphics.hpp>
 
 namespace worldCreator {
 
 void loop(std::vector<std::string> worlds);
+
+struct scene : public gfx::scene {
+    bool running = true, can_create;
+    void init();
+    void onKeyDown(gfx::key key);
+    void render();
+};
 
 }
 

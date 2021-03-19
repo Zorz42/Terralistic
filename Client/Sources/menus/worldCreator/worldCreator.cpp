@@ -10,8 +10,6 @@
 #include <vector>
 #include <algorithm>
 #include "worldCreator.hpp"
-#include "UIKit.hpp"
-#include "singleWindowLibrary.hpp"
 #include "gameLoop.hpp"
 #include "main.hpp"
 #include "init.hpp"
@@ -19,41 +17,43 @@
 // menu, where you create worlds
 // for guide, check multiplayer selector, which is quite similar
 
-ui::button back_button_creator(ogl::bottom), create_button(ogl::bottom);
-ogl::texture new_world_title(ogl::top), world_name, faded_create(ogl::bottom);
-std::string name;
+static gfx::button back_button, create_button;
+static gfx::sprite new_world_title, faded_create;
+static std::string name;
+static gfx::textInput world_name_input;
 
 #define PADDING 20
 
 INIT_SCRIPT
-    /*back_button_creator.setColor(0, 0, 0);
-    back_button_creator.setHoverColor(100, 100, 100);
-    back_button_creator.setScale(3);
-    back_button_creator.setText("Back", 255, 255, 255);
-    back_button_creator.y = -PADDING;
+    back_button.scale = 3;
+    back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
+    back_button.y = -PADDING;
+    back_button.orientation = gfx::bottom;
     
-    new_world_title.loadFromText("New world name:", {255, 255, 255});
+    new_world_title.setTexture(gfx::renderText("New world name:", {255, 255, 255}));
     new_world_title.scale = 3;
-    new_world_title.setY(PADDING);
+    new_world_title.y = PADDING;
+    new_world_title.orientation = gfx::top;
     
-    create_button.setColor(0, 0, 0);
-    create_button.setHoverColor(100, 100, 100);
-    create_button.setScale(3);
-    create_button.setText("Create world", 255, 255, 255);
+    create_button.scale = 3;
+    create_button.setTexture(gfx::renderText("Create world", {255, 255, 255}));
     create_button.y = -PADDING;
+    create_button.orientation = gfx::bottom;
+
+    back_button.x = (-create_button.getWidth() - back_button.getWidth() + back_button.getWidth() - PADDING) / 2;
+    create_button.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + PADDING) / 2;
     
-    back_button_creator.x = short((-create_button.getWidth() - back_button_creator.getWidth() + back_button_creator.getWidth() - PADDING) / 2);
-    create_button.x = short((create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2);
-    
-    faded_create.loadFromText("Create world", {100, 100, 100});
+    faded_create.setTexture(gfx::renderText("Create world", {100, 100, 100}));
     faded_create.scale = 3;
-    faded_create.setX(short((create_button.getWidth() + back_button_creator.getWidth() - create_button.getWidth() + PADDING) / 2));
-    faded_create.setY(short(-PADDING - 10 * faded_create.scale));
-    
-    world_name.scale = 3;*/
+    faded_create.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + PADDING) / 2;
+    faded_create.y = -PADDING - 10 * faded_create.scale;
+    faded_create.orientation = gfx::bottom;
+
+    world_name_input.scale = 3;
+    world_name_input.orientation = gfx::center;
 INIT_SCRIPT_END
 
-void renderTextCreator() {
+/*void renderTextCreator() {
     if(!name.empty()) {
         world_name.loadFromText(name, {255, 255, 255});
         world_name.setY(short(-world_name.getHeight() / 7));
@@ -108,7 +108,7 @@ void worldCreator::loop(std::vector<std::string> worlds) {
         
         swl::update();
     }
-}
+}*/
 
 /*
 test.textProcessing = [](char c){
@@ -119,3 +119,25 @@ test.textProcessing = [](char c){
     return '\0';
 };
 */
+
+void worldCreator::scene::init() {
+    world_name_input.setText("");
+    text_inputs = {&world_name_input};
+}
+
+void worldCreator::scene::onKeyDown(gfx::key key) {
+    if(key == gfx::KEY_MOUSE_LEFT) {
+        if(back_button.isHovered())
+            gfx::returnFromScene();
+    }
+}
+
+void worldCreator::scene::render() {
+    if(can_create)
+        gfx::render(create_button);
+    else
+        gfx::render(faded_create);
+    gfx::render(back_button);
+    gfx::render(new_world_title);
+    gfx::render(world_name_input);
+}

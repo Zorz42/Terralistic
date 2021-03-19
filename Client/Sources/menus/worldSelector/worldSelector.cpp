@@ -13,6 +13,7 @@
 #include <algorithm>
 #include "worldSelector.hpp"
 #include "gameLoop.hpp"
+#include "worldCreator.hpp"
 
 #undef main
 
@@ -188,6 +189,8 @@ void worldSelector::scene::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT) {
         if(back_button.isHovered())
             gfx::returnFromScene();
+        else if(new_button.isHovered())
+            gfx::switchScene(new worldCreator::scene());
     }
 }
 

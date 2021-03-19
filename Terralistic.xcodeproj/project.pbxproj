@@ -662,8 +662,8 @@
 		168968BB25E9607800D26060 /* multiplayerSelector */ = {
 			isa = PBXGroup;
 			children = (
-				168968BC25E9607800D26060 /* multiplayerSelector.cpp */,
 				168968BD25E9607800D26060 /* multiplayerSelector.hpp */,
+				168968BC25E9607800D26060 /* multiplayerSelector.cpp */,
 			);
 			path = multiplayerSelector;
 			sourceTree = "<group>";

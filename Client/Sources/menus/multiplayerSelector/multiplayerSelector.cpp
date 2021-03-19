@@ -18,9 +18,9 @@
 
 // this is a menu, where you select the server you want to play on
 
-ui::button back_button_multiplayer(ogl::bottom), join_button(ogl::bottom);
-ogl::texture join_server_title(ogl::top), server_ip;
-std::string ip;
+static ui::button back_button_multiplayer(ogl::bottom), join_button(ogl::bottom);
+static ogl::texture join_server_title(ogl::top), server_ip;
+static std::string ip;
 
 #define PADDING 20
 
