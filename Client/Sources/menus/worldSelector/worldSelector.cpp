@@ -31,10 +31,8 @@ struct world_to_select {
 int position;
 void world_to_select::render(bool display_hover) {
     button.y = short(button_y - position);
-    //button.render(display_hover);
     gfx::render(button);
     delete_button.y = short(button_y - position + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
-    //delete_button.render(display_hover);
     gfx::render(delete_button);
 }
 
@@ -44,7 +42,7 @@ void world_to_select::render(bool display_hover) {
 #define LINE_HEIGHT 2
 
 gfx::sprite title;
-gfx::texture x_image;
+gfx::image x_image;
 gfx::button back_button, new_button;
 gfx::rect top_rect(0, 0, 0, TOP_HEIGHT, {0, 0, 0}), bottom_rect(0, 0, 0, 0, {0, 0, 0}, gfx::bottom_left), top_line_rect(0, TOP_HEIGHT, 0, LINE_HEIGHT, {100, 100, 100}), bottom_line_rect(0, 0, 0, LINE_HEIGHT, {100, 100, 100}, gfx::bottom_left);
 std::vector<std::string> worlds_names;
@@ -110,7 +108,7 @@ void reload() {
         
         world.delete_button.orientation = gfx::top;
         world.delete_button.free_texture = false;
-        //world.delete_button.setTexture(x_texture, x_width, x_height);
+        world.delete_button.setTexture(x_image.getTexture());
         world.delete_button.scale = 3;
         world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + PADDING);
         

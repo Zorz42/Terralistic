@@ -7,10 +7,7 @@
 
 #include "graphics-internal.hpp"
 
-void gfx::texture::setTexture(void *texture) {
-    freeTexture();
-    tex = texture;
-}
+// _centeredObject
 
 gfx::rectShape gfx::_centeredObject::getTranslatedRect() const {
     return rectShape(getTranslatedX(), getTranslatedY(), getWidth(), getHeight());
@@ -23,6 +20,38 @@ short gfx::_centeredObject::getTranslatedX() const {
 short gfx::_centeredObject::getTranslatedY() const {
     return orientation / 3 == 1 ? (window_height >> 1) - (getHeight() >> 1) + y : (orientation / 3 == 2 ? window_height - getHeight() + y : y);
 }
+
+// image
+
+void gfx::image::setTexture(void *texture) {
+    freeTexture();
+    this->texture = texture;
+}
+
+gfx::image::~image() {
+    freeTexture();
+}
+
+void gfx::image::freeTexture() {
+    if(texture && free_texture) {
+        SDL_DestroyTexture((SDL_Texture*)texture);
+        texture = nullptr;
+    }
+}
+
+unsigned short gfx::image::getTextureWidth() const {
+    int width = 0;
+    SDL_QueryTexture((SDL_Texture*)texture, nullptr, nullptr, &width, nullptr);
+    return width;
+}
+
+unsigned short gfx::image::getTextureHeight() const {
+    int height = 0;
+    SDL_QueryTexture((SDL_Texture*)texture, nullptr, nullptr, nullptr, &height);
+    return height;
+}
+
+// button
 
 unsigned short gfx::button::getWidth() const {
     return (getTextureWidth() + (margin << 1)) * scale;
@@ -37,16 +66,7 @@ bool gfx::button::isHovered() const {
     return mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
 
-gfx::texture::~texture() {
-    freeTexture();
-}
-
-void gfx::texture::freeTexture() {
-    if(tex && free_texture) {
-        SDL_DestroyTexture((SDL_Texture*)tex);
-        tex = nullptr;
-    }
-}
+// textInput
 
 void gfx::textInput::setText(const std::string& text) {
     this->text.clear();
@@ -57,18 +77,6 @@ void gfx::textInput::setText(const std::string& text) {
             this->text.push_back(c);
     }
     setTexture(gfx::renderText(this->text.empty() ? " " : this->text, text_color));
-}
-
-unsigned short gfx::texture::getTextureWidth() const {
-    int width = 0;
-    SDL_QueryTexture((SDL_Texture*)tex, nullptr, nullptr, &width, nullptr);
-    return width;
-}
-
-unsigned short gfx::texture::getTextureHeight() const {
-    int height = 0;
-    SDL_QueryTexture((SDL_Texture*)tex, nullptr, nullptr, nullptr, &height);
-    return height;
 }
 
 unsigned short gfx::textInput::getWidth() const {
