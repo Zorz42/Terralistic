@@ -101,6 +101,7 @@ protected:
 void render(rectShape x, color c, bool fill=true);
 void render(rect x, bool fill=true);
 void render(const image& tex, short x, short y);
+void render(const image& tex, rectShape rect);
 void render(const image& tex, short x, short y, rectShape src_rect);
 void render(const sprite& spr);
 void render(const button& b);
@@ -131,6 +132,7 @@ inline float frame_length;
 void setRenderTarget(image& tex);
 void resetRenderTarget();
 bool colliding(rectShape a, rectShape b);
+unsigned int getTicks();
 
 }
 

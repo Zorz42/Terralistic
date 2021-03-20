@@ -72,3 +72,7 @@ void gfx::resetRenderTarget() {
 bool gfx::colliding(gfx::rectShape a, gfx::rectShape b) {
     return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
 }
+
+unsigned int gfx::getTicks() {
+    return SDL_GetTicks();
+}

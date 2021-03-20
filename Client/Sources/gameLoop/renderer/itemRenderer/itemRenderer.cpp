@@ -10,7 +10,7 @@
 #include "itemRenderer.hpp"
 #include "playerHandler.hpp"
 
-std::vector<itemRenderer::uniqueRenderItem> unique_render_items;
+itemRenderer::uniqueRenderItem* unique_render_items;
 
 itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(unsigned short id) {
     return unique_render_items[id];
@@ -23,11 +23,11 @@ void itemRenderer::render() {
 
 INIT_SCRIPT
     INIT_ASSERT(itemEngine::unique_items.size());
-    for(itemEngine::uniqueItem& i : itemEngine::unique_items) {
-        unique_render_items.emplace_back();
-        unique_render_items.back().texture.setTexture(i.name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + i.name + ".png"));
-        unique_render_items.back().text_texture.setTexture(gfx::renderText(i.name, {255, 255, 255}));
-        unique_render_items.back().text_texture.scale = 2;
-        //unique_render_items.back().text_texture.free_texture = false;
+    unique_render_items = new itemRenderer::uniqueRenderItem[itemEngine::unique_items.size()];
+    for(int i = 0; i < itemEngine::unique_items.size(); i++) {
+        unique_render_items[i].texture.setTexture(itemEngine::unique_items[i].name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + itemEngine::unique_items[i].name + ".png"));
+        unique_render_items[i].texture.scale = 2;
+        unique_render_items[i].text_texture.setTexture(gfx::renderText(itemEngine::unique_items[i].name, {255, 255, 255}));
+        unique_render_items[i].text_texture.scale = 2;
     }
 INIT_SCRIPT_END

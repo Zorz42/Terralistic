@@ -74,17 +74,17 @@ bool blockSelector::collidingWithPlayer() {
     return gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect());
 }
 
-void blockSelector::handleEvents(SDL_Event& event) {
-    if(event.type == SDL_MOUSEBUTTONDOWN) {
-        if(event.button.button == SDL_BUTTON_LEFT && !playerHandler::hovered) {
-            left_button_pressed = true;
-            prev_selected_x = blockEngine::world_width;
-            prev_selected_y = blockEngine::world_height;
-        }
-        else if(event.button.button == SDL_BUTTON_RIGHT && !blockSelector::collidingWithPlayer() && !playerHandler::hovered)
-            rightClickEvent(blockSelector::selected_block_x, blockSelector::selected_block_y);
-    }
-    else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && !playerHandler::hovered) {
+void blockSelector::onKeyDown(gfx::key key) {
+    if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
+        left_button_pressed = true;
+        prev_selected_x = blockEngine::world_width;
+        prev_selected_y = blockEngine::world_height;
+    } else if(key == gfx::KEY_MOUSE_RIGHT && !blockSelector::collidingWithPlayer() && !playerHandler::hovered)
+        rightClickEvent(blockSelector::selected_block_x, blockSelector::selected_block_y);
+}
+
+void blockSelector::onKeyUp(gfx::key key) {
+    if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         left_button_pressed = false;
         packets::packet packet(packets::STOPPED_BREAKING);
         networking::sendPacket(packet);

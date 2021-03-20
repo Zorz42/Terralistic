@@ -13,7 +13,7 @@
 namespace blockRenderer {
 
 struct uniqueRenderBlock {
-    uniqueRenderBlock(blockEngine::uniqueBlock* unique_block);
+    void createTexture(blockEngine::uniqueBlock* unique_block);
     gfx::image texture;
     std::vector<blockEngine::blockType> connects_to;
     bool single_texture;
@@ -44,7 +44,7 @@ struct renderChunk {
 
 inline renderChunk* chunks;
 inline renderBlock* blocks;
-inline std::vector<uniqueRenderBlock> unique_render_blocks;
+inline uniqueRenderBlock* unique_render_blocks;
 
 renderBlock& getBlock(unsigned short x, unsigned short y);
 renderChunk& getChunk(unsigned short x, unsigned short y);

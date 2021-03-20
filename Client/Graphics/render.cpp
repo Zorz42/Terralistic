@@ -26,6 +26,11 @@ void gfx::render(rect x, bool fill) {
         SDL_RenderDrawRect(renderer, &sdl_rect);
 }
 
+void gfx::render(const image& tex, rectShape rect) {
+    SDL_Rect sdl_rect = {rect.x, rect.y, rect.w, rect.h};
+    SDL_RenderCopy(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &sdl_rect);
+}
+
 void gfx::render(const image& tex, short x, short y) {
     SDL_Rect rect = {x, y, tex.getTextureWidth() * tex.scale, tex.getTextureHeight() * tex.scale};
     SDL_RenderCopy(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &rect);

@@ -15,9 +15,9 @@ gfx::image breaking_texture;
 
 INIT_SCRIPT
     INIT_ASSERT(blockEngine::unique_blocks.size());
-    blockRenderer::unique_render_blocks.reserve(blockEngine::unique_blocks.size());
-    for(blockEngine::uniqueBlock& unique_block : blockEngine::unique_blocks)
-        blockRenderer::unique_render_blocks.push_back(&unique_block);
+    blockRenderer::unique_render_blocks = new blockRenderer::uniqueRenderBlock[blockEngine::unique_blocks.size()];
+    for(int i = 0; i < blockEngine::unique_blocks.size(); i++)
+        blockRenderer::unique_render_blocks[i].createTexture(&blockEngine::unique_blocks[i]);
 
     blockRenderer::unique_render_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
     blockRenderer::unique_render_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
@@ -149,7 +149,7 @@ blockRenderer::renderChunk& blockRenderer::getChunk(unsigned short x, unsigned s
     return chunks[y * (blockEngine::world_width >> 4) + x];
 }
 
-blockRenderer::uniqueRenderBlock::uniqueRenderBlock(blockEngine::uniqueBlock* unique_block) {
+void blockRenderer::uniqueRenderBlock::createTexture(blockEngine::uniqueBlock* unique_block) {
     texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;

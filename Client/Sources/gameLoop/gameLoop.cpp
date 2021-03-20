@@ -74,16 +74,18 @@ void gameLoop::scene::init() {
 void gameLoop::scene::onKeyDown(gfx::key key) {
     pauseScreen::onKeyDown(key);
     playerHandler::onKeyDown(key);
+    blockSelector::onKeyDown(key);
 }
 
 void gameLoop::scene::onKeyUp(gfx::key key) {
     playerHandler::onKeyUp(key);
+    blockSelector::onKeyUp(key);
 }
 
 void gameLoop::scene::update() {
-    static unsigned int count = SDL_GetTicks() / 1000 - 1, fps_count = 0;
+    static unsigned int count = gfx::getTicks() / 1000 - 1, fps_count = 0;
     fps_count++;
-    if(SDL_GetTicks() / 1000 > count) {
+    if(gfx::getTicks() / 1000 > count) {
         count++;
         fps_text.setTexture(gfx::renderText(std::to_string(fps_count) + " fps", {0, 0, 0}));
         fps_count = 0;
@@ -115,96 +117,4 @@ void gameLoop::scene::stop() {
     blockEngine::close();
     itemEngine::close();
     blockRenderer::close();
-}
-
-int gameLoop::main(const std::string& world_name, bool multiplayer) {
-    /*online = multiplayer;
-    running = true;
-    
-    blockEngine::prepare();
-    players::prepare();
-    blockRenderer::prepare();
-    
-    if(multiplayer) {
-        if(!networking::establishConnection(world_name))
-            return 0;
-        networking::spawnListener();
-        for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
-            i.setStack(0);
-            i.item_id = itemEngine::NOTHING;
-        }
-    } else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
-        worldSaver::loadWorld(world_name);
-    else {
-        for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
-            i.setStack(0);
-            i.item_id = itemEngine::NOTHING;
-        }
-        generateTerrain(0);
-        worldSaver::saveWorld(world_name);
-    }
-    
-    playerHandler::prepare();
-    blockEngine::prepareWorld();
-    
-    ogl::texture fps_text(ogl::top_left);
-    fps_text.scale = 3;
-    fps_text.setX(10);
-    fps_text.setY(10);
-    
-    SDL_Event event;
-    
-    unsigned int count = SDL_GetTicks() / 1000 - 1, fps_count = 0;*/
-    
-    while(running && main_::running) {
-        //Uint64 start = SDL_GetPerformanceCounter();
-        
-        /*fps_count++;
-        if(SDL_GetTicks() / 1000 > count) {
-            count++;
-            fps_text.loadFromText(std::to_string(fps_count) + " fps", SDL_Color{0, 0, 0});
-            fps_count = 0;
-        }*/
-        
-        /*while(SDL_PollEvent(&event)) { // <----------
-            //SDL_StartTextInput();
-            //swl::handleBasicEvents(event, &main_::running);
-            pauseScreen::handleEvents(event);
-            playerHandler::handleEvents(event);
-            blockSelector::handleEvents(event);
-        }*/
-        
-        /*playerHandler::doPhysics();
-        playerHandler::move();
-        if(!online) {
-            itemEngine::updateItems(gfx::frame_length);
-            playerHandler::lookForItems();
-        }*/
-        
-        //swl::setDrawColor(135, 206, 235);
-        //swl::clear();
-        
-        /*blockRenderer::render();
-        itemRenderer::render();
-        players::render();
-        playerHandler::render();
-        blockSelector::render();
-        fps_text.render();
-        pauseScreen::render();*/
-        
-        //swl::update();
-        
-        /*Uint64 end = SDL_GetPerformanceCounter();
-        gfx::frame_length = float(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;*/
-    }
-    
-    if(multiplayer)
-        networking::sendPacket({packets::DISCONNECT});
-    else
-        worldSaver::saveWorld(world_name);
-    blockEngine::close();
-    itemEngine::close();
-    blockRenderer::close();
-
-    return 0;
 }

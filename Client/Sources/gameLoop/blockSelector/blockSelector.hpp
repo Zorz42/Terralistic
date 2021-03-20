@@ -8,13 +8,14 @@
 #ifndef blockSelector_hpp
 #define blockSelector_hpp
 
-#include <SDL2/SDL.h>
+#include <Graphics/graphics.hpp>
 
 namespace blockSelector {
 
 void render();
 bool collidingWithPlayer();
-void handleEvents(SDL_Event& event);
+void onKeyDown(gfx::key key);
+void onKeyUp(gfx::key key);
 
 inline unsigned short selected_block_x, selected_block_y;
 

@@ -112,10 +112,12 @@ void playerHandler::onKeyDown(gfx::key key) {
             }
             break;
         case gfx::KEY_MOUSE_LEFT: {
-            player_inventory.swapWithMouseItem(hovered);
-            packets::packet packet(packets::INVENTORY_SWAP);
-            packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
-            networking::sendPacket(packet);
+            if(hovered) {
+                player_inventory.swapWithMouseItem(hovered);
+                packets::packet packet(packets::INVENTORY_SWAP);
+                packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
+                networking::sendPacket(packet);
+            }
             break;
         }
         default:;
@@ -239,7 +241,7 @@ void playerHandler::move() {
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
     if(itemRenderer::getUniqueRenderItem(item->item_id).texture.getTexture())
-        gfx::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, (short)x, (short)y);
+        gfx::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, 30, 30});
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
