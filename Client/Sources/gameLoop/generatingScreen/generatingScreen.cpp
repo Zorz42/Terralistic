@@ -14,7 +14,7 @@
 void terrainGenerator::generatingScreen() {
     // puts generation of world into another thread and only renders progress bar and text
     
-    bool running = true;
+    /*bool running = true;
     SDL_Event event;
 
 #define TEXT_SCALE 3
@@ -50,5 +50,5 @@ void terrainGenerator::generatingScreen() {
         loading_bar.render();
         
         swl::update();
-    }
+    }*/
 }

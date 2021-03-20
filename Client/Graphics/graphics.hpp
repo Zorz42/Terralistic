@@ -130,6 +130,7 @@ inline float frame_length;
 
 void setRenderTarget(image& tex);
 void resetRenderTarget();
+bool colliding(rectShape a, rectShape b);
 
 }
 

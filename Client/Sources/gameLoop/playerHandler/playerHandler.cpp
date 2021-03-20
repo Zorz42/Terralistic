@@ -91,84 +91,56 @@ void playerHandler::onKeyDown(gfx::key key) {
                 //player.flipped = false;
             }
             break;
+        case gfx::KEY_1: selectSlot(0); break;
+        case gfx::KEY_2: selectSlot(1); break;
+        case gfx::KEY_3: selectSlot(2); break;
+        case gfx::KEY_4: selectSlot(3); break;
+        case gfx::KEY_5: selectSlot(4); break;
+        case gfx::KEY_6: selectSlot(5); break;
+        case gfx::KEY_7: selectSlot(6); break;
+        case gfx::KEY_8: selectSlot(7); break;
+        case gfx::KEY_9: selectSlot(8); break;
+        case gfx::KEY_0: selectSlot(9); break;
+        case gfx::KEY_E:
+            player_inventory.open = !player_inventory.open;
+            if(!player_inventory.open && player_inventory.getMouseItem()->item_id != itemEngine::NOTHING) {
+                unsigned char result = player_inventory.addItem(player_inventory.getMouseItem()->item_id, player_inventory.getMouseItem()->getStack());
+                player_inventory.clearMouseItem();
+                packets::packet packet(packets::INVENTORY_SWAP);
+                packet << result;
+                networking::sendPacket(packet);
+            }
+            break;
+        case gfx::KEY_MOUSE_LEFT: {
+            player_inventory.swapWithMouseItem(hovered);
+            packets::packet packet(packets::INVENTORY_SWAP);
+            packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
+            networking::sendPacket(packet);
+            break;
+        }
         default:;
     }
 }
 
 void playerHandler::onKeyUp(gfx::key key) {
-    
-}
-
-void playerHandler::handleEvents(SDL_Event& event) {
-#define VELOCITY 20
-#define JUMP_VELOCITY 80
-    static bool key_left = false, key_right = false;
-    if(event.type == SDL_KEYDOWN)
-        switch (event.key.keysym.sym) {
-            case SDLK_SPACE:
-                if(!key_up) {
-                    key_up = true;
-                    jump = true;
-                }
-                break;
-            case SDLK_a:
-                if(!key_left) {
-                    key_left = true;
-                    velocity_x -= VELOCITY;
-                    player.flipped = true;
-                }
-                break;
-            case SDLK_d:
-                if(!key_right) {
-                    key_right = true;
-                    velocity_x += VELOCITY;
-                    player.flipped = false;
-                }
-                break;
-            default:;
-        }
-    else if(event.type == SDL_KEYUP)
-        switch (event.key.keysym.sym) {
-            case SDLK_SPACE:
-                if(key_up) {
-                    key_up = false;
-                    jump = false;
-                    if(velocity_y < -10)
-                        velocity_y = -10;
-                }
-                break;
-            case SDLK_a:
-                key_left = false;
-                velocity_x += VELOCITY;
-                break;
-            case SDLK_d:
-                key_right = false;
-                velocity_x -= VELOCITY;
-                break;
-            default:;
-        }
-    
-    if(event.type == SDL_TEXTINPUT) {
-        char c = event.text.text[0];
-        if(c >= '0' && c <= '9') {
-            if(c == '0')
-                c = ':';
-            selectSlot(c - '1');
-        }
-    } else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) {
-        player_inventory.open = !player_inventory.open;
-        if(!player_inventory.open && player_inventory.getMouseItem()->item_id != itemEngine::NOTHING) {
-            unsigned char result = player_inventory.addItem(player_inventory.getMouseItem()->item_id, player_inventory.getMouseItem()->getStack());
-            player_inventory.clearMouseItem();
-            packets::packet packet(packets::INVENTORY_SWAP);
-            packet << result;
-            networking::sendPacket(packet);
-        }
-    } else if(hovered && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-        player_inventory.swapWithMouseItem(hovered);
-        packets::packet packet(packets::INVENTORY_SWAP);
-        packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
-        networking::sendPacket(packet);
+    switch (key) {
+        case gfx::KEY_SPACE:
+            if(key_up) {
+                key_up = false;
+                jump = false;
+                if(velocity_y < -10)
+                    velocity_y = -10;
+            }
+            break;
+        case gfx::KEY_A:
+            key_left = false;
+            velocity_x += VELOCITY;
+            break;
+        case gfx::KEY_D:
+            key_right = false;
+            velocity_x -= VELOCITY;
+            break;
+        default:;
     }
 }
 
@@ -197,7 +169,7 @@ bool isPlayerColliding() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(!blockEngine::getChunk(x >> 4, y >> 4).loaded || (swl::colliding({short(x * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
+            if(!blockEngine::getChunk(x >> 4, y >> 4).loaded || (gfx::colliding({short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getTranslatedRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
                 return true;
     return false;
 }
@@ -249,78 +221,77 @@ void playerHandler::move() {
     
     view_x = position_x;
     view_y = position_y;
-    if(view_x < swl::window_width / 2)
-        view_x = swl::window_width / 2;
-    if(view_y < swl::window_height / 2)
-        view_y = swl::window_height / 2;
-    if(view_x >= blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2)
-        view_x = blockEngine::world_width * BLOCK_WIDTH - swl::window_width / 2;
-    if(view_y >= blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2)
-        view_y = blockEngine::world_height * BLOCK_WIDTH - swl::window_height / 2;
+    if(view_x < gfx::getWindowWidth() / 2)
+        view_x = gfx::getWindowWidth() / 2;
+    if(view_y < gfx::getWindowHeight() / 2)
+        view_y = gfx::getWindowHeight() / 2;
+    if(view_x >= blockEngine::world_width * BLOCK_WIDTH - gfx::getWindowWidth() / 2)
+        view_x = blockEngine::world_width * BLOCK_WIDTH - gfx::getWindowWidth() / 2;
+    if(view_y >= blockEngine::world_height * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
+        view_y = blockEngine::world_height * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
     
     if(gameLoop::online && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
-        packet << position_x << position_y << (char)player.flipped;
+        packet << position_x << position_y << (char)/*player.flipped*/ false;
         networking::sendPacket(packet);
     }
 }
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
     if(itemRenderer::getUniqueRenderItem(item->item_id).texture != nullptr)
-        swl::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+        gfx::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     if(item->getStack() > 1) {
-        ogl::texture *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
-        stack_texture->setX(short(x + BLOCK_WIDTH * 2 - stack_texture->getWidth()));
-        stack_texture->setY(short(y + BLOCK_WIDTH * 2 - stack_texture->getHeight()));
-        stack_texture->render();
+        gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
+        gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
     }
 }
 
 void updateStackTexture(int i) {
     inventory::inventoryItem* item = i == -1 ? playerHandler::player_inventory.getMouseItem() : &playerHandler::player_inventory.inventory[i];
     if(item->stack_changed) {
-        ogl::texture* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
+        gfx::image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         if(item->getStack() > 1)
-            stack_texture->loadFromText(std::to_string(item->getStack()), {255, 255, 255});
+            stack_texture->setTexture(gfx::renderText(std::to_string(item->getStack()), {255, 255, 255}));
     }
 }
 
 void playerHandler::render() {
-    player.setX(short(position_x - view_x));
-    player.setY(short(position_y - view_y));
-    player.render();
+    player.x = position_x - view_x;
+    player.y = position_y - view_y;
+    gfx::render(player);
     
-    select_rect.setX(short((player_inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
-    select_rect.render();
+    select_rect.x = (player_inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
+    gfx::render(select_rect);
     
-    ogl::texture* text_texture = nullptr;
+    gfx::sprite* text_texture = nullptr;
     hovered = nullptr;
     for(int i = -1; i < 20; i++)
         updateStackTexture(i);
     for(int i = 0; i < (player_inventory.open ? 20 : 10); i++) {
-        if(swl::colliding(inventory_slots[i].getRect(), {(short)swl::mouse_x, (short)swl::mouse_y, 0, 0}) && player_inventory.open) {
+        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), {(short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0}) && player_inventory.open) {
             hovered = &player_inventory.inventory[i];
-            inventory_slots[i].setColor(70, 70, 70);
+            inventory_slots[i].c = {70, 70, 70};
             if(player_inventory.inventory[i].item_id != itemEngine::NOTHING) {
                 text_texture = &itemRenderer::getUniqueRenderItem(player_inventory.inventory[i].item_id).text_texture;
-                text_texture->setX(swl::mouse_x + 20);
-                text_texture->setY(swl::mouse_y + 20);
-                under_text_rect.setHeight(text_texture->getHeight() + 2 * MARGIN);
-                under_text_rect.setWidth(text_texture->getWidth() + 2 * MARGIN);
-                under_text_rect.setX(swl::mouse_x + 20 - MARGIN);
-                under_text_rect.setY(swl::mouse_y + 20 - MARGIN);
+                text_texture->x = gfx::getMouseX() + 20;
+                text_texture->y = gfx::getMouseY() + 20;
+                under_text_rect.h = text_texture->getHeight() + 2 * MARGIN;
+                under_text_rect.w = text_texture->getWidth() + 2 * MARGIN;
+                under_text_rect.x = gfx::getMouseX() + 20 - MARGIN;
+                under_text_rect.y = gfx::getMouseY() + 20 - MARGIN;
             }
         }
         else
-            inventory_slots[i].setColor(100, 100, 100);
-        inventory_slots[i].render();
-        renderItem(&player_inventory.inventory[i], inventory_slots[i].getX() + MARGIN / 2, inventory_slots[i].getY() + MARGIN / 2, i);
+            inventory_slots[i].c = {100, 100, 100};
+        gfx::render(inventory_slots[i]);
+        renderItem(&player_inventory.inventory[i], inventory_slots[i].getTranslatedX() + MARGIN / 2, inventory_slots[i].getTranslatedY() + MARGIN / 2, i);
     }
+    
     if(text_texture) {
-        under_text_rect.render();
-        text_texture->render();
+        gfx::render(under_text_rect);
+        gfx::render(*text_texture);
     }
-    renderItem(player_inventory.getMouseItem(), swl::mouse_x, swl::mouse_y, -1);
+    renderItem(player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
 
 void playerHandler::doPhysics() {

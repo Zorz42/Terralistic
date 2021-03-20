@@ -68,3 +68,7 @@ void gfx::setRenderTarget(image& tex) {
 void gfx::resetRenderTarget() {
     SDL_SetRenderTarget(renderer, nullptr);
 }
+
+bool gfx::colliding(gfx::rectShape a, gfx::rectShape b) {
+    return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
+}

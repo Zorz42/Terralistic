@@ -71,12 +71,13 @@ void gameLoop::scene::init() {
     blockEngine::prepareWorld();
 }
 
-void gameLoop::scene::onKeyUp(gfx::key key) {
-    
-}
-
 void gameLoop::scene::onKeyDown(gfx::key key) {
     pauseScreen::onKeyDown(key);
+    playerHandler::onKeyDown(key);
+}
+
+void gameLoop::scene::onKeyUp(gfx::key key) {
+    playerHandler::onKeyUp(key);
 }
 
 void gameLoop::scene::update() {
@@ -100,7 +101,7 @@ void gameLoop::scene::render() {
     blockRenderer::render();
     //itemRenderer::render();
     //players::render();
-    //playerHandler::render();
+    playerHandler::render();
     //blockSelector::render();
     gfx::render(fps_text);
     pauseScreen::render();
