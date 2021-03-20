@@ -16,9 +16,9 @@
 
 // this is a menu, where you select the server you want to play on
 
-static ui::button back_button_multiplayer(ogl::bottom), join_button(ogl::bottom);
+/*static ui::button back_button_multiplayer(ogl::bottom), join_button(ogl::bottom);
 static ogl::texture join_server_title(ogl::top), server_ip;
-static std::string ip;
+static std::string ip;*/
 
 #define PADDING 20
 
@@ -52,14 +52,14 @@ INIT_SCRIPT_END
 
 void renderTextMultiplayer() {
     // update ip texture if it changed
-    if(!ip.empty()) {
+/*    if(!ip.empty()) {
         server_ip.loadFromText(ip, {255, 255, 255});
         server_ip.setY(short(-server_ip.getHeight() / 7));
-    }
+    }*/
 }
 
 void multiplayerSelector::loop() {
-    bool running = true;
+    /*bool running = true;
     SDL_Event event;
     ip = "";
     
@@ -100,5 +100,5 @@ void multiplayerSelector::loop() {
             server_ip.render();
         
         swl::update();
-    }
+    }*/
 }

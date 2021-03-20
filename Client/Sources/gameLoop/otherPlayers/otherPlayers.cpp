@@ -20,12 +20,12 @@ void players::prepare() {
 void players::render() {
     // iterate through every player and render them
     for(player& i : players) {
-        bool prev = playerHandler::player.flipped;
-        playerHandler::player.flipped = i.flipped;
-        playerHandler::player.setX(short(i.x - playerHandler::view_x));
-        playerHandler::player.setY(short(i.y - playerHandler::view_y));
-        playerHandler::player.render();
-        playerHandler::player.flipped = prev;
+        //bool prev = playerHandler::player.flipped;
+        //playerHandler::player.flipped = i.flipped;
+        playerHandler::player.x = i.x - playerHandler::view_x;
+        playerHandler::player.y = i.y - playerHandler::view_y;
+        gfx::render(playerHandler::player);
+        //playerHandler::player.flipped = prev;
     }
 }
 

@@ -15,15 +15,15 @@
 
 // this is a rectangle with which you select which block to break or where to place selected block
 
-ogl::rect selectRect(ogl::top_left);
+gfx::rect select_rect;
 bool left_button_pressed = false;
 unsigned short prev_selected_x = 0, prev_selected_y = 0;
 
 INIT_SCRIPT
-    selectRect.fill = false;
-    selectRect.setColor(255, 0, 0);
-    selectRect.setWidth(BLOCK_WIDTH);
-    selectRect.setHeight(BLOCK_WIDTH);
+    //selectRect.fill = false;
+    select_rect.c = {255, 0, 0};
+    select_rect.w = BLOCK_WIDTH;
+    select_rect.h = BLOCK_WIDTH;
 INIT_SCRIPT_END
 
 void rightClickEvent(unsigned short x, unsigned short y) {
@@ -62,16 +62,16 @@ void blockSelector::render() {
         leftClickEvent(blockSelector::selected_block_x, blockSelector::selected_block_y);
     
     if(!playerHandler::hovered) {
-        selected_block_x = (unsigned short)(swl::mouse_x + playerHandler::view_x - swl::window_width / 2) / BLOCK_WIDTH;
-        selected_block_y = (unsigned short)(swl::mouse_y + playerHandler::view_y - swl::window_height / 2) / BLOCK_WIDTH;
-        selectRect.setX(short(-playerHandler::view_x + swl::window_width / 2 + selected_block_x * BLOCK_WIDTH));
-        selectRect.setY(short(-playerHandler::view_y + swl::window_height / 2 + selected_block_y * BLOCK_WIDTH));
-        selectRect.render();
+        selected_block_x = (unsigned short)(gfx::getMouseX() + playerHandler::view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
+        selected_block_y = (unsigned short)(gfx::getMouseY() + playerHandler::view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
+        select_rect.x = -playerHandler::view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
+        select_rect.y = -playerHandler::view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
+        gfx::render(select_rect);
     }
 }
 
 bool blockSelector::collidingWithPlayer() {
-    return swl::colliding(playerHandler::player.getRect(), selectRect.getRect());
+    return gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect());
 }
 
 void blockSelector::handleEvents(SDL_Event& event) {

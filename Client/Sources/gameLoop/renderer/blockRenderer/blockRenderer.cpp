@@ -46,7 +46,7 @@ void blockRenderer::renderBlock::updateOrientation() {
         block_orientation = 0;
         char x_[] = {0, 1, 0, -1};
         char y_[] = {-1, 0, 1, 0};
-        Uint8 c = 1;
+        unsigned char c = 1;
         for(int i = 0; i < 4; i++) {
             if(
                getX() + x_[i] >= blockEngine::world_width || getX() + x_[i] < 0 || getY() + y_[i] >= blockEngine::world_height || getY() + y_[i] < 0 ||

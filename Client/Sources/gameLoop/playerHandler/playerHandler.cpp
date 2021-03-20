@@ -23,8 +23,8 @@
 
 bool key_up = false, jump = false;
 
-gfx::rect inventory_slots[20], select_rect, under_text_rect;
-gfx::image stack_textures[20], mouse_stack_texture;
+static gfx::rect inventory_slots[20], select_rect, under_text_rect;
+static gfx::image stack_textures[20], mouse_stack_texture;
 
 #define MARGIN 10
 
@@ -238,8 +238,8 @@ void playerHandler::move() {
 }
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
-    if(itemRenderer::getUniqueRenderItem(item->item_id).texture != nullptr)
-        gfx::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+    if(itemRenderer::getUniqueRenderItem(item->item_id).texture.getTexture())
+        gfx::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, (short)x, (short)y);
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());

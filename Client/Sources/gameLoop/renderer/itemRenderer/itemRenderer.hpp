@@ -8,13 +8,15 @@
 #ifndef itemRenderer_hpp
 #define itemRenderer_hpp
 
+#include <Graphics/graphics.hpp>
+
 namespace itemRenderer {
 
 void render();
 
 struct uniqueRenderItem {
-    SDL_Texture* texture;
-    ogl::texture text_texture{ogl::top_left};
+    gfx::image texture;
+    gfx::sprite text_texture;
 };
 uniqueRenderItem& getUniqueRenderItem(unsigned short id);
 

@@ -11,7 +11,7 @@
 #include "fileSystem.hpp"
 #include "playerHandler.hpp"
 
-ogl::texture loading_text, saving_text;
+//ogl::texture loading_text, saving_text;
 
 INIT_SCRIPT
     /*loading_text.loadFromText("Loading world", {255, 255, 255});
@@ -21,10 +21,10 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void worldSaver::saveWorld(const std::string& world_name) {
-    swl::setDrawColor(0, 0, 0);
-    swl::clear();
-    saving_text.render();
-    swl::update();
+    //swl::setDrawColor(0, 0, 0);
+    //swl::clear();
+    //saving_text.render();
+    //swl::update();
 
     // saves world chunk by chunk and then inventory
     
@@ -39,10 +39,10 @@ void worldSaver::saveWorld(const std::string& world_name) {
 }
 
 void worldSaver::loadWorld(const std::string& world_name) {
-    swl::setDrawColor(0, 0, 0);
-    swl::clear();
-    loading_text.render();
-    swl::update();
+    //swl::setDrawColor(0, 0, 0);
+    //swl::clear();
+    //loading_text.render();
+    //swl::update();
     
     // loads world the same way it got saved but in reverse order
     
