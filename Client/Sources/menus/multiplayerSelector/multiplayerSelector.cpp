@@ -10,8 +10,6 @@
 #include <vector>
 #include <algorithm>
 #include "multiplayerSelector.hpp"
-#include "UIKit.hpp"
-#include "singleWindowLibrary.hpp"
 #include "gameLoop.hpp"
 #include "main.hpp"
 #include "init.hpp"

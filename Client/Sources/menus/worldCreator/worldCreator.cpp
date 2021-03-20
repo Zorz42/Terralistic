@@ -19,7 +19,6 @@
 
 static gfx::button back_button, create_button;
 static gfx::sprite new_world_title, faded_create;
-static std::string name;
 static gfx::textInput world_name_input;
 
 #define PADDING 20
@@ -133,6 +132,7 @@ void worldCreator::scene::onKeyDown(gfx::key key) {
 }
 
 void worldCreator::scene::render() {
+    can_create = !world_name_input.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name_input.getText());
     if(can_create)
         gfx::render(create_button);
     else

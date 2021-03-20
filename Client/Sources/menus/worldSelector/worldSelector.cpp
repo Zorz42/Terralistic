@@ -190,7 +190,11 @@ void worldSelector::scene::onKeyDown(gfx::key key) {
         if(back_button.isHovered())
             gfx::returnFromScene();
         else if(new_button.isHovered())
-            gfx::switchScene(new worldCreator::scene());
+            gfx::switchScene(new worldCreator::scene(worlds_names));
+        else
+            for(const world_to_select& i : worlds)
+                if(i.button.isHovered())
+                    gfx::switchScene(new gameLoop::scene(i.name, false));
     }
 }
 

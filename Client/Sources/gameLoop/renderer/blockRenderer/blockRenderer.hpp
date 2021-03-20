@@ -8,13 +8,13 @@
 #ifndef blockRenderer_hpp
 #define blockRenderer_hpp
 
-#include <SDL2/SDL.h>
+#include <Graphics/graphics.hpp>
 
 namespace blockRenderer {
 
 struct uniqueRenderBlock {
     uniqueRenderBlock(blockEngine::uniqueBlock* unique_block);
-    SDL_Texture* texture;
+    gfx::image texture;
     std::vector<blockEngine::blockType> connects_to;
     bool single_texture;
 };
@@ -22,7 +22,7 @@ struct uniqueRenderBlock {
 struct renderBlock {
     void updateOrientation();
     void draw();
-    Uint8 block_orientation{0};
+    unsigned char block_orientation{0};
     bool to_update = true;
     void scheduleTextureUpdate();
     unsigned short getX() const;
@@ -35,7 +35,7 @@ struct renderBlock {
 struct renderChunk {
     void render() const;
     bool update = true;
-    SDL_Texture* texture = nullptr;
+    gfx::image texture;
     void createTexture();
     void updateTexture();
     unsigned short getX() const;

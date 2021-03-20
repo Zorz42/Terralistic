@@ -52,7 +52,6 @@ gfx::key translateMouseKey(int sdl_button) {
         case SDLK_x: return gfx::KEY_X;
         case SDLK_y: return gfx::KEY_Y;
         case SDLK_z: return gfx::KEY_Z;
-        case SDLK_SPACE: return gfx::KEY_SPACE;
         case SDLK_0: return gfx::KEY_0;
         case SDLK_1: return gfx::KEY_1;
         case SDLK_2: return gfx::KEY_2;
@@ -63,6 +62,8 @@ gfx::key translateMouseKey(int sdl_button) {
         case SDLK_7: return gfx::KEY_7;
         case SDLK_8: return gfx::KEY_8;
         case SDLK_9: return gfx::KEY_9;
+        case SDLK_SPACE: return gfx::KEY_SPACE;
+        case SDLK_ESCAPE: return gfx::KEY_ESCAPE;
         default: return gfx::KEY_UNKNOWN;
     }
 }
@@ -73,6 +74,8 @@ void gfx::runScenes() {
     
     SDL_StartTextInput();
     while(scene_stack.size()) {
+        Uint64 start = SDL_GetPerformanceCounter();
+        
         if(used_scene != scene_stack.top()) {
             delete used_scene;
             used_scene = scene_stack.top();
@@ -134,5 +137,8 @@ void gfx::runScenes() {
         if(quit)
             while(scene_stack.size())
                 returnFromScene();
+        
+        Uint64 end = SDL_GetPerformanceCounter();
+        frame_length = float(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
     }
 }

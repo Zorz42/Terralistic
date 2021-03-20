@@ -9,7 +9,6 @@
 #include "core.hpp"
 
 #include "playerHandler.hpp"
-#include "singleWindowLibrary.hpp"
 #include "networkingModule.hpp"
 #include "gameLoop.hpp"
 #include "itemRenderer.hpp"
@@ -24,33 +23,31 @@
 
 bool key_up = false, jump = false;
 
-ogl::rect inventory_slots[20], select_rect, under_text_rect(ogl::top_left);
-ogl::texture stack_textures[20], mouse_stack_texture{ogl::top_left};
+gfx::rect inventory_slots[20], select_rect, under_text_rect;
+gfx::image stack_textures[20], mouse_stack_texture;
 
 #define MARGIN 10
 
 INIT_SCRIPT
     for(int i = 0; i < 20; i++) {
-        inventory_slots[i].setOrientation(ogl::top);
-        inventory_slots[i].setColor(100, 100, 100);
-        inventory_slots[i].setHeight(2 * BLOCK_WIDTH + MARGIN);
-        inventory_slots[i].setWidth(2 * BLOCK_WIDTH + MARGIN);
-        inventory_slots[i].setY(MARGIN + i / 10 * 2 * MARGIN + i / 10 * 2 * BLOCK_WIDTH);
-        inventory_slots[i].setX(short((i - 5 - i / 10 * 10) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN));
+        inventory_slots[i].orientation = gfx::top;
+        inventory_slots[i].c = {100, 100, 100};
+        inventory_slots[i].h = 2 * BLOCK_WIDTH + MARGIN;
+        inventory_slots[i].w = 2 * BLOCK_WIDTH + MARGIN;
+        inventory_slots[i].x = (i - 5 - i / 10 * 10) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
+        inventory_slots[i].y = MARGIN + i / 10 * 2 * MARGIN + i / 10 * 2 * BLOCK_WIDTH;
     }
     
-    select_rect.setOrientation(ogl::top);
-    select_rect.setColor(50, 50, 50);
-    select_rect.setWidth(2 * BLOCK_WIDTH + 2 * MARGIN);
-    select_rect.setHeight(2 * BLOCK_WIDTH + 2 * MARGIN);
-    select_rect.setY(MARGIN / 2);
+    select_rect.orientation = gfx::top;
+    select_rect.c = {50, 50, 50};
+    select_rect.w = 2 * BLOCK_WIDTH + 2 * MARGIN;
+    select_rect.h = 2 * BLOCK_WIDTH + 2 * MARGIN;
+    select_rect.y = MARGIN / 2;
     
-    under_text_rect.setColor(0, 0, 0);
-    //playerHandler::player.loadFromFile("texturePack/misc/player.png");
+    under_text_rect.c = {0, 0, 0};
+    playerHandler::player.setTexture(gfx::loadImageFile("texturePack/misc/player.png"));
     playerHandler::player.scale = 2;
-    
-    for(int i = 0; i < 20; i++)
-        stack_textures[i] = ogl::texture(ogl::top_left);
+    playerHandler::player.orientation = gfx::center;
 INIT_SCRIPT_END
 
 bool isPlayerColliding();
@@ -67,6 +64,41 @@ void playerHandler::prepare() {
     player_inventory.open = false;
 }
 
+#define VELOCITY 20
+#define JUMP_VELOCITY 80
+
+static bool key_left = false, key_right = false;
+
+void playerHandler::onKeyDown(gfx::key key) {
+    switch(key) {
+        case gfx::KEY_SPACE:
+            if(!key_up) {
+                key_up = true;
+                jump = true;
+            }
+            break;
+        case gfx::KEY_A:
+            if(!key_left) {
+                key_left = true;
+                velocity_x -= VELOCITY;
+                //player.flipped = true;
+            }
+            break;
+        case gfx::KEY_D:
+            if(!key_right) {
+                key_right = true;
+                velocity_x += VELOCITY;
+                //player.flipped = false;
+            }
+            break;
+        default:;
+    }
+}
+
+void playerHandler::onKeyUp(gfx::key key) {
+    
+}
+
 void playerHandler::handleEvents(SDL_Event& event) {
 #define VELOCITY 20
 #define JUMP_VELOCITY 80
@@ -78,7 +110,8 @@ void playerHandler::handleEvents(SDL_Event& event) {
                     key_up = true;
                     jump = true;
                 }
-                break;            case SDLK_a:
+                break;
+            case SDLK_a:
                 if(!key_left) {
                     key_left = true;
                     velocity_x -= VELOCITY;
@@ -177,7 +210,7 @@ bool touchingGround() {
 }
 
 void playerHandler::move() {
-    int move_x = velocity_x * gameLoop::frame_length / 100, move_y = velocity_y * gameLoop::frame_length / 100;
+    int move_x = velocity_x * gfx::frame_length / 100, move_y = velocity_y * gfx::frame_length / 100;
     
     for(int i = 0; i < move_x; i++) {
         INC_X;
@@ -291,7 +324,7 @@ void playerHandler::render() {
 }
 
 void playerHandler::doPhysics() {
-    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + gameLoop::frame_length / 4);
+    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + gfx::frame_length / 4);
 }
 
 void playerHandler::selectSlot(char slot) {

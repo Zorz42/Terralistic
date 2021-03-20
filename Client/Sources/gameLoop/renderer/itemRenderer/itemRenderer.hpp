@@ -8,8 +8,6 @@
 #ifndef itemRenderer_hpp
 #define itemRenderer_hpp
 
-#include "objectedGraphicsLibrary.hpp"
-
 namespace itemRenderer {
 
 void render();

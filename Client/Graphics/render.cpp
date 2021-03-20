@@ -84,3 +84,9 @@ void* gfx::renderText(const std::string& text, color text_color) {
 
     return (void*)createTextureFromSurface(rendered_surface);
 }
+
+void* gfx::createBlankTexture(unsigned short w, unsigned short h) {
+    SDL_Texture* result = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    SDL_assert(result);
+    return result;
+}

@@ -8,13 +8,12 @@
 #ifndef pauseScreen_hpp
 #define pauseScreen_hpp
 
-#include <SDL2/SDL.h>
+#include <Graphics/graphics.hpp>
 
 namespace pauseScreen {
 
 void render();
-void handleEvents(SDL_Event& event);
-inline bool paused = false;
+void onKeyDown(gfx::key key);
 
 }
 

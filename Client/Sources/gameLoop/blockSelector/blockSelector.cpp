@@ -43,7 +43,7 @@ void leftClickEvent(unsigned short x, unsigned short y) {
     if(blockSelector::click_events[block->block_id].leftClickEvent)
         blockSelector::click_events[block->block_id].leftClickEvent(block);
     else {
-        block->setBreakProgress(block->break_progress_ms + gameLoop::frame_length);
+        block->setBreakProgress(block->break_progress_ms + gfx::frame_length);
         if(!gameLoop::online && block->break_progress_ms >= block->getUniqueBlock().break_time)
             block->break_block();
     }

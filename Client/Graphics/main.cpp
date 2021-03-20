@@ -60,3 +60,11 @@ unsigned short gfx::getMouseX() {
 unsigned short gfx::getMouseY() {
     return mouse_y;
 }
+
+void gfx::setRenderTarget(image& tex) {
+    SDL_SetRenderTarget(renderer, (SDL_Texture*)tex.getTexture());
+}
+
+void gfx::resetRenderTarget() {
+    SDL_SetRenderTarget(renderer, nullptr);
+}

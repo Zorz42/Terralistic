@@ -9,8 +9,6 @@
 
 #include "worldSaver.hpp"
 #include "fileSystem.hpp"
-#include "objectedGraphicsLibrary.hpp"
-#include "singleWindowLibrary.hpp"
 #include "playerHandler.hpp"
 
 ogl::texture loading_text, saving_text;

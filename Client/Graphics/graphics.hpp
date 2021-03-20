@@ -20,17 +20,17 @@ void loadFont(const std::string& path, unsigned char size);
 
 void runScenes();
 
-enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_SPACE, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_UNKNOWN};
+enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_SPACE, KEY_ESCAPE, KEY_UNKNOWN};
 
 enum objectType {top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right};
 
 struct color {
-    color(unsigned char r, unsigned char g, unsigned char b) : r(r), g(g), b(b) {}
-    unsigned char r, g, b, a=255;
+    color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255) : r(r), g(g), b(b), a(a) {}
+    unsigned char r, g, b, a;
 };
 
 struct rectShape {
-    rectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
+    rectShape(short x=0, short y=0, unsigned short w=0, unsigned short h=0) : x(x), y(y), w(w), h(h) {}
     short x, y;
     unsigned short w, h;
 };
@@ -47,7 +47,7 @@ struct _centeredObject {
 };
 
 struct rect : public _centeredObject {
-    rect(short x, short y, unsigned short w, unsigned short h, color c, objectType orientation=top_left) : _centeredObject(x, y, orientation), w(w), h(h), c(c) {}
+    rect(short x=0, short y=0, unsigned short w=0, unsigned short h=0, color c={255, 255, 255}, objectType orientation=top_left) : _centeredObject(x, y, orientation), w(w), h(h), c(c) {}
     inline unsigned short getWidth() const { return w; };
     inline unsigned short getHeight() const { return h; };
     unsigned short w, h;
@@ -123,8 +123,13 @@ void returnFromScene();
 
 void* loadImageFile(const std::string& path);
 void* renderText(const std::string& text, color text_color);
+void* createBlankTexture(unsigned short w, unsigned short h);
 
 unsigned short getMouseX(), getMouseY(), getWindowWidth(), getWindowHeight();
+inline float frame_length;
+
+void setRenderTarget(image& tex);
+void resetRenderTarget();
 
 }
 

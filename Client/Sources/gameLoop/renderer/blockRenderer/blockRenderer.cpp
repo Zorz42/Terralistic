@@ -11,19 +11,20 @@
 #include "networkingModule.hpp"
 #include "blockRenderer.hpp"
 
-SDL_Texture* breaking_texture = nullptr;
+gfx::image breaking_texture;
 
 INIT_SCRIPT
     INIT_ASSERT(blockEngine::unique_blocks.size());
-    //for(blockEngine::uniqueBlock& unique_block : blockEngine::unique_blocks)
-        //blockRenderer::unique_render_blocks.push_back(&unique_block);
+    blockRenderer::unique_render_blocks.reserve(blockEngine::unique_blocks.size());
+    for(blockEngine::uniqueBlock& unique_block : blockEngine::unique_blocks)
+        blockRenderer::unique_render_blocks.push_back(&unique_block);
 
-    //blockRenderer::unique_render_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
-    //blockRenderer::unique_render_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
-    //blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::GRASS_BLOCK);
-    //blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::LEAVES);
+    blockRenderer::unique_render_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
+    blockRenderer::unique_render_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
+    blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::GRASS_BLOCK);
+    blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::LEAVES);
 
-    //breaking_texture = swl::loadTextureFromFile("texturePack/misc/breaking.png");
+    breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
 INIT_SCRIPT_END
 
 void blockRenderer::prepare() {
@@ -59,42 +60,40 @@ void blockRenderer::renderBlock::updateOrientation() {
 }
 
 void blockRenderer::renderBlock::draw() {
-    swl::rect rect = {short((getX() & 15) * BLOCK_WIDTH), short((getY() & 15) * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH};
-    if(getUniqueRenderBlock().texture && getRelatedBlock().light_level)
-        swl::render(getUniqueRenderBlock().texture, rect, {0, short(8 * block_orientation), 8, 8});
+    gfx::rect rect((getX() & 15) * BLOCK_WIDTH, (getY() & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level)});
     
-    if(getRelatedBlock().light_level != MAX_LIGHT) {
-        swl::setDrawColor(0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level));
-        swl::render(rect);
-    }
+    if(getUniqueRenderBlock().texture.getTexture() && getRelatedBlock().light_level)
+        gfx::render(getUniqueRenderBlock().texture, rect.x, rect.y, {0, short(BLOCK_WIDTH * block_orientation), BLOCK_WIDTH, BLOCK_WIDTH});
+    
+    if(getRelatedBlock().light_level != MAX_LIGHT)
+        gfx::render(rect);
 
     if(getRelatedBlock().break_progress)
-        swl::render(breaking_texture, rect, {0, short(8 * (getRelatedBlock().break_progress - 1)), 8, 8});
+        gfx::render(breaking_texture, rect.x, rect.y, {0, short(8 * (getRelatedBlock().break_progress - 1)), BLOCK_WIDTH, BLOCK_WIDTH});
 }
 
 void blockRenderer::renderChunk::updateTexture() {
     update = false;
-    swl::setRenderTarget(texture);
+    gfx::setRenderTarget(texture);
     for(unsigned short y_ = 0; y_ < 16; y_++)
         for(unsigned short x_ = 0; x_ < 16; x_++)
             if(getBlock((getX() << 4) + x_, (getY() << 4) + y_).to_update) {
                 getBlock((getX() << 4) + x_, (getY() << 4) + y_).updateOrientation();
-                swl::rect rect = {short(x_ * BLOCK_WIDTH), short(y_ * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH};
-                swl::setDrawColor(135, 206, 235);
-                swl::render(rect);
+                gfx::rect rect(short(x_ * BLOCK_WIDTH), short(y_ * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH, {135, 206, 235});
+                gfx::render(rect);
                 getBlock((getX() << 4) + x_, (getY() << 4) + y_).draw();
                 getBlock((getX() << 4) + x_, (getY() << 4) + y_).to_update = false;
             }
-    swl::resetRenderTarget();
+    gfx::resetRenderTarget();
 }
 
 void blockRenderer::render() {
     // figure out, what the window is covering and only render that
-    short begin_x = playerHandler::view_x / (BLOCK_WIDTH << 4) - swl::window_width / 2 / (BLOCK_WIDTH << 4) - 1;
-    short end_x = playerHandler::view_x / (BLOCK_WIDTH << 4) + swl::window_width / 2 / (BLOCK_WIDTH << 4) + 2;
+    short begin_x = playerHandler::view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
+    short end_x = playerHandler::view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
 
-    short begin_y = playerHandler::view_y / (BLOCK_WIDTH << 4) - swl::window_height / 2 / (BLOCK_WIDTH << 4) - 1;
-    short end_y = playerHandler::view_y / (BLOCK_WIDTH << 4) + swl::window_height / 2 / (BLOCK_WIDTH << 4) + 2;
+    short begin_y = playerHandler::view_y / (BLOCK_WIDTH << 4) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) - 1;
+    short end_y = playerHandler::view_y / (BLOCK_WIDTH << 4) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) + 2;
     
     if(begin_x < 0)
         begin_x = 0;
@@ -133,12 +132,11 @@ void blockRenderer::render() {
 }
 
 void blockRenderer::renderChunk::render() const {
-    swl::rect rect = {short((getX() << 4) * BLOCK_WIDTH - playerHandler::view_x + swl::window_width / 2), short((getY() << 4) * BLOCK_WIDTH - playerHandler::view_y + swl::window_height / 2), BLOCK_WIDTH << 4, BLOCK_WIDTH << 4};
-    swl::render(texture, rect);
+    gfx::render(texture, (getX() << 4) * BLOCK_WIDTH - playerHandler::view_x + (gfx::getWindowWidth() >> 1), (getY() << 4) * BLOCK_WIDTH - playerHandler::view_y + (gfx::getWindowHeight() >> 1));
 }
 
 void blockRenderer::renderChunk::createTexture() {
-    texture = swl::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4);
+    texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
 }
 
 blockRenderer::renderBlock& blockRenderer::getBlock(unsigned short x, unsigned short y) {
@@ -152,9 +150,8 @@ blockRenderer::renderChunk& blockRenderer::getChunk(unsigned short x, unsigned s
 }
 
 blockRenderer::uniqueRenderBlock::uniqueRenderBlock(blockEngine::uniqueBlock* unique_block) {
-    unsigned short h = 0;
-    texture = unique_block->name == "air" ? nullptr : swl::loadTextureFromFile("texturePack/blocks/" + unique_block->name + ".png", nullptr, &h);
-    single_texture = h == 8;
+    texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
+    single_texture = texture.getTextureHeight() == 8;
 }
 
 void blockRenderer::renderBlock::scheduleTextureUpdate() {

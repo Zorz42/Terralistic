@@ -8,7 +8,6 @@
 #include "core.hpp"
 
 #include "main.hpp"
-#include "singleWindowLibrary.hpp"
 #include "startMenu.hpp"
 
 int main(int argc, char **argv) {

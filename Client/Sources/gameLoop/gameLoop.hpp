@@ -10,11 +10,24 @@
 
 #undef main
 
+#include <Graphics/graphics.hpp>
+
 namespace gameLoop {
 
 int main(const std::string& world_name, bool multiplayer);
 inline bool running, online;
-inline float frame_length;
+
+struct scene : public gfx::scene {
+    const std::string& world_name;
+    bool multiplayer;
+    scene(const std::string& world_name, bool multiplayer) : world_name(world_name), multiplayer(multiplayer) {}
+    void init();
+    void stop();
+    void onKeyUp(gfx::key key);
+    void onKeyDown(gfx::key key);
+    void render();
+    void update();
+};
 
 }
 

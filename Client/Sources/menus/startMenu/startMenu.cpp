@@ -8,8 +8,6 @@
 #include "core.hpp"
 
 #include "startMenu.hpp"
-#include "singleWindowLibrary.hpp"
-#include "UIKit.hpp"
 #include "gameLoop.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"

@@ -8,11 +8,12 @@
 #ifndef movementHandler_hpp
 #define movementHandler_hpp
 
-#include "objectedGraphicsLibrary.hpp"
+#include <Graphics/graphics.hpp>
 
 namespace playerHandler {
 
-void handleEvents(SDL_Event& event);
+void onKeyUp(gfx::key key);
+void onKeyDown(gfx::key key);
 void move();
 void render();
 void doPhysics();
@@ -23,7 +24,7 @@ inline int position_x, position_y;
 inline int view_x, view_y;
 
 inline short velocity_x = 0, velocity_y = 0;
-inline ogl::texture player(ogl::center);
+inline gfx::sprite player;
 
 void selectSlot(char slot);
 
