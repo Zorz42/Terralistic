@@ -63,7 +63,7 @@ void blockRenderer::renderBlock::draw() {
     gfx::rect rect((getX() & 15) * BLOCK_WIDTH, (getY() & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level)});
     
     if(getUniqueRenderBlock().texture.getTexture() && getRelatedBlock().light_level)
-        gfx::render(getUniqueRenderBlock().texture, rect.x, rect.y, {0, short(BLOCK_WIDTH * block_orientation), BLOCK_WIDTH, BLOCK_WIDTH});
+        gfx::render(getUniqueRenderBlock().texture, rect.x, rect.y, {0, short((BLOCK_WIDTH >> 1) * block_orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1});
     
     if(getRelatedBlock().light_level != MAX_LIGHT)
         gfx::render(rect);
@@ -152,6 +152,7 @@ blockRenderer::renderChunk& blockRenderer::getChunk(unsigned short x, unsigned s
 blockRenderer::uniqueRenderBlock::uniqueRenderBlock(blockEngine::uniqueBlock* unique_block) {
     texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
+    texture.scale = 2;
 }
 
 void blockRenderer::renderBlock::scheduleTextureUpdate() {

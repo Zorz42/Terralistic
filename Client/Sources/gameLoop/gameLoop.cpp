@@ -99,10 +99,10 @@ void gameLoop::scene::update() {
 
 void gameLoop::scene::render() {
     blockRenderer::render();
-    //itemRenderer::render();
-    //players::render();
+    itemRenderer::render();
+    players::render();
     playerHandler::render();
-    //blockSelector::render();
+    blockSelector::render();
     gfx::render(fps_text);
     pauseScreen::render();
 }

@@ -34,8 +34,8 @@ gfx::image::~image() {
 
 void gfx::image::freeTexture() {
     if(texture && free_texture) {
-        SDL_DestroyTexture((SDL_Texture*)texture);
-        texture = nullptr;
+        //SDL_DestroyTexture((SDL_Texture*)texture);
+        //texture = nullptr;
     }
 }
 
