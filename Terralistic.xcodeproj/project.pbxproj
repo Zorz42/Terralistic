@@ -1303,6 +1303,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/OtherLibs",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-std=c++17",
@@ -1359,6 +1360,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/OtherLibs",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-std=c++17",
