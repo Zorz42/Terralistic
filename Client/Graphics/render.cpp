@@ -28,17 +28,17 @@ void gfx::render(rect x, bool fill) {
 
 void gfx::render(const image& tex, rectShape rect) {
     SDL_Rect sdl_rect = {rect.x, rect.y, rect.w, rect.h};
-    SDL_RenderCopy(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &sdl_rect);
+    SDL_RenderCopyEx(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &sdl_rect, 0, nullptr, tex.flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void gfx::render(const image& tex, short x, short y) {
     SDL_Rect rect = {x, y, tex.getTextureWidth() * tex.scale, tex.getTextureHeight() * tex.scale};
-    SDL_RenderCopy(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &rect);
+    SDL_RenderCopyEx(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &rect, 0, nullptr, tex.flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void gfx::render(const image& tex, short x, short y, rectShape src_rect) {
     SDL_Rect dest_rect_sdl = {x, y, src_rect.w * tex.scale, src_rect.h * tex.scale}, src_rect_sdl = {src_rect.x, src_rect.y, src_rect.w, src_rect.h};
-    SDL_RenderCopy(renderer, (SDL_Texture*)tex.getTexture(), &src_rect_sdl, &dest_rect_sdl);
+    SDL_RenderCopyEx(renderer, (SDL_Texture*)tex.getTexture(), &src_rect_sdl, &dest_rect_sdl, 0, nullptr, tex.flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void gfx::render(const sprite& spr) {

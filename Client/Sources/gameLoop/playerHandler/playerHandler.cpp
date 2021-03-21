@@ -81,14 +81,14 @@ void playerHandler::onKeyDown(gfx::key key) {
             if(!key_left) {
                 key_left = true;
                 velocity_x -= VELOCITY;
-                //player.flipped = true;
+                player.flipped = true;
             }
             break;
         case gfx::KEY_D:
             if(!key_right) {
                 key_right = true;
                 velocity_x += VELOCITY;
-                //player.flipped = false;
+                player.flipped = false;
             }
             break;
         case gfx::KEY_1: selectSlot(0); break;

@@ -25,6 +25,7 @@ INIT_SCRIPT
     blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::LEAVES);
 
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
+    breaking_texture.scale = 2;
 INIT_SCRIPT_END
 
 void blockRenderer::prepare() {
@@ -69,7 +70,7 @@ void blockRenderer::renderBlock::draw() {
         gfx::render(rect);
 
     if(getRelatedBlock().break_progress)
-        gfx::render(breaking_texture, rect.x, rect.y, {0, short(8 * (getRelatedBlock().break_progress - 1)), BLOCK_WIDTH, BLOCK_WIDTH});
+        gfx::render(breaking_texture, rect.x, rect.y, {0, short(BLOCK_WIDTH * (getRelatedBlock().break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1});
 }
 
 void blockRenderer::renderChunk::updateTexture() {

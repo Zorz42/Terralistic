@@ -58,7 +58,7 @@ struct image {
     void setTexture(void* surface);
     void* getTexture() const { return texture; }
     ~image();
-    bool free_texture = true;
+    bool free_texture = true, flipped = false;
     unsigned short getTextureWidth() const;
     unsigned short getTextureHeight() const;
     unsigned char scale = 1;
