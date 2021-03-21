@@ -11,18 +11,31 @@
 #include "networkingModule.hpp"
 #include "blockRenderer.hpp"
 
-gfx::image breaking_texture;
+static gfx::image breaking_texture;
+static blockRenderer::renderChunk* chunks;
+static blockRenderer::renderBlock* blocks;
+static blockRenderer::uniqueRenderBlock* unique_render_blocks;
+
+blockRenderer::renderBlock& getBlock(unsigned short x, unsigned short y) {
+    ASSERT(y >= 0 && y < blockEngine::world_height && x >= 0 && x < blockEngine::world_width, "requested block is out of bounds");
+    return blocks[y * blockEngine::world_width + x];
+}
+
+blockRenderer::renderChunk& getChunk(unsigned short x, unsigned short y) {
+    ASSERT(y >= 0 && y < (blockEngine::world_height >> 4) && x >= 0 && x < (blockEngine::world_width >> 4), "requested chunk is out of bounds");
+    return chunks[y * (blockEngine::world_width >> 4) + x];
+}
 
 INIT_SCRIPT
     INIT_ASSERT(blockEngine::unique_blocks.size());
-    blockRenderer::unique_render_blocks = new blockRenderer::uniqueRenderBlock[blockEngine::unique_blocks.size()];
+    unique_render_blocks = new blockRenderer::uniqueRenderBlock[blockEngine::unique_blocks.size()];
     for(int i = 0; i < blockEngine::unique_blocks.size(); i++)
-        blockRenderer::unique_render_blocks[i].createTexture(&blockEngine::unique_blocks[i]);
+        unique_render_blocks[i].createTexture(&blockEngine::unique_blocks[i]);
 
-    blockRenderer::unique_render_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
-    blockRenderer::unique_render_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
-    blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::GRASS_BLOCK);
-    blockRenderer::unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::LEAVES);
+    unique_render_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
+    unique_render_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
+    unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::GRASS_BLOCK);
+    unique_render_blocks[blockEngine::WOOD].connects_to.push_back(blockEngine::LEAVES);
 
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
@@ -110,16 +123,16 @@ void blockRenderer::render() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
-            if(!blockEngine::getChunk(x, y).pending_load && !has_requested) {
+            if(blockEngine::getChunkState(x, y) == blockEngine::unloaded && !has_requested) {
                 packets::packet packet(packets::CHUNK);
                 packet << y << x;
                 networking::sendPacket(packet);
-                blockEngine::getChunk(x, y).pending_load = true;
+                blockEngine::getChunkState(x, y) = blockEngine::pending_load;
                 has_requested = true;
-            } else if(blockEngine::getChunk(x, y).loaded) {
-                if(blockRenderer::getChunk(x, y).update)
-                    blockRenderer::getChunk(x, y).updateTexture();
-                blockRenderer::getChunk(x, y).render();
+            } else if(blockEngine::getChunkState(x, y) == blockEngine::loaded) {
+                if(getChunk(x, y).update)
+                    getChunk(x, y).updateTexture();
+                getChunk(x, y).render();
             }
         }
     begin_x <<= 4;
@@ -128,7 +141,7 @@ void blockRenderer::render() {
     end_y <<= 4;
     for(unsigned short x = begin_x > MAX_LIGHT ? begin_x - MAX_LIGHT : 0; x < end_x + MAX_LIGHT && x < blockEngine::world_width; x++)
         for(unsigned short y = begin_y > MAX_LIGHT ? begin_y - MAX_LIGHT : 0; y < end_y + MAX_LIGHT && y < blockEngine::world_height; y++)
-            if(blockEngine::getBlock(x, y).to_update_light && blockEngine::getChunk(x >> 4, y >> 4).loaded)
+            if(blockEngine::getBlock(x, y).to_update_light && blockEngine::getChunkState(x >> 4, y >> 4) == blockEngine::loaded)
                 blockEngine::getBlock(x, y).light_update();
 }
 
@@ -138,16 +151,6 @@ void blockRenderer::renderChunk::render() const {
 
 void blockRenderer::renderChunk::createTexture() {
     texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
-}
-
-blockRenderer::renderBlock& blockRenderer::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < blockEngine::world_height && x >= 0 && x < blockEngine::world_width, "requested block is out of bounds");
-    return blocks[y * blockEngine::world_width + x];
-}
-
-blockRenderer::renderChunk& blockRenderer::getChunk(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < (blockEngine::world_height >> 4) && x >= 0 && x < (blockEngine::world_width >> 4), "requested chunk is out of bounds");
-    return chunks[y * (blockEngine::world_width >> 4) + x];
 }
 
 void blockRenderer::uniqueRenderBlock::createTexture(blockEngine::uniqueBlock* unique_block) {
@@ -190,17 +193,17 @@ blockEngine::uniqueBlock& blockRenderer::renderBlock::getUniqueBlock() {
 }
 
 void updateBlock(unsigned short x, unsigned short y) {
-    blockRenderer::getBlock(x, y).scheduleTextureUpdate();
+    getBlock(x, y).scheduleTextureUpdate();
     
     blockRenderer::renderBlock* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
     if(x != 0)
-        neighbors[0] = &blockRenderer::getBlock(x - 1, y);
+        neighbors[0] = &getBlock(x - 1, y);
     if(x != blockEngine::world_width - 1)
-        neighbors[1] = &blockRenderer::getBlock(x + 1, y);
+        neighbors[1] = &getBlock(x + 1, y);
     if(y != 0)
-        neighbors[2] = &blockRenderer::getBlock(x, y - 1);
+        neighbors[2] = &getBlock(x, y - 1);
     if(y != blockEngine::world_height - 1)
-        neighbors[3] = &blockRenderer::getBlock(x, y + 1);
+        neighbors[3] = &getBlock(x, y + 1);
     for(int i = 0; i < 4; i++)
         if(neighbors[i] != nullptr)
             neighbors[i]->scheduleTextureUpdate();

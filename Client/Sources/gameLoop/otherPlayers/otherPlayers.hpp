@@ -13,14 +13,6 @@ namespace players {
 void prepare();
 void render();
 
-struct player {
-    unsigned short id{0};
-    int x{0}, y{0};
-    bool flipped = false;
-};
-
-inline std::vector<player> players;
-
 }
 
 #endif /* otherPlayers_hpp */

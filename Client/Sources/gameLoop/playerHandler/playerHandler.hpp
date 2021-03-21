@@ -20,10 +20,8 @@ void doPhysics();
 void prepare();
 void lookForItems();
 
-inline int position_x, position_y;
 inline int view_x, view_y;
 
-inline short velocity_x = 0, velocity_y = 0;
 inline gfx::sprite player;
 
 void selectSlot(char slot);

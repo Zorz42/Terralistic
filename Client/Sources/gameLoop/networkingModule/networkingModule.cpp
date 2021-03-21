@@ -94,18 +94,13 @@ bool networking::establishConnection(const std::string &ip) {
     
     sendPacket(packets::PLAYER_JOIN);
     
-    /*packets::packet packet(packets::PING);
-    while(packet.type != packets::SPAWN_POS)
-        packet = packets::getPacket(sock);
-    int x = packet.getInt(), y = packet.getInt();
-    playerHandler::player.setX(x);
-    playerHandler::player.setY(y);*/
-    
     return true;
 }
 
+static bool listener_running;
+
 void listenerLoop() {
-    while(gameLoop::running) {
+    while(listener_running) {
         packets::packet packet = packets::getPacket(sock);
         for(packet_listener& i : getListeners())
             if(i.type == packet.type)
@@ -113,7 +108,12 @@ void listenerLoop() {
     }
 }
 
-void networking::spawnListener() {
-    std::thread listener(listenerLoop);
+void networking::startListening() {
+    listener_running = true;
+    std::thread listener = std::thread(listenerLoop);
     listener.detach();
+}
+
+void networking::stopListening() {
+    listener_running = false;
 }

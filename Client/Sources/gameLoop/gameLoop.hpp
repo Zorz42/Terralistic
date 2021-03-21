@@ -15,7 +15,7 @@
 namespace gameLoop {
 
 int main(const std::string& world_name, bool multiplayer);
-inline bool running, online;
+inline bool online;
 
 struct scene : public gfx::scene {
     const std::string& world_name;

@@ -21,7 +21,7 @@ PACKET_LISTENER_END
 
 PACKET_LISTENER(packets::CHUNK)
     unsigned short x = packet.getUShort(), y = packet.getUShort();
-    blockEngine::chunk& chunk = blockEngine::getChunk(x, y);
+    blockEngine::chunkState& chunk_state = blockEngine::getChunkState(x, y);
     for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
         blockEngine::removeNaturalLight(x_);
     for(unsigned short y_ = 0; y_ < 16; y_++)
@@ -31,7 +31,7 @@ PACKET_LISTENER(packets::CHUNK)
         }
     for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
         blockEngine::setNaturalLight(x_);
-    chunk.loaded = true;
+    chunk_state = blockEngine::loaded;
 PACKET_LISTENER_END
 
 PACKET_LISTENER(packets::BLOCK_BREAK_PROGRESS_CHANGE)

@@ -42,13 +42,6 @@ struct renderChunk {
     unsigned short getY() const;
 };
 
-inline renderChunk* chunks;
-inline renderBlock* blocks;
-inline uniqueRenderBlock* unique_render_blocks;
-
-renderBlock& getBlock(unsigned short x, unsigned short y);
-renderChunk& getChunk(unsigned short x, unsigned short y);
-
 void prepare();
 void render();
 void close();

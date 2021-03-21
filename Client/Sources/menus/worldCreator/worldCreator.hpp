@@ -14,8 +14,6 @@
 
 namespace worldCreator {
 
-void loop(std::vector<std::string> worlds);
-
 struct scene : public gfx::scene {
     const std::vector<std::string>& worlds;
     scene(const std::vector<std::string>& worlds) : worlds(worlds) {}

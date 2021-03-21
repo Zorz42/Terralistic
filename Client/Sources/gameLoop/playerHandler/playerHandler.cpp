@@ -14,17 +14,19 @@
 #include "itemRenderer.hpp"
 #include "blockRenderer.hpp"
 
-#define INC_X playerHandler::position_x++;playerHandler::view_x++
-#define DEC_X playerHandler::position_x--;playerHandler::view_x--
-#define INC_Y playerHandler::position_y++;playerHandler::view_y++
-#define DEC_Y playerHandler::position_y--;playerHandler::view_y--
+#define INC_X position_x++;playerHandler::view_x++
+#define DEC_X position_x--;playerHandler::view_x--
+#define INC_Y position_y++;playerHandler::view_y++
+#define DEC_Y position_y--;playerHandler::view_y--
 
 // this handles player and its movement
 
-bool key_up = false, jump = false;
+static bool key_up = false, jump = false;
 
 static gfx::rect inventory_slots[20], select_rect, under_text_rect;
 static gfx::image stack_textures[20], mouse_stack_texture;
+static int position_x, position_y;
+static short velocity_x = 0, velocity_y = 0;
 
 #define MARGIN 10
 
@@ -149,16 +151,16 @@ void playerHandler::onKeyUp(gfx::key key) {
 bool isPlayerColliding() {
 #define COLLISION_PADDING 2
     
-    if(playerHandler::position_x < playerHandler::player.getWidth() / 2 || playerHandler::position_y < playerHandler::player.getHeight() / 2 ||
-       playerHandler::position_y >= blockEngine::world_height * BLOCK_WIDTH - playerHandler::player.getHeight() / 2 ||
-       playerHandler::position_x >= blockEngine::world_width * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
+    if(position_x < playerHandler::player.getWidth() / 2 || position_y < playerHandler::player.getHeight() / 2 ||
+       position_y >= blockEngine::world_height * BLOCK_WIDTH - playerHandler::player.getHeight() / 2 ||
+       position_x >= blockEngine::world_width * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
         return true;
 
-    short begin_x = playerHandler::position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    short end_x = playerHandler::position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    short begin_x = position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    short end_x = position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
 
-    short begin_y = playerHandler::position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    short end_y = playerHandler::position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    short begin_y = position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
+    short end_y = position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
     
     if(begin_x < 0)
         begin_x = 0;
@@ -171,7 +173,7 @@ bool isPlayerColliding() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(!blockEngine::getChunk(x >> 4, y >> 4).loaded || (gfx::colliding({short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getTranslatedRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
+            if(blockEngine::getChunkState(x >> 4, y >> 4) != blockEngine::loaded || (gfx::colliding({short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getTranslatedRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
                 return true;
     return false;
 }
@@ -309,7 +311,7 @@ void playerHandler::selectSlot(char slot) {
 
 void playerHandler::lookForItems() {
     for(unsigned long i = 0; i < itemEngine::items.size(); i++)
-        if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - playerHandler::position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - playerHandler::position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1) {
+        if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1) {
             itemEngine::items[i].destroy();
             itemEngine::items.erase(itemEngine::items.begin() + i);
         }
@@ -323,8 +325,8 @@ PACKET_LISTENER_END
 
 PACKET_LISTENER(packets::SPAWN_POS)
     int x = packet.getInt(), y = packet.getInt();
-    playerHandler::position_x = x;
-    playerHandler::position_y = y;
+    position_x = x;
+    position_y = y;
     playerHandler::view_x = x;
     playerHandler::view_y = y;
 PACKET_LISTENER_END

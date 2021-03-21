@@ -21,7 +21,8 @@
 
 #undef main
 
-gfx::sprite fps_text;
+static gfx::sprite fps_text;
+static bool running;
 
 INIT_SCRIPT
     fps_text.scale = 3;
@@ -53,7 +54,7 @@ void gameLoop::scene::init() {
     if(multiplayer) {
         if(!networking::establishConnection(world_name))
             gfx::returnFromScene();
-        networking::spawnListener();
+        networking::startListening();
         for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
             i.setStack(0);
             i.item_id = itemEngine::NOTHING;
@@ -117,4 +118,5 @@ void gameLoop::scene::stop() {
     blockEngine::close();
     itemEngine::close();
     blockRenderer::close();
+    networking::stopListening();
 }

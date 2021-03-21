@@ -79,8 +79,8 @@ bool ends_with(const std::string& value, std::string ending) {
 
 bool display_hover;
 
-void worldSelector::loop() {
-    /*bool running = true;
+/*void worldSelector::loop() {
+    bool running = true;
     SDL_Event event;
     
     reload();
@@ -136,8 +136,8 @@ void worldSelector::loop() {
         bottom_line_rect.render();
         
         swl::update();
-    }*/
-}
+    }
+}*/
 
 void worldSelector::scene::refresh() {
     // scans for worlds in world folder and sets their positions and renders them
@@ -187,9 +187,14 @@ void worldSelector::scene::onKeyDown(gfx::key key) {
         else if(new_button.isHovered())
             gfx::switchScene(new worldCreator::scene(worlds_names));
         else
-            for(const world_to_select& i : worlds)
+            for(const world_to_select& i : worlds) {
                 if(i.button.isHovered())
                     gfx::switchScene(new gameLoop::scene(i.name, false));
+                else if(i.delete_button.isHovered()) {
+                    fileSystem::removeFile(fileSystem::worlds_dir + i.name + ".world");
+                    refresh();
+                }
+            }
     }
 }
 

@@ -42,7 +42,7 @@ void updateItems(float frame_length);
 inline std::vector<uniqueItem> unique_items;
 inline std::vector<item> items;
 
-inline int curr_id = 0;
+inline unsigned short curr_id = 0;
 
 void spawnItem(itemType item_id, int x, int y, unsigned short id=curr_id++);
 

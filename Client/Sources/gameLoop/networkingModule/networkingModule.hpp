@@ -14,7 +14,8 @@
 namespace networking {
 
 bool establishConnection(const std::string& ip);
-void spawnListener();
+void startListening();
+void stopListening();
 
 void sendPacket(packets::packet packet_);
 
