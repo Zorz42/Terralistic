@@ -7,6 +7,9 @@
 
 #include "core.hpp"
 
+static blockEngine::chunkState *chunk_states;
+static blockEngine::block *blocks;
+
 INIT_SCRIPT
     using namespace blockEngine;
     unique_blocks = {
@@ -28,6 +31,14 @@ void blockEngine::prepare() {
 void blockEngine::close() {
     delete[] chunk_states;
     delete[] blocks;
+}
+
+unsigned short blockEngine::block::getX() const {
+    return (unsigned int)(this - blocks) % world_width;
+}
+
+unsigned short blockEngine::block::getY() const {
+    return (unsigned int)(this - blocks) / world_width;
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {

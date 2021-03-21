@@ -153,7 +153,7 @@ void worldSelector::scene::refresh() {
             ".DS_Store",
     };
 
-    DIR *dir = opendir(fileSystem::worlds_dir.c_str());
+    DIR *dir = opendir(fileSystem::getWorldsPath().c_str());
     dirent *ent;
     while((ent = readdir(dir)) != nullptr) {
         std::string name = ent->d_name;
@@ -191,7 +191,7 @@ void worldSelector::scene::onKeyDown(gfx::key key) {
                 if(i.button.isHovered())
                     gfx::switchScene(new gameLoop::scene(i.name, false));
                 else if(i.delete_button.isHovered()) {
-                    fileSystem::removeFile(fileSystem::worlds_dir + i.name + ".world");
+                    fileSystem::removeFile(fileSystem::getWorldsPath() + i.name + ".world");
                     refresh();
                 }
             }

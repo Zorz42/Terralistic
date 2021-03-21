@@ -181,7 +181,7 @@ unsigned short blockRenderer::renderChunk::getY() const {
 }
 
 blockEngine::block& blockRenderer::renderBlock::getRelatedBlock() {
-    return blockEngine::blocks[this - blocks];
+    return blockEngine::getBlock(getX(), getY());
 }
 
 blockRenderer::uniqueRenderBlock& blockRenderer::renderBlock::getUniqueRenderBlock() {

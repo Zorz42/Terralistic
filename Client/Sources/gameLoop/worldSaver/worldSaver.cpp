@@ -28,7 +28,7 @@ void worldSaver::saveWorld(const std::string& world_name) {
 
     // saves world chunk by chunk and then inventory
     
-    std::ofstream world_file(fileSystem::worlds_dir + world_name + ".world");
+    std::ofstream world_file(fileSystem::getWorldsPath() + world_name + ".world");
     for(auto & i : playerHandler::player_inventory.inventory)
         world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
     
@@ -46,7 +46,7 @@ void worldSaver::loadWorld(const std::string& world_name) {
     
     // loads world the same way it got saved but in reverse order
     
-    std::ifstream world_file(fileSystem::worlds_dir + world_name + ".world");
+    std::ifstream world_file(fileSystem::getWorldsPath() + world_name + ".world");
     char c = 0;
     for(auto & i : playerHandler::player_inventory.inventory) {
         world_file >> std::noskipws >> c;

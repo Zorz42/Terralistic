@@ -43,7 +43,6 @@ inline std::vector<uniqueItem> unique_items;
 inline std::vector<item> items;
 
 inline unsigned short curr_id = 0;
-
 void spawnItem(itemType item_id, int x, int y, unsigned short id=curr_id++);
 
 item* getItemById(unsigned short id);

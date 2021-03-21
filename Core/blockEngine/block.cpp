@@ -51,14 +51,6 @@ void blockEngine::block::setBlockType(blockType id) {
     }
 }
 
-unsigned short blockEngine::block::getX() const {
-    return (unsigned int)(this - blocks) % world_width;
-}
-
-unsigned short blockEngine::block::getY() const {
-    return (unsigned int)(this - blocks) / world_width;
-}
-
 void blockEngine::block::setBreakProgress(unsigned short ms) {
     break_progress_ms = ms;
     unsigned char progress = (unsigned char)((float)break_progress_ms / (float)getUniqueBlock().break_time * 9.0f);

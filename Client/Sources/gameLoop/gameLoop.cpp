@@ -59,7 +59,7 @@ void gameLoop::scene::init() {
             i.setStack(0);
             i.item_id = itemEngine::NOTHING;
         }
-    } else if(fileSystem::fileExists(fileSystem::worlds_dir + world_name + ".world"))
+    } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world"))
         worldSaver::loadWorld(world_name);
     else {
         for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory)

@@ -61,9 +61,6 @@ void prepareWorld();
 void close();
 
 inline unsigned short world_width = 4400, world_height = 1200;
-inline chunkState *chunk_states;
-inline block *blocks;
-
 inline std::vector<uniqueBlock> unique_blocks;
 
 block& getBlock(unsigned short x, unsigned short y);
