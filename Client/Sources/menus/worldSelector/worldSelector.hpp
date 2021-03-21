@@ -15,7 +15,7 @@ namespace worldSelector {
 void loop();
 
 struct scene : public gfx::scene {
-    void init();
+    void refresh();
     void onKeyDown(gfx::key key);
     void render();
 };

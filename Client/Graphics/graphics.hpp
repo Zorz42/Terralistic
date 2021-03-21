@@ -111,6 +111,7 @@ struct scene {
     virtual ~scene() { stop(); }
     
     virtual void init() {}
+    virtual void refresh() {}
     virtual void update() {}
     virtual void render() {}
     virtual void stop() {}

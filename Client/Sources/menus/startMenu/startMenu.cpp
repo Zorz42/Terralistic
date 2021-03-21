@@ -17,7 +17,7 @@
 
 // this is the main menu, which you see on the start of the app
 
-gfx::button singleplayer_button, multiplayer_button, exit_button;
+static gfx::button singleplayer_button, multiplayer_button, exit_button;
 
 INIT_SCRIPT
     singleplayer_button.scale = 3;

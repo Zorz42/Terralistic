@@ -14,7 +14,7 @@
 #include <unistd.h>
 #endif
 
-struct stat info;
+static struct stat info;
 
 // most of the functions explain themselves
 

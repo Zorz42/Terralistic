@@ -109,16 +109,6 @@ void worldCreator::loop(std::vector<std::string> worlds) {
     }
 }*/
 
-/*
-test.textProcessing = [](char c){
-    if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_')
-        return c;
-    if(c == ' ')
-        return '-';
-    return '\0';
-};
-*/
-
 void worldCreator::scene::init() {
     world_name_input.setText("");
     text_inputs = {&world_name_input};
@@ -128,6 +118,8 @@ void worldCreator::scene::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT) {
         if(back_button.isHovered())
             gfx::returnFromScene();
+        else if(create_button.isHovered())
+            gfx::switchScene(new gameLoop::scene(world_name_input.getText(), false));
     }
 }
 
