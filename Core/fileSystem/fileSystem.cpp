@@ -14,7 +14,6 @@
 #include <unistd.h>
 #endif
 
-static struct stat info;
 static std::string data_path;
 
 // most of the functions explain themselves
@@ -95,11 +94,13 @@ void fileSystem::removeFile(const std::string &path) {
 }
 
 bool fileSystem::fileExists(const std::string& path) {
+    static struct stat info;
     return !stat(path.c_str(), &info);
 }
 
 bool fileSystem::dirExists(const std::string& path) {
-    return stat(path.c_str(), &info ) == 0 && info.st_mode & S_IFDIR;
+    static struct stat info;
+    return stat(path.c_str(), &info) == 0 && info.st_mode & S_IFDIR;
 }
 
 void fileSystem::createDirIfNotExists(const std::string& path) {

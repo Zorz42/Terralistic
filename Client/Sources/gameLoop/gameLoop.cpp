@@ -22,7 +22,6 @@
 #undef main
 
 static gfx::sprite fps_text;
-static bool running;
 
 INIT_SCRIPT
     fps_text.scale = 3;
@@ -45,7 +44,6 @@ void generateTerrain(unsigned int seed) {
 
 void gameLoop::scene::init() {
     online = multiplayer;
-    running = true;
     
     blockEngine::prepare();
     players::prepare();

@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-gfx::scene* used_scene = nullptr;
+static gfx::scene* used_scene = nullptr;
 
 void gfx::switchScene(scene* x) {
     x->init();

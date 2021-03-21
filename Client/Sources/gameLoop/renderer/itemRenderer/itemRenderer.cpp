@@ -10,7 +10,7 @@
 #include "itemRenderer.hpp"
 #include "playerHandler.hpp"
 
-itemRenderer::uniqueRenderItem* unique_render_items;
+static itemRenderer::uniqueRenderItem* unique_render_items;
 
 itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(unsigned short id) {
     return unique_render_items[id];
