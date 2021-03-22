@@ -102,7 +102,6 @@ void game::scene::stop() {
         networking::sendPacket({packets::DISCONNECT});
     else
         worldSaver::saveWorld(world_name);
-    blockEngine::close();
-    itemEngine::close();
+    
     networking::stopListening();
 }

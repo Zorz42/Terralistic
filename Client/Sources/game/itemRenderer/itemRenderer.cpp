@@ -21,6 +21,10 @@ void itemRenderer::module::render() {
         gfx::render(unique_render_items[i.getItemId()].texture, short(i.x / 100 - playerHandler::view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - playerHandler::view_y + gfx::getWindowHeight() / 2));
 }
 
+void itemRenderer::module::stop() {
+    itemEngine::close();
+}
+
 INIT_SCRIPT
     INIT_ASSERT(itemEngine::unique_items.size());
     unique_render_items = new itemRenderer::uniqueRenderItem[itemEngine::unique_items.size()];

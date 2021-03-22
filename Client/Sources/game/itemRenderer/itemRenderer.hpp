@@ -22,6 +22,7 @@ uniqueRenderItem& getUniqueRenderItem(unsigned short id);
 struct module : public gfx::sceneModule<game::scene> {
     using gfx::sceneModule<game::scene>::sceneModule;
     void render();
+    void stop();
 };
 
 }

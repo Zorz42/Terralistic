@@ -99,6 +99,7 @@ void blockRenderer::module::init() {
 }
 
 void blockRenderer::module::stop() {
+    blockEngine::close();
     delete[] chunks;
     delete[] blocks;
 }
