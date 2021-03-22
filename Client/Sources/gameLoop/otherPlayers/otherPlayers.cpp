@@ -21,11 +21,11 @@ struct player {
 
 static std::vector<player> other_players;
 
-void players::prepare() {
+void players::module::init() {
     other_players.clear();
 }
 
-void players::render() {
+void players::module::render() {
     // iterate through every player and render them
     for(player& i : other_players) {
         bool prev = playerHandler::player.flipped;

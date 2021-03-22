@@ -12,8 +12,10 @@
 
 namespace pauseScreen {
 
-void render();
-void onKeyDown(gfx::key key);
+struct module : public gfx::sceneModule {
+    void render();
+    void onKeyDown(gfx::key key);
+};
 
 }
 

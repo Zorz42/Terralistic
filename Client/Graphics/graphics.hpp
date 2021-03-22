@@ -107,8 +107,22 @@ void render(const sprite& spr);
 void render(const button& b);
 void render(const textInput& b);
 
+struct scene;
+
+struct sceneModule {
+    virtual ~sceneModule() {}
+    
+    virtual void init() {}
+    virtual void refresh() {}
+    virtual void update() {}
+    virtual void render() {}
+    virtual void stop() {}
+    virtual void onKeyDown(key key_) {}
+    virtual void onKeyUp(key key_) {}
+};
+
 struct scene {
-    virtual ~scene() { stop(); }
+    virtual ~scene();
     
     virtual void init() {}
     virtual void refresh() {}
@@ -118,6 +132,11 @@ struct scene {
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
     std::vector<textInput*> text_inputs;
+    std::vector<sceneModule*> modules;
+    
+    void _init();
+    void _onKeyDown(key key_);
+    void _onKeyUp(key key_);
 };
 
 void switchScene(scene* x);

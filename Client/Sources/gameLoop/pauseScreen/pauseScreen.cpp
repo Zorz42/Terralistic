@@ -31,14 +31,14 @@ INIT_SCRIPT
     quit_button.y = short(resume_button.getHeight() + 2 * PADDING);
 INIT_SCRIPT_END
 
-void pauseScreen::render() {
+void pauseScreen::module::render() {
     if(paused) {
         gfx::render(resume_button);
         gfx::render(quit_button);
     }
 }
 
-void pauseScreen::onKeyDown(gfx::key key) {
+void pauseScreen::module::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_ESCAPE)
         paused = !paused;
     else if(key == gfx::KEY_MOUSE_LEFT) {

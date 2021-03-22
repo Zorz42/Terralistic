@@ -46,8 +46,6 @@ void gameLoop::scene::init() {
     online = multiplayer;
     
     blockEngine::prepare();
-    players::prepare();
-    blockRenderer::prepare();
     
     if(multiplayer) {
         if(!networking::establishConnection(world_name))
@@ -68,10 +66,16 @@ void gameLoop::scene::init() {
     
     playerHandler::prepare();
     blockEngine::prepareWorld();
+    
+    modules = {
+        new blockRenderer::module(),
+        new itemRenderer::module(),
+        new players::module(),
+        new pauseScreen::module()
+    };
 }
 
 void gameLoop::scene::onKeyDown(gfx::key key) {
-    pauseScreen::onKeyDown(key);
     playerHandler::onKeyDown(key);
     blockSelector::onKeyDown(key);
 }
@@ -99,13 +103,9 @@ void gameLoop::scene::update() {
 }
 
 void gameLoop::scene::render() {
-    blockRenderer::render();
-    itemRenderer::render();
-    players::render();
     playerHandler::render();
     blockSelector::render();
     gfx::render(fps_text);
-    pauseScreen::render();
 }
 
 void gameLoop::scene::stop() {
@@ -115,6 +115,5 @@ void gameLoop::scene::stop() {
         worldSaver::saveWorld(world_name);
     blockEngine::close();
     itemEngine::close();
-    blockRenderer::close();
     networking::stopListening();
 }

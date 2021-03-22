@@ -12,13 +12,15 @@
 
 namespace itemRenderer {
 
-void render();
-
 struct uniqueRenderItem {
     gfx::image texture;
     gfx::sprite text_texture;
 };
 uniqueRenderItem& getUniqueRenderItem(unsigned short id);
+
+struct module : public gfx::sceneModule {
+    void render();
+};
 
 }
 

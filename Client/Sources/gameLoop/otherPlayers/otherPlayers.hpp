@@ -8,10 +8,14 @@
 #ifndef otherPlayers_hpp
 #define otherPlayers_hpp
 
+#include <Graphics/graphics.hpp>
+
 namespace players {
 
-void prepare();
-void render();
+struct module : public gfx::sceneModule {
+    void init();
+    void render();
+};
 
 }
 

@@ -41,20 +41,6 @@ INIT_SCRIPT
     breaking_texture.scale = 2;
 INIT_SCRIPT_END
 
-void blockRenderer::prepare() {
-    chunks = new renderChunk[(blockEngine::world_width >> 4) * (blockEngine::world_height >> 4)];
-    blocks = new renderBlock[blockEngine::world_width * blockEngine::world_height];
-    
-    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
-        for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
-            getChunk(x, y).createTexture();
-}
-
-void blockRenderer::close() {
-    delete[] chunks;
-    delete[] blocks;
-}
-
 void blockRenderer::renderBlock::updateOrientation() {
     if(!getUniqueRenderBlock().single_texture) {
         block_orientation = 0;
@@ -101,7 +87,21 @@ void blockRenderer::renderChunk::updateTexture() {
     gfx::resetRenderTarget();
 }
 
-void blockRenderer::render() {
+void blockRenderer::module::init() {
+    chunks = new renderChunk[(blockEngine::world_width >> 4) * (blockEngine::world_height >> 4)];
+    blocks = new renderBlock[blockEngine::world_width * blockEngine::world_height];
+    
+    for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
+        for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
+            getChunk(x, y).createTexture();
+}
+
+void blockRenderer::module::stop() {
+    delete[] chunks;
+    delete[] blocks;
+}
+
+void blockRenderer::module::render() {
     // figure out, what the window is covering and only render that
     short begin_x = playerHandler::view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_x = playerHandler::view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;

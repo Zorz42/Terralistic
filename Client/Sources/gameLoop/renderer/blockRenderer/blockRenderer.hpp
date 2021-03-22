@@ -46,6 +46,12 @@ void prepare();
 void render();
 void close();
 
+struct module : public gfx::sceneModule {
+    void init();
+    void render();
+    void stop();
+};
+
 }
 
 #endif /* blockRenderer_hpp */

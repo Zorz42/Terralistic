@@ -12,6 +12,11 @@
 
 namespace playerHandler {
 
+struct module : public gfx::sceneModule {
+    void onKeyUp(gfx::key key);
+    void onKeyDown(gfx::key key);
+};
+
 void onKeyUp(gfx::key key);
 void onKeyDown(gfx::key key);
 void move();

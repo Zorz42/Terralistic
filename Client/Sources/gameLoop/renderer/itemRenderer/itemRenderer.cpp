@@ -16,7 +16,7 @@ itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(unsigned short
     return unique_render_items[id];
 }
 
-void itemRenderer::render() {
+void itemRenderer::module::render() {
     for(itemEngine::item& i : itemEngine::items)
         gfx::render(unique_render_items[i.getItemId()].texture, short(i.x / 100 - playerHandler::view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - playerHandler::view_y + gfx::getWindowHeight() / 2));
 }
