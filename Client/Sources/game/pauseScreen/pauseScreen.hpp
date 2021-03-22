@@ -9,10 +9,12 @@
 #define pauseScreen_hpp
 
 #include <Graphics/graphics.hpp>
+#include "game.hpp"
 
 namespace pauseScreen {
 
-struct module : public gfx::sceneModule {
+struct module : public gfx::sceneModule<game::scene> {
+    using gfx::sceneModule<game::scene>::sceneModule;
     void render();
     void onKeyDown(gfx::key key);
 };

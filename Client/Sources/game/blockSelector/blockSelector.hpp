@@ -9,12 +9,16 @@
 #define blockSelector_hpp
 
 #include <Graphics/graphics.hpp>
+#include "game.hpp"
 
 namespace blockSelector {
 
-void render();
-void onKeyDown(gfx::key key);
-void onKeyUp(gfx::key key);
+struct module : public gfx::sceneModule<game::scene> {
+    using gfx::sceneModule<game::scene>::sceneModule;
+    void render();
+    void onKeyDown(gfx::key key);
+    void onKeyUp(gfx::key key);
+};
 
 }
 

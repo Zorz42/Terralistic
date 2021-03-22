@@ -8,7 +8,7 @@
 #include "core.hpp"
 
 #include "generatingScreen.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "main.hpp"
 
 void terrainGenerator::generatingScreen() {

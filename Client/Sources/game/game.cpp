@@ -1,5 +1,5 @@
 //
-//  gameLoop.cpp
+//  game.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on ???.
@@ -7,7 +7,7 @@
 
 #include "core.hpp"
 
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "playerHandler.hpp"
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"
@@ -42,7 +42,7 @@ void generateTerrain(unsigned int seed) {
     ASSERT(terrainGenerator::loading_current == terrainGenerator::loading_total, "Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));
 }
 
-void gameLoop::scene::init() {
+void game::scene::init() {
     online = multiplayer;
     
     blockEngine::prepare();
@@ -64,28 +64,23 @@ void gameLoop::scene::init() {
         worldSaver::saveWorld(world_name);
     }
     
-    playerHandler::prepare();
-    blockEngine::prepareWorld();
-    
     modules = {
-        new blockRenderer::module(),
-        new itemRenderer::module(),
-        new players::module(),
-        new pauseScreen::module()
+        new blockRenderer::module(this),
+        new itemRenderer::module(this),
+        new players::module(this),
+        new pauseScreen::module(this),
+        new playerHandler::module(this),
+        new blockSelector::module(this),
     };
 }
 
-void gameLoop::scene::onKeyDown(gfx::key key) {
-    playerHandler::onKeyDown(key);
-    blockSelector::onKeyDown(key);
+void game::scene::onKeyDown(gfx::key key) {
 }
 
-void gameLoop::scene::onKeyUp(gfx::key key) {
-    playerHandler::onKeyUp(key);
-    blockSelector::onKeyUp(key);
+void game::scene::onKeyUp(gfx::key key) {
 }
 
-void gameLoop::scene::update() {
+void game::scene::update() {
     static unsigned int count = gfx::getTicks() / 1000 - 1, fps_count = 0;
     fps_count++;
     if(gfx::getTicks() / 1000 > count) {
@@ -94,21 +89,15 @@ void gameLoop::scene::update() {
         fps_count = 0;
     }
     
-    playerHandler::doPhysics();
-    playerHandler::move();
-    if(!online) {
+    if(!online)
         itemEngine::updateItems(gfx::frame_length);
-        playerHandler::lookForItems();
-    }
 }
 
-void gameLoop::scene::render() {
-    playerHandler::render();
-    blockSelector::render();
+void game::scene::render() {
     gfx::render(fps_text);
 }
 
-void gameLoop::scene::stop() {
+void game::scene::stop() {
     if(multiplayer)
         networking::sendPacket({packets::DISCONNECT});
     else

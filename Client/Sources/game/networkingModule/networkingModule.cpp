@@ -18,7 +18,7 @@
 #endif
 
 #include "networkingModule.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "playerHandler.hpp"
 
 #define BUFFER_SIZE 1024

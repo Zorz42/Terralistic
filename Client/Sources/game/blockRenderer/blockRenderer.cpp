@@ -88,6 +88,8 @@ void blockRenderer::renderChunk::updateTexture() {
 }
 
 void blockRenderer::module::init() {
+    blockEngine::prepareWorld();
+    
     chunks = new renderChunk[(blockEngine::world_width >> 4) * (blockEngine::world_height >> 4)];
     blocks = new renderBlock[blockEngine::world_width * blockEngine::world_height];
     

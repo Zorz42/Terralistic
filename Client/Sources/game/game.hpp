@@ -1,18 +1,16 @@
 //
-//  gameLoop.hpp
+//  game.hpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 06/07/2020.
 //
 
-#ifndef gameLoop_hpp
-#define gameLoop_hpp
-
-#undef main
+#ifndef game_hpp
+#define game_hpp
 
 #include <Graphics/graphics.hpp>
 
-namespace gameLoop {
+namespace game {
 
 int main(const std::string& world_name, bool multiplayer);
 inline bool online;
@@ -31,4 +29,4 @@ struct scene : public gfx::scene {
 
 }
 
-#endif /* gameLoop_hpp */
+#endif /* game_hpp */

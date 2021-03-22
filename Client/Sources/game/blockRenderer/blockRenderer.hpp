@@ -9,6 +9,7 @@
 #define blockRenderer_hpp
 
 #include <Graphics/graphics.hpp>
+#include "game.hpp"
 
 namespace blockRenderer {
 
@@ -46,7 +47,8 @@ void prepare();
 void render();
 void close();
 
-struct module : public gfx::sceneModule {
+struct module : public gfx::sceneModule<game::scene> {
+    using gfx::sceneModule<game::scene>::sceneModule;
     void init();
     void render();
     void stop();

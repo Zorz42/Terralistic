@@ -109,8 +109,8 @@ void render(const textInput& b);
 
 struct scene;
 
-struct sceneModule {
-    virtual ~sceneModule() {}
+struct _sceneModule {
+    virtual ~_sceneModule() {}
     
     virtual void init() {}
     virtual void refresh() {}
@@ -119,6 +119,12 @@ struct sceneModule {
     virtual void stop() {}
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
+};
+
+template <class parent_scene>
+struct sceneModule : public _sceneModule {
+    parent_scene* scene;
+    sceneModule(parent_scene* scene) : scene(scene) {}
 };
 
 struct scene {
@@ -132,7 +138,7 @@ struct scene {
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
     std::vector<textInput*> text_inputs;
-    std::vector<sceneModule*> modules;
+    std::vector<_sceneModule*> modules;
     
     void _init();
     void _onKeyDown(key key_);

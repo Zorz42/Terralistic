@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <algorithm>
 #include "worldSelector.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "worldCreator.hpp"
 
 #undef main
@@ -189,7 +189,7 @@ void worldSelector::scene::onKeyDown(gfx::key key) {
         else
             for(const world_to_select& i : worlds) {
                 if(i.button.isHovered())
-                    gfx::switchScene(new gameLoop::scene(i.name, false));
+                    gfx::switchScene(new game::scene(i.name, false));
                 else if(i.delete_button.isHovered()) {
                     fileSystem::removeFile(fileSystem::getWorldsPath() + i.name + ".world");
                     refresh();

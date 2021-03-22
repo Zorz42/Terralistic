@@ -9,10 +9,12 @@
 #define otherPlayers_hpp
 
 #include <Graphics/graphics.hpp>
+#include "game.hpp"
 
 namespace players {
 
-struct module : public gfx::sceneModule {
+struct module : public gfx::sceneModule<game::scene> {
+    using gfx::sceneModule<game::scene>::sceneModule;
     void init();
     void render();
 };

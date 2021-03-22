@@ -25,7 +25,7 @@
 		1661661625EA3689002A3815 /* networkingModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* networkingModule.cpp */; };
 		1661661725EA3689002A3815 /* blockEngineNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A025E9607800D26060 /* blockEngineNet.cpp */; };
 		1661661825EA3689002A3815 /* itemEngineNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A225E9607800D26060 /* itemEngineNet.cpp */; };
-		1661661925EA3689002A3815 /* gameLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A325E9607800D26060 /* gameLoop.cpp */; };
+		1661661925EA3689002A3815 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A325E9607800D26060 /* game.cpp */; };
 		1661661A25EA3689002A3815 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A625E9607800D26060 /* worldSaver.cpp */; };
 		1661661B25EA3689002A3815 /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A925E9607800D26060 /* pauseScreen.cpp */; };
 		1661661C25EA3689002A3815 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AB25E9607800D26060 /* playerHandler.cpp */; };
@@ -108,7 +108,7 @@
 		1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A925E9607800D26060 /* pauseScreen.cpp */; };
 		1691250725F6BCD500F7EB4F /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AB25E9607800D26060 /* playerHandler.cpp */; };
 		1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B525E9607800D26060 /* blockSelector.cpp */; };
-		1691250A25F6BCD500F7EB4F /* gameLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A325E9607800D26060 /* gameLoop.cpp */; };
+		1691250A25F6BCD500F7EB4F /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A325E9607800D26060 /* game.cpp */; };
 		1691250B25F6BCD500F7EB4F /* startMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968BA25E9607800D26060 /* startMenu.cpp */; };
 		1691250C25F6BCD500F7EB4F /* multiplayerSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968BC25E9607800D26060 /* multiplayerSelector.cpp */; };
 		1691250D25F6BCD500F7EB4F /* worldCreator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C025E9607800D26060 /* worldCreator.cpp */; };
@@ -234,12 +234,12 @@
 		1689689925E9607800D26060 /* otherPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = otherPlayers.hpp; sourceTree = "<group>"; };
 		1689689B25E9607800D26060 /* generatingScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = generatingScreen.hpp; sourceTree = "<group>"; };
 		1689689C25E9607800D26060 /* generatingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = generatingScreen.cpp; sourceTree = "<group>"; };
-		1689689D25E9607800D26060 /* gameLoop.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = gameLoop.hpp; sourceTree = "<group>"; };
+		1689689D25E9607800D26060 /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game.hpp; sourceTree = "<group>"; };
 		1689689F25E9607800D26060 /* networkingModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = networkingModule.cpp; sourceTree = "<group>"; };
 		168968A025E9607800D26060 /* blockEngineNet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockEngineNet.cpp; sourceTree = "<group>"; };
 		168968A125E9607800D26060 /* networkingModule.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = networkingModule.hpp; sourceTree = "<group>"; };
 		168968A225E9607800D26060 /* itemEngineNet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemEngineNet.cpp; sourceTree = "<group>"; };
-		168968A325E9607800D26060 /* gameLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameLoop.cpp; sourceTree = "<group>"; };
+		168968A325E9607800D26060 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
 		168968A525E9607800D26060 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
 		168968A625E9607800D26060 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
 		168968A825E9607800D26060 /* pauseScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = pauseScreen.hpp; sourceTree = "<group>"; };
@@ -385,7 +385,7 @@
 		1689686F25E9607800D26060 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				1689689325E9607800D26060 /* gameLoop */,
+				1689689325E9607800D26060 /* game */,
 				168968B725E9607800D26060 /* menus */,
 				168968C425E9607800D26060 /* main */,
 			);
@@ -505,10 +505,11 @@
 			path = events;
 			sourceTree = "<group>";
 		};
-		1689689325E9607800D26060 /* gameLoop */ = {
+		1689689325E9607800D26060 /* game */ = {
 			isa = PBXGroup;
 			children = (
-				1689689425E9607800D26060 /* renderer */,
+				16E6357725EACCBD0025A8B4 /* itemRenderer */,
+				16E6357525EAC8140025A8B4 /* blockRenderer */,
 				1689689725E9607800D26060 /* otherPlayers */,
 				1689689A25E9607800D26060 /* generatingScreen */,
 				1689689E25E9607800D26060 /* networkingModule */,
@@ -516,19 +517,10 @@
 				168968A725E9607800D26060 /* pauseScreen */,
 				168968AA25E9607800D26060 /* playerHandler */,
 				168968B425E9607800D26060 /* blockSelector */,
-				1689689D25E9607800D26060 /* gameLoop.hpp */,
-				168968A325E9607800D26060 /* gameLoop.cpp */,
+				1689689D25E9607800D26060 /* game.hpp */,
+				168968A325E9607800D26060 /* game.cpp */,
 			);
-			path = gameLoop;
-			sourceTree = "<group>";
-		};
-		1689689425E9607800D26060 /* renderer */ = {
-			isa = PBXGroup;
-			children = (
-				16E6357725EACCBD0025A8B4 /* itemRenderer */,
-				16E6357525EAC8140025A8B4 /* blockRenderer */,
-			);
-			path = renderer;
+			path = game;
 			sourceTree = "<group>";
 		};
 		1689689725E9607800D26060 /* otherPlayers */ = {
@@ -912,7 +904,7 @@
 				1661661625EA3689002A3815 /* networkingModule.cpp in Sources */,
 				1661661725EA3689002A3815 /* blockEngineNet.cpp in Sources */,
 				1661661825EA3689002A3815 /* itemEngineNet.cpp in Sources */,
-				1661661925EA3689002A3815 /* gameLoop.cpp in Sources */,
+				1661661925EA3689002A3815 /* game.cpp in Sources */,
 				1661661A25EA3689002A3815 /* worldSaver.cpp in Sources */,
 				1661661B25EA3689002A3815 /* pauseScreen.cpp in Sources */,
 				1661661C25EA3689002A3815 /* playerHandler.cpp in Sources */,
@@ -964,7 +956,7 @@
 				1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */,
 				1691250725F6BCD500F7EB4F /* playerHandler.cpp in Sources */,
 				1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */,
-				1691250A25F6BCD500F7EB4F /* gameLoop.cpp in Sources */,
+				1691250A25F6BCD500F7EB4F /* game.cpp in Sources */,
 				1691250B25F6BCD500F7EB4F /* startMenu.cpp in Sources */,
 				1691250C25F6BCD500F7EB4F /* multiplayerSelector.cpp in Sources */,
 				1691250D25F6BCD500F7EB4F /* worldCreator.cpp in Sources */,

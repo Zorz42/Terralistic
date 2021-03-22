@@ -10,7 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include "worldCreator.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "main.hpp"
 #include "init.hpp"
 
@@ -119,7 +119,7 @@ void worldCreator::scene::onKeyDown(gfx::key key) {
         if(back_button.isHovered())
             gfx::returnFromScene();
         else if(create_button.isHovered())
-            gfx::switchScene(new gameLoop::scene(world_name_input.getText(), false));
+            gfx::switchScene(new game::scene(world_name_input.getText(), false));
     }
 }
 

@@ -8,7 +8,7 @@
 #include "core.hpp"
 
 #include "pauseScreen.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "init.hpp"
 #include <Graphics/graphics.hpp>
 

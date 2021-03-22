@@ -8,7 +8,7 @@
 #include "core.hpp"
 
 #include "startMenu.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
 #include "main.hpp"

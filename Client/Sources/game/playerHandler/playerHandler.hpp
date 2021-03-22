@@ -9,24 +9,20 @@
 #define movementHandler_hpp
 
 #include <Graphics/graphics.hpp>
+#include "game.hpp"
 
 namespace playerHandler {
 
-struct module : public gfx::sceneModule {
+struct module : public gfx::sceneModule<game::scene> {
+    using gfx::sceneModule<game::scene>::sceneModule;
     void onKeyUp(gfx::key key);
     void onKeyDown(gfx::key key);
+    void init();
+    void update();
+    void render();
 };
 
-void onKeyUp(gfx::key key);
-void onKeyDown(gfx::key key);
-void move();
-void render();
-void doPhysics();
-void prepare();
-void lookForItems();
-
 inline int view_x, view_y;
-
 inline gfx::sprite player;
 
 void selectSlot(char slot);

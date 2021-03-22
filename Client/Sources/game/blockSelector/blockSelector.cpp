@@ -10,7 +10,7 @@
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "blockRenderer.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
@@ -55,7 +55,7 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void rightClickEvent(unsigned short x, unsigned short y) {
-    if(gameLoop::online) {
+    if(game::online) {
         packets::packet packet(packets::RIGHT_CLICK);
         packet << x << y;
         networking::sendPacket(packet);
@@ -72,7 +72,7 @@ void leftClickEvent(unsigned short x, unsigned short y) {
         click_events[block->block_id].leftClickEvent(block);
     else {
         block->setBreakProgress(block->break_progress_ms + gfx::frame_length);
-        if(!gameLoop::online && block->break_progress_ms >= block->getUniqueBlock().break_time)
+        if(!game::online && block->break_progress_ms >= block->getUniqueBlock().break_time)
             block->break_block();
     }
 }
@@ -81,7 +81,7 @@ bool collidingWithPlayer() {
     return gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect());
 }
 
-void blockSelector::render() {
+void blockSelector::module::render() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && left_button_pressed) {
         packets::packet packet(packets::STARTED_BREAKING);
         packet << selected_block_x << selected_block_y;
@@ -90,7 +90,7 @@ void blockSelector::render() {
         prev_selected_y = selected_block_y;
     }
     
-    if(left_button_pressed && !gameLoop::online)
+    if(left_button_pressed && !game::online)
         leftClickEvent(selected_block_x, selected_block_y);
     
     if(!playerHandler::hovered) {
@@ -102,7 +102,7 @@ void blockSelector::render() {
     }
 }
 
-void blockSelector::onKeyDown(gfx::key key) {
+void blockSelector::module::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         left_button_pressed = true;
         prev_selected_x = blockEngine::world_width;
@@ -111,7 +111,7 @@ void blockSelector::onKeyDown(gfx::key key) {
         rightClickEvent(selected_block_x, selected_block_y);
 }
 
-void blockSelector::onKeyUp(gfx::key key) {
+void blockSelector::module::onKeyUp(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         left_button_pressed = false;
         packets::packet packet(packets::STOPPED_BREAKING);

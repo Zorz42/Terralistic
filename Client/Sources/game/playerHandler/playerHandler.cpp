@@ -10,7 +10,7 @@
 
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "itemRenderer.hpp"
 #include "blockRenderer.hpp"
 
@@ -54,8 +54,8 @@ INIT_SCRIPT_END
 
 bool isPlayerColliding();
 
-void playerHandler::prepare() {
-    if(!gameLoop::online) {
+void playerHandler::module::init() {
+    if(!game::online) {
         position_x = blockEngine::getSpawnX();
         position_y = blockEngine::getSpawnY() - player.getHeight() / 2;
     }
@@ -71,7 +71,7 @@ void playerHandler::prepare() {
 
 static bool key_left = false, key_right = false;
 
-void playerHandler::onKeyDown(gfx::key key) {
+void playerHandler::module::onKeyDown(gfx::key key) {
     switch(key) {
         case gfx::KEY_SPACE:
             if(!key_up) {
@@ -126,7 +126,7 @@ void playerHandler::onKeyDown(gfx::key key) {
     }
 }
 
-void playerHandler::onKeyUp(gfx::key key) {
+void playerHandler::module::onKeyUp(gfx::key key) {
     switch (key) {
         case gfx::KEY_SPACE:
             if(key_up) {
@@ -185,7 +185,10 @@ bool touchingGround() {
     return result;
 }
 
-void playerHandler::move() {
+void playerHandler::module::update() {
+    // gravity
+    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + gfx::frame_length / 4);
+    
     int move_x = velocity_x * gfx::frame_length / 100, move_y = velocity_y * gfx::frame_length / 100;
     
     for(int i = 0; i < move_x; i++) {
@@ -234,11 +237,19 @@ void playerHandler::move() {
     if(view_y >= blockEngine::world_height * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
         view_y = blockEngine::world_height * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
     
-    if(gameLoop::online && (move_x || move_y)) {
+    if(game::online && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
         packet << position_x << position_y << (char)/*player.flipped*/ false;
         networking::sendPacket(packet);
     }
+    
+    // look for items to be picked up
+    if(!game::online)
+        for(unsigned long i = 0; i < itemEngine::items.size(); i++)
+            if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1) {
+                itemEngine::items[i].destroy();
+                itemEngine::items.erase(itemEngine::items.begin() + i);
+            }
 }
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
@@ -259,7 +270,7 @@ void updateStackTexture(int i) {
     }
 }
 
-void playerHandler::render() {
+void playerHandler::module::render() {
     player.x = position_x - view_x;
     player.y = position_y - view_y;
     gfx::render(player);
@@ -298,23 +309,11 @@ void playerHandler::render() {
     renderItem(player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
 
-void playerHandler::doPhysics() {
-    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + gfx::frame_length / 4);
-}
-
 void playerHandler::selectSlot(char slot) {
     player_inventory.selected_slot = slot;
     packets::packet packet(packets::HOTBAR_SELECTION);
     packet << slot;
     networking::sendPacket(packet);
-}
-
-void playerHandler::lookForItems() {
-    for(unsigned long i = 0; i < itemEngine::items.size(); i++)
-        if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1) {
-            itemEngine::items[i].destroy();
-            itemEngine::items.erase(itemEngine::items.begin() + i);
-        }
 }
 
 PACKET_LISTENER(packets::INVENTORY_CHANGE)
