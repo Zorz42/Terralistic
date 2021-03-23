@@ -14,8 +14,6 @@
 
 namespace startMenu {
 
-void main();
-
 struct scene : public gfx::scene {
     void onKeyDown(gfx::key key);
     void render();

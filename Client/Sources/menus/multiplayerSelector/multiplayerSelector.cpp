@@ -10,7 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include "multiplayerSelector.hpp"
-#include "gameLoop.hpp"
+#include "game.hpp"
 #include "main.hpp"
 #include "init.hpp"
 

@@ -58,7 +58,7 @@ struct image {
     void setTexture(void* surface);
     void* getTexture() const { return texture; }
     ~image();
-    bool free_texture = true;
+    bool free_texture = true, flipped = false;
     unsigned short getTextureWidth() const;
     unsigned short getTextureHeight() const;
     unsigned char scale = 1;
@@ -107,16 +107,42 @@ void render(const sprite& spr);
 void render(const button& b);
 void render(const textInput& b);
 
-struct scene {
-    virtual ~scene() { stop(); }
+struct scene;
+
+struct _sceneModule {
+    virtual ~_sceneModule() {}
     
     virtual void init() {}
+    virtual void refresh() {}
+    virtual void update() {}
+    virtual void render() {}
+    virtual void stop() {}
+    virtual void onKeyDown(key key_) {}
+    virtual void onKeyUp(key key_) {}
+};
+
+template <class parent_scene>
+struct sceneModule : public _sceneModule {
+    parent_scene* scene;
+    sceneModule(parent_scene* scene) : scene(scene) {}
+};
+
+struct scene {
+    virtual ~scene();
+    
+    virtual void init() {}
+    virtual void refresh() {}
     virtual void update() {}
     virtual void render() {}
     virtual void stop() {}
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
     std::vector<textInput*> text_inputs;
+    std::vector<_sceneModule*> modules;
+    
+    void _init();
+    void _onKeyDown(key key_);
+    void _onKeyUp(key key_);
 };
 
 void switchScene(scene* x);

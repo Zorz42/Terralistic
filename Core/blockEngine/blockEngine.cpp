@@ -7,6 +7,9 @@
 
 #include "core.hpp"
 
+static blockEngine::chunkState *chunk_states;
+static blockEngine::block *blocks;
+
 INIT_SCRIPT
     using namespace blockEngine;
     unique_blocks = {
@@ -21,13 +24,21 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void blockEngine::prepare() {
-    chunks = new chunk[(world_width >> 4) * (world_height >> 4)];
+    chunk_states = new chunkState[(world_width >> 4) * (world_height >> 4)];
     blocks = new block[world_width * world_height];
 }
 
 void blockEngine::close() {
-    delete[] chunks;
+    delete[] chunk_states;
     delete[] blocks;
+}
+
+unsigned short blockEngine::block::getX() const {
+    return (unsigned int)(this - blocks) % world_width;
+}
+
+unsigned short blockEngine::block::getY() const {
+    return (unsigned int)(this - blocks) / world_width;
 }
 
 blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
@@ -35,9 +46,9 @@ blockEngine::block& blockEngine::getBlock(unsigned short x, unsigned short y) {
     return blocks[y * world_width + x];
 }
 
-blockEngine::chunk& blockEngine::getChunk(unsigned short x, unsigned short y) {
+blockEngine::chunkState& blockEngine::getChunkState(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < (world_height >> 4) && x >= 0 && x < (world_width >> 4), "requested chunk is out of bounds");
-    return chunks[y * (world_width >> 4) + x];
+    return chunk_states[y * (world_width >> 4) + x];
 }
 
 void blockEngine::prepareWorld() {

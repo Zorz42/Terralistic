@@ -9,16 +9,43 @@
 
 #include <iostream>
 
-gfx::scene* used_scene = nullptr;
+static gfx::scene* used_scene = nullptr;
 
 void gfx::switchScene(scene* x) {
-    x->init();
+    x->_init();
+    x->refresh();
     scene_stack.push(x);
     used_scene = x;
 }
 
 void gfx::returnFromScene() {
     scene_stack.pop();
+}
+
+gfx::scene::~scene() {
+    stop();
+    for(_sceneModule* module : modules) {
+        module->stop();
+        delete module;
+    }
+}
+
+void gfx::scene::_init() {
+    init();
+    for(_sceneModule* module : modules)
+        module->init();
+}
+
+void gfx::scene::_onKeyDown(key key_) {
+    onKeyDown(key_);
+    for(_sceneModule* module : modules)
+        module->onKeyDown(key_);
+}
+
+void gfx::scene::_onKeyUp(key key_) {
+    onKeyUp(key_);
+    for(_sceneModule* module : modules)
+        module->onKeyUp(key_);
 }
 
 gfx::key translateMouseKey(int sdl_button) {
@@ -79,6 +106,7 @@ void gfx::runScenes() {
         if(used_scene != scene_stack.top()) {
             delete used_scene;
             used_scene = scene_stack.top();
+            used_scene->refresh();
         }
         
         while(SDL_PollEvent(&event)) {
@@ -95,11 +123,11 @@ void gfx::runScenes() {
                     for(textInput* i : used_scene->text_inputs)
                         i->active = i->isHovered();
                 if(key != KEY_UNKNOWN)
-                    used_scene->onKeyDown(key);
+                    used_scene->_onKeyDown(key);
             } else if(event.type == SDL_MOUSEBUTTONUP) {
                 gfx::key key = translateMouseKey(event.button.button);
                 if(key != KEY_UNKNOWN)
-                    used_scene->onKeyUp(key);
+                    used_scene->_onKeyUp(key);
             } else if(event.type == SDL_KEYDOWN) {
                 gfx::key key = translateMouseKey(event.key.keysym.sym);
                 if(event.key.keysym.sym == SDLK_BACKSPACE)
@@ -114,11 +142,11 @@ void gfx::runScenes() {
                             }
                         }
                 if(key != KEY_UNKNOWN)
-                    used_scene->onKeyDown(key);
+                    used_scene->_onKeyDown(key);
             } else if(event.type == SDL_KEYUP) {
                 gfx::key key = translateMouseKey(event.key.keysym.sym);
                 if(key != KEY_UNKNOWN)
-                    used_scene->onKeyUp(key);
+                    used_scene->_onKeyUp(key);
             } else if(event.type == SDL_TEXTINPUT) {
                 std::string c = event.text.text;
                 for(textInput* i : used_scene->text_inputs)
@@ -128,9 +156,13 @@ void gfx::runScenes() {
         }
         
         used_scene->update();
+        for(_sceneModule* module : used_scene->modules)
+            module->update();
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
         
+        for(_sceneModule* module : used_scene->modules)
+            module->render();
         used_scene->render();
         
         SDL_RenderPresent(renderer);

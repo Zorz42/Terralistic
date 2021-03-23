@@ -15,8 +15,6 @@
 
 namespace blockEngine {
 
-struct block;
-
 struct uniqueBlock {
     bool ghost, only_on_floor, transparent;
     
@@ -56,22 +54,17 @@ public:
     void break_block();
 };
 
-struct chunk {
-    bool loaded = false, pending_load = false;
-};
+enum chunkState {unloaded, pending_load, loaded};
 
 void prepare();
 void prepareWorld();
 void close();
 
 inline unsigned short world_width = 4400, world_height = 1200;
-inline chunk *chunks;
-inline block *blocks;
-
 inline std::vector<uniqueBlock> unique_blocks;
 
 block& getBlock(unsigned short x, unsigned short y);
-chunk& getChunk(unsigned short x, unsigned short y);
+chunkState& getChunkState(unsigned short x, unsigned short y);
 
 void removeNaturalLight(unsigned short x);
 void setNaturalLight(unsigned short x);
