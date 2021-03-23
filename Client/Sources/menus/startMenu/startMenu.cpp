@@ -41,6 +41,8 @@ void startMenu::scene::onKeyDown(gfx::key key) {
             gfx::returnFromScene();
         else if(singleplayer_button.isHovered())
             gfx::switchScene(new worldSelector::scene());
+        else if(multiplayer_button.isHovered())
+            gfx::switchScene(new multiplayerSelector::scene());
     }
 }
 

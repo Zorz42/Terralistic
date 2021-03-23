@@ -76,3 +76,7 @@ bool gfx::colliding(gfx::rectShape a, gfx::rectShape b) {
 unsigned int gfx::getTicks() {
     return SDL_GetTicks();
 }
+
+float gfx::getDeltaTime() {
+    return frame_length;
+}

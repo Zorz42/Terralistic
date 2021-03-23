@@ -19,7 +19,7 @@
 
 static gfx::button back_button, create_button;
 static gfx::sprite new_world_title, faded_create;
-static gfx::textInput world_name_input;
+static gfx::textInput world_name;
 
 #define PADDING 20
 
@@ -48,88 +48,31 @@ INIT_SCRIPT
     faded_create.y = -PADDING - 10 * faded_create.scale;
     faded_create.orientation = gfx::bottom;
 
-    world_name_input.scale = 3;
-    world_name_input.orientation = gfx::center;
+    world_name.scale = 3;
+    world_name.orientation = gfx::center;
 INIT_SCRIPT_END
 
-/*void renderTextCreator() {
-    if(!name.empty()) {
-        world_name.loadFromText(name, {255, 255, 255});
-        world_name.setY(short(-world_name.getHeight() / 7));
-    }
-}
-
-void worldCreator::loop(std::vector<std::string> worlds) {
-    bool running = true, can_create;
-    SDL_Event event;
-    name = "";
-    
-    renderTextCreator();
-    
-    while(running && main_::running) {
-        can_create = !name.empty() && !std::count(worlds.begin(), worlds.end(), name);
-        
-        while(SDL_PollEvent(&event)) {
-            SDL_StartTextInput();
-            if(swl::handleBasicEvents(event, &main_::running));
-            else if(can_create && (create_button.isPressed(event) || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN))) {
-                gameLoop::main(name, false);
-                running = false;
-            }
-            else if(back_button_creator.isPressed(event))
-                running = false;
-            else if(event.type == SDL_TEXTINPUT) {
-                char c = event.text.text[0];
-                if(c == ' ')
-                    c = '-';
-                if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-') {
-                    name.push_back(c);
-                    renderTextCreator();
-                }
-            }
-            else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKSPACE && !name.empty()) {
-                name.pop_back();
-                renderTextCreator();
-            }
-        }
-        
-        swl::setDrawColor(0, 0, 0);
-        swl::clear();
-        
-        if(can_create)
-            create_button.render();
-        else
-            faded_create.render();
-        back_button_creator.render();
-        new_world_title.render();
-        if(!name.empty())
-            world_name.render();
-        
-        swl::update();
-    }
-}*/
-
 void worldCreator::scene::init() {
-    world_name_input.setText("");
-    text_inputs = {&world_name_input};
+    world_name.setText("");
+    world_name.active = true;
+    one_time = true;
+    text_inputs = {&world_name};
 }
 
 void worldCreator::scene::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT) {
-        if(back_button.isHovered())
-            gfx::returnFromScene();
-        else if(create_button.isHovered())
-            gfx::switchScene(new game::scene(world_name_input.getText(), false));
-    }
+    if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
+        gfx::returnFromScene();
+    else if((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || key == gfx::KEY_ENTER)
+        gfx::switchScene(new game::scene(world_name.getText(), false));
 }
 
 void worldCreator::scene::render() {
-    can_create = !world_name_input.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name_input.getText());
+    can_create = !world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText());
     if(can_create)
         gfx::render(create_button);
     else
         gfx::render(faded_create);
     gfx::render(back_button);
     gfx::render(new_world_title);
-    gfx::render(world_name_input);
+    gfx::render(world_name);
 }

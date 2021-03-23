@@ -12,10 +12,10 @@
 static gfx::scene* used_scene = nullptr;
 
 void gfx::switchScene(scene* x) {
-    x->_init();
-    x->refresh();
     scene_stack.push(x);
     used_scene = x;
+    used_scene->_init();
+    used_scene->refresh();
 }
 
 void gfx::returnFromScene() {
@@ -91,6 +91,7 @@ gfx::key translateMouseKey(int sdl_button) {
         case SDLK_9: return gfx::KEY_9;
         case SDLK_SPACE: return gfx::KEY_SPACE;
         case SDLK_ESCAPE: return gfx::KEY_ESCAPE;
+        case SDLK_RETURN: return gfx::KEY_ENTER;
         default: return gfx::KEY_UNKNOWN;
     }
 }
@@ -104,8 +105,13 @@ void gfx::runScenes() {
         Uint64 start = SDL_GetPerformanceCounter();
         
         if(used_scene != scene_stack.top()) {
-            delete used_scene;
-            used_scene = scene_stack.top();
+            while(true) {
+                delete used_scene;
+                used_scene = scene_stack.top();
+                if(!used_scene->one_time)
+                    break;
+                scene_stack.pop();
+            }
             used_scene->refresh();
         }
         

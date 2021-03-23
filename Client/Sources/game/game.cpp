@@ -48,8 +48,10 @@ void game::scene::init() {
     blockEngine::prepare();
     
     if(multiplayer) {
-        if(!networking::establishConnection(world_name))
+        if(!networking::establishConnection(world_name)) {
             gfx::returnFromScene();
+            return;
+        }
         networking::startListening();
         for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
             i.setStack(0);
@@ -90,7 +92,7 @@ void game::scene::update() {
     }
     
     if(!online)
-        itemEngine::updateItems(gfx::frame_length);
+        itemEngine::updateItems(gfx::getDeltaTime());
 }
 
 void game::scene::render() {

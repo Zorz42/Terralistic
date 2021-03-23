@@ -187,9 +187,9 @@ bool touchingGround() {
 
 void playerHandler::module::update() {
     // gravity
-    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + gfx::frame_length / 4);
+    velocity_y = touchingGround() && velocity_y >= 0 ? short(0) : short(velocity_y + gfx::getDeltaTime() / 4);
     
-    int move_x = velocity_x * gfx::frame_length / 100, move_y = velocity_y * gfx::frame_length / 100;
+    int move_x = velocity_x * gfx::getDeltaTime() / 100, move_y = velocity_y * gfx::getDeltaTime() / 100;
     
     for(int i = 0; i < move_x; i++) {
         INC_X;
