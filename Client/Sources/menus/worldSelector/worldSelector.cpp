@@ -12,13 +12,8 @@
 #include <dirent.h>
 #include <algorithm>
 #include "worldSelector.hpp"
-#include "singleWindowLibrary.hpp"
-#include "UIKit.hpp"
-#include "gameLoop.hpp"
-#include "fileSystem.hpp"
+#include "game.hpp"
 #include "worldCreator.hpp"
-#include "main.hpp"
-#include "init.hpp"
 
 #undef main
 
@@ -29,118 +24,63 @@
 struct world_to_select {
     std::string name;
     explicit world_to_select(std::string name) : name(std::move(name)) {}
-    ui::button button{ogl::top}, delete_button{ogl::top};
+    gfx::button button, delete_button;
     void render(bool display_hover);
     int button_y{};
 };
-
-int position;
-void world_to_select::render(bool display_hover) {
-    button.y = short(button_y - position);
-    button.render(display_hover);
-    delete_button.y = short(button_y - position + (button.getHeight() - delete_button.getHeight()) / 2);
-    delete_button.render(display_hover);
-}
-
-ogl::texture title(ogl::top);
-SDL_Texture* x_texture = nullptr;
-unsigned short x_width, x_height;
-ui::button back_button(ogl::bottom), new_button(ogl::bottom_right);
-ogl::rect top_rect(ogl::top), bottom_rect(ogl::bottom), top_line_rect(ogl::top), bottom_line_rect(ogl::bottom);
-std::vector<std::string> worlds_names;
-std::vector<world_to_select> worlds;
-int scroll_limit;
 
 #define PADDING 20
 #define TOP_HEIGHT 70
 #define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
 #define LINE_HEIGHT 2
 
+static gfx::sprite title;
+static gfx::image x_image;
+static gfx::button back_button, new_button;
+static gfx::rect top_rect(0, 0, 0, TOP_HEIGHT, {0, 0, 0}), bottom_rect(0, 0, 0, 0, {0, 0, 0}, gfx::bottom_left), top_line_rect(0, TOP_HEIGHT, 0, LINE_HEIGHT, {100, 100, 100}), bottom_line_rect(0, 0, 0, LINE_HEIGHT, {100, 100, 100}, gfx::bottom_left);
+static std::vector<std::string> worlds_names;
+static std::vector<world_to_select> worlds;
+static int scroll_limit, position;
+
+void world_to_select::render(bool display_hover) {
+    button.y = short(button_y - position);
+    gfx::render(button);
+    delete_button.y = short(button_y - position + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
+    gfx::render(delete_button);
+}
+
 INIT_SCRIPT
     // set some dimensions for shapes
     title.scale = 3;
-    title.loadFromText("Select a world to play!", {255, 255, 255});
-    title.setY(PADDING);
+    title.setTexture(gfx::renderText("Select a world to play!", {255, 255, 255}));
+    title.y = PADDING;
+    title.orientation = gfx::top;
     
-    back_button.setColor(0, 0, 0);
-    back_button.setHoverColor(100, 100, 100);
-    back_button.setScale(3);
-    back_button.setText("Back", 255, 255, 255);
+    back_button.scale = 3;
+    back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
     back_button.y = -PADDING;
-    
-    new_button.setColor(0, 0, 0);
-    new_button.setHoverColor(100, 100, 100);
-    new_button.setScale(3);
-    new_button.setText("New", 255, 255, 255);
+    back_button.orientation = gfx::bottom;
+
+    new_button.scale = 3;
+    new_button.setTexture(gfx::renderText("New", {255, 255, 255}));
     new_button.y = -PADDING;
     new_button.x = -PADDING;
-
-    top_rect.setHeight(TOP_HEIGHT);
-    top_rect.setColor(0, 0, 0);
+    new_button.orientation = gfx::bottom_right;
     
-    bottom_rect.setHeight((unsigned short)BOTTOM_HEIGHT);
-    bottom_rect.setColor(0, 0, 0);
+    bottom_rect.h = BOTTOM_HEIGHT;
+    bottom_line_rect.y = -BOTTOM_HEIGHT;
     
-    top_line_rect.setColor(100, 100, 100);
-    top_line_rect.setHeight(LINE_HEIGHT);
-    top_line_rect.setY(TOP_HEIGHT);
-    
-    bottom_line_rect.setColor(100, 100, 100);
-    bottom_line_rect.setHeight(LINE_HEIGHT);
-    bottom_line_rect.setY((short)-BOTTOM_HEIGHT);
-    
-    x_texture = swl::loadTextureFromFile("texturePack/misc/x-button.png", &x_width, &x_height);
+    x_image.setTexture(gfx::loadImageFile("texturePack/misc/x-button.png"));
 INIT_SCRIPT_END
 
 bool ends_with(const std::string& value, std::string ending) {
     return ending.size() <= value.size() && std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-void reload() {
-    // scans for worlds in world folder and sets their positions and renders them
-    position = 0;
-    scroll_limit = 0;
-    
-    worlds.clear();
-    worlds_names.clear();
+bool display_hover;
 
-    std::vector<std::string> banned_dirs = {
-            "..",
-            ".",
-            ".DS_Store",
-    };
-
-    DIR *dir = opendir(fileSystem::worlds_dir.c_str());
-    dirent *ent;
-    while((ent = readdir(dir)) != nullptr) {
-        std::string name = ent->d_name;
-        if(!std::count(banned_dirs.begin(), banned_dirs.end(), name) && ends_with(name, ".world"))
-            worlds.emplace_back(name.substr(0, name.size()-6));
-    }
-    closedir (dir);
-    
-    for(auto& world : worlds) {
-        world.button.setScale(3);
-        world.button.setColor(0, 0, 0);
-        world.button.setHoverColor(100, 100, 100);
-        world.button.setText(world.name, 255, 255, 255);
-        world.button_y = scroll_limit + title.getHeight() + 2 * PADDING;
-        
-        world.delete_button.setFreeTexture(false);
-        world.delete_button.setTexture(x_texture, x_width, x_height);
-        world.delete_button.setScale(3);
-        world.delete_button.setColor(0, 0, 0);
-        world.delete_button.setHoverColor(100, 100, 100);
-        world.delete_button.x = short(world.button.getWidth() / 2 + world.delete_button.getWidth() / 2 + PADDING);
-        
-        scroll_limit += world.button.getHeight() + PADDING;
-        
-        worlds_names.push_back(world.name);
-    }
-}
-
-void worldSelector::loop() {
-    bool running = true, display_hover;
+/*void worldSelector::loop() {
+    bool running = true;
     SDL_Event event;
     
     reload();
@@ -197,4 +137,83 @@ void worldSelector::loop() {
         
         swl::update();
     }
+}*/
+
+void worldSelector::scene::refresh() {
+    // scans for worlds in world folder and sets their positions and renders them
+    position = 0;
+    scroll_limit = 0;
+    
+    worlds.clear();
+    worlds_names.clear();
+
+    std::vector<std::string> ignored_dirs = {
+            ".",
+            "..",
+            ".DS_Store",
+    };
+
+    DIR *dir = opendir(fileSystem::getWorldsPath().c_str());
+    dirent *ent;
+    while((ent = readdir(dir)) != nullptr) {
+        std::string name = ent->d_name;
+        if(!std::count(ignored_dirs.begin(), ignored_dirs.end(), name) && ends_with(name, ".world"))
+            worlds.emplace_back(name.substr(0, name.size()-6));
+    }
+    closedir (dir);
+    
+    for(auto& world : worlds) {
+        world.button.orientation = gfx::top;
+        world.button.scale = 3;
+        world.button.setTexture(gfx::renderText(world.name, {255, 255, 255}));
+        world.button_y = scroll_limit + title.getTranslatedRect().h + 2 * PADDING;
+        
+        world.delete_button.orientation = gfx::top;
+        world.delete_button.free_texture = false;
+        world.delete_button.setTexture(x_image.getTexture());
+        world.delete_button.scale = 3;
+        world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + PADDING);
+        
+        scroll_limit += world.button.getTranslatedRect().h + PADDING;
+        
+        worlds_names.push_back(world.name);
+    }
+}
+
+void worldSelector::scene::onKeyDown(gfx::key key) {
+    if(key == gfx::KEY_MOUSE_LEFT) {
+        if(back_button.isHovered())
+            gfx::returnFromScene();
+        else if(new_button.isHovered())
+            gfx::switchScene(new worldCreator::scene(worlds_names));
+        else
+            for(const world_to_select& i : worlds) {
+                if(i.button.isHovered())
+                    gfx::switchScene(new game::scene(i.name, false));
+                else if(i.delete_button.isHovered()) {
+                    fileSystem::removeFile(fileSystem::getWorldsPath() + i.name + ".world");
+                    refresh();
+                }
+            }
+    }
+}
+
+void worldSelector::scene::render() {
+    display_hover = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
+    
+    for(world_to_select& world : worlds)
+        world.render(display_hover);
+    
+    top_rect.w = gfx::getWindowWidth();
+    bottom_rect.w = gfx::getWindowWidth();
+    top_line_rect.w = gfx::getWindowWidth();
+    bottom_line_rect.w = gfx::getWindowWidth();
+    
+    gfx::render(top_rect);
+    gfx::render(bottom_rect);
+    gfx::render(top_line_rect);
+    gfx::render(bottom_line_rect);
+    gfx::render(title);
+    gfx::render(back_button);
+    gfx::render(new_button);
 }

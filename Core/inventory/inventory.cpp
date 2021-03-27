@@ -44,3 +44,8 @@ void inventory::inventory::clearMouseItem() {
     mouse_item.item_id = itemEngine::NOTHING;
     mouse_item.setStack(0);
 }
+
+void inventory::inventory::clear() {
+    for(inventoryItem& i : inventory)
+        i.setStack(0);
+}

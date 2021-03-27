@@ -7,23 +7,23 @@
 
 #include "core.hpp"
 
-#include "singleWindowLibrary.hpp"
+#include "main.hpp"
 #include "startMenu.hpp"
 
 int main(int argc, char **argv) {
-    // initialize singleWindowLibrary and set resource path, which is a part of file loading in singleWindowLibrary
-
-    swl::init();
-    swl::resourcePath = fileSystem::getResourcePath(argv[0]);
-    swl::loadFont("pixel_font.ttf", 8);
-    swl::setWindowMinimumSize(swl::window_width, swl::window_height);
+    // initialize graphics and set resource path, which is a part of file loading in graphics
+    
+    gfx::init(1000, 600);
+    gfx::loadFont("pixel_font.ttf", 8);
+    gfx::resource_path = fileSystem::getResourcePath(argv[0]);
+    gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
     init::initModules();
     
-    // go to start menu
-    startMenu::loop();
+    gfx::switchScene(new startMenu::scene());
+    gfx::runScenes();
     
-    // exit
-    swl::quit();
+    gfx::quit();
+    
     return 0;
 }

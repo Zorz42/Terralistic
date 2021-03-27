@@ -7,12 +7,12 @@
 		<key>Graphics-Debug.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>2</integer>
 		</dict>
 		<key>Graphics.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>3</integer>
 		</dict>
 		<key>Terralistic-Debug.xcscheme_^#shared#^_</key>
 		<dict>
@@ -33,6 +33,16 @@
 			<true/>
 		</dict>
 		<key>1689685525E95FD000D26060</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>1691248725F6B2CE00F7EB4F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>169124BE25F6B89700F7EB4F</key>
 		<dict>
 			<key>primary</key>
 			<true/>

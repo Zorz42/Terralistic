@@ -10,10 +10,14 @@
 
 #undef main
 
+#include <Graphics/graphics.hpp>
+
 namespace startMenu {
 
-void loop();
+struct scene : public gfx::scene {
+    void onKeyDown(gfx::key key);
+    void render();
+};
 
 }
-
 #endif /* startMenu_hpp */

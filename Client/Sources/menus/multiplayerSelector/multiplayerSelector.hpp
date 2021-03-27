@@ -8,9 +8,15 @@
 #ifndef multiplayerSelector_hpp
 #define multiplayerSelector_hpp
 
+#include <Graphics/graphics.hpp>
+
 namespace multiplayerSelector {
 
-void loop();
+struct scene : gfx::scene {
+    void init();
+    void onKeyDown(gfx::key key);
+    void render();
+};
 
 }
 

@@ -7,10 +7,9 @@
 
 #include "core.hpp"
 
-std::random_device device;
-
 void itemEngine::item::create(itemType item_id_, int x_, int y_, unsigned short id_) {
-    std::mt19937 engine(device());
+    static std::random_device device;
+    static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
     velocity_y = -int(engine() % 100) - 50;
     

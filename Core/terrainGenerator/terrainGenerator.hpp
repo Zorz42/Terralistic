@@ -14,7 +14,6 @@ namespace terrainGenerator {
 
 int generateTerrainDaemon(unsigned int seed);
 inline long loading_current = 0, loading_total = -1;
-double turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, PerlinNoise noise);
 
 }
 

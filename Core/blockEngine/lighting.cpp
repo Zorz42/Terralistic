@@ -36,13 +36,13 @@ void blockEngine::block::light_update(bool update) {
     if(update)
         to_update_light = false;
     block* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
-    if(x != 0 && getChunk((x - 1) >> 4, y >> 4).loaded)
+    if(x != 0 && getChunkState((x - 1) >> 4, y >> 4) == blockEngine::loaded)
         neighbors[0] = &getBlock(x - 1, y);
-    if(x != blockEngine::world_width - 1 && getChunk((x + 1) >> 4, y >> 4).loaded)
+    if(x != blockEngine::world_width - 1 && getChunkState((x + 1) >> 4, y >> 4) == blockEngine::loaded)
         neighbors[1] = &getBlock(x + 1, y);
-    if(y != 0 && getChunk(x >> 4, (y - 1) >> 4).loaded)
+    if(y != 0 && getChunkState(x >> 4, (y - 1) >> 4) == blockEngine::loaded)
         neighbors[2] = &getBlock(x, y - 1);
-    if(y != blockEngine::world_height - 1 && getChunk(x >> 4, (y + 1) >> 4).loaded)
+    if(y != blockEngine::world_height - 1 && getChunkState(x >> 4, (y + 1) >> 4) == blockEngine::loaded)
         neighbors[3] = &getBlock(x, y + 1);
     bool update_neighbors = false;
     if(!light_source) {

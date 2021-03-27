@@ -14,23 +14,28 @@
 #include <unistd.h>
 #endif
 
-struct stat info;
+static std::string data_path;
 
 // most of the functions explain themselves
 
-bool fileSystem::dirExists(const std::string& path) {
-    return stat(path.c_str(), &info ) == 0 && info.st_mode & S_IFDIR;
+INIT_SCRIPT
+    // data path is path in filesystem, where terralistic worlds are saved and other things
+    data_path = sago::getDataHome() + "/Terralistic/";
+    
+    fileSystem::createDirIfNotExists(data_path);
+    
+    std::string dirs_to_create[] = {fileSystem::getWorldsPath()};
+    
+    for(const std::string& dir : dirs_to_create)
+        fileSystem::createDirIfNotExists(dir);
+INIT_SCRIPT_END
+
+std::string fileSystem::getDataPath() {
+    return data_path;
 }
 
-void fileSystem::createDirIfNotExists(const std::string& path) {
-    if(!dirExists(path)) {
-    #if defined(_WIN32)
-        mkdir(path.c_str()); // can be used on Windows
-    #else
-        mode_t nMode = 0733; // UNIX style permissions
-        mkdir(path.c_str(), nMode); // can be used on non-Windows
-    #endif
-    }
+std::string fileSystem::getWorldsPath() {
+    return data_path + "worlds/";
 }
 
 std::string fileSystem::getResourcePath(std::string executable_path) {
@@ -44,19 +49,6 @@ std::string fileSystem::getResourcePath(std::string executable_path) {
     }
     return parent_directory == "MacOS" ? executable_path + "Resources/" : executable_path + parent_directory + "/Resources/";
 }
-
-INIT_SCRIPT
-    // data path is path in filesystem, where terralistic worlds are saved and other things
-    fileSystem::data_path = sago::getDataHome() + "/Terralistic/";
-    
-    fileSystem::createDirIfNotExists(fileSystem::data_path);
-    
-    fileSystem::worlds_dir = fileSystem::data_path + "worlds/";
-    std::string dirs_to_create[] = {fileSystem::worlds_dir};
-    
-    for(const std::string& dir : dirs_to_create)
-        fileSystem::createDirIfNotExists(dir);
-INIT_SCRIPT_END
 
 int fileSystem::removeDir(const std::string &path) {
     DIR *d = opendir(path.c_str());
@@ -102,5 +94,22 @@ void fileSystem::removeFile(const std::string &path) {
 }
 
 bool fileSystem::fileExists(const std::string& path) {
+    static struct stat info;
     return !stat(path.c_str(), &info);
+}
+
+bool fileSystem::dirExists(const std::string& path) {
+    static struct stat info;
+    return stat(path.c_str(), &info) == 0 && info.st_mode & S_IFDIR;
+}
+
+void fileSystem::createDirIfNotExists(const std::string& path) {
+    if(!dirExists(path)) {
+    #if defined(_WIN32)
+        mkdir(path.c_str()); // can be used on Windows
+    #else
+        mode_t nMode = 0733; // UNIX style permissions
+        mkdir(path.c_str(), nMode); // can be used on non-Windows
+    #endif
+    }
 }
