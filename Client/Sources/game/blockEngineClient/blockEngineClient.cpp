@@ -129,7 +129,7 @@ void blockRenderer::module::render() {
             if(blockEngine::getChunkState(x, y) == blockEngine::unloaded && !has_requested) {
                 packets::packet packet(packets::CHUNK);
                 packet << y << x;
-                networking::sendPacket(packet);
+                scene->networking_manager.sendPacket(packet);
                 blockEngine::getChunkState(x, y) = blockEngine::pending_load;
                 has_requested = true;
             } else if(blockEngine::getChunkState(x, y) == blockEngine::loaded) {

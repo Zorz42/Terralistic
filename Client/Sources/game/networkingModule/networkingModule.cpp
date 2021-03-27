@@ -21,11 +21,8 @@
 #include "game.hpp"
 #include "playerHandler.hpp"
 
-#define BUFFER_SIZE 1024
 #define PORT 33770
 #define PORT_STR #PORT
-
-int sock;
 
 struct packet_listener {
     networking::listenerFunction function;
@@ -37,7 +34,7 @@ std::vector<packet_listener>& getListeners() {
     return listeners;
 }
 
-// packet listener is a function that gets executed every time a certain type of packet is received
+// packet listener is a function that gets executed every time a certain type of packet is received1
 
 networking::registerPacketListener::registerPacketListener(packets::packetType type, listenerFunction function) {
     packet_listener new_listener{};
@@ -46,11 +43,16 @@ networking::registerPacketListener::registerPacketListener(packets::packetType t
     getListeners().push_back(new_listener);
 }
 
-void networking::sendPacket(packets::packet packet_) {
+void networking::networkingManager::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, std::move(packet_));
 }
 
-bool networking::establishConnection(const std::string &ip) {
+void networking::networkingManager::listenerLoop(networking::networkingManager* manager) {
+    while(manager->listener_running)
+        manager->packet_queue.push_back(packets::getPacket(manager->sock));
+}
+
+bool networking::networkingManager::startListening(const std::string &ip) {
     #ifdef WIN32
     WSADATA wsaData;
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
@@ -77,29 +79,15 @@ bool networking::establishConnection(const std::string &ip) {
     if(connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
         return false;
     #endif
-    
+
     sendPacket(packets::PLAYER_JOIN);
+    
+    std::thread listener = std::thread(listenerLoop, this);
+    listener.detach();
     
     return true;
 }
 
-static bool listener_running;
-
-void listenerLoop() {
-    while(listener_running) {
-        packets::packet packet = packets::getPacket(sock);
-        for(packet_listener& i : getListeners())
-            if(i.type == packet.type)
-                i.function(packet);
-    }
-}
-
-void networking::startListening() {
-    listener_running = true;
-    std::thread listener = std::thread(listenerLoop);
-    listener.detach();
-}
-
-void networking::stopListening() {
+void networking::networkingManager::stopListening() {
     listener_running = false;
 }

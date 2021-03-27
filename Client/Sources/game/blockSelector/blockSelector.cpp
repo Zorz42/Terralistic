@@ -54,29 +54,6 @@ INIT_SCRIPT
     select_rect.h = BLOCK_WIDTH;
 INIT_SCRIPT_END
 
-void rightClickEvent(unsigned short x, unsigned short y) {
-    if(game::online) {
-        packets::packet packet(packets::RIGHT_CLICK);
-        packet << x << y;
-        networking::sendPacket(packet);
-    } else {
-        blockEngine::block* block = &blockEngine::getBlock(x, y);
-        if(click_events[block->block_id].rightClickEvent)
-            click_events[block->block_id].rightClickEvent(block);
-    }
-}
-
-void leftClickEvent(unsigned short x, unsigned short y) {
-    blockEngine::block* block = &blockEngine::getBlock(x, y);
-    if(click_events[block->block_id].leftClickEvent)
-        click_events[block->block_id].leftClickEvent(block);
-    else {
-        block->setBreakProgress(block->break_progress_ms + gfx::getDeltaTime());
-        if(!game::online && block->break_progress_ms >= block->getUniqueBlock().break_time)
-            block->break_block();
-    }
-}
-
 bool collidingWithPlayer() {
     return gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect());
 }
@@ -85,13 +62,21 @@ void blockSelector::module::render() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && left_button_pressed) {
         packets::packet packet(packets::STARTED_BREAKING);
         packet << selected_block_x << selected_block_y;
-        networking::sendPacket(packet);
+        scene->networking_manager.sendPacket(packet);
         prev_selected_x = selected_block_x;
         prev_selected_y = selected_block_y;
     }
     
-    if(left_button_pressed && !game::online)
-        leftClickEvent(selected_block_x, selected_block_y);
+    if(left_button_pressed && !game::online) {
+        blockEngine::block* block = &blockEngine::getBlock(selected_block_x, selected_block_y);
+        if(click_events[block->block_id].leftClickEvent)
+            click_events[block->block_id].leftClickEvent(block);
+        else {
+            block->setBreakProgress(block->break_progress_ms + gfx::getDeltaTime());
+            if(!game::online && block->break_progress_ms >= block->getUniqueBlock().break_time)
+                block->break_block();
+        }
+    }
     
     if(!playerHandler::hovered) {
         selected_block_x = (unsigned short)(gfx::getMouseX() + playerHandler::view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
@@ -107,14 +92,23 @@ void blockSelector::module::onKeyDown(gfx::key key) {
         left_button_pressed = true;
         prev_selected_x = blockEngine::world_width;
         prev_selected_y = blockEngine::world_height;
-    } else if(key == gfx::KEY_MOUSE_RIGHT && !collidingWithPlayer() && !playerHandler::hovered)
-        rightClickEvent(selected_block_x, selected_block_y);
+    } else if(key == gfx::KEY_MOUSE_RIGHT && !collidingWithPlayer() && !playerHandler::hovered) {
+        if(game::online) {
+            packets::packet packet(packets::RIGHT_CLICK);
+            packet << selected_block_x << selected_block_y;
+            scene->networking_manager.sendPacket(packet);
+        } else {
+            blockEngine::block* block = &blockEngine::getBlock(selected_block_x, selected_block_y);
+            if(click_events[block->block_id].rightClickEvent)
+                click_events[block->block_id].rightClickEvent(block);
+        }
+    }
 }
 
 void blockSelector::module::onKeyUp(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         left_button_pressed = false;
         packets::packet packet(packets::STOPPED_BREAKING);
-        networking::sendPacket(packet);
+        scene->networking_manager.sendPacket(packet);
     }
 }

@@ -13,11 +13,17 @@
 
 namespace networking {
 
-bool establishConnection(const std::string& ip);
-void startListening();
-void stopListening();
+struct networkingManager {
+    bool startListening(const std::string& ip);
+    void stopListening();
 
-void sendPacket(packets::packet packet_);
+    void sendPacket(packets::packet packet_);
+private:
+    int sock = -1;
+    bool listener_running = true;
+    static void listenerLoop(networking::networkingManager* manager);
+    std::vector<packets::packet> packet_queue;
+};
 
 typedef void(*listenerFunction)(packets::packet&);
 

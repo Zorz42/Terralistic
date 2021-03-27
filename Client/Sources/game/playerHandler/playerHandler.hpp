@@ -20,12 +20,11 @@ struct module : public gfx::sceneModule<game::scene> {
     void init();
     void update();
     void render();
+    void selectSlot(char slot);
 };
 
 inline int view_x, view_y;
 inline gfx::sprite player;
-
-void selectSlot(char slot);
 
 inline inventory::inventoryItem *hovered = nullptr;
 inline inventory::inventory player_inventory;

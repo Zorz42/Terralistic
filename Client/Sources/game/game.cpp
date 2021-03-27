@@ -50,11 +50,10 @@ void game::scene::init() {
     
     if(multiplayer) {
         textScreen::renderTextScreen("Connecting to server");
-        if(!networking::establishConnection(world_name)) {
+        if(!networking_manager.startListening(world_name)) {
             gfx::returnFromScene();
             return;
         }
-        networking::startListening();
         playerHandler::player_inventory.clear();
     } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world")) {
         textScreen::renderTextScreen("Loading world");
@@ -95,11 +94,11 @@ void game::scene::render() {
 
 void game::scene::stop() {
     if(multiplayer)
-        networking::sendPacket({packets::DISCONNECT});
+        networking_manager.sendPacket({packets::DISCONNECT});
     else {
         textScreen::renderTextScreen("Saving world");
         worldSaver::saveWorld(world_name);
     }
     
-    networking::stopListening();
+    networking_manager.stopListening();
 }

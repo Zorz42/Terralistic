@@ -110,7 +110,7 @@ void playerHandler::module::onKeyDown(gfx::key key) {
                 player_inventory.clearMouseItem();
                 packets::packet packet(packets::INVENTORY_SWAP);
                 packet << result;
-                networking::sendPacket(packet);
+                scene->networking_manager.sendPacket(packet);
             }
             break;
         case gfx::KEY_MOUSE_LEFT: {
@@ -118,7 +118,7 @@ void playerHandler::module::onKeyDown(gfx::key key) {
                 player_inventory.swapWithMouseItem(hovered);
                 packets::packet packet(packets::INVENTORY_SWAP);
                 packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
-                networking::sendPacket(packet);
+                scene->networking_manager.sendPacket(packet);
             }
             break;
         }
@@ -240,7 +240,7 @@ void playerHandler::module::update() {
     if(game::online && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
         packet << position_x << position_y << (char)/*player.flipped*/ false;
-        networking::sendPacket(packet);
+        scene->networking_manager.sendPacket(packet);
     }
     
     // look for items to be picked up
@@ -309,11 +309,11 @@ void playerHandler::module::render() {
     renderItem(player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
 
-void playerHandler::selectSlot(char slot) {
+void playerHandler::module::selectSlot(char slot) {
     player_inventory.selected_slot = slot;
     packets::packet packet(packets::HOTBAR_SELECTION);
     packet << slot;
-    networking::sendPacket(packet);
+    scene->networking_manager.sendPacket(packet);
 }
 
 PACKET_LISTENER(packets::INVENTORY_CHANGE)

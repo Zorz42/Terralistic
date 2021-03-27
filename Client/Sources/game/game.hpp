@@ -9,6 +9,7 @@
 #define game_hpp
 
 #include <Graphics/graphics.hpp>
+#include "networkingModule.hpp"
 
 namespace game {
 
@@ -17,6 +18,8 @@ inline bool online;
 
 struct scene : public gfx::scene {
     const std::string& world_name;
+    networking::networkingManager networking_manager;
+    
     bool multiplayer;
     scene(const std::string& world_name, bool multiplayer) : world_name(world_name), multiplayer(multiplayer) {}
     void init();
