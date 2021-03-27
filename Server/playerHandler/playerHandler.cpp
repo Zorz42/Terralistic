@@ -70,7 +70,9 @@ PACKET_LISTENER_END
 PACKET_LISTENER(packets::DISCONNECT)
     print::info(connection.ip + " disconnected (" + std::to_string(playerHandler::players.size() - 1) + " players online)");
     playerHandler::player* player = playerHandler::getPlayerByConnection(&connection);
+#ifndef WIN32
     close(connection.socket);
+#endif
     for(networking::connection& conn : networking::connections)
         if(conn.socket == connection.socket) {
             conn.socket = -1;

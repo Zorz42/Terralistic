@@ -22,7 +22,7 @@
 #include "playerHandler.hpp"
 
 #define PORT 33770
-#define PORT_STR #PORT
+#define PORT_STR "33770"
 
 struct packet_listener {
     networking::listenerFunction function;
