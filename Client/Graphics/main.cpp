@@ -80,3 +80,12 @@ unsigned int gfx::getTicks() {
 float gfx::getDeltaTime() {
     return frame_length;
 }
+
+void gfx::clearWindow() {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+}
+
+void gfx::updateWindow() {
+    SDL_RenderPresent(renderer);
+}

@@ -11,7 +11,7 @@
 #include <Graphics/graphics.hpp>
 #include "game.hpp"
 
-namespace itemRenderer {
+namespace itemEngineClient {
 
 struct uniqueRenderItem {
     gfx::image texture;

@@ -26,8 +26,6 @@
 #define PORT_STR #PORT
 
 int sock;
-//ogl::texture connecting_text;
-
 
 struct packet_listener {
     networking::listenerFunction function;
@@ -52,19 +50,7 @@ void networking::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, std::move(packet_));
 }
 
-INIT_SCRIPT
-    //connecting_text.loadFromText("Connecting to server", {255, 255, 255});
-    //connecting_text.scale = 3;
-INIT_SCRIPT_END
-
 bool networking::establishConnection(const std::string &ip) {
-    // establish connection to server, made so it works on windows and macos
-    
-    //swl::setDrawColor(0, 0, 0);
-    //swl::clear();
-    //connecting_text.render();
-    //swl::update();
-
     #ifdef WIN32
     WSADATA wsaData;
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)

@@ -8,7 +8,7 @@
 #include "core.hpp"
 
 #include "networkingModule.hpp"
-#include "blockRenderer.hpp"
+#include "blockEngineClient.hpp"
 
 PACKET_LISTENER(packets::BLOCK_CHANGE)
     auto type = (blockEngine::blockType)packet.getUChar();

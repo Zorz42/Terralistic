@@ -161,6 +161,9 @@ void resetRenderTarget();
 bool colliding(rectShape a, rectShape b);
 unsigned int getTicks();
 
+void clearWindow();
+void updateWindow();
+
 }
 
 #endif /* graphics_hpp */

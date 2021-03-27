@@ -21,8 +21,6 @@ struct scene : public gfx::scene {
     scene(const std::string& world_name, bool multiplayer) : world_name(world_name), multiplayer(multiplayer) {}
     void init();
     void stop();
-    void onKeyUp(gfx::key key);
-    void onKeyDown(gfx::key key);
     void render();
     void update();
 };

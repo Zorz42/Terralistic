@@ -11,8 +11,8 @@
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "game.hpp"
-#include "itemRenderer.hpp"
-#include "blockRenderer.hpp"
+#include "itemEngineClient.hpp"
+#include "blockEngineClient.hpp"
 
 #define INC_X position_x++;playerHandler::view_x++
 #define DEC_X position_x--;playerHandler::view_x--
@@ -253,8 +253,8 @@ void playerHandler::module::update() {
 }
 
 void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
-    if(itemRenderer::getUniqueRenderItem(item->item_id).texture.getTexture())
-        gfx::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, 30, 30});
+    if(itemEngineClient::getUniqueRenderItem(item->item_id).texture.getTexture())
+        gfx::render(itemEngineClient::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, 30, 30});
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
@@ -287,7 +287,7 @@ void playerHandler::module::render() {
             hovered = &player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
             if(player_inventory.inventory[i].item_id != itemEngine::NOTHING) {
-                text_texture = &itemRenderer::getUniqueRenderItem(player_inventory.inventory[i].item_id).text_texture;
+                text_texture = &itemEngineClient::getUniqueRenderItem(player_inventory.inventory[i].item_id).text_texture;
                 text_texture->x = gfx::getMouseX() + 20;
                 text_texture->y = gfx::getMouseY() + 20;
                 under_text_rect.h = text_texture->getHeight() + 2 * MARGIN;

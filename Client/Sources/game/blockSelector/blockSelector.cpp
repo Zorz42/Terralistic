@@ -11,7 +11,7 @@
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "game.hpp"
-#include "blockRenderer.hpp"
+#include "blockEngineClient.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
 

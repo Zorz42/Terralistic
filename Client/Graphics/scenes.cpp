@@ -164,14 +164,16 @@ void gfx::runScenes() {
         used_scene->update();
         for(_sceneModule* module : used_scene->modules)
             module->update();
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-        SDL_RenderClear(renderer);
+        
+        clearWindow();
         
         for(_sceneModule* module : used_scene->modules)
             module->render();
         used_scene->render();
         
-        SDL_RenderPresent(renderer);
+    
+        updateWindow();
+        
         if(quit)
             while(scene_stack.size())
                 returnFromScene();

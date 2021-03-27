@@ -9,7 +9,7 @@
 
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "blockRenderer.hpp"
+#include "blockEngineClient.hpp"
 
 static gfx::image breaking_texture;
 static blockRenderer::renderChunk* chunks;

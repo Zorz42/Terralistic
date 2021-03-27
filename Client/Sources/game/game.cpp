@@ -16,8 +16,9 @@
 #include "networkingModule.hpp"
 #include "otherPlayers.hpp"
 #include "main.hpp"
-#include "itemRenderer.hpp"
-#include "blockRenderer.hpp"
+#include "itemEngineClient.hpp"
+#include "blockEngineClient.hpp"
+#include "textScreen.hpp"
 
 #undef main
 
@@ -48,38 +49,31 @@ void game::scene::init() {
     blockEngine::prepare();
     
     if(multiplayer) {
+        textScreen::renderTextScreen("Connecting to server");
         if(!networking::establishConnection(world_name)) {
             gfx::returnFromScene();
             return;
         }
         networking::startListening();
-        for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory) {
-            i.setStack(0);
-            i.item_id = itemEngine::NOTHING;
-        }
-    } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world"))
+        playerHandler::player_inventory.clear();
+    } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world")) {
+        textScreen::renderTextScreen("Loading world");
         worldSaver::loadWorld(world_name);
+    }
     else {
-        for(inventory::inventoryItem& i : playerHandler::player_inventory.inventory)
-            i.setStack(0);
+        playerHandler::player_inventory.clear();
         generateTerrain(0);
         worldSaver::saveWorld(world_name);
     }
     
     modules = {
         new blockRenderer::module(this),
-        new itemRenderer::module(this),
+        new itemEngineClient::module(this),
         new players::module(this),
         new pauseScreen::module(this),
         new playerHandler::module(this),
         new blockSelector::module(this),
     };
-}
-
-void game::scene::onKeyDown(gfx::key key) {
-}
-
-void game::scene::onKeyUp(gfx::key key) {
 }
 
 void game::scene::update() {
@@ -102,8 +96,10 @@ void game::scene::render() {
 void game::scene::stop() {
     if(multiplayer)
         networking::sendPacket({packets::DISCONNECT});
-    else
+    else {
+        textScreen::renderTextScreen("Saving world");
         worldSaver::saveWorld(world_name);
+    }
     
     networking::stopListening();
 }
