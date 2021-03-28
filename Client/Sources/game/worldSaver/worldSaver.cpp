@@ -14,7 +14,7 @@
 
 void worldSaver::saveWorld(const std::string& world_name) {
     // saves world chunk by chunk and then inventory
-    
+    std::cout << fileSystem::getWorldsPath() + world_name + ".world" << std::endl;
     std::ofstream world_file(fileSystem::getWorldsPath() + world_name + ".world");
     for(auto & i : playerHandler::player_inventory.inventory)
         world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));

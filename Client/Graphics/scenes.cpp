@@ -22,14 +22,6 @@ void gfx::returnFromScene() {
     scene_stack.pop();
 }
 
-gfx::scene::~scene() {
-    stop();
-    for(_sceneModule* module : modules) {
-        module->stop();
-        delete module;
-    }
-}
-
 void gfx::scene::_init() {
     init();
     for(_sceneModule* module : modules)
@@ -106,6 +98,11 @@ void gfx::runScenes() {
         
         if(used_scene != scene_stack.top()) {
             while(true) {
+                used_scene->stop();
+                for(_sceneModule* module : used_scene->modules) {
+                    module->stop();
+                    delete module;
+                }
                 delete used_scene;
                 used_scene = scene_stack.top();
                 if(!used_scene->one_time)

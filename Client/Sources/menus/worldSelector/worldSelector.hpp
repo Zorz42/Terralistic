@@ -9,6 +9,7 @@
 #define worldSelector_hpp
 
 #include <Graphics/graphics.hpp>
+#include <iostream>
 
 namespace worldSelector {
 

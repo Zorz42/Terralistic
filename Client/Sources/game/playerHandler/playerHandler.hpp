@@ -10,10 +10,11 @@
 
 #include <Graphics/graphics.hpp>
 #include "game.hpp"
+#include "networkingModule.hpp"
 
 namespace playerHandler {
 
-struct module : public gfx::sceneModule<game::scene> {
+struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
     using gfx::sceneModule<game::scene>::sceneModule;
     void onKeyUp(gfx::key key);
     void onKeyDown(gfx::key key);
@@ -21,6 +22,7 @@ struct module : public gfx::sceneModule<game::scene> {
     void update();
     void render();
     void selectSlot(char slot);
+    void onPacket(packets::packet packet);
 };
 
 inline int view_x, view_y;

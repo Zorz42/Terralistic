@@ -8,9 +8,20 @@
 #ifndef generatingScreen_hpp
 #define generatingScreen_hpp
 
+#include <Graphics/graphics.hpp>
+#include <thread>
+
 namespace terrainGenerator {
 
-void generatingScreen();
+struct scene : public gfx::scene {
+    unsigned int seed;
+    std::thread thread;
+    scene(unsigned int seed) : seed(seed) {}
+    void init();
+    void update();
+    void render();
+    void stop();
+};
 
 }
 

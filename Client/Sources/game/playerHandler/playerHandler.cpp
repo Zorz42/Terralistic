@@ -64,6 +64,8 @@ void playerHandler::module::init() {
      
     selectSlot(0);
     player_inventory.open = false;
+    
+    listening_to = {packets::INVENTORY_CHANGE, packets::SPAWN_POS};
 }
 
 #define VELOCITY 20
@@ -316,16 +318,22 @@ void playerHandler::module::selectSlot(char slot) {
     scene->networking_manager.sendPacket(packet);
 }
 
-PACKET_LISTENER(packets::INVENTORY_CHANGE)
-    char pos = packet.getChar();
-    playerHandler::player_inventory.inventory[(int)pos].setStack(packet.getUShort());
-    playerHandler::player_inventory.inventory[(int)pos].item_id = (itemEngine::itemType)packet.getUChar();
-PACKET_LISTENER_END
-
-PACKET_LISTENER(packets::SPAWN_POS)
-    int x = packet.getInt(), y = packet.getInt();
-    position_x = x;
-    position_y = y;
-    playerHandler::view_x = x;
-    playerHandler::view_y = y;
-PACKET_LISTENER_END
+void playerHandler::module::onPacket(packets::packet packet) {
+    switch(packet.type) {
+        case packets::INVENTORY_CHANGE: {
+            char pos = packet.getChar();
+            playerHandler::player_inventory.inventory[(int)pos].setStack(packet.getUShort());
+            playerHandler::player_inventory.inventory[(int)pos].item_id = (itemEngine::itemType)packet.getUChar();
+            break;
+        }
+        case packets::SPAWN_POS: {
+            int x = packet.getInt(), y = packet.getInt();
+            position_x = x;
+            position_y = y;
+            playerHandler::view_x = x;
+            playerHandler::view_y = y;
+            break;
+        }
+        default:;
+    }
+}

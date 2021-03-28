@@ -23,6 +23,7 @@ static std::vector<player> other_players;
 
 void players::module::init() {
     other_players.clear();
+    listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT};
 }
 
 void players::module::render() {
@@ -45,27 +46,32 @@ player* getPlayerById(unsigned short id) {
     return nullptr;
 }
 
-// handle all joins, quits and movements of players
-PACKET_LISTENER(packets::PLAYER_JOIN)
-    player player;
-    player.id = packet.getUShort();
-    player.y = packet.getInt();
-    player.x = packet.getInt();
-    other_players.push_back(player);
-PACKET_LISTENER_END
-
-PACKET_LISTENER(packets::PLAYER_QUIT)
-    unsigned short id = packet.getUShort();
-    for(auto i = other_players.begin(); i != other_players.end(); i++)
-        if(i->id == id) {
-            other_players.erase(i);
+void players::module::onPacket(packets::packet packet) {
+    switch(packet.type) {
+        case packets::PLAYER_JOIN: {
+            player player;
+            player.id = packet.getUShort();
+            player.y = packet.getInt();
+            player.x = packet.getInt();
+            other_players.push_back(player);
             break;
         }
-PACKET_LISTENER_END
-    
-PACKET_LISTENER(packets::PLAYER_MOVEMENT)
-    player* player = getPlayerById(packet.getUShort());
-    player->flipped = packet.getChar();
-    player->y = packet.getInt();
-    player->x = packet.getInt();
-PACKET_LISTENER_END
+        case packets::PLAYER_QUIT: {
+            unsigned short id = packet.getUShort();
+            for(auto i = other_players.begin(); i != other_players.end(); i++)
+                if(i->id == id) {
+                    other_players.erase(i);
+                    break;
+                }
+            break;
+        }
+        case packets::PLAYER_MOVEMENT: {
+            player* player = getPlayerById(packet.getUShort());
+            player->flipped = packet.getChar();
+            player->y = packet.getInt();
+            player->x = packet.getInt();
+            break;
+        }
+        default:;
+    }
+}

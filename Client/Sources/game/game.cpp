@@ -31,22 +31,33 @@ INIT_SCRIPT
     fps_text.orientation = gfx::top_left;
 INIT_SCRIPT_END
 
-void generateTerrain(unsigned int seed) {
-    terrainGenerator::loading_total = 6;
-    terrainGenerator::loading_current = 0;
-    std::thread thread(terrainGenerator::generateTerrainDaemon, seed);
-    
-    terrainGenerator::generatingScreen();
-
-    thread.join();
-    
-    ASSERT(terrainGenerator::loading_current == terrainGenerator::loading_total, "Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));
-}
-
 void game::scene::init() {
     online = multiplayer;
     
     blockEngine::prepare();
+    
+    blockEngineClient::module* block_renderer = new blockEngineClient::module(this);
+    itemEngineClient::module* item_engine = new itemEngineClient::module(this);
+    players::module*              players = new players::module(this);
+    pauseScreen::module*     pause_screen = new pauseScreen::module(this);
+    playerHandler::module* player_handler = new playerHandler::module(this);
+    blockSelector::module* block_selector = new blockSelector::module(this);
+    
+    networking_manager.listeners = {
+        block_renderer,
+        item_engine,
+        players,
+        player_handler,
+    };
+    
+    modules = {
+        block_renderer,
+        item_engine,
+        players,
+        pause_screen,
+        player_handler,
+        block_selector,
+    };
     
     if(multiplayer) {
         textScreen::renderTextScreen("Connecting to server");
@@ -61,29 +72,8 @@ void game::scene::init() {
     }
     else {
         playerHandler::player_inventory.clear();
-        generateTerrain(0);
-        worldSaver::saveWorld(world_name);
+        gfx::switchScene(new terrainGenerator::scene(0));
     }
-    
-    blockEngineClient::module* block_renderer = new blockEngineClient::module(this);
-    itemEngineClient::module* item_engine = new itemEngineClient::module(this);
-    players::module*              players = new players::module(this);
-    pauseScreen::module*     pause_screen = new pauseScreen::module(this);
-    playerHandler::module* player_handler = new playerHandler::module(this);
-    blockSelector::module* block_selector = new blockSelector::module(this);
-    
-    networking_manager.listeners = {
-        item_engine,
-    };
-    
-    modules = {
-        block_renderer,
-        item_engine,
-        players,
-        pause_screen,
-        player_handler,
-        block_selector,
-    };
 }
 
 void game::scene::update() {

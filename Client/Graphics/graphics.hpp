@@ -128,7 +128,7 @@ struct sceneModule : public _sceneModule {
 };
 
 struct scene {
-    virtual ~scene();
+    virtual ~scene() {}
     
     virtual void init() {}
     virtual void refresh() {}
