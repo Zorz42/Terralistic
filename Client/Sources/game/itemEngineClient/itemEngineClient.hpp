@@ -10,6 +10,7 @@
 
 #include <Graphics/graphics.hpp>
 #include "game.hpp"
+#include "networkingModule.hpp"
 
 namespace itemEngineClient {
 
@@ -19,10 +20,12 @@ struct uniqueRenderItem {
 };
 uniqueRenderItem& getUniqueRenderItem(unsigned short id);
 
-struct module : public gfx::sceneModule<game::scene> {
+struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
     using gfx::sceneModule<game::scene>::sceneModule;
+    void init();
     void render();
     void stop();
+    void onPacket(packets::packet packet);
 };
 
 }

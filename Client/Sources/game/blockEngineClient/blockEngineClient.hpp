@@ -10,8 +10,9 @@
 
 #include <Graphics/graphics.hpp>
 #include "game.hpp"
+#include "networkingModule.hpp"
 
-namespace blockRenderer {
+namespace blockEngineClient {
 
 struct uniqueRenderBlock {
     void createTexture(blockEngine::uniqueBlock* unique_block);
@@ -47,11 +48,12 @@ void prepare();
 void render();
 void close();
 
-struct module : public gfx::sceneModule<game::scene> {
+struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
     using gfx::sceneModule<game::scene>::sceneModule;
     void init();
     void render();
     void stop();
+    void onPacket(packets::packet packet);
 };
 
 }

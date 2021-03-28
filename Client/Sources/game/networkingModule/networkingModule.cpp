@@ -24,32 +24,17 @@
 #define PORT 33770
 #define PORT_STR "33770"
 
-struct packet_listener {
-    networking::listenerFunction function;
-    packets::packetType type;
-};
-
-std::vector<packet_listener>& getListeners() {
-    static std::vector<packet_listener> listeners;
-    return listeners;
-}
-
-// packet listener is a function that gets executed every time a certain type of packet is received1
-
-networking::registerPacketListener::registerPacketListener(packets::packetType type, listenerFunction function) {
-    packet_listener new_listener{};
-    new_listener.function = function;
-    new_listener.type = type;
-    getListeners().push_back(new_listener);
-}
-
 void networking::networkingManager::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, std::move(packet_));
 }
 
 void networking::networkingManager::listenerLoop(networking::networkingManager* manager) {
-    while(manager->listener_running)
-        manager->packet_queue.push_back(packets::getPacket(manager->sock));
+    while(manager->listener_running) {
+        packets::packet packet = packets::getPacket(manager->sock);
+        for(packetListener* listener : manager->listeners)
+            if(listener->listening_to.find(packet.type) != listener->listening_to.end())
+                listener->onPacket(packet);
+    }
 }
 
 bool networking::networkingManager::startListening(const std::string &ip) {

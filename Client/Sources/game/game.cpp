@@ -65,13 +65,24 @@ void game::scene::init() {
         worldSaver::saveWorld(world_name);
     }
     
+    blockEngineClient::module* block_renderer = new blockEngineClient::module(this);
+    itemEngineClient::module* item_engine = new itemEngineClient::module(this);
+    players::module*              players = new players::module(this);
+    pauseScreen::module*     pause_screen = new pauseScreen::module(this);
+    playerHandler::module* player_handler = new playerHandler::module(this);
+    blockSelector::module* block_selector = new blockSelector::module(this);
+    
+    networking_manager.listeners = {
+        item_engine,
+    };
+    
     modules = {
-        new blockRenderer::module(this),
-        new itemEngineClient::module(this),
-        new players::module(this),
-        new pauseScreen::module(this),
-        new playerHandler::module(this),
-        new blockSelector::module(this),
+        block_renderer,
+        item_engine,
+        players,
+        pause_screen,
+        player_handler,
+        block_selector,
     };
 }
 

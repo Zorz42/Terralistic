@@ -12,23 +12,23 @@
 #include "blockEngineClient.hpp"
 
 static gfx::image breaking_texture;
-static blockRenderer::renderChunk* chunks;
-static blockRenderer::renderBlock* blocks;
-static blockRenderer::uniqueRenderBlock* unique_render_blocks;
+static blockEngineClient::renderChunk* chunks;
+static blockEngineClient::renderBlock* blocks;
+static blockEngineClient::uniqueRenderBlock* unique_render_blocks;
 
-blockRenderer::renderBlock& getBlock(unsigned short x, unsigned short y) {
+blockEngineClient::renderBlock& getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < blockEngine::world_height && x >= 0 && x < blockEngine::world_width, "requested block is out of bounds");
     return blocks[y * blockEngine::world_width + x];
 }
 
-blockRenderer::renderChunk& getChunk(unsigned short x, unsigned short y) {
+blockEngineClient::renderChunk& getChunk(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < (blockEngine::world_height >> 4) && x >= 0 && x < (blockEngine::world_width >> 4), "requested chunk is out of bounds");
     return chunks[y * (blockEngine::world_width >> 4) + x];
 }
 
 INIT_SCRIPT
     INIT_ASSERT(blockEngine::unique_blocks.size());
-    unique_render_blocks = new blockRenderer::uniqueRenderBlock[blockEngine::unique_blocks.size()];
+    unique_render_blocks = new blockEngineClient::uniqueRenderBlock[blockEngine::unique_blocks.size()];
     for(int i = 0; i < blockEngine::unique_blocks.size(); i++)
         unique_render_blocks[i].createTexture(&blockEngine::unique_blocks[i]);
 
@@ -41,7 +41,7 @@ INIT_SCRIPT
     breaking_texture.scale = 2;
 INIT_SCRIPT_END
 
-void blockRenderer::renderBlock::updateOrientation() {
+void blockEngineClient::renderBlock::updateOrientation() {
     if(!getUniqueRenderBlock().single_texture) {
         block_orientation = 0;
         char x_[] = {0, 1, 0, -1};
@@ -59,7 +59,7 @@ void blockRenderer::renderBlock::updateOrientation() {
     }
 }
 
-void blockRenderer::renderBlock::draw() {
+void blockEngineClient::renderBlock::draw() {
     gfx::rect rect((getX() & 15) * BLOCK_WIDTH, (getY() & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level)});
     
     if(getUniqueRenderBlock().texture.getTexture() && getRelatedBlock().light_level)
@@ -72,7 +72,7 @@ void blockRenderer::renderBlock::draw() {
         gfx::render(breaking_texture, rect.x, rect.y, {0, short(BLOCK_WIDTH * (getRelatedBlock().break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1});
 }
 
-void blockRenderer::renderChunk::updateTexture() {
+void blockEngineClient::renderChunk::updateTexture() {
     update = false;
     gfx::setRenderTarget(texture);
     for(unsigned short y_ = 0; y_ < 16; y_++)
@@ -87,7 +87,85 @@ void blockRenderer::renderChunk::updateTexture() {
     gfx::resetRenderTarget();
 }
 
-void blockRenderer::module::init() {
+void blockEngineClient::renderChunk::render() const {
+    gfx::render(texture, (getX() << 4) * BLOCK_WIDTH - playerHandler::view_x + (gfx::getWindowWidth() >> 1), (getY() << 4) * BLOCK_WIDTH - playerHandler::view_y + (gfx::getWindowHeight() >> 1));
+}
+
+void blockEngineClient::renderChunk::createTexture() {
+    texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
+}
+
+void blockEngineClient::uniqueRenderBlock::createTexture(blockEngine::uniqueBlock* unique_block) {
+    texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
+    single_texture = texture.getTextureHeight() == 8;
+    texture.scale = 2;
+}
+
+void blockEngineClient::renderBlock::scheduleTextureUpdate() {
+    to_update = true;
+    getChunk(getX() >> 4, getY() >> 4).update = true;
+}
+
+unsigned short blockEngineClient::renderBlock::getX() const {
+    return (unsigned int)(this - blocks) % blockEngine::world_width;
+}
+
+unsigned short blockEngineClient::renderBlock::getY() const {
+    return (unsigned int)(this - blocks) / blockEngine::world_width;
+}
+
+unsigned short blockEngineClient::renderChunk::getX() const {
+    return (unsigned int)(this - chunks) % (blockEngine::world_width >> 4);
+}
+
+unsigned short blockEngineClient::renderChunk::getY() const {
+    return (unsigned int)(this - chunks) / (blockEngine::world_width >> 4);
+}
+
+blockEngine::block& blockEngineClient::renderBlock::getRelatedBlock() {
+    return blockEngine::getBlock(getX(), getY());
+}
+
+blockEngineClient::uniqueRenderBlock& blockEngineClient::renderBlock::getUniqueRenderBlock() {
+    return unique_render_blocks[getRelatedBlock().block_id];
+}
+
+blockEngine::uniqueBlock& blockEngineClient::renderBlock::getUniqueBlock() {
+    return getRelatedBlock().getUniqueBlock();
+}
+
+void updateBlock(unsigned short x, unsigned short y) {
+    getBlock(x, y).scheduleTextureUpdate();
+    
+    blockEngineClient::renderBlock* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
+    if(x != 0)
+        neighbors[0] = &getBlock(x - 1, y);
+    if(x != blockEngine::world_width - 1)
+        neighbors[1] = &getBlock(x + 1, y);
+    if(y != 0)
+        neighbors[2] = &getBlock(x, y - 1);
+    if(y != blockEngine::world_height - 1)
+        neighbors[3] = &getBlock(x, y + 1);
+    for(int i = 0; i < 4; i++)
+        if(neighbors[i] != nullptr)
+            neighbors[i]->scheduleTextureUpdate();
+}
+
+EVENT_LISTENER(blockEngine::block_change)
+    updateBlock(data.x, data.y);
+EVENT_LISTENER_END
+
+EVENT_LISTENER(blockEngine::light_change)
+    updateBlock(data.x, data.y);
+EVENT_LISTENER_END
+
+EVENT_LISTENER(blockEngine::break_progress_change)
+    updateBlock(data.x, data.y);
+EVENT_LISTENER_END
+
+// Module
+
+void blockEngineClient::module::init() {
     blockEngine::prepareWorld();
     
     chunks = new renderChunk[(blockEngine::world_width >> 4) * (blockEngine::world_height >> 4)];
@@ -96,15 +174,17 @@ void blockRenderer::module::init() {
     for(unsigned short x = 0; x < (blockEngine::world_width >> 4); x++)
         for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
             getChunk(x, y).createTexture();
+    
+    listening_to = {};
 }
 
-void blockRenderer::module::stop() {
+void blockEngineClient::module::stop() {
     blockEngine::close();
     delete[] chunks;
     delete[] blocks;
 }
 
-void blockRenderer::module::render() {
+void blockEngineClient::module::render() {
     // figure out, what the window is covering and only render that
     short begin_x = playerHandler::view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_x = playerHandler::view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
@@ -148,78 +228,37 @@ void blockRenderer::module::render() {
                 blockEngine::getBlock(x, y).light_update();
 }
 
-void blockRenderer::renderChunk::render() const {
-    gfx::render(texture, (getX() << 4) * BLOCK_WIDTH - playerHandler::view_x + (gfx::getWindowWidth() >> 1), (getY() << 4) * BLOCK_WIDTH - playerHandler::view_y + (gfx::getWindowHeight() >> 1));
+void blockEngineClient::module::onPacket(packets::packet packet) {
+    switch (packet.type) {
+        case packets::BLOCK_CHANGE: {
+            auto type = (blockEngine::blockType)packet.getUChar();
+            unsigned short y = packet.getUShort(), x = packet.getUShort();
+            blockEngine::removeNaturalLight(x);
+            blockEngine::getBlock(x, y).setBlockType(type);
+            blockEngine::setNaturalLight(x);
+            blockEngine::getBlock(x, y).light_update();
+            break;
+        }
+        case packets::CHUNK: {
+            unsigned short x = packet.getUShort(), y = packet.getUShort();
+            blockEngine::chunkState& chunk_state = blockEngine::getChunkState(x, y);
+            for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
+                blockEngine::removeNaturalLight(x_);
+            for(unsigned short y_ = 0; y_ < 16; y_++)
+                for(unsigned short x_ = 0; x_ < 16; x_++) {
+                    blockEngine::blockType type = (blockEngine::blockType)packet.getChar();
+                    blockEngine::getBlock((x << 4) + x_, (y << 4) + y_).setBlockType(type);
+                }
+            for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
+                blockEngine::setNaturalLight(x_);
+            chunk_state = blockEngine::loaded;
+            break;
+        }
+        case packets::BLOCK_BREAK_PROGRESS_CHANGE: {
+            unsigned short progress = packet.getUShort(), x = packet.getUShort(), y = packet.getUShort();
+            blockEngine::getBlock(x, y).setBreakProgress(progress);
+            break;
+        }
+        default:;
+    }
 }
-
-void blockRenderer::renderChunk::createTexture() {
-    texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
-}
-
-void blockRenderer::uniqueRenderBlock::createTexture(blockEngine::uniqueBlock* unique_block) {
-    texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
-    single_texture = texture.getTextureHeight() == 8;
-    texture.scale = 2;
-}
-
-void blockRenderer::renderBlock::scheduleTextureUpdate() {
-    to_update = true;
-    getChunk(getX() >> 4, getY() >> 4).update = true;
-}
-
-unsigned short blockRenderer::renderBlock::getX() const {
-    return (unsigned int)(this - blocks) % blockEngine::world_width;
-}
-
-unsigned short blockRenderer::renderBlock::getY() const {
-    return (unsigned int)(this - blocks) / blockEngine::world_width;
-}
-
-unsigned short blockRenderer::renderChunk::getX() const {
-    return (unsigned int)(this - chunks) % (blockEngine::world_width >> 4);
-}
-
-unsigned short blockRenderer::renderChunk::getY() const {
-    return (unsigned int)(this - chunks) / (blockEngine::world_width >> 4);
-}
-
-blockEngine::block& blockRenderer::renderBlock::getRelatedBlock() {
-    return blockEngine::getBlock(getX(), getY());
-}
-
-blockRenderer::uniqueRenderBlock& blockRenderer::renderBlock::getUniqueRenderBlock() {
-    return unique_render_blocks[getRelatedBlock().block_id];
-}
-
-blockEngine::uniqueBlock& blockRenderer::renderBlock::getUniqueBlock() {
-    return getRelatedBlock().getUniqueBlock();
-}
-
-void updateBlock(unsigned short x, unsigned short y) {
-    getBlock(x, y).scheduleTextureUpdate();
-    
-    blockRenderer::renderBlock* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
-    if(x != 0)
-        neighbors[0] = &getBlock(x - 1, y);
-    if(x != blockEngine::world_width - 1)
-        neighbors[1] = &getBlock(x + 1, y);
-    if(y != 0)
-        neighbors[2] = &getBlock(x, y - 1);
-    if(y != blockEngine::world_height - 1)
-        neighbors[3] = &getBlock(x, y + 1);
-    for(int i = 0; i < 4; i++)
-        if(neighbors[i] != nullptr)
-            neighbors[i]->scheduleTextureUpdate();
-}
-
-EVENT_LISTENER(blockEngine::block_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
-
-EVENT_LISTENER(blockEngine::light_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
-
-EVENT_LISTENER(blockEngine::break_progress_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
