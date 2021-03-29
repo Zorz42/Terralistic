@@ -8,7 +8,12 @@
 #ifndef worldSelector_hpp
 #define worldSelector_hpp
 
+#ifdef __WIN32__
+#include "graphics.hpp"
+#else
 #include <Graphics/graphics.hpp>
+#endif
+
 #include <iostream>
 
 namespace worldSelector {

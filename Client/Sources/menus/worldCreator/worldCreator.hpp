@@ -8,9 +8,14 @@
 #ifndef worldCreator_hpp
 #define worldCreator_hpp
 
+#ifdef __WIN32__
+#include "graphics.hpp"
+#else
+#include <Graphics/graphics.hpp>
+#endif
+
 #include <string>
 #include <vector>
-#include <Graphics/graphics.hpp>
 
 namespace worldCreator {
 

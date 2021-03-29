@@ -5,12 +5,17 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
+#ifdef __WIN32__
+#include "graphics.hpp"
+#else
+#include <Graphics/graphics.hpp>
+#endif
+
 #include "core.hpp"
 
 #include "pauseScreen.hpp"
 #include "game.hpp"
 #include "init.hpp"
-#include <Graphics/graphics.hpp>
 
 // pause screen is very simple for now
 

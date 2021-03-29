@@ -81,6 +81,8 @@ void* gfx::loadImageFile(const std::string& path) {
     return (void*)createTextureFromSurface(loaded_surface);
 }
 
+#include <iostream>
+
 void* gfx::renderText(const std::string& text, color text_color) {
     // render text to texture
     SDL_assert(font);

@@ -6,25 +6,31 @@
 //
 
 #include "graphics-internal.hpp"
+#include <iostream>
 
 void gfx::init(unsigned short window_width_, unsigned short window_height_) {
     window_width = window_width_;
     window_height = window_height_;
     
     // initialize basic sdl module
-    SDL_assert(SDL_Init(SDL_INIT_EVERYTHING) >= 0);
+    int result = SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_assert(result >= 0);
 
     // initialize image loading part of sdl
-    SDL_assert(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG);
+    result = IMG_Init(IMG_INIT_PNG);
+    SDL_assert(result & IMG_INIT_PNG);
     
     // initialize font rendering part of sdl
-    SDL_assert(TTF_Init() != -1);
+    result = TTF_Init();
+    SDL_assert(result != -1);
     
     // create actual window
-    SDL_assert(window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_width, window_height, SDL_WINDOW_RESIZABLE));
+    window = SDL_CreateWindow("Terralistic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_width, window_height, SDL_WINDOW_RESIZABLE);
+    SDL_assert(window);
 
     // create renderer for GPU accelerated
-    SDL_assert(renderer = SDL_CreateRenderer(gfx::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+    renderer = SDL_CreateRenderer(gfx::window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_assert(renderer);
     
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr};

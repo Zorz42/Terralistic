@@ -8,7 +8,12 @@
 #ifndef game_hpp
 #define game_hpp
 
+#ifdef __WIN32__
+#include "graphics.hpp"
+#else
 #include <Graphics/graphics.hpp>
+#endif
+
 #include "networkingModule.hpp"
 
 namespace game {

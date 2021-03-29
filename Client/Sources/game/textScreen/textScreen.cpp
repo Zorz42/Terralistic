@@ -5,8 +5,13 @@
 //  Created by Jakob Zorz on 26/03/2021.
 //
 
-#include "textScreen.hpp"
+#ifdef __WIN32__
+#include "graphics.hpp"
+#else
 #include <Graphics/graphics.hpp>
+#endif
+
+#include "textScreen.hpp"
 
 void textScreen::renderTextScreen(const std::string &text) {
     gfx::sprite text_image;
