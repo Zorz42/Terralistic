@@ -22,7 +22,7 @@ int main(const std::string& world_name, bool multiplayer);
 inline bool online;
 
 struct scene : public gfx::scene {
-    const std::string& world_name;
+    const std::string world_name;
     networking::networkingManager networking_manager;
     
     bool multiplayer;
