@@ -20,7 +20,7 @@ struct uniqueBlock {
     
     std::string name;
     
-    uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time);
+    uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time);
     
     itemEngine::itemType drop;
     unsigned short break_time;

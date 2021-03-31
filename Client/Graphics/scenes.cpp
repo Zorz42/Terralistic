@@ -93,7 +93,7 @@ void gfx::runScenes() {
     SDL_Event event;
     
     SDL_StartTextInput();
-    while(scene_stack.size()) {
+    while(!scene_stack.empty()) {
         Uint64 start = SDL_GetPerformanceCounter();
         
         if(used_scene != scene_stack.top() || quit) {
@@ -107,7 +107,7 @@ void gfx::runScenes() {
                 
                 if(quit) {
                     scene_stack.pop();
-                    if(!scene_stack.size())
+                    if(scene_stack.empty())
                         break;
                     used_scene = scene_stack.top();
                 } else {

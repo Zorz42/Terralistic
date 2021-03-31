@@ -11,7 +11,6 @@
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "game.hpp"
-#include "blockEngineClient.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
 
@@ -38,7 +37,7 @@ void air_rightClickEvent(blockEngine::block* block) {
 void air_leftClickEvent(blockEngine::block* block) {}
 
 INIT_SCRIPT
-    INIT_ASSERT(blockEngine::unique_blocks.size());
+    INIT_ASSERT(!blockEngine::unique_blocks.empty());
     click_events = std::vector<clickEvents>(blockEngine::unique_blocks.size());
 
     click_events[blockEngine::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;

@@ -9,6 +9,8 @@
 #define game_hpp
 
 #ifdef __WIN32__
+#include <utility>
+
 #include "graphics.hpp"
 #else
 #include <Graphics/graphics.hpp>
@@ -27,11 +29,11 @@ struct scene : public gfx::scene {
     networking::networkingManager networking_manager;
     
     bool multiplayer;
-    scene(const std::string& world_name, bool multiplayer) : world_name(world_name), multiplayer(multiplayer) {}
-    void init();
-    void stop();
-    void render();
-    void update();
+    scene(std::string  world_name, bool multiplayer) : world_name(std::move(world_name)), multiplayer(multiplayer) {}
+    void init() override;
+    void stop() override;
+    void render() override;
+    void update() override;
 };
 
 }

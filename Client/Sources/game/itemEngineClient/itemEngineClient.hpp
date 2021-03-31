@@ -27,10 +27,10 @@ uniqueRenderItem& getUniqueRenderItem(unsigned short id);
 
 struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
     using gfx::sceneModule<game::scene>::sceneModule;
-    void init();
-    void render();
-    void stop();
-    void onPacket(packets::packet packet);
+    void init() override;
+    void render() override;
+    void stop() override;
+    void onPacket(packets::packet packet) override;
 };
 
 }

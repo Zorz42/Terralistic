@@ -14,7 +14,6 @@
 #include "core.hpp"
 
 #include "pauseScreen.hpp"
-#include "game.hpp"
 
 // pause screen is very simple for now
 

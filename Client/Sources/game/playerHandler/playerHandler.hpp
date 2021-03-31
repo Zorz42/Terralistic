@@ -21,13 +21,13 @@ namespace playerHandler {
 
 struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
     using gfx::sceneModule<game::scene>::sceneModule;
-    void onKeyUp(gfx::key key);
-    void onKeyDown(gfx::key key);
-    void init();
-    void update();
-    void render();
+    void onKeyUp(gfx::key key) override;
+    void onKeyDown(gfx::key key) override;
+    void init() override;
+    void update() override;
+    void render() override;
     void selectSlot(char slot);
-    void onPacket(packets::packet packet);
+    void onPacket(packets::packet packet) override;
     
 private:
     bool key_up = false, jump = false;

@@ -24,8 +24,8 @@ void itemEngine::close() {
 }
 
 void itemEngine::updateItems(float frame_length) {
-    for(unsigned long i = 0; i < items.size(); i++)
-        items[i].update(frame_length);
+    for(auto & item : items)
+        item.update(frame_length);
 }
 
 void itemEngine::spawnItem(itemType item_id, int x, int y, unsigned short id) {

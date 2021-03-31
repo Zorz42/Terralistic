@@ -17,9 +17,9 @@
 namespace multiplayerSelector {
 
 struct scene : gfx::scene {
-    void init();
-    void onKeyDown(gfx::key key);
-    void render();
+    void init() override;
+    void onKeyDown(gfx::key key) override;
+    void render() override;
 };
 
 }

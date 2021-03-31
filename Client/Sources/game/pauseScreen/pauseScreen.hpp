@@ -20,9 +20,9 @@ namespace pauseScreen {
 
 struct module : public gfx::sceneModule<game::scene> {
     using gfx::sceneModule<game::scene>::sceneModule;
-    void init();
-    void render();
-    void onKeyDown(gfx::key key);
+    void init() override;
+    void render() override;
+    void onKeyDown(gfx::key key) override;
 private:
     gfx::button resume_button, quit_button;
     bool paused = false;

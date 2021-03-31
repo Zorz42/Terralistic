@@ -23,11 +23,11 @@
 namespace terrainGenerator {
 
 struct scene : public gfx::scene {
-    scene(unsigned int seed) : seed(seed) {}
-    void init();
-    void update();
-    void render();
-    void stop();
+    explicit scene(unsigned int seed) : seed(seed) {}
+    void init() override;
+    void update() override;
+    void render() override;
+    void stop() override;
 private:
     unsigned int seed;
     std::thread thread;

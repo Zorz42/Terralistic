@@ -21,9 +21,9 @@ namespace blockSelector {
 struct module : public gfx::sceneModule<game::scene> {
     using gfx::sceneModule<game::scene>::sceneModule;
     
-    void render();
-    void onKeyDown(gfx::key key);
-    void onKeyUp(gfx::key key);
+    void render() override;
+    void onKeyDown(gfx::key key) override;
+    void onKeyUp(gfx::key key) override;
 private:
     gfx::rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
     bool is_left_button_pressed = false;

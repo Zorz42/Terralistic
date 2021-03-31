@@ -26,10 +26,10 @@
 
 //xPeriod and yPeriod together define the angle of the lines
 //xPeriod and yPeriod both 0 ==> it becomes a normal clouds or turbulence pattern
-#define X_PERIOD 0.5 //defines repetition of marble lines in x direction
-#define Y_PERIOD 1.0 //defines repetition of marble lines in y direction
+//#define X_PERIOD 0.5 //defines repetition of marble lines in x direction
+//#define Y_PERIOD 1.0 //defines repetition of marble lines in y direction
 //turbPower = 0 ==> it becomes a normal sine pattern
-#define TURB_POWER 5.0 //makes twists
+//#define TURB_POWER 5.0 //makes twists
 #define TURB_SIZE 64.0 //initial size of the turbulence
 
 void stackDirt(unsigned int x, unsigned int height);

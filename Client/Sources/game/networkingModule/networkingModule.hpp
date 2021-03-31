@@ -14,7 +14,7 @@
 namespace networking {
 
 struct packetListener {
-    virtual ~packetListener() {}
+    virtual ~packetListener() = default;
     std::set<packets::packetType> listening_to;
     virtual void onPacket(packets::packet packet) = 0;
 };

@@ -5,6 +5,8 @@
 //  Created by Jakob Zorz on 10/12/2020.
 //
 
+#include <utility>
+
 #include "core.hpp"
 
 void itemEngine::item::create(itemType item_id_, int x_, int y_, unsigned short id_) {
@@ -18,18 +20,18 @@ void itemEngine::item::create(itemType item_id_, int x_, int y_, unsigned short 
     id = id_;
     item_id = item_id_;
     
-    item_creation_data data;
+    item_creation_data data{};
     data.item = this;
     events::callEvent(item_creation, (void*)&data);
 }
 
 void itemEngine::item::destroy() {
-    item_deletion_data data;
+    item_deletion_data data{};
     data.item = this;
     events::callEvent(item_deletion, (void*)&data);
 }
 
-itemEngine::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places) : name(name), stack_size(stack_size), places(places) {}
+itemEngine::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, blockEngine::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
 itemEngine::uniqueItem& itemEngine::item::getUniqueItem() const {
     ASSERT(item_id >= 0 && item_id < unique_items.size(), "item_id is not valid");
@@ -87,7 +89,7 @@ void itemEngine::item::update(float frame_length) {
     }
     
     if(prev_x != x || prev_y != y) {
-        item_movement_data data;
+        item_movement_data data{};
         data.item = this;
         events::callEvent(item_movement, (void*)&data);
     }

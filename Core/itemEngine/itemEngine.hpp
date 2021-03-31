@@ -14,7 +14,7 @@
 namespace itemEngine {
 
 struct uniqueItem {
-    uniqueItem(const std::string& name, unsigned short stack_size, blockEngine::blockType places);
+    uniqueItem(std::string  name, unsigned short stack_size, blockEngine::blockType places);
     std::string name;
     unsigned short stack_size;
     blockEngine::blockType places;

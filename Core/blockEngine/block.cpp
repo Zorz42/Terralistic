@@ -5,6 +5,8 @@
 //  Created by Jakob Zorz on 09/12/2020.
 //
 
+#include <utility>
+
 #include "core.hpp"
 
 void updateNeighbours(unsigned short x, unsigned short y) {
@@ -23,7 +25,7 @@ void updateNeighbours(unsigned short x, unsigned short y) {
             neighbor->update();
 }
 
-blockEngine::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {}
+blockEngine::uniqueBlock::uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemEngine::itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
 
 void blockEngine::block::update() {
     if(getUniqueBlock().only_on_floor && getBlock(getX(), (unsigned short)(getY() + 1)).getUniqueBlock().transparent)
@@ -43,7 +45,7 @@ void blockEngine::block::setBlockType(blockType id) {
         updateNeighbours(getX(), getY());
         light_update();
         
-        block_change_data data;
+        block_change_data data{};
         data.x = getX();
         data.y = getY();
         data.type = id;
@@ -53,10 +55,10 @@ void blockEngine::block::setBlockType(blockType id) {
 
 void blockEngine::block::setBreakProgress(unsigned short ms) {
     break_progress_ms = ms;
-    unsigned char progress = (unsigned char)((float)break_progress_ms / (float)getUniqueBlock().break_time * 9.0f);
+    auto progress = (unsigned char)((float)break_progress_ms / (float)getUniqueBlock().break_time * 9.0f);
     if(progress != break_progress) {
         break_progress = progress;
-        break_progress_change_data data;
+        break_progress_change_data data{};
         data.x = getX();
         data.y = getY();
         events::callEvent(break_progress_change, (void*)&data);

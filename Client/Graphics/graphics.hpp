@@ -30,7 +30,7 @@ struct color {
 };
 
 struct rectShape {
-    rectShape(short x=0, short y=0, unsigned short w=0, unsigned short h=0) : x(x), y(y), w(w), h(h) {}
+    explicit rectShape(short x=0, short y=0, unsigned short w=0, unsigned short h=0) : x(x), y(y), w(w), h(h) {}
     short x, y;
     unsigned short w, h;
 };
@@ -47,7 +47,7 @@ struct _centeredObject {
 };
 
 struct rect : public _centeredObject {
-    rect(short x=0, short y=0, unsigned short w=0, unsigned short h=0, color c={255, 255, 255}, objectType orientation=top_left) : _centeredObject(x, y, orientation), w(w), h(h), c(c) {}
+    explicit rect(short x=0, short y=0, unsigned short w=0, unsigned short h=0, color c={255, 255, 255}, objectType orientation=top_left) : _centeredObject(x, y, orientation), w(w), h(h), c(c) {}
     inline unsigned short getWidth() const { return w; };
     inline unsigned short getHeight() const { return h; };
     unsigned short w, h;
@@ -55,7 +55,7 @@ struct rect : public _centeredObject {
 };
 
 struct image {
-    void setTexture(void* surface);
+    void setTexture(void* texture_);
     void* getTexture() const { return texture; }
     ~image();
     bool free_texture = true, flipped = false;
@@ -88,7 +88,7 @@ struct textInput : public button {
     textInput() { margin = 3; }
     
     inline std::string getText() const { return text; }
-    unsigned short getWidth() const;
+    unsigned short getWidth() const override;
     void setText(const std::string& text);
     
     bool active = false;
@@ -100,7 +100,7 @@ protected:
 };
 
 void render(rectShape x, color c, bool fill=true);
-void render(rect x, bool fill=true);
+void render(const rect& x, bool fill=true);
 void render(const image& tex, short x, short y);
 void render(const image& tex, rectShape rect);
 void render(const image& tex, short x, short y, rectShape src_rect);
@@ -111,7 +111,7 @@ void render(const textInput& b);
 struct scene;
 
 struct _sceneModule {
-    virtual ~_sceneModule() {}
+    virtual ~_sceneModule() = default;
     
     virtual void init() {}
     virtual void refresh() {}
@@ -125,11 +125,11 @@ struct _sceneModule {
 template <class parent_scene>
 struct sceneModule : public _sceneModule {
     parent_scene* scene;
-    sceneModule(parent_scene* scene) : scene(scene) {}
+    explicit sceneModule(parent_scene* scene) : scene(scene) {}
 };
 
 struct scene {
-    virtual ~scene() {}
+    virtual ~scene() = default;
     
     virtual void init() {}
     virtual void refresh() {}

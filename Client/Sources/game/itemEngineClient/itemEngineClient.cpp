@@ -13,7 +13,7 @@
 static itemEngineClient::uniqueRenderItem* unique_render_items;
 
 INIT_SCRIPT
-    INIT_ASSERT(itemEngine::unique_items.size());
+    INIT_ASSERT(!itemEngine::unique_items.empty());
     unique_render_items = new itemEngineClient::uniqueRenderItem[itemEngine::unique_items.size()];
     for(int i = 0; i < itemEngine::unique_items.size(); i++) {
         unique_render_items[i].texture.setTexture(itemEngine::unique_items[i].name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + itemEngine::unique_items[i].name + ".png"));

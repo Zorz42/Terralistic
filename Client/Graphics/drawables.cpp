@@ -23,9 +23,9 @@ short gfx::_centeredObject::getTranslatedY() const {
 
 // image
 
-void gfx::image::setTexture(void *texture) {
+void gfx::image::setTexture(void* texture_) {
     freeTexture();
-    this->texture = texture;
+    texture = texture_;
 }
 
 gfx::image::~image() {
@@ -70,15 +70,15 @@ bool gfx::button::isHovered() const {
 
 // textInput
 
-void gfx::textInput::setText(const std::string& text) {
-    this->text.clear();
-    for(char c : text) {
+void gfx::textInput::setText(const std::string& text_) {
+    text.clear();
+    for(char c : text_) {
         if(textProcessing)
             c = textProcessing(c);
         if(c != 0)
-            this->text.push_back(c);
+            text.push_back(c);
     }
-    setTexture(gfx::renderText(this->text.empty() ? " " : this->text, text_color));
+    setTexture(gfx::renderText(text.empty() ? " " : text, text_color));
 }
 
 unsigned short gfx::textInput::getWidth() const {

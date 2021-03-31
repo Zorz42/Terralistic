@@ -13,9 +13,7 @@
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
-#include "networkingModule.hpp"
 #include "otherPlayers.hpp"
-#include "main.hpp"
 #include "itemEngineClient.hpp"
 #include "blockEngineClient.hpp"
 #include "textScreen.hpp"
@@ -32,24 +30,24 @@ void game::scene::init() {
     
     blockEngine::prepare();
     
-    blockEngineClient::module* block_renderer = new blockEngineClient::module(this);
-    itemEngineClient::module* item_engine = new itemEngineClient::module(this);
-    players::module*              players = new players::module(this);
-    pauseScreen::module*     pause_screen = new pauseScreen::module(this);
-    playerHandler::module* player_handler = new playerHandler::module(this);
-    blockSelector::module* block_selector = new blockSelector::module(this);
+    auto* block_renderer = new blockEngineClient::module(this);
+    auto* item_engine    = new itemEngineClient::module(this);
+    auto* player         = new players::module(this);
+    auto* pause_screen   = new pauseScreen::module(this);
+    auto* player_handler = new playerHandler::module(this);
+    auto* block_selector = new blockSelector::module(this);
     
     networking_manager.listeners = {
         block_renderer,
         item_engine,
-        players,
+        player,
         player_handler,
     };
     
     modules = {
         block_renderer,
         item_engine,
-        players,
+        player,
         pause_screen,
         player_handler,
         block_selector,

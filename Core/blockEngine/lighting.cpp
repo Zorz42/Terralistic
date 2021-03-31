@@ -59,7 +59,7 @@ void blockEngine::block::light_update(bool update) {
             return;
         if(level_to_be != light_level) {
             light_level = level_to_be;
-            light_change_data data;
+            light_change_data data{};
             data.x = x;
             data.y = y;
             events::callEvent(light_change, (void*)&data);
@@ -67,7 +67,7 @@ void blockEngine::block::light_update(bool update) {
         }
     }
     if((update_neighbors || light_source) && update)
-        for(int i = 0; i < 4; i++)
-            if(neighbors[i] != nullptr && !neighbors[i]->light_source)
-                neighbors[i]->to_update_light = true;
+        for(auto& neighbor : neighbors)
+            if(neighbor != nullptr && !neighbor->light_source)
+                neighbor->to_update_light = true;
 }

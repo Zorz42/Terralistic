@@ -14,20 +14,20 @@ char inventory::inventory::addItem(itemEngine::itemType id, int quantity) {
         if(inventory[i].item_id == id) {
             quantity -= inventory[i].increaseStack((unsigned short)quantity);
             if(!quantity)
-                return i;
+                return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory[i].item_id == itemEngine::NOTHING) {
             inventory[i].item_id = id;
             quantity -= inventory[i].increaseStack((unsigned short)quantity);
             if(!quantity)
-                return i;
+                return (char)i;
         }
     return -1;
 }
 
 inventory::inventoryItem* inventory::inventory::getSelectedSlot() {
-    return &inventory[(int)selected_slot];
+    return &inventory[(int)(unsigned char)selected_slot];
 }
 
 void inventory::inventory::swapWithMouseItem(inventoryItem* item) {

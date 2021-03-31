@@ -161,7 +161,7 @@ bool playerHandler::module::isPlayerColliding() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(blockEngine::getChunkState(x >> 4, y >> 4) != blockEngine::loaded || (gfx::colliding({short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH}, playerHandler::player.getTranslatedRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
+            if(blockEngine::getChunkState(x >> 4, y >> 4) != blockEngine::loaded || (gfx::colliding(gfx::rectShape(short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH), playerHandler::player.getTranslatedRect()) && !blockEngine::getBlock(x, y).getUniqueBlock().ghost))
                 return true;
     return false;
 }
@@ -242,7 +242,7 @@ void playerHandler::module::update() {
 
 void playerHandler::module::renderItem(inventory::inventoryItem* item, int x, int y, int i) {
     if(itemEngineClient::getUniqueRenderItem(item->item_id).texture.getTexture())
-        gfx::render(itemEngineClient::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, 30, 30});
+        gfx::render(itemEngineClient::getUniqueRenderItem(item->item_id).texture, gfx::rectShape((short)x, (short)y, 30, 30));
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
@@ -271,7 +271,7 @@ void playerHandler::module::render() {
     for(int i = -1; i < 20; i++)
         updateStackTexture(i);
     for(int i = 0; i < (player_inventory.open ? 20 : 10); i++) {
-        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), {(short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0}) && player_inventory.open) {
+        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::rectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0)) && player_inventory.open) {
             hovered = &player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
             if(player_inventory.inventory[i].item_id != itemEngine::NOTHING) {

@@ -22,10 +22,10 @@ namespace worldCreator {
 struct scene : public gfx::scene {
     const std::vector<std::string>& worlds;
     scene(const std::vector<std::string>& worlds) : worlds(worlds) {}
-    bool running = true, can_create;
-    void init();
-    void onKeyDown(gfx::key key);
-    void render();
+    bool running = true, can_create = false;
+    void init() override;
+    void onKeyDown(gfx::key key) override;
+    void render() override;
 };
 
 }

@@ -27,7 +27,7 @@ blockEngineClient::renderChunk& getChunk(unsigned short x, unsigned short y) {
 }
 
 INIT_SCRIPT
-    INIT_ASSERT(blockEngine::unique_blocks.size());
+    INIT_ASSERT(!blockEngine::unique_blocks.empty());
     unique_render_blocks = new blockEngineClient::uniqueRenderBlock[blockEngine::unique_blocks.size()];
     for(int i = 0; i < blockEngine::unique_blocks.size(); i++)
         unique_render_blocks[i].createTexture(&blockEngine::unique_blocks[i]);
@@ -63,13 +63,13 @@ void blockEngineClient::renderBlock::draw() {
     gfx::rect rect((getX() & 15) * BLOCK_WIDTH, (getY() & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level)});
     
     if(getUniqueRenderBlock().texture.getTexture() && getRelatedBlock().light_level)
-        gfx::render(getUniqueRenderBlock().texture, rect.x, rect.y, {0, short((BLOCK_WIDTH >> 1) * block_orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1});
+        gfx::render(getUniqueRenderBlock().texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
     
     if(getRelatedBlock().light_level != MAX_LIGHT)
         gfx::render(rect);
 
     if(getRelatedBlock().break_progress)
-        gfx::render(breaking_texture, rect.x, rect.y, {0, short(BLOCK_WIDTH * (getRelatedBlock().break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1});
+        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (getRelatedBlock().break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 }
 
 void blockEngineClient::renderChunk::updateTexture() {
