@@ -46,7 +46,7 @@ void terrainGenerator::scene::init() {
 }
 
 void terrainGenerator::scene::update() {
-    loading_bar.w = terrainGenerator::loading_current * LOADING_RECT_WIDTH / terrainGenerator::loading_total;
+    loading_bar.w += (terrainGenerator::loading_current * LOADING_RECT_WIDTH / terrainGenerator::loading_total - loading_bar.w) / 3;
     loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
     
     if(terrainGenerator::loading_current == terrainGenerator::loading_total)

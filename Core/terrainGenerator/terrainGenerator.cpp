@@ -50,6 +50,9 @@ int terrainGenerator::generateTerrainDaemon(unsigned int seed) {
     generateCaves(engine);
     generateStone(engine);
     generateTrees(engine);
+    for(int y = 0; y < (blockEngine::world_height >> 4); y++)
+        for(int x = 0; x < (blockEngine::world_width >> 4); x++)
+            blockEngine::getChunkState(x, y) = blockEngine::loaded;
     LOADING_NEXT
     return 0;
 }
