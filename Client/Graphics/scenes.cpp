@@ -155,7 +155,8 @@ void gfx::runScenes() {
                 for(textInput* i : used_scene->text_inputs)
                     if(i->active)
                         i->setText(i->getText() + c);
-            }
+            } else if(event.type == SDL_MOUSEWHEEL)
+                used_scene->onMouseScroll(event.wheel.y);
         }
         
         used_scene->update();

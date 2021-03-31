@@ -22,6 +22,7 @@ struct scene : public gfx::scene {
     void refresh();
     void onKeyDown(gfx::key key);
     void render();
+    void onMouseScroll(int distance);
 };
 
 }

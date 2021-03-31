@@ -81,6 +81,7 @@ struct button : public sprite {
     
     color def_color = {0, 0, 0}, hover_color = {100, 100, 100};
     bool isHovered() const;
+    bool hoverable = true;
 };
 
 struct textInput : public button {
@@ -137,6 +138,8 @@ struct scene {
     virtual void stop() {}
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
+    virtual void onMouseScroll(int distance) {}
+    
     std::vector<textInput*> text_inputs;
     std::vector<_sceneModule*> modules;
     
