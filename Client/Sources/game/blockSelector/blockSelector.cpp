@@ -20,10 +20,6 @@ struct clickEvents {
     void (*leftClickEvent)(blockEngine::block*) = nullptr;
 };
 
-static gfx::rect select_rect;
-static bool left_button_pressed = false;
-static unsigned short prev_selected_x = 0, prev_selected_y = 0;
-static unsigned short selected_block_x, selected_block_y;
 static std::vector<clickEvents> click_events;
 
 // you can register special click events to blocks for custom behaviour
@@ -48,26 +44,20 @@ INIT_SCRIPT
     click_events[blockEngine::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
     click_events[blockEngine::AIR].rightClickEvent = &air_rightClickEvent;
     click_events[blockEngine::AIR].leftClickEvent = &air_leftClickEvent;
-
-    select_rect.c = {255, 0, 0};
-    select_rect.w = BLOCK_WIDTH;
-    select_rect.h = BLOCK_WIDTH;
 INIT_SCRIPT_END
 
-bool collidingWithPlayer() {
-    return gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect());
-}
-
 void blockSelector::module::render() {
-    if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && left_button_pressed) {
-        packets::packet packet(packets::STARTED_BREAKING);
-        packet << selected_block_x << selected_block_y;
-        scene->networking_manager.sendPacket(packet);
+    if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {
+        if(scene->multiplayer) {
+            packets::packet packet(packets::STARTED_BREAKING);
+            packet << selected_block_x << selected_block_y;
+            scene->networking_manager.sendPacket(packet);
+        }
         prev_selected_x = selected_block_x;
         prev_selected_y = selected_block_y;
     }
     
-    if(left_button_pressed && !game::online) {
+    if(is_left_button_pressed && !game::online) {
         blockEngine::block* block = &blockEngine::getBlock(selected_block_x, selected_block_y);
         if(click_events[block->block_id].leftClickEvent)
             click_events[block->block_id].leftClickEvent(block);
@@ -89,26 +79,28 @@ void blockSelector::module::render() {
 
 void blockSelector::module::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
-        left_button_pressed = true;
+        is_left_button_pressed = true;
         prev_selected_x = blockEngine::world_width;
         prev_selected_y = blockEngine::world_height;
-    } else if(key == gfx::KEY_MOUSE_RIGHT && !collidingWithPlayer() && !playerHandler::hovered) {
+    } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
         if(game::online) {
             packets::packet packet(packets::RIGHT_CLICK);
             packet << selected_block_x << selected_block_y;
             scene->networking_manager.sendPacket(packet);
         } else {
-            blockEngine::block* block = &blockEngine::getBlock(selected_block_x, selected_block_y);
-            if(click_events[block->block_id].rightClickEvent)
-                click_events[block->block_id].rightClickEvent(block);
+            blockEngine::block& block = blockEngine::getBlock(selected_block_x, selected_block_y);
+            if(click_events[block.block_id].rightClickEvent)
+                click_events[block.block_id].rightClickEvent(&block);
         }
     }
 }
 
 void blockSelector::module::onKeyUp(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
-        left_button_pressed = false;
-        packets::packet packet(packets::STOPPED_BREAKING);
-        scene->networking_manager.sendPacket(packet);
+        is_left_button_pressed = false;
+        if(scene->multiplayer) {
+            packets::packet packet(packets::STOPPED_BREAKING);
+            scene->networking_manager.sendPacket(packet);
+        }
     }
 }

@@ -118,9 +118,11 @@ void playerHandler::module::onKeyDown(gfx::key key) {
         case gfx::KEY_MOUSE_LEFT: {
             if(hovered) {
                 player_inventory.swapWithMouseItem(hovered);
-                packets::packet packet(packets::INVENTORY_SWAP);
-                packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
-                scene->networking_manager.sendPacket(packet);
+                if(scene->multiplayer) {
+                    packets::packet packet(packets::INVENTORY_SWAP);
+                    packet << (unsigned char)(hovered - &player_inventory.inventory[0]);
+                    scene->networking_manager.sendPacket(packet);
+                }
             }
             break;
         }
@@ -313,9 +315,11 @@ void playerHandler::module::render() {
 
 void playerHandler::module::selectSlot(char slot) {
     player_inventory.selected_slot = slot;
-    packets::packet packet(packets::HOTBAR_SELECTION);
-    packet << slot;
-    scene->networking_manager.sendPacket(packet);
+    if(scene->multiplayer) {
+        packets::packet packet(packets::HOTBAR_SELECTION);
+        packet << slot;
+        scene->networking_manager.sendPacket(packet);
+    }
 }
 
 void playerHandler::module::onPacket(packets::packet packet) {

@@ -22,16 +22,12 @@
 
 #undef main
 
-static gfx::sprite fps_text;
-
-INIT_SCRIPT
+void game::scene::init() {
     fps_text.scale = 3;
     fps_text.x = 10;
     fps_text.y = 10;
     fps_text.orientation = gfx::top_left;
-INIT_SCRIPT_END
-
-void game::scene::init() {
+    
     online = multiplayer;
     
     blockEngine::prepare();

@@ -23,6 +23,7 @@ inline bool online;
 
 struct scene : public gfx::scene {
     const std::string world_name;
+    gfx::sprite fps_text;
     networking::networkingManager networking_manager;
     
     bool multiplayer;
