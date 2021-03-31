@@ -96,6 +96,33 @@ void gfx::runScenes() {
     while(scene_stack.size()) {
         Uint64 start = SDL_GetPerformanceCounter();
         
+        if(used_scene != scene_stack.top() || quit) {
+            while(true) {
+                used_scene->stop();
+                for(_sceneModule* module : used_scene->modules) {
+                    module->stop();
+                    delete module;
+                }
+                delete used_scene;
+                
+                if(quit) {
+                    scene_stack.pop();
+                    if(!scene_stack.size())
+                        break;
+                    used_scene = scene_stack.top();
+                } else {
+                    used_scene = scene_stack.top();
+                    if(!used_scene->one_time)
+                        break;
+                    scene_stack.pop();
+                }
+            }
+            if(!quit)
+                used_scene->refresh();
+        }
+        if(quit)
+            break;
+        
         while(SDL_PollEvent(&event)) {
             if(event.type == SDL_QUIT)
                 quit = true;
@@ -155,31 +182,6 @@ void gfx::runScenes() {
         
     
         updateWindow();
-        
-        if(used_scene != scene_stack.top() || quit) {
-            while(true) {
-                used_scene->stop();
-                for(_sceneModule* module : used_scene->modules) {
-                    module->stop();
-                    delete module;
-                }
-                delete used_scene;
-                
-                if(quit) {
-                    scene_stack.pop();
-                    if(!scene_stack.size())
-                        break;
-                    used_scene = scene_stack.top();
-                } else {
-                    used_scene = scene_stack.top();
-                    if(!used_scene->one_time)
-                        break;
-                    scene_stack.pop();
-                }
-            }
-            if(!quit)
-                used_scene->refresh();
-        }
         
         Uint64 end = SDL_GetPerformanceCounter();
         frame_length = float(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;

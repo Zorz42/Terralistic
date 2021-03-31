@@ -14,23 +14,18 @@
 #include "itemEngineClient.hpp"
 #include "blockEngineClient.hpp"
 
-#define INC_X position_x++;playerHandler::view_x++
-#define DEC_X position_x--;playerHandler::view_x--
-#define INC_Y position_y++;playerHandler::view_y++
-#define DEC_Y position_y--;playerHandler::view_y--
-
-// this handles player and its movement
-
-static bool key_up = false, jump = false;
-
-static gfx::rect inventory_slots[20], select_rect, under_text_rect;
-static gfx::image stack_textures[20], mouse_stack_texture;
-static int position_x, position_y;
-static short velocity_x = 0, velocity_y = 0;
+#define INC_X position_x++; playerHandler::view_x++
+#define DEC_X position_x--; playerHandler::view_x--
+#define INC_Y position_y++; playerHandler::view_y++
+#define DEC_Y position_y--; playerHandler::view_y--
 
 #define MARGIN 10
 
-INIT_SCRIPT
+// this handles player and its movement
+
+bool isPlayerColliding();
+
+void playerHandler::module::init() {
     for(int i = 0; i < 20; i++) {
         inventory_slots[i].orientation = gfx::top;
         inventory_slots[i].c = {100, 100, 100};
@@ -40,21 +35,10 @@ INIT_SCRIPT
         inventory_slots[i].y = MARGIN + i / 10 * 2 * MARGIN + i / 10 * 2 * BLOCK_WIDTH;
     }
     
-    select_rect.orientation = gfx::top;
-    select_rect.c = {50, 50, 50};
-    select_rect.w = 2 * BLOCK_WIDTH + 2 * MARGIN;
-    select_rect.h = 2 * BLOCK_WIDTH + 2 * MARGIN;
-    select_rect.y = MARGIN / 2;
-    
-    under_text_rect.c = {0, 0, 0};
     playerHandler::player.setTexture(gfx::loadImageFile("texturePack/misc/player.png"));
     playerHandler::player.scale = 2;
     playerHandler::player.orientation = gfx::center;
-INIT_SCRIPT_END
-
-bool isPlayerColliding();
-
-void playerHandler::module::init() {
+    
     if(!game::online) {
         position_x = blockEngine::getSpawnX();
         position_y = blockEngine::getSpawnY() - player.getHeight() / 2;
@@ -152,7 +136,7 @@ void playerHandler::module::onKeyUp(gfx::key key) {
     }
 }
 
-bool isPlayerColliding() {
+bool playerHandler::module::isPlayerColliding() {
 #define COLLISION_PADDING 2
     
     if(position_x < playerHandler::player.getWidth() / 2 || position_y < playerHandler::player.getHeight() / 2 ||
@@ -182,7 +166,7 @@ bool isPlayerColliding() {
     return false;
 }
 
-bool touchingGround() {
+bool playerHandler::module::touchingGround() {
     INC_Y;
     bool result = isPlayerColliding();
     DEC_Y;
@@ -256,7 +240,7 @@ void playerHandler::module::update() {
             }
 }
 
-void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
+void playerHandler::module::renderItem(inventory::inventoryItem* item, int x, int y, int i) {
     if(itemEngineClient::getUniqueRenderItem(item->item_id).texture.getTexture())
         gfx::render(itemEngineClient::getUniqueRenderItem(item->item_id).texture, {(short)x, (short)y, 30, 30});
     if(item->getStack() > 1) {
@@ -265,7 +249,7 @@ void renderItem(inventory::inventoryItem* item, int x, int y, int i) {
     }
 }
 
-void updateStackTexture(int i) {
+void playerHandler::module::updateStackTexture(int i) {
     inventory::inventoryItem* item = i == -1 ? playerHandler::player_inventory.getMouseItem() : &playerHandler::player_inventory.inventory[i];
     if(item->stack_changed) {
         gfx::image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];

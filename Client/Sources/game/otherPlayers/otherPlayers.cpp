@@ -13,14 +13,6 @@
 
 // module for handling other players in online game
 
-struct player {
-    unsigned short id{0};
-    int x{0}, y{0};
-    bool flipped = false;
-};
-
-static std::vector<player> other_players;
-
 void players::module::init() {
     other_players.clear();
     listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT};
@@ -38,8 +30,8 @@ void players::module::render() {
     }
 }
 
-player* getPlayerById(unsigned short id) {
-    for(auto & player : other_players)
+players::module::player* players::module::getPlayerById(unsigned short id) {
+    for(auto& player : other_players)
         if(player.id == id)
             return &player;
     ASSERT(false, "Could not get player by id");

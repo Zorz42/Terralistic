@@ -20,8 +20,12 @@ namespace pauseScreen {
 
 struct module : public gfx::sceneModule<game::scene> {
     using gfx::sceneModule<game::scene>::sceneModule;
+    void init();
     void render();
     void onKeyDown(gfx::key key);
+private:
+    gfx::button resume_button, quit_button;
+    bool paused = false;
 };
 
 }

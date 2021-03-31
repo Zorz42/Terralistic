@@ -12,34 +12,14 @@
 #include "main.hpp"
 
 #define TEXT_SCALE 3
-    
-#define LOADING_RECT_HEIGHT 20
-#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
-#define LOADING_RECT_ELEVATION 50
 
-gfx::sprite loading_text;
-gfx::rect loading_bar_back, loading_bar;
-
-INIT_SCRIPT
+void terrainGenerator::scene::init() {
     loading_text.scale = TEXT_SCALE;
     loading_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     loading_text.setTexture(gfx::renderText("Generating world", {255, 255, 255}));
     loading_text.orientation = gfx::center;
 
     
-    loading_bar_back.h = LOADING_RECT_HEIGHT;
-    loading_bar_back.w = LOADING_RECT_WIDTH;
-    loading_bar_back.c = {100, 100, 100};
-    loading_bar_back.y = -LOADING_RECT_ELEVATION;
-    loading_bar_back.orientation = gfx::bottom;
-
-    loading_bar.h = LOADING_RECT_HEIGHT;
-    loading_bar.c = {255, 255, 255};
-    loading_bar.y = -LOADING_RECT_ELEVATION;
-    loading_bar.orientation = gfx::bottom;
-INIT_SCRIPT_END
-
-void terrainGenerator::scene::init() {
     terrainGenerator::loading_total = 6;
     terrainGenerator::loading_current = 0;
     thread = std::thread(terrainGenerator::generateTerrainDaemon, seed);

@@ -28,6 +28,20 @@ struct module : public gfx::sceneModule<game::scene>, networking::packetListener
     void render();
     void selectSlot(char slot);
     void onPacket(packets::packet packet);
+    
+private:
+    bool key_up = false, jump = false;
+    gfx::rect inventory_slots[20],
+    select_rect{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::top},
+    under_text_rect{0, 0, 0, 0, {0, 0, 0}};
+    gfx::image stack_textures[20], mouse_stack_texture;
+    int position_x, position_y;
+    short velocity_x = 0, velocity_y = 0;
+    
+    bool isPlayerColliding();
+    bool touchingGround();
+    void renderItem(inventory::inventoryItem* item, int x, int y, int i);
+    void updateStackTexture(int i);
 };
 
 inline int view_x, view_y;

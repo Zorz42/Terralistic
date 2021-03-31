@@ -24,6 +24,15 @@ struct module : public gfx::sceneModule<game::scene>, networking::packetListener
     void init();
     void render();
     void onPacket(packets::packet packet);
+private:
+    struct player {
+        unsigned short id{0};
+        int x{0}, y{0};
+        bool flipped = false;
+    };
+
+    std::vector<player> other_players;
+    player* getPlayerById(unsigned short id);
 };
 
 }
