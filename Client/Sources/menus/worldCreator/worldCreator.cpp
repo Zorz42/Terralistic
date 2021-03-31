@@ -17,13 +17,9 @@
 // menu, where you create worlds
 // for guide, check multiplayer selector, which is quite similar
 
-static gfx::button back_button, create_button;
-static gfx::sprite new_world_title, faded_create;
-static gfx::textInput world_name;
-
 #define PADDING 20
 
-INIT_SCRIPT
+void worldCreator::scene::init() {
     back_button.scale = 3;
     back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
     back_button.y = -PADDING;
@@ -50,11 +46,9 @@ INIT_SCRIPT
 
     world_name.scale = 3;
     world_name.orientation = gfx::center;
-INIT_SCRIPT_END
-
-void worldCreator::scene::init() {
     world_name.setText("");
     world_name.active = true;
+    
     one_time = true;
     text_inputs = {&world_name};
 }

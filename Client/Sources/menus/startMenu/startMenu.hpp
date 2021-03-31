@@ -19,8 +19,12 @@
 namespace startMenu {
 
 struct scene : public gfx::scene {
+    void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
+    
+private:
+    gfx::button singleplayer_button, multiplayer_button, exit_button;
 };
 
 }

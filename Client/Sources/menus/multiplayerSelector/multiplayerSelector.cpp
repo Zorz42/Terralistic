@@ -16,15 +16,9 @@
 
 // this is a menu, where you select the server you want to play on
 
-static gfx::button back_button, join_button;
-static gfx::sprite join_server_title;
-static gfx::textInput server_ip;
-
 #define PADDING 20
 
-INIT_SCRIPT
-    // set all graphical elements
-    
+void multiplayerSelector::scene::init() {
     // the back button
     back_button.scale = 3;
     back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
@@ -48,11 +42,9 @@ INIT_SCRIPT
     
     server_ip.scale = 3;
     server_ip.orientation = gfx::center;
-INIT_SCRIPT_END
-
-void multiplayerSelector::scene::init() {
     server_ip.setText("");
     server_ip.active = true;
+    
     one_time = true;
     text_inputs = {&server_ip};
 }

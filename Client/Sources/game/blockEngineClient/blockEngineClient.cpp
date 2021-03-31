@@ -11,24 +11,122 @@
 #include "networkingModule.hpp"
 #include "blockEngineClient.hpp"
 
-static gfx::image breaking_texture;
-static blockEngineClient::renderChunk* chunks;
-static blockEngineClient::renderBlock* blocks;
-static blockEngineClient::uniqueRenderBlock* unique_render_blocks;
-
-blockEngineClient::renderBlock& getBlock(unsigned short x, unsigned short y) {
+blockEngineClient::module::renderBlock& blockEngineClient::module::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < blockEngine::world_height && x >= 0 && x < blockEngine::world_width, "requested block is out of bounds");
     return blocks[y * blockEngine::world_width + x];
 }
 
-blockEngineClient::renderChunk& getChunk(unsigned short x, unsigned short y) {
+blockEngineClient::module::renderChunk& blockEngineClient::module::getChunk(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < (blockEngine::world_height >> 4) && x >= 0 && x < (blockEngine::world_width >> 4), "requested chunk is out of bounds");
     return chunks[y * (blockEngine::world_width >> 4) + x];
 }
 
-INIT_SCRIPT
-    INIT_ASSERT(!blockEngine::unique_blocks.empty());
-    unique_render_blocks = new blockEngineClient::uniqueRenderBlock[blockEngine::unique_blocks.size()];
+void blockEngineClient::module::updateRenderBlockOrientation(unsigned short x, unsigned short y) {
+    renderBlock& block = getBlock(x, y);
+    if(!getUniqueRenderBlock(x, y).single_texture) {
+        block.block_orientation = 0;
+        char x_[] = {0, 1, 0, -1};
+        char y_[] = {-1, 0, 1, 0};
+        unsigned char c = 1;
+        for(int i = 0; i < 4; i++) {
+            if(
+               x + x_[i] >= blockEngine::world_width || x + x_[i] < 0 || y + y_[i] >= blockEngine::world_height || y + y_[i] < 0 ||
+               blockEngine::getBlock(x + x_[i], y + y_[i]).block_id == blockEngine::getBlock(x, y).block_id ||
+               std::count(getUniqueRenderBlock(x, y).connects_to.begin(), getUniqueRenderBlock(x, y).connects_to.end(), blockEngine::getBlock(x + x_[i], y + y_[i]).block_id)
+            )
+                block.block_orientation += c;
+            c += c;
+        }
+    }
+}
+
+void blockEngineClient::module::drawRenderBlock(unsigned short x, unsigned short y) {
+    renderBlock& block = getBlock(x, y);
+    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * blockEngine::getBlock(x, y).light_level)});
+    
+    if(getUniqueRenderBlock(x, y).texture.getTexture() && blockEngine::getBlock(x, y).light_level)
+        gfx::render(getUniqueRenderBlock(x, y).texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block.block_orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+    
+    if(blockEngine::getBlock(x, y).light_level != MAX_LIGHT)
+        gfx::render(rect);
+
+    if(blockEngine::getBlock(x, y).break_progress)
+        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (blockEngine::getBlock(x, y).break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+}
+
+void blockEngineClient::module::updateChunkTexture(unsigned short x, unsigned short y) {
+    renderChunk& chunk = getChunk(x, y);
+    chunk.update = false;
+    gfx::setRenderTarget(chunk.texture);
+    for(unsigned short y_ = 0; y_ < 16; y_++)
+        for(unsigned short x_ = 0; x_ < 16; x_++) {
+            renderBlock& block = getBlock((x << 4) + x_, (y << 4) + y_);
+            if(block.to_update) {
+                updateRenderBlockOrientation((x << 4) + x_, (y << 4) + y_);
+                gfx::render(gfx::rect(short(x_ * BLOCK_WIDTH), short(y_ * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH, {135, 206, 235}));
+                drawRenderBlock((x << 4) + x_, (y << 4) + y_);
+                block.to_update = false;
+            }
+        }
+    gfx::resetRenderTarget();
+}
+
+void blockEngineClient::module::drawRenderChunk(unsigned short x, unsigned short y) {
+    gfx::render(getChunk(x, y).texture, (x << 4) * BLOCK_WIDTH - playerHandler::view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - playerHandler::view_y + (gfx::getWindowHeight() >> 1));
+}
+
+void blockEngineClient::module::renderChunk::createTexture() {
+    texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
+}
+
+void blockEngineClient::module::uniqueRenderBlock::createTexture(blockEngine::uniqueBlock* unique_block) {
+    texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
+    single_texture = texture.getTextureHeight() == 8;
+    texture.scale = 2;
+}
+
+void blockEngineClient::module::scheduleTextureUpdate(unsigned short x, unsigned short y) {
+    getBlock(x, y).to_update = true;
+    getChunk(x >> 4, y >> 4).update = true;
+}
+
+blockEngineClient::module::uniqueRenderBlock& blockEngineClient::module::getUniqueRenderBlock(unsigned short x, unsigned short y) {
+    return unique_render_blocks[blockEngine::getBlock(x, y).block_id];
+}
+
+void blockEngineClient::module::updateBlock(unsigned short x, unsigned short y) {
+    scheduleTextureUpdate(x, y);
+    
+    std::pair<short, short> neighbors[4] = {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
+    if(x != 0)
+        neighbors[0] = {x - 1, y};
+    if(x != blockEngine::world_width - 1)
+        neighbors[1] = {x + 1, y};
+    if(y != 0)
+        neighbors[2] = {x, y - 1};
+    if(y != blockEngine::world_height - 1)
+        neighbors[3] = {x, y + 1};
+    for(int i = 0; i < 4; i++)
+        if(neighbors[i].first != -1)
+            scheduleTextureUpdate(neighbors[i].first, neighbors[i].second);
+}
+
+/*EVENT_LISTENER(blockEngine::block_change)
+    updateBlock(data.x, data.y);
+EVENT_LISTENER_END
+
+EVENT_LISTENER(blockEngine::light_change)
+    updateBlock(data.x, data.y);
+EVENT_LISTENER_END
+
+EVENT_LISTENER(blockEngine::break_progress_change)
+    updateBlock(data.x, data.y);
+EVENT_LISTENER_END*/
+
+// Module
+
+void blockEngineClient::module::init() {
+    unique_render_blocks = new uniqueRenderBlock[blockEngine::unique_blocks.size()];
     for(int i = 0; i < blockEngine::unique_blocks.size(); i++)
         unique_render_blocks[i].createTexture(&blockEngine::unique_blocks[i]);
 
@@ -39,133 +137,7 @@ INIT_SCRIPT
 
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
-INIT_SCRIPT_END
-
-void blockEngineClient::renderBlock::updateOrientation() {
-    if(!getUniqueRenderBlock().single_texture) {
-        block_orientation = 0;
-        char x_[] = {0, 1, 0, -1};
-        char y_[] = {-1, 0, 1, 0};
-        unsigned char c = 1;
-        for(int i = 0; i < 4; i++) {
-            if(
-               getX() + x_[i] >= blockEngine::world_width || getX() + x_[i] < 0 || getY() + y_[i] >= blockEngine::world_height || getY() + y_[i] < 0 ||
-               blockEngine::getBlock(getX() + x_[i], getY() + y_[i]).block_id == getRelatedBlock().block_id ||
-               std::count(getUniqueRenderBlock().connects_to.begin(), getUniqueRenderBlock().connects_to.end(), blockEngine::getBlock(getX() + x_[i], getY() + y_[i]).block_id)
-            )
-                block_orientation += c;
-            c += c;
-        }
-    }
-}
-
-void blockEngineClient::renderBlock::draw() {
-    gfx::rect rect((getX() & 15) * BLOCK_WIDTH, (getY() & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getRelatedBlock().light_level)});
     
-    if(getUniqueRenderBlock().texture.getTexture() && getRelatedBlock().light_level)
-        gfx::render(getUniqueRenderBlock().texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
-    
-    if(getRelatedBlock().light_level != MAX_LIGHT)
-        gfx::render(rect);
-
-    if(getRelatedBlock().break_progress)
-        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (getRelatedBlock().break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
-}
-
-void blockEngineClient::renderChunk::updateTexture() {
-    update = false;
-    gfx::setRenderTarget(texture);
-    for(unsigned short y_ = 0; y_ < 16; y_++)
-        for(unsigned short x_ = 0; x_ < 16; x_++)
-            if(getBlock((getX() << 4) + x_, (getY() << 4) + y_).to_update) {
-                getBlock((getX() << 4) + x_, (getY() << 4) + y_).updateOrientation();
-                gfx::rect rect(short(x_ * BLOCK_WIDTH), short(y_ * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH, {135, 206, 235});
-                gfx::render(rect);
-                getBlock((getX() << 4) + x_, (getY() << 4) + y_).draw();
-                getBlock((getX() << 4) + x_, (getY() << 4) + y_).to_update = false;
-            }
-    gfx::resetRenderTarget();
-}
-
-void blockEngineClient::renderChunk::render() const {
-    gfx::render(texture, (getX() << 4) * BLOCK_WIDTH - playerHandler::view_x + (gfx::getWindowWidth() >> 1), (getY() << 4) * BLOCK_WIDTH - playerHandler::view_y + (gfx::getWindowHeight() >> 1));
-}
-
-void blockEngineClient::renderChunk::createTexture() {
-    texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
-}
-
-void blockEngineClient::uniqueRenderBlock::createTexture(blockEngine::uniqueBlock* unique_block) {
-    texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
-    single_texture = texture.getTextureHeight() == 8;
-    texture.scale = 2;
-}
-
-void blockEngineClient::renderBlock::scheduleTextureUpdate() {
-    to_update = true;
-    getChunk(getX() >> 4, getY() >> 4).update = true;
-}
-
-unsigned short blockEngineClient::renderBlock::getX() const {
-    return (unsigned int)(this - blocks) % blockEngine::world_width;
-}
-
-unsigned short blockEngineClient::renderBlock::getY() const {
-    return (unsigned int)(this - blocks) / blockEngine::world_width;
-}
-
-unsigned short blockEngineClient::renderChunk::getX() const {
-    return (unsigned int)(this - chunks) % (blockEngine::world_width >> 4);
-}
-
-unsigned short blockEngineClient::renderChunk::getY() const {
-    return (unsigned int)(this - chunks) / (blockEngine::world_width >> 4);
-}
-
-blockEngine::block& blockEngineClient::renderBlock::getRelatedBlock() {
-    return blockEngine::getBlock(getX(), getY());
-}
-
-blockEngineClient::uniqueRenderBlock& blockEngineClient::renderBlock::getUniqueRenderBlock() {
-    return unique_render_blocks[getRelatedBlock().block_id];
-}
-
-blockEngine::uniqueBlock& blockEngineClient::renderBlock::getUniqueBlock() {
-    return getRelatedBlock().getUniqueBlock();
-}
-
-void updateBlock(unsigned short x, unsigned short y) {
-    getBlock(x, y).scheduleTextureUpdate();
-    
-    blockEngineClient::renderBlock* neighbors[4] = {nullptr, nullptr, nullptr, nullptr};
-    if(x != 0)
-        neighbors[0] = &getBlock(x - 1, y);
-    if(x != blockEngine::world_width - 1)
-        neighbors[1] = &getBlock(x + 1, y);
-    if(y != 0)
-        neighbors[2] = &getBlock(x, y - 1);
-    if(y != blockEngine::world_height - 1)
-        neighbors[3] = &getBlock(x, y + 1);
-    for(int i = 0; i < 4; i++)
-        if(neighbors[i] != nullptr)
-            neighbors[i]->scheduleTextureUpdate();
-}
-
-EVENT_LISTENER(blockEngine::block_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
-
-EVENT_LISTENER(blockEngine::light_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
-
-EVENT_LISTENER(blockEngine::break_progress_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
-
-// Module
-
-void blockEngineClient::module::init() {
     blockEngine::prepareWorld();
     
     chunks = new renderChunk[(blockEngine::world_width >> 4) * (blockEngine::world_height >> 4)];
@@ -214,8 +186,8 @@ void blockEngineClient::module::render() {
                 has_requested = true;
             } else if(blockEngine::getChunkState(x, y) == blockEngine::loaded) {
                 if(getChunk(x, y).update)
-                    getChunk(x, y).updateTexture();
-                getChunk(x, y).render();
+                    updateChunkTexture(x, y);
+                renderChunk(getChunk(x, y));
             }
         }
     begin_x <<= 4;

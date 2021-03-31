@@ -21,34 +21,23 @@
 
 // every laoded world becomes a class/struct which is in array and rendered
 
-struct world_to_select {
-    std::string name;
-    explicit world_to_select(std::string name) : name(std::move(name)) {}
-    gfx::button button, delete_button;
-    void render();
-    int button_y{};
-};
-
 #define PADDING 20
 #define TOP_HEIGHT 70
 #define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
 #define LINE_HEIGHT 2
 
-static gfx::sprite title;
-static gfx::image x_image;
-static gfx::button back_button, new_button;
-static std::vector<std::string> worlds_names;
-static std::vector<world_to_select> worlds;
-static int scroll_limit, position;
-
-void world_to_select::render() {
+void worldSelector::scene::world_to_select::render(int position) {
     button.y = short(button_y - position);
     gfx::render(button);
     delete_button.y = short(button_y - position + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
     gfx::render(delete_button);
 }
 
-INIT_SCRIPT
+bool ends_with(const std::string& value, std::string ending) {
+    return ending.size() <= value.size() && std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+void worldSelector::scene::init() {
     // set some dimensions for shapes
     title.scale = 3;
     title.setTexture(gfx::renderText("Select a world to play!", {255, 255, 255}));
@@ -67,10 +56,6 @@ INIT_SCRIPT
     new_button.orientation = gfx::bottom_right;
     
     x_image.setTexture(gfx::loadImageFile("texturePack/misc/x-button.png"));
-INIT_SCRIPT_END
-
-bool ends_with(const std::string& value, std::string ending) {
-    return ending.size() <= value.size() && std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
 void worldSelector::scene::refresh() {
@@ -150,7 +135,7 @@ void worldSelector::scene::render() {
     }
     
     for(world_to_select& world : worlds)
-        world.render();
+        world.render(position);
     
     gfx::render(gfx::rect(0, 0, gfx::getWindowWidth(), TOP_HEIGHT, {0, 0, 0}));
     gfx::render(gfx::rect(0, 0, gfx::getWindowWidth(), BOTTOM_HEIGHT, {0, 0, 0}, gfx::bottom_left));

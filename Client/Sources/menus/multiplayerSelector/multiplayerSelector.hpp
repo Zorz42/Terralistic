@@ -20,6 +20,11 @@ struct scene : gfx::scene {
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
+    
+private:
+    gfx::button back_button, join_button;
+    gfx::sprite join_server_title;
+    gfx::textInput server_ip;
 };
 
 }

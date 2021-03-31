@@ -17,9 +17,7 @@
 
 // this is the main menu, which you see on the start of the app
 
-static gfx::button singleplayer_button, multiplayer_button, exit_button;
-
-INIT_SCRIPT
+void startMenu::scene::init() {
     singleplayer_button.scale = 3;
     singleplayer_button.setTexture(gfx::renderText("Singleplayer", {255, 255, 255}));
     singleplayer_button.y = short(-singleplayer_button.getTranslatedRect().h - 5);
@@ -33,7 +31,7 @@ INIT_SCRIPT
     exit_button.setTexture(gfx::renderText("Exit", {255, 255, 255}));
     exit_button.y = short(exit_button.getTranslatedRect().h + 5);
     exit_button.orientation = gfx::center;
-INIT_SCRIPT_END
+}
 
 void startMenu::scene::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT) {

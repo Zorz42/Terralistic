@@ -20,12 +20,17 @@
 namespace worldCreator {
 
 struct scene : public gfx::scene {
-    const std::vector<std::string>& worlds;
     scene(const std::vector<std::string>& worlds) : worlds(worlds) {}
     bool running = true, can_create = false;
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
+    
+private:
+    std::vector<std::string> worlds;
+    gfx::button back_button, create_button;
+    gfx::sprite new_world_title, faded_create;
+    gfx::textInput world_name;
 };
 
 }
