@@ -187,7 +187,7 @@ void blockEngineClient::module::render() {
             } else if(blockEngine::getChunkState(x, y) == blockEngine::loaded) {
                 if(getChunk(x, y).update)
                     updateChunkTexture(x, y);
-                renderChunk(getChunk(x, y));
+                drawRenderChunk(x, y);
             }
         }
     begin_x <<= 4;
