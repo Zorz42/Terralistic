@@ -115,8 +115,7 @@ void generateCaves(std::mt19937& engine) {
     for(unsigned int y = 0; y < highest_height; y++)
         for(unsigned int x = 0; x < blockEngine::world_width; x++)
             if(open_simplex_noise2(ctx, (double)x / 10, (double)y / 10) > CAVE_START + CAVE_LENGTH - (double)y / highest_height * CAVE_LENGTH)
-                blockEngine::getBlock((unsigned short)x,
-                                      (unsigned short)(y + (blockEngine::world_height - highest_height))).block_id = blockEngine::AIR;
+                blockEngine::getBlock((unsigned short)x, (unsigned short)(y + (blockEngine::world_height - highest_height))).block_id = blockEngine::AIR;
     open_simplex_noise_free(ctx);
     LOADING_NEXT
 }
