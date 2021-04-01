@@ -7,27 +7,28 @@
 
 #include "core.hpp"
 
-struct eventListener {
-    events::listenerFunction func;
-    events::eventType type;
-};
-
-std::vector<eventListener>& getEventListeners() {
-    static std::vector<eventListener> listeners;
-    return listeners;
-}
+static std::vector<events::eventListener*> listeners;
 
 events::eventType events::generateUniqueEvent() {
     static eventType type = 0;
     return type++;
 }
 
-events::registerEventListener::registerEventListener(eventType type, listenerFunction func) {
-    getEventListeners().push_back({func, type});
+events::eventListener::eventListener() {
+    listeners.push_back(this);
+}
+
+events::eventListener::~eventListener() {
+    for(int i = 0; i < listeners.size(); i++)
+        if(listeners[i] == this) {
+            listeners.erase(listeners.begin() + i);
+            break;
+        }
+            
 }
 
 void events::callEvent(eventType type, void *data) {
-    for(eventListener& listener : getEventListeners())
-        if(listener.type == type)
-            listener.func(data);
+    for(eventListener* listener : listeners)
+        if(listener->events_listening_to.find(type) != listener->events_listening_to.end())
+            listener->onEvent(type, data);
 }

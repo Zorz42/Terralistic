@@ -111,17 +111,18 @@ void blockEngineClient::module::updateBlock(unsigned short x, unsigned short y) 
             scheduleTextureUpdate(neighbors[i].first, neighbors[i].second);
 }
 
-/*EVENT_LISTENER(blockEngine::block_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
-
-EVENT_LISTENER(blockEngine::light_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END
-
-EVENT_LISTENER(blockEngine::break_progress_change)
-    updateBlock(data.x, data.y);
-EVENT_LISTENER_END*/
+void blockEngineClient::module::onEvent(events::eventType type, void* data) {
+    if(type == blockEngine::block_change) {
+        auto& data_ = *(blockEngine::block_change_data*)data;
+        updateBlock(data_.x, data_.y);
+    } else if(type == blockEngine::light_change) {
+        auto& data_ = *(blockEngine::light_change_data*)data;
+        updateBlock(data_.x, data_.y);
+    } else if(type == blockEngine::break_progress_change) {
+        auto& data_ = *(blockEngine::break_progress_change_data*)data;
+        updateBlock(data_.x, data_.y);
+    }
+}
 
 // Module
 
@@ -147,7 +148,8 @@ void blockEngineClient::module::init() {
         for(unsigned short y = 0; y < (blockEngine::world_height >> 4); y++)
             getChunk(x, y).createTexture();
     
-    listening_to = {};
+    listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_BREAK_PROGRESS_CHANGE};
+    events_listening_to = {blockEngine::block_change, blockEngine::light_change, blockEngine::break_progress_change};
 }
 
 void blockEngineClient::module::stop() {

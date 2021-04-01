@@ -8,9 +8,9 @@
 #ifndef events_hpp
 #define events_hpp
 
-#define EVENT_LISTENER(type) static events::registerEventListener JOIN(event_listener_registrator, __LINE__) (type, [](void* data_) { auto& data = *(JOIN(type, _data)*)data_;
-#define EVENT_LISTENER_END });
 #define REGISTER_EVENT(event_name) inline events::eventType event_name = events::generateUniqueEvent(); struct event_name ## _data
+
+#include <set>
 
 namespace events {
 
@@ -19,11 +19,14 @@ typedef void(*listenerFunction)(void* data_);
 typedef unsigned char eventType;
 void callEvent(eventType type, void* data);
 
-eventType generateUniqueEvent();
-
-struct registerEventListener {
-    registerEventListener(eventType type, listenerFunction func);
+struct eventListener {
+    eventListener();
+    virtual ~eventListener();
+    std::set<eventType> events_listening_to;
+    virtual void onEvent(eventType type, void* data) = 0;
 };
+
+eventType generateUniqueEvent();
 
 }
 

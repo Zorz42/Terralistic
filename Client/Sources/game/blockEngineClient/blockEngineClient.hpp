@@ -16,15 +16,17 @@
 
 #include "game.hpp"
 #include "networkingModule.hpp"
+#include "core.hpp"
 
 namespace blockEngineClient {
 
-struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
+struct module : public gfx::sceneModule<game::scene>, networking::packetListener, events::eventListener {
     using gfx::sceneModule<game::scene>::sceneModule;
-    void init();
-    void render();
-    void stop();
-    void onPacket(packets::packet packet);
+    void init() override;
+    void render() override;
+    void stop() override;
+    void onPacket(packets::packet packet) override;
+    void onEvent(events::eventType type, void* data) override;
     
 private:
     struct uniqueRenderBlock {
