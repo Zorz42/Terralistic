@@ -12,7 +12,7 @@
 #include "networkingModule.hpp"
 #include "game.hpp"
 #include "itemEngineClient.hpp"
-#include "blockEngineClient.hpp"
+#include "blockRenderer.hpp"
 
 #define INC_X position_x++; playerHandler::view_x++
 #define DEC_X position_x--; playerHandler::view_x--

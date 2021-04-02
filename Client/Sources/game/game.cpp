@@ -15,7 +15,7 @@
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
 #include "itemEngineClient.hpp"
-#include "blockEngineClient.hpp"
+#include "blockRenderer.hpp"
 #include "textScreen.hpp"
 
 #undef main
@@ -30,7 +30,7 @@ void game::scene::init() {
     
     blockEngine::prepare();
     
-    auto* block_renderer = new blockEngineClient::module(this);
+    auto* block_renderer = new blockRenderer(this);
     auto* item_engine    = new itemEngineClient::module(this);
     auto* player         = new players::module(this);
     auto* pause_screen   = new pauseScreen::module(this);

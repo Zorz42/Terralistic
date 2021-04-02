@@ -18,9 +18,7 @@
 #include "networkingModule.hpp"
 #include "core.hpp"
 
-namespace blockEngineClient {
-
-struct module : public gfx::sceneModule<game::scene>, networking::packetListener, events::eventListener {
+struct blockRenderer : public gfx::sceneModule<game::scene>, networking::packetListener, events::eventListener {
     using gfx::sceneModule<game::scene>::sceneModule;
     void init() override;
     void render() override;
@@ -29,44 +27,41 @@ struct module : public gfx::sceneModule<game::scene>, networking::packetListener
     void onEvent(events::eventType type, void* data) override;
     
 private:
-    struct uniqueRenderBlock {
+    struct uniqueBlock {
         void createTexture(blockEngine::uniqueBlock* unique_block);
         gfx::image texture;
         std::vector<blockEngine::blockType> connects_to;
         bool single_texture;
     };
 
-    struct renderBlock {
-        unsigned char block_orientation{0};
-        bool to_update = true;
+    struct block {
+        unsigned char orientation{0};
+        bool update = true;
     };
 
-    struct renderChunk {
+    struct chunk {
         bool update = true;
         gfx::image texture;
         void createTexture();
-        void updateTexture(module* block_engine);
     };
     
     gfx::image breaking_texture;
-    renderChunk* chunks = nullptr;
-    renderBlock* blocks = nullptr;
-    uniqueRenderBlock* unique_render_blocks = nullptr;
+    chunk* chunks = nullptr;
+    block* blocks = nullptr;
+    uniqueBlock* unique_blocks = nullptr;
     
-    renderBlock& getBlock(unsigned short x, unsigned short y);
-    renderChunk& getChunk(unsigned short x, unsigned short y);
+    block& getBlock(unsigned short x, unsigned short y);
+    chunk& getChunk(unsigned short x, unsigned short y);
     
-    void drawRenderBlock(unsigned short x, unsigned short y);
+    void renderBlock(unsigned short x, unsigned short y);
     void updateChunkTexture(unsigned short x, unsigned short y);
-    void scheduleTextureUpdate(unsigned short x, unsigned short y);
-    void drawRenderChunk(unsigned short x, unsigned short y);
-    void updateRenderBlockOrientation(unsigned short x, unsigned short y);
+    void scheduleTextureUpdateForBlock(unsigned short x, unsigned short y);
+    void renderChunk(unsigned short x, unsigned short y);
+    void updateBlockOrientation(unsigned short x, unsigned short y);
     
-    uniqueRenderBlock& getUniqueRenderBlock(unsigned short x, unsigned short y);
+    uniqueBlock& getUniqueBlock(unsigned short x, unsigned short y);
     
     void updateBlock(unsigned short x, unsigned short y);
 };
-
-}
 
 #endif /* blockRenderer_hpp */
