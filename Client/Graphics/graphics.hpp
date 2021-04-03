@@ -92,7 +92,7 @@ struct textInput : public button {
     void setText(const std::string& text);
     
     bool active = false;
-    char (*textProcessing)(char c);
+    char (*textProcessing)(char c) = nullptr;
     unsigned short width = 200;
     color border_color = {255, 255, 255}, text_color = {255, 255, 255};
 protected:

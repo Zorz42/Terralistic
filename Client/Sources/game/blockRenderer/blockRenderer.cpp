@@ -14,7 +14,7 @@
 void blockRenderer::init() {
     unique_blocks = new uniqueBlock[blockEngine::unique_blocks.size()];
     for(int i = 0; i < blockEngine::unique_blocks.size(); i++)
-        unique_blocks[i].createTexture(&blockEngine::unique_blocks[i]);
+        unique_blocks[i].loadFromUniqueBlock(&blockEngine::unique_blocks[i]);
 
     unique_blocks[blockEngine::GRASS_BLOCK].connects_to.push_back(blockEngine::DIRT);
     unique_blocks[blockEngine::DIRT].connects_to.push_back(blockEngine::GRASS_BLOCK);
@@ -23,8 +23,6 @@ void blockRenderer::init() {
 
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
-    
-    blockEngine::prepareWorld();
     
     chunks = new chunk[(blockEngine::world_width >> 4) * (blockEngine::world_height >> 4)];
     blocks = new block[blockEngine::world_width * blockEngine::world_height];

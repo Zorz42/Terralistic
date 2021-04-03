@@ -44,6 +44,13 @@ void multiplayerSelector::scene::init() {
     server_ip.orientation = gfx::center;
     server_ip.setText("");
     server_ip.active = true;
+    server_ip.textProcessing = [](char c) {
+        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_')
+            return c;
+        if(c == ' ')
+            return '-';
+        return '\0';
+    };
     
     one_time = true;
     text_inputs = {&server_ip};

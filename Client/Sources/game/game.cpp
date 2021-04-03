@@ -68,6 +68,7 @@ void game::scene::init() {
         playerHandler::player_inventory.clear();
         gfx::switchScene(new terrainGenerator::scene(0));
     }
+    blockEngine::prepareWorld();
 }
 
 void game::scene::update() {

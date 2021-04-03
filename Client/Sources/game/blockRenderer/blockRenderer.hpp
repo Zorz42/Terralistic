@@ -28,7 +28,7 @@ struct blockRenderer : public gfx::sceneModule<game::scene>, networking::packetL
     
 private:
     struct uniqueBlock {
-        void createTexture(blockEngine::uniqueBlock* unique_block);
+        void loadFromUniqueBlock(blockEngine::uniqueBlock* unique_block);
         gfx::image texture;
         std::vector<blockEngine::blockType> connects_to;
         bool single_texture;

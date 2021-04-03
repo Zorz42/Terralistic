@@ -49,7 +49,7 @@ void blockRenderer::renderBlock(unsigned short x, unsigned short y) {
         gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (blockEngine::getBlock(x, y).break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 }
 
-void blockRenderer::uniqueBlock::createTexture(blockEngine::uniqueBlock* unique_block) {
+void blockRenderer::uniqueBlock::loadFromUniqueBlock(blockEngine::uniqueBlock* unique_block) {
     texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;
