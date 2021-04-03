@@ -11,14 +11,13 @@
 #include <algorithm>
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
-#include "main.hpp"
 #include "init.hpp"
 
 // this is a menu, where you select the server you want to play on
 
 #define PADDING 20
 
-void multiplayerSelector::scene::init() {
+void multiplayerSelector::init() {
     // the back button
     back_button.scale = 3;
     back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
@@ -56,14 +55,14 @@ void multiplayerSelector::scene::init() {
     text_inputs = {&server_ip};
 }
 
-void multiplayerSelector::scene::onKeyDown(gfx::key key) {
+void multiplayerSelector::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
     else if((key == gfx::KEY_MOUSE_LEFT && join_button.isHovered()) || key == gfx::KEY_ENTER)
-        gfx::switchScene(new game::scene(server_ip.getText(), true));
+        gfx::switchScene(new game(server_ip.getText(), true));
 }
 
-void multiplayerSelector::scene::render() {
+void multiplayerSelector::render() {
     gfx::render(join_button);
     gfx::render(back_button);
     gfx::render(join_server_title);

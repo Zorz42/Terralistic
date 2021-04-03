@@ -10,10 +10,6 @@
 
 #include <string>
 
-namespace textScreen {
-
 void renderTextScreen(const std::string& text);
-
-}
 
 #endif /* textScreen_hpp */

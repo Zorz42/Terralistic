@@ -13,7 +13,7 @@
 
 #include "textScreen.hpp"
 
-void textScreen::renderTextScreen(const std::string &text) {
+void renderTextScreen(const std::string &text) {
     gfx::sprite text_image;
     text_image.setTexture(gfx::renderText(text, {255, 255, 255}));
     text_image.orientation = gfx::center;

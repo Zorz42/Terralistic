@@ -30,5 +30,5 @@
 #include "blockEngine.hpp"
 
 #else
-#warning Essential header has been imported multiple times
+//#warning Essential header has been imported multiple times
 #endif /* essential_hpp */

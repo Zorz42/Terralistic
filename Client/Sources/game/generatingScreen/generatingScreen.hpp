@@ -20,10 +20,8 @@
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
-namespace terrainGenerator {
-
-struct scene : public gfx::scene {
-    explicit scene(unsigned int seed) : seed(seed) {}
+struct generatingScreen : public gfx::scene {
+    explicit generatingScreen(unsigned int seed) : seed(seed) {}
     void init() override;
     void update() override;
     void render() override;
@@ -35,7 +33,5 @@ private:
     gfx::rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::bottom},
     loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::bottom};
 };
-
-}
 
 #endif /* generatingScreen_hpp */

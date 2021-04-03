@@ -249,7 +249,6 @@
 		168968C025E9607800D26060 /* worldCreator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldCreator.cpp; sourceTree = "<group>"; };
 		168968C225E9607800D26060 /* worldSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSelector.cpp; sourceTree = "<group>"; };
 		168968C325E9607800D26060 /* worldSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSelector.hpp; sourceTree = "<group>"; };
-		168968C525E9607800D26060 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = main.hpp; sourceTree = "<group>"; };
 		168968C625E9607800D26060 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		1689692B25E9607800D26060 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		1689692C25E9607800D26060 /* pixel_font.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = pixel_font.ttf; sourceTree = "<group>"; };
@@ -496,16 +495,11 @@
 		1689689325E9607800D26060 /* game */ = {
 			isa = PBXGroup;
 			children = (
+				3619ACFA26186CBA00BA4EAF /* Modules */,
 				3611F0A9260E3CFA00127A55 /* textScreen */,
-				16E6357725EACCBD0025A8B4 /* itemEngineClient */,
-				16E6357525EAC8140025A8B4 /* blockRenderer */,
-				1689689725E9607800D26060 /* otherPlayers */,
 				1689689A25E9607800D26060 /* generatingScreen */,
 				1689689E25E9607800D26060 /* networkingModule */,
 				168968A425E9607800D26060 /* worldSaver */,
-				168968A725E9607800D26060 /* pauseScreen */,
-				168968AA25E9607800D26060 /* playerHandler */,
-				168968B425E9607800D26060 /* blockSelector */,
 				1689689D25E9607800D26060 /* game.hpp */,
 				168968A325E9607800D26060 /* game.cpp */,
 			);
@@ -637,7 +631,6 @@
 		168968C425E9607800D26060 /* main */ = {
 			isa = PBXGroup;
 			children = (
-				168968C525E9607800D26060 /* main.hpp */,
 				168968C625E9607800D26060 /* main.cpp */,
 			);
 			path = main;
@@ -715,6 +708,19 @@
 				1689689025E9607800D26060 /* events */,
 			);
 			path = Libraries;
+			sourceTree = "<group>";
+		};
+		3619ACFA26186CBA00BA4EAF /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				168968B425E9607800D26060 /* blockSelector */,
+				168968AA25E9607800D26060 /* playerHandler */,
+				168968A725E9607800D26060 /* pauseScreen */,
+				1689689725E9607800D26060 /* otherPlayers */,
+				16E6357525EAC8140025A8B4 /* blockRenderer */,
+				16E6357725EACCBD0025A8B4 /* itemEngineClient */,
+			);
+			path = Modules;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

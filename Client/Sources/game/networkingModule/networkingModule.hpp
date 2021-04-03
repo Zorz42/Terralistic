@@ -13,7 +13,10 @@
 
 namespace networking {
 
+struct networkingManager;
+
 struct packetListener {
+    packetListener(networkingManager* manager);
     virtual ~packetListener() = default;
     std::set<packets::packetType> listening_to;
     virtual void onPacket(packets::packet packet) = 0;
@@ -24,11 +27,12 @@ struct networkingManager {
     void stopListening();
 
     void sendPacket(packets::packet packet_);
-    std::vector<packetListener*> listeners;
+    void registerListener(packetListener* listener);
 private:
     int sock = -1;
     bool listener_running = true;
     static void listenerLoop(networking::networkingManager* manager);
+    std::vector<packetListener*> listeners;
 };
 
 }

@@ -16,9 +16,7 @@
 
 #include <iostream>
 
-namespace worldSelector {
-
-struct scene : public gfx::scene {
+struct worldSelector : public gfx::scene {
     void init() override;
     void refresh() override;
     void onKeyDown(gfx::key key) override;
@@ -41,7 +39,5 @@ private:
     std::vector<world_to_select> worlds;
     int scroll_limit, position;
 };
-
-}
 
 #endif /* worldSelector_hpp */

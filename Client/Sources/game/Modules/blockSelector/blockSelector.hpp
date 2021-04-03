@@ -16,10 +16,8 @@
 
 #include "game.hpp"
 
-namespace blockSelector {
-
-struct module : public gfx::sceneModule<game::scene> {
-    using gfx::sceneModule<game::scene>::sceneModule;
+struct blockSelector : public gfx::sceneModule<game> {
+    using gfx::sceneModule<game>::sceneModule;
     
     void render() override;
     void onKeyDown(gfx::key key) override;
@@ -29,7 +27,5 @@ private:
     bool is_left_button_pressed = false;
     unsigned short prev_selected_x, prev_selected_y, selected_block_x, selected_block_y;
 };
-
-}
 
 #endif /* blockSelector_hpp */

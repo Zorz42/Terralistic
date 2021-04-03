@@ -17,10 +17,8 @@
 #include <string>
 #include <vector>
 
-namespace worldCreator {
-
-struct scene : public gfx::scene {
-    scene(const std::vector<std::string>& worlds) : worlds(worlds) {}
+struct worldCreator : public gfx::scene {
+    worldCreator(const std::vector<std::string>& worlds) : worlds(worlds) {}
     bool running = true, can_create = false;
     void init() override;
     void onKeyDown(gfx::key key) override;
@@ -32,7 +30,5 @@ private:
     gfx::sprite new_world_title, faded_create;
     gfx::textInput world_name;
 };
-
-}
 
 #endif /* worldCreator_hpp */

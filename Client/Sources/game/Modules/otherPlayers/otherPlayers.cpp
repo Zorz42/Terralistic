@@ -12,12 +12,12 @@
 
 // module for handling other players in online game
 
-void players::module::init() {
+void players::init() {
     other_players.clear();
     listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT};
 }
 
-void players::module::render() {
+void players::render() {
     // iterate through every player and render them
     for(player& i : other_players) {
         bool prev = playerHandler::player.flipped;
@@ -29,7 +29,7 @@ void players::module::render() {
     }
 }
 
-players::module::player* players::module::getPlayerById(unsigned short id) {
+players::player* players::getPlayerById(unsigned short id) {
     for(auto& player : other_players)
         if(player.id == id)
             return &player;
@@ -37,7 +37,7 @@ players::module::player* players::module::getPlayerById(unsigned short id) {
     return nullptr;
 }
 
-void players::module::onPacket(packets::packet packet) {
+void players::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::PLAYER_JOIN: {
             player player;

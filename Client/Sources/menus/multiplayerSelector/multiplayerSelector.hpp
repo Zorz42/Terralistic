@@ -14,9 +14,7 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-namespace multiplayerSelector {
-
-struct scene : gfx::scene {
+struct multiplayerSelector : gfx::scene {
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
@@ -26,7 +24,5 @@ private:
     gfx::sprite join_server_title;
     gfx::textInput server_ip;
 };
-
-}
 
 #endif /* multiplayerSelector_hpp */

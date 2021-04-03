@@ -9,11 +9,10 @@
 
 #include "generatingScreen.hpp"
 #include "game.hpp"
-#include "main.hpp"
 
 #define TEXT_SCALE 3
 
-void terrainGenerator::scene::init() {
+void generatingScreen::init() {
     loading_text.scale = TEXT_SCALE;
     loading_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     loading_text.setTexture(gfx::renderText("Generating world", {255, 255, 255}));
@@ -25,7 +24,7 @@ void terrainGenerator::scene::init() {
     thread = std::thread(terrainGenerator::generateTerrainDaemon, seed);
 }
 
-void terrainGenerator::scene::update() {
+void generatingScreen::update() {
     loading_bar.w += (terrainGenerator::loading_current * LOADING_RECT_WIDTH / terrainGenerator::loading_total - loading_bar.w) / 3;
     loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
     
@@ -33,13 +32,13 @@ void terrainGenerator::scene::update() {
         gfx::returnFromScene();
 }
 
-void terrainGenerator::scene::render() {
+void generatingScreen::render() {
     gfx::render(loading_text);
     gfx::render(loading_bar_back);
     gfx::render(loading_bar);
 }
 
-void terrainGenerator::scene::stop() {
+void generatingScreen::stop() {
     thread.join();
     
     ASSERT(terrainGenerator::loading_current == terrainGenerator::loading_total, "Loading total is " + std::to_string(terrainGenerator::loading_total) + ", but loading current got to " + std::to_string(terrainGenerator::loading_current));

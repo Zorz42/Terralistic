@@ -76,3 +76,11 @@ bool networking::networkingManager::startListening(const std::string &ip) {
 void networking::networkingManager::stopListening() {
     listener_running = false;
 }
+
+void networking::networkingManager::registerListener(packetListener *listener) {
+    listeners.push_back(listener);
+}
+
+networking::packetListener::packetListener(networkingManager* manager) {
+    manager->registerListener(this);
+}

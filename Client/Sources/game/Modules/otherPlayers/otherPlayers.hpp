@@ -17,10 +17,8 @@
 #include "game.hpp"
 #include "networkingModule.hpp"
 
-namespace players {
-
-struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
-    using gfx::sceneModule<game::scene>::sceneModule;
+struct players : public gfx::sceneModule<game>, networking::packetListener {
+    module(game* scene, networking::networkingManager* manager) : gfx::sceneModule<game>(scene), networking::packetListener(manager) {}
     void init();
     void render();
     void onPacket(packets::packet packet);
@@ -34,7 +32,5 @@ private:
     std::vector<player> other_players;
     player* getPlayerById(unsigned short id);
 };
-
-}
 
 #endif /* otherPlayers_hpp */

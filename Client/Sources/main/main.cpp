@@ -7,7 +7,6 @@
 
 #include "core.hpp"
 
-#include "main.hpp"
 #include "startMenu.hpp"
 
 int main(int argc, char **argv) {
@@ -20,7 +19,7 @@ int main(int argc, char **argv) {
 
     init::initModules();
     
-    gfx::switchScene(new startMenu::scene());
+    gfx::switchScene(new startMenu());
     gfx::runScenes();
     
     gfx::quit();

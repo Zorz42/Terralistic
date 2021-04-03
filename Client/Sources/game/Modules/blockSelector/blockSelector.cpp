@@ -45,7 +45,7 @@ INIT_SCRIPT
     click_events[blockEngine::AIR].leftClickEvent = &air_leftClickEvent;
 INIT_SCRIPT_END
 
-void blockSelector::module::render() {
+void blockSelector::render() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {
         if(scene->multiplayer) {
             packets::packet packet(packets::STARTED_BREAKING);
@@ -56,13 +56,13 @@ void blockSelector::module::render() {
         prev_selected_y = selected_block_y;
     }
     
-    if(is_left_button_pressed && !game::online) {
+    if(is_left_button_pressed && !scene->multiplayer) {
         blockEngine::block* block = &blockEngine::getBlock(selected_block_x, selected_block_y);
         if(click_events[block->block_id].leftClickEvent)
             click_events[block->block_id].leftClickEvent(block);
         else {
             block->setBreakProgress(block->break_progress_ms + gfx::getDeltaTime());
-            if(!game::online && block->break_progress_ms >= block->getUniqueBlock().break_time)
+            if(!scene->multiplayer && block->break_progress_ms >= block->getUniqueBlock().break_time)
                 block->break_block();
         }
     }
@@ -76,13 +76,13 @@ void blockSelector::module::render() {
     }
 }
 
-void blockSelector::module::onKeyDown(gfx::key key) {
+void blockSelector::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = true;
         prev_selected_x = blockEngine::world_width;
         prev_selected_y = blockEngine::world_height;
     } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
-        if(game::online) {
+        if(scene->multiplayer) {
             packets::packet packet(packets::RIGHT_CLICK);
             packet << selected_block_x << selected_block_y;
             scene->networking_manager.sendPacket(packet);
@@ -94,7 +94,7 @@ void blockSelector::module::onKeyDown(gfx::key key) {
     }
 }
 
-void blockSelector::module::onKeyUp(gfx::key key) {
+void blockSelector::onKeyUp(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = false;
         if(scene->multiplayer) {

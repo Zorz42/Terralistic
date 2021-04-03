@@ -11,13 +11,12 @@
 #include "game.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
-#include "main.hpp"
 
 #undef main
 
 // this is the main menu, which you see on the start of the app
 
-void startMenu::scene::init() {
+void startMenu::init() {
     singleplayer_button.scale = 3;
     singleplayer_button.setTexture(gfx::renderText("Singleplayer", {255, 255, 255}));
     singleplayer_button.y = short(-singleplayer_button.getTranslatedRect().h - 5);
@@ -33,18 +32,18 @@ void startMenu::scene::init() {
     exit_button.orientation = gfx::center;
 }
 
-void startMenu::scene::onKeyDown(gfx::key key) {
+void startMenu::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT) {
         if(exit_button.isHovered())
             gfx::returnFromScene();
         else if(singleplayer_button.isHovered())
-            gfx::switchScene(new worldSelector::scene());
+            gfx::switchScene(new worldSelector());
         else if(multiplayer_button.isHovered())
-            gfx::switchScene(new multiplayerSelector::scene());
+            gfx::switchScene(new multiplayerSelector());
     }
 }
 
-void startMenu::scene::render() {
+void startMenu::render() {
     gfx::render(singleplayer_button);
     gfx::render(multiplayer_button);
     gfx::render(exit_button);

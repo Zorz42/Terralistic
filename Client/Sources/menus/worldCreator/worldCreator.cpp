@@ -11,7 +11,6 @@
 #include <algorithm>
 #include "worldCreator.hpp"
 #include "game.hpp"
-#include "main.hpp"
 #include "init.hpp"
 
 // menu, where you create worlds
@@ -19,7 +18,7 @@
 
 #define PADDING 20
 
-void worldCreator::scene::init() {
+void worldCreator::init() {
     back_button.scale = 3;
     back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
     back_button.y = -PADDING;
@@ -60,14 +59,14 @@ void worldCreator::scene::init() {
     text_inputs = {&world_name};
 }
 
-void worldCreator::scene::onKeyDown(gfx::key key) {
+void worldCreator::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
     else if((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || key == gfx::KEY_ENTER)
-        gfx::switchScene(new game::scene(world_name.getText(), false));
+        gfx::switchScene(new game(world_name.getText(), false));
 }
 
-void worldCreator::scene::render() {
+void worldCreator::render() {
     can_create = !world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText());
     if(can_create)
         gfx::render(create_button);

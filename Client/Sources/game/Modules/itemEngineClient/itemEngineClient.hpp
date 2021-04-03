@@ -25,8 +25,8 @@ struct uniqueRenderItem {
 };
 uniqueRenderItem& getUniqueRenderItem(unsigned short id);
 
-struct module : public gfx::sceneModule<game::scene>, networking::packetListener {
-    using gfx::sceneModule<game::scene>::sceneModule;
+struct module : public gfx::sceneModule<game>, networking::packetListener {
+    module(game* scene, networking::networkingManager* manager) : gfx::sceneModule<game>(scene), networking::packetListener(manager) {}
     void init() override;
     void render() override;
     void stop() override;

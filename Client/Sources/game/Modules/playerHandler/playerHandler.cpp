@@ -39,7 +39,7 @@ void playerHandler::module::init() {
     playerHandler::player.scale = 2;
     playerHandler::player.orientation = gfx::center;
     
-    if(!game::online) {
+    if(!scene->multiplayer) {
         position_x = blockEngine::getSpawnX();
         position_y = blockEngine::getSpawnY() - player.getHeight() / 2;
     }
@@ -225,14 +225,14 @@ void playerHandler::module::update() {
     if(view_y >= blockEngine::world_height * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
         view_y = blockEngine::world_height * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
     
-    if(game::online && (move_x || move_y)) {
+    if(scene->multiplayer && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
         packet << position_x << position_y << (char)/*player.flipped*/ false;
         scene->networking_manager.sendPacket(packet);
     }
     
     // look for items to be picked up
-    if(!game::online)
+    if(!scene->multiplayer)
         for(unsigned long i = 0; i < itemEngine::items.size(); i++)
             if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && playerHandler::player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1) {
                 itemEngine::items[i].destroy();

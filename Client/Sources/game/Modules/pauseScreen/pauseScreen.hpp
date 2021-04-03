@@ -16,10 +16,8 @@
 
 #include "game.hpp"
 
-namespace pauseScreen {
-
-struct module : public gfx::sceneModule<game::scene> {
-    using gfx::sceneModule<game::scene>::sceneModule;
+struct pauseScreen : public gfx::sceneModule<game> {
+    using gfx::sceneModule<game>::sceneModule;
     void init() override;
     void render() override;
     void onKeyDown(gfx::key key) override;
@@ -27,7 +25,5 @@ private:
     gfx::button resume_button, quit_button;
     bool paused = false;
 };
-
-}
 
 #endif /* pauseScreen_hpp */

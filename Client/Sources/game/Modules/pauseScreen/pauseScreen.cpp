@@ -19,7 +19,7 @@
 
 #define PADDING 20
 
-void pauseScreen::module::init() {
+void pauseScreen::init() {
     resume_button.scale = 3;
     resume_button.setTexture(gfx::renderText("Resume", {255, 255, 255}));
     resume_button.x = PADDING;
@@ -31,14 +31,14 @@ void pauseScreen::module::init() {
     quit_button.y = short(resume_button.getHeight() + 2 * PADDING);
 }
 
-void pauseScreen::module::render() {
+void pauseScreen::render() {
     if(paused) {
         gfx::render(resume_button);
         gfx::render(quit_button);
     }
 }
 
-void pauseScreen::module::onKeyDown(gfx::key key) {
+void pauseScreen::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_ESCAPE)
         paused = !paused;
     else if(key == gfx::KEY_MOUSE_LEFT) {
