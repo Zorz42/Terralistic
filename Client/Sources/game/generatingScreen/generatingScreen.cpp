@@ -21,7 +21,7 @@ void generatingScreen::init() {
     
     terrainGenerator::loading_total = 6;
     terrainGenerator::loading_current = 0;
-    thread = std::thread(terrainGenerator::generateTerrainDaemon, seed);
+    thread = std::thread(terrainGenerator::generateTerrainDaemon, seed, world_map);
 }
 
 void generatingScreen::update() {

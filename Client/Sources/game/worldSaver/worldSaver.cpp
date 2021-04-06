@@ -12,39 +12,39 @@
 #include "playerHandler.hpp"
 #include "textScreen.hpp"
 
-void worldSaver::saveWorld(const std::string& world_name) {
+void worldSaver::saveWorld(const std::string& world_name, map& world_map) {
     // saves world chunk by chunk and then inventory
     std::ofstream world_file(fileSystem::getWorldsPath() + world_name + ".world");
-    for(auto & i : playerHandler::player_inventory.inventory)
-        world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
+    //for(auto & i : playerHandler::player_inventory.inventory)
+        //world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
     
-    for(int y = 0; y < blockEngine::world_height; y++)
-        for(int x = 0; x < blockEngine::world_width; x++)
-            world_file << (char)blockEngine::getBlock(x, y).block_id;
+    for(int y = 0; y < world_map.getWorldHeight(); y++)
+        for(int x = 0; x < world_map.getWorldWidth(); x++)
+            world_file << (char)world_map.getBlock(x, y).getType();
     world_file.close();
 }
 
-void worldSaver::loadWorld(const std::string& world_name) {
+void worldSaver::loadWorld(const std::string& world_name, map& world_map) {
     // loads world the same way it got saved but in reverse order
     
     std::ifstream world_file(fileSystem::getWorldsPath() + world_name + ".world");
     char c = 0;
-    for(auto & i : playerHandler::player_inventory.inventory) {
+    /*for(auto & i : playerHandler::player_inventory.inventory) {
         world_file >> std::noskipws >> c;
         i.item_id = (itemEngine::itemType)c;
         world_file >> std::noskipws >> c;
         unsigned short stack = (unsigned char)c;
         world_file >> std::noskipws >> c;
         i.setStack(stack + ((unsigned short)(c) >> 4));
-    }
+    }*/
     
-    for(int y = 0; y < blockEngine::world_height; y++)
-        for(int x = 0; x < blockEngine::world_width; x++) {
+    for(int y = 0; y < world_map.getWorldHeight(); y++)
+        for(int x = 0; x < world_map.getWorldWidth(); x++) {
             world_file >> std::noskipws >> c;
-            blockEngine::getBlock(x, y).block_id = (blockEngine::blockType) c;
+            world_map.getBlock(x, y).setType((map::blockType) c);
         }
     
-    for(int y = 0; y < (blockEngine::world_height >> 4); y++)
-        for(int x = 0; x < (blockEngine::world_width >> 4); x++)
-            blockEngine::getChunkState(x, y) = blockEngine::loaded;
+    for(int y = 0; y < (world_map.getWorldHeight() >> 4); y++)
+        for(int x = 0; x < (world_map.getWorldWidth() >> 4); x++)
+            world_map.getChunkState(x, y) = map::chunkState::loaded;
 }

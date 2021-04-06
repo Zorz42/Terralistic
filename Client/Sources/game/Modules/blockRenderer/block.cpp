@@ -12,8 +12,8 @@
 #include "blockRenderer.hpp"
 
 blockRenderer::block& blockRenderer::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < blockEngine::world_height && x >= 0 && x < blockEngine::world_width, "requested block is out of bounds");
-    return blocks[y * blockEngine::world_width + x];
+    ASSERT(y >= 0 && y < scene->world_map.getWorldHeight() && x >= 0 && x < scene->world_map.getWorldWidth(), "requested block is out of bounds");
+    return blocks[y * scene->world_map.getWorldWidth() + x];
 }
 
 void blockRenderer::updateBlockOrientation(unsigned short x, unsigned short y) {
@@ -25,9 +25,9 @@ void blockRenderer::updateBlockOrientation(unsigned short x, unsigned short y) {
         unsigned char c = 1;
         for(int i = 0; i < 4; i++) {
             if(
-               x + x_[i] >= blockEngine::world_width || x + x_[i] < 0 || y + y_[i] >= blockEngine::world_height || y + y_[i] < 0 ||
-               blockEngine::getBlock(x + x_[i], y + y_[i]).block_id == blockEngine::getBlock(x, y).block_id ||
-               std::count(getUniqueBlock(x, y).connects_to.begin(), getUniqueBlock(x, y).connects_to.end(), blockEngine::getBlock(x + x_[i], y + y_[i]).block_id)
+               x + x_[i] >= scene->world_map.getWorldWidth() || x + x_[i] < 0 || y + y_[i] >= scene->world_map.getWorldHeight() || y + y_[i] < 0 ||
+               scene->world_map.getBlock(x + x_[i], y + y_[i]).block_id == scene->world_map.getBlock(x, y).block_id ||
+               std::count(getUniqueBlock(x, y).connects_to.begin(), getUniqueBlock(x, y).connects_to.end(), scene->world_map.getBlock(x + x_[i], y + y_[i]).block_id)
             )
                 block.orientation += c;
             c += c;
@@ -37,19 +37,19 @@ void blockRenderer::updateBlockOrientation(unsigned short x, unsigned short y) {
 
 void blockRenderer::renderBlock(unsigned short x, unsigned short y) {
     block& block = getBlock(x, y);
-    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * blockEngine::getBlock(x, y).light_level)});
+    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * scene->world_map.getBlock(x, y).light_level)});
     
-    if(getUniqueBlock(x, y).texture.getTexture() && blockEngine::getBlock(x, y).light_level)
+    if(getUniqueBlock(x, y).texture.getTexture() && scene->world_map.getBlock(x, y).light_level)
         gfx::render(getUniqueBlock(x, y).texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block.orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
     
-    if(blockEngine::getBlock(x, y).light_level != MAX_LIGHT)
+    if(scene->world_map.getBlock(x, y).light_level != MAX_LIGHT)
         gfx::render(rect);
 
-    if(blockEngine::getBlock(x, y).break_progress)
-        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (blockEngine::getBlock(x, y).break_progress - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+    if(scene->world_map.getBlock(x, y).break_stage)
+        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (scene->world_map.getBlock(x, y).break_stage - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 }
 
-void blockRenderer::uniqueBlock::loadFromUniqueBlock(blockEngine::uniqueBlock* unique_block) {
+void blockRenderer::uniqueBlock::loadFromUniqueBlock(scene->world_map.uniqueBlock* unique_block) {
     texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;
@@ -61,7 +61,7 @@ void blockRenderer::scheduleTextureUpdateForBlock(unsigned short x, unsigned sho
 }
 
 blockRenderer::uniqueBlock& blockRenderer::getUniqueBlock(unsigned short x, unsigned short y) {
-    return unique_blocks[blockEngine::getBlock(x, y).block_id];
+    return unique_blocks[scene->world_map.getBlock(x, y).block_id];
 }
 
 void blockRenderer::updateBlock(unsigned short x, unsigned short y) {
@@ -70,11 +70,11 @@ void blockRenderer::updateBlock(unsigned short x, unsigned short y) {
     std::pair<short, short> neighbors[4] = {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
     if(x != 0)
         neighbors[0] = {x - 1, y};
-    if(x != blockEngine::world_width - 1)
+    if(x != scene->world_map.getWorldWidth() - 1)
         neighbors[1] = {x + 1, y};
     if(y != 0)
         neighbors[2] = {x, y - 1};
-    if(y != blockEngine::world_height - 1)
+    if(y != scene->world_map.getWorldHeight() - 1)
         neighbors[3] = {x, y + 1};
     for(int i = 0; i < 4; i++)
         if(neighbors[i].first != -1)

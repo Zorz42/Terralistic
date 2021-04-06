@@ -7,14 +7,18 @@
 
 #include "core.hpp"
 
-#include "itemEngineClient.hpp"
+#include "itemRenderer.hpp"
 #include "playerHandler.hpp"
 
-static itemEngineClient::uniqueRenderItem* unique_render_items;
+static itemRenderer::uniqueRenderItem* unique_render_items;
+
+itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(itemEngine::itemType id) {
+    return unique_render_items[id];
+}
 
 INIT_SCRIPT
     INIT_ASSERT(!itemEngine::unique_items.empty());
-    unique_render_items = new itemEngineClient::uniqueRenderItem[itemEngine::unique_items.size()];
+    unique_render_items = new itemRenderer::uniqueRenderItem[itemEngine::unique_items.size()];
     for(int i = 0; i < itemEngine::unique_items.size(); i++) {
         unique_render_items[i].texture.setTexture(itemEngine::unique_items[i].name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + itemEngine::unique_items[i].name + ".png"));
         unique_render_items[i].texture.scale = 2;
@@ -23,25 +27,20 @@ INIT_SCRIPT
     }
 INIT_SCRIPT_END
 
-itemEngineClient::uniqueRenderItem& itemEngineClient::getUniqueRenderItem(unsigned short id) {
-    return unique_render_items[id];
-}
-
-
-void itemEngineClient::module::init() {
+void itemRenderer::init() {
     listening_to = {packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT};
 }
 
-void itemEngineClient::module::render() {
+void itemRenderer::render() {
     for(itemEngine::item& i : itemEngine::items)
         gfx::render(unique_render_items[i.getItemId()].texture, short(i.x / 100 - playerHandler::view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - playerHandler::view_y + gfx::getWindowHeight() / 2));
 }
 
-void itemEngineClient::module::stop() {
+void itemRenderer::stop() {
     itemEngine::close();
 }
 
-void itemEngineClient::module::onPacket(packets::packet packet) {
+void itemRenderer::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::ITEM_CREATION: {
             auto type = (itemEngine::itemType)packet.getChar();

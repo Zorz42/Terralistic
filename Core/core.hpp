@@ -21,13 +21,12 @@
 
 #include "init.hpp"
 #include "events.hpp"
-#include "itemEngine.hpp"
-#include "inventory.hpp"
-#include "terrainGenerator.hpp"
 #include "packets.hpp"
 #include "fileSystem.hpp"
 #include "dev.hpp"
-#include "blockEngine.hpp"
+#include "map.hpp"
+#include "terrainGenerator.hpp"
+#include "inventory.hpp"
 
 #else
 //#warning Essential header has been imported multiple times

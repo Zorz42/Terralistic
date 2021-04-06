@@ -14,7 +14,7 @@
 // TERRAIN
 #define TERRAIN_VERTICAL_MULTIPLIER 140
 #define TERRAIN_HORIZONTAL_DIVIDER 4
-#define TERRAIN_HORIZONT ((float)blockEngine::world_height / 2 - 50)
+#define TERRAIN_HORIZONT ((float)world_map.getWorldHeight() / 2 - 50)
 
 // CAVES
 
@@ -34,34 +34,34 @@
 
 void stackDirt(unsigned int x, unsigned int height);
 
-void generateSurface(std::mt19937& engine);
-void generateCaves(std::mt19937& engine);
-void generateStone(std::mt19937& engine);
-void generateTrees(std::mt19937& engine);
+void generateSurface(std::mt19937& engine, map& world_map);
+void generateCaves(std::mt19937& engine, map& world_map);
+void generateStone(std::mt19937& engine, map& world_map);
+void generateTrees(std::mt19937& engine, map& world_map);
 
 static unsigned int highest_height = 0;
 static unsigned short* heights;
 
 #define LOADING_NEXT terrainGenerator::loading_current++;
 
-int terrainGenerator::generateTerrainDaemon(unsigned int seed) {
+int terrainGenerator::generateTerrainDaemon(unsigned int seed, map& world_map) {
     std::mt19937 engine(seed);
-    generateSurface(engine);
-    generateCaves(engine);
-    generateStone(engine);
-    generateTrees(engine);
-    for(int y = 0; y < (blockEngine::world_height >> 4); y++)
-        for(int x = 0; x < (blockEngine::world_width >> 4); x++)
-            blockEngine::getChunkState(x, y) = blockEngine::loaded;
+    
+    generateSurface(engine, world_map);
+    generateCaves(engine, world_map);
+    generateStone(engine, world_map);
+    generateTrees(engine, world_map);
+    for(int y = 0; y < (world_map.getWorldHeight() >> 4); y++)
+        for(int x = 0; x < (world_map.getWorldWidth() >> 4); x++)
+            world_map.getChunkState(x, y) = map::chunkState::loaded;
     LOADING_NEXT
     return 0;
 }
 
-void stackDirt(unsigned int x, unsigned int height) {
-    for(auto y = (unsigned int)(blockEngine::world_height - 1); y > blockEngine::world_height - height - 1; y--)
-        blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id = blockEngine::DIRT;
-    blockEngine::getBlock((unsigned short)x,
-                          (unsigned short)(blockEngine::world_height - height - 1)).block_id = blockEngine::GRASS_BLOCK;
+void stackDirt(unsigned int x, unsigned int height, map& world_map) {
+    for(auto y = (unsigned int)(world_map.getWorldHeight() - 1); y > world_map.getWorldHeight() - height - 1; y--)
+        world_map.getBlock((unsigned short)x, (unsigned short)y).setType(map::blockType::DIRT);
+    world_map.getBlock((unsigned short)x, (unsigned short)(world_map.getWorldHeight() - height - 1)).setType(map::blockType::GRASS_BLOCK);
 }
 
 double turbulence(double x, double y, double size, PerlinNoise noise) {
@@ -76,17 +76,17 @@ double turbulence(double x, double y, double size, PerlinNoise noise) {
     
     return value / initialSize;
     
-    //double xy_value = x * x_period / blockEngine::world_width + y * y_period / highest_height + turb_power * value / initialSize / 2.0;
+    //double xy_value = x * x_period / world_map.getWorldWidth() + y * y_period / highest_height + turb_power * value / initialSize / 2.0;
     //return fabs(sin(xy_value * M_PI));
 }
 
-void generateSurface(std::mt19937& engine) {
+void generateSurface(std::mt19937& engine, map& world_map) {
     PerlinNoise noise(engine());
     
-    heights = new unsigned short[blockEngine::world_width];
+    heights = new unsigned short[world_map.getWorldWidth()];
     
     // generate terrain
-    for(unsigned int x = 0; x < blockEngine::world_width; x++) {
+    for(unsigned int x = 0; x < world_map.getWorldWidth(); x++) {
         // apply multiple layers of perlin noise
         auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, noise));
         
@@ -97,71 +97,70 @@ void generateSurface(std::mt19937& engine) {
     LOADING_NEXT
 
     // apply terrain to world
-    for(unsigned int x = 0; x < blockEngine::world_width; x++) {
-        stackDirt(x, heights[x]);
+    for(unsigned int x = 0; x < world_map.getWorldWidth(); x++) {
+        stackDirt(x, heights[x], world_map);
         if(!(engine() % 7)) // generate stones
-            blockEngine::getBlock((unsigned short)x,
-                                  (unsigned short)(blockEngine::world_height - heights[x] - 2)).block_id = blockEngine::STONE;
+            world_map.getBlock((unsigned short)x, (unsigned short)(world_map.getWorldHeight() - heights[x] - 2)).setType(map::blockType::STONE);
     }
     LOADING_NEXT
     
-    blockEngine::getBlock(0, 0).block_id = blockEngine::DIRT;
+    world_map.getBlock(0, 0).setType(map::blockType::DIRT);
 }
 
-void generateCaves(std::mt19937& engine) {
+void generateCaves(std::mt19937& engine, map& world_map) {
     osn_context* ctx;
     open_simplex_noise(engine(), &ctx);
     
     for(unsigned int y = 0; y < highest_height; y++)
-        for(unsigned int x = 0; x < blockEngine::world_width; x++)
+        for(unsigned int x = 0; x < world_map.getWorldWidth(); x++)
             if(open_simplex_noise2(ctx, (double)x / 10, (double)y / 10) > CAVE_START + CAVE_LENGTH - (double)y / highest_height * CAVE_LENGTH)
-                blockEngine::getBlock((unsigned short)x, (unsigned short)(y + (blockEngine::world_height - highest_height))).block_id = blockEngine::AIR;
+                world_map.getBlock((unsigned short)x, (unsigned short)(y + (world_map.getWorldHeight() - highest_height))).setType(map::blockType::AIR);
     open_simplex_noise_free(ctx);
     LOADING_NEXT
 }
 
-void generateStone(std::mt19937& engine) {
+void generateStone(std::mt19937& engine, map& world_map) {
     PerlinNoise noise(engine());
-    for(unsigned int y = blockEngine::world_height - highest_height; y < blockEngine::world_height; y++)
-        for(unsigned int x = 0; x < blockEngine::world_width; x++)
-            if(blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id && turbulence(x * 5, y * 5, TURB_SIZE, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
-                blockEngine::getBlock((unsigned short)x, (unsigned short)y).block_id = blockEngine::STONE_BLOCK;
+    for(unsigned int y = world_map.getWorldHeight() - highest_height; y < world_map.getWorldHeight(); y++)
+        for(unsigned int x = 0; x < world_map.getWorldWidth(); x++)
+            if(world_map.getBlock((unsigned short)x, (unsigned short)y).getType() != map::blockType::AIR && turbulence(x * 5, y * 5, TURB_SIZE, noise) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
+                world_map.getBlock((unsigned short)x, (unsigned short)y).setType(map::blockType::STONE_BLOCK);
     LOADING_NEXT
 }
 
-void generateTrees(std::mt19937& engine) {
+void generateTrees(std::mt19937& engine, map& world_map) {
     unsigned short x = 0;
     while(true) {
         x += engine() % 4 + 6;
-        if(x >= blockEngine::world_width - 1)
+        if(x >= world_map.getWorldWidth() - 1)
             break;
-        if(blockEngine::getBlock(x, blockEngine::world_height - heights[x] - 1).block_id != blockEngine::GRASS_BLOCK)
+        if(world_map.getBlock(x, world_map.getWorldHeight() - heights[x] - 1).getType() != map::blockType::GRASS_BLOCK)
             continue;
         unsigned short height = engine() % 5 + 10;
         unsigned short y;
-        for(y = blockEngine::world_height - heights[x] - 2; y > blockEngine::world_height - heights[x] - height; y--)
-            blockEngine::getBlock(x, y).block_id = blockEngine::WOOD;
+        for(y = world_map.getWorldHeight() - heights[x] - 2; y > world_map.getWorldHeight() - heights[x] - height; y--)
+            world_map.getBlock(x, y).setType(map::blockType::WOOD);
         
         for(unsigned short y_leave = y; y_leave < y + 5; y_leave++)
             for(unsigned short x_leave = x - 2; x_leave <= x + 2; x_leave++)
                 if((x_leave != x - 2 || y_leave != y) && (x_leave != x + 2 || y_leave != y) && (x_leave != x - 2 || y_leave != y + 4) && (x_leave != x + 2 || y_leave != y + 4))
-                    blockEngine::getBlock(x_leave, y_leave).block_id = blockEngine::LEAVES;
+                    world_map.getBlock(x_leave, y_leave).setType(map::blockType::LEAVES);
         
-        for(unsigned short y2 = blockEngine::world_height - heights[x] - engine() % 4 - 4; y2 > blockEngine::world_height - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
-            blockEngine::getBlock(x - 1, y2).block_id = blockEngine::WOOD;
-            blockEngine::getBlock(x - 2, y2).block_id = blockEngine::LEAVES;
+        for(unsigned short y2 = world_map.getWorldHeight() - heights[x] - engine() % 4 - 4; y2 > world_map.getWorldHeight() - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
+            world_map.getBlock(x - 1, y2).setType(map::blockType::WOOD);
+            world_map.getBlock(x - 2, y2).setType(map::blockType::LEAVES);
         }
         
-        for(unsigned short y2 = blockEngine::world_height - heights[x] - engine() % 4 - 4; y2 > blockEngine::world_height - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
-            blockEngine::getBlock(x + 1, y2).block_id = blockEngine::WOOD;
-            blockEngine::getBlock(x + 2, y2).block_id = blockEngine::LEAVES;
+        for(unsigned short y2 = world_map.getWorldHeight() - heights[x] - engine() % 4 - 4; y2 > world_map.getWorldHeight() - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
+            world_map.getBlock(x + 1, y2).setType(map::blockType::WOOD);
+            world_map.getBlock(x + 2, y2).setType(map::blockType::LEAVES);
         }
         
-        if(blockEngine::getBlock(x - 1, blockEngine::world_height - heights[x] - 1).block_id == blockEngine::GRASS_BLOCK && blockEngine::getBlock(x - 2, blockEngine::world_height - heights[x] - 2).block_id == blockEngine::AIR)
-            blockEngine::getBlock(x - 1, blockEngine::world_height - heights[x] - 2).block_id = blockEngine::WOOD;
+        if(world_map.getBlock(x - 1, world_map.getWorldHeight() - heights[x] - 1).getType() == map::blockType::GRASS_BLOCK && world_map.getBlock(x - 2, world_map.getWorldHeight() - heights[x] - 2).getType() == map::blockType::AIR)
+            world_map.getBlock(x - 1, world_map.getWorldHeight() - heights[x] - 2).setType(map::blockType::WOOD);
         
-        if(blockEngine::getBlock(x + 1, blockEngine::world_height - heights[x] - 1).block_id == blockEngine::GRASS_BLOCK && blockEngine::getBlock(x + 2, blockEngine::world_height - heights[x] - 2).block_id == blockEngine::AIR)
-            blockEngine::getBlock(x + 1, blockEngine::world_height - heights[x] - 2).block_id = blockEngine::WOOD;
+        if(world_map.getBlock(x + 1, world_map.getWorldHeight() - heights[x] - 1).getType() == map::blockType::GRASS_BLOCK && world_map.getBlock(x + 2, world_map.getWorldHeight() - heights[x] - 2).getType() == map::blockType::AIR)
+            world_map.getBlock(x + 1, world_map.getWorldHeight() - heights[x] - 2).setType(map::blockType::WOOD);
     }
     LOADING_NEXT
 }

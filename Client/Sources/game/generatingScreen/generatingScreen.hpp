@@ -21,7 +21,8 @@
 #define LOADING_RECT_ELEVATION 50
 
 struct generatingScreen : public gfx::scene {
-    explicit generatingScreen(unsigned int seed) : seed(seed) {}
+    map& world_map;
+    explicit generatingScreen(unsigned int seed, map& world_map) : seed(seed), world_map(world_map) {}
     void init() override;
     void update() override;
     void render() override;

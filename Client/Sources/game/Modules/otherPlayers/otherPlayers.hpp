@@ -18,7 +18,7 @@
 #include "networkingModule.hpp"
 
 struct players : public gfx::sceneModule<game>, networking::packetListener {
-    module(game* scene, networking::networkingManager* manager) : gfx::sceneModule<game>(scene), networking::packetListener(manager) {}
+    players(game* scene, networking::networkingManager* manager) : gfx::sceneModule<game>(scene), networking::packetListener(manager) {}
     void init();
     void render();
     void onPacket(packets::packet packet);

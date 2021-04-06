@@ -12,8 +12,8 @@
 #include "blockRenderer.hpp"
 
 blockRenderer::chunk& blockRenderer::getChunk(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < (blockEngine::world_height >> 4) && x >= 0 && x < (blockEngine::world_width >> 4), "requested chunk is out of bounds");
-    return chunks[y * (blockEngine::world_width >> 4) + x];
+    ASSERT(y >= 0 && y < (scene->world_map.getWorldHeight() >> 4) && x >= 0 && x < (scene->world_map.getWorldWidth() >> 4), "requested chunk is out of bounds");
+    return chunks[y * (scene->world_map.getWorldWidth() >> 4) + x];
 }
 
 void blockRenderer::updateChunkTexture(unsigned short x, unsigned short y) {

@@ -17,13 +17,16 @@
 #endif
 
 #include "networkingModule.hpp"
+#include "core.hpp"
 
 struct game : public gfx::scene {
     const std::string world_name;
     gfx::sprite fps_text;
     networking::networkingManager networking_manager;
-    
+    inventory::inventory player_inventory;
     bool multiplayer;
+    map world_map;
+    
     game(std::string world_name, bool multiplayer) : world_name(std::move(world_name)), multiplayer(multiplayer) {}
     void init() override;
     void stop() override;

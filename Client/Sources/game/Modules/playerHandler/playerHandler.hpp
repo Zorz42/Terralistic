@@ -30,25 +30,18 @@ struct module : public gfx::sceneModule<game>, networking::packetListener {
     void onPacket(packets::packet packet) override;
     
 private:
-    bool key_up = false, jump = false;
-    gfx::rect inventory_slots[20],
-    select_rect{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::top},
-    under_text_rect{0, 0, 0, 0, {0, 0, 0}};
-    gfx::image stack_textures[20], mouse_stack_texture;
+    bool key_up = false, jump = false, key_left = false, key_right = false;
     int position_x, position_y;
     short velocity_x = 0, velocity_y = 0;
     
     bool isPlayerColliding();
     bool touchingGround();
-    void renderItem(inventory::inventoryItem* item, int x, int y, int i);
-    void updateStackTexture(int i);
 };
 
 inline int view_x, view_y;
 inline gfx::sprite player;
 
 inline inventory::inventoryItem *hovered = nullptr;
-inline inventory::inventory player_inventory;
 
 }
 

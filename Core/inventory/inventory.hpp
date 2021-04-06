@@ -15,11 +15,11 @@ namespace inventory {
 struct inventoryItem {
 public:
     inventoryItem();
-    explicit inventoryItem(itemEngine::itemType item_id) : item_id(item_id), stack(1) {}
-    itemEngine::itemType item_id;
-    [[nodiscard]] itemEngine::uniqueItem& getUniqueItem() const;
+    explicit inventoryItem(map::itemType item_id) : item_id(item_id), stack(1) {}
+    map::itemType item_id;
+    map::uniqueItem& getUniqueItem() const;
     void setStack(unsigned short stack_);
-    [[nodiscard]] unsigned short getStack() const;
+    unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
     bool stack_changed = true;
@@ -30,7 +30,7 @@ private:
 struct inventory {
 public:
     inventoryItem inventory[INVENTORY_SIZE];
-    char addItem(itemEngine::itemType id, int quantity);
+    char addItem(map::itemType id, int quantity);
     bool open = false;
     char selected_slot = 0;
     inventoryItem* getSelectedSlot();

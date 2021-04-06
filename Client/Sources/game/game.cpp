@@ -14,9 +14,10 @@
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
-#include "itemEngineClient.hpp"
+#include "itemRenderer.hpp"
 #include "blockRenderer.hpp"
 #include "textScreen.hpp"
+#include "inventoryRenderer.hpp"
 
 #undef main
 
@@ -26,15 +27,16 @@ void game::init() {
     fps_text.y = 10;
     fps_text.orientation = gfx::top_left;
     
-    blockEngine::prepare();
+    scene->world_map.prepare();
     
     modules = {
         new blockRenderer(this, &networking_manager),
-        new itemEngineClient::module(this, &networking_manager),
+        new itemRenderer(this, &networking_manager),
         new players(this, &networking_manager),
         new pauseScreen(this),
         new playerHandler::module(this, &networking_manager),
         new blockSelector(this),
+        new inventoryRenderer(this, &networking_manager),
     };
     
     if(multiplayer) {
@@ -43,16 +45,16 @@ void game::init() {
             gfx::returnFromScene();
             return;
         }
-        playerHandler::player_inventory.clear();
+        player_inventory.clear();
     } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world")) {
         renderTextScreen("Loading world");
         worldSaver::loadWorld(world_name);
     }
     else {
-        playerHandler::player_inventory.clear();
+        player_inventory.clear();
         gfx::switchScene(new generatingScreen(0));
     }
-    blockEngine::prepareWorld();
+    scene->world_map.prepareWorld();
 }
 
 void game::update() {

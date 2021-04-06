@@ -8,6 +8,8 @@
 #ifndef networkingModule_hpp
 #define networkingModule_hpp
 
+#include "packets.hpp"
+
 #include <vector>
 #include <set>
 
