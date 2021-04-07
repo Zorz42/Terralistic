@@ -25,8 +25,8 @@ INIT_SCRIPT_END
 void map::createWorld(unsigned short width, unsigned short height) {
     chunk_states = new chunkState[width * height];
     blocks = new blockData[(width << 4) * (height << 4)];
-    width = width << 4;
-    width = height << 4;
+    this->width = width << 4;
+    this->height = height << 4;
 
 }
 
