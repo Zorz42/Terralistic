@@ -15,34 +15,34 @@
 // this is a rectangle with which you select which block to break or where to place selected block
 
 struct clickEvents {
-    void (*rightClickEvent)(scene->world_map.block*, game*) = nullptr;
-    void (*leftClickEvent)(scene->world_map.block*, game*) = nullptr;
+    void (*rightClickEvent)(map::block*, game*) = nullptr;
+    void (*leftClickEvent)(map::block*, game*) = nullptr;
 };
 
 static std::vector<clickEvents> click_events;
 
 // you can register special click events to blocks for custom behaviour
-void grass_block_leftClickEvent(scene->world_map.block* block, game* scene) {
-    block->setBlockType(scene->world_map.DIRT);
+void grass_block_leftClickEvent(map::block* block, game* scene) {
+    block->setType(map::blockType::DIRT);
 }
 
-void air_rightClickEvent(scene->world_map.block* block, game* scene) {
+void air_rightClickEvent(map::block* block, game* scene) {
     map::blockType type = scene->player_inventory.getSelectedSlot()->getUniqueItem().places;
-    if(type != scene->world_map.AIR && scene->player_inventory.getSelectedSlot()->decreaseStack(1)) {
-        block->setBlockType(type);
-        block->light_update();
+    if(type != map::blockType::AIR && scene->player_inventory.getSelectedSlot()->decreaseStack(1)) {
+        block->setType(type);
+        block->lightUpdate();
     }
 }
 
-void air_leftClickEvent(scene->world_map.block* block, game* scene) {}
+void air_leftClickEvent(map::block* block, game* scene) {}
 
 INIT_SCRIPT
-    INIT_ASSERT(!scene->world_map.unique_blocks.empty());
-    click_events = std::vector<clickEvents>(scene->world_map.unique_blocks.size());
+    INIT_ASSERT(!map::unique_blocks.empty());
+    click_events = std::vector<clickEvents>(map::unique_blocks.size());
 
-    click_events[scene->world_map.GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
-    click_events[scene->world_map.AIR].rightClickEvent = &air_rightClickEvent;
-    click_events[scene->world_map.AIR].leftClickEvent = &air_leftClickEvent;
+    click_events[(int)map::blockType::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
+    click_events[(int)map::blockType::AIR].rightClickEvent = &air_rightClickEvent;
+    click_events[(int)map::blockType::AIR].leftClickEvent = &air_leftClickEvent;
 INIT_SCRIPT_END
 
 void blockSelector::render() {
@@ -57,13 +57,13 @@ void blockSelector::render() {
     }
     
     if(is_left_button_pressed && !scene->multiplayer) {
-        scene->world_map.block* block = &scene->world_map.getBlock(selected_block_x, selected_block_y);
-        if(click_events[block->block_id].leftClickEvent)
-            click_events[block->block_id].leftClickEvent(block, scene);
+        map::block block = scene->world_map.getBlock(selected_block_x, selected_block_y);
+        if(click_events[(int)block.getType()].leftClickEvent)
+            click_events[(int)block.getType()].leftClickEvent(&block, scene);
         else {
-            block->setBreakProgress(block->break_progress_ms + gfx::getDeltaTime());
-            if(!scene->multiplayer && block->break_progress_ms >= block->getUniqueBlock().break_time)
-                block->break_block();
+            block.setBreakProgress(block.getBreakProgress() + gfx::getDeltaTime());
+            if(!scene->multiplayer && block.getBreakProgress() >= block.getBreakTime())
+                block.breakBlock();
         }
     }
     
@@ -87,9 +87,9 @@ void blockSelector::onKeyDown(gfx::key key) {
             packet << selected_block_x << selected_block_y;
             scene->networking_manager.sendPacket(packet);
         } else {
-            scene->world_map.block& block = scene->world_map.getBlock(selected_block_x, selected_block_y);
-            if(click_events[block.block_id].rightClickEvent)
-                click_events[block.block_id].rightClickEvent(&block, scene);
+            map::block block = scene->world_map.getBlock(selected_block_x, selected_block_y);
+            if(click_events[(int)block.getType()].rightClickEvent)
+                click_events[(int)block.getType()].rightClickEvent(&block, scene);
         }
     }
 }

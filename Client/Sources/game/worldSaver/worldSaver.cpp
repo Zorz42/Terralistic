@@ -31,7 +31,7 @@ void worldSaver::loadWorld(const std::string& world_name, map& world_map) {
     char c = 0;
     /*for(auto & i : playerHandler::player_inventory.inventory) {
         world_file >> std::noskipws >> c;
-        i.item_id = (itemEngine::itemType)c;
+        i.item_id = (map::itemType)c;
         world_file >> std::noskipws >> c;
         unsigned short stack = (unsigned char)c;
         world_file >> std::noskipws >> c;
@@ -41,10 +41,12 @@ void worldSaver::loadWorld(const std::string& world_name, map& world_map) {
     for(int y = 0; y < world_map.getWorldHeight(); y++)
         for(int x = 0; x < world_map.getWorldWidth(); x++) {
             world_file >> std::noskipws >> c;
-            world_map.getBlock(x, y).setType((map::blockType) c);
+            world_map.getBlock(x, y).setType((map::blockType) c, false);
         }
     
     for(int y = 0; y < (world_map.getWorldHeight() >> 4); y++)
         for(int x = 0; x < (world_map.getWorldWidth() >> 4); x++)
             world_map.getChunkState(x, y) = map::chunkState::loaded;
+    
+    world_map.setNaturalLight();
 }

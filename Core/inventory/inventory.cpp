@@ -9,7 +9,7 @@
 
 // inventory is a class which you can easily manage with function calls
 
-char inventory::inventory::addItem(itemEngine::itemType id, int quantity) {
+char inventory::inventory::addItem(map::itemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory[i].item_id == id) {
             quantity -= inventory[i].increaseStack((unsigned short)quantity);
@@ -17,7 +17,7 @@ char inventory::inventory::addItem(itemEngine::itemType id, int quantity) {
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory[i].item_id == itemEngine::NOTHING) {
+        if(inventory[i].item_id == map::itemType::NOTHING) {
             inventory[i].item_id = id;
             quantity -= inventory[i].increaseStack((unsigned short)quantity);
             if(!quantity)
@@ -41,7 +41,7 @@ inventory::inventoryItem* inventory::inventory::getMouseItem() {
 }
 
 void inventory::inventory::clearMouseItem() {
-    mouse_item.item_id = itemEngine::NOTHING;
+    mouse_item.item_id = map::itemType::NOTHING;
     mouse_item.setStack(0);
 }
 

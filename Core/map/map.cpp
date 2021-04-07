@@ -7,6 +7,9 @@
 
 #include "core.hpp"
 
+std::vector<map::uniqueBlock> map::unique_blocks;
+std::vector<map::uniqueItem> map::unique_items;
+
 INIT_SCRIPT
     map::unique_blocks = {
         map::uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
@@ -20,10 +23,11 @@ INIT_SCRIPT
 INIT_SCRIPT_END
 
 void map::createWorld(unsigned short width, unsigned short height) {
-    chunk_states = new chunkState[getWorldWidth() * getWorldHeight()];
-    blocks = new blockData[(getWorldWidth() << 4) * (getWorldHeight() << 4)];
+    chunk_states = new chunkState[width * height];
+    blocks = new blockData[(width << 4) * (height << 4)];
     width = width << 4;
     width = height << 4;
+
 }
 
 map::~map() {

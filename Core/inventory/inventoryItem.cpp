@@ -9,11 +9,11 @@
 
 // inventoryItem is a class which exists in inventory
 
-inventory::inventoryItem::inventoryItem() : item_id(itemEngine::NOTHING), stack(0) {}
+inventory::inventoryItem::inventoryItem() : item_id(map::itemType::NOTHING), stack(0) {}
 
-itemEngine::uniqueItem& inventory::inventoryItem::getUniqueItem() const {
+map::uniqueItem& inventory::inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return itemEngine::unique_items[item_id];
+    return map::unique_items[(int)item_id];
 }
 
 void inventory::inventoryItem::setStack(unsigned short stack_) {
@@ -21,7 +21,7 @@ void inventory::inventoryItem::setStack(unsigned short stack_) {
     if(stack != stack_) {
         stack = stack_;
         if(!stack)
-            item_id = itemEngine::NOTHING;
+            item_id = map::itemType::NOTHING;
         stack_changed = true;
     }
 }

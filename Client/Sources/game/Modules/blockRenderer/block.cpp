@@ -26,8 +26,8 @@ void blockRenderer::updateBlockOrientation(unsigned short x, unsigned short y) {
         for(int i = 0; i < 4; i++) {
             if(
                x + x_[i] >= scene->world_map.getWorldWidth() || x + x_[i] < 0 || y + y_[i] >= scene->world_map.getWorldHeight() || y + y_[i] < 0 ||
-               scene->world_map.getBlock(x + x_[i], y + y_[i]).block_id == scene->world_map.getBlock(x, y).block_id ||
-               std::count(getUniqueBlock(x, y).connects_to.begin(), getUniqueBlock(x, y).connects_to.end(), scene->world_map.getBlock(x + x_[i], y + y_[i]).block_id)
+               scene->world_map.getBlock(x + x_[i], y + y_[i]).getType() == scene->world_map.getBlock(x, y).getType() ||
+               std::count(getUniqueBlock(x, y).connects_to.begin(), getUniqueBlock(x, y).connects_to.end(), scene->world_map.getBlock(x + x_[i], y + y_[i]).getType())
             )
                 block.orientation += c;
             c += c;
@@ -37,19 +37,19 @@ void blockRenderer::updateBlockOrientation(unsigned short x, unsigned short y) {
 
 void blockRenderer::renderBlock(unsigned short x, unsigned short y) {
     block& block = getBlock(x, y);
-    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * scene->world_map.getBlock(x, y).light_level)});
+    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * scene->world_map.getBlock(x, y).getLightLevel())});
     
-    if(getUniqueBlock(x, y).texture.getTexture() && scene->world_map.getBlock(x, y).light_level)
+    if(getUniqueBlock(x, y).texture.getTexture() && scene->world_map.getBlock(x, y).getLightLevel())
         gfx::render(getUniqueBlock(x, y).texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block.orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
     
-    if(scene->world_map.getBlock(x, y).light_level != MAX_LIGHT)
+    if(scene->world_map.getBlock(x, y).getLightLevel() != MAX_LIGHT)
         gfx::render(rect);
 
-    if(scene->world_map.getBlock(x, y).break_stage)
-        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (scene->world_map.getBlock(x, y).break_stage - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+    if(scene->world_map.getBlock(x, y).getBreakStage())
+        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (scene->world_map.getBlock(x, y).getBreakStage() - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 }
 
-void blockRenderer::uniqueBlock::loadFromUniqueBlock(scene->world_map.uniqueBlock* unique_block) {
+void blockRenderer::uniqueBlock::loadFromUniqueBlock(map::uniqueBlock* unique_block) {
     texture.setTexture(unique_block->name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + unique_block->name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;
@@ -61,7 +61,7 @@ void blockRenderer::scheduleTextureUpdateForBlock(unsigned short x, unsigned sho
 }
 
 blockRenderer::uniqueBlock& blockRenderer::getUniqueBlock(unsigned short x, unsigned short y) {
-    return unique_blocks[scene->world_map.getBlock(x, y).block_id];
+    return unique_blocks[(int)scene->world_map.getBlock(x, y).getType()];
 }
 
 void blockRenderer::updateBlock(unsigned short x, unsigned short y) {

@@ -65,7 +65,7 @@ void playerHandler::module::onKeyDown(gfx::key key) {
             break;
         case gfx::KEY_E:
             scene->player_inventory.open = !scene->player_inventory.open;
-            if(!scene->player_inventory.open && scene->player_inventory.getMouseItem()->item_id != itemEngine::NOTHING) {
+            if(!scene->player_inventory.open && scene->player_inventory.getMouseItem()->item_id != map::itemType::NOTHING) {
                 unsigned char result = scene->player_inventory.addItem(scene->player_inventory.getMouseItem()->item_id, scene->player_inventory.getMouseItem()->getStack());
                 scene->player_inventory.clearMouseItem();
                 packets::packet packet(packets::INVENTORY_SWAP);
@@ -135,7 +135,7 @@ bool playerHandler::module::isPlayerColliding() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(scene->world_map.getChunkState(x >> 4, y >> 4) != scene->world_map.loaded || (gfx::colliding(gfx::rectShape(short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH), playerHandler::player.getTranslatedRect()) && !scene->world_map.getBlock(x, y).getUniqueBlock().ghost))
+            if(scene->world_map.getChunkState(x >> 4, y >> 4) != map::chunkState::loaded || (gfx::colliding(gfx::rectShape(short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH), playerHandler::player.getTranslatedRect()) && !scene->world_map.getBlock(x, y).isGhost()))
                 return true;
     return false;
 }
@@ -207,10 +207,10 @@ void playerHandler::module::update() {
     
     // look for items to be picked up
     if(!scene->multiplayer)
-        for(unsigned long i = 0; i < itemEngine::items.size(); i++)
-            if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && scene->player_inventory.addItem(itemEngine::items[i].getItemId(), 1) != -1) {
-                itemEngine::items[i].destroy();
-                itemEngine::items.erase(itemEngine::items.begin() + i);
+        for(unsigned long i = 0; i < scene->world_map.items.size(); i++)
+            if(abs(scene->world_map.items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(scene->world_map.items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && scene->player_inventory.addItem(scene->world_map.items[i].getItemId(), 1) != -1) {
+                scene->world_map.items[i].destroy();
+                scene->world_map.items.erase(scene->world_map.items.begin() + i);
             }
 }
 

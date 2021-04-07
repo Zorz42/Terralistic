@@ -12,17 +12,17 @@
 
 static itemRenderer::uniqueRenderItem* unique_render_items;
 
-itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(itemEngine::itemType id) {
-    return unique_render_items[id];
+itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(map::itemType id) {
+    return unique_render_items[(int)id];
 }
 
 INIT_SCRIPT
-    INIT_ASSERT(!itemEngine::unique_items.empty());
-    unique_render_items = new itemRenderer::uniqueRenderItem[itemEngine::unique_items.size()];
-    for(int i = 0; i < itemEngine::unique_items.size(); i++) {
-        unique_render_items[i].texture.setTexture(itemEngine::unique_items[i].name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + itemEngine::unique_items[i].name + ".png"));
+    INIT_ASSERT(!map::unique_items.empty());
+    unique_render_items = new itemRenderer::uniqueRenderItem[map::unique_items.size()];
+    for(int i = 0; i < map::unique_items.size(); i++) {
+        unique_render_items[i].texture.setTexture(map::unique_items[i].name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + map::unique_items[i].name + ".png"));
         unique_render_items[i].texture.scale = 2;
-        unique_render_items[i].text_texture.setTexture(gfx::renderText(itemEngine::unique_items[i].name, {255, 255, 255}));
+        unique_render_items[i].text_texture.setTexture(gfx::renderText(map::unique_items[i].name, {255, 255, 255}));
         unique_render_items[i].text_texture.scale = 2;
     }
 INIT_SCRIPT_END
@@ -32,34 +32,34 @@ void itemRenderer::init() {
 }
 
 void itemRenderer::render() {
-    for(itemEngine::item& i : itemEngine::items)
-        gfx::render(unique_render_items[i.getItemId()].texture, short(i.x / 100 - playerHandler::view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - playerHandler::view_y + gfx::getWindowHeight() / 2));
+    for(map::item& i : scene->world_map.items)
+        gfx::render(unique_render_items[(int)i.getItemId()].texture, short(i.x / 100 - playerHandler::view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - playerHandler::view_y + gfx::getWindowHeight() / 2));
 }
 
 void itemRenderer::stop() {
-    itemEngine::close();
+    
 }
 
 void itemRenderer::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::ITEM_CREATION: {
-            auto type = (itemEngine::itemType)packet.getChar();
+            auto type = (map::itemType)packet.getChar();
             unsigned short id = packet.getUShort();
             int y = packet.getInt(), x = packet.getInt();
-            itemEngine::spawnItem(type, x, y, id);
+            scene->world_map.spawnItem(type, x, y, id);
             break;
         }
         case packets::ITEM_DELETION: {
             unsigned short id = packet.getUShort();
-            for(auto i = itemEngine::items.begin(); i != itemEngine::items.end(); i++)
+            for(auto i = scene->world_map.items.begin(); i != scene->world_map.items.end(); i++)
                 if(i->getId() == id) {
-                    itemEngine::items.erase(i);
+                    scene->world_map.items.erase(i);
                     break;
                 }
             break;
         }
         case packets::ITEM_MOVEMENT: {
-            itemEngine::item* item = itemEngine::getItemById(packet.getUShort());
+            map::item* item = scene->world_map.getItemById(packet.getUShort());
             item->y = packet.getInt();
             item->x = packet.getInt();
             break;

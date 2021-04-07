@@ -60,7 +60,7 @@ public:
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
         void update();
-        void setType(blockType id);
+        void setType(blockType id, bool process=true);
         void breakBlock();
         void setBreakProgress(unsigned short ms);
         void lightUpdate(bool update=true);
@@ -70,6 +70,7 @@ public:
         inline bool isTransparent() { return block_data->getUniqueBlock().transparent; }
         inline bool isOnlyOnFloor() { return block_data->getUniqueBlock().only_on_floor; }
         inline bool isLightSource() { return block_data->light_source; }
+        inline bool isGhost() { return block_data->getUniqueBlock().ghost; }
         inline unsigned short getBreakTime() { return block_data->getUniqueBlock().break_time; }
         inline unsigned char getLightLevel() { return block_data->light_level; }
         inline unsigned short getBreakProgress() { return block_data->break_progress; }
@@ -77,6 +78,9 @@ public:
         inline itemType getDrop() { return block_data->getUniqueBlock().drop; }
         inline void scheduleLightUpdate() { block_data->to_update_light = true; }
         inline blockType getType() { return block_data->block_id; }
+        
+        // !!! should be deleted
+        inline bool hasScheduledLightUpdate() { return block_data->to_update_light; }
     };
     
     struct item {
@@ -84,8 +88,8 @@ public:
         void create(itemType item_id_, int x_, int y_, unsigned short id_);
         void destroy();
         int x, y;
-        void update(float frame_length);
-        bool colliding() const;
+        void update(float frame_length, map& world_map);
+        bool colliding(map& world_map) const;
         uniqueItem& getUniqueItem() const;
         unsigned short getId() { return id; }
         itemType getItemId() { return item_id; }
@@ -96,9 +100,11 @@ public:
     };
     
 private:
-    unsigned short width = 4400, height = 1200;
+    unsigned short width, height;
     chunkState *chunk_states = nullptr;
     blockData *blocks = nullptr;
+    
+public: // !!! should be private
     std::vector<item> items;
     
     void removeNaturalLight(unsigned short x);
@@ -120,6 +126,8 @@ public:
     void spawnItem(itemType item_id, int x, int y, short id=-1);
     
     item* getItemById(unsigned short id);
+    
+    void updateItems(float frame_length);
     
     ~map();
 };

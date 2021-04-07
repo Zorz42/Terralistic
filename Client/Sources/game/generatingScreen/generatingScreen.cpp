@@ -12,6 +12,10 @@
 
 #define TEXT_SCALE 3
 
+void test() {
+    
+}
+
 void generatingScreen::init() {
     loading_text.scale = TEXT_SCALE;
     loading_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
@@ -21,7 +25,8 @@ void generatingScreen::init() {
     
     terrainGenerator::loading_total = 6;
     terrainGenerator::loading_current = 0;
-    thread = std::thread(terrainGenerator::generateTerrainDaemon, seed, world_map);
+    thread = std::thread(test);
+    //thread = std::thread(terrainGenerator::generateTerrainDaemon, seed, world_map);
 }
 
 void generatingScreen::update() {

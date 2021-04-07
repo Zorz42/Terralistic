@@ -90,6 +90,7 @@
 		1691250F25F6BCD500F7EB4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C625E9607800D26060 /* main.cpp */; };
 		1691251025F6BF4800F7EB4F /* Graphics_Debug.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124BF25F6B89700F7EB4F /* Graphics_Debug.framework */; };
 		1691251125F6BF4800F7EB4F /* Graphics_Debug.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124BF25F6B89700F7EB4F /* Graphics_Debug.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16A09613261D9A1D008B2BBB /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E7E261CCD5600C751E4 /* item.cpp */; };
 		3611F0AC260E3D0900127A55 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3611F0AA260E3D0900127A55 /* textScreen.cpp */; };
 		3611F0AD260E3E4100127A55 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3611F0AA260E3D0900127A55 /* textScreen.cpp */; };
 		3619ACEF26173DF700BA4EAF /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACEE26173DF700BA4EAF /* block.cpp */; };
@@ -902,6 +903,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16A09613261D9A1D008B2BBB /* item.cpp in Sources */,
 				36F45E7C261B6B0400C751E4 /* block.cpp in Sources */,
 				36F45E7D261B6B0400C751E4 /* light.cpp in Sources */,
 				3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */,

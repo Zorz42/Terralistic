@@ -12,9 +12,9 @@
 #include "blockRenderer.hpp"
 
 void blockRenderer::init() {
-    unique_blocks = new uniqueBlock[scene->world_map.unique_blocks.size()];
-    for(int i = 0; i < scene->world_map.unique_blocks.size(); i++)
-        unique_blocks[i].loadFromUniqueBlock(&scene->world_map.unique_blocks[i]);
+    unique_blocks = new uniqueBlock[map::unique_blocks.size()];
+    for(int i = 0; i < map::unique_blocks.size(); i++)
+        unique_blocks[i].loadFromUniqueBlock(&map::unique_blocks[i]);
 
     unique_blocks[(int)map::blockType::GRASS_BLOCK].connects_to.push_back(map::blockType::DIRT);
     unique_blocks[(int)map::blockType::DIRT].connects_to.push_back(map::blockType::GRASS_BLOCK);
@@ -31,19 +31,19 @@ void blockRenderer::init() {
         for(unsigned short y = 0; y < (scene->world_map.getWorldHeight() >> 4); y++)
             getChunk(x, y).createTexture();
     
-    listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_BREAK_PROGRESS_CHANGE};
-    //events_listening_to = {scene->world_map.block_change, scene->world_map.light_change, scene->world_map.break_progress_change};
+    listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE};
+    //events_listening_to = {map::block_change, scene->world_map.light_change, scene->world_map.getBreakStage()_change};
 }
 
 void blockRenderer::onEvent(events::eventType type, void* data) {
-    /*if(type == scene->world_map.block_change) {
-        auto& data_ = *(scene->world_map.block_change_data*)data;
+    /*if(type == map::block_change) {
+        auto& data_ = *(map::block_change_data*)data;
         updateBlock(data_.x, data_.y);
     } else if(type == scene->world_map.light_change) {
         auto& data_ = *(scene->world_map.light_change_data*)data;
         updateBlock(data_.x, data_.y);
-    } else if(type == scene->world_map.break_progress_change) {
-        auto& data_ = *(scene->world_map.break_progress_change_data*)data;
+    } else if(type == scene->world_map.getBreakStage()_change) {
+        auto& data_ = *(scene->world_map.getBreakStage()_change_data*)data;
         updateBlock(data_.x, data_.y);
     }*/
 }
@@ -54,27 +54,27 @@ void blockRenderer::onPacket(packets::packet packet) {
             auto type = (map::blockType)packet.getUChar();
             unsigned short y = packet.getUShort(), x = packet.getUShort();
             scene->world_map.removeNaturalLight(x);
-            scene->world_map.getBlock(x, y).setBlockType(type);
+            scene->world_map.getBlock(x, y).setType(type);
             scene->world_map.setNaturalLight(x);
-            scene->world_map.getBlock(x, y).light_update();
+            scene->world_map.getBlock(x, y).lightUpdate();
             break;
         }
         case packets::CHUNK: {
             unsigned short x = packet.getUShort(), y = packet.getUShort();
-            scene->world_map.chunkState& chunk_state = scene->world_map.getChunkState(x, y);
+            map::chunkState chunk_state = scene->world_map.getChunkState(x, y);
             for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
                 scene->world_map.removeNaturalLight(x_);
             for(unsigned short y_ = 0; y_ < 16; y_++)
                 for(unsigned short x_ = 0; x_ < 16; x_++) {
                     map::blockType type = (map::blockType)packet.getChar();
-                    scene->world_map.getBlock((x << 4) + x_, (y << 4) + y_).setBlockType(type);
+                    scene->world_map.getBlock((x << 4) + x_, (y << 4) + y_).setType(type);
                 }
             for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
                 scene->world_map.setNaturalLight(x_);
-            chunk_state = scene->world_map.loaded;
+            chunk_state = map::chunkState::loaded;
             break;
         }
-        case packets::BLOCK_BREAK_PROGRESS_CHANGE: {
+        case packets::BLOCK_PROGRESS_CHANGE: {
             unsigned short progress = packet.getUShort(), x = packet.getUShort(), y = packet.getUShort();
             scene->world_map.getBlock(x, y).setBreakProgress(progress);
             break;
@@ -105,13 +105,13 @@ void blockRenderer::render() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
-            if(scene->world_map.getChunkState(x, y) == scene->world_map.unloaded && !has_requested) {
+            if(scene->world_map.getChunkState(x, y) == map::chunkState::unloaded && !has_requested) {
                 packets::packet packet(packets::CHUNK);
                 packet << y << x;
                 scene->networking_manager.sendPacket(packet);
-                scene->world_map.getChunkState(x, y) = scene->world_map.pending_load;
+                scene->world_map.getChunkState(x, y) = map::chunkState::pending_load;
                 has_requested = true;
-            } else if(scene->world_map.getChunkState(x, y) == scene->world_map.loaded) {
+            } else if(scene->world_map.getChunkState(x, y) == map::chunkState::loaded) {
                 if(getChunk(x, y).update)
                     updateChunkTexture(x, y);
                 renderChunk(x, y);
@@ -123,12 +123,11 @@ void blockRenderer::render() {
     end_y <<= 4;
     for(unsigned short x = begin_x > MAX_LIGHT ? begin_x - MAX_LIGHT : 0; x < end_x + MAX_LIGHT && x < scene->world_map.getWorldWidth(); x++)
         for(unsigned short y = begin_y > MAX_LIGHT ? begin_y - MAX_LIGHT : 0; y < end_y + MAX_LIGHT && y < scene->world_map.getWorldHeight(); y++)
-            if(scene->world_map.getBlock(x, y).to_update_light && scene->world_map.getChunkState(x >> 4, y >> 4) == scene->world_map.loaded)
-                scene->world_map.getBlock(x, y).light_update();
+            if(scene->world_map.getBlock(x, y).hasScheduledLightUpdate() && scene->world_map.getChunkState(x >> 4, y >> 4) == map::chunkState::loaded)
+                scene->world_map.getBlock(x, y).lightUpdate();
 }
 
 void blockRenderer::stop() {
-    scene->world_map.close();
     delete[] chunks;
     delete[] blocks;
 }

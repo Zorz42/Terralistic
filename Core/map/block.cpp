@@ -12,8 +12,10 @@ map::block map::getBlock(unsigned short x, unsigned short y) {
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 
-void map::block::setType(map::blockType id) {
-    if(id != block_data->block_id) {
+void map::block::setType(map::blockType id, bool process) {
+    if(!process)
+        block_data->block_id = id;
+    else if(id != block_data->block_id) {
         parent_map->removeNaturalLight(x);
         block_data->block_id = id;
         parent_map->setNaturalLight(x);
@@ -48,10 +50,10 @@ void map::block::setBreakProgress(unsigned short ms) {
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getBreakTime() * 9.0f);
     if(stage != getBreakStage()) {
         block_data->break_stage = stage;
-        /*break_progress_change_data data{};
+        /*getBreakStage()_change_data data{};
         data.x = getX();
         data.y = getY();
-        events::callEvent(break_progress_change, (void*)&data);*/
+        events::callEvent(getBreakStage()_change, (void*)&data);*/
     }
 }
 
@@ -65,4 +67,8 @@ void map::block::breakBlock() {
         parent_map->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
     setType(blockType::AIR);
     setBreakProgress(0);
+}
+
+map::uniqueBlock& map::blockData::getUniqueBlock() const {
+    return unique_blocks[(int)block_id];
 }
