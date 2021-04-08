@@ -5,6 +5,7 @@
 //  Created by Jakob Zorz on 02/04/2021.
 //
 
+#include <algorithm>
 #include "blockRenderer.hpp"
 #include "dev.hpp"
 

@@ -7,7 +7,7 @@
 
 //#include <utility>
 #include <dirent.h>
-//#include <algorithm>
+#include <algorithm>
 #include "worldSelector.hpp"
 #include "game.hpp"
 #include "worldCreator.hpp"

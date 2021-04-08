@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-//#include <algorithm>
+#include <algorithm>
 #include "worldCreator.hpp"
 #include "game.hpp"
 
