@@ -15,19 +15,17 @@
 #include <unistd.h>
 #endif
 
-#include "networkingModule.hpp"
-#include "game.hpp"
 #include "playerHandler.hpp"
 #include <thread>
 
 #define PORT 33770
 #define PORT_STR "33770"
 
-void networking::networkingManager::sendPacket(packets::packet packet_) {
+void networkingManager::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, std::move(packet_));
 }
 
-void networking::networkingManager::listenerLoop(networking::networkingManager* manager) {
+void networkingManager::listenerLoop(networkingManager* manager) {
     while(manager->listener_running) {
         packets::packet packet = packets::getPacket(manager->sock);
         for(packetListener* listener : manager->listeners)
@@ -36,7 +34,7 @@ void networking::networkingManager::listenerLoop(networking::networkingManager* 
     }
 }
 
-bool networking::networkingManager::startListening(const std::string &ip) {
+bool networkingManager::startListening(const std::string &ip) {
     #ifdef WIN32
     WSADATA wsaData;
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
@@ -72,14 +70,14 @@ bool networking::networkingManager::startListening(const std::string &ip) {
     return true;
 }
 
-void networking::networkingManager::stopListening() {
+void networkingManager::stopListening() {
     listener_running = false;
 }
 
-void networking::networkingManager::registerListener(packetListener *listener) {
+void networkingManager::registerListener(packetListener *listener) {
     listeners.push_back(listener);
 }
 
-networking::packetListener::packetListener(networkingManager* manager) {
+packetListener::packetListener(networkingManager* manager) {
     manager->registerListener(this);
 }

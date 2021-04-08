@@ -6,7 +6,6 @@
 //
 
 #include "startMenu.hpp"
-#include "game.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
 

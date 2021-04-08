@@ -6,6 +6,7 @@
 //
 
 #include "platform_folders.h"
+
 #include <sys/stat.h>
 #include <dirent.h>
 #ifdef __APPLE__

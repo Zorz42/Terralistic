@@ -13,8 +13,6 @@
 #include <vector>
 #include <set>
 
-namespace networking {
-
 struct networkingManager;
 
 struct packetListener {
@@ -33,10 +31,8 @@ struct networkingManager {
 private:
     int sock = -1;
     bool listener_running = true;
-    static void listenerLoop(networking::networkingManager* manager);
+    static void listenerLoop(networkingManager* manager);
     std::vector<packetListener*> listeners;
 };
-
-}
 
 #endif /* networkingModule_hpp */

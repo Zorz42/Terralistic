@@ -7,10 +7,6 @@
 //
 
 #include "playerHandler.hpp"
-#include "networkingModule.hpp"
-#include "game.hpp"
-#include "itemRenderer.hpp"
-#include "blockRenderer.hpp"
 
 #define INC_X position_x++; playerHandler::view_x++
 #define DEC_X position_x--; playerHandler::view_x--

@@ -6,7 +6,6 @@
 //
 
 #include "generatingScreen.hpp"
-#include "game.hpp"
 #include "terrainGenerator.hpp"
 #include "dev.hpp"
 

@@ -18,13 +18,13 @@
 #include "networkingModule.hpp"
 
 
-struct itemRenderer : public gfx::sceneModule<game>, networking::packetListener {
+struct itemRenderer : public gfx::sceneModule<game>, packetListener {
     struct uniqueRenderItem {
         gfx::image texture;
         gfx::sprite text_texture;
     };
 
-    itemRenderer(game* scene, networking::networkingManager* manager) : gfx::sceneModule<game>(scene), networking::packetListener(manager) {}
+    itemRenderer(game* scene, networkingManager* manager) : gfx::sceneModule<game>(scene), packetListener(manager) {}
     void init() override;
     void render() override;
     void stop() override;

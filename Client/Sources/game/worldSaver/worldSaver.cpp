@@ -7,8 +7,6 @@
 
 #include "worldSaver.hpp"
 #include "fileSystem.hpp"
-#include "playerHandler.hpp"
-#include "textScreen.hpp"
 #include <fstream>
 
 void worldSaver::saveWorld(const std::string& world_name, map& world_map) {

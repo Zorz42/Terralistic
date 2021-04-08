@@ -6,7 +6,7 @@
 //
 
 #include "itemRenderer.hpp"
-#include "playerHandler.hpp"
+//#include "playerHandler.hpp"/
 
 static itemRenderer::uniqueRenderItem* unique_render_items;
 

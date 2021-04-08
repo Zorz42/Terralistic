@@ -7,8 +7,6 @@
 
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
-#include "networkingModule.hpp"
-#include "game.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
 

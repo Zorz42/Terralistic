@@ -5,7 +5,6 @@
 //  Created by Jakob Zorz on ???.
 //
 
-#include "game.hpp"
 #include "playerHandler.hpp"
 #include "blockSelector.hpp"
 #include "worldSaver.hpp"

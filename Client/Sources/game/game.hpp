@@ -10,7 +10,6 @@
 
 #ifdef __WIN32__
 #include <utility>
-
 #include "graphics.hpp"
 #else
 #include <Graphics/graphics.hpp>
@@ -18,12 +17,11 @@
 
 #include "networkingModule.hpp"
 #include "inventory.hpp"
-#include "map.hpp"
 
 struct game : public gfx::scene {
     const std::string world_name;
     gfx::sprite fps_text;
-    networking::networkingManager networking_manager;
+    networkingManager networking_manager;
     inventory::inventory player_inventory;
     bool multiplayer;
     map world_map;

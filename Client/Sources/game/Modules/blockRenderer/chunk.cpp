@@ -6,7 +6,6 @@
 //
 
 #include "playerHandler.hpp"
-#include "networkingModule.hpp"
 #include "blockRenderer.hpp"
 #include "dev.hpp"
 

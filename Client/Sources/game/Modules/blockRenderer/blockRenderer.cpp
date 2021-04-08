@@ -6,7 +6,6 @@
 //
 
 #include "playerHandler.hpp"
-#include "networkingModule.hpp"
 #include "blockRenderer.hpp"
 
 gfx::image blockRenderer::breaking_texture;

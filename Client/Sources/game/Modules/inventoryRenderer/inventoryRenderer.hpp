@@ -17,8 +17,8 @@
 #include "game.hpp"
 #include "networkingModule.hpp"
 
-struct inventoryRenderer : gfx::sceneModule<game>, networking::packetListener {
-    inventoryRenderer(game* scene, networking::networkingManager* manager) : gfx::sceneModule<game>(scene), networking::packetListener(manager) {}
+struct inventoryRenderer : gfx::sceneModule<game>, packetListener {
+    inventoryRenderer(game* scene, networkingManager* manager) : gfx::sceneModule<game>(scene), packetListener(manager) {}
     
     void init() override;
     void render() override;
