@@ -45,7 +45,7 @@ void worldCreator::init() {
     world_name.setText("");
     world_name.active = true;
     world_name.textProcessing = [](char c) {
-        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_')
+        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_')
             return c;
         if(c == ' ')
             return '-';
@@ -59,7 +59,7 @@ void worldCreator::init() {
 void worldCreator::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
-    else if((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || key == gfx::KEY_ENTER)
+    else if(((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || key == gfx::KEY_ENTER) && can_create)
         gfx::switchScene(new game(world_name.getText(), false));
 }
 
