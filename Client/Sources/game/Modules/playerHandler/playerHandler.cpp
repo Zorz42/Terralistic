@@ -6,8 +6,6 @@
 //  Created by Jakob Zorz on 01/07/2020.
 //
 
-#include "core.hpp"
-
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "game.hpp"

@@ -10,6 +10,8 @@
 
 #define INVENTORY_SIZE 20
 
+#include "map.hpp"
+
 namespace inventory {
 
 struct inventoryItem {

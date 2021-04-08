@@ -9,6 +9,7 @@
 #define map_hpp
 
 #include <vector>
+#include <string>
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -19,12 +20,15 @@ public:
     enum class chunkState {unloaded, pending_load, loaded};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK};
 
+    static void initBlocks();
+    static void initItems();
+    
 public: // !!! should be private
     struct uniqueItem {
         uniqueItem(std::string  name, unsigned short stack_size, map::blockType places);
         std::string name;
         unsigned short stack_size;
-        map::blockType places;
+        blockType places;
     };
     
     struct uniqueBlock {

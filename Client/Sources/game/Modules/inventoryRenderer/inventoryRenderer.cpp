@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 03/04/2021.
 //
 
-#include "core.hpp"
-
 #include "inventoryRenderer.hpp"
 #include "playerHandler.hpp"
 #include "itemRenderer.hpp"

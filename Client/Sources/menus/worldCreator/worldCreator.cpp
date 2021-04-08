@@ -5,13 +5,10 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#include "core.hpp"
-
 #include <vector>
 #include <algorithm>
 #include "worldCreator.hpp"
 #include "game.hpp"
-#include "init.hpp"
 
 // menu, where you create worlds
 // for guide, check multiplayer selector, which is quite similar

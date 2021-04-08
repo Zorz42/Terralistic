@@ -5,22 +5,8 @@
 //  Created by Jakob Zorz on 04/04/2021.
 //
 
-#include "core.hpp"
-
-std::vector<map::uniqueBlock> map::unique_blocks;
-std::vector<map::uniqueItem> map::unique_items;
-
-INIT_SCRIPT
-    map::unique_blocks = {
-        map::uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
-        map::uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/map::itemType::DIRT,        /*break_time*/1000),
-        map::uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/map::itemType::STONE_BLOCK, /*break_time*/1000),
-        map::uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
-        map::uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/map::itemType::STONE,       /*break_time*/1000),
-        map::uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
-        map::uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
-    };
-INIT_SCRIPT_END
+#include "map.hpp"
+#include "dev.hpp"
 
 void map::createWorld(unsigned short width, unsigned short height) {
     chunk_states = new chunkState[width * height];

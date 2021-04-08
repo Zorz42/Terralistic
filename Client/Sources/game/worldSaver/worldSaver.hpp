@@ -8,6 +8,8 @@
 #ifndef worldSaver_hpp
 #define worldSaver_hpp
 
+#include "map.hpp"
+
 namespace worldSaver {
 
 void saveWorld(const std::string& world_name, map& world_map);

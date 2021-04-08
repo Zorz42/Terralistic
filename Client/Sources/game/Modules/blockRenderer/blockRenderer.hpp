@@ -16,15 +16,15 @@
 
 #include "game.hpp"
 #include "networkingModule.hpp"
-#include "core.hpp"
 
-struct blockRenderer : public gfx::sceneModule<game>, networking::packetListener, events::eventListener {
+struct blockRenderer : public gfx::sceneModule<game>, networking::packetListener {
     blockRenderer(game* scene, networking::networkingManager* manager) : gfx::sceneModule<game>(scene), networking::packetListener(manager) {}
     void init() override;
     void render() override;
     void stop() override;
     void onPacket(packets::packet packet) override;
-    void onEvent(events::eventType type, void* data) override;
+    
+    static void loadBlocks();
     
 private:
     struct uniqueBlock {
@@ -45,10 +45,10 @@ private:
         void createTexture();
     };
     
-    gfx::image breaking_texture;
+    static gfx::image breaking_texture;
     chunk* chunks = nullptr;
     block* blocks = nullptr;
-    uniqueBlock* unique_blocks = nullptr;
+    static uniqueBlock* unique_blocks;
     
     block& getBlock(unsigned short x, unsigned short y);
     chunk& getChunk(unsigned short x, unsigned short y);

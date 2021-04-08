@@ -5,9 +5,10 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
-#include "core.hpp"
-
 #include "simplex-noise.hpp"
+#include <random>
+#include "map.hpp"
+#include "terrainGenerator.hpp"
 
 // terrain generation parameters
 

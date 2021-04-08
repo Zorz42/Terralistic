@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 06/07/2020.
 //
 
-#include "core.hpp"
-
 #include "startMenu.hpp"
 #include "game.hpp"
 #include "worldSelector.hpp"

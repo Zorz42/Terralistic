@@ -5,9 +5,10 @@
 //  Created by Jakob Zorz on 09/01/2021.
 //
 
-#include "core.hpp"
-
 // inventoryItem is a class which exists in inventory
+
+#include "map.hpp"
+#include "inventory.hpp"
 
 inventory::inventoryItem::inventoryItem() : item_id(map::itemType::NOTHING), stack(0) {}
 

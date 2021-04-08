@@ -17,7 +17,8 @@
 #endif
 
 #include "networkingModule.hpp"
-#include "core.hpp"
+#include "inventory.hpp"
+#include "map.hpp"
 
 struct game : public gfx::scene {
     const std::string world_name;

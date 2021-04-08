@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 20/02/2021.
 //
 
-#include "core.hpp"
-
 #include "itemRenderer.hpp"
 #include "playerHandler.hpp"
 
@@ -16,8 +14,7 @@ itemRenderer::uniqueRenderItem& itemRenderer::getUniqueRenderItem(map::itemType 
     return unique_render_items[(int)id];
 }
 
-INIT_SCRIPT
-    INIT_ASSERT(!map::unique_items.empty());
+void itemRenderer::loadItems() {
     unique_render_items = new itemRenderer::uniqueRenderItem[map::unique_items.size()];
     for(int i = 0; i < map::unique_items.size(); i++) {
         unique_render_items[i].texture.setTexture(map::unique_items[i].name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + map::unique_items[i].name + ".png"));
@@ -25,7 +22,7 @@ INIT_SCRIPT
         unique_render_items[i].text_texture.setTexture(gfx::renderText(map::unique_items[i].name, {255, 255, 255}));
         unique_render_items[i].text_texture.scale = 2;
     }
-INIT_SCRIPT_END
+}
 
 void itemRenderer::init() {
     listening_to = {packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT};

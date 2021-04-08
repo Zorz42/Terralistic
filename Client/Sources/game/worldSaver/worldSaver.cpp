@@ -5,12 +5,11 @@
 //  Created by Jakob Zorz on 04/12/2020.
 //
 
-#include "core.hpp"
-
 #include "worldSaver.hpp"
 #include "fileSystem.hpp"
 #include "playerHandler.hpp"
 #include "textScreen.hpp"
+#include <fstream>
 
 void worldSaver::saveWorld(const std::string& world_name, map& world_map) {
     // saves world chunk by chunk and then inventory

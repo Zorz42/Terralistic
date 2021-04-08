@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#include "core.hpp"
-
 #ifdef WIN32
 #include <windows.h>
 #include <winsock2.h>
@@ -20,6 +18,7 @@
 #include "networkingModule.hpp"
 #include "game.hpp"
 #include "playerHandler.hpp"
+#include <thread>
 
 #define PORT 33770
 #define PORT_STR "33770"

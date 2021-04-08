@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on ???.
 //
 
-#include "core.hpp"
-
 #include "game.hpp"
 #include "playerHandler.hpp"
 #include "blockSelector.hpp"
@@ -18,6 +16,7 @@
 #include "blockRenderer.hpp"
 #include "textScreen.hpp"
 #include "inventoryRenderer.hpp"
+#include "fileSystem.hpp"
 
 #undef main
 

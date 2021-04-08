@@ -5,9 +5,9 @@
 //  Created by Jakob Zorz on 13/12/2020.
 //
 
-#include "core.hpp"
-
 // inventory is a class which you can easily manage with function calls
+
+#include "inventory.hpp"
 
 char inventory::inventory::addItem(map::itemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)

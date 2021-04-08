@@ -9,6 +9,7 @@
 #define dev_hpp
 
 #include "debugBreak.hpp"
+#include <iostream>
 
 // enabling developer mode can slow down the game, but it will show any errors that program made, like accessing out of array, i would reccomend adding -D DEVELOPER_MODE to compiler flags to enable it
 

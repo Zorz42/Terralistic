@@ -5,11 +5,10 @@
 //  Created by Jakob Zorz on 02/04/2021.
 //
 
-#include "core.hpp"
-
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "blockRenderer.hpp"
+#include "dev.hpp"
 
 blockRenderer::chunk& blockRenderer::getChunk(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < (scene->world_map.getWorldHeight() >> 4) && x >= 0 && x < (scene->world_map.getWorldWidth() >> 4), "requested chunk is out of bounds");

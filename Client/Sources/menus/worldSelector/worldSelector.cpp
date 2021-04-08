@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#include "core.hpp"
-
 #include <utility>
 #include <vector>
 #include <dirent.h>
@@ -14,6 +12,7 @@
 #include "worldSelector.hpp"
 #include "game.hpp"
 #include "worldCreator.hpp"
+#include "fileSystem.hpp"
 
 #undef main
 

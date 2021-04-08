@@ -5,7 +5,22 @@
 //  Created by Jakob Zorz on 05/04/2021.
 //
 
-#include "core.hpp"
+#include "map.hpp"
+#include "dev.hpp"
+
+std::vector<map::uniqueBlock> map::unique_blocks;
+
+void map::initBlocks() {
+    map::unique_blocks = {
+        map::uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
+        map::uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/map::itemType::DIRT,        /*break_time*/1000),
+        map::uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/map::itemType::STONE_BLOCK, /*break_time*/1000),
+        map::uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
+        map::uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/map::itemType::STONE,       /*break_time*/1000),
+        map::uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
+        map::uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/map::itemType::NOTHING,     /*break_time*/1000),
+    };
+}
 
 map::block map::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth(), "requested block is out of bounds");

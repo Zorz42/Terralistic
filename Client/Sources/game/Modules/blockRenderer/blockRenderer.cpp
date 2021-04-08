@@ -5,13 +5,14 @@
 //  Created by Jakob Zorz on 27/02/2021.
 //
 
-#include "core.hpp"
-
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "blockRenderer.hpp"
 
-void blockRenderer::init() {
+gfx::image blockRenderer::breaking_texture;
+blockRenderer::uniqueBlock* blockRenderer::unique_blocks;
+
+void blockRenderer::loadBlocks() {
     unique_blocks = new uniqueBlock[map::unique_blocks.size()];
     for(int i = 0; i < map::unique_blocks.size(); i++)
         unique_blocks[i].loadFromUniqueBlock(&map::unique_blocks[i]);
@@ -23,7 +24,9 @@ void blockRenderer::init() {
 
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
-    
+}
+
+void blockRenderer::init() {
     chunks = new chunk[(scene->world_map.getWorldWidth() >> 4) * (scene->world_map.getWorldHeight() >> 4)];
     blocks = new block[scene->world_map.getWorldWidth() * scene->world_map.getWorldHeight()];
     
@@ -35,7 +38,7 @@ void blockRenderer::init() {
     //events_listening_to = {map::block_change, scene->world_map.light_change, scene->world_map.getBreakStage()_change};
 }
 
-void blockRenderer::onEvent(events::eventType type, void* data) {
+//void blockRenderer::onEvent(events::eventType type, void* data) {
     /*if(type == map::block_change) {
         auto& data_ = *(map::block_change_data*)data;
         updateBlock(data_.x, data_.y);
@@ -46,7 +49,7 @@ void blockRenderer::onEvent(events::eventType type, void* data) {
         auto& data_ = *(scene->world_map.getBreakStage()_change_data*)data;
         updateBlock(data_.x, data_.y);
     }*/
-}
+//}
 
 void blockRenderer::onPacket(packets::packet packet) {
     switch (packet.type) {

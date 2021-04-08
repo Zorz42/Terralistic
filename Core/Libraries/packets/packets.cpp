@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 15/01/2021.
 //
 
-#include "core.hpp"
+#include "packets.hpp"
 
 #ifdef WIN32
 #include <winsock2.h>

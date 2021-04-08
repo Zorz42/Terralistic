@@ -5,9 +5,13 @@
 //  Created by Jakob Zorz on 06/04/2021.
 //
 
-#include "core.hpp"
+#include "map.hpp"
+#include "dev.hpp"
+#include <random>
 
-INIT_SCRIPT
+std::vector<map::uniqueItem> map::unique_items;
+
+void map::initItems() {
     // all currently unique items
     map::unique_items = {
         {"nothing",     0,  map::blockType::AIR        },
@@ -15,7 +19,7 @@ INIT_SCRIPT
         {"dirt",        99, map::blockType::DIRT       },
         {"stone_block", 99, map::blockType::STONE_BLOCK},
     };
-INIT_SCRIPT_END
+}
 
 void map::updateItems(float frame_length) {
     for(auto & item : items)

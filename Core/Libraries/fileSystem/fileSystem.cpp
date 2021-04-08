@@ -5,30 +5,29 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#include "core.hpp"
-
 #include "platform_folders.h"
 #include <sys/stat.h>
 #include <dirent.h>
 #ifdef __APPLE__
 #include <unistd.h>
 #endif
+#include "fileSystem.hpp"
 
 static std::string data_path;
 
 // most of the functions explain themselves
 
-INIT_SCRIPT
+void fileSystem::init() {
     // data path is path in filesystem, where terralistic worlds are saved and other things
     data_path = sago::getDataHome() + "/Terralistic/";
     
-    fileSystem::createDirIfNotExists(data_path);
+    createDirIfNotExists(data_path);
     
-    std::string dirs_to_create[] = {fileSystem::getWorldsPath()};
+    std::string dirs_to_create[] = {getWorldsPath()};
     
     for(const std::string& dir : dirs_to_create)
-        fileSystem::createDirIfNotExists(dir);
-INIT_SCRIPT_END
+        createDirIfNotExists(dir);
+}
 
 std::string fileSystem::getDataPath() {
     return data_path;

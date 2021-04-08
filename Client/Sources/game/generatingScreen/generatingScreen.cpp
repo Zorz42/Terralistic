@@ -5,10 +5,10 @@
 //  Created by Jakob Zorz on 02/07/2020.
 //
 
-#include "core.hpp"
-
 #include "generatingScreen.hpp"
 #include "game.hpp"
+#include "terrainGenerator.hpp"
+#include "dev.hpp"
 
 #define TEXT_SCALE 3
 

@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 13/07/2020.
 //
 
-#include "core.hpp"
-
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
@@ -36,14 +34,13 @@ void air_rightClickEvent(map::block* block, game* scene) {
 
 void air_leftClickEvent(map::block* block, game* scene) {}
 
-INIT_SCRIPT
-    INIT_ASSERT(!map::unique_blocks.empty());
+void blockSelector::initEvents() {
     click_events = std::vector<clickEvents>(map::unique_blocks.size());
 
     click_events[(int)map::blockType::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
     click_events[(int)map::blockType::AIR].rightClickEvent = &air_rightClickEvent;
     click_events[(int)map::blockType::AIR].leftClickEvent = &air_leftClickEvent;
-INIT_SCRIPT_END
+}
 
 void blockSelector::render() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {

@@ -8,7 +8,11 @@
 #ifndef fileSystem_hpp
 #define fileSystem_hpp
 
+#include <string>
+
 namespace fileSystem {
+
+void init();
 
 std::string getResourcePath(std::string executable_path);
 

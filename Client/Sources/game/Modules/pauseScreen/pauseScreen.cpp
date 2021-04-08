@@ -11,8 +11,6 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-#include "core.hpp"
-
 #include "pauseScreen.hpp"
 
 // pause screen is very simple for now

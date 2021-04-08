@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 05/04/2021.
 //
 
-#include "core.hpp"
+#include "map.hpp"
 
 void map::block::lightUpdate(bool update) {
     if(update)

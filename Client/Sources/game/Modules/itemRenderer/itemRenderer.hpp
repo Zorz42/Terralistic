@@ -31,6 +31,8 @@ struct itemRenderer : public gfx::sceneModule<game>, networking::packetListener 
     void onPacket(packets::packet packet) override;
     
     static uniqueRenderItem& getUniqueRenderItem(map::itemType type);
+    
+    static void loadItems();
 };
 
 #endif /* itemRenderer_hpp */

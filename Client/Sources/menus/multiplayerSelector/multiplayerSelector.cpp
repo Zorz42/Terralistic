@@ -5,13 +5,10 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#include "core.hpp"
-
 #include <vector>
 #include <algorithm>
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
-#include "init.hpp"
 
 // this is a menu, where you select the server you want to play on
 

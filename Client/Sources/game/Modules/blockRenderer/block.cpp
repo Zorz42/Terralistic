@@ -5,11 +5,10 @@
 //  Created by Jakob Zorz on 02/04/2021.
 //
 
-#include "core.hpp"
-
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
 #include "blockRenderer.hpp"
+#include "dev.hpp"
 
 blockRenderer::block& blockRenderer::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < scene->world_map.getWorldHeight() && x >= 0 && x < scene->world_map.getWorldWidth(), "requested block is out of bounds");
