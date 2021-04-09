@@ -11,8 +11,6 @@
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
-#include "itemRenderer.hpp"
-#include "blockRenderer.hpp"
 #include "textScreen.hpp"
 #include "inventoryRenderer.hpp"
 #include "fileSystem.hpp"
@@ -29,8 +27,6 @@ void game::init() {
     
     modules = {
         &world_map,
-        new blockRenderer(this, &networking_manager),
-        new itemRenderer(this, &networking_manager),
         new players(&networking_manager),
         new pauseScreen(),
         new playerHandler::module(this, &networking_manager),

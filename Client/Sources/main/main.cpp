@@ -8,8 +8,7 @@
 #include "startMenu.hpp"
 #include "fileSystem.hpp"
 #include "blockSelector.hpp"
-#include "itemRenderer.hpp"
-#include "blockRenderer.hpp"
+#include "renderMap.hpp"
 
 int main(int argc, char **argv) {
     // initialize graphics and set resource path, which is a part of file loading in graphics
@@ -22,8 +21,8 @@ int main(int argc, char **argv) {
     fileSystem::init();
     map::initBlocks();
     map::initItems();
-    blockRenderer::loadBlocks();
-    itemRenderer::loadItems();
+    renderMap::loadBlocks();
+    renderMap::loadItems();
     blockSelector::initEvents();
     
     gfx::switchScene(new startMenu());

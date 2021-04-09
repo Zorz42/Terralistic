@@ -7,7 +7,7 @@
 
 #include "inventoryRenderer.hpp"
 #include "playerHandler.hpp"
-#include "itemRenderer.hpp"
+#include "renderMap.hpp"
 
 #define MARGIN 10
 
@@ -41,7 +41,7 @@ void inventoryRenderer::render() {
             playerHandler::hovered = &scene->player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
             if(scene->player_inventory.inventory[i].item_id != map::itemType::NOTHING) {
-                text_texture = &itemRenderer::getUniqueRenderItem(scene->player_inventory.inventory[i].item_id).text_texture;
+                text_texture = &renderMap::getUniqueRenderItem(scene->player_inventory.inventory[i].item_id).text_texture;
                 text_texture->x = gfx::getMouseX() + 20;
                 text_texture->y = gfx::getMouseY() + 20;
                 under_text_rect.h = text_texture->getHeight() + 2 * MARGIN;
@@ -76,8 +76,8 @@ void inventoryRenderer::onPacket(packets::packet packet) {
 }
 
 void inventoryRenderer::renderItem(inventory::inventoryItem* item, int x, int y, int i) {
-    if(itemRenderer::getUniqueRenderItem(item->item_id).texture.getTexture())
-        gfx::render(itemRenderer::getUniqueRenderItem(item->item_id).texture, gfx::rectShape((short)x, (short)y, 30, 30));
+    if(renderMap::getUniqueRenderItem(item->item_id).texture.getTexture())
+        gfx::render(renderMap::getUniqueRenderItem(item->item_id).texture, gfx::rectShape((short)x, (short)y, 30, 30));
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
