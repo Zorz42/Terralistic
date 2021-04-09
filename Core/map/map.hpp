@@ -23,14 +23,7 @@ public:
     static void initBlocks();
     static void initItems();
     
-public: // !!! should be private
-    struct uniqueItem {
-        uniqueItem(std::string  name, unsigned short stack_size, map::blockType places);
-        std::string name;
-        unsigned short stack_size;
-        blockType places;
-    };
-    
+protected:
     struct uniqueBlock {
         uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
         
@@ -40,7 +33,6 @@ public: // !!! should be private
         unsigned short break_time;
     };
     
-private:
     struct blockData {
         blockData(blockType block_id=blockType::AIR) : block_id(block_id) {}
         
@@ -52,15 +44,26 @@ private:
         
         uniqueBlock& getUniqueBlock() const;
     };
-public: // !!! should be private
-    static std::vector<uniqueBlock> unique_blocks;
+    
+public: // !!! should be protected
+    struct uniqueItem {
+        uniqueItem(std::string  name, unsigned short stack_size, map::blockType places);
+        std::string name;
+        unsigned short stack_size;
+        blockType places;
+    };
+    
+protected:
     static std::vector<uniqueItem> unique_items;
+public: // !!! should be protected
+    static std::vector<uniqueBlock> unique_blocks;
     
 public:
     class block {
         blockData* block_data;
         unsigned short x, y;
         map* parent_map;
+        
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
         void update();
@@ -83,7 +86,6 @@ public:
         inline void scheduleLightUpdate() { block_data->to_update_light = true; }
         inline blockType getType() { return block_data->block_id; }
         
-        // !!! should be deleted
         inline bool hasScheduledLightUpdate() { return block_data->to_update_light; }
     };
     
@@ -97,22 +99,23 @@ public:
         uniqueItem& getUniqueItem() const;
         unsigned short getId() { return id; }
         itemType getItemId() { return item_id; }
-    private:
+    protected:
         int velocity_x, velocity_y;
         unsigned short id;
         itemType item_id;
     };
     
-private:
+protected:
     unsigned short width, height;
     chunkState *chunk_states = nullptr;
     blockData *blocks = nullptr;
     
-public: // !!! should be private
-    std::vector<item> items;
-    
     void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
+    
+public: // !!! should be protected
+    std::vector<item> items;
+    
 public:
     chunkState& getChunkState(unsigned short x, unsigned short y);
     block getBlock(unsigned short x, unsigned short y);
