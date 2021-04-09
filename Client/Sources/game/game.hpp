@@ -17,14 +17,15 @@
 
 #include "networkingModule.hpp"
 #include "inventory.hpp"
+#include "renderMap.hpp"
 
-struct game : public gfx::scene {
+struct game : gfx::scene {
     const std::string world_name;
     gfx::sprite fps_text;
     networkingManager networking_manager;
     inventory::inventory player_inventory;
     bool multiplayer;
-    map world_map;
+    renderMap world_map{&networking_manager};
     
     game(std::string world_name, bool multiplayer) : world_name(std::move(world_name)), multiplayer(multiplayer) {}
     void init() override;

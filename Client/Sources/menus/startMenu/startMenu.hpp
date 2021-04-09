@@ -16,7 +16,7 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-struct startMenu : public gfx::scene {
+struct startMenu : gfx::scene {
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;

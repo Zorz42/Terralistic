@@ -14,10 +14,7 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-#include "game.hpp"
-
-struct pauseScreen : public gfx::sceneModule<game> {
-    using gfx::sceneModule<game>::sceneModule;
+struct pauseScreen : gfx::sceneModule {
     void init() override;
     void render() override;
     void onKeyDown(gfx::key key) override;

@@ -46,7 +46,7 @@ struct _centeredObject {
     short x, y;
 };
 
-struct rect : public _centeredObject {
+struct rect : _centeredObject {
     explicit rect(short x=0, short y=0, unsigned short w=0, unsigned short h=0, color c={255, 255, 255}, objectType orientation=top_left) : _centeredObject(x, y, orientation), w(w), h(h), c(c) {}
     inline unsigned short getWidth() const { return w; };
     inline unsigned short getHeight() const { return h; };
@@ -67,13 +67,13 @@ protected:
     void* texture=nullptr;
 };
 
-struct sprite : public _centeredObject, image {
+struct sprite : _centeredObject, image {
     inline unsigned short getWidth() const { return getTextureWidth() * scale; }
     inline unsigned short getHeight() const { return getTextureHeight() * scale; }
     sprite() : _centeredObject(0, 0) {};
 };
 
-struct button : public sprite {
+struct button : sprite {
     unsigned short margin = 10;
     
     unsigned short getWidth() const;
@@ -84,7 +84,7 @@ struct button : public sprite {
     bool hoverable = true;
 };
 
-struct textInput : public button {
+struct textInput : button {
     textInput() { margin = 3; }
     
     inline std::string getText() const { return text; }
@@ -110,8 +110,8 @@ void render(const textInput& b);
 
 struct scene;
 
-struct _sceneModule {
-    virtual ~_sceneModule() = default;
+struct sceneModule {
+    virtual ~sceneModule() = default;
     
     virtual void init() {}
     virtual void refresh() {}
@@ -120,12 +120,6 @@ struct _sceneModule {
     virtual void stop() {}
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
-};
-
-template <class parent_scene>
-struct sceneModule : public _sceneModule {
-    parent_scene* scene;
-    explicit sceneModule(parent_scene* scene) : scene(scene) {}
 };
 
 struct scene {
@@ -141,7 +135,7 @@ struct scene {
     virtual void onMouseScroll(int distance) {}
     
     std::vector<textInput*> text_inputs;
-    std::vector<_sceneModule*> modules;
+    std::vector<sceneModule*> modules;
     
     void _init();
     void _onKeyDown(key key_);

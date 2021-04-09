@@ -6,3 +6,7 @@
 //
 
 #include "renderMap.hpp"
+
+void renderMap::onPacket(packets::packet packet) {
+    
+}

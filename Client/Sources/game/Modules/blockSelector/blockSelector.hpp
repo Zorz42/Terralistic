@@ -16,8 +16,9 @@
 
 #include "game.hpp"
 
-struct blockSelector : public gfx::sceneModule<game> {
-    using gfx::sceneModule<game>::sceneModule;
+struct blockSelector : gfx::sceneModule {
+    game* scene;
+    blockSelector(game* scene) : scene(scene) {}
     
     void render() override;
     void onKeyDown(gfx::key key) override;

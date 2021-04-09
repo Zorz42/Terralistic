@@ -14,11 +14,10 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-#include "game.hpp"
 #include "networkingModule.hpp"
 
-struct players : public gfx::sceneModule<game>, packetListener {
-    players(game* scene, networkingManager* manager) : gfx::sceneModule<game>(scene), packetListener(manager) {}
+struct players : gfx::sceneModule, packetListener {
+    players(networkingManager* manager) : packetListener(manager) {}
     void init();
     void render();
     void onPacket(packets::packet packet);

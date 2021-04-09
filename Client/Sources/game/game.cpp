@@ -28,10 +28,11 @@ void game::init() {
     world_map.createWorld(275, 75); // dimensions in chunks
     
     modules = {
+        &world_map,
         new blockRenderer(this, &networking_manager),
         new itemRenderer(this, &networking_manager),
-        new players(this, &networking_manager),
-        new pauseScreen(this),
+        new players(&networking_manager),
+        new pauseScreen(),
         new playerHandler::module(this, &networking_manager),
         new blockSelector(this),
         new inventoryRenderer(this, &networking_manager),

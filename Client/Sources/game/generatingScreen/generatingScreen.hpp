@@ -21,7 +21,7 @@
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
-struct generatingScreen : public gfx::scene {
+struct generatingScreen : gfx::scene {
     map& world_map;
     explicit generatingScreen(unsigned int seed, map& world_map) : seed(seed), world_map(world_map) {}
     void init() override;

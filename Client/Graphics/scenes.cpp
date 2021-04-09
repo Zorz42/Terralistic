@@ -24,19 +24,19 @@ void gfx::returnFromScene() {
 
 void gfx::scene::_init() {
     init();
-    for(_sceneModule* module : modules)
+    for(sceneModule* module : modules)
         module->init();
 }
 
 void gfx::scene::_onKeyDown(key key_) {
     onKeyDown(key_);
-    for(_sceneModule* module : modules)
+    for(sceneModule* module : modules)
         module->onKeyDown(key_);
 }
 
 void gfx::scene::_onKeyUp(key key_) {
     onKeyUp(key_);
-    for(_sceneModule* module : modules)
+    for(sceneModule* module : modules)
         module->onKeyUp(key_);
 }
 
@@ -99,7 +99,7 @@ void gfx::runScenes() {
         if(used_scene != scene_stack.top() || quit) {
             while(true) {
                 used_scene->stop();
-                for(_sceneModule* module : used_scene->modules) {
+                for(sceneModule* module : used_scene->modules) {
                     module->stop();
                     delete module;
                 }
@@ -171,12 +171,12 @@ void gfx::runScenes() {
         }
         
         used_scene->update();
-        for(_sceneModule* module : used_scene->modules)
+        for(sceneModule* module : used_scene->modules)
             module->update();
         
         clearWindow();
         
-        for(_sceneModule* module : used_scene->modules)
+        for(sceneModule* module : used_scene->modules)
             module->render();
         used_scene->render();
         

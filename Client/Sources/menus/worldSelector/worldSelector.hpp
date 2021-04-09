@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-struct worldSelector : public gfx::scene {
+struct worldSelector : gfx::scene {
     void init() override;
     void refresh() override;
     void onKeyDown(gfx::key key) override;

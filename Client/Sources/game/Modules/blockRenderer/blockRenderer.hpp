@@ -17,8 +17,9 @@
 #include "game.hpp"
 #include "networkingModule.hpp"
 
-struct blockRenderer : public gfx::sceneModule<game>, packetListener {
-    blockRenderer(game* scene, networkingManager* manager) : gfx::sceneModule<game>(scene), packetListener(manager) {}
+struct blockRenderer : gfx::sceneModule, packetListener {
+    game* scene;
+    blockRenderer(game* scene, networkingManager* manager) : scene(scene), packetListener(manager) {}
     void init() override;
     void render() override;
     void stop() override;

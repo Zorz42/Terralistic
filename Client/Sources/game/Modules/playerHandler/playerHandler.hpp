@@ -19,8 +19,9 @@
 
 namespace playerHandler {
 
-struct module : public gfx::sceneModule<game>, packetListener {
-    module(game* scene, networkingManager* manager) : gfx::sceneModule<game>(scene), packetListener(manager) {}
+struct module : gfx::sceneModule, packetListener {
+    game* scene;
+    module(game* scene, networkingManager* manager) : scene(scene), packetListener(manager) {}
     void onKeyUp(gfx::key key) override;
     void onKeyDown(gfx::key key) override;
     void init() override;
