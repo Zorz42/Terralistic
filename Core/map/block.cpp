@@ -52,11 +52,7 @@ void map::block::setType(map::blockType id, bool process) {
         
         lightUpdate();
         
-        /*block_change_data data{};
-        data.x = getX();
-        data.y = getY();
-        data.type = id;
-        events::callEvent(block_change, (void*)&data);*/
+        parent_map->onBlockChange(*this);
     }
 }
 
@@ -65,10 +61,7 @@ void map::block::setBreakProgress(unsigned short ms) {
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getBreakTime() * 9.0f);
     if(stage != getBreakStage()) {
         block_data->break_stage = stage;
-        /*getBreakStage()_change_data data{};
-        data.x = getX();
-        data.y = getY();
-        events::callEvent(getBreakStage()_change, (void*)&data);*/
+        parent_map->onBreakStageChange(*this);
     }
 }
 

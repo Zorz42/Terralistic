@@ -78,3 +78,15 @@ void renderMap::updateBlock(unsigned short x, unsigned short y) {
         if(neighbors[i].first != -1)
             scheduleTextureUpdateForBlock(neighbors[i].first, neighbors[i].second);
 }
+
+void renderMap::onBlockChange(block& block) {
+    updateBlock(block.getX(), block.getY());
+}
+
+void renderMap::onLightChange(block& block) {
+    updateBlock(block.getX(), block.getY());
+}
+
+void renderMap::onBreakStageChange(block& block) {
+    updateBlock(block.getX(), block.getY());
+}

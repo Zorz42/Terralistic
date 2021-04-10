@@ -23,10 +23,12 @@ void game::init() {
     fps_text.y = 10;
     fps_text.orientation = gfx::top_left;
     
-    world_map.createWorld(275, 75); // dimensions in chunks
+    world_map = new renderMap(&networking_manager);
+    
+    world_map->createWorld(275, 75); // dimensions in chunks
     
     modules = {
-        &world_map,
+        world_map,
         new players(&networking_manager),
         new pauseScreen(),
         new playerHandler::module(this, &networking_manager),
@@ -43,11 +45,11 @@ void game::init() {
         player_inventory.clear();
     } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world")) {
         renderTextScreen("Loading world");
-        worldSaver::loadWorld(world_name, world_map);
+        worldSaver::loadWorld(world_name, *world_map);
     }
     else {
         player_inventory.clear();
-        gfx::switchScene(new generatingScreen(0, world_map));
+        gfx::switchScene(new generatingScreen(0, *world_map));
     }
 }
 
@@ -61,7 +63,7 @@ void game::update() {
     }
     
     if(!multiplayer)
-        world_map.updateItems(gfx::getDeltaTime());
+        world_map->updateItems(gfx::getDeltaTime());
 }
 
 void game::render() {
@@ -73,7 +75,7 @@ void game::stop() {
         networking_manager.sendPacket({packets::DISCONNECT});
     else {
         renderTextScreen("Saving world");
-        worldSaver::saveWorld(world_name, world_map);
+        worldSaver::saveWorld(world_name, *world_map);
     }
     
     networking_manager.stopListening();

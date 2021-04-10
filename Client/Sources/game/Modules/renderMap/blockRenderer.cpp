@@ -34,21 +34,7 @@ void renderMap::init() {
             getRenderChunk(x, y).createTexture();
     
     listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT};
-    //events_listening_to = {map::block_change, scene->world_map.light_change, scene->world_map.getBreakStage()_change};
 }
-
-//void renderMap::onEvent(events::eventType type, void* data) {
-    /*if(type == map::block_change) {
-        auto& data_ = *(map::block_change_data*)data;
-        updateBlock(data_.x, data_.y);
-    } else if(type == scene->world_map.light_change) {
-        auto& data_ = *(scene->world_map.light_change_data*)data;
-        updateBlock(data_.x, data_.y);
-    } else if(type == scene->world_map.getBreakStage()_change) {
-        auto& data_ = *(scene->world_map.getBreakStage()_change_data*)data;
-        updateBlock(data_.x, data_.y);
-    }*/
-//}
 
 void renderMap::renderBlocks() {
     // figure out, what the window is covering and only render that

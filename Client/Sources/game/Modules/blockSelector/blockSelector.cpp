@@ -52,7 +52,7 @@ void blockSelector::render() {
     }
     
     if(is_left_button_pressed && !scene->multiplayer) {
-        map::block block = scene->world_map.getBlock(selected_block_x, selected_block_y);
+        map::block block = scene->world_map->getBlock(selected_block_x, selected_block_y);
         if(click_events[(int)block.getType()].leftClickEvent)
             click_events[(int)block.getType()].leftClickEvent(&block, scene);
         else {
@@ -74,15 +74,15 @@ void blockSelector::render() {
 void blockSelector::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = true;
-        prev_selected_x = scene->world_map.getWorldWidth();
-        prev_selected_y = scene->world_map.getWorldHeight();
+        prev_selected_x = scene->world_map->getWorldWidth();
+        prev_selected_y = scene->world_map->getWorldHeight();
     } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
         if(scene->multiplayer) {
             packets::packet packet(packets::RIGHT_CLICK);
             packet << selected_block_x << selected_block_y;
             scene->networking_manager.sendPacket(packet);
         } else {
-            map::block block = scene->world_map.getBlock(selected_block_x, selected_block_y);
+            map::block block = scene->world_map->getBlock(selected_block_x, selected_block_y);
             if(click_events[(int)block.getType()].rightClickEvent)
                 click_events[(int)block.getType()].rightClickEvent(&block, scene);
         }

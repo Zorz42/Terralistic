@@ -87,6 +87,8 @@ public:
         inline blockType getType() { return block_data->block_id; }
         
         inline bool hasScheduledLightUpdate() { return block_data->to_update_light; }
+        inline unsigned short getX() { return x; }
+        inline unsigned short getY() { return y; }
     };
     
     struct item {
@@ -112,6 +114,10 @@ protected:
     
     void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
+    
+    virtual void onBlockChange(block& block) {}
+    virtual void onLightChange(block& block) {}
+    virtual void onBreakStageChange(block& block) {}
     
 public: // !!! should be protected
     std::vector<item> items;

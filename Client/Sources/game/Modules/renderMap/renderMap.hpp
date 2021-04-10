@@ -69,6 +69,11 @@ class renderMap : public map, public gfx::sceneModule, packetListener {
     void onPacket(packets::packet packet) override;
     
     networkingManager* networking_manager;
+    
+    void onBlockChange(block& block) override;
+    void onLightChange(block& block) override;
+    void onBreakStageChange(block& block) override;
+    
 public:
     renderMap(networkingManager* manager) : packetListener(manager), networking_manager(manager) {}
     static void loadBlocks();

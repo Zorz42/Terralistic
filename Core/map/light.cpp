@@ -35,11 +35,7 @@ void map::block::lightUpdate(bool update) {
             return;
         if(level_to_be != getLightLevel()) {
             block_data->light_level = level_to_be;
-            /*light_change_data data{};
-            data.x = x;
-            data.y = y;
-            events::callEvent(light_change, (void*)&data);
-            update_neighbors = true;*/
+            parent_map->onLightChange(*this);
         }
     }
     if((update_neighbors || isLightSource()) && update)

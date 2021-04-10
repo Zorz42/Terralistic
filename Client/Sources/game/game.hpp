@@ -25,7 +25,7 @@ struct game : gfx::scene {
     networkingManager networking_manager;
     inventory::inventory player_inventory;
     bool multiplayer;
-    renderMap world_map{&networking_manager};
+    renderMap *world_map;
     
     game(std::string world_name, bool multiplayer) : world_name(std::move(world_name)), multiplayer(multiplayer) {}
     void init() override;

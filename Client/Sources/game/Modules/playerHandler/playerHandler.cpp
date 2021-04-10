@@ -23,8 +23,8 @@ void playerHandler::module::init() {
     playerHandler::player.orientation = gfx::center;
     
     if(!scene->multiplayer) {
-        position_x = scene->world_map.getSpawnX();
-        position_y = scene->world_map.getSpawnY() - player.getHeight() / 2;
+        position_x = scene->world_map->getSpawnX();
+        position_y = scene->world_map->getSpawnY() - player.getHeight() / 2;
     }
     view_x = position_x;
     view_y = position_y;
@@ -108,8 +108,8 @@ bool playerHandler::module::isPlayerColliding() {
 #define COLLISION_PADDING 2
     
     if(position_x < playerHandler::player.getWidth() / 2 || position_y < playerHandler::player.getHeight() / 2 ||
-       position_y >= scene->world_map.getWorldHeight() * BLOCK_WIDTH - playerHandler::player.getHeight() / 2 ||
-       position_x >= scene->world_map.getWorldWidth() * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
+       position_y >= scene->world_map->getWorldHeight() * BLOCK_WIDTH - playerHandler::player.getHeight() / 2 ||
+       position_x >= scene->world_map->getWorldWidth() * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
         return true;
 
     short begin_x = position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
@@ -120,16 +120,16 @@ bool playerHandler::module::isPlayerColliding() {
     
     if(begin_x < 0)
         begin_x = 0;
-    if(end_x > scene->world_map.getWorldWidth())
-        end_x = scene->world_map.getWorldWidth();
+    if(end_x > scene->world_map->getWorldWidth())
+        end_x = scene->world_map->getWorldWidth();
     if(begin_y < 0)
         begin_y = 0;
-    if(end_y > scene->world_map.getWorldHeight())
-        end_y = scene->world_map.getWorldHeight();
+    if(end_y > scene->world_map->getWorldHeight())
+        end_y = scene->world_map->getWorldHeight();
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(scene->world_map.getChunkState(x >> 4, y >> 4) != map::chunkState::loaded || (gfx::colliding(gfx::rectShape(short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH), playerHandler::player.getTranslatedRect()) && !scene->world_map.getBlock(x, y).isGhost()))
+            if(scene->world_map->getChunkState(x >> 4, y >> 4) != map::chunkState::loaded || (gfx::colliding(gfx::rectShape(short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH), playerHandler::player.getTranslatedRect()) && !scene->world_map->getBlock(x, y).isGhost()))
                 return true;
     return false;
 }
@@ -188,10 +188,10 @@ void playerHandler::module::update() {
         view_x = gfx::getWindowWidth() / 2;
     if(view_y < gfx::getWindowHeight() / 2)
         view_y = gfx::getWindowHeight() / 2;
-    if(view_x >= scene->world_map.getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2)
-        view_x = scene->world_map.getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2;
-    if(view_y >= scene->world_map.getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
-        view_y = scene->world_map.getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
+    if(view_x >= scene->world_map->getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2)
+        view_x = scene->world_map->getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2;
+    if(view_y >= scene->world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
+        view_y = scene->world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
     
     if(scene->multiplayer && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
@@ -201,10 +201,10 @@ void playerHandler::module::update() {
     
     // look for items to be picked up
     if(!scene->multiplayer)
-        for(unsigned long i = 0; i < scene->world_map.items.size(); i++)
-            if(abs(scene->world_map.items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(scene->world_map.items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && scene->player_inventory.addItem(scene->world_map.items[i].getItemId(), 1) != -1) {
-                scene->world_map.items[i].destroy();
-                scene->world_map.items.erase(scene->world_map.items.begin() + i);
+        for(unsigned long i = 0; i < scene->world_map->items.size(); i++)
+            if(abs(scene->world_map->items[i].x / 100 + BLOCK_WIDTH / 2  - position_x - playerHandler::player.getWidth() / 2) < 50 && abs(scene->world_map->items[i].y / 100 + BLOCK_WIDTH / 2 - position_y - playerHandler::player.getHeight() / 2) < 50 && scene->player_inventory.addItem(scene->world_map->items[i].getItemId(), 1) != -1) {
+                scene->world_map->items[i].destroy();
+                scene->world_map->items.erase(scene->world_map->items.begin() + i);
             }
 }
 
