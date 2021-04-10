@@ -8,11 +8,6 @@
 
 #include "playerHandler.hpp"
 
-#define INC_X position_x++; playerHandler::view_x++
-#define DEC_X position_x--; playerHandler::view_x--
-#define INC_Y position_y++; playerHandler::view_y++
-#define DEC_Y position_y--; playerHandler::view_y--
-
 // this handles player and its movement
 
 bool isPlayerColliding();
@@ -125,9 +120,9 @@ bool playerHandler::module::isPlayerColliding() {
 }
 
 bool playerHandler::module::touchingGround() {
-    INC_Y;
+    position_y++;
     bool result = isPlayerColliding();
-    DEC_Y;
+    position_y--;
     return result;
 }
 
@@ -138,30 +133,30 @@ void playerHandler::module::update() {
     int move_x = velocity_x * gfx::getDeltaTime() / 100, move_y = velocity_y * gfx::getDeltaTime() / 100;
     
     for(int i = 0; i < move_x; i++) {
-        INC_X;
+        position_x++;
         if(isPlayerColliding()) {
-            DEC_X;
+            position_x--;
             break;
         }
     }
     for(int i = 0; i > move_x; i--) {
-        DEC_X;
+        position_x--;
         if(isPlayerColliding()) {
-            INC_X;
+            position_x++;
             break;
         }
     }
     for(int i = 0; i < move_y; i++) {
-        INC_Y;
+        position_y++;
         if(isPlayerColliding()) {
-            DEC_Y;
+            position_y--;
             break;
         }
     }
     for(int i = 0; i > move_y; i--) {
-        DEC_Y;
+        position_y--;
         if(isPlayerColliding()) {
-            INC_Y;
+            position_y++;
             if(velocity_y < 0)
                 velocity_y = 0;
             break;
