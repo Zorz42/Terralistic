@@ -105,32 +105,22 @@ void playerHandler::module::onKeyUp(gfx::key key) {
 }
 
 bool playerHandler::module::isPlayerColliding() {
-#define COLLISION_PADDING 2
-    
-    if(position_x < playerHandler::player.getWidth() / 2 || position_y < playerHandler::player.getHeight() / 2 ||
-       position_y >= scene->world_map->getWorldHeight() * BLOCK_WIDTH - playerHandler::player.getHeight() / 2 ||
-       position_x >= scene->world_map->getWorldWidth() * BLOCK_WIDTH - playerHandler::player.getWidth() / 2)
+    if(position_x < player.getWidth() / 2 || position_y < player.getHeight() / 2 ||
+       position_y >= scene->world_map->getWorldHeight() * BLOCK_WIDTH - player.getHeight() / 2 ||
+       position_x >= scene->world_map->getWorldWidth() * BLOCK_WIDTH - player.getWidth() / 2)
         return true;
 
-    short begin_x = position_x / BLOCK_WIDTH - playerHandler::player.getWidth() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    short end_x = position_x / BLOCK_WIDTH + playerHandler::player.getWidth() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
-
-    short begin_y = position_y / BLOCK_WIDTH - playerHandler::player.getHeight() / 2 / BLOCK_WIDTH - COLLISION_PADDING;
-    short end_y = position_y / BLOCK_WIDTH + playerHandler::player.getHeight() / 2 / BLOCK_WIDTH + COLLISION_PADDING;
+    unsigned short starting_x = (position_x - player.getWidth() / 2) / BLOCK_WIDTH;
+    unsigned short starting_y = (position_y - player.getHeight() / 2) / BLOCK_WIDTH;
+    unsigned short ending_x = (position_x + player.getWidth() / 2 - 1) / BLOCK_WIDTH;
+    unsigned short ending_y = (position_y + player.getHeight() / 2 - 1) / BLOCK_WIDTH;
     
-    if(begin_x < 0)
-        begin_x = 0;
-    if(end_x > scene->world_map->getWorldWidth())
-        end_x = scene->world_map->getWorldWidth();
-    if(begin_y < 0)
-        begin_y = 0;
-    if(end_y > scene->world_map->getWorldHeight())
-        end_y = scene->world_map->getWorldHeight();
-    
-    for(unsigned short x = begin_x; x < end_x; x++)
-        for(unsigned short y = begin_y; y < end_y; y++)
-            if(scene->world_map->getChunkState(x >> 4, y >> 4) != map::chunkState::loaded || (gfx::colliding(gfx::rectShape(short(x * BLOCK_WIDTH - playerHandler::view_x + gfx::getWindowWidth() / 2), short(y * BLOCK_WIDTH - playerHandler::view_y + gfx::getWindowHeight() / 2), BLOCK_WIDTH, BLOCK_WIDTH), playerHandler::player.getTranslatedRect()) && !scene->world_map->getBlock(x, y).isGhost()))
+    for(unsigned short x = starting_x; x <= ending_x; x++)
+        for(unsigned short y = starting_y; y <= ending_y; y++)
+            if(scene->world_map->getChunkState(x >> 4, y >> 4) != map::chunkState::loaded ||
+               !scene->world_map->getBlock(x, y).isGhost())
                 return true;
+    
     return false;
 }
 
