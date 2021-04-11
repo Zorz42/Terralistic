@@ -18,8 +18,10 @@
 #include "networkingModule.hpp"
 
 struct inventoryRenderer : gfx::sceneModule, packetListener {
-    game* scene;
-    inventoryRenderer(game* scene, networkingManager* manager) : scene(scene), packetListener(manager) {}
+    networkingManager* networking_manager;
+    inventory* player_inventory;
+    bool multiplayer;
+    inventoryRenderer(inventory* player_inventory, networkingManager* manager, bool multiplayer) : packetListener(manager), networking_manager(manager), player_inventory(player_inventory), multiplayer(multiplayer) {}
     
     void init() override;
     void render() override;
@@ -27,7 +29,7 @@ struct inventoryRenderer : gfx::sceneModule, packetListener {
     void onPacket(packets::packet packet) override;
     
 private:
-    void renderItem(inventory::inventoryItem* item, int x, int y, int i);
+    void renderItem(inventoryItem* item, int x, int y, int i);
     void selectSlot(char slot);
     void updateStackTexture(int i);
     

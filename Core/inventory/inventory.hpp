@@ -12,8 +12,6 @@
 
 #include "map.hpp"
 
-namespace inventory {
-
 struct inventoryItem {
 public:
     inventoryItem();
@@ -43,7 +41,5 @@ public:
 private:
     inventoryItem mouse_item;
 };
-
-}
 
 #endif /* inventory_hpp */

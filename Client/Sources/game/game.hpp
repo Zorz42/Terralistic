@@ -23,7 +23,7 @@ struct game : gfx::scene {
     const std::string world_name;
     gfx::sprite fps_text;
     networkingManager networking_manager;
-    inventory::inventory player_inventory;
+    inventory player_inventory;
     bool multiplayer;
     renderMap *world_map;
     

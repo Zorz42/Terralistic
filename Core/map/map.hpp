@@ -54,8 +54,8 @@ public: // !!! should be protected
     };
     
 protected:
-    static std::vector<uniqueItem> unique_items;
 public: // !!! should be protected
+    static std::vector<uniqueItem> unique_items;
     static std::vector<uniqueBlock> unique_blocks;
     
 public:

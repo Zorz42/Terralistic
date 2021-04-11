@@ -33,7 +33,7 @@ void game::init() {
         new pauseScreen(),
         new playerHandler::module(this, &networking_manager),
         new blockSelector(this),
-        new inventoryRenderer(this, &networking_manager),
+        new inventoryRenderer(&player_inventory, &networking_manager, multiplayer),
     };
     
     if(multiplayer) {

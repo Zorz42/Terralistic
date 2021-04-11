@@ -42,7 +42,7 @@ private:
 inline int view_x, view_y;
 inline gfx::sprite player;
 
-inline inventory::inventoryItem *hovered = nullptr;
+inline inventoryItem *hovered = nullptr;
 
 }
 
