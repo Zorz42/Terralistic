@@ -17,7 +17,16 @@
 #include "game.hpp"
 #include "networkingModule.hpp"
 
-struct inventoryRenderer : gfx::sceneModule, packetListener {
+class inventoryRenderer : public gfx::sceneModule, packetListener {
+    void renderItem(inventoryItem* item, int x, int y, int i);
+    void selectSlot(char slot);
+    void updateStackTexture(int i);
+    
+    gfx::rect inventory_slots[20],
+    select_rect{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::top},
+    under_text_rect{0, 0, 0, 0, {0, 0, 0}};
+    gfx::image stack_textures[20], mouse_stack_texture;
+public:
     networkingManager* networking_manager;
     inventory* player_inventory;
     bool multiplayer;
@@ -27,16 +36,6 @@ struct inventoryRenderer : gfx::sceneModule, packetListener {
     void render() override;
     void onKeyDown(gfx::key key) override;
     void onPacket(packets::packet packet) override;
-    
-private:
-    void renderItem(inventoryItem* item, int x, int y, int i);
-    void selectSlot(char slot);
-    void updateStackTexture(int i);
-    
-    gfx::rect inventory_slots[20],
-    select_rect{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::top},
-    under_text_rect{0, 0, 0, 0, {0, 0, 0}};
-    gfx::image stack_textures[20], mouse_stack_texture;
 };
 
 #endif /* inventoryRenderer_hpp */

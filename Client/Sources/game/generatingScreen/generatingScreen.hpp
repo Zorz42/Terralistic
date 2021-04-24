@@ -21,19 +21,19 @@
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
-struct generatingScreen : gfx::scene {
+class generatingScreen : public gfx::scene {
+    unsigned int seed;
+    std::thread thread;
+    gfx::sprite loading_text;
+    gfx::rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::bottom},
+    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::bottom};
+public:
     map& world_map;
     explicit generatingScreen(unsigned int seed, map& world_map) : seed(seed), world_map(world_map) {}
     void init() override;
     void update() override;
     void render() override;
     void stop() override;
-private:
-    unsigned int seed;
-    std::thread thread;
-    gfx::sprite loading_text;
-    gfx::rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::bottom},
-    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::bottom};
 };
 
 #endif /* generatingScreen_hpp */

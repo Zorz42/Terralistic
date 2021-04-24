@@ -16,12 +16,7 @@
 
 #include "networkingModule.hpp"
 
-struct players : gfx::sceneModule, packetListener {
-    players(networkingManager* manager) : packetListener(manager) {}
-    void init();
-    void render();
-    void onPacket(packets::packet packet);
-private:
+class players : public gfx::sceneModule, packetListener {
     struct player {
         unsigned short id{0};
         int x{0}, y{0};
@@ -30,6 +25,11 @@ private:
 
     std::vector<player> other_players;
     player* getPlayerById(unsigned short id);
+public:
+    players(networkingManager* manager) : packetListener(manager) {}
+    void init();
+    void render();
+    void onPacket(packets::packet packet);
 };
 
 #endif /* otherPlayers_hpp */

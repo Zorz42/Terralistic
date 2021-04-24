@@ -19,7 +19,8 @@
 #include "inventory.hpp"
 #include "renderMap.hpp"
 
-struct game : gfx::scene {
+class game : public gfx::scene {
+public:
     const std::string world_name;
     gfx::sprite fps_text;
     networkingManager networking_manager;
