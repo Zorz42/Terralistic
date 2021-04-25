@@ -11,26 +11,26 @@
 // this is a rectangle with which you select which block to break or where to place selected block
 
 struct clickEvents {
-    void (*rightClickEvent)(map::block*, game*) = nullptr;
-    void (*leftClickEvent)(map::block*, game*) = nullptr;
+    void (*rightClickEvent)(map::block*, inventory*) = nullptr;
+    void (*leftClickEvent)(map::block*, inventory*) = nullptr;
 };
 
 static std::vector<clickEvents> click_events;
 
 // you can register special click events to blocks for custom behaviour
-void grass_block_leftClickEvent(map::block* block, game* scene) {
+static void grass_block_leftClickEvent(map::block* block, inventory* player_inventory) {
     block->setType(map::blockType::DIRT);
 }
 
-void air_rightClickEvent(map::block* block, game* scene) {
-    map::blockType type = scene->player_inventory.getSelectedSlot()->getUniqueItem().places;
-    if(type != map::blockType::AIR && scene->player_inventory.getSelectedSlot()->decreaseStack(1)) {
+static void air_rightClickEvent(map::block* block, inventory* player_inventory) {
+    map::blockType type = player_inventory->getSelectedSlot()->getUniqueItem().places;
+    if(type != map::blockType::AIR && player_inventory->getSelectedSlot()->decreaseStack(1)) {
         block->setType(type);
         block->lightUpdate();
     }
 }
 
-void air_leftClickEvent(map::block* block, game* scene) {}
+static void air_leftClickEvent(map::block* block, inventory* player_inventory) {}
 
 void blockSelector::initEvents() {
     click_events = std::vector<clickEvents>(map::unique_blocks.size());
@@ -42,31 +42,31 @@ void blockSelector::initEvents() {
 
 void blockSelector::render() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {
-        if(scene->multiplayer) {
+        if(multiplayer) {
             packets::packet packet(packets::STARTED_BREAKING);
             packet << selected_block_x << selected_block_y;
-            scene->networking_manager.sendPacket(packet);
+            manager->sendPacket(packet);
         }
         prev_selected_x = selected_block_x;
         prev_selected_y = selected_block_y;
     }
     
-    if(is_left_button_pressed && !scene->multiplayer) {
-        map::block block = scene->world_map->getBlock(selected_block_x, selected_block_y);
+    if(is_left_button_pressed && !multiplayer) {
+        map::block block = map->getBlock(selected_block_x, selected_block_y);
         if(click_events[(int)block.getType()].leftClickEvent)
-            click_events[(int)block.getType()].leftClickEvent(&block, scene);
+            click_events[(int)block.getType()].leftClickEvent(&block, player_inventory);
         else {
             block.setBreakProgress(block.getBreakProgress() + gfx::getDeltaTime());
-            if(!scene->multiplayer && block.getBreakProgress() >= block.getBreakTime())
+            if(!multiplayer && block.getBreakProgress() >= block.getBreakTime())
                 block.breakBlock();
         }
     }
     
     if(!playerHandler::hovered) {
-        selected_block_x = (unsigned short)(gfx::getMouseX() + scene->world_map->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
-        selected_block_y = (unsigned short)(gfx::getMouseY() + scene->world_map->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
-        select_rect.x = -scene->world_map->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
-        select_rect.y = -scene->world_map->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
+        selected_block_x = (unsigned short)(gfx::getMouseX() + map->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
+        selected_block_y = (unsigned short)(gfx::getMouseY() + map->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
+        select_rect.x = -map->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
+        select_rect.y = -map->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
         gfx::render(select_rect, false);
     }
 }
@@ -74,17 +74,17 @@ void blockSelector::render() {
 void blockSelector::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = true;
-        prev_selected_x = scene->world_map->getWorldWidth();
-        prev_selected_y = scene->world_map->getWorldHeight();
-    } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(scene->main_player.player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
-        if(scene->multiplayer) {
+        prev_selected_x = map->getWorldWidth();
+        prev_selected_y = map->getWorldHeight();
+    } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(player->player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
+        if(multiplayer) {
             packets::packet packet(packets::RIGHT_CLICK);
             packet << selected_block_x << selected_block_y;
-            scene->networking_manager.sendPacket(packet);
+            manager->sendPacket(packet);
         } else {
-            map::block block = scene->world_map->getBlock(selected_block_x, selected_block_y);
+            map::block block = map->getBlock(selected_block_x, selected_block_y);
             if(click_events[(int)block.getType()].rightClickEvent)
-                click_events[(int)block.getType()].rightClickEvent(&block, scene);
+                click_events[(int)block.getType()].rightClickEvent(&block, player_inventory);
         }
     }
 }
@@ -92,9 +92,9 @@ void blockSelector::onKeyDown(gfx::key key) {
 void blockSelector::onKeyUp(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = false;
-        if(scene->multiplayer) {
+        if(multiplayer) {
             packets::packet packet(packets::STOPPED_BREAKING);
-            scene->networking_manager.sendPacket(packet);
+            manager->sendPacket(packet);
         }
     }
 }

@@ -32,7 +32,7 @@ void game::init() {
         new players(&networking_manager, &main_player, world_map),
         new pauseScreen(),
         new playerHandler::module(&networking_manager, &main_player, world_map, multiplayer, &player_inventory),
-        new blockSelector(this),
+        new blockSelector(multiplayer, &networking_manager, world_map, &main_player, &player_inventory),
         new inventoryRenderer(&player_inventory, &networking_manager, multiplayer),
     };
     
