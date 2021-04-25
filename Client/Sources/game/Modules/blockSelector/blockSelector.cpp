@@ -63,10 +63,10 @@ void blockSelector::render() {
     }
     
     if(!playerHandler::hovered) {
-        selected_block_x = (unsigned short)(gfx::getMouseX() + playerHandler::view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
-        selected_block_y = (unsigned short)(gfx::getMouseY() + playerHandler::view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
-        select_rect.x = -playerHandler::view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
-        select_rect.y = -playerHandler::view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
+        selected_block_x = (unsigned short)(gfx::getMouseX() + scene->world_map->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
+        selected_block_y = (unsigned short)(gfx::getMouseY() + scene->world_map->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
+        select_rect.x = -scene->world_map->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
+        select_rect.y = -scene->world_map->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
         gfx::render(select_rect, false);
     }
 }
@@ -76,7 +76,7 @@ void blockSelector::onKeyDown(gfx::key key) {
         is_left_button_pressed = true;
         prev_selected_x = scene->world_map->getWorldWidth();
         prev_selected_y = scene->world_map->getWorldHeight();
-    } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(playerHandler::player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
+    } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(scene->main_player.player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
         if(scene->multiplayer) {
             packets::packet packet(packets::RIGHT_CLICK);
             packet << selected_block_x << selected_block_y;

@@ -26,5 +26,5 @@ void renderMap::loadItems() {
 
 void renderMap::renderItems() {
     for(map::item& i : items)
-        gfx::render(unique_render_items[(int)i.getItemId()].texture, short(i.x / 100 - playerHandler::view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - playerHandler::view_y + gfx::getWindowHeight() / 2));
+        gfx::render(unique_render_items[(int)i.getItemId()].texture, short(i.x / 100 - view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - view_y + gfx::getWindowHeight() / 2));
 }

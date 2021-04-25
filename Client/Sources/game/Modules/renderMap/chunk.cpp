@@ -32,7 +32,7 @@ void renderMap::updateChunkTexture(unsigned short x, unsigned short y) {
 }
 
 void renderMap::drawChunk(unsigned short x, unsigned short y) {
-    gfx::render(getRenderChunk(x, y).texture, (x << 4) * BLOCK_WIDTH - playerHandler::view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - playerHandler::view_y + (gfx::getWindowHeight() >> 1));
+    gfx::render(getRenderChunk(x, y).texture, (x << 4) * BLOCK_WIDTH - view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - view_y + (gfx::getWindowHeight() >> 1));
 }
 
 void renderMap::renderChunk::createTexture() {

@@ -78,6 +78,7 @@ public:
     renderMap(networkingManager* manager) : packetListener(manager), networking_manager(manager) {}
     static void loadBlocks();
     static void loadItems();
+    int view_x, view_y;
     
     static uniqueRenderItem& getUniqueRenderItem(map::itemType type);
 };

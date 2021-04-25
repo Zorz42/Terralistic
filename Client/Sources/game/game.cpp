@@ -29,9 +29,9 @@ void game::init() {
     
     modules = {
         world_map,
-        new players(&networking_manager),
+        new players(&networking_manager, &main_player, world_map),
         new pauseScreen(),
-        new playerHandler::module(this, &networking_manager),
+        new playerHandler::module(&networking_manager, &main_player, world_map, multiplayer, &player_inventory),
         new blockSelector(this),
         new inventoryRenderer(&player_inventory, &networking_manager, multiplayer),
     };

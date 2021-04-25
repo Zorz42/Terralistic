@@ -19,12 +19,12 @@ void players::init() {
 void players::render() {
     // iterate through every player and render them
     for(player& i : other_players) {
-        bool prev = playerHandler::player.flipped;
-        playerHandler::player.flipped = i.flipped;
-        playerHandler::player.x = i.x - playerHandler::view_x;
-        playerHandler::player.y = i.y - playerHandler::view_y;
-        gfx::render(playerHandler::player);
-        playerHandler::player.flipped = prev;
+        bool prev = main_player->player.flipped;
+        main_player->player.flipped = i.flipped;
+        main_player->player.x = i.x - map->view_x;
+        main_player->player.y = i.y - map->view_y;
+        gfx::render(main_player->player);
+        main_player->player.flipped = prev;
     }
 }
 

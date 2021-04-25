@@ -1,12 +1,12 @@
 //
-//  movementHandler.hpp
+//  playerHandler.hpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 01/07/2020.
 //
 
-#ifndef movementHandler_hpp
-#define movementHandler_hpp
+#ifndef playerHandler_hpp
+#define playerHandler_hpp
 
 #ifdef __WIN32__
 #include "graphics.hpp"
@@ -14,14 +14,32 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-#include "game.hpp"
 #include "networkingModule.hpp"
+#include "renderMap.hpp"
+#include "inventory.hpp"
 
 namespace playerHandler {
 
-struct module : gfx::sceneModule, packetListener {
-    game* scene;
-    module(game* scene, networkingManager* manager) : scene(scene), packetListener(manager) {}
+class mainPlayer {
+public:
+    int position_x, position_y;
+    short velocity_x = 0, velocity_y = 0;
+    gfx::sprite player;
+};
+
+class module : public gfx::sceneModule, packetListener {
+    bool key_up = false, jump = false, key_left = false, key_right = false;
+    
+    mainPlayer* player;
+    renderMap* map;
+    networkingManager* manager;
+    bool multiplayer;
+    inventory* player_inventory;
+    
+    bool isPlayerColliding();
+    bool touchingGround();
+public:
+    module(networkingManager* manager, mainPlayer* player, renderMap* map, bool multiplayer, inventory* player_inventory) : packetListener(manager), player(player), map(map), manager(manager), multiplayer(multiplayer), player_inventory(player_inventory) {}
     void onKeyUp(gfx::key key) override;
     void onKeyDown(gfx::key key) override;
     void init() override;
@@ -29,21 +47,10 @@ struct module : gfx::sceneModule, packetListener {
     void render() override;
     void selectSlot(char slot);
     void onPacket(packets::packet packet) override;
-    
-private:
-    bool key_up = false, jump = false, key_left = false, key_right = false;
-    int position_x, position_y;
-    short velocity_x = 0, velocity_y = 0;
-    
-    bool isPlayerColliding();
-    bool touchingGround();
 };
-
-inline int view_x, view_y;
-inline gfx::sprite player;
 
 inline inventoryItem *hovered = nullptr;
 
 }
 
-#endif /* movementHandler_hpp */
+#endif /* playerHandler_hpp */
