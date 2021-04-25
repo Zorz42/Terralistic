@@ -6,15 +6,14 @@
 //
 
 #include "playerHandler.hpp"
-#include "blockSelector.hpp"
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
 #include "textScreen.hpp"
-#include "inventoryRenderer.hpp"
 #include "fileSystem.hpp"
 #include "playerRenderer.hpp"
+#include "game.hpp"
 
 #undef main
 
@@ -33,9 +32,7 @@ void game::init() {
         world_map,
         new players(&networking_manager, &main_player, world_map),
         new pauseScreen(),
-        new playerHandler::module(&networking_manager, &main_player, world_map, multiplayer, &player_inventory),
-        new blockSelector(multiplayer, &networking_manager, world_map, &main_player, &player_inventory),
-        new inventoryRenderer(&player_inventory, &networking_manager, multiplayer),
+        new playerHandler(&networking_manager, &main_player, world_map, multiplayer, &player_inventory),
     };
     
     if(multiplayer) {

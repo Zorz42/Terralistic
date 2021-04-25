@@ -29,7 +29,7 @@ public:
     inventory player_inventory;
     bool multiplayer;
     renderMap *world_map;
-    playerHandler::mainPlayer main_player;
+    mainPlayer main_player;
     
     game(std::string world_name, bool multiplayer) : world_name(std::move(world_name)), multiplayer(multiplayer) {}
     void init() override;

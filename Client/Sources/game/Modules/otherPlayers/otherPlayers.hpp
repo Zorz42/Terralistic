@@ -27,10 +27,10 @@ class players : public gfx::sceneModule, packetListener {
 
     std::vector<player> other_players;
     player* getPlayerById(unsigned short id);
-    playerHandler::mainPlayer* main_player;
+    mainPlayer* main_player;
     renderMap* map;
 public:
-    players(networkingManager* manager, playerHandler::mainPlayer* player, renderMap* map) : packetListener(manager), main_player(player), map(map) {}
+    players(networkingManager* manager, mainPlayer* player, renderMap* map) : packetListener(manager), main_player(player), map(map) {}
     void init();
     void render();
     void onPacket(packets::packet packet);

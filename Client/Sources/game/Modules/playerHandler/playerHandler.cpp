@@ -13,7 +13,7 @@
 
 bool isPlayerColliding();
 
-void playerHandler::module::init() {
+void playerHandler::init() {
     if(!multiplayer) {
         player->position_x = map->getSpawnX();
         player->position_y = map->getSpawnY() - playerRenderer::getPlayerHeight() / 2;
@@ -21,13 +21,15 @@ void playerHandler::module::init() {
     map->view_x = player->position_x;
     map->view_y = player->position_y;
     
-    listening_to = {packets::SPAWN_POS};
+    listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE};
+    
+    initInventory();
 }
 
 #define VELOCITY 20
 #define JUMP_VELOCITY 80
 
-void playerHandler::module::onKeyDown(gfx::key key) {
+void playerHandler::onKeyDown(gfx::key key) {
     switch(key) {
         case gfx::KEY_SPACE:
             if(!key_up) {
@@ -72,9 +74,12 @@ void playerHandler::module::onKeyDown(gfx::key key) {
         }
         default:;
     }
+    
+    onKeyDownInventory(key);
+    onKeyDownSelector(key);
 }
 
-void playerHandler::module::onKeyUp(gfx::key key) {
+void playerHandler::onKeyUp(gfx::key key) {
     switch (key) {
         case gfx::KEY_SPACE:
             if(key_up) {
@@ -94,9 +99,10 @@ void playerHandler::module::onKeyUp(gfx::key key) {
             break;
         default:;
     }
+    onKeyUpSelector(key);
 }
 
-bool playerHandler::module::isPlayerColliding() {
+bool playerHandler::isPlayerColliding() {
     if(player->position_x < playerRenderer::getPlayerWidth() / 2 || player->position_y < playerRenderer::getPlayerHeight() / 2 ||
        player->position_y >= map->getWorldHeight() * BLOCK_WIDTH - playerRenderer::getPlayerHeight() / 2 ||
        player->position_x >= map->getWorldWidth() * BLOCK_WIDTH - playerRenderer::getPlayerWidth() / 2)
@@ -116,14 +122,14 @@ bool playerHandler::module::isPlayerColliding() {
     return false;
 }
 
-bool playerHandler::module::touchingGround() {
+bool playerHandler::touchingGround() {
     player->position_y++;
     bool result = isPlayerColliding();
     player->position_y--;
     return result;
 }
 
-void playerHandler::module::update() {
+void playerHandler::update() {
     // gravity
     player->velocity_y = touchingGround() && player->velocity_y >= 0 ? short(0) : short(player->velocity_y + gfx::getDeltaTime() / 4);
     
@@ -190,11 +196,13 @@ void playerHandler::module::update() {
             }
 }
 
-void playerHandler::module::render() {
+void playerHandler::render() {
     playerRenderer::render(player->position_x, player->position_y, map->view_x, map->view_y, player->flipped);
+    renderBlockSelector();
+    renderInventory();
 }
 
-void playerHandler::module::onPacket(packets::packet packet) {
+void playerHandler::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::SPAWN_POS: {
             int x = packet.getInt(), y = packet.getInt();
@@ -206,4 +214,5 @@ void playerHandler::module::onPacket(packets::packet packet) {
         }
         default:;
     }
+    onPacketInventory(packet);
 }

@@ -5,7 +5,6 @@
 //  Created by Jakob Zorz on 13/07/2020.
 //
 
-#include "blockSelector.hpp"
 #include "playerHandler.hpp"
 #include "playerRenderer.hpp"
 
@@ -33,7 +32,7 @@ static void air_rightClickEvent(map::block* block, inventory* player_inventory) 
 
 static void air_leftClickEvent(map::block* block, inventory* player_inventory) {}
 
-void blockSelector::initEvents() {
+void playerHandler::initEvents() {
     click_events = std::vector<clickEvents>(map::unique_blocks.size());
 
     click_events[(int)map::blockType::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
@@ -41,7 +40,7 @@ void blockSelector::initEvents() {
     click_events[(int)map::blockType::AIR].leftClickEvent = &air_leftClickEvent;
 }
 
-void blockSelector::render() {
+void playerHandler::renderBlockSelector() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {
         if(multiplayer) {
             packets::packet packet(packets::STARTED_BREAKING);
@@ -72,7 +71,7 @@ void blockSelector::render() {
     }
 }
 
-void blockSelector::onKeyDown(gfx::key key) {
+void playerHandler::onKeyDownSelector(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = true;
         prev_selected_x = map->getWorldWidth();
@@ -93,7 +92,7 @@ void blockSelector::onKeyDown(gfx::key key) {
     }
 }
 
-void blockSelector::onKeyUp(gfx::key key) {
+void playerHandler::onKeyUpSelector(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = false;
         if(multiplayer) {

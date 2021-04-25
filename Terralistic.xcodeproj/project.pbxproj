@@ -226,7 +226,6 @@
 		168968AB25E9607800D26060 /* playerHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playerHandler.cpp; sourceTree = "<group>"; };
 		168968AC25E9607800D26060 /* playerHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = playerHandler.hpp; sourceTree = "<group>"; };
 		168968B525E9607800D26060 /* blockSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockSelector.cpp; sourceTree = "<group>"; };
-		168968B625E9607800D26060 /* blockSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockSelector.hpp; sourceTree = "<group>"; };
 		168968B925E9607800D26060 /* startMenu.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = startMenu.hpp; sourceTree = "<group>"; };
 		168968BA25E9607800D26060 /* startMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = startMenu.cpp; sourceTree = "<group>"; };
 		168968BC25E9607800D26060 /* multiplayerSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multiplayerSelector.cpp; sourceTree = "<group>"; };
@@ -258,7 +257,6 @@
 		3611F0AA260E3D0900127A55 /* textScreen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = textScreen.cpp; sourceTree = "<group>"; };
 		3611F0AB260E3D0900127A55 /* textScreen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = textScreen.hpp; sourceTree = "<group>"; };
 		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
-		3619ACFD26187C4B00BA4EAF /* inventoryRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = inventoryRenderer.hpp; sourceTree = "<group>"; };
 		36F45E742619E68900C751E4 /* map.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = map.cpp; sourceTree = "<group>"; };
 		36F45E752619E68900C751E4 /* map.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = map.hpp; sourceTree = "<group>"; };
 		36F45E78261B662000C751E4 /* block.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
@@ -530,17 +528,10 @@
 			children = (
 				168968AC25E9607800D26060 /* playerHandler.hpp */,
 				168968AB25E9607800D26060 /* playerHandler.cpp */,
+				168968B525E9607800D26060 /* blockSelector.cpp */,
+				3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */,
 			);
 			path = playerHandler;
-			sourceTree = "<group>";
-		};
-		168968B425E9607800D26060 /* blockSelector */ = {
-			isa = PBXGroup;
-			children = (
-				168968B625E9607800D26060 /* blockSelector.hpp */,
-				168968B525E9607800D26060 /* blockSelector.cpp */,
-			);
-			path = blockSelector;
 			sourceTree = "<group>";
 		};
 		168968B725E9607800D26060 /* menus */ = {
@@ -667,22 +658,11 @@
 			isa = PBXGroup;
 			children = (
 				169B3A0B261EF16100F538F3 /* renderMap */,
-				3619ACFB26187C3800BA4EAF /* inventoryRenderer */,
-				168968B425E9607800D26060 /* blockSelector */,
 				168968AA25E9607800D26060 /* playerHandler */,
 				168968A725E9607800D26060 /* pauseScreen */,
 				1689689725E9607800D26060 /* otherPlayers */,
 			);
 			path = Modules;
-			sourceTree = "<group>";
-		};
-		3619ACFB26187C3800BA4EAF /* inventoryRenderer */ = {
-			isa = PBXGroup;
-			children = (
-				3619ACFD26187C4B00BA4EAF /* inventoryRenderer.hpp */,
-				3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */,
-			);
-			path = inventoryRenderer;
 			sourceTree = "<group>";
 		};
 		36F45E732619E67500C751E4 /* map */ = {
