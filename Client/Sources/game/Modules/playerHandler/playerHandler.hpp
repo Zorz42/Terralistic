@@ -24,7 +24,7 @@ class mainPlayer {
 public:
     int position_x, position_y;
     short velocity_x = 0, velocity_y = 0;
-    gfx::sprite player;
+    bool flipped = false;
 };
 
 class module : public gfx::sceneModule, packetListener {

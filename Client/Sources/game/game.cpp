@@ -14,17 +14,19 @@
 #include "textScreen.hpp"
 #include "inventoryRenderer.hpp"
 #include "fileSystem.hpp"
+#include "playerRenderer.hpp"
 
 #undef main
 
 void game::init() {
+    playerRenderer::init();
+    
     fps_text.scale = 3;
     fps_text.x = 10;
     fps_text.y = 10;
     fps_text.orientation = gfx::top_left;
     
     world_map = new renderMap(&networking_manager);
-    
     world_map->createWorld(275, 75); // dimensions in chunks
     
     modules = {

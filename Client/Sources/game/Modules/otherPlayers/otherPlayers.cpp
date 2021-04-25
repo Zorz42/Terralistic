@@ -7,6 +7,7 @@
 
 #include "otherPlayers.hpp"
 #include "playerHandler.hpp"
+#include "playerRenderer.hpp"
 #include "dev.hpp"
 
 // module for handling other players in online game
@@ -18,14 +19,8 @@ void players::init() {
 
 void players::render() {
     // iterate through every player and render them
-    for(player& i : other_players) {
-        bool prev = main_player->player.flipped;
-        main_player->player.flipped = i.flipped;
-        main_player->player.x = i.x - map->view_x;
-        main_player->player.y = i.y - map->view_y;
-        gfx::render(main_player->player);
-        main_player->player.flipped = prev;
-    }
+    for(player& i : other_players)
+        playerRenderer::render(i.x, i.y, map->view_x, map->view_y, i.flipped);
 }
 
 players::player* players::getPlayerById(unsigned short id) {

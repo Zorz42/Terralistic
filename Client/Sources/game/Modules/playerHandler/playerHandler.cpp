@@ -7,19 +7,16 @@
 //
 
 #include "playerHandler.hpp"
+#include "playerRenderer.hpp"
 
 // this handles player and its movement
 
 bool isPlayerColliding();
 
 void playerHandler::module::init() {
-    player->player.setTexture(gfx::loadImageFile("texturePack/misc/player.png"));
-    player->player.scale = 2;
-    player->player.orientation = gfx::center;
-    
     if(!multiplayer) {
         player->position_x = map->getSpawnX();
-        player->position_y = map->getSpawnY() - player->player.getHeight() / 2;
+        player->position_y = map->getSpawnY() - playerRenderer::getPlayerHeight() / 2;
     }
     map->view_x = player->position_x;
     map->view_y = player->position_y;
@@ -42,14 +39,14 @@ void playerHandler::module::onKeyDown(gfx::key key) {
             if(!key_left) {
                 key_left = true;
                 player->velocity_x -= VELOCITY;
-                player->player.flipped = true;
+                player->flipped = true;
             }
             break;
         case gfx::KEY_D:
             if(!key_right) {
                 key_right = true;
                 player->velocity_x += VELOCITY;
-                player->player.flipped = false;
+                player->flipped = false;
             }
             break;
         case gfx::KEY_E:
@@ -100,15 +97,15 @@ void playerHandler::module::onKeyUp(gfx::key key) {
 }
 
 bool playerHandler::module::isPlayerColliding() {
-    if(player->position_x < player->player.getWidth() / 2 || player->position_y < player->player.getHeight() / 2 ||
-       player->position_y >= map->getWorldHeight() * BLOCK_WIDTH - player->player.getHeight() / 2 ||
-       player->position_x >= map->getWorldWidth() * BLOCK_WIDTH - player->player.getWidth() / 2)
+    if(player->position_x < playerRenderer::getPlayerWidth() / 2 || player->position_y < playerRenderer::getPlayerHeight() / 2 ||
+       player->position_y >= map->getWorldHeight() * BLOCK_WIDTH - playerRenderer::getPlayerHeight() / 2 ||
+       player->position_x >= map->getWorldWidth() * BLOCK_WIDTH - playerRenderer::getPlayerWidth() / 2)
         return true;
 
-    unsigned short starting_x = (player->position_x - player->player.getWidth() / 2) / BLOCK_WIDTH;
-    unsigned short starting_y = (player->position_y - player->player.getHeight() / 2) / BLOCK_WIDTH;
-    unsigned short ending_x = (player->position_x + player->player.getWidth() / 2 - 1) / BLOCK_WIDTH;
-    unsigned short ending_y = (player->position_y + player->player.getHeight() / 2 - 1) / BLOCK_WIDTH;
+    unsigned short starting_x = (player->position_x - playerRenderer::getPlayerWidth() / 2) / BLOCK_WIDTH;
+    unsigned short starting_y = (player->position_y - playerRenderer::getPlayerHeight() / 2) / BLOCK_WIDTH;
+    unsigned short ending_x = (player->position_x + playerRenderer::getPlayerWidth() / 2 - 1) / BLOCK_WIDTH;
+    unsigned short ending_y = (player->position_y + playerRenderer::getPlayerHeight() / 2 - 1) / BLOCK_WIDTH;
     
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
@@ -180,23 +177,21 @@ void playerHandler::module::update() {
     
     if(multiplayer && (move_x || move_y)) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
-        packet << player->position_x << player->position_y << (char)player->player.flipped;
+        packet << player->position_x << player->position_y << (char)player->flipped;
         manager->sendPacket(packet);
     }
     
     // look for items to be picked up
     if(!multiplayer)
         for(unsigned long i = 0; i < map->items.size(); i++)
-            if(abs(map->items[i].x / 100 + BLOCK_WIDTH / 2  - player->position_x - player->player.getWidth() / 2) < 50 && abs(map->items[i].y / 100 + BLOCK_WIDTH / 2 - player->position_y - player->player.getHeight() / 2) < 50 && player_inventory->addItem(map->items[i].getItemId(), 1) != -1) {
+            if(abs(map->items[i].x / 100 + BLOCK_WIDTH / 2  - player->position_x - playerRenderer::getPlayerWidth() / 2) < 50 && abs(map->items[i].y / 100 + BLOCK_WIDTH / 2 - player->position_y - playerRenderer::getPlayerHeight() / 2) < 50 && player_inventory->addItem(map->items[i].getItemId(), 1) != -1) {
                 map->items[i].destroy();
                 map->items.erase(map->items.begin() + i);
             }
 }
 
 void playerHandler::module::render() {
-    player->player.x = player->position_x - map->view_x;
-    player->player.y = player->position_y - map->view_y;
-    gfx::render(player->player);
+    playerRenderer::render(player->position_x, player->position_y, map->view_x, map->view_y, player->flipped);
 }
 
 void playerHandler::module::onPacket(packets::packet packet) {

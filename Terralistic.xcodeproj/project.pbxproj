@@ -32,6 +32,8 @@
 		1661662A25EA377B002A3815 /* texturePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* texturePack */; };
 		1661663C25EA5608002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
 		1661663D25EA561A002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
+		1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
+		1662BC202635AAE60062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1689699B25E962F800D26060 /* texturePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* texturePack */; };
 		168ABE9025F796BF00BBEA74 /* graphics-internal.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -192,6 +194,8 @@
 		1661662C25EA3882002A3815 /* Terralistic-Debug.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = "Terralistic-Debug.app"; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic-Debug.app"; sourceTree = "<group>"; };
 		1661662D25EA3882002A3815 /* Terralistic.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Terralistic.app; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic.app"; sourceTree = "<group>"; };
 		1661663025EA4BBA002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
+		1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = playerRenderer.cpp; sourceTree = "<group>"; };
+		1662BC1E2635A9E70062DBB3 /* playerRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = playerRenderer.hpp; sourceTree = "<group>"; };
 		1689687625E9607800D26060 /* fileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fileSystem.hpp; sourceTree = "<group>"; };
 		1689687825E9607800D26060 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
 		1689687925E9607800D26060 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
@@ -354,6 +358,15 @@
 			path = dev;
 			sourceTree = "<group>";
 		};
+		1662BC1C2635A9D70062DBB3 /* playerRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				1662BC1E2635A9E70062DBB3 /* playerRenderer.hpp */,
+				1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */,
+			);
+			path = playerRenderer;
+			sourceTree = "<group>";
+		};
 		1689684D25E95FD000D26060 = {
 			isa = PBXGroup;
 			children = (
@@ -460,6 +473,7 @@
 				1689689A25E9607800D26060 /* generatingScreen */,
 				1689689E25E9607800D26060 /* networkingModule */,
 				168968A425E9607800D26060 /* worldSaver */,
+				1662BC1C2635A9D70062DBB3 /* playerRenderer */,
 				1689689D25E9607800D26060 /* game.hpp */,
 				168968A325E9607800D26060 /* game.cpp */,
 			);
@@ -889,6 +903,7 @@
 				1661661B25EA3689002A3815 /* pauseScreen.cpp in Sources */,
 				1661661C25EA3689002A3815 /* playerHandler.cpp in Sources */,
 				1661662125EA3689002A3815 /* blockSelector.cpp in Sources */,
+				1662BC202635AAE60062DBB3 /* playerRenderer.cpp in Sources */,
 				1661662225EA3689002A3815 /* startMenu.cpp in Sources */,
 				1661662325EA3689002A3815 /* multiplayerSelector.cpp in Sources */,
 				1661662425EA3689002A3815 /* worldCreator.cpp in Sources */,
@@ -933,6 +948,7 @@
 				36F45E882620A88400C751E4 /* chunk.cpp in Sources */,
 				36F45E79261B662000C751E4 /* block.cpp in Sources */,
 				1691250C25F6BCD500F7EB4F /* multiplayerSelector.cpp in Sources */,
+				1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */,
 				3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */,
 				1691250D25F6BCD500F7EB4F /* worldCreator.cpp in Sources */,
 				1691250E25F6BCD500F7EB4F /* worldSelector.cpp in Sources */,

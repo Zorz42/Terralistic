@@ -7,6 +7,7 @@
 
 #include "blockSelector.hpp"
 #include "playerHandler.hpp"
+#include "playerRenderer.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
 
@@ -76,15 +77,18 @@ void blockSelector::onKeyDown(gfx::key key) {
         is_left_button_pressed = true;
         prev_selected_x = map->getWorldWidth();
         prev_selected_y = map->getWorldHeight();
-    } else if(key == gfx::KEY_MOUSE_RIGHT && !gfx::colliding(player->player.getTranslatedRect(), select_rect.getTranslatedRect()) && !playerHandler::hovered) {
-        if(multiplayer) {
-            packets::packet packet(packets::RIGHT_CLICK);
-            packet << selected_block_x << selected_block_y;
-            manager->sendPacket(packet);
-        } else {
-            map::block block = map->getBlock(selected_block_x, selected_block_y);
-            if(click_events[(int)block.getType()].rightClickEvent)
-                click_events[(int)block.getType()].rightClickEvent(&block, player_inventory);
+    } else if(key == gfx::KEY_MOUSE_RIGHT && !playerHandler::hovered) {
+        gfx::rectShape rect = gfx::rectShape(gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2, playerRenderer::getPlayerWidth(), playerRenderer::getPlayerHeight());
+        if(!gfx::colliding(rect, select_rect.getTranslatedRect())) {
+            if(multiplayer) {
+                packets::packet packet(packets::RIGHT_CLICK);
+                packet << selected_block_x << selected_block_y;
+                manager->sendPacket(packet);
+            } else {
+                map::block block = map->getBlock(selected_block_x, selected_block_y);
+                if(click_events[(int)block.getType()].rightClickEvent)
+                    click_events[(int)block.getType()].rightClickEvent(&block, player_inventory);
+            }
         }
     }
 }
