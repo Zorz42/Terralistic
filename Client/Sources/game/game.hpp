@@ -26,7 +26,6 @@ public:
     const std::string world_name;
     gfx::sprite fps_text;
     networkingManager networking_manager;
-    inventory player_inventory;
     bool multiplayer;
     renderMap *world_map;
     mainPlayer main_player;

@@ -32,7 +32,7 @@ void game::init() {
         world_map,
         new players(&networking_manager, &main_player, world_map),
         new pauseScreen(),
-        new playerHandler(&networking_manager, &main_player, world_map, multiplayer, &player_inventory),
+        new playerHandler(&networking_manager, &main_player, world_map, multiplayer),
     };
     
     if(multiplayer) {
@@ -41,13 +41,13 @@ void game::init() {
             gfx::returnFromScene();
             return;
         }
-        player_inventory.clear();
+        main_player.player_inventory.clear();
     } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world")) {
         renderTextScreen("Loading world");
         worldSaver::loadWorld(world_name, *world_map);
     }
     else {
-        player_inventory.clear();
+        main_player.player_inventory.clear();
         gfx::switchScene(new generatingScreen(0, *world_map));
     }
 }

@@ -21,11 +21,11 @@ void playerHandler::initInventory() {
     }
     
     selectSlot(0);
-    player_inventory->open = false;
+    player->player_inventory.open = false;
 }
 
 void playerHandler::renderInventory() {
-    select_rect_inventory.x = (player_inventory->selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
+    select_rect_inventory.x = (player->player_inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
     gfx::render(select_rect_inventory);
     
     gfx::sprite* text_texture = nullptr;
@@ -33,12 +33,12 @@ void playerHandler::renderInventory() {
     for(int i = -1; i < 20; i++)
         updateStackTexture(i);
     
-    for(int i = 0; i < (player_inventory->open ? 20 : 10); i++) {
-        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::rectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0)) && player_inventory->open) {
-            hovered = &player_inventory->inventory[i];
+    for(int i = 0; i < (player->player_inventory.open ? 20 : 10); i++) {
+        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::rectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0)) && player->player_inventory.open) {
+            hovered = &player->player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
-            if(player_inventory->inventory[i].item_id != map::itemType::NOTHING) {
-                text_texture = &renderMap::getUniqueRenderItem(player_inventory->inventory[i].item_id).text_texture;
+            if(player->player_inventory.inventory[i].item_id != map::itemType::NOTHING) {
+                text_texture = &renderMap::getUniqueRenderItem(player->player_inventory.inventory[i].item_id).text_texture;
                 text_texture->x = gfx::getMouseX() + 20;
                 text_texture->y = gfx::getMouseY() + 20;
                 under_text_rect.h = text_texture->getHeight() + 2 * MARGIN;
@@ -50,22 +50,22 @@ void playerHandler::renderInventory() {
         else
             inventory_slots[i].c = {100, 100, 100};
         gfx::render(inventory_slots[i]);
-        renderItem(&player_inventory->inventory[i], inventory_slots[i].getTranslatedX() + MARGIN / 2, inventory_slots[i].getTranslatedY() + MARGIN / 2, i);
+        renderItem(&player->player_inventory.inventory[i], inventory_slots[i].getTranslatedX() + MARGIN / 2, inventory_slots[i].getTranslatedY() + MARGIN / 2, i);
     }
     
     if(text_texture) {
         gfx::render(under_text_rect);
         gfx::render(*text_texture);
     }
-    renderItem(player_inventory->getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
+    renderItem(player->player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
 
 void playerHandler::onPacketInventory(packets::packet packet) {
     switch(packet.type) {
         case packets::INVENTORY_CHANGE: {
             char pos = packet.getChar();
-            player_inventory->inventory[(int)pos].setStack(packet.getUShort());
-            player_inventory->inventory[(int)pos].item_id = (map::itemType)packet.getUChar();
+            player->player_inventory.inventory[(int)pos].setStack(packet.getUShort());
+            player->player_inventory.inventory[(int)pos].item_id = (map::itemType)packet.getUChar();
             break;
         }
         default: break;
@@ -82,7 +82,7 @@ void playerHandler::renderItem(inventoryItem* item, int x, int y, int i) {
 }
 
 void playerHandler::selectSlot(char slot) {
-    player_inventory->selected_slot = slot;
+    player->player_inventory.selected_slot = slot;
     if(multiplayer) {
         packets::packet packet(packets::HOTBAR_SELECTION);
         packet << slot;
@@ -91,7 +91,7 @@ void playerHandler::selectSlot(char slot) {
 }
 
 void playerHandler::updateStackTexture(int i) {
-    inventoryItem* item = i == -1 ? player_inventory->getMouseItem() : &player_inventory->inventory[i];
+    inventoryItem* item = i == -1 ? player->player_inventory.getMouseItem() : &player->player_inventory.inventory[i];
     if(item->stack_changed) {
         gfx::image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         if(item->getStack() > 1)

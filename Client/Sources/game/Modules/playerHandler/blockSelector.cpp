@@ -54,7 +54,7 @@ void playerHandler::renderBlockSelector() {
     if(is_left_button_pressed && !multiplayer) {
         map::block block = map->getBlock(selected_block_x, selected_block_y);
         if(click_events[(int)block.getType()].leftClickEvent)
-            click_events[(int)block.getType()].leftClickEvent(&block, player_inventory);
+            click_events[(int)block.getType()].leftClickEvent(&block, &player->player_inventory);
         else {
             block.setBreakProgress(block.getBreakProgress() + gfx::getDeltaTime());
             if(!multiplayer && block.getBreakProgress() >= block.getBreakTime())
@@ -86,7 +86,7 @@ void playerHandler::onKeyDownSelector(gfx::key key) {
             } else {
                 map::block block = map->getBlock(selected_block_x, selected_block_y);
                 if(click_events[(int)block.getType()].rightClickEvent)
-                    click_events[(int)block.getType()].rightClickEvent(&block, player_inventory);
+                    click_events[(int)block.getType()].rightClickEvent(&block, &player->player_inventory);
             }
         }
     }

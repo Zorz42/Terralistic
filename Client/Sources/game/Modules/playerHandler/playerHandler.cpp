@@ -52,10 +52,10 @@ void playerHandler::onKeyDown(gfx::key key) {
             }
             break;
         case gfx::KEY_E:
-            player_inventory->open = !player_inventory->open;
-            if(!player_inventory->open && player_inventory->getMouseItem()->item_id != map::itemType::NOTHING) {
-                unsigned char result = player_inventory->addItem(player_inventory->getMouseItem()->item_id, player_inventory->getMouseItem()->getStack());
-                player_inventory->clearMouseItem();
+            player->player_inventory.open = !player->player_inventory.open;
+            if(!player->player_inventory.open && player->player_inventory.getMouseItem()->item_id != map::itemType::NOTHING) {
+                unsigned char result = player->player_inventory.addItem(player->player_inventory.getMouseItem()->item_id, player->player_inventory.getMouseItem()->getStack());
+                player->player_inventory.clearMouseItem();
                 packets::packet packet(packets::INVENTORY_SWAP);
                 packet << result;
                 manager->sendPacket(packet);
@@ -63,10 +63,10 @@ void playerHandler::onKeyDown(gfx::key key) {
             break;
         case gfx::KEY_MOUSE_LEFT: {
             if(hovered) {
-                player_inventory->swapWithMouseItem(hovered);
+                player->player_inventory.swapWithMouseItem(hovered);
                 if(multiplayer) {
                     packets::packet packet(packets::INVENTORY_SWAP);
-                    packet << (unsigned char)(hovered - &player_inventory->inventory[0]);
+                    packet << (unsigned char)(hovered - &player->player_inventory.inventory[0]);
                     manager->sendPacket(packet);
                 }
             }
@@ -190,7 +190,7 @@ void playerHandler::update() {
     // look for items to be picked up
     if(!multiplayer)
         for(unsigned long i = 0; i < map->items.size(); i++)
-            if(abs(map->items[i].x / 100 + BLOCK_WIDTH / 2  - player->position_x - playerRenderer::getPlayerWidth() / 2) < 50 && abs(map->items[i].y / 100 + BLOCK_WIDTH / 2 - player->position_y - playerRenderer::getPlayerHeight() / 2) < 50 && player_inventory->addItem(map->items[i].getItemId(), 1) != -1) {
+            if(abs(map->items[i].x / 100 + BLOCK_WIDTH / 2  - player->position_x - playerRenderer::getPlayerWidth() / 2) < 50 && abs(map->items[i].y / 100 + BLOCK_WIDTH / 2 - player->position_y - playerRenderer::getPlayerHeight() / 2) < 50 && player->player_inventory.addItem(map->items[i].getItemId(), 1) != -1) {
                 map->items[i].destroy();
                 map->items.erase(map->items.begin() + i);
             }

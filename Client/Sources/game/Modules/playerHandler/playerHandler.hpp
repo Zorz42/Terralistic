@@ -23,6 +23,7 @@ public:
     int position_x, position_y;
     short velocity_x = 0, velocity_y = 0;
     bool flipped = false;
+    inventory player_inventory;
 };
 
 class playerHandler : public gfx::sceneModule, packetListener {
@@ -32,7 +33,6 @@ class playerHandler : public gfx::sceneModule, packetListener {
     renderMap* map;
     networkingManager* manager;
     bool multiplayer;
-    inventory* player_inventory;
     
     inventoryItem *hovered = nullptr;
     
@@ -61,7 +61,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
     under_text_rect{0, 0, 0, 0, {0, 0, 0}};
     gfx::image stack_textures[20], mouse_stack_texture;
 public:
-    playerHandler(networkingManager* manager, mainPlayer* player, renderMap* map, bool multiplayer, inventory* player_inventory) : packetListener(manager), player(player), map(map), manager(manager), multiplayer(multiplayer), player_inventory(player_inventory) {}
+    playerHandler(networkingManager* manager, mainPlayer* player, renderMap* map, bool multiplayer) : packetListener(manager), player(player), map(map), manager(manager), multiplayer(multiplayer) {}
     void onKeyUp(gfx::key key) override;
     void onKeyDown(gfx::key key) override;
     void init() override;
