@@ -6,7 +6,6 @@
 //
 
 #include "playerHandler.hpp"
-#include "renderMap.hpp"
 
 #define MARGIN 10
 

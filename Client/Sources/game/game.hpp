@@ -17,7 +17,6 @@
 
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "inventory.hpp"
 #include "renderMap.hpp"
 
 

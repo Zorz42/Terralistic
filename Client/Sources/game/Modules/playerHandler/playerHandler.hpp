@@ -14,7 +14,6 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-#include "networkingModule.hpp"
 #include "renderMap.hpp"
 #include "inventory.hpp"
 

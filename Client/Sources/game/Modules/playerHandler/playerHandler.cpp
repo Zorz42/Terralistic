@@ -14,6 +14,8 @@
 bool isPlayerColliding();
 
 void playerHandler::init() {
+    playerRenderer::init();
+    
     if(!multiplayer) {
         player->position_x = map->getSpawnX();
         player->position_y = map->getSpawnY() - playerRenderer::getPlayerHeight() / 2;

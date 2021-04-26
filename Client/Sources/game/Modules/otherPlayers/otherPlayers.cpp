@@ -6,7 +6,6 @@
 //
 
 #include "otherPlayers.hpp"
-#include "playerHandler.hpp"
 #include "playerRenderer.hpp"
 #include "dev.hpp"
 

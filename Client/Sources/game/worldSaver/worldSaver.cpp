@@ -47,3 +47,7 @@ void worldSaver::loadWorld(const std::string& world_name, map& world_map) {
     
     world_map.setNaturalLight();
 }
+
+bool worldSaver::worldExists(const std::string& world_name) {
+    return fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world");
+}

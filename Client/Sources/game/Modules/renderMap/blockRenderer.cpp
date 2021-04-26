@@ -6,7 +6,6 @@
 //
 
 #include "renderMap.hpp"
-#include "playerHandler.hpp"
 
 gfx::image renderMap::breaking_texture;
 renderMap::uniqueRenderBlock* renderMap::unique_render_blocks;

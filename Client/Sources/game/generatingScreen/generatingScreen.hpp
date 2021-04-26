@@ -15,7 +15,7 @@
 #endif
 
 #include <thread>
-#include "map.hpp"
+#include "renderMap.hpp"
 
 #define LOADING_RECT_HEIGHT 20
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
@@ -28,8 +28,8 @@ class generatingScreen : public gfx::scene {
     gfx::rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::bottom},
     loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::bottom};
 public:
-    map& world_map;
-    explicit generatingScreen(unsigned int seed, map& world_map) : seed(seed), world_map(world_map) {}
+    renderMap* map;
+    explicit generatingScreen(unsigned int seed, renderMap* map) : seed(seed), map(map) {}
     void init() override;
     void update() override;
     void render() override;

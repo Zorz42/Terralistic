@@ -5,21 +5,16 @@
 //  Created by Jakob Zorz on ???.
 //
 
-#include "playerHandler.hpp"
+#include "game.hpp"
 #include "worldSaver.hpp"
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
 #include "textScreen.hpp"
-#include "fileSystem.hpp"
-#include "playerRenderer.hpp"
-#include "game.hpp"
 
 #undef main
 
 void game::init() {
-    playerRenderer::init();
-    
     fps_text.scale = 3;
     fps_text.x = 10;
     fps_text.y = 10;
@@ -30,7 +25,7 @@ void game::init() {
     
     modules = {
         world_map,
-        new players(&networking_manager, &main_player, world_map),
+        new players(&networking_manager, world_map),
         new pauseScreen(),
         new playerHandler(&networking_manager, &main_player, world_map, multiplayer),
     };
@@ -42,13 +37,13 @@ void game::init() {
             return;
         }
         main_player.player_inventory.clear();
-    } else if(fileSystem::fileExists(fileSystem::getWorldsPath() + world_name + ".world")) {
+    } else if(worldSaver::worldExists(world_name)) {
         renderTextScreen("Loading world");
         worldSaver::loadWorld(world_name, *world_map);
     }
     else {
         main_player.player_inventory.clear();
-        gfx::switchScene(new generatingScreen(0, *world_map));
+        gfx::switchScene(new generatingScreen(0, world_map));
     }
 }
 

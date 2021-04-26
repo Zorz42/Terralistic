@@ -6,7 +6,6 @@
 //
 
 #include "renderMap.hpp"
-#include "playerHandler.hpp"
 
 renderMap::uniqueRenderItem* renderMap::unique_render_items;
 

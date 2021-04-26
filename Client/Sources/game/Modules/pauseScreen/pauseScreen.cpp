@@ -5,12 +5,6 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#ifdef __WIN32__
-#include "graphics.hpp"
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
 #include "pauseScreen.hpp"
 
 // pause screen is very simple for now

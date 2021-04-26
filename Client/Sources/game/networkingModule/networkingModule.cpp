@@ -15,7 +15,7 @@
 #include <unistd.h>
 #endif
 
-#include "playerHandler.hpp"
+#include "networkingModule.hpp"
 #include <thread>
 
 #define PORT 33770

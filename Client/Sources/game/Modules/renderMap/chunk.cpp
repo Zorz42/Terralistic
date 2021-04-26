@@ -6,7 +6,6 @@
 //
 
 #include "renderMap.hpp"
-#include "playerHandler.hpp"
 #include "dev.hpp"
 
 renderMap::renderChunk& renderMap::getRenderChunk(unsigned short x, unsigned short y) {
