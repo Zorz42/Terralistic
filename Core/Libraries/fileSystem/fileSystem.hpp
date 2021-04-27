@@ -12,13 +12,6 @@
 
 namespace fileSystem {
 
-void init();
-
-std::string getResourcePath(std::string executable_path);
-
-std::string getDataPath();
-std::string getWorldsPath();
-
 bool dirExists(const std::string& path);
 bool fileExists(const std::string& path);
 void createDirIfNotExists(const std::string& path);

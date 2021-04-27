@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#include "platform_folders.h"
-
 #include <sys/stat.h>
 #include <dirent.h>
 #ifdef __APPLE__
@@ -14,41 +12,7 @@
 #endif
 #include "fileSystem.hpp"
 
-static std::string data_path;
-
 // most of the functions explain themselves
-
-void fileSystem::init() {
-    // data path is path in filesystem, where terralistic worlds are saved and other things
-    data_path = sago::getDataHome() + "/Terralistic/";
-    
-    createDirIfNotExists(data_path);
-    
-    std::string dirs_to_create[] = {getWorldsPath()};
-    
-    for(const std::string& dir : dirs_to_create)
-        createDirIfNotExists(dir);
-}
-
-std::string fileSystem::getDataPath() {
-    return data_path;
-}
-
-std::string fileSystem::getWorldsPath() {
-    return data_path + "worlds/";
-}
-
-std::string fileSystem::getResourcePath(std::string executable_path) {
-    while(executable_path[executable_path.size()-1] != '/' && executable_path[executable_path.size()-1] != '\\')
-        executable_path.pop_back();
-    executable_path.pop_back();
-    std::string parent_directory;
-    while(executable_path[executable_path.size()-1] != '/' && executable_path[executable_path.size()-1] != '\\') {
-        parent_directory.insert(parent_directory.begin(), executable_path[executable_path.size()-1]);
-        executable_path.pop_back();
-    }
-    return parent_directory == "MacOS" ? executable_path + "Resources/" : executable_path + parent_directory + "/Resources/";
-}
 
 int fileSystem::removeDir(const std::string &path) {
     DIR *d = opendir(path.c_str());

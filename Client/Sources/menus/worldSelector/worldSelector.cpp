@@ -11,6 +11,7 @@
 #include "worldSelector.hpp"
 #include "game.hpp"
 #include "worldCreator.hpp"
+#include "fileManager.hpp"
 #include "fileSystem.hpp"
 
 #undef main
@@ -70,7 +71,7 @@ void worldSelector::refresh() {
             ".DS_Store",
     };
 
-    DIR *dir = opendir(fileSystem::getWorldsPath().c_str());
+    DIR *dir = opendir(fileManager::getWorldsPath().c_str());
     dirent *ent;
     while((ent = readdir(dir)) != nullptr) {
         std::string name = ent->d_name;
@@ -108,7 +109,7 @@ void worldSelector::onKeyDown(gfx::key key) {
                 if(i.button.isHovered())
                     gfx::switchScene(new game(i.name, false));
                 else if(i.delete_button.isHovered()) {
-                    fileSystem::removeFile(fileSystem::getWorldsPath() + i.name + ".world");
+                    fileSystem::removeFile(fileManager::getWorldsPath() + i.name + ".world");
                     refresh();
                 }
             }

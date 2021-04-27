@@ -84,6 +84,8 @@
 		1691250F25F6BCD500F7EB4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C625E9607800D26060 /* main.cpp */; };
 		1691251025F6BF4800F7EB4F /* Graphics_Debug.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124BF25F6B89700F7EB4F /* Graphics_Debug.framework */; };
 		1691251125F6BF4800F7EB4F /* Graphics_Debug.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124BF25F6B89700F7EB4F /* Graphics_Debug.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16932058263811C100B73C9F /* fileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16932056263811C100B73C9F /* fileManager.cpp */; };
+		16984266263819EC00972269 /* fileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16932056263811C100B73C9F /* fileManager.cpp */; };
 		16A09613261D9A1D008B2BBB /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E7E261CCD5600C751E4 /* item.cpp */; };
 		3611F0AC260E3D0900127A55 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3611F0AA260E3D0900127A55 /* textScreen.cpp */; };
 		3611F0AD260E3E4100127A55 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3611F0AA260E3D0900127A55 /* textScreen.cpp */; };
@@ -253,6 +255,8 @@
 		169124D225F6BA7700F7EB4F /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = "Client/Graphics/Frameworks-Debug/SDL2_ttf.framework"; sourceTree = "<group>"; };
 		169124D325F6BA7700F7EB4F /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "Client/Graphics/Frameworks-Debug/SDL2.framework"; sourceTree = "<group>"; };
 		169124E325F6BC2400F7EB4F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		16932056263811C100B73C9F /* fileManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileManager.cpp; sourceTree = "<group>"; };
+		16932057263811C100B73C9F /* fileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fileManager.hpp; sourceTree = "<group>"; };
 		169B3A0D261EF16E00F538F3 /* renderMap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = renderMap.hpp; sourceTree = "<group>"; };
 		3611F0AA260E3D0900127A55 /* textScreen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = textScreen.cpp; sourceTree = "<group>"; };
 		3611F0AB260E3D0900127A55 /* textScreen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = textScreen.hpp; sourceTree = "<group>"; };
@@ -378,6 +382,7 @@
 		1689686F25E9607800D26060 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				16932055263811A700B73C9F /* fileManager */,
 				1689689325E9607800D26060 /* game */,
 				168968B725E9607800D26060 /* menus */,
 				168968C425E9607800D26060 /* main */,
@@ -399,7 +404,6 @@
 		1689687525E9607800D26060 /* fileSystem */ = {
 			isa = PBXGroup;
 			children = (
-				1689687725E9607800D26060 /* sago */,
 				1689687625E9607800D26060 /* fileSystem.hpp */,
 				1689687A25E9607800D26060 /* fileSystem.cpp */,
 			);
@@ -620,6 +624,16 @@
 				168D6D2A25FA8C6500A10457 /* drawables.cpp */,
 			);
 			path = Graphics;
+			sourceTree = "<group>";
+		};
+		16932055263811A700B73C9F /* fileManager */ = {
+			isa = PBXGroup;
+			children = (
+				1689687725E9607800D26060 /* sago */,
+				16932057263811C100B73C9F /* fileManager.hpp */,
+				16932056263811C100B73C9F /* fileManager.cpp */,
+			);
+			path = fileManager;
 			sourceTree = "<group>";
 		};
 		169B3A0B261EF16100F538F3 /* renderMap */ = {
@@ -874,6 +888,7 @@
 				36F45E8E2620A8F200C751E4 /* blockRenderer.cpp in Sources */,
 				36F45E822620A1C100C751E4 /* itemRenderer.cpp in Sources */,
 				1661660825EA3689002A3815 /* perlinNoise.cpp in Sources */,
+				16984266263819EC00972269 /* fileManager.cpp in Sources */,
 				36F45E772619E7FA00C751E4 /* map.cpp in Sources */,
 				1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */,
 				1661661525EA3689002A3815 /* generatingScreen.cpp in Sources */,
@@ -904,6 +919,7 @@
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				169124E925F6BCD400F7EB4F /* fileSystem.cpp in Sources */,
 				36F45E762619E68900C751E4 /* map.cpp in Sources */,
+				16932058263811C100B73C9F /* fileManager.cpp in Sources */,
 				169124EA25F6BCD400F7EB4F /* packets.cpp in Sources */,
 				169124EB25F6BCD400F7EB4F /* inventoryItem.cpp in Sources */,
 				169124EC25F6BCD400F7EB4F /* inventory.cpp in Sources */,
