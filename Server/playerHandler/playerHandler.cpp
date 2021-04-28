@@ -38,8 +38,8 @@ PACKET_LISTENER(packets::PLAYER_JOIN)
     static unsigned int curr_id = 0;
     playerHandler::player player(curr_id++);
     player.conn = &connection;
-    player.y = world_map.getSpawnY() - BLOCK_WIDTH * 2;
-    player.x = world_map.getSpawnX();
+    player.y = playerHandler::world_map->getSpawnY() - BLOCK_WIDTH * 2;
+    player.x = playerHandler::world_map->getSpawnX();
 
     packets::packet spawn_packet(packets::SPAWN_POS);
     spawn_packet << player.y << player.x;
@@ -50,7 +50,7 @@ PACKET_LISTENER(packets::PLAYER_JOIN)
         join_packet << i.x << i.y << i.id;
         player.conn->sendPacket(join_packet);
     }
-    for(map::item& i : map::items) {
+    for(map::item& i : playerHandler::world_map->items) {
         packets::packet item_packet(packets::ITEM_CREATION);
         item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
         player.conn->sendPacket(item_packet);
