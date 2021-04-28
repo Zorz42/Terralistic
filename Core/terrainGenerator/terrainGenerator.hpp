@@ -8,8 +8,6 @@
 #ifndef terrainGenerator_hpp
 #define terrainGenerator_hpp
 
-#include "perlinNoise.hpp"
-
 namespace terrainGenerator {
 
 int generateTerrainDaemon(unsigned int seed, map* world_map);

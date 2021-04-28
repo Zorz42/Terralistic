@@ -14,7 +14,6 @@
 		1661660525EA3656002A3815 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688125E9607800D26060 /* inventory.cpp */; };
 		1661660625EA3689002A3815 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688625E9607800D26060 /* simplex-noise.cpp */; };
 		1661660725EA3689002A3815 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688725E9607800D26060 /* terrainGenerator.cpp */; };
-		1661660825EA3689002A3815 /* perlinNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688925E9607800D26060 /* perlinNoise.cpp */; };
 		1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
 		1661661525EA3689002A3815 /* generatingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689C25E9607800D26060 /* generatingScreen.cpp */; };
 		1661661625EA3689002A3815 /* networkingModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* networkingModule.cpp */; };
@@ -67,7 +66,6 @@
 		169124EB25F6BCD400F7EB4F /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688025E9607800D26060 /* inventoryItem.cpp */; };
 		169124EC25F6BCD400F7EB4F /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688125E9607800D26060 /* inventory.cpp */; };
 		169124ED25F6BCD400F7EB4F /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688625E9607800D26060 /* simplex-noise.cpp */; };
-		169124EE25F6BCD400F7EB4F /* perlinNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688925E9607800D26060 /* perlinNoise.cpp */; };
 		169124EF25F6BCD400F7EB4F /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689688725E9607800D26060 /* terrainGenerator.cpp */; };
 		1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
 		1691250125F6BCD400F7EB4F /* generatingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689C25E9607800D26060 /* generatingScreen.cpp */; };
@@ -211,8 +209,6 @@
 		1689688525E9607800D26060 /* simplex-noise.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "simplex-noise.hpp"; sourceTree = "<group>"; };
 		1689688625E9607800D26060 /* simplex-noise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "simplex-noise.cpp"; sourceTree = "<group>"; };
 		1689688725E9607800D26060 /* terrainGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terrainGenerator.cpp; sourceTree = "<group>"; };
-		1689688925E9607800D26060 /* perlinNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = perlinNoise.cpp; sourceTree = "<group>"; };
-		1689688A25E9607800D26060 /* perlinNoise.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
 		1689689825E9607800D26060 /* otherPlayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = otherPlayers.cpp; sourceTree = "<group>"; };
 		1689689925E9607800D26060 /* otherPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = otherPlayers.hpp; sourceTree = "<group>"; };
 		1689689B25E9607800D26060 /* generatingScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = generatingScreen.hpp; sourceTree = "<group>"; };
@@ -372,6 +368,7 @@
 		1689684D25E95FD000D26060 = {
 			isa = PBXGroup;
 			children = (
+				3619ACED26173D7000BA4EAF /* Libraries */,
 				1689687025E9607800D26060 /* Core */,
 				1689699C25E9653E00D26060 /* Client */,
 				1661654A25EA2CC8002A3815 /* Frameworks */,
@@ -393,7 +390,6 @@
 		1689687025E9607800D26060 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				3619ACED26173D7000BA4EAF /* Libraries */,
 				1689687E25E9607800D26060 /* inventory */,
 				1689688225E9607800D26060 /* terrainGenerator */,
 				36F45E732619E67500C751E4 /* map */,
@@ -441,8 +437,6 @@
 		1689688225E9607800D26060 /* terrainGenerator */ = {
 			isa = PBXGroup;
 			children = (
-				1689688425E9607800D26060 /* simplexNoise */,
-				1689688825E9607800D26060 /* perlinNoise */,
 				1689688325E9607800D26060 /* terrainGenerator.hpp */,
 				1689688725E9607800D26060 /* terrainGenerator.cpp */,
 			);
@@ -456,15 +450,6 @@
 				1689688625E9607800D26060 /* simplex-noise.cpp */,
 			);
 			path = simplexNoise;
-			sourceTree = "<group>";
-		};
-		1689688825E9607800D26060 /* perlinNoise */ = {
-			isa = PBXGroup;
-			children = (
-				1689688925E9607800D26060 /* perlinNoise.cpp */,
-				1689688A25E9607800D26060 /* perlinNoise.hpp */,
-			);
-			path = perlinNoise;
 			sourceTree = "<group>";
 		};
 		1689689325E9607800D26060 /* game */ = {
@@ -664,6 +649,7 @@
 				1689687525E9607800D26060 /* fileSystem */,
 				1661662F25EA4BA8002A3815 /* dev */,
 				1689687B25E9607800D26060 /* packets */,
+				1689688425E9607800D26060 /* simplexNoise */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -887,7 +873,6 @@
 				36F45E8D2620A8F100C751E4 /* chunk.cpp in Sources */,
 				36F45E8E2620A8F200C751E4 /* blockRenderer.cpp in Sources */,
 				36F45E822620A1C100C751E4 /* itemRenderer.cpp in Sources */,
-				1661660825EA3689002A3815 /* perlinNoise.cpp in Sources */,
 				16984266263819EC00972269 /* fileManager.cpp in Sources */,
 				36F45E772619E7FA00C751E4 /* map.cpp in Sources */,
 				1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */,
@@ -924,7 +909,6 @@
 				169124EB25F6BCD400F7EB4F /* inventoryItem.cpp in Sources */,
 				169124EC25F6BCD400F7EB4F /* inventory.cpp in Sources */,
 				169124ED25F6BCD400F7EB4F /* simplex-noise.cpp in Sources */,
-				169124EE25F6BCD400F7EB4F /* perlinNoise.cpp in Sources */,
 				169124EF25F6BCD400F7EB4F /* terrainGenerator.cpp in Sources */,
 				36F45E8A2620A89000C751E4 /* blockRenderer.cpp in Sources */,
 				36F45E862620A87B00C751E4 /* block.cpp in Sources */,

@@ -66,13 +66,13 @@ void stackDirt(unsigned int x, unsigned int height, map& world_map) {
     world_map.getBlock((unsigned short)x, (unsigned short)(world_map.getWorldHeight() - height - 1)).setType(map::blockType::GRASS_BLOCK, false);
 }
 
-double turbulence(double x, double y, double size, PerlinNoise noise) {
+double turbulence(double x, double y, double size, osn_context* ctx) {
 
 //double turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, PerlinNoise noise) {
     double value = 0.0, initialSize = size;
 
     while(size >= 2) {
-        value += noise.noise(x / size, y / size) * size;
+        value += open_simplex_noise2(ctx, x / size, y / size) * size;
         size /= 2.0;
     }
     
@@ -83,14 +83,15 @@ double turbulence(double x, double y, double size, PerlinNoise noise) {
 }
 
 void generateSurface(std::mt19937& engine, map& world_map) {
-    PerlinNoise noise(engine());
+    osn_context* ctx;
+    open_simplex_noise(engine(), &ctx);
     
     heights = new unsigned short[world_map.getWorldWidth()];
     
     // generate terrain
     for(unsigned int x = 0; x < world_map.getWorldWidth(); x++) {
         // apply multiple layers of perlin noise
-        auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, noise));
+        auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, ctx));
         
         heights[x] = height;
         if(height > highest_height)
