@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		165FF859263997A0003941F8 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF858263997A0003941F8 /* worldSaver.cpp */; };
+		165FF85D263997B2003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
+		165FF86226399997003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
+		165FF863263999A8003941F8 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF858263997A0003941F8 /* worldSaver.cpp */; };
 		1661660125EA3656002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		1661660225EA3656002A3815 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
 		1661660325EA3656002A3815 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687D25E9607800D26060 /* packets.cpp */; };
@@ -18,7 +22,6 @@
 		1661661525EA3689002A3815 /* generatingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689C25E9607800D26060 /* generatingScreen.cpp */; };
 		1661661625EA3689002A3815 /* networkingModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* networkingModule.cpp */; };
 		1661661925EA3689002A3815 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A325E9607800D26060 /* game.cpp */; };
-		1661661A25EA3689002A3815 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A625E9607800D26060 /* worldSaver.cpp */; };
 		1661661B25EA3689002A3815 /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A925E9607800D26060 /* pauseScreen.cpp */; };
 		1661661C25EA3689002A3815 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AB25E9607800D26060 /* playerHandler.cpp */; };
 		1661662125EA3689002A3815 /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B525E9607800D26060 /* blockSelector.cpp */; };
@@ -70,7 +73,6 @@
 		1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
 		1691250125F6BCD400F7EB4F /* generatingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689C25E9607800D26060 /* generatingScreen.cpp */; };
 		1691250225F6BCD500F7EB4F /* networkingModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* networkingModule.cpp */; };
-		1691250525F6BCD500F7EB4F /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A625E9607800D26060 /* worldSaver.cpp */; };
 		1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A925E9607800D26060 /* pauseScreen.cpp */; };
 		1691250725F6BCD500F7EB4F /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AB25E9607800D26060 /* playerHandler.cpp */; };
 		1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B525E9607800D26060 /* blockSelector.cpp */; };
@@ -85,14 +87,6 @@
 		16932058263811C100B73C9F /* fileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16932056263811C100B73C9F /* fileManager.cpp */; };
 		16984266263819EC00972269 /* fileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16932056263811C100B73C9F /* fileManager.cpp */; };
 		16A09613261D9A1D008B2BBB /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E7E261CCD5600C751E4 /* item.cpp */; };
-		3611F0AC260E3D0900127A55 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3611F0AA260E3D0900127A55 /* textScreen.cpp */; };
-		3611F0AD260E3E4100127A55 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3611F0AA260E3D0900127A55 /* textScreen.cpp */; };
-		3619ACF426185E3700BA4EAF /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A125F6B70F00F7EB4F /* SDL2_image.framework */; };
-		3619ACF526185E3700BA4EAF /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */; };
-		3619ACF626185E3700BA4EAF /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; };
-		3619ACF726185E5300BA4EAF /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D125F6BA7700F7EB4F /* SDL2_image.framework */; };
-		3619ACF826185E5300BA4EAF /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D225F6BA7700F7EB4F /* SDL2_ttf.framework */; };
-		3619ACF926185E5300BA4EAF /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D325F6BA7700F7EB4F /* SDL2.framework */; };
 		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		36F45E762619E68900C751E4 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E742619E68900C751E4 /* map.cpp */; };
@@ -183,6 +177,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		165FF857263997A0003941F8 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
+		165FF858263997A0003941F8 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
+		165FF85B263997B2003941F8 /* textScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = textScreen.hpp; sourceTree = "<group>"; };
+		165FF85C263997B2003941F8 /* textScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = textScreen.cpp; sourceTree = "<group>"; };
 		1661657B25EA2D0D002A3815 /* Terralistic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Terralistic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661658925EA2DDF002A3815 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Client/Frameworks/Release/SDL2_ttf.framework; sourceTree = "<group>"; };
 		1661658A25EA2DDF002A3815 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Frameworks/Release/SDL2_image.framework; sourceTree = "<group>"; };
@@ -217,8 +215,6 @@
 		1689689F25E9607800D26060 /* networkingModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = networkingModule.cpp; sourceTree = "<group>"; };
 		168968A125E9607800D26060 /* networkingModule.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = networkingModule.hpp; sourceTree = "<group>"; };
 		168968A325E9607800D26060 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
-		168968A525E9607800D26060 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
-		168968A625E9607800D26060 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
 		168968A825E9607800D26060 /* pauseScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = pauseScreen.hpp; sourceTree = "<group>"; };
 		168968A925E9607800D26060 /* pauseScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pauseScreen.cpp; sourceTree = "<group>"; };
 		168968AB25E9607800D26060 /* playerHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playerHandler.cpp; sourceTree = "<group>"; };
@@ -254,8 +250,6 @@
 		16932056263811C100B73C9F /* fileManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileManager.cpp; sourceTree = "<group>"; };
 		16932057263811C100B73C9F /* fileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fileManager.hpp; sourceTree = "<group>"; };
 		169B3A0D261EF16E00F538F3 /* renderMap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = renderMap.hpp; sourceTree = "<group>"; };
-		3611F0AA260E3D0900127A55 /* textScreen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = textScreen.cpp; sourceTree = "<group>"; };
-		3611F0AB260E3D0900127A55 /* textScreen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = textScreen.hpp; sourceTree = "<group>"; };
 		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
 		36F45E742619E68900C751E4 /* map.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = map.cpp; sourceTree = "<group>"; };
 		36F45E752619E68900C751E4 /* map.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = map.hpp; sourceTree = "<group>"; };
@@ -293,9 +287,6 @@
 				169124B125F6B75500F7EB4F /* SDL2.framework in Frameworks */,
 				169124AF25F6B75500F7EB4F /* SDL2_ttf.framework in Frameworks */,
 				169124AD25F6B75500F7EB4F /* SDL2_image.framework in Frameworks */,
-				3619ACF626185E3700BA4EAF /* SDL2.framework in Frameworks */,
-				3619ACF426185E3700BA4EAF /* SDL2_image.framework in Frameworks */,
-				3619ACF526185E3700BA4EAF /* SDL2_ttf.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,15 +297,30 @@
 				169124D825F6BA7700F7EB4F /* SDL2.framework in Frameworks */,
 				169124D625F6BA7700F7EB4F /* SDL2_ttf.framework in Frameworks */,
 				169124D425F6BA7700F7EB4F /* SDL2_image.framework in Frameworks */,
-				3619ACF926185E5300BA4EAF /* SDL2.framework in Frameworks */,
-				3619ACF726185E5300BA4EAF /* SDL2_image.framework in Frameworks */,
-				3619ACF826185E5300BA4EAF /* SDL2_ttf.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		165FF856263997A0003941F8 /* worldSaver */ = {
+			isa = PBXGroup;
+			children = (
+				165FF857263997A0003941F8 /* worldSaver.hpp */,
+				165FF858263997A0003941F8 /* worldSaver.cpp */,
+			);
+			path = worldSaver;
+			sourceTree = "<group>";
+		};
+		165FF85A263997B2003941F8 /* textScreen */ = {
+			isa = PBXGroup;
+			children = (
+				165FF85B263997B2003941F8 /* textScreen.hpp */,
+				165FF85C263997B2003941F8 /* textScreen.cpp */,
+			);
+			path = textScreen;
+			sourceTree = "<group>";
+		};
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -379,6 +385,7 @@
 		1689686F25E9607800D26060 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				165FF85A263997B2003941F8 /* textScreen */,
 				16932055263811A700B73C9F /* fileManager */,
 				1689689325E9607800D26060 /* game */,
 				168968B725E9607800D26060 /* menus */,
@@ -390,6 +397,7 @@
 		1689687025E9607800D26060 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				165FF856263997A0003941F8 /* worldSaver */,
 				1689687E25E9607800D26060 /* inventory */,
 				1689688225E9607800D26060 /* terrainGenerator */,
 				36F45E732619E67500C751E4 /* map */,
@@ -456,10 +464,8 @@
 			isa = PBXGroup;
 			children = (
 				3619ACFA26186CBA00BA4EAF /* Modules */,
-				3611F0A9260E3CFA00127A55 /* textScreen */,
 				1689689A25E9607800D26060 /* generatingScreen */,
 				1689689E25E9607800D26060 /* networkingModule */,
-				168968A425E9607800D26060 /* worldSaver */,
 				1662BC1C2635A9D70062DBB3 /* playerRenderer */,
 				1689689D25E9607800D26060 /* game.hpp */,
 				168968A325E9607800D26060 /* game.cpp */,
@@ -492,15 +498,6 @@
 				1689689F25E9607800D26060 /* networkingModule.cpp */,
 			);
 			path = networkingModule;
-			sourceTree = "<group>";
-		};
-		168968A425E9607800D26060 /* worldSaver */ = {
-			isa = PBXGroup;
-			children = (
-				168968A525E9607800D26060 /* worldSaver.hpp */,
-				168968A625E9607800D26060 /* worldSaver.cpp */,
-			);
-			path = worldSaver;
 			sourceTree = "<group>";
 		};
 		168968A725E9607800D26060 /* pauseScreen */ = {
@@ -632,15 +629,6 @@
 				36F45E892620A89000C751E4 /* blockRenderer.cpp */,
 			);
 			path = renderMap;
-			sourceTree = "<group>";
-		};
-		3611F0A9260E3CFA00127A55 /* textScreen */ = {
-			isa = PBXGroup;
-			children = (
-				3611F0AB260E3D0900127A55 /* textScreen.hpp */,
-				3611F0AA260E3D0900127A55 /* textScreen.cpp */,
-			);
-			path = textScreen;
 			sourceTree = "<group>";
 		};
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
@@ -782,7 +770,7 @@
 		1689684E25E95FD000D26060 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1240;
+				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					166165E225EA3617002A3815 = {
 						CreatedOnToolsVersion = 12.4;
@@ -861,11 +849,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				165FF863263999A8003941F8 /* worldSaver.cpp in Sources */,
+				165FF86226399997003941F8 /* textScreen.cpp in Sources */,
 				16A09613261D9A1D008B2BBB /* item.cpp in Sources */,
 				36F45E7C261B6B0400C751E4 /* block.cpp in Sources */,
 				36F45E7D261B6B0400C751E4 /* light.cpp in Sources */,
 				3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */,
-				3611F0AD260E3E4100127A55 /* textScreen.cpp in Sources */,
 				1661660625EA3689002A3815 /* simplex-noise.cpp in Sources */,
 				1661660725EA3689002A3815 /* terrainGenerator.cpp in Sources */,
 				36F45E8B2620A8EF00C751E4 /* packets.cpp in Sources */,
@@ -879,7 +868,6 @@
 				1661661525EA3689002A3815 /* generatingScreen.cpp in Sources */,
 				1661661625EA3689002A3815 /* networkingModule.cpp in Sources */,
 				1661661925EA3689002A3815 /* game.cpp in Sources */,
-				1661661A25EA3689002A3815 /* worldSaver.cpp in Sources */,
 				1661661B25EA3689002A3815 /* pauseScreen.cpp in Sources */,
 				1661661C25EA3689002A3815 /* playerHandler.cpp in Sources */,
 				1661662125EA3689002A3815 /* blockSelector.cpp in Sources */,
@@ -913,12 +901,11 @@
 				36F45E8A2620A89000C751E4 /* blockRenderer.cpp in Sources */,
 				36F45E862620A87B00C751E4 /* block.cpp in Sources */,
 				1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */,
+				165FF859263997A0003941F8 /* worldSaver.cpp in Sources */,
 				1691250125F6BCD400F7EB4F /* generatingScreen.cpp in Sources */,
 				1691250225F6BCD500F7EB4F /* networkingModule.cpp in Sources */,
-				1691250525F6BCD500F7EB4F /* worldSaver.cpp in Sources */,
 				1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */,
 				1691250725F6BCD500F7EB4F /* playerHandler.cpp in Sources */,
-				3611F0AC260E3D0900127A55 /* textScreen.cpp in Sources */,
 				36F45E7F261CCD5600C751E4 /* item.cpp in Sources */,
 				1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */,
 				1691250A25F6BCD500F7EB4F /* game.cpp in Sources */,
@@ -934,6 +921,7 @@
 				1691250E25F6BCD500F7EB4F /* worldSelector.cpp in Sources */,
 				1691250F25F6BCD500F7EB4F /* main.cpp in Sources */,
 				36F45E842620A84F00C751E4 /* packets.cpp in Sources */,
+				165FF85D263997B2003941F8 /* textScreen.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
