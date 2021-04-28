@@ -41,10 +41,8 @@ void multiplayerSelector::init() {
     server_ip.setText("");
     server_ip.active = true;
     server_ip.textProcessing = [](char c) {
-        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_')
+        if((c >= '0' && c <= '9') || c == '.')
             return c;
-        if(c == ' ')
-            return '-';
         return '\0';
     };
     

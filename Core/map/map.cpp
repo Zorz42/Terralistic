@@ -10,10 +10,11 @@
 
 void map::createWorld(unsigned short width, unsigned short height) {
     chunk_states = new chunkState[width * height];
+    for(int i = 0; i < width * height; i++)
+        chunk_states[i] = chunkState::unloaded;
     blocks = new blockData[(width << 4) * (height << 4)];
     this->width = width << 4;
     this->height = height << 4;
-
 }
 
 map::~map() {
