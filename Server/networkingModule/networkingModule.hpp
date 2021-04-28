@@ -10,6 +10,9 @@
 
 #define MAX_PLAYERS 100
 
+#define CONCAT(x, y) x ## y
+#define JOIN(x, y) CONCAT(x, y)
+
 #define PACKET_LISTENER(packetType) static networking::registerPacketListener JOIN(listener_func, __LINE__) (packetType, [](packets::packet& packet, networking::connection& connection) {
 #define PACKET_LISTENER_END });
 

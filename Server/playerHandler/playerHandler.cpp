@@ -23,7 +23,7 @@ playerHandler::player* playerHandler::getPlayerByConnection(networking::connecti
     return nullptr;
 }
 
-/*PACKET_LISTENER(packets::PLAYER_MOVEMENT)
+PACKET_LISTENER(packets::PLAYER_MOVEMENT)
     playerHandler::player* player = playerHandler::getPlayerByConnection(&connection);
     player->flipped = packet.getChar();
     player->y = packet.getInt();
@@ -38,8 +38,8 @@ PACKET_LISTENER(packets::PLAYER_JOIN)
     static unsigned int curr_id = 0;
     playerHandler::player player(curr_id++);
     player.conn = &connection;
-    player.y = blockEngine::getSpawnY() - BLOCK_WIDTH * 2;
-    player.x = blockEngine::getSpawnX();
+    player.y = world_map.getSpawnY() - BLOCK_WIDTH * 2;
+    player.x = world_map.getSpawnX();
 
     packets::packet spawn_packet(packets::SPAWN_POS);
     spawn_packet << player.y << player.x;
@@ -50,7 +50,7 @@ PACKET_LISTENER(packets::PLAYER_JOIN)
         join_packet << i.x << i.y << i.id;
         player.conn->sendPacket(join_packet);
     }
-    for(itemEngine::item& i : itemEngine::items) {
+    for(map::item& i : map::items) {
         packets::packet item_packet(packets::ITEM_CREATION);
         item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
         player.conn->sendPacket(item_packet);
@@ -97,7 +97,7 @@ PACKET_LISTENER_END
 
 PACKET_LISTENER(packets::HOTBAR_SELECTION)
     playerHandler::getPlayerByConnection(&connection)->inventory.selected_slot = packet.getChar();
-PACKET_LISTENER_END*/ // LATER
+PACKET_LISTENER_END
 
 void playerHandler::lookForItems(map& world_map) {
     for(unsigned long i = 0; i < world_map.items.size(); i++) {

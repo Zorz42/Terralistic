@@ -10,6 +10,7 @@
 
 #include "networkingModule.hpp"
 #include "inventory.hpp"
+#include "map.hpp"
 
 namespace playerHandler {
 
@@ -29,6 +30,8 @@ inline std::vector<player> players;
 player* getPlayerByConnection(networking::connection* conn);
 
 void lookForItems(map& world_map);
+
+inline map* world_map = nullptr;
 
 }
 

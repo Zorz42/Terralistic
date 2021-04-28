@@ -37,6 +37,8 @@ int main() {
     map world_map;
     world_map.createWorld(275, 75);
     
+    playerHandler::world_map = &world_map;
+    
     if(worldSaver::worldExists("world")) {
         print::info("Loading world...");
         worldSaver::loadWorld("world", world_map);
