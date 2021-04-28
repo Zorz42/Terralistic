@@ -7,12 +7,11 @@
 
 #include "worldSaver.hpp"
 #include "fileSystem.hpp"
-#include "fileManager.hpp"
 #include <fstream>
 
-void worldSaver::saveWorld(const std::string& world_name, map& world_map) {
+void worldSaver::saveWorld(const std::string& world_path, map& world_map) {
     // saves world chunk by chunk and then inventory
-    std::ofstream world_file(fileManager::getWorldsPath() + world_name + ".world");
+    std::ofstream world_file(world_path + ".world");
     //for(auto & i : playerHandler::player_inventory.inventory)
         //world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
     
@@ -22,10 +21,10 @@ void worldSaver::saveWorld(const std::string& world_name, map& world_map) {
     world_file.close();
 }
 
-void worldSaver::loadWorld(const std::string& world_name, map& world_map) {
+void worldSaver::loadWorld(const std::string& world_path, map& world_map) {
     // loads world the same way it got saved but in reverse order
     
-    std::ifstream world_file(fileManager::getWorldsPath() + world_name + ".world");
+    std::ifstream world_file(world_path + ".world");
     char c = 0;
     /*for(auto & i : playerHandler::player_inventory.inventory) {
         world_file >> std::noskipws >> c;
@@ -49,6 +48,6 @@ void worldSaver::loadWorld(const std::string& world_name, map& world_map) {
     world_map.setNaturalLight();
 }
 
-bool worldSaver::worldExists(const std::string& world_name) {
-    return fileSystem::fileExists(fileManager::getWorldsPath() + world_name + ".world");
+bool worldSaver::worldExists(const std::string& world_path) {
+    return fileSystem::fileExists(world_path + ".world");
 }

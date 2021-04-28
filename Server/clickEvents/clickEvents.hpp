@@ -9,15 +9,18 @@
 #define clickEvents_hpp
 
 #include "playerHandler.hpp"
+#include "map.hpp"
 
 namespace clickEvents {
 
-struct clickEvents {
-    void (*rightClickEvent)(blockEngine::block*, playerHandler::player*) = nullptr;
-    void (*leftClickEvent)(blockEngine::block*, playerHandler::player*) = nullptr;
+struct clickEvent {
+    void (*rightClickEvent)(map::block*, playerHandler::player*) = nullptr;
+    void (*leftClickEvent)(map::block*, playerHandler::player*) = nullptr;
 };
 
-inline std::vector<clickEvents> click_events;
+inline std::vector<clickEvent> click_events;
+
+void init();
 
 }
 

@@ -5,14 +5,16 @@
 //  Created by Jakob Zorz on 11/01/2021.
 //
 
-#include "core.hpp"
+#include <thread>
+#include <iostream>
 
 #include "print.hpp"
 #include "worldSaver.hpp"
-#include "blockEngine.hpp"
 #include "main.hpp"
 #include "networkingModule.hpp"
 #include "playerHandler.hpp"
+#include "fileSystem.hpp"
+#include "terrainGenerator.hpp"
 
 volatile sig_atomic_t stop;
 
@@ -27,18 +29,23 @@ int main() {
     print::info("Starting server");
     
     print::info("Initializing modules");
-    init::initModules();
+    // LATER
     
-    blockEngine::prepare();
-    if(fileSystem::dirExists("world")) {
+    map::initItems();
+    map::initBlocks();
+    
+    map world_map;
+    world_map.createWorld(275, 75);
+    
+    if(worldSaver::worldExists("world")) {
         print::info("Loading world...");
-        worldSaver::loadWorld();
+        worldSaver::loadWorld("world", world_map);
     }
     else {
         print::info("Generating world...");
-        worldSaver::createWorld();
+        terrainGenerator::generateTerrainDaemon(0, &world_map);
+        worldSaver::saveWorld("world", world_map);
     }
-    blockEngine::prepareWorld();
     
     print::info("Post initializing modules...");
     
@@ -54,9 +61,9 @@ int main() {
             std::this_thread::sleep_for(std::chrono::milliseconds(50 - main_::frame_length));
         b = a;
         
-        itemEngine::updateItems(main_::frame_length);
-        playerHandler::lookForItems();
-        networking::updatePlayersBreaking();
+        world_map.updateItems(main_::frame_length);
+        playerHandler::lookForItems(world_map);
+        networking::updatePlayersBreaking(world_map);
     }
     
     std::cout << std::endl;
@@ -64,7 +71,7 @@ int main() {
     print::info("Stopping server");
     
     print::info("Saving world...");
-    worldSaver::saveWorld();
+    worldSaver::saveWorld("world", world_map);
 
     return 0;
 }

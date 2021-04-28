@@ -12,9 +12,9 @@
 
 namespace worldSaver {
 
-void saveWorld(const std::string& world_name, map& world_map);
-void loadWorld(const std::string& world_name, map& world_map);
-bool worldExists(const std::string& world_name);
+void saveWorld(const std::string& world_path, map& world_map);
+void loadWorld(const std::string& world_path, map& world_map);
+bool worldExists(const std::string& world_path);
 
 }
 

@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#include "core.hpp"
-
 #ifdef WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -15,6 +13,7 @@
 #include <unistd.h>
 #endif
 
+#include <thread>
 #include "print.hpp"
 #include "playerHandler.hpp"
 

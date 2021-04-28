@@ -5,8 +5,6 @@
 //  Created by Jakob Zorz on 30/01/2021.
 //
 
-#include "core.hpp"
-
 #ifdef WIN32
 #include <winsock2.h>
 #else
@@ -15,8 +13,8 @@
 #endif
 
 #include "playerHandler.hpp"
-#include "blockEngine.hpp"
 #include "print.hpp"
+#include "map.hpp"
 
 playerHandler::player* playerHandler::getPlayerByConnection(networking::connection* conn) {
     for(playerHandler::player& player : playerHandler::players)
@@ -25,7 +23,7 @@ playerHandler::player* playerHandler::getPlayerByConnection(networking::connecti
     return nullptr;
 }
 
-PACKET_LISTENER(packets::PLAYER_MOVEMENT)
+/*PACKET_LISTENER(packets::PLAYER_MOVEMENT)
     playerHandler::player* player = playerHandler::getPlayerByConnection(&connection);
     player->flipped = packet.getChar();
     player->y = packet.getInt();
@@ -99,19 +97,19 @@ PACKET_LISTENER_END
 
 PACKET_LISTENER(packets::HOTBAR_SELECTION)
     playerHandler::getPlayerByConnection(&connection)->inventory.selected_slot = packet.getChar();
-PACKET_LISTENER_END
+PACKET_LISTENER_END*/ // LATER
 
-void playerHandler::lookForItems() {
-    for(unsigned long i = 0; i < itemEngine::items.size(); i++) {
+void playerHandler::lookForItems(map& world_map) {
+    for(unsigned long i = 0; i < world_map.items.size(); i++) {
         for(playerHandler::player& player : playerHandler::players)
-            if(abs(itemEngine::items[i].x / 100 + BLOCK_WIDTH / 2  - player.x - 14) < 50 && abs(itemEngine::items[i].y / 100 + BLOCK_WIDTH / 2 - player.y - 25) < 50) {
-                char result = player.inventory.addItem(itemEngine::items[i].getItemId(), 1);
+            if(abs(world_map.items[i].x / 100 + BLOCK_WIDTH / 2  - player.x - 14) < 50 && abs(world_map.items[i].y / 100 + BLOCK_WIDTH / 2 - player.y - 25) < 50) {
+                char result = player.inventory.addItem(world_map.items[i].getItemId(), 1);
                 if(result != -1) {
                     packets::packet item_receive_packet(packets::INVENTORY_CHANGE);
                     item_receive_packet << (unsigned char)player.inventory.inventory[result].item_id << (unsigned short)player.inventory.inventory[result].getStack() << result;
                     player.conn->sendPacket(item_receive_packet);
-                    itemEngine::items[i].destroy();
-                    itemEngine::items.erase(itemEngine::items.begin() + i);
+                    world_map.items[i].destroy();
+                    world_map.items.erase(world_map.items.begin() + i);
                 }
             }
     }

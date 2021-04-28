@@ -13,6 +13,10 @@
 #define PACKET_LISTENER(packetType) static networking::registerPacketListener JOIN(listener_func, __LINE__) (packetType, [](packets::packet& packet, networking::connection& connection) {
 #define PACKET_LISTENER_END });
 
+#include <string>
+#include "packets.hpp"
+#include "map.hpp"
+
 namespace networking {
 
 struct connection {
@@ -36,7 +40,7 @@ void sendToEveryone(const packets::packet& packet, connection* exclusion=nullptr
 
 inline networking::connection connections[MAX_PLAYERS];
 
-void updatePlayersBreaking();
+void updatePlayersBreaking(map& world_map);
 
 }
 

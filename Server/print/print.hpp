@@ -8,6 +8,8 @@
 #ifndef print_hpp
 #define print_hpp
 
+#include <string>
+
 namespace print {
 
 void info(std::string text);

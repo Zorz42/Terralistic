@@ -5,11 +5,10 @@
 //  Created by Jakob Zorz on 11/01/2021.
 //
 
-#include "core.hpp"
-
 #include "print.hpp"
 #include <iomanip>
 #include <ctime>
+#include <iostream>
 
 void print_(std::string text) {
     auto t = std::time(nullptr);

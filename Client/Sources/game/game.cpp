@@ -11,6 +11,7 @@
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
 #include "textScreen.hpp"
+#include "fileManager.hpp"
 
 #undef main
 
@@ -37,9 +38,9 @@ void game::init() {
             return;
         }
         main_player.player_inventory.clear();
-    } else if(worldSaver::worldExists(world_name)) {
+    } else if(worldSaver::worldExists(fileManager::getWorldsPath() + world_name)) {
         renderTextScreen("Loading world");
-        worldSaver::loadWorld(world_name, *world_map);
+        worldSaver::loadWorld(fileManager::getWorldsPath() + world_name, *world_map);
     }
     else {
         main_player.player_inventory.clear();
@@ -69,7 +70,7 @@ void game::stop() {
         networking_manager.sendPacket({packets::DISCONNECT});
     else {
         renderTextScreen("Saving world");
-        worldSaver::saveWorld(world_name, *world_map);
+        worldSaver::saveWorld(fileManager::getWorldsPath() + world_name, *world_map);
     }
     
     networking_manager.stopListening();
