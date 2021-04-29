@@ -41,6 +41,7 @@ void game::init() {
     } else if(worldSaver::worldExists(fileManager::getWorldsPath() + world_name)) {
         renderTextScreen("Loading world");
         worldSaver::loadWorld(fileManager::getWorldsPath() + world_name, *world_map);
+        world_map->setNaturalLight();
     }
     else {
         main_player.player_inventory.clear();

@@ -31,9 +31,9 @@ void map::block::setType(map::blockType id, bool process) {
     if(!process)
         block_data->block_id = id;
     else if(id != block_data->block_id) {
-        parent_map->removeNaturalLight(x);
+        //parent_map->removeNaturalLight(x);
         block_data->block_id = id;
-        parent_map->setNaturalLight(x);
+        //parent_map->setNaturalLight(x);
         update();
         
         // update upper, lower, right and left block (neighbours)
@@ -50,7 +50,7 @@ void map::block::setType(map::blockType id, bool process) {
             if(neighbor.first != -1)
                 parent_map->getBlock(neighbor.first, neighbor.second).update();
         
-        lightUpdate();
+        //lightUpdate();
         
         parent_map->onBlockChange(*this);
     }

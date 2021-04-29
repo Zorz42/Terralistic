@@ -71,10 +71,10 @@ void renderMap::renderBlocks() {
     begin_y <<= 4;
     end_x <<= 4;
     end_y <<= 4;
-    for(unsigned short x = begin_x > MAX_LIGHT ? begin_x - MAX_LIGHT : 0; x < end_x + MAX_LIGHT && x < getWorldWidth(); x++)
+    /*for(unsigned short x = begin_x > MAX_LIGHT ? begin_x - MAX_LIGHT : 0; x < end_x + MAX_LIGHT && x < getWorldWidth(); x++)
         for(unsigned short y = begin_y > MAX_LIGHT ? begin_y - MAX_LIGHT : 0; y < end_y + MAX_LIGHT && y < getWorldHeight(); y++)
-            if(getBlock(x, y).hasScheduledLightUpdate() && getChunkState(x >> 4, y >> 4) == map::chunkState::loaded)
-                getBlock(x, y).lightUpdate();
+            if(getBlock(x, y).hasScheduledLightUpdate())
+                getBlock(x, y).lightUpdate();*/
 }
 
 void renderMap::stop() {

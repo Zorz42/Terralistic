@@ -53,6 +53,13 @@ int main() {
     
     print::info("Post initializing modules...");
     
+    world_map.setNaturalLight();
+    
+    for(unsigned short x = 0; x < world_map.getWorldWidth(); x++)
+        for(unsigned short y = 0; y < world_map.getWorldHeight(); y++)
+            if(world_map.getBlock(x, y).hasScheduledLightUpdate())
+                world_map.getBlock(x, y).lightUpdate();
+    
     signal(SIGINT, inthand);
     networking::spawnListener();
     

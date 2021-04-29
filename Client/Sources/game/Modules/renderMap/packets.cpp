@@ -34,23 +34,28 @@ void renderMap::onPacket(packets::packet packet) {
         case packets::BLOCK_CHANGE: {
             auto type = (map::blockType)packet.getUChar();
             unsigned short y = packet.getUShort(), x = packet.getUShort();
-            removeNaturalLight(x);
+            //removeNaturalLight(x);
             getBlock(x, y).setType(type);
-            setNaturalLight(x);
-            getBlock(x, y).lightUpdate();
+            //setNaturalLight(x);
+            //getBlock(x, y).lightUpdate();
             break;
         }
         case packets::CHUNK: {
             unsigned short x = packet.getUShort(), y = packet.getUShort();
-            for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
-                removeNaturalLight(x_);
+            
             for(unsigned short y_ = 0; y_ < 16; y_++)
                 for(unsigned short x_ = 0; x_ < 16; x_++) {
+                    unsigned char light_level = packet.getUChar();
                     map::blockType type = (map::blockType)packet.getChar();
-                    getBlock((x << 4) + x_, (y << 4) + y_).setType(type);
+                    getBlock((x << 4) + x_, (y << 4) + y_).setType(type, false);
+                    getBlock((x << 4) + x_, (y << 4) + y_)._setLightLevel(light_level);
                 }
-            for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
-                setNaturalLight(x_);
+            
+            for(unsigned short y_ = 0; y_ < 18; y_++)
+                for(unsigned short x_ = 0; x_ < 18; x_++)
+                    if((x << 4) + x_ - 1 >= 0 && (x << 4) + x_ - 1 < getWorldWidth() && (y << 4) + y_ - 1 >= 0 && (y << 4) + y_ - 1 < getWorldHeight())
+                        scheduleTextureUpdateForBlock((x << 4) + x_ - 1, (y << 4) + y_ - 1);
+            
             getChunkState(x, y) = map::chunkState::loaded;
             break;
         }

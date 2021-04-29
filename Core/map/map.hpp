@@ -89,6 +89,8 @@ public:
         inline bool hasScheduledLightUpdate() { return block_data->to_update_light; }
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
+        
+        inline void _setLightLevel(unsigned char level) { block_data->light_level = level; }
     };
     
     struct item {
