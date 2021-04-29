@@ -13,7 +13,6 @@
 
 void players::init() {
     other_players.clear();
-    listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT};
 }
 
 void players::render() {

@@ -60,7 +60,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
     under_text_rect{0, 0, 0, 0, {0, 0, 0}};
     gfx::image stack_textures[20], mouse_stack_texture;
 public:
-    playerHandler(networkingManager* manager, mainPlayer* player, renderMap* map, bool multiplayer) : packetListener(manager), player(player), map(map), manager(manager), multiplayer(multiplayer) {}
+    playerHandler(networkingManager* manager, mainPlayer* player, renderMap* map, bool multiplayer) : packetListener(manager), player(player), map(map), manager(manager), multiplayer(multiplayer) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
     void onKeyUp(gfx::key key) override;
     void onKeyDown(gfx::key key) override;
     void init() override;

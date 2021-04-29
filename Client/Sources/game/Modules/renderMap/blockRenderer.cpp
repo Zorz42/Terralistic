@@ -31,8 +31,6 @@ void renderMap::init() {
     for(unsigned short x = 0; x < (getWorldWidth() >> 4); x++)
         for(unsigned short y = 0; y < (getWorldHeight() >> 4); y++)
             getRenderChunk(x, y).createTexture();
-    
-    listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT};
 }
 
 void renderMap::renderBlocks() {

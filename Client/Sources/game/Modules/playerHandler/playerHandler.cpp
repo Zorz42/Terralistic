@@ -23,8 +23,7 @@ void playerHandler::init() {
     map->view_x = player->position_x;
     map->view_y = player->position_y;
     
-    listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE};
-    
+    manager->sendPacket(packets::PLAYER_JOIN);
     initInventory();
 }
 

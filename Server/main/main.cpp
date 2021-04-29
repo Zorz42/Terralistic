@@ -15,6 +15,7 @@
 #include "playerHandler.hpp"
 #include "fileSystem.hpp"
 #include "terrainGenerator.hpp"
+#include "clickEvents.hpp"
 
 volatile sig_atomic_t stop;
 
@@ -29,10 +30,11 @@ int main() {
     print::info("Starting server");
     
     print::info("Initializing modules");
-    // LATER
     
     map::initItems();
     map::initBlocks();
+    
+    clickEvents::init();
     
     map world_map;
     world_map.createWorld(275, 75);

@@ -28,7 +28,7 @@ class players : public gfx::sceneModule, packetListener {
     player* getPlayerById(unsigned short id);
     renderMap* map;
 public:
-    players(networkingManager* manager, renderMap* map) : packetListener(manager), map(map) {}
+    players(networkingManager* manager, renderMap* map) : packetListener(manager), map(map) { listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT}; }
     void init();
     void render();
     void onPacket(packets::packet packet);

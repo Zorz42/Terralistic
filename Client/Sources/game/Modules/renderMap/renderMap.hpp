@@ -75,7 +75,7 @@ class renderMap : public map, public gfx::sceneModule, packetListener {
     void onBreakStageChange(block& block) override;
     
 public:
-    renderMap(networkingManager* manager) : packetListener(manager), networking_manager(manager) {}
+    renderMap(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT}; }
     static void loadBlocks();
     static void loadItems();
     int view_x, view_y;

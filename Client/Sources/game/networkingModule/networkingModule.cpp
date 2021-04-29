@@ -61,8 +61,6 @@ bool networkingManager::startListening(const std::string &ip) {
     if(connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
         return false;
     #endif
-
-    sendPacket(packets::PLAYER_JOIN);
     
     std::thread listener = std::thread(listenerLoop, this);
     listener.detach();

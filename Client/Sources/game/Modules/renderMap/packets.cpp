@@ -42,7 +42,6 @@ void renderMap::onPacket(packets::packet packet) {
         }
         case packets::CHUNK: {
             unsigned short x = packet.getUShort(), y = packet.getUShort();
-            map::chunkState chunk_state = getChunkState(x, y);
             for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
                 removeNaturalLight(x_);
             for(unsigned short y_ = 0; y_ < 16; y_++)
@@ -52,7 +51,7 @@ void renderMap::onPacket(packets::packet packet) {
                 }
             for(unsigned short x_ = x << 4; x_ < (x << 4) + 16; x_++)
                 setNaturalLight(x_);
-            chunk_state = map::chunkState::loaded;
+            getChunkState(x, y) = map::chunkState::loaded;
             break;
         }
         case packets::BLOCK_PROGRESS_CHANGE: {
