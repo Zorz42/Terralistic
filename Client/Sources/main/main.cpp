@@ -7,7 +7,6 @@
 
 #include "startMenu.hpp"
 #include "fileManager.hpp"
-#include "renderMap.hpp"
 #include "playerHandler.hpp"
 
 int main(int argc, char **argv) {
@@ -21,8 +20,6 @@ int main(int argc, char **argv) {
     fileManager::init();
     map::initBlocks();
     map::initItems();
-    renderMap::loadBlocks();
-    renderMap::loadItems();
     playerHandler::initEvents();
     
     gfx::switchScene(new startMenu());

@@ -17,19 +17,17 @@
 
 #include "playerHandler.hpp"
 #include "networkingModule.hpp"
-#include "renderMap.hpp"
 
 
 class game : public gfx::scene {
 public:
-    const std::string world_name;
+    const std::string ip_address;
     gfx::sprite fps_text;
     networkingManager networking_manager;
-    bool multiplayer;
-    renderMap *world_map;
+    map *world_map;
     mainPlayer main_player;
     
-    game(std::string world_name, bool multiplayer) : world_name(std::move(world_name)), multiplayer(multiplayer) {}
+    game(std::string ip_address) : ip_address(std::move(ip_address)) {}
     void init() override;
     void stop() override;
     void render() override;

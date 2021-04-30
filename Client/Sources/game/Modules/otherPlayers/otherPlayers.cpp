@@ -18,7 +18,7 @@ void players::init() {
 void players::render() {
     // iterate through every player and render them
     for(player& i : other_players)
-        playerRenderer::render(i.x, i.y, map->view_x, map->view_y, i.flipped);
+        playerRenderer::render(i.x, i.y, world_map->view_x, world_map->view_y, i.flipped);
 }
 
 players::player* players::getPlayerById(unsigned short id) {

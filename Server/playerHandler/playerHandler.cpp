@@ -108,7 +108,7 @@ void playerHandler::lookForItems(map& world_map) {
                     packets::packet item_receive_packet(packets::INVENTORY_CHANGE);
                     item_receive_packet << (unsigned char)player.inventory.inventory[result].item_id << (unsigned short)player.inventory.inventory[result].getStack() << result;
                     player.conn->sendPacket(item_receive_packet);
-                    world_map.items[i].destroy();
+                    world_map.items[i].destroy(world_map);
                     world_map.items.erase(world_map.items.begin() + i);
                 }
             }

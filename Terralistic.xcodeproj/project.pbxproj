@@ -31,7 +31,6 @@
 		1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
 		1662BC202635AAE60062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
 		1681101A263BE9260086D659 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100C263BE9260086D659 /* block.cpp */; };
-		1681101B263BE9260086D659 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100D263BE9260086D659 /* light.cpp */; };
 		1681101C263BE9260086D659 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100E263BE9260086D659 /* item.cpp */; };
 		1681101D263BE9260086D659 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100F263BE9260086D659 /* map.cpp */; };
 		16811020263BE9260086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
@@ -39,7 +38,6 @@
 		16811022263BE9A60086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
 		16811023263BE9A60086D659 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811019263BE9260086D659 /* inventory.cpp */; };
 		16811024263BE9A60086D659 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100C263BE9260086D659 /* block.cpp */; };
-		16811025263BE9A60086D659 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100D263BE9260086D659 /* light.cpp */; };
 		16811026263BE9A60086D659 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100E263BE9260086D659 /* item.cpp */; };
 		16811027263BE9A60086D659 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100F263BE9260086D659 /* map.cpp */; };
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
@@ -90,16 +88,10 @@
 		16984266263819EC00972269 /* fileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16932056263811C100B73C9F /* fileManager.cpp */; };
 		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
-		36F45E812620A01900C751E4 /* itemRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E802620A01900C751E4 /* itemRenderer.cpp */; };
-		36F45E822620A1C100C751E4 /* itemRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E802620A01900C751E4 /* itemRenderer.cpp */; };
 		36F45E842620A84F00C751E4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E832620A84F00C751E4 /* packets.cpp */; };
-		36F45E862620A87B00C751E4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E852620A87B00C751E4 /* block.cpp */; };
 		36F45E882620A88400C751E4 /* chunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E872620A88400C751E4 /* chunk.cpp */; };
-		36F45E8A2620A89000C751E4 /* blockRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E892620A89000C751E4 /* blockRenderer.cpp */; };
 		36F45E8B2620A8EF00C751E4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E832620A84F00C751E4 /* packets.cpp */; };
-		36F45E8C2620A8F000C751E4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E852620A87B00C751E4 /* block.cpp */; };
 		36F45E8D2620A8F100C751E4 /* chunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E872620A88400C751E4 /* chunk.cpp */; };
-		36F45E8E2620A8F200C751E4 /* blockRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E892620A89000C751E4 /* blockRenderer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -188,7 +180,6 @@
 		1662BC1E2635A9E70062DBB3 /* playerRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = playerRenderer.hpp; sourceTree = "<group>"; };
 		1681100B263BE9260086D659 /* map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = map.hpp; sourceTree = "<group>"; };
 		1681100C263BE9260086D659 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
-		1681100D263BE9260086D659 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
 		1681100E263BE9260086D659 /* item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = item.cpp; sourceTree = "<group>"; };
 		1681100F263BE9260086D659 /* map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map.cpp; sourceTree = "<group>"; };
 		16811017263BE9260086D659 /* inventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = inventory.hpp; sourceTree = "<group>"; };
@@ -242,13 +233,9 @@
 		169124E325F6BC2400F7EB4F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		16932056263811C100B73C9F /* fileManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileManager.cpp; sourceTree = "<group>"; };
 		16932057263811C100B73C9F /* fileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fileManager.hpp; sourceTree = "<group>"; };
-		169B3A0D261EF16E00F538F3 /* renderMap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = renderMap.hpp; sourceTree = "<group>"; };
 		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
-		36F45E802620A01900C751E4 /* itemRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = itemRenderer.cpp; sourceTree = "<group>"; };
 		36F45E832620A84F00C751E4 /* packets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
-		36F45E852620A87B00C751E4 /* block.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		36F45E872620A88400C751E4 /* chunk.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chunk.cpp; sourceTree = "<group>"; };
-		36F45E892620A89000C751E4 /* blockRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blockRenderer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -354,10 +341,11 @@
 			isa = PBXGroup;
 			children = (
 				1681100B263BE9260086D659 /* map.hpp */,
-				1681100C263BE9260086D659 /* block.cpp */,
-				1681100D263BE9260086D659 /* light.cpp */,
-				1681100E263BE9260086D659 /* item.cpp */,
 				1681100F263BE9260086D659 /* map.cpp */,
+				1681100C263BE9260086D659 /* block.cpp */,
+				1681100E263BE9260086D659 /* item.cpp */,
+				36F45E832620A84F00C751E4 /* packets.cpp */,
+				36F45E872620A88400C751E4 /* chunk.cpp */,
 			);
 			path = map;
 			sourceTree = "<group>";
@@ -386,7 +374,6 @@
 			isa = PBXGroup;
 			children = (
 				16811016263BE9260086D659 /* inventory */,
-				1681100A263BE9260086D659 /* map */,
 				165FF85A263997B2003941F8 /* textScreen */,
 				16932055263811A700B73C9F /* fileManager */,
 				1689689325E9607800D26060 /* game */,
@@ -581,19 +568,6 @@
 			path = fileManager;
 			sourceTree = "<group>";
 		};
-		169B3A0B261EF16100F538F3 /* renderMap */ = {
-			isa = PBXGroup;
-			children = (
-				169B3A0D261EF16E00F538F3 /* renderMap.hpp */,
-				36F45E802620A01900C751E4 /* itemRenderer.cpp */,
-				36F45E832620A84F00C751E4 /* packets.cpp */,
-				36F45E852620A87B00C751E4 /* block.cpp */,
-				36F45E872620A88400C751E4 /* chunk.cpp */,
-				36F45E892620A89000C751E4 /* blockRenderer.cpp */,
-			);
-			path = renderMap;
-			sourceTree = "<group>";
-		};
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -607,7 +581,7 @@
 		3619ACFA26186CBA00BA4EAF /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				169B3A0B261EF16100F538F3 /* renderMap */,
+				1681100A263BE9260086D659 /* map */,
 				168968AA25E9607800D26060 /* playerHandler */,
 				168968A725E9607800D26060 /* pauseScreen */,
 				1689689725E9607800D26060 /* otherPlayers */,
@@ -802,16 +776,12 @@
 				16811022263BE9A60086D659 /* inventoryItem.cpp in Sources */,
 				16811023263BE9A60086D659 /* inventory.cpp in Sources */,
 				16811024263BE9A60086D659 /* block.cpp in Sources */,
-				16811025263BE9A60086D659 /* light.cpp in Sources */,
 				16811026263BE9A60086D659 /* item.cpp in Sources */,
 				16811027263BE9A60086D659 /* map.cpp in Sources */,
 				165FF86226399997003941F8 /* textScreen.cpp in Sources */,
 				3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */,
 				36F45E8B2620A8EF00C751E4 /* packets.cpp in Sources */,
-				36F45E8C2620A8F000C751E4 /* block.cpp in Sources */,
 				36F45E8D2620A8F100C751E4 /* chunk.cpp in Sources */,
-				36F45E8E2620A8F200C751E4 /* blockRenderer.cpp in Sources */,
-				36F45E822620A1C100C751E4 /* itemRenderer.cpp in Sources */,
 				16984266263819EC00972269 /* fileManager.cpp in Sources */,
 				1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */,
 				1661661525EA3689002A3815 /* generatingScreen.cpp in Sources */,
@@ -840,18 +810,14 @@
 				169124E925F6BCD400F7EB4F /* fileSystem.cpp in Sources */,
 				16932058263811C100B73C9F /* fileManager.cpp in Sources */,
 				169124EA25F6BCD400F7EB4F /* packets.cpp in Sources */,
-				36F45E8A2620A89000C751E4 /* blockRenderer.cpp in Sources */,
-				36F45E862620A87B00C751E4 /* block.cpp in Sources */,
 				1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */,
 				1691250125F6BCD400F7EB4F /* generatingScreen.cpp in Sources */,
 				1691250225F6BCD500F7EB4F /* networkingModule.cpp in Sources */,
 				1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */,
-				1681101B263BE9260086D659 /* light.cpp in Sources */,
 				16811021263BE9260086D659 /* inventory.cpp in Sources */,
 				1691250725F6BCD500F7EB4F /* playerHandler.cpp in Sources */,
 				1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */,
 				1691250A25F6BCD500F7EB4F /* game.cpp in Sources */,
-				36F45E812620A01900C751E4 /* itemRenderer.cpp in Sources */,
 				1681101C263BE9260086D659 /* item.cpp in Sources */,
 				1691250B25F6BCD500F7EB4F /* startMenu.cpp in Sources */,
 				36F45E882620A88400C751E4 /* chunk.cpp in Sources */,

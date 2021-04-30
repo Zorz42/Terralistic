@@ -37,7 +37,7 @@ void playerHandler::renderInventory() {
             hovered = &player->player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
             if(player->player_inventory.inventory[i].item_id != map::itemType::NOTHING) {
-                text_texture = &renderMap::getUniqueRenderItem(player->player_inventory.inventory[i].item_id).text_texture;
+                text_texture = &player->player_inventory.inventory[i].getUniqueItem().text_texture;
                 text_texture->x = gfx::getMouseX() + 20;
                 text_texture->y = gfx::getMouseY() + 20;
                 under_text_rect.h = text_texture->getHeight() + 2 * MARGIN;
@@ -72,8 +72,8 @@ void playerHandler::onPacketInventory(packets::packet packet) {
 }
 
 void playerHandler::renderItem(inventoryItem* item, int x, int y, int i) {
-    if(renderMap::getUniqueRenderItem(item->item_id).texture.getTexture())
-        gfx::render(renderMap::getUniqueRenderItem(item->item_id).texture, gfx::rectShape((short)x, (short)y, 30, 30));
+    if(item->getUniqueItem().texture.getTexture())
+        gfx::render(item->getUniqueItem().texture, gfx::rectShape((short)x, (short)y, 30, 30));
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
@@ -82,11 +82,9 @@ void playerHandler::renderItem(inventoryItem* item, int x, int y, int i) {
 
 void playerHandler::selectSlot(char slot) {
     player->player_inventory.selected_slot = slot;
-    if(multiplayer) {
-        packets::packet packet(packets::HOTBAR_SELECTION);
-        packet << slot;
-        manager->sendPacket(packet);
-    }
+    packets::packet packet(packets::HOTBAR_SELECTION);
+    packet << slot;
+    manager->sendPacket(packet);
 }
 
 void playerHandler::updateStackTexture(int i) {

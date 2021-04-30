@@ -15,7 +15,7 @@
 #endif
 
 #include "networkingModule.hpp"
-#include "renderMap.hpp"
+#include "map.hpp"
 
 class players : public gfx::sceneModule, packetListener {
     struct player {
@@ -26,9 +26,9 @@ class players : public gfx::sceneModule, packetListener {
 
     std::vector<player> other_players;
     player* getPlayerById(unsigned short id);
-    renderMap* map;
+    map* world_map;
 public:
-    players(networkingManager* manager, renderMap* map) : packetListener(manager), map(map) { listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT}; }
+    players(networkingManager* manager, map* world_map) : packetListener(manager), world_map(world_map) { listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT}; }
     void init();
     void render();
     void onPacket(packets::packet packet);

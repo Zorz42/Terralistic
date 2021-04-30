@@ -55,5 +55,25 @@ void map::onLightChange(block& block) {
 }
 
 void map::onBreakStageChange(block& block) {
-    
+    packets::packet packet(packets::BLOCK_PROGRESS_CHANGE);
+    packet << block.getY() << block.getX() << block.getBreakStage();
+    networking::sendToEveryone(packet);
+}
+
+void map::onItemCreation(item& item) {
+    packets::packet packet(packets::ITEM_CREATION);
+    packet << item.x << item.y << item.getId() << (char)item.getItemId();
+    networking::sendToEveryone(packet);
+}
+
+void map::onItemDeletion(item& item) {
+    packets::packet packet(packets::ITEM_DELETION);
+    packet << item.getId();
+    networking::sendToEveryone(packet);
+}
+
+void map::onItemMovement(item& item) {
+    packets::packet packet(packets::ITEM_MOVEMENT);
+    packet << item.x << item.y << item.getId();
+    networking::sendToEveryone(packet);
 }

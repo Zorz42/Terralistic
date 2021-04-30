@@ -16,12 +16,8 @@ bool isPlayerColliding();
 void playerHandler::init() {
     playerRenderer::init();
     
-    if(!multiplayer) {
-        player->position_x = map->getSpawnX();
-        player->position_y = map->getSpawnY() - playerRenderer::getPlayerHeight() / 2;
-    }
-    map->view_x = player->position_x;
-    map->view_y = player->position_y;
+    world_map->view_x = player->position_x;
+    world_map->view_y = player->position_y;
     
     manager->sendPacket(packets::PLAYER_JOIN);
     initInventory();
@@ -65,11 +61,9 @@ void playerHandler::onKeyDown(gfx::key key) {
         case gfx::KEY_MOUSE_LEFT: {
             if(hovered) {
                 player->player_inventory.swapWithMouseItem(hovered);
-                if(multiplayer) {
-                    packets::packet packet(packets::INVENTORY_SWAP);
-                    packet << (unsigned char)(hovered - &player->player_inventory.inventory[0]);
-                    manager->sendPacket(packet);
-                }
+                packets::packet packet(packets::INVENTORY_SWAP);
+                packet << (unsigned char)(hovered - &player->player_inventory.inventory[0]);
+                manager->sendPacket(packet);
             }
             break;
         }
@@ -105,8 +99,8 @@ void playerHandler::onKeyUp(gfx::key key) {
 
 bool playerHandler::isPlayerColliding() {
     if(player->position_x < playerRenderer::getPlayerWidth() / 2 || player->position_y < playerRenderer::getPlayerHeight() / 2 ||
-       player->position_y >= map->getWorldHeight() * BLOCK_WIDTH - playerRenderer::getPlayerHeight() / 2 ||
-       player->position_x >= map->getWorldWidth() * BLOCK_WIDTH - playerRenderer::getPlayerWidth() / 2)
+       player->position_y >= world_map->getWorldHeight() * BLOCK_WIDTH - playerRenderer::getPlayerHeight() / 2 ||
+       player->position_x >= world_map->getWorldWidth() * BLOCK_WIDTH - playerRenderer::getPlayerWidth() / 2)
         return true;
 
     unsigned short starting_x = (player->position_x - playerRenderer::getPlayerWidth() / 2) / BLOCK_WIDTH;
@@ -116,8 +110,8 @@ bool playerHandler::isPlayerColliding() {
     
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
-            if(map->getChunkState(x >> 4, y >> 4) != map::chunkState::loaded ||
-               !map->getBlock(x, y).isGhost())
+            if(world_map->getChunk(x >> 4, y >> 4).getState() != map::chunkState::loaded ||
+               !world_map->getBlock(x, y).isGhost())
                 return true;
     
     return false;
@@ -171,34 +165,26 @@ void playerHandler::update() {
         jump = false;
     }
     
-    map->view_x = player->position_x;
-    map->view_y = player->position_y;
-    if(map->view_x < gfx::getWindowWidth() / 2)
-        map->view_x = gfx::getWindowWidth() / 2;
-    if(map->view_y < gfx::getWindowHeight() / 2)
-        map->view_y = gfx::getWindowHeight() / 2;
-    if(map->view_x >= map->getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2)
-        map->view_x = map->getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2;
-    if(map->view_y >= map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
-        map->view_y = map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
+    world_map->view_x = player->position_x;
+    world_map->view_y = player->position_y;
+    if(world_map->view_x < gfx::getWindowWidth() / 2)
+        world_map->view_x = gfx::getWindowWidth() / 2;
+    if(world_map->view_y < gfx::getWindowHeight() / 2)
+        world_map->view_y = gfx::getWindowHeight() / 2;
+    if(world_map->view_x >= world_map->getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2)
+        world_map->view_x = world_map->getWorldWidth() * BLOCK_WIDTH - gfx::getWindowWidth() / 2;
+    if(world_map->view_y >= world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
+        world_map->view_y = world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
     
-    if(multiplayer && (move_x || move_y)) {
+    if(move_x || move_y) {
         packets::packet packet(packets::PLAYER_MOVEMENT);
         packet << player->position_x << player->position_y << (char)player->flipped;
         manager->sendPacket(packet);
     }
-    
-    // look for items to be picked up
-    if(!multiplayer)
-        for(unsigned long i = 0; i < map->items.size(); i++)
-            if(abs(map->items[i].x / 100 + BLOCK_WIDTH / 2  - player->position_x - playerRenderer::getPlayerWidth() / 2) < 50 && abs(map->items[i].y / 100 + BLOCK_WIDTH / 2 - player->position_y - playerRenderer::getPlayerHeight() / 2) < 50 && player->player_inventory.addItem(map->items[i].getItemId(), 1) != -1) {
-                map->items[i].destroy();
-                map->items.erase(map->items.begin() + i);
-            }
 }
 
 void playerHandler::render() {
-    playerRenderer::render(player->position_x, player->position_y, map->view_x, map->view_y, player->flipped);
+    playerRenderer::render(player->position_x, player->position_y, world_map->view_x, world_map->view_y, player->flipped);
     renderBlockSelector();
     renderInventory();
 }
@@ -209,8 +195,8 @@ void playerHandler::onPacket(packets::packet packet) {
             int x = packet.getInt(), y = packet.getInt();
             player->position_x = x;
             player->position_y = y;
-            map->view_x = x;
-            map->view_y = y;
+            world_map->view_x = x;
+            world_map->view_y = y;
             break;
         }
         default:;

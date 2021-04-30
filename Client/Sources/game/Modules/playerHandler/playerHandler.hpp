@@ -14,7 +14,6 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-#include "renderMap.hpp"
 #include "inventory.hpp"
 
 class mainPlayer {
@@ -29,9 +28,8 @@ class playerHandler : public gfx::sceneModule, packetListener {
     bool key_up = false, jump = false, key_left = false, key_right = false;
     
     mainPlayer* player;
-    renderMap* map;
+    map* world_map;
     networkingManager* manager;
-    bool multiplayer;
     
     inventoryItem *hovered = nullptr;
     
@@ -60,7 +58,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
     under_text_rect{0, 0, 0, 0, {0, 0, 0}};
     gfx::image stack_textures[20], mouse_stack_texture;
 public:
-    playerHandler(networkingManager* manager, mainPlayer* player, renderMap* map, bool multiplayer) : packetListener(manager), player(player), map(map), manager(manager), multiplayer(multiplayer) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
+    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
     void onKeyUp(gfx::key key) override;
     void onKeyDown(gfx::key key) override;
     void init() override;

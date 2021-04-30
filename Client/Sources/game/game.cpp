@@ -20,24 +20,22 @@ void game::init() {
     fps_text.y = 10;
     fps_text.orientation = gfx::top_left;
     
-    world_map = new renderMap(&networking_manager);
+    world_map = new map(&networking_manager);
     world_map->createWorld(275, 75); // dimensions in chunks
     
     modules = {
         world_map,
         new players(&networking_manager, world_map),
         new pauseScreen(),
-        new playerHandler(&networking_manager, &main_player, world_map, multiplayer),
+        new playerHandler(&networking_manager, &main_player, world_map),
     };
     
-    if(multiplayer) {
-        renderTextScreen("Connecting to server");
-        if(!networking_manager.startListening(world_name)) {
-            gfx::returnFromScene();
-            return;
-        }
-        main_player.player_inventory.clear();
+    renderTextScreen("Connecting to server");
+    if(!networking_manager.startListening(ip_address)) {
+        gfx::returnFromScene();
+        return;
     }
+    main_player.player_inventory.clear();
 }
 
 void game::update() {
@@ -48,9 +46,6 @@ void game::update() {
         fps_text.setTexture(gfx::renderText(std::to_string(fps_count) + " fps", {0, 0, 0}));
         fps_count = 0;
     }
-    
-    if(!multiplayer)
-        world_map->updateItems(gfx::getDeltaTime());
 }
 
 void game::render() {
@@ -58,8 +53,6 @@ void game::render() {
 }
 
 void game::stop() {
-    if(multiplayer)
-        networking_manager.sendPacket({packets::DISCONNECT});
-    
+    networking_manager.sendPacket({packets::DISCONNECT});
     networking_manager.stopListening();
 }

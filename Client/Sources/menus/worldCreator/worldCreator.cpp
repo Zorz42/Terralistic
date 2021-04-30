@@ -59,7 +59,7 @@ void worldCreator::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
     else if(((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || key == gfx::KEY_ENTER) && can_create)
-        gfx::switchScene(new game(world_name.getText(), false));
+        gfx::switchScene(new game(world_name.getText()));
 }
 
 void worldCreator::render() {

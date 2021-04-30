@@ -13,12 +13,6 @@
 #include "packets.hpp"
 #include "networkingModule.hpp"
 
-/*EVENT_LISTENER(blockEngine::block_change)
-        packets::packet packet(packets::BLOCK_CHANGE);
-        packet << data.x << data.y << (unsigned char) data.type;
-        networking::sendToEveryone(packet);
-EVENT_LISTENER_END*/
-
 PACKET_LISTENER(packets::STARTED_BREAKING)
     unsigned short y = packet.getUShort(), x = packet.getUShort();
     playerHandler::player* player = playerHandler::getPlayerByConnection(&connection);
@@ -52,13 +46,7 @@ void leftClickEvent(unsigned short x, unsigned short y, networking::connection& 
     if(clickEvents::click_events[(int)block.getType()].leftClickEvent)
         clickEvents::click_events[(int)block.getType()].leftClickEvent(&block, playerHandler::getPlayerByConnection(&connection));
     else {
-        char prev = block.getBreakStage();
         block.setBreakProgress(block.getBreakProgress() + main_::frame_length);
-        if(block.getBreakStage() != prev) {
-            packets::packet packet(packets::BLOCK_PROGRESS_CHANGE);
-            packet << y << x << block.getBreakProgress();
-            networking::sendToEveryone(packet);
-        }
         if(block.getBreakProgress() >= block.getBreakTime())
             block.breakBlock();
     }

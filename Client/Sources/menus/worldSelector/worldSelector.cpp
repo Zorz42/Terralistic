@@ -107,7 +107,7 @@ void worldSelector::onKeyDown(gfx::key key) {
         else
             for(const world_to_select& i : worlds) {
                 if(i.button.isHovered())
-                    gfx::switchScene(new game(i.name, false));
+                    gfx::switchScene(new game(i.name));
                 else if(i.delete_button.isHovered()) {
                     fileSystem::removeFile(fileManager::getWorldsPath() + i.name + ".world");
                     refresh();

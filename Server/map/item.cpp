@@ -31,7 +31,7 @@ void map::spawnItem(itemType item_id, int x, int y, short id) {
     if(id == -1)
         id = curr_id++;
     items.emplace_back();
-    items.back().create(item_id, x, y, id);
+    items.back().create(item_id, x, y, id, *this);
 }
 
 map::item* map::getItemById(unsigned short id) {
@@ -42,7 +42,7 @@ map::item* map::getItemById(unsigned short id) {
     return nullptr;
 }
 
-void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_) {
+void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_, map& world_map) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
@@ -53,15 +53,11 @@ void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_) {
     id = id_;
     item_id = item_id_;
     
-    /*item_creation_data data{};
-    data.item = this;
-    events::callEvent(item_creation, (void*)&data);*/
+    world_map.onItemCreation(*this);
 }
 
-void map::item::destroy() {
-    /*item_deletion_data data{};
-    data.item = this;
-    events::callEvent(item_deletion, (void*)&data);*/
+void map::item::destroy(map& world_map) {
+    world_map.onItemDeletion(*this);
 }
 
 map::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, map::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
@@ -122,9 +118,7 @@ void map::item::update(float frame_length, map& world_map) {
     }
     
     if(prev_x != x || prev_y != y) {
-        /*item_movement_data data{};
-        data.item = this;
-        events::callEvent(item_movement, (void*)&data);*/
+        world_map.onItemMovement(*this);
     }
 }
 

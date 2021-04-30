@@ -5,9 +5,9 @@
 //  Created by Jakob Zorz on 09/04/2021.
 //
 
-#include "renderMap.hpp"
+#include "map.hpp"
 
-void renderMap::onPacket(packets::packet packet) {
+void map::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::ITEM_CREATION: {
             auto type = (map::itemType)packet.getChar();
@@ -47,21 +47,22 @@ void renderMap::onPacket(packets::packet packet) {
                 for(unsigned short x_ = 0; x_ < 16; x_++) {
                     unsigned char light_level = packet.getUChar();
                     map::blockType type = (map::blockType)packet.getChar();
-                    getBlock((x << 4) + x_, (y << 4) + y_).setType(type, false);
-                    getBlock((x << 4) + x_, (y << 4) + y_)._setLightLevel(light_level);
+                    getBlock((x << 4) + x_, (y << 4) + y_).setType(type);
+                    getBlock((x << 4) + x_, (y << 4) + y_).setLightLevel(light_level);
                 }
             
             for(unsigned short y_ = 0; y_ < 18; y_++)
                 for(unsigned short x_ = 0; x_ < 18; x_++)
                     if((x << 4) + x_ - 1 >= 0 && (x << 4) + x_ - 1 < getWorldWidth() && (y << 4) + y_ - 1 >= 0 && (y << 4) + y_ - 1 < getWorldHeight())
-                        scheduleTextureUpdateForBlock((x << 4) + x_ - 1, (y << 4) + y_ - 1);
+                        getBlock((x << 4) + x_ - 1, (y << 4) + y_ - 1).scheduleTextureUpdate();
             
-            getChunkState(x, y) = map::chunkState::loaded;
+            getChunk(x, y).setState(map::chunkState::loaded);
             break;
         }
         case packets::BLOCK_PROGRESS_CHANGE: {
-            unsigned short progress = packet.getUShort(), x = packet.getUShort(), y = packet.getUShort();
-            getBlock(x, y).setBreakProgress(progress);
+            unsigned char stage = packet.getUChar();
+            unsigned short x = packet.getUShort(), y = packet.getUShort();
+            getBlock(x, y).setBreakStage(stage);
             break;
         }
         default:;
