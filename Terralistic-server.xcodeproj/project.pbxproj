@@ -121,17 +121,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		165FF822263987D9003941F8 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				165FF823263987D9003941F8 /* map */,
-				165FF829263987D9003941F8 /* inventory */,
-				165FF82D263987D9003941F8 /* worldSaver */,
-				165FF830263987D9003941F8 /* terrainGenerator */,
-			);
-			path = Core;
-			sourceTree = "<group>";
-		};
 		165FF823263987D9003941F8 /* map */ = {
 			isa = PBXGroup;
 			children = (
@@ -166,6 +155,7 @@
 		165FF830263987D9003941F8 /* terrainGenerator */ = {
 			isa = PBXGroup;
 			children = (
+				165FF83F263987E3003941F8 /* simplexNoise */,
 				165FF831263987D9003941F8 /* terrainGenerator.hpp */,
 				165FF832263987D9003941F8 /* terrainGenerator.cpp */,
 			);
@@ -176,7 +166,6 @@
 			isa = PBXGroup;
 			children = (
 				165FF83C263987E3003941F8 /* fileSystem */,
-				165FF83F263987E3003941F8 /* simplexNoise */,
 				165FF842263987E3003941F8 /* packets */,
 				165FF845263987E3003941F8 /* dev */,
 			);
@@ -223,7 +212,6 @@
 			isa = PBXGroup;
 			children = (
 				165FF83B263987E3003941F8 /* Libraries */,
-				165FF822263987D9003941F8 /* Core */,
 				1661650525EA249D002A3815 /* Server */,
 				166164CA25EA23D1002A3815 /* Products */,
 			);
@@ -241,6 +229,10 @@
 		1661650525EA249D002A3815 /* Server */ = {
 			isa = PBXGroup;
 			children = (
+				165FF823263987D9003941F8 /* map */,
+				165FF829263987D9003941F8 /* inventory */,
+				165FF82D263987D9003941F8 /* worldSaver */,
+				165FF830263987D9003941F8 /* terrainGenerator */,
 				167AF54125F4DB03001E7C9F /* clickEvents */,
 				1661650925EA249D002A3815 /* networkingModule */,
 				1661650D25EA249D002A3815 /* print */,

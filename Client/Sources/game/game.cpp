@@ -6,7 +6,6 @@
 //
 
 #include "game.hpp"
-#include "worldSaver.hpp"
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
@@ -38,14 +37,6 @@ void game::init() {
             return;
         }
         main_player.player_inventory.clear();
-    } else if(worldSaver::worldExists(fileManager::getWorldsPath() + world_name)) {
-        renderTextScreen("Loading world");
-        worldSaver::loadWorld(fileManager::getWorldsPath() + world_name, *world_map);
-        world_map->setNaturalLight();
-    }
-    else {
-        main_player.player_inventory.clear();
-        gfx::switchScene(new generatingScreen(0, world_map));
     }
 }
 
@@ -69,10 +60,6 @@ void game::render() {
 void game::stop() {
     if(multiplayer)
         networking_manager.sendPacket({packets::DISCONNECT});
-    else {
-        renderTextScreen("Saving world");
-        worldSaver::saveWorld(fileManager::getWorldsPath() + world_name, *world_map);
-    }
     
     networking_manager.stopListening();
 }

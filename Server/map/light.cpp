@@ -41,7 +41,7 @@ void map::block::lightUpdate(bool update) {
     if((update_neighbors || isLightSource()) && update)
         for(auto neighbor : neighbors)
             if(neighbor.first != -1 && !parent_map->getBlock(neighbor.first, neighbor.second).isLightSource())
-                parent_map->getBlock(neighbor.first, neighbor.second).scheduleLightUpdate();
+                parent_map->getBlock(neighbor.first, neighbor.second).lightUpdate();
 }
 
 void map::block::setLightSource(unsigned char power) {
