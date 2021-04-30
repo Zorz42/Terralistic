@@ -65,9 +65,7 @@ protected:
     void renderBlocks();
     void renderItems();
     
-    //void init() override;
     void render() override { renderBlocks(); renderItems(); }
-    //void stop() override;
     void onPacket(packets::packet packet) override;
     
     networkingManager* networking_manager;
@@ -156,7 +154,6 @@ protected:
     void onLightChange(block& block);
     void onBreakStageChange(block& block);
     
-public: // !!! should be protected
     std::vector<item> items;
     
 public:
