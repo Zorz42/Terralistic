@@ -71,7 +71,6 @@ public: // !!! should be protected
         std::string name;
         unsigned short stack_size;
         gfx::image texture;
-        gfx::sprite text_texture;
         
         void draw(short x, short y, unsigned char scale);
     };

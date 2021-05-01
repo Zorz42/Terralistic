@@ -33,9 +33,6 @@ map::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size) 
     texture.setTexture(name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + name + ".png"));
     texture.scale = 2;
     texture.free_texture = false;
-    text_texture.setTexture(gfx::renderText(name, {255, 255, 255}));
-    text_texture.scale = 2;
-    text_texture.free_texture = false;
 }
 
 map::uniqueItem& map::item::getUniqueItem() const {
