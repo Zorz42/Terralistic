@@ -8,20 +8,19 @@
 #include "map.hpp"
 #include "dev.hpp"
 
-std::vector<map::uniqueBlock> map::unique_blocks;
-gfx::image map::breaking_texture;
+map::uniqueBlock* map::unique_blocks;
+gfx::image breaking_texture;
 
 void map::initBlocks() {
-    unique_blocks.reserve(7);
-    unique_blocks = {
-        uniqueBlock("air",         /*ghost*/true , /*connects_to*/{                                         }),
-        uniqueBlock("dirt",        /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK                   }),
-        uniqueBlock("stone_block", /*ghost*/false, /*connects_to*/{                                         }),
-        uniqueBlock("grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT                          }),
-        uniqueBlock("stone",       /*ghost*/true , /*connects_to*/{                                         }),
-        uniqueBlock("wood",        /*ghost*/true , /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES}),
-        uniqueBlock("leaves",      /*ghost*/true , /*connects_to*/{                                         }),
-    };
+    unique_blocks = new uniqueBlock[(int)blockType::TOTAL_BLOCKS];
+    
+    unique_blocks[0] = uniqueBlock("air",         /*ghost*/true , /*connects_to*/{                                         });
+    unique_blocks[1] = uniqueBlock("dirt",        /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK                   });
+    unique_blocks[2] = uniqueBlock("stone_block", /*ghost*/false, /*connects_to*/{                                         });
+    unique_blocks[3] = uniqueBlock("grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT                          });
+    unique_blocks[4] = uniqueBlock("stone",       /*ghost*/true , /*connects_to*/{                                         });
+    unique_blocks[5] = uniqueBlock("wood",        /*ghost*/true , /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES});
+    unique_blocks[6] = uniqueBlock("leaves",      /*ghost*/true , /*connects_to*/{                                         });
     
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
@@ -41,7 +40,7 @@ map::block map::getBlock(unsigned short x, unsigned short y) {
 
 void map::block::setType(map::blockType id) {
     block_data->block_id = id;
-    parent_map->onBlockChange(*this);
+    update();
 }
 
 map::uniqueBlock& map::blockData::getUniqueBlock() const {
@@ -128,28 +127,13 @@ void map::block::scheduleTextureUpdate() {
 void map::block::update() {
     scheduleTextureUpdate();
     
-    block neighbors[4];
+    // also update neighbors
     if(x != 0)
-        neighbors[0] = parent_map->getBlock(x - 1, y);
+        parent_map->getBlock(x - 1, y).scheduleTextureUpdate();
     if(x != parent_map->getWorldWidth() - 1)
-        neighbors[1] = parent_map->getBlock(x + 1, y);
+        parent_map->getBlock(x + 1, y).scheduleTextureUpdate();
     if(y != 0)
-        neighbors[2] = parent_map->getBlock(x, y - 1);
+        parent_map->getBlock(x, y - 1).scheduleTextureUpdate();
     if(y != parent_map->getWorldHeight() - 1)
-        neighbors[3] = parent_map->getBlock(x, y + 1);
-    for(block neighbor : neighbors)
-        if(neighbor.refersToABlock())
-            neighbor.scheduleTextureUpdate();
-}
-
-void map::onBlockChange(block& block) {
-    block.update();
-}
-
-void map::onLightChange(block& block) {
-    block.update();
-}
-
-void map::onBreakStageChange(block& block) {
-    block.update();
+        parent_map->getBlock(x, y + 1).scheduleTextureUpdate();
 }

@@ -11,10 +11,6 @@
 
 // module for handling other players in online game
 
-void players::init() {
-    other_players.clear();
-}
-
 void players::render() {
     // iterate through every player and render them
     for(player& i : other_players)

@@ -29,7 +29,6 @@ class players : public gfx::sceneModule, packetListener {
     map* world_map;
 public:
     players(networkingManager* manager, map* world_map) : packetListener(manager), world_map(world_map) { listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT}; }
-    void init();
     void render();
     void onPacket(packets::packet packet);
 };

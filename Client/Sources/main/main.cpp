@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     fileManager::init();
     map::initBlocks();
     map::initItems();
-    playerHandler::initEvents();
+    playerHandler::initItems();
     
     gfx::switchScene(new startMenu());
     gfx::runScenes();

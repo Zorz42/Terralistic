@@ -9,25 +9,16 @@
 #include "dev.hpp"
 #include <random>
 
-std::vector<map::uniqueItem> map::unique_items;
+map::uniqueItem* map::unique_items = nullptr;
 
 void map::initItems() {
     // all currently unique items
-    unique_items.reserve(4);
-    unique_items = {
-        {"nothing",     0,  blockType::AIR        },
-        {"stone",       99, blockType::STONE      },
-        {"dirt",        99, blockType::DIRT       },
-        {"stone_block", 99, blockType::STONE_BLOCK},
-    };
-}
-
-void map::spawnItem(itemType item_id, int x, int y, short id) {
-    static short curr_id = 0;
-    if(id == -1)
-        id = curr_id++;
-    items.emplace_back();
-    items.back().create(item_id, x, y, id);
+    unique_items = new uniqueItem[(int)itemType::TOTAL_ITEMS];
+    
+    unique_items[0] = {"nothing",     0, };
+    unique_items[1] = {"stone",       99,};
+    unique_items[2] = {"dirt",        99,};
+    unique_items[3] = {"stone_block", 99,};
 }
 
 map::item* map::getItemById(unsigned short id) {
@@ -38,31 +29,30 @@ map::item* map::getItemById(unsigned short id) {
     return nullptr;
 }
 
-void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_) {
-    static std::random_device device;
-    static std::mt19937 engine(device());
-    velocity_x = (int)engine() % 100;
-    velocity_y = -int(engine() % 100) - 50;
-    
-    x = x_ * 100;
-    y = y_ * 100;
-    id = id_;
-    item_id = item_id_;
-}
-
-map::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size, map::blockType places) : name(name), stack_size(stack_size), places(places) {
+map::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size) : name(name), stack_size(stack_size) {
     texture.setTexture(name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + name + ".png"));
     texture.scale = 2;
+    texture.free_texture = false;
     text_texture.setTexture(gfx::renderText(name, {255, 255, 255}));
     text_texture.scale = 2;
+    text_texture.free_texture = false;
 }
 
 map::uniqueItem& map::item::getUniqueItem() const {
-    ASSERT((int)item_id >= 0 && (int)item_id < unique_items.size(), "item_id is not valid");
-    return unique_items[(int)item_id];
+    ASSERT((int)item_type >= 0 && item_type < itemType::TOTAL_ITEMS, "item_id is not valid");
+    return unique_items[(int)item_type];
+}
+
+void map::item::draw(short x, short y, unsigned char scale) {
+    getUniqueItem().draw(x, y, scale);
+}
+
+void map::uniqueItem::draw(short x, short y, unsigned char scale) {
+    texture.scale = scale;
+    gfx::render(texture, x, y);
 }
 
 void map::renderItems() {
-    for(map::item& i : items)
-        gfx::render(i.getUniqueItem().texture, short(i.x / 100 - view_x + gfx::getWindowWidth() / 2), short(i.y / 100 - view_y + gfx::getWindowHeight() / 2));
+    for(map::item& item : items)
+        item.draw(item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2, 2);
 }

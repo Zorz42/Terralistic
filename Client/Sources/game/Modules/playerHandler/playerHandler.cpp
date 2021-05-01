@@ -11,8 +11,6 @@
 
 // this handles player and its movement
 
-bool isPlayerColliding();
-
 void playerHandler::init() {
     playerRenderer::init();
     

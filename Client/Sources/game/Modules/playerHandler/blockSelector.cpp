@@ -10,35 +10,6 @@
 
 // this is a rectangle with which you select which block to break or where to place selected block
 
-struct clickEvents {
-    void (*rightClickEvent)(map::block*, inventory*) = nullptr;
-    void (*leftClickEvent)(map::block*, inventory*) = nullptr;
-};
-
-static std::vector<clickEvents> click_events;
-
-// you can register special click events to blocks for custom behaviour
-static void grass_block_leftClickEvent(map::block* block, inventory* player_inventory) {
-    block->setType(map::blockType::DIRT);
-}
-
-static void air_rightClickEvent(map::block* block, inventory* player_inventory) {
-    map::blockType type = player_inventory->getSelectedSlot()->getUniqueItem().places;
-    if(type != map::blockType::AIR && player_inventory->getSelectedSlot()->decreaseStack(1)) {
-        block->setType(type);
-    }
-}
-
-static void air_leftClickEvent(map::block* block, inventory* player_inventory) {}
-
-void playerHandler::initEvents() {
-    click_events = std::vector<clickEvents>(map::unique_blocks.size());
-
-    click_events[(int)map::blockType::GRASS_BLOCK].leftClickEvent = &grass_block_leftClickEvent;
-    click_events[(int)map::blockType::AIR].rightClickEvent = &air_rightClickEvent;
-    click_events[(int)map::blockType::AIR].leftClickEvent = &air_leftClickEvent;
-}
-
 void playerHandler::renderBlockSelector() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {
         packets::packet packet(packets::STARTED_BREAKING);

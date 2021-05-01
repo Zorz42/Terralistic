@@ -67,7 +67,7 @@ public:
     void selectSlot(char slot);
     void onPacket(packets::packet packet) override;
     
-    static void initEvents();
+    static void initItems();
 };
 
 #endif /* playerHandler_hpp */

@@ -35,7 +35,6 @@ void game::init() {
         gfx::returnFromScene();
         return;
     }
-    main_player.player_inventory.clear();
 }
 
 void game::update() {

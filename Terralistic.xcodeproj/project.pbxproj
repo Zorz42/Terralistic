@@ -88,9 +88,7 @@
 		16984266263819EC00972269 /* fileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16932056263811C100B73C9F /* fileManager.cpp */; };
 		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
-		36F45E842620A84F00C751E4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E832620A84F00C751E4 /* packets.cpp */; };
 		36F45E882620A88400C751E4 /* chunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E872620A88400C751E4 /* chunk.cpp */; };
-		36F45E8B2620A8EF00C751E4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E832620A84F00C751E4 /* packets.cpp */; };
 		36F45E8D2620A8F100C751E4 /* chunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E872620A88400C751E4 /* chunk.cpp */; };
 /* End PBXBuildFile section */
 
@@ -234,7 +232,6 @@
 		16932056263811C100B73C9F /* fileManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileManager.cpp; sourceTree = "<group>"; };
 		16932057263811C100B73C9F /* fileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fileManager.hpp; sourceTree = "<group>"; };
 		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
-		36F45E832620A84F00C751E4 /* packets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
 		36F45E872620A88400C751E4 /* chunk.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chunk.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -344,7 +341,6 @@
 				1681100F263BE9260086D659 /* map.cpp */,
 				1681100C263BE9260086D659 /* block.cpp */,
 				1681100E263BE9260086D659 /* item.cpp */,
-				36F45E832620A84F00C751E4 /* packets.cpp */,
 				36F45E872620A88400C751E4 /* chunk.cpp */,
 			);
 			path = map;
@@ -780,7 +776,6 @@
 				16811027263BE9A60086D659 /* map.cpp in Sources */,
 				165FF86226399997003941F8 /* textScreen.cpp in Sources */,
 				3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */,
-				36F45E8B2620A8EF00C751E4 /* packets.cpp in Sources */,
 				36F45E8D2620A8F100C751E4 /* chunk.cpp in Sources */,
 				16984266263819EC00972269 /* fileManager.cpp in Sources */,
 				1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */,
@@ -829,7 +824,6 @@
 				1691250D25F6BCD500F7EB4F /* worldCreator.cpp in Sources */,
 				1691250E25F6BCD500F7EB4F /* worldSelector.cpp in Sources */,
 				1691250F25F6BCD500F7EB4F /* main.cpp in Sources */,
-				36F45E842620A84F00C751E4 /* packets.cpp in Sources */,
 				165FF85D263997B2003941F8 /* textScreen.cpp in Sources */,
 				16811020263BE9260086D659 /* inventoryItem.cpp in Sources */,
 			);

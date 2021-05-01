@@ -44,8 +44,3 @@ void inventory::clearMouseItem() {
     mouse_item.item_id = map::itemType::NOTHING;
     mouse_item.setStack(0);
 }
-
-void inventory::clear() {
-    for(inventoryItem& i : inventory)
-        i.setStack(0);
-}

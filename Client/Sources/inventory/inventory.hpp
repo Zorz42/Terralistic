@@ -37,7 +37,6 @@ public:
     void swapWithMouseItem(inventoryItem* item);
     void clearMouseItem();
     inventoryItem* getMouseItem();
-    void clear();
 private:
     inventoryItem mouse_item;
 };

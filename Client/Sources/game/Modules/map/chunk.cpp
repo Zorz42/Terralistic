@@ -14,7 +14,7 @@ void map::chunk::updateTexture() {
     for(unsigned short y_ = 0; y_ < 16; y_++)
         for(unsigned short x_ = 0; x_ < 16; x_++) {
             block curr_block = parent_map->getBlock((x << 4) + x_, (y << 4) + y_);
-            if(curr_block.hasScheduledTextureUpdate()) {
+            if(curr_block.block_data->update) {
                 curr_block.updateOrientation();
                 gfx::render(gfx::rect(short(x_ * BLOCK_WIDTH), short(y_ * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH, {135, 206, 235}));
                 curr_block.draw();
