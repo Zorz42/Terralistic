@@ -17,13 +17,13 @@
 #include "terrainGenerator.hpp"
 #include "clickEvents.hpp"
 
-volatile sig_atomic_t stop;
+static bool running = true;
 
 #define ms_time std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count
 #define PORT 33770
 
 void inthand(int signum) {
-    stop = 1;
+    running = false;
 }
 
 int main() {
@@ -57,15 +57,14 @@ int main() {
     
     for(unsigned short x = 0; x < world_map.getWorldWidth(); x++)
         for(unsigned short y = 0; y < world_map.getWorldHeight(); y++)
-            if(world_map.getBlock(x, y).hasScheduledLightUpdate())
-                world_map.getBlock(x, y).lightUpdate();
+            world_map.getBlock(x, y).update();
     
     signal(SIGINT, inthand);
     networking::spawnListener();
     
     print::info("Server has started!");
     long long a, b = ms_time();
-    while(!stop) {
+    while(running) {
         a = ms_time();
         main_::frame_length = a - b;
         if(main_::frame_length < 50)
@@ -75,6 +74,13 @@ int main() {
         world_map.updateItems(main_::frame_length);
         playerHandler::lookForItems(world_map);
         networking::updatePlayersBreaking(world_map);
+        
+        /*for(unsigned short x = 0; x < world_map.getWorldWidth(); x++)
+            for(unsigned short y = 0; y < world_map.getWorldHeight(); y++)
+                if(world_map.getBlock(x, y).hasScheduledLightUpdate()) {
+                    world_map.getBlock(x, y).lightUpdate();
+                    count++;
+                }*/
     }
     
     std::cout << std::endl;

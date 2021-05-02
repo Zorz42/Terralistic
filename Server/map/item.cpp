@@ -8,6 +8,7 @@
 #include "map.hpp"
 #include "dev.hpp"
 #include <random>
+#include "networkingModule.hpp"
 
 std::vector<map::uniqueItem> map::unique_items;
 
@@ -53,11 +54,15 @@ void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_, ma
     id = id_;
     item_id = item_id_;
     
-    world_map.onItemCreation(*this);
+    packets::packet packet(packets::ITEM_CREATION);
+    packet << x << y << getId() << (char)getItemId();
+    networking::sendToEveryone(packet);
 }
 
 void map::item::destroy(map& world_map) {
-    world_map.onItemDeletion(*this);
+    packets::packet packet(packets::ITEM_DELETION);
+    packet << getId();
+    networking::sendToEveryone(packet);
 }
 
 map::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, map::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
@@ -118,7 +123,9 @@ void map::item::update(float frame_length, map& world_map) {
     }
     
     if(prev_x != x || prev_y != y) {
-        world_map.onItemMovement(*this);
+        packets::packet packet(packets::ITEM_MOVEMENT);
+        packet << x << y << getId();
+        networking::sendToEveryone(packet);
     }
 }
 

@@ -38,7 +38,7 @@ protected:
         
         blockType block_id;
         unsigned char light_level = 0;
-        bool light_source = false, to_update_light = true;
+        bool light_source = false;
         unsigned short break_progress = 0;
         unsigned char break_stage = 0;
         
@@ -60,19 +60,23 @@ public: // !!! should be protected
     
 public:
     class block {
-        blockData* block_data;
+        blockData* block_data = nullptr;
         unsigned short x, y;
         map* parent_map;
         
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+        block() = default;
+        
         void update();
         void setType(blockType id, bool process=true);
         void breakBlock();
         void setBreakProgress(unsigned short ms);
-        void lightUpdate(bool update=true);
+        void lightUpdate();
         void setLightSource(unsigned char power);
         void removeLightSource();
+        
+        inline bool refersToABlock() { return block_data != nullptr; }
         
         inline bool isTransparent() { return block_data->getUniqueBlock().transparent; }
         inline bool isOnlyOnFloor() { return block_data->getUniqueBlock().only_on_floor; }
@@ -83,10 +87,8 @@ public:
         inline unsigned short getBreakProgress() { return block_data->break_progress; }
         inline unsigned char getBreakStage() { return block_data->break_stage; }
         inline itemType getDrop() { return block_data->getUniqueBlock().drop; }
-        inline void scheduleLightUpdate() { block_data->to_update_light = true; }
         inline blockType getType() { return block_data->block_id; }
         
-        inline bool hasScheduledLightUpdate() { return block_data->to_update_light; }
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
         
@@ -116,13 +118,6 @@ protected:
     
     void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
-    
-    void onBlockChange(block& block);
-    void onLightChange(block& block);
-    void onBreakStageChange(block& block);
-    void onItemCreation(item& item);
-    void onItemDeletion(item& item);
-    void onItemMovement(item& item);
     
 public: // !!! should be protected
     std::vector<item> items;

@@ -99,7 +99,7 @@ public:
     
     class block {
         friend chunk;
-        blockData* block_data = nullptr;
+        blockData* block_data;
         unsigned short x, y;
         map* parent_map;
         
@@ -108,12 +108,10 @@ public:
         
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
-        block() = default;
         void setType(blockType id);
+        void setLightLevel(unsigned char level);
         void draw();
         void update();
-        
-        inline bool refersToABlock() { return block_data != nullptr; }
         
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
@@ -123,7 +121,6 @@ public:
         inline unsigned char getBreakStage() { return block_data->break_stage; }
         inline blockType getType() { return block_data->block_id; }
         inline void setBreakStage(unsigned char stage) { block_data->break_stage = stage; }
-        inline void setLightLevel(unsigned char level) { block_data->light_level = level; }
     };
     
     class item {
@@ -146,7 +143,7 @@ protected:
     std::vector<item> items;
     
 public:
-    map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT}; }
+    map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::LIGHT_CHANGE}; }
     int view_x, view_y;
     
     static void initBlocks();

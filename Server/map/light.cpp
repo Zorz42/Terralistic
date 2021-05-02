@@ -6,27 +6,26 @@
 //
 
 #include "map.hpp"
+#include "networkingModule.hpp"
 
-void map::block::lightUpdate(bool update) {
-    if(update)
-        block_data->to_update_light = false;
-    std::pair<short, short> neighbors[4] = {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};
-    if(x != 0 && parent_map->getChunkState((x - 1) >> 4, y >> 4) == chunkState::loaded)
-        neighbors[0] = {x - 1, y};
-    if(x != parent_map->getWorldWidth() - 1 && parent_map->getChunkState((x + 1) >> 4, y >> 4) == chunkState::loaded)
-        neighbors[1] = {x + 1, y};
-    if(y != 0 && parent_map->getChunkState(x >> 4, (y - 1) >> 4) == chunkState::loaded)
-        neighbors[2] = {x, y - 1};
-    if(y != parent_map->getWorldHeight() - 1 && parent_map->getChunkState(x >> 4, (y + 1) >> 4) == chunkState::loaded)
-        neighbors[3] = {x, y + 1};
+void map::block::lightUpdate() {
+    block neighbors[4];
+    if(x != 0)
+        neighbors[0] = parent_map->getBlock(x - 1, y);
+    if(x != parent_map->getWorldWidth() - 1)
+        neighbors[1] = parent_map->getBlock(x + 1, y);
+    if(y != 0)
+        neighbors[2] = parent_map->getBlock(x, y - 1);
+    if(y != parent_map->getWorldHeight() - 1)
+        neighbors[3] = parent_map->getBlock(x, y + 1);
+    
     bool update_neighbors = false;
     if(!block_data->light_source) {
         unsigned char level_to_be = 0;
         for(auto & neighbor : neighbors) {
-            if(neighbor.first != -1) {
-                block neighbor_block = parent_map->getBlock(neighbor.first, neighbor.second);
-                auto light_step = (unsigned char)(neighbor_block.isTransparent() ? 3 : 15);
-                auto light = (unsigned char)(light_step > neighbor_block.getLightLevel() ? 0 : neighbor_block.getLightLevel() - light_step);
+            if(neighbor.refersToABlock()) {
+                auto light_step = (unsigned char)(neighbor.isTransparent() ? 3 : 15);
+                auto light = (unsigned char)(light_step > neighbor.getLightLevel() ? 0 : neighbor.getLightLevel() - light_step);
                 if(light > level_to_be)
                     level_to_be = light;
             }
@@ -35,25 +34,27 @@ void map::block::lightUpdate(bool update) {
             return;
         if(level_to_be != getLightLevel()) {
             block_data->light_level = level_to_be;
-            parent_map->onLightChange(*this);
+            packets::packet packet(packets::LIGHT_CHANGE);
+            packet << getX() << getY() << (unsigned char)getLightLevel();
+            networking::sendToEveryone(packet);
         }
     }
-    if((update_neighbors || isLightSource()) && update)
+    if(update_neighbors || isLightSource())
         for(auto neighbor : neighbors)
-            if(neighbor.first != -1 && !parent_map->getBlock(neighbor.first, neighbor.second).isLightSource())
-                parent_map->getBlock(neighbor.first, neighbor.second).scheduleLightUpdate();
+            if(neighbor.refersToABlock() && !neighbor.isLightSource())
+                neighbor.lightUpdate();
 }
 
 void map::block::setLightSource(unsigned char power) {
     block_data->light_source = true;
     block_data->light_level = power;
-    block_data->to_update_light = true;
+    lightUpdate();
 }
 
 void map::block::removeLightSource() {
     block_data->light_source = false;
     block_data->light_level = 0;
-    block_data->to_update_light = true;
+    lightUpdate();
 }
 
 void map::setNaturalLight() {

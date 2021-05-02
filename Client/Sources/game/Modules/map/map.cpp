@@ -49,6 +49,12 @@ void map::onPacket(packets::packet packet) {
             getBlock(x, y).setType(type);
             break;
         }
+        case packets::LIGHT_CHANGE: {
+            unsigned char level = packet.getUChar();
+            unsigned short y = packet.getUShort(), x = packet.getUShort();
+            getBlock(x, y).setLightLevel(level);
+            break;
+        }
         case packets::CHUNK: {
             unsigned short x = packet.getUShort(), y = packet.getUShort();
             

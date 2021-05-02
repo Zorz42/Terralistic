@@ -43,6 +43,11 @@ void map::block::setType(map::blockType id) {
     update();
 }
 
+void map::block::setLightLevel(unsigned char level) {
+    block_data->light_level = level;
+    update();
+}
+
 map::uniqueBlock& map::blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
 }

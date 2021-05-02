@@ -7,6 +7,7 @@
 
 #include "map.hpp"
 #include "dev.hpp"
+#include "networkingModule.hpp"
 
 std::vector<map::uniqueBlock> map::unique_blocks;
 
@@ -37,22 +38,20 @@ void map::block::setType(map::blockType id, bool process) {
         update();
         
         // update upper, lower, right and left block (neighbours)
-        std::pair<short, short> neighbors[4] = {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};
         if(x != 0)
-            neighbors[0] = {x - 1, y};
+            parent_map->getBlock(x - 1, y).update();
         if(x != parent_map->getWorldWidth() - 1)
-            neighbors[1] = {x + 1, y};
+            parent_map->getBlock(x + 1, y).update();
         if(y != 0)
-            neighbors[2] = {x, y - 1};
+            parent_map->getBlock(x, y - 1).update();
         if(y != parent_map->getWorldHeight() - 1)
-            neighbors[3] = {x, y + 1};
-        for(auto neighbor : neighbors)
-            if(neighbor.first != -1)
-                parent_map->getBlock(neighbor.first, neighbor.second).update();
+            parent_map->getBlock(x, y + 1).update();
         
         lightUpdate();
         
-        parent_map->onBlockChange(*this);
+        packets::packet packet(packets::BLOCK_CHANGE);
+        packet << getX() << getY() << (unsigned char)getType();
+        networking::sendToEveryone(packet);
     }
 }
 
@@ -61,13 +60,16 @@ void map::block::setBreakProgress(unsigned short ms) {
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getBreakTime() * 9.0f);
     if(stage != getBreakStage()) {
         block_data->break_stage = stage;
-        parent_map->onBreakStageChange(*this);
+        packets::packet packet(packets::BLOCK_PROGRESS_CHANGE);
+        packet << getY() << getX() << getBreakStage();
+        networking::sendToEveryone(packet);
     }
 }
 
 void map::block::update() {
     if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         breakBlock();
+    lightUpdate();
 }
 
 void map::block::breakBlock() {
