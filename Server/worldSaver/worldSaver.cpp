@@ -40,10 +40,6 @@ void worldSaver::loadWorld(const std::string& world_path, map& world_map) {
             world_file >> std::noskipws >> c;
             world_map.getBlock(x, y).setType((map::blockType) c, false);
         }
-    
-    for(int y = 0; y < (world_map.getWorldHeight() >> 4); y++)
-        for(int x = 0; x < (world_map.getWorldWidth() >> 4); x++)
-            world_map.getChunkState(x, y) = map::chunkState::loaded;
 }
 
 bool worldSaver::worldExists(const std::string& world_path) {

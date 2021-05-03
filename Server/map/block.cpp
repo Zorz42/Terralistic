@@ -47,7 +47,7 @@ void map::block::setType(map::blockType id, bool process) {
         if(y != parent_map->getWorldHeight() - 1)
             parent_map->getBlock(x, y + 1).update();
         
-        lightUpdate();
+        scheduleLightUpdate();
         
         packets::packet packet(packets::BLOCK_CHANGE);
         packet << getX() << getY() << (unsigned char)getType();
@@ -69,7 +69,7 @@ void map::block::setBreakProgress(unsigned short ms) {
 void map::block::update() {
     if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         breakBlock();
-    lightUpdate();
+    scheduleLightUpdate();
 }
 
 void map::block::breakBlock() {

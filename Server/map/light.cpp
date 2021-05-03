@@ -24,8 +24,8 @@ void map::block::lightUpdate() {
         unsigned char level_to_be = 0;
         for(auto & neighbor : neighbors) {
             if(neighbor.refersToABlock()) {
-                auto light_step = (unsigned char)(neighbor.isTransparent() ? 3 : 15);
-                auto light = (unsigned char)(light_step > neighbor.getLightLevel() ? 0 : neighbor.getLightLevel() - light_step);
+                unsigned char light_step = neighbor.isTransparent() ? 3 : 15;
+                unsigned char light = light_step > neighbor.getLightLevel() ? 0 : neighbor.getLightLevel() - light_step;
                 if(light > level_to_be)
                     level_to_be = light;
             }
@@ -34,27 +34,29 @@ void map::block::lightUpdate() {
             return;
         if(level_to_be != getLightLevel()) {
             block_data->light_level = level_to_be;
+            update_neighbors = true;
             packets::packet packet(packets::LIGHT_CHANGE);
             packet << getX() << getY() << (unsigned char)getLightLevel();
             networking::sendToEveryone(packet);
         }
     }
+    
     if(update_neighbors || isLightSource())
         for(auto neighbor : neighbors)
             if(neighbor.refersToABlock() && !neighbor.isLightSource())
-                neighbor.lightUpdate();
+                neighbor.scheduleLightUpdate();
 }
 
 void map::block::setLightSource(unsigned char power) {
     block_data->light_source = true;
     block_data->light_level = power;
-    lightUpdate();
+    scheduleLightUpdate();
 }
 
 void map::block::removeLightSource() {
     block_data->light_source = false;
     block_data->light_level = 0;
-    lightUpdate();
+    scheduleLightUpdate();
 }
 
 void map::setNaturalLight() {

@@ -110,6 +110,7 @@ public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
         void setType(blockType id);
         void setLightLevel(unsigned char level);
+        void setBreakStage(unsigned char stage);
         void draw();
         void update();
         
@@ -120,7 +121,6 @@ public:
         inline unsigned char getLightLevel() { return block_data->light_level; }
         inline unsigned char getBreakStage() { return block_data->break_stage; }
         inline blockType getType() { return block_data->block_id; }
-        inline void setBreakStage(unsigned char stage) { block_data->break_stage = stage; }
     };
     
     class item {

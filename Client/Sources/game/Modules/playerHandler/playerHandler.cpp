@@ -18,6 +18,11 @@ void playerHandler::init() {
     world_map->view_y = player->position_y;
     
     manager->sendPacket(packets::PLAYER_JOIN);
+    
+    packets::packet packet(packets::VIEW_SIZE_CHANGE);
+    packet << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH);
+    manager->sendPacket(packet);
+    
     initInventory();
 }
 
@@ -123,6 +128,16 @@ bool playerHandler::touchingGround() {
 }
 
 void playerHandler::update() {
+    static unsigned short prev_width = gfx::getWindowWidth(), prev_height = gfx::getWindowHeight();
+    if(prev_width != gfx::getWindowWidth() || prev_height != gfx::getWindowHeight()) {
+        packets::packet packet(packets::VIEW_SIZE_CHANGE);
+        packet << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH);
+        manager->sendPacket(packet);
+        
+        prev_width = gfx::getWindowWidth();
+        prev_height = gfx::getWindowHeight();
+    }
+    
     // gravity
     player->velocity_y = touchingGround() && player->velocity_y >= 0 ? short(0) : short(player->velocity_y + gfx::getDeltaTime() / 4);
     

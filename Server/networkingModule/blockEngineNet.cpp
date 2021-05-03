@@ -35,10 +35,19 @@ PACKET_LISTENER_END
 PACKET_LISTENER(packets::CHUNK)
     packets::packet chunk_packet(packets::CHUNK);
     unsigned short x = packet.getUShort(), y = packet.getUShort();
-    for(int i = 0; i < 16 * 16; i++)
-    chunk_packet << (char)playerHandler::world_map->getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16).getType() << (unsigned char)playerHandler::world_map->getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16).getLightLevel();
+    for(int i = 0; i < 16 * 16; i++) {
+        map::block block = playerHandler::world_map->getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
+        chunk_packet << (char)block.getType() << (unsigned char)block.getLightLevel();
+    }
     chunk_packet << y << x;
     connection.sendPacket(chunk_packet);
+PACKET_LISTENER_END
+
+PACKET_LISTENER(packets::VIEW_SIZE_CHANGE)
+    unsigned short width = packet.getUShort(), height = packet.getUShort();
+    playerHandler::player& player = *playerHandler::getPlayerByConnection(&connection);
+    player.sight_width = width;
+    player.sight_height = height;
 PACKET_LISTENER_END
 
 void leftClickEvent(unsigned short x, unsigned short y, networking::connection& connection, map& world_map) {

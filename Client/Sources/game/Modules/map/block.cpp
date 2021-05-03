@@ -142,3 +142,8 @@ void map::block::update() {
     if(y != parent_map->getWorldHeight() - 1)
         parent_map->getBlock(x, y + 1).scheduleTextureUpdate();
 }
+
+void map::block::setBreakStage(unsigned char stage) {
+    block_data->break_stage = stage;
+    update();
+}

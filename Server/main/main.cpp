@@ -75,12 +75,12 @@ int main() {
         playerHandler::lookForItems(world_map);
         networking::updatePlayersBreaking(world_map);
         
-        /*for(unsigned short x = 0; x < world_map.getWorldWidth(); x++)
-            for(unsigned short y = 0; y < world_map.getWorldHeight(); y++)
-                if(world_map.getBlock(x, y).hasScheduledLightUpdate()) {
-                    world_map.getBlock(x, y).lightUpdate();
-                    count++;
-                }*/
+        for(playerHandler::player& player : playerHandler::players) {
+            for(unsigned short x = player.x / 16 - player.sight_width / 2 - 20; x < player.x / 16 + player.sight_width / 2 + 20; x++)
+                for(unsigned short y = player.y / 16 - player.sight_height / 2 - 20; y < player.y / 16 + player.sight_height / 2 + 20; y++)
+                    if(world_map.getBlock(x, y).hasScheduledLightUpdate())
+                        world_map.getBlock(x, y).lightUpdate();
+        }
     }
     
     std::cout << std::endl;

@@ -21,6 +21,7 @@ public:
     unsigned short id;
     bool flipped = false;
     int x = 0, y = 0;
+    unsigned short sight_width = 0, sight_height = 0;
     inventory inventory;
     unsigned short breaking_x, breaking_y;
     bool breaking = false;

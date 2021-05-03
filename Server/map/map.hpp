@@ -17,7 +17,6 @@
 class map {
 public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES};
-    enum class chunkState {unloaded, pending_load, loaded};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK};
 
     static void initBlocks();
@@ -38,7 +37,7 @@ protected:
         
         blockType block_id;
         unsigned char light_level = 0;
-        bool light_source = false;
+        bool light_source = false, update_light = true;
         unsigned short break_progress = 0;
         unsigned char break_stage = 0;
         
@@ -88,6 +87,8 @@ public:
         inline unsigned char getBreakStage() { return block_data->break_stage; }
         inline itemType getDrop() { return block_data->getUniqueBlock().drop; }
         inline blockType getType() { return block_data->block_id; }
+        inline void scheduleLightUpdate() { block_data->update_light = true; }
+        inline bool hasScheduledLightUpdate() { return block_data->update_light; }
         
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
@@ -113,7 +114,6 @@ public:
     
 protected:
     unsigned short width, height;
-    chunkState *chunk_states = nullptr;
     blockData *blocks = nullptr;
     
     void removeNaturalLight(unsigned short x);
@@ -123,7 +123,6 @@ public: // !!! should be protected
     std::vector<item> items;
     
 public:
-    chunkState& getChunkState(unsigned short x, unsigned short y);
     block getBlock(unsigned short x, unsigned short y);
     
     int getSpawnX();
