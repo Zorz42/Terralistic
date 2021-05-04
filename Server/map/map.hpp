@@ -10,11 +10,12 @@
 
 #include <vector>
 #include <string>
+#include "networkingModule.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
 
-class map {
+class map : packetListener {
 public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK};
@@ -119,10 +120,15 @@ protected:
     void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
     
+    void onPacket(packets::packet& packet, connection& conn);
+    
 public: // !!! should be protected
+    networkingManager* manager;
     std::vector<item> items;
     
 public:
+    map(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE}; }
+    
     block getBlock(unsigned short x, unsigned short y);
     
     int getSpawnX();
@@ -140,6 +146,8 @@ public:
     item* getItemById(unsigned short id);
     
     void updateItems(float frame_length);
+    
+    void updatePlayersBreaking();
     
     ~map();
 };

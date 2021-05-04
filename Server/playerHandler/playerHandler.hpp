@@ -12,12 +12,10 @@
 #include "inventory.hpp"
 #include "map.hpp"
 
-namespace playerHandler {
-
 class player {
 public:
     player(unsigned short id) : id(id) {}
-    networking::connection* conn;
+    connection* conn;
     unsigned short id;
     bool flipped = false;
     int x = 0, y = 0;
@@ -27,13 +25,17 @@ public:
     bool breaking = false;
 };
 
+class playerHandler : packetListener {
+public:
+    map* world_map;
+    networkingManager* manager;
+    void onPacket(packets::packet& packet, connection& conn);
+    
+    playerHandler(networkingManager* manager, map* world_map) : manager(manager), packetListener(manager), world_map(world_map) { listening_to = {packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
+};
+
 inline std::vector<player> players;
-player* getPlayerByConnection(networking::connection* conn);
-
+player* getPlayerByConnection(connection* conn);
 void lookForItems(map& world_map);
-
-inline map* world_map = nullptr;
-
-}
 
 #endif /* playerHandler_hpp */

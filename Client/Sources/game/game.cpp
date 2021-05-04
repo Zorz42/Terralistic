@@ -31,7 +31,7 @@ void game::init() {
     };
     
     renderTextScreen("Connecting to server");
-    if(!networking_manager.startListening(ip_address)) {
+    if(!networking_manager.establishConnection(ip_address)) {
         gfx::returnFromScene();
         return;
     }
@@ -53,5 +53,5 @@ void game::render() {
 
 void game::stop() {
     networking_manager.sendPacket({packets::DISCONNECT});
-    networking_manager.stopListening();
+    networking_manager.closeConnection();
 }

@@ -36,10 +36,12 @@ int main() {
     
     clickEvents::init();
     
-    map world_map;
+    networkingManager networking_manager;
+    
+    map world_map(&networking_manager);
     world_map.createWorld(275, 75);
     
-    playerHandler::world_map = &world_map;
+    playerHandler player_handler(&networking_manager, &world_map);
     
     if(worldSaver::worldExists("world")) {
         print::info("Loading world...");
@@ -60,7 +62,7 @@ int main() {
             world_map.getBlock(x, y).update();
     
     signal(SIGINT, inthand);
-    networking::spawnListener();
+    networking_manager.startListening();
     
     print::info("Server has started!");
     long long a, b = ms_time();
@@ -72,10 +74,10 @@ int main() {
         b = a;
         
         world_map.updateItems(main_::frame_length);
-        playerHandler::lookForItems(world_map);
-        networking::updatePlayersBreaking(world_map);
+        lookForItems(world_map);
+        world_map.updatePlayersBreaking();
         
-        for(playerHandler::player& player : playerHandler::players) {
+        for(player& player : players) {
             for(unsigned short x = player.x / 16 - player.sight_width / 2 - 20; x < player.x / 16 + player.sight_width / 2 + 20; x++)
                 for(unsigned short y = player.y / 16 - player.sight_height / 2 - 20; y < player.y / 16 + player.sight_height / 2 + 20; y++)
                     if(world_map.getBlock(x, y).hasScheduledLightUpdate())

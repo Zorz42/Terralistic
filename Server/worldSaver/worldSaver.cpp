@@ -12,7 +12,7 @@
 void worldSaver::saveWorld(const std::string& world_path, map& world_map) {
     // saves world chunk by chunk and then inventory
     std::ofstream world_file(world_path + ".world");
-    //for(auto & i : playerHandler::player_inventory.inventory)
+    //for(auto & i : player_inventory.inventory)
         //world_file << (char)i.item_id << (char)i.getStack() << (char(i.getStack() >> 4));
     
     for(int y = 0; y < world_map.getWorldHeight(); y++)
@@ -26,7 +26,7 @@ void worldSaver::loadWorld(const std::string& world_path, map& world_map) {
     
     std::ifstream world_file(world_path + ".world");
     char c = 0;
-    /*for(auto & i : playerHandler::player_inventory.inventory) {
+    /*for(auto & i : player_inventory.inventory) {
         world_file >> std::noskipws >> c;
         i.item_id = (map::itemType)c;
         world_file >> std::noskipws >> c;

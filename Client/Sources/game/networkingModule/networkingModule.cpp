@@ -34,7 +34,7 @@ void networkingManager::listenerLoop(networkingManager* manager) {
     }
 }
 
-bool networkingManager::startListening(const std::string &ip) {
+bool networkingManager::establishConnection(const std::string &ip) {
     #ifdef WIN32
     WSADATA wsaData;
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
@@ -68,7 +68,7 @@ bool networkingManager::startListening(const std::string &ip) {
     return true;
 }
 
-void networkingManager::stopListening() {
+void networkingManager::closeConnection() {
     listener_running = false;
 }
 

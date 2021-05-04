@@ -56,13 +56,13 @@ void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_, ma
     
     packets::packet packet(packets::ITEM_CREATION);
     packet << x << y << getId() << (char)getItemId();
-    networking::sendToEveryone(packet);
+    world_map.manager->sendToEveryone(packet);
 }
 
 void map::item::destroy(map& world_map) {
     packets::packet packet(packets::ITEM_DELETION);
     packet << getId();
-    networking::sendToEveryone(packet);
+    world_map.manager->sendToEveryone(packet);
 }
 
 map::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, map::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
@@ -125,7 +125,7 @@ void map::item::update(float frame_length, map& world_map) {
     if(prev_x != x || prev_y != y) {
         packets::packet packet(packets::ITEM_MOVEMENT);
         packet << x << y << getId();
-        networking::sendToEveryone(packet);
+        world_map.manager->sendToEveryone(packet);
     }
 }
 

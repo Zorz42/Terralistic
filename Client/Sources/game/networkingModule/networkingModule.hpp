@@ -13,7 +13,7 @@
 #include <vector>
 #include <set>
 
-struct networkingManager;
+class networkingManager;
 
 class packetListener {
 public:
@@ -29,8 +29,8 @@ class networkingManager {
     static void listenerLoop(networkingManager* manager);
     std::vector<packetListener*> listeners;
 public:
-    bool startListening(const std::string& ip);
-    void stopListening();
+    bool establishConnection(const std::string& ip);
+    void closeConnection();
 
     void sendPacket(packets::packet packet_);
     void registerListener(packetListener* listener);

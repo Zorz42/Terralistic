@@ -51,7 +51,7 @@ void map::block::setType(map::blockType id, bool process) {
         
         packets::packet packet(packets::BLOCK_CHANGE);
         packet << getX() << getY() << (unsigned char)getType();
-        networking::sendToEveryone(packet);
+        parent_map->manager->sendToEveryone(packet);
     }
 }
 
@@ -62,7 +62,7 @@ void map::block::setBreakProgress(unsigned short ms) {
         block_data->break_stage = stage;
         packets::packet packet(packets::BLOCK_PROGRESS_CHANGE);
         packet << getY() << getX() << getBreakStage();
-        networking::sendToEveryone(packet);
+        parent_map->manager->sendToEveryone(packet);
     }
 }
 

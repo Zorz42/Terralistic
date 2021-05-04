@@ -10,41 +10,41 @@
 
 #define MAX_PLAYERS 100
 
-#define CONCAT(x, y) x ## y
-#define JOIN(x, y) CONCAT(x, y)
-
-#define PACKET_LISTENER(packetType) static networking::registerPacketListener JOIN(listener_func, __LINE__) (packetType, [](packets::packet& packet, networking::connection& connection) {
-#define PACKET_LISTENER_END });
-
 #include <string>
+#include <set>
 #include "packets.hpp"
-#include "map.hpp"
 
-namespace networking {
+class packetListener;
 
-struct connection {
+class connection {
+public:
     std::string ip;
     int socket{-1};
+    bool disconnected = false;
     
     packets::packet getPacket() const;
     void sendPacket(const packets::packet& packet_) const;
+};
+
+class networkingManager {
+    bool listener_running = true;
+    std::vector<packetListener*> listeners;
+    static void onPacket(packets::packet& packet, connection& conn, networkingManager& manager);
+    static void listenerLoop(networkingManager* manager, int server_fd);
+public:
+    connection connections[MAX_PLAYERS];
     
-    bool disconnected = false;
+    void startListening();
+    void stopListening();
+    void sendToEveryone(const packets::packet& packet, connection* exclusion=nullptr);
+    void registerListener(packetListener* listener);
 };
 
-typedef void(*listenerFunction)(packets::packet&, networking::connection&);
-
-struct registerPacketListener {
-    registerPacketListener(packets::packetType type, listenerFunction function);
+class packetListener {
+public:
+    packetListener(networkingManager* manager) { manager->registerListener(this); }
+    std::set<packets::packetType> listening_to;
+    virtual void onPacket(packets::packet& packet, connection& conn) = 0;
 };
-
-void spawnListener();
-void sendToEveryone(const packets::packet& packet, connection* exclusion=nullptr);
-
-inline networking::connection connections[MAX_PLAYERS];
-
-void updatePlayersBreaking(map& world_map);
-
-}
 
 #endif /* networkingModule_hpp */

@@ -33,12 +33,12 @@
 		1661652025EA249D002A3815 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650E25EA249D002A3815 /* print.cpp */; };
 		1661652225EA249D002A3815 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651525EA249D002A3815 /* playerHandler.cpp */; };
 		1661652325EA249D002A3815 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651925EA249D002A3815 /* main.cpp */; };
-		1661652425EA249D002A3815 /* blockEngineNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651B25EA249D002A3815 /* blockEngineNet.cpp */; };
 		166165B725EA3054002A3815 /* networkingModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650A25EA249D002A3815 /* networkingModule.cpp */; };
 		166165B925EA3054002A3815 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661650E25EA249D002A3815 /* print.cpp */; };
 		166165BB25EA3054002A3815 /* playerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651525EA249D002A3815 /* playerHandler.cpp */; };
 		166165BC25EA3054002A3815 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651925EA249D002A3815 /* main.cpp */; };
-		166165BD25EA3054002A3815 /* blockEngineNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1661651B25EA249D002A3815 /* blockEngineNet.cpp */; };
+		16644851264149670056968B /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16644850264149670056968B /* packets.cpp */; };
+		16644852264149670056968B /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16644850264149670056968B /* packets.cpp */; };
 		167DCF7D263D5617000D0477 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167DCF7B263D5617000D0477 /* clickEvents.cpp */; };
 		167DCF7E263D5623000D0477 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167DCF7B263D5617000D0477 /* clickEvents.cpp */; };
 /* End PBXBuildFile section */
@@ -94,8 +94,8 @@
 		1661651625EA249D002A3815 /* playerHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = playerHandler.hpp; sourceTree = "<group>"; };
 		1661651825EA249D002A3815 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = main.hpp; sourceTree = "<group>"; };
 		1661651925EA249D002A3815 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		1661651B25EA249D002A3815 /* blockEngineNet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockEngineNet.cpp; sourceTree = "<group>"; };
 		1661659E25EA2FE6002A3815 /* Terralistic-server-Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server-Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
+		16644850264149670056968B /* packets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
 		167DCF7B263D5617000D0477 /* clickEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clickEvents.cpp; sourceTree = "<group>"; };
 		167DCF7C263D5617000D0477 /* clickEvents.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clickEvents.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -126,6 +126,7 @@
 				165FF826263987D9003941F8 /* light.cpp */,
 				165FF827263987D9003941F8 /* item.cpp */,
 				165FF828263987D9003941F8 /* map.cpp */,
+				16644850264149670056968B /* packets.cpp */,
 			);
 			path = map;
 			sourceTree = "<group>";
@@ -245,7 +246,6 @@
 			children = (
 				1661650B25EA249D002A3815 /* networkingModule.hpp */,
 				1661650A25EA249D002A3815 /* networkingModule.cpp */,
-				1661651B25EA249D002A3815 /* blockEngineNet.cpp */,
 			);
 			path = networkingModule;
 			sourceTree = "<group>";
@@ -372,6 +372,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				167DCF7D263D5617000D0477 /* clickEvents.cpp in Sources */,
+				16644851264149670056968B /* packets.cpp in Sources */,
 				1661652325EA249D002A3815 /* main.cpp in Sources */,
 				165FF83A263987D9003941F8 /* terrainGenerator.cpp in Sources */,
 				165FF835263987D9003941F8 /* item.cpp in Sources */,
@@ -379,7 +380,6 @@
 				165FF833263987D9003941F8 /* block.cpp in Sources */,
 				165FF838263987D9003941F8 /* inventory.cpp in Sources */,
 				1661652025EA249D002A3815 /* print.cpp in Sources */,
-				1661652425EA249D002A3815 /* blockEngineNet.cpp in Sources */,
 				165FF837263987D9003941F8 /* inventoryItem.cpp in Sources */,
 				165FF836263987D9003941F8 /* map.cpp in Sources */,
 				165FF848263987E3003941F8 /* fileSystem.cpp in Sources */,
@@ -395,6 +395,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16644852264149670056968B /* packets.cpp in Sources */,
 				165FF84B263996EE003941F8 /* fileSystem.cpp in Sources */,
 				165FF84C263996EE003941F8 /* simplex-noise.cpp in Sources */,
 				165FF84D263996EE003941F8 /* packets.cpp in Sources */,
@@ -410,7 +411,6 @@
 				166165B925EA3054002A3815 /* print.cpp in Sources */,
 				166165BB25EA3054002A3815 /* playerHandler.cpp in Sources */,
 				166165BC25EA3054002A3815 /* main.cpp in Sources */,
-				166165BD25EA3054002A3815 /* blockEngineNet.cpp in Sources */,
 				167DCF7E263D5623000D0477 /* clickEvents.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

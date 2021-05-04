@@ -37,7 +37,7 @@ void map::block::lightUpdate() {
             update_neighbors = true;
             packets::packet packet(packets::LIGHT_CHANGE);
             packet << getX() << getY() << (unsigned char)getLightLevel();
-            networking::sendToEveryone(packet);
+            parent_map->manager->sendToEveryone(packet);
         }
     }
     

@@ -16,92 +16,16 @@
 #include "print.hpp"
 #include "map.hpp"
 
-playerHandler::player* playerHandler::getPlayerByConnection(networking::connection* conn) {
-    for(playerHandler::player& player : playerHandler::players)
+player* getPlayerByConnection(connection* conn) {
+    for(player& player : players)
         if(player.conn == conn)
             return &player;
     return nullptr;
 }
 
-PACKET_LISTENER(packets::PLAYER_MOVEMENT)
-    playerHandler::player* player = playerHandler::getPlayerByConnection(&connection);
-    player->flipped = packet.getChar();
-    player->y = packet.getInt();
-    player->x = packet.getInt();
-
-    packets::packet movement_packet(packets::PLAYER_MOVEMENT);
-    movement_packet << player->x << player->y << (char)player->flipped << player->id;
-    networking::sendToEveryone(movement_packet, player->conn);
-PACKET_LISTENER_END
-
-PACKET_LISTENER(packets::PLAYER_JOIN)
-    static unsigned int curr_id = 0;
-    playerHandler::player player(curr_id++);
-    player.conn = &connection;
-    player.y = playerHandler::world_map->getSpawnY() - BLOCK_WIDTH * 2;
-    player.x = playerHandler::world_map->getSpawnX();
-
-    packets::packet spawn_packet(packets::SPAWN_POS);
-    spawn_packet << player.y << player.x;
-    connection.sendPacket(spawn_packet);
-    
-    for(playerHandler::player& i : playerHandler::players) {
-        packets::packet join_packet(packets::PLAYER_JOIN);
-        join_packet << i.x << i.y << i.id;
-        player.conn->sendPacket(join_packet);
-    }
-    for(map::item& i : playerHandler::world_map->items) {
-        packets::packet item_packet(packets::ITEM_CREATION);
-        item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
-        player.conn->sendPacket(item_packet);
-    }
-    
-    packets::packet join_packet_out(packets::PLAYER_JOIN);
-    join_packet_out << player.x << player.y << player.id;
-    networking::sendToEveryone(join_packet_out, player.conn);
-    
-    playerHandler::players.push_back(player);
-    
-    print::info(player.conn->ip + " connected (" + std::to_string(playerHandler::players.size()) + " players online)");
-PACKET_LISTENER_END
-
-PACKET_LISTENER(packets::DISCONNECT)
-    print::info(connection.ip + " disconnected (" + std::to_string(playerHandler::players.size() - 1) + " players online)");
-    playerHandler::player* player = playerHandler::getPlayerByConnection(&connection);
-#ifndef WIN32
-    close(connection.socket);
-#endif
-    for(networking::connection& conn : networking::connections)
-        if(conn.socket == connection.socket) {
-            conn.socket = -1;
-            conn.ip.clear();
-            break;
-        }
-    
-    packets::packet quit_packet(packets::PLAYER_QUIT);
-    quit_packet << player->id;
-    
-    for(auto i = playerHandler::players.begin(); i != playerHandler::players.end(); i++)
-        if(i->id == player->id) {
-            playerHandler::players.erase(i);
-            break;
-        }
-    networking::sendToEveryone(quit_packet);
-PACKET_LISTENER_END
-
-PACKET_LISTENER(packets::INVENTORY_SWAP)
-    unsigned char pos = packet.getUChar();
-    playerHandler::player* player = playerHandler::getPlayerByConnection(&connection);
-    player->inventory.swapWithMouseItem(&player->inventory.inventory[pos]);
-PACKET_LISTENER_END
-
-PACKET_LISTENER(packets::HOTBAR_SELECTION)
-    playerHandler::getPlayerByConnection(&connection)->inventory.selected_slot = packet.getChar();
-PACKET_LISTENER_END
-
-void playerHandler::lookForItems(map& world_map) {
+void lookForItems(map& world_map) {
     for(unsigned long i = 0; i < world_map.items.size(); i++) {
-        for(playerHandler::player& player : playerHandler::players)
+        for(player& player : players)
             if(abs(world_map.items[i].x / 100 + BLOCK_WIDTH / 2  - player.x - 14) < 50 && abs(world_map.items[i].y / 100 + BLOCK_WIDTH / 2 - player.y - 25) < 50) {
                 char result = player.inventory.addItem(world_map.items[i].getItemId(), 1);
                 if(result != -1) {
@@ -112,5 +36,92 @@ void playerHandler::lookForItems(map& world_map) {
                     world_map.items.erase(world_map.items.begin() + i);
                 }
             }
+    }
+}
+
+void playerHandler::onPacket(packets::packet& packet, connection& conn) {
+    player* curr_player = getPlayerByConnection(&conn);
+    switch (packet.type) {
+        case packets::PLAYER_MOVEMENT: {
+            curr_player->flipped = packet.getChar();
+            curr_player->y = packet.getInt();
+            curr_player->x = packet.getInt();
+
+            packets::packet movement_packet(packets::PLAYER_MOVEMENT);
+            movement_packet << curr_player->x << curr_player->y << (char)curr_player->flipped << curr_player->id;
+            manager->sendToEveryone(movement_packet, curr_player->conn);
+            break;
+        }
+            
+        case packets::PLAYER_JOIN: {
+            static unsigned int curr_id = 0;
+            player curr_player(curr_id++);
+            curr_player.conn = &conn;
+            curr_player.y = playerHandler::world_map->getSpawnY() - BLOCK_WIDTH * 2;
+            curr_player.x = playerHandler::world_map->getSpawnX();
+
+            packets::packet spawn_packet(packets::SPAWN_POS);
+            spawn_packet << curr_player.y << curr_player.x;
+            conn.sendPacket(spawn_packet);
+            
+            for(player& i : players) {
+                packets::packet join_packet(packets::PLAYER_JOIN);
+                join_packet << i.x << i.y << i.id;
+                curr_player.conn->sendPacket(join_packet);
+            }
+            for(map::item& i : playerHandler::world_map->items) {
+                packets::packet item_packet(packets::ITEM_CREATION);
+                item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
+                curr_player.conn->sendPacket(item_packet);
+            }
+            
+            packets::packet join_packet_out(packets::PLAYER_JOIN);
+            join_packet_out << curr_player.x << curr_player.y << curr_player.id;
+            manager->sendToEveryone(join_packet_out, curr_player.conn);
+            
+            players.push_back(curr_player);
+            
+            print::info(curr_player.conn->ip + " connected (" + std::to_string(players.size()) + " players online)");
+            break;
+        }
+            
+        case packets::DISCONNECT: {
+            print::info(conn.ip + " disconnected (" + std::to_string(players.size() - 1) + " players online)");
+            player* player = getPlayerByConnection(&conn);
+            #ifndef WIN32
+                close(conn.socket);
+            #endif
+            for(connection& i : manager->connections)
+                if(i.socket == conn.socket) {
+                    i.socket = -1;
+                    i.ip.clear();
+                    break;
+                }
+            
+            packets::packet quit_packet(packets::PLAYER_QUIT);
+            quit_packet << player->id;
+            
+            for(auto i = players.begin(); i != players.end(); i++)
+                if(i->id == player->id) {
+                    players.erase(i);
+                    break;
+                }
+            manager->sendToEveryone(quit_packet);
+            break;
+        }
+            
+        case packets::INVENTORY_SWAP: {
+            unsigned char pos = packet.getUChar();
+            player* player = getPlayerByConnection(&conn);
+            player->inventory.swapWithMouseItem(&player->inventory.inventory[pos]);
+            break;
+        }
+            
+        case packets::HOTBAR_SELECTION: {
+            curr_player->inventory.selected_slot = packet.getChar();
+            break;
+        }
+            
+        default:;
     }
 }
