@@ -8,14 +8,13 @@
 #ifndef clickEvents_hpp
 #define clickEvents_hpp
 
-#include "playerHandler.hpp"
 #include "map.hpp"
 
 namespace clickEvents {
 
 struct clickEvent {
-    void (*rightClickEvent)(map::block*, player*) = nullptr;
-    void (*leftClickEvent)(map::block*, player*) = nullptr;
+    void (*rightClickEvent)(map::block*, map::player*) = nullptr;
+    void (*leftClickEvent)(map::block*, map::player*) = nullptr;
 };
 
 inline std::vector<clickEvent> click_events;

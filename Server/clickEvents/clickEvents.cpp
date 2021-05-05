@@ -8,11 +8,11 @@
 #include "clickEvents.hpp"
 #include "packets.hpp"
 
-void grass_block_leftClickEvent(map::block* block, player* player) {
+void grass_block_leftClickEvent(map::block* block, map::player* player) {
     block->setType(map::blockType::DIRT);
 }
 
-void air_rightClickEvent(map::block* block, player* player) {
+void air_rightClickEvent(map::block* block, map::player* player) {
     map::blockType type = player->inventory.inventory[player->inventory.selected_slot].getUniqueItem().places;
     if(type != map::blockType::AIR && player->inventory.inventory[player->inventory.selected_slot].decreaseStack(1)) {
         packets::packet item_loss_packet(packets::INVENTORY_CHANGE);
@@ -23,7 +23,7 @@ void air_rightClickEvent(map::block* block, player* player) {
     }
 }
 
-void air_leftClickEvent(map::block* block, player* player) {}
+void air_leftClickEvent(map::block* block, map::player* player) {}
 
 void clickEvents::init() {
     click_events = std::vector<clickEvents::clickEvent>(map::unique_blocks.size());

@@ -10,9 +10,7 @@
 
 #include "print.hpp"
 #include "worldSaver.hpp"
-#include "main.hpp"
 #include "networkingModule.hpp"
-#include "playerHandler.hpp"
 #include "fileSystem.hpp"
 #include "terrainGenerator.hpp"
 #include "clickEvents.hpp"
@@ -41,8 +39,6 @@ int main() {
     map world_map(&networking_manager);
     world_map.createWorld(275, 75);
     
-    playerHandler player_handler(&networking_manager, &world_map);
-    
     if(worldSaver::worldExists("world")) {
         print::info("Loading world...");
         worldSaver::loadWorld("world", world_map);
@@ -66,23 +62,19 @@ int main() {
     
     print::info("Server has started!");
     long long a, b = ms_time();
+    unsigned short tick_length;
+    
     while(running) {
         a = ms_time();
-        main_::frame_length = a - b;
-        if(main_::frame_length < 50)
-            std::this_thread::sleep_for(std::chrono::milliseconds(50 - main_::frame_length));
+        tick_length = a - b;
+        if(tick_length < 50)
+            std::this_thread::sleep_for(std::chrono::milliseconds(50 - tick_length));
         b = a;
         
-        world_map.updateItems(main_::frame_length);
-        lookForItems(world_map);
-        world_map.updatePlayersBreaking();
-        
-        for(player& player : players) {
-            for(unsigned short x = player.x / 16 - player.sight_width / 2 - 20; x < player.x / 16 + player.sight_width / 2 + 20; x++)
-                for(unsigned short y = player.y / 16 - player.sight_height / 2 - 20; y < player.y / 16 + player.sight_height / 2 + 20; y++)
-                    if(world_map.getBlock(x, y).hasScheduledLightUpdate())
-                        world_map.getBlock(x, y).lightUpdate();
-        }
+        world_map.updateItems(tick_length);
+        world_map.lookForItems(world_map);
+        world_map.updatePlayersBreaking(tick_length);
+        world_map.updateLight();
     }
     
     std::cout << std::endl;

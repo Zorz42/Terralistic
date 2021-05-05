@@ -15,7 +15,7 @@
 
 #include <thread>
 #include "print.hpp"
-#include "playerHandler.hpp"
+#include "map.hpp"
 
 #define PORT 33770
 #define PORT_STR "33770"

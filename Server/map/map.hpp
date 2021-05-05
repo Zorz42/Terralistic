@@ -14,6 +14,7 @@
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
+#define INVENTORY_SIZE 20
 
 class map : packetListener {
 public:
@@ -45,7 +46,6 @@ protected:
         uniqueBlock& getUniqueBlock() const;
     };
     
-public: // !!! should be protected
     struct uniqueItem {
         uniqueItem(std::string  name, unsigned short stack_size, map::blockType places);
         std::string name;
@@ -113,6 +113,49 @@ public:
         itemType item_id;
     };
     
+    struct inventoryItem {
+    public:
+        inventoryItem();
+        explicit inventoryItem(itemType item_id) : item_id(item_id), stack(1) {}
+        itemType item_id;
+        uniqueItem& getUniqueItem() const;
+        void setStack(unsigned short stack_);
+        unsigned short getStack() const;
+        unsigned short increaseStack(unsigned short stack_);
+        bool decreaseStack(unsigned short stack_);
+        bool stack_changed = true;
+    private:
+        unsigned short stack;
+    };
+
+    struct inventory {
+    public:
+        inventoryItem inventory[INVENTORY_SIZE];
+        char addItem(itemType id, int quantity);
+        bool open = false;
+        char selected_slot = 0;
+        inventoryItem* getSelectedSlot();
+        void swapWithMouseItem(inventoryItem* item);
+        void clearMouseItem();
+        inventoryItem* getMouseItem();
+        void clear();
+    private:
+        inventoryItem mouse_item;
+    };
+    
+    class player {
+    public:
+        player(unsigned short id) : id(id) {}
+        connection* conn;
+        unsigned short id;
+        bool flipped = false;
+        int x = 0, y = 0;
+        unsigned short sight_width = 0, sight_height = 0;
+        inventory inventory;
+        unsigned short breaking_x, breaking_y;
+        bool breaking = false;
+    };
+    
 protected:
     unsigned short width, height;
     blockData *blocks = nullptr;
@@ -122,12 +165,12 @@ protected:
     
     void onPacket(packets::packet& packet, connection& conn);
     
-public: // !!! should be protected
     networkingManager* manager;
     std::vector<item> items;
+    std::vector<player> players;
     
 public:
-    map(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE}; }
+    map(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
     
     block getBlock(unsigned short x, unsigned short y);
     
@@ -138,16 +181,16 @@ public:
     inline unsigned short getWorldHeight() { return height; }
     
     void createWorld(unsigned short width, unsigned short height);
-    
     void setNaturalLight();
-    
     void spawnItem(itemType item_id, int x, int y, short id=-1);
     
     item* getItemById(unsigned short id);
+    player* getPlayerByConnection(connection* conn);
     
     void updateItems(float frame_length);
-    
-    void updatePlayersBreaking();
+    void updatePlayersBreaking(unsigned short tick_length);
+    void lookForItems(map& world_map);
+    void updateLight();
     
     ~map();
 };
