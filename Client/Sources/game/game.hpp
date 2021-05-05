@@ -23,7 +23,7 @@
 #endif
 
 #include "playerHandler.hpp"
-#include "networkingModule.hpp"
+#include "clientNetworking.hpp"
 
 
 class game : public gfx::scene {

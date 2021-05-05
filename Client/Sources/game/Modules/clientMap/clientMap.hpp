@@ -1,12 +1,12 @@
 //
-//  map.hpp
+//  clientMap.hpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 04/04/2021.
 //
 
-#ifndef map_hpp
-#define map_hpp
+#ifndef clientMap_hpp
+#define clientMap_hpp
 
 #include <vector>
 #include <string>
@@ -23,7 +23,7 @@
 
 #endif
 
-#include "networkingModule.hpp"
+#include "clientNetworking.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -168,4 +168,4 @@ public:
     ~map();
 };
 
-#endif /* map_hpp */
+#endif /* clientMap_hpp */

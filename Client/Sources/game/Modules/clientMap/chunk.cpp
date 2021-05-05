@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 09/04/2021.
 //
 
-#include "map.hpp"
+#include "clientMap.hpp"
 #include "assert.hpp"
 
 void map::chunk::updateTexture() {

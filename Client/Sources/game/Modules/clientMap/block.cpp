@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 05/04/2021.
 //
 
-#include "map.hpp"
+#include "clientMap.hpp"
 #include "assert.hpp"
 
 map::uniqueBlock* map::unique_blocks;

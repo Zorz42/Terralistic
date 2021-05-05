@@ -22,7 +22,7 @@
 #endif
 
 #include <thread>
-#include "map.hpp"
+#include "clientMap.hpp"
 
 #define LOADING_RECT_HEIGHT 20
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)

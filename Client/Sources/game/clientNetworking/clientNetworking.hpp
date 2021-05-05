@@ -1,12 +1,12 @@
 //
-//  networkingModule.hpp
+//  clientNetworking.hpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#ifndef networkingModule_hpp
-#define networkingModule_hpp
+#ifndef clientNetworking_hpp
+#define clientNetworking_hpp
 
 #include "packets.hpp"
 
@@ -36,4 +36,4 @@ public:
     void registerListener(packetListener* listener);
 };
 
-#endif /* networkingModule_hpp */
+#endif /* clientNetworking_hpp */

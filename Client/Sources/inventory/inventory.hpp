@@ -10,7 +10,7 @@
 
 #define INVENTORY_SIZE 20
 
-#include "map.hpp"
+#include "clientMap.hpp"
 
 struct inventoryItem {
 public:

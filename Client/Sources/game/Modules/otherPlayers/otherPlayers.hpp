@@ -21,8 +21,8 @@
 
 #endif
 
-#include "networkingModule.hpp"
-#include "map.hpp"
+#include "clientNetworking.hpp"
+#include "clientMap.hpp"
 
 class players : public gfx::sceneModule, packetListener {
     struct player {

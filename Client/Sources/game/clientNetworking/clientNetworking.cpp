@@ -1,5 +1,5 @@
 //
-//  networkingModule.cpp
+//  clientNetworking.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 12/01/2021.
@@ -15,7 +15,7 @@
 #include <unistd.h>
 #endif
 
-#include "networkingModule.hpp"
+#include "clientNetworking.hpp"
 #include <thread>
 
 #define PORT 33770
