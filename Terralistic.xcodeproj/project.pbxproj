@@ -30,6 +30,12 @@
 		1661663D25EA561A002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
 		1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
 		1662BC202635AAE60062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
+		167B37F62642EB7700E3C718 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A125F6B70F00F7EB4F /* SDL2_image.framework */; };
+		167B37F72642EB7700E3C718 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A125F6B70F00F7EB4F /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		167B37F82642EB7700E3C718 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */; };
+		167B37F92642EB7700E3C718 /* SDL2_ttf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		167B37FA2642EB7700E3C718 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; };
+		167B37FB2642EB7700E3C718 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1681101A263BE9260086D659 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100C263BE9260086D659 /* block.cpp */; };
 		1681101C263BE9260086D659 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100E263BE9260086D659 /* item.cpp */; };
 		1681101D263BE9260086D659 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100F263BE9260086D659 /* map.cpp */; };
@@ -59,12 +65,6 @@
 		169124B125F6B75500F7EB4F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; };
 		169124B225F6B75500F7EB4F /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		169124CE25F6B8ED00F7EB4F /* graphics.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1691249825F6B38200F7EB4F /* graphics.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		169124D425F6BA7700F7EB4F /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D125F6BA7700F7EB4F /* SDL2_image.framework */; };
-		169124D525F6BA7700F7EB4F /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D125F6BA7700F7EB4F /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		169124D625F6BA7700F7EB4F /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D225F6BA7700F7EB4F /* SDL2_ttf.framework */; };
-		169124D725F6BA7700F7EB4F /* SDL2_ttf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D225F6BA7700F7EB4F /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		169124D825F6BA7700F7EB4F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D325F6BA7700F7EB4F /* SDL2.framework */; };
-		169124D925F6BA7700F7EB4F /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124D325F6BA7700F7EB4F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		169124E425F6BC2400F7EB4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169124E325F6BC2400F7EB4F /* main.cpp */; };
 		169124E525F6BC2400F7EB4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169124E325F6BC2400F7EB4F /* main.cpp */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
@@ -121,6 +121,19 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		167B37FC2642EB7700E3C718 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				167B37FB2642EB7700E3C718 /* SDL2.framework in Embed Frameworks */,
+				167B37F92642EB7700E3C718 /* SDL2_ttf.framework in Embed Frameworks */,
+				167B37F72642EB7700E3C718 /* SDL2_image.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		169124B325F6B75500F7EB4F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -130,19 +143,6 @@
 				169124B225F6B75500F7EB4F /* SDL2.framework in Embed Frameworks */,
 				169124B025F6B75500F7EB4F /* SDL2_ttf.framework in Embed Frameworks */,
 				169124AE25F6B75500F7EB4F /* SDL2_image.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		169124DA25F6BA7700F7EB4F /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				169124D925F6BA7700F7EB4F /* SDL2.framework in Embed Frameworks */,
-				169124D725F6BA7700F7EB4F /* SDL2_ttf.framework in Embed Frameworks */,
-				169124D525F6BA7700F7EB4F /* SDL2_image.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -266,9 +266,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				169124D825F6BA7700F7EB4F /* SDL2.framework in Frameworks */,
-				169124D625F6BA7700F7EB4F /* SDL2_ttf.framework in Frameworks */,
-				169124D425F6BA7700F7EB4F /* SDL2_image.framework in Frameworks */,
+				167B37FA2642EB7700E3C718 /* SDL2.framework in Frameworks */,
+				167B37F82642EB7700E3C718 /* SDL2_ttf.framework in Frameworks */,
+				167B37F62642EB7700E3C718 /* SDL2_image.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -673,7 +673,7 @@
 				169124BB25F6B89700F7EB4F /* Sources */,
 				169124BC25F6B89700F7EB4F /* Frameworks */,
 				169124BD25F6B89700F7EB4F /* Resources */,
-				169124DA25F6BA7700F7EB4F /* Embed Frameworks */,
+				167B37FC2642EB7700E3C718 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1238,6 +1238,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Client/Graphics/Frameworks-Debug",
+					"$(PROJECT_DIR)/Client/Graphics/Frameworks",
 				);
 				INFOPLIST_FILE = Client/Graphics/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1275,6 +1276,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Client/Graphics/Frameworks-Debug",
+					"$(PROJECT_DIR)/Client/Graphics/Frameworks",
 				);
 				INFOPLIST_FILE = Client/Graphics/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

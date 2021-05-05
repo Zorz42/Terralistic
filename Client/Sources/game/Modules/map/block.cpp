@@ -27,7 +27,7 @@ void map::initBlocks() {
 }
 
 map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to) : ghost(ghost), name(name), connects_to(connects_to) {
-    texture.setTexture(name == "air" ? nullptr : gfx::loadImageFile("texturePack/blocks/" + name + ".png"));
+    texture.setTexture(gfx::loadImageFile("texturePack/blocks/" + name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;
     texture.free_texture = false;

@@ -45,8 +45,10 @@ void map::item::draw(short x, short y, unsigned char scale) {
 }
 
 void map::uniqueItem::draw(short x, short y, unsigned char scale) {
-    texture.scale = scale;
-    gfx::render(texture, x, y);
+    if(texture.getTexture()) {
+        texture.scale = scale;
+        gfx::render(texture, x, y);
+    }
 }
 
 void map::renderItems() {
