@@ -6,7 +6,7 @@
 //
 
 #include "map.hpp"
-#include "dev.hpp"
+#include "assert.hpp"
 #include "networkingModule.hpp"
 
 std::vector<map::uniqueBlock> map::unique_blocks;

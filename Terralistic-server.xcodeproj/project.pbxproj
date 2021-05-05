@@ -79,7 +79,7 @@
 		165FF841263987E3003941F8 /* simplex-noise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "simplex-noise.cpp"; sourceTree = "<group>"; };
 		165FF843263987E3003941F8 /* packets.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = packets.hpp; sourceTree = "<group>"; };
 		165FF844263987E3003941F8 /* packets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
-		165FF846263987E3003941F8 /* dev.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = dev.hpp; sourceTree = "<group>"; };
+		165FF846263987E3003941F8 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
 		165FF847263987E3003941F8 /* debugBreak.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		166164C925EA23D1002A3815 /* Terralistic-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661650A25EA249D002A3815 /* networkingModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = networkingModule.cpp; sourceTree = "<group>"; };
@@ -151,7 +151,7 @@
 			children = (
 				165FF83C263987E3003941F8 /* fileSystem */,
 				165FF842263987E3003941F8 /* packets */,
-				165FF845263987E3003941F8 /* dev */,
+				165FF845263987E3003941F8 /* assert */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -183,13 +183,13 @@
 			path = packets;
 			sourceTree = "<group>";
 		};
-		165FF845263987E3003941F8 /* dev */ = {
+		165FF845263987E3003941F8 /* assert */ = {
 			isa = PBXGroup;
 			children = (
-				165FF846263987E3003941F8 /* dev.hpp */,
+				165FF846263987E3003941F8 /* assert.hpp */,
 				165FF847263987E3003941F8 /* debugBreak.hpp */,
 			);
-			path = dev;
+			path = assert;
 			sourceTree = "<group>";
 		};
 		166164C025EA23D1002A3815 = {

@@ -6,7 +6,7 @@
 //
 
 #include "map.hpp"
-#include "dev.hpp"
+#include "assert.hpp"
 
 map::uniqueBlock* map::unique_blocks;
 gfx::image breaking_texture;

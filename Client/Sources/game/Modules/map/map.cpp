@@ -6,7 +6,7 @@
 //
 
 #include "map.hpp"
-#include "dev.hpp"
+#include "assert.hpp"
 
 void map::createWorld(unsigned short map_width, unsigned short map_height) {
     chunks = new chunkData[map_width * map_height];

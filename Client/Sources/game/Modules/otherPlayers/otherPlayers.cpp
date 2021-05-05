@@ -7,7 +7,7 @@
 
 #include "otherPlayers.hpp"
 #include "playerRenderer.hpp"
-#include "dev.hpp"
+#include "assert.hpp"
 
 // module for handling other players in online game
 

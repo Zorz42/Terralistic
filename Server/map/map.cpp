@@ -6,7 +6,7 @@
 //
 
 #include "map.hpp"
-#include "dev.hpp"
+#include "assert.hpp"
 #include "networkingModule.hpp"
 
 void map::createWorld(unsigned short width, unsigned short height) {

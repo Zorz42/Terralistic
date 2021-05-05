@@ -6,7 +6,7 @@
 //
 
 #include "map.hpp"
-#include "dev.hpp"
+#include "assert.hpp"
 
 void map::chunk::updateTexture() {
     chunk_data->update = false;

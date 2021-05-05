@@ -6,7 +6,7 @@
 //
 
 #include "generatingScreen.hpp"
-#include "dev.hpp"
+#include "assert.hpp"
 
 #define TEXT_SCALE 3
 

@@ -173,9 +173,10 @@
 		166165E325EA3617002A3815 /* Terralistic-Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661662C25EA3882002A3815 /* Terralistic-Debug.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = "Terralistic-Debug.app"; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic-Debug.app"; sourceTree = "<group>"; };
 		1661662D25EA3882002A3815 /* Terralistic.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Terralistic.app; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic.app"; sourceTree = "<group>"; };
-		1661663025EA4BBA002A3815 /* debugBreak.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = playerRenderer.cpp; sourceTree = "<group>"; };
 		1662BC1E2635A9E70062DBB3 /* playerRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = playerRenderer.hpp; sourceTree = "<group>"; };
+		167B37FF2642F43C00E3C718 /* debugBreak.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
+		167B38002642F49200E3C718 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
 		1681100B263BE9260086D659 /* map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = map.hpp; sourceTree = "<group>"; };
 		1681100C263BE9260086D659 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		1681100E263BE9260086D659 /* item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = item.cpp; sourceTree = "<group>"; };
@@ -213,7 +214,6 @@
 		168968C625E9607800D26060 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		1689692B25E9607800D26060 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		1689692C25E9607800D26060 /* pixel_font.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = pixel_font.ttf; sourceTree = "<group>"; };
-		1689694225E9607900D26060 /* dev.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = dev.hpp; sourceTree = "<group>"; };
 		1689699A25E962F800D26060 /* texturePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturePack; sourceTree = "<group>"; };
 		168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "graphics-internal.hpp"; sourceTree = "<group>"; };
 		168ABE9125F79DB200BBEA74 /* scenes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = scenes.cpp; sourceTree = "<group>"; };
@@ -316,15 +316,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1661662F25EA4BA8002A3815 /* dev */ = {
-			isa = PBXGroup;
-			children = (
-				1689694225E9607900D26060 /* dev.hpp */,
-				1661663025EA4BBA002A3815 /* debugBreak.hpp */,
-			);
-			path = dev;
-			sourceTree = "<group>";
-		};
 		1662BC1C2635A9D70062DBB3 /* playerRenderer */ = {
 			isa = PBXGroup;
 			children = (
@@ -332,6 +323,15 @@
 				1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */,
 			);
 			path = playerRenderer;
+			sourceTree = "<group>";
+		};
+		167B37FD2642F43C00E3C718 /* assert */ = {
+			isa = PBXGroup;
+			children = (
+				167B38002642F49200E3C718 /* assert.hpp */,
+				167B37FF2642F43C00E3C718 /* debugBreak.hpp */,
+			);
+			path = assert;
 			sourceTree = "<group>";
 		};
 		1681100A263BE9260086D659 /* map */ = {
@@ -567,8 +567,8 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				167B37FD2642F43C00E3C718 /* assert */,
 				1689687525E9607800D26060 /* fileSystem */,
-				1661662F25EA4BA8002A3815 /* dev */,
 				1689687B25E9607800D26060 /* packets */,
 			);
 			path = Libraries;
