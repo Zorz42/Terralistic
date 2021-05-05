@@ -5,9 +5,9 @@
 //  Created by Jakob Zorz on 04/04/2021.
 //
 
-#include "map.hpp"
+#include "serverMap.hpp"
 #include "assert.hpp"
-#include "networkingModule.hpp"
+#include "serverNetworking.hpp"
 
 void map::createWorld(unsigned short width, unsigned short height) {
     blocks = new blockData[(width << 4) * (height << 4)];

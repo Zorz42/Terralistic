@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 05/05/2021.
 //
 
-#include "map.hpp"
+#include "serverMap.hpp"
 #include "clickEvents.hpp"
 
 map::player* map::getPlayerByConnection(connection* conn) {

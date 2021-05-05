@@ -1,5 +1,5 @@
 //
-//  networkingModule.cpp
+//  serverNetworking.cpp
 //  Terralistic-server
 //
 //  Created by Jakob Zorz on 12/01/2021.
@@ -15,7 +15,7 @@
 
 #include <thread>
 #include "print.hpp"
-#include "map.hpp"
+#include "serverMap.hpp"
 
 #define PORT 33770
 #define PORT_STR "33770"

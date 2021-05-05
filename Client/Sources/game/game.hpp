@@ -12,7 +12,14 @@
 #include <utility>
 #include "graphics.hpp"
 #else
+
+#ifdef DEVELOPER_MODE
+#include <Graphics_Debug/graphics.hpp>
+#else
 #include <Graphics/graphics.hpp>
+#endif
+
+
 #endif
 
 #include "playerHandler.hpp"

@@ -16,7 +16,6 @@ void generatingScreen::init() {
     loading_text.setTexture(gfx::renderText("Generating world", {255, 255, 255}));
     loading_text.orientation = gfx::center;
 
-    
     //terrainGenerator::loading_total = 6;
     //terrainGenerator::loading_current = 0;
     //thread = std::thread(terrainGenerator::generateTerrainDaemon, seed, map);

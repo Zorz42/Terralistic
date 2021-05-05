@@ -16,8 +16,8 @@
 #include "print.hpp"
 #include "clickEvents.hpp"
 #include "packets.hpp"
-#include "networkingModule.hpp"
-#include "map.hpp"
+#include "serverNetworking.hpp"
+#include "serverMap.hpp"
 
 void map::onPacket(packets::packet& packet, connection& conn) {
     player* curr_player = getPlayerByConnection(&conn);

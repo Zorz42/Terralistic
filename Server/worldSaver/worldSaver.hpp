@@ -8,7 +8,7 @@
 #ifndef worldSaver_hpp
 #define worldSaver_hpp
 
-#include "map.hpp"
+#include "serverMap.hpp"
 
 namespace worldSaver {
 

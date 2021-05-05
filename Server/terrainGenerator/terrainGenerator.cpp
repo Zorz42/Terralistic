@@ -7,7 +7,7 @@
 
 #include "simplex-noise.hpp"
 #include <random>
-#include "map.hpp"
+#include "serverMap.hpp"
 #include "terrainGenerator.hpp"
 
 // terrain generation parameters

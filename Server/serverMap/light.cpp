@@ -5,8 +5,8 @@
 //  Created by Jakob Zorz on 05/04/2021.
 //
 
-#include "map.hpp"
-#include "networkingModule.hpp"
+#include "serverMap.hpp"
+#include "serverNetworking.hpp"
 
 void map::block::lightUpdate() {
     block neighbors[4];

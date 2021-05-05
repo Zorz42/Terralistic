@@ -5,10 +5,10 @@
 //  Created by Jakob Zorz on 06/04/2021.
 //
 
-#include "map.hpp"
+#include "serverMap.hpp"
 #include "assert.hpp"
 #include <random>
-#include "networkingModule.hpp"
+#include "serverNetworking.hpp"
 
 std::vector<map::uniqueItem> map::unique_items;
 

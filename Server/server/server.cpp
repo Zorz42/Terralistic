@@ -10,7 +10,7 @@
 
 #include "print.hpp"
 #include "worldSaver.hpp"
-#include "networkingModule.hpp"
+#include "serverNetworking.hpp"
 #include "fileSystem.hpp"
 #include "terrainGenerator.hpp"
 #include "clickEvents.hpp"
@@ -24,7 +24,7 @@ void inthand(int signum) {
     running = false;
 }
 
-int main() {
+int serverMain() {
     print::info("Starting server");
     
     print::info("Initializing modules");

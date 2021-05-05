@@ -8,7 +8,7 @@
 #ifndef clickEvents_hpp
 #define clickEvents_hpp
 
-#include "map.hpp"
+#include "serverMap.hpp"
 
 namespace clickEvents {
 

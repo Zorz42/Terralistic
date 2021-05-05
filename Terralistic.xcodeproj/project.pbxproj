@@ -7,6 +7,44 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1626244A26430A90007E01C4 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
+		1626244B26430A93007E01C4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687D25E9607800D26060 /* packets.cpp */; };
+		1626245026430B77007E01C4 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
+		1626245126430B77007E01C4 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
+		1626245326430BBF007E01C4 /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1626245226430B94007E01C4 /* server.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		1626245426430BD8007E01C4 /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1626245226430B94007E01C4 /* server.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		1626245526430D6F007E01C4 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
+		1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
+		1626245726430D74007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
+		1626245826430D7F007E01C4 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38C5264304FD00E3C718 /* map.cpp */; };
+		1626245926430D81007E01C4 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38812642F73900E3C718 /* player.cpp */; };
+		1626245A26430D83007E01C4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38832642F73900E3C718 /* block.cpp */; };
+		1626245B26430D85007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
+		1626245C26430D87007E01C4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38862642F73900E3C718 /* packets.cpp */; };
+		1626245D26430D88007E01C4 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38852642F73900E3C718 /* item.cpp */; };
+		1626245E26430D8A007E01C4 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38882642F73900E3C718 /* inventory.cpp */; };
+		1626245F26430D8D007E01C4 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
+		1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
+		1626246126430D93007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
+		1626246226430DBB007E01C4 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
+		1626246326430DBE007E01C4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687D25E9607800D26060 /* packets.cpp */; };
+		1626246426430DC5007E01C4 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
+		1626246526430DC8007E01C4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687D25E9607800D26060 /* packets.cpp */; };
+		1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
+		1626246726430DCE007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
+		1626246826430DD3007E01C4 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
+		1626246926430DD6007E01C4 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38C5264304FD00E3C718 /* map.cpp */; };
+		1626246A26430DD7007E01C4 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38812642F73900E3C718 /* player.cpp */; };
+		1626246B26430DD9007E01C4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38832642F73900E3C718 /* block.cpp */; };
+		1626246C26430DDA007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
+		1626246D26430DE0007E01C4 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38852642F73900E3C718 /* item.cpp */; };
+		1626246E26430DE1007E01C4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38862642F73900E3C718 /* packets.cpp */; };
+		1626246F26430DE2007E01C4 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38882642F73900E3C718 /* inventory.cpp */; };
+		1626247026430DE4007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
+		1626247126430DE6007E01C4 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
+		1626247226430DE8007E01C4 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
+		1626247326430DF6007E01C4 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
+		1626247426430E0B007E01C4 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
 		165FF85D263997B2003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
 		165FF86226399997003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
 		1661660125EA3656002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
@@ -36,6 +74,56 @@
 		167B37F92642EB7700E3C718 /* SDL2_ttf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		167B37FA2642EB7700E3C718 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; };
 		167B37FB2642EB7700E3C718 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		167B38232642F63B00E3C718 /* Server.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 167B381C2642F63B00E3C718 /* Server.framework */; };
+		167B38242642F63B00E3C718 /* Server.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 167B381C2642F63B00E3C718 /* Server.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		167B38392642F6A400E3C718 /* Server_Debug.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 167B382D2642F64800E3C718 /* Server_Debug.framework */; };
+		167B383A2642F6A400E3C718 /* Server_Debug.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 167B382D2642F64800E3C718 /* Server_Debug.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		167B38942642F73900E3C718 /* clickEvents.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B38772642F73900E3C718 /* clickEvents.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38952642F73900E3C718 /* clickEvents.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B38772642F73900E3C718 /* clickEvents.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38962642F73900E3C718 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
+		167B38972642F73900E3C718 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
+		167B389A2642F73900E3C718 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
+		167B389B2642F73900E3C718 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
+		167B389C2642F73900E3C718 /* serverNetworking.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B387C2642F73900E3C718 /* serverNetworking.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B389D2642F73900E3C718 /* serverNetworking.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B387C2642F73900E3C718 /* serverNetworking.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B389E2642F73900E3C718 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
+		167B389F2642F73900E3C718 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
+		167B38A02642F73900E3C718 /* print.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B387F2642F73900E3C718 /* print.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38A12642F73900E3C718 /* print.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B387F2642F73900E3C718 /* print.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38A22642F73900E3C718 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38812642F73900E3C718 /* player.cpp */; };
+		167B38A32642F73900E3C718 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38812642F73900E3C718 /* player.cpp */; };
+		167B38A42642F73900E3C718 /* serverMap.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B38822642F73900E3C718 /* serverMap.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38A52642F73900E3C718 /* serverMap.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B38822642F73900E3C718 /* serverMap.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38A62642F73900E3C718 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38832642F73900E3C718 /* block.cpp */; };
+		167B38A72642F73900E3C718 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38832642F73900E3C718 /* block.cpp */; };
+		167B38A82642F73900E3C718 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
+		167B38A92642F73900E3C718 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
+		167B38AA2642F73900E3C718 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38852642F73900E3C718 /* item.cpp */; };
+		167B38AB2642F73900E3C718 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38852642F73900E3C718 /* item.cpp */; };
+		167B38AC2642F73900E3C718 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38862642F73900E3C718 /* packets.cpp */; };
+		167B38AD2642F73900E3C718 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38862642F73900E3C718 /* packets.cpp */; };
+		167B38B02642F73900E3C718 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38882642F73900E3C718 /* inventory.cpp */; };
+		167B38B12642F73900E3C718 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38882642F73900E3C718 /* inventory.cpp */; };
+		167B38B22642F73900E3C718 /* worldSaver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388A2642F73900E3C718 /* worldSaver.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38B32642F73900E3C718 /* worldSaver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388A2642F73900E3C718 /* worldSaver.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38B42642F73900E3C718 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
+		167B38B52642F73900E3C718 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
+		167B38B62642F73900E3C718 /* terrainGenerator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388D2642F73900E3C718 /* terrainGenerator.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38B72642F73900E3C718 /* terrainGenerator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388D2642F73900E3C718 /* terrainGenerator.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38B82642F73900E3C718 /* simplex-noise.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388F2642F73900E3C718 /* simplex-noise.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38B92642F73900E3C718 /* simplex-noise.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388F2642F73900E3C718 /* simplex-noise.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		167B38BA2642F73900E3C718 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
+		167B38BB2642F73900E3C718 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
+		167B38BC2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
+		167B38BD2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
+		167B38BE2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
+		167B38BF2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
+		167B38C12642FB5100E3C718 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 167B38C02642FB5100E3C718 /* info.plist */; };
+		167B38C22642FB5100E3C718 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 167B38C02642FB5100E3C718 /* info.plist */; };
+		167B38C3264303CC00E3C718 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
+		167B38C4264303D000E3C718 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687D25E9607800D26060 /* packets.cpp */; };
+		167B38C6264304FD00E3C718 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38C5264304FD00E3C718 /* map.cpp */; };
+		167B38C7264304FD00E3C718 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38C5264304FD00E3C718 /* map.cpp */; };
 		1681101A263BE9260086D659 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100C263BE9260086D659 /* block.cpp */; };
 		1681101C263BE9260086D659 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100E263BE9260086D659 /* item.cpp */; };
 		1681101D263BE9260086D659 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1681100F263BE9260086D659 /* map.cpp */; };
@@ -93,6 +181,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		167B38212642F63B00E3C718 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1689684E25E95FD000D26060 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 167B381B2642F63B00E3C718;
+			remoteInfo = Server;
+		};
+		167B383B2642F6A400E3C718 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1689684E25E95FD000D26060 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 167B382C2642F64800E3C718;
+			remoteInfo = "Server-Debug";
+		};
 		1691248D25F6B2CE00F7EB4F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1689684E25E95FD000D26060 /* Project object */;
@@ -117,6 +219,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				1691249025F6B2CE00F7EB4F /* Graphics.framework in Embed Frameworks */,
+				167B38242642F63B00E3C718 /* Server.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -133,6 +236,24 @@
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B38032642F61300E3C718 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		167B380E2642F63000E3C718 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 		169124B325F6B75500F7EB4F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -154,6 +275,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				1691251125F6BF4800F7EB4F /* Graphics_Debug.framework in Embed Frameworks */,
+				167B383A2642F6A400E3C718 /* Server_Debug.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -161,6 +283,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1626244F26430B77007E01C4 /* launcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = launcher.cpp; sourceTree = "<group>"; };
+		1626245226430B94007E01C4 /* server.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = server.hpp; sourceTree = "<group>"; };
 		165FF85B263997B2003941F8 /* textScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = textScreen.hpp; sourceTree = "<group>"; };
 		165FF85C263997B2003941F8 /* textScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = textScreen.cpp; sourceTree = "<group>"; };
 		1661657B25EA2D0D002A3815 /* Terralistic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Terralistic.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -177,6 +301,32 @@
 		1662BC1E2635A9E70062DBB3 /* playerRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = playerRenderer.hpp; sourceTree = "<group>"; };
 		167B37FF2642F43C00E3C718 /* debugBreak.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		167B38002642F49200E3C718 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
+		167B38052642F61300E3C718 /* Terralistic-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server"; sourceTree = BUILT_PRODUCTS_DIR; };
+		167B38102642F63000E3C718 /* Terralistic-server-Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server-Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
+		167B381C2642F63B00E3C718 /* Server.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Server.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		167B382D2642F64800E3C718 /* Server_Debug.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Server_Debug.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		167B38772642F73900E3C718 /* clickEvents.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clickEvents.hpp; sourceTree = "<group>"; };
+		167B38782642F73900E3C718 /* clickEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clickEvents.cpp; sourceTree = "<group>"; };
+		167B387B2642F73900E3C718 /* serverNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverNetworking.cpp; sourceTree = "<group>"; };
+		167B387C2642F73900E3C718 /* serverNetworking.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverNetworking.hpp; sourceTree = "<group>"; };
+		167B387E2642F73900E3C718 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
+		167B387F2642F73900E3C718 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
+		167B38812642F73900E3C718 /* player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
+		167B38822642F73900E3C718 /* serverMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverMap.hpp; sourceTree = "<group>"; };
+		167B38832642F73900E3C718 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
+		167B38842642F73900E3C718 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
+		167B38852642F73900E3C718 /* item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = item.cpp; sourceTree = "<group>"; };
+		167B38862642F73900E3C718 /* packets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
+		167B38882642F73900E3C718 /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
+		167B388A2642F73900E3C718 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
+		167B388B2642F73900E3C718 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
+		167B388D2642F73900E3C718 /* terrainGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = terrainGenerator.hpp; sourceTree = "<group>"; };
+		167B388F2642F73900E3C718 /* simplex-noise.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "simplex-noise.hpp"; sourceTree = "<group>"; };
+		167B38902642F73900E3C718 /* simplex-noise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "simplex-noise.cpp"; sourceTree = "<group>"; };
+		167B38912642F73900E3C718 /* terrainGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terrainGenerator.cpp; sourceTree = "<group>"; };
+		167B38932642F73900E3C718 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
+		167B38C02642FB5100E3C718 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		167B38C5264304FD00E3C718 /* map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map.cpp; sourceTree = "<group>"; };
 		1681100B263BE9260086D659 /* map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = map.hpp; sourceTree = "<group>"; };
 		1681100C263BE9260086D659 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		1681100E263BE9260086D659 /* item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = item.cpp; sourceTree = "<group>"; };
@@ -241,6 +391,35 @@
 			buildActionMask = 2147483647;
 			files = (
 				1691251025F6BF4800F7EB4F /* Graphics_Debug.framework in Frameworks */,
+				167B38392642F6A400E3C718 /* Server_Debug.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B38022642F61300E3C718 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B380D2642F63000E3C718 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B38192642F63B00E3C718 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B382A2642F64800E3C718 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +428,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1691248F25F6B2CE00F7EB4F /* Graphics.framework in Frameworks */,
+				167B38232642F63B00E3C718 /* Server.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +455,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1626244C26430B41007E01C4 /* launcher */ = {
+			isa = PBXGroup;
+			children = (
+				1626244F26430B77007E01C4 /* launcher.cpp */,
+			);
+			path = launcher;
+			sourceTree = "<group>";
+		};
 		165FF85A263997B2003941F8 /* textScreen */ = {
 			isa = PBXGroup;
 			children = (
@@ -312,6 +500,10 @@
 				166165E325EA3617002A3815 /* Terralistic-Debug.app */,
 				1691248825F6B2CE00F7EB4F /* Graphics.framework */,
 				169124BF25F6B89700F7EB4F /* Graphics_Debug.framework */,
+				167B38052642F61300E3C718 /* Terralistic-server */,
+				167B38102642F63000E3C718 /* Terralistic-server-Debug */,
+				167B381C2642F63B00E3C718 /* Server.framework */,
+				167B382D2642F64800E3C718 /* Server_Debug.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -332,6 +524,101 @@
 				167B37FF2642F43C00E3C718 /* debugBreak.hpp */,
 			);
 			path = assert;
+			sourceTree = "<group>";
+		};
+		167B38752642F73900E3C718 /* Server */ = {
+			isa = PBXGroup;
+			children = (
+				1626244C26430B41007E01C4 /* launcher */,
+				167B38762642F73900E3C718 /* clickEvents */,
+				167B387A2642F73900E3C718 /* serverNetworking */,
+				167B387D2642F73900E3C718 /* print */,
+				167B38802642F73900E3C718 /* serverMap */,
+				167B38892642F73900E3C718 /* worldSaver */,
+				167B388C2642F73900E3C718 /* terrainGenerator */,
+				167B38922642F73900E3C718 /* server */,
+				167B38C02642FB5100E3C718 /* info.plist */,
+			);
+			path = Server;
+			sourceTree = "<group>";
+		};
+		167B38762642F73900E3C718 /* clickEvents */ = {
+			isa = PBXGroup;
+			children = (
+				167B38772642F73900E3C718 /* clickEvents.hpp */,
+				167B38782642F73900E3C718 /* clickEvents.cpp */,
+			);
+			path = clickEvents;
+			sourceTree = "<group>";
+		};
+		167B387A2642F73900E3C718 /* serverNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				167B387C2642F73900E3C718 /* serverNetworking.hpp */,
+				167B387B2642F73900E3C718 /* serverNetworking.cpp */,
+			);
+			path = serverNetworking;
+			sourceTree = "<group>";
+		};
+		167B387D2642F73900E3C718 /* print */ = {
+			isa = PBXGroup;
+			children = (
+				167B387F2642F73900E3C718 /* print.hpp */,
+				167B387E2642F73900E3C718 /* print.cpp */,
+			);
+			path = print;
+			sourceTree = "<group>";
+		};
+		167B38802642F73900E3C718 /* serverMap */ = {
+			isa = PBXGroup;
+			children = (
+				167B38822642F73900E3C718 /* serverMap.hpp */,
+				167B38C5264304FD00E3C718 /* map.cpp */,
+				167B38812642F73900E3C718 /* player.cpp */,
+				167B38832642F73900E3C718 /* block.cpp */,
+				167B38842642F73900E3C718 /* light.cpp */,
+				167B38852642F73900E3C718 /* item.cpp */,
+				167B38862642F73900E3C718 /* packets.cpp */,
+				167B38882642F73900E3C718 /* inventory.cpp */,
+			);
+			path = serverMap;
+			sourceTree = "<group>";
+		};
+		167B38892642F73900E3C718 /* worldSaver */ = {
+			isa = PBXGroup;
+			children = (
+				167B388A2642F73900E3C718 /* worldSaver.hpp */,
+				167B388B2642F73900E3C718 /* worldSaver.cpp */,
+			);
+			path = worldSaver;
+			sourceTree = "<group>";
+		};
+		167B388C2642F73900E3C718 /* terrainGenerator */ = {
+			isa = PBXGroup;
+			children = (
+				167B388D2642F73900E3C718 /* terrainGenerator.hpp */,
+				167B388E2642F73900E3C718 /* simplexNoise */,
+				167B38912642F73900E3C718 /* terrainGenerator.cpp */,
+			);
+			path = terrainGenerator;
+			sourceTree = "<group>";
+		};
+		167B388E2642F73900E3C718 /* simplexNoise */ = {
+			isa = PBXGroup;
+			children = (
+				167B388F2642F73900E3C718 /* simplex-noise.hpp */,
+				167B38902642F73900E3C718 /* simplex-noise.cpp */,
+			);
+			path = simplexNoise;
+			sourceTree = "<group>";
+		};
+		167B38922642F73900E3C718 /* server */ = {
+			isa = PBXGroup;
+			children = (
+				1626245226430B94007E01C4 /* server.hpp */,
+				167B38932642F73900E3C718 /* server.cpp */,
+			);
+			path = server;
 			sourceTree = "<group>";
 		};
 		1681100A263BE9260086D659 /* map */ = {
@@ -361,6 +648,7 @@
 			children = (
 				3619ACED26173D7000BA4EAF /* Libraries */,
 				1689699C25E9653E00D26060 /* Client */,
+				167B38752642F73900E3C718 /* Server */,
 				1661654A25EA2CC8002A3815 /* Frameworks */,
 				1661662B25EA3873002A3815 /* Products */,
 			);
@@ -588,6 +876,36 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		167B38172642F63B00E3C718 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				167B389C2642F73900E3C718 /* serverNetworking.hpp in Headers */,
+				167B38942642F73900E3C718 /* clickEvents.hpp in Headers */,
+				167B38A02642F73900E3C718 /* print.hpp in Headers */,
+				167B38B22642F73900E3C718 /* worldSaver.hpp in Headers */,
+				167B38A42642F73900E3C718 /* serverMap.hpp in Headers */,
+				167B38B62642F73900E3C718 /* terrainGenerator.hpp in Headers */,
+				167B38B82642F73900E3C718 /* simplex-noise.hpp in Headers */,
+				1626245326430BBF007E01C4 /* server.hpp in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B38282642F64800E3C718 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1626245426430BD8007E01C4 /* server.hpp in Headers */,
+				167B389D2642F73900E3C718 /* serverNetworking.hpp in Headers */,
+				167B38952642F73900E3C718 /* clickEvents.hpp in Headers */,
+				167B38B92642F73900E3C718 /* simplex-noise.hpp in Headers */,
+				167B38A52642F73900E3C718 /* serverMap.hpp in Headers */,
+				167B38B72642F73900E3C718 /* terrainGenerator.hpp in Headers */,
+				167B38A12642F73900E3C718 /* print.hpp in Headers */,
+				167B38B32642F73900E3C718 /* worldSaver.hpp in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1691248325F6B2CE00F7EB4F /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -621,11 +939,82 @@
 			);
 			dependencies = (
 				1691251325F6BF4800F7EB4F /* PBXTargetDependency */,
+				167B383C2642F6A400E3C718 /* PBXTargetDependency */,
 			);
 			name = "Terralistic-Debug";
 			productName = "Terralistic-Debug";
 			productReference = 166165E325EA3617002A3815 /* Terralistic-Debug.app */;
 			productType = "com.apple.product-type.application";
+		};
+		167B38042642F61300E3C718 /* Terralistic-server */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 167B38092642F61300E3C718 /* Build configuration list for PBXNativeTarget "Terralistic-server" */;
+			buildPhases = (
+				167B38012642F61300E3C718 /* Sources */,
+				167B38022642F61300E3C718 /* Frameworks */,
+				167B38032642F61300E3C718 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Terralistic-server";
+			productName = "Terralistic-server";
+			productReference = 167B38052642F61300E3C718 /* Terralistic-server */;
+			productType = "com.apple.product-type.tool";
+		};
+		167B380F2642F63000E3C718 /* Terralistic-server-Debug */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 167B38142642F63000E3C718 /* Build configuration list for PBXNativeTarget "Terralistic-server-Debug" */;
+			buildPhases = (
+				167B380C2642F63000E3C718 /* Sources */,
+				167B380D2642F63000E3C718 /* Frameworks */,
+				167B380E2642F63000E3C718 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Terralistic-server-Debug";
+			productName = "Terralistic-server-Debug";
+			productReference = 167B38102642F63000E3C718 /* Terralistic-server-Debug */;
+			productType = "com.apple.product-type.tool";
+		};
+		167B381B2642F63B00E3C718 /* Server */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 167B38252642F63B00E3C718 /* Build configuration list for PBXNativeTarget "Server" */;
+			buildPhases = (
+				167B38172642F63B00E3C718 /* Headers */,
+				167B38182642F63B00E3C718 /* Sources */,
+				167B38192642F63B00E3C718 /* Frameworks */,
+				167B381A2642F63B00E3C718 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Server;
+			productName = Server;
+			productReference = 167B381C2642F63B00E3C718 /* Server.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		167B382C2642F64800E3C718 /* Server-Debug */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 167B38362642F64800E3C718 /* Build configuration list for PBXNativeTarget "Server-Debug" */;
+			buildPhases = (
+				167B38282642F64800E3C718 /* Headers */,
+				167B38292642F64800E3C718 /* Sources */,
+				167B382A2642F64800E3C718 /* Frameworks */,
+				167B382B2642F64800E3C718 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Server-Debug";
+			productName = "Server-Debug";
+			productReference = 167B382D2642F64800E3C718 /* Server_Debug.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 		1689685525E95FD000D26060 /* Terralistic */ = {
 			isa = PBXNativeTarget;
@@ -640,6 +1029,7 @@
 			);
 			dependencies = (
 				1691248E25F6B2CE00F7EB4F /* PBXTargetDependency */,
+				167B38222642F63B00E3C718 /* PBXTargetDependency */,
 			);
 			name = Terralistic;
 			productName = Terralistic;
@@ -695,6 +1085,18 @@
 					166165E225EA3617002A3815 = {
 						CreatedOnToolsVersion = 12.4;
 					};
+					167B38042642F61300E3C718 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					167B380F2642F63000E3C718 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					167B381B2642F63B00E3C718 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					167B382C2642F64800E3C718 = {
+						CreatedOnToolsVersion = 12.5;
+					};
 					1689685525E95FD000D26060 = {
 						CreatedOnToolsVersion = 12.4;
 					};
@@ -721,8 +1123,12 @@
 			targets = (
 				1689685525E95FD000D26060 /* Terralistic */,
 				166165E225EA3617002A3815 /* Terralistic-Debug */,
+				167B38042642F61300E3C718 /* Terralistic-server */,
+				167B380F2642F63000E3C718 /* Terralistic-server-Debug */,
 				1691248725F6B2CE00F7EB4F /* Graphics */,
 				169124BE25F6B89700F7EB4F /* Graphics-Debug */,
+				167B381B2642F63B00E3C718 /* Server */,
+				167B382C2642F64800E3C718 /* Server-Debug */,
 			);
 		};
 /* End PBXProject section */
@@ -735,6 +1141,22 @@
 				1661663D25EA561A002A3815 /* icon.icns in Resources */,
 				1661662925EA377B002A3815 /* pixel_font.ttf in Resources */,
 				1661662A25EA377B002A3815 /* texturePack in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B381A2642F63B00E3C718 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				167B38C12642FB5100E3C718 /* info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B382B2642F64800E3C718 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				167B38C22642FB5100E3C718 /* info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -797,6 +1219,100 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		167B38012642F61300E3C718 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1626245026430B77007E01C4 /* launcher.cpp in Sources */,
+				1626245526430D6F007E01C4 /* clickEvents.cpp in Sources */,
+				1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */,
+				1626245926430D81007E01C4 /* player.cpp in Sources */,
+				1626245826430D7F007E01C4 /* map.cpp in Sources */,
+				1626245B26430D85007E01C4 /* light.cpp in Sources */,
+				1626245C26430D87007E01C4 /* packets.cpp in Sources */,
+				1626245D26430D88007E01C4 /* item.cpp in Sources */,
+				1626245E26430D8A007E01C4 /* inventory.cpp in Sources */,
+				1626245F26430D8D007E01C4 /* worldSaver.cpp in Sources */,
+				1626245A26430D83007E01C4 /* block.cpp in Sources */,
+				1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */,
+				1626246126430D93007E01C4 /* server.cpp in Sources */,
+				1626247426430E0B007E01C4 /* simplex-noise.cpp in Sources */,
+				1626245726430D74007E01C4 /* print.cpp in Sources */,
+				1626246226430DBB007E01C4 /* fileSystem.cpp in Sources */,
+				1626246326430DBE007E01C4 /* packets.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B380C2642F63000E3C718 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1626246826430DD3007E01C4 /* worldSaver.cpp in Sources */,
+				1626245126430B77007E01C4 /* launcher.cpp in Sources */,
+				1626246426430DC5007E01C4 /* fileSystem.cpp in Sources */,
+				1626246926430DD6007E01C4 /* map.cpp in Sources */,
+				1626246A26430DD7007E01C4 /* player.cpp in Sources */,
+				1626246D26430DE0007E01C4 /* item.cpp in Sources */,
+				1626246F26430DE2007E01C4 /* inventory.cpp in Sources */,
+				1626246C26430DDA007E01C4 /* light.cpp in Sources */,
+				1626247026430DE4007E01C4 /* print.cpp in Sources */,
+				1626247126430DE6007E01C4 /* serverNetworking.cpp in Sources */,
+				1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */,
+				1626247226430DE8007E01C4 /* clickEvents.cpp in Sources */,
+				1626246E26430DE1007E01C4 /* packets.cpp in Sources */,
+				1626246B26430DD9007E01C4 /* block.cpp in Sources */,
+				1626247326430DF6007E01C4 /* simplex-noise.cpp in Sources */,
+				1626246526430DC8007E01C4 /* packets.cpp in Sources */,
+				1626246726430DCE007E01C4 /* server.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B38182642F63B00E3C718 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				167B38A22642F73900E3C718 /* player.cpp in Sources */,
+				167B38962642F73900E3C718 /* clickEvents.cpp in Sources */,
+				167B38C6264304FD00E3C718 /* map.cpp in Sources */,
+				167B38BA2642F73900E3C718 /* simplex-noise.cpp in Sources */,
+				167B38BE2642F73900E3C718 /* server.cpp in Sources */,
+				167B38AA2642F73900E3C718 /* item.cpp in Sources */,
+				167B38B02642F73900E3C718 /* inventory.cpp in Sources */,
+				167B38B42642F73900E3C718 /* worldSaver.cpp in Sources */,
+				167B38A82642F73900E3C718 /* light.cpp in Sources */,
+				167B38A62642F73900E3C718 /* block.cpp in Sources */,
+				167B389A2642F73900E3C718 /* serverNetworking.cpp in Sources */,
+				167B389E2642F73900E3C718 /* print.cpp in Sources */,
+				167B38BC2642F73900E3C718 /* terrainGenerator.cpp in Sources */,
+				167B38AC2642F73900E3C718 /* packets.cpp in Sources */,
+				1626244A26430A90007E01C4 /* fileSystem.cpp in Sources */,
+				1626244B26430A93007E01C4 /* packets.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		167B38292642F64800E3C718 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				167B38A32642F73900E3C718 /* player.cpp in Sources */,
+				167B38972642F73900E3C718 /* clickEvents.cpp in Sources */,
+				167B38BB2642F73900E3C718 /* simplex-noise.cpp in Sources */,
+				167B38BF2642F73900E3C718 /* server.cpp in Sources */,
+				167B38AB2642F73900E3C718 /* item.cpp in Sources */,
+				167B38B12642F73900E3C718 /* inventory.cpp in Sources */,
+				167B38B52642F73900E3C718 /* worldSaver.cpp in Sources */,
+				167B38A92642F73900E3C718 /* light.cpp in Sources */,
+				167B38A72642F73900E3C718 /* block.cpp in Sources */,
+				167B389B2642F73900E3C718 /* serverNetworking.cpp in Sources */,
+				167B389F2642F73900E3C718 /* print.cpp in Sources */,
+				167B38C7264304FD00E3C718 /* map.cpp in Sources */,
+				167B38BD2642F73900E3C718 /* terrainGenerator.cpp in Sources */,
+				167B38AD2642F73900E3C718 /* packets.cpp in Sources */,
+				167B38C3264303CC00E3C718 /* fileSystem.cpp in Sources */,
+				167B38C4264303D000E3C718 /* packets.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1689685225E95FD000D26060 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -854,6 +1370,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		167B38222642F63B00E3C718 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 167B381B2642F63B00E3C718 /* Server */;
+			targetProxy = 167B38212642F63B00E3C718 /* PBXContainerItemProxy */;
+		};
+		167B383C2642F6A400E3C718 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 167B382C2642F64800E3C718 /* Server-Debug */;
+			targetProxy = 167B383B2642F6A400E3C718 /* PBXContainerItemProxy */;
+		};
 		1691248E25F6B2CE00F7EB4F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 1691248725F6B2CE00F7EB4F /* Graphics */;
@@ -872,6 +1398,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_ENTITLEMENTS = "Client/Terralistic-Debug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
@@ -882,18 +1409,14 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Client/Graphics/Frameworks-Debug",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = "DEVELOPER_MODE=1";
 				INFOPLIST_FILE = Client/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-D",
-					DEVELOPER_MODE,
-					"-std=c++17",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-Debug";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -904,6 +1427,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_ENTITLEMENTS = "Client/Terralistic-Debug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
@@ -920,14 +1444,185 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-D",
-					DEVELOPER_MODE,
-					"-std=c++17",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-Debug";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		167B380A2642F61300E3C718 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		167B380B2642F61300E3C718 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		167B38152642F63000E3C718 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEVELOPER_MODE=1";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		167B38162642F63000E3C718 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		167B38262642F63B00E3C718 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Server/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Server;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		167B38272642F63B00E3C718 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Server/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Server;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		167B38372642F64800E3C718 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
+				GCC_PREPROCESSOR_DEFINITIONS = "DEVELOPER_MODE=1";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/Server/*/\"",
+					"\"$(SRCROOT)/Server/*/*/\"",
+				);
+				INFOPLIST_FILE = Server/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Server-Debug";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		167B38382642F64800E3C718 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/Server/*/\"",
+					"\"$(SRCROOT)/Server/*/*/\"",
+				);
+				INFOPLIST_FILE = Server/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Server-Debug";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -1046,6 +1741,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_MODULES_DISABLE_PRIVATE_WARNING = NO;
 				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_FLOAT_CONVERSION = NO;
@@ -1087,10 +1783,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-std=c++17",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1100,6 +1793,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_MODULES_DISABLE_PRIVATE_WARNING = NO;
 				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_FLOAT_CONVERSION = NO;
@@ -1141,10 +1835,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-std=c++17",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1153,6 +1844,7 @@
 		1691249225F6B2CE00F7EB4F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1189,6 +1881,7 @@
 		1691249325F6B2CE00F7EB4F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1225,6 +1918,7 @@
 		169124C925F6B89700F7EB4F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -1240,6 +1934,7 @@
 					"$(PROJECT_DIR)/Client/Graphics/Frameworks-Debug",
 					"$(PROJECT_DIR)/Client/Graphics/Frameworks",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = "DEVELOPER_MODE=1";
 				INFOPLIST_FILE = Client/Graphics/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1263,6 +1958,7 @@
 		169124CA25F6B89700F7EB4F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -1306,6 +2002,42 @@
 			buildConfigurations = (
 				166165F525EA3617002A3815 /* Debug */,
 				166165F625EA3617002A3815 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		167B38092642F61300E3C718 /* Build configuration list for PBXNativeTarget "Terralistic-server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				167B380A2642F61300E3C718 /* Debug */,
+				167B380B2642F61300E3C718 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		167B38142642F63000E3C718 /* Build configuration list for PBXNativeTarget "Terralistic-server-Debug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				167B38152642F63000E3C718 /* Debug */,
+				167B38162642F63000E3C718 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		167B38252642F63B00E3C718 /* Build configuration list for PBXNativeTarget "Server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				167B38262642F63B00E3C718 /* Debug */,
+				167B38272642F63B00E3C718 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		167B38362642F64800E3C718 /* Build configuration list for PBXNativeTarget "Server-Debug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				167B38372642F64800E3C718 /* Debug */,
+				167B38382642F64800E3C718 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,12 +1,12 @@
 //
-//  networkingModule.hpp
+//  serverNetworking.hpp
 //  Terralistic-server
 //
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#ifndef networkingModule_hpp
-#define networkingModule_hpp
+#ifndef serverNetworking_hpp
+#define serverNetworking_hpp
 
 #define MAX_PLAYERS 100
 
@@ -47,4 +47,4 @@ public:
     virtual void onPacket(packets::packet& packet, connection& conn) = 0;
 };
 
-#endif /* networkingModule_hpp */
+#endif /* serverNetworking_hpp */

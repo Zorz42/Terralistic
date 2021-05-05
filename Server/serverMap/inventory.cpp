@@ -7,7 +7,7 @@
 
 // inventory is a class which you can easily manage with function calls
 
-#include "map.hpp"
+#include "serverMap.hpp"
 
 map::inventoryItem::inventoryItem() : item_id(map::itemType::NOTHING), stack(0) {}
 
