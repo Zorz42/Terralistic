@@ -8,6 +8,12 @@
 #ifndef server_hpp
 #define server_hpp
 
-int serverMain();
+class server {
+public:
+    enum serverState { STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, SAVING_WORLD, STOPPED };
+    serverState state;
+    
+    void start();
+};
 
 #endif /* server_h */

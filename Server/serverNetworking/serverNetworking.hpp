@@ -13,6 +13,7 @@
 #include <string>
 #include <set>
 #include "packets.hpp"
+#include <thread>
 
 class packetListener;
 
@@ -29,8 +30,9 @@ public:
 class networkingManager {
     bool listener_running = true;
     std::vector<packetListener*> listeners;
-    static void onPacket(packets::packet& packet, connection& conn, networkingManager& manager);
-    static void listenerLoop(networkingManager* manager, int server_fd);
+    std::thread listener_thread;
+    void onPacket(packets::packet& packet, connection& conn);
+    void listenerLoop(int server_fd);
 public:
     connection connections[MAX_PLAYERS];
     

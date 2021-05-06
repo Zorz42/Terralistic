@@ -8,5 +8,6 @@
 #include <Server/server.hpp>
 
 int main(int argc, char **argv) {
-    serverMain();
+    server main_server;
+    main_server.start();
 }

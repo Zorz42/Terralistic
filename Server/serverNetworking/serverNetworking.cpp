@@ -13,7 +13,6 @@
 #include <unistd.h>
 #endif
 
-#include <thread>
 #include "print.hpp"
 #include "serverMap.hpp"
 
@@ -39,13 +38,13 @@ void networkingManager::sendToEveryone(const packets::packet& packet, connection
                 conn.sendPacket(packet);
 }
 
-void networkingManager::onPacket(packets::packet& packet, connection& conn, networkingManager& manager) {
-    for(packetListener* listener : manager.listeners)
+void networkingManager::onPacket(packets::packet& packet, connection& conn ) {
+    for(packetListener* listener : listeners)
         if(listener->listening_to.find(packet.type) != listener->listening_to.end())
             listener->onPacket(packet, conn);
 }
 
-void networkingManager::listenerLoop(networkingManager* manager, int server_fd) {
+void networkingManager::listenerLoop(int server_fd) {
     int addrlen, new_socket, activity;
     int max_sd;
     struct sockaddr_in address{};
@@ -53,13 +52,13 @@ void networkingManager::listenerLoop(networkingManager* manager, int server_fd) 
     fd_set readfds;
     
     
-    while(true) {
+    while(listener_running) {
         FD_ZERO(&readfds);
      
         FD_SET(server_fd, &readfds);
         max_sd = server_fd;
             
-        for(connection& conn : manager->connections)
+        for(connection& conn : connections)
             if(conn.socket != -1) {
                 FD_SET(conn.socket, &readfds);
                 if(conn.socket > max_sd)
@@ -78,18 +77,18 @@ void networkingManager::listenerLoop(networkingManager* manager, int server_fd) 
             connection new_connection;
             new_connection.socket = new_socket;
             new_connection.ip = inet_ntoa(address.sin_addr);
-            for(connection& conn : manager->connections)
+            for(connection& conn : connections)
                 if(conn.socket == -1) {
                     conn = new_connection;
                     break;
                 }
         }
              
-        for(connection& conn : manager->connections)
+        for(connection& conn : connections)
             if(conn.socket != -1) {
                 if (FD_ISSET(conn.socket, &readfds)) {
                     packets::packet packet = conn.getPacket();
-                    onPacket(packet, conn, *manager);
+                    onPacket(packet, conn);
                 }
         }
     }
@@ -131,6 +130,11 @@ void networkingManager::startListening() {
         exit(EXIT_FAILURE);
     }
     
-    std::thread listener_thread(networkingManager::listenerLoop, this, server_fd);
-    listener_thread.detach();
+    listener_running = true;
+    listener_thread = std::thread(std::bind(&networkingManager::listenerLoop, this, server_fd));
+}
+
+void networkingManager::stopListening() {
+    listener_running = false;
+    listener_thread.join();
 }
