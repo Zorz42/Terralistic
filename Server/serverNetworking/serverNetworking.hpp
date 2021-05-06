@@ -28,11 +28,12 @@ public:
 };
 
 class networkingManager {
-    bool listener_running = true;
+    bool listener_running = false;
+    int server_fd;
     std::vector<packetListener*> listeners;
     std::thread listener_thread;
     void onPacket(packets::packet& packet, connection& conn);
-    void listenerLoop(int server_fd);
+    void listenerLoop();
 public:
     connection connections[MAX_PLAYERS];
     

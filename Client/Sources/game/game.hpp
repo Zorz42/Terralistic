@@ -25,6 +25,7 @@
 #include "playerHandler.hpp"
 #include "clientNetworking.hpp"
 
+void startPrivateWorld(const std::string& world_name);
 
 class game : public gfx::scene {
 public:

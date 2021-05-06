@@ -10,6 +10,10 @@
 int main(int argc, char **argv) {
     serverInit();
     
-    server main_server;
+    std::string working_directory = argv[0];
+    while(working_directory.back() != '/')
+        working_directory.pop_back();
+    
+    server main_server(working_directory);
     main_server.start();
 }

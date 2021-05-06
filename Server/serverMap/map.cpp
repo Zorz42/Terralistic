@@ -1,5 +1,5 @@
 //
-//  map.cpp
+//  serverMap.cpp
 //  Terralistic
 //
 //  Created by Jakob Zorz on 04/04/2021.
@@ -9,13 +9,13 @@
 #include "assert.hpp"
 #include "serverNetworking.hpp"
 
-void map::createWorld(unsigned short width, unsigned short height) {
+void serverMap::createWorld(unsigned short width, unsigned short height) {
     blocks = new blockData[(width << 4) * (height << 4)];
     this->width = width << 4;
     this->height = height << 4;
 }
 
-map::~map() {
+serverMap::~serverMap() {
     if(blocks)
         delete[] blocks;
 }

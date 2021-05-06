@@ -16,7 +16,7 @@
 #define MAX_LIGHT 100
 #define INVENTORY_SIZE 20
 
-class map : packetListener {
+class serverMap : packetListener {
 public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK};
@@ -47,7 +47,7 @@ protected:
     };
     
     struct uniqueItem {
-        uniqueItem(std::string  name, unsigned short stack_size, map::blockType places);
+        uniqueItem(std::string name, unsigned short stack_size, blockType places);
         std::string name;
         unsigned short stack_size;
         blockType places;
@@ -62,10 +62,10 @@ public:
     class block {
         blockData* block_data = nullptr;
         unsigned short x, y;
-        map* parent_map;
+        serverMap* parent_serverMap;
         
     public:
-        block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+        block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_serverMap) : x(x), y(y), block_data(block_data), parent_serverMap(parent_serverMap) {}
         block() = default;
         
         void update();
@@ -98,12 +98,11 @@ public:
     };
     
     struct item {
-    public:
-        void create(itemType item_id_, int x_, int y_, unsigned short id_, map& world_map);
-        void destroy(map& world_map);
+        void create(itemType item_id_, int x_, int y_, unsigned short id_, serverMap& world_serverMap);
+        void destroy(serverMap& world_serverMap);
         int x, y;
-        void update(float frame_length, map& world_map);
-        bool colliding(map& world_map) const;
+        void update(float frame_length, serverMap& world_serverMap);
+        bool colliding(serverMap& world_serverMap) const;
         uniqueItem& getUniqueItem() const;
         unsigned short getId() { return id; }
         itemType getItemId() { return item_id; }
@@ -114,7 +113,6 @@ public:
     };
     
     struct inventoryItem {
-    public:
         inventoryItem();
         explicit inventoryItem(itemType item_id) : item_id(item_id), stack(1) {}
         itemType item_id;
@@ -170,7 +168,7 @@ protected:
     std::vector<player> players;
     
 public:
-    map(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
+    serverMap(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
     
     block getBlock(unsigned short x, unsigned short y);
     
@@ -189,10 +187,10 @@ public:
     
     void updateItems(float frame_length);
     void updatePlayersBreaking(unsigned short tick_length);
-    void lookForItems(map& world_map);
+    void lookForItems(serverMap& world_serverMap);
     void updateLight();
     
-    ~map();
+    ~serverMap();
 };
 
 #endif /* serverMap_hpp */

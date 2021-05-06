@@ -10,7 +10,7 @@
 
 namespace terrainGenerator {
 
-int generateTerrainDaemon(unsigned int seed, map* world_map);
+int generateTerrainDaemon(unsigned int seed, serverMap* world_serverMap);
 inline long loading_current = 0, loading_total = -1;
 
 }

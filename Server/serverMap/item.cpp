@@ -10,24 +10,24 @@
 #include <random>
 #include "serverNetworking.hpp"
 
-std::vector<map::uniqueItem> map::unique_items;
+std::vector<serverMap::uniqueItem> serverMap::unique_items;
 
-void map::initItems() {
+void serverMap::initItems() {
     // all currently unique items
-    map::unique_items = {
-        {"nothing",     0,  map::blockType::AIR        },
-        {"stone",       99, map::blockType::STONE      },
-        {"dirt",        99, map::blockType::DIRT       },
-        {"stone_block", 99, map::blockType::STONE_BLOCK},
+    serverMap::unique_items = {
+        {"nothing",     0,  serverMap::blockType::AIR        },
+        {"stone",       99, serverMap::blockType::STONE      },
+        {"dirt",        99, serverMap::blockType::DIRT       },
+        {"stone_block", 99, serverMap::blockType::STONE_BLOCK},
     };
 }
 
-void map::updateItems(float frame_length) {
+void serverMap::updateItems(float frame_length) {
     for(auto & item : items)
         item.update(frame_length, *this);
 }
 
-void map::spawnItem(itemType item_id, int x, int y, short id) {
+void serverMap::spawnItem(itemType item_id, int x, int y, short id) {
     static short curr_id = 0;
     if(id == -1)
         id = curr_id++;
@@ -35,15 +35,15 @@ void map::spawnItem(itemType item_id, int x, int y, short id) {
     items.back().create(item_id, x, y, id, *this);
 }
 
-map::item* map::getItemById(unsigned short id) {
-    for(item& i : map::items)
+serverMap::item* serverMap::getItemById(unsigned short id) {
+    for(item& i : serverMap::items)
         if(i.getId() == id)
             return &i;
     ASSERT(false, "item not found by id");
     return nullptr;
 }
 
-void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_, map& world_map) {
+void serverMap::item::create(itemType item_id_, int x_, int y_, unsigned short id_, serverMap& world_serverMap) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
@@ -56,58 +56,58 @@ void map::item::create(itemType item_id_, int x_, int y_, unsigned short id_, ma
     
     packets::packet packet(packets::ITEM_CREATION);
     packet << x << y << getId() << (char)getItemId();
-    world_map.manager->sendToEveryone(packet);
+    world_serverMap.manager->sendToEveryone(packet);
 }
 
-void map::item::destroy(map& world_map) {
+void serverMap::item::destroy(serverMap& world_serverMap) {
     packets::packet packet(packets::ITEM_DELETION);
     packet << getId();
-    world_map.manager->sendToEveryone(packet);
+    world_serverMap.manager->sendToEveryone(packet);
 }
 
-map::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, map::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
+serverMap::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, serverMap::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
-map::uniqueItem& map::item::getUniqueItem() const {
+serverMap::uniqueItem& serverMap::item::getUniqueItem() const {
     ASSERT((int)item_id >= 0 && (int)item_id < unique_items.size(), "item_id is not valid");
     return unique_items[(int)item_id];
 }
 
-void map::item::update(float frame_length, map& world_map) {
+void serverMap::item::update(float frame_length, serverMap& world_serverMap) {
     int prev_x = x, prev_y = y;
     
     // move and go back if colliding
     velocity_y += (int)frame_length / 16 * 5;
     for(int i = 0; i < frame_length / 16 * velocity_x; i++) {
         x++;
-        if(colliding(world_map)) {
+        if(colliding(world_serverMap)) {
             x--;
             break;
         }
     }
     for(int i = 0; i > frame_length / 16 * velocity_x; i--) {
         x--;
-        if(colliding(world_map)) {
+        if(colliding(world_serverMap)) {
             x++;
             break;
         }
     }
     for(int i = 0; i < frame_length / 16 * velocity_y; i++) {
         y++;
-        if(colliding(world_map)) {
+        if(colliding(world_serverMap)) {
             y--;
             break;
         }
     }
     for(int i = 0; i > frame_length / 16 * velocity_y; i--) {
         y--;
-        if(colliding(world_map)) {
+        if(colliding(world_serverMap)) {
             y++;
             break;
         }
     }
     
     y++;
-    if(colliding(world_map))
+    if(colliding(world_serverMap))
         velocity_y = 0;
     y--;
     
@@ -125,11 +125,11 @@ void map::item::update(float frame_length, map& world_map) {
     if(prev_x != x || prev_y != y) {
         packets::packet packet(packets::ITEM_MOVEMENT);
         packet << x << y << getId();
-        world_map.manager->sendToEveryone(packet);
+        world_serverMap.manager->sendToEveryone(packet);
     }
 }
 
-bool map::item::colliding(map& world_map) const {
+bool serverMap::item::colliding(serverMap& world_serverMap) const {
     int height_x = 1, height_y = 1;
     if(x / 100 % BLOCK_WIDTH)
         height_x++;
@@ -138,7 +138,7 @@ bool map::item::colliding(map& world_map) const {
     int block_x = x / 100 / BLOCK_WIDTH, block_y = y / 100 / BLOCK_WIDTH;
     for(int x_ = 0; x_ < height_x; x_++)
         for(int y_ = 0; y_ < height_y; y_++)
-            if(!world_map.getBlock((unsigned short)(block_x + x_), (unsigned short)(block_y + y_)).isTransparent())
+            if(!world_serverMap.getBlock((unsigned short)(block_x + x_), (unsigned short)(block_y + y_)).isTransparent())
                 return true;
     return false;
 }

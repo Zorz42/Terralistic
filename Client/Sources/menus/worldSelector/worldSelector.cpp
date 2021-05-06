@@ -75,8 +75,8 @@ void worldSelector::refresh() {
     dirent *ent;
     while((ent = readdir(dir)) != nullptr) {
         std::string name = ent->d_name;
-        if(!std::count(ignored_dirs.begin(), ignored_dirs.end(), name) && ends_with(name, ".world"))
-            worlds.emplace_back(name.substr(0, name.size()-6));
+        if(!std::count(ignored_dirs.begin(), ignored_dirs.end(), name) && fileSystem::dirExists(fileManager::getWorldsPath() + name))
+            worlds.emplace_back(name);
     }
     closedir (dir);
     
@@ -107,7 +107,7 @@ void worldSelector::onKeyDown(gfx::key key) {
         else
             for(const world_to_select& i : worlds) {
                 if(i.button.isHovered())
-                    gfx::switchScene(new game(i.name));
+                    startPrivateWorld(i.name);
                 else if(i.delete_button.isHovered()) {
                     fileSystem::removeFile(fileManager::getWorldsPath() + i.name + ".world");
                     refresh();

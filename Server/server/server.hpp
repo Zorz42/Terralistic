@@ -8,14 +8,20 @@
 #ifndef server_hpp
 #define server_hpp
 
+#include <string>
+
 void serverInit();
 
 class server {
+    std::string working_dir;
 public:
-    enum serverState { STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, SAVING_WORLD, STOPPED };
-    serverState state;
+    enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
+    serverState state = NEUTRAL;
+    
+    server(std::string working_dir) : working_dir(working_dir) {}
     
     void start();
+    void stop();
 };
 
 #endif /* server_h */

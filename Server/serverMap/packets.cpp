@@ -19,7 +19,7 @@
 #include "serverNetworking.hpp"
 #include "serverMap.hpp"
 
-void map::onPacket(packets::packet& packet, connection& conn) {
+void serverMap::onPacket(packets::packet& packet, connection& conn) {
     player* curr_player = getPlayerByConnection(&conn);
     switch (packet.type) {
         case packets::STARTED_BREAKING: {
@@ -37,7 +37,7 @@ void map::onPacket(packets::packet& packet, connection& conn) {
             
         case packets::RIGHT_CLICK: {
             unsigned short y = packet.getUShort(), x = packet.getUShort();
-            map::block block = getBlock(x, y);
+            serverMap::block block = getBlock(x, y);
             if(clickEvents::click_events[(int)block.getType()].rightClickEvent)
                 clickEvents::click_events[(int)block.getType()].rightClickEvent(&block, curr_player);
             break;
@@ -47,7 +47,7 @@ void map::onPacket(packets::packet& packet, connection& conn) {
             packets::packet chunk_packet(packets::CHUNK);
             unsigned short x = packet.getUShort(), y = packet.getUShort();
             for(int i = 0; i < 16 * 16; i++) {
-                map::block block = getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
+                serverMap::block block = getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
                 chunk_packet << (char)block.getType() << (unsigned char)block.getLightLevel();
             }
             chunk_packet << y << x;
@@ -89,7 +89,7 @@ void map::onPacket(packets::packet& packet, connection& conn) {
                 join_packet << i.x << i.y << i.id;
                 curr_player.conn->sendPacket(join_packet);
             }
-            for(map::item& i : items) {
+            for(serverMap::item& i : items) {
                 packets::packet item_packet(packets::ITEM_CREATION);
                 item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
                 curr_player.conn->sendPacket(item_packet);

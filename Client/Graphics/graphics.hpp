@@ -161,6 +161,8 @@ unsigned int getTicks();
 void clearWindow();
 void updateWindow();
 
+void sleep(unsigned short ms);
+
 }
 
 #endif /* graphics_hpp */

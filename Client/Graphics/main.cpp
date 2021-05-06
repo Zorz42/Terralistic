@@ -95,3 +95,7 @@ void gfx::clearWindow() {
 void gfx::updateWindow() {
     SDL_RenderPresent(renderer);
 }
+
+void gfx::sleep(unsigned short ms) {
+    SDL_Delay(ms);
+}

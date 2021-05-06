@@ -44,7 +44,7 @@ void networkingManager::onPacket(packets::packet& packet, connection& conn ) {
             listener->onPacket(packet, conn);
 }
 
-void networkingManager::listenerLoop(int server_fd) {
+void networkingManager::listenerLoop() {
     int addrlen, new_socket, activity;
     int max_sd;
     struct sockaddr_in address{};
@@ -92,6 +92,8 @@ void networkingManager::listenerLoop(int server_fd) {
                 }
         }
     }
+    
+    close(server_fd);
 }
 
 
@@ -103,7 +105,7 @@ void networkingManager::startListening() {
         exit(EXIT_FAILURE);
     }
 #endif
-    int opt = 1, server_fd;
+    int opt = 1;
     
     if ((server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == 0) {
         print::error("socket failed");
@@ -131,7 +133,7 @@ void networkingManager::startListening() {
     }
     
     listener_running = true;
-    listener_thread = std::thread(std::bind(&networkingManager::listenerLoop, this, server_fd));
+    listener_thread = std::thread(std::bind(&networkingManager::listenerLoop, this));
 }
 
 void networkingManager::stopListening() {

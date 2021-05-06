@@ -13,8 +13,8 @@
 namespace clickEvents {
 
 struct clickEvent {
-    void (*rightClickEvent)(map::block*, map::player*) = nullptr;
-    void (*leftClickEvent)(map::block*, map::player*) = nullptr;
+    void (*rightClickEvent)(serverMap::block*, serverMap::player*) = nullptr;
+    void (*leftClickEvent)(serverMap::block*, serverMap::player*) = nullptr;
 };
 
 inline std::vector<clickEvent> click_events;

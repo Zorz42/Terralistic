@@ -8,16 +8,16 @@
 #include "serverMap.hpp"
 #include "serverNetworking.hpp"
 
-void map::block::lightUpdate() {
+void serverMap::block::lightUpdate() {
     block neighbors[4];
     if(x != 0)
-        neighbors[0] = parent_map->getBlock(x - 1, y);
-    if(x != parent_map->getWorldWidth() - 1)
-        neighbors[1] = parent_map->getBlock(x + 1, y);
+        neighbors[0] = parent_serverMap->getBlock(x - 1, y);
+    if(x != parent_serverMap->getWorldWidth() - 1)
+        neighbors[1] = parent_serverMap->getBlock(x + 1, y);
     if(y != 0)
-        neighbors[2] = parent_map->getBlock(x, y - 1);
-    if(y != parent_map->getWorldHeight() - 1)
-        neighbors[3] = parent_map->getBlock(x, y + 1);
+        neighbors[2] = parent_serverMap->getBlock(x, y - 1);
+    if(y != parent_serverMap->getWorldHeight() - 1)
+        neighbors[3] = parent_serverMap->getBlock(x, y + 1);
     
     bool update_neighbors = false;
     if(!block_data->light_source) {
@@ -37,7 +37,7 @@ void map::block::lightUpdate() {
             update_neighbors = true;
             packets::packet packet(packets::LIGHT_CHANGE);
             packet << getX() << getY() << (unsigned char)getLightLevel();
-            parent_map->manager->sendToEveryone(packet);
+            parent_serverMap->manager->sendToEveryone(packet);
         }
     }
     
@@ -47,29 +47,29 @@ void map::block::lightUpdate() {
                 neighbor.scheduleLightUpdate();
 }
 
-void map::block::setLightSource(unsigned char power) {
+void serverMap::block::setLightSource(unsigned char power) {
     block_data->light_source = true;
     block_data->light_level = power;
     scheduleLightUpdate();
 }
 
-void map::block::removeLightSource() {
+void serverMap::block::removeLightSource() {
     block_data->light_source = false;
     block_data->light_level = 0;
     scheduleLightUpdate();
 }
 
-void map::setNaturalLight() {
+void serverMap::setNaturalLight() {
     for(unsigned short x = 0; x < getWorldWidth(); x++)
         setNaturalLight(x);
 }
 
-void map::setNaturalLight(unsigned short x) {
+void serverMap::setNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).isTransparent(); y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
-void map::removeNaturalLight(unsigned short x) {
+void serverMap::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).isTransparent(); y++)
         getBlock(x, y).removeLightSource();
 }
