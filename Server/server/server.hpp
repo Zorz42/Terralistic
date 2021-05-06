@@ -8,6 +8,8 @@
 #ifndef server_hpp
 #define server_hpp
 
+void serverInit();
+
 class server {
 public:
     enum serverState { STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, SAVING_WORLD, STOPPED };

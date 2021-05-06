@@ -9,6 +9,12 @@
 #include "fileManager.hpp"
 #include "playerHandler.hpp"
 
+#ifdef DEVELOPER_MODE
+#include <Server_Debug/server.hpp>
+#else
+#include <Server/server.hpp>
+#endif
+
 int main(int argc, char **argv) {
     // initialize graphics and set resource path, which is a part of file loading in graphics
     
@@ -17,6 +23,7 @@ int main(int argc, char **argv) {
     gfx::loadFont("pixel_font.ttf", 8);
     gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
+    serverInit();
     fileManager::init();
     map::initBlocks();
     map::initItems();

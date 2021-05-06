@@ -28,13 +28,15 @@ void inthand(int signum) {
     running = false;
 }
 
-void server::start() {
-    print::info("Initialising server");
-    
+void serverInit() {
     map::initItems();
     map::initBlocks();
     
     clickEvents::init();
+}
+
+void server::start() {
+    print::info("Initialising server");
     
     networking_manager = new networkingManager();
     world_map = new map(networking_manager);
