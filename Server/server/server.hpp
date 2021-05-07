@@ -9,19 +9,25 @@
 #define server_hpp
 
 #include <string>
+#include "serverNetworking.hpp"
+#include "serverMap.hpp"
 
 void serverInit();
 
 class server {
     std::string working_dir;
+    serverNetworkingManager networking_manager;
+    serverMap world_map;
 public:
     enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
     serverState state = NEUTRAL;
     
-    server(std::string working_dir) : working_dir(working_dir) {}
+    server(std::string working_dir) : working_dir(working_dir), world_map(&networking_manager) {}
     
     void start();
     void stop();
+    
+    inline unsigned short getPort() { return networking_manager.getPort(); }
 };
 
 #endif /* server_h */

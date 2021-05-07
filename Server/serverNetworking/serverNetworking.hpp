@@ -15,7 +15,7 @@
 #include "packets.hpp"
 #include <thread>
 
-class packetListener;
+class serverPacketListener;
 
 class connection {
 public:
@@ -27,10 +27,11 @@ public:
     void sendPacket(const packets::packet& packet_) const;
 };
 
-class networkingManager {
+class serverNetworkingManager {
     bool listener_running = false;
     int server_fd;
-    std::vector<packetListener*> listeners;
+    unsigned short port;
+    std::vector<serverPacketListener*> listeners;
     std::thread listener_thread;
     void onPacket(packets::packet& packet, connection& conn);
     void listenerLoop();
@@ -40,12 +41,14 @@ public:
     void startListening();
     void stopListening();
     void sendToEveryone(const packets::packet& packet, connection* exclusion=nullptr);
-    void registerListener(packetListener* listener);
+    void registerListener(serverPacketListener* listener);
+    
+    inline unsigned short getPort() { return port; }
 };
 
-class packetListener {
+class serverPacketListener {
 public:
-    packetListener(networkingManager* manager) { manager->registerListener(this); }
+    serverPacketListener(serverNetworkingManager* manager) { manager->registerListener(this); }
     std::set<packets::packetType> listening_to;
     virtual void onPacket(packets::packet& packet, connection& conn) = 0;
 };

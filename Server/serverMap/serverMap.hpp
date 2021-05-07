@@ -16,7 +16,7 @@
 #define MAX_LIGHT 100
 #define INVENTORY_SIZE 20
 
-class serverMap : packetListener {
+class serverMap : serverPacketListener {
 public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK};
@@ -163,12 +163,12 @@ protected:
     
     void onPacket(packets::packet& packet, connection& conn);
     
-    networkingManager* manager;
+    serverNetworkingManager* manager;
     std::vector<item> items;
     std::vector<player> players;
     
 public:
-    serverMap(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
+    serverMap(serverNetworkingManager* manager) : manager(manager), serverPacketListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
     
     block getBlock(unsigned short x, unsigned short y);
     

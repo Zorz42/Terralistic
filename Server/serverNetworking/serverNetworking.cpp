@@ -17,13 +17,12 @@
 #include "serverMap.hpp"
 
 #define PORT 33770
-#define PORT_STR "33770"
 
 packets::packet connection::getPacket() const {
     return packets::getPacket(socket);
 }
 
-void networkingManager::registerListener(packetListener *listener) {
+void serverNetworkingManager::registerListener(serverPacketListener *listener) {
     listeners.push_back(listener);
 }
 
@@ -31,20 +30,20 @@ void connection::sendPacket(const packets::packet& packet_) const {
     packets::sendPacket(socket, packet_);
 }
 
-void networkingManager::sendToEveryone(const packets::packet& packet, connection* exclusion) {
+void serverNetworkingManager::sendToEveryone(const packets::packet& packet, connection* exclusion) {
     for(connection& conn : connections)
         if(conn.socket != -1)
             if(!exclusion || conn.socket != exclusion->socket)
                 conn.sendPacket(packet);
 }
 
-void networkingManager::onPacket(packets::packet& packet, connection& conn ) {
-    for(packetListener* listener : listeners)
+void serverNetworkingManager::onPacket(packets::packet& packet, connection& conn ) {
+    for(serverPacketListener* listener : listeners)
         if(listener->listening_to.find(packet.type) != listener->listening_to.end())
             listener->onPacket(packet, conn);
 }
 
-void networkingManager::listenerLoop() {
+void serverNetworkingManager::listenerLoop() {
     int addrlen, new_socket, activity;
     int max_sd;
     struct sockaddr_in address{};
@@ -97,7 +96,7 @@ void networkingManager::listenerLoop() {
 }
 
 
-void networkingManager::startListening() {
+void serverNetworkingManager::startListening() {
 #ifdef WIN32
     WSADATA wsa_data;
     if(WSAStartup(MAKEWORD(2,2), &wsa_data) != 0) {
@@ -106,6 +105,7 @@ void networkingManager::startListening() {
     }
 #endif
     int opt = 1;
+    port = PORT;
     
     if ((server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == 0) {
         print::error("socket failed");
@@ -120,11 +120,13 @@ void networkingManager::startListening() {
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
-
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        print::error("bind to port failed");
-        exit(EXIT_FAILURE);
+    
+    while(true) {
+        address.sin_port = htons(port);
+        if(bind(server_fd, (struct sockaddr *)&address, sizeof(address)) >= 0)
+            break;
+        else
+            port++;
     }
 
     if (listen(server_fd, SOMAXCONN) < 0) {
@@ -133,10 +135,10 @@ void networkingManager::startListening() {
     }
     
     listener_running = true;
-    listener_thread = std::thread(std::bind(&networkingManager::listenerLoop, this));
+    listener_thread = std::thread(std::bind(&serverNetworkingManager::listenerLoop, this));
 }
 
-void networkingManager::stopListening() {
+void serverNetworkingManager::stopListening() {
     listener_running = false;
     listener_thread.join();
 }

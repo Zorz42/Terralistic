@@ -29,7 +29,7 @@ class networkingManager {
     static void listenerLoop(networkingManager* manager);
     std::vector<packetListener*> listeners;
 public:
-    bool establishConnection(const std::string& ip);
+    bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();
 
     void sendPacket(packets::packet packet_);

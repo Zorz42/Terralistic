@@ -49,7 +49,7 @@ void startPrivateWorld(const std::string& world_name) {
                 break;
         }
     
-    gfx::switchScene(new game("127.0.0.1"));
+    gfx::switchScene(new game("127.0.0.1", private_server->getPort()));
 }
 
 void game::init() {
@@ -69,7 +69,7 @@ void game::init() {
     };
     
     renderTextScreen("Connecting to server");
-    if(!networking_manager.establishConnection(ip_address)) {
+    if(!networking_manager.establishConnection(ip_address, port)) {
         gfx::returnFromScene();
         return;
     }
@@ -92,13 +92,13 @@ void game::render() {
 void game::stop() {
     private_server->stop();
     
-    while (private_server->state != server::STOPPING)
+    while(private_server && private_server->state != server::STOPPING)
         gfx::sleep(1);
     
-    networking_manager.sendPacket(packets::DISCONNECT);
-    networking_manager.closeConnection();
-    
     if(private_server) {
+        networking_manager.sendPacket(packets::DISCONNECT);
+        networking_manager.closeConnection();
+        
         server_thread.join();
         delete private_server;
         private_server = nullptr;

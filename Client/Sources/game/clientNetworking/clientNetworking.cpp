@@ -18,9 +18,6 @@
 #include "clientNetworking.hpp"
 #include <thread>
 
-#define PORT 33770
-#define PORT_STR "33770"
-
 void networkingManager::sendPacket(packets::packet packet_) {
     packets::sendPacket(sock, std::move(packet_));
 }
@@ -34,7 +31,7 @@ void networkingManager::listenerLoop(networkingManager* manager) {
     }
 }
 
-bool networkingManager::establishConnection(const std::string &ip) {
+bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
     #ifdef WIN32
     WSADATA wsaData;
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
@@ -45,11 +42,11 @@ bool networkingManager::establishConnection(const std::string &ip) {
     if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return false;
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(port);
 
     #ifdef WIN32
     struct addrinfo *result = nullptr, hints{};
-    if(getaddrinfo(ip.c_str(), (const char *)PORT_STR, &hints, &result) != 0)
+    if(getaddrinfo(ip.c_str(), std::to_string(port).c_str(), &hints, &result) != 0)
         return false;
 
     if(connect(sock, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR)

@@ -30,12 +30,13 @@ void startPrivateWorld(const std::string& world_name);
 class game : public gfx::scene {
 public:
     const std::string ip_address;
+    const unsigned short port;
     gfx::sprite fps_text;
     networkingManager networking_manager;
     map *world_map;
     mainPlayer main_player;
     
-    game(std::string ip_address) : ip_address(std::move(ip_address)) {}
+    game(std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) {}
     void init() override;
     void stop() override;
     void render() override;
