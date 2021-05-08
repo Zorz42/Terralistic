@@ -36,6 +36,9 @@ class serverNetworkingManager {
     void onPacket(packets::packet& packet, connection& conn);
     void listenerLoop();
 public:
+    serverNetworkingManager(unsigned short port) : port(port) {}
+    
+    bool accept_only_itself = false; // only accept 0.0.0.0 Used in singleplayer to basically have a private server
     connection connections[MAX_PLAYERS];
     
     void startListening();

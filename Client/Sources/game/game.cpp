@@ -21,13 +21,16 @@
 #include <Server/server.hpp>
 #endif
 
+#define FROM_PORT 49152
+#define TO_PORT 65535
+
 static std::thread server_thread;
 static server* private_server = nullptr;
 
 void startPrivateWorld(const std::string& world_name) {
     fileSystem::createDirIfNotExists(fileManager::getWorldsPath() + world_name);
     
-    private_server = new server(fileManager::getWorldsPath() + world_name);
+    private_server = new server(fileManager::getWorldsPath() + world_name, rand() % (TO_PORT - FROM_PORT) + TO_PORT);
     server_thread = std::thread(std::bind(&server::start, private_server));
     
     while(private_server->state != server::RUNNING)
@@ -48,6 +51,8 @@ void startPrivateWorld(const std::string& world_name) {
                 ASSERT(false, "Unregistered loading state!");
                 break;
         }
+    
+    private_server->setPrivate(true);
     
     gfx::switchScene(new game("127.0.0.1", private_server->getPort()));
 }
@@ -90,15 +95,16 @@ void game::render() {
 }
 
 void game::stop() {
-    private_server->stop();
+    if(private_server)
+        private_server->stop();
     
     while(private_server && private_server->state != server::STOPPING)
         gfx::sleep(1);
     
+    networking_manager.sendPacket(packets::DISCONNECT);
+    networking_manager.closeConnection();
+    
     if(private_server) {
-        networking_manager.sendPacket(packets::DISCONNECT);
-        networking_manager.closeConnection();
-        
         server_thread.join();
         delete private_server;
         private_server = nullptr;

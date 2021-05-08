@@ -98,3 +98,7 @@ void server::start() {
 void server::stop() {
     running = false;
 }
+
+void server::setPrivate(bool is_private) {
+    networking_manager.accept_only_itself = is_private;
+}

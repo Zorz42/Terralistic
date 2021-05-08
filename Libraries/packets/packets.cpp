@@ -42,7 +42,10 @@ packets::packet packets::getPacket(int socket) {
      */
     static std::vector<unsigned char> buffer;
     static long bytes_received;
-    static unsigned short size = 0;
+    static unsigned short size;
+    
+    // size of the packet are the first two bytes
+    size = buffer.size() < 2 ? 0 : buffer[0] + (buffer[1] << 8);
     
     // packets can be merged so if multiple packets come in one piece,
     // it can process one buffer multiple times. Only refill it when its empty
@@ -56,10 +59,10 @@ packets::packet packets::getPacket(int socket) {
             buffer.push_back(i);
     }
     
+    size = buffer.size() < 2 ? 0 : buffer[0] + (buffer[1] << 8);
+    
     // if bytes_received is 0 that means, that the other side disconnected
     if(bytes_received > 0) {
-        // size of the packet are the first two bytes
-        size = buffer[0] + (buffer[1] << 8);
         // packet type is the third byte
         packet result((packets::packetType)buffer[2]);
         for(unsigned short i = 0; i < size; i++)

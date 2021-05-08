@@ -37,9 +37,11 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
         return false;
     #endif
-
+    
+    int curr_sock = sock;
+    
     sockaddr_in serv_addr{};
-    if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if((curr_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return false;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
@@ -48,19 +50,21 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     struct addrinfo *result = nullptr, hints{};
     if(getaddrinfo(ip.c_str(), std::to_string(port).c_str(), &hints, &result) != 0)
         return false;
-
+    
     if(connect(sock, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR)
         return false;
     #else
     if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) <= 0)
         return false;
 
-    if(connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    if(connect(curr_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
         return false;
     #endif
     
     std::thread listener = std::thread(listenerLoop, this);
     listener.detach();
+    
+    sock = curr_sock;
     
     return true;
 }

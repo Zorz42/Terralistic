@@ -14,6 +14,6 @@ int main(int argc, char **argv) {
     while(working_directory.back() != '/')
         working_directory.pop_back();
     
-    server main_server(working_directory);
+    server main_server(working_directory, 33770);
     main_server.start();
 }

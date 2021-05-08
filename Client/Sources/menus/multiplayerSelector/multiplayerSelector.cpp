@@ -6,7 +6,6 @@
 //
 
 #include <vector>
-//#include <algorithm>
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
 

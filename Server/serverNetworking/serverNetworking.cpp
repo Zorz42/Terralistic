@@ -16,8 +16,6 @@
 #include "print.hpp"
 #include "serverMap.hpp"
 
-#define PORT 33770
-
 packets::packet connection::getPacket() const {
     return packets::getPacket(socket);
 }
@@ -70,17 +68,16 @@ void serverNetworkingManager::listenerLoop() {
             return;
              
         if(FD_ISSET(server_fd, &readfds)) {
-            if((new_socket = accept(server_fd, (sockaddr*)&address, (socklen_t*)&addrlen)) < 0)
-                return;
-            
             connection new_connection;
-            new_connection.socket = new_socket;
             new_connection.ip = inet_ntoa(address.sin_addr);
-            for(connection& conn : connections)
-                if(conn.socket == -1) {
-                    conn = new_connection;
-                    break;
-                }
+            if((!accept_only_itself || new_connection.ip == "0.0.0.0") && (new_socket = accept(server_fd, (sockaddr*)&address, (socklen_t*)&addrlen)) >= 0) {
+                new_connection.socket = new_socket;
+                for(connection& conn : connections)
+                    if(conn.socket == -1) {
+                        conn = new_connection;
+                        break;
+                    }
+            }
         }
              
         for(connection& conn : connections)
@@ -105,7 +102,6 @@ void serverNetworkingManager::startListening() {
     }
 #endif
     int opt = 1;
-    port = PORT;
     
     if ((server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == 0) {
         print::error("socket failed");
