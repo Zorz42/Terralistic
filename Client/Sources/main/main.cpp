@@ -9,10 +9,15 @@
 #include "fileManager.hpp"
 #include "playerHandler.hpp"
 
+#ifdef _WIN32
+#include "server.hpp"
+#include <SDL.h>
+#else
 #ifdef DEVELOPER_MODE
 #include <Server_Debug/server.hpp>
 #else
 #include <Server/server.hpp>
+#endif
 #endif
 
 int main(int argc, char **argv) {

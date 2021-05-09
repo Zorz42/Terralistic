@@ -5,8 +5,11 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-//#include <utility>
+#ifdef __APPLE__
 #include <dirent.h>
+#else
+#include <dirent-win.h>
+#endif
 #include <algorithm>
 #include "worldSelector.hpp"
 #include "game.hpp"

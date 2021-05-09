@@ -5,9 +5,13 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+
+#ifdef _WIN32
+#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <functional>
 #else
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -89,12 +93,14 @@ void serverNetworkingManager::listenerLoop() {
         }
     }
     
+#ifndef _WIN32
     close(server_fd);
+#endif
 }
 
 
 void serverNetworkingManager::startListening() {
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsa_data;
     if(WSAStartup(MAKEWORD(2,2), &wsa_data) != 0) {
         print::error("WSAStartup failed");

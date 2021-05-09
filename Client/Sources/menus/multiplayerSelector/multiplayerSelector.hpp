@@ -8,7 +8,7 @@
 #ifndef multiplayerSelector_hpp
 #define multiplayerSelector_hpp
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include "graphics.hpp"
 #else
 

@@ -8,7 +8,7 @@
 #ifndef pauseScreen_hpp
 #define pauseScreen_hpp
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include "graphics.hpp"
 #else
 

@@ -5,17 +5,24 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#include <sys/stat.h>
-#include <dirent.h>
-#ifdef __APPLE__
+//#include <sys/stat.h>
+#include <filesystem>
+/*#ifdef __APPLE__
 #include <unistd.h>
-#endif
+#include <dirent.h>
+#else
+#include<windows.h>
+#include <dirent-win.h>
+#endif*/
+
 #include "fileSystem.hpp"
 
 // most of the functions explain themselves
 
 int fileSystem::removeDir(const std::string &path) {
-    DIR *d = opendir(path.c_str());
+    return std::filesystem::remove_all(path);
+
+    /*DIR *d = opendir(path.c_str());
     size_t path_len = strlen(path.c_str());
     int r = -1;
 
@@ -29,7 +36,7 @@ int fileSystem::removeDir(const std::string &path) {
             char *buf;
             size_t len;
 
-            /* Skip the names "." and ".." as we don't want to recurse on them. */
+            /* Skip the names "." and ".." as we don't want to recurse on them. *//*
             if(!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
                 continue;
 
@@ -50,7 +57,7 @@ int fileSystem::removeDir(const std::string &path) {
 
     if(!r)
         r = rmdir(path.c_str());
-    return r;
+    return r;*/
 }
 
 void fileSystem::removeFile(const std::string &path) {
@@ -69,11 +76,12 @@ bool fileSystem::dirExists(const std::string& path) {
 
 void fileSystem::createDirIfNotExists(const std::string& path) {
     if(!dirExists(path)) {
-    #if defined(_WIN32)
+        std::filesystem::create_directory(path);
+    /*#if defined(_WIN32)
         mkdir(path.c_str()); // can be used on Windows
     #else
         mode_t nMode = 0733; // UNIX style permissions
         mkdir(path.c_str(), nMode); // can be used on non-Windows
-    #endif
+    #endif*/
     }
 }

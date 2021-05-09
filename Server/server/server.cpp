@@ -7,6 +7,7 @@
 
 #include <thread>
 #include <iostream>
+#include <signal.h>
 
 #include "print.hpp"
 #include "worldSaver.hpp"

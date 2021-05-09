@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 26/03/2021.
 //
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include "graphics.hpp"
 #else
 

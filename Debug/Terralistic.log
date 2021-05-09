@@ -1,0 +1,19 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1097,5): warning MSB8027: Two or more files with the name of block.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are client\sources\game\modules\clientmap\block.cpp, server\servermap\block.cpp.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1097,5): warning MSB8027: Two or more files with the name of item.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are client\sources\game\modules\clientmap\item.cpp, server\servermap\item.cpp.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1097,5): warning MSB8027: Two or more files with the name of map.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are client\sources\game\modules\clientmap\map.cpp, server\servermap\map.cpp.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1097,5): warning MSB8027: Two or more files with the name of inventory.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are client\sources\inventory\inventory.cpp, server\servermap\inventory.cpp.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1097,5): warning MSB8027: Two or more files with the name of packets.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are libraries\packets\packets.cpp, server\servermap\packets.cpp.
+  game.cpp
+C:\Users\jakob\OneDrive\Documents\GitHub\Terralistic\client\sources\game\game.cpp(21,10): fatal error C1083: Cannot open include file: 'Server/server.hpp': No such file or directory
+  worldSelector.cpp
+  fileSystem.cpp
+C:\Users\jakob\OneDrive\Documents\GitHub\Terralistic\libraries\filesystem\fileSystem.cpp(54,13): error C3861: 'rmdir': identifier not found
+C:\Users\jakob\OneDrive\Documents\GitHub\Terralistic\libraries\filesystem\fileSystem.cpp(45,70): warning C4996: 'unlink': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _unlink. See online help for details.
+C:\Users\jakob\OneDrive\Documents\GitHub\Terralistic\libraries\filesystem\fileSystem.cpp(59,5): warning C4996: 'unlink': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _unlink. See online help for details.
+C:\Users\jakob\OneDrive\Documents\GitHub\Terralistic\libraries\filesystem\fileSystem.cpp(75,9): error C3861: 'mkdir': identifier not found
+  launcher.cpp
+C:\Users\jakob\OneDrive\Documents\GitHub\Terralistic\server\launcher\launcher.cpp(8,10): fatal error C1083: Cannot open include file: 'Server/server.hpp': No such file or directory
+  print.cpp
+C:\Users\jakob\OneDrive\Documents\GitHub\Terralistic\server\print\print.cpp(15,21): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  worldSaver.cpp
+  Generating Code...

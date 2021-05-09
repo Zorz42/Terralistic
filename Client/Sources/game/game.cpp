@@ -6,6 +6,7 @@
 //
 
 #include <thread>
+#include <functional>
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
@@ -15,10 +16,14 @@
 #include "fileSystem.hpp"
 #include "assert.hpp"
 
+#ifdef _WIN32
+#include "server.hpp"
+#else
 #ifdef DEVELOPER_MODE
 #include <Server_Debug/server.hpp>
 #else
 #include <Server/server.hpp>
+#endif
 #endif
 
 #define FROM_PORT 49152

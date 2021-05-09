@@ -8,7 +8,7 @@
 #ifndef game_hpp
 #define game_hpp
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <utility>
 #include "graphics.hpp"
 #else
@@ -18,7 +18,6 @@
 #else
 #include <Graphics/graphics.hpp>
 #endif
-
 
 #endif
 

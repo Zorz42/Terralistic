@@ -5,7 +5,10 @@
 //  Created by Jakob Zorz on 12/01/2021.
 //
 
-#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+
+#ifdef _WIN32
+#include <iostream>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -32,7 +35,7 @@ void networkingManager::listenerLoop(networkingManager* manager) {
 }
 
 bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
-    #ifdef WIN32
+    #ifdef _WIN32
     WSADATA wsaData;
     if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
         return false;
@@ -46,7 +49,7 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
 
-    #ifdef WIN32
+    #ifdef _WIN32
     struct addrinfo *result = nullptr, hints{};
     if(getaddrinfo(ip.c_str(), std::to_string(port).c_str(), &hints, &result) != 0)
         return false;

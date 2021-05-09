@@ -1,5 +1,5 @@
 **/.DS_Store
-.idea
-cmake-build-debug
 **.png~
 **/UserInterfaceState.xcuserstate
+x64/
+.vs/Terralistic/
