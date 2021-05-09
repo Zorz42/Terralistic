@@ -5,9 +5,10 @@
 //  Created by Jakob Zorz on 27/04/2021.
 //
 
+#include <filesystem>
+
 #include "fileManager.hpp"
 #include "platform_folders.h"
-#include "fileSystem.hpp"
 
 static std::string data_path;
 
@@ -15,12 +16,12 @@ void fileManager::init() {
     // data path is path in filesystem, where terralistic worlds are saved and other things
     data_path = sago::getDataHome() + "/Terralistic/";
     
-    fileSystem::createDirIfNotExists(data_path);
+    std::filesystem::create_directory(data_path);
     
     std::string dirs_to_create[] = {getWorldsPath()};
     
     for(const std::string& dir : dirs_to_create)
-        fileSystem::createDirIfNotExists(dir);
+        std::filesystem::create_directory(dir);
 }
 
 std::string fileManager::getDataPath() {

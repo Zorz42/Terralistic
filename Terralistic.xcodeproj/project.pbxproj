@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1626244A26430A90007E01C4 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
 		1626245026430B77007E01C4 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
 		1626245126430B77007E01C4 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
 		1626245326430BBF007E01C4 /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1626245226430B94007E01C4 /* server.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -20,8 +19,6 @@
 		1626245F26430D8D007E01C4 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
 		1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		1626246126430D93007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
-		1626246226430DBB007E01C4 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
-		1626246426430DC5007E01C4 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
 		1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		1626246726430DCE007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		1626246826430DD3007E01C4 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
@@ -35,7 +32,6 @@
 		165FF85D263997B2003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
 		165FF86226399997003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
 		1661660125EA3656002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
-		1661660225EA3656002A3815 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
 		1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
 		1661661525EA3689002A3815 /* generatingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689C25E9607800D26060 /* generatingScreen.cpp */; };
 		1661661625EA3689002A3815 /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* clientNetworking.cpp */; };
@@ -98,7 +94,6 @@
 		167B38BF2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		167B38C12642FB5100E3C718 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 167B38C02642FB5100E3C718 /* info.plist */; };
 		167B38C22642FB5100E3C718 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 167B38C02642FB5100E3C718 /* info.plist */; };
-		167B38C3264303CC00E3C718 /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
 		16811020263BE9260086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
 		16811022263BE9A60086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
@@ -121,7 +116,6 @@
 		169124B225F6B75500F7EB4F /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A225F6B70F00F7EB4F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		169124CE25F6B8ED00F7EB4F /* graphics.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1691249825F6B38200F7EB4F /* graphics.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
-		169124E925F6BCD400F7EB4F /* fileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687A25E9607800D26060 /* fileSystem.cpp */; };
 		1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
 		1691250125F6BCD400F7EB4F /* generatingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689C25E9607800D26060 /* generatingScreen.cpp */; };
 		1691250225F6BCD500F7EB4F /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* clientNetworking.cpp */; };
@@ -313,10 +307,8 @@
 		1681100B263BE9260086D659 /* clientMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientMap.hpp; sourceTree = "<group>"; };
 		16811017263BE9260086D659 /* inventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = inventory.hpp; sourceTree = "<group>"; };
 		16811018263BE9260086D659 /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
-		1689687625E9607800D26060 /* fileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fileSystem.hpp; sourceTree = "<group>"; };
 		1689687825E9607800D26060 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
 		1689687925E9607800D26060 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
-		1689687A25E9607800D26060 /* fileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fileSystem.cpp; sourceTree = "<group>"; };
 		1689687C25E9607800D26060 /* packets.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = packets.hpp; sourceTree = "<group>"; };
 		1689689825E9607800D26060 /* otherPlayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = otherPlayers.cpp; sourceTree = "<group>"; };
 		1689689925E9607800D26060 /* otherPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = otherPlayers.hpp; sourceTree = "<group>"; };
@@ -655,15 +647,6 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		1689687525E9607800D26060 /* fileSystem */ = {
-			isa = PBXGroup;
-			children = (
-				1689687625E9607800D26060 /* fileSystem.hpp */,
-				1689687A25E9607800D26060 /* fileSystem.cpp */,
-			);
-			path = fileSystem;
-			sourceTree = "<group>";
-		};
 		1689687725E9607800D26060 /* sago */ = {
 			isa = PBXGroup;
 			children = (
@@ -844,7 +827,6 @@
 			isa = PBXGroup;
 			children = (
 				167B37FD2642F43C00E3C718 /* assert */,
-				1689687525E9607800D26060 /* fileSystem */,
 				1689687B25E9607800D26060 /* packets */,
 			);
 			path = Libraries;
@@ -1203,7 +1185,6 @@
 				1661662625EA3689002A3815 /* main.cpp in Sources */,
 				1661660125EA3656002A3815 /* sago.cpp in Sources */,
 				36B157D626484E2000528A2B /* clientItem.cpp in Sources */,
-				1661660225EA3656002A3815 /* fileSystem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1221,7 +1202,6 @@
 				1626246126430D93007E01C4 /* server.cpp in Sources */,
 				1626247426430E0B007E01C4 /* simplex-noise.cpp in Sources */,
 				1626245726430D74007E01C4 /* print.cpp in Sources */,
-				1626246226430DBB007E01C4 /* fileSystem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1231,7 +1211,6 @@
 			files = (
 				1626246826430DD3007E01C4 /* worldSaver.cpp in Sources */,
 				1626245126430B77007E01C4 /* launcher.cpp in Sources */,
-				1626246426430DC5007E01C4 /* fileSystem.cpp in Sources */,
 				1626246A26430DD7007E01C4 /* player.cpp in Sources */,
 				1626246C26430DDA007E01C4 /* light.cpp in Sources */,
 				1626247026430DE4007E01C4 /* print.cpp in Sources */,
@@ -1261,7 +1240,6 @@
 				36B157C426484E0900528A2B /* serverItem.cpp in Sources */,
 				36B157C226484E0900528A2B /* serverPackets.cpp in Sources */,
 				167B38BC2642F73900E3C718 /* terrainGenerator.cpp in Sources */,
-				1626244A26430A90007E01C4 /* fileSystem.cpp in Sources */,
 				36B157C626484E0900528A2B /* serverBlock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1284,7 +1262,6 @@
 				36B157C526484E0900528A2B /* serverItem.cpp in Sources */,
 				36B157C326484E0900528A2B /* serverPackets.cpp in Sources */,
 				167B38BD2642F73900E3C718 /* terrainGenerator.cpp in Sources */,
-				167B38C3264303CC00E3C718 /* fileSystem.cpp in Sources */,
 				36B157C726484E0900528A2B /* serverBlock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1294,7 +1271,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
-				169124E925F6BCD400F7EB4F /* fileSystem.cpp in Sources */,
 				36B157D326484E2000528A2B /* clientBlock.cpp in Sources */,
 				16932058263811C100B73C9F /* fileManager.cpp in Sources */,
 				36B157ED2648500300528A2B /* packets.cpp in Sources */,

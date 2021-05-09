@@ -11,11 +11,11 @@
 #include <dirent-win.h>
 #endif
 #include <algorithm>
+#include <filesystem>
 #include "worldSelector.hpp"
 #include "game.hpp"
 #include "worldCreator.hpp"
 #include "fileManager.hpp"
-#include "fileSystem.hpp"
 
 #undef main
 
@@ -78,7 +78,7 @@ void worldSelector::refresh() {
     dirent *ent;
     while((ent = readdir(dir)) != nullptr) {
         std::string name = ent->d_name;
-        if(!std::count(ignored_dirs.begin(), ignored_dirs.end(), name) && fileSystem::dirExists(fileManager::getWorldsPath() + name))
+        if(!std::count(ignored_dirs.begin(), ignored_dirs.end(), name) && std::filesystem::is_directory(fileManager::getWorldsPath() + name))
             worlds.emplace_back(name);
     }
     closedir (dir);
@@ -112,7 +112,7 @@ void worldSelector::onKeyDown(gfx::key key) {
                 if(i.button.isHovered())
                     startPrivateWorld(i.name);
                 else if(i.delete_button.isHovered()) {
-                    fileSystem::removeFile(fileManager::getWorldsPath() + i.name + ".world");
+                    std::filesystem::remove(fileManager::getWorldsPath() + i.name + ".world");
                     refresh();
                 }
             }

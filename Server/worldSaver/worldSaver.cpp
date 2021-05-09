@@ -5,9 +5,9 @@
 //  Created by Jakob Zorz on 04/12/2020.
 //
 
-#include "worldSaver.hpp"
-#include "fileSystem.hpp"
+#include <filesystem>
 #include <fstream>
+#include "worldSaver.hpp"
 
 void worldSaver::saveWorld(const std::string& world_path, serverMap& world_serverMap) {
     // saves world chunk by chunk and then inventory
@@ -43,5 +43,5 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_serve
 }
 
 bool worldSaver::worldExists(const std::string& world_path) {
-    return fileSystem::fileExists(world_path + ".world");
+    return std::filesystem::exists(world_path + ".world");
 }

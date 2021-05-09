@@ -121,7 +121,7 @@ void map::block::draw() {
         gfx::render(rect);
 
     if(getBreakStage())
-        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH * (getBreakStage() - 1)), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 }
 
 void map::block::scheduleTextureUpdate() {

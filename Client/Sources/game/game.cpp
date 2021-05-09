@@ -7,13 +7,13 @@
 
 #include <thread>
 #include <functional>
+#include <filesystem>
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
 #include "textScreen.hpp"
 #include "fileManager.hpp"
-#include "fileSystem.hpp"
 #include "assert.hpp"
 
 #ifdef _WIN32
@@ -33,7 +33,7 @@ static std::thread server_thread;
 static server* private_server = nullptr;
 
 void startPrivateWorld(const std::string& world_name) {
-    fileSystem::createDirIfNotExists(fileManager::getWorldsPath() + world_name);
+    std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
     
     private_server = new server(fileManager::getWorldsPath() + world_name, rand() % (TO_PORT - FROM_PORT) + TO_PORT);
     server_thread = std::thread(std::bind(&server::start, private_server));
