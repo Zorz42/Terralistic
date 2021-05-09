@@ -35,7 +35,7 @@ void connection::sendPacket(const packets::packet& packet_) const {
 void serverNetworkingManager::sendToEveryone(const packets::packet& packet, connection* exclusion) {
     for(connection& conn : connections)
         if(conn.socket != -1)
-            if(!exclusion || conn.socket != exclusion->socket)
+            if((!exclusion || conn.socket != exclusion->socket) && conn.registered)
                 conn.sendPacket(packet);
 }
 

@@ -21,7 +21,7 @@ class connection {
 public:
     std::string ip;
     int socket{-1};
-    bool disconnected = false;
+    bool disconnected = false, registered = false;
     
     packets::packet getPacket() const;
     void sendPacket(const packets::packet& packet_) const;

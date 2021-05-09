@@ -99,6 +99,8 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             join_packet_out << curr_player.x << curr_player.y << curr_player.id;
             manager->sendToEveryone(join_packet_out, curr_player.conn);
             
+            curr_player.conn->registered = true;
+            
             players.push_back(curr_player);
             
             print::info(curr_player.conn->ip + " connected (" + std::to_string(players.size()) + " players online)");
