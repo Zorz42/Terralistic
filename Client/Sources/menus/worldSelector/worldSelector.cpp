@@ -112,7 +112,7 @@ void worldSelector::onKeyDown(gfx::key key) {
                 if(i.button.isHovered())
                     startPrivateWorld(i.name);
                 else if(i.delete_button.isHovered()) {
-                    std::filesystem::remove(fileManager::getWorldsPath() + i.name + ".world");
+                    std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
                     refresh();
                 }
             }

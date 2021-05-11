@@ -43,10 +43,12 @@ void generateTrees(std::mt19937& engine, serverMap& world_serverMap);
 static unsigned int highest_height = 0;
 static unsigned short* heights;
 
-#define LOADING_NEXT terrainGenerator::loading_current++;
+#define LOADING_NEXT terrainGenerator::generating_current++;
 
 int terrainGenerator::generateTerrainDaemon(unsigned int seed, serverMap* world_serverMap) {
     std::mt19937 engine(seed);
+    
+    generating_current = 0;
     
     generateSurface(engine, *world_serverMap);
     generateCaves(engine, *world_serverMap);

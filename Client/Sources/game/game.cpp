@@ -10,7 +10,6 @@
 #include <filesystem>
 #include "game.hpp"
 #include "pauseScreen.hpp"
-#include "generatingScreen.hpp"
 #include "otherPlayers.hpp"
 #include "textScreen.hpp"
 #include "fileManager.hpp"
@@ -32,7 +31,22 @@
 static std::thread server_thread;
 static server* private_server = nullptr;
 
+#define TEXT_SCALE 3
+
+#define LOADING_RECT_HEIGHT 20
+#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
+#define LOADING_RECT_ELEVATION 50
+
 void startPrivateWorld(const std::string& world_name) {
+    gfx::sprite loading_text;
+    gfx::rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::bottom},
+    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::bottom};
+    
+    loading_text.scale = TEXT_SCALE;
+    loading_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
+    loading_text.setTexture(gfx::renderText("Generating world", {255, 255, 255}));
+    loading_text.orientation = gfx::center;
+    
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
     
     private_server = new server(fileManager::getWorldsPath() + world_name, rand() % (TO_PORT - FROM_PORT) + TO_PORT);
@@ -50,7 +64,13 @@ void startPrivateWorld(const std::string& world_name) {
                 renderTextScreen("Loading world");
                 break;
             case server::GENERATING_WORLD:
-                renderTextScreen("Generating world");
+                loading_bar.w += (private_server->getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server->getGeneratingTotal() - loading_bar.w) / 3;
+                loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
+                gfx::clearWindow();
+                gfx::render(loading_text);
+                gfx::render(loading_bar_back);
+                gfx::render(loading_bar);
+                gfx::updateWindow();
                 break;
             default:
                 ASSERT(false, "Unregistered loading state!");

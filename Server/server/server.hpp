@@ -29,6 +29,9 @@ public:
     
     void setPrivate(bool is_private);
     
+    unsigned int getGeneratingTotal();
+    unsigned int getGeneratingCurrent();
+    
     inline unsigned short getPort() { return networking_manager.getPort(); }
 };
 

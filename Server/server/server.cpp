@@ -103,3 +103,11 @@ void server::stop() {
 void server::setPrivate(bool is_private) {
     networking_manager.accept_only_itself = is_private;
 }
+
+unsigned int server::getGeneratingTotal() {
+    return terrainGenerator::generating_total;
+}
+
+unsigned int server::getGeneratingCurrent() {
+    return terrainGenerator::generating_current;
+}
