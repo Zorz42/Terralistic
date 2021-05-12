@@ -14,6 +14,7 @@
 #include "textScreen.hpp"
 #include "fileManager.hpp"
 #include "assert.hpp"
+#include "notifyingScreen.hpp"
 
 #ifdef _WIN32
 #include "server.hpp"
@@ -99,13 +100,14 @@ void game::init() {
     };
     
     renderTextScreen("Connecting to server");
-    if(!networking_manager.establishConnection(ip_address, port)) {
-        gfx::returnFromScene();
-        return;
-    }
+    if(!networking_manager.establishConnection(ip_address, port))
+        gfx::switchScene(new notifyingScreen("Could not connect to the server!"));
 }
 
 void game::update() {
+    if(!networking_manager.establishedConnection())
+        gfx::returnFromScene();
+    
     static unsigned int count = gfx::getTicks() / 1000 - 1, fps_count = 0;
     fps_count++;
     if(gfx::getTicks() / 1000 > count) {

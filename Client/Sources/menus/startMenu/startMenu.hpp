@@ -20,7 +20,6 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-
 #endif
 
 struct startMenu : gfx::scene {
