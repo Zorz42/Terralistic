@@ -69,8 +69,6 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     
     sock = curr_sock;
     
-    has_established_connection = true;
-    
     return true;
 }
 

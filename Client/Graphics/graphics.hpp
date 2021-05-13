@@ -126,7 +126,6 @@ struct scene {
     virtual ~scene() = default;
     
     virtual void init() {}
-    virtual void refresh() {}
     virtual void update() {}
     virtual void render() {}
     virtual void stop() {}
@@ -137,13 +136,12 @@ struct scene {
     std::vector<textInput*> text_inputs;
     std::vector<sceneModule*> modules;
     
-    void _init();
     void _onKeyDown(key key_);
     void _onKeyUp(key key_);
     bool one_time = false;
 };
 
-void switchScene(scene* x);
+void runScene(scene* x);
 void returnFromScene();
 
 void* loadImageFile(const std::string& path);

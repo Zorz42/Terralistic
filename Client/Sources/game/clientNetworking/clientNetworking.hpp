@@ -25,7 +25,7 @@ public:
 
 class networkingManager {
     int sock = -1;
-    bool listener_running = true, has_established_connection = false;
+    bool listener_running = true;
     static void listenerLoop(networkingManager* manager);
     std::vector<packetListener*> listeners;
 public:
@@ -34,8 +34,6 @@ public:
 
     void sendPacket(packets::packet packet_);
     void registerListener(packetListener* listener);
-    
-    inline bool establishedConnection() { return has_established_connection; }
 };
 
 #endif /* clientNetworking_hpp */

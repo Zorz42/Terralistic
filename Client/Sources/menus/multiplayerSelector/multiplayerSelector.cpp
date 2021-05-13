@@ -53,7 +53,7 @@ void multiplayerSelector::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
     else if((key == gfx::KEY_MOUSE_LEFT && join_button.isHovered()) || key == gfx::KEY_ENTER)
-        gfx::switchScene(new game(server_ip.getText()));
+        gfx::runScene(new game(server_ip.getText()));
 }
 
 void multiplayerSelector::render() {

@@ -25,7 +25,7 @@
 
 struct worldSelector : gfx::scene {
     void init() override;
-    void refresh() override;
+    void refresh();
     void onKeyDown(gfx::key key) override;
     void render() override;
     void onMouseScroll(int distance) override;

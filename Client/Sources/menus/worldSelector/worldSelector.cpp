@@ -58,6 +58,8 @@ void worldSelector::init() {
     new_button.orientation = gfx::bottom_right;
     
     x_image.setTexture(gfx::loadImageFile("texturePack/misc/x-button.png"));
+    
+    refresh();
 }
 
 void worldSelector::refresh() {
@@ -105,12 +107,16 @@ void worldSelector::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT) {
         if(back_button.isHovered())
             gfx::returnFromScene();
-        else if(new_button.isHovered())
-            gfx::switchScene(new worldCreator(worlds_names));
+        else if(new_button.isHovered()) {
+            gfx::runScene(new worldCreator(worlds_names));
+            refresh();
+        }
         else
             for(const world_to_select& i : worlds) {
-                if(i.button.isHovered())
+                if(i.button.isHovered()) {
                     startPrivateWorld(i.name);
+                    refresh();
+                }
                 else if(i.delete_button.isHovered()) {
                     std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
                     refresh();

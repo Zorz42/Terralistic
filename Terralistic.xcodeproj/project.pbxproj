@@ -794,9 +794,9 @@
 		1691249725F6B38200F7EB4F /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
-				36B157F52648501F00528A2B /* gfx.cpp */,
 				1691249825F6B38200F7EB4F /* graphics.hpp */,
 				168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */,
+				36B157F52648501F00528A2B /* gfx.cpp */,
 				168ABE9125F79DB200BBEA74 /* scenes.cpp */,
 				168ABE9425F7A1A900BBEA74 /* render.cpp */,
 				168D6D2A25FA8C6500A10457 /* drawables.cpp */,

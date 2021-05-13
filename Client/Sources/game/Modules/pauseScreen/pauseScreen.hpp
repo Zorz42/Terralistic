@@ -18,7 +18,6 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-
 #endif
 
 class pauseScreen : public gfx::sceneModule {

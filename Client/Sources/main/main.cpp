@@ -34,8 +34,7 @@ int main(int argc, char **argv) {
     map::initItems();
     playerHandler::initItems();
     
-    gfx::switchScene(new startMenu());
-    gfx::runScenes();
+    gfx::runScene(new startMenu());
     
     gfx::quit();
     

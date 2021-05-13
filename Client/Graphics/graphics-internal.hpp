@@ -27,8 +27,6 @@ inline SDL_Window* window = nullptr;
 inline SDL_Renderer* renderer = nullptr;
 inline TTF_Font *font = nullptr;
 
-inline std::stack<scene*> scene_stack;
-
 inline unsigned short mouse_x, mouse_y;
 inline unsigned short window_height = 100, window_width = 100;
 inline float frame_length;

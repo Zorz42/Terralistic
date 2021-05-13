@@ -80,7 +80,7 @@ void startPrivateWorld(const std::string& world_name) {
     
     private_server->setPrivate(true);
     
-    gfx::switchScene(new game("127.0.0.1", private_server->getPort()));
+    gfx::runScene(new game("127.0.0.1", private_server->getPort()));
 }
 
 void game::init() {
@@ -100,14 +100,13 @@ void game::init() {
     };
     
     renderTextScreen("Connecting to server");
-    if(!networking_manager.establishConnection(ip_address, port))
-        gfx::switchScene(new notifyingScreen("Could not connect to the server!"));
+    if(!networking_manager.establishConnection(ip_address, port)) {
+        gfx::runScene(new notifyingScreen("Could not connect to the server!"));
+        gfx::returnFromScene();
+    }
 }
 
 void game::update() {
-    if(!networking_manager.establishedConnection())
-        gfx::returnFromScene();
-    
     static unsigned int count = gfx::getTicks() / 1000 - 1, fps_count = 0;
     fps_count++;
     if(gfx::getTicks() / 1000 > count) {
