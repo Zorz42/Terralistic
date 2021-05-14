@@ -40,6 +40,7 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_serve
             world_file >> std::noskipws >> c;
             world_serverMap.getBlock(x, y).setType((serverMap::blockType) c, false);
         }
+    world_file.close();
 }
 
 bool worldSaver::worldExists(const std::string& world_path) {
