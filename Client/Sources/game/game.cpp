@@ -80,7 +80,7 @@ void startPrivateWorld(const std::string& world_name) {
     
     private_server->setPrivate(true);
     
-    gfx::runScene(new game("127.0.0.1", private_server->getPort()));
+    gfx::runScene(new game("", "127.0.0.1", private_server->getPort()));
 }
 
 void game::init() {

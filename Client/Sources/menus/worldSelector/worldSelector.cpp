@@ -138,8 +138,8 @@ void worldSelector::render() {
     bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
     
     for(world_to_select& world : worlds) {
-        world.button.hoverable = hoverable;
-        world.delete_button.hoverable = hoverable;
+        world.button.disabled = !hoverable;
+        world.delete_button.disabled = !hoverable;
     }
     
     for(world_to_select& world : worlds)

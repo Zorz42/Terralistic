@@ -32,12 +32,6 @@ void worldCreator::init() {
 
     back_button.x = (-create_button.getWidth() - back_button.getWidth() + back_button.getWidth() - PADDING) / 2;
     create_button.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + PADDING) / 2;
-    
-    faded_create.setTexture(gfx::renderText("Create world", {100, 100, 100}));
-    faded_create.scale = 3;
-    faded_create.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + PADDING) / 2;
-    faded_create.y = -PADDING - 10 * faded_create.scale;
-    faded_create.orientation = gfx::bottom;
 
     world_name.scale = 3;
     world_name.orientation = gfx::center;
@@ -57,16 +51,17 @@ void worldCreator::init() {
 void worldCreator::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
-    else if(((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || key == gfx::KEY_ENTER) && can_create)
+    else if((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || (key == gfx::KEY_ENTER && can_create))
         startPrivateWorld(world_name.getText());
 }
 
 void worldCreator::render() {
-    can_create = !world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText());
-    if(can_create)
-        gfx::render(create_button);
-    else
-        gfx::render(faded_create);
+    if(can_create != (!world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText()))) {
+        can_create = !can_create;
+        create_button.setTexture(gfx::renderText("Create world", {(unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100)}));
+        create_button.disabled = !can_create;
+    }
+    gfx::render(create_button);
     gfx::render(back_button);
     gfx::render(new_world_title);
     gfx::render(world_name);

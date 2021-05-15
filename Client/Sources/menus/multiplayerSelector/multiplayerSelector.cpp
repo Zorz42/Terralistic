@@ -33,6 +33,7 @@ void multiplayerSelector::init() {
     server_ip.scale = 3;
     server_ip.orientation = gfx::center;
     server_ip.setText("");
+    server_ip.y = 3 * PADDING;
     server_ip.active = true;
     server_ip.textProcessing = [](char c, int length) {
         if((c >= '0' && c <= '9') || c == '.')
@@ -50,10 +51,14 @@ void multiplayerSelector::init() {
     username.scale = 3;
     username.orientation = gfx::center;
     username.setText("");
-    username.y = server_ip_title.y - server_ip_title.getHeight() - PADDING;
+    username.y = server_ip_title.y - server_ip_title.getHeight() - 3 * PADDING;
     username.textProcessing = [](char c, int length) {
-        if(((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') && length < 16)
+        if(length > 15)
+            return '\0';
+        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
             return c;
+        if(c == ' ')
+            return '_';
         return '\0';
     };
     
@@ -69,11 +74,16 @@ void multiplayerSelector::init() {
 void multiplayerSelector::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
-    else if((key == gfx::KEY_MOUSE_LEFT && join_button.isHovered()) || key == gfx::KEY_ENTER)
-        gfx::runScene(new game(server_ip.getText()));
+    else if((key == gfx::KEY_MOUSE_LEFT && join_button.isHovered()) || (key == gfx::KEY_ENTER && can_connect))
+        gfx::runScene(new game(username.getText(), server_ip.getText()));
 }
 
 void multiplayerSelector::render() {
+    if(can_connect != (username.getText().size() >= 3 && !server_ip.getText().empty())) {
+        can_connect = !can_connect;
+        join_button.setTexture(gfx::renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)}));
+        join_button.disabled = !can_connect;
+    }
     gfx::render(join_button);
     gfx::render(back_button);
     gfx::render(server_ip_title);

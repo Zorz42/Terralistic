@@ -30,6 +30,7 @@ private:
     gfx::button back_button, join_button;
     gfx::sprite server_ip_title, username_title;
     gfx::textInput server_ip, username;
+    bool can_connect = true;
 };
 
 #endif /* multiplayerSelector_hpp */

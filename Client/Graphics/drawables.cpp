@@ -62,7 +62,7 @@ unsigned short gfx::button::getHeight() const {
 }
 
 bool gfx::button::isHovered() const {
-    if(!hoverable)
+    if(disabled)
         return false;
     rectShape rect = getTranslatedRect();
     return mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;

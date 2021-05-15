@@ -81,7 +81,7 @@ struct button : sprite {
     
     color def_color = {0, 0, 0}, hover_color = {100, 100, 100};
     bool isHovered() const;
-    bool hoverable = true;
+    bool disabled = false;
 };
 
 struct textInput : button {

@@ -26,7 +26,7 @@
 
 struct worldCreator : gfx::scene {
     worldCreator(const std::vector<std::string>& worlds) : worlds(worlds) {}
-    bool running = true, can_create = false;
+    bool running = true, can_create = true;
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
