@@ -43,7 +43,7 @@ void worldCreator::init() {
     world_name.orientation = gfx::center;
     world_name.setText("");
     world_name.active = true;
-    world_name.textProcessing = [](char c) {
+    world_name.textProcessing = [](char c, int length) {
         if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_')
             return c;
         if(c == ' ')
@@ -51,7 +51,6 @@ void worldCreator::init() {
         return '\0';
     };
     
-    one_time = true;
     text_inputs = {&world_name};
 }
 

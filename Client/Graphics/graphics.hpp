@@ -92,7 +92,7 @@ struct textInput : button {
     void setText(const std::string& text);
     
     bool active = false;
-    char (*textProcessing)(char c) = nullptr;
+    char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
     color border_color = {255, 255, 255}, text_color = {255, 255, 255};
 protected:
@@ -138,7 +138,6 @@ struct scene {
     
     void _onKeyDown(key key_);
     void _onKeyUp(key key_);
-    bool one_time = false;
 };
 
 void runScene(scene* x);

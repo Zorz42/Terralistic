@@ -71,13 +71,7 @@ bool gfx::button::isHovered() const {
 // textInput
 
 void gfx::textInput::setText(const std::string& text_) {
-    text.clear();
-    for(char c : text_) {
-        if(textProcessing)
-            c = textProcessing(c);
-        if(c != 0)
-            text.push_back(c);
-    }
+    text = text_;
     setTexture(gfx::renderText(text.empty() ? " " : text, text_color));
 }
 

@@ -28,8 +28,8 @@ struct multiplayerSelector : gfx::scene {
     
 private:
     gfx::button back_button, join_button;
-    gfx::sprite join_server_title;
-    gfx::textInput server_ip;
+    gfx::sprite server_ip_title, username_title;
+    gfx::textInput server_ip, username;
 };
 
 #endif /* multiplayerSelector_hpp */

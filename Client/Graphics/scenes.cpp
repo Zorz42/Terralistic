@@ -111,13 +111,9 @@ void gfx::runScene(scene* x) {
                 if(event.key.keysym.sym == SDLK_BACKSPACE)
                     for(textInput* i : x->text_inputs)
                         if(i->active && !i->getText().empty()) {
-                            if(i->getText().size() == 1)
-                                i->setText("");
-                            else {
-                                std::string str = i->getText();
-                                str.pop_back();
-                                i->setText(str);
-                            }
+                            std::string str = i->getText();
+                            str.pop_back();
+                            i->setText(str);
                         }
                 if(key != KEY_UNKNOWN)
                     x->_onKeyDown(key);
@@ -129,7 +125,12 @@ void gfx::runScene(scene* x) {
                 std::string c = event.text.text;
                 for(textInput* i : x->text_inputs)
                     if(i->active)
-                        i->setText(i->getText() + c);
+                        for(char result : c) {
+                            if(i->textProcessing)
+                                result = i->textProcessing(result, i->getText().size());
+                            if(result)
+                                i->setText(i->getText() + result);
+                        }
             } else if(event.type == SDL_MOUSEWHEEL)
                 x->onMouseScroll(event.wheel.y);
         }
