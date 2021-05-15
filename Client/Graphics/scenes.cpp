@@ -127,7 +127,7 @@ void gfx::runScene(scene* x) {
                     if(i->active)
                         for(char result : c) {
                             if(i->textProcessing)
-                                result = i->textProcessing(result, i->getText().size());
+                                result = i->textProcessing(result, (int)i->getText().size());
                             if(result)
                                 i->setText(i->getText() + result);
                         }
