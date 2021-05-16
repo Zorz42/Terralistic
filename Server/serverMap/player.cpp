@@ -9,21 +9,21 @@
 #include "clickEvents.hpp"
 
 serverMap::player* serverMap::getPlayerByConnection(connection* conn) {
-    for(player& player : players)
-        if(player.conn == conn)
-            return &player;
+    for(player* player : online_players)
+        if(player->conn == conn)
+            return player;
     return nullptr;
 }
 
 void serverMap::lookForItems(serverMap& world_serverMap) {
     for(unsigned long i = 0; i < world_serverMap.items.size(); i++) {
-        for(player& player : players)
-            if(abs(world_serverMap.items[i].x / 100 + BLOCK_WIDTH / 2  - player.x - 14) < 50 && abs(world_serverMap.items[i].y / 100 + BLOCK_WIDTH / 2 - player.y - 25) < 50) {
-                char result = player.inventory.addItem(world_serverMap.items[i].getItemId(), 1);
+        for(player* player : online_players)
+            if(abs(world_serverMap.items[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(world_serverMap.items[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
+                char result = player->inventory.addItem(world_serverMap.items[i].getItemId(), 1);
                 if(result != -1) {
                     packets::packet item_receive_packet(packets::INVENTORY_CHANGE);
-                    item_receive_packet << (unsigned char)player.inventory.inventory[result].item_id << (unsigned short)player.inventory.inventory[result].getStack() << result;
-                    player.conn->sendPacket(item_receive_packet);
+                    item_receive_packet << (unsigned char)player->inventory.inventory[result].item_id << (unsigned short)player->inventory.inventory[result].getStack() << result;
+                    player->conn->sendPacket(item_receive_packet);
                     world_serverMap.items[i].destroy(world_serverMap);
                     world_serverMap.items.erase(world_serverMap.items.begin() + i);
                 }
@@ -32,9 +32,9 @@ void serverMap::lookForItems(serverMap& world_serverMap) {
 }
 
 void serverMap::updateLight() {
-    for(serverMap::player& player : players) {
-        for(unsigned short x = player.x / 16 - player.sight_width / 2 - 20; x < player.x / 16 + player.sight_width / 2 + 20; x++)
-            for(unsigned short y = player.y / 16 - player.sight_height / 2 - 20; y < player.y / 16 + player.sight_height / 2 + 20; y++)
+    for(player* player : online_players) {
+        for(unsigned short x = player->x / 16 - player->sight_width / 2 - 20; x < player->x / 16 + player->sight_width / 2 + 20; x++)
+            for(unsigned short y = player->y / 16 - player->sight_height / 2 - 20; y < player->y / 16 + player->sight_height / 2 + 20; y++)
                 if(getBlock(x, y).hasScheduledLightUpdate())
                     getBlock(x, y).lightUpdate();
     }
@@ -66,7 +66,20 @@ void leftClickEvent(unsigned short x, unsigned short y, connection& connection, 
 }
 
 void serverMap::updatePlayersBreaking(unsigned short tick_length) {
-    for(player& player : players)
-        if(player.breaking)
-            leftClickEvent(player.breaking_x, player.breaking_y, *player.conn, *this, tick_length);
+    for(player* player : online_players)
+        if(player->breaking)
+            leftClickEvent(player->breaking_x, player->breaking_y, *player->conn, *this, tick_length);
+}
+
+serverMap::player* serverMap::getPlayerByName(std::string name) {
+    static unsigned int curr_id = 0;
+    for(player& player : all_players)
+        if(player.name == name)
+            return &player;
+    all_players.emplace_back(player(curr_id++));
+    player& curr_player = all_players.back();
+    curr_player.y = getSpawnY() - BLOCK_WIDTH * 2;
+    curr_player.x = getSpawnX();
+    curr_player.name = name;
+    return &curr_player;
 }

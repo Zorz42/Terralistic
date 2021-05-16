@@ -74,47 +74,43 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         }
             
         case packets::PLAYER_JOIN: {
-            static unsigned int curr_id = 0;
-            
             char raw_name[16];
             for(int i = 0; i < 16; i++)
                 raw_name[15 - i] = packet.getChar();
             
-            player curr_player(curr_id++);
-            curr_player.conn = &conn;
-            curr_player.y = getSpawnY() - BLOCK_WIDTH * 2;
-            curr_player.x = getSpawnX();
-            curr_player.name = raw_name;
+            player* curr_player = getPlayerByName(raw_name);
+            curr_player->conn = &conn;
 
             packets::packet spawn_packet(packets::SPAWN_POS);
-            spawn_packet << curr_player.y << curr_player.x;
+            spawn_packet << curr_player->y << curr_player->x;
             conn.sendPacket(spawn_packet);
             
-            for(player& i : players) {
+            for(player* player : online_players) {
                 packets::packet join_packet(packets::PLAYER_JOIN);
-                join_packet << i.x << i.y << i.id;
-                curr_player.conn->sendPacket(join_packet);
+                join_packet << player->x << player->y << player->id;
+                curr_player->conn->sendPacket(join_packet);
             }
+            
             for(serverMap::item& i : items) {
                 packets::packet item_packet(packets::ITEM_CREATION);
                 item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
-                curr_player.conn->sendPacket(item_packet);
+                curr_player->conn->sendPacket(item_packet);
             }
             
             packets::packet join_packet_out(packets::PLAYER_JOIN);
-            join_packet_out << curr_player.x << curr_player.y << curr_player.id;
-            manager->sendToEveryone(join_packet_out, curr_player.conn);
+            join_packet_out << curr_player->x << curr_player->y << curr_player->id;
+            manager->sendToEveryone(join_packet_out, curr_player->conn);
             
-            curr_player.conn->registered = true;
+            curr_player->conn->registered = true;
             
-            players.push_back(curr_player);
+            online_players.push_back(curr_player);
             
-            print::info(curr_player.name + " (" + curr_player.conn->ip + ") connected (" + std::to_string(players.size()) + " players online)");
+            print::info(curr_player->name + " (" + curr_player->conn->ip + ") connected (" + std::to_string(online_players.size()) + " players online)");
             break;
         }
             
         case packets::DISCONNECT: {
-            print::info(curr_player->name + " (" + curr_player->conn->ip + ") disconnected (" + std::to_string(players.size() - 1) + " players online)");
+            print::info(curr_player->name + " (" + curr_player->conn->ip + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
             player* player = getPlayerByConnection(&conn);
             #ifndef _WIN32
                 close(conn.socket);
@@ -129,9 +125,9 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             packets::packet quit_packet(packets::PLAYER_QUIT);
             quit_packet << player->id;
             
-            for(auto i = players.begin(); i != players.end(); i++)
-                if(i->id == player->id) {
-                    players.erase(i);
+            for(auto i = online_players.begin(); i != online_players.end(); i++)
+                if((*i)->id == player->id) {
+                    online_players.erase(i);
                     break;
                 }
             manager->sendToEveryone(quit_packet);

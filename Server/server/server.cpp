@@ -91,7 +91,7 @@ void server::start() {
     networking_manager.stopListening();
     
     print::info("Saving world...");
-    worldSaver::saveWorld("world", world_map);
+    worldSaver::saveWorld(working_dir + "world", world_map);
     
     state = STOPPED;
 }
