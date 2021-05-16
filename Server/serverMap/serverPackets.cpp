@@ -75,10 +75,16 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             
         case packets::PLAYER_JOIN: {
             static unsigned int curr_id = 0;
+            
+            char raw_name[16];
+            for(int i = 0; i < 16; i++)
+                raw_name[15 - i] = packet.getChar();
+            
             player curr_player(curr_id++);
             curr_player.conn = &conn;
             curr_player.y = getSpawnY() - BLOCK_WIDTH * 2;
             curr_player.x = getSpawnX();
+            curr_player.name = raw_name;
 
             packets::packet spawn_packet(packets::SPAWN_POS);
             spawn_packet << curr_player.y << curr_player.x;
@@ -103,12 +109,12 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             
             players.push_back(curr_player);
             
-            print::info(curr_player.conn->ip + " connected (" + std::to_string(players.size()) + " players online)");
+            print::info(curr_player.name + " (" + curr_player.conn->ip + ") connected (" + std::to_string(players.size()) + " players online)");
             break;
         }
             
         case packets::DISCONNECT: {
-            print::info(conn.ip + " disconnected (" + std::to_string(players.size() - 1) + " players online)");
+            print::info(curr_player->name + " (" + curr_player->conn->ip + ") disconnected (" + std::to_string(players.size() - 1) + " players online)");
             player* player = getPlayerByConnection(&conn);
             #ifndef _WIN32
                 close(conn.socket);

@@ -152,6 +152,7 @@ public:
         inventory inventory;
         unsigned short breaking_x, breaking_y;
         bool breaking = false;
+        std::string name;
     };
     
 protected:

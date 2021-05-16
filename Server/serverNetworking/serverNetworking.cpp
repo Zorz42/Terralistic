@@ -141,5 +141,6 @@ void serverNetworkingManager::startListening() {
 
 void serverNetworkingManager::stopListening() {
     listener_running = false;
+    close(server_fd);
     listener_thread.join();
 }

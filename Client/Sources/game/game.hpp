@@ -34,9 +34,8 @@ public:
     networkingManager networking_manager;
     map *world_map;
     mainPlayer main_player;
-    std::string username;
     
-    game(std::string username, std::string ip_address, unsigned short port=33770) : username(username), ip_address(std::move(ip_address)), port(port) {}
+    game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = username; }
     void init() override;
     void stop() override;
     void render() override;

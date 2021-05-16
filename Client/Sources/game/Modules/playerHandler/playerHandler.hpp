@@ -8,6 +8,8 @@
 #ifndef playerHandler_hpp
 #define playerHandler_hpp
 
+#include <string>
+
 #ifdef _WIN32
 #include "graphics.hpp"
 #else
@@ -28,6 +30,7 @@ public:
     short velocity_x = 0, velocity_y = 0;
     bool flipped = false;
     inventory player_inventory;
+    std::string name;
 };
 
 class playerHandler : public gfx::sceneModule, packetListener {

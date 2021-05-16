@@ -17,7 +17,10 @@ void playerHandler::init() {
     world_map->view_x = player->position_x;
     world_map->view_y = player->position_y;
     
-    manager->sendPacket(packets::PLAYER_JOIN);
+    packets::packet join_packet(packets::PLAYER_JOIN);
+    for(int i = 0; i < 16; i++)
+        join_packet << (i < player->name.size() ? player->name[i] : '\0');
+    manager->sendPacket(join_packet);
     
     packets::packet packet(packets::VIEW_SIZE_CHANGE);
     packet << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH);
