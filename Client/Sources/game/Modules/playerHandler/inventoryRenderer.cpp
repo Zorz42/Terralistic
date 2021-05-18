@@ -70,8 +70,8 @@ void playerHandler::onPacketInventory(packets::packet packet) {
     switch(packet.type) {
         case packets::INVENTORY_CHANGE: {
             char pos = packet.getChar();
-            player->player_inventory.inventory[(int)pos].setStack(packet.getUShort());
             player->player_inventory.inventory[(int)pos].item_id = (map::itemType)packet.getUChar();
+            player->player_inventory.inventory[(int)pos].setStack(packet.getUShort());
             break;
         }
         default: break;

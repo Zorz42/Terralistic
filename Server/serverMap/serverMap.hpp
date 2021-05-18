@@ -118,7 +118,9 @@ public:
         inventoryItem() : holder(nullptr), item_id(serverMap::itemType::NOTHING), stack(0) {}
         explicit inventoryItem(inventory* holder) : holder(holder), item_id(serverMap::itemType::NOTHING), stack(0) {}
         explicit inventoryItem(inventory* holder, itemType item_id) : holder(holder), item_id(item_id), stack(1) {}
-        itemType item_id;
+        
+        inline itemType getId() { return item_id; }
+        void setId(itemType id);
         uniqueItem& getUniqueItem() const;
         void setStack(unsigned short stack_);
         unsigned short getStack() const;
@@ -127,6 +129,7 @@ public:
     private:
         unsigned short stack;
         inventory* holder;
+        itemType item_id;
     };
 
     class player;

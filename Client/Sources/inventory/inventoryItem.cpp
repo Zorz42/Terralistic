@@ -20,8 +20,6 @@ void inventoryItem::setStack(unsigned short stack_) {
     // just upadate to nothing if stack reaches 0
     if(stack != stack_) {
         stack = stack_;
-        if(!stack)
-            item_id = map::itemType::NOTHING;
         stack_changed = true;
     }
 }

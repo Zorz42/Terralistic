@@ -9,22 +9,31 @@
 
 #include "serverMap.hpp"
 
+void serverMap::inventoryItem::setId(itemType id) {
+    if(item_id != id) {
+        item_id = id;
+        //if(id != itemType::NOTHING && stack == 0)
+            //setStack(1);
+        packets::packet packet(packets::INVENTORY_CHANGE);
+        packet << (unsigned short)getStack() << (unsigned char)item_id << char((long)this - (long)&holder->inventory_arr[0]);
+        holder->owner->conn->sendPacket(packet);
+    }
+}
+
 serverMap::uniqueItem& serverMap::inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
     return serverMap::unique_items[(int)item_id];
 }
 
 void serverMap::inventoryItem::setStack(unsigned short stack_) {
-    // just upadate to nothing if stack reaches 0
+    // just update to nothing if stack reaches 0
     if(stack != stack_) {
         stack = stack_;
         if(!stack)
             item_id = serverMap::itemType::NOTHING;
         
-        int index = int((long)this - (long)&holder->inventory_arr[0]);
-        
         packets::packet packet(packets::INVENTORY_CHANGE);
-        packet << (unsigned char)item_id << (unsigned short)getStack() << index;
+        packet << (unsigned short)getStack() << (unsigned char)item_id << char((long)this - (long)&holder->inventory_arr[0]);
         holder->owner->conn->sendPacket(packet);
     }
 }
@@ -61,14 +70,14 @@ serverMap::inventory::inventory(player* owner) : owner(owner) {
 char serverMap::inventory::addItem(serverMap::itemType id, int quantity) {
     // adds item to inventory
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].item_id == id) {
+        if(inventory_arr[i].getId() == id) {
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].item_id == serverMap::itemType::NOTHING) {
-            inventory_arr[i].item_id = id;
+        if(inventory_arr[i].getId() == serverMap::itemType::NOTHING) {
+            inventory_arr[i].setId(id);
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)
                 return (char)i;

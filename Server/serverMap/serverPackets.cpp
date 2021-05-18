@@ -112,9 +112,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         case packets::DISCONNECT: {
             print::info(curr_player->name + " (" + curr_player->conn->ip + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
             player* player = getPlayerByConnection(&conn);
-            #ifndef _WIN32
-                close(conn.socket);
-            #endif
+            close(conn.socket);
             for(connection& i : manager->connections)
                 if(i.socket == conn.socket) {
                     i.socket = -1;
