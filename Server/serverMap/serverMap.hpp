@@ -112,40 +112,46 @@ public:
         itemType item_id;
     };
     
+    class inventory;
+    
     struct inventoryItem {
-        inventoryItem();
-        explicit inventoryItem(itemType item_id) : item_id(item_id), stack(1) {}
+        inventoryItem() : holder(nullptr), item_id(serverMap::itemType::NOTHING), stack(0) {}
+        explicit inventoryItem(inventory* holder) : holder(holder), item_id(serverMap::itemType::NOTHING), stack(0) {}
+        explicit inventoryItem(inventory* holder, itemType item_id) : holder(holder), item_id(item_id), stack(1) {}
         itemType item_id;
         uniqueItem& getUniqueItem() const;
         void setStack(unsigned short stack_);
         unsigned short getStack() const;
         unsigned short increaseStack(unsigned short stack_);
         bool decreaseStack(unsigned short stack_);
-        bool stack_changed = true;
     private:
         unsigned short stack;
+        inventory* holder;
     };
 
+    class player;
+    
     struct inventory {
+        friend inventoryItem;
     public:
-        inventoryItem inventory[INVENTORY_SIZE];
+        inventory(unsigned short owner_id, serverMap* world_map);
+        inventoryItem inventory_arr[INVENTORY_SIZE];
         char addItem(itemType id, int quantity);
         bool open = false;
         char selected_slot = 0;
         inventoryItem* getSelectedSlot();
         void swapWithMouseItem(inventoryItem* item);
-        void clearMouseItem();
-        inventoryItem* getMouseItem();
-        void clear();
+        serverMap* world_map;
     private:
         inventoryItem mouse_item;
+        unsigned short owner_id;
     };
     
     class player {
     public:
-        player(unsigned short id) : id(id) {}
+        player(unsigned short id, serverMap* world_map) : id(id), inventory(id, world_map) {}
         connection* conn;
-        unsigned short id;
+        const unsigned short id;
         bool flipped = false;
         int x = 0, y = 0;
         unsigned short sight_width = 0, sight_height = 0;
@@ -186,7 +192,8 @@ public:
     
     item* getItemById(unsigned short id);
     player* getPlayerByConnection(connection* conn);
-    player* getPlayerByName(std::string name);
+    player* getPlayerByName(const std::string& name);
+    player* getPlayerById(unsigned short id);
     
     void updateItems(float frame_length);
     void updatePlayersBreaking(unsigned short tick_length);

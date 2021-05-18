@@ -9,8 +9,6 @@
 
 #include "serverMap.hpp"
 
-serverMap::inventoryItem::inventoryItem() : item_id(serverMap::itemType::NOTHING), stack(0) {}
-
 serverMap::uniqueItem& serverMap::inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
     return serverMap::unique_items[(int)item_id];
@@ -22,7 +20,12 @@ void serverMap::inventoryItem::setStack(unsigned short stack_) {
         stack = stack_;
         if(!stack)
             item_id = serverMap::itemType::NOTHING;
-        stack_changed = true;
+        
+        int index = int((long)this - (long)&holder->inventory_arr[0]);
+        
+        packets::packet packet(packets::INVENTORY_CHANGE);
+        packet << (unsigned char)item_id << (unsigned short)getStack() << index;
+        holder->world_map->getPlayerById(holder->owner_id)->conn->sendPacket(packet);
     }
 }
 
@@ -50,18 +53,23 @@ bool serverMap::inventoryItem::decreaseStack(unsigned short stack_) {
     }
 }
 
+serverMap::inventory::inventory(unsigned short owner_id, serverMap* world_map) : owner_id(owner_id), world_map(world_map) {
+    for(inventoryItem& i : inventory_arr)
+        i = inventoryItem(this);
+}
 
 char serverMap::inventory::addItem(serverMap::itemType id, int quantity) {
+    // adds item to inventory
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory[i].item_id == id) {
-            quantity -= inventory[i].increaseStack((unsigned short)quantity);
+        if(inventory_arr[i].item_id == id) {
+            quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory[i].item_id == serverMap::itemType::NOTHING) {
-            inventory[i].item_id = id;
-            quantity -= inventory[i].increaseStack((unsigned short)quantity);
+        if(inventory_arr[i].item_id == serverMap::itemType::NOTHING) {
+            inventory_arr[i].item_id = id;
+            quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)
                 return (char)i;
         }
@@ -69,25 +77,11 @@ char serverMap::inventory::addItem(serverMap::itemType id, int quantity) {
 }
 
 serverMap::inventoryItem* serverMap::inventory::getSelectedSlot() {
-    return &inventory[(int)(unsigned char)selected_slot];
+    return &inventory_arr[(int)(unsigned char)selected_slot];
 }
 
 void serverMap::inventory::swapWithMouseItem(serverMap::inventoryItem* item) {
     serverMap::inventoryItem temp = mouse_item;
     mouse_item = *item;
     *item = temp;
-}
-
-serverMap::inventoryItem* serverMap::inventory::getMouseItem() {
-    return &mouse_item;
-}
-
-void serverMap::inventory::clearMouseItem() {
-    mouse_item.item_id = serverMap::itemType::NOTHING;
-    mouse_item.setStack(0);
-}
-
-void serverMap::inventory::clear() {
-    for(inventoryItem& i : inventory)
-        i.setStack(0);
 }

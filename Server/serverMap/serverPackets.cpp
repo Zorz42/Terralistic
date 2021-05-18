@@ -137,7 +137,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         case packets::INVENTORY_SWAP: {
             unsigned char pos = packet.getUChar();
             player* player = getPlayerByConnection(&conn);
-            player->inventory.swapWithMouseItem(&player->inventory.inventory[pos]);
+            player->inventory.swapWithMouseItem(&player->inventory.inventory_arr[pos]);
             break;
         }
             

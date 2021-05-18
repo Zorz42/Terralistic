@@ -8,6 +8,13 @@
 #include "serverMap.hpp"
 #include "clickEvents.hpp"
 
+serverMap::player* serverMap::getPlayerById(unsigned short id) {
+    for(player* player : online_players)
+        if(player->id == id)
+            return player;
+    return nullptr;
+}
+
 serverMap::player* serverMap::getPlayerByConnection(connection* conn) {
     for(player* player : online_players)
         if(player->conn == conn)
@@ -21,9 +28,6 @@ void serverMap::lookForItems(serverMap& world_serverMap) {
             if(abs(world_serverMap.items[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(world_serverMap.items[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
                 char result = player->inventory.addItem(world_serverMap.items[i].getItemId(), 1);
                 if(result != -1) {
-                    packets::packet item_receive_packet(packets::INVENTORY_CHANGE);
-                    item_receive_packet << (unsigned char)player->inventory.inventory[result].item_id << (unsigned short)player->inventory.inventory[result].getStack() << result;
-                    player->conn->sendPacket(item_receive_packet);
                     world_serverMap.items[i].destroy(world_serverMap);
                     world_serverMap.items.erase(world_serverMap.items.begin() + i);
                 }
@@ -71,12 +75,12 @@ void serverMap::updatePlayersBreaking(unsigned short tick_length) {
             leftClickEvent(player->breaking_x, player->breaking_y, *player->conn, *this, tick_length);
 }
 
-serverMap::player* serverMap::getPlayerByName(std::string name) {
+serverMap::player* serverMap::getPlayerByName(const std::string& name) {
     static unsigned int curr_id = 0;
     for(player& player : all_players)
         if(player.name == name)
             return &player;
-    all_players.emplace_back(player(curr_id++));
+    all_players.emplace_back(player(curr_id++, this));
     player& curr_player = all_players.back();
     curr_player.y = getSpawnY() - BLOCK_WIDTH * 2;
     curr_player.x = getSpawnX();

@@ -13,11 +13,8 @@ void grass_block_leftClickEvent(serverMap::block* block, serverMap::player* play
 }
 
 void air_rightClickEvent(serverMap::block* block, serverMap::player* player) {
-    serverMap::blockType type = player->inventory.inventory[player->inventory.selected_slot].getUniqueItem().places;
-    if(type != serverMap::blockType::AIR && player->inventory.inventory[player->inventory.selected_slot].decreaseStack(1)) {
-        packets::packet item_loss_packet(packets::INVENTORY_CHANGE);
-        item_loss_packet << (unsigned char)player->inventory.inventory[player->inventory.selected_slot].item_id << (unsigned short)player->inventory.inventory[player->inventory.selected_slot].getStack() << (char)player->inventory.selected_slot;
-        player->conn->sendPacket(item_loss_packet);
+    serverMap::blockType type = player->inventory.getSelectedSlot()->getUniqueItem().places;
+    if(type != serverMap::blockType::AIR && player->inventory.inventory_arr[player->inventory.selected_slot].decreaseStack(1)) {
         block->setType(type);
         block->update();
     }
