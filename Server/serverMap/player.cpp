@@ -36,11 +36,17 @@ void serverMap::lookForItems(serverMap& world_serverMap) {
 }
 
 void serverMap::updateLight() {
-    for(player* player : online_players) {
-        for(unsigned short x = player->x / 16 - player->sight_width / 2 - 20; x < player->x / 16 + player->sight_width / 2 + 20; x++)
-            for(unsigned short y = player->y / 16 - player->sight_height / 2 - 20; y < player->y / 16 + player->sight_height / 2 + 20; y++)
-                if(getBlock(x, y).hasScheduledLightUpdate())
-                    getBlock(x, y).lightUpdate();
+    bool finished = false;
+    while(!finished) {
+        finished = true;
+        for(player* player : online_players) {
+            for(unsigned short x = player->x / 16 - player->sight_width / 2 - 20; x < player->x / 16 + player->sight_width / 2 + 20; x++)
+                for(unsigned short y = player->y / 16 - player->sight_height / 2 - 20; y < player->y / 16 + player->sight_height / 2 + 20; y++)
+                    if(getBlock(x, y).hasScheduledLightUpdate()) {
+                        getBlock(x, y).lightUpdate();
+                        finished = false;
+                    }
+        }
     }
 }
 
@@ -77,13 +83,13 @@ void serverMap::updatePlayersBreaking(unsigned short tick_length) {
 
 serverMap::player* serverMap::getPlayerByName(const std::string& name) {
     static unsigned int curr_id = 0;
-    for(player& player : all_players)
-        if(player.name == name)
-            return &player;
-    all_players.emplace_back(player(curr_id++, this));
-    player& curr_player = all_players.back();
-    curr_player.y = getSpawnY() - BLOCK_WIDTH * 2;
-    curr_player.x = getSpawnX();
-    curr_player.name = name;
-    return &curr_player;
+    for(player* player : all_players)
+        if(player->name == name)
+            return player;
+    all_players.emplace_back(new player(curr_id++, this));
+    player* curr_player = all_players.back();
+    curr_player->y = getSpawnY() - BLOCK_WIDTH * 2;
+    curr_player->x = getSpawnX();
+    curr_player->name = name;
+    return curr_player;
 }

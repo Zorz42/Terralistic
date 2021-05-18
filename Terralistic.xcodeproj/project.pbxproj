@@ -616,10 +616,10 @@
 		1681100A263BE9260086D659 /* clientMap */ = {
 			isa = PBXGroup;
 			children = (
+				1681100B263BE9260086D659 /* clientMap.hpp */,
 				36B157D026484E2000528A2B /* clientBlock.cpp */,
 				36B157D126484E2000528A2B /* clientItem.cpp */,
 				36B157D226484E2000528A2B /* clientMap.cpp */,
-				1681100B263BE9260086D659 /* clientMap.hpp */,
 				36F45E872620A88400C751E4 /* chunk.cpp */,
 			);
 			path = clientMap;

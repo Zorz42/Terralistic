@@ -9,6 +9,8 @@
 #include "serverNetworking.hpp"
 
 void serverMap::block::lightUpdate() {
+    block_data->update_light = false;
+    
     block neighbors[4];
     if(x != 0)
         neighbors[0] = parent_serverMap->getBlock(x - 1, y);

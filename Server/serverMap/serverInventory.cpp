@@ -25,7 +25,7 @@ void serverMap::inventoryItem::setStack(unsigned short stack_) {
         
         packets::packet packet(packets::INVENTORY_CHANGE);
         packet << (unsigned char)item_id << (unsigned short)getStack() << index;
-        holder->world_map->getPlayerById(holder->owner_id)->conn->sendPacket(packet);
+        holder->owner->conn->sendPacket(packet);
     }
 }
 
@@ -53,7 +53,7 @@ bool serverMap::inventoryItem::decreaseStack(unsigned short stack_) {
     }
 }
 
-serverMap::inventory::inventory(unsigned short owner_id, serverMap* world_map) : owner_id(owner_id), world_map(world_map) {
+serverMap::inventory::inventory(player* owner) : owner(owner) {
     for(inventoryItem& i : inventory_arr)
         i = inventoryItem(this);
 }

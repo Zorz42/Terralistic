@@ -134,23 +134,22 @@ public:
     struct inventory {
         friend inventoryItem;
     public:
-        inventory(unsigned short owner_id, serverMap* world_map);
+        inventory(player* owner);
         inventoryItem inventory_arr[INVENTORY_SIZE];
         char addItem(itemType id, int quantity);
         bool open = false;
         char selected_slot = 0;
         inventoryItem* getSelectedSlot();
         void swapWithMouseItem(inventoryItem* item);
-        serverMap* world_map;
     private:
         inventoryItem mouse_item;
-        unsigned short owner_id;
+        player* owner;
     };
     
     class player {
     public:
-        player(unsigned short id, serverMap* world_map) : id(id), inventory(id, world_map) {}
-        connection* conn;
+        player(unsigned short id, serverMap* world_map) : id(id), inventory(this) {}
+        connection* conn = nullptr;
         const unsigned short id;
         bool flipped = false;
         int x = 0, y = 0;
@@ -172,7 +171,7 @@ protected:
     
     serverNetworkingManager* manager;
     std::vector<item> items;
-    std::vector<player> all_players;
+    std::vector<player*> all_players;
     std::vector<player*> online_players;
     
 public:
