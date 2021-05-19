@@ -565,10 +565,10 @@
 			isa = PBXGroup;
 			children = (
 				167B38822642F73900E3C718 /* serverMap.hpp */,
+				36B157C126484E0900528A2B /* serverMap.cpp */,
 				36B157BF26484E0900528A2B /* serverBlock.cpp */,
 				36B157C026484E0900528A2B /* serverInventory.cpp */,
 				36B157BE26484E0900528A2B /* serverItem.cpp */,
-				36B157C126484E0900528A2B /* serverMap.cpp */,
 				36B157BD26484E0900528A2B /* serverPackets.cpp */,
 				167B38812642F73900E3C718 /* player.cpp */,
 				167B38842642F73900E3C718 /* light.cpp */,

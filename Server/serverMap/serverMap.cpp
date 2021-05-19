@@ -18,4 +18,6 @@ void serverMap::createWorld(unsigned short width, unsigned short height) {
 serverMap::~serverMap() {
     if(blocks)
         delete[] blocks;
+    for(player* i : all_players)
+        delete i;
 }
