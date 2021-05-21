@@ -106,7 +106,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/terrainGenerator/simplexNoise/;Server/terrainGenerator/;Server/serverNetworking/;Server/serverMap/;Server/print/;Server/clickEvents/;Libraries/assert/;Libraries/fileSystem/;Libraries/packets/;Libraries/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/terrainGenerator/simplexNoise/;Server/terrainGenerator/;Server/serverNetworking/;Server/serverMap/;Server/print/;Server/clickEvents/;Libraries/assert/;Libraries/fileSystem/;Libraries/packets/;Libraries/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -122,7 +122,6 @@
     <ClCompile Include="client\sources\filemanager\sago\sago.cpp" />
     <ClCompile Include="client\sources\game\clientnetworking\clientNetworking.cpp" />
     <ClCompile Include="client\sources\game\game.cpp" />
-    <ClCompile Include="client\sources\game\generatingscreen\generatingScreen.cpp" />
     <ClCompile Include="Client\Sources\game\Modules\clientMap\clientBlock.cpp" />
     <ClCompile Include="client\sources\game\modules\clientmap\chunk.cpp" />
     <ClCompile Include="client\sources\game\modules\clientmap\clientItem.cpp" />
@@ -138,11 +137,10 @@
     <ClCompile Include="client\sources\main\main.cpp" />
     <ClCompile Include="client\sources\menus\multiplayerselector\multiplayerSelector.cpp" />
     <ClCompile Include="client\sources\menus\startmenu\startMenu.cpp" />
+    <ClCompile Include="Client\Sources\menus\textScreen\textScreen.cpp" />
     <ClCompile Include="client\sources\menus\worldcreator\worldCreator.cpp" />
     <ClCompile Include="client\sources\menus\worldselector\worldSelector.cpp" />
-    <ClCompile Include="client\sources\textscreen\textScreen.cpp" />
-    <ClCompile Include="libraries\filesystem\fileSystem.cpp" />
-    <ClCompile Include="libraries\packets\clientPackets.cpp" />
+    <ClCompile Include="Libraries\packets\packets.cpp" />
     <ClCompile Include="server\clickevents\clickEvents.cpp" />
     <ClCompile Include="server\print\print.cpp" />
     <ClCompile Include="server\servermap\serverBlock.cpp" />

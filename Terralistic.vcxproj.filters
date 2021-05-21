@@ -57,12 +57,6 @@
     <ClCompile Include="server\worldsaver\worldSaver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="libraries\filesystem\fileSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="libraries\packets\clientPackets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="client\sources\filemanager\fileManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -73,9 +67,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="client\sources\game\clientnetworking\clientNetworking.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="client\sources\game\generatingscreen\generatingScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Client\Sources\game\Modules\clientMap\clientBlock.cpp">
@@ -129,9 +120,6 @@
     <ClCompile Include="client\sources\menus\worldselector\worldSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="client\sources\textscreen\textScreen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Client\Graphics\drawables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -142,6 +130,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Client\Graphics\scenes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\menus\textScreen\textScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\packets\packets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

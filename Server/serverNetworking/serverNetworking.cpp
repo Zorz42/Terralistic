@@ -91,8 +91,9 @@ void serverNetworkingManager::listenerLoop() {
                 }
         }
     }
-    
-#ifndef _WIN32
+#ifdef _WIN32
+    closesocket(server_fd);
+#else
     close(server_fd);
 #endif
 }
@@ -141,6 +142,10 @@ void serverNetworkingManager::startListening() {
 
 void serverNetworkingManager::stopListening() {
     listener_running = false;
+#ifdef _WIN32
+    closesocket(server_fd);
+#else
     close(server_fd);
+#endif
     listener_thread.join();
 }
