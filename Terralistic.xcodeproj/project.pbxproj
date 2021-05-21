@@ -617,9 +617,9 @@
 			isa = PBXGroup;
 			children = (
 				1681100B263BE9260086D659 /* clientMap.hpp */,
+				36B157D226484E2000528A2B /* clientMap.cpp */,
 				36B157D026484E2000528A2B /* clientBlock.cpp */,
 				36B157D126484E2000528A2B /* clientItem.cpp */,
-				36B157D226484E2000528A2B /* clientMap.cpp */,
 				36F45E872620A88400C751E4 /* chunk.cpp */,
 			);
 			path = clientMap;
@@ -1372,7 +1372,6 @@
 		166165F525EA3617002A3815 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
@@ -1403,7 +1402,6 @@
 		166165F625EA3617002A3815 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;

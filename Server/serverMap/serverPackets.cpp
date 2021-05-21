@@ -91,11 +91,25 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
                 curr_player->conn->sendPacket(join_packet);
             }
             
-            for(serverMap::item& i : items) {
+            for(item& i : items) {
                 packets::packet item_packet(packets::ITEM_CREATION);
                 item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
                 curr_player->conn->sendPacket(item_packet);
             }
+            
+            for(int i = 0; i < INVENTORY_SIZE; i++)
+            if(curr_player->inventory.inventory_arr[i].getId() != itemType::NOTHING) {
+                packets::packet packet(packets::INVENTORY_CHANGE);
+                packet << (unsigned short)curr_player->inventory.inventory_arr[i].getStack() << (unsigned char)curr_player->inventory.inventory_arr[i].getId() << char(i);
+                curr_player->conn->sendPacket(packet);
+            }
+            
+            for(inventoryItem& i : curr_player->inventory.inventory_arr)
+                if(i.getId() != itemType::NOTHING) {
+                    packets::packet packet(packets::INVENTORY_CHANGE);
+                    packet << (unsigned short)i.getStack() << (unsigned char)i.getId() << char((long)&i - (long)&curr_player->inventory.inventory_arr[0]);
+                    curr_player->conn->sendPacket(packet);
+                }
             
             packets::packet join_packet_out(packets::PLAYER_JOIN);
             join_packet_out << curr_player->x << curr_player->y << curr_player->id;

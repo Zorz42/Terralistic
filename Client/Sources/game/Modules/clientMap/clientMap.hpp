@@ -148,6 +148,8 @@ protected:
     
     std::vector<item> items;
     
+    unsigned short chunks_pending = 0;
+    
 public:
     map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::LIGHT_CHANGE}; }
     int view_x, view_y;

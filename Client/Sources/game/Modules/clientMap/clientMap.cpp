@@ -56,6 +56,7 @@ void map::onPacket(packets::packet packet) {
             break;
         }
         case packets::CHUNK: {
+            chunks_pending--;
             unsigned short x = packet.getUShort(), y = packet.getUShort();
             
             for(unsigned short y_ = 0; y_ < 16; y_++)
