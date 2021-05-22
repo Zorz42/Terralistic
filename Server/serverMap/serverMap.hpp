@@ -180,6 +180,8 @@ protected:
 public:
     serverMap(serverNetworkingManager* manager) : manager(manager), serverPacketListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
     
+    std::vector<player*> getAllPlayers() { return all_players; } 
+    
     block getBlock(unsigned short x, unsigned short y);
     
     int getSpawnX();

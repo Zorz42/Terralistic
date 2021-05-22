@@ -51,8 +51,10 @@ void worldCreator::init() {
 void worldCreator::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
-    else if((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || (key == gfx::KEY_ENTER && can_create))
+    else if((key == gfx::KEY_MOUSE_LEFT && create_button.isHovered()) || (key == gfx::KEY_ENTER && can_create)) {
         startPrivateWorld(world_name.getText());
+        gfx::returnFromScene();
+    }
 }
 
 void worldCreator::render() {
