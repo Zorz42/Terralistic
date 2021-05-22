@@ -38,7 +38,7 @@ void serverNetworkingManager::sendToEveryone(const packets::packet& packet, conn
                 conn.sendPacket(packet);
 }
 
-void serverNetworkingManager::onPacket(packets::packet& packet, connection& conn ) {
+void serverNetworkingManager::onPacket(packets::packet& packet, connection& conn) {
     for(serverPacketListener* listener : listeners)
         if(listener->listening_to.find(packet.type) != listener->listening_to.end())
             listener->onPacket(packet, conn);

@@ -129,7 +129,7 @@
     <ClCompile Include="client\sources\main\main.cpp">
       <Filter>Source Files\Client\Sources\main</Filter>
     </ClCompile>
-    <ClCompile Include="client\sources\inventory\clientInventory.cpp">
+    <ClCompile Include="client\sources\inventory\inventory.cpp">
       <Filter>Source Files\Client\Sources\inventory</Filter>
     </ClCompile>
     <ClCompile Include="client\sources\inventory\inventoryItem.cpp">

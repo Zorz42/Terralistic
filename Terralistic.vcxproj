@@ -133,7 +133,7 @@
     <ClCompile Include="client\sources\game\modules\playerhandler\inventoryRenderer.cpp" />
     <ClCompile Include="client\sources\game\modules\playerhandler\playerHandler.cpp" />
     <ClCompile Include="client\sources\game\playerrenderer\playerRenderer.cpp" />
-    <ClCompile Include="client\sources\inventory\clientInventory.cpp" />
+    <ClCompile Include="client\sources\inventory\inventory.cpp" />
     <ClCompile Include="client\sources\inventory\inventoryItem.cpp" />
     <ClCompile Include="client\sources\main\main.cpp" />
     <ClCompile Include="client\sources\menus\multiplayerselector\multiplayerSelector.cpp" />
