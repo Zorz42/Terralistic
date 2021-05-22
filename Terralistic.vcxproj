@@ -107,6 +107,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/terrainGenerator/simplexNoise/;Server/terrainGenerator/;Server/serverNetworking/;Server/serverMap/;Server/print/;Server/clickEvents/;Libraries/assert/;Libraries/fileSystem/;Libraries/packets/;Libraries/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -122,10 +123,10 @@
     <ClCompile Include="client\sources\filemanager\sago\sago.cpp" />
     <ClCompile Include="client\sources\game\clientnetworking\clientNetworking.cpp" />
     <ClCompile Include="client\sources\game\game.cpp" />
-    <ClCompile Include="Client\Sources\game\Modules\clientMap\clientBlock.cpp" />
+    <ClCompile Include="Client\Sources\game\Modules\clientMap\block.cpp" />
     <ClCompile Include="client\sources\game\modules\clientmap\chunk.cpp" />
-    <ClCompile Include="client\sources\game\modules\clientmap\clientItem.cpp" />
-    <ClCompile Include="client\sources\game\modules\clientmap\clientMap.cpp" />
+    <ClCompile Include="client\sources\game\modules\clientmap\item.cpp" />
+    <ClCompile Include="Client\Sources\game\Modules\clientMap\clientMap.cpp" />
     <ClCompile Include="client\sources\game\modules\otherplayers\otherPlayers.cpp" />
     <ClCompile Include="client\sources\game\modules\pausescreen\pauseScreen.cpp" />
     <ClCompile Include="client\sources\game\modules\playerhandler\blockSelector.cpp" />
@@ -144,12 +145,12 @@
     <ClCompile Include="Libraries\packets\packets.cpp" />
     <ClCompile Include="server\clickevents\clickEvents.cpp" />
     <ClCompile Include="server\print\print.cpp" />
-    <ClCompile Include="server\servermap\serverBlock.cpp" />
-    <ClCompile Include="server\servermap\serverInventory.cpp" />
-    <ClCompile Include="server\servermap\serverItem.cpp" />
+    <ClCompile Include="server\servermap\block.cpp" />
+    <ClCompile Include="server\servermap\inventory.cpp" />
+    <ClCompile Include="server\servermap\item.cpp" />
     <ClCompile Include="server\servermap\light.cpp" />
     <ClCompile Include="server\servermap\serverMap.cpp" />
-    <ClCompile Include="server\servermap\serverPackets.cpp" />
+    <ClCompile Include="server\servermap\packets.cpp" />
     <ClCompile Include="server\servermap\player.cpp" />
     <ClCompile Include="server\servernetworking\serverNetworking.cpp" />
     <ClCompile Include="server\server\server.cpp" />
