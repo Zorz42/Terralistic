@@ -138,6 +138,9 @@
     <ClCompile Include="Libraries\packets\packets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Client\Sources\menus\notifyingScreen\notifyingScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="server\clickevents\clickEvents.hpp">

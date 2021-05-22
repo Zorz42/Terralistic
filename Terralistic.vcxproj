@@ -136,6 +136,7 @@
     <ClCompile Include="client\sources\inventory\inventoryItem.cpp" />
     <ClCompile Include="client\sources\main\main.cpp" />
     <ClCompile Include="client\sources\menus\multiplayerselector\multiplayerSelector.cpp" />
+    <ClCompile Include="Client\Sources\menus\notifyingScreen\notifyingScreen.cpp" />
     <ClCompile Include="client\sources\menus\startmenu\startMenu.cpp" />
     <ClCompile Include="Client\Sources\menus\textScreen\textScreen.cpp" />
     <ClCompile Include="client\sources\menus\worldcreator\worldCreator.cpp" />

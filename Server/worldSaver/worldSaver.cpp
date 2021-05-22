@@ -49,7 +49,7 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_map) 
     world_file.close();
     
     for (const auto& entry : std::filesystem::directory_iterator(world_path + "/playerdata/")) {
-        std::string player_name = entry.path();
+        std::string player_name = entry.path().string();
         player_name = player_name.substr(player_name.find_last_of("/") + 1, player_name.size() - 1);
         serverMap::player* player = world_map.getPlayerByName(player_name);
         
