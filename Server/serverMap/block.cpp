@@ -21,6 +21,15 @@ void serverMap::initBlocks() {
         uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
         uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
     };
+    
+    unique_blocks[(int)blockType::WOOD].onBreak = [](serverMap* world_map, block* this_block) {
+        block blocks[] = {world_map->getBlock(this_block->getX(), this_block->getY() - 1), world_map->getBlock(this_block->getX() + 1, this_block->getY()), world_map->getBlock(this_block->getX() - 1, this_block->getY())};
+        for(block& i : blocks)
+            if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
+                i.breakBlock();
+    };
+    
+    unique_blocks[(int)blockType::LEAVES].onBreak = unique_blocks[(int)blockType::WOOD].onBreak;
 }
 
 serverMap::block serverMap::getBlock(unsigned short x, unsigned short y) {
@@ -32,26 +41,26 @@ void serverMap::block::setType(serverMap::blockType id, bool process) {
     if(!process)
         block_data->block_id = id;
     else if(id != block_data->block_id) {
-        parent_serverMap->removeNaturalLight(x);
+        parent_map->removeNaturalLight(x);
         block_data->block_id = id;
-        parent_serverMap->setNaturalLight(x);
+        parent_map->setNaturalLight(x);
         update();
         
         // update upper, lower, right and left block (neighbours)
         if(x != 0)
-            parent_serverMap->getBlock(x - 1, y).update();
-        if(x != parent_serverMap->getWorldWidth() - 1)
-            parent_serverMap->getBlock(x + 1, y).update();
+            parent_map->getBlock(x - 1, y).update();
+        if(x != parent_map->getWorldWidth() - 1)
+            parent_map->getBlock(x + 1, y).update();
         if(y != 0)
-            parent_serverMap->getBlock(x, y - 1).update();
-        if(y != parent_serverMap->getWorldHeight() - 1)
-            parent_serverMap->getBlock(x, y + 1).update();
+            parent_map->getBlock(x, y - 1).update();
+        if(y != parent_map->getWorldHeight() - 1)
+            parent_map->getBlock(x, y + 1).update();
         
         scheduleLightUpdate();
         
         packets::packet packet(packets::BLOCK_CHANGE);
         packet << getX() << getY() << (unsigned char)getType();
-        parent_serverMap->manager->sendToEveryone(packet);
+        parent_map->manager->sendToEveryone(packet);
     }
 }
 
@@ -62,23 +71,24 @@ void serverMap::block::setBreakProgress(unsigned short ms) {
         block_data->break_stage = stage;
         packets::packet packet(packets::BLOCK_PROGRESS_CHANGE);
         packet << getY() << getX() << getBreakStage();
-        parent_serverMap->manager->sendToEveryone(packet);
+        parent_map->manager->sendToEveryone(packet);
     }
 }
 
 void serverMap::block::update() {
-    if(isOnlyOnFloor() && parent_serverMap->getBlock(x, (unsigned short)(y + 1)).isTransparent())
+    if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         breakBlock();
     scheduleLightUpdate();
 }
 
 void serverMap::block::breakBlock() {
     if(getDrop() != itemType::NOTHING)
-        parent_serverMap->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+        parent_map->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+    uniqueBlock *unique_block = &block_data->getUniqueBlock();
     setType(blockType::AIR);
     setBreakProgress(0);
-    if(block_data->getUniqueBlock().onBreak)
-        block_data->getUniqueBlock().onBreak(this);
+    if(unique_block->onBreak)
+        unique_block->onBreak(parent_map, this);
 }
 
 serverMap::uniqueBlock& serverMap::blockData::getUniqueBlock() const {

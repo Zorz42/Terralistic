@@ -37,7 +37,7 @@ protected:
         itemType drop;
         short break_time;
         
-        void (*onBreak)(block* this_block) = nullptr;
+        void (*onBreak)(serverMap* world_map, block* this_block) = nullptr;
     };
     
     struct blockData {
@@ -68,10 +68,10 @@ public:
     class block {
         blockData* block_data = nullptr;
         unsigned short x, y;
-        serverMap* parent_serverMap;
+        serverMap* parent_map;
         
     public:
-        block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_serverMap) : x(x), y(y), block_data(block_data), parent_serverMap(parent_serverMap) {}
+        block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
         block() = default;
         
         void update();
