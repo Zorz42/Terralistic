@@ -16,6 +16,8 @@
 #define MAX_LIGHT 100
 #define INVENTORY_SIZE 20
 
+#define UNBREAKABLE -1
+
 class serverMap : serverPacketListener {
 public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES};
@@ -24,14 +26,18 @@ public:
     static void initBlocks();
     static void initItems();
     
+    class block;
+    
 protected:
     struct uniqueBlock {
-        uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemType drop, unsigned short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
+        uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
         
         bool ghost, only_on_floor, transparent;
         std::string name;
         itemType drop;
-        unsigned short break_time;
+        short break_time;
+        
+        void (*onBreak)(block* this_block) = nullptr;
     };
     
     struct blockData {
@@ -53,7 +59,7 @@ protected:
         blockType places;
     };
     
-protected:
+
 public: // !!! should be protected
     static std::vector<uniqueItem> unique_items;
     static std::vector<uniqueBlock> unique_blocks;

@@ -556,12 +556,12 @@
 		167B38802642F73900E3C718 /* serverMap */ = {
 			isa = PBXGroup;
 			children = (
+				167B38822642F73900E3C718 /* serverMap.hpp */,
+				36B157C126484E0900528A2B /* serverMap.cpp */,
 				16987C1C2659010D0016509C /* block.cpp */,
 				16987C1A2659010D0016509C /* inventory.cpp */,
 				16987C1B2659010D0016509C /* item.cpp */,
 				16987C192659010D0016509C /* packets.cpp */,
-				167B38822642F73900E3C718 /* serverMap.hpp */,
-				36B157C126484E0900528A2B /* serverMap.cpp */,
 				167B38812642F73900E3C718 /* player.cpp */,
 				167B38842642F73900E3C718 /* light.cpp */,
 			);
