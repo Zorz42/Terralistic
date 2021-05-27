@@ -27,6 +27,7 @@ public:
     static void initItems();
     
     class block;
+    class player;
     
 protected:
     struct uniqueBlock {
@@ -37,7 +38,9 @@ protected:
         itemType drop;
         short break_time;
         
-        void (*onBreak)(serverMap* world_map, block* this_block) = nullptr;
+        void (*onBreak)(serverMap*, block*) = nullptr;
+        void (*onRightClick)(block*, player*) = nullptr;
+        void (*onLeftClick)(block*, player*) = nullptr;
     };
     
     struct blockData {
@@ -59,8 +62,6 @@ protected:
         blockType places;
     };
     
-
-public: // !!! should be protected
     static std::vector<uniqueItem> unique_items;
     static std::vector<uniqueBlock> unique_blocks;
     
@@ -101,6 +102,9 @@ public:
         inline unsigned short getY() { return y; }
         
         inline void _setLightLevel(unsigned char level) { block_data->light_level = level; }
+        
+        void leftClickEvent(connection& connection, unsigned short tick_length);
+        void rightClickEvent(player* peer);
     };
     
     struct item {
@@ -137,8 +141,6 @@ public:
         inventory* holder;
         itemType item_id;
     };
-
-    class player;
     
     struct inventory {
         friend inventoryItem;

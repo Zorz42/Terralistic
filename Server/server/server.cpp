@@ -13,7 +13,6 @@
 #include "print.hpp"
 #include "worldSaver.hpp"
 #include "terrainGenerator.hpp"
-#include "clickEvents.hpp"
 #include "server.hpp"
 
 static bool running = false;
@@ -28,8 +27,6 @@ void inthand(int signum) {
 void serverInit() {
     serverMap::initItems();
     serverMap::initBlocks();
-    
-    clickEvents::init();
 }
 
 void server::start() {

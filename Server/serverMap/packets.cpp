@@ -14,7 +14,6 @@
 
 #include <chrono>
 #include "print.hpp"
-#include "clickEvents.hpp"
 #include "packets.hpp"
 #include "serverNetworking.hpp"
 #include "serverMap.hpp"
@@ -37,9 +36,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             
         case packets::RIGHT_CLICK: {
             unsigned short y = packet.getUShort(), x = packet.getUShort();
-            serverMap::block block = getBlock(x, y);
-            if(clickEvents::click_events[(int)block.getType()].rightClickEvent)
-                clickEvents::click_events[(int)block.getType()].rightClickEvent(&block, curr_player);
+            getBlock(x, y).rightClickEvent(curr_player);
             break;
         }
             

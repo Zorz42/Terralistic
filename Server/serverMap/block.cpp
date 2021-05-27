@@ -30,6 +30,20 @@ void serverMap::initBlocks() {
     };
     
     unique_blocks[(int)blockType::LEAVES].onBreak = unique_blocks[(int)blockType::WOOD].onBreak;
+    
+    unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
+        this_block->setType(serverMap::blockType::DIRT);
+    };
+    
+    unique_blocks[(int)blockType::AIR].onLeftClick = [](block* this_block, player* peer) {};
+    
+    unique_blocks[(int)blockType::AIR].onRightClick = [](block* this_block, player* peer) {
+        serverMap::blockType type = peer->inventory.getSelectedSlot()->getUniqueItem().places;
+        if(type != serverMap::blockType::AIR && peer->inventory.inventory_arr[peer->inventory.selected_slot].decreaseStack(1)) {
+            this_block->setType(type);
+            this_block->update();
+        }
+    };
 }
 
 serverMap::block serverMap::getBlock(unsigned short x, unsigned short y) {
@@ -93,4 +107,19 @@ void serverMap::block::breakBlock() {
 
 serverMap::uniqueBlock& serverMap::blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
+}
+
+void serverMap::block::leftClickEvent(connection& connection, unsigned short tick_length) {
+    if(block_data->getUniqueBlock().onLeftClick)
+        block_data->getUniqueBlock().onLeftClick(this, parent_map->getPlayerByConnection(&connection));
+    else {
+        setBreakProgress(getBreakProgress() + tick_length);
+        if(getBreakProgress() >= getBreakTime())
+            breakBlock();
+    }
+}
+
+void serverMap::block::rightClickEvent(player* peer) {
+    if(block_data->getUniqueBlock().onRightClick)
+        block_data->getUniqueBlock().onRightClick(this, peer);
 }

@@ -11,7 +11,6 @@
 		1626245126430B77007E01C4 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
 		1626245326430BBF007E01C4 /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1626245226430B94007E01C4 /* server.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		1626245426430BD8007E01C4 /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1626245226430B94007E01C4 /* server.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		1626245526430D6F007E01C4 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
 		1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
 		1626245726430D74007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		1626245926430D81007E01C4 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38812642F73900E3C718 /* player.cpp */; };
@@ -26,7 +25,6 @@
 		1626246C26430DDA007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		1626247026430DE4007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		1626247126430DE6007E01C4 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
-		1626247226430DE8007E01C4 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
 		1626247326430DF6007E01C4 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
 		1626247426430E0B007E01C4 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
 		165FF85D263997B2003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
@@ -59,10 +57,6 @@
 		167B38242642F63B00E3C718 /* Server.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 167B381C2642F63B00E3C718 /* Server.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		167B38392642F6A400E3C718 /* Server_Debug.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 167B382D2642F64800E3C718 /* Server_Debug.framework */; };
 		167B383A2642F6A400E3C718 /* Server_Debug.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 167B382D2642F64800E3C718 /* Server_Debug.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		167B38942642F73900E3C718 /* clickEvents.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B38772642F73900E3C718 /* clickEvents.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
-		167B38952642F73900E3C718 /* clickEvents.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B38772642F73900E3C718 /* clickEvents.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
-		167B38962642F73900E3C718 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
-		167B38972642F73900E3C718 /* clickEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38782642F73900E3C718 /* clickEvents.cpp */; };
 		167B389A2642F73900E3C718 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
 		167B389B2642F73900E3C718 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
 		167B389C2642F73900E3C718 /* serverNetworking.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B387C2642F73900E3C718 /* serverNetworking.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -291,8 +285,6 @@
 		167B38102642F63000E3C718 /* Terralistic-server-Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server-Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
 		167B381C2642F63B00E3C718 /* Server.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Server.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		167B382D2642F64800E3C718 /* Server_Debug.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Server_Debug.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		167B38772642F73900E3C718 /* clickEvents.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clickEvents.hpp; sourceTree = "<group>"; };
-		167B38782642F73900E3C718 /* clickEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clickEvents.cpp; sourceTree = "<group>"; };
 		167B387B2642F73900E3C718 /* serverNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverNetworking.cpp; sourceTree = "<group>"; };
 		167B387C2642F73900E3C718 /* serverNetworking.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverNetworking.hpp; sourceTree = "<group>"; };
 		167B387E2642F73900E3C718 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
@@ -514,7 +506,6 @@
 			isa = PBXGroup;
 			children = (
 				1626244C26430B41007E01C4 /* launcher */,
-				167B38762642F73900E3C718 /* clickEvents */,
 				167B387A2642F73900E3C718 /* serverNetworking */,
 				167B387D2642F73900E3C718 /* print */,
 				167B38802642F73900E3C718 /* serverMap */,
@@ -524,15 +515,6 @@
 				167B38C02642FB5100E3C718 /* info.plist */,
 			);
 			path = Server;
-			sourceTree = "<group>";
-		};
-		167B38762642F73900E3C718 /* clickEvents */ = {
-			isa = PBXGroup;
-			children = (
-				167B38772642F73900E3C718 /* clickEvents.hpp */,
-				167B38782642F73900E3C718 /* clickEvents.cpp */,
-			);
-			path = clickEvents;
 			sourceTree = "<group>";
 		};
 		167B387A2642F73900E3C718 /* serverNetworking */ = {
@@ -855,7 +837,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				167B389C2642F73900E3C718 /* serverNetworking.hpp in Headers */,
-				167B38942642F73900E3C718 /* clickEvents.hpp in Headers */,
 				167B38A02642F73900E3C718 /* print.hpp in Headers */,
 				167B38B22642F73900E3C718 /* worldSaver.hpp in Headers */,
 				167B38A42642F73900E3C718 /* serverMap.hpp in Headers */,
@@ -871,7 +852,6 @@
 			files = (
 				1626245426430BD8007E01C4 /* server.hpp in Headers */,
 				167B389D2642F73900E3C718 /* serverNetworking.hpp in Headers */,
-				167B38952642F73900E3C718 /* clickEvents.hpp in Headers */,
 				167B38B92642F73900E3C718 /* simplex-noise.hpp in Headers */,
 				167B38A52642F73900E3C718 /* serverMap.hpp in Headers */,
 				167B38B72642F73900E3C718 /* terrainGenerator.hpp in Headers */,
@@ -1199,7 +1179,6 @@
 				168A5E7B26511ADF00A466FD /* packets.cpp in Sources */,
 				168A5E7F26511ADF00A466FD /* serverMap.cpp in Sources */,
 				1626245026430B77007E01C4 /* launcher.cpp in Sources */,
-				1626245526430D6F007E01C4 /* clickEvents.cpp in Sources */,
 				1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */,
 				1626245926430D81007E01C4 /* player.cpp in Sources */,
 				1626245B26430D85007E01C4 /* light.cpp in Sources */,
@@ -1224,7 +1203,6 @@
 				1626247026430DE4007E01C4 /* print.cpp in Sources */,
 				1626247126430DE6007E01C4 /* serverNetworking.cpp in Sources */,
 				1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */,
-				1626247226430DE8007E01C4 /* clickEvents.cpp in Sources */,
 				1626247326430DF6007E01C4 /* simplex-noise.cpp in Sources */,
 				1626246726430DCE007E01C4 /* server.cpp in Sources */,
 			);
@@ -1236,7 +1214,6 @@
 			files = (
 				167B38A22642F73900E3C718 /* player.cpp in Sources */,
 				16987C1F2659010D0016509C /* item.cpp in Sources */,
-				167B38962642F73900E3C718 /* clickEvents.cpp in Sources */,
 				36B157CA26484E0900528A2B /* serverMap.cpp in Sources */,
 				167B38BA2642F73900E3C718 /* simplex-noise.cpp in Sources */,
 				167B38BE2642F73900E3C718 /* server.cpp in Sources */,
@@ -1261,7 +1238,6 @@
 				16987C232659014B0016509C /* item.cpp in Sources */,
 				16987C242659014B0016509C /* packets.cpp in Sources */,
 				167B38A32642F73900E3C718 /* player.cpp in Sources */,
-				167B38972642F73900E3C718 /* clickEvents.cpp in Sources */,
 				36B157CB26484E0900528A2B /* serverMap.cpp in Sources */,
 				167B38BB2642F73900E3C718 /* simplex-noise.cpp in Sources */,
 				167B38BF2642F73900E3C718 /* server.cpp in Sources */,

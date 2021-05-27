@@ -6,7 +6,6 @@
 //
 
 #include "serverMap.hpp"
-#include "clickEvents.hpp"
 
 serverMap::player* serverMap::getPlayerById(unsigned short id) {
     for(player* player : online_players)
@@ -64,21 +63,10 @@ int serverMap::getSpawnY() {
     return result;
 }
 
-void leftClickEvent(unsigned short x, unsigned short y, connection& connection, serverMap& world_serverMap, unsigned short tick_length) {
-    serverMap::block block = world_serverMap.getBlock(x, y);
-    if(clickEvents::click_events[(int)block.getType()].leftClickEvent)
-        clickEvents::click_events[(int)block.getType()].leftClickEvent(&block, world_serverMap.getPlayerByConnection(&connection));
-    else {
-        block.setBreakProgress(block.getBreakProgress() + tick_length);
-        if(block.getBreakProgress() >= block.getBreakTime())
-            block.breakBlock();
-    }
-}
-
 void serverMap::updatePlayersBreaking(unsigned short tick_length) {
     for(player* player : online_players)
         if(player->breaking)
-            leftClickEvent(player->breaking_x, player->breaking_y, *player->conn, *this, tick_length);
+            getBlock(player->breaking_x, player->breaking_y).leftClickEvent(*player->conn, tick_length);
 }
 
 serverMap::player* serverMap::getPlayerByName(const std::string& name) {
