@@ -25,6 +25,7 @@ struct multiplayerSelector : gfx::scene {
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
+    void stop() override;
     
 private:
     gfx::button back_button, join_button;

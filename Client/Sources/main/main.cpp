@@ -8,6 +8,7 @@
 #include "startMenu.hpp"
 #include "fileManager.hpp"
 #include "playerHandler.hpp"
+#include "config.hpp"
 
 #ifdef _WIN32
 #include "server.hpp"
@@ -20,6 +21,8 @@
 #endif
 #endif
 
+#include <iostream>
+
 int main(int argc, char **argv) {
     // initialize graphics and set resource path, which is a part of file loading in graphics
     
@@ -30,6 +33,7 @@ int main(int argc, char **argv) {
     
     serverInit();
     fileManager::init();
+    config = configFile(fileManager::getDataPath() + "/config.txt");
     map::initBlocks();
     map::initItems();
     playerHandler::initItems();

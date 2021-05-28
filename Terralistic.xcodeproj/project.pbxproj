@@ -55,6 +55,10 @@
 		1675E71726611B2D00B620F4 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
 		1675E71826611B2D00B620F4 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1B2659010D0016509C /* item.cpp */; };
 		1675E71926611B2D00B620F4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
+		1675E71D26611B8000B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
+		1675E71E26611BBB00B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
+		1675E71F26611BBF00B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
+		1675E72026611BC300B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		167B37F62642EB7700E3C718 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A125F6B70F00F7EB4F /* SDL2_image.framework */; };
 		167B37F72642EB7700E3C718 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A125F6B70F00F7EB4F /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		167B37F82642EB7700E3C718 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */; };
@@ -287,6 +291,9 @@
 		1661662D25EA3882002A3815 /* Terralistic.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Terralistic.app; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic.app"; sourceTree = "<group>"; };
 		1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = playerRenderer.cpp; sourceTree = "<group>"; };
 		1662BC1E2635A9E70062DBB3 /* playerRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = playerRenderer.hpp; sourceTree = "<group>"; };
+		1675E71B26611B8000B620F4 /* configManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = configManager.cpp; sourceTree = "<group>"; };
+		1675E71C26611B8000B620F4 /* configManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = configManager.hpp; sourceTree = "<group>"; };
+		1675E72126612BF700B620F4 /* config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = config.hpp; sourceTree = "<group>"; };
 		167B37FF2642F43C00E3C718 /* debugBreak.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		167B38002642F49200E3C718 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
 		167B38052642F61300E3C718 /* Terralistic-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -499,6 +506,15 @@
 				1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */,
 			);
 			path = playerRenderer;
+			sourceTree = "<group>";
+		};
+		1675E71A26611B6300B620F4 /* configManager */ = {
+			isa = PBXGroup;
+			children = (
+				1675E71C26611B8000B620F4 /* configManager.hpp */,
+				1675E71B26611B8000B620F4 /* configManager.cpp */,
+			);
+			path = configManager;
 			sourceTree = "<group>";
 		};
 		167B37FD2642F43C00E3C718 /* assert */ = {
@@ -760,6 +776,7 @@
 		168968C425E9607800D26060 /* main */ = {
 			isa = PBXGroup;
 			children = (
+				1675E72126612BF700B620F4 /* config.hpp */,
 				168968C625E9607800D26060 /* main.cpp */,
 			);
 			path = main;
@@ -811,6 +828,7 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				1675E71A26611B6300B620F4 /* configManager */,
 				167B37FD2642F43C00E3C718 /* assert */,
 				1689687B25E9607800D26060 /* packets */,
 			);
@@ -1153,6 +1171,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1675E72026611BC300B620F4 /* configManager.cpp in Sources */,
 				16811022263BE9A60086D659 /* inventoryItem.cpp in Sources */,
 				165FF86226399997003941F8 /* textScreen.cpp in Sources */,
 				36B157EE2648500300528A2B /* packets.cpp in Sources */,
@@ -1184,6 +1203,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1675E71F26611BBF00B620F4 /* configManager.cpp in Sources */,
 				1675E71226611B1D00B620F4 /* block.cpp in Sources */,
 				1675E71326611B1D00B620F4 /* inventory.cpp in Sources */,
 				1675E71426611B1D00B620F4 /* item.cpp in Sources */,
@@ -1206,6 +1226,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1675E71E26611BBB00B620F4 /* configManager.cpp in Sources */,
 				1675E71626611B2D00B620F4 /* block.cpp in Sources */,
 				1675E71726611B2D00B620F4 /* inventory.cpp in Sources */,
 				1675E71826611B2D00B620F4 /* item.cpp in Sources */,
@@ -1292,6 +1313,7 @@
 				1691250E25F6BCD500F7EB4F /* worldSelector.cpp in Sources */,
 				36436C19264C1C1300C40894 /* notifyingScreen.cpp in Sources */,
 				1691250F25F6BCD500F7EB4F /* main.cpp in Sources */,
+				1675E71D26611B8000B620F4 /* configManager.cpp in Sources */,
 				165FF85D263997B2003941F8 /* textScreen.cpp in Sources */,
 				16811020263BE9260086D659 /* inventoryItem.cpp in Sources */,
 			);
