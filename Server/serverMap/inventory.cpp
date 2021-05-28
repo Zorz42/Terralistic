@@ -9,13 +9,15 @@
 
 #include "serverMap.hpp"
 
+#include "print.hpp"
+
 void serverMap::inventoryItem::setId(itemType id) {
     if(item_id != id) {
         item_id = id;
         
         if(holder->owner->conn) {
             packets::packet packet(packets::INVENTORY_CHANGE);
-            packet << (unsigned short)getStack() << (unsigned char)item_id << char((long)this - (long)&holder->inventory_arr[0]);
+            packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
             holder->owner->conn->sendPacket(packet);
         }
     }
@@ -35,7 +37,7 @@ void serverMap::inventoryItem::setStack(unsigned short stack_) {
         
         if(holder->owner->conn) {
             packets::packet packet(packets::INVENTORY_CHANGE);
-            packet << (unsigned short)getStack() << (unsigned char)item_id << char((long)this - (long)&holder->inventory_arr[0]);
+            packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
             holder->owner->conn->sendPacket(packet);
         }
     }

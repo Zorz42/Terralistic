@@ -15,10 +15,11 @@ void map::initItems() {
     // all currently unique items
     unique_items = new uniqueItem[(int)itemType::TOTAL_ITEMS];
     
-    unique_items[0] = {"nothing",     0, };
-    unique_items[1] = {"stone",       99,};
-    unique_items[2] = {"dirt",        99,};
-    unique_items[3] = {"stone_block", 99,};
+    unique_items[0] = {"nothing"    };
+    unique_items[1] = {"stone"      };
+    unique_items[2] = {"dirt"       };
+    unique_items[3] = {"stone_block"};
+    unique_items[4] = {"wood_planks"};
 }
 
 map::item* map::getItemById(unsigned short id) {
@@ -29,7 +30,7 @@ map::item* map::getItemById(unsigned short id) {
     return nullptr;
 }
 
-map::uniqueItem::uniqueItem(const std::string& name, unsigned short stack_size) : name(name), stack_size(stack_size) {
+map::uniqueItem::uniqueItem(const std::string& name) : name(name) {
     texture.setTexture(name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + name + ".png"));
     texture.scale = 2;
     texture.free_texture = false;

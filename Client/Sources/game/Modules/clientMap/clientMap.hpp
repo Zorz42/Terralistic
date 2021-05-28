@@ -32,7 +32,7 @@ class map : public gfx::sceneModule, packetListener {
 public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, TOTAL_BLOCKS};
     enum class chunkState {unloaded, pending_load, loaded};
-    enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, TOTAL_ITEMS};
+    enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, TOTAL_ITEMS};
     
 protected:
     struct uniqueBlock {
@@ -71,11 +71,10 @@ protected:
     
 public: // !!! should be protected
     struct uniqueItem {
-        uniqueItem(const std::string& name, unsigned short stack_size);
+        uniqueItem(const std::string& name);
         uniqueItem() = default;
         
         std::string name;
-        unsigned short stack_size;
         gfx::image texture;
         
         void draw(short x, short y, unsigned char scale);

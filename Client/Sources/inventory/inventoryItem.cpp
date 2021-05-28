@@ -31,8 +31,8 @@ unsigned short inventoryItem::getStack() const {
 unsigned short inventoryItem::increaseStack(unsigned short stack_) {
     // increase stack by stack_ and if it reaches limit, return what left. example: stack_limit is 99, current stack is 40, you increase stack by 100. current stack becomes 99 and increase stack returns 41
     int stack_to_be = stack + stack_, result;
-    if(stack_to_be > getUniqueItem().stack_size)
-        stack_to_be = getUniqueItem().stack_size;
+    //if(stack_to_be > getUniqueItem().stack_size)
+        //stack_to_be = getUniqueItem().stack_size;
     result = stack_to_be - stack;
     setStack((unsigned short)stack_to_be);
     return (unsigned short)result;

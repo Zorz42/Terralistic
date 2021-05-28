@@ -18,7 +18,7 @@ void serverMap::initBlocks() {
         uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::STONE_BLOCK, /*break_time*/1000       ),
         uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
         uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemType::STONE,       /*break_time*/1000       ),
-        uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
+        uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::WOOD_PLANKS, /*break_time*/1000       ),
         uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
     };
     
