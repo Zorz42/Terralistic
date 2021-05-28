@@ -47,6 +47,14 @@
 		1661663D25EA561A002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
 		1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
 		1662BC202635AAE60062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
+		1675E71226611B1D00B620F4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1C2659010D0016509C /* block.cpp */; };
+		1675E71326611B1D00B620F4 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
+		1675E71426611B1D00B620F4 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1B2659010D0016509C /* item.cpp */; };
+		1675E71526611B1D00B620F4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
+		1675E71626611B2D00B620F4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1C2659010D0016509C /* block.cpp */; };
+		1675E71726611B2D00B620F4 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
+		1675E71826611B2D00B620F4 /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1B2659010D0016509C /* item.cpp */; };
+		1675E71926611B2D00B620F4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
 		167B37F62642EB7700E3C718 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A125F6B70F00F7EB4F /* SDL2_image.framework */; };
 		167B37F72642EB7700E3C718 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A125F6B70F00F7EB4F /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		167B37F82642EB7700E3C718 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */; };
@@ -1176,6 +1184,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1675E71226611B1D00B620F4 /* block.cpp in Sources */,
+				1675E71326611B1D00B620F4 /* inventory.cpp in Sources */,
+				1675E71426611B1D00B620F4 /* item.cpp in Sources */,
+				1675E71526611B1D00B620F4 /* packets.cpp in Sources */,
 				168A5E7B26511ADF00A466FD /* packets.cpp in Sources */,
 				168A5E7F26511ADF00A466FD /* serverMap.cpp in Sources */,
 				1626245026430B77007E01C4 /* launcher.cpp in Sources */,
@@ -1194,6 +1206,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1675E71626611B2D00B620F4 /* block.cpp in Sources */,
+				1675E71726611B2D00B620F4 /* inventory.cpp in Sources */,
+				1675E71826611B2D00B620F4 /* item.cpp in Sources */,
+				1675E71926611B2D00B620F4 /* packets.cpp in Sources */,
 				168A5E7526511AD400A466FD /* packets.cpp in Sources */,
 				168A5E7926511AD400A466FD /* serverMap.cpp in Sources */,
 				1626246826430DD3007E01C4 /* worldSaver.cpp in Sources */,
