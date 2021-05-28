@@ -15,11 +15,7 @@ void serverMap::inventoryItem::setId(itemType id) {
     if(item_id != id) {
         item_id = id;
         
-        if(holder->owner->conn) {
-            packets::packet packet(packets::INVENTORY_CHANGE);
-            packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
-            holder->owner->conn->sendPacket(packet);
-        }
+        sendPacket();
     }
 }
 
@@ -35,11 +31,7 @@ void serverMap::inventoryItem::setStack(unsigned short stack_) {
         if(!stack)
             item_id = serverMap::itemType::NOTHING;
         
-        if(holder->owner->conn) {
-            packets::packet packet(packets::INVENTORY_CHANGE);
-            packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
-            holder->owner->conn->sendPacket(packet);
-        }
+        sendPacket();
     }
 }
 
@@ -64,6 +56,14 @@ bool serverMap::inventoryItem::decreaseStack(unsigned short stack_) {
     else {
         setStack(stack - stack_);
         return true;
+    }
+}
+
+void serverMap::inventoryItem::sendPacket() {
+    if(holder->owner->conn) {
+        packets::packet packet(packets::INVENTORY_CHANGE);
+        packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
+        holder->owner->conn->sendPacket(packet);
     }
 }
 

@@ -136,6 +136,7 @@ public:
         unsigned short getStack() const;
         unsigned short increaseStack(unsigned short stack_);
         bool decreaseStack(unsigned short stack_);
+        void sendPacket();
     private:
         unsigned short stack;
         inventory* holder;
