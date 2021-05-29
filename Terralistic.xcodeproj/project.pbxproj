@@ -668,8 +668,8 @@
 		1689687B25E9607800D26060 /* packets */ = {
 			isa = PBXGroup;
 			children = (
-				36B157EC2648500300528A2B /* packets.cpp */,
 				1689687C25E9607800D26060 /* packets.hpp */,
+				36B157EC2648500300528A2B /* packets.cpp */,
 			);
 			path = packets;
 			sourceTree = "<group>";
