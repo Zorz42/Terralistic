@@ -32,7 +32,7 @@ struct packet {
     unsigned int getUInt();
 };
 
-packet getPacket(int socket);
+packet getPacket(int socket, std::vector<unsigned char>& buffer, long& bytes_received);
 void sendPacket(int socket, const packet& content);
 
 }

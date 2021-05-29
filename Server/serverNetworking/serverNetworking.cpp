@@ -19,8 +19,8 @@
 #include "print.hpp"
 #include "serverMap.hpp"
 
-packets::packet connection::getPacket() const {
-    return packets::getPacket(socket);
+packets::packet connection::getPacket() {
+    return packets::getPacket(socket, buffer, bytes_received);
 }
 
 void serverNetworkingManager::registerListener(serverPacketListener *listener) {

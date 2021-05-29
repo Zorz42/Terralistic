@@ -18,12 +18,14 @@
 class serverPacketListener;
 
 class connection {
+    std::vector<unsigned char> buffer;
+    long bytes_received;
 public:
     std::string ip;
     int socket{-1};
     bool disconnected = false, registered = false;
     
-    packets::packet getPacket() const;
+    packets::packet getPacket();
     void sendPacket(const packets::packet& packet_) const;
 };
 
