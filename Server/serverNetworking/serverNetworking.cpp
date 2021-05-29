@@ -45,9 +45,8 @@ void serverNetworkingManager::onPacket(packets::packet& packet, connection& conn
 }
 
 void serverNetworkingManager::listenerLoop() {
-    int addrlen, new_socket, activity;
-    int max_sd;
-    struct sockaddr_in address{};
+    int new_socket, activity, max_sd;
+    sockaddr_in address{};
          
     fd_set readfds;
     
@@ -74,8 +73,8 @@ void serverNetworkingManager::listenerLoop() {
             connection new_connection;
             new_connection.ip = inet_ntoa(address.sin_addr);
             if (!accept_only_itself || new_connection.ip == "0.0.0.0") {
-                new_socket = accept(server_fd, /*(sockaddr*)&address*/nullptr,/*(socklen_t*)&addrlen*/nullptr);
-                if (new_socket != SOCKET_ERROR) {
+                new_socket = accept(server_fd, nullptr, nullptr);
+                if (new_socket != -1 ) {
                     new_connection.socket = new_socket;
                     for (connection& conn : connections)
                         if (conn.socket == -1) {
@@ -109,8 +108,7 @@ void serverNetworkingManager::startListening() {
 
     SOCKET ListenSocket = INVALID_SOCKET;
 
-    struct addrinfo* result = NULL;
-    struct addrinfo hints;
+    addrinfo* result = NULL, hints;
 
     int iSendResult;
 
