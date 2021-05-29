@@ -47,7 +47,7 @@ void server::start() {
     else {
         state = GENERATING_WORLD;
         print::info("Generating world...");
-        terrainGenerator::generateTerrainDaemon(0, &world_map);
+        terrainGenerator::generateTerrainDaemon(rand(), &world_map);
         worldSaver::saveWorld(working_dir + "world", world_map);
     }
     
