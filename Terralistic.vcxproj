@@ -72,6 +72,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>Client/SDL_Libraries/SDL2-2.0.14/lib/x64/;Client/SDL_Libraries/SDL2_image-2.0.5/lib/x64/;Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LibraryPath>Client/SDL_Libraries/SDL2-2.0.14/lib/x64/;Client/SDL_Libraries/SDL2_image-2.0.5/lib/x64/;Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -107,6 +110,17 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/main/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/terrainGenerator/simplexNoise/;Server/terrainGenerator/;Server/serverNetworking/;Server/serverMap/;Server/print/;Libraries/assert/;Libraries/configManager/;Libraries/fileSystem/;Libraries/packets/;Libraries/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/main/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/terrainGenerator/simplexNoise/;Server/terrainGenerator/;Server/serverNetworking/;Server/serverMap/;Server/print/;Libraries/assert/;Libraries/configManager/;Libraries/fileSystem/;Libraries/packets/;Libraries/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
