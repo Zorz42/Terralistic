@@ -92,7 +92,7 @@ define_operator(unsigned short)
 define_operator(int)
 define_operator(unsigned int)
 
-// define getSomething() for all needed types
+// define get[type]() for all needed types
 
 define_get(char, getChar)
 define_get(unsigned char, getUChar)

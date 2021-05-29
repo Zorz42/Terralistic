@@ -73,13 +73,16 @@ void serverNetworkingManager::listenerLoop() {
         if(FD_ISSET(server_fd, &readfds)) {
             connection new_connection;
             new_connection.ip = inet_ntoa(address.sin_addr);
-            if((!accept_only_itself || new_connection.ip == "0.0.0.0") && (new_socket = accept(server_fd, (sockaddr*)&address, (socklen_t*)&addrlen)) >= 0) {
-                new_connection.socket = new_socket;
-                for(connection& conn : connections)
-                    if(conn.socket == -1) {
-                        conn = new_connection;
-                        break;
-                    }
+            if (!accept_only_itself || new_connection.ip == "0.0.0.0") {
+                new_socket = accept(server_fd, /*(sockaddr*)&address*/nullptr,/*(socklen_t*)&addrlen*/nullptr);
+                if (new_socket != SOCKET_ERROR) {
+                    new_connection.socket = new_socket;
+                    for (connection& conn : connections)
+                        if (conn.socket == -1) {
+                            conn = new_connection;
+                            break;
+                        }
+                }
             }
         }
              
@@ -101,12 +104,68 @@ void serverNetworkingManager::listenerLoop() {
 
 void serverNetworkingManager::startListening() {
 #ifdef _WIN32
-    WSADATA wsa_data;
-    if(WSAStartup(MAKEWORD(2,2), &wsa_data) != 0) {
-        print::error("WSAStartup failed");
+    WSADATA wsaData;
+    int iResult;
+
+    SOCKET ListenSocket = INVALID_SOCKET;
+
+    struct addrinfo* result = NULL;
+    struct addrinfo hints;
+
+    int iSendResult;
+
+    // Initialize Winsock
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (iResult != 0) {
+        printf("WSAStartup failed with error: %d\n", iResult);
         exit(EXIT_FAILURE);
     }
-#endif
+
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_flags = AI_PASSIVE;
+
+    // Resolve the server address and port
+    iResult = getaddrinfo(NULL, std::to_string(port).c_str(), &hints, &result);
+    if (iResult != 0) {
+        printf("getaddrinfo failed with error: %d\n", iResult);
+        WSACleanup();
+        exit(EXIT_FAILURE);
+}
+
+    // Create a SOCKET for connecting to server
+    ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    if (ListenSocket == INVALID_SOCKET) {
+        printf("socket failed with error: %ld\n", WSAGetLastError());
+        freeaddrinfo(result);
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
+
+    // Setup the TCP listening socket
+    iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+    if (iResult == SOCKET_ERROR) {
+        printf("bind failed with error: %d\n", WSAGetLastError());
+        freeaddrinfo(result);
+        closesocket(ListenSocket);
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
+
+    freeaddrinfo(result);
+
+    iResult = listen(ListenSocket, SOMAXCONN);
+    if (iResult == SOCKET_ERROR) {
+        printf("listen failed with error: %d\n", WSAGetLastError());
+        closesocket(ListenSocket);
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
+
+    server_fd = ListenSocket;
+#else
     int opt = 1;
     
     if ((server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == 0) {
@@ -135,6 +194,7 @@ void serverNetworkingManager::startListening() {
         print::error("listen failed");
         exit(EXIT_FAILURE);
     }
+#endif
     
     listener_running = true;
     listener_thread = std::thread(std::bind(&serverNetworkingManager::listenerLoop, this));
@@ -144,6 +204,7 @@ void serverNetworkingManager::stopListening() {
     listener_running = false;
 #ifdef _WIN32
     closesocket(server_fd);
+    WSACleanup();
 #else
     close(server_fd);
 #endif
