@@ -114,6 +114,25 @@ void playerHandler::onKeyDownInventory(gfx::key key) {
         case gfx::KEY_8: selectSlot(7); break;
         case gfx::KEY_9: selectSlot(8); break;
         case gfx::KEY_0: selectSlot(9); break;
+        case gfx::KEY_E:
+            player->player_inventory.open = !player->player_inventory.open;
+            if(!player->player_inventory.open && player->player_inventory.getMouseItem()->item_id != map::itemType::NOTHING) {
+                unsigned char result = player->player_inventory.addItem(player->player_inventory.getMouseItem()->item_id, player->player_inventory.getMouseItem()->getStack());
+                player->player_inventory.clearMouseItem();
+                packets::packet packet(packets::INVENTORY_SWAP);
+                packet << result;
+                manager->sendPacket(packet);
+            }
+            break;
+        case gfx::KEY_MOUSE_LEFT: {
+            if(hovered) {
+                player->player_inventory.swapWithMouseItem(hovered);
+                packets::packet packet(packets::INVENTORY_SWAP);
+                packet << (unsigned char)(hovered - &player->player_inventory.inventory[0]);
+                manager->sendPacket(packet);
+            }
+            break;
+        }
         default: break;
     }
 }
