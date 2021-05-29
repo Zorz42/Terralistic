@@ -36,7 +36,7 @@ T packets::packet::name() { \
 packets::packet packets::getPacket(int socket) {
     /*
      Through TCP packets are array of bytes. In those packets you can
-     serialize just about anything, that has a fixed size. Int can be
+     serialize just about anything that has a fixed size. Int can be
      for example deconstructed into 4 bytes and then reconstructed at
      the other side. Also data is stored in vector of unsigned char.
      */

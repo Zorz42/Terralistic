@@ -88,9 +88,6 @@
     <Filter Include="Source Files\Libraries\packets">
       <UniqueIdentifier>{f763db42-9ee9-45c0-ad41-c435ed138376}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Server\clickEvents">
-      <UniqueIdentifier>{9277df37-90bc-4247-9d85-b136c9a53f17}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Server\print">
       <UniqueIdentifier>{deed636a-7f05-4ffc-ba88-298906c2fa42}</UniqueIdentifier>
     </Filter>
@@ -111,6 +108,9 @@
     </Filter>
     <Filter Include="Source Files\Server\terrainGenerator\simplexNoise">
       <UniqueIdentifier>{a44b4a50-2d82-4d05-a10a-0ffab22fa1be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Libraries\configManager">
+      <UniqueIdentifier>{93214607-b6ff-40a7-a03b-9cde84171b20}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -198,9 +198,6 @@
     <ClCompile Include="Libraries\packets\packets.cpp">
       <Filter>Source Files\Libraries\packets</Filter>
     </ClCompile>
-    <ClCompile Include="server\clickevents\clickEvents.cpp">
-      <Filter>Source Files\Server\clickEvents</Filter>
-    </ClCompile>
     <ClCompile Include="server\servermap\light.cpp">
       <Filter>Source Files\Server\serverMap</Filter>
     </ClCompile>
@@ -239,6 +236,9 @@
     </ClCompile>
     <ClCompile Include="server\servermap\packets.cpp">
       <Filter>Source Files\Server\serverMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\configManager\configManager.cpp">
+      <Filter>Source Files\Libraries\configManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -330,6 +330,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Client\Graphics\graphics-internal.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\configManager\configManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

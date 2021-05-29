@@ -106,7 +106,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/terrainGenerator/simplexNoise/;Server/terrainGenerator/;Server/serverNetworking/;Server/serverMap/;Server/print/;Server/clickEvents/;Libraries/assert/;Libraries/fileSystem/;Libraries/packets/;Libraries/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/main/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/terrainGenerator/simplexNoise/;Server/terrainGenerator/;Server/serverNetworking/;Server/serverMap/;Server/print/;Libraries/assert/;Libraries/configManager/;Libraries/fileSystem/;Libraries/packets/;Libraries/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
@@ -142,8 +142,8 @@
     <ClCompile Include="Client\Sources\menus\textScreen\textScreen.cpp" />
     <ClCompile Include="client\sources\menus\worldcreator\worldCreator.cpp" />
     <ClCompile Include="client\sources\menus\worldselector\worldSelector.cpp" />
+    <ClCompile Include="Libraries\configManager\configManager.cpp" />
     <ClCompile Include="Libraries\packets\packets.cpp" />
-    <ClCompile Include="server\clickevents\clickEvents.cpp" />
     <ClCompile Include="server\print\print.cpp" />
     <ClCompile Include="server\servermap\block.cpp" />
     <ClCompile Include="server\servermap\inventory.cpp" />
@@ -179,6 +179,7 @@
     <ClInclude Include="client\sources\textscreen\textScreen.hpp" />
     <ClInclude Include="libraries\assert\assert.hpp" />
     <ClInclude Include="libraries\assert\debugBreak.hpp" />
+    <ClInclude Include="Libraries\configManager\configManager.hpp" />
     <ClInclude Include="libraries\filesystem\fileSystem.hpp" />
     <ClInclude Include="libraries\packets\packets.hpp" />
     <ClInclude Include="server\clickevents\clickEvents.hpp" />
