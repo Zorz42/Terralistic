@@ -32,8 +32,12 @@ void networkingManager::listenerLoop(networkingManager* manager) {
             if(listener->listening_to.find(packet.type) != listener->listening_to.end())
                 listener->onPacket(packet);
     }
+#ifdef _WIN32
     closesocket(manager->sock);
     WSACleanup();
+#else
+    close(manager->sock);
+#endif
 }
 
 bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
