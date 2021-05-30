@@ -82,7 +82,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             
             for(player* player : online_players) {
                 packets::packet join_packet(packets::PLAYER_JOIN);
-                join_packet << player->x << player->y << player->id;
+                join_packet << player->x << player->y << player->id << player->name;
                 curr_player->conn->sendPacket(join_packet);
             }
             
@@ -97,7 +97,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
                     i.sendPacket();
             
             packets::packet join_packet_out(packets::PLAYER_JOIN);
-            join_packet_out << curr_player->x << curr_player->y << curr_player->id;
+            join_packet_out << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
             manager->sendToEveryone(join_packet_out, curr_player->conn);
             
             curr_player->conn->registered = true;

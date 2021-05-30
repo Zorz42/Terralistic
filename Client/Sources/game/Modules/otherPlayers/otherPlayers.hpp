@@ -29,9 +29,11 @@ class players : public gfx::sceneModule, packetListener {
         unsigned short id{0};
         int x{0}, y{0};
         bool flipped = false;
+        std::string name;
+        gfx::image name_text;
     };
 
-    std::vector<player> other_players;
+    std::vector<player*> other_players;
     player* getPlayerById(unsigned short id);
     map* world_map;
 public:

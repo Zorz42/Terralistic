@@ -27,6 +27,13 @@ void playerRenderer::init() {
     player.scale = 2;
 }
 
+#define HEADER_PADDING 4
+
+void playerRenderer::render(int x, int y, int view_x, int view_y, bool flipped, gfx::image& header) {
+    render(x, y, view_x, view_y, flipped);
+    gfx::render(header, gfx::getWindowWidth() / 2 - header.getTextureWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y - header.getTextureHeight() - HEADER_PADDING);
+}
+
 void playerRenderer::render(int x, int y, int view_x, int view_y, bool flipped) {
     player.flipped = flipped;
     gfx::render(player, gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y);
