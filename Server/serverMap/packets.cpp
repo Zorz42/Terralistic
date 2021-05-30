@@ -71,11 +71,9 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         }
             
         case packets::PLAYER_JOIN: {
-            char raw_name[16];
-            for(int i = 0; i < 16; i++)
-                raw_name[15 - i] = packet.getChar();
+            std::string name = packet.getString();
             
-            player* curr_player = getPlayerByName(raw_name);
+            player* curr_player = getPlayerByName(name);
             curr_player->conn = &conn;
 
             packets::packet spawn_packet(packets::SPAWN_POS);

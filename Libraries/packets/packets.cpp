@@ -91,8 +91,9 @@ define_operator(int)
 define_operator(unsigned int)
 
 packets::packet& packets::packet::operator<<(std::string x) {
-    //for(int i = sizeof(std::string) - 1; i >= 0; i--)
-        //contents.push_back((x >> i * 8) & 0xFF);
+    for(char i : x)
+        contents.push_back(i);
+    contents.push_back((unsigned char)x.size());
     return *this;
 }
 
@@ -107,9 +108,11 @@ define_get(unsigned int, getUInt)
 
 std::string packets::packet::getString() {
     std::string result;
-    /*for(int i = 0; i < sizeof(std::string); i++) {
-        result += (std::string)contents.back() << i * 8;
+    unsigned char size = contents.back();
+    contents.pop_back();
+    for(int i = 0; i < size; i++) {
+        result.insert(result.begin(), contents.back());
         contents.pop_back();
-    }*/
+    }
     return result;
 }
