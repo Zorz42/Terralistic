@@ -9,6 +9,7 @@
 #define packets_hpp
 
 #include <vector>
+#include <string>
 
 namespace packets {
 
@@ -24,12 +25,14 @@ struct packet {
     packet& operator<<(unsigned short x);
     packet& operator<<(int x);
     packet& operator<<(unsigned int x);
+    packet& operator<<(std::string x);
     char getChar();
     unsigned char getUChar();
     short getShort();
     unsigned short getUShort();
     int getInt();
     unsigned int getUInt();
+    std::string getString();
 };
 
 packet getPacket(int socket, std::vector<unsigned char>& buffer, long& bytes_received);

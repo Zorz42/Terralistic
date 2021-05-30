@@ -90,6 +90,12 @@ define_operator(unsigned short)
 define_operator(int)
 define_operator(unsigned int)
 
+packets::packet& packets::packet::operator<<(std::string x) {
+    //for(int i = sizeof(std::string) - 1; i >= 0; i--)
+        //contents.push_back((x >> i * 8) & 0xFF);
+    return *this;
+}
+
 // define get[type]() for all needed types
 
 define_get(char, getChar)
@@ -99,4 +105,11 @@ define_get(unsigned short, getUShort)
 define_get(int, getInt)
 define_get(unsigned int, getUInt)
 
-
+std::string packets::packet::getString() {
+    std::string result;
+    /*for(int i = 0; i < sizeof(std::string); i++) {
+        result += (std::string)contents.back() << i * 8;
+        contents.pop_back();
+    }*/
+    return result;
+}
