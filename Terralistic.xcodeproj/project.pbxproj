@@ -25,8 +25,6 @@
 		1626246C26430DDA007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		1626247026430DE4007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		1626247126430DE6007E01C4 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
-		1626247326430DF6007E01C4 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
-		1626247426430E0B007E01C4 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
 		165FF85D263997B2003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
 		165FF86226399997003941F8 /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165FF85C263997B2003941F8 /* textScreen.cpp */; };
 		1661660125EA3656002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
@@ -89,16 +87,15 @@
 		167B38B52642F73900E3C718 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
 		167B38B62642F73900E3C718 /* terrainGenerator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388D2642F73900E3C718 /* terrainGenerator.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
 		167B38B72642F73900E3C718 /* terrainGenerator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388D2642F73900E3C718 /* terrainGenerator.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
-		167B38B82642F73900E3C718 /* simplex-noise.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388F2642F73900E3C718 /* simplex-noise.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
-		167B38B92642F73900E3C718 /* simplex-noise.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388F2642F73900E3C718 /* simplex-noise.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
-		167B38BA2642F73900E3C718 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
-		167B38BB2642F73900E3C718 /* simplex-noise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38902642F73900E3C718 /* simplex-noise.cpp */; };
 		167B38BC2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		167B38BD2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		167B38BE2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		167B38BF2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		167B38C12642FB5100E3C718 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 167B38C02642FB5100E3C718 /* info.plist */; };
 		167B38C22642FB5100E3C718 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 167B38C02642FB5100E3C718 /* info.plist */; };
+		167B59902665579400BCECBB /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
+		167B59912665579400BCECBB /* SimplexNoise.h in Headers */ = {isa = PBXBuildFile; fileRef = 167B598F2665579400BCECBB /* SimplexNoise.h */; };
+		167B5993266558D000BCECBB /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		16811020263BE9260086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
 		16811022263BE9A60086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
@@ -310,11 +307,11 @@
 		167B388A2642F73900E3C718 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
 		167B388B2642F73900E3C718 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
 		167B388D2642F73900E3C718 /* terrainGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = terrainGenerator.hpp; sourceTree = "<group>"; };
-		167B388F2642F73900E3C718 /* simplex-noise.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "simplex-noise.hpp"; sourceTree = "<group>"; };
-		167B38902642F73900E3C718 /* simplex-noise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "simplex-noise.cpp"; sourceTree = "<group>"; };
 		167B38912642F73900E3C718 /* terrainGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terrainGenerator.cpp; sourceTree = "<group>"; };
 		167B38932642F73900E3C718 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
 		167B38C02642FB5100E3C718 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		167B598E2665579400BCECBB /* SimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplexNoise.cpp; sourceTree = "<group>"; };
+		167B598F2665579400BCECBB /* SimplexNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplexNoise.h; sourceTree = "<group>"; };
 		1681100B263BE9260086D659 /* clientMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientMap.hpp; sourceTree = "<group>"; };
 		16811017263BE9260086D659 /* inventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = inventory.hpp; sourceTree = "<group>"; };
 		16811018263BE9260086D659 /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
@@ -596,8 +593,8 @@
 		167B388E2642F73900E3C718 /* simplexNoise */ = {
 			isa = PBXGroup;
 			children = (
-				167B388F2642F73900E3C718 /* simplex-noise.hpp */,
-				167B38902642F73900E3C718 /* simplex-noise.cpp */,
+				167B598E2665579400BCECBB /* SimplexNoise.cpp */,
+				167B598F2665579400BCECBB /* SimplexNoise.h */,
 			);
 			path = simplexNoise;
 			sourceTree = "<group>";
@@ -867,8 +864,8 @@
 				167B38B22642F73900E3C718 /* worldSaver.hpp in Headers */,
 				167B38A42642F73900E3C718 /* serverMap.hpp in Headers */,
 				167B38B62642F73900E3C718 /* terrainGenerator.hpp in Headers */,
-				167B38B82642F73900E3C718 /* simplex-noise.hpp in Headers */,
 				1626245326430BBF007E01C4 /* server.hpp in Headers */,
+				167B59912665579400BCECBB /* SimplexNoise.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -878,7 +875,6 @@
 			files = (
 				1626245426430BD8007E01C4 /* server.hpp in Headers */,
 				167B389D2642F73900E3C718 /* serverNetworking.hpp in Headers */,
-				167B38B92642F73900E3C718 /* simplex-noise.hpp in Headers */,
 				167B38A52642F73900E3C718 /* serverMap.hpp in Headers */,
 				167B38B72642F73900E3C718 /* terrainGenerator.hpp in Headers */,
 				167B38A12642F73900E3C718 /* print.hpp in Headers */,
@@ -1217,7 +1213,6 @@
 				1626245F26430D8D007E01C4 /* worldSaver.cpp in Sources */,
 				1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */,
 				1626246126430D93007E01C4 /* server.cpp in Sources */,
-				1626247426430E0B007E01C4 /* simplex-noise.cpp in Sources */,
 				1626245726430D74007E01C4 /* print.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1240,7 +1235,6 @@
 				1626247026430DE4007E01C4 /* print.cpp in Sources */,
 				1626247126430DE6007E01C4 /* serverNetworking.cpp in Sources */,
 				1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */,
-				1626247326430DF6007E01C4 /* simplex-noise.cpp in Sources */,
 				1626246726430DCE007E01C4 /* server.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1252,7 +1246,7 @@
 				167B38A22642F73900E3C718 /* player.cpp in Sources */,
 				16987C1F2659010D0016509C /* item.cpp in Sources */,
 				36B157CA26484E0900528A2B /* serverMap.cpp in Sources */,
-				167B38BA2642F73900E3C718 /* simplex-noise.cpp in Sources */,
+				167B59902665579400BCECBB /* SimplexNoise.cpp in Sources */,
 				167B38BE2642F73900E3C718 /* server.cpp in Sources */,
 				167B38B42642F73900E3C718 /* worldSaver.cpp in Sources */,
 				16987C1D2659010D0016509C /* packets.cpp in Sources */,
@@ -1270,13 +1264,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				167B5993266558D000BCECBB /* SimplexNoise.cpp in Sources */,
 				16987C212659014B0016509C /* block.cpp in Sources */,
 				16987C222659014B0016509C /* inventory.cpp in Sources */,
 				16987C232659014B0016509C /* item.cpp in Sources */,
 				16987C242659014B0016509C /* packets.cpp in Sources */,
 				167B38A32642F73900E3C718 /* player.cpp in Sources */,
 				36B157CB26484E0900528A2B /* serverMap.cpp in Sources */,
-				167B38BB2642F73900E3C718 /* simplex-noise.cpp in Sources */,
 				167B38BF2642F73900E3C718 /* server.cpp in Sources */,
 				167B38B52642F73900E3C718 /* worldSaver.cpp in Sources */,
 				36B157F02648500300528A2B /* packets.cpp in Sources */,

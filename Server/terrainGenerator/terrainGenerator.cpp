@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 25/06/2020.
 //
 
-#include "simplex-noise.hpp"
+#include "SimplexNoise.h"
 #include <random>
 #include "serverMap.hpp"
 #include "terrainGenerator.hpp"
@@ -65,13 +65,13 @@ void stackDirt(unsigned int x, unsigned int height, serverMap& world_serverMap) 
     world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 1)).setType(serverMap::blockType::GRASS_BLOCK, false);
 }
 
-double turbulence(double x, double y, double size, osn_context* ctx) {
+double turbulence(double x, double y, double size, SimplexNoise& noise) {
 
 //double turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, PerlinNoise noise) {
     double value = 0.0, initialSize = size;
-
+    
     while(size >= 2) {
-        value += open_simplex_noise2(ctx, x / size, y / size) * size;
+        value += noise.noise(x / size, y / size) * size;
         size /= 2.0;
     }
     
@@ -82,15 +82,14 @@ double turbulence(double x, double y, double size, osn_context* ctx) {
 }
 
 void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
-    osn_context* ctx;
-    open_simplex_noise(engine(), &ctx);
+    SimplexNoise noise(engine());
     
     heights = new unsigned short[world_serverMap.getWorldWidth()];
     
     // generate terrain
     for(unsigned int x = 0; x < world_serverMap.getWorldWidth(); x++) {
         // apply multiple layers of perlin noise
-        auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, ctx));
+        auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, noise));
         
         heights[x] = height;
         if(height > highest_height)
@@ -110,24 +109,21 @@ void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
 }
 
 void generateCaves(std::mt19937& engine, serverMap& world_serverMap) {
-    osn_context* ctx;
-    open_simplex_noise(engine(), &ctx);
+    SimplexNoise noise(engine());
     
     for(unsigned int y = 0; y < highest_height; y++)
         for(unsigned int x = 0; x < world_serverMap.getWorldWidth(); x++)
-            if(open_simplex_noise2(ctx, (double)x / 10, (double)y / 10) > CAVE_START + CAVE_LENGTH - (double)y / highest_height * CAVE_LENGTH)
+            if(noise.noise((double)x / 10, (double)y / 10) > CAVE_START + CAVE_LENGTH - (double)y / highest_height * CAVE_LENGTH)
                 world_serverMap.getBlock((unsigned short)x, (unsigned short)(y + (world_serverMap.getWorldHeight() - highest_height))).setType(serverMap::blockType::AIR, false);
-    open_simplex_noise_free(ctx);
     LOADING_NEXT
 }
 
 void generateStone(std::mt19937& engine, serverMap& world_serverMap) {
-    osn_context* ctx;
-    open_simplex_noise(engine(), &ctx);
+    SimplexNoise noise(engine());
     
     for(unsigned int y = world_serverMap.getWorldHeight() - highest_height; y < world_serverMap.getWorldHeight(); y++)
         for(unsigned int x = 0; x < world_serverMap.getWorldWidth(); x++)
-            if(world_serverMap.getBlock((unsigned short)x, (unsigned short)y).getType() != serverMap::blockType::AIR && open_simplex_noise2(ctx, (double)x / 10, (double)y / 10) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
+            if(world_serverMap.getBlock((unsigned short)x, (unsigned short)y).getType() != serverMap::blockType::AIR && noise.noise((double)x / 10, (double)y / 10) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
                 world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE_BLOCK, false);
     LOADING_NEXT
 }
