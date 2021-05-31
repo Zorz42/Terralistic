@@ -18,8 +18,7 @@ void playerHandler::init() {
     world_map->view_y = player->position_y;
     
     packets::packet join_packet(packets::PLAYER_JOIN);
-    for(int i = 0; i < 16; i++)
-        join_packet << (i < player->name.size() ? player->name[i] : '\0');
+    join_packet << player->name;
     manager->sendPacket(join_packet);
     
     packets::packet packet(packets::VIEW_SIZE_CHANGE);

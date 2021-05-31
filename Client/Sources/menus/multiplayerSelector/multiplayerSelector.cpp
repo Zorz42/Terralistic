@@ -59,8 +59,6 @@ void multiplayerSelector::init() {
     username.y = server_ip_title.y - server_ip_title.getHeight() - 3 * PADDING;
     username.setText(config.get("username"));
     username.textProcessing = [](char c, int length) {
-        if(length > 15)
-            return '\0';
         if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
             return c;
         if(c == ' ')

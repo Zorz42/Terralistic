@@ -9,10 +9,11 @@
 #define packets_hpp
 
 #include <vector>
+#include <string>
 
 namespace packets {
 
-enum packetType {DISCONNECT, PING, CHUNK, BLOCK_CHANGE, LIGHT_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE};
+enum packetType {DISCONNECT, PING, CHUNK, BLOCK_CHANGE, LIGHT_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE, KICK};
 
 struct packet {
     packet(packetType type) : type(type) {}
@@ -24,12 +25,14 @@ struct packet {
     packet& operator<<(unsigned short x);
     packet& operator<<(int x);
     packet& operator<<(unsigned int x);
+    packet& operator<<(std::string x);
     char getChar();
     unsigned char getUChar();
     short getShort();
     unsigned short getUShort();
     int getInt();
     unsigned int getUInt();
+    std::string getString();
 };
 
 packet getPacket(int socket, std::vector<unsigned char>& buffer, long& bytes_received);

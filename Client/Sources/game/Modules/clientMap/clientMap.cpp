@@ -7,6 +7,7 @@
 
 #include "clientMap.hpp"
 #include "assert.hpp"
+#include "notifyingScreen.hpp"
 
 void map::createWorld(unsigned short map_width, unsigned short map_height) {
     chunks = new chunkData[map_width * map_height];
@@ -78,7 +79,20 @@ void map::onPacket(packets::packet packet) {
             getBlock(x, y).setBreakStage(stage);
             break;
         }
+        case packets::KICK: {
+            kick_message = packet.getString();
+            kicked = true;
+        }
         default:;
+    }
+}
+
+void map::render() {
+    renderBlocks();
+    renderItems();
+    if(kicked) {
+        gfx::runScene(new notifyingScreen(kick_message));
+        gfx::returnFromScene();
     }
 }
 
