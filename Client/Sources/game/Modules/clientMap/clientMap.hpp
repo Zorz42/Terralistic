@@ -66,6 +66,7 @@ protected:
     
     void render() override;
     void onPacket(packets::packet packet) override;
+    void init() override;
     
     networkingManager* networking_manager;
     
@@ -150,6 +151,8 @@ protected:
     unsigned short chunks_pending = 0;
     std::string kick_message;
     bool kicked = false;
+    
+    gfx::image background_image;
     
 public:
     map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::LIGHT_CHANGE, packets::KICK}; }

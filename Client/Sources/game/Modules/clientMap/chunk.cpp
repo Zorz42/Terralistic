@@ -11,14 +11,13 @@
 void map::chunk::updateTexture() {
     chunk_data->update = false;
     gfx::setRenderTarget(chunk_data->texture);
+    chunk_data->texture.clear();
     for(unsigned short y_ = 0; y_ < 16; y_++)
         for(unsigned short x_ = 0; x_ < 16; x_++) {
             block curr_block = parent_map->getBlock((x << 4) + x_, (y << 4) + y_);
-            if(curr_block.block_data->update) {
+            if(curr_block.block_data->update)
                 curr_block.updateOrientation();
-                gfx::render(gfx::rect(short(x_ * BLOCK_WIDTH), short(y_ * BLOCK_WIDTH), BLOCK_WIDTH, BLOCK_WIDTH, {135, 206, 235}));
-                curr_block.draw();
-            }
+            curr_block.draw();
         }
     gfx::resetRenderTarget();
 }

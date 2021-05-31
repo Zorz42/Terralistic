@@ -61,7 +61,8 @@ struct image {
     bool free_texture = true, flipped = false;
     unsigned short getTextureWidth() const;
     unsigned short getTextureHeight() const;
-    unsigned char scale = 1;
+    float scale = 1;
+    void clear();
 protected:
     void freeTexture();
     void* texture=nullptr;

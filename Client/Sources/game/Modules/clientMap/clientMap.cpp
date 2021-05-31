@@ -8,6 +8,7 @@
 #include "clientMap.hpp"
 #include "assert.hpp"
 #include "notifyingScreen.hpp"
+#include "fileManager.hpp"
 
 void map::createWorld(unsigned short map_width, unsigned short map_height) {
     chunks = new chunkData[map_width * map_height];
@@ -87,7 +88,15 @@ void map::onPacket(packets::packet packet) {
     }
 }
 
+void map::init() {
+    background_image.setTexture(gfx::loadImageFile("texturePack/misc/background.png"));
+}
+
 void map::render() {
+    background_image.scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
+    int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * background_image.scale);
+    gfx::render(background_image, position_x, 0);
+    gfx::render(background_image, background_image.getTextureWidth() * background_image.scale + position_x, 0);
     renderBlocks();
     renderItems();
     if(kicked) {
