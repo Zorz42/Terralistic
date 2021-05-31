@@ -39,8 +39,20 @@ void serverMap::updateLight() {
     while(!finished) {
         finished = true;
         for(player* player : online_players) {
-            for(unsigned short x = player->x / 16 - player->sight_width / 2 - 20; x < player->x / 16 + player->sight_width / 2 + 20; x++)
-                for(unsigned short y = player->y / 16 - player->sight_height / 2 - 20; y < player->y / 16 + player->sight_height / 2 + 20; y++)
+            int start_x = player->x / 16 - player->sight_width / 2 - 20,
+                start_y = player->y / 16 - player->sight_height / 2 - 20,
+                end_x = player->x / 16 + player->sight_width / 2 + 20,
+                end_y = player->y / 16 + player->sight_height / 2 + 20;
+            if(start_x < 0)
+                start_x = 0;
+            if(start_y < 0)
+                start_y = 0;
+            if(end_y > height)
+                end_y = height;
+            if(end_x > width)
+                end_x = width;
+            for(unsigned short x = start_x; x < end_x; x++)
+                for(unsigned short y = start_y; y < end_y; y++)
                     if(getBlock(x, y).hasScheduledLightUpdate()) {
                         getBlock(x, y).lightUpdate();
                         finished = false;
