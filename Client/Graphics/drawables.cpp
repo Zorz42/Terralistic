@@ -51,6 +51,14 @@ unsigned short gfx::image::getTextureHeight() const {
     return height;
 }
 
+void gfx::image::clear() {
+    SDL_Texture* prev_target = SDL_GetRenderTarget(gfx::renderer);
+    setRenderTarget(*this);
+    SDL_SetRenderDrawColor(gfx::renderer, 0, 0, 0, 0);
+    SDL_RenderClear(gfx::renderer);
+    SDL_SetRenderTarget(gfx::renderer, prev_target);
+}
+
 // button
 
 unsigned short gfx::button::getWidth() const {
