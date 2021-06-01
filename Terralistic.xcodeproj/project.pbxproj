@@ -593,8 +593,8 @@
 		167B388E2642F73900E3C718 /* simplexNoise */ = {
 			isa = PBXGroup;
 			children = (
-				167B598E2665579400BCECBB /* SimplexNoise.cpp */,
 				167B598F2665579400BCECBB /* SimplexNoise.h */,
+				167B598E2665579400BCECBB /* SimplexNoise.cpp */,
 			);
 			path = simplexNoise;
 			sourceTree = "<group>";
