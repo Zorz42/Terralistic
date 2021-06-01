@@ -114,8 +114,8 @@ void map::block::updateOrientation() {
 
 void map::block::draw() {
     SimplexNoise noise(0);
-    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel())});
     float biome = noise.noise((float)x / 1100 + 0.125);
+    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel())});
     gfx::rect rectBiomeTest((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {(unsigned char)biome, (unsigned char)biome, 100, (unsigned char)255 });
 
 
