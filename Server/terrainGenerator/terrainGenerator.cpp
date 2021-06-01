@@ -81,6 +81,34 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
     //return fabs(sin(xy_value * M_PI));
 }
 
+
+float heatGeneratorFloat(unsigned int x, unsigned int y, std::mt19937& engine) {
+    SimplexNoise noise(engine());
+    return (noise.noise((float)x / 1100 + 0.125) + 1) * 1.5;
+}
+
+int heatGeneratorInt(unsigned int x, unsigned int y, std::mt19937& engine) {
+    int heat = heatGeneratorFloat(x, y, engine);
+    if (heat == 3)
+        heat = 2;
+    return heat;
+
+}
+
+float heightGeneratorFloat(unsigned int x, unsigned int y, std::mt19937& engine) {
+    SimplexNoise noise(engine());
+    return (noise.noise((float)x / 300 + 0.001) + 1) * 2;
+}
+
+int heightGeneratorInt(unsigned int x, unsigned int y, std::mt19937& engine) {
+    int heat = heatGeneratorFloat(x, y, engine);
+    if (heat == 4)
+        heat = 3;
+    return heat;
+
+}
+
+
 void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
     SimplexNoise noise(engine());
 
@@ -94,72 +122,7 @@ void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
         // apply multiple layers of perlin noise
         auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, noise));
         
-        /*unsigned short heat = (int)((noise.noise((float)x / 550 + 0.25) + 1) * 3);
-        heat = heat / 2;
-        if (heat == 3)
-            heat = 2;
-
-        unsigned short biomeheight = (int)((noise.noise((float)x / 300 + 0.001) + 1) * 4);
-        biomeheight /= 2;
-        if (biomeheight == 4)
-            biomeheight = 3;
-
-        switch (heat)
-        {
-        case 0:
-            switch (biomeheight)
-            {
-            case 0://icy seas
-
-                break;
-            case 1://snowy tundra
-
-                break;
-            case 2://cold hills (with taiga trees?)
-
-                break;
-            case 3://snowy mountains
-
-                break;
-            }
-            break;
-
-        case 1:
-            switch (biomeheight)
-            {
-            case 0://regular sea
-
-                break;
-            case 1://plains
-
-                break;
-            case 2://forest
-
-                break;
-            case 3://regular mountain
-
-                break;
-            }
-            break;
-
-        case 2:
-            switch (biomeheight)
-            {
-            case 0://warm ocean
-
-                break;
-            case 1://desert
-
-                break;
-            case 2://savana
-
-                break;
-            case 3://savana mountains
-
-            break;
-            }
-            break;
-        }*/
+        
 
 
         heights[x] = height;
@@ -234,4 +197,80 @@ void generateTrees(std::mt19937& engine, serverMap& world_serverMap) {
             world_serverMap.getBlock(x + 1, world_serverMap.getWorldHeight() - heights[x] - 2).setType(serverMap::blockType::WOOD, false);
     }
     LOADING_NEXT
+}
+
+void heightGenerator(unsigned int x, unsigned int y, std::mt19937& engine) {
+    SimplexNoise noise(engine());
+
+    /*
+    sea level = 300, sea floor = 250
+    plains = 325
+    hills = 400
+    mountains 600-700
+    */
+
+
+    int heat = heatGeneratorInt(x, y, engine);
+    int biomeheight = heightGeneratorInt(x, y, engine);
+
+
+        switch (heat)
+        {
+        case 0:
+            switch (biomeheight)
+            {
+            case 0://icy seas
+
+                break;
+            case 1://snowy tundra
+
+                break;
+            case 2://cold hills (with taiga trees?)
+
+                break;
+            case 3://snowy mountains
+
+                break;
+            }
+            break;
+
+        case 1:
+            switch (biomeheight)
+            {
+            case 0://regular sea
+
+                break;
+            case 1://plains
+
+                break;
+            case 2://forest
+
+                break;
+            case 3://regular mountain
+
+                break;
+            }
+            break;
+
+        case 2:
+            switch (biomeheight)
+            {
+            case 0://warm ocean
+
+                break;
+            case 1://desert
+
+                break;
+            case 2://savana
+
+                break;
+            case 3://savana mountains
+
+                break;
+            }
+            break;
+        }
+
+
+    return;
 }
