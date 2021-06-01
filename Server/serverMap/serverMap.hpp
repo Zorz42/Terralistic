@@ -20,7 +20,7 @@
 
 class serverMap : serverPacketListener {
 public:
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES};
+    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
 
     static void initBlocks();

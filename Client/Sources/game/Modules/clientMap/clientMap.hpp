@@ -31,7 +31,7 @@
 
 class map : public gfx::sceneModule, packetListener {
 public:
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, TOTAL_BLOCKS};
+    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, TOTAL_BLOCKS};
     enum class chunkState {unloaded, pending_load, loaded};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, TOTAL_ITEMS};
     
