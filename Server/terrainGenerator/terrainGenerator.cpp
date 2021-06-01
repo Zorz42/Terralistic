@@ -46,10 +46,10 @@ static unsigned short* heights;
 #define LOADING_NEXT terrainGenerator::generating_current++;
 
 int terrainGenerator::generateTerrainDaemon(unsigned int seed, serverMap* world_serverMap) {
-    std::mt19937 engine(seed);
-    
+    std::mt19937 engine(seed);    
     generating_current = 0;
     
+
     generateSurface(engine, *world_serverMap);
     generateCaves(engine, *world_serverMap);
     generateStone(engine, *world_serverMap);
@@ -83,6 +83,9 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
 
 void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
     SimplexNoise noise(engine());
+
+
+
     
     heights = new unsigned short[world_serverMap.getWorldWidth()];
     
@@ -91,6 +94,74 @@ void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
         // apply multiple layers of perlin noise
         auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, noise));
         
+        /*unsigned short heat = (int)((noise.noise((float)x / 550 + 0.25) + 1) * 3);
+        heat = heat / 2;
+        if (heat == 3)
+            heat = 2;
+
+        unsigned short biomeheight = (int)((noise.noise((float)x / 300 + 0.001) + 1) * 4);
+        biomeheight /= 2;
+        if (biomeheight == 4)
+            biomeheight = 3;
+
+        switch (heat)
+        {
+        case 0:
+            switch (biomeheight)
+            {
+            case 0://icy seas
+
+                break;
+            case 1://snowy tundra
+
+                break;
+            case 2://cold hills (with taiga trees?)
+
+                break;
+            case 3://snowy mountains
+
+                break;
+            }
+            break;
+
+        case 1:
+            switch (biomeheight)
+            {
+            case 0://regular sea
+
+                break;
+            case 1://plains
+
+                break;
+            case 2://forest
+
+                break;
+            case 3://regular mountain
+
+                break;
+            }
+            break;
+
+        case 2:
+            switch (biomeheight)
+            {
+            case 0://warm ocean
+
+                break;
+            case 1://desert
+
+                break;
+            case 2://savana
+
+                break;
+            case 3://savana mountains
+
+            break;
+            }
+            break;
+        }*/
+
+
         heights[x] = height;
         if(height > highest_height)
             highest_height = height;
