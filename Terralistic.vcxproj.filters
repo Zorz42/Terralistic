@@ -216,9 +216,6 @@
     <ClCompile Include="server\terraingenerator\terrainGenerator.cpp">
       <Filter>Source Files\Server\terrainGenerator</Filter>
     </ClCompile>
-    <ClCompile Include="server\terraingenerator\simplexnoise\simplex-noise.cpp">
-      <Filter>Source Files\Server\terrainGenerator\simplexNoise</Filter>
-    </ClCompile>
     <ClCompile Include="server\servermap\player.cpp">
       <Filter>Source Files\Server\serverMap</Filter>
     </ClCompile>
@@ -239,6 +236,9 @@
     </ClCompile>
     <ClCompile Include="Libraries\configManager\configManager.cpp">
       <Filter>Source Files\Libraries\configManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\terrainGenerator\simplexNoise\SimplexNoise.cpp">
+      <Filter>Source Files\Server\terrainGenerator\simplexNoise</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

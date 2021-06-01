@@ -24,6 +24,7 @@
 #endif
 
 #include "clientNetworking.hpp"
+#include "SimplexNoise.h"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -111,7 +112,6 @@ public:
         
         void scheduleTextureUpdate();
         void updateOrientation();
-        
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
         void setType(blockType id);

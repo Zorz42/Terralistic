@@ -168,7 +168,7 @@
     <ClCompile Include="server\servermap\player.cpp" />
     <ClCompile Include="server\servernetworking\serverNetworking.cpp" />
     <ClCompile Include="server\server\server.cpp" />
-    <ClCompile Include="server\terraingenerator\simplexnoise\simplex-noise.cpp" />
+    <ClCompile Include="Server\terrainGenerator\simplexNoise\SimplexNoise.cpp" />
     <ClCompile Include="server\terraingenerator\terrainGenerator.cpp" />
     <ClCompile Include="server\worldsaver\worldSaver.cpp" />
   </ItemGroup>
