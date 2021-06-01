@@ -22,6 +22,7 @@ void map::initBlocks() {
     unique_blocks[4] = uniqueBlock("stone",       /*ghost*/true , /*connects_to*/{                                         });
     unique_blocks[5] = uniqueBlock("wood",        /*ghost*/true , /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES});
     unique_blocks[6] = uniqueBlock("leaves",      /*ghost*/true , /*connects_to*/{                                         });
+    unique_blocks[7] = uniqueBlock("sand",        /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK  });
     
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
