@@ -9,27 +9,26 @@
 #include "assert.hpp"
 #include "SimplexNoise.h"
 
-map::uniqueBlock* map::unique_blocks;
+std::vector<map::uniqueBlock> map::unique_blocks;
 gfx::image breaking_texture;
 
 void map::initBlocks() {
-    unique_blocks = new uniqueBlock[(int)blockType::TOTAL_BLOCKS];
-    
-    unique_blocks[0] = uniqueBlock("air",         /*ghost*/true,  /*liquid*/false, /*connects_to*/{                                         });
-    unique_blocks[1] = uniqueBlock("dirt",        /*ghost*/false, /*liquid*/false, /*connects_to*/{blockType::GRASS_BLOCK                   });
-    unique_blocks[2] = uniqueBlock("stone_block", /*ghost*/false, /*liquid*/false, /*connects_to*/{                                         });
-    unique_blocks[3] = uniqueBlock("grass_block", /*ghost*/false, /*liquid*/false, /*connects_to*/{blockType::DIRT                          });
-    unique_blocks[4] = uniqueBlock("stone",       /*ghost*/true,  /*liquid*/false, /*connects_to*/{                                         });
-    unique_blocks[5] = uniqueBlock("wood",        /*ghost*/true,  /*liquid*/false, /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES});
-    unique_blocks[6] = uniqueBlock("leaves",      /*ghost*/true,  /*liquid*/false, /*connects_to*/{                                         });
-    unique_blocks[7] = uniqueBlock("sand",        /*ghost*/false, /*liquid*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK  });
-    unique_blocks[8] = uniqueBlock("water",       /*ghost*/true,  /*liquid*/true,  /*connects_to*/{                                         });
+    unique_blocks = {
+        {"air",         /*ghost*/true,  /*connects_to*/{                                         }},
+        {"dirt",        /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK                   }},
+        {"stone_block", /*ghost*/false, /*connects_to*/{                                         }},
+        {"grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT                          }},
+        {"stone",       /*ghost*/true,  /*connects_to*/{                                         }},
+        {"wood",        /*ghost*/true,  /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES}},
+        {"leaves",      /*ghost*/true,  /*connects_to*/{                                         }},
+        {"sand",        /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK  }},
+    };
     
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
 }
 
-map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool liquid, std::vector<map::blockType> connects_to) : ghost(ghost), liquid(liquid), name(name), connects_to(connects_to) {
+map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to) : ghost(ghost), name(name), connects_to(connects_to) {
     texture.setTexture(gfx::loadImageFile("texturePack/blocks/" + name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;
@@ -41,8 +40,9 @@ map::block map::getBlock(unsigned short x, unsigned short y) {
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 
-void map::block::setType(map::blockType id) {
-    block_data->block_id = id;
+void map::block::setType(blockType block_id, liquidType liquid_id) {
+    block_data->block_id = block_id;
+    block_data->liquid_id = liquid_id;
     update();
 }
 
@@ -53,6 +53,10 @@ void map::block::setLightLevel(unsigned char level) {
 
 map::uniqueBlock& map::blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
+}
+
+map::uniqueLiquid& map::blockData::getUniqueLiquid() const {
+    return unique_liquids[(int)liquid_id];
 }
 
 void map::renderBlocks() {
@@ -203,6 +207,10 @@ void map::block::draw() {
     if(getBreakStage())
         gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 
+    if(getLiquidType() != liquidType::EMPTY) {
+        gfx::render(block_data->getUniqueLiquid().texture, rect.x, rect.y);
+    }
+    
     if (getLightLevel() <= MAX_LIGHT / 4) {
         if (((x & 1) ^ (y & 1)) == 1)
             gfx::render(rectBiomeHeight);

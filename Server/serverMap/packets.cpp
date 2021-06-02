@@ -45,7 +45,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             unsigned short x = packet.getUShort(), y = packet.getUShort();
             for(int i = 0; i < 16 * 16; i++) {
                 serverMap::block block = getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
-                chunk_packet << (char)block.getType() << (unsigned char)block.getLightLevel();
+                chunk_packet << (unsigned char)block.getType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLightLevel();
             }
             chunk_packet << y << x;
             conn.sendPacket(chunk_packet);

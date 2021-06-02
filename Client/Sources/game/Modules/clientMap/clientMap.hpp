@@ -31,29 +31,38 @@
 
 class map : public gfx::sceneModule, packetListener {
 public:
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, WATER, TOTAL_BLOCKS};
+    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND};
     enum class chunkState {unloaded, pending_load, loaded};
-    enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, TOTAL_ITEMS};
+    enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
+    enum class liquidType {EMPTY, WATER};
     
 protected:
     struct uniqueBlock {
-        uniqueBlock(const std::string& name, bool ghost, bool liquid, std::vector<map::blockType> connects_to);
+        uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to);
         uniqueBlock() = default;
         
-        bool ghost, single_texture, liquid;
+        bool ghost, single_texture;
         std::string name;
         gfx::image texture;
         std::vector<map::blockType> connects_to;
     };
     
+    struct uniqueLiquid {
+        uniqueLiquid(const std::string& name);
+        std::string name;
+        gfx::image texture;
+    };
+    
     struct blockData {
-        blockData(blockType block_id=blockType::AIR) : block_id(block_id) {}
+        blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
         
         blockType block_id;
+        liquidType liquid_id;
         unsigned char light_level = 0, break_stage = 0, orientation = 0;
         bool update = true;
         
         uniqueBlock& getUniqueBlock() const;
+        uniqueLiquid& getUniqueLiquid() const;
     };
     
     struct chunkData {
@@ -82,8 +91,9 @@ public: // !!! should be protected
         void draw(short x, short y, unsigned char scale);
     };
     
-    static uniqueItem* unique_items;
-    static uniqueBlock* unique_blocks;
+    static std::vector<uniqueItem> unique_items;
+    static std::vector<uniqueBlock> unique_blocks;
+    static std::vector<uniqueLiquid> unique_liquids;
     
 public:
     class chunk {
@@ -114,7 +124,7 @@ public:
         void updateOrientation();
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
-        void setType(blockType id);
+        void setType(blockType block_id, liquidType liquid_id);
         void setLightLevel(unsigned char level);
         void setBreakStage(unsigned char stage);
         void draw();
@@ -127,6 +137,7 @@ public:
         inline unsigned char getLightLevel() { return block_data->light_level; }
         inline unsigned char getBreakStage() { return block_data->break_stage; }
         inline blockType getType() { return block_data->block_id; }
+        inline liquidType getLiquidType() { return block_data->liquid_id; }
     };
     
     class item {
@@ -160,6 +171,7 @@ public:
     
     static void initBlocks();
     static void initItems();
+    static void initLiquids();
     
     chunk getChunk(unsigned short x, unsigned short y);
     block getBlock(unsigned short x, unsigned short y);

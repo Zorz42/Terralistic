@@ -36,6 +36,7 @@ int main(int argc, char **argv) {
     config = configFile(fileManager::getDataPath() + "/config.txt");
     map::initBlocks();
     map::initItems();
+    map::initLiquids();
     playerHandler::initItems();
     
     gfx::runScene(new startMenu());

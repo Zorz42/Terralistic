@@ -63,6 +63,7 @@ void stackDirt(unsigned int x, unsigned int height, serverMap& world_serverMap) 
     for(auto y = (unsigned int)(world_serverMap.getWorldHeight() - 1); y > world_serverMap.getWorldHeight() - height - 1; y--)
         world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
     world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 1)).setType(serverMap::blockType::GRASS_BLOCK, false);
+    world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 2)).setType(serverMap::liquidType::WATER, false);
 }
 
 double turbulence(double x, double y, double size, SimplexNoise& noise) {
@@ -138,8 +139,6 @@ void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
             world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - heights[x] - 2)).setType(serverMap::blockType::STONE, false);
     }
     LOADING_NEXT
-    
-    world_serverMap.getBlock(0, 0).setType(serverMap::blockType::DIRT, false);
 }
 
 void generateCaves(std::mt19937& engine, serverMap& world_serverMap) {

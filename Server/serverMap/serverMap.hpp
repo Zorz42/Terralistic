@@ -20,8 +20,9 @@
 
 class serverMap : serverPacketListener {
 public:
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, WATER};
+    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
+    enum class liquidType {EMPTY, WATER};
 
     static void initBlocks();
     static void initItems();
@@ -31,9 +32,9 @@ public:
     
 protected:
     struct uniqueBlock {
-        uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, bool liquid, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), liquid(liquid), name(std::move(name)), drop(drop), break_time(break_time) {}
+        uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
         
-        bool ghost, only_on_floor, transparent, liquid;
+        bool ghost, only_on_floor, transparent;
         std::string name;
         itemType drop;
         short break_time;
@@ -44,9 +45,10 @@ protected:
     };
     
     struct blockData {
-        blockData(blockType block_id=blockType::AIR) : block_id(block_id) {}
+        blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
         
         blockType block_id;
+        liquidType liquid_id;
         unsigned char light_level = 0;
         bool light_source = false, update_light = true;
         unsigned short break_progress = 0;
@@ -76,7 +78,9 @@ public:
         block() = default;
         
         void update();
-        void setType(blockType id, bool process=true);
+        void setType(blockType block_id, bool process=true);
+        void setType(liquidType liquid_id, bool process=true);
+        void setType(blockType block_id, liquidType liquid_id, bool process=true);
         void breakBlock();
         void setBreakProgress(unsigned short ms);
         void lightUpdate();
@@ -95,6 +99,7 @@ public:
         inline unsigned char getBreakStage() { return block_data->break_stage; }
         inline itemType getDrop() { return block_data->getUniqueBlock().drop; }
         inline blockType getType() { return block_data->block_id; }
+        inline liquidType getLiquidType() { return block_data->liquid_id; }
         inline void scheduleLightUpdate() { block_data->update_light = true; }
         inline bool hasScheduledLightUpdate() { return block_data->update_light; }
         

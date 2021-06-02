@@ -13,15 +13,14 @@ std::vector<serverMap::uniqueBlock> serverMap::unique_blocks;
 
 void serverMap::initBlocks() {
     unique_blocks = {
-        uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*liquid*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
-        uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*liquid*/false, /*drop*/itemType::DIRT,        /*break_time*/1000       ),
-        uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*liquid*/false, /*drop*/itemType::STONE_BLOCK, /*break_time*/1000       ),
-        uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*liquid*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
-        uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*liquid*/false, /*drop*/itemType::STONE,       /*break_time*/1000       ),
-        uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*liquid*/false, /*drop*/itemType::WOOD_PLANKS, /*break_time*/1000       ),
-        uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*liquid*/false, /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
-        uniqueBlock("sand",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*liquid*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
-        uniqueBlock("water",       /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*liquid*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
+        uniqueBlock("air",         /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
+        uniqueBlock("dirt",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::DIRT,        /*break_time*/1000       ),
+        uniqueBlock("stone_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::STONE_BLOCK, /*break_time*/1000       ),
+        uniqueBlock("grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
+        uniqueBlock("stone",       /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemType::STONE,       /*break_time*/1000       ),
+        uniqueBlock("wood",        /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::WOOD_PLANKS, /*break_time*/1000       ),
+        uniqueBlock("leaves",      /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
+        uniqueBlock("sand",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
     };
     
     unique_blocks[(int)blockType::WOOD].onBreak = [](serverMap* world_map, block* this_block) {
@@ -53,12 +52,23 @@ serverMap::block serverMap::getBlock(unsigned short x, unsigned short y) {
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 
-void serverMap::block::setType(serverMap::blockType id, bool process) {
-    if(!process)
-        block_data->block_id = id;
-    else if(id != block_data->block_id) {
+void serverMap::block::setType(serverMap::blockType block_id, bool process) {
+    setType(block_id, block_data->liquid_id, process);
+}
+
+void serverMap::block::setType(serverMap::liquidType liquid_id, bool process) {
+    setType(block_data->block_id, liquid_id, process);
+}
+
+void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidType liquid_id, bool process) {
+    if(!process) {
+        block_data->block_id = block_id;
+        block_data->liquid_id = liquid_id;
+    }
+    else if(block_id != block_data->block_id || liquid_id != block_data->liquid_id) {
         parent_map->removeNaturalLight(x);
-        block_data->block_id = id;
+        block_data->block_id = block_id;
+        block_data->liquid_id = liquid_id;
         parent_map->setNaturalLight(x);
         update();
         
@@ -75,7 +85,7 @@ void serverMap::block::setType(serverMap::blockType id, bool process) {
         scheduleLightUpdate();
         
         packets::packet packet(packets::BLOCK_CHANGE);
-        packet << getX() << getY() << (unsigned char)getType();
+        packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getType();
         parent_map->manager->sendToEveryone(packet);
     }
 }

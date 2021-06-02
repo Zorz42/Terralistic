@@ -19,7 +19,7 @@ void worldSaver::saveWorld(const std::string& world_path, serverMap& world_map) 
     
     for(int y = 0; y < world_map.getWorldHeight(); y++)
         for(int x = 0; x < world_map.getWorldWidth(); x++)
-            world_file << (char)world_map.getBlock(x, y).getType();
+            world_file << (char)world_map.getBlock(x, y).getType() << (char)world_map.getBlock(x, y).getLiquidType();
     world_file.close();
     
     for(serverMap::player* player : world_map.getAllPlayers()) {
@@ -45,6 +45,8 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_map) 
         for(int x = 0; x < world_map.getWorldWidth(); x++) {
             world_file >> std::noskipws >> c;
             world_map.getBlock(x, y).setType((serverMap::blockType) c, false);
+            world_file >> std::noskipws >> c;
+            world_map.getBlock(x, y).setType((serverMap::liquidType) c, false);
         }
     world_file.close();
     
