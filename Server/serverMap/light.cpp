@@ -67,11 +67,11 @@ void serverMap::setNaturalLight() {
 }
 
 void serverMap::setNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).isTransparent(); y++)
+    for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).getType() == blockType::AIR; y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
 void serverMap::removeNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).isTransparent(); y++)
+    for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).getType() == blockType::AIR; y++)
         getBlock(x, y).removeLightSource();
 }

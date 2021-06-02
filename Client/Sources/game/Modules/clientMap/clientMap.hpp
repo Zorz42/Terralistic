@@ -31,16 +31,16 @@
 
 class map : public gfx::sceneModule, packetListener {
 public:
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, TOTAL_BLOCKS};
+    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, WATER, TOTAL_BLOCKS};
     enum class chunkState {unloaded, pending_load, loaded};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, TOTAL_ITEMS};
     
 protected:
     struct uniqueBlock {
-        uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to);
+        uniqueBlock(const std::string& name, bool ghost, bool liquid, std::vector<map::blockType> connects_to);
         uniqueBlock() = default;
         
-        bool ghost, single_texture;
+        bool ghost, single_texture, liquid;
         std::string name;
         gfx::image texture;
         std::vector<map::blockType> connects_to;

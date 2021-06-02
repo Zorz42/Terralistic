@@ -20,7 +20,7 @@
 
 class serverMap : serverPacketListener {
 public:
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND};
+    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, WATER};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
 
     static void initBlocks();
@@ -31,9 +31,9 @@ public:
     
 protected:
     struct uniqueBlock {
-        uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
+        uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, bool liquid, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), liquid(liquid), name(std::move(name)), drop(drop), break_time(break_time) {}
         
-        bool ghost, only_on_floor, transparent;
+        bool ghost, only_on_floor, transparent, liquid;
         std::string name;
         itemType drop;
         short break_time;

@@ -15,20 +15,21 @@ gfx::image breaking_texture;
 void map::initBlocks() {
     unique_blocks = new uniqueBlock[(int)blockType::TOTAL_BLOCKS];
     
-    unique_blocks[0] = uniqueBlock("air",         /*ghost*/true , /*connects_to*/{                                         });
-    unique_blocks[1] = uniqueBlock("dirt",        /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK                   });
-    unique_blocks[2] = uniqueBlock("stone_block", /*ghost*/false, /*connects_to*/{                                         });
-    unique_blocks[3] = uniqueBlock("grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT                          });
-    unique_blocks[4] = uniqueBlock("stone",       /*ghost*/true , /*connects_to*/{                                         });
-    unique_blocks[5] = uniqueBlock("wood",        /*ghost*/true , /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES});
-    unique_blocks[6] = uniqueBlock("leaves",      /*ghost*/true , /*connects_to*/{                                         });
-    unique_blocks[7] = uniqueBlock("sand",        /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK  });
+    unique_blocks[0] = uniqueBlock("air",         /*ghost*/true,  /*liquid*/false, /*connects_to*/{                                         });
+    unique_blocks[1] = uniqueBlock("dirt",        /*ghost*/false, /*liquid*/false, /*connects_to*/{blockType::GRASS_BLOCK                   });
+    unique_blocks[2] = uniqueBlock("stone_block", /*ghost*/false, /*liquid*/false, /*connects_to*/{                                         });
+    unique_blocks[3] = uniqueBlock("grass_block", /*ghost*/false, /*liquid*/false, /*connects_to*/{blockType::DIRT                          });
+    unique_blocks[4] = uniqueBlock("stone",       /*ghost*/true,  /*liquid*/false, /*connects_to*/{                                         });
+    unique_blocks[5] = uniqueBlock("wood",        /*ghost*/true,  /*liquid*/false, /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES});
+    unique_blocks[6] = uniqueBlock("leaves",      /*ghost*/true,  /*liquid*/false, /*connects_to*/{                                         });
+    unique_blocks[7] = uniqueBlock("sand",        /*ghost*/false, /*liquid*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK  });
+    unique_blocks[8] = uniqueBlock("water",       /*ghost*/true,  /*liquid*/true,  /*connects_to*/{                                         });
     
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
 }
 
-map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to) : ghost(ghost), name(name), connects_to(connects_to) {
+map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, bool liquid, std::vector<map::blockType> connects_to) : ghost(ghost), liquid(liquid), name(name), connects_to(connects_to) {
     texture.setTexture(gfx::loadImageFile("texturePack/blocks/" + name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;
@@ -208,7 +209,6 @@ void map::block::draw() {
         else
             gfx::render(rectHeat);
     }
-
 }
 
 void map::block::scheduleTextureUpdate() {

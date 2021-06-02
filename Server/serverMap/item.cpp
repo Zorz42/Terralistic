@@ -19,7 +19,7 @@ void serverMap::initItems() {
         {"stone",       99, serverMap::blockType::STONE      },
         {"dirt",        99, serverMap::blockType::DIRT       },
         {"stone_block", 99, serverMap::blockType::STONE_BLOCK},
-        {"wood_planks", 99, serverMap::blockType::SAND       },
+        {"wood_planks", 99, serverMap::blockType::WATER      },
     };
 }
 
