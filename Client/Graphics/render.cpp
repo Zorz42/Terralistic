@@ -64,24 +64,12 @@ void gfx::render(const textInput& t) {
         render(gfx::rect(rect.x + (t.getText().empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color));
 }
 
-SDL_Texture* createTextureFromSurface(SDL_Surface* surface) {
-    SDL_Texture* result = SDL_CreateTextureFromSurface(gfx::renderer, surface);
-    SDL_FreeSurface(surface);
-    return result;
-}
-
 void* gfx::loadImageFile(const std::string& path) {
     // load picture and return texture
-    SDL_Surface *loaded_surface = IMG_Load((resource_path + path).c_str());
-    SDL_assert(loaded_surface);
-
-    // green screen -> change rgb(0, 255, 0) to transparent
-    SDL_SetColorKey(loaded_surface, SDL_TRUE, SDL_MapRGB(loaded_surface->format, 0, 255, 0));
-    
-    return (void*)createTextureFromSurface(loaded_surface);
+    SDL_Texture *loaded_texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
+    SDL_assert(loaded_texture);
+    return (void*)loaded_texture;
 }
-
-#include <iostream>
 
 void* gfx::renderText(const std::string& text, color text_color) {
     // render text to texture
@@ -89,7 +77,10 @@ void* gfx::renderText(const std::string& text, color text_color) {
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
     SDL_assert(rendered_surface);
 
-    return (void*)createTextureFromSurface(rendered_surface);
+    SDL_Texture* result = SDL_CreateTextureFromSurface(gfx::renderer, rendered_surface);
+    SDL_FreeSurface(rendered_surface);
+    
+    return (void*)result;
 }
 
 void* gfx::createBlankTexture(unsigned short w, unsigned short h) {
