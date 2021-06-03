@@ -50,7 +50,7 @@ protected:
         blockType block_id;
         liquidType liquid_id;
         unsigned char light_level = 0;
-        bool light_source = false, update_light = true;
+        bool light_source = false, update_light = true, update_liquid = true;
         unsigned short break_progress = 0;
         unsigned char break_stage = 0;
         
@@ -84,6 +84,7 @@ public:
         void breakBlock();
         void setBreakProgress(unsigned short ms);
         void lightUpdate();
+        void liquidUpdate();
         void setLightSource(unsigned char power);
         void removeLightSource();
         
@@ -102,6 +103,8 @@ public:
         inline liquidType getLiquidType() { return block_data->liquid_id; }
         inline void scheduleLightUpdate() { block_data->update_light = true; }
         inline bool hasScheduledLightUpdate() { return block_data->update_light; }
+        inline void scheduleLiquidUpdate() { block_data->update_liquid = true; }
+        inline bool hasScheduledLiquidUpdate() { return block_data->update_liquid; }
         
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
@@ -216,7 +219,7 @@ public:
     void updateItems(float frame_length);
     void updatePlayersBreaking(unsigned short tick_length);
     void lookForItems(serverMap& world_serverMap);
-    void updateLight();
+    void updateBlocks();
     
     ~serverMap();
 };

@@ -76,7 +76,7 @@ void* gfx::renderText(const std::string& text, color text_color) {
     SDL_assert(font);
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
     SDL_assert(rendered_surface);
-
+    
     SDL_Texture* result = SDL_CreateTextureFromSurface(gfx::renderer, rendered_surface);
     SDL_FreeSurface(rendered_surface);
     

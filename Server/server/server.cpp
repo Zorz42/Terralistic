@@ -77,7 +77,7 @@ void server::start() {
         world_map.updateItems(tick_length);
         world_map.lookForItems(world_map);
         world_map.updatePlayersBreaking(tick_length);
-        world_map.updateLight();
+        world_map.updateBlocks();
     }
     
     std::cout << std::endl;

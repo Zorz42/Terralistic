@@ -83,6 +83,7 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
             parent_map->getBlock(x, y + 1).update();
         
         scheduleLightUpdate();
+        scheduleLiquidUpdate();
         
         packets::packet packet(packets::BLOCK_CHANGE);
         packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getType();

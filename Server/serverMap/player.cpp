@@ -34,7 +34,7 @@ void serverMap::lookForItems(serverMap& world_serverMap) {
     }
 }
 
-void serverMap::updateLight() {
+void serverMap::updateBlocks() {
     bool finished = false;
     while(!finished) {
         finished = true;
@@ -52,11 +52,15 @@ void serverMap::updateLight() {
             if(end_x > width)
                 end_x = width;
             for(unsigned short x = start_x; x < end_x; x++)
-                for(unsigned short y = start_y; y < end_y; y++)
-                    if(getBlock(x, y).hasScheduledLightUpdate()) {
-                        getBlock(x, y).lightUpdate();
+                for(unsigned short y = start_y; y < end_y; y++) {
+                    block curr_block = getBlock(x, y);
+                    if(curr_block.hasScheduledLightUpdate()) {
+                        curr_block.lightUpdate();
                         finished = false;
                     }
+                    if(curr_block.hasScheduledLiquidUpdate())
+                        curr_block.liquidUpdate();
+                }
         }
     }
 }
