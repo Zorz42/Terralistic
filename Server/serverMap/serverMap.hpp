@@ -48,11 +48,11 @@ protected:
         blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
         
         blockType block_id;
-        liquidType liquid_id;
+        liquidType liquid_id = liquidType::EMPTY;
         unsigned char light_level = 0;
         bool light_source = false, update_light = true, update_liquid = true;
         unsigned short break_progress = 0;
-        unsigned char break_stage = 0, liquid_level = 8;
+        unsigned char break_stage = 0, liquid_level = 0;
         
         uniqueBlock& getUniqueBlock() const;
     };
@@ -72,6 +72,8 @@ public:
         blockData* block_data = nullptr;
         unsigned short x, y;
         serverMap* parent_map;
+        
+        void syncWithClient();
         
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
@@ -105,7 +107,7 @@ public:
         inline bool hasScheduledLightUpdate() { return block_data->update_light; }
         inline void scheduleLiquidUpdate() { block_data->update_liquid = true; }
         inline bool hasScheduledLiquidUpdate() { return block_data->update_liquid; }
-        inline void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
+        void setLiquidLevel(unsigned char level);
         inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
         
         inline unsigned short getX() { return x; }

@@ -16,22 +16,17 @@
 #define TERRAIN_VERTICAL_MULTIPLIER 140
 #define TERRAIN_HORIZONTAL_DIVIDER 4
 #define TERRAIN_HORIZONT ((float)world_serverMap.getWorldHeight() / 2 - 50)
+#define TURB_SIZE 64.0 //initial size of the turbulence
 
 // CAVES
 
 #define CAVE_START 0.15
 #define CAVE_LENGTH 0.3
 
+// STONE
+
 #define STONE_START 0.1
 #define STONE_LENGTH 1
-
-//xPeriod and yPeriod together define the angle of the lines
-//xPeriod and yPeriod both 0 ==> it becomes a normal clouds or turbulence pattern
-//#define X_PERIOD 0.5 //defines repetition of marble lines in x direction
-//#define Y_PERIOD 1.0 //defines repetition of marble lines in y direction
-//turbPower = 0 ==> it becomes a normal sine pattern
-//#define TURB_POWER 5.0 //makes twists
-#define TURB_SIZE 64.0 //initial size of the turbulence
 
 void stackDirt(unsigned int x, unsigned int height);
 
@@ -63,13 +58,12 @@ void stackDirt(unsigned int x, unsigned int height, serverMap& world_serverMap) 
     for(auto y = (unsigned int)(world_serverMap.getWorldHeight() - 1); y > world_serverMap.getWorldHeight() - height - 1; y--)
         world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
     world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 1)).setType(serverMap::blockType::GRASS_BLOCK, false);
-    world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 2)).setType(serverMap::liquidType::WATER, false);
-    world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 2)).setLiquidLevel(rand() % 8);
+    serverMap::block water_block = world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 2));
+    water_block.setType(serverMap::liquidType::WATER, false);
+    water_block.setLiquidLevel(127);
 }
 
 double turbulence(double x, double y, double size, SimplexNoise& noise) {
-
-//double turbulence(double x, double y, double size, double x_period, double y_period, double turb_power, PerlinNoise noise) {
     double value = 0.0, initialSize = size;
     
     while(size >= 2) {
@@ -78,9 +72,6 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
     }
     
     return value / initialSize;
-    
-    //double xy_value = x * x_period / world_serverMap.getWorldWidth() + y * y_period / highest_height + turb_power * value / initialSize / 2.0;
-    //return fabs(sin(xy_value * M_PI));
 }
 
 

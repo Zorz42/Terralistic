@@ -85,10 +85,22 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
         scheduleLightUpdate();
         scheduleLiquidUpdate();
         
-        packets::packet packet(packets::BLOCK_CHANGE);
-        packet << getX() << getY() << (unsigned char)getLiquidType() << getLightLevel() << (unsigned char)getType();
-        parent_map->manager->sendToEveryone(packet);
+        syncWithClient();
     }
+}
+
+void serverMap::block::setLiquidLevel(unsigned char level) {
+    if(level != getLiquidLevel()) {
+        block_data->liquid_level = level;
+        scheduleLiquidUpdate();
+        syncWithClient();
+    }
+}
+
+void serverMap::block::syncWithClient() {
+    packets::packet packet(packets::BLOCK_CHANGE);
+    packet << getX() << getY() << (unsigned char)getLiquidType() << getLiquidLevel() << (unsigned char)getType();
+    parent_map->manager->sendToEveryone(packet);
 }
 
 void serverMap::block::setBreakProgress(unsigned short ms) {
