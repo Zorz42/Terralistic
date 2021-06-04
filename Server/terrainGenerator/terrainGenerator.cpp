@@ -64,6 +64,7 @@ void stackDirt(unsigned int x, unsigned int height, serverMap& world_serverMap) 
         world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
     world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 1)).setType(serverMap::blockType::GRASS_BLOCK, false);
     world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 2)).setType(serverMap::liquidType::WATER, false);
+    world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 2)).setLiquidLevel(rand() % 8);
 }
 
 double turbulence(double x, double y, double size, SimplexNoise& noise) {

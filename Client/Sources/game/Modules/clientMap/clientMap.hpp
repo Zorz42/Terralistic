@@ -58,7 +58,7 @@ protected:
         
         blockType block_id;
         liquidType liquid_id;
-        unsigned char light_level = 0, break_stage = 0, orientation = 0;
+        unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level;
         bool update = true;
         
         uniqueBlock& getUniqueBlock() const;
@@ -138,6 +138,8 @@ public:
         inline unsigned char getBreakStage() { return block_data->break_stage; }
         inline blockType getType() { return block_data->block_id; }
         inline liquidType getLiquidType() { return block_data->liquid_id; }
+        inline void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
+        inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
     };
     
     class item {

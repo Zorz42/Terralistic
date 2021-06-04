@@ -207,9 +207,8 @@ void map::block::draw() {
     if(getBreakStage())
         gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 
-    if(getLiquidType() != liquidType::EMPTY) {
-        gfx::render(block_data->getUniqueLiquid().texture, rect.x, rect.y);
-    }
+    if(getLiquidType() != liquidType::EMPTY)
+        gfx::render(block_data->getUniqueLiquid().texture, rect.x, rect.y + BLOCK_WIDTH - getLiquidLevel() * 2, gfx::rectShape(0, BLOCK_WIDTH / 2 - getLiquidLevel(), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
     
     if (getLightLevel() <= MAX_LIGHT / 4) {
         if (((x & 1) ^ (y & 1)) == 1)

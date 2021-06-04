@@ -52,7 +52,7 @@ protected:
         unsigned char light_level = 0;
         bool light_source = false, update_light = true, update_liquid = true;
         unsigned short break_progress = 0;
-        unsigned char break_stage = 0;
+        unsigned char break_stage = 0, liquid_level = 8;
         
         uniqueBlock& getUniqueBlock() const;
     };
@@ -105,6 +105,8 @@ public:
         inline bool hasScheduledLightUpdate() { return block_data->update_light; }
         inline void scheduleLiquidUpdate() { block_data->update_liquid = true; }
         inline bool hasScheduledLiquidUpdate() { return block_data->update_liquid; }
+        inline void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
+        inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
         
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }

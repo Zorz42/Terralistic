@@ -47,9 +47,11 @@ void map::onPacket(packets::packet packet) {
         }
         case packets::BLOCK_CHANGE: {
             blockType type = (blockType)packet.getUChar();
+            unsigned char liquid_level = packet.getUChar();
             liquidType liquid_type = (liquidType)packet.getUChar();
             unsigned short y = packet.getUShort(), x = packet.getUShort();
             getBlock(x, y).setType(type, liquid_type);
+            getBlock(x, y).setLiquidLevel(liquid_level);
             break;
         }
         case packets::LIGHT_CHANGE: {
@@ -65,11 +67,13 @@ void map::onPacket(packets::packet packet) {
             for(unsigned short y_ = 0; y_ < 16; y_++)
                 for(unsigned short x_ = 0; x_ < 16; x_++) {
                     unsigned char light_level = packet.getUChar();
+                    unsigned char liquid_level = packet.getUChar();
                     liquidType liquid_type = (liquidType)packet.getUChar();
                     blockType type = (blockType)packet.getUChar();
                     block block = getBlock((x << 4) + x_, (y << 4) + y_);
                     block.setType(type, liquid_type);
                     block.setLightLevel(light_level);
+                    block.setLiquidLevel(liquid_level);
                     block.update();
                 }
             

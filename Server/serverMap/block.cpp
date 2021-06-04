@@ -86,7 +86,7 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
         scheduleLiquidUpdate();
         
         packets::packet packet(packets::BLOCK_CHANGE);
-        packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getType();
+        packet << getX() << getY() << (unsigned char)getLiquidType() << getLightLevel() << (unsigned char)getType();
         parent_map->manager->sendToEveryone(packet);
     }
 }

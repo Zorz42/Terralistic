@@ -14,7 +14,7 @@
 #include <arpa/inet.h>
 #endif
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 2048
 
 #define define_operator(T) \
 packets::packet& packets::packet::operator<<(T x) { \
