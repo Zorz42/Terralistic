@@ -52,14 +52,16 @@ void serverMap::updateBlocks() {
             if(end_x > width)
                 end_x = width;
             for(unsigned short x = start_x; x < end_x; x++)
-                for(unsigned short y = start_y; y < end_y; y++) {
+                for(unsigned short y = end_y - 1; y >= start_y; y--) {
                     block curr_block = getBlock(x, y);
                     if(curr_block.hasScheduledLightUpdate()) {
                         curr_block.lightUpdate();
                         finished = false;
                     }
-                    if(curr_block.hasScheduledLiquidUpdate())
+                    if(curr_block.canUpdateLiquid()) {
                         curr_block.liquidUpdate();
+                        finished = false;
+                    }
                 }
         }
     }

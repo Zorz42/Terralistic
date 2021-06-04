@@ -7,7 +7,29 @@
 
 #include "serverMap.hpp"
 
+std::vector<serverMap::uniqueLiquid> serverMap::unique_liquids;
+
+void serverMap::initLiquids() {
+    unique_liquids = {
+        {0},
+        {100},
+    };
+}
+
+serverMap::uniqueLiquid& serverMap::blockData::getUniqueLiquid() const {
+    return unique_liquids[(int)liquid_id];
+}
+
+void serverMap::block::setLiquidLevel(unsigned char level) {
+    if(level != getLiquidLevel()) {
+        block_data->liquid_level = level;
+        scheduleLiquidUpdate();
+        syncWithClient();
+    }
+}
+
 void serverMap::block::liquidUpdate() {
+    block_data->when_to_update_liquid = 0;
     if(getLiquidType() == liquidType::EMPTY || getLiquidLevel() == 0)
         return;
     
@@ -44,16 +66,16 @@ void serverMap::block::liquidUpdate() {
         }
         
         if(block_left.getLiquidType() == getLiquidType() && block_right.getLiquidType() == getLiquidType()) {
-            int avg = ((int)block_left.getLiquidLevel() + (int)block_right.getLiquidLevel() + (int)getLiquidLevel()) / 3;
+            unsigned char avg = ((int)block_left.getLiquidLevel() + (int)block_right.getLiquidLevel() + (int)getLiquidLevel()) / 3;
             block_left.setLiquidLevel(avg);
             block_right.setLiquidLevel(avg);
             setLiquidLevel(avg);
         } else if(block_left.getLiquidType() == getLiquidType()) {
-            int avg = ((int)block_left.getLiquidLevel() + (int)getLiquidLevel()) / 2;
+            unsigned char avg = ((int)block_left.getLiquidLevel() + (int)getLiquidLevel()) / 2;
             block_left.setLiquidLevel(avg);
             setLiquidLevel(avg);
         } else if(block_right.getLiquidType() == getLiquidType()) {
-            int avg = ((int)block_right.getLiquidLevel() + (int)getLiquidLevel()) / 2;
+            unsigned char avg = ((int)block_right.getLiquidLevel() + (int)getLiquidLevel()) / 2;
             block_right.setLiquidLevel(avg);
             setLiquidLevel(avg);
         }

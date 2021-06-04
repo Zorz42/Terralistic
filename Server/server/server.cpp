@@ -27,6 +27,7 @@ void inthand(int signum) {
 void serverInit() {
     serverMap::initItems();
     serverMap::initBlocks();
+    serverMap::initLiquids();
 }
 
 void server::start() {

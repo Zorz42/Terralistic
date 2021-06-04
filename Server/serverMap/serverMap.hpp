@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <chrono>
 #include "serverNetworking.hpp"
 
 #define BLOCK_WIDTH 16
@@ -26,6 +27,7 @@ public:
 
     static void initBlocks();
     static void initItems();
+    static void initLiquids();
     
     class block;
     class player;
@@ -44,17 +46,9 @@ protected:
         void (*onLeftClick)(block*, player*) = nullptr;
     };
     
-    struct blockData {
-        blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
-        
-        blockType block_id;
-        liquidType liquid_id = liquidType::EMPTY;
-        unsigned char light_level = 0;
-        bool light_source = false, update_light = true, update_liquid = true;
-        unsigned short break_progress = 0;
-        unsigned char break_stage = 0, liquid_level = 0;
-        
-        uniqueBlock& getUniqueBlock() const;
+    struct uniqueLiquid {
+        uniqueLiquid(unsigned short flow_time) : flow_time(flow_time) {}
+        unsigned short flow_time;
     };
     
     struct uniqueItem {
@@ -64,8 +58,24 @@ protected:
         blockType places;
     };
     
+    struct blockData {
+        blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+        
+        blockType block_id;
+        liquidType liquid_id = liquidType::EMPTY;
+        bool light_source = false, update_light = true;
+        unsigned short break_progress = 0;
+        unsigned char break_stage = 0, liquid_level = 0, light_level = 0;
+        unsigned int when_to_update_liquid = 1;
+        
+        
+        uniqueBlock& getUniqueBlock() const;
+        uniqueLiquid& getUniqueLiquid() const;
+    };
+    
     static std::vector<uniqueItem> unique_items;
     static std::vector<uniqueBlock> unique_blocks;
+    static std::vector<uniqueLiquid> unique_liquids;
     
 public:
     class block {
@@ -105,10 +115,11 @@ public:
         inline liquidType getLiquidType() { return block_data->liquid_id; }
         inline void scheduleLightUpdate() { block_data->update_light = true; }
         inline bool hasScheduledLightUpdate() { return block_data->update_light; }
-        inline void scheduleLiquidUpdate() { block_data->update_liquid = true; }
-        inline bool hasScheduledLiquidUpdate() { return block_data->update_liquid; }
+        inline void scheduleLiquidUpdate() { block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime(); }
+        inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
         void setLiquidLevel(unsigned char level);
         inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
+        inline unsigned short getFlowTime() { return block_data->getUniqueLiquid().flow_time; }
         
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
