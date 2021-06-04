@@ -49,7 +49,6 @@ void server::start() {
         state = GENERATING_WORLD;
         print::info("Generating world...");
         terrainGenerator::generateTerrainDaemon(rand(), &world_map);
-        worldSaver::saveWorld(working_dir + "world", world_map);
     }
     
     print::info("Post initializing modules...");

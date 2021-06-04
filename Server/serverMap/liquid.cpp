@@ -44,7 +44,7 @@ void serverMap::block::liquidUpdate() {
         block_under.setType(getLiquidType());
         block_under.setLiquidLevel(0);
     }
-    if(block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127) {
+    if(block_under.getLiquidType() == getLiquidType()) {
         unsigned char liquid_sum = block_under.getLiquidLevel() + getLiquidLevel();
         if(liquid_sum > 127) {
             block_under.setLiquidLevel(127);
@@ -54,30 +54,33 @@ void serverMap::block::liquidUpdate() {
             setLiquidLevel(0);
             block_under.setLiquidLevel(liquid_sum);
         }
-    } else {
-        if(block_left.isGhost() && block_left.getLiquidType() == liquidType::EMPTY) {
-            block_left.setType(getLiquidType());
-            block_left.setLiquidLevel(0);
-        }
-        
-        if(block_right.isGhost() && block_right.getLiquidType() == liquidType::EMPTY) {
-            block_right.setType(getLiquidType());
-            block_right.setLiquidLevel(0);
-        }
-        
-        if(block_left.getLiquidType() == getLiquidType() && block_right.getLiquidType() == getLiquidType()) {
-            unsigned char avg = ((int)block_left.getLiquidLevel() + (int)block_right.getLiquidLevel() + (int)getLiquidLevel()) / 3;
-            block_left.setLiquidLevel(avg);
-            block_right.setLiquidLevel(avg);
-            setLiquidLevel(avg);
-        } else if(block_left.getLiquidType() == getLiquidType()) {
-            unsigned char avg = ((int)block_left.getLiquidLevel() + (int)getLiquidLevel()) / 2;
-            block_left.setLiquidLevel(avg);
-            setLiquidLevel(avg);
-        } else if(block_right.getLiquidType() == getLiquidType()) {
-            unsigned char avg = ((int)block_right.getLiquidLevel() + (int)getLiquidLevel()) / 2;
-            block_right.setLiquidLevel(avg);
-            setLiquidLevel(avg);
-        }
+    }
+    
+    if(getLiquidType() == liquidType::EMPTY || getLiquidLevel() == 0)
+        return;
+    
+    if(block_left.isGhost() && block_left.getLiquidType() == liquidType::EMPTY) {
+        block_left.setType(getLiquidType());
+        block_left.setLiquidLevel(0);
+    }
+    
+    if(block_right.isGhost() && block_right.getLiquidType() == liquidType::EMPTY) {
+        block_right.setType(getLiquidType());
+        block_right.setLiquidLevel(0);
+    }
+    
+    if(block_left.getLiquidType() == getLiquidType() && block_right.getLiquidType() == getLiquidType()) {
+        int sum = (int)block_left.getLiquidLevel() + (int)block_right.getLiquidLevel() + (int)getLiquidLevel(), avg = sum / 3;
+        block_left.setLiquidLevel(avg);
+        block_right.setLiquidLevel(avg);
+        setLiquidLevel(avg);
+    } else if(block_left.getLiquidType() == getLiquidType()) {
+        int sum = (int)block_left.getLiquidLevel() + (int)getLiquidLevel(), avg = sum / 2;
+        block_left.setLiquidLevel(avg);
+        setLiquidLevel(avg);
+    } else if(block_right.getLiquidType() == getLiquidType()) {
+        int sum = (int)block_right.getLiquidLevel() + (int)getLiquidLevel(), avg = sum / 2;
+        block_right.setLiquidLevel(avg);
+        setLiquidLevel(avg);
     }
 }
