@@ -16,7 +16,7 @@ void worldSaver::saveWorld(const std::string& world_path, serverMap& world_map) 
     std::ofstream world_file(world_path + "/blockdata", std::ios::binary);
     
     for(int y = 0; y < world_map.getWorldHeight(); y++) {
-        char world_buffer[world_map.getWorldWidth() * 3];
+        char* world_buffer = new char[world_map.getWorldWidth() * 3];
         for(int x = 0; x < world_map.getWorldWidth(); x++) {
             serverMap::block curr_block = world_map.getBlock(x, y);
             int pos = x * 3;
@@ -24,7 +24,8 @@ void worldSaver::saveWorld(const std::string& world_path, serverMap& world_map) 
             world_buffer[pos + 1] = (char)curr_block.getLiquidType();
             world_buffer[pos + 2] = (char)curr_block.getLiquidLevel();
         }
-        world_file.write(&world_buffer[0], world_map.getWorldWidth() * 3);
+        world_file.write(world_buffer, world_map.getWorldWidth() * 3);
+        delete[] world_buffer;
     }
     world_file.close();
     
@@ -49,8 +50,8 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_map) 
     char c = 0;
     
     for(int y = 0; y < world_map.getWorldHeight(); y++) {
-        char world_buffer[world_map.getWorldWidth() * 3];
-        world_file.read(&world_buffer[0], world_map.getWorldWidth() * 3);
+        char* world_buffer = new char[world_map.getWorldWidth() * 3];
+        world_file.read(world_buffer, world_map.getWorldWidth() * 3);
         
         for(int x = 0; x < world_map.getWorldWidth(); x++) {
             serverMap::block curr_block = world_map.getBlock(x, y);
@@ -59,6 +60,7 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_map) 
             curr_block.setType((serverMap::liquidType) world_buffer[pos + 1], false);
             curr_block.setLiquidLevel(world_buffer[pos + 2]);
         }
+        delete[] world_buffer;
     }
     world_file.close();
     
