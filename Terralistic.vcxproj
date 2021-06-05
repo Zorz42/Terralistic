@@ -163,6 +163,7 @@
     <ClCompile Include="server\servermap\inventory.cpp" />
     <ClCompile Include="server\servermap\item.cpp" />
     <ClCompile Include="server\servermap\light.cpp" />
+    <ClCompile Include="Server\serverMap\liquid.cpp" />
     <ClCompile Include="server\servermap\serverMap.cpp" />
     <ClCompile Include="server\servermap\packets.cpp" />
     <ClCompile Include="server\servermap\player.cpp" />
