@@ -45,17 +45,21 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_map) 
     // loads world the same way it got saved
     
     std::ifstream world_file(world_path + "/blockdata", std::ios::binary);
+    world_file.unsetf(std::ios::skipws);
     char c = 0;
     
-    for(int y = 0; y < world_map.getWorldHeight(); y++)
+    for(int y = 0; y < world_map.getWorldHeight(); y++) {
+        char world_buffer[world_map.getWorldWidth() * 3];
+        world_file.read(&world_buffer[0], world_map.getWorldWidth() * 3);
+        
         for(int x = 0; x < world_map.getWorldWidth(); x++) {
-            world_file >> std::noskipws >> c;
-            world_map.getBlock(x, y).setType((serverMap::blockType) c, false);
-            world_file >> std::noskipws >> c;
-            world_map.getBlock(x, y).setType((serverMap::liquidType) c, false);
-            world_file >> std::noskipws >> c;
-            world_map.getBlock(x, y).setLiquidLevel(c);
+            serverMap::block curr_block = world_map.getBlock(x, y);
+            int pos = x * 3;
+            curr_block.setType((serverMap::blockType) world_buffer[pos], false);
+            curr_block.setType((serverMap::liquidType) world_buffer[pos + 1], false);
+            curr_block.setLiquidLevel(world_buffer[pos + 2]);
         }
+    }
     world_file.close();
     
     for (const auto& entry : std::filesystem::directory_iterator(world_path + "/playerdata/")) {
@@ -65,7 +69,7 @@ void worldSaver::loadWorld(const std::string& world_path, serverMap& world_map) 
         
         std::ifstream data_file(entry.path(), std::ios::binary);
         for(auto & i : player->inventory.inventory_arr) {
-            data_file >> std::noskipws >> c;
+            data_file >> c;
             i.setId((serverMap::itemType)c);
             
             unsigned short stack;
