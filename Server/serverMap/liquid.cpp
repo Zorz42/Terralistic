@@ -23,22 +23,18 @@ serverMap::uniqueLiquid& serverMap::blockData::getUniqueLiquid() const {
 void serverMap::block::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         block_data->liquid_level = level;
-        scheduleLiquidUpdate();
+        update();
         syncWithClient();
-        updateNeighbors();
     }
 }
 
 void serverMap::block::liquidUpdate() {
     block_data->when_to_update_liquid = 0;
-    if(getLiquidType() == liquidType::EMPTY || getLiquidLevel() == 0)
-        return;
-    
-    if(!isGhost()) {
+    if(!isGhost())
         setType(liquidType::EMPTY);
-        setLiquidLevel(0);
+    
+    if(getLiquidLevel() == 0)
         return;
-    }
     
     block block_under = parent_map->getBlock(x, y + 1), block_left = parent_map->getBlock(x - 1, y), block_right = parent_map->getBlock(x + 1, y), under, left, right;
     if((block_under.isGhost() && block_under.getLiquidType() == liquidType::EMPTY) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
@@ -62,28 +58,47 @@ void serverMap::block::liquidUpdate() {
             setType(liquidType::EMPTY);
             under.setLiquidLevel(liquid_sum);
         }
+        
+        under.setFlowDirection(flowDirection::NONE);
     } else {
-        if(right.refersToABlock() && right.getLiquidType() == liquidType::EMPTY) {
+        if(right.refersToABlock() && right.getLiquidType() == liquidType::EMPTY)
             right.setType(getLiquidType());
-        }
-        if(left.refersToABlock() && left.getLiquidType() == liquidType::EMPTY) {
+        if(left.refersToABlock() && left.getLiquidType() == liquidType::EMPTY)
             left.setType(getLiquidType());
-        }
         
         if(left.refersToABlock() && right.refersToABlock()) {
             int avg = (getLiquidLevel() + right.getLiquidLevel() + left.getLiquidLevel()) / 3;
-            left.setLiquidLevel(avg);
-            right.setLiquidLevel(avg);
+            int mod = (getLiquidLevel() + right.getLiquidLevel() + left.getLiquidLevel()) % 3;
+            if(mod) {
+                if(getFlowDirection() == flowDirection::LEFT) {
+                    left.setLiquidLevel(avg + mod);
+                    left.setFlowDirection(flowDirection::LEFT);
+                    right.setLiquidLevel(avg);
+                } else {
+                    right.setLiquidLevel(avg + mod);
+                    right.setFlowDirection(flowDirection::RIGHT);
+                    left.setLiquidLevel(avg);
+                }
+            } else {
+                left.setFlowDirection(flowDirection::NONE);
+                left.setLiquidLevel(avg);
+                right.setFlowDirection(flowDirection::NONE);
+                right.setLiquidLevel(avg);
+            }
+            
             setLiquidLevel(avg);
+            setFlowDirection(flowDirection::NONE);
         } else if(right.refersToABlock()) {
             int avg = (getLiquidLevel() + right.getLiquidLevel()) / 2;
             int mod = (getLiquidLevel() + right.getLiquidLevel()) % 2;
             right.setLiquidLevel(avg + mod);
+            right.setFlowDirection(flowDirection::RIGHT);
             setLiquidLevel(avg);
         } else if(left.refersToABlock()) {
             int avg = (getLiquidLevel() + left.getLiquidLevel()) / 2;
             int mod = (getLiquidLevel() + left.getLiquidLevel()) % 2;
             left.setLiquidLevel(avg + mod);
+            left.setFlowDirection(flowDirection::LEFT);
             setLiquidLevel(avg);
         }
     }

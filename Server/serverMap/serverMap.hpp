@@ -24,6 +24,7 @@ public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
     enum class liquidType {EMPTY, WATER};
+    enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 
     static void initBlocks();
     static void initItems();
@@ -67,6 +68,7 @@ protected:
         unsigned short break_progress = 0;
         unsigned char break_stage = 0, liquid_level = 0, light_level = 0;
         unsigned int when_to_update_liquid = 1;
+        flowDirection flow_direction = flowDirection::NONE;
         
         
         uniqueBlock& getUniqueBlock() const;
@@ -121,6 +123,8 @@ public:
         void setLiquidLevel(unsigned char level);
         inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
         inline unsigned short getFlowTime() { return block_data->getUniqueLiquid().flow_time; }
+        inline flowDirection getFlowDirection() { return block_data->flow_direction; }
+        inline void setFlowDirection(flowDirection flow_direction) { block_data->flow_direction = flow_direction; }
         
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
