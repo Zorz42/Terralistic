@@ -9,19 +9,25 @@
 #include <fstream>
 #include "worldSaver.hpp"
 
-#include "print.hpp"
-
 void worldSaver::saveWorld(const std::string& world_path, serverMap& world_map) {
     // saves world chunk by chunk and then inventory and position of every player
     std::filesystem::create_directory(world_path);
     std::filesystem::create_directory(world_path + "/playerdata");
     std::ofstream world_file(world_path + "/blockdata", std::ios::binary);
     
+    char* world_buffer = new char[world_map.getWorldHeight() * world_map.getWorldWidth() * 3];
+    
     for(int y = 0; y < world_map.getWorldHeight(); y++)
         for(int x = 0; x < world_map.getWorldWidth(); x++) {
             serverMap::block curr_block = world_map.getBlock(x, y);
-            world_file << (char)curr_block.getType() << (char)curr_block.getLiquidType() << (char)curr_block.getLiquidLevel();
+            int pos = (y * world_map.getWorldWidth() + x) * 3;
+            world_buffer[pos] = (char)curr_block.getType();
+            world_buffer[pos + 1] = (char)curr_block.getLiquidType();
+            world_buffer[pos + 2] = (char)curr_block.getLiquidLevel();
         }
+    
+    world_file.write(world_buffer, world_map.getWorldHeight() * world_map.getWorldWidth() * 3);
+    delete[] world_buffer;
     world_file.close();
     
     for(serverMap::player* player : world_map.getAllPlayers()) {
