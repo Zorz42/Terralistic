@@ -17,11 +17,13 @@ void serverMap::initBlocks() {
         uniqueBlock("dirt",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::DIRT,        /*break_time*/1000       ),
         uniqueBlock("stone_block",       /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::STONE_BLOCK, /*break_time*/1000       ),
         uniqueBlock("grass_block",       /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
-        uniqueBlock("stone",             /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemType::STONE,       /*break_time*/1000       ),
+        uniqueBlock("stone",             /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemType::STONE,       /*break_time*/1500       ),
         uniqueBlock("wood",              /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::WOOD_PLANKS, /*break_time*/1000       ),
         uniqueBlock("leaves",            /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
-        uniqueBlock("sand",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
+        uniqueBlock("sand",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
         uniqueBlock("snowy_grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::DIRT,        /*break_time*/1000       ),
+        uniqueBlock("snow_block",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
+
     };
     
     unique_blocks[(int)blockType::WOOD].onBreak = [](serverMap* world_map, block* this_block) {
