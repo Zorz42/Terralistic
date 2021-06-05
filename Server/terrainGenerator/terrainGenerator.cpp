@@ -114,7 +114,7 @@ void generatePlains(int x, int y, SimplexNoise& noise, serverMap& world_map) {
             else
                 world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
         else
-            world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE, false);
+            world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE_BLOCK, false);
     }else
         world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::AIR, false);
 }
