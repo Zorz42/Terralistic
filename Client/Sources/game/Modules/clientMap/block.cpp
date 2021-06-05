@@ -14,16 +14,16 @@ gfx::image breaking_texture;
 
 void map::initBlocks() {
     unique_blocks = {
-        {"air",               /*ghost*/true,  /*connects_to*/{                                                    }},
-        {"dirt",              /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK, blockType::SNOWY_GRASS_BLOCK}},
-        {"stone_block",       /*ghost*/false, /*connects_to*/{                                                    }},
-        {"grass_block",       /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::SNOWY_GRASS_BLOCK       }},
-        {"stone",             /*ghost*/true,  /*connects_to*/{                                                    }},
-        {"wood",              /*ghost*/true,  /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES           }},
-        {"leaves",            /*ghost*/true,  /*connects_to*/{                                                    }},
-        {"sand",              /*ghost*/false, /*connects_to*/{                                                    }},
-        {"snowy_grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK             }},
-        {"snow_block",        /*ghost*/false, /*connects_to*/{                                                    }},
+        {"air",               /*ghost*/true,  /*connects_to*/{                                                               }},
+        {"dirt",              /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK, blockType::SNOWY_GRASS_BLOCK           }},
+        {"stone_block",       /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   }},
+        {"grass_block",       /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::SNOWY_GRASS_BLOCK                  }},
+        {"stone",             /*ghost*/true,  /*connects_to*/{                                                               }},
+        {"wood",              /*ghost*/true,  /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES                      }},
+        {"leaves",            /*ghost*/true,  /*connects_to*/{                                                               }},
+        {"sand",              /*ghost*/false, /*connects_to*/{                                                               }},
+        {"snowy_grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK}},
+        {"snow_block",        /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   }},
     };
     
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));

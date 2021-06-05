@@ -175,7 +175,7 @@ void generateSnowyTundra(int x, SimplexNoise& noise, serverMap& world_map) {
     for (int y = 0; y < world_map.getWorldHeight(); y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= snowLayer) {
-                if (y < snowLayer + 1) {
+                if (y < snowLayer + 3) {
                     world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SNOWY_GRASS_BLOCK, false);
                 }else
                     world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SNOW_BLOCK, false);
