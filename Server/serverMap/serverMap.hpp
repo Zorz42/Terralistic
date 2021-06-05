@@ -1,4 +1,4 @@
-//
+ //
 //  serverMap.hpp
 //  Terralistic
 //
@@ -34,7 +34,7 @@ public:
     
 protected:
     struct uniqueBlock {
-        uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
+        uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {}
         
         bool ghost, only_on_floor, transparent;
         std::string name;
@@ -76,7 +76,7 @@ protected:
     static std::vector<uniqueItem> unique_items;
     static std::vector<uniqueBlock> unique_blocks;
     static std::vector<uniqueLiquid> unique_liquids;
-    
+
 public:
     class block {
         blockData* block_data = nullptr;

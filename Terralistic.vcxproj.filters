@@ -243,6 +243,9 @@
     <ClCompile Include="Server\serverMap\liquid.cpp">
       <Filter>Source Files\Server\serverMap</Filter>
     </ClCompile>
+    <ClCompile Include="Client\Sources\game\Modules\clientMap\liquid.cpp">
+      <Filter>Source Files\Client\Sources\game\Modules\clientMap</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="server\clickevents\clickEvents.hpp">

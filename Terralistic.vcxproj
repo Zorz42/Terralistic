@@ -141,6 +141,7 @@
     <ClCompile Include="client\sources\game\modules\clientmap\chunk.cpp" />
     <ClCompile Include="client\sources\game\modules\clientmap\item.cpp" />
     <ClCompile Include="Client\Sources\game\Modules\clientMap\clientMap.cpp" />
+    <ClCompile Include="Client\Sources\game\Modules\clientMap\liquid.cpp" />
     <ClCompile Include="client\sources\game\modules\otherplayers\otherPlayers.cpp" />
     <ClCompile Include="client\sources\game\modules\pausescreen\pauseScreen.cpp" />
     <ClCompile Include="client\sources\game\modules\playerhandler\blockSelector.cpp" />
