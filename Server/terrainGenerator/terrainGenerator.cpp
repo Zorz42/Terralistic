@@ -15,7 +15,7 @@
 // TERRAIN
 #define TERRAIN_VERTICAL_MULTIPLIER 140
 #define TERRAIN_HORIZONTAL_DIVIDER 4
-#define TERRAIN_HORIZONT ((float)world_serverMap.getWorldHeight() / 2 - 50)
+#define TERRAIN_HORIZONT ((float)world_map.getWorldHeight() / 2 - 50)
 #define TURB_SIZE 64.0 //initial size of the turbulence
 
 // CAVES
@@ -30,35 +30,42 @@
 
 void stackDirt(unsigned int x, unsigned int height);
 
-void generateSurface(std::mt19937& engine, serverMap& world_serverMap);
-void generateCaves(std::mt19937& engine, serverMap& world_serverMap);
-void generateStone(std::mt19937& engine, serverMap& world_serverMap);
-void generateTrees(std::mt19937& engine, serverMap& world_serverMap);
+void generateSurface(std::mt19937& engine, serverMap& world_map);
+void generateCaves(std::mt19937& engine, serverMap& world_map);
+void generateStone(std::mt19937& engine, serverMap& world_map);
+void generateTrees(std::mt19937& engine, serverMap& world_map);
+void terrainGeneratorSwitch(unsigned int x, unsigned int y, SimplexNoise& noise, serverMap& world_map);
 
 static unsigned int highest_height = 0;
 static unsigned short* heights;
 
 #define LOADING_NEXT terrainGenerator::generating_current++;
 
-int terrainGenerator::generateTerrainDaemon(unsigned int seed, serverMap* world_serverMap) {
-    std::mt19937 engine(seed);    
+int terrainGenerator::generateTerrainDaemon(unsigned int seed, serverMap* world_map) {
+    std::mt19937 engine(seed);
+    SimplexNoise noise(engine());
+
     generating_current = 0;
     
-
-    generateSurface(engine, *world_serverMap);
-    generateCaves(engine, *world_serverMap);
-    generateStone(engine, *world_serverMap);
-    generateTrees(engine, *world_serverMap);
-    world_serverMap->setNaturalLight();
+    for (int x = 0; x < world_map->getWorldWidth(); x++) {
+        for (int y = 0; y < world_map->getWorldHeight(); y++) {
+            terrainGeneratorSwitch(x, y, noise, *world_map);
+        }
+    }
+    /*generateSurface(engine, *world_map);
+    generateCaves(engine, *world_map);
+    generateStone(engine, *world_map);
+    generateTrees(engine, *world_map);*/
+    world_map->setNaturalLight();
     LOADING_NEXT
     return 0;
 }
 
-void stackDirt(unsigned int x, unsigned int height, serverMap& world_serverMap) {
-    for(auto y = (unsigned int)(world_serverMap.getWorldHeight() - 1); y > world_serverMap.getWorldHeight() - height - 1; y--)
-        world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
-    world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 1)).setType(serverMap::blockType::GRASS_BLOCK, false);
-    serverMap::block water_block = world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - height - 2));
+void stackDirt(unsigned int x, unsigned int height, serverMap& world_map) {
+    for(auto y = (unsigned int)(world_map.getWorldHeight() - 1); y > world_map.getWorldHeight() - height - 1; y--)
+        world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
+    world_map.getBlock((unsigned short)x, (unsigned short)(world_map.getWorldHeight() - height - 1)).setType(serverMap::blockType::GRASS_BLOCK, false);
+    serverMap::block water_block = world_map.getBlock((unsigned short)x, (unsigned short)(world_map.getWorldHeight() - height - 2));
     water_block.setType(serverMap::liquidType::WATER, false);
     water_block.setLiquidLevel(127);
 }
@@ -97,30 +104,30 @@ int heightGeneratorInt(unsigned int x, unsigned int y, SimplexNoise& noise) {
     return heat;
 }
 
-void generatePlains(int x, int y, SimplexNoise& noise, serverMap& world_serverMap) {
+void generatePlains(int x, int y, SimplexNoise& noise, serverMap& world_map) {
     int sliceHeight = (int)(turbulence(x + 0.1, 0, 16, noise) * 10) + 320;
 
     if (y <= sliceHeight) {//generates surface
         if(y >= sliceHeight - noise.noise(x / 2 + 0.25, 0))
             if(y == sliceHeight)
-                world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::GRASS_BLOCK, false);
+                world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::GRASS_BLOCK, false);
             else
-                world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
+                world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
         else
-            world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE, false);
+            world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE, false);
     }else
-        world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::AIR, false);
+        world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::AIR, false);
 }
 
 
-void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
+void generateSurface(std::mt19937& engine, serverMap& world_map) {
     SimplexNoise noise(engine());
 
     
-    heights = new unsigned short[world_serverMap.getWorldWidth()];
+    heights = new unsigned short[world_map.getWorldWidth()];
     
     // generate terrain
-    for(unsigned int x = 0; x < world_serverMap.getWorldWidth(); x++) {
+    for(unsigned int x = 0; x < world_map.getWorldWidth(); x++) {
         // apply multiple layers of perlin noise
         auto height = (unsigned int)(TERRAIN_HORIZONT + TERRAIN_VERTICAL_MULTIPLIER * turbulence((double) x / TERRAIN_HORIZONTAL_DIVIDER, 0.8, TURB_SIZE, noise));
         
@@ -134,72 +141,72 @@ void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
     LOADING_NEXT
 
     // apply terrain to world
-    for(unsigned int x = 0; x < world_serverMap.getWorldWidth(); x++) {
-        stackDirt(x, heights[x], world_serverMap);
+    for(unsigned int x = 0; x < world_map.getWorldWidth(); x++) {
+        stackDirt(x, heights[x], world_map);
         if(!(engine() % 7)) // generate stones
-            world_serverMap.getBlock((unsigned short)x, (unsigned short)(world_serverMap.getWorldHeight() - heights[x] - 2)).setType(serverMap::blockType::STONE, false);
+            world_map.getBlock((unsigned short)x, (unsigned short)(world_map.getWorldHeight() - heights[x] - 2)).setType(serverMap::blockType::STONE, false);
     }
     LOADING_NEXT
 }
 
-void generateCaves(std::mt19937& engine, serverMap& world_serverMap) {
+void generateCaves(std::mt19937& engine, serverMap& world_map) {
     SimplexNoise noise(engine());
     
     for(unsigned int y = 0; y < highest_height; y++)
-        for(unsigned int x = 0; x < world_serverMap.getWorldWidth(); x++)
+        for(unsigned int x = 0; x < world_map.getWorldWidth(); x++)
             if(noise.noise((double)x / 10, (double)y / 10) > CAVE_START + CAVE_LENGTH - (double)y / highest_height * CAVE_LENGTH)
-                world_serverMap.getBlock((unsigned short)x, (unsigned short)(y + (world_serverMap.getWorldHeight() - highest_height))).setType(serverMap::blockType::AIR, false);
+                world_map.getBlock((unsigned short)x, (unsigned short)(y + (world_map.getWorldHeight() - highest_height))).setType(serverMap::blockType::AIR, false);
     LOADING_NEXT
 }
 
-void generateStone(std::mt19937& engine, serverMap& world_serverMap) {
+void generateStone(std::mt19937& engine, serverMap& world_map) {
     SimplexNoise noise(engine());
     
-    for(unsigned int y = world_serverMap.getWorldHeight() - highest_height; y < world_serverMap.getWorldHeight(); y++)
-        for(unsigned int x = 0; x < world_serverMap.getWorldWidth(); x++)
-            if(world_serverMap.getBlock((unsigned short)x, (unsigned short)y).getType() != serverMap::blockType::AIR && noise.noise((double)x / 10, (double)y / 10) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
-                world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE_BLOCK, false);
+    for(unsigned int y = world_map.getWorldHeight() - highest_height; y < world_map.getWorldHeight(); y++)
+        for(unsigned int x = 0; x < world_map.getWorldWidth(); x++)
+            if(world_map.getBlock((unsigned short)x, (unsigned short)y).getType() != serverMap::blockType::AIR && noise.noise((double)x / 10, (double)y / 10) > STONE_START + STONE_LENGTH - (double)y / highest_height * STONE_LENGTH)
+                world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE_BLOCK, false);
     LOADING_NEXT
 }
 
-void generateTrees(std::mt19937& engine, serverMap& world_serverMap) {
+void generateTrees(std::mt19937& engine, serverMap& world_map) {
     unsigned short x = 0;
     while(true) {
         x += engine() % 4 + 6;
-        if(x >= world_serverMap.getWorldWidth() - 5)
+        if(x >= world_map.getWorldWidth() - 5)
             break;
-        if(world_serverMap.getBlock(x, world_serverMap.getWorldHeight() - heights[x] - 1).getType() != serverMap::blockType::GRASS_BLOCK)
+        if(world_map.getBlock(x, world_map.getWorldHeight() - heights[x] - 1).getType() != serverMap::blockType::GRASS_BLOCK)
             continue;
         unsigned short height = engine() % 5 + 10;
         unsigned short y;
-        for(y = world_serverMap.getWorldHeight() - heights[x] - 2; y > world_serverMap.getWorldHeight() - heights[x] - height; y--)
-            world_serverMap.getBlock(x, y).setType(serverMap::blockType::WOOD, false);
+        for(y = world_map.getWorldHeight() - heights[x] - 2; y > world_map.getWorldHeight() - heights[x] - height; y--)
+            world_map.getBlock(x, y).setType(serverMap::blockType::WOOD, false);
         
         for(unsigned short y_leave = y; y_leave < y + 5; y_leave++)
             for(unsigned short x_leave = x - 2; x_leave <= x + 2; x_leave++)
                 if((x_leave != x - 2 || y_leave != y) && (x_leave != x + 2 || y_leave != y) && (x_leave != x - 2 || y_leave != y + 4) && (x_leave != x + 2 || y_leave != y + 4))
-                    world_serverMap.getBlock(x_leave, y_leave).setType(serverMap::blockType::LEAVES, false);
+                    world_map.getBlock(x_leave, y_leave).setType(serverMap::blockType::LEAVES, false);
         
-        for(unsigned short y2 = world_serverMap.getWorldHeight() - heights[x] - engine() % 4 - 4; y2 > world_serverMap.getWorldHeight() - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
-            world_serverMap.getBlock(x - 1, y2).setType(serverMap::blockType::WOOD, false);
-            world_serverMap.getBlock(x - 2, y2).setType(serverMap::blockType::LEAVES, false);
+        for(unsigned short y2 = world_map.getWorldHeight() - heights[x] - engine() % 4 - 4; y2 > world_map.getWorldHeight() - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
+            world_map.getBlock(x - 1, y2).setType(serverMap::blockType::WOOD, false);
+            world_map.getBlock(x - 2, y2).setType(serverMap::blockType::LEAVES, false);
         }
         
-        for(unsigned short y2 = world_serverMap.getWorldHeight() - heights[x] - engine() % 4 - 4; y2 > world_serverMap.getWorldHeight() - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
-            world_serverMap.getBlock(x + 1, y2).setType(serverMap::blockType::WOOD, false);
-            world_serverMap.getBlock(x + 2, y2).setType(serverMap::blockType::LEAVES, false);
+        for(unsigned short y2 = world_map.getWorldHeight() - heights[x] - engine() % 4 - 4; y2 > world_map.getWorldHeight() - heights[x] - height + 5; y2 -= engine() % 4 + 2) {
+            world_map.getBlock(x + 1, y2).setType(serverMap::blockType::WOOD, false);
+            world_map.getBlock(x + 2, y2).setType(serverMap::blockType::LEAVES, false);
         }
         
-        if(world_serverMap.getBlock(x - 1, world_serverMap.getWorldHeight() - heights[x] - 1).getType() == serverMap::blockType::GRASS_BLOCK && world_serverMap.getBlock(x - 2, world_serverMap.getWorldHeight() - heights[x] - 2).getType() == serverMap::blockType::AIR)
-            world_serverMap.getBlock(x - 1, world_serverMap.getWorldHeight() - heights[x] - 2).setType(serverMap::blockType::WOOD, false);
+        if(world_map.getBlock(x - 1, world_map.getWorldHeight() - heights[x] - 1).getType() == serverMap::blockType::GRASS_BLOCK && world_map.getBlock(x - 2, world_map.getWorldHeight() - heights[x] - 2).getType() == serverMap::blockType::AIR)
+            world_map.getBlock(x - 1, world_map.getWorldHeight() - heights[x] - 2).setType(serverMap::blockType::WOOD, false);
         
-        if(world_serverMap.getBlock(x + 1, world_serverMap.getWorldHeight() - heights[x] - 1).getType() == serverMap::blockType::GRASS_BLOCK && world_serverMap.getBlock(x + 2, world_serverMap.getWorldHeight() - heights[x] - 2).getType() == serverMap::blockType::AIR)
-            world_serverMap.getBlock(x + 1, world_serverMap.getWorldHeight() - heights[x] - 2).setType(serverMap::blockType::WOOD, false);
+        if(world_map.getBlock(x + 1, world_map.getWorldHeight() - heights[x] - 1).getType() == serverMap::blockType::GRASS_BLOCK && world_map.getBlock(x + 2, world_map.getWorldHeight() - heights[x] - 2).getType() == serverMap::blockType::AIR)
+            world_map.getBlock(x + 1, world_map.getWorldHeight() - heights[x] - 2).setType(serverMap::blockType::WOOD, false);
     }
     LOADING_NEXT
 }
 
-void terrainGeneratorSwitch(unsigned int x, unsigned int y, SimplexNoise& noise, serverMap& world_serverMap) {
+void terrainGeneratorSwitch(unsigned int x, unsigned int y, SimplexNoise& noise, serverMap& world_map) {
     
 
     /*
@@ -241,7 +248,7 @@ void terrainGeneratorSwitch(unsigned int x, unsigned int y, SimplexNoise& noise,
 
                 break;
             case 1://plains
-                generatePlains(x, y, noise, world_serverMap);
+                generatePlains(x, y, noise, world_map);
                 break;
             case 2://forest
 
