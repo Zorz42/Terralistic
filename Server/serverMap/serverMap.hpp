@@ -118,7 +118,7 @@ public:
         inline liquidType getLiquidType() { return block_data->liquid_id; }
         inline void scheduleLightUpdate() { block_data->update_light = true; }
         inline bool hasScheduledLightUpdate() { return block_data->update_light; }
-        inline void scheduleLiquidUpdate() { block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime(); }
+        inline void scheduleLiquidUpdate() { /*block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime();*/ }
         inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
         void setLiquidLevel(unsigned char level);
         inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
