@@ -13,13 +13,15 @@
 
 void worldSaver::saveWorld(const std::string& world_path, serverMap& world_map) {
     // saves world chunk by chunk and then inventory and position of every player
-    std::ofstream world_file(world_path + "/blockdata", std::ios::binary);
     std::filesystem::create_directory(world_path);
     std::filesystem::create_directory(world_path + "/playerdata");
+    std::ofstream world_file(world_path + "/blockdata", std::ios::binary);
     
     for(int y = 0; y < world_map.getWorldHeight(); y++)
-        for(int x = 0; x < world_map.getWorldWidth(); x++)
-            world_file << (char)world_map.getBlock(x, y).getType() << (char)world_map.getBlock(x, y).getLiquidType() << (char)world_map.getBlock(x, y).getLiquidLevel();
+        for(int x = 0; x < world_map.getWorldWidth(); x++) {
+            serverMap::block curr_block = world_map.getBlock(x, y);
+            world_file << (char)curr_block.getType() << (char)curr_block.getLiquidType() << (char)curr_block.getLiquidLevel();
+        }
     world_file.close();
     
     for(serverMap::player* player : world_map.getAllPlayers()) {

@@ -70,6 +70,8 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
         block_data->block_id = block_id;
         block_data->liquid_id = liquid_id;
         parent_map->setNaturalLight(x);
+        if(liquid_id == liquidType::EMPTY)
+            setLiquidLevel(0);
         update();
         
         // update upper, lower, right and left block (neighbours)
