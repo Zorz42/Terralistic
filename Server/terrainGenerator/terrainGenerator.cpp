@@ -34,7 +34,10 @@ void generateSurface(std::mt19937& engine, serverMap& world_map);
 void generateCaves(std::mt19937& engine, serverMap& world_map);
 void generateStone(std::mt19937& engine, serverMap& world_map);
 void generateTrees(std::mt19937& engine, serverMap& world_map);
+
 void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& world_map);
+void generatePlains(int x, SimplexNoise& noise, serverMap& world_map);
+void generateDesert(int x, SimplexNoise& noise, serverMap& world_map);
 
 static unsigned int highest_height = 0;
 static unsigned short* heights;
@@ -102,22 +105,6 @@ int heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
     return heat;
 }
 
-void generatePlains(int x, SimplexNoise& noise, serverMap& world_map) {
-    int sliceHeight = (int)(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
-    int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 2);
-    for (int y = 0; y < world_map.getWorldHeight(); y++) {
-        if (y <= sliceHeight) {//generates surface
-            if (y >= dirtLayer) {
-                if (y == sliceHeight)
-                    world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::GRASS_BLOCK, false);
-                else
-                    world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::DIRT, false);
-            }else
-                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::STONE_BLOCK, false);
-        }//else
-            //world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::AIR, false);
-    }
-}
 
 
 void generateSurface(std::mt19937& engine, serverMap& world_map) {
@@ -280,4 +267,38 @@ void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& worl
 
 
     return;
+}
+
+void generatePlains(int x, SimplexNoise& noise, serverMap& world_map) {
+    int sliceHeight = (int)(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
+    int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
+    for (int y = 0; y < world_map.getWorldHeight(); y++) {
+        if (y <= sliceHeight) {//generates surface
+            if (y >= dirtLayer) {
+                if (y == sliceHeight)
+                    world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::GRASS_BLOCK, false);
+                else
+                    world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::DIRT, false);
+            }
+            else
+                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::STONE_BLOCK, false);
+        }//else
+            //world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::AIR, false);
+    }
+}
+
+
+void generateDesert(int x, SimplexNoise& noise, serverMap& world_map) {
+    int sliceHeight = (int)(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
+    int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
+    for (int y = 0; y < world_map.getWorldHeight(); y++) {
+        if (y <= sliceHeight) {//generates surface
+            if (y >= dirtLayer) {
+                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SAND, false);
+            }
+            else
+                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::STONE_BLOCK, false);
+        }//else
+            //world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::AIR, false);
+    }
 }
