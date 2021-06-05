@@ -116,7 +116,6 @@ void serverMap::block::update() {
     if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         breakBlock();
     scheduleLightUpdate();
-    scheduleLiquidUpdate();
 }
 
 void serverMap::block::breakBlock() {
