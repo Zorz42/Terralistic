@@ -84,6 +84,7 @@ public:
         serverMap* parent_map;
         
         void syncWithClient();
+        void updateNeighbors();
         
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}

@@ -74,21 +74,22 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
             setLiquidLevel(0);
         update();
         
-        // update upper, lower, right and left block (neighbours)
-        if(x != 0)
-            parent_map->getBlock(x - 1, y).update();
-        if(x != parent_map->getWorldWidth() - 1)
-            parent_map->getBlock(x + 1, y).update();
-        if(y != 0)
-            parent_map->getBlock(x, y - 1).update();
-        if(y != parent_map->getWorldHeight() - 1)
-            parent_map->getBlock(x, y + 1).update();
-        
-        scheduleLightUpdate();
-        scheduleLiquidUpdate();
+        updateNeighbors();
         
         syncWithClient();
     }
+}
+
+void serverMap::block::updateNeighbors() {
+    // update upper, lower, right and left block (neighbours)
+    if(x != 0)
+        parent_map->getBlock(x - 1, y).update();
+    if(x != parent_map->getWorldWidth() - 1)
+        parent_map->getBlock(x + 1, y).update();
+    if(y != 0)
+        parent_map->getBlock(x, y - 1).update();
+    if(y != parent_map->getWorldHeight() - 1)
+        parent_map->getBlock(x, y + 1).update();
 }
 
 void serverMap::block::syncWithClient() {
