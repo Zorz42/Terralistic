@@ -135,68 +135,7 @@ void map::block::draw() {
     gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
     gfx::rect rectBiomeHeight((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 200, (unsigned char)biomeheight, (unsigned char)biomeheight, (unsigned char)255 });
     gfx::rect rectHeat((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { (unsigned char)heat, (unsigned char)heat, 200, (unsigned char)255 });
-    //gfx::rect biome;
-
-
-    /*switch (heat)
-    {
-    case 0:
-        switch (biomeheight)
-        {
-        case 0://icy seas
-            
-            break;
-        case 1://snowy tundra
-
-            break;
-        case 2://cold hills (with taiga trees?)
-
-            break;
-
-        case 3://snowy mountains
-
-            break;
-        }
-        break;
-
-    case 1:
-        switch (biomeheight)
-        {
-        case 0://regular sea
-
-            break;
-        case 1://plains
-
-            break;
-        case 2://forest
-
-            break;
-
-        case 3://regular mountain
-
-            break;
-        }
-        break;
-
-    case 2:
-        switch (biomeheight)
-        {
-        case 0://warm ocean
-
-            break;
-        case 1://desert
-
-            break;
-        case 2://savana
-
-            break;
-
-        case 3://savana mountains
-
-            break;
-        }
-        break;
-    }*/
+    
 
     if(block_data->getUniqueBlock().texture.getTexture() && getLightLevel())
         gfx::render(block_data->getUniqueBlock().texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
@@ -212,12 +151,12 @@ void map::block::draw() {
         gfx::render(block_data->getUniqueLiquid().texture, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::rectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
     
-    if (getLightLevel() <= MAX_LIGHT / 4) {
+    /*if (getLightLevel() <= MAX_LIGHT / 4) {
         if (((x & 1) ^ (y & 1)) == 1)
             gfx::render(rectBiomeHeight);
         else
             gfx::render(rectHeat);
-    }
+    }*/
 }
 
 void map::block::scheduleTextureUpdate() {

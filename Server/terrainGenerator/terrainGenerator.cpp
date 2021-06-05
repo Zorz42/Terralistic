@@ -108,15 +108,15 @@ void generatePlains(int x, int y, SimplexNoise& noise, serverMap& world_map) {
     int sliceHeight = (int)(turbulence(x + 0.1, 0, 16, noise) * 10) + 320;
 
     if (y <= sliceHeight) {//generates surface
-        if(y >= sliceHeight - noise.noise(x / 2 + 0.25, 0))
+        if(y >= sliceHeight - (noise.noise(x / 2.0f + 0.25, 0) * 3 + 5))
             if(y == sliceHeight)
-                world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::GRASS_BLOCK, false);
+                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::GRASS_BLOCK, false);
             else
-                world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
+                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::DIRT, false);
         else
-            world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE_BLOCK, false);
+            world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::STONE_BLOCK, false);
     }else
-        world_map.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::AIR, false);
+        world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::AIR, false);
 }
 
 
