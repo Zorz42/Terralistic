@@ -55,10 +55,6 @@ void server::start() {
     
     world_map.setNaturalLight();
     
-    for(unsigned short x = 0; x < world_map.getWorldWidth(); x++)
-        for(unsigned short y = 0; y < world_map.getWorldHeight(); y++)
-            world_map.getBlock(x, y).update();
-    
     signal(SIGINT, inthand);
     networking_manager.startListening();
     

@@ -92,29 +92,6 @@ static const float gradients1D[16] = {
 */
 
 /**
- * Helper function to compute gradients-dot-residual vectors (1D)
- *
- * @note that these generate gradients of more than unit length. To make
- * a close match with the value range of classic Perlin noise, the final
- * noise values need to be rescaled to fit nicely within [-1,1].
- * (The simplex noise functions as such also have different scaling.)
- * Note also that these noise functions are the most practical and useful
- * signed version of Perlin noise.
- *
- * @param[in] hash  hash value
- * @param[in] x     distance to the corner
- *
- * @return gradient value
- */
-static float grad(int32_t hash, float x) {
-    const int32_t h = hash & 0x0F;  // Convert low 4 bits of hash code
-    float grad = 1.0f + (h & 7);    // Gradient value 1.0, 2.0, ..., 8.0
-    if ((h & 8) != 0) grad = -grad; // Set a random sign for the gradient
-//  float grad = gradients1D[h];    // NOTE : Test of Gradient look-up table instead of the above
-    return (grad * x);              // Multiply the gradient with the distance
-}
-
-/**
  * Helper functions to compute gradients-dot-residual vectors (2D)
  *
  * @param[in] hash  hash value

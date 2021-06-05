@@ -58,7 +58,9 @@ int terrainGenerator::generateTerrainDaemon(unsigned int seed, serverMap* world_
     generateCaves(engine, *world_map);
     generateStone(engine, *world_map);
     generateTrees(engine, *world_map);*/
-    world_map->setNaturalLight();
+    for(unsigned short x = 0; x < world_map->getWorldWidth(); x++)
+        for(unsigned short y = 0; y < world_map->getWorldHeight(); y++)
+            world_map->getBlock(x, y).update();
     LOADING_NEXT
     return 0;
 }
