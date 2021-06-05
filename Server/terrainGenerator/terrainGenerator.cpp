@@ -75,37 +75,46 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
 }
 
 
-float heatGeneratorFloat(unsigned int x, unsigned int y, std::mt19937& engine) {
-    SimplexNoise noise(engine());
+float heatGeneratorFloat(unsigned int x, unsigned int y, SimplexNoise& noise) {
     return (noise.noise((float)x / 1100 + 0.125) + 1) * 1.5;
 }
 
-int heatGeneratorInt(unsigned int x, unsigned int y, std::mt19937& engine) {
-    int heat = heatGeneratorFloat(x, y, engine);
+int heatGeneratorInt(unsigned int x, unsigned int y, SimplexNoise& noise) {
+    int heat = heatGeneratorFloat(x, y, noise);
     if (heat == 3)
         heat = 2;
     return heat;
-
 }
 
-float heightGeneratorFloat(unsigned int x, unsigned int y, std::mt19937& engine) {
-    SimplexNoise noise(engine());
+float heightGeneratorFloat(unsigned int x, unsigned int y, SimplexNoise& noise) {
     return (noise.noise((float)x / 300 + 0.001) + 1) * 2;
 }
 
-int heightGeneratorInt(unsigned int x, unsigned int y, std::mt19937& engine) {
-    int heat = heatGeneratorFloat(x, y, engine);
+int heightGeneratorInt(unsigned int x, unsigned int y, SimplexNoise& noise) {
+    int heat = heatGeneratorFloat(x, y, noise);
     if (heat == 4)
         heat = 3;
     return heat;
+}
 
+void generatePlains(int x, int y, SimplexNoise& noise, serverMap& world_serverMap) {
+    int sliceHeight = (int)(turbulence(x + 0.1, 0, 16, noise) * 10) + 320;
+
+    if (y <= sliceHeight) {//generates surface
+        if(y >= sliceHeight - noise.noise(x / 2 + 0.25, 0))
+            if(y == sliceHeight)
+                world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::GRASS_BLOCK, false);
+            else
+                world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::DIRT, false);
+        else
+            world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::STONE, false);
+    }else
+        world_serverMap.getBlock((unsigned short)x, (unsigned short)y).setType(serverMap::blockType::AIR, false);
 }
 
 
 void generateSurface(std::mt19937& engine, serverMap& world_serverMap) {
     SimplexNoise noise(engine());
-
-
 
     
     heights = new unsigned short[world_serverMap.getWorldWidth()];
@@ -190,8 +199,8 @@ void generateTrees(std::mt19937& engine, serverMap& world_serverMap) {
     LOADING_NEXT
 }
 
-void heightGenerator(unsigned int x, unsigned int y, std::mt19937& engine) {
-    SimplexNoise noise(engine());
+void terrainGeneratorSwitch(unsigned int x, unsigned int y, SimplexNoise& noise, serverMap& world_serverMap) {
+    
 
     /*
     sea level = 300, sea floor = 250
@@ -201,8 +210,8 @@ void heightGenerator(unsigned int x, unsigned int y, std::mt19937& engine) {
     */
 
 
-    int heat = heatGeneratorInt(x, y, engine);
-    int biomeheight = heightGeneratorInt(x, y, engine);
+    int heat = 1;//heatGeneratorInt(x, y, noise);
+    int biomeheight = 1;//heightGeneratorInt(x, y, noise);
 
 
         switch (heat)
@@ -211,7 +220,7 @@ void heightGenerator(unsigned int x, unsigned int y, std::mt19937& engine) {
             switch (biomeheight)
             {
             case 0://icy seas
-
+                //
                 break;
             case 1://snowy tundra
 
@@ -232,7 +241,7 @@ void heightGenerator(unsigned int x, unsigned int y, std::mt19937& engine) {
 
                 break;
             case 1://plains
-
+                generatePlains(x, y, noise, world_serverMap);
                 break;
             case 2://forest
 
