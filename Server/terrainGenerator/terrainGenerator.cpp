@@ -38,6 +38,7 @@ void generateTrees(std::mt19937& engine, serverMap& world_map);
 void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& world_map);
 void generatePlains(int x, SimplexNoise& noise, serverMap& world_map);
 void generateDesert(int x, SimplexNoise& noise, serverMap& world_map);
+void generateSnowyTundra(int x, SimplexNoise& noise, serverMap& world_map);
 
 static unsigned int highest_height = 0;
 static unsigned short* heights;
@@ -204,9 +205,8 @@ void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& worl
     */
 
 
-    int heat = 1;//heatGeneratorInt(x, noise);
+    int heat = heatGeneratorInt(x, noise);
     int biomeheight = 1;//heightGeneratorInt(x, noise);
-
 
         switch (heat)
         {
@@ -217,6 +217,7 @@ void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& worl
                 //
                 break;
             case 1://snowy tundra
+                generateSnowyTundra(x, noise, world_map);
 
                 break;
             case 2://cold hills (with taiga trees?)
@@ -253,7 +254,7 @@ void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& worl
 
                 break;
             case 1://desert
-
+                generateDesert(x, noise, world_map);
                 break;
             case 2://savana
 
@@ -290,11 +291,26 @@ void generatePlains(int x, SimplexNoise& noise, serverMap& world_map) {
 
 void generateDesert(int x, SimplexNoise& noise, serverMap& world_map) {
     int sliceHeight = (int)(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
-    int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
+    int sandLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
     for (int y = 0; y < world_map.getWorldHeight(); y++) {
         if (y <= sliceHeight) {//generates surface
-            if (y >= dirtLayer) {
+            if (y >= sandLayer) {
                 world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SAND, false);
+            }
+            else
+                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::STONE_BLOCK, false);
+        }//else
+            //world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::AIR, false);
+    }
+}
+
+void generateSnowyTundra(int x, SimplexNoise& noise, serverMap& world_map) {
+    int sliceHeight = (int)(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
+    int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
+    for (int y = 0; y < world_map.getWorldHeight(); y++) {
+        if (y <= sliceHeight) {//generates surface
+            if (y >= snowLayer) {
+                world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SNOWY_GRASS_BLOCK, false);
             }
             else
                 world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::STONE_BLOCK, false);

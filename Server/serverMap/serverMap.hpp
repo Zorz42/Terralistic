@@ -21,7 +21,7 @@
 
 class serverMap : serverPacketListener {
 public:
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND};
+    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
     enum class liquidType {EMPTY, WATER};
     enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
