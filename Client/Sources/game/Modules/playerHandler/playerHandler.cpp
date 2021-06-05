@@ -28,7 +28,7 @@ void playerHandler::init() {
     initInventory();
 }
 
-#define VELOCITY 20
+#define VELOCITY 60
 #define JUMP_VELOCITY 80
 
 void playerHandler::onKeyDown(gfx::key key) {
