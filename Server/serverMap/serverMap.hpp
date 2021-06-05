@@ -24,6 +24,7 @@ public:
     enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
     enum class liquidType {EMPTY, WATER};
+    enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 
     static void initBlocks();
     static void initItems();
@@ -67,6 +68,7 @@ protected:
         unsigned short break_progress = 0;
         unsigned char break_stage = 0, liquid_level = 0, light_level = 0;
         unsigned int when_to_update_liquid = 1;
+        flowDirection flow_direction = flowDirection::NONE;
         
         
         uniqueBlock& getUniqueBlock() const;
@@ -84,6 +86,7 @@ public:
         serverMap* parent_map;
         
         void syncWithClient();
+        void updateNeighbors();
         
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
@@ -115,11 +118,13 @@ public:
         inline liquidType getLiquidType() { return block_data->liquid_id; }
         inline void scheduleLightUpdate() { block_data->update_light = true; }
         inline bool hasScheduledLightUpdate() { return block_data->update_light; }
-        inline void scheduleLiquidUpdate() { block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime(); }
+        inline void scheduleLiquidUpdate() { /*block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime();*/ }
         inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
         void setLiquidLevel(unsigned char level);
         inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
         inline unsigned short getFlowTime() { return block_data->getUniqueLiquid().flow_time; }
+        inline flowDirection getFlowDirection() { return block_data->flow_direction; }
+        inline void setFlowDirection(flowDirection flow_direction) { block_data->flow_direction = flow_direction; }
         
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }

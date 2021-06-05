@@ -58,7 +58,7 @@ void serverMap::updateBlocks() {
                         curr_block.lightUpdate();
                         finished = false;
                     }
-                    if(curr_block.canUpdateLiquid()) {
+                    if(curr_block.getLiquidType() != liquidType::EMPTY && curr_block.canUpdateLiquid()) {
                         curr_block.liquidUpdate();
                         finished = false;
                     }
