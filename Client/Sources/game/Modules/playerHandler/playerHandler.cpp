@@ -71,12 +71,16 @@ void playerHandler::onKeyUp(gfx::key key) {
             }
             break;
         case gfx::KEY_A:
-            key_left = false;
-            player->velocity_x += VELOCITY;
+            if(key_left) {
+                key_left = false;
+                player->velocity_x += VELOCITY;
+            }
             break;
         case gfx::KEY_D:
-            key_right = false;
-            player->velocity_x -= VELOCITY;
+            if(key_right) {
+                key_right = false;
+                player->velocity_x -= VELOCITY;
+            }
             break;
         default:;
     }

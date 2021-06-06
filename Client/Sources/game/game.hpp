@@ -30,7 +30,6 @@ class game : public gfx::scene {
 public:
     const std::string ip_address;
     const unsigned short port;
-    gfx::sprite fps_text;
     networkingManager networking_manager;
     map *world_map;
     mainPlayer main_player;
@@ -38,8 +37,6 @@ public:
     game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = username; }
     void init() override;
     void stop() override;
-    void render() override;
-    void update() override;
 };
 
 #endif /* game_hpp */

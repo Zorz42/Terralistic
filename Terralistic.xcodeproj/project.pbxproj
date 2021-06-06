@@ -117,6 +117,8 @@
 		168ABE9625F7A1A900BBEA74 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9425F7A1A900BBEA74 /* render.cpp */; };
 		168D6D2B25FA8C6500A10457 /* drawables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168D6D2A25FA8C6500A10457 /* drawables.cpp */; };
 		168D6D2C25FA8C6500A10457 /* drawables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168D6D2A25FA8C6500A10457 /* drawables.cpp */; };
+		16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16906515266CC0C20075EF55 /* debugMenu.cpp */; };
+		16906518266CC2390075EF55 /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16906515266CC0C20075EF55 /* debugMenu.cpp */; };
 		1691248F25F6B2CE00F7EB4F /* Graphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1691248825F6B2CE00F7EB4F /* Graphics.framework */; };
 		1691249025F6B2CE00F7EB4F /* Graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1691248825F6B2CE00F7EB4F /* Graphics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1691249E25F6B46800F7EB4F /* graphics.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1691249825F6B38200F7EB4F /* graphics.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -353,6 +355,8 @@
 		168ABE9125F79DB200BBEA74 /* scenes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = scenes.cpp; sourceTree = "<group>"; };
 		168ABE9425F7A1A900BBEA74 /* render.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = render.cpp; sourceTree = "<group>"; };
 		168D6D2A25FA8C6500A10457 /* drawables.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = drawables.cpp; sourceTree = "<group>"; };
+		16906515266CC0C20075EF55 /* debugMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debugMenu.cpp; sourceTree = "<group>"; };
+		16906516266CC0C20075EF55 /* debugMenu.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugMenu.hpp; sourceTree = "<group>"; };
 		1691248825F6B2CE00F7EB4F /* Graphics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Graphics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1691249825F6B38200F7EB4F /* graphics.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics.hpp; sourceTree = "<group>"; };
 		169124A125F6B70F00F7EB4F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Graphics/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
@@ -809,6 +813,15 @@
 			path = Client;
 			sourceTree = "<group>";
 		};
+		16906514266CC0A90075EF55 /* debugMenu */ = {
+			isa = PBXGroup;
+			children = (
+				16906516266CC0C20075EF55 /* debugMenu.hpp */,
+				16906515266CC0C20075EF55 /* debugMenu.cpp */,
+			);
+			path = debugMenu;
+			sourceTree = "<group>";
+		};
 		1691249725F6B38200F7EB4F /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
@@ -845,6 +858,7 @@
 		3619ACFA26186CBA00BA4EAF /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				16906514266CC0A90075EF55 /* debugMenu */,
 				1681100A263BE9260086D659 /* clientMap */,
 				168968AA25E9607800D26060 /* playerHandler */,
 				168968A725E9607800D26060 /* pauseScreen */,
@@ -1177,6 +1191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16906518266CC2390075EF55 /* debugMenu.cpp in Sources */,
 				1675E72026611BC300B620F4 /* configManager.cpp in Sources */,
 				16811022263BE9A60086D659 /* inventoryItem.cpp in Sources */,
 				165FF86226399997003941F8 /* textScreen.cpp in Sources */,
@@ -1303,6 +1318,7 @@
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				16932058263811C100B73C9F /* fileManager.cpp in Sources */,
 				36B157ED2648500300528A2B /* packets.cpp in Sources */,
+				16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */,
 				16987C11265900F90016509C /* inventory.cpp in Sources */,
 				36B157D726484E2000528A2B /* clientMap.cpp in Sources */,
 				1667B4842667FD8F00735160 /* liquid.cpp in Sources */,
