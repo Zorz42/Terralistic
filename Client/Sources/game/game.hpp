@@ -34,12 +34,15 @@ public:
     networkingManager networking_manager;
     map *world_map;
     mainPlayer main_player;
+    bool debug_menu_open = false, m_down = false;
     
     game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = username; }
     void init() override;
     void stop() override;
     void render() override;
     void update() override;
+    void onKeyDown(gfx::key key) override;
+    void onKeyUp(gfx::key key) override;
 };
 
 #endif /* game_hpp */

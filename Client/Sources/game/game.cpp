@@ -117,7 +117,8 @@ void game::update() {
 }
 
 void game::render() {
-    gfx::render(fps_text);
+    if(debug_menu_open)
+        gfx::render(fps_text);
 }
 
 void game::stop() {
@@ -135,4 +136,16 @@ void game::stop() {
         delete private_server;
         private_server = nullptr;
     }
+}
+
+void game::onKeyDown(gfx::key key) {
+    if(key == gfx::KEY_M && !m_down) {
+        m_down = true;
+        debug_menu_open = !debug_menu_open;
+    }
+}
+
+void game::onKeyUp(gfx::key key) {
+    if(key == gfx::KEY_M)
+        m_down = false;
 }
