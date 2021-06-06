@@ -15,6 +15,7 @@
 #include "fileManager.hpp"
 #include "assert.hpp"
 #include "notifyingScreen.hpp"
+#include "debugMenu.hpp"
 
 #ifdef _WIN32
 #include "server.hpp"
@@ -84,11 +85,6 @@ void startPrivateWorld(const std::string& world_name) {
 }
 
 void game::init() {
-    fps_text.scale = 3;
-    fps_text.x = 10;
-    fps_text.y = 10;
-    fps_text.orientation = gfx::top_left;
-    
     world_map = new map(&networking_manager);
     world_map->createWorld(275, 75); // dimensions in chunks
     
@@ -97,6 +93,7 @@ void game::init() {
         new players(&networking_manager, world_map),
         new pauseScreen(),
         new playerHandler(&networking_manager, &main_player, world_map),
+        new debugMenu(&main_player),
     };
     
     renderTextScreen("Connecting to server");
@@ -104,21 +101,6 @@ void game::init() {
         gfx::runScene(new notifyingScreen("Could not connect to the server!"));
         gfx::returnFromScene();
     }
-}
-
-void game::update() {
-    static unsigned int count = gfx::getTicks() / 1000 - 1, fps_count = 0;
-    fps_count++;
-    if(gfx::getTicks() / 1000 > count) {
-        count++;
-        fps_text.setTexture(gfx::renderText(std::to_string(fps_count) + " fps", {0, 0, 0}));
-        fps_count = 0;
-    }
-}
-
-void game::render() {
-    if(debug_menu_open)
-        gfx::render(fps_text);
 }
 
 void game::stop() {
@@ -136,16 +118,4 @@ void game::stop() {
         delete private_server;
         private_server = nullptr;
     }
-}
-
-void game::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_M && !m_down) {
-        m_down = true;
-        debug_menu_open = !debug_menu_open;
-    }
-}
-
-void game::onKeyUp(gfx::key key) {
-    if(key == gfx::KEY_M)
-        m_down = false;
 }
