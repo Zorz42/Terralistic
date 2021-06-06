@@ -81,6 +81,7 @@ void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& worl
     */
 
     int heat = heatGeneratorInt(x, noise), biomeheight = 1; //heightGeneratorInt(x, noise);
+    heat = 0;
     
     switch (heat) {
     case 0:
