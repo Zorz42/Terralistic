@@ -160,9 +160,8 @@ void generateDesert(int x, SimplexNoise& noise, serverMap& world_map) {
     int sandLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
     for (int y = 0; y < world_map.getWorldHeight(); y++) {
         if (y <= sliceHeight) {//generates surface
-            if (y >= sandLayer) {
+            if (y >= sandLayer)
                 world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SAND, false);
-            }s
             else
                 world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::STONE_BLOCK, false);
         }
@@ -175,9 +174,9 @@ void generateSnowyTundra(int x, SimplexNoise& noise, serverMap& world_map) {
     for (int y = 0; y < world_map.getWorldHeight(); y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= snowLayer) {
-                if (y < snowLayer + 3) {
+                if (y < snowLayer + 3)
                     world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SNOWY_GRASS_BLOCK, false);
-                }else
+                else
                     world_map.getBlock((unsigned short)x, world_map.getWorldHeight() - (unsigned short)y - 1).setType(serverMap::blockType::SNOW_BLOCK, false);
             }
             else
