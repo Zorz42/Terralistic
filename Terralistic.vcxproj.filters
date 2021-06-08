@@ -112,6 +112,9 @@
     <Filter Include="Source Files\Libraries\configManager">
       <UniqueIdentifier>{93214607-b6ff-40a7-a03b-9cde84171b20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Client\Sources\game\Modules\debugMenu">
+      <UniqueIdentifier>{fbd2ad43-c90f-456c-8d35-fb269c3157b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client\Graphics\drawables.cpp">
@@ -245,6 +248,9 @@
     </ClCompile>
     <ClCompile Include="Client\Sources\game\Modules\clientMap\liquid.cpp">
       <Filter>Source Files\Client\Sources\game\Modules\clientMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\game\Modules\debugMenu\debugMenu.cpp">
+      <Filter>Source Files\Client\Sources\game\Modules\debugMenu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
