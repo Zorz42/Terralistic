@@ -88,9 +88,7 @@ void gfx::runScene(scene* x) {
         Uint64 start = SDL_GetPerformanceCounter();
         
         while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT)
-                quit = true;
-            else if(event.type == SDL_MOUSEMOTION)
+            if(event.type == SDL_MOUSEMOTION)
                 SDL_GetMouseState((int*)&mouse_x, (int*)&mouse_y);
             else if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 window_width = (unsigned short)event.window.data1;
@@ -133,6 +131,8 @@ void gfx::runScene(scene* x) {
                         }
             } else if(event.type == SDL_MOUSEWHEEL)
                 x->onMouseScroll(event.wheel.y);
+            else if(event.type == SDL_QUIT)
+                quit = true;
         }
         
         x->update();
@@ -150,6 +150,10 @@ void gfx::runScene(scene* x) {
         
         Uint64 end = SDL_GetPerformanceCounter();
         frame_length = float(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+        if(frame_length < 5) {
+            SDL_Delay(5 - frame_length);
+            frame_length = 5;
+        }
     }
     
     running_scene = true;
