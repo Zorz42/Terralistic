@@ -7,13 +7,6 @@
 
 #include "serverMap.hpp"
 
-serverMap::player* serverMap::getPlayerById(unsigned short id) {
-    for(player* player : online_players)
-        if(player->id == id)
-            return player;
-    return nullptr;
-}
-
 serverMap::player* serverMap::getPlayerByConnection(connection* conn) {
     for(player* player : online_players)
         if(player->conn == conn)
@@ -68,13 +61,13 @@ void serverMap::updateBlocks() {
 }
 
 int serverMap::getSpawnX() {
-    return getWorldWidth() / 2 * BLOCK_WIDTH;
+    return width / 2 * BLOCK_WIDTH;
 }
 
 int serverMap::getSpawnY() {
     int result = 0;
-    for(unsigned short y = 0; y < getWorldHeight(); y++) {
-        if(!getBlock(getWorldWidth() / 2 - 1, y).isTransparent() || !getBlock(getWorldWidth() / 2, y).isTransparent())
+    for(unsigned short y = 0; y < height; y++) {
+        if(!getBlock(width / 2 - 1, y).isTransparent() || !getBlock(width / 2, y).isTransparent())
             break;
         result += BLOCK_WIDTH;
     }

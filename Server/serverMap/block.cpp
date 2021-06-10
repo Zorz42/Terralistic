@@ -51,8 +51,8 @@ void serverMap::initBlocks() {
 }
 
 serverMap::block serverMap::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth(), "requested block is out of bounds");
-    return block(x, y, &blocks[y * getWorldWidth() + x], this);
+    ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds");
+    return block(x, y, &blocks[y * width + x], this);
 }
 
 void serverMap::block::setType(serverMap::blockType block_id, bool process) {
@@ -87,11 +87,11 @@ void serverMap::block::updateNeighbors() {
     // update upper, lower, right and left block (neighbours)
     if(x != 0)
         parent_map->getBlock(x - 1, y).update();
-    if(x != parent_map->getWorldWidth() - 1)
+    if(x != parent_map->width - 1)
         parent_map->getBlock(x + 1, y).update();
     if(y != 0)
         parent_map->getBlock(x, y - 1).update();
-    if(y != parent_map->getWorldHeight() - 1)
+    if(y != parent_map->height - 1)
         parent_map->getBlock(x, y + 1).update();
 }
 

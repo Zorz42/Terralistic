@@ -15,12 +15,12 @@
 		1626245726430D74007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		1626245926430D81007E01C4 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38812642F73900E3C718 /* player.cpp */; };
 		1626245B26430D85007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
-		1626245F26430D8D007E01C4 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
+		1626245F26430D8D007E01C4 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
 		1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		1626246126430D93007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		1626246726430DCE007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
-		1626246826430DD3007E01C4 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
+		1626246826430DD3007E01C4 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
 		1626246A26430DD7007E01C4 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38812642F73900E3C718 /* player.cpp */; };
 		1626246C26430DDA007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		1626247026430DE4007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
@@ -87,10 +87,8 @@
 		167B38A52642F73900E3C718 /* serverMap.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B38822642F73900E3C718 /* serverMap.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
 		167B38A82642F73900E3C718 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		167B38A92642F73900E3C718 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
-		167B38B22642F73900E3C718 /* worldSaver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388A2642F73900E3C718 /* worldSaver.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
-		167B38B32642F73900E3C718 /* worldSaver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 167B388A2642F73900E3C718 /* worldSaver.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
-		167B38B42642F73900E3C718 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
-		167B38B52642F73900E3C718 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* worldSaver.cpp */; };
+		167B38B42642F73900E3C718 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
+		167B38B52642F73900E3C718 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
 		167B38BC2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		167B38BD2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		167B38BE2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
@@ -312,8 +310,7 @@
 		167B38812642F73900E3C718 /* player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
 		167B38822642F73900E3C718 /* serverMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverMap.hpp; sourceTree = "<group>"; };
 		167B38842642F73900E3C718 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
-		167B388A2642F73900E3C718 /* worldSaver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
-		167B388B2642F73900E3C718 /* worldSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
+		167B388B2642F73900E3C718 /* saver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = saver.cpp; sourceTree = "<group>"; };
 		167B38912642F73900E3C718 /* terrainGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terrainGenerator.cpp; sourceTree = "<group>"; };
 		167B38932642F73900E3C718 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
 		167B38C02642FB5100E3C718 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
@@ -539,7 +536,6 @@
 				167B387A2642F73900E3C718 /* serverNetworking */,
 				167B387D2642F73900E3C718 /* print */,
 				167B38802642F73900E3C718 /* serverMap */,
-				167B38892642F73900E3C718 /* worldSaver */,
 				167B38922642F73900E3C718 /* server */,
 				167B38C02642FB5100E3C718 /* info.plist */,
 			);
@@ -576,18 +572,10 @@
 				167B38812642F73900E3C718 /* player.cpp */,
 				167B38842642F73900E3C718 /* light.cpp */,
 				1664388626695A2F00587F5E /* liquid.cpp */,
+				167B388B2642F73900E3C718 /* saver.cpp */,
 				167B388C2642F73900E3C718 /* terrainGenerator */,
 			);
 			path = serverMap;
-			sourceTree = "<group>";
-		};
-		167B38892642F73900E3C718 /* worldSaver */ = {
-			isa = PBXGroup;
-			children = (
-				167B388A2642F73900E3C718 /* worldSaver.hpp */,
-				167B388B2642F73900E3C718 /* worldSaver.cpp */,
-			);
-			path = worldSaver;
 			sourceTree = "<group>";
 		};
 		167B388C2642F73900E3C718 /* terrainGenerator */ = {
@@ -881,7 +869,6 @@
 			files = (
 				167B389C2642F73900E3C718 /* serverNetworking.hpp in Headers */,
 				167B38A02642F73900E3C718 /* print.hpp in Headers */,
-				167B38B22642F73900E3C718 /* worldSaver.hpp in Headers */,
 				167B38A42642F73900E3C718 /* serverMap.hpp in Headers */,
 				1626245326430BBF007E01C4 /* server.hpp in Headers */,
 				167B59912665579400BCECBB /* SimplexNoise.h in Headers */,
@@ -896,7 +883,6 @@
 				167B389D2642F73900E3C718 /* serverNetworking.hpp in Headers */,
 				167B38A52642F73900E3C718 /* serverMap.hpp in Headers */,
 				167B38A12642F73900E3C718 /* print.hpp in Headers */,
-				167B38B32642F73900E3C718 /* worldSaver.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1231,7 +1217,7 @@
 				1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */,
 				1626245926430D81007E01C4 /* player.cpp in Sources */,
 				1626245B26430D85007E01C4 /* light.cpp in Sources */,
-				1626245F26430D8D007E01C4 /* worldSaver.cpp in Sources */,
+				1626245F26430D8D007E01C4 /* saver.cpp in Sources */,
 				1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */,
 				1626246126430D93007E01C4 /* server.cpp in Sources */,
 				1626245726430D74007E01C4 /* print.cpp in Sources */,
@@ -1250,7 +1236,7 @@
 				1675E71926611B2D00B620F4 /* packets.cpp in Sources */,
 				168A5E7526511AD400A466FD /* packets.cpp in Sources */,
 				168A5E7926511AD400A466FD /* serverMap.cpp in Sources */,
-				1626246826430DD3007E01C4 /* worldSaver.cpp in Sources */,
+				1626246826430DD3007E01C4 /* saver.cpp in Sources */,
 				1626245126430B77007E01C4 /* launcher.cpp in Sources */,
 				1626246A26430DD7007E01C4 /* player.cpp in Sources */,
 				1626246C26430DDA007E01C4 /* light.cpp in Sources */,
@@ -1271,7 +1257,7 @@
 				167B59902665579400BCECBB /* SimplexNoise.cpp in Sources */,
 				167B38BE2642F73900E3C718 /* server.cpp in Sources */,
 				1664388726695A2F00587F5E /* liquid.cpp in Sources */,
-				167B38B42642F73900E3C718 /* worldSaver.cpp in Sources */,
+				167B38B42642F73900E3C718 /* saver.cpp in Sources */,
 				16987C1D2659010D0016509C /* packets.cpp in Sources */,
 				36B157EF2648500300528A2B /* packets.cpp in Sources */,
 				167B38A82642F73900E3C718 /* light.cpp in Sources */,
@@ -1296,7 +1282,7 @@
 				167B38A32642F73900E3C718 /* player.cpp in Sources */,
 				36B157CB26484E0900528A2B /* serverMap.cpp in Sources */,
 				167B38BF2642F73900E3C718 /* server.cpp in Sources */,
-				167B38B52642F73900E3C718 /* worldSaver.cpp in Sources */,
+				167B38B52642F73900E3C718 /* saver.cpp in Sources */,
 				36B157F02648500300528A2B /* packets.cpp in Sources */,
 				167B38A92642F73900E3C718 /* light.cpp in Sources */,
 				167B389B2642F73900E3C718 /* serverNetworking.cpp in Sources */,

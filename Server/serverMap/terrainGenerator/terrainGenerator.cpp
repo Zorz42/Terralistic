@@ -14,7 +14,7 @@
 // TERRAIN
 #define TERRAIN_VERTICAL_MULTIPLIER 140
 #define TERRAIN_HORIZONTAL_DIVIDER 4
-#define TERRAIN_HORIZONT ((float)world_map.getWorldHeight() / 2 - 50)
+#define TERRAIN_HORIZONT ((float)world_map.height / 2 - 50)
 #define TURB_SIZE 64.0 //initial size of the turbulence
 
 // CAVES
@@ -38,11 +38,11 @@ int serverMap::generateTerrain(unsigned int seed) {
 
     generating_current = 0;
     
-    for (int x = 0; x < getWorldWidth(); x++) {
+    for (int x = 0; x < width; x++) {
         terrainGeneratorSwitch(x, noise);
     }
-    for(unsigned short x = 0; x < getWorldWidth(); x++)
-        for(unsigned short y = 0; y < getWorldHeight(); y++)
+    for(unsigned short x = 0; x < width; x++)
+        for(unsigned short y = 0; y < height; y++)
             getBlock(x, y).update();
     generating_current++;
     return 0;
@@ -137,16 +137,16 @@ void serverMap::terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
 void serverMap::generatePlains(int x, SimplexNoise& noise) {
     int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
     int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
-    for (int y = 0; y < getWorldHeight(); y++) {
+    for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= dirtLayer) {
                 if (y == sliceHeight)
-                    getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
+                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
                 else
-                    getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::DIRT, false);
+                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
             }
             else
-                getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
     }
 }
@@ -155,12 +155,12 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
 void serverMap::generateDesert(int x, SimplexNoise& noise) {
     int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
     int sandLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
-    for (int y = 0; y < getWorldHeight(); y++) {
+    for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= sandLayer)
-                getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::SAND, false);
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SAND, false);
             else
-                getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
     }
 }
@@ -168,18 +168,18 @@ void serverMap::generateDesert(int x, SimplexNoise& noise) {
 void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
     int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
     int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
-    for (int y = 0; y < getWorldHeight(); y++) {
+    for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= snowLayer) {
                 if(y == snowLayer + 2)
-                    getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::SNOWY_GRASS_BLOCK, false);
+                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SNOWY_GRASS_BLOCK, false);
                 else if (y < snowLayer + 2)
-                    getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::DIRT, false);
+                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
                 else
-                    getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::SNOW_BLOCK, false);
+                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SNOW_BLOCK, false);
             }
             else
-                getBlock((unsigned short)x, getWorldHeight() - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
     }
 }

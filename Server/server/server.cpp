@@ -11,7 +11,7 @@
 #include <filesystem>
 
 #include "print.hpp"
-#include "worldSaver.hpp"
+#include "serverMap.hpp"
 #include "server.hpp"
 
 static bool running = false;
@@ -39,10 +39,10 @@ void server::start() {
     
     world_map.createWorld(275, 75);
     
-    if(worldSaver::worldExists(working_dir + "world")) {
+    if(std::filesystem::exists(working_dir + "world")) {
         state = LOADING_WORLD;
         print::info("Loading world...");
-        worldSaver::loadWorld(working_dir + "world", world_map);
+        world_map.loadWorld(working_dir + "world");
     }
     else {
         state = GENERATING_WORLD;
@@ -89,7 +89,7 @@ void server::start() {
     networking_manager.stopListening();
     
     print::info("Saving world...");
-    worldSaver::saveWorld(working_dir + "world", world_map);
+    world_map.saveWorld(working_dir + "world");
     
     state = STOPPED;
 }

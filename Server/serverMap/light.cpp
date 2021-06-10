@@ -14,11 +14,11 @@ void serverMap::block::lightUpdate() {
     block neighbors[4];
     if(x != 0)
         neighbors[0] = parent_map->getBlock(x - 1, y);
-    if(x != parent_map->getWorldWidth() - 1)
+    if(x != parent_map->width - 1)
         neighbors[1] = parent_map->getBlock(x + 1, y);
     if(y != 0)
         neighbors[2] = parent_map->getBlock(x, y - 1);
-    if(y != parent_map->getWorldHeight() - 1)
+    if(y != parent_map->height - 1)
         neighbors[3] = parent_map->getBlock(x, y + 1);
     
     bool update_neighbors = false;
@@ -62,16 +62,16 @@ void serverMap::block::removeLightSource() {
 }
 
 void serverMap::setNaturalLight() {
-    for(unsigned short x = 0; x < getWorldWidth(); x++)
+    for(unsigned short x = 0; x < width; x++)
         setNaturalLight(x);
 }
 
 void serverMap::setNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).getType() == blockType::AIR; y++)
+    for(unsigned short y = 0; y < height && getBlock(x, y).getType() == blockType::AIR; y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
 void serverMap::removeNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < getWorldHeight() && getBlock(x, y).getType() == blockType::AIR; y++)
+    for(unsigned short y = 0; y < height && getBlock(x, y).getType() == blockType::AIR; y++)
         getBlock(x, y).removeLightSource();
 }
