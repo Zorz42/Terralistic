@@ -23,6 +23,7 @@ void serverMap::initBlocks() {
         uniqueBlock("sand",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
         uniqueBlock("snowy_grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
         uniqueBlock("snow_block",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
+        uniqueBlock("ice_block",         /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
 
     };
     

@@ -180,6 +180,7 @@ void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
             }
             else
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
-        }
+        }else if (y < 300)
+            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
     }
 }

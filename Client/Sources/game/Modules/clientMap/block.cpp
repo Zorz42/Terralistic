@@ -23,7 +23,8 @@ void map::initBlocks() {
         {"leaves",            /*ghost*/true,  /*connects_to*/{                                                               }},
         {"sand",              /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK}},
         {"snowy_grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK}},
-        {"snow_block",        /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   }},
+        {"snow_block",        /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK, blockType::ICE                   }},
+        {"ice_block",               /*ghost*/false, /*connects_to*/{                                                               }},
     };
     
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
