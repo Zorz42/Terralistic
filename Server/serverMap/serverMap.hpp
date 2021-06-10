@@ -12,6 +12,7 @@
 #include <string>
 #include <chrono>
 #include "serverNetworking.hpp"
+#include "SimplexNoise.h"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -212,6 +213,11 @@ protected:
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     
+    void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise);
+    void generatePlains(int x, SimplexNoise& noise);
+    void generateDesert(int x, SimplexNoise& noise);
+    void generateSnowyTundra(int x, SimplexNoise& noise);
+    
 public:
     serverMap(serverNetworkingManager* manager) : manager(manager), serverPacketListener(manager) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION}; }
     
@@ -238,6 +244,10 @@ public:
     void updatePlayersBreaking(unsigned short tick_length);
     void lookForItems(serverMap& world_serverMap);
     void updateBlocks();
+    
+    unsigned int generating_current = 0, generating_total = 6;
+    
+    int generateTerrain(unsigned int seed);
     
     ~serverMap();
 };

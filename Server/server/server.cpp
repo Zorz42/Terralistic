@@ -12,7 +12,6 @@
 
 #include "print.hpp"
 #include "worldSaver.hpp"
-#include "terrainGenerator.hpp"
 #include "server.hpp"
 
 static bool running = false;
@@ -48,7 +47,7 @@ void server::start() {
     else {
         state = GENERATING_WORLD;
         print::info("Generating world...");
-        terrainGenerator::generateTerrainDaemon(rand(), &world_map);
+        world_map.generateTerrain(rand());
     }
     
     print::info("Post initializing modules...");
@@ -104,9 +103,9 @@ void server::setPrivate(bool is_private) {
 }
 
 unsigned int server::getGeneratingTotal() {
-    return terrainGenerator::generating_total;
+    return world_map.generating_total;
 }
 
 unsigned int server::getGeneratingCurrent() {
-    return terrainGenerator::generating_current;
+    return world_map.generating_current;
 }
