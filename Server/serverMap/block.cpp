@@ -76,9 +76,7 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
         if(liquid_id == liquidType::EMPTY)
             setLiquidLevel(0);
         update();
-        
         updateNeighbors();
-        
         syncWithClient();
     }
 }

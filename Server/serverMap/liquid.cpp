@@ -29,7 +29,6 @@ void serverMap::block::setLiquidLevel(unsigned char level) {
 }
 
 void serverMap::block::liquidUpdate() {
-    //block_data->when_to_update_liquid = 0;
     block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime();
     if(!isGhost())
         setType(liquidType::EMPTY);
