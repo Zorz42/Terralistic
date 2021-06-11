@@ -27,11 +27,6 @@
 #define STONE_START 0.1
 #define STONE_LENGTH 1
 
-void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise, serverMap& world_map);
-void generatePlains(int x, SimplexNoise& noise, serverMap& world_map);
-void generateDesert(int x, SimplexNoise& noise, serverMap& world_map);
-void generateSnowyTundra(int x, SimplexNoise& noise, serverMap& world_map);
-
 int serverMap::generateTerrain(unsigned int seed) {
     std::mt19937 engine(seed);
     SimplexNoise noise(engine());
@@ -39,7 +34,10 @@ int serverMap::generateTerrain(unsigned int seed) {
     generating_current = 0;
     
     for (int x = 0; x < width; x++) {
-        terrainGeneratorSwitch(x, noise);
+        biomeGeneratorSwitch(x, noise);
+    }
+    for (int x = 0; x < width; x++) {
+        terrainGenerator(x, noise);
     }
     for(unsigned short x = 0; x < width; x++)
         for(unsigned short y = 0; y < height; y++)
@@ -69,7 +67,7 @@ int heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
     return heat == 4 ? 3 : heat;
 }
 
-void serverMap::terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
+void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     /*
     sea level = 300, sea floor = 250
     plains = 325
@@ -83,17 +81,18 @@ void serverMap::terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     case 0:
         switch (biomeheight) {
         case 0://icy seas
-            //
+            biomes[x] = biome::ICY_SEAS;
             break;
         case 1://snowy tundra
+            biomes[x] = biome::SNOWY_TUNDRA;
             generateSnowyTundra(x, noise);
 
             break;
         case 2://cold hills (with taiga trees?)
-
+            biomes[x] = biome::COLD_HILLS;
             break;
         case 3://snowy mountains
-
+            biomes[x] = biome::SNOWY_MOUNTAINS;
             break;
         }
         break;
@@ -101,16 +100,17 @@ void serverMap::terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     case 1:
         switch (biomeheight) {
         case 0://regular sea
-
+            biomes[x] = biome::SEA;
             break;
         case 1://plains
+            biomes[x] = biome::PLAINS;
             generatePlains(x, noise);
             break;
         case 2://forest
-
+            biomes[x] = biome::FOREST;
             break;
         case 3://regular mountain
-
+            biomes[x] = biome::MOUNTAINS;
             break;
         }
         break;
@@ -118,20 +118,48 @@ void serverMap::terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     case 2:
         switch (biomeheight) {
         case 0://warm ocean
-
+            biomes[x] = biome::WARM_OCEAN;
             break;
         case 1://desert
+            biomes[x] = biome::DESERT;
             generateDesert(x, noise);
             break;
         case 2://savana
-
+            biomes[x] = biome::SAVANA;
             break;
         case 3://savana mountains
-
+            biomes[x] = biome::SAVANA_MOUNTAINS;
             break;
         }
         break;
     }
+}
+
+void serverMap::terrainGenerator(int x, SimplexNoise& noise) {
+    if (biomes[x] == biome::ICY_SEAS)
+        return;
+    else if (biomes[x] == biome::SNOWY_TUNDRA)
+        generateSnowyTundra(x, noise);
+    else if (biomes[x] == biome::COLD_HILLS)
+        return;
+    else if (biomes[x] == biome::SNOWY_MOUNTAINS)
+        return;
+    else if (biomes[x] == biome::SEA)
+        return;
+    else if (biomes[x] == biome::PLAINS)
+        generatePlains(x, noise);
+    else if (biomes[x] == biome::FOREST)
+        return;
+    else if (biomes[x] == biome::MOUNTAINS)
+        return;
+    else if (biomes[x] == biome::WARM_OCEAN)
+        return;
+    else if (biomes[x] == biome::DESERT)
+        generateDesert(x, noise);
+    else if (biomes[x] == biome::SAVANA)
+        return;
+    else if (biomes[x] == biome::SAVANA_MOUNTAINS)
+        return;
 }
 
 void serverMap::generatePlains(int x, SimplexNoise& noise) {
