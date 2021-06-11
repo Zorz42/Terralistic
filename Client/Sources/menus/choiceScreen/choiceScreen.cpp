@@ -16,7 +16,6 @@ choiceScreen::choiceScreen(std::string notification, std::vector<std::string> op
     }
 }
 
-
 void choiceScreen::init() {
     notification_sprite.scale = 3;
     notification_sprite.setTexture(gfx::renderText(notification, {255, 255, 255}));

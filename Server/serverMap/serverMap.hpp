@@ -25,6 +25,7 @@ class serverMap : serverPacketListener {
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
     enum class liquidType {EMPTY, WATER};
     enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
+    enum class biome {PLAINS, SNOWY_TUNDRA, DESERT};
 
     class block;
     class player;
@@ -193,6 +194,7 @@ class serverMap : serverPacketListener {
     
     unsigned short width, height;
     blockData *blocks = nullptr;
+    biome* biomes = nullptr;
     
     void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
