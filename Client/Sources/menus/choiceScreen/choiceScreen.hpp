@@ -9,6 +9,7 @@
 #define choiceScreen_hpp
 
 #include <string>
+#include <vector>
 
 #ifdef _WIN32
 #include "graphics.hpp"
@@ -23,12 +24,16 @@
 #endif
 
 class choiceScreen : public gfx::scene {
-    gfx::button yes_button, no_button;
+    struct button {
+        std::string option;
+        gfx::button button;
+    };
+    
     gfx::sprite notification_sprite;
-    std::string notification;
-    bool* result;
+    std::string notification, *result;
+    std::vector<button> buttons;
 public:
-    choiceScreen(std::string notification, bool* result) : notification(notification), result(result) {}
+    choiceScreen(std::string notification, std::vector<std::string> options, std::string* result = nullptr);
     
     void init() override;
     void onKeyDown(gfx::key key) override;

@@ -7,32 +7,49 @@
 
 #include "choiceScreen.hpp"
 
+choiceScreen::choiceScreen(std::string notification, std::vector<std::string> options, std::string* result) : notification(notification), result(result) {
+    for(std::string option : options) {
+        buttons.emplace_back();
+        buttons.back().option = option;
+    }
+}
+
 void choiceScreen::init() {
     notification_sprite.scale = 3;
     notification_sprite.setTexture(gfx::renderText(notification, {255, 255, 255}));
     notification_sprite.orientation = gfx::center;
     
-    yes_button.scale = 3;
-    yes_button.setTexture(gfx::renderText("Yes", {255, 255, 255}));
-    yes_button.orientation = gfx::bottom;
-    yes_button.y = -20;
-    yes_button.x = -yes_button.getWidth() / 2;
+    int combined_width = 0;
     
-    no_button.scale = 3;
-    no_button.setTexture(gfx::renderText("No", {255, 255, 255}));
-    no_button.orientation = gfx::bottom;
-    no_button.y = -20;
-    no_button.x = no_button.getWidth() / 2;
+    for(button& i : buttons) {
+        i.button.scale = 3;
+        i.button.setTexture(gfx::renderText(i.option, {255, 255, 255}));
+        i.button.orientation = gfx::bottom;
+        i.button.y = -20;
+        combined_width += i.button.getWidth();
+    }
+    
+    int curr_x = -combined_width / 2;
+    
+    for(button& i : buttons) {
+        i.button.x = curr_x + i.button.getWidth() / 2;
+        curr_x += i.button.getWidth();
+    }
 }
 
 void choiceScreen::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT && (yes_button.isHovered() || no_button.isHovered()))
-        *result = yes_button.isHovered();
-        gfx::returnFromScene();
+    if(key == gfx::KEY_MOUSE_LEFT)
+        for(button& i : buttons)
+            if(i.button.isHovered()) {
+                if(result)
+                    *result = i.option;
+                gfx::returnFromScene();
+                break;
+            }
 }
 
 void choiceScreen::render() {
-    gfx::render(yes_button);
-    gfx::render(no_button);
+    for(button& i : buttons)
+        gfx::render(i.button);
     gfx::render(notification_sprite);
 }

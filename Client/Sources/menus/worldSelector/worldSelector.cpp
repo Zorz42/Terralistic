@@ -119,10 +119,10 @@ void worldSelector::onKeyDown(gfx::key key) {
                     refresh();
                 }
                 else if(i.delete_button.isHovered()) {
-                    bool result;
-                    gfx::runScene(new choiceScreen(std::string("Do you want to delete ") + i.name + "?", &result));
+                    std::string result;
+                    gfx::runScene(new choiceScreen(std::string("Do you want to delete ") + i.name + "?", {"Yes", "No"}, &result));
                     
-                    if(result)
+                    if(result == "Yes")
                         std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
                     refresh();
                 }
