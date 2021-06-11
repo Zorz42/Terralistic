@@ -43,9 +43,6 @@
     <Filter Include="Source Files\Client\Sources\menus\multiplayerSelector">
       <UniqueIdentifier>{278447e7-6cd0-44c6-ae6b-9dba134298cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Client\Sources\menus\notifyingScreen">
-      <UniqueIdentifier>{d0eee5ff-e0b9-4253-a76e-591f05de872b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Client\Sources\menus\startMenu">
       <UniqueIdentifier>{71a52f41-d0cd-4031-bd61-b28bb1bcc602}</UniqueIdentifier>
     </Filter>
@@ -112,6 +109,9 @@
     <Filter Include="Source Files\Server\serverMap\terrainGenerator\simplexNoise">
       <UniqueIdentifier>{277fa02d-0747-4623-9ed8-5f166bc5e98f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Client\Sources\menus\choiceScreen">
+      <UniqueIdentifier>{4543cdfc-9625-485e-be82-0dce38344989}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client\Graphics\drawables.cpp">
@@ -158,9 +158,6 @@
     </ClCompile>
     <ClCompile Include="client\sources\menus\startmenu\startMenu.cpp">
       <Filter>Source Files\Client\Sources\menus\startMenu</Filter>
-    </ClCompile>
-    <ClCompile Include="Client\Sources\menus\notifyingScreen\notifyingScreen.cpp">
-      <Filter>Source Files\Client\Sources\menus\notifyingScreen</Filter>
     </ClCompile>
     <ClCompile Include="client\sources\game\playerrenderer\playerRenderer.cpp">
       <Filter>Source Files\Client\Sources\game\playerRenderer</Filter>
@@ -248,6 +245,9 @@
     </ClCompile>
     <ClCompile Include="Server\serverMap\saver.cpp">
       <Filter>Source Files\Server\serverMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\menus\choiceScreen\choiceScreen.cpp">
+      <Filter>Source Files\Client\Sources\menus\choiceScreen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -342,6 +342,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libraries\configManager\configManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\Sources\menus\choiceScreen\choiceScreen.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -26,12 +26,13 @@
 class choiceScreen : public gfx::scene {
     struct button {
         std::string option;
-        gfx::button button;
+        gfx::button gfx_button;
     };
     
     gfx::sprite notification_sprite;
     std::string notification, *result;
     std::vector<button> buttons;
+    std::vector<std::string> options;
 public:
     choiceScreen(std::string notification, std::vector<std::string> options, std::string* result = nullptr);
     
