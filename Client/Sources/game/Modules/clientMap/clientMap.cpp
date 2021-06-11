@@ -7,7 +7,7 @@
 
 #include "clientMap.hpp"
 #include "assert.hpp"
-#include "notifyingScreen.hpp"
+#include "choiceScreen.hpp"
 #include "fileManager.hpp"
 
 void map::createWorld(unsigned short map_width, unsigned short map_height) {
@@ -106,7 +106,7 @@ void map::render() {
     renderBlocks();
     renderItems();
     if(kicked) {
-        gfx::runScene(new notifyingScreen(kick_message));
+        gfx::runScene(new choiceScreen(kick_message, {"Close"}));
         gfx::returnFromScene();
     }
 }

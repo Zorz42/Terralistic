@@ -16,6 +16,7 @@
 #include "game.hpp"
 #include "worldCreator.hpp"
 #include "fileManager.hpp"
+#include "choiceScreen.hpp"
 
 #undef main
 
@@ -118,7 +119,11 @@ void worldSelector::onKeyDown(gfx::key key) {
                     refresh();
                 }
                 else if(i.delete_button.isHovered()) {
-                    std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
+                    std::string result;
+                    gfx::runScene(new choiceScreen(std::string("Do you want to delete ") + i.name + "?", {"Yes", "No"}, &result));
+                    
+                    if(result == "Yes")
+                        std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
                     refresh();
                 }
             }

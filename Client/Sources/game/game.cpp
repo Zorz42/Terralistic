@@ -14,7 +14,7 @@
 #include "textScreen.hpp"
 #include "fileManager.hpp"
 #include "assert.hpp"
-#include "notifyingScreen.hpp"
+#include "choiceScreen.hpp"
 #include "debugMenu.hpp"
 
 #ifdef _WIN32
@@ -83,6 +83,7 @@ void startPrivateWorld(const std::string& world_name) {
     
     gfx::runScene(new game("_", "127.0.0.1", private_server->getPort()));
     delete private_server;
+    private_server = nullptr;
 }
 
 void game::init() {
@@ -92,14 +93,14 @@ void game::init() {
     modules = {
         world_map,
         new players(&networking_manager, world_map),
-        new pauseScreen(),
         new playerHandler(&networking_manager, &main_player, world_map),
         new debugMenu(&main_player),
+        new pauseScreen(),
     };
     
     renderTextScreen("Connecting to server");
     if(!networking_manager.establishConnection(ip_address, port)) {
-        gfx::runScene(new notifyingScreen("Could not connect to the server!"));
+        gfx::runScene(new choiceScreen("Could not connect to the server!", {"Close"}));
         gfx::returnFromScene();
     }
 }
