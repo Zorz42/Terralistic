@@ -92,9 +92,9 @@ void game::init() {
     modules = {
         world_map,
         new players(&networking_manager, world_map),
-        new pauseScreen(),
         new playerHandler(&networking_manager, &main_player, world_map),
         new debugMenu(&main_player),
+        new pauseScreen(),
     };
     
     renderTextScreen("Connecting to server");

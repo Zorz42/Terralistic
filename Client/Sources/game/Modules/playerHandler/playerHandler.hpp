@@ -66,6 +66,8 @@ class playerHandler : public gfx::sceneModule, packetListener {
     select_rect_inventory{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::top},
     under_text_rect{0, 0, 0, 0, {0, 0, 0}};
     gfx::image stack_textures[20], mouse_stack_texture;
+    
+    bool received_spawn_coords = false;
 public:
     playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
     void onKeyUp(gfx::key key) override;

@@ -95,10 +95,6 @@ void map::renderBlocks() {
                 getChunk(x, y).draw();
             }
         }
-    begin_x <<= 4;
-    begin_y <<= 4;
-    end_x <<= 4;
-    end_y <<= 4;
 }
 
 void map::block::updateOrientation() {
