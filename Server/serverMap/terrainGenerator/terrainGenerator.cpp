@@ -85,8 +85,6 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
             break;
         case 1://snowy tundra
             biomes[x] = biome::SNOWY_TUNDRA;
-            generateSnowyTundra(x, noise);
-
             break;
         case 2://cold hills (with taiga trees?)
             biomes[x] = biome::COLD_HILLS;
@@ -104,7 +102,6 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
             break;
         case 1://plains
             biomes[x] = biome::PLAINS;
-            generatePlains(x, noise);
             break;
         case 2://forest
             biomes[x] = biome::FOREST;
@@ -122,7 +119,6 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
             break;
         case 1://desert
             biomes[x] = biome::DESERT;
-            generateDesert(x, noise);
             break;
         case 2://savana
             biomes[x] = biome::SAVANA;
