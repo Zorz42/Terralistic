@@ -83,6 +83,7 @@ void startPrivateWorld(const std::string& world_name) {
     
     gfx::runScene(new game("_", "127.0.0.1", private_server->getPort()));
     delete private_server;
+    private_server = nullptr;
 }
 
 void game::init() {
