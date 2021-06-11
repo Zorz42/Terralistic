@@ -10,15 +10,14 @@
 choiceScreen::choiceScreen(std::string notification, std::vector<std::string> options, std::string* result) {
     this->notification = notification;
     this->result = result;
-    this->options = options;
-}
-
-void choiceScreen::init() {
-    for (std::string option : options) {
+    for(std::string option : options) {
         buttons.emplace_back();
         buttons.back().option = option;
     }
+}
 
+
+void choiceScreen::init() {
     notification_sprite.scale = 3;
     notification_sprite.setTexture(gfx::renderText(notification, {255, 255, 255}));
     notification_sprite.orientation = gfx::center;
