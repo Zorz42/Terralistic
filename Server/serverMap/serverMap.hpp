@@ -25,7 +25,7 @@ class serverMap : serverPacketListener {
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
     enum class liquidType {EMPTY, WATER};
     enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
-    enum class biome {PLAINS, SNOWY_TUNDRA, DESERT};
+    enum class biome {ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS};
 
     class block;
     class player;
@@ -206,10 +206,12 @@ class serverMap : serverPacketListener {
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     
-    void terrainGeneratorSwitch(unsigned int x, SimplexNoise& noise);
+    void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
     void generatePlains(int x, SimplexNoise& noise);
     void generateDesert(int x, SimplexNoise& noise);
     void generateSnowyTundra(int x, SimplexNoise& noise);
+    void terrainGenerator(int x, SimplexNoise& noise);
+
     
     int getSpawnX();
     int getSpawnY();
