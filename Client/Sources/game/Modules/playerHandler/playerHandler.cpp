@@ -29,7 +29,7 @@ void playerHandler::init() {
 }
 
 #define VELOCITY 60
-#define JUMP_VELOCITY 80
+#define JUMP_VELOCITY 800
 
 void playerHandler::onKeyDown(gfx::key key) {
     switch(key) {

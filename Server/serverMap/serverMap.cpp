@@ -14,6 +14,7 @@ void serverMap::createWorld(unsigned short width, unsigned short height) {
     this->width = width << 4;
     this->height = height << 4;
     biomes = new biome[this->width];
+
 }
 
 serverMap::~serverMap() {

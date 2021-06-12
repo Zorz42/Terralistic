@@ -16,6 +16,7 @@
 #define TERRAIN_HORIZONTAL_DIVIDER 4
 #define TERRAIN_HORIZONT ((float)world_map.height / 2 - 50)
 #define TURB_SIZE 64.0 //initial size of the turbulence
+#define PI 3.14159265
 
 // CAVES
 
@@ -75,7 +76,8 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     mountains 600-700
     */
 
-    int heat = heatGeneratorInt(x, noise), biomeheight = 0;// heightGeneratorInt(x, noise);
+    int heat = 1;// heatGeneratorInt(x, noise);
+    int biomeheight = heightGeneratorInt(x, noise);
     //biomeheight = biomeheight % 2;
     
     switch (heat) {
@@ -160,7 +162,7 @@ void serverMap::terrainGenerator(int x, SimplexNoise& noise) {
 }
 
 void serverMap::generatePlains(int x, SimplexNoise& noise) {
-    int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
+    int sliceHeight = calculateHeight(x, noise);
     int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
@@ -173,14 +175,16 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
             else
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
-        else if (y < 300)
+        else if (y < 300) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+        }
     }
 }
 
 
 void serverMap::generateDesert(int x, SimplexNoise& noise) {
-    int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
+    int sliceHeight = calculateHeight(x, noise);
     int sandLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
@@ -189,11 +193,15 @@ void serverMap::generateDesert(int x, SimplexNoise& noise) {
             else
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
+        else if (y < 300) {
+            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+        }
     }
 }
 
 void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
-    int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
+    int sliceHeight = calculateHeight(x, noise);
     int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.2, 0) * 2 + 8);
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
@@ -213,7 +221,7 @@ void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
 }
 
 void serverMap::generateSea(int x, SimplexNoise& noise) {
-    int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
+    int sliceHeight = calculateHeight(x, noise);
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
@@ -226,7 +234,7 @@ void serverMap::generateSea(int x, SimplexNoise& noise) {
 }
 
 void serverMap::generateIcySea(int x, SimplexNoise& noise) {
-    int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
+    int sliceHeight = calculateHeight(x, noise);
     int iceLayer = 300 - (noise.noise(x / 2.0f + 0.25, 0) * 2 + 4);
 
     for (int y = 0; y < height; y++) {
@@ -244,7 +252,7 @@ void serverMap::generateIcySea(int x, SimplexNoise& noise) {
 }
 
 void serverMap::generateWarmOcean(int x, SimplexNoise& noise) {
-    int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
+    int sliceHeight = calculateHeight(x, noise);
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
@@ -254,4 +262,46 @@ void serverMap::generateWarmOcean(int x, SimplexNoise& noise) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
+}
+
+int serverMap::calculateHeight(int x, SimplexNoise& noise) {
+    biome biome1 = biomes[x], biome2 = biome::NO_BIOME;
+    int biomeDistance;
+    int sliceHeight, slice1, slice2;
+
+    for (int i = std::max(0, x - 9); i < std::min(width - 1, x + 9); i++) {
+        if (biomes[i] != biome1) {
+            biome2 = biomes[i];
+            biomeDistance = x - i;
+            break;
+        }
+    }
+
+    if(biome2 == biome::NO_BIOME) {//deafult generation
+        if (biome1 == biome::ICY_SEAS || biome1 == biome::SEA || biome1 == biome::WARM_OCEAN) {
+            sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
+        }
+        else if (biome1 == biome::SNOWY_TUNDRA || biome1 == biome::PLAINS || biome1 == biome::DESERT) {
+            sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 325);
+        }
+    }
+    else {
+        if (biome1 == biome::ICY_SEAS || biome1 == biome::SEA || biome1 == biome::WARM_OCEAN) {
+            slice1 = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
+        }
+        else if (biome1 == biome::SNOWY_TUNDRA || biome1 == biome::PLAINS || biome1 == biome::DESERT) {
+            slice1 = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 325);
+        }
+
+
+        if (biome2 == biome::ICY_SEAS || biome2 == biome::SEA || biome2 == biome::WARM_OCEAN) {
+            slice2 = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
+        }
+        else if (biome2 == biome::SNOWY_TUNDRA || biome2 == biome::PLAINS || biome2 == biome::DESERT) {
+            slice2 = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 325);
+        }
+
+        sliceHeight = (cos(biomeDistance / PI * 10) + 1) / 2 * slice1 + (-cos(biomeDistance / PI * 10) + 1) / 2 * slice1;
+    }
+    return(sliceHeight);
 }

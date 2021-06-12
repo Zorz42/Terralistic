@@ -37,7 +37,7 @@ void debugMenu::update() {
         if(curr_x != prev_x || curr_y != prev_y) {
             prev_x = curr_x;
             prev_y = curr_y;
-            coords_text.setTexture(gfx::renderText(std::string("X: ") + std::to_string(main_player->position_x / BLOCK_WIDTH) + ", Y: " + std::to_string(main_player->position_y / BLOCK_WIDTH), {0, 0, 0}));
+            coords_text.setTexture(gfx::renderText(std::string("X: ") + std::to_string(main_player->position_x / BLOCK_WIDTH) + ", Y: " + std::to_string(1200 - main_player->position_y / BLOCK_WIDTH), {0, 0, 0}));
         }
     }
 }
