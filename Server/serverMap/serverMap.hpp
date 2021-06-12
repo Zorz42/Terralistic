@@ -211,6 +211,9 @@ class serverMap : serverPacketListener {
     void generateDesert(int x, SimplexNoise& noise);
     void generateSnowyTundra(int x, SimplexNoise& noise);
     void terrainGenerator(int x, SimplexNoise& noise);
+    void generateSea(int x, SimplexNoise& noise);
+    void generateIcySea(int x, SimplexNoise& noise);
+    void generateWarmOcean(int x, SimplexNoise& noise);
 
     
     int getSpawnX();
