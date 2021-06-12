@@ -75,7 +75,8 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     mountains 600-700
     */
 
-    int heat = heatGeneratorInt(x, noise), biomeheight = 0; //heightGeneratorInt(x, noise);
+    int heat = heatGeneratorInt(x, noise), biomeheight = 0;// heightGeneratorInt(x, noise);
+    //biomeheight = biomeheight % 2;
     
     switch (heat) {
     case 0:
@@ -135,8 +136,7 @@ void serverMap::terrainGenerator(int x, SimplexNoise& noise) {
     if (biomes[x] == biome::ICY_SEAS)
         generateIcySea(x, noise);
     else if (biomes[x] == biome::SNOWY_TUNDRA)
-        //generateSnowyTundra(x, noise);
-        return;
+        generateSnowyTundra(x, noise);
     else if (biomes[x] == biome::COLD_HILLS)
         return;
     else if (biomes[x] == biome::SNOWY_MOUNTAINS)
@@ -144,8 +144,7 @@ void serverMap::terrainGenerator(int x, SimplexNoise& noise) {
     else if (biomes[x] == biome::SEA)
         generateSea(x, noise);
     else if (biomes[x] == biome::PLAINS)
-        //generatePlains(x, noise);
-        return;
+        generatePlains(x, noise);
     else if (biomes[x] == biome::FOREST)
         return;
     else if (biomes[x] == biome::MOUNTAINS)
@@ -153,8 +152,7 @@ void serverMap::terrainGenerator(int x, SimplexNoise& noise) {
     else if (biomes[x] == biome::WARM_OCEAN)
         generateDesert(x, noise);
     else if (biomes[x] == biome::DESERT)
-        //generateDesert(x, noise);
-        return;
+        generateDesert(x, noise);
     else if (biomes[x] == biome::SAVANA)
         return;
     else if (biomes[x] == biome::SAVANA_MOUNTAINS)
@@ -196,7 +194,7 @@ void serverMap::generateDesert(int x, SimplexNoise& noise) {
 
 void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
     int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 320);
-    int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
+    int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.2, 0) * 2 + 8);
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= snowLayer) {
@@ -229,7 +227,7 @@ void serverMap::generateSea(int x, SimplexNoise& noise) {
 
 void serverMap::generateIcySea(int x, SimplexNoise& noise) {
     int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
-    int iceLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) + 3);
+    int iceLayer = 300 - (noise.noise(x / 2.0f + 0.25, 0) * 2 + 4);
 
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
@@ -238,8 +236,10 @@ void serverMap::generateIcySea(int x, SimplexNoise& noise) {
         else if (y < 300)
             if(y > iceLayer)
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
-            else
+            else {
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            }
     }
 }
 
@@ -249,7 +249,9 @@ void serverMap::generateWarmOcean(int x, SimplexNoise& noise) {
         if (y <= sliceHeight) {//generates surface
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
-        else if (y < 300)
+        else if (y < 300) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+        }
     }
 }
