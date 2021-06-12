@@ -220,14 +220,16 @@ void serverMap::generateSea(int x, SimplexNoise& noise) {
         if (y <= sliceHeight) {//generates surface
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
-        else if (y < 300)
+        else if (y < 300) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+        }
     }
 }
 
 void serverMap::generateIcySea(int x, SimplexNoise& noise) {
     int sliceHeight = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 60 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 6 + 260);
-    int iceLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 2);
+    int iceLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) + 3);
 
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
