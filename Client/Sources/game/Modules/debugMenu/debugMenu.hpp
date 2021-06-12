@@ -21,6 +21,7 @@
 #endif
 
 #include "playerHandler.hpp"
+#include "clientMap.hpp"
 
 class debugMenu : public gfx::sceneModule {
     bool debug_menu_open = false, m_down = false;
@@ -28,8 +29,9 @@ class debugMenu : public gfx::sceneModule {
     mainPlayer* main_player;
     void renderFpsText();
     unsigned int fps_count = 0;
+    map* world_map;
 public:
-    debugMenu(mainPlayer* main_player) : main_player(main_player) {}
+    debugMenu(mainPlayer* main_player, map* world_map) : main_player(main_player), world_map(world_map) {}
     void init() override;
     void update() override;
     void render() override;
