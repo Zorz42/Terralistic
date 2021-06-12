@@ -48,9 +48,10 @@ protected:
     };
     
     struct uniqueLiquid {
-        uniqueLiquid(const std::string& name);
+        uniqueLiquid(const std::string& name, float speed_multiplier);
         std::string name;
         gfx::image texture;
+        float speed_multiplier;
     };
     
     struct blockData {
@@ -140,6 +141,7 @@ public:
         inline liquidType getLiquidType() { return block_data->liquid_id; }
         inline void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
         inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
+        inline float getSpeedMultiplier() { return block_data->getUniqueLiquid().speed_multiplier; }
     };
     
     class item {

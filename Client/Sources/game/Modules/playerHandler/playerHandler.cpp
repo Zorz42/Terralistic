@@ -100,8 +100,7 @@ bool playerHandler::isPlayerColliding() {
     
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
-            if(world_map->getChunk(x >> 4, y >> 4).getState() != map::chunkState::loaded ||
-               !world_map->getBlock(x, y).isGhost())
+            if(world_map->getChunk(x >> 4, y >> 4).getState() != map::chunkState::loaded || !world_map->getBlock(x, y).isGhost())
                 return true;
     
     return false;
@@ -126,10 +125,21 @@ void playerHandler::update() {
             prev_height = gfx::getWindowHeight();
         }
         
-        // gravity
-        player->velocity_y = touchingGround() && player->velocity_y >= 0 ? short(0) : short(player->velocity_y + gfx::getDeltaTime() / 4);
+        float speed_multiplier = 1;
         
-        int move_x = player->velocity_x * gfx::getDeltaTime() / 100, move_y = player->velocity_y * gfx::getDeltaTime() / 100;
+        unsigned short starting_x = (player->position_x - playerRenderer::getPlayerWidth() / 2) / BLOCK_WIDTH;
+        unsigned short starting_y = (player->position_y - playerRenderer::getPlayerHeight() / 2) / BLOCK_WIDTH;
+        unsigned short ending_x = (player->position_x + playerRenderer::getPlayerWidth() / 2 - 1) / BLOCK_WIDTH;
+        unsigned short ending_y = (player->position_y + playerRenderer::getPlayerHeight() / 2 - 1) / BLOCK_WIDTH;
+        
+        for(unsigned short x = starting_x; x <= ending_x; x++)
+            for(unsigned short y = starting_y; y <= ending_y; y++)
+                speed_multiplier = std::min(speed_multiplier, world_map->getBlock(x, y).getSpeedMultiplier());
+        
+        // gravity
+        player->velocity_y = touchingGround() && player->velocity_y >= 0 ? short(0) : short(player->velocity_y + gfx::getDeltaTime() / 4 * speed_multiplier);
+        
+        int move_x = float(player->velocity_x * gfx::getDeltaTime() / 100) * speed_multiplier, move_y = float(player->velocity_y * gfx::getDeltaTime() / 100) * speed_multiplier;
         
         for(int i = 0; i < move_x; i++) {
             player->position_x++;

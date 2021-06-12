@@ -9,7 +9,7 @@
 
 std::vector<map::uniqueLiquid> map::unique_liquids;
 
-map::uniqueLiquid::uniqueLiquid(const std::string& name) {
+map::uniqueLiquid::uniqueLiquid(const std::string& name, float speed_multiplier) : speed_multiplier(speed_multiplier) {
     texture.setTexture(gfx::loadImageFile("texturePack/liquids/" + name + ".png"));
     texture.scale = 2;
     texture.free_texture = false;
@@ -17,7 +17,7 @@ map::uniqueLiquid::uniqueLiquid(const std::string& name) {
 
 void map::initLiquids() {
     unique_liquids = {
-        {"empty"},
-        {"water"},
+        {/*name*/"empty", /*speed_multiplier*/1},
+        {/*name*/"water", /*speed_multiplier*/0.5},
     };
 }
