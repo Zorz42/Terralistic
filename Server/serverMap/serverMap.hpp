@@ -220,7 +220,8 @@ class serverMap : serverPacketListener {
     void generateColdHills(int x, SimplexNoise& noise);
     void generateSavana(int x, SimplexNoise& noise);
 
-    void generateTree(int x, int y);
+    void generateOakTree(int x, int y);
+    void generateAccaciaTree(int x, int y);
 
     
     int getSpawnX();

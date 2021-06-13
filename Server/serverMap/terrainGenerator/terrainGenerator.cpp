@@ -190,7 +190,7 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
         }
     }
     if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8)
-        generateTree(x, sliceHeight);
+        generateOakTree(x, sliceHeight);
 }
 
 
@@ -301,8 +301,8 @@ void serverMap::generateForest(int x, SimplexNoise& noise) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
-    if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.4)
-        generateTree(x, sliceHeight);
+    if ( x%3 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8)
+        generateOakTree(x, sliceHeight);
 }
 
 void serverMap::generateColdHills(int x, SimplexNoise& noise) {
@@ -343,13 +343,15 @@ void serverMap::generateSavana(int x, SimplexNoise& noise) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
+    if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.7)
+        generateAccaciaTree(x, sliceHeight);
 }
 
 
 
 
 
-void serverMap::generateTree(int x, int y) {
+void serverMap::generateOakTree(int x, int y) {
     for (int i = x - 2; i < x + 3; i++) {
         for (int j = y + 5; j < y + 10; j++) {
             getBlock((unsigned short)i, height - (unsigned short)j).setType(blockType::LEAVES, false);
@@ -360,6 +362,31 @@ void serverMap::generateTree(int x, int y) {
     getBlock((unsigned short)x, height - (unsigned short)y - 4).setType(blockType::WOOD, false);
     getBlock((unsigned short)x, height - (unsigned short)y - 5).setType(blockType::WOOD, false);
     getBlock((unsigned short)x, height - (unsigned short)y - 6 ).setType(blockType::WOOD, false);
+}
+
+void serverMap::generateAccaciaTree(int x, int y) {
+    getBlock((unsigned short)x, height - (unsigned short)y - 2).setType(blockType::WOOD, false);
+    getBlock((unsigned short)x, height - (unsigned short)y - 3).setType(blockType::WOOD, false);
+    getBlock((unsigned short)x, height - (unsigned short)y - 4).setType(blockType::WOOD, false);
+    getBlock((unsigned short)x, height - (unsigned short)y - 5).setType(blockType::WOOD, false);
+    getBlock((unsigned short)x, height - (unsigned short)y - 6).setType(blockType::WOOD, false);
+
+    getBlock((unsigned short)x, height - (unsigned short)y-7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x, height - (unsigned short)y-8).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x - 1, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x - 1, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x + 1, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x + 1, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x - 2, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x - 2, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x + 2, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x + 2, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x + 3, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x + 4, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x - 3, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    getBlock((unsigned short)x - 4, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+
+
 }
 
 
