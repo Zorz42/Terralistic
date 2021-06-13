@@ -28,6 +28,9 @@ void chat::render() {
 
 void chat::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_ENTER && chat_box.active) {
+        packets::packet chat_packet(packets::CHAT);
+        chat_packet << chat_box.getText();
+        manager->sendPacket(chat_packet);
         chat_box.setText("");
         chat_box.active = false;
     } else if(key == gfx::KEY_T && !chat_box.active) {

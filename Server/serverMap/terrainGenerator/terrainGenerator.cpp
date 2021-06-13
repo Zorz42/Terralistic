@@ -228,13 +228,14 @@ void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
             else
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
-        else if (y < 300)
+        else if (y < 300) {
             if (y > iceLayer)
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
             else {
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
             }
+        }
     }
 }
 
@@ -259,13 +260,14 @@ void serverMap::generateIcySea(int x, SimplexNoise& noise) {
         if (y <= sliceHeight) {//generates surface
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
-        else if (y < 300)
+        else if (y < 300) {
             if(y > iceLayer)
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
             else {
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
             }
+        }
     }
 }
 
@@ -396,8 +398,8 @@ void serverMap::generateAccaciaTree(int x, int y) {
 
 int serverMap::calculateHeight(int x, SimplexNoise& noise) {
     biome biome1 = biomes[x], biome2 = biome::NO_BIOME;
-    int biomeDistance;
-    int sliceHeight, slice1, slice2;
+    int biomeDistance = 0;
+    int sliceHeight = 0, slice1 = 0, slice2 = 0;
 
     for (int i = std::max(0, x - 1); i > std::max(0, x - 10); i--) {
         if (biomes[i] != biome1) {

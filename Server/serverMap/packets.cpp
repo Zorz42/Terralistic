@@ -147,6 +147,11 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
             break;
         }
             
+        case packets::CHAT: {
+            print::info((curr_player->name == "_" ? "Protagonist" : curr_player->name) + ": " + packet.getString());
+            break;
+        }
+            
         default:;
     }
 }
