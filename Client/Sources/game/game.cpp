@@ -16,6 +16,7 @@
 #include "assert.hpp"
 #include "choiceScreen.hpp"
 #include "debugMenu.hpp"
+#include "chat.hpp"
 
 #ifdef _WIN32
 #include "server.hpp"
@@ -96,6 +97,7 @@ void game::init() {
         new playerHandler(&networking_manager, &main_player, world_map),
         new debugMenu(&main_player, world_map),
         new pauseScreen(),
+        new chat(&networking_manager),
     };
     
     renderTextScreen("Connecting to server");

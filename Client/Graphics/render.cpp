@@ -45,8 +45,6 @@ void gfx::render(const sprite& spr) {
     render(spr, spr.getTranslatedX(), spr.getTranslatedY());
 }
 
-#include <iostream>
-
 void gfx::render(button& b) {
     rectShape rect = b.getTranslatedRect();
     int hover_progress_target = b.isHovered() ? 255 : 0;

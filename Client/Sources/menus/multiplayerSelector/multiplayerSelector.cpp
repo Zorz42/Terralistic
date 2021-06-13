@@ -46,7 +46,7 @@ void multiplayerSelector::init() {
         return '\0';
     };
     
-    // "Type the server IP:" text in the top
+    // "Server IP:" text in the top
     server_ip_title.setTexture(gfx::renderText("Server IP:", {255, 255, 255}));
     server_ip_title.scale = 3;
     server_ip_title.y = server_ip.y - server_ip.sprite::getHeight() - PADDING;
@@ -66,7 +66,7 @@ void multiplayerSelector::init() {
         return '\0';
     };
     
-    // "Type the server IP:" text in the top
+    // "Username:" text in the top
     username_title.setTexture(gfx::renderText("Username:", {255, 255, 255}));
     username_title.scale = 3;
     username_title.y = username.y - username.sprite::getHeight() - PADDING;
