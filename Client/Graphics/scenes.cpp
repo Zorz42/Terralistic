@@ -114,7 +114,8 @@ void gfx::runScene(scene* x) {
                 if(key == KEY_MOUSE_LEFT)
                     for(textInput* i : text_inputs) {
                         i->active = i->isHovered();
-                        clicked_text_box = true;
+                        if(i->active)
+                            clicked_text_box = true;
                     }
                 if(key != KEY_UNKNOWN && !clicked_text_box)
                     x->_onKeyDown(key);
