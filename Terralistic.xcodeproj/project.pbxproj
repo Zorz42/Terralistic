@@ -96,6 +96,8 @@
 		167B59902665579400BCECBB /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		167B59912665579400BCECBB /* SimplexNoise.h in Headers */ = {isa = PBXBuildFile; fileRef = 167B598F2665579400BCECBB /* SimplexNoise.h */; };
 		167B5993266558D000BCECBB /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
+		167C1B802676565700BCFE27 /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C1B7E2676565700BCFE27 /* chat.cpp */; };
+		167C1B812676565700BCFE27 /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C1B7E2676565700BCFE27 /* chat.cpp */; };
 		167C22C62673956800FF487D /* choiceScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22C42673956800FF487D /* choiceScreen.cpp */; };
 		167C22C72673963A00FF487D /* choiceScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22C42673956800FF487D /* choiceScreen.cpp */; };
 		167C22CB2673A46800FF487D /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22CA2673A46800FF487D /* textScreen.cpp */; };
@@ -314,6 +316,8 @@
 		167B38C02642FB5100E3C718 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 		167B598E2665579400BCECBB /* SimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplexNoise.cpp; sourceTree = "<group>"; };
 		167B598F2665579400BCECBB /* SimplexNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplexNoise.h; sourceTree = "<group>"; };
+		167C1B7E2676565700BCFE27 /* chat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chat.cpp; sourceTree = "<group>"; };
+		167C1B7F2676565700BCFE27 /* chat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = chat.hpp; sourceTree = "<group>"; };
 		167C22C42673956800FF487D /* choiceScreen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = choiceScreen.cpp; sourceTree = "<group>"; };
 		167C22C52673956800FF487D /* choiceScreen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = choiceScreen.hpp; sourceTree = "<group>"; };
 		167C22C92673A46800FF487D /* textScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = textScreen.hpp; sourceTree = "<group>"; };
@@ -596,6 +600,15 @@
 			path = server;
 			sourceTree = "<group>";
 		};
+		167C1B7D2676564400BCFE27 /* chat */ = {
+			isa = PBXGroup;
+			children = (
+				167C1B7F2676565700BCFE27 /* chat.hpp */,
+				167C1B7E2676565700BCFE27 /* chat.cpp */,
+			);
+			path = chat;
+			sourceTree = "<group>";
+		};
 		167C22C32673953A00FF487D /* choiceScreen */ = {
 			isa = PBXGroup;
 			children = (
@@ -851,6 +864,7 @@
 		3619ACFA26186CBA00BA4EAF /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				167C1B7D2676564400BCFE27 /* chat */,
 				16906514266CC0A90075EF55 /* debugMenu */,
 				1681100A263BE9260086D659 /* clientMap */,
 				168968AA25E9607800D26060 /* playerHandler */,
@@ -1184,6 +1198,7 @@
 				36F45E8D2620A8F100C751E4 /* chunk.cpp in Sources */,
 				16984266263819EC00972269 /* fileManager.cpp in Sources */,
 				1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */,
+				167C1B812676565700BCFE27 /* chat.cpp in Sources */,
 				1661661625EA3689002A3815 /* clientNetworking.cpp in Sources */,
 				1661661925EA3689002A3815 /* game.cpp in Sources */,
 				1661661B25EA3689002A3815 /* pauseScreen.cpp in Sources */,
@@ -1308,6 +1323,7 @@
 				1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */,
 				1691250725F6BCD500F7EB4F /* playerHandler.cpp in Sources */,
 				1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */,
+				167C1B802676565700BCFE27 /* chat.cpp in Sources */,
 				1691250A25F6BCD500F7EB4F /* game.cpp in Sources */,
 				1691250B25F6BCD500F7EB4F /* startMenu.cpp in Sources */,
 				36F45E882620A88400C751E4 /* chunk.cpp in Sources */,

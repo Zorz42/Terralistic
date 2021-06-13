@@ -93,7 +93,7 @@ struct textInput : button {
     unsigned short getWidth() const override;
     void setText(const std::string& text);
     
-    bool active = false;
+    bool active = false, ignore_one_input = false;
     char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
     color border_color = {255, 255, 255}, text_color = {255, 255, 255};
@@ -122,6 +122,9 @@ struct sceneModule {
     virtual void stop() {}
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
+    
+    std::vector<textInput*> text_inputs;
+    bool disable_events = false;
 };
 
 struct scene {
@@ -140,6 +143,7 @@ struct scene {
     
     void _onKeyDown(key key_);
     void _onKeyUp(key key_);
+    bool disable_events = false;
 };
 
 void runScene(scene* x);
