@@ -83,6 +83,7 @@ struct button : sprite {
     color def_color = {0, 0, 0}, hover_color = {100, 100, 100};
     bool isHovered() const;
     bool disabled = false;
+    unsigned char hover_progress = 0;
 };
 
 struct textInput : button {
@@ -106,7 +107,7 @@ void render(const image& tex, short x, short y);
 void render(const image& tex, rectShape rect);
 void render(const image& tex, short x, short y, rectShape src_rect);
 void render(const sprite& spr);
-void render(const button& b);
+void render(button& b);
 void render(const textInput& b);
 
 struct scene;
