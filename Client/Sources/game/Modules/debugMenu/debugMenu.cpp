@@ -19,6 +19,12 @@ void debugMenu::init() {
     coords_text.y = fps_text.y + fps_text.getHeight() + 10;
     coords_text.x = 10;
     coords_text.orientation = gfx::top_left;
+
+    /*
+    biome_text.scale = 3;
+    biome_text.y = coords_text.y + coords_text.getHeight() + 10;
+    biome_text.x = 10;
+    biome_text.orientation = gfx::top_left;*/
 }
 
 void debugMenu::update() {
@@ -38,6 +44,7 @@ void debugMenu::update() {
             prev_x = curr_x;
             prev_y = curr_y;
             coords_text.setTexture(gfx::renderText(std::string("X: ") + std::to_string(main_player->position_x / BLOCK_WIDTH) + ", Y: " + std::to_string(world_map->getWorldHeight() - main_player->position_y / BLOCK_WIDTH), {0, 0, 0}));
+            //biome_text.setTexture(gfx::renderText(std::to_string(world_map->biomes[0]), { 0, 0, 0 }));
         }
     }
 }
@@ -46,6 +53,7 @@ void debugMenu::render() {
     if(debug_menu_open) {
         gfx::render(fps_text);
         gfx::render(coords_text);
+        //gfx::render(biome_text);
     }
 }
 

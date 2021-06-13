@@ -78,7 +78,7 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
 
     int heat = 1;// heatGeneratorInt(x, noise);
     int biomeheight = heightGeneratorInt(x, noise);
-    //biomeheight = biomeheight % 2;
+    biomeheight = biomeheight % 2;
     
     switch (heat) {
     case 0:
@@ -269,11 +269,20 @@ int serverMap::calculateHeight(int x, SimplexNoise& noise) {
     int biomeDistance;
     int sliceHeight, slice1, slice2;
 
-    for (int i = std::max(0, x - 9); i < std::min(width - 1, x + 9); i++) {
+    for (int i = std::max(0, x - 1); i > std::max(0, x - 10); i--) {
         if (biomes[i] != biome1) {
             biome2 = biomes[i];
-            biomeDistance = x - i;
+            biomeDistance = std::abs(x - i);
             break;
+        }
+    }
+    if (biome2 == biome::NO_BIOME) {
+        for (int i = std::min(width - 1, x + 1); i < std::min(width - 1, x + 10); i++) {
+            if (biomes[i] != biome1) {
+                biome2 = biomes[i];
+                biomeDistance = std::abs(x - i);
+                break;
+            }
         }
     }
 
@@ -301,7 +310,7 @@ int serverMap::calculateHeight(int x, SimplexNoise& noise) {
             slice2 = int(turbulence(x / 20.0f + 0.3, 0, 64, noise) * 20 + turbulence(x / 4.0f + 0.1, 0, 8, noise) * 2 + 325);
         }
 
-        sliceHeight = (cos(biomeDistance / PI * 10) + 1) / 2 * slice1 + (-cos(biomeDistance / PI * 10) + 1) / 2 * slice1;
+        sliceHeight = (-cos((biomeDistance + 10) * PI / 20) / 2 + 0.5) * slice1 + (cos((biomeDistance + 10) * PI / 20) / 2 + 0.5) * slice2;
     }
     return(sliceHeight);
 }

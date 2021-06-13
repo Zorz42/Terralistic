@@ -347,5 +347,8 @@
     <ClInclude Include="Client\Sources\menus\choiceScreen\choiceScreen.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Client\Sources\game\Modules\debugMenu\debugMenu.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,7 +25,7 @@
 
 class debugMenu : public gfx::sceneModule {
     bool debug_menu_open = false, m_down = false;
-    gfx::sprite fps_text, coords_text;
+    gfx::sprite fps_text, coords_text;// biome_text;
     mainPlayer* main_player;
     void renderFpsText();
     unsigned int fps_count = 0;

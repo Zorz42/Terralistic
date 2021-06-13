@@ -184,6 +184,7 @@
     <ClInclude Include="client\sources\game\game.hpp" />
     <ClInclude Include="client\sources\game\generatingscreen\generatingScreen.hpp" />
     <ClInclude Include="client\sources\game\modules\clientmap\clientMap.hpp" />
+    <ClInclude Include="Client\Sources\game\Modules\debugMenu\debugMenu.hpp" />
     <ClInclude Include="client\sources\game\modules\otherplayers\otherPlayers.hpp" />
     <ClInclude Include="client\sources\game\modules\pausescreen\pauseScreen.hpp" />
     <ClInclude Include="client\sources\game\modules\playerhandler\playerHandler.hpp" />
