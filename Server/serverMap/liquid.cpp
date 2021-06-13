@@ -36,13 +36,25 @@ void serverMap::block::liquidUpdate() {
     if(getLiquidLevel() == 0)
         return;
     
-    block block_under = parent_map->getBlock(x, y + 1), block_left = parent_map->getBlock(x - 1, y), block_right = parent_map->getBlock(x + 1, y), under, left, right;
-    if((block_under.isGhost() && block_under.getLiquidType() == liquidType::EMPTY) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
-        under = block_under;
-    if((block_left.isGhost() && block_left.getLiquidType() == liquidType::EMPTY) || (block_left.getLiquidType() == getLiquidType() && block_left.getLiquidLevel() < getLiquidLevel()))
-        left = block_left;
-    if((block_right.isGhost() && block_right.getLiquidType() == liquidType::EMPTY) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
-        right = block_right;
+    block under, left, right;
+    
+    if(y != parent_map->height - 1) {
+        block block_under = parent_map->getBlock(x, y + 1);
+        if((block_under.isGhost() && block_under.getLiquidType() == liquidType::EMPTY) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
+            under = block_under;
+    }
+    
+    if(x != 0) {
+        block block_left = parent_map->getBlock(x - 1, y);
+        if((block_left.isGhost() && block_left.getLiquidType() == liquidType::EMPTY) || (block_left.getLiquidType() == getLiquidType() && block_left.getLiquidLevel() < getLiquidLevel()))
+            left = block_left;
+    }
+    
+    if(x != parent_map->width - 1) {
+        block block_right = parent_map->getBlock(x + 1, y);
+        if((block_right.isGhost() && block_right.getLiquidType() == liquidType::EMPTY) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
+            right = block_right;
+    }
     
     
     if(under.refersToABlock()) {
