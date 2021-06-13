@@ -208,6 +208,7 @@ class serverMap : serverPacketListener {
     
     void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
     int calculateHeight(int x, SimplexNoise& noise);
+    int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
     void generatePlains(int x, SimplexNoise& noise);
     void generateDesert(int x, SimplexNoise& noise);
     void generateSnowyTundra(int x, SimplexNoise& noise);
