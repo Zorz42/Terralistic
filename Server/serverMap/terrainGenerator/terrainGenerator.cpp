@@ -63,8 +63,16 @@ int heatGeneratorInt(unsigned int x, SimplexNoise& noise) {
     return heat == 3 ? 2 : heat;
 }
 
-int heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
-    int heat = (noise.noise((float)x / 600.0 + 0.001) + 1.0) * 2.0;
+int serverMap::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
+    /*if (x < 50 || x > width - 50)
+        return 0;
+    else if (x < 100 || x > width - 100)
+        return 1;
+    else {
+        int heat = (noise.noise((float)x / 600.0 + 0.001) + 1) * 2;
+        return std::min(std::max(1, heat), 3);
+    }*/
+    int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 2;
     return heat == 4 ? 3 : heat;
 }
 
@@ -76,7 +84,7 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     mountains 600-700
     */
 
-    int heat = 1;// heatGeneratorInt(x, noise);
+    int heat =  heatGeneratorInt(x, noise);
     int biomeheight = heightGeneratorInt(x, noise);
     if (biomeheight > 1)
         biomeheight = 3 - biomeheight;
@@ -204,6 +212,7 @@ void serverMap::generateDesert(int x, SimplexNoise& noise) {
 void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.2, 0) * 2 + 8);
+    int iceLayer = 300 - (noise.noise(x / 2.0f + 0.25, 0) * 2 + 3);
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= snowLayer) {
@@ -216,8 +225,14 @@ void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
             }
             else
                 getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
-        }else if (y < 300)
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
+        }
+        else if (y < 300)
+            if (y > iceLayer)
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
+            else {
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+                getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            }
     }
 }
 
@@ -236,7 +251,7 @@ void serverMap::generateSea(int x, SimplexNoise& noise) {
 
 void serverMap::generateIcySea(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
-    int iceLayer = 300 - (noise.noise(x / 2.0f + 0.25, 0) * 2 + 4);
+    int iceLayer = 300 - (noise.noise(x / 2.0f + 0.25, 0) * 2 + 3);
 
     for (int y = 0; y < height; y++) {
         if (y <= sliceHeight) {//generates surface
