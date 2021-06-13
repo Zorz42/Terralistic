@@ -59,12 +59,12 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
 }
 
 int heatGeneratorInt(unsigned int x, SimplexNoise& noise) {
-    int heat = (noise.noise((float)x / 1100.0 + 0.125) + 1.0) * 1.5;
+    int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 1.5;
     return heat == 3 ? 2 : heat;
 }
 
 int heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
-    int heat = (noise.noise((float)x / 300.0 + 0.001) + 1.0) * 2.0;
+    int heat = (noise.noise((float)x / 600.0 + 0.001) + 1.0) * 2.0;
     return heat == 4 ? 3 : heat;
 }
 
@@ -78,7 +78,8 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
 
     int heat = 1;// heatGeneratorInt(x, noise);
     int biomeheight = heightGeneratorInt(x, noise);
-    biomeheight = biomeheight % 2;
+    if (biomeheight > 1)
+        biomeheight = 3 - biomeheight;
     
     switch (heat) {
     case 0:
