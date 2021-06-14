@@ -25,8 +25,9 @@
 class chat : public gfx::sceneModule, packetListener {
     gfx::textInput chat_box;
     networkingManager* manager;
+    std::vector<gfx::sprite*> chat_lines;
 public:
-    chat(networkingManager* manager) : manager(manager), packetListener(manager) {}
+    chat(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::CHAT}; }
     
     void init() override;
     void update() override;

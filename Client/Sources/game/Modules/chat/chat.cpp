@@ -24,6 +24,8 @@ void chat::update() {
 
 void chat::render() {
     gfx::render(chat_box);
+    for(gfx::sprite* i : chat_lines)
+        gfx::render(*i);
 }
 
 void chat::onKeyDown(gfx::key key) {
@@ -40,5 +42,18 @@ void chat::onKeyDown(gfx::key key) {
 }
 
 void chat::onPacket(packets::packet packet) {
-    
+    switch(packet.type) {
+        case packets::CHAT: {
+            gfx::sprite* new_line = new gfx::sprite;
+            new_line->setTexture(gfx::renderText(packet.getString(), {255, 255, 255}));
+            new_line->scale = 2;
+            new_line->y = chat_box.getTranslatedY() - new_line->getHeight();
+            
+            for(gfx::sprite* i : chat_lines)
+                i->y -= new_line->getHeight();
+            chat_lines.push_back(new_line);
+            break;
+        }
+        default:;
+    }
 }

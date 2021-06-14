@@ -148,7 +148,11 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         }
             
         case packets::CHAT: {
-            print::info((curr_player->name == "_" ? "Protagonist" : curr_player->name) + ": " + packet.getString());
+            std::string chat_format = (curr_player->name == "_" ? "Protagonist" : curr_player->name) + ": " + packet.getString();
+            print::info(chat_format);
+            packets::packet chat_packet(packets::CHAT);
+            chat_packet << chat_format;
+            manager->sendToEveryone(chat_packet);
             break;
         }
             
