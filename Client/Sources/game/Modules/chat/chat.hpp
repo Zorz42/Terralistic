@@ -23,9 +23,14 @@
 #include "clientNetworking.hpp"
 
 class chat : public gfx::sceneModule, packetListener {
+    struct chatLine {
+        gfx::sprite text_sprite;
+        int y_to_be;
+    };
+    
     gfx::textInput chat_box;
     networkingManager* manager;
-    std::vector<gfx::sprite*> chat_lines;
+    std::vector<chatLine*> chat_lines;
 public:
     chat(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::CHAT}; }
     
@@ -33,6 +38,7 @@ public:
     void update() override;
     void render() override;
     void onKeyDown(gfx::key key) override;
+    void stop() override;
     
     void onPacket(packets::packet packet) override;
 };

@@ -48,7 +48,7 @@ void gfx::render(const sprite& spr) {
 void gfx::render(button& b) {
     rectShape rect = b.getTranslatedRect();
     int hover_progress_target = b.isHovered() ? 255 : 0;
-    b.hover_progress += (hover_progress_target - (int)b.hover_progress) / 3;
+    b.hover_progress += (hover_progress_target - (int)b.hover_progress) / 2;
     color button_color{
         (unsigned char)((int)b.hover_color.r * (int)b.hover_progress / 255 + (int)b.def_color.r * (int)(255 - b.hover_progress) / 255),
         (unsigned char)((int)b.hover_color.g * (int)b.hover_progress / 255 + (int)b.def_color.g * (int)(255 - b.hover_progress) / 255),

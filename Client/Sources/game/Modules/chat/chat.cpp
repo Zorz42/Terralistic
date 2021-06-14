@@ -20,12 +20,15 @@ void chat::update() {
     int target_width = chat_box.active ? 300 : 150;
     chat_box.width += (target_width - (int)chat_box.width) / 3;
     disable_events = chat_box.active;
+    
+    for(chatLine* i : chat_lines)
+        i->text_sprite.y += (i->y_to_be - i->text_sprite.y) / 2;
 }
 
 void chat::render() {
+    for(chatLine* i : chat_lines)
+        gfx::render(i->text_sprite);
     gfx::render(chat_box);
-    for(gfx::sprite* i : chat_lines)
-        gfx::render(*i);
 }
 
 void chat::onKeyDown(gfx::key key) {
@@ -44,16 +47,22 @@ void chat::onKeyDown(gfx::key key) {
 void chat::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::CHAT: {
-            gfx::sprite* new_line = new gfx::sprite;
-            new_line->setTexture(gfx::renderText(packet.getString(), {255, 255, 255}));
-            new_line->scale = 2;
-            new_line->y = chat_box.getTranslatedY() - new_line->getHeight();
+            chatLine* new_line = new chatLine;
+            new_line->text_sprite.setTexture(gfx::renderText(packet.getString(), {255, 255, 255}));
+            new_line->text_sprite.scale = 2;
+            new_line->y_to_be = chat_box.getTranslatedY() - new_line->text_sprite.getHeight();
+            new_line->text_sprite.y = chat_box.getTranslatedY();
             
-            for(gfx::sprite* i : chat_lines)
-                i->y -= new_line->getHeight();
+            for(chatLine* i : chat_lines)
+                i->y_to_be -= new_line->text_sprite.getHeight();
             chat_lines.push_back(new_line);
             break;
         }
         default:;
     }
+}
+
+void chat::stop() {
+    for(chatLine* i : chat_lines)
+        delete i;
 }
