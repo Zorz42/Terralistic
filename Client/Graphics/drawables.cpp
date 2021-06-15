@@ -59,6 +59,10 @@ void gfx::image::clear() {
     SDL_SetRenderTarget(gfx::renderer, prev_target);
 }
 
+void gfx::image::setAlpha(unsigned char alpha) {
+    SDL_SetTextureAlphaMod((SDL_Texture*)texture, alpha);
+}
+
 // button
 
 unsigned short gfx::button::getWidth() const {
@@ -80,9 +84,16 @@ bool gfx::button::isHovered() const {
 
 void gfx::textInput::setText(const std::string& text_) {
     text = text_;
-    setTexture(gfx::renderText(text.empty() ? " " : text, text_color));
+    setTexture(gfx::renderText((std::string)"|g" + text, text_color));
 }
 
 unsigned short gfx::textInput::getWidth() const {
     return (width + 2 * margin) * scale;
+}
+
+gfx::textInput::textInput() {
+    margin = 3;
+    gfx::image temp;
+    temp.setTexture(gfx::renderText("|g", {0, 0, 0}));
+    cut_length = temp.getTextureWidth() - 1;
 }

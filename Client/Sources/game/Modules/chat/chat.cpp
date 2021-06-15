@@ -27,7 +27,14 @@ void chat::update() {
 
 void chat::render() {
     for(chatLine* i : chat_lines)
-        gfx::render(i->text_sprite);
+        if(i->time_created + 10500 > gfx::getTicks() || chat_box.active) {
+            int alpha = i->time_created + 10500 - gfx::getTicks();
+            if(alpha < 0 || alpha >= 500)
+                alpha = 500;
+            i->text_sprite.setAlpha((float)alpha / 500.0f * 255);
+            gfx::render(i->text_sprite);
+        }
+            
     gfx::render(chat_box);
 }
 
@@ -52,6 +59,7 @@ void chat::onPacket(packets::packet packet) {
             new_line->text_sprite.scale = 2;
             new_line->y_to_be = chat_box.getTranslatedY() - new_line->text_sprite.getHeight();
             new_line->text_sprite.y = chat_box.getTranslatedY();
+            new_line->time_created = gfx::getTicks();
             
             for(chatLine* i : chat_lines)
                 i->y_to_be -= new_line->text_sprite.getHeight();

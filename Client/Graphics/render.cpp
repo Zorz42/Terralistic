@@ -66,9 +66,9 @@ void gfx::render(const textInput& t) {
     rect.y += t.margin * t.scale;
     rect.w = t.getTextureWidth() * t.scale;
     rect.h -= t.margin * 2 * t.scale;
-    render(t, rect.x, rect.y, rectShape(rect.w > t.width * t.scale ? rect.w / t.scale - t.width : 0, 0, rect.w > t.width * t.scale ? t.width : rect.w / t.scale, rect.h / t.scale));
+    render(t, rect.x, rect.y, rectShape(rect.w - t.cut_length > t.width * t.scale ? rect.w / t.scale - t.width : t.cut_length, 0, rect.w - t.cut_length > t.width * t.scale ? t.width : rect.w / t.scale - t.cut_length, rect.h / t.scale));
     if(t.active)
-        render(gfx::rect(rect.x + (t.getText().empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color));
+        render(gfx::rect(rect.x + (rect.w > t.width * t.scale ? t.width * t.scale : rect.w - t.cut_length * t.scale), rect.y, t.scale, rect.h, t.text_color));
 }
 
 void* gfx::loadImageFile(const std::string& path) {

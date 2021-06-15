@@ -63,6 +63,7 @@ struct image {
     unsigned short getTextureHeight() const;
     float scale = 1;
     void clear();
+    void setAlpha(unsigned char alpha);
 protected:
     void freeTexture();
     void* texture=nullptr;
@@ -87,7 +88,7 @@ struct button : sprite {
 };
 
 struct textInput : button {
-    textInput() { margin = 3; }
+    textInput();
     
     inline std::string getText() const { return text; }
     unsigned short getWidth() const override;
@@ -97,6 +98,7 @@ struct textInput : button {
     char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
     color border_color = {255, 255, 255}, text_color = {255, 255, 255};
+    unsigned char cut_length;
 protected:
     std::string text;
 };
