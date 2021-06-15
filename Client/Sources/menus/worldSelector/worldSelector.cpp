@@ -120,14 +120,23 @@ void worldSelector::onKeyDown(gfx::key key) {
                 }
                 else if(i.delete_button.isHovered()) {
                     std::string result;
-                    gfx::runScene(new choiceScreen(std::string("Do you want to delete ") + i.name + "?", {"Yes", "No"}, &result));
+                    if(shift_pressed)
+                        result = "Yes";
+                    else
+                        gfx::runScene(new choiceScreen(std::string("Do you want to delete ") + i.name + "?", {"Yes", "No"}, &result));
                     
                     if(result == "Yes")
                         std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
                     refresh();
                 }
             }
-    }
+    } else if(key == gfx::KEY_SHIFT)
+        shift_pressed = true;
+}
+
+void worldSelector::onKeyUp(gfx::key key) {
+    if(key == gfx::KEY_SHIFT)
+        shift_pressed = false;
 }
 
 void worldSelector::onMouseScroll(int distance) {

@@ -75,6 +75,8 @@ gfx::key translateMouseKey(int sdl_button) {
         case SDLK_SPACE: return gfx::KEY_SPACE;
         case SDLK_ESCAPE: return gfx::KEY_ESCAPE;
         case SDLK_RETURN: return gfx::KEY_ENTER;
+        case SDLK_LSHIFT:
+        case SDLK_RSHIFT: return gfx::KEY_SHIFT;
         default: return gfx::KEY_UNKNOWN;
     }
 }
