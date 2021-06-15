@@ -476,9 +476,9 @@ int serverMap::calculateHeight(int x, SimplexNoise& noise) {
 
 void serverMap::loadAssets() {
     std::ifstream structureFile;
-    structureFile.open("C:/Users/Uporabnik/source/repos/Zorz42/Terralistic/Client/Resources/Structures.asset", std::ios::in);
+    structureFile.open(resource_path + "Structures.asset", std::ios::in);
     structureFile.seekg(0, std::ios::end);
-    int size = structureFile.tellg();
+    int size = (int)structureFile.tellg();
     char* assetData = new char[size];
     structureFile.seekg(0, std::ios::beg);
     structureFile.read(assetData, size);
@@ -488,10 +488,9 @@ void serverMap::loadAssets() {
     while (counter < size - 1) {
         std::string name = "";
         while (counter - previousEnd < assetData[counter]) {
-            counter++;
             name += assetData[counter];
+            counter++;
         }
-        counter++;
         int x_size = assetData[counter];
         counter++;
         int y_size = assetData[counter];

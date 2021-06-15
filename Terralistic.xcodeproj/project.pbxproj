@@ -49,6 +49,8 @@
 		1664388A26695B2000587F5E /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
 		16645DEE2678B942003EDC5F /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		16645DEF2678B94B003EDC5F /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
+		1665D8912678E7AB00A7BB61 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 1665D8902678E7AB00A7BB61 /* Structures.asset */; };
+		1665D8922678E7AB00A7BB61 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 1665D8902678E7AB00A7BB61 /* Structures.asset */; };
 		1667B4842667FD8F00735160 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1667B4832667FD8F00735160 /* liquid.cpp */; };
 		1667B4852667FD8F00735160 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1667B4832667FD8F00735160 /* liquid.cpp */; };
 		1675E71226611B1D00B620F4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1C2659010D0016509C /* block.cpp */; };
@@ -295,6 +297,7 @@
 		1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = playerRenderer.cpp; sourceTree = "<group>"; };
 		1662BC1E2635A9E70062DBB3 /* playerRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = playerRenderer.hpp; sourceTree = "<group>"; };
 		1664388626695A2F00587F5E /* liquid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liquid.cpp; sourceTree = "<group>"; };
+		1665D8902678E7AB00A7BB61 /* Structures.asset */ = {isa = PBXFileReference; lastKnownFileType = file; path = Structures.asset; sourceTree = "<group>"; };
 		1667B4832667FD8F00735160 /* liquid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liquid.cpp; sourceTree = "<group>"; };
 		1675E71B26611B8000B620F4 /* configManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = configManager.cpp; sourceTree = "<group>"; };
 		1675E71C26611B8000B620F4 /* configManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = configManager.hpp; sourceTree = "<group>"; };
@@ -804,6 +807,7 @@
 		1689692A25E9607800D26060 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				1665D8902678E7AB00A7BB61 /* Structures.asset */,
 				1689692B25E9607800D26060 /* icon.icns */,
 				1689692C25E9607800D26060 /* pixel_font.ttf */,
 				1689699A25E962F800D26060 /* texturePack */,
@@ -1136,6 +1140,7 @@
 			files = (
 				1661663D25EA561A002A3815 /* icon.icns in Resources */,
 				1661662925EA377B002A3815 /* pixel_font.ttf in Resources */,
+				1665D8922678E7AB00A7BB61 /* Structures.asset in Resources */,
 				1661662A25EA377B002A3815 /* texturePack in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1162,6 +1167,7 @@
 			files = (
 				1661663C25EA5608002A3815 /* icon.icns in Resources */,
 				1689697725E9607900D26060 /* pixel_font.ttf in Resources */,
+				1665D8912678E7AB00A7BB61 /* Structures.asset in Resources */,
 				1689699B25E962F800D26060 /* texturePack in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
