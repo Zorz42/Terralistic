@@ -96,8 +96,8 @@ void game::init() {
         new players(&networking_manager, world_map),
         new playerHandler(&networking_manager, &main_player, world_map),
         new debugMenu(&main_player, world_map),
-        new pauseScreen(),
         new chat(&networking_manager),
+        new pauseScreen(),
     };
     
     renderTextScreen("Connecting to server");

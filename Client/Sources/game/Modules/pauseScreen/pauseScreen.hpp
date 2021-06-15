@@ -22,7 +22,9 @@
 
 class pauseScreen : public gfx::sceneModule {
     gfx::button resume_button, quit_button;
+    gfx::rect back_rect;
     bool paused = false;
+    int x_to_be = 0;
 public:
     void init() override;
     void render() override;

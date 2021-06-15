@@ -7,11 +7,14 @@
 
 #include "chat.hpp"
 
+#define PADDING 5
+
 void chat::init() {
     chat_box.scale = 2;
     chat_box.setText("");
     chat_box.orientation = gfx::bottom_left;
-    chat_box.y = -5;
+    chat_box.y = -PADDING;
+    chat_box.x = PADDING;
     
     text_inputs = {&chat_box};
 }
@@ -62,10 +65,11 @@ void chat::onPacket(packets::packet packet) {
             chatLine* new_line = new chatLine;
             new_line->text_sprite.setTexture(gfx::renderText(packet.getString(), {255, 255, 255}));
             new_line->text_sprite.scale = 2;
-            new_line->y_to_be = chat_box.y - chat_box.getHeight();
             new_line->text_sprite.y = chat_box.y;
-            new_line->time_created = gfx::getTicks();
+            new_line->text_sprite.x = PADDING;
             new_line->text_sprite.orientation = gfx::bottom_left;
+            new_line->y_to_be = chat_box.y - chat_box.getHeight();
+            new_line->time_created = gfx::getTicks();
             
             for(chatLine* i : chat_lines)
                 i->y_to_be -= new_line->text_sprite.getHeight();
