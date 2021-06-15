@@ -47,6 +47,8 @@
 		1664388826695B0D00587F5E /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
 		1664388926695B1B00587F5E /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
 		1664388A26695B2000587F5E /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
+		16645DEE2678B942003EDC5F /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
+		16645DEF2678B94B003EDC5F /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		1667B4842667FD8F00735160 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1667B4832667FD8F00735160 /* liquid.cpp */; };
 		1667B4852667FD8F00735160 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1667B4832667FD8F00735160 /* liquid.cpp */; };
 		1675E71226611B1D00B620F4 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1C2659010D0016509C /* block.cpp */; };
@@ -1220,6 +1222,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16645DEF2678B94B003EDC5F /* SimplexNoise.cpp in Sources */,
 				1664388A26695B2000587F5E /* liquid.cpp in Sources */,
 				1675E71F26611BBF00B620F4 /* configManager.cpp in Sources */,
 				1675E71226611B1D00B620F4 /* block.cpp in Sources */,
@@ -1243,6 +1246,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16645DEE2678B942003EDC5F /* SimplexNoise.cpp in Sources */,
 				1664388926695B1B00587F5E /* liquid.cpp in Sources */,
 				1675E71E26611BBB00B620F4 /* configManager.cpp in Sources */,
 				1675E71626611B2D00B620F4 /* block.cpp in Sources */,
