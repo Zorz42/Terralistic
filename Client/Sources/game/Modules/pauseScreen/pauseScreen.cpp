@@ -24,6 +24,7 @@ void pauseScreen::init() {
 }
 
 void pauseScreen::render() {
+    disable_events = paused;
     if(paused) {
         gfx::render(resume_button);
         gfx::render(quit_button);
