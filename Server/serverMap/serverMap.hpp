@@ -27,6 +27,20 @@ class serverMap : serverPacketListener {
     enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
     enum class biome {NO_BIOME, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS};
 
+    struct structure {
+        std::string name;
+        int x_size, y_size;
+        blockType* blocks;
+        structure(std::string cname, int x, int y, blockType* cBlocks) {
+            name = cname;
+            x_size = x;
+            y_size = y;
+            blocks = cBlocks;
+        }
+    };
+
+    std::vector<structure> structures;
+
     class block;
     class player;
     
@@ -222,6 +236,8 @@ class serverMap : serverPacketListener {
 
     void generateOakTree(int x, int y);
     void generateAccaciaTree(int x, int y);
+    void generateStructure(std::string name, int x, int y);
+    void loadAssets();
 
     
     int getSpawnX();

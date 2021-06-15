@@ -112,6 +112,9 @@
     <Filter Include="Source Files\Client\Sources\menus\choiceScreen">
       <UniqueIdentifier>{4543cdfc-9625-485e-be82-0dce38344989}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Client\Sources\game\Modules\chat">
+      <UniqueIdentifier>{19cf6297-79d1-4f75-9252-c8f8870ab5bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client\Graphics\drawables.cpp">
@@ -248,6 +251,9 @@
     </ClCompile>
     <ClCompile Include="Client\Sources\menus\choiceScreen\choiceScreen.cpp">
       <Filter>Source Files\Client\Sources\menus\choiceScreen</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\game\Modules\chat\chat.cpp">
+      <Filter>Source Files\Client\Sources\game\Modules\chat</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -8,6 +8,9 @@
 #include "SimplexNoise.h"
 #include <random>
 #include "serverMap.hpp"
+#include <fstream>
+#include <vector>
+#include <string>
 
 // terrain generation parameters
 
@@ -28,11 +31,15 @@
 #define STONE_START 0.1
 #define STONE_LENGTH 1
 
+
+
 int serverMap::generateTerrain(unsigned int seed) {
     std::mt19937 engine(seed);
     SimplexNoise noise(engine());
 
     generating_current = 0;
+
+    loadAssets();
     
     for (int x = 0; x < width; x++) {
         biomeGeneratorSwitch(x, noise);
@@ -84,8 +91,8 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     mountains 600-700
     */
 
-    int heat = heatGeneratorInt(x, noise);
-    int biomeheight = 2;// heightGeneratorInt(x, noise);
+    int heat = 1;// heatGeneratorInt(x, noise);
+    int biomeheight = 1;// heightGeneratorInt(x, noise);
     /*if (biomeheight > 1)
         biomeheight = 3 - biomeheight;*/
     
@@ -191,6 +198,8 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
     }
     if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8)
         generateOakTree(x, sliceHeight);
+    if (x == 2200)
+        generateStructure("Random", x, sliceHeight);
 }
 
 
@@ -463,4 +472,51 @@ int serverMap::calculateHeight(int x, SimplexNoise& noise) {
         sliceHeight = (-cos((biomeDistance + 10) * PI / 20) / 2 + 0.5) * slice1 + (cos((biomeDistance + 10) * PI / 20) / 2 + 0.5) * slice2;
     }
     return(sliceHeight);
+}
+
+void serverMap::loadAssets() {
+    std::ifstream structureFile;
+    structureFile.open("C:/Users/Uporabnik/source/repos/Zorz42/Terralistic/Client/Resources/Structures.asset", std::ios::in);
+    structureFile.seekg(0, std::ios::end);
+    int size = structureFile.tellg();
+    char* assetData = new char[size];
+    structureFile.seekg(0, std::ios::beg);
+    structureFile.read(assetData, size);
+
+    int counter = 0;
+    int previousEnd = 0;
+    while (counter < size - 1) {
+        std::string name = "";
+        while (counter - previousEnd < assetData[counter]) {
+            counter++;
+            name += assetData[counter];
+        }
+        counter++;
+        int x_size = assetData[counter];
+        counter++;
+        int y_size = assetData[counter];
+        counter++;
+        blockType *blocks = new blockType[x_size * y_size];
+        for (int i = 0; i < x_size * y_size; i++) {
+            blocks[i] = (blockType)assetData[counter];
+            counter++;
+        }
+        structures.push_back(structure(name, x_size, y_size, blocks));
+        previousEnd = counter;
+    }
+
+    structureFile.close();
+    delete[] assetData;
+}
+
+void serverMap::generateStructure(std::string name, int x, int y) {
+    for (int i = 0; i < structures.size(); i++) {
+        if (name == structures[i].name) {
+            for(int j = 0; j < structures[i].x_size; j++)
+                for(int k = 0; k < structures[i].y_size; k++)
+                    getBlock((unsigned short)(x + j), (unsigned short)(height - y - k)).setType(structures[i].blocks[j * structures[i].y_size + k], false);
+            break;
+        }
+    }
+
 }

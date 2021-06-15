@@ -109,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/main/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/choiceScreen/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/serverMap/terrainGenerator/simplexNoise/;Server/serverNetworking/;Server/serverMap/;Server/print/;Libraries/assert/;Libraries/configManager/;Libraries/fileSystem/;Libraries/packets/;Libraries/;Client/Sources/game/Modules/debugMenu/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Client/Sources/game/Modules/chat/;Client/SDL_Libraries/SDL2_image-2.0.5/include/;Client/SDL_Libraries/SDL2_ttf-2.0.15/include/;Client/SDL_Libraries/SDL2-2.0.14/include/;Server/server/;Client/Graphics/;Client/Sources/fileManager/;Server/worldSaver/;Client/Sources/menus/notifyingScreen/;Client/Sources/menus/textScreen/;Client/Sources/game/Modules/clientMap/;Client/Sources/game/Modules/playerHandler/;Client/Sources/game/Modules/pauseScreen/;Client/Sources/game/Modules/otherPlayers/;Client/Sources/game/Modules/;Client/Sources/game/playerRenderer/;Client/Sources/game/generatingScreen/;Client/Sources/game/clientNetworking/;Client/Sources/main/;Client/Sources/game/;Client/Sources/menus/worldSelector/;Client/Sources/menus/worldCreator/;Client/Sources/menus/startMenu/;Client/Sources/menus/choiceScreen/;Client/Sources/menus/multiplayerSelector/;Client/Sources/textScreen/;Client/Sources/inventory/;Client/Sources/fileManager/sago/;Server/serverMap/terrainGenerator/simplexNoise/;Server/serverNetworking/;Server/serverMap/;Server/print/;Libraries/assert/;Libraries/configManager/;Libraries/fileSystem/;Libraries/packets/;Libraries/;Client/Sources/game/Modules/debugMenu/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
@@ -137,6 +137,7 @@
     <ClCompile Include="client\sources\filemanager\sago\sago.cpp" />
     <ClCompile Include="client\sources\game\clientnetworking\clientNetworking.cpp" />
     <ClCompile Include="client\sources\game\game.cpp" />
+    <ClCompile Include="Client\Sources\game\Modules\chat\chat.cpp" />
     <ClCompile Include="Client\Sources\game\Modules\clientMap\block.cpp" />
     <ClCompile Include="client\sources\game\modules\clientmap\chunk.cpp" />
     <ClCompile Include="client\sources\game\modules\clientmap\item.cpp" />
