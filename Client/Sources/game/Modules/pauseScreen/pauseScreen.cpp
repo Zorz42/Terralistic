@@ -29,10 +29,11 @@ void pauseScreen::init() {
 
 void pauseScreen::render() {
     if(back_rect.x != -back_rect.w || x_to_be != -back_rect.w) {
-        back_rect.x += (x_to_be - back_rect.x) / 2;
+        back_rect.x += floor(float(x_to_be - back_rect.x) / 2.0f);
         resume_button.x = back_rect.x + PADDING;
         quit_button.x = back_rect.x + PADDING;
         back_rect.h = gfx::getWindowHeight();
+        gfx::render(gfx::rect(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight(), {0, 0, 0, (unsigned char)(float(back_rect.w + back_rect.x) / (float)back_rect.w * 150)}));
         gfx::render(back_rect);
         gfx::render(resume_button);
         gfx::render(quit_button);
