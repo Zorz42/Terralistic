@@ -40,14 +40,19 @@ void chat::render() {
 
 void chat::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_ENTER && chat_box.active) {
-        packets::packet chat_packet(packets::CHAT);
-        chat_packet << chat_box.getText();
-        manager->sendPacket(chat_packet);
-        chat_box.setText("");
+        if(!chat_box.getText().empty()) {
+            packets::packet chat_packet(packets::CHAT);
+            chat_packet << chat_box.getText();
+            manager->sendPacket(chat_packet);
+            chat_box.setText("");
+        }
         chat_box.active = false;
     } else if(key == gfx::KEY_T && !chat_box.active) {
         chat_box.active = true;
         chat_box.ignore_one_input = true;
+    } else if(key == gfx::KEY_ESCAPE && chat_box.active) {
+        chat_box.setText("");
+        chat_box.active = false;
     }
 }
 
