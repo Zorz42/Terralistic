@@ -62,9 +62,10 @@ void chat::onPacket(packets::packet packet) {
             chatLine* new_line = new chatLine;
             new_line->text_sprite.setTexture(gfx::renderText(packet.getString(), {255, 255, 255}));
             new_line->text_sprite.scale = 2;
-            new_line->y_to_be = chat_box.getTranslatedY() - new_line->text_sprite.getHeight();
-            new_line->text_sprite.y = chat_box.getTranslatedY();
+            new_line->y_to_be = chat_box.y - chat_box.getHeight();
+            new_line->text_sprite.y = chat_box.y;
             new_line->time_created = gfx::getTicks();
+            new_line->text_sprite.orientation = gfx::bottom_left;
             
             for(chatLine* i : chat_lines)
                 i->y_to_be -= new_line->text_sprite.getHeight();
