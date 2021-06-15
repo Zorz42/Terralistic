@@ -25,6 +25,17 @@ void startMenu::init() {
     exit_button.setTexture(gfx::renderText("Exit", {255, 255, 255}));
     exit_button.y = short(exit_button.getTranslatedRect().h + 5);
     exit_button.orientation = gfx::center;
+    
+    title.setTexture(gfx::renderText("Terralistic", {255, 255, 255}));
+    title.scale = 4;
+    title.orientation = gfx::top;
+    title.y = 40;
+    
+    background.setTexture(gfx::loadImageFile("texturePack/misc/background.png"));
+    
+    back_rect.c = {0, 0, 0};
+    back_rect.orientation = gfx::center;
+    back_rect.w = singleplayer_button.getWidth() + 100;
 }
 
 void startMenu::onKeyDown(gfx::key key) {
@@ -39,6 +50,13 @@ void startMenu::onKeyDown(gfx::key key) {
 }
 
 void startMenu::render() {
+    background.scale = (float)gfx::getWindowHeight() / (float)background.getTextureHeight();
+    int pos = gfx::getTicks() / 30 % int(background.getTextureWidth() * background.scale);
+    gfx::render(background, pos, 0);
+    gfx::render(background, pos - background.getTextureWidth() * background.scale, 0);
+    back_rect.h = gfx::getWindowHeight();
+    gfx::render(back_rect);
+    gfx::render(title);
     gfx::render(singleplayer_button);
     gfx::render(multiplayer_button);
     gfx::render(exit_button);

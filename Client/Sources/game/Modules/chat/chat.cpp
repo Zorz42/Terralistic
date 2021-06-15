@@ -20,7 +20,7 @@ void chat::init() {
 }
 
 void chat::update() {
-    int target_width = chat_box.active ? 300 : 150;
+    int target_width = chat_box.active ? 300 : 100;
     chat_box.width += (target_width - (int)chat_box.width) / 3;
     disable_events = chat_box.active;
     
