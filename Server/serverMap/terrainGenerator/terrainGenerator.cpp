@@ -95,7 +95,7 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     */
 
     int heat = 1;// heatGeneratorInt(x, noise);
-    int biomeheight = 1;// heightGeneratorInt(x, noise);
+    int biomeheight = 2;// heightGeneratorInt(x, noise);
     /*if (biomeheight > 1)
         biomeheight = 3 - biomeheight;*/
     
@@ -200,11 +200,7 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
         }
     }
     if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8)
-        generateOakTree(x, sliceHeight);
-    if (x == 2200) {
-        structurePositions.push_back(structurePosition("Tree", x, sliceHeight + 8));
-        structurePositions.push_back(structurePosition("Random8", x + 6, sliceHeight + 8));
-    }
+        structurePositions.push_back(structurePosition("Tree", x, sliceHeight));
 }
 
 
@@ -317,8 +313,8 @@ void serverMap::generateForest(int x, SimplexNoise& noise) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
-    if ( x%3 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8)
-        generateOakTree(x, sliceHeight);
+    if ( x%8 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8)
+        structurePositions.push_back(structurePosition("Tree", x + noise.noise(x) * 2, sliceHeight));
 }
 
 void serverMap::generateColdHills(int x, SimplexNoise& noise) {
@@ -363,22 +359,6 @@ void serverMap::generateSavana(int x, SimplexNoise& noise) {
         generateAccaciaTree(x, sliceHeight);
 }
 
-
-
-
-
-void serverMap::generateOakTree(int x, int y) {
-    for (int i = x - 2; i < x + 3; i++) {
-        for (int j = y + 5; j < y + 10; j++) {
-            getBlock((unsigned short)i, height - (unsigned short)j).setType(blockType::LEAVES, false);
-        }
-    }
-    getBlock((unsigned short)x, height - (unsigned short)y - 2).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 3).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 4).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 5).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 6 ).setType(blockType::WOOD, false);
-}
 
 void serverMap::generateAccaciaTree(int x, int y) {
     getBlock((unsigned short)x, height - (unsigned short)y - 2).setType(blockType::WOOD, false);
@@ -521,7 +501,7 @@ void serverMap::generateStructure(std::string name, int x, int y) {
         if (name == structures[i].name) {
             for(int j = 0; j < structures[i].y_size * structures[i].x_size; j++)
                 if(structures[i].blocks[j] != blockType::NOTHING)
-                    getBlock((unsigned short)(x + j % structures[i].x_size), (unsigned short)(height - y + (j - j % structures[i].x_size) / structures[i].x_size)).setType(structures[i].blocks[j], false);
+                    getBlock((unsigned short)(x + j % structures[i].x_size), (unsigned short)(height - y + (j - j % structures[i].x_size) / structures[i].x_size) - structures[i].y_size - 1).setType(structures[i].blocks[j], false);
             break;
         }
     }
