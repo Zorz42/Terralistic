@@ -21,7 +21,7 @@
 #define UNBREAKABLE -1
 
 class serverMap : serverPacketListener {
-    enum class blockType {AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE};
+    enum class blockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE};
     enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
     enum class liquidType {EMPTY, WATER};
     enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
@@ -38,8 +38,19 @@ class serverMap : serverPacketListener {
             blocks = cBlocks;
         }
     };
+    struct structurePosition
+    {
+        std::string name;
+        int x, y;
+        structurePosition(std::string cname, int cx, int cy) {
+            name = cname;
+            x = cx;
+            y = cy;
+        }
+    };
 
     std::vector<structure> structures;
+    std::vector<structurePosition> structurePositions;
 
     class block;
     class player;

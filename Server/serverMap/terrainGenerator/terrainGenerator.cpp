@@ -47,6 +47,9 @@ int serverMap::generateTerrain(unsigned int seed) {
     for (int x = 0; x < width; x++) {
         terrainGenerator(x, noise);
     }
+    for (structurePosition i : structurePositions) {
+        generateStructure(i.name, i.x, i.y);
+    }
     for(unsigned short x = 0; x < width; x++)
         for(unsigned short y = 0; y < height; y++)
             getBlock(x, y).update();
@@ -198,8 +201,10 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
     }
     if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8)
         generateOakTree(x, sliceHeight);
-    if (x == 2200)
-        generateStructure("Random", x, sliceHeight);
+    if (x == 2200) {
+        structurePositions.push_back(structurePosition("Tree", x, sliceHeight + 8));
+        structurePositions.push_back(structurePosition("Random8", x + 6, sliceHeight + 8));
+    }
 }
 
 
@@ -477,6 +482,7 @@ int serverMap::calculateHeight(int x, SimplexNoise& noise) {
 void serverMap::loadAssets() {
     std::ifstream structureFile;
     structureFile.open(resource_path + "Structures.asset", std::ios::in);
+
     structureFile.seekg(0, std::ios::end);
     int size = (int)structureFile.tellg();
     char* assetData = new char[size];
@@ -487,7 +493,9 @@ void serverMap::loadAssets() {
     int previousEnd = 0;
     while (counter < size - 1) {
         std::string name = "";
-        while (counter - previousEnd < assetData[counter]) {
+        int nameSize = assetData[counter];
+        counter++;
+        while (counter - previousEnd <= nameSize) {
             name += assetData[counter];
             counter++;
         }
@@ -511,9 +519,9 @@ void serverMap::loadAssets() {
 void serverMap::generateStructure(std::string name, int x, int y) {
     for (int i = 0; i < structures.size(); i++) {
         if (name == structures[i].name) {
-            for(int j = 0; j < structures[i].x_size; j++)
-                for(int k = 0; k < structures[i].y_size; k++)
-                    getBlock((unsigned short)(x + j), (unsigned short)(height - y - k)).setType(structures[i].blocks[j * structures[i].y_size + k], false);
+            for(int j = 0; j < structures[i].y_size * structures[i].x_size; j++)
+                if(structures[i].blocks[j] != blockType::NOTHING)
+                    getBlock((unsigned short)(x + j % structures[i].x_size), (unsigned short)(height - y + (j - j % structures[i].x_size) / structures[i].x_size)).setType(structures[i].blocks[j], false);
             break;
         }
     }
