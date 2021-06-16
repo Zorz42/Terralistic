@@ -47,17 +47,14 @@ void map::onPacket(packets::packet packet) {
         }
         case packets::BLOCK_CHANGE: {
             blockType type = (blockType)packet.getUChar();
+            unsigned char light_level = packet.getUChar();
             unsigned char liquid_level = packet.getUChar();
             liquidType liquid_type = (liquidType)packet.getUChar();
             unsigned short y = packet.getUShort(), x = packet.getUShort();
-            getBlock(x, y).setType(type, liquid_type);
-            getBlock(x, y).setLiquidLevel(liquid_level);
-            break;
-        }
-        case packets::LIGHT_CHANGE: {
-            unsigned char level = packet.getUChar();
-            unsigned short y = packet.getUShort(), x = packet.getUShort();
-            getBlock(x, y).setLightLevel(level);
+            block curr_block = getBlock(x, y);
+            curr_block.setType(type, liquid_type);
+            curr_block.setLiquidLevel(liquid_level);
+            curr_block.setLightLevel(light_level);
             break;
         }
         case packets::CHUNK: {
@@ -101,8 +98,8 @@ void map::init() {
 void map::render() {
     background_image.scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
     int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * background_image.scale);
-    gfx::render(background_image, position_x, 0);
-    gfx::render(background_image, background_image.getTextureWidth() * background_image.scale + position_x, 0);
+    for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * background_image.scale) + 2; i++)
+        gfx::render(background_image, position_x + i * background_image.getTextureWidth() * background_image.scale, 0);
     renderBlocks();
     renderItems();
     if(kicked) {

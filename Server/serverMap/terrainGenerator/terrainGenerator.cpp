@@ -199,7 +199,7 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
-    if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8)
+    if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8 && x > 5)
         structurePositions.push_back(structurePosition("Tree", x, sliceHeight));
 }
 
@@ -313,7 +313,7 @@ void serverMap::generateForest(int x, SimplexNoise& noise) {
             getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
-    if ( x%8 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8)
+    if ( x%8 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8 && x > 5)
         structurePositions.push_back(structurePosition("Tree", x + noise.noise(x) * 2, sliceHeight));
 }
 

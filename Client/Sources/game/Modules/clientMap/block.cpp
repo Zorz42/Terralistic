@@ -118,23 +118,7 @@ void map::block::updateOrientation() {
 }
 
 void map::block::draw() {
-    SimplexNoise noise(10);
-    unsigned short heat = (int)((noise.noise((float)x / 550 + 0.25) + 1) * 3);
-    heat = heat / 2;
-    if(heat == 3)
-        heat = 2;
-    heat *= 127.5;
-
-    unsigned short biomeheight = (int)((noise.noise((float)x / 300 + 0.001) + 1) * 4);
-    biomeheight /= 2;
-    if(biomeheight == 4)
-        biomeheight = 3;
-    biomeheight *= 85;
-
     gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
-    gfx::rect rectBiomeHeight((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 200, (unsigned char)biomeheight, (unsigned char)biomeheight, (unsigned char)255 });
-    gfx::rect rectHeat((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { (unsigned char)heat, (unsigned char)heat, 200, (unsigned char)255 });
-    
 
     if(block_data->getUniqueBlock().texture.getTexture() && getLightLevel())
         gfx::render(block_data->getUniqueBlock().texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
@@ -149,13 +133,6 @@ void map::block::draw() {
         int level = ((int)getLiquidLevel() + 1) / 16;
         gfx::render(block_data->getUniqueLiquid().texture, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::rectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
-    
-    /*if (getLightLevel() <= MAX_LIGHT / 4) {
-        if (((x & 1) ^ (y & 1)) == 1)
-            gfx::render(rectBiomeHeight);
-        else
-            gfx::render(rectHeat);
-    }*/
 }
 
 void map::block::scheduleTextureUpdate() {

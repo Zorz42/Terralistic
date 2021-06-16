@@ -106,7 +106,6 @@ class serverMap : serverPacketListener {
         
         void syncWithClient();
         void updateNeighbors();
-        
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
         block() = default;
@@ -121,6 +120,7 @@ class serverMap : serverPacketListener {
         void liquidUpdate();
         void setLightSource(unsigned char power);
         void removeLightSource();
+        void setLightLevel(unsigned char light_level);
         
         inline bool refersToABlock() { return block_data != nullptr; }
         

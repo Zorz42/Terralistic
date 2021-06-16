@@ -18,8 +18,8 @@ void serverMap::initBlocks() {
         uniqueBlock("stone_block",       /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::STONE_BLOCK, /*break_time*/1000       ),
         uniqueBlock("grass_block",       /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
         uniqueBlock("stone",             /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemType::STONE,       /*break_time*/1500       ),
-        uniqueBlock("wood",              /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::WOOD_PLANKS, /*break_time*/1000       ),
-        uniqueBlock("leaves",            /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
+        uniqueBlock("wood",              /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::WOOD_PLANKS, /*break_time*/1000       ),
+        uniqueBlock("leaves",            /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
         uniqueBlock("sand",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
         uniqueBlock("snowy_grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
         uniqueBlock("snow_block",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
@@ -70,12 +70,21 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
         block_data->liquid_id = liquid_id;
     }
     else if(block_id != block_data->block_id || liquid_id != block_data->liquid_id) {
-        parent_map->removeNaturalLight(x);
+        bool was_transparent = isTransparent();
         block_data->block_id = block_id;
         block_data->liquid_id = liquid_id;
-        parent_map->setNaturalLight(x);
         if(liquid_id == liquidType::EMPTY)
             setLiquidLevel(0);
+        
+        if(isTransparent() != was_transparent) {
+            if(isTransparent())
+                for(int curr_y = y; parent_map->getBlock(x, curr_y).isTransparent(); curr_y++)
+                    parent_map->getBlock(x, curr_y).setLightSource(MAX_LIGHT);
+            else
+                for(int curr_y = y; parent_map->getBlock(x, curr_y).isLightSource(); curr_y++)
+                    parent_map->getBlock(x, curr_y).removeLightSource();
+        }
+        
         update();
         updateNeighbors();
         syncWithClient();
@@ -96,7 +105,7 @@ void serverMap::block::updateNeighbors() {
 
 void serverMap::block::syncWithClient() {
     packets::packet packet(packets::BLOCK_CHANGE);
-    packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getType();
+    packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
     parent_map->manager->sendToEveryone(packet);
 }
 

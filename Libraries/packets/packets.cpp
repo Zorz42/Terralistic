@@ -18,6 +18,7 @@
 
 #define define_operator(T) \
 packets::packet& packets::packet::operator<<(T x) { \
+    contents.reserve(sizeof(T)); \
     for(int i = sizeof(T) - 1; i >= 0; i--) \
         contents.push_back((x >> i * 8) & 0xFF); \
     return *this; \

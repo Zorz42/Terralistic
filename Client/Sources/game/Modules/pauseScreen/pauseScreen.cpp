@@ -6,6 +6,7 @@
 //
 
 #include "pauseScreen.hpp"
+#include <cmath>
 
 // pause screen is very simple for now
 
