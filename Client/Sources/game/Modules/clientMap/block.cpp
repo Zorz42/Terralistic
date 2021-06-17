@@ -7,7 +7,7 @@
 
 #include "clientMap.hpp"
 #include "assert.hpp"
-#include "SimplexNoise.h"
+#include <algorithm>
 
 std::vector<map::uniqueBlock> map::unique_blocks;
 gfx::image breaking_texture;
@@ -26,7 +26,7 @@ void map::initBlocks() {
         {"snow_block",        /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK, blockType::ICE                   }},
         {"ice_block",         /*ghost*/false, /*connects_to*/{blockType::SNOW_BLOCK                                          }},
     };
-    
+
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
 }
@@ -69,7 +69,7 @@ void map::renderBlocks() {
 
     short begin_y = view_y / (BLOCK_WIDTH << 4) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_y = view_y / (BLOCK_WIDTH << 4) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) + 2;
-    
+
     if(begin_x < 0)
         begin_x = 0;
     if(end_x > getWorldWidth() >> 4)
@@ -78,10 +78,10 @@ void map::renderBlocks() {
         begin_y = 0;
     if(end_y > getWorldHeight() >> 4)
         end_y = getWorldHeight() >> 4;
-    
+
     // only request finite number of chunks per frame from server
 #define REQUEST_LIMIT 5
-    
+
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
             if(getChunk(x, y).getState() == chunkState::unloaded && chunks_pending < REQUEST_LIMIT) {
@@ -122,7 +122,7 @@ void map::block::draw() {
 
     if(block_data->getUniqueBlock().texture.getTexture() && getLightLevel())
         gfx::render(block_data->getUniqueBlock().texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
-    
+
     if(getLightLevel() != MAX_LIGHT)
         gfx::render(rect);
 
@@ -142,7 +142,7 @@ void map::block::scheduleTextureUpdate() {
 
 void map::block::update() {
     scheduleTextureUpdate();
-    
+
     // also update neighbors
     if(x != 0)
         parent_map->getBlock(x - 1, y).scheduleTextureUpdate();

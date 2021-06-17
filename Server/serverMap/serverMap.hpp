@@ -54,35 +54,35 @@ class serverMap : serverPacketListener {
 
     class block;
     class player;
-    
+
     struct uniqueBlock {
         uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {}
-        
+
         bool ghost, only_on_floor, transparent;
         std::string name;
         itemType drop;
         short break_time;
-        
+
         void (*onBreak)(serverMap*, block*) = nullptr;
         void (*onRightClick)(block*, player*) = nullptr;
         void (*onLeftClick)(block*, player*) = nullptr;
     };
-    
+
     struct uniqueLiquid {
         uniqueLiquid(unsigned short flow_time) : flow_time(flow_time) {}
         unsigned short flow_time;
     };
-    
+
     struct uniqueItem {
         uniqueItem(std::string name, unsigned short stack_size, blockType places);
         std::string name;
         unsigned short stack_size;
         blockType places;
     };
-    
+
     struct blockData {
         blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
-        
+
         blockType block_id;
         liquidType liquid_id = liquidType::EMPTY;
         bool light_source = false, update_light = true;
@@ -90,26 +90,26 @@ class serverMap : serverPacketListener {
         unsigned char break_stage = 0, liquid_level = 0, light_level = 0;
         unsigned int when_to_update_liquid = 1;
         flowDirection flow_direction = flowDirection::NONE;
-        
+
         uniqueBlock& getUniqueBlock() const;
         uniqueLiquid& getUniqueLiquid() const;
     };
-    
+
     static std::vector<uniqueItem> unique_items;
     static std::vector<uniqueBlock> unique_blocks;
     static std::vector<uniqueLiquid> unique_liquids;
-    
+
     class block {
         blockData* block_data = nullptr;
         unsigned short x, y;
         serverMap* parent_map;
-        
+
         void syncWithClient();
         void updateNeighbors();
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, serverMap* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
         block() = default;
-        
+
         void update();
         void setType(blockType block_id, bool process=true);
         void setType(liquidType liquid_id, bool process=true);
@@ -121,9 +121,9 @@ class serverMap : serverPacketListener {
         void setLightSource(unsigned char power);
         void removeLightSource();
         void setLightLevel(unsigned char light_level);
-        
+
         inline bool refersToABlock() { return block_data != nullptr; }
-        
+
         inline bool isTransparent() { return block_data->getUniqueBlock().transparent; }
         inline bool isOnlyOnFloor() { return block_data->getUniqueBlock().only_on_floor; }
         inline bool isLightSource() { return block_data->light_source; }
@@ -143,16 +143,16 @@ class serverMap : serverPacketListener {
         inline unsigned short getFlowTime() { return block_data->getUniqueLiquid().flow_time; }
         inline flowDirection getFlowDirection() { return block_data->flow_direction; }
         inline void setFlowDirection(flowDirection flow_direction) { block_data->flow_direction = flow_direction; }
-        
+
         inline unsigned short getX() { return x; }
         inline unsigned short getY() { return y; }
-        
+
         inline void _setLightLevel(unsigned char level) { block_data->light_level = level; }
-        
+
         void leftClickEvent(connection& connection, unsigned short tick_length);
         void rightClickEvent(player* peer);
     };
-    
+
     class item {
         int velocity_x, velocity_y;
         unsigned short id;
@@ -167,9 +167,9 @@ class serverMap : serverPacketListener {
         unsigned short getId() { return id; }
         itemType getItemId() { return item_id; }
     };
-    
+
     class inventory;
-    
+
     class inventoryItem {
         unsigned short stack;
         inventory* holder;
@@ -178,7 +178,7 @@ class serverMap : serverPacketListener {
         inventoryItem() : holder(nullptr), item_id(serverMap::itemType::NOTHING), stack(0) {}
         explicit inventoryItem(inventory* holder) : holder(holder), item_id(serverMap::itemType::NOTHING), stack(0) {}
         explicit inventoryItem(inventory* holder, itemType item_id) : holder(holder), item_id(item_id), stack(1) {}
-        
+
         inline itemType getId() { return item_id; }
         void setId(itemType id);
         uniqueItem& getUniqueItem() const;
@@ -188,7 +188,7 @@ class serverMap : serverPacketListener {
         bool decreaseStack(unsigned short stack_);
         void sendPacket();
     };
-    
+
     class inventory {
         friend inventoryItem;
         inventoryItem mouse_item;
@@ -202,35 +202,35 @@ class serverMap : serverPacketListener {
         inventoryItem* getSelectedSlot();
         void swapWithMouseItem(inventoryItem* item);
     };
-    
+
     class player {
     public:
-        player(unsigned short id, serverMap* world_map) : id(id), inventory(this) {}
+        player(unsigned short id, serverMap* world_map) : id(id), player_inventory(this) {}
         connection* conn = nullptr;
         const unsigned short id;
         bool flipped = false;
         int x = 0, y = 0;
         unsigned short sight_width = 0, sight_height = 0;
-        inventory inventory;
+        inventory player_inventory;
         unsigned short breaking_x, breaking_y;
         bool breaking = false;
         std::string name;
     };
-    
+
     unsigned short width, height;
     blockData *blocks = nullptr;
     biome* biomes = nullptr;
-    
+
     void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
-    
+
     void onPacket(packets::packet& packet, connection& conn) override;
-    
+
     serverNetworkingManager* manager;
     std::vector<item> items;
     std::vector<player*> all_players;
     std::vector<player*> online_players;
-    
+
     void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
     int calculateHeight(int x, SimplexNoise& noise);
     int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
@@ -250,39 +250,39 @@ class serverMap : serverPacketListener {
     void generateStructure(std::string name, int x, int y);
     void loadAssets();
 
-    
+
     int getSpawnX();
     int getSpawnY();
-    
+
     std::string resource_path;
-    
+
 public:
     serverMap(serverNetworkingManager* manager, std::string resource_path) : manager(manager), serverPacketListener(manager), resource_path(resource_path) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION, packets::CHAT}; }
-    
+
     static void initBlocks();
     static void initItems();
     static void initLiquids();
-    
+
     block getBlock(unsigned short x, unsigned short y);
-    
+
     void createWorld(unsigned short width, unsigned short height);
     void setNaturalLight();
     void spawnItem(itemType item_id, int x, int y, short id=-1);
-    
+
     player* getPlayerByConnection(connection* conn);
     player* getPlayerByName(const std::string& name);
-    
+
     void updateItems(float frame_length);
     void updatePlayersBreaking(unsigned short tick_length);
     void lookForItems(serverMap& world_serverMap);
     void updateBlocks();
-    
+
     unsigned int generating_current = 0, generating_total = 6;
     int generateTerrain(unsigned int seed);
-    
+
     void saveWorld(const std::string& world_path);
     void loadWorld(const std::string& world_path);
-    
+
     ~serverMap();
 };
 

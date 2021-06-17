@@ -8,10 +8,7 @@
 #ifndef game_hpp
 #define game_hpp
 
-#ifdef _WIN32
-#include <utility>
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -19,6 +16,8 @@
 #include <Graphics/graphics.hpp>
 #endif
 
+#else
+#include "graphics.hpp"
 #endif
 
 #include "playerHandler.hpp"
@@ -33,7 +32,7 @@ public:
     networkingManager networking_manager;
     map *world_map;
     mainPlayer main_player;
-    
+
     game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = username; }
     void init() override;
     void stop() override;

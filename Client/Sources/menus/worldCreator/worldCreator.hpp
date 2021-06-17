@@ -8,9 +8,7 @@
 #ifndef worldCreator_hpp
 #define worldCreator_hpp
 
-#ifdef _WIN32
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -18,7 +16,8 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-
+#else
+#include "graphics.hpp"
 #endif
 
 #include <string>
@@ -30,7 +29,7 @@ struct worldCreator : gfx::scene {
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
-    
+
 private:
     std::vector<std::string> worlds;
     gfx::button back_button, create_button;

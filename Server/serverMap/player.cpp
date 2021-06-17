@@ -18,7 +18,7 @@ void serverMap::lookForItems(serverMap& world_serverMap) {
     for(unsigned long i = 0; i < world_serverMap.items.size(); i++) {
         for(player* player : online_players)
             if(abs(world_serverMap.items[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(world_serverMap.items[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
-                char result = player->inventory.addItem(world_serverMap.items[i].getItemId(), 1);
+                char result = player->player_inventory.addItem(world_serverMap.items[i].getItemId(), 1);
                 if(result != -1) {
                     world_serverMap.items[i].destroy(world_serverMap);
                     world_serverMap.items.erase(world_serverMap.items.begin() + i);

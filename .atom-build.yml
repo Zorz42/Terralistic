@@ -1,0 +1,3 @@
+cmd: mkdir -p Build && cd Build && cmake .. && make -j$(nproc) && cp -R ../Client/Resources/ ./Resources && ./Terralistic
+name: Terralistic
+sh: true

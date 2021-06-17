@@ -14,6 +14,7 @@
 #else
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <functional>
 #endif
 
 #include "print.hpp"
@@ -47,28 +48,28 @@ void serverNetworkingManager::onPacket(packets::packet& packet, connection& conn
 void serverNetworkingManager::listenerLoop() {
     int new_socket, activity, max_sd;
     sockaddr_in address{};
-         
+
     fd_set readfds;
-    
-    
+
+
     while(listener_running) {
         FD_ZERO(&readfds);
-     
+
         FD_SET(server_fd, &readfds);
         max_sd = server_fd;
-            
+
         for(connection& conn : connections)
             if(conn.socket != -1) {
                 FD_SET(conn.socket, &readfds);
                 if(conn.socket > max_sd)
                     max_sd = conn.socket;
             }
-     
+
         activity = select(max_sd + 1, &readfds, nullptr, nullptr, nullptr);
-       
+
         if((activity < 0) && (errno != EINTR))
             return;
-             
+
         if(FD_ISSET(server_fd, &readfds)) {
             connection new_connection;
             new_connection.ip = inet_ntoa(address.sin_addr);
@@ -84,7 +85,7 @@ void serverNetworkingManager::listenerLoop() {
                 }
             }
         }
-             
+
         for(connection& conn : connections)
             if(conn.socket != -1) {
                 if (FD_ISSET(conn.socket, &readfds)) {
@@ -165,7 +166,7 @@ void serverNetworkingManager::startListening() {
     server_fd = ListenSocket;
 #else
     int opt = 1;
-    
+
     if ((server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == 0) {
         print::error("socket failed");
         exit(EXIT_FAILURE);
@@ -179,7 +180,7 @@ void serverNetworkingManager::startListening() {
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    
+
     while(true) {
         address.sin_port = htons(port);
         if(bind(server_fd, (struct sockaddr *)&address, sizeof(address)) >= 0)
@@ -193,7 +194,7 @@ void serverNetworkingManager::startListening() {
         exit(EXIT_FAILURE);
     }
 #endif
-    
+
     listener_running = true;
     listener_thread = std::thread(std::bind(&serverNetworkingManager::listenerLoop, this));
 }

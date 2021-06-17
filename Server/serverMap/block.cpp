@@ -26,28 +26,28 @@ void serverMap::initBlocks() {
         uniqueBlock("ice_block",         /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
 
     };
-    
+
     unique_blocks[(int)blockType::WOOD].onBreak = [](serverMap* world_map, block* this_block) {
         block blocks[] = {world_map->getBlock(this_block->getX(), this_block->getY() - 1), world_map->getBlock(this_block->getX() + 1, this_block->getY()), world_map->getBlock(this_block->getX() - 1, this_block->getY())};
         for(block& i : blocks)
             if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
                 i.breakBlock();
     };
-    
+
     unique_blocks[(int)blockType::LEAVES].onBreak = unique_blocks[(int)blockType::WOOD].onBreak;
-    
+
     unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
         this_block->setType(serverMap::blockType::DIRT);
     };
-    
+
     unique_blocks[(int)blockType::AIR].onRightClick = [](block* this_block, player* peer) {
-        serverMap::blockType type = peer->inventory.getSelectedSlot()->getUniqueItem().places;
-        if(type != serverMap::blockType::AIR && peer->inventory.inventory_arr[peer->inventory.selected_slot].decreaseStack(1)) {
+        serverMap::blockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
+        if(type != serverMap::blockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
             this_block->setType(type);
             this_block->update();
         }
     };
-    
+
     unique_blocks[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick;
 }
 
@@ -75,7 +75,7 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
         block_data->liquid_id = liquid_id;
         if(liquid_id == liquidType::EMPTY)
             setLiquidLevel(0);
-        
+
         if(isTransparent() != was_transparent) {
             if(isTransparent())
                 for(int curr_y = y; parent_map->getBlock(x, curr_y).isTransparent(); curr_y++)
@@ -84,7 +84,7 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
                 for(int curr_y = y; parent_map->getBlock(x, curr_y).isLightSource(); curr_y++)
                     parent_map->getBlock(x, curr_y).removeLightSource();
         }
-        
+
         update();
         updateNeighbors();
         syncWithClient();

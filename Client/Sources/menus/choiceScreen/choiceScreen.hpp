@@ -11,9 +11,7 @@
 #include <string>
 #include <vector>
 
-#ifdef _WIN32
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -21,6 +19,8 @@
 #include <Graphics/graphics.hpp>
 #endif
 
+#else
+#include "graphics.hpp"
 #endif
 
 class choiceScreen : public gfx::scene {
@@ -28,14 +28,14 @@ class choiceScreen : public gfx::scene {
         std::string option;
         gfx::button gfx_button;
     };
-    
+
     gfx::sprite notification_sprite;
     std::string notification, *result;
     std::vector<button> buttons;
     std::vector<std::string> options;
 public:
     choiceScreen(std::string notification, std::vector<std::string> options, std::string* result = nullptr);
-    
+
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;

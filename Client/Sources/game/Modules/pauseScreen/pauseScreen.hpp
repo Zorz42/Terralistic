@@ -8,9 +8,7 @@
 #ifndef pauseScreen_hpp
 #define pauseScreen_hpp
 
-#ifdef _WIN32
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -18,6 +16,8 @@
 #include <Graphics/graphics.hpp>
 #endif
 
+#else
+#include "graphics.hpp"
 #endif
 
 class pauseScreen : public gfx::sceneModule {

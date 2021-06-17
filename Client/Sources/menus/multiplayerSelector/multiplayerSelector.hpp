@@ -8,9 +8,7 @@
 #ifndef multiplayerSelector_hpp
 #define multiplayerSelector_hpp
 
-#ifdef _WIN32
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -18,7 +16,8 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-
+#else
+#include "graphics.hpp"
 #endif
 
 struct multiplayerSelector : gfx::scene {
@@ -26,7 +25,7 @@ struct multiplayerSelector : gfx::scene {
     void onKeyDown(gfx::key key) override;
     void render() override;
     void stop() override;
-    
+
 private:
     gfx::button back_button, join_button;
     gfx::sprite server_ip_title, username_title;
