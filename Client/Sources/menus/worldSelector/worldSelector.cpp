@@ -5,10 +5,10 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#ifdef __APPLE__
-#include <dirent.h>
-#else
+#ifdef _WIN32
 #include <dirent-win.h>
+#else
+#include <dirent.h>
 #endif
 #include <algorithm>
 #include <filesystem>
@@ -16,6 +16,7 @@
 #include "game.hpp"
 #include "worldCreator.hpp"
 #include "fileManager.hpp"
+#include "choiceScreen.hpp"
 
 #undef main
 
@@ -45,7 +46,7 @@ void worldSelector::init() {
     title.setTexture(gfx::renderText("Select a world to play!", {255, 255, 255}));
     title.y = PADDING;
     title.orientation = gfx::top;
-    
+
     back_button.scale = 3;
     back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
     back_button.y = -PADDING;
@@ -56,9 +57,9 @@ void worldSelector::init() {
     new_button.y = -PADDING;
     new_button.x = -PADDING;
     new_button.orientation = gfx::bottom_right;
-    
+
     x_image.setTexture(gfx::loadImageFile("texturePack/misc/x-button.png"));
-    
+
     refresh();
 }
 
@@ -66,7 +67,7 @@ void worldSelector::refresh() {
     // scans for worlds in world folder and sets their positions and renders them
     position = 0;
     scroll_limit = 0;
-    
+
     worlds.clear();
     worlds_names.clear();
 
@@ -84,21 +85,21 @@ void worldSelector::refresh() {
             worlds.emplace_back(name);
     }
     closedir (dir);
-    
+
     for(auto& world : worlds) {
         world.button.orientation = gfx::top;
         world.button.scale = 3;
         world.button.setTexture(gfx::renderText(world.name, {255, 255, 255}));
         world.button_y = scroll_limit + title.getTranslatedRect().h + 2 * PADDING;
-        
+
         world.delete_button.orientation = gfx::top;
         world.delete_button.free_texture = false;
         world.delete_button.setTexture(x_image.getTexture());
         world.delete_button.scale = 3;
         world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + PADDING);
-        
+
         scroll_limit += world.button.getTranslatedRect().h + PADDING;
-        
+
         worlds_names.push_back(world.name);
     }
 }
@@ -118,11 +119,24 @@ void worldSelector::onKeyDown(gfx::key key) {
                     refresh();
                 }
                 else if(i.delete_button.isHovered()) {
-                    std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
+                    std::string result;
+                    if(shift_pressed)
+                        result = "Yes";
+                    else
+                        gfx::runScene(new choiceScreen(std::string("Do you want to delete ") + i.name + "?", {"Yes", "No"}, &result));
+
+                    if(result == "Yes")
+                        std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
                     refresh();
                 }
             }
-    }
+    } else if(key == gfx::KEY_SHIFT)
+        shift_pressed = true;
+}
+
+void worldSelector::onKeyUp(gfx::key key) {
+    if(key == gfx::KEY_SHIFT)
+        shift_pressed = false;
 }
 
 void worldSelector::onMouseScroll(int distance) {
@@ -136,20 +150,22 @@ void worldSelector::onMouseScroll(int distance) {
 
 void worldSelector::render() {
     bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
-    
+
     for(world_to_select& world : worlds) {
         world.button.disabled = !hoverable;
         world.delete_button.disabled = !hoverable;
     }
-    
+
     for(world_to_select& world : worlds)
         world.render(position);
-    
+
     gfx::render(gfx::rect(0, 0, gfx::getWindowWidth(), TOP_HEIGHT, {0, 0, 0}));
     gfx::render(gfx::rect(0, 0, gfx::getWindowWidth(), BOTTOM_HEIGHT, {0, 0, 0}, gfx::bottom_left));
-    gfx::render(gfx::rect(0, TOP_HEIGHT, gfx::getWindowWidth(), LINE_HEIGHT, {100, 100, 100}));
+    if(position != 0)
+        gfx::render(gfx::rect(0, TOP_HEIGHT, gfx::getWindowWidth(), LINE_HEIGHT, {100, 100, 100}));
     gfx::render(gfx::rect(0, -BOTTOM_HEIGHT, gfx::getWindowWidth(), LINE_HEIGHT, {100, 100, 100}, gfx::bottom_left));
-    
+
+
     gfx::render(title);
     gfx::render(back_button);
     gfx::render(new_button);

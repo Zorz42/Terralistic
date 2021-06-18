@@ -9,22 +9,26 @@
 
 #include <iostream>
 
-static bool running_scene = true;
+static bool running_scene = true, disable_events_gl;
 
 void gfx::returnFromScene() {
     running_scene = false;
 }
 
 void gfx::scene::_onKeyDown(key key_) {
-    onKeyDown(key_);
+    if(!disable_events_gl || disable_events)
+        onKeyDown(key_);
     for(sceneModule* module : modules)
-        module->onKeyDown(key_);
+        if(!disable_events_gl || module->disable_events)
+            module->onKeyDown(key_);
 }
 
 void gfx::scene::_onKeyUp(key key_) {
-    onKeyUp(key_);
+    if(!disable_events_gl || disable_events)
+        onKeyUp(key_);
     for(sceneModule* module : modules)
-        module->onKeyUp(key_);
+        if(!disable_events_gl || module->disable_events)
+            module->onKeyUp(key_);
 }
 
 gfx::key translateMouseKey(int sdl_button) {
@@ -71,6 +75,8 @@ gfx::key translateMouseKey(int sdl_button) {
         case SDLK_SPACE: return gfx::KEY_SPACE;
         case SDLK_ESCAPE: return gfx::KEY_ESCAPE;
         case SDLK_RETURN: return gfx::KEY_ENTER;
+        case SDLK_LSHIFT:
+        case SDLK_RSHIFT: return gfx::KEY_SHIFT;
         default: return gfx::KEY_UNKNOWN;
     }
 }
@@ -87,20 +93,39 @@ void gfx::runScene(scene* x) {
     while(running_scene && !quit) {
         Uint64 start = SDL_GetPerformanceCounter();
         
+        disable_events_gl = x->disable_events;
+        for(sceneModule* module : x->modules) {
+            if(disable_events_gl)
+                break;
+            disable_events_gl = module->disable_events;
+        }
+            
         while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT)
-                quit = true;
-            else if(event.type == SDL_MOUSEMOTION)
+            if(event.type == SDL_MOUSEMOTION)
                 SDL_GetMouseState((int*)&mouse_x, (int*)&mouse_y);
             else if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 window_width = (unsigned short)event.window.data1;
                 window_height = (unsigned short)event.window.data2;
             } else if(event.type == SDL_MOUSEBUTTONDOWN) {
                 gfx::key key = translateMouseKey(event.button.button);
-                if(key == KEY_MOUSE_LEFT)
-                    for(textInput* i : x->text_inputs)
-                        i->active = i->isHovered();
-                if(key != KEY_UNKNOWN)
+                bool clicked_text_box = false;
+                if(key == KEY_MOUSE_LEFT) {
+                    if(!disable_events_gl || x->disable_events)
+                        for(textInput* i : x->text_inputs) {
+                            i->active = i->isHovered();
+                            if(i->active)
+                                clicked_text_box = true;
+                        }
+                    
+                    for(sceneModule* module : x->modules)
+                        if(!disable_events_gl || module->disable_events)
+                            for(textInput* i : module->text_inputs) {
+                                i->active = i->isHovered();
+                                if(i->active)
+                                    clicked_text_box = true;
+                            }
+                }
+                if(key != KEY_UNKNOWN && !clicked_text_box)
                     x->_onKeyDown(key);
             } else if(event.type == SDL_MOUSEBUTTONUP) {
                 gfx::key key = translateMouseKey(event.button.button);
@@ -108,13 +133,21 @@ void gfx::runScene(scene* x) {
                     x->_onKeyUp(key);
             } else if(event.type == SDL_KEYDOWN) {
                 gfx::key key = translateMouseKey(event.key.keysym.sym);
-                if(event.key.keysym.sym == SDLK_BACKSPACE)
+                if(event.key.keysym.sym == SDLK_BACKSPACE) {
                     for(textInput* i : x->text_inputs)
                         if(i->active && !i->getText().empty()) {
                             std::string str = i->getText();
                             str.pop_back();
                             i->setText(str);
                         }
+                    for(sceneModule* module : x->modules)
+                        for(textInput* i : module->text_inputs)
+                            if(i->active && !i->getText().empty()) {
+                                std::string str = i->getText();
+                                str.pop_back();
+                                i->setText(str);
+                            }
+                }
                 if(key != KEY_UNKNOWN)
                     x->_onKeyDown(key);
             } else if(event.type == SDL_KEYUP) {
@@ -123,16 +156,35 @@ void gfx::runScene(scene* x) {
                     x->_onKeyUp(key);
             } else if(event.type == SDL_TEXTINPUT) {
                 std::string c = event.text.text;
+                
                 for(textInput* i : x->text_inputs)
                     if(i->active)
                         for(char result : c) {
-                            if(i->textProcessing)
-                                result = i->textProcessing(result, (int)i->getText().size());
-                            if(result)
-                                i->setText(i->getText() + result);
+                            if(!i->ignore_one_input) {
+                                if(i->textProcessing)
+                                    result = i->textProcessing(result, (int)i->getText().size());
+                                if(result)
+                                    i->setText(i->getText() + result);
+                            }
+                            i->ignore_one_input = false;
                         }
+                for(sceneModule* module : x->modules)
+                    for(textInput* i : module->text_inputs)
+                        if(i->active)
+                            for(char result : c) {
+                                if(!i->ignore_one_input) {
+                                    if(i->textProcessing)
+                                        result = i->textProcessing(result, (int)i->getText().size());
+                                    if(result)
+                                        i->setText(i->getText() + result);
+                                }
+                                i->ignore_one_input = false;
+                            }
+                
             } else if(event.type == SDL_MOUSEWHEEL)
                 x->onMouseScroll(event.wheel.y);
+            else if(event.type == SDL_QUIT)
+                quit = true;
         }
         
         x->update();
@@ -150,6 +202,10 @@ void gfx::runScene(scene* x) {
         
         Uint64 end = SDL_GetPerformanceCounter();
         frame_length = float(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+        if(frame_length < 5) {
+            SDL_Delay(5 - frame_length);
+            frame_length = 5;
+        }
     }
     
     running_scene = true;

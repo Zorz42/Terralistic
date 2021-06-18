@@ -8,9 +8,7 @@
 #ifndef otherPlayers_hpp
 #define otherPlayers_hpp
 
-#ifdef _WIN32
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -18,7 +16,8 @@
 #include <Graphics/graphics.hpp>
 #endif
 
-
+#else
+#include "graphics.hpp"
 #endif
 
 #include "clientNetworking.hpp"

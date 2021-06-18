@@ -12,7 +12,6 @@
 void serverMap::inventoryItem::setId(itemType id) {
     if(item_id != id) {
         item_id = id;
-        
         sendPacket();
     }
 }

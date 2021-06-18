@@ -7,13 +7,6 @@
 
 #include "serverMap.hpp"
 
-serverMap::player* serverMap::getPlayerById(unsigned short id) {
-    for(player* player : online_players)
-        if(player->id == id)
-            return player;
-    return nullptr;
-}
-
 serverMap::player* serverMap::getPlayerByConnection(connection* conn) {
     for(player* player : online_players)
         if(player->conn == conn)
@@ -25,7 +18,7 @@ void serverMap::lookForItems(serverMap& world_serverMap) {
     for(unsigned long i = 0; i < world_serverMap.items.size(); i++) {
         for(player* player : online_players)
             if(abs(world_serverMap.items[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(world_serverMap.items[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
-                char result = player->inventory.addItem(world_serverMap.items[i].getItemId(), 1);
+                char result = player->player_inventory.addItem(world_serverMap.items[i].getItemId(), 1);
                 if(result != -1) {
                     world_serverMap.items[i].destroy(world_serverMap);
                     world_serverMap.items.erase(world_serverMap.items.begin() + i);
@@ -34,7 +27,7 @@ void serverMap::lookForItems(serverMap& world_serverMap) {
     }
 }
 
-void serverMap::updateLight() {
+void serverMap::updateBlocks() {
     bool finished = false;
     while(!finished) {
         finished = true;
@@ -52,23 +45,29 @@ void serverMap::updateLight() {
             if(end_x > width)
                 end_x = width;
             for(unsigned short x = start_x; x < end_x; x++)
-                for(unsigned short y = start_y; y < end_y; y++)
-                    if(getBlock(x, y).hasScheduledLightUpdate()) {
-                        getBlock(x, y).lightUpdate();
+                for(unsigned short y = end_y - 1; y >= start_y; y--) {
+                    block curr_block = getBlock(x, y);
+                    if(curr_block.hasScheduledLightUpdate()) {
+                        curr_block.lightUpdate();
                         finished = false;
                     }
+                    if(curr_block.getLiquidType() != liquidType::EMPTY && curr_block.canUpdateLiquid()) {
+                        curr_block.liquidUpdate();
+                        finished = false;
+                    }
+                }
         }
     }
 }
 
 int serverMap::getSpawnX() {
-    return getWorldWidth() / 2 * BLOCK_WIDTH;
+    return width / 2 * BLOCK_WIDTH;
 }
 
 int serverMap::getSpawnY() {
     int result = 0;
-    for(unsigned short y = 0; y < getWorldHeight(); y++) {
-        if(!getBlock(getWorldWidth() / 2 - 1, y).isTransparent() || !getBlock(getWorldWidth() / 2, y).isTransparent())
+    for(unsigned short y = 0; y < height; y++) {
+        if(!getBlock(width / 2 - 1, y).isTransparent() || !getBlock(width / 2, y).isTransparent())
             break;
         result += BLOCK_WIDTH;
     }

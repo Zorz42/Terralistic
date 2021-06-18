@@ -36,14 +36,6 @@ void serverMap::spawnItem(itemType item_id, int x, int y, short id) {
     items.back().create(item_id, x, y, id, *this);
 }
 
-serverMap::item* serverMap::getItemById(unsigned short id) {
-    for(item& i : serverMap::items)
-        if(i.getId() == id)
-            return &i;
-    ASSERT(false, "item not found by id");
-    return nullptr;
-}
-
 void serverMap::item::create(itemType item_id_, int x_, int y_, unsigned short id_, serverMap& world_serverMap) {
     static std::random_device device;
     static std::mt19937 engine(device());

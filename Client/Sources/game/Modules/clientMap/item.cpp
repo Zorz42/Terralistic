@@ -9,17 +9,17 @@
 #include "assert.hpp"
 #include <random>
 
-map::uniqueItem* map::unique_items = nullptr;
+std::vector<map::uniqueItem> map::unique_items;
 
 void map::initItems() {
     // all currently unique items
-    unique_items = new uniqueItem[(int)itemType::TOTAL_ITEMS];
-    
-    unique_items[0] = {"nothing"    };
-    unique_items[1] = {"stone"      };
-    unique_items[2] = {"dirt"       };
-    unique_items[3] = {"stone_block"};
-    unique_items[4] = {"wood_planks"};
+    unique_items = {
+        {"nothing"    },
+        {"stone"      },
+        {"dirt"       },
+        {"stone_block"},
+        {"wood_planks"},
+    };
 }
 
 map::item* map::getItemById(unsigned short id) {
@@ -37,7 +37,7 @@ map::uniqueItem::uniqueItem(const std::string& name) : name(name) {
 }
 
 map::uniqueItem& map::item::getUniqueItem() const {
-    ASSERT((int)item_type >= 0 && item_type < itemType::TOTAL_ITEMS, "item_id is not valid");
+    ASSERT((int)item_type >= 0 && (int)item_type < unique_items.size(), "item_id is not valid");
     return unique_items[(int)item_type];
 }
 

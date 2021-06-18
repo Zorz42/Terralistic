@@ -20,7 +20,7 @@ void loadFont(const std::string& path, unsigned char size);
 
 void runScenes();
 
-enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_SPACE, KEY_ESCAPE, KEY_ENTER, KEY_UNKNOWN};
+enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_SPACE, KEY_ESCAPE, KEY_ENTER, KEY_SHIFT, KEY_UNKNOWN};
 
 enum objectType {top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right};
 
@@ -63,6 +63,7 @@ struct image {
     unsigned short getTextureHeight() const;
     float scale = 1;
     void clear();
+    void setAlpha(unsigned char alpha);
 protected:
     void freeTexture();
     void* texture=nullptr;
@@ -83,19 +84,21 @@ struct button : sprite {
     color def_color = {0, 0, 0}, hover_color = {100, 100, 100};
     bool isHovered() const;
     bool disabled = false;
+    unsigned char hover_progress = 0;
 };
 
 struct textInput : button {
-    textInput() { margin = 3; }
+    textInput();
     
     inline std::string getText() const { return text; }
     unsigned short getWidth() const override;
     void setText(const std::string& text);
     
-    bool active = false;
+    bool active = false, ignore_one_input = false;
     char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
     color border_color = {255, 255, 255}, text_color = {255, 255, 255};
+    unsigned char cut_length;
 protected:
     std::string text;
 };
@@ -106,7 +109,7 @@ void render(const image& tex, short x, short y);
 void render(const image& tex, rectShape rect);
 void render(const image& tex, short x, short y, rectShape src_rect);
 void render(const sprite& spr);
-void render(const button& b);
+void render(button& b);
 void render(const textInput& b);
 
 struct scene;
@@ -121,6 +124,9 @@ struct sceneModule {
     virtual void stop() {}
     virtual void onKeyDown(key key_) {}
     virtual void onKeyUp(key key_) {}
+    
+    std::vector<textInput*> text_inputs;
+    bool disable_events = false;
 };
 
 struct scene {
@@ -139,6 +145,7 @@ struct scene {
     
     void _onKeyDown(key key_);
     void _onKeyUp(key key_);
+    bool disable_events = false;
 };
 
 void runScene(scene* x);

@@ -7,21 +7,26 @@
 
 #include "clientMap.hpp"
 #include "assert.hpp"
+#include <algorithm>
 
-map::uniqueBlock* map::unique_blocks;
+std::vector<map::uniqueBlock> map::unique_blocks;
 gfx::image breaking_texture;
 
 void map::initBlocks() {
-    unique_blocks = new uniqueBlock[(int)blockType::TOTAL_BLOCKS];
-    
-    unique_blocks[0] = uniqueBlock("air",         /*ghost*/true , /*connects_to*/{                                         });
-    unique_blocks[1] = uniqueBlock("dirt",        /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK                   });
-    unique_blocks[2] = uniqueBlock("stone_block", /*ghost*/false, /*connects_to*/{                                         });
-    unique_blocks[3] = uniqueBlock("grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT                          });
-    unique_blocks[4] = uniqueBlock("stone",       /*ghost*/true , /*connects_to*/{                                         });
-    unique_blocks[5] = uniqueBlock("wood",        /*ghost*/true , /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES});
-    unique_blocks[6] = uniqueBlock("leaves",      /*ghost*/true , /*connects_to*/{                                         });
-    
+    unique_blocks = {
+        {"air",               /*ghost*/true,  /*connects_to*/{                                                               }},
+        {"dirt",              /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK, blockType::SNOWY_GRASS_BLOCK           }},
+        {"stone_block",       /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   }},
+        {"grass_block",       /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::SNOWY_GRASS_BLOCK                  }},
+        {"stone",             /*ghost*/true,  /*connects_to*/{                                                               }},
+        {"wood",              /*ghost*/true,  /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES                      }},
+        {"leaves",            /*ghost*/true,  /*connects_to*/{                                                               }},
+        {"sand",              /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK}},
+        {"snowy_grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK}},
+        {"snow_block",        /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK, blockType::ICE                   }},
+        {"ice_block",         /*ghost*/false, /*connects_to*/{blockType::SNOW_BLOCK                                          }},
+    };
+
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     breaking_texture.scale = 2;
 }
@@ -38,8 +43,9 @@ map::block map::getBlock(unsigned short x, unsigned short y) {
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 
-void map::block::setType(map::blockType id) {
-    block_data->block_id = id;
+void map::block::setType(blockType block_id, liquidType liquid_id) {
+    block_data->block_id = block_id;
+    block_data->liquid_id = liquid_id;
     update();
 }
 
@@ -52,6 +58,10 @@ map::uniqueBlock& map::blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
 }
 
+map::uniqueLiquid& map::blockData::getUniqueLiquid() const {
+    return unique_liquids[(int)liquid_id];
+}
+
 void map::renderBlocks() {
     // figure out, what the window is covering and only render that
     short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
@@ -59,7 +69,7 @@ void map::renderBlocks() {
 
     short begin_y = view_y / (BLOCK_WIDTH << 4) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_y = view_y / (BLOCK_WIDTH << 4) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) + 2;
-    
+
     if(begin_x < 0)
         begin_x = 0;
     if(end_x > getWorldWidth() >> 4)
@@ -68,10 +78,10 @@ void map::renderBlocks() {
         begin_y = 0;
     if(end_y > getWorldHeight() >> 4)
         end_y = getWorldHeight() >> 4;
-    
+
     // only request finite number of chunks per frame from server
 #define REQUEST_LIMIT 5
-    
+
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
             if(getChunk(x, y).getState() == chunkState::unloaded && chunks_pending < REQUEST_LIMIT) {
@@ -86,10 +96,6 @@ void map::renderBlocks() {
                 getChunk(x, y).draw();
             }
         }
-    begin_x <<= 4;
-    begin_y <<= 4;
-    end_x <<= 4;
-    end_y <<= 4;
 }
 
 void map::block::updateOrientation() {
@@ -112,16 +118,21 @@ void map::block::updateOrientation() {
 }
 
 void map::block::draw() {
-    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel())});
-    
+    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
+
     if(block_data->getUniqueBlock().texture.getTexture() && getLightLevel())
         gfx::render(block_data->getUniqueBlock().texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
-    
+
     if(getLightLevel() != MAX_LIGHT)
         gfx::render(rect);
 
     if(getBreakStage())
         gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
+
+    if(getLiquidType() != liquidType::EMPTY) {
+        int level = ((int)getLiquidLevel() + 1) / 16;
+        gfx::render(block_data->getUniqueLiquid().texture, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::rectShape(0, 0, BLOCK_WIDTH / 2, level));
+    }
 }
 
 void map::block::scheduleTextureUpdate() {
@@ -131,7 +142,7 @@ void map::block::scheduleTextureUpdate() {
 
 void map::block::update() {
     scheduleTextureUpdate();
-    
+
     // also update neighbors
     if(x != 0)
         parent_map->getBlock(x - 1, y).scheduleTextureUpdate();

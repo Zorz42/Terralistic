@@ -7,7 +7,7 @@
 
 #include "clientMap.hpp"
 #include "assert.hpp"
-#include "notifyingScreen.hpp"
+#include "choiceScreen.hpp"
 #include "fileManager.hpp"
 
 void map::createWorld(unsigned short map_width, unsigned short map_height) {
@@ -40,21 +40,21 @@ void map::onPacket(packets::packet packet) {
             break;
         }
         case packets::ITEM_MOVEMENT: {
-            map::item* item = getItemById(packet.getUShort());
+            item* item = getItemById(packet.getUShort());
             item->y = packet.getInt();
             item->x = packet.getInt();
             break;
         }
         case packets::BLOCK_CHANGE: {
-            auto type = (map::blockType)packet.getUChar();
+            blockType type = (blockType)packet.getUChar();
+            unsigned char light_level = packet.getUChar();
+            unsigned char liquid_level = packet.getUChar();
+            liquidType liquid_type = (liquidType)packet.getUChar();
             unsigned short y = packet.getUShort(), x = packet.getUShort();
-            getBlock(x, y).setType(type);
-            break;
-        }
-        case packets::LIGHT_CHANGE: {
-            unsigned char level = packet.getUChar();
-            unsigned short y = packet.getUShort(), x = packet.getUShort();
-            getBlock(x, y).setLightLevel(level);
+            block curr_block = getBlock(x, y);
+            curr_block.setType(type, liquid_type);
+            curr_block.setLiquidLevel(liquid_level);
+            curr_block.setLightLevel(light_level);
             break;
         }
         case packets::CHUNK: {
@@ -64,10 +64,13 @@ void map::onPacket(packets::packet packet) {
             for(unsigned short y_ = 0; y_ < 16; y_++)
                 for(unsigned short x_ = 0; x_ < 16; x_++) {
                     unsigned char light_level = packet.getUChar();
-                    map::blockType type = (map::blockType)packet.getChar();
-                    map::block block = getBlock((x << 4) + x_, (y << 4) + y_);
-                    block.setType(type);
+                    unsigned char liquid_level = packet.getUChar();
+                    liquidType liquid_type = (liquidType)packet.getUChar();
+                    blockType type = (blockType)packet.getUChar();
+                    block block = getBlock((x << 4) + x_, (y << 4) + y_);
+                    block.setType(type, liquid_type);
                     block.setLightLevel(light_level);
+                    block.setLiquidLevel(liquid_level);
                     block.update();
                 }
             
@@ -95,12 +98,12 @@ void map::init() {
 void map::render() {
     background_image.scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
     int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * background_image.scale);
-    gfx::render(background_image, position_x, 0);
-    gfx::render(background_image, background_image.getTextureWidth() * background_image.scale + position_x, 0);
+    for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * background_image.scale) + 2; i++)
+        gfx::render(background_image, position_x + i * background_image.getTextureWidth() * background_image.scale, 0);
     renderBlocks();
     renderItems();
     if(kicked) {
-        gfx::runScene(new notifyingScreen(kick_message));
+        gfx::runScene(new choiceScreen(kick_message, {"Close"}));
         gfx::returnFromScene();
     }
 }

@@ -22,7 +22,7 @@ public:
     enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
     serverState state = NEUTRAL;
     
-    server(std::string working_dir, unsigned short port) : working_dir(working_dir), world_map(&networking_manager), networking_manager(port) {}
+    server(std::string working_dir, unsigned short port, std::string resource_path) : working_dir(working_dir), world_map(&networking_manager, resource_path), networking_manager(port) {}
     
     void start();
     void stop();

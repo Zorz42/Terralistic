@@ -11,8 +11,7 @@
 #include <filesystem>
 
 #include "print.hpp"
-#include "worldSaver.hpp"
-#include "terrainGenerator.hpp"
+#include "serverMap.hpp"
 #include "server.hpp"
 
 static bool running = false;
@@ -27,6 +26,7 @@ void inthand(int signum) {
 void serverInit() {
     serverMap::initItems();
     serverMap::initBlocks();
+    serverMap::initLiquids();
 }
 
 void server::start() {
@@ -39,25 +39,20 @@ void server::start() {
     
     world_map.createWorld(275, 75);
     
-    if(worldSaver::worldExists(working_dir + "world")) {
+    if(std::filesystem::exists(working_dir + "world")) {
         state = LOADING_WORLD;
         print::info("Loading world...");
-        worldSaver::loadWorld(working_dir + "world", world_map);
+        world_map.loadWorld(working_dir + "world");
     }
     else {
         state = GENERATING_WORLD;
         print::info("Generating world...");
-        terrainGenerator::generateTerrainDaemon(rand(), &world_map);
-        worldSaver::saveWorld(working_dir + "world", world_map);
+        world_map.generateTerrain(rand());
     }
     
     print::info("Post initializing modules...");
     
     world_map.setNaturalLight();
-    
-    for(unsigned short x = 0; x < world_map.getWorldWidth(); x++)
-        for(unsigned short y = 0; y < world_map.getWorldHeight(); y++)
-            world_map.getBlock(x, y).update();
     
     signal(SIGINT, inthand);
     networking_manager.startListening();
@@ -77,7 +72,7 @@ void server::start() {
         world_map.updateItems(tick_length);
         world_map.lookForItems(world_map);
         world_map.updatePlayersBreaking(tick_length);
-        world_map.updateLight();
+        world_map.updateBlocks();
     }
     
     std::cout << std::endl;
@@ -94,7 +89,7 @@ void server::start() {
     networking_manager.stopListening();
     
     print::info("Saving world...");
-    worldSaver::saveWorld(working_dir + "world", world_map);
+    world_map.saveWorld(working_dir + "world");
     
     state = STOPPED;
 }
@@ -108,9 +103,9 @@ void server::setPrivate(bool is_private) {
 }
 
 unsigned int server::getGeneratingTotal() {
-    return terrainGenerator::generating_total;
+    return world_map.generating_total;
 }
 
 unsigned int server::getGeneratingCurrent() {
-    return terrainGenerator::generating_current;
+    return world_map.generating_current;
 }

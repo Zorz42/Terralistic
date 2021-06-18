@@ -22,9 +22,9 @@ SOFTWARE.
 */
 
 #include "platform_folders.h"
-//#include <iostream>
+#include <iostream>
 #include <stdexcept>
-//#include <cstdio>
+#include <cstdio>
 
 #ifndef _WIN32
 
@@ -218,9 +218,9 @@ void appendExtraFoldersTokenizer(const char* envName, const char* envValue, std:
     }
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-    struct PlatformFolders::PlatformFoldersData {
-	std::map<std::string, std::string> folders;
-};
+    //struct PlatformFolders::PlatformFoldersData {
+	//std::map<std::string, std::string> folders;
+//};
 
 static void PlatformFoldersAddFromFile(const std::string& filename, std::map<std::string, std::string>& folders) {
 	std::ifstream infile(filename.c_str());

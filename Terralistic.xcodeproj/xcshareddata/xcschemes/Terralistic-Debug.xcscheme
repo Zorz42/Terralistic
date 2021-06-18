@@ -26,10 +26,12 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldUseLaunchSchemeArgsEnv = "NO"
       enableAddressSanitizer = "YES"
       enableASanStackUseAfterReturn = "YES"
-      enableUBSanitizer = "YES">
+      enableUBSanitizer = "YES"
+      systemAttachmentLifetime = "keepNever"
+      userAttachmentLifetime = "keepAlways">
       <AdditionalOptions>
          <AdditionalOption
             key = "MallocScribble"

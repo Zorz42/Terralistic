@@ -43,9 +43,6 @@
     <Filter Include="Source Files\Client\Sources\menus\multiplayerSelector">
       <UniqueIdentifier>{278447e7-6cd0-44c6-ae6b-9dba134298cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Client\Sources\menus\notifyingScreen">
-      <UniqueIdentifier>{d0eee5ff-e0b9-4253-a76e-591f05de872b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Client\Sources\menus\startMenu">
       <UniqueIdentifier>{71a52f41-d0cd-4031-bd61-b28bb1bcc602}</UniqueIdentifier>
     </Filter>
@@ -100,17 +97,23 @@
     <Filter Include="Source Files\Server\serverNetworking">
       <UniqueIdentifier>{bb035266-b5b0-44ec-b870-313ae9c11cd3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Server\terrainGenerator">
-      <UniqueIdentifier>{e06109c7-065f-4daa-9e3f-ccdb8bfb207e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Server\worldSaver">
-      <UniqueIdentifier>{7ca8910c-dc97-4bd9-937d-c96c4bb3f520}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Server\terrainGenerator\simplexNoise">
-      <UniqueIdentifier>{a44b4a50-2d82-4d05-a10a-0ffab22fa1be}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Libraries\configManager">
       <UniqueIdentifier>{93214607-b6ff-40a7-a03b-9cde84171b20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Client\Sources\game\Modules\debugMenu">
+      <UniqueIdentifier>{fbd2ad43-c90f-456c-8d35-fb269c3157b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Server\serverMap\terrainGenerator">
+      <UniqueIdentifier>{5de0a82f-c514-4b57-8da1-815ab54b8b6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Server\serverMap\terrainGenerator\simplexNoise">
+      <UniqueIdentifier>{277fa02d-0747-4623-9ed8-5f166bc5e98f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Client\Sources\menus\choiceScreen">
+      <UniqueIdentifier>{4543cdfc-9625-485e-be82-0dce38344989}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Client\Sources\game\Modules\chat">
+      <UniqueIdentifier>{19cf6297-79d1-4f75-9252-c8f8870ab5bf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -159,9 +162,6 @@
     <ClCompile Include="client\sources\menus\startmenu\startMenu.cpp">
       <Filter>Source Files\Client\Sources\menus\startMenu</Filter>
     </ClCompile>
-    <ClCompile Include="Client\Sources\menus\notifyingScreen\notifyingScreen.cpp">
-      <Filter>Source Files\Client\Sources\menus\notifyingScreen</Filter>
-    </ClCompile>
     <ClCompile Include="client\sources\game\playerrenderer\playerRenderer.cpp">
       <Filter>Source Files\Client\Sources\game\playerRenderer</Filter>
     </ClCompile>
@@ -201,9 +201,6 @@
     <ClCompile Include="server\servermap\light.cpp">
       <Filter>Source Files\Server\serverMap</Filter>
     </ClCompile>
-    <ClCompile Include="server\worldsaver\worldSaver.cpp">
-      <Filter>Source Files\Server\worldSaver</Filter>
-    </ClCompile>
     <ClCompile Include="server\print\print.cpp">
       <Filter>Source Files\Server\print</Filter>
     </ClCompile>
@@ -212,12 +209,6 @@
     </ClCompile>
     <ClCompile Include="server\servernetworking\serverNetworking.cpp">
       <Filter>Source Files\Server\serverNetworking</Filter>
-    </ClCompile>
-    <ClCompile Include="server\terraingenerator\terrainGenerator.cpp">
-      <Filter>Source Files\Server\terrainGenerator</Filter>
-    </ClCompile>
-    <ClCompile Include="server\terraingenerator\simplexnoise\simplex-noise.cpp">
-      <Filter>Source Files\Server\terrainGenerator\simplexNoise</Filter>
     </ClCompile>
     <ClCompile Include="server\servermap\player.cpp">
       <Filter>Source Files\Server\serverMap</Filter>
@@ -239,6 +230,30 @@
     </ClCompile>
     <ClCompile Include="Libraries\configManager\configManager.cpp">
       <Filter>Source Files\Libraries\configManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\serverMap\liquid.cpp">
+      <Filter>Source Files\Server\serverMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\game\Modules\clientMap\liquid.cpp">
+      <Filter>Source Files\Client\Sources\game\Modules\clientMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\game\Modules\debugMenu\debugMenu.cpp">
+      <Filter>Source Files\Client\Sources\game\Modules\debugMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\serverMap\terrainGenerator\terrainGenerator.cpp">
+      <Filter>Source Files\Server\serverMap\terrainGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\serverMap\terrainGenerator\simplexNoise\SimplexNoise.cpp">
+      <Filter>Source Files\Server\serverMap\terrainGenerator\simplexNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\serverMap\saver.cpp">
+      <Filter>Source Files\Server\serverMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\menus\choiceScreen\choiceScreen.cpp">
+      <Filter>Source Files\Client\Sources\menus\choiceScreen</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\Sources\game\Modules\chat\chat.cpp">
+      <Filter>Source Files\Client\Sources\game\Modules\chat</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -333,6 +348,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libraries\configManager\configManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\Sources\menus\choiceScreen\choiceScreen.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\Sources\game\Modules\debugMenu\debugMenu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

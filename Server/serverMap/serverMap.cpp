@@ -13,6 +13,8 @@ void serverMap::createWorld(unsigned short width, unsigned short height) {
     blocks = new blockData[(width << 4) * (height << 4)];
     this->width = width << 4;
     this->height = height << 4;
+    biomes = new biome[this->width];
+
 }
 
 serverMap::~serverMap() {

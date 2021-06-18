@@ -5,9 +5,7 @@
 //  Created by Jakob Zorz on 26/03/2021.
 //
 
-#ifdef _WIN32
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -15,6 +13,8 @@
 #include <Graphics/graphics.hpp>
 #endif
 
+#else
+#include "graphics.hpp"
 #endif
 
 
@@ -25,7 +25,7 @@ void renderTextScreen(const std::string &text) {
     text_image.setTexture(gfx::renderText(text, {255, 255, 255}));
     text_image.orientation = gfx::center;
     text_image.scale = 3;
-    
+
     gfx::clearWindow();
     gfx::render(text_image);
     gfx::updateWindow();

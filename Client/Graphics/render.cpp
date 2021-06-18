@@ -45,9 +45,16 @@ void gfx::render(const sprite& spr) {
     render(spr, spr.getTranslatedX(), spr.getTranslatedY());
 }
 
-void gfx::render(const button& b) {
+void gfx::render(button& b) {
     rectShape rect = b.getTranslatedRect();
-    render(rect, b.isHovered() ? b.hover_color : b.def_color);
+    int hover_progress_target = b.isHovered() ? 255 : 0;
+    b.hover_progress += (hover_progress_target - (int)b.hover_progress) / 2;
+    color button_color{
+        (unsigned char)((int)b.hover_color.r * (int)b.hover_progress / 255 + (int)b.def_color.r * (int)(255 - b.hover_progress) / 255),
+        (unsigned char)((int)b.hover_color.g * (int)b.hover_progress / 255 + (int)b.def_color.g * (int)(255 - b.hover_progress) / 255),
+        (unsigned char)((int)b.hover_color.b * (int)b.hover_progress / 255 + (int)b.def_color.b * (int)(255 - b.hover_progress) / 255),
+    };
+    render(rect, button_color);
     render(b, rect.x + b.margin * b.scale, rect.y + b.margin * b.scale);
 }
 
@@ -59,37 +66,28 @@ void gfx::render(const textInput& t) {
     rect.y += t.margin * t.scale;
     rect.w = t.getTextureWidth() * t.scale;
     rect.h -= t.margin * 2 * t.scale;
-    render(t, rect.x, rect.y, rectShape(rect.w > t.width * t.scale ? rect.w / t.scale - t.width : 0, 0, rect.w > t.width * t.scale ? t.width : rect.w / t.scale, rect.h / t.scale));
+    render(t, rect.x, rect.y, rectShape(rect.w - t.cut_length > t.width * t.scale ? rect.w / t.scale - t.width : t.cut_length, 0, rect.w - t.cut_length > t.width * t.scale ? t.width : rect.w / t.scale - t.cut_length, rect.h / t.scale));
     if(t.active)
-        render(gfx::rect(rect.x + (t.getText().empty() ? 0 : rect.w > t.width * t.scale ? t.width * t.scale : rect.w), rect.y, t.scale, rect.h, t.text_color));
-}
-
-SDL_Texture* createTextureFromSurface(SDL_Surface* surface) {
-    SDL_Texture* result = SDL_CreateTextureFromSurface(gfx::renderer, surface);
-    SDL_FreeSurface(surface);
-    return result;
+        render(gfx::rect(rect.x + (rect.w > t.width * t.scale ? t.width * t.scale : rect.w - t.cut_length * t.scale), rect.y, t.scale, rect.h, t.text_color));
 }
 
 void* gfx::loadImageFile(const std::string& path) {
     // load picture and return texture
-    SDL_Surface *loaded_surface = IMG_Load((resource_path + path).c_str());
-    SDL_assert(loaded_surface);
-
-    // green screen -> change rgb(0, 255, 0) to transparent
-    SDL_SetColorKey(loaded_surface, SDL_TRUE, SDL_MapRGB(loaded_surface->format, 0, 255, 0));
-    
-    return (void*)createTextureFromSurface(loaded_surface);
+    SDL_Texture *loaded_texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
+    SDL_assert(loaded_texture);
+    return (void*)loaded_texture;
 }
-
-#include <iostream>
 
 void* gfx::renderText(const std::string& text, color text_color) {
     // render text to texture
     SDL_assert(font);
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
     SDL_assert(rendered_surface);
-
-    return (void*)createTextureFromSurface(rendered_surface);
+    
+    SDL_Texture* result = SDL_CreateTextureFromSurface(gfx::renderer, rendered_surface);
+    SDL_FreeSurface(rendered_surface);
+    
+    return (void*)result;
 }
 
 void* gfx::createBlankTexture(unsigned short w, unsigned short h) {

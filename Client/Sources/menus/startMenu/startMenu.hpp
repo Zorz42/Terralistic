@@ -10,9 +10,7 @@
 
 #undef main
 
-#ifdef _WIN32
-#include "graphics.hpp"
-#else
+#ifdef __APPLE__
 
 #ifdef DEVELOPER_MODE
 #include <Graphics_Debug/graphics.hpp>
@@ -20,15 +18,19 @@
 #include <Graphics/graphics.hpp>
 #endif
 
+#else
+#include "graphics.hpp"
 #endif
 
-struct startMenu : gfx::scene {
+class startMenu : public gfx::scene {
+    gfx::button singleplayer_button, multiplayer_button, exit_button;
+    gfx::sprite title;
+    gfx::image background;
+    gfx::rect back_rect;
+public:
     void init() override;
     void onKeyDown(gfx::key key) override;
     void render() override;
-    
-private:
-    gfx::button singleplayer_button, multiplayer_button, exit_button;
 };
 
 #endif /* startMenu_hpp */

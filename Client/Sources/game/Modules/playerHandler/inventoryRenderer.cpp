@@ -12,8 +12,8 @@
 gfx::image* text_textures;
 
 void playerHandler::initItems() {
-    text_textures = new gfx::image[(int)map::itemType::TOTAL_ITEMS];
-    for(int i = 0; i < (int)map::itemType::TOTAL_ITEMS; i++) {
+    text_textures = new gfx::image[(int)map::unique_items.size()];
+    for(int i = 0; i < (int)map::unique_items.size(); i++) {
         text_textures[i].setTexture(gfx::renderText(map::unique_items[i].name, {255, 255, 255}));
         text_textures[i].scale = 2;
     }
