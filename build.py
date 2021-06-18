@@ -4,7 +4,6 @@ import shutil
 
 project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
-
 def createDir(path):
     if not os.path.exists(project_path + path):
         os.mkdir(project_path + path)
@@ -13,8 +12,7 @@ def createDir(path):
 if sys.platform == "darwin":
     createDir("Dependencies/")
     if not os.path.exists(project_path + "Dependencies/MacOS/"):
-        os.system(
-            f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependecies {project_path + 'Dependencies/MacOS/'}")
+        os.system(f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependencies {project_path + 'Dependencies/MacOS/'}")
     else:
         os.system(f"git -C {project_path + 'Dependencies/MacOS/'} pull --rebase")
 
@@ -31,6 +29,12 @@ if sys.platform == "darwin":
     shutil.rmtree(project_path + "Temp/")
 elif sys.platform == "linux":
     os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
+
+    createDir("Dependencies/")
+    if not os.path.exists(project_path + "Dependencies/Linux/"):
+        os.system(f"git clone https://github.com/Zorz42/Terralistic-Linux-Dependencies {project_path + 'Dependencies/Linux/'}")
+    else:
+        os.system(f"git -C {project_path + 'Dependencies/Linux/'} pull --rebase")
 
     createDir("Build/")
 
