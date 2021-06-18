@@ -30,12 +30,6 @@ if sys.platform == "darwin":
 elif sys.platform == "linux":
     os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
 
-    createDir("Dependencies/")
-    if not os.path.exists(project_path + "Dependencies/Linux/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-Linux-Dependencies {project_path + 'Dependencies/Linux/'}")
-    else:
-        os.system(f"git -C {project_path + 'Dependencies/Linux/'} pull --rebase")
-
     createDir("Build/")
 
     os.system(f"cd {project_path + 'Build/'} && cmake .. && make -j$(nproc)")
