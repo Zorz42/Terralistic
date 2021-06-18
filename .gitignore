@@ -2,8 +2,8 @@
 **.png~
 **/UserInterfaceState.xcuserstate
 x64/
-x64/Debug/
-x64/Release/
-vs/Terralistic/
+.vs/Terralistic/
 Debug/
 Build/
+Dependencies/
+Output/
