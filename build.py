@@ -4,6 +4,7 @@ import shutil
 
 project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
+
 def createDir(path):
     if not os.path.exists(project_path + path):
         os.mkdir(project_path + path)
@@ -46,5 +47,8 @@ elif sys.platform == "linux":
 
     os.system(f"mv {project_path + 'Build/Terralistic'} {project_path + 'Output/Linux/Terralistic/'}")
     os.system(f"mv {project_path + 'Build/Resources/'} {project_path + 'Output/Linux/Terralistic/'}")
+    os.system(f"cp /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0 {project_path + 'Output/Linux/Terralistic/'}")
+    os.system(f"cp /usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0 {project_path + 'Output/Linux/Terralistic/'}")
+    os.system(f"cp /usr/lib/x86_64-linux-gnu/libSDL2_ttf-2.0.so.0 {project_path + 'Output/Linux/Terralistic/'}")
 else:
     print("Your current platform is not yet supported by this build script!")
