@@ -24,5 +24,31 @@ if sys.platform == "darwin":
     os.system(f"mv {project_path + 'Temp/Debug/Terralistic.app/'} {project_path + 'Output/MacOS/'}")
 
     shutil.rmtree(project_path + "Temp/")
+elif sys.platform == "linux":
+    os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
+
+    project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
+    if not os.path.exists(project_path + "Build/"):
+        os.mkdir(project_path + "Build/")
+
+    os.system(f"cd {project_path + 'Build/'} && cmake .. && make -j$(nproc)")
+
+    if not os.path.exists(project_path + "Output/"):
+        os.mkdir(project_path + "Output")
+
+    if not os.path.exists(project_path + "Output/Linux/"):
+        os.mkdir(project_path + "Output/Linux/")
+
+    if not os.path.exists(project_path + "Output/Linux/Terralistic/"):
+        os.mkdir(project_path + "Output/Linux/Terralistic/")
+
+    if os.path.exists(project_path + "Output/Linux/Terralistic/Resources/"):
+        shutil.rmtree(project_path + "Output/Linux/Terralistic/Resources/")
+
+    if os.path.exists(project_path + "Output/Linux/Terralistic/Terralistic"):
+        os.remove(project_path + "Output/Linux/Terralistic/Terralistic")
+
+    os.system(f"mv {project_path + 'Build/Terralistic'} {project_path + 'Output/Linux/Terralistic/'}")
+    os.system(f"mv {project_path + 'Build/Resources/'} {project_path + 'Output/Linux/Terralistic/'}")
 else:
-    print("Your current platform is not yet supported in this build script!")
+    print("Your current platform is not yet supported by this build script!")
