@@ -22,3 +22,5 @@ LIST(REMOVE_DUPLICATES TerralisticInclude)
 include_directories(Terralistic ${TerralisticInclude})
 
 target_link_libraries(Terralistic SDL2 SDL2_ttf SDL2_image)
+
+file(COPY Client/Resources DESTINATION .)

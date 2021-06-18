@@ -1,8 +1,9 @@
 **/.DS_Store
 **.png~
 **/UserInterfaceState.xcuserstate
-./x64/
-./x64/Debug/
-./x64/Release/
-.vs/Terralistic/
+x64/
+x64/Debug/
+x64/Release/
+vs/Terralistic/
 Debug/
+Build/
