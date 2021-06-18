@@ -2,5 +2,5 @@
 
 to build just run:
 ```
-    test
+test
 ```
