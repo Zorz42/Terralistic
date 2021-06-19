@@ -16,6 +16,6 @@ SDL2 will be installed by build.py.
 If you want to edit code use:
 - Windows: Visual Studio
 - MacOS: XCode
-- Linux: Atom IDE
+- Linux: Clion
 
 Before you edit code, you should run build.py, so that all dependencies download.

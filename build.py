@@ -13,7 +13,8 @@ def createDir(path):
 if sys.platform == "darwin":
     createDir("Dependencies/")
     if not os.path.exists(project_path + "Dependencies/MacOS/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependencies {project_path + 'Dependencies/MacOS/'}")
+        os.system(
+            f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependencies {project_path + 'Dependencies/MacOS/'}")
     else:
         os.system(f"git -C {project_path + 'Dependencies/MacOS/'} pull --rebase")
 
