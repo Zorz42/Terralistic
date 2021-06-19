@@ -12,170 +12,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="97dcdd3a-a5b8-463b-bf9d-fc98b3432952" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Terralistic.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Terralistic.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vs/ProjectSettings.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vs/VSWorkspaceState.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vs/slnx.sqlite" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/BUGS.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/COPYING.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/README-SDL.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/README.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/WhatsNew.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-android.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-cmake.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-directfb.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-dynapi.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-emscripten.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-gesture.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-hg.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-ios.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-linux.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-macosx.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-nacl.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-os2.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-pandora.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-platforms.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-porting.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-psp.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-raspberrypi.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-touch.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-wince.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-windows.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README-winrt.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/docs/doxyfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_assert.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_atomic.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_audio.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_bits.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_blendmode.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_clipboard.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config.h.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config.h.in" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_android.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_iphoneos.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_macosx.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_macosx.h.orig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_minimal.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_pandora.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_psp.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_windows.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_winrt.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_config_wiz.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_copying.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_cpuinfo.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_egl.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_endian.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_error.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_events.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_filesystem.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_gamecontroller.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_gesture.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_haptic.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_hints.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_joystick.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_keyboard.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_keycode.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_loadso.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_locale.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_log.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_main.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_messagebox.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_metal.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_misc.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_mouse.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_mutex.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_name.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengl.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengl_glext.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengles.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengles2.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengles2_gl2.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengles2_gl2ext.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengles2_gl2platform.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_opengles2_khrplatform.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_pixels.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_platform.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_power.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_quit.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_rect.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_render.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_revision.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_rwops.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_scancode.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_sensor.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_shape.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_stdinc.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_surface.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_system.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_syswm.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_assert.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_common.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_compare.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_crc32.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_font.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_fuzzer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_harness.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_images.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_log.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_md5.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_memory.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_test_random.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_thread.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_timer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_touch.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_types.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_version.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_video.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/SDL_vulkan.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/begin_code.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/include/close_code.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/LICENSE.jpeg.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/LICENSE.png.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/LICENSE.tiff.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/LICENSE.webp.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/LICENSE.zlib.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/SDL2_image.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/SDL2_image.lib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/libjpeg-9.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/libpng16-16.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/libtiff-5.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/libwebp-7.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2-2.0.14/lib/x64/zlib1.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/CHANGES.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/COPYING.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/README.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/include/SDL_image.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/lib/x64/SDL2.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/lib/x64/SDL2.lib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/lib/x64/SDL2main.lib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_image-2.0.5/lib/x64/SDL2test.lib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/CHANGES.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/COPYING.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/README.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/include/SDL_ttf.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/LICENSE.freetype.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/LICENSE.zlib.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf.lib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/libfreetype-6.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/SDL_Libraries/SDL2_ttf-2.0.15/lib/x64/zlib1.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/Sources/main/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/main/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/Sources/menus/worldSelector/worldSelector.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/menus/worldSelector/worldSelector.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libraries/dirent-win.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Terralistic.sln" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Terralistic.vcxproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Terralistic.vcxproj.filters" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Terralistic.vcxproj.user" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.py" beforeDir="false" afterPath="$PROJECT_DIR$/build.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/packets/packets.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/packets/packets.hpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -185,6 +23,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -219,13 +58,13 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="CPPToolchains" />
   </component>
-  <component name="RunManager" selected="Python.build">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+  <component name="RunManager" selected="CMake Application.Terralistic">
+    <configuration name="Terralistic" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Terralistic" TARGET_NAME="Terralistic" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Terralistic" RUN_TARGET_NAME="Terralistic">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Terralistic" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Terralistic" TARGET_NAME="Terralistic" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Terralistic" RUN_TARGET_NAME="Terralistic">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -277,6 +116,7 @@
       <workItem from="1624092576455" duration="497000" />
       <workItem from="1624093107217" duration="14000" />
       <workItem from="1624086504609" duration="6128000" />
+      <workItem from="1624122047598" duration="426000" />
     </task>
     <servers />
   </component>
