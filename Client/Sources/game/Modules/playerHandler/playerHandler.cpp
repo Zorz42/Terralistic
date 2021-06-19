@@ -203,7 +203,7 @@ void playerHandler::render() {
     renderInventory();
 }
 
-void playerHandler::onPacket(packets::packet packet) {
+void playerHandler::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::SPAWN_POS: {
             int x = packet.get<int>(), y = packet.get<int>();

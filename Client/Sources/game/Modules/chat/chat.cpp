@@ -59,7 +59,7 @@ void chat::onKeyDown(gfx::key key) {
     }
 }
 
-void chat::onPacket(packets::packet packet) {
+void chat::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::CHAT: {
             chatLine* new_line = new chatLine;

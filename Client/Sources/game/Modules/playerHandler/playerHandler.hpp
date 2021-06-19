@@ -55,7 +55,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
     void onKeyDownInventory(gfx::key key);
     void onKeyDownSelector(gfx::key key);
     void onKeyUpSelector(gfx::key key);
-    void onPacketInventory(packets::packet packet);
+    void onPacketInventory(packets::packet &packet);
 
     void initInventory();
 
@@ -76,7 +76,7 @@ public:
     void update() override;
     void render() override;
     void selectSlot(char slot);
-    void onPacket(packets::packet packet) override;
+    void onPacket(packets::packet &packet) override;
 
     static void initItems();
 };

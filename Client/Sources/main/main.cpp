@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
     
     int start = gfx::getTicks();
     for(int i = 0; i < 100000; i++) {
-        packets::packet test_packet(packets::PING, sizeof(int) + sizeof(int) + sizeof(int));
-        test_packet << 10 << 10 << 20;
+        //packets::packet test_packet(packets::PING, sizeof(int) + sizeof(int) + sizeof(int));
+        //test_packet << 10 << 10 << 20;
     }
     std::cout << gfx::getTicks() - start << " ms" << std::endl;
     

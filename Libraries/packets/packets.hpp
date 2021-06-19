@@ -57,11 +57,16 @@ struct packet {
         return result;
     }
     
+    void operator=(packet& target) {
+        target.contents = contents;
+        contents = nullptr;
+        target.curr_pos = curr_pos;
+        target.type = type;
+    }
+    
     ~packet() {
-        //if(contents) {
-            //delete[] contents;
-            //contents = nullptr;
-        //}
+        if(contents)
+            delete[] contents;
     }
 };
 

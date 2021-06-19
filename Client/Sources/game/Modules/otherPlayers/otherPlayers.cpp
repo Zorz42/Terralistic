@@ -25,7 +25,7 @@ players::player* players::getPlayerById(unsigned short id) {
     return nullptr;
 }
 
-void players::onPacket(packets::packet packet) {
+void players::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::PLAYER_JOIN: {
             player* new_player = new player();

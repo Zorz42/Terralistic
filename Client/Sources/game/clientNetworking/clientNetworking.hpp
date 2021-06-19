@@ -20,7 +20,7 @@ public:
     packetListener(networkingManager* manager);
     virtual ~packetListener() = default;
     std::set<packets::packetType> listening_to;
-    virtual void onPacket(packets::packet packet) = 0;
+    virtual void onPacket(packets::packet& packet) = 0;
 };
 
 class networkingManager {
@@ -34,7 +34,7 @@ public:
     bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();
 
-    void sendPacket(packets::packet packet_);
+    void sendPacket(packets::packet& packet_);
     void registerListener(packetListener* listener);
 };
 

@@ -75,7 +75,7 @@ protected:
     void renderItems();
 
     void render() override;
-    void onPacket(packets::packet packet) override;
+    void onPacket(packets::packet &packet) override;
     void init() override;
 
     networkingManager* networking_manager;

@@ -41,7 +41,7 @@ public:
     void onKeyDown(gfx::key key) override;
     void stop() override;
 
-    void onPacket(packets::packet packet) override;
+    void onPacket(packets::packet &packet) override;
 };
 
 #endif /* chat_hpp */

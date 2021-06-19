@@ -21,7 +21,7 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
             getChunk(x, y).createTexture();
 }
 
-void map::onPacket(packets::packet packet) {
+void map::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::ITEM_CREATION: {
             auto type = (map::itemType)packet.get<char>();

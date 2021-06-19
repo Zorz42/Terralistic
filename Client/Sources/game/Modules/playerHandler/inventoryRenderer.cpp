@@ -66,7 +66,7 @@ void playerHandler::renderInventory() {
     renderItem(player->player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
 
-void playerHandler::onPacketInventory(packets::packet packet) {
+void playerHandler::onPacketInventory(packets::packet &packet) {
     switch(packet.type) {
         case packets::INVENTORY_CHANGE: {
             char pos = packet.get<char>();

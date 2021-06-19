@@ -21,16 +21,18 @@
 #include "clientNetworking.hpp"
 #include <thread>
 
-void networkingManager::sendPacket(packets::packet packet_) {
-    packets::sendPacket(sock, std::move(packet_));
+void networkingManager::sendPacket(packets::packet& packet_) {
+    packets::sendPacket(sock, packet_);
 }
 
 void networkingManager::listenerLoop(networkingManager* manager) {
     while(manager->listener_running) {
         packets::packet packet = packets::getPacket(manager->sock, manager->buffer, manager->bytes_received);
         for(packetListener* listener : manager->listeners)
-            if(listener->listening_to.find(packet.type) != listener->listening_to.end())
+            if(listener->listening_to.find(packet.type) != listener->listening_to.end()) {
                 listener->onPacket(packet);
+                break;
+            }
     }
 #ifdef _WIN32
     closesocket(manager->sock);
