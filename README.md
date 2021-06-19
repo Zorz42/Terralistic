@@ -8,14 +8,14 @@ You will need to have installed to build:
 - python3
 - cmake
 - make
-- gcc
+- clang
 - git
 
 SDL2 will be installed by build.py.
 
 If you want to edit code use:
-- Windows: Visual Studio
+- Windows: CLion
 - MacOS: XCode
-- Linux: Clion
+- Linux: CLion
 
 Before you edit code, you should run build.py, so that all dependencies download.
