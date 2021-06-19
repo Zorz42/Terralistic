@@ -29,16 +29,16 @@ void players::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::PLAYER_JOIN: {
             player* new_player = new player();
-            new_player->name = packet.getString();
-            new_player->id = packet.getUShort();
-            new_player->y = packet.getInt();
-            new_player->x = packet.getInt();
+            new_player->name = packet.get<std::string>();
+            new_player->id = packet.get<unsigned short>();
+            new_player->y = packet.get<int>();
+            new_player->x = packet.get<int>();
             new_player->name_text.setTexture(gfx::renderText(new_player->name, {0, 0, 0}));
             other_players.push_back(new_player);
             break;
         }
         case packets::PLAYER_QUIT: {
-            unsigned short id = packet.getUShort();
+            unsigned short id = packet.get<unsigned short>();
             for(auto i = other_players.begin(); i != other_players.end(); i++)
                 if((*i)->id == id) {
                     other_players.erase(i);
@@ -47,10 +47,10 @@ void players::onPacket(packets::packet packet) {
             break;
         }
         case packets::PLAYER_MOVEMENT: {
-            player* player = getPlayerById(packet.getUShort());
-            player->flipped = packet.getChar();
-            player->y = packet.getInt();
-            player->x = packet.getInt();
+            player* player = getPlayerById(packet.get<unsigned short>());
+            player->flipped = packet.get<char>();
+            player->y = packet.get<int>();
+            player->x = packet.get<int>();
             break;
         }
         default:;

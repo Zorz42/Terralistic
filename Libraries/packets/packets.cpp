@@ -16,24 +16,6 @@
 
 #define BUFFER_SIZE 2048
 
-#define define_operator(T) \
-packets::packet& packets::packet::operator<<(T x) { \
-    contents.reserve(sizeof(T)); \
-    for(int i = sizeof(T) - 1; i >= 0; i--) \
-        contents.push_back((x >> i * 8) & 0xFF); \
-    return *this; \
-}
-
-#define define_get(T, name) \
-T packets::packet::name() { \
-    T result = 0; \
-    for(int i = 0; i < sizeof(T); i++) { \
-        result += (T)contents.back() << i * 8; \
-        contents.pop_back(); \
-    } \
-    return result; \
-}
-
 packets::packet packets::getPacket(int socket, std::vector<unsigned char>& buffer, long& bytes_received) {
     /*
      Through TCP packets are array of bytes. In those packets you can
@@ -63,57 +45,22 @@ packets::packet packets::getPacket(int socket, std::vector<unsigned char>& buffe
     // if bytes_received is 0 that means, that the other side disconnected
     if(bytes_received > 0) {
         // packet type is the third byte
-        packet result((packets::packetType)buffer[2]);
+        packet result((packets::packetType)buffer[2], size);
         for(unsigned short i = 0; i < size; i++)
-            result.contents.push_back(buffer[i + 3]);
+            result.contents[i] = buffer[i + 3];
+        result.curr_pos = size;
         // erase size + 2 for size variable and 1 for type
         buffer.erase(buffer.begin(), buffer.begin() + size + 3);
         return result;
     } else
-        return packet(packets::DISCONNECT);
+        return packet(packets::DISCONNECT, 0);
 }
 
 void packets::sendPacket(int socket, const packet& packet_) {
     // first pack the size and type
-    std::vector<unsigned char> content = {(unsigned char)(packet_.contents.size() & 255), (unsigned char)((packet_.contents.size() >> 8) & 255), (unsigned char)packet_.type};
+    std::vector<unsigned char> content = {(unsigned char)(packet_.curr_pos & 255), (unsigned char)((packet_.curr_pos >> 8) & 255), (unsigned char)packet_.type};
     // add contents and send
-    for(char i : packet_.contents)
-        content.push_back((unsigned char &&)i);
+    for(int i = 0; i < packet_.curr_pos; i++)
+        content.push_back(packet_.contents[i]);
     send(socket, (char*)&content[0], content.size(), 0);
-}
-
-// define << for all needed types
-
-define_operator(char)
-define_operator(unsigned char)
-define_operator(short)
-define_operator(unsigned short)
-define_operator(int)
-define_operator(unsigned int)
-
-packets::packet& packets::packet::operator<<(std::string x) {
-    for(char i : x)
-        contents.push_back(i);
-    contents.push_back((unsigned char)x.size());
-    return *this;
-}
-
-// define get[type]() for all needed types
-
-define_get(char, getChar)
-define_get(unsigned char, getUChar)
-define_get(short, getShort)
-define_get(unsigned short, getUShort)
-define_get(int, getInt)
-define_get(unsigned int, getUInt)
-
-std::string packets::packet::getString() {
-    std::string result;
-    unsigned char size = contents.back();
-    contents.pop_back();
-    for(int i = 0; i < size; i++) {
-        result.insert(result.begin(), contents.back());
-        contents.pop_back();
-    }
-    return result;
 }

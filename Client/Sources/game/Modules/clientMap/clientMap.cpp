@@ -24,14 +24,14 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
 void map::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::ITEM_CREATION: {
-            auto type = (map::itemType)packet.getChar();
-            unsigned short id = packet.getUShort();
-            int y = packet.getInt(), x = packet.getInt();
+            auto type = (map::itemType)packet.get<char>();
+            unsigned short id = packet.get<unsigned short>();
+            int y = packet.get<int>(), x = packet.get<int>();
             items.emplace_back(item(type, x, y, id));
             break;
         }
         case packets::ITEM_DELETION: {
-            unsigned short id = packet.getUShort();
+            unsigned short id = packet.get<unsigned short>();
             for(auto i = items.begin(); i != items.end(); i++)
                 if(i->getId() == id) {
                     items.erase(i);
@@ -40,17 +40,17 @@ void map::onPacket(packets::packet packet) {
             break;
         }
         case packets::ITEM_MOVEMENT: {
-            item* item = getItemById(packet.getUShort());
-            item->y = packet.getInt();
-            item->x = packet.getInt();
+            item* item = getItemById(packet.get<unsigned short>());
+            item->y = packet.get<int>();
+            item->x = packet.get<int>();
             break;
         }
         case packets::BLOCK_CHANGE: {
-            blockType type = (blockType)packet.getUChar();
-            unsigned char light_level = packet.getUChar();
-            unsigned char liquid_level = packet.getUChar();
-            liquidType liquid_type = (liquidType)packet.getUChar();
-            unsigned short y = packet.getUShort(), x = packet.getUShort();
+            blockType type = (blockType)packet.get<unsigned char>();
+            unsigned char light_level = packet.get<unsigned char>();
+            unsigned char liquid_level = packet.get<unsigned char>();
+            liquidType liquid_type = (liquidType)packet.get<unsigned char>();
+            unsigned short y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
             block curr_block = getBlock(x, y);
             curr_block.setType(type, liquid_type);
             curr_block.setLiquidLevel(liquid_level);
@@ -59,14 +59,14 @@ void map::onPacket(packets::packet packet) {
         }
         case packets::CHUNK: {
             chunks_pending--;
-            unsigned short x = packet.getUShort(), y = packet.getUShort();
+            unsigned short x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
             
             for(unsigned short y_ = 0; y_ < 16; y_++)
                 for(unsigned short x_ = 0; x_ < 16; x_++) {
-                    unsigned char light_level = packet.getUChar();
-                    unsigned char liquid_level = packet.getUChar();
-                    liquidType liquid_type = (liquidType)packet.getUChar();
-                    blockType type = (blockType)packet.getUChar();
+                    unsigned char light_level = packet.get<unsigned char>();
+                    unsigned char liquid_level = packet.get<unsigned char>();
+                    liquidType liquid_type = (liquidType)packet.get<unsigned char>();
+                    blockType type = (blockType)packet.get<unsigned char>();
                     block block = getBlock((x << 4) + x_, (y << 4) + y_);
                     block.setType(type, liquid_type);
                     block.setLightLevel(light_level);
@@ -78,13 +78,13 @@ void map::onPacket(packets::packet packet) {
             break;
         }
         case packets::BLOCK_PROGRESS_CHANGE: {
-            unsigned char stage = packet.getUChar();
-            unsigned short x = packet.getUShort(), y = packet.getUShort();
+            unsigned char stage = packet.get<unsigned char>();
+            unsigned short x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
             getBlock(x, y).setBreakStage(stage);
             break;
         }
         case packets::KICK: {
-            kick_message = packet.getString();
+            kick_message = packet.get<std::string>();
             kicked = true;
         }
         default:;

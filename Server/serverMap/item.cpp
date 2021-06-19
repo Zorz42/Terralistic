@@ -47,13 +47,13 @@ void serverMap::item::create(itemType item_id_, int x_, int y_, unsigned short i
     id = id_;
     item_id = item_id_;
     
-    packets::packet packet(packets::ITEM_CREATION);
+    packets::packet packet(packets::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(char));
     packet << x << y << getId() << (char)getItemId();
     world_serverMap.manager->sendToEveryone(packet);
 }
 
 void serverMap::item::destroy(serverMap& world_serverMap) {
-    packets::packet packet(packets::ITEM_DELETION);
+    packets::packet packet(packets::ITEM_DELETION, sizeof(getId()));
     packet << getId();
     world_serverMap.manager->sendToEveryone(packet);
 }
@@ -116,7 +116,7 @@ void serverMap::item::update(float frame_length, serverMap& world_serverMap) {
     }
     
     if(prev_x != x || prev_y != y) {
-        packets::packet packet(packets::ITEM_MOVEMENT);
+        packets::packet packet(packets::ITEM_MOVEMENT, sizeof(x) + sizeof(y) + sizeof(getId()));
         packet << x << y << getId();
         world_serverMap.manager->sendToEveryone(packet);
     }

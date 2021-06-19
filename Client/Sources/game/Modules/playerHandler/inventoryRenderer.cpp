@@ -69,9 +69,9 @@ void playerHandler::renderInventory() {
 void playerHandler::onPacketInventory(packets::packet packet) {
     switch(packet.type) {
         case packets::INVENTORY_CHANGE: {
-            char pos = packet.getChar();
-            player->player_inventory.inventory[(int)pos].item_id = (map::itemType)packet.getUChar();
-            player->player_inventory.inventory[(int)pos].setStack(packet.getUShort());
+            char pos = packet.get<char>();
+            player->player_inventory.inventory[(int)pos].item_id = (map::itemType)packet.get<unsigned char>();
+            player->player_inventory.inventory[(int)pos].setStack(packet.get<unsigned short>());
             break;
         }
         default: break;
@@ -88,7 +88,7 @@ void playerHandler::renderItem(inventoryItem* item, int x, int y, int i) {
 
 void playerHandler::selectSlot(char slot) {
     player->player_inventory.selected_slot = slot;
-    packets::packet packet(packets::HOTBAR_SELECTION);
+    packets::packet packet(packets::HOTBAR_SELECTION, sizeof(slot));
     packet << slot;
     manager->sendPacket(packet);
 }
@@ -119,7 +119,7 @@ void playerHandler::onKeyDownInventory(gfx::key key) {
             if(!player->player_inventory.open && player->player_inventory.getMouseItem()->item_id != map::itemType::NOTHING) {
                 unsigned char result = player->player_inventory.addItem(player->player_inventory.getMouseItem()->item_id, player->player_inventory.getMouseItem()->getStack());
                 player->player_inventory.clearMouseItem();
-                packets::packet packet(packets::INVENTORY_SWAP);
+                packets::packet packet(packets::INVENTORY_SWAP, sizeof(result));
                 packet << result;
                 manager->sendPacket(packet);
             }
@@ -127,7 +127,7 @@ void playerHandler::onKeyDownInventory(gfx::key key) {
         case gfx::KEY_MOUSE_LEFT: {
             if(hovered) {
                 player->player_inventory.swapWithMouseItem(hovered);
-                packets::packet packet(packets::INVENTORY_SWAP);
+                packets::packet packet(packets::INVENTORY_SWAP, sizeof(unsigned char));
                 packet << (unsigned char)(hovered - &player->player_inventory.inventory[0]);
                 manager->sendPacket(packet);
             }

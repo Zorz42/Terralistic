@@ -17,11 +17,11 @@ void playerHandler::init() {
     world_map->view_x = player->position_x;
     world_map->view_y = player->position_y;
     
-    packets::packet join_packet(packets::PLAYER_JOIN);
+    packets::packet join_packet(packets::PLAYER_JOIN, (int)player->name.size() + 1);
     join_packet << player->name;
     manager->sendPacket(join_packet);
     
-    packets::packet packet(packets::VIEW_SIZE_CHANGE);
+    packets::packet packet(packets::VIEW_SIZE_CHANGE, sizeof(unsigned short) + sizeof(unsigned short));
     packet << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH);
     manager->sendPacket(packet);
     
@@ -119,7 +119,7 @@ void playerHandler::update() {
     if(received_spawn_coords) {
         static unsigned short prev_width = gfx::getWindowWidth(), prev_height = gfx::getWindowHeight();
         if(prev_width != gfx::getWindowWidth() || prev_height != gfx::getWindowHeight()) {
-            packets::packet packet(packets::VIEW_SIZE_CHANGE);
+            packets::packet packet(packets::VIEW_SIZE_CHANGE, sizeof(unsigned short) + sizeof(unsigned short));
             packet << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH);
             manager->sendPacket(packet);
             
@@ -190,7 +190,7 @@ void playerHandler::update() {
             world_map->view_y = world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
         
         if(move_x || move_y) {
-            packets::packet packet(packets::PLAYER_MOVEMENT);
+            packets::packet packet(packets::PLAYER_MOVEMENT, sizeof(player->position_x) + sizeof(player->position_y) + sizeof(char));
             packet << player->position_x << player->position_y << (char)player->flipped;
             manager->sendPacket(packet);
         }
@@ -206,7 +206,7 @@ void playerHandler::render() {
 void playerHandler::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::SPAWN_POS: {
-            int x = packet.getInt(), y = packet.getInt();
+            int x = packet.get<int>(), y = packet.get<int>();
             player->position_x = x;
             player->position_y = y;
             world_map->view_x = x;

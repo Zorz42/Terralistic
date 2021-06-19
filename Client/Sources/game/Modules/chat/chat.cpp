@@ -44,7 +44,7 @@ void chat::render() {
 void chat::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
-            packets::packet chat_packet(packets::CHAT);
+            packets::packet chat_packet(packets::CHAT, (int)chat_box.getText().size() + 1);
             chat_packet << chat_box.getText();
             manager->sendPacket(chat_packet);
             chat_box.setText("");
@@ -63,7 +63,7 @@ void chat::onPacket(packets::packet packet) {
     switch(packet.type) {
         case packets::CHAT: {
             chatLine* new_line = new chatLine;
-            new_line->text_sprite.setTexture(gfx::renderText(packet.getString(), {255, 255, 255}));
+            new_line->text_sprite.setTexture(gfx::renderText(packet.get<std::string>(), {255, 255, 255}));
             new_line->text_sprite.scale = 2;
             new_line->text_sprite.y = chat_box.y;
             new_line->text_sprite.x = PADDING;

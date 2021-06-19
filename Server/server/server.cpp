@@ -78,8 +78,8 @@ void server::start() {
     std::cout << std::endl;
     
     if(!networking_manager.accept_only_itself) {
-        packets::packet kick_packet(packets::KICK);
-        kick_packet << (std::string)"Server stopped!";
+        packets::packet kick_packet(packets::KICK, (int)std::string("Server stopped!").size() + 1);
+        kick_packet << std::string("Server stopped!");
         networking_manager.sendToEveryone(kick_packet);
     }
     
