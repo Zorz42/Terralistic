@@ -4,7 +4,7 @@ set (CMAKE_CXX_STANDARD 17)
 
 if(WIN32)
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O0 -I/usr/include/SDL2")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath='$ORIGIN'")
 endif()
 
@@ -42,7 +42,6 @@ if(WIN32)
             Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/libfreetype-6.dll
             Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf.dll
             DESTINATION .)
-    include_directories(Terralistic /usr/include/SDL2/)
 else()
     target_link_libraries(Terralistic SDL2 SDL2_ttf SDL2_image)
 endif()
