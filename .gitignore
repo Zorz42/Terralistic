@@ -8,3 +8,4 @@ Build/
 Dependencies/
 Output/
 cmake-build-debug/
+venv/

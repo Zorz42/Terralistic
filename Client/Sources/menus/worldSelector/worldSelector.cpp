@@ -5,11 +5,6 @@
 //  Created by Jakob Zorz on 05/12/2020.
 //
 
-#ifdef _WIN32
-#include <dirent-win.h>
-#else
-#include <dirent.h>
-#endif
 #include <algorithm>
 #include <filesystem>
 #include "worldSelector.hpp"
@@ -18,11 +13,9 @@
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
 
-#undef main
-
 // this is the menu where you select all the worlds you have
 
-// every laoded world becomes a class/struct which is in array and rendered
+// every loaded world becomes a class/struct which is in array and rendered
 
 #define PADDING 20
 #define TOP_HEIGHT 70
@@ -34,10 +27,6 @@ void worldSelector::world_to_select::render(int position_) {
     gfx::render(button);
     delete_button.y = short(button_y - position_ + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
     gfx::render(delete_button);
-}
-
-bool ends_with(const std::string& value, std::string ending) {
-    return ending.size() <= value.size() && std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
 void worldSelector::init() {
@@ -77,14 +66,9 @@ void worldSelector::refresh() {
             ".DS_Store",
     };
 
-    DIR *dir = opendir(fileManager::getWorldsPath().c_str());
-    dirent *ent;
-    while((ent = readdir(dir)) != nullptr) {
-        std::string name = ent->d_name;
-        if(!std::count(ignored_dirs.begin(), ignored_dirs.end(), name) && std::filesystem::is_directory(fileManager::getWorldsPath() + name))
-            worlds.emplace_back(name);
-    }
-    closedir (dir);
+    for(auto& p: std::filesystem::directory_iterator(fileManager::getWorldsPath().c_str()))
+        if(p.is_directory())
+            worlds.emplace_back(p.path().filename().string());
 
     for(auto& world : worlds) {
         world.button.orientation = gfx::top;
