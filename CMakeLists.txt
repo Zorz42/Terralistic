@@ -42,6 +42,7 @@ if(WIN32)
             Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/libfreetype-6.dll
             Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf.dll
             DESTINATION .)
+    include_directories(Terralistic /usr/include/SDL2/)
 else()
     target_link_libraries(Terralistic SDL2 SDL2_ttf SDL2_image)
 endif()
