@@ -28,8 +28,7 @@ class networkingManager {
     bool listener_running = true;
     static void listenerLoop(networkingManager* manager);
     std::vector<packetListener*> listeners;
-    std::vector<unsigned char> buffer;
-    long bytes_received;
+    packets::packetBuffer buffer;
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();

@@ -21,7 +21,7 @@
 #include "serverMap.hpp"
 
 packets::packet connection::getPacket() {
-    return packets::getPacket(socket, buffer, bytes_received);
+    return packets::getPacket(socket, buffer);
 }
 
 void serverNetworkingManager::registerListener(serverPacketListener *listener) {

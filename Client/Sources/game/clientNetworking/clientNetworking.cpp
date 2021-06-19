@@ -27,7 +27,7 @@ void networkingManager::sendPacket(packets::packet& packet_) {
 
 void networkingManager::listenerLoop(networkingManager* manager) {
     while(manager->listener_running) {
-        packets::packet packet = packets::getPacket(manager->sock, manager->buffer, manager->bytes_received);
+        packets::packet packet = packets::getPacket(manager->sock, manager->buffer);
         for(packetListener* listener : manager->listeners)
             if(listener->listening_to.find(packet.type) != listener->listening_to.end()) {
                 listener->onPacket(packet);

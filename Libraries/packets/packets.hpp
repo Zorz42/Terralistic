@@ -15,14 +15,18 @@ namespace packets {
 
 enum packetType {DISCONNECT, PING, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE, KICK, CHAT};
 
+struct packetBuffer {
+    std::vector<unsigned char> buffer;
+    long bytes_received;
+};
+
 struct packet {
     packet(packetType type, unsigned short size) : type(type) {
-        if(size)
-            contents = new unsigned char[size];
+        contents = new unsigned char[size + 3];
     }
     unsigned char* contents = nullptr;
     packetType type;
-    unsigned short curr_pos = 0;
+    unsigned short curr_pos = 3;
     
     template<class T>
     packet& operator<<(T x) {
@@ -70,7 +74,7 @@ struct packet {
     }
 };
 
-packet getPacket(int socket, std::vector<unsigned char>& buffer, long& bytes_received);
+packet getPacket(int socket, packetBuffer& buffer);
 void sendPacket(int socket, const packet& content);
 
 }

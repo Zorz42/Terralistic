@@ -18,8 +18,7 @@
 class serverPacketListener;
 
 class connection {
-    std::vector<unsigned char> buffer;
-    long bytes_received;
+    packets::packetBuffer buffer;
 public:
     std::string ip;
     int socket{-1};
