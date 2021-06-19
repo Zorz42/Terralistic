@@ -47,7 +47,7 @@ void serverMap::item::create(itemType item_id_, int x_, int y_, unsigned short i
     id = id_;
     item_id = item_id_;
     
-    packets::packet packet(packets::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(char));
+    packets::packet packet(packets::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(getId()) + sizeof(char));
     packet << x << y << getId() << (char)getItemId();
     world_serverMap.manager->sendToEveryone(packet);
 }
