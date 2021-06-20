@@ -24,6 +24,7 @@
 
 class chat : public gfx::sceneModule, packetListener {
     struct chatLine {
+        std::string text;
         gfx::sprite text_sprite;
         int y_to_be{};
         unsigned int time_created{};

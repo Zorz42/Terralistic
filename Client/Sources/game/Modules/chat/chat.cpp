@@ -29,7 +29,21 @@ void chat::update() {
 }
 
 void chat::render() {
-    for(chatLine* i : chat_lines)
+    for(chatLine* i : chat_lines) {
+        if(!i->text_sprite.getTexture()) {
+            i->text_sprite.setTexture(gfx::renderText(i->text, {255, 255, 255}));
+            i->text_sprite.scale = 2;
+            i->text_sprite.y = chat_box.y;
+            i->text_sprite.x = PADDING;
+            i->text_sprite.orientation = gfx::bottom_left;
+            i->y_to_be = chat_box.y - chat_box.getHeight();
+            i->text.clear();
+            
+            for(chatLine* line : chat_lines)
+                if(line != i)
+                    line->y_to_be -= i->text_sprite.getHeight();
+        }
+        
         if(i->time_created + 10500 > gfx::getTicks() || chat_box.active) {
             int alpha = i->time_created + 10500 - gfx::getTicks();
             if(alpha < 0 || alpha >= 500)
@@ -37,6 +51,7 @@ void chat::render() {
             i->text_sprite.setAlpha((float)alpha / 500.0f * 255);
             gfx::render(i->text_sprite);
         }
+    }
             
     gfx::render(chat_box);
 }
@@ -63,16 +78,8 @@ void chat::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::CHAT: {
             auto* new_line = new chatLine;
-            new_line->text_sprite.setTexture(gfx::renderText(packet.get<std::string>(), {255, 255, 255}));
-            new_line->text_sprite.scale = 2;
-            new_line->text_sprite.y = chat_box.y;
-            new_line->text_sprite.x = PADDING;
-            new_line->text_sprite.orientation = gfx::bottom_left;
-            new_line->y_to_be = chat_box.y - chat_box.getHeight();
+            new_line->text = packet.get<std::string>();
             new_line->time_created = gfx::getTicks();
-            
-            for(chatLine* i : chat_lines)
-                i->y_to_be -= new_line->text_sprite.getHeight();
             chat_lines.push_back(new_line);
             break;
         }
