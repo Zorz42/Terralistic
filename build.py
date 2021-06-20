@@ -20,7 +20,7 @@ if sys.platform == "darwin":
     createDir("Output/MacOS/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
-    shutil.move(project_path + "Temp/Debug/Terralistic.app/", project_path + "Output/MacOS/")
+    shutil.move(project_path + "Temp/Release/Terralistic.app/", project_path + "Output/MacOS/")
     shutil.rmtree(project_path + "Temp/")
 elif sys.platform == "linux":
     os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
