@@ -8,6 +8,7 @@ project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 def createDir(path):
     os.makedirs(project_path + path, exist_ok=True)
 
+
 if sys.platform == "darwin":
     createDir(project_path + "Dependencies/")
     if not os.path.exists(project_path + "Dependencies/MacOS/"):
@@ -44,6 +45,9 @@ elif sys.platform == "linux":
     shutil.copy("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", project_path + "Output/Linux/Terralistic/")
     shutil.copy("/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", project_path + "Output/Linux/Terralistic/")
     shutil.copy("/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", project_path + "Output/Linux/Terralistic/")
+
+    shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic/")
+    shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic/")
 elif sys.platform == "win32":
     createDir("Dependencies/")
     if not os.path.exists(project_path + "Dependencies/Windows/"):

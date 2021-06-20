@@ -6,7 +6,7 @@
 //
 
 #include <filesystem>
-#include <Server/server.hpp>
+#include "server.hpp"
 
 int main(int argc, char **argv) {
     serverInit();
