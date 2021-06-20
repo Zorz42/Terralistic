@@ -54,7 +54,7 @@ void startPrivateWorld(const std::string& world_name) {
 
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
 
-    private_server = new server(fileManager::getWorldsPath() + world_name, rand() % (TO_PORT - FROM_PORT) + TO_PORT, gfx::resource_path);
+    private_server = new server(fileManager::getWorldsPath() + world_name, gfx::resource_path, rand() % (TO_PORT - FROM_PORT) + TO_PORT);
     server_thread = std::thread([ObjectPtr = private_server] { ObjectPtr->start(); });
 
     while(private_server->state != server::RUNNING)

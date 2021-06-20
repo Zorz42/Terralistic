@@ -459,9 +459,11 @@ int serverMap::calculateHeight(int x, SimplexNoise& noise) {
     return(sliceHeight);
 }
 
+#include "print.hpp"
+
 void serverMap::loadAssets() {
     std::ifstream structureFile;
-    structureFile.open(resource_path + "Structures.asset", std::ios::in);
+    structureFile.open(resource_path + "/Structures.asset", std::ios::in);
 
     structureFile.seekg(0, std::ios::end);
     int size = (int)structureFile.tellg();
