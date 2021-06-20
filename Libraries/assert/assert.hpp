@@ -17,7 +17,7 @@
 #define ASSERT(expression, message) if(!(expression)) { std::cout << "Assert Failure: " << message << std::endl; debug_break(); }
 #define IF_DEV(x) if(x)
 #else
-#define ASSERT(x, message) x
+#define ASSERT(x, message) x;
 #define IF_DEV(x) x; if(false)
 #endif
 

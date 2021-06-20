@@ -31,6 +31,6 @@ void map::chunk::createTexture() {
 }
 
 map::chunk map::getChunk(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < (getWorldHeight() >> 4) && x >= 0 && x < (getWorldWidth() >> 4), "requested chunk is out of bounds");
+    ASSERT(y >= 0 && y < (getWorldHeight() >> 4) && x >= 0 && x < (getWorldWidth() >> 4), "requested chunk is out of bounds")
     return chunk(x, y, &chunks[y * (getWorldWidth() >> 4) + x], this);
 }

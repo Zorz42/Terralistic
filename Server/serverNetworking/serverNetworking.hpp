@@ -14,6 +14,7 @@
 #include <set>
 #include "packets.hpp"
 #include <thread>
+#include <vector>
 
 class serverPacketListener;
 
