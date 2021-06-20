@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(Terralistic)
 set (CMAKE_CXX_STANDARD 17)
 
+# do not run cmake script on windows but build.py or else it probably wont compile since its not supported
+
 add_compile_definitions(DEVELOPER_MODE)
 
 if(WIN32)
@@ -26,11 +28,13 @@ LIST(REMOVE_DUPLICATES TerralisticInclude)
 include_directories(Terralistic ${TerralisticInclude})
 
 if(WIN32)
+    set(CMAKE_CXX_COMPILER "C:/msys64/mingw64/bin/clang++")
+
     target_link_libraries(Terralistic
-            ../Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2
-            ../Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2main
-            ../Dependencies/Windows/SDL2_image-2.0.5/lib/x64/SDL2_image
-            ../Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf
+            ${CMAKE_SOURCE_DIR}/Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2.lib
+            ${CMAKE_SOURCE_DIR}/Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2main.lib
+            ${CMAKE_SOURCE_DIR}/Dependencies/Windows/SDL2_image-2.0.5/lib/x64/SDL2_image.lib
+            ${CMAKE_SOURCE_DIR}/Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf.lib
             Ws2_32.lib
             )
     file(COPY

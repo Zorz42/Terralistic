@@ -45,7 +45,7 @@ elif sys.platform == "linux":
     shutil.copy("/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", project_path + "Output/Linux/Terralistic/")
     shutil.copy("/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", project_path + "Output/Linux/Terralistic/")
 elif sys.platform == "win32":
-    createDir(project_path + "Dependencies/")
+    createDir("Dependencies/")
     if not os.path.exists(project_path + "Dependencies/Windows/"):
         os.system(f"git clone https://github.com/Zorz42/Terralistic-Windows-Dependencies {project_path}Dependencies/Windows/")
     else:
@@ -61,10 +61,10 @@ elif sys.platform == "win32":
 
     os.system(f"cd {project_path}Build/ && {cmake_path} .. && {cmake_path} --build .")
 
-    createDir("Output/Windows/Terralistic")
-
     if os.path.exists(project_path + "Output/Windows/Terralistic/"):
-        os.remove(project_path + "Output/Windows/Terralistic/")
+        shutil.rmtree(project_path + "Output/Windows/Terralistic/")
+
+    createDir("Output/Windows/Terralistic/")
     shutil.move(project_path + "Build/Debug/Terralistic.exe", project_path + "Output/Windows/Terralistic/")
     for file in os.listdir(project_path + "Build/"):
         if file.endswith(".dll"):
@@ -72,5 +72,8 @@ elif sys.platform == "win32":
 
     shutil.rmtree(project_path + "Output/Windows/Terralistic/Resources/", ignore_errors=True)
     shutil.move(project_path + "Build/Resources/", project_path + "Output/Windows/Terralistic/Resources/")
+
+    if sys.argv[1] == "run":
+        os.system(project_path + "Output/Windows/Terralistic/Terralistic.exe")
 else:
     print("Your current platform is not yet supported by this build script!")
