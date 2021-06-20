@@ -8,15 +8,19 @@ project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 def createDir(path):
     os.makedirs(project_path + path, exist_ok=True)
 
+
 if sys.platform == "darwin":
     createDir(project_path + "Dependencies/")
     if not os.path.exists(project_path + "Dependencies/MacOS/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependencies {project_path}Dependencies/MacOS/")
+        os.system(
+            f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependencies {project_path}Dependencies/MacOS/")
     else:
         os.system(f"git -C {project_path}Dependencies/MacOS/ pull --rebase")
 
-    os.system(f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
-    os.system(f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
+    os.system(
+        f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
+    os.system(
+        f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
 
     createDir("Output/MacOS/")
 
@@ -45,9 +49,10 @@ elif sys.platform == "linux":
     shutil.copy("/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", project_path + "Output/Linux/Terralistic/")
     shutil.copy("/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", project_path + "Output/Linux/Terralistic/")
 elif sys.platform == "win32":
-    createDir(project_path + "Dependencies/")
+    createDir("Dependencies/")
     if not os.path.exists(project_path + "Dependencies/Windows/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-Windows-Dependencies {project_path}Dependencies/Windows/")
+        os.system(
+            f"git clone https://github.com/Zorz42/Terralistic-Windows-Dependencies {project_path}Dependencies/Windows/")
     else:
         os.system(f"git -C {project_path}Dependencies/Windows/ pull --rebase")
 
@@ -61,10 +66,10 @@ elif sys.platform == "win32":
 
     os.system(f"cd {project_path}Build/ && {cmake_path} .. && {cmake_path} --build .")
 
-    createDir("Output/Windows/Terralistic")
-
     if os.path.exists(project_path + "Output/Windows/Terralistic/"):
-        os.remove(project_path + "Output/Windows/Terralistic/")
+        shutil.rmtree(project_path + "Output/Windows/Terralistic/")
+    createDir("Output/Windows/Terralistic/")
+
     shutil.move(project_path + "Build/Debug/Terralistic.exe", project_path + "Output/Windows/Terralistic/")
     for file in os.listdir(project_path + "Build/"):
         if file.endswith(".dll"):

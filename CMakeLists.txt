@@ -26,11 +26,13 @@ LIST(REMOVE_DUPLICATES TerralisticInclude)
 include_directories(Terralistic ${TerralisticInclude})
 
 if(WIN32)
+    set(CMAKE_CXX_COMPILER "C:\\msys64\\mingw64\\bin\\clang++.exe")
+
     target_link_libraries(Terralistic
-            ../Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2
-            ../Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2main
-            ../Dependencies/Windows/SDL2_image-2.0.5/lib/x64/SDL2_image
-            ../Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf
+            ${PROJECT_SOURCE_DIR}/Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2.lib
+            ${PROJECT_SOURCE_DIR}/Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2main.lib
+            ${PROJECT_SOURCE_DIR}/Dependencies/Windows/SDL2_image-2.0.5/lib/x64/SDL2_image.lib
+            ${PROJECT_SOURCE_DIR}/Dependencies/Windows/SDL2_ttf-2.0.15/lib/x64/SDL2_ttf.lib
             Ws2_32.lib
             )
     file(COPY

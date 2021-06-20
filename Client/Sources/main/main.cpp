@@ -25,7 +25,7 @@
 
 #ifdef _WIN32
 #define main Terralistic_main
-int main(char **argv);
+int main(int argc, char **argv);
 extern "C" int SDL_main(int argc, char **argv) {
     return main(argc, argv);
 }

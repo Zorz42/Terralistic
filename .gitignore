@@ -9,3 +9,4 @@ Dependencies/
 Output/
 cmake-build-debug/
 venv/
+.idea/workspace.xml
