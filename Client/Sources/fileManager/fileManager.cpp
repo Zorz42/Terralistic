@@ -32,8 +32,6 @@ std::string fileManager::getWorldsPath() {
     return data_path + "worlds/";
 }
 
-#include <iostream>
-
 std::string fileManager::getResourcePath(std::string executable_path) {
     while(executable_path[executable_path.size()-1] != '/' && executable_path[executable_path.size()-1] != '\\')
         executable_path.pop_back();

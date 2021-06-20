@@ -9,6 +9,7 @@
 #define server_hpp
 
 #include <string>
+#include <utility>
 #include "serverNetworking.hpp"
 #include "serverMap.hpp"
 
@@ -22,15 +23,15 @@ public:
     enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
     serverState state = NEUTRAL;
     
-    server(std::string working_dir, unsigned short port, std::string resource_path) : working_dir(working_dir), world_map(&networking_manager, resource_path), networking_manager(port) {}
+    server(std::string working_dir, unsigned short port, std::string resource_path) : working_dir(std::move(working_dir)), world_map(&networking_manager, std::move(resource_path)), networking_manager(port) {}
     
     void start();
-    void stop();
+    static void stop();
     
     void setPrivate(bool is_private);
     
-    unsigned int getGeneratingTotal();
-    unsigned int getGeneratingCurrent();
+    [[nodiscard]] unsigned int getGeneratingTotal() const;
+    [[nodiscard]] unsigned int getGeneratingCurrent() const;
     
     inline unsigned short getPort() { return networking_manager.getPort(); }
 };

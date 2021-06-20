@@ -9,7 +9,6 @@
 #include "fileManager.hpp"
 #include "playerHandler.hpp"
 #include "config.hpp"
-#include <iostream>
 
 #ifdef __APPLE__
 
@@ -26,13 +25,13 @@
 
 #ifdef _WIN32
 #define main Terralistic_main
-int main(int argc, char **argv);
+int main(char **argv);
 extern "C" int SDL_main(int argc, char **argv) {
-    return main(argc, argv);
+    return main(argv);
 }
 #endif
 
-int main(int argc, char **argv) {
+int main(char **argv) {
     // initialize graphics and set resource path, which is a part of file loading in graphics
     
     gfx::init(1000, 600);

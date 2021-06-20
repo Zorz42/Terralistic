@@ -8,6 +8,7 @@
 #include "clientMap.hpp"
 #include "assert.hpp"
 #include <algorithm>
+#include <utility>
 
 std::vector<map::uniqueBlock> map::unique_blocks;
 gfx::image breaking_texture;
@@ -31,7 +32,7 @@ void map::initBlocks() {
     breaking_texture.scale = 2;
 }
 
-map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to) : ghost(ghost), name(name), connects_to(connects_to) {
+map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to) : ghost(ghost), name(name), connects_to(std::move(connects_to)) {
     texture.setTexture(gfx::loadImageFile("texturePack/blocks/" + name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;
@@ -39,7 +40,7 @@ map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<m
 }
 
 map::block map::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth(), "requested block is out of bounds");
+    ASSERT(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth(), "requested block is out of bounds")
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 

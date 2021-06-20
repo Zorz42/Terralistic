@@ -44,7 +44,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
 
     gfx::rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
     bool is_left_button_pressed = false;
-    unsigned short prev_selected_x, prev_selected_y, selected_block_x, selected_block_y;
+    unsigned short prev_selected_x{}, prev_selected_y{}, selected_block_x{}, selected_block_y{};
 
     bool isPlayerColliding();
     bool touchingGround();

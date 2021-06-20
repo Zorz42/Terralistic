@@ -40,7 +40,7 @@ protected:
         uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to);
         uniqueBlock() = default;
 
-        bool ghost, single_texture;
+        bool ghost{}, single_texture{};
         std::string name;
         gfx::image texture;
         std::vector<map::blockType> connects_to;
@@ -54,15 +54,15 @@ protected:
     };
 
     struct blockData {
-        blockData(blockType block_id=blockType::UNLOADED, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+        explicit blockData(blockType block_id=blockType::UNLOADED, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
         blockType block_id;
         liquidType liquid_id;
-        unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level;
+        unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
         bool update = true;
 
-        uniqueBlock& getUniqueBlock() const;
-        uniqueLiquid& getUniqueLiquid() const;
+        [[nodiscard]] uniqueBlock& getUniqueBlock() const;
+        [[nodiscard]] uniqueLiquid& getUniqueLiquid() const;
     };
 
     struct chunkData {
@@ -82,7 +82,7 @@ protected:
 
 public: // !!! should be protected
     struct uniqueItem {
-        uniqueItem(const std::string& name);
+        explicit uniqueItem(const std::string& name);
         uniqueItem() = default;
 
         std::string name;
@@ -130,9 +130,6 @@ public:
         void draw();
         void update();
 
-        inline unsigned short getX() { return x; }
-        inline unsigned short getY() { return y; }
-
         inline bool isGhost() { return block_data->getUniqueBlock().ghost; }
         inline unsigned char getLightLevel() { return block_data->light_level; }
         inline unsigned char getBreakStage() { return block_data->break_stage; }
@@ -144,19 +141,18 @@ public:
     };
 
     class item {
-        uniqueItem& getUniqueItem() const;
+        [[nodiscard]] uniqueItem& getUniqueItem() const;
         unsigned short id;
         itemType item_type;
     public:
         item(itemType item_type, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_type(item_type) {}
         int x, y;
-        unsigned short getId() { return id; }
-        itemType getType() { return item_type; }
+        [[nodiscard]] unsigned short getId() const { return id; }
         void draw(short x, short y, unsigned char scale);
     };
 
 protected:
-    unsigned short width, height;
+    unsigned short width{}, height{};
     chunkData *chunks = nullptr;
     blockData *blocks = nullptr;
 
@@ -169,8 +165,8 @@ protected:
     gfx::image background_image;
 
 public:
-    map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::KICK}; }
-    int view_x, view_y;
+    explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::KICK}; }
+    int view_x{}, view_y{};
 
     static void initBlocks();
     static void initItems();
@@ -179,14 +175,14 @@ public:
     chunk getChunk(unsigned short x, unsigned short y);
     block getBlock(unsigned short x, unsigned short y);
 
-    inline unsigned short getWorldWidth() { return width; }
-    inline unsigned short getWorldHeight() { return height; }
+    [[nodiscard]] inline unsigned short getWorldWidth() const { return width; }
+    [[nodiscard]] inline unsigned short getWorldHeight() const { return height; }
 
     void createWorld(unsigned short map_width, unsigned short map_height);
 
     item* getItemById(unsigned short id);
 
-    ~map();
+    ~map() override;
 };
 
 #endif /* clientMap_hpp */

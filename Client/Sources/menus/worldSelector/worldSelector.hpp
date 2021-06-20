@@ -36,8 +36,7 @@ class worldSelector : public gfx::scene {
     gfx::button back_button, new_button;
     std::vector<std::string> worlds_names;
     std::vector<world_to_select> worlds;
-    int scroll_limit, position, title_x_to_be;
-    float title_scale_to_be;
+    int scroll_limit, position;
     bool shift_pressed = false;
 public:
     void init() override;

@@ -62,7 +62,7 @@ void chat::onKeyDown(gfx::key key) {
 void chat::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::CHAT: {
-            chatLine* new_line = new chatLine;
+            auto* new_line = new chatLine;
             new_line->text_sprite.setTexture(gfx::renderText(packet.get<std::string>(), {255, 255, 255}));
             new_line->text_sprite.scale = 2;
             new_line->text_sprite.y = chat_box.y;

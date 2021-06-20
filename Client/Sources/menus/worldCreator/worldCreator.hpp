@@ -21,10 +21,11 @@
 #endif
 
 #include <string>
+#include <utility>
 #include <vector>
 
 struct worldCreator : gfx::scene {
-    worldCreator(const std::vector<std::string>& worlds) : worlds(worlds) {}
+    explicit worldCreator(std::vector<std::string> worlds) : worlds(std::move(worlds)) {}
     bool running = true, can_create = true;
     void init() override;
     void onKeyDown(gfx::key key) override;
@@ -33,7 +34,7 @@ struct worldCreator : gfx::scene {
 private:
     std::vector<std::string> worlds;
     gfx::button back_button, create_button;
-    gfx::sprite new_world_title, faded_create;
+    gfx::sprite new_world_title;
     gfx::textInput world_name;
 };
 

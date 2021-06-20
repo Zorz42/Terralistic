@@ -8,7 +8,6 @@
 #define WIN32_LEAN_AND_MEAN
 
 #ifdef _WIN32
-#include <iostream>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -21,7 +20,7 @@
 #include "clientNetworking.hpp"
 #include <thread>
 
-void networkingManager::sendPacket(packets::packet& packet_) {
+void networkingManager::sendPacket(packets::packet& packet_) const {
     packets::sendPacket(sock, packet_);
 }
 
@@ -45,8 +44,8 @@ void networkingManager::listenerLoop(networkingManager* manager) {
 bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
 #ifdef _WIN32
     WSADATA wsaData;
-    SOCKET ConnectSocket = INVALID_SOCKET;
-    addrinfo* result = nullptr, hints;
+    auto ConnectSocket = INVALID_SOCKET;
+    addrinfo* result = nullptr, hints{};
 
     // Initialize Winsock
     if(WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -64,7 +63,7 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     }
 
     // Attempt to connect to an address until one succeeds
-    for(addrinfo* ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+    for(addrinfo* ptr = result; ptr != nullptr; ptr = ptr->ai_next) {
         // Create a SOCKET for connecting to server
         ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if(ConnectSocket == INVALID_SOCKET) {

@@ -102,10 +102,10 @@ void server::setPrivate(bool is_private) {
     networking_manager.accept_only_itself = is_private;
 }
 
-unsigned int server::getGeneratingTotal() {
+unsigned int server::getGeneratingTotal() const {
     return world_map.generating_total;
 }
 
-unsigned int server::getGeneratingCurrent() {
+unsigned int server::getGeneratingCurrent() const {
     return world_map.generating_current;
 }

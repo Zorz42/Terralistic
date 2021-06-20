@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(Terralistic)
 set (CMAKE_CXX_STANDARD 17)
 
+add_compile_definitions(DEVELOPER_MODE)
+
 if(WIN32)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O0 -I/usr/include/SDL2")

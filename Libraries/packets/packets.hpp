@@ -14,7 +14,7 @@
 
 namespace packets {
 
-enum packetType {DISCONNECT, PING, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE, KICK, CHAT};
+enum packetType {DISCONNECT, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE, KICK, CHAT};
 
 struct packetBuffer {
     std::vector<unsigned char> buffer;
@@ -62,16 +62,16 @@ struct packet {
         return result;
     }
     
-    void operator=(packet& target) {
+    packet& operator=(packet& target) {
         target.contents = contents;
         contents = nullptr;
         target.curr_pos = curr_pos;
         target.type = type;
+        return *this;
     }
     
     ~packet() {
-        if(contents)
-            delete[] contents;
+        delete[] contents;
     }
 };
 

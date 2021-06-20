@@ -60,7 +60,7 @@ void serverMap::updateBlocks() {
     }
 }
 
-int serverMap::getSpawnX() {
+int serverMap::getSpawnX() const {
     return width / 2 * BLOCK_WIDTH;
 }
 
@@ -85,7 +85,7 @@ serverMap::player* serverMap::getPlayerByName(const std::string& name) {
     for(player* player : all_players)
         if(player->name == name)
             return player;
-    all_players.emplace_back(new player(curr_id++, this));
+    all_players.emplace_back(new player(curr_id++));
     player* curr_player = all_players.back();
     curr_player->y = getSpawnY() - BLOCK_WIDTH * 2;
     curr_player->x = getSpawnX();

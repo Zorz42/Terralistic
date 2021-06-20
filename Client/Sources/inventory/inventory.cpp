@@ -26,10 +26,6 @@ char inventory::addItem(map::itemType id, int quantity) {
     return -1;
 }
 
-inventoryItem* inventory::getSelectedSlot() {
-    return &inventory[(int)(unsigned char)selected_slot];
-}
-
 void inventory::swapWithMouseItem(inventoryItem* item) {
     inventoryItem temp = mouse_item;
     mouse_item = *item;

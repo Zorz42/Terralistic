@@ -52,7 +52,7 @@ void serverMap::initBlocks() {
 }
 
 serverMap::block serverMap::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds");
+    ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
     return block(x, y, &blocks[y * width + x], this);
 }
 

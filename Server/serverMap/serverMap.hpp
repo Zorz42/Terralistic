@@ -8,6 +8,7 @@
 #ifndef serverMap_hpp
 #define serverMap_hpp
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <chrono>
@@ -32,7 +33,7 @@ class serverMap : serverPacketListener {
         int x_size, y_size;
         blockType* blocks;
         structure(std::string cname, int x, int y, blockType* cBlocks) {
-            name = cname;
+            name = std::move(cname);
             x_size = x;
             y_size = y;
             blocks = cBlocks;
@@ -43,7 +44,7 @@ class serverMap : serverPacketListener {
         std::string name;
         int x, y;
         structurePosition(std::string cname, int cx, int cy) {
-            name = cname;
+            name = std::move(cname);
             x = cx;
             y = cy;
         }
@@ -56,7 +57,7 @@ class serverMap : serverPacketListener {
     class player;
 
     struct uniqueBlock {
-        uniqueBlock(const std::string& name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(name), drop(drop), break_time(break_time) {}
+        uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
 
         bool ghost, only_on_floor, transparent;
         std::string name;
@@ -69,7 +70,7 @@ class serverMap : serverPacketListener {
     };
 
     struct uniqueLiquid {
-        uniqueLiquid(unsigned short flow_time) : flow_time(flow_time) {}
+        explicit uniqueLiquid(unsigned short flow_time) : flow_time(flow_time) {}
         unsigned short flow_time;
     };
 
@@ -81,7 +82,7 @@ class serverMap : serverPacketListener {
     };
 
     struct blockData {
-        blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+        explicit blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
         blockType block_id;
         liquidType liquid_id = liquidType::EMPTY;
@@ -91,8 +92,8 @@ class serverMap : serverPacketListener {
         unsigned int when_to_update_liquid = 1;
         flowDirection flow_direction = flowDirection::NONE;
 
-        uniqueBlock& getUniqueBlock() const;
-        uniqueLiquid& getUniqueLiquid() const;
+        [[nodiscard]] uniqueBlock& getUniqueBlock() const;
+        [[nodiscard]] uniqueLiquid& getUniqueLiquid() const;
     };
 
     static std::vector<uniqueItem> unique_items;
@@ -101,8 +102,8 @@ class serverMap : serverPacketListener {
 
     class block {
         blockData* block_data = nullptr;
-        unsigned short x, y;
-        serverMap* parent_map;
+        unsigned short x{}, y{};
+        serverMap* parent_map{};
 
         void syncWithClient();
         void updateNeighbors();
@@ -144,10 +145,8 @@ class serverMap : serverPacketListener {
         inline flowDirection getFlowDirection() { return block_data->flow_direction; }
         inline void setFlowDirection(flowDirection flow_direction) { block_data->flow_direction = flow_direction; }
 
-        inline unsigned short getX() { return x; }
-        inline unsigned short getY() { return y; }
-
-        inline void _setLightLevel(unsigned char level) { block_data->light_level = level; }
+        [[nodiscard]] inline unsigned short getX() const { return x; }
+        [[nodiscard]] inline unsigned short getY() const { return y; }
 
         void leftClickEvent(connection& connection, unsigned short tick_length);
         void rightClickEvent(player* peer);
@@ -163,8 +162,9 @@ class serverMap : serverPacketListener {
         void update(float frame_length, serverMap& world_serverMap);
         bool colliding(serverMap& world_serverMap) const;
         int x, y;
-        uniqueItem& getUniqueItem() const;
-        unsigned short getId() { return id; }
+
+        [[maybe_unused]] [[nodiscard]] uniqueItem& getUniqueItem() const;
+        [[nodiscard]] unsigned short getId() const { return id; }
         itemType getItemId() { return item_id; }
     };
 
@@ -177,13 +177,12 @@ class serverMap : serverPacketListener {
     public:
         inventoryItem() : holder(nullptr), item_id(serverMap::itemType::NOTHING), stack(0) {}
         explicit inventoryItem(inventory* holder) : holder(holder), item_id(serverMap::itemType::NOTHING), stack(0) {}
-        explicit inventoryItem(inventory* holder, itemType item_id) : holder(holder), item_id(item_id), stack(1) {}
 
         inline itemType getId() { return item_id; }
         void setId(itemType id);
-        uniqueItem& getUniqueItem() const;
+        [[nodiscard]] uniqueItem& getUniqueItem() const;
         void setStack(unsigned short stack_);
-        unsigned short getStack() const;
+        [[nodiscard]] unsigned short getStack() const;
         unsigned short increaseStack(unsigned short stack_);
         bool decreaseStack(unsigned short stack_);
         void sendPacket();
@@ -194,7 +193,7 @@ class serverMap : serverPacketListener {
         inventoryItem mouse_item;
         player* owner;
     public:
-        inventory(player* owner);
+        explicit inventory(player* owner);
         inventoryItem inventory_arr[INVENTORY_SIZE];
         char addItem(itemType id, int quantity);
         bool open = false;
@@ -205,23 +204,23 @@ class serverMap : serverPacketListener {
 
     class player {
     public:
-        player(unsigned short id, serverMap* world_map) : id(id), player_inventory(this) {}
+        explicit player(unsigned short id) : id(id), player_inventory(this) {}
         connection* conn = nullptr;
         const unsigned short id;
         bool flipped = false;
         int x = 0, y = 0;
         unsigned short sight_width = 0, sight_height = 0;
         inventory player_inventory;
-        unsigned short breaking_x, breaking_y;
+        unsigned short breaking_x{}, breaking_y{};
         bool breaking = false;
         std::string name;
     };
 
-    unsigned short width, height;
+    unsigned short width{}, height{};
     blockData *blocks = nullptr;
     biome* biomes = nullptr;
 
-    void removeNaturalLight(unsigned short x);
+    [[maybe_unused]] void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
 
     void onPacket(packets::packet& packet, connection& conn) override;
@@ -233,7 +232,7 @@ class serverMap : serverPacketListener {
 
     void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
     int calculateHeight(int x, SimplexNoise& noise);
-    int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
+    //static int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
     void generatePlains(int x, SimplexNoise& noise);
     void generateDesert(int x, SimplexNoise& noise);
     void generateSnowyTundra(int x, SimplexNoise& noise);
@@ -245,19 +244,19 @@ class serverMap : serverPacketListener {
     void generateColdHills(int x, SimplexNoise& noise);
     void generateSavana(int x, SimplexNoise& noise);
 
-    void generateOakTree(int x, int y);
+    //void generateOakTree(int x, int y);
     void generateAccaciaTree(int x, int y);
-    void generateStructure(std::string name, int x, int y);
+    void generateStructure(const std::string& name, int x, int y);
     void loadAssets();
 
 
-    int getSpawnX();
+    [[nodiscard]] int getSpawnX() const;
     int getSpawnY();
 
     std::string resource_path;
 
 public:
-    serverMap(serverNetworkingManager* manager, std::string resource_path) : manager(manager), serverPacketListener(manager), resource_path(resource_path) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION, packets::CHAT}; }
+    serverMap(serverNetworkingManager* manager, std::string resource_path) : manager(manager), serverPacketListener(manager), resource_path(std::move(resource_path)) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION, packets::CHAT}; }
 
     static void initBlocks();
     static void initItems();

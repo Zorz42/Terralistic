@@ -12,7 +12,6 @@
 #include <unistd.h>
 #endif
 
-#include <chrono>
 #include "print.hpp"
 #include "packets.hpp"
 #include "serverNetworking.hpp"
@@ -22,7 +21,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
     player* curr_player = getPlayerByConnection(&conn);
     switch (packet.type) {
         case packets::STARTED_BREAKING: {
-            unsigned short y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
+            auto y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
             curr_player->breaking_x = x;
             curr_player->breaking_y = y;
             curr_player->breaking = true;
@@ -35,13 +34,13 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         }
 
         case packets::RIGHT_CLICK: {
-            unsigned short y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
+            auto y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
             getBlock(x, y).rightClickEvent(curr_player);
             break;
         }
 
         case packets::CHUNK: {
-            unsigned short x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
+            auto x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
             packets::packet chunk_packet(packets::CHUNK, (sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char)) * 16 * 16 + sizeof(x) + sizeof(y));
             for(int i = 0; i < 16 * 16; i++) {
                 serverMap::block block = getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
@@ -53,7 +52,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         }
 
         case packets::VIEW_SIZE_CHANGE: {
-            unsigned short width = packet.get<unsigned short>(), height = packet.get<unsigned short>();
+            auto width = packet.get<unsigned short>(), height = packet.get<unsigned short>();
             curr_player->sight_width = width;
             curr_player->sight_height = height;
             break;
@@ -136,7 +135,7 @@ void serverMap::onPacket(packets::packet& packet, connection& conn) {
         }
 
         case packets::INVENTORY_SWAP: {
-            unsigned char pos = packet.get<unsigned char>();
+            auto pos = packet.get<unsigned char>();
             player* player = getPlayerByConnection(&conn);
             player->player_inventory.swapWithMouseItem(&player->player_inventory.inventory_arr[pos]);
             break;

@@ -26,7 +26,7 @@ map::item* map::getItemById(unsigned short id) {
     for(item& i : map::items)
         if(i.getId() == id)
             return &i;
-    ASSERT(false, "item not found by id");
+    ASSERT(false, "item not found by id")
     return nullptr;
 }
 
@@ -37,12 +37,12 @@ map::uniqueItem::uniqueItem(const std::string& name) : name(name) {
 }
 
 map::uniqueItem& map::item::getUniqueItem() const {
-    ASSERT((int)item_type >= 0 && (int)item_type < unique_items.size(), "item_id is not valid");
+    ASSERT((int)item_type >= 0 && (int)item_type < unique_items.size(), "item_id is not valid")
     return unique_items[(int)item_type];
 }
 
-void map::item::draw(short x, short y, unsigned char scale) {
-    getUniqueItem().draw(x, y, scale);
+void map::item::draw(short x_, short y_, unsigned char scale) {
+    getUniqueItem().draw(x_, y_, scale);
 }
 
 void map::uniqueItem::draw(short x, short y, unsigned char scale) {

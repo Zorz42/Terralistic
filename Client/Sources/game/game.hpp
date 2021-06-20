@@ -17,6 +17,8 @@
 #endif
 
 #else
+#include <utility>
+
 #include "graphics.hpp"
 #endif
 
@@ -30,10 +32,10 @@ public:
     const std::string ip_address;
     const unsigned short port;
     networkingManager networking_manager;
-    map *world_map;
+    map *world_map{};
     mainPlayer main_player;
 
-    game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = username; }
+    game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = std::move(username); }
     void init() override;
     void stop() override;
 };

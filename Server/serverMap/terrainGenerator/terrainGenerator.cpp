@@ -15,21 +15,21 @@
 // terrain generation parameters
 
 // TERRAIN
-#define TERRAIN_VERTICAL_MULTIPLIER 140
-#define TERRAIN_HORIZONTAL_DIVIDER 4
-#define TERRAIN_HORIZONT ((float)world_map.height / 2 - 50)
-#define TURB_SIZE 64.0 //initial size of the turbulence
+//#define TERRAIN_VERTICAL_MULTIPLIER 140
+//#define TERRAIN_HORIZONTAL_DIVIDER 4
+//#define TERRAIN_HORIZONT ((float)world_map.height / 2 - 50)
+//#define TURB_SIZE 64.0 //initial size of the turbulence
 #define PI 3.14159265
 
 // CAVES
 
-#define CAVE_START 0.15
-#define CAVE_LENGTH 0.3
+//#define CAVE_START 0.15
+//#define CAVE_LENGTH 0.3
 
 // STONE
 
-#define STONE_START 0.1
-#define STONE_LENGTH 1
+//#define STONE_START 0.1
+//#define STONE_LENGTH 1
 
 
 
@@ -47,7 +47,7 @@ int serverMap::generateTerrain(unsigned int seed) {
     for (int x = 0; x < width; x++) {
         terrainGenerator(x, noise);
     }
-    for (structurePosition i : structurePositions) {
+    for (const structurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }
     for(unsigned short x = 0; x < width; x++)
@@ -68,12 +68,12 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
     return value / initialSize;
 }
 
-int heatGeneratorInt(unsigned int x, SimplexNoise& noise) {
+/*int heatGeneratorInt(unsigned int x, SimplexNoise& noise) {
     int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 1.5;
     return heat == 3 ? 2 : heat;
-}
+}*/
 
-int serverMap::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
+//int serverMap::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
     /*if (x < 50 || x > width - 50)
         return 0;
     else if (x < 100 || x > width - 100)
@@ -82,9 +82,9 @@ int serverMap::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
         int heat = (noise.noise((float)x / 600.0 + 0.001) + 1) * 2;
         return std::min(std::max(1, heat), 3);
     }*/
-    int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 2;
-    return heat == 4 ? 3 : heat;
-}
+    //int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 2;
+    //return heat == 4 ? 3 : heat;
+//}
 
 void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     /*
@@ -200,7 +200,7 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
         }
     }
     if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8 && x > 5)
-        structurePositions.push_back(structurePosition("Tree", x, sliceHeight));
+        structurePositions.emplace_back("Tree", x, sliceHeight);
 }
 
 
@@ -314,7 +314,7 @@ void serverMap::generateForest(int x, SimplexNoise& noise) {
         }
     }
     if ( x%8 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8 && x > 5)
-        structurePositions.push_back(structurePosition("Tree", x + noise.noise(x) * 2, sliceHeight));
+        structurePositions.emplace_back("Tree", x + noise.noise(x) * 2, sliceHeight);
 }
 
 void serverMap::generateColdHills(int x, SimplexNoise& noise) {
@@ -344,7 +344,7 @@ void serverMap::generateSavana(int x, SimplexNoise& noise) {
             if (y >= dirtLayer) {
                 if (y == sliceHeight)
                     getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
-               else
+                else
                     getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
             }
             else
@@ -472,7 +472,7 @@ void serverMap::loadAssets() {
     int counter = 0;
     int previousEnd = 0;
     while (counter < size - 1) {
-        std::string name = "";
+        std::string name;
         int nameSize = assetData[counter];
         counter++;
         while (counter - previousEnd <= nameSize) {
@@ -483,12 +483,12 @@ void serverMap::loadAssets() {
         counter++;
         int y_size = assetData[counter];
         counter++;
-        blockType *blocks = new blockType[x_size * y_size];
+        auto *blocks = new blockType[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {
             blocks[i] = (blockType)assetData[counter];
             counter++;
         }
-        structures.push_back(structure(name, x_size, y_size, blocks));
+        structures.emplace_back(name, x_size, y_size, blocks);
         previousEnd = counter;
     }
 
@@ -496,12 +496,12 @@ void serverMap::loadAssets() {
     delete[] assetData;
 }
 
-void serverMap::generateStructure(std::string name, int x, int y) {
-    for (int i = 0; i < structures.size(); i++) {
-        if (name == structures[i].name) {
-            for(int j = 0; j < structures[i].y_size * structures[i].x_size; j++)
-                if(structures[i].blocks[j] != blockType::NOTHING)
-                    getBlock((unsigned short)(x + j % structures[i].x_size), (unsigned short)(height - y + (j - j % structures[i].x_size) / structures[i].x_size) - structures[i].y_size - 1).setType(structures[i].blocks[j], false);
+void serverMap::generateStructure(const std::string& name, int x, int y) {
+    for (auto & structure : structures) {
+        if (name == structure.name) {
+            for(int j = 0; j < structure.y_size * structure.x_size; j++)
+                if(structure.blocks[j] != blockType::NOTHING)
+                    getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(height - y + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setType(structure.blocks[j], false);
             break;
         }
     }

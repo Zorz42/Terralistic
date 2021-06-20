@@ -21,14 +21,14 @@ players::player* players::getPlayerById(unsigned short id) {
     for(player* player : other_players)
         if(player->id == id)
             return player;
-    ASSERT(false, "Could not get player by id");
+    ASSERT(false, "Could not get player by id")
     return nullptr;
 }
 
 void players::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::PLAYER_JOIN: {
-            player* new_player = new player();
+            auto* new_player = new player();
             new_player->name = packet.get<std::string>();
             new_player->id = packet.get<unsigned short>();
             new_player->y = packet.get<int>();
@@ -38,7 +38,7 @@ void players::onPacket(packets::packet &packet) {
             break;
         }
         case packets::PLAYER_QUIT: {
-            unsigned short id = packet.get<unsigned short>();
+            auto id = packet.get<unsigned short>();
             for(auto i = other_players.begin(); i != other_players.end(); i++)
                 if((*i)->id == id) {
                     other_players.erase(i);

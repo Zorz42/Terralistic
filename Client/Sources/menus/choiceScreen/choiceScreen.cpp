@@ -7,10 +7,12 @@
 
 #include "choiceScreen.hpp"
 
-choiceScreen::choiceScreen(std::string notification, std::vector<std::string> options, std::string* result) {
-    this->notification = notification;
+#include <utility>
+
+choiceScreen::choiceScreen(std::string notification, const std::vector<std::string>& options, std::string* result) {
+    this->notification = std::move(notification);
     this->result = result;
-    for(std::string option : options) {
+    for(const std::string& option : options) {
         buttons.emplace_back();
         buttons.back().option = option;
     }

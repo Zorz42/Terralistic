@@ -37,13 +37,3 @@ unsigned short inventoryItem::increaseStack(unsigned short stack_) {
     setStack((unsigned short)stack_to_be);
     return (unsigned short)result;
 }
-
-bool inventoryItem::decreaseStack(unsigned short stack_) {
-    // returns true if stack can be decreased
-    if(stack_ > stack)
-        return false;
-    else {
-        setStack(stack - stack_);
-        return true;
-    }
-}

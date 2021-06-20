@@ -5,8 +5,7 @@
 //  Created by Jakob Zorz on ???.
 //
 
-#include <thread>
-#include <functional>
+#include <thread>+
 #include <filesystem>
 #include "game.hpp"
 #include "pauseScreen.hpp"
@@ -56,7 +55,7 @@ void startPrivateWorld(const std::string& world_name) {
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
 
     private_server = new server(fileManager::getWorldsPath() + world_name, rand() % (TO_PORT - FROM_PORT) + TO_PORT, gfx::resource_path);
-    server_thread = std::thread(std::bind(&server::start, private_server));
+    server_thread = std::thread([ObjectPtr = private_server] { ObjectPtr->start(); });
 
     while(private_server->state != server::RUNNING)
         switch (private_server->state) {
@@ -79,7 +78,7 @@ void startPrivateWorld(const std::string& world_name) {
                 gfx::updateWindow();
                 break;
             default:
-                ASSERT(false, "Unregistered loading state!");
+                ASSERT(false, "Unregistered loading state!")
                 break;
         }
 

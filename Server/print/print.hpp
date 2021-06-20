@@ -12,9 +12,9 @@
 
 namespace print {
 
-void info(std::string text);
-void warning(std::string text);
-void error(std::string text);
+void info(const std::string& text);
+void warning(const std::string& text);
+void error(const std::string& text);
 
 }
 

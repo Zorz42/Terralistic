@@ -66,7 +66,7 @@ void serverMap::loadWorld(const std::string& world_path) {
 
     for (const auto& entry : std::filesystem::directory_iterator(world_path + "/playerdata/")) {
         std::string player_name = entry.path().string();
-        player_name = player_name.substr(player_name.find_last_of("/") + 1, player_name.size() - 1);
+        player_name = player_name.substr(player_name.find_last_of('/') + 1, player_name.size() - 1);
         serverMap::player* player = getPlayerByName(player_name);
 
         std::ifstream data_file(entry.path(), std::ios::binary);

@@ -25,15 +25,15 @@
 class chat : public gfx::sceneModule, packetListener {
     struct chatLine {
         gfx::sprite text_sprite;
-        int y_to_be;
-        unsigned int time_created;
+        int y_to_be{};
+        unsigned int time_created{};
     };
 
     gfx::textInput chat_box;
     networkingManager* manager;
     std::vector<chatLine*> chat_lines;
 public:
-    chat(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::CHAT}; }
+    explicit chat(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::CHAT}; }
 
     void init() override;
     void update() override;

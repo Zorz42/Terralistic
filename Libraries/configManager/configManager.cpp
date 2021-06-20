@@ -7,7 +7,9 @@
 
 #include "configManager.hpp"
 
-configFile::configFile(std::string path) : path(path) {
+#include <utility>
+
+configFile::configFile(const std::string& path) : path(path) {
     std::ifstream file(path);
     std::string line;
     while(std::getline(file, line)) {
@@ -20,23 +22,23 @@ configFile::configFile(std::string path) : path(path) {
     }
 }
 
-std::string configFile::get(std::string key) {
+std::string configFile::get(const std::string& key) {
     return values[key];
 }
 
-void configFile::set(std::string key, std::string value) {
-    values[key] = value;
+void configFile::set(const std::string& key, std::string value) {
+    values[key] = std::move(value);
 }
 
-void configFile::setDefault(std::string key, std::string value) {
+void configFile::setDefault(const std::string& key, std::string value) {
     if(values.find(key) == values.end())
-        set(key, value);
+        set(key, std::move(value));
 }
 
 void configFile::save() {
     std::ofstream file(path);
-    for(std::map<std::string, std::string>::iterator iter = values.begin(); iter != values.end(); iter++)
-        file << iter->first + ":" + iter->second + "\n";
+    for(auto & value : values)
+        file << value.first + ":" + value.second + "\n";
     file.close();
 }
 

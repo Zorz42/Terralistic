@@ -24,7 +24,8 @@ void debugMenu::init() {
     biome_text.scale = 3;
     biome_text.y = coords_text.y + coords_text.getHeight() + 10;
     biome_text.x = 10;
-    biome_text.orientation = gfx::top_left;*/
+    biome_text.orientation = gfx::top_left;
+    */
 }
 
 void debugMenu::update() {

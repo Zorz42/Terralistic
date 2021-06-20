@@ -32,9 +32,8 @@ class choiceScreen : public gfx::scene {
     gfx::sprite notification_sprite;
     std::string notification, *result;
     std::vector<button> buttons;
-    std::vector<std::string> options;
 public:
-    choiceScreen(std::string notification, std::vector<std::string> options, std::string* result = nullptr);
+    choiceScreen(std::string notification, const std::vector<std::string>& options, std::string* result = nullptr);
 
     void init() override;
     void onKeyDown(gfx::key key) override;

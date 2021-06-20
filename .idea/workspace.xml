@@ -12,7 +12,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="97dcdd3a-a5b8-463b-bf9d-fc98b3432952" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Graphics/graphics.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Graphics/graphics.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/fileManager/fileManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/fileManager/fileManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/chat/chat.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/chat/chat.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/chat/chat.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/chat/chat.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/block.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/block.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/clientMap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/clientMap.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/clientMap.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/clientMap.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/item.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/clientMap/item.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/debugMenu/debugMenu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/debugMenu/debugMenu.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/otherPlayers/otherPlayers.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/otherPlayers/otherPlayers.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/Modules/playerHandler/playerHandler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/Modules/playerHandler/playerHandler.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/clientNetworking/clientNetworking.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/clientNetworking/clientNetworking.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/clientNetworking/clientNetworking.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/clientNetworking/clientNetworking.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/game.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/game/game.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/game/game.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/inventory/inventory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/inventory/inventory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/inventory/inventory.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/inventory/inventory.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/inventory/inventoryItem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/inventory/inventoryItem.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/main/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/main/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/menus/choiceScreen/choiceScreen.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/menus/choiceScreen/choiceScreen.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/menus/choiceScreen/choiceScreen.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/menus/choiceScreen/choiceScreen.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/menus/worldCreator/worldCreator.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/menus/worldCreator/worldCreator.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Sources/menus/worldSelector/worldSelector.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Sources/menus/worldSelector/worldSelector.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/configManager/configManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/configManager/configManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/configManager/configManager.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/configManager/configManager.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/packets/packets.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/packets/packets.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/print/print.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/print/print.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/print/print.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/print/print.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/server/server.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/server/server.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/server/server.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/server/server.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/block.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/block.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/item.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/item.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/light.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/light.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/packets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/packets.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/player.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/player.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/saver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/saver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/serverMap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/serverMap.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/serverMap.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/serverMap.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/serverMap/terrainGenerator/terrainGenerator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Server/serverMap/terrainGenerator/terrainGenerator.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +100,7 @@
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="CPPToolchains" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
   <component name="RunManager" selected="CMake Application.Terralistic">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
@@ -121,6 +162,8 @@
       <workItem from="1624086504609" duration="6128000" />
       <workItem from="1624122047598" duration="1097000" />
       <workItem from="1624123622401" duration="1088000" />
+      <workItem from="1624176529813" duration="9000" />
+      <workItem from="1624176618169" duration="3827000" />
     </task>
     <servers />
   </component>
@@ -132,5 +175,9 @@
       <path value="$PROJECT_DIR$/Dependencies/Linux" />
       <path value="$PROJECT_DIR$/Dependencies/Windows" />
     </ignored-roots>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

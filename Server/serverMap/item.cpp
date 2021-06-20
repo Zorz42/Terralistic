@@ -60,8 +60,8 @@ void serverMap::item::destroy(serverMap& world_serverMap) {
 
 serverMap::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, serverMap::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
-serverMap::uniqueItem& serverMap::item::getUniqueItem() const {
-    ASSERT((int)item_id >= 0 && (int)item_id < unique_items.size(), "item_id is not valid");
+[[maybe_unused]] serverMap::uniqueItem& serverMap::item::getUniqueItem() const {
+    ASSERT((int)item_id >= 0 && (int)item_id < unique_items.size(), "item_id is not valid")
     return unique_items[(int)item_id];
 }
 

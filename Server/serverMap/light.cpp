@@ -6,7 +6,6 @@
 //
 
 #include "serverMap.hpp"
-#include "serverNetworking.hpp"
 
 void serverMap::block::lightUpdate() {
     block_data->update_light = false;
@@ -55,7 +54,7 @@ void serverMap::setNaturalLight(unsigned short x) {
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
-void serverMap::removeNaturalLight(unsigned short x) {
+[[maybe_unused]] void serverMap::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < height && getBlock(x, y).isTransparent(); y++)
         getBlock(x, y).removeLightSource();
 }
