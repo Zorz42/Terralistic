@@ -15,12 +15,17 @@ if sys.platform == "darwin":
     else:
         os.system(f"git -C {project_path}Dependencies/MacOS/ pull --rebase")
 
-    os.system(f"xcodebuild build -project {project_path}Terralistic.xcodeproj ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO -scheme Terralistic BUILD_DIR={project_path}Temp")
+    os.system(f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
+    os.system(f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
 
     createDir("Output/MacOS/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
     shutil.move(project_path + "Temp/Release/Terralistic.app/", project_path + "Output/MacOS/")
+    if os.path.exists(project_path + "Output/MacOS/Terralistic-server"):
+        os.remove(project_path + "Output/MacOS/Terralistic-server")
+    shutil.move(project_path + "Temp/Release/Terralistic-server", project_path + "Output/MacOS/")
+    shutil.copy(project_path + "Client/Resources/Structures.asset", project_path + "Output/MacOS/")
     shutil.rmtree(project_path + "Temp/")
 elif sys.platform == "linux":
     os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
