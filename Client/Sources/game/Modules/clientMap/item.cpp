@@ -14,11 +14,11 @@ std::vector<map::uniqueItem> map::unique_items;
 void map::initItems() {
     // all currently unique items
     unique_items = {
-        {"nothing"    },
-        {"stone"      },
-        {"dirt"       },
-        {"stone_block"},
-        {"wood_planks"},
+        uniqueItem("nothing"    ),
+        uniqueItem("stone"      ),
+        uniqueItem("dirt"       ),
+        uniqueItem("stone_block"),
+        uniqueItem("wood_planks"),
     };
 }
 

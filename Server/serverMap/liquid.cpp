@@ -11,8 +11,8 @@ std::vector<serverMap::uniqueLiquid> serverMap::unique_liquids;
 
 void serverMap::initLiquids() {
     unique_liquids = {
-        {0},
-        {100},
+        uniqueLiquid(0),
+        uniqueLiquid(100),
     };
 }
 

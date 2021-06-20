@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on ???.
 //
 
-#include <thread>+
+#include <thread>
 #include <filesystem>
 #include "game.hpp"
 #include "pauseScreen.hpp"

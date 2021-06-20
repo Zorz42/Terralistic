@@ -27,11 +27,11 @@
 #define main Terralistic_main
 int main(char **argv);
 extern "C" int SDL_main(int argc, char **argv) {
-    return main(argv);
+    return main(argc, argv);
 }
 #endif
 
-int main(char **argv) {
+int main(int argc, char **argv) {
     // initialize graphics and set resource path, which is a part of file loading in graphics
     
     gfx::init(1000, 600);
