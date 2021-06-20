@@ -6,7 +6,7 @@ add_compile_definitions(DEVELOPER_MODE)
 
 if(WIN32)
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O0 -I/usr/include/SDL2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O2 -I/usr/include/SDL2")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath='$ORIGIN'")
 endif()
 
