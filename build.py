@@ -52,12 +52,7 @@ elif sys.platform == "win32":
         os.system(f"git -C {project_path}Dependencies/Windows/ pull --rebase")
 
     createDir("Build/")
-    clion_folder = ""
-    for folder in os.listdir("C:\\Program Files\\JetBrains\\"):
-        if folder.startswith("CLion"):
-            clion_folder = folder
-    cmake_path = f"\"C:\\Program Files\\JetBrains\\{clion_folder}\\bin\\cmake\\win\\bin\\cmake.exe\""
-    print("Building with ", cmake_path)
+    cmake_path = "C:\\msys64\\mingw64\\bin\\cmake.exe"
 
     os.system(f"cd {project_path}Build/ && {cmake_path} .. && {cmake_path} --build .")
 

@@ -3,6 +3,7 @@ project(Terralistic)
 set (CMAKE_CXX_STANDARD 17)
 
 # do not run cmake script on windows but build.py or else it probably wont compile since its not supported
+# on windows this will come handy: https://blog.jetbrains.com/clion/2020/12/setting-up-clang-on-windows/ (also install cmake which is not listed)
 
 add_compile_definitions(DEVELOPER_MODE)
 
