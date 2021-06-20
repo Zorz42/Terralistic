@@ -178,8 +178,8 @@ void playerHandler::update() {
             jump = false;
         }
         
-        world_map->view_x = player->position_x;
-        world_map->view_y = player->position_y;
+        world_map->view_x += (player->position_x - world_map->view_x) / 2;
+        world_map->view_y += (player->position_y - world_map->view_y) / 2;
         if(world_map->view_x < gfx::getWindowWidth() / 2)
             world_map->view_x = gfx::getWindowWidth() / 2;
         if(world_map->view_y < gfx::getWindowHeight() / 2)
