@@ -24,7 +24,7 @@
 
 class startMenu : public gfx::scene {
     gfx::button singleplayer_button, multiplayer_button, exit_button;
-    gfx::sprite title;
+    gfx::sprite title, version;
     gfx::image background;
     gfx::rect back_rect;
 #ifdef DEVELOPER_MODE

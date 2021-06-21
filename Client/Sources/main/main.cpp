@@ -23,13 +23,13 @@
 
 #endif
 
-#ifdef _WIN32
+/*#ifdef _WIN32
 #define main Terralistic_main
 int main(int argc, char **argv);
 extern "C" int SDL_main(int argc, char **argv) {
     return main(argc, argv);
 }
-#endif
+#endif*/
 
 int main(int argc, char **argv) {
     // initialize graphics and set resource path, which is a part of file loading in graphics
