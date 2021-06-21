@@ -16,8 +16,8 @@ if sys.platform == "darwin":
     else:
         os.system(f"git -C {project_path}Dependencies/MacOS/ pull --rebase")
 
-    os.system(f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
-    os.system(f"xcodebuild build -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
+    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
+    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
 
     createDir("Output/MacOS/")
 
