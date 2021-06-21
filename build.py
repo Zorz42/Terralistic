@@ -62,7 +62,7 @@ elif sys.platform == "win32":
     createDir("Build/")
     cmake_path = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe\""
 
-    os.system(f"cd {project_path}Build/ && {cmake_path} -G \"Visual Studio 16 2019\" -T ClangCL -A x64 .. && {cmake_path} --build .")
+    os.system(f"cd {project_path}Build/ && {cmake_path} -G \"Visual Studio 16 2019\" -T ClangCL -A x64 -DCMAKE_BUILD_TYPE=Release .. && {cmake_path} --build .")
 
     if os.path.exists(project_path + "Output/Windows/Terralistic/"):
         shutil.rmtree(project_path + "Output/Windows/Terralistic/")

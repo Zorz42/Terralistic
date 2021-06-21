@@ -36,6 +36,12 @@ void startMenu::init() {
     back_rect.c = {0, 0, 0};
     back_rect.orientation = gfx::center;
     back_rect.w = singleplayer_button.getWidth() + 100;
+#ifdef DEVELOPER_MODE
+    debug_title.setTexture(gfx::renderText("DEBUG MODE", {255, 255, 255}));
+    debug_title.orientation = gfx::top;
+    debug_title.scale = 2;
+    debug_title.y = 5;
+#endif
 }
 
 void startMenu::onKeyDown(gfx::key key) {
@@ -57,6 +63,9 @@ void startMenu::render() {
     back_rect.h = gfx::getWindowHeight();
     gfx::render(back_rect);
     gfx::render(title);
+#ifdef DEVELOPER_MODE
+    gfx::render(debug_title);
+#endif
     gfx::render(singleplayer_button);
     gfx::render(multiplayer_button);
     gfx::render(exit_button);

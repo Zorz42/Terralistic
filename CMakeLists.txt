@@ -1,24 +1,26 @@
 cmake_minimum_required(VERSION 3.10)
-SET (CMAKE_C_COMPILER_WORKS 1)
-SET (CMAKE_CXX_COMPILER_WORKS 1)
+set (CMAKE_CXX_STANDARD 17)
 project(Terralistic)
 project(Terralistic-server)
-set (CMAKE_CXX_STANDARD 17)
 
-# do not run cmake script on windows but build.py or else it probably wont compile since its not supported
-# on windows this will come handy: https://blog.jetbrains.com/clion/2020/12/setting-up-clang-on-windows/ (also install cmake which is not listed)
-
-add_compile_definitions(DEVELOPER_MODE)
+if(NOT CMAKE_BUILD_TYPE STREQUAL Release)
+    add_compile_definitions(DEVELOPER_MODE)
+endif()
 
 if(WIN32)
+    if(CMAKE_BUILD_TYPE STREQUAL Release)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
+    endif()
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O2 -I/usr/include/SDL2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -I/usr/include/SDL2")
+    if(CMAKE_BUILD_TYPE STREQUAL Release)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
+    endif()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath='$ORIGIN'")
 endif()
 
 file(GLOB_RECURSE TerralisticSrc CONFIGURE_DEPENDS Client/*.cpp Server/*.cpp Libraries/*.cpp)
 list(REMOVE_ITEM TerralisticSrc ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
-
 file(GLOB_RECURSE TerralisticServerSrc CONFIGURE_DEPENDS Server/*.cpp Libraries/*.cpp)
 
 add_executable(Terralistic WIN32 ${TerralisticSrc})
@@ -36,8 +38,6 @@ include_directories(Terralistic ${TerralisticInclude})
 include_directories(Terralistic-server ${TerralisticInclude})
 
 if(WIN32)
-    #set(CMAKE_CXX_COMPILER "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/Llvm/x64/bin/clang++.exe")
-
     target_link_libraries(Terralistic
             ${CMAKE_SOURCE_DIR}/Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2.lib
             ${CMAKE_SOURCE_DIR}/Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2main.lib

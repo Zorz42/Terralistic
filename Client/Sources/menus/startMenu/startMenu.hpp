@@ -27,6 +27,9 @@ class startMenu : public gfx::scene {
     gfx::sprite title;
     gfx::image background;
     gfx::rect back_rect;
+#ifdef DEVELOPER_MODE
+    gfx::sprite debug_title;
+#endif
 public:
     void init() override;
     void onKeyDown(gfx::key key) override;
