@@ -314,7 +314,7 @@ void serverMap::generateForest(int x, SimplexNoise& noise) {
         }
     }
     if ( x%8 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8 && x > 5)
-        structurePositions.emplace_back("Tree", x + noise.noise(x) * 2, sliceHeight);
+        structurePositions.emplace_back("Tree", x - 2/* + noise.noise(x) * 2*/, sliceHeight);
 }
 
 void serverMap::generateColdHills(int x, SimplexNoise& noise) {
