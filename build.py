@@ -32,7 +32,7 @@ elif sys.platform == "linux":
     lib_files = ["/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0"]
 
     for lib_file in lib_files:
-        if not os.path.exists(lib_file)
+        if not os.path.exists(lib_file):
             os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
             break
 
