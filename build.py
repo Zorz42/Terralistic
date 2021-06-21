@@ -60,9 +60,9 @@ elif sys.platform == "win32":
         os.system(f"git -C {project_path}Dependencies/Windows/ pull --rebase")
 
     createDir("Build/")
-    cmake_path = "C:\\msys64\\mingw64\\bin\\cmake.exe"
+    cmake_path = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe\""
 
-    os.system(f"cd {project_path}Build/ && {cmake_path} .. && {cmake_path} --build .")
+    os.system(f"cd {project_path}Build/ && {cmake_path} -G \"Visual Studio 16 2019\" -T ClangCL -A x64 .. && {cmake_path} --build .")
 
     if os.path.exists(project_path + "Output/Windows/Terralistic/"):
         shutil.rmtree(project_path + "Output/Windows/Terralistic/")
@@ -76,7 +76,7 @@ elif sys.platform == "win32":
     shutil.rmtree(project_path + "Output/Windows/Terralistic/Resources/", ignore_errors=True)
     shutil.move(project_path + "Build/Resources/", project_path + "Output/Windows/Terralistic/Resources/")
 
-    if sys.argv[1] == "run":
+    if len(sys.argv) != 1 and sys.argv[1] == "run":
         os.system(project_path + "Output/Windows/Terralistic/Terralistic.exe")
 else:
     print("Your current platform is not yet supported by this build script!")

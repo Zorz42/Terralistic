@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
+SET (CMAKE_C_COMPILER_WORKS 1)
+SET (CMAKE_CXX_COMPILER_WORKS 1)
 project(Terralistic)
 project(Terralistic-server)
 set (CMAKE_CXX_STANDARD 17)
@@ -34,7 +36,7 @@ include_directories(Terralistic ${TerralisticInclude})
 include_directories(Terralistic-server ${TerralisticInclude})
 
 if(WIN32)
-    set(CMAKE_CXX_COMPILER "C:/msys64/mingw64/bin/clang++")
+    #set(CMAKE_CXX_COMPILER "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/Llvm/x64/bin/clang++.exe")
 
     target_link_libraries(Terralistic
             ${CMAKE_SOURCE_DIR}/Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2.lib
