@@ -18,7 +18,7 @@
 #endif
 
 #include "print.hpp"
-#include "serverMap.hpp"
+#include "serverNetworking.hpp"
 
 packets::packet connection::getPacket() {
     return packets::getPacket(socket, buffer);

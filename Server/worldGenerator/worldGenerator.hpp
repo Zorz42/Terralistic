@@ -8,6 +8,9 @@
 #ifndef worldGenerator_hpp
 #define worldGenerator_hpp
 
+#include <string>
+#include "blocks.hpp"
+
 class worldGenerator {
     struct structure {
         std::string name;

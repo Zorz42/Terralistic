@@ -600,7 +600,6 @@
 			isa = PBXGroup;
 			children = (
 				167B38822642F73900E3C718 /* serverMap.hpp */,
-				16987C192659010D0016509C /* packets.cpp */,
 				167B388B2642F73900E3C718 /* saver.cpp */,
 			);
 			path = serverMap;
@@ -680,6 +679,7 @@
 				168600DF2681DB7300763775 /* players.hpp */,
 				168600DE2681DB7300763775 /* players.cpp */,
 				16987C1A2659010D0016509C /* inventory.cpp */,
+				16987C192659010D0016509C /* packets.cpp */,
 			);
 			path = players;
 			sourceTree = "<group>";

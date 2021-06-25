@@ -74,7 +74,6 @@ void block::setLightLevel(unsigned char light_level) {
         for(auto neighbor : neighbors)
             if(neighbor.refersToABlock() && !neighbor.isLightSource())
                 neighbor.scheduleLightUpdate();
-        if(!parent_map->online_players.empty())
-            syncWithClient();
+        syncWithClient();
     }
 }

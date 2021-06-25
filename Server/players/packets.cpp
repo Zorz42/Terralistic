@@ -13,11 +13,9 @@
 #endif
 
 #include "print.hpp"
-#include "packets.hpp"
-#include "serverNetworking.hpp"
-#include "serverMap.hpp"
+#include "players.hpp"
 
-void serverMap::onPacket(packets::packet& packet, connection& conn) {
+void players::onPacket(packets::packet& packet, connection& conn) {
     player* curr_player = getPlayerByConnection(&conn);
     switch (packet.type) {
         case packets::STARTED_BREAKING: {

@@ -10,7 +10,6 @@
 
 #define INVENTORY_SIZE 20
 
-#include "serverNetworking.hpp"
 #include "items.hpp"
 
 class inventory;
@@ -70,10 +69,11 @@ struct blockEvents {
 
 class players : serverPacketListener {
 public:
-    players(blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(parent_blocks_->manager) {}
+    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(manager_), manager(manager_) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION, packets::CHAT}; }
     
     items* parent_items;
     blocks* parent_blocks;
+    serverNetworkingManager* manager;
     
     std::vector<player*> all_players;
     std::vector<player*> online_players;
@@ -84,6 +84,8 @@ public:
     void updatePlayersBreaking(unsigned short tick_length);
     void updateBlocks();
     void lookForItems();
+    
+    void onPacket(packets::packet& packet, connection& conn) override;
     
     ~players();
 };

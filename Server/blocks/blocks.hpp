@@ -105,9 +105,9 @@ public:
     //void rightClickEvent(player* peer);
 };
 
-class blocks : serverPacketListener {
+class blocks {
 public:
-    blocks(serverNetworkingManager* manager) : manager(manager) {}
+    blocks(serverNetworkingManager* manager_) : manager(manager_) {}
     
     serverNetworkingManager* manager;
     

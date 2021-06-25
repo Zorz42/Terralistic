@@ -40,10 +40,12 @@ public:
     itemType getItemId() { return item_id; }
 };
 
-class items : serverPacketListener {
+class items {
 public:
-    items(blocks* parent_blocks) : parent_blocks(parent_blocks) {}
+    items(serverNetworkingManager* manager_, blocks* parent_blocks) : parent_blocks(parent_blocks), manager(manager_) {}
+    
     blocks* parent_blocks;
+    serverNetworkingManager* manager;
     
     void updateItems(float frame_length);
     void spawnItem(itemType item_id, int x, int y, short id=-1);
