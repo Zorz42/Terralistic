@@ -63,10 +63,18 @@ public:
 };
 
 struct blockEvents {
-    
+    void (*onBreak)(blocks*, block*) = nullptr;
+    void (*onRightClick)(block*, player*) = nullptr;
+    void (*onLeftClick)(block*, player*) = nullptr;
 };
 
 class players {
+public:
+    players(blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {}
+    
+    items* parent_items;
+    blocks* parent_blocks;
+    
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     

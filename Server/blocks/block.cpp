@@ -13,21 +13,21 @@
 
 void blocks::initBlocks() {
     unique_blocks = {
-        uniqueBlock("air",               /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
-        uniqueBlock("dirt",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::DIRT,        /*break_time*/1000       ),
-        uniqueBlock("stone_block",       /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::STONE_BLOCK, /*break_time*/1000       ),
-        uniqueBlock("grass_block",       /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
-        uniqueBlock("stone",             /*ghost*/true,  /*only_on_floor*/true,   /*transparent*/true,  /*drop*/itemType::STONE,       /*break_time*/1500       ),
-        uniqueBlock("wood",              /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::WOOD_PLANKS, /*break_time*/1000       ),
-        uniqueBlock("leaves",            /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
-        uniqueBlock("sand",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
-        uniqueBlock("snowy_grass_block", /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/1000       ),
-        uniqueBlock("snow_block",        /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
-        uniqueBlock("ice_block",         /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::NOTHING,     /*break_time*/500        ),
+        uniqueBlock("air",               /*ghost*/true,  /*only_on_floorfalse,*/  /*transparent*/true,  /*dropitemType::NOTHING,    */ /*break_time*/UNBREAKABLE),
+        uniqueBlock("dirt",              /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::DIRT,       */ /*break_time*/1000       ),
+        uniqueBlock("stone_block",       /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::STONE_BLOCK,*/ /*break_time*/1000       ),
+        uniqueBlock("grass_block",       /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/1000       ),
+        uniqueBlock("stone",             /*ghost*/true,  /*only_on_floortrue ,*/   /*transparent*/true,  /*dropitemType::STONE,      */ /*break_time*/1500       ),
+        uniqueBlock("wood",              /*ghost*/true,  /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::WOOD_PLANKS,*/ /*break_time*/1000       ),
+        uniqueBlock("leaves",            /*ghost*/true,  /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/UNBREAKABLE),
+        uniqueBlock("sand",              /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/500        ),
+        uniqueBlock("snowy_grass_block", /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/1000       ),
+        uniqueBlock("snow_block",        /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/500        ),
+        uniqueBlock("ice_block",         /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/500        ),
 
     };
 
-    unique_blocks[(int)blockType::WOOD].onBreak = [](blocks* world_map, block* this_block) {
+    /*unique_blocks[(int)blockType::WOOD].onBreak = [](blocks* world_map, block* this_block) {
         block blocks[] = {world_map->getBlock(this_block->getX(), this_block->getY() - 1), world_map->getBlock(this_block->getX() + 1, this_block->getY()), world_map->getBlock(this_block->getX() - 1, this_block->getY())};
         for(block& i : blocks)
             if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
@@ -48,23 +48,23 @@ void blocks::initBlocks() {
         }
     };
 
-    unique_blocks[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick;
+    unique_blocks[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick;*/
 }
 
 block blocks::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
-    return block(x, y, &blocks[y * width + x], this);
+    return block(x, y, &block_arr[y * width + x], this);
 }
 
-void block::setType(serverMap::blockType block_id, bool process) {
+void block::setType(blockType block_id, bool process) {
     setType(block_id, block_data->liquid_id, process);
 }
 
-void block::setType(serverMap::liquidType liquid_id, bool process) {
+void block::setType(liquidType liquid_id, bool process) {
     setType(block_data->block_id, liquid_id, process);
 }
 
-void block::setType(serverMap::blockType block_id, serverMap::liquidType liquid_id, bool process) {
+void block::setType(blockType block_id, liquidType liquid_id, bool process) {
     if(!process) {
         block_data->block_id = block_id;
         block_data->liquid_id = liquid_id;
@@ -121,12 +121,12 @@ void block::setBreakProgress(unsigned short ms) {
 }
 
 void block::update() {
-    if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
-        breakBlock();
+    //if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
+        //breakBlock();
     scheduleLightUpdate();
 }
 
-void block::breakBlock() {
+/*void block::breakBlock() {
     if(getDrop() != itemType::NOTHING)
         parent_map->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
     uniqueBlock *unique_block = &block_data->getUniqueBlock();
@@ -134,13 +134,13 @@ void block::breakBlock() {
     setBreakProgress(0);
     if(unique_block->onBreak)
         unique_block->onBreak(parent_map, this);
-}
+}*/
 
 uniqueBlock& blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
 }
 
-void block::leftClickEvent(connection& connection, unsigned short tick_length) {
+/*void block::leftClickEvent(connection& connection, unsigned short tick_length) {
     if(block_data->getUniqueBlock().onLeftClick)
         block_data->getUniqueBlock().onLeftClick(this, parent_map->getPlayerByConnection(&connection));
     else {
@@ -153,4 +153,4 @@ void block::leftClickEvent(connection& connection, unsigned short tick_length) {
 void block::rightClickEvent(player* peer) {
     if(block_data->getUniqueBlock().onRightClick)
         block_data->getUniqueBlock().onRightClick(this, peer);
-}
+}*/

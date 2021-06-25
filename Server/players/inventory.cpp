@@ -7,36 +7,36 @@
 
 // inventory is a class which you can easily manage with function calls
 
-#include "serverMap.hpp"
+#include "players.hpp"
 
-void serverMap::inventoryItem::setId(itemType id) {
+void inventoryItem::setId(itemType id) {
     if(item_id != id) {
         item_id = id;
         sendPacket();
     }
 }
 
-serverMap::uniqueItem& serverMap::inventoryItem::getUniqueItem() const {
+uniqueItem& inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return serverMap::unique_items[(int)item_id];
+    return unique_items[(int)item_id];
 }
 
-void serverMap::inventoryItem::setStack(unsigned short stack_) {
+void inventoryItem::setStack(unsigned short stack_) {
     // just update to nothing if stack reaches 0
     if(stack != stack_) {
         stack = stack_;
         if(!stack)
-            item_id = serverMap::itemType::NOTHING;
+            item_id = itemType::NOTHING;
         
         sendPacket();
     }
 }
 
-unsigned short serverMap::inventoryItem::getStack() const {
+unsigned short inventoryItem::getStack() const {
     return stack;
 }
 
-unsigned short serverMap::inventoryItem::increaseStack(unsigned short stack_) {
+unsigned short inventoryItem::increaseStack(unsigned short stack_) {
     // increase stack by stack_ and if it reaches limit, return what left. example: stack_limit is 99, current stack is 40, you increase stack by 100. current stack becomes 99 and increase stack returns 41
     int stack_to_be = stack + stack_, result;
     if(stack_to_be > getUniqueItem().stack_size)
@@ -46,7 +46,7 @@ unsigned short serverMap::inventoryItem::increaseStack(unsigned short stack_) {
     return (unsigned short)result;
 }
 
-bool serverMap::inventoryItem::decreaseStack(unsigned short stack_) {
+bool inventoryItem::decreaseStack(unsigned short stack_) {
     // returns true if stack can be decreased
     if(stack_ > stack)
         return false;
@@ -56,7 +56,7 @@ bool serverMap::inventoryItem::decreaseStack(unsigned short stack_) {
     }
 }
 
-void serverMap::inventoryItem::sendPacket() {
+void inventoryItem::sendPacket() {
     if(holder->owner->conn) {
         packets::packet packet(packets::INVENTORY_CHANGE, sizeof(unsigned short) + sizeof(unsigned char) + sizeof(char));
         packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
@@ -64,12 +64,12 @@ void serverMap::inventoryItem::sendPacket() {
     }
 }
 
-serverMap::inventory::inventory(player* owner) : owner(owner) {
+inventory::inventory(player* owner) : owner(owner) {
     for(inventoryItem& i : inventory_arr)
         i = inventoryItem(this);
 }
 
-char serverMap::inventory::addItem(serverMap::itemType id, int quantity) {
+char inventory::addItem(itemType id, int quantity) {
     // adds item to inventory
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].getId() == id) {
@@ -78,7 +78,7 @@ char serverMap::inventory::addItem(serverMap::itemType id, int quantity) {
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].getId() == serverMap::itemType::NOTHING) {
+        if(inventory_arr[i].getId() == itemType::NOTHING) {
             inventory_arr[i].setId(id);
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)
@@ -87,12 +87,12 @@ char serverMap::inventory::addItem(serverMap::itemType id, int quantity) {
     return -1;
 }
 
-serverMap::inventoryItem* serverMap::inventory::getSelectedSlot() {
+inventoryItem* inventory::getSelectedSlot() {
     return &inventory_arr[(int)(unsigned char)selected_slot];
 }
 
-void serverMap::inventory::swapWithMouseItem(serverMap::inventoryItem* item) {
-    serverMap::inventoryItem temp = mouse_item;
+void inventory::swapWithMouseItem(inventoryItem* item) {
+    inventoryItem temp = mouse_item;
     mouse_item = *item;
     *item = temp;
 }

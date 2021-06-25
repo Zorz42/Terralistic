@@ -9,6 +9,7 @@
 #define items_hpp
 
 #include <vector>
+#include "blocks.hpp"
 
 enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
 
@@ -26,11 +27,12 @@ class item {
     int velocity_x, velocity_y;
     unsigned short id;
     itemType item_id;
+    blocks* parent_blocks;
 public:
-    void create(itemType item_id_, int x_, int y_, unsigned short id_, serverMap& world_serverMap);
-    void destroy(serverMap& world_serverMap);
-    void update(float frame_length, serverMap& world_serverMap);
-    bool colliding(serverMap& world_serverMap) const;
+    void create(itemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_);
+    void destroy();
+    void update(float frame_length);
+    bool colliding() const;
     int x, y;
 
     [[maybe_unused]] [[nodiscard]] uniqueItem& getUniqueItem() const;
@@ -39,9 +41,13 @@ public:
 };
 
 class items {
+public:
+    items(blocks* parent_blocks) : parent_blocks(parent_blocks) {}
+    blocks* parent_blocks;
+    
     void updateItems(float frame_length);
     void spawnItem(itemType item_id, int x, int y, short id=-1);
-    std::vector<item> items;
+    std::vector<item> item_arr;
     
     static void initItems();
 };

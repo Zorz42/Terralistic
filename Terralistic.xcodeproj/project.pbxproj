@@ -51,12 +51,6 @@
 		1665D8922678E7AB00A7BB61 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 1665D8902678E7AB00A7BB61 /* Structures.asset */; };
 		1667B4842667FD8F00735160 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1667B4832667FD8F00735160 /* liquid.cpp */; };
 		1667B4852667FD8F00735160 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1667B4832667FD8F00735160 /* liquid.cpp */; };
-		1675CD85267F892A0070E325 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4C267CB1470015C23D /* SDL2_image.framework */; };
-		1675CD86267F892A0070E325 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4C267CB1470015C23D /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1675CD87267F892A0070E325 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4D267CB1470015C23D /* SDL2_ttf.framework */; };
-		1675CD88267F892A0070E325 /* SDL2_ttf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4D267CB1470015C23D /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1675CD89267F892A0070E325 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4B267CB1470015C23D /* SDL2.framework */; };
-		1675CD8A267F892A0070E325 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4B267CB1470015C23D /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1675CD8C267F8B290070E325 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E56267CB1640015C23D /* SDL2_image.framework */; };
 		1675CD8D267F8B290070E325 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E56267CB1640015C23D /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1675CD8E267F8B290070E325 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E55267CB1640015C23D /* SDL2_ttf.framework */; };
@@ -177,6 +171,17 @@
 		16B36D4126820ADD00A4B03A /* worldGenerator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 16B36D3B26820ADD00A4B03A /* worldGenerator.hpp */; };
 		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
+		363BB2472686387800566F3A /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4C267CB1470015C23D /* SDL2_image.framework */; };
+		363BB2482686387800566F3A /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4C267CB1470015C23D /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		363BB2492686387800566F3A /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4D267CB1470015C23D /* SDL2_ttf.framework */; };
+		363BB24A2686387800566F3A /* SDL2_ttf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4D267CB1470015C23D /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		363BB24B2686387800566F3A /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4B267CB1470015C23D /* SDL2.framework */; };
+		363BB24C2686387800566F3A /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4B267CB1470015C23D /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		363BB2522686400800566F3A /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
+		363BB2572686401200566F3A /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
+		363BB2582686401200566F3A /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
+		363BB25D2686401A00566F3A /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
+		363BB2622686402100566F3A /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		36B157CA26484E0900528A2B /* serverMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157C126484E0900528A2B /* serverMap.cpp */; };
 		36B157CB26484E0900528A2B /* serverMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157C126484E0900528A2B /* serverMap.cpp */; };
 		36B157D726484E2000528A2B /* clientMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157D226484E2000528A2B /* clientMap.cpp */; };
@@ -235,19 +240,6 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		1675CD8B267F892B0070E325 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				1675CD8A267F892A0070E325 /* SDL2.framework in Embed Frameworks */,
-				1675CD88267F892A0070E325 /* SDL2_ttf.framework in Embed Frameworks */,
-				1675CD86267F892A0070E325 /* SDL2_image.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1675CD92267F8B290070E325 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -287,6 +279,19 @@
 			files = (
 				1691251125F6BF4800F7EB4F /* Graphics_Debug.framework in Embed Frameworks */,
 				167B383A2642F6A400E3C718 /* Server_Debug.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		363BB24D2686387900566F3A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				363BB24C2686387800566F3A /* SDL2.framework in Embed Frameworks */,
+				363BB24A2686387800566F3A /* SDL2_ttf.framework in Embed Frameworks */,
+				363BB2482686387800566F3A /* SDL2_image.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -477,9 +482,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1675CD89267F892A0070E325 /* SDL2.framework in Frameworks */,
-				1675CD87267F892A0070E325 /* SDL2_ttf.framework in Frameworks */,
-				1675CD85267F892A0070E325 /* SDL2_image.framework in Frameworks */,
+				363BB24B2686387800566F3A /* SDL2.framework in Frameworks */,
+				363BB2492686387800566F3A /* SDL2_ttf.framework in Frameworks */,
+				363BB2472686387800566F3A /* SDL2_image.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1146,7 +1151,7 @@
 				169124BB25F6B89700F7EB4F /* Sources */,
 				169124BC25F6B89700F7EB4F /* Frameworks */,
 				169124BD25F6B89700F7EB4F /* Resources */,
-				1675CD8B267F892B0070E325 /* Embed Frameworks */,
+				363BB24D2686387900566F3A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1311,6 +1316,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				363BB25D2686401A00566F3A /* items.cpp in Sources */,
 				16645DEF2678B94B003EDC5F /* SimplexNoise.cpp in Sources */,
 				1664388A26695B2000587F5E /* liquid.cpp in Sources */,
 				1675E71F26611BBF00B620F4 /* configManager.cpp in Sources */,
@@ -1336,6 +1342,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				363BB2622686402100566F3A /* items.cpp in Sources */,
 				16645DEE2678B942003EDC5F /* SimplexNoise.cpp in Sources */,
 				1664388926695B1B00587F5E /* liquid.cpp in Sources */,
 				1675E71E26611BBB00B620F4 /* configManager.cpp in Sources */,
@@ -1361,6 +1368,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				363BB2522686400800566F3A /* configManager.cpp in Sources */,
 				36B157CA26484E0900528A2B /* serverMap.cpp in Sources */,
 				167B59902665579400BCECBB /* SimplexNoise.cpp in Sources */,
 				167B38BE2642F73900E3C718 /* server.cpp in Sources */,
@@ -1385,6 +1393,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				363BB2572686401200566F3A /* configManager.cpp in Sources */,
+				363BB2582686401200566F3A /* items.cpp in Sources */,
 				1664388826695B0D00587F5E /* liquid.cpp in Sources */,
 				167B5993266558D000BCECBB /* SimplexNoise.cpp in Sources */,
 				16987C222659014B0016509C /* inventory.cpp in Sources */,

@@ -22,26 +22,26 @@ player* players::getPlayerByName(const std::string& name) {
             return player;
     all_players.emplace_back(new player(curr_id++));
     player* curr_player = all_players.back();
-    curr_player->y = getSpawnY() - BLOCK_WIDTH * 2;
-    curr_player->x = getSpawnX();
+    curr_player->y = parent_blocks->getSpawnY() - BLOCK_WIDTH * 2;
+    curr_player->x = parent_blocks->getSpawnX();
     curr_player->name = name;
     return curr_player;
 }
 
 void players::updatePlayersBreaking(unsigned short tick_length) {
-    for(player* player : online_players)
-        if(player->breaking)
-            getBlock(player->breaking_x, player->breaking_y).leftClickEvent(*player->conn, tick_length);
+    //for(player* player : online_players)
+        //if(player->breaking)
+            //parent_blocks->getBlock(player->breaking_x, player->breaking_y).leftClickEvent(*player->conn, tick_length);
 }
 
 void players::lookForItems() {
-    for(unsigned long i = 0; i < items.size(); i++) {
+    for(unsigned long i = 0; i < parent_items->item_arr.size(); i++) {
         for(player* player : online_players)
-            if(abs(items[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(items[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
-                char result = player->player_inventory.addItem(world_serverMap.items[i].getItemId(), 1);
+            if(abs(parent_items->item_arr[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(parent_items->item_arr[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
+                char result = player->player_inventory.addItem(parent_items->item_arr[i].getItemId(), 1);
                 if(result != -1) {
-                    items[i].destroy(world_serverMap);
-                    items.erase(items.begin() + i);
+                    parent_items->item_arr[i].destroy();
+                    parent_items->item_arr.erase(parent_items->item_arr.begin() + i);
                 }
             }
     }
@@ -60,13 +60,13 @@ void players::updateBlocks() {
                 start_x = 0;
             if(start_y < 0)
                 start_y = 0;
-            if(end_y > height)
-                end_y = height;
-            if(end_x > width)
-                end_x = width;
+            if(end_y > parent_blocks->height)
+                end_y = parent_blocks->height;
+            if(end_x > parent_blocks->width)
+                end_x = parent_blocks->width;
             for(unsigned short x = start_x; x < end_x; x++)
                 for(unsigned short y = end_y - 1; y >= start_y; y--) {
-                    block curr_block = getBlock(x, y);
+                    block curr_block = parent_blocks->getBlock(x, y);
                     if(curr_block.hasScheduledLightUpdate()) {
                         curr_block.lightUpdate();
                         finished = false;

@@ -24,16 +24,11 @@ class block;
 class blocks;
 
 struct uniqueBlock {
-    uniqueBlock(std::string  name, bool ghost, bool only_on_floor, bool transparent, itemType drop, short break_time) : ghost(ghost), only_on_floor(only_on_floor), transparent(transparent), name(std::move(name)), drop(drop), break_time(break_time) {}
+    uniqueBlock(std::string  name, bool ghost, bool transparent, short break_time) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time) {}
 
-    bool ghost, only_on_floor, transparent;
+    bool ghost, transparent;
     std::string name;
-    itemType drop;
     short break_time;
-
-    void (*onBreak)(blocks*, block*) = nullptr;
-    void (*onRightClick)(block*, player*) = nullptr;
-    void (*onLeftClick)(block*, player*) = nullptr;
 };
 
 struct uniqueLiquid {
@@ -74,7 +69,7 @@ public:
     void setType(blockType block_id, bool process=true);
     void setType(liquidType liquid_id, bool process=true);
     void setType(blockType block_id, liquidType liquid_id, bool process=true);
-    void breakBlock();
+    //void breakBlock();
     void setBreakProgress(unsigned short ms);
     void lightUpdate();
     void liquidUpdate();
@@ -85,7 +80,6 @@ public:
     inline bool refersToABlock() { return block_data != nullptr; }
 
     inline bool isTransparent() { return block_data->getUniqueBlock().transparent; }
-    inline bool isOnlyOnFloor() { return block_data->getUniqueBlock().only_on_floor; }
     inline bool isLightSource() { return block_data->light_source; }
     inline bool isGhost() { return block_data->getUniqueBlock().ghost; }
     inline unsigned short getBreakTime() { return block_data->getUniqueBlock().break_time; }
@@ -106,8 +100,8 @@ public:
     [[nodiscard]] inline unsigned short getX() const { return x; }
     [[nodiscard]] inline unsigned short getY() const { return y; }
 
-    void leftClickEvent(connection& connection, unsigned short tick_length);
-    void rightClickEvent(player* peer);
+    //void leftClickEvent(connection& connection, unsigned short tick_length);
+    //void rightClickEvent(player* peer);
 };
 
 class blocks {
