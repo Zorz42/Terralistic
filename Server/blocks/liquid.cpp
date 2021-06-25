@@ -5,22 +5,20 @@
 //  Created by Jakob Zorz on 03/06/2021.
 //
 
-#include "serverMap.hpp"
+#include "blocks.hpp"
 
-std::vector<serverMap::uniqueLiquid> serverMap::unique_liquids;
-
-void serverMap::initLiquids() {
+void blocks::initLiquids() {
     unique_liquids = {
         uniqueLiquid(0),
         uniqueLiquid(100),
     };
 }
 
-serverMap::uniqueLiquid& serverMap::blockData::getUniqueLiquid() const {
+uniqueLiquid& blockData::getUniqueLiquid() const {
     return unique_liquids[(int)liquid_id];
 }
 
-void serverMap::block::setLiquidLevel(unsigned char level) {
+void block::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         block_data->liquid_level = level;
         update();
@@ -28,7 +26,7 @@ void serverMap::block::setLiquidLevel(unsigned char level) {
     }
 }
 
-void serverMap::block::liquidUpdate() {
+void block::liquidUpdate() {
     block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime();
     if(!isGhost())
         setType(liquidType::EMPTY);

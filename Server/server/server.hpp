@@ -12,6 +12,7 @@
 #include <utility>
 #include "serverNetworking.hpp"
 #include "serverMap.hpp"
+#include "playerHandler.hpp"
 
 void serverInit();
 
@@ -19,6 +20,7 @@ class server {
     std::string working_dir;
     serverNetworkingManager networking_manager;
     serverMap world_map;
+    playerHandler players;
 public:
     enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
     serverState state = NEUTRAL;

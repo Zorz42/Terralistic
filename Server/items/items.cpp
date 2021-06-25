@@ -1,18 +1,15 @@
 //
-//  item.cpp
-//  Terralistic
+//  items.cpp
+//  Server
 //
-//  Created by Jakob Zorz on 06/04/2021.
+//  Created by Jakob Zorz on 22/06/2021.
 //
 
-#include "serverMap.hpp"
-#include "assert.hpp"
-#include <random>
-#include "serverNetworking.hpp"
+#include "items.hpp"
 
-std::vector<serverMap::uniqueItem> serverMap::unique_items;
+std::vector<serverMap::uniqueItem> items::unique_items;
 
-void serverMap::initItems() {
+void items::initItems() {
     // all currently unique items
     serverMap::unique_items = {
         {"nothing",     0,  serverMap::blockType::AIR        },
@@ -23,12 +20,12 @@ void serverMap::initItems() {
     };
 }
 
-void serverMap::updateItems(float frame_length) {
+void items::updateItems(float frame_length) {
     for(auto & item : items)
         item.update(frame_length, *this);
 }
 
-void serverMap::spawnItem(itemType item_id, int x, int y, short id) {
+void items::spawnItem(itemType item_id, int x, int y, short id) {
     static short curr_id = 0;
     if(id == -1)
         id = curr_id++;
@@ -36,7 +33,7 @@ void serverMap::spawnItem(itemType item_id, int x, int y, short id) {
     items.back().create(item_id, x, y, id, *this);
 }
 
-void serverMap::item::create(itemType item_id_, int x_, int y_, unsigned short id_, serverMap& world_serverMap) {
+void item::create(itemType item_id_, int x_, int y_, unsigned short id_, serverMap& world_serverMap) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
@@ -52,20 +49,20 @@ void serverMap::item::create(itemType item_id_, int x_, int y_, unsigned short i
     world_serverMap.manager->sendToEveryone(packet);
 }
 
-void serverMap::item::destroy(serverMap& world_serverMap) {
+void item::destroy() {
     packets::packet packet(packets::ITEM_DELETION, sizeof(getId()));
     packet << getId();
     world_serverMap.manager->sendToEveryone(packet);
 }
 
-serverMap::uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, serverMap::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
+uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, serverMap::blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
-[[maybe_unused]] serverMap::uniqueItem& serverMap::item::getUniqueItem() const {
+[[maybe_unused]] uniqueItem& item::getUniqueItem() const {
     ASSERT((int)item_id >= 0 && (int)item_id < unique_items.size(), "item_id is not valid")
     return unique_items[(int)item_id];
 }
 
-void serverMap::item::update(float frame_length, serverMap& world_serverMap) {
+void item::update(float frame_length, serverMap& world_serverMap) {
     int prev_x = x, prev_y = y;
     
     // move and go back if colliding
@@ -122,7 +119,7 @@ void serverMap::item::update(float frame_length, serverMap& world_serverMap) {
     }
 }
 
-bool serverMap::item::colliding(serverMap& world_serverMap) const {
+bool item::colliding(serverMap& world_serverMap) const {
     int height_x = 1, height_y = 1;
     if(x / 100 % BLOCK_WIDTH)
         height_x++;

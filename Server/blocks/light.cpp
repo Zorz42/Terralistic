@@ -5,9 +5,9 @@
 //  Created by Jakob Zorz on 05/04/2021.
 //
 
-#include "serverMap.hpp"
+#include "blocks.hpp"
 
-void serverMap::block::lightUpdate() {
+void block::lightUpdate() {
     block_data->update_light = false;
     
     block neighbors[4];
@@ -34,32 +34,32 @@ void serverMap::block::lightUpdate() {
     }
 }
 
-void serverMap::block::setLightSource(unsigned char power) {
+void block::setLightSource(unsigned char power) {
     block_data->light_source = true;
     setLightLevel(power);
 }
 
-void serverMap::block::removeLightSource() {
+void block::removeLightSource() {
     block_data->light_source = false;
     setLightLevel(0);
 }
 
-void serverMap::setNaturalLight() {
+void blocks::setNaturalLight() {
     for(unsigned short x = 0; x < width; x++)
         setNaturalLight(x);
 }
 
-void serverMap::setNaturalLight(unsigned short x) {
+void blocks::setNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < height && getBlock(x, y).isTransparent(); y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
-[[maybe_unused]] void serverMap::removeNaturalLight(unsigned short x) {
+[[maybe_unused]] void blocks::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < height && getBlock(x, y).isTransparent(); y++)
         getBlock(x, y).removeLightSource();
 }
 
-void serverMap::block::setLightLevel(unsigned char light_level) {
+void block::setLightLevel(unsigned char light_level) {
     if(block_data->light_level != light_level) {
         block_data->light_level = light_level;
         block neighbors[4];

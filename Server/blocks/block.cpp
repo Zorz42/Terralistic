@@ -2,16 +2,16 @@
 //  block.cpp
 //  Terralistic
 //
-//  Created by Jakob Zorz on 05/04/2021.
+//  Created by Jakob Zorz on 24/06/2021.
 //
+
+#include "blocks.hpp"
 
 #include "serverMap.hpp"
 #include "assert.hpp"
 #include "serverNetworking.hpp"
 
-std::vector<serverMap::uniqueBlock> serverMap::unique_blocks;
-
-void serverMap::initBlocks() {
+void blocks::initBlocks() {
     unique_blocks = {
         uniqueBlock("air",               /*ghost*/true,  /*only_on_floor*/false,  /*transparent*/true,  /*drop*/itemType::NOTHING,     /*break_time*/UNBREAKABLE),
         uniqueBlock("dirt",              /*ghost*/false, /*only_on_floor*/false,  /*transparent*/false, /*drop*/itemType::DIRT,        /*break_time*/1000       ),
@@ -27,7 +27,7 @@ void serverMap::initBlocks() {
 
     };
 
-    unique_blocks[(int)blockType::WOOD].onBreak = [](serverMap* world_map, block* this_block) {
+    unique_blocks[(int)blockType::WOOD].onBreak = [](blocks* world_map, block* this_block) {
         block blocks[] = {world_map->getBlock(this_block->getX(), this_block->getY() - 1), world_map->getBlock(this_block->getX() + 1, this_block->getY()), world_map->getBlock(this_block->getX() - 1, this_block->getY())};
         for(block& i : blocks)
             if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
@@ -37,12 +37,12 @@ void serverMap::initBlocks() {
     unique_blocks[(int)blockType::LEAVES].onBreak = unique_blocks[(int)blockType::WOOD].onBreak;
 
     unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
-        this_block->setType(serverMap::blockType::DIRT);
+        this_block->setType(blockType::DIRT);
     };
 
     unique_blocks[(int)blockType::AIR].onRightClick = [](block* this_block, player* peer) {
-        serverMap::blockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
-        if(type != serverMap::blockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
+        blockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
+        if(type != blockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
             this_block->setType(type);
             this_block->update();
         }
@@ -51,20 +51,20 @@ void serverMap::initBlocks() {
     unique_blocks[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick;
 }
 
-serverMap::block serverMap::getBlock(unsigned short x, unsigned short y) {
+block blocks::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
     return block(x, y, &blocks[y * width + x], this);
 }
 
-void serverMap::block::setType(serverMap::blockType block_id, bool process) {
+void block::setType(serverMap::blockType block_id, bool process) {
     setType(block_id, block_data->liquid_id, process);
 }
 
-void serverMap::block::setType(serverMap::liquidType liquid_id, bool process) {
+void block::setType(serverMap::liquidType liquid_id, bool process) {
     setType(block_data->block_id, liquid_id, process);
 }
 
-void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidType liquid_id, bool process) {
+void block::setType(serverMap::blockType block_id, serverMap::liquidType liquid_id, bool process) {
     if(!process) {
         block_data->block_id = block_id;
         block_data->liquid_id = liquid_id;
@@ -91,7 +91,7 @@ void serverMap::block::setType(serverMap::blockType block_id, serverMap::liquidT
     }
 }
 
-void serverMap::block::updateNeighbors() {
+void block::updateNeighbors() {
     // update upper, lower, right and left block (neighbours)
     if(x != 0)
         parent_map->getBlock(x - 1, y).update();
@@ -103,13 +103,13 @@ void serverMap::block::updateNeighbors() {
         parent_map->getBlock(x, y + 1).update();
 }
 
-void serverMap::block::syncWithClient() {
+void block::syncWithClient() {
     packets::packet packet(packets::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
     packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
     parent_map->manager->sendToEveryone(packet);
 }
 
-void serverMap::block::setBreakProgress(unsigned short ms) {
+void block::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getBreakTime() * 9.0f);
     if(stage != getBreakStage()) {
@@ -120,13 +120,13 @@ void serverMap::block::setBreakProgress(unsigned short ms) {
     }
 }
 
-void serverMap::block::update() {
+void block::update() {
     if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         breakBlock();
     scheduleLightUpdate();
 }
 
-void serverMap::block::breakBlock() {
+void block::breakBlock() {
     if(getDrop() != itemType::NOTHING)
         parent_map->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
     uniqueBlock *unique_block = &block_data->getUniqueBlock();
@@ -136,11 +136,11 @@ void serverMap::block::breakBlock() {
         unique_block->onBreak(parent_map, this);
 }
 
-serverMap::uniqueBlock& serverMap::blockData::getUniqueBlock() const {
+uniqueBlock& blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
 }
 
-void serverMap::block::leftClickEvent(connection& connection, unsigned short tick_length) {
+void block::leftClickEvent(connection& connection, unsigned short tick_length) {
     if(block_data->getUniqueBlock().onLeftClick)
         block_data->getUniqueBlock().onLeftClick(this, parent_map->getPlayerByConnection(&connection));
     else {
@@ -150,7 +150,7 @@ void serverMap::block::leftClickEvent(connection& connection, unsigned short tic
     }
 }
 
-void serverMap::block::rightClickEvent(player* peer) {
+void block::rightClickEvent(player* peer) {
     if(block_data->getUniqueBlock().onRightClick)
         block_data->getUniqueBlock().onRightClick(this, peer);
 }
