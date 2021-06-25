@@ -68,9 +68,9 @@ struct blockEvents {
     void (*onLeftClick)(block*, player*) = nullptr;
 };
 
-class players {
+class players : serverPacketListener {
 public:
-    players(blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {}
+    players(blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(parent_blocks_->manager) {}
     
     items* parent_items;
     blocks* parent_blocks;
@@ -84,6 +84,8 @@ public:
     void updatePlayersBreaking(unsigned short tick_length);
     void updateBlocks();
     void lookForItems();
+    
+    ~players();
 };
 
 #endif /* players_hpp */

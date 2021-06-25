@@ -10,6 +10,7 @@
 
 #include <string>
 #include "serverNetworking.hpp"
+#include "packets.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -104,7 +105,7 @@ public:
     //void rightClickEvent(player* peer);
 };
 
-class blocks {
+class blocks : serverPacketListener {
 public:
     blocks(serverNetworkingManager* manager) : manager(manager) {}
     

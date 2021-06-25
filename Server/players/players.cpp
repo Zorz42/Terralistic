@@ -8,6 +8,11 @@
 #include "players.hpp"
 #include "blocks.hpp"
 
+players::~players() {
+    for(player* i : all_players)
+        delete i;
+}
+
 player* players::getPlayerByConnection(connection* conn) {
     for(player* player : online_players)
         if(player->conn == conn)

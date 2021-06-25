@@ -15,9 +15,7 @@
 		1626245726430D74007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		1626245B26430D85007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		1626245F26430D8D007E01C4 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
-		1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		1626246126430D93007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
-		1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		1626246726430DCE007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		1626246826430DD3007E01C4 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
 		1626246C26430DDA007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
@@ -83,8 +81,6 @@
 		167B38A92642F73900E3C718 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		167B38B42642F73900E3C718 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
 		167B38B52642F73900E3C718 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B388B2642F73900E3C718 /* saver.cpp */; };
-		167B38BC2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
-		167B38BD2642F73900E3C718 /* terrainGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38912642F73900E3C718 /* terrainGenerator.cpp */; };
 		167B38BE2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		167B38BF2642F73900E3C718 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		167B38C12642FB5100E3C718 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 167B38C02642FB5100E3C718 /* info.plist */; };
@@ -113,9 +109,7 @@
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1689699B25E962F800D26060 /* texturePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* texturePack */; };
 		168A5E7526511AD400A466FD /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
-		168A5E7926511AD400A466FD /* serverMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157C126484E0900528A2B /* serverMap.cpp */; };
 		168A5E7B26511ADF00A466FD /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
-		168A5E7F26511ADF00A466FD /* serverMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157C126484E0900528A2B /* serverMap.cpp */; };
 		168ABE9025F796BF00BBEA74 /* graphics-internal.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
 		168ABE9225F79DB200BBEA74 /* scenes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9125F79DB200BBEA74 /* scenes.cpp */; };
 		168ABE9325F79DB200BBEA74 /* scenes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9125F79DB200BBEA74 /* scenes.cpp */; };
@@ -182,8 +176,6 @@
 		363BB2582686401200566F3A /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		363BB25D2686401A00566F3A /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		363BB2622686402100566F3A /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
-		36B157CA26484E0900528A2B /* serverMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157C126484E0900528A2B /* serverMap.cpp */; };
-		36B157CB26484E0900528A2B /* serverMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157C126484E0900528A2B /* serverMap.cpp */; };
 		36B157D726484E2000528A2B /* clientMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157D226484E2000528A2B /* clientMap.cpp */; };
 		36B157D826484E2000528A2B /* clientMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157D226484E2000528A2B /* clientMap.cpp */; };
 		36B157ED2648500300528A2B /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
@@ -341,7 +333,6 @@
 		167B38822642F73900E3C718 /* serverMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverMap.hpp; sourceTree = "<group>"; };
 		167B38842642F73900E3C718 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
 		167B388B2642F73900E3C718 /* saver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = saver.cpp; sourceTree = "<group>"; };
-		167B38912642F73900E3C718 /* terrainGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terrainGenerator.cpp; sourceTree = "<group>"; };
 		167B38932642F73900E3C718 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
 		167B38C02642FB5100E3C718 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 		167B598E2665579400BCECBB /* SimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplexNoise.cpp; sourceTree = "<group>"; };
@@ -414,7 +405,6 @@
 		16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = worldGenerator.cpp; sourceTree = "<group>"; };
 		16B36D3B26820ADD00A4B03A /* worldGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = worldGenerator.hpp; sourceTree = "<group>"; };
 		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
-		36B157C126484E0900528A2B /* serverMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverMap.cpp; sourceTree = "<group>"; };
 		36B157D226484E2000528A2B /* clientMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientMap.cpp; sourceTree = "<group>"; };
 		36B157EC2648500300528A2B /* packets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
 		36B157F52648501F00528A2B /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
@@ -610,20 +600,10 @@
 			isa = PBXGroup;
 			children = (
 				167B38822642F73900E3C718 /* serverMap.hpp */,
-				36B157C126484E0900528A2B /* serverMap.cpp */,
 				16987C192659010D0016509C /* packets.cpp */,
 				167B388B2642F73900E3C718 /* saver.cpp */,
-				167B388C2642F73900E3C718 /* terrainGenerator */,
 			);
 			path = serverMap;
-			sourceTree = "<group>";
-		};
-		167B388C2642F73900E3C718 /* terrainGenerator */ = {
-			isa = PBXGroup;
-			children = (
-				167B38912642F73900E3C718 /* terrainGenerator.cpp */,
-			);
-			path = terrainGenerator;
 			sourceTree = "<group>";
 		};
 		167B388E2642F73900E3C718 /* simplexNoise */ = {
@@ -1325,13 +1305,11 @@
 				168600E02681DB7300763775 /* players.cpp in Sources */,
 				1675E71526611B1D00B620F4 /* packets.cpp in Sources */,
 				168A5E7B26511ADF00A466FD /* packets.cpp in Sources */,
-				168A5E7F26511ADF00A466FD /* serverMap.cpp in Sources */,
 				1626245026430B77007E01C4 /* launcher.cpp in Sources */,
 				1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */,
 				16B36D332682067D00A4B03A /* blocks.cpp in Sources */,
 				1626245B26430D85007E01C4 /* light.cpp in Sources */,
 				1626245F26430D8D007E01C4 /* saver.cpp in Sources */,
-				1626246026430D91007E01C4 /* terrainGenerator.cpp in Sources */,
 				1626246126430D93007E01C4 /* server.cpp in Sources */,
 				16B36D3C26820ADD00A4B03A /* worldGenerator.cpp in Sources */,
 				1626245726430D74007E01C4 /* print.cpp in Sources */,
@@ -1351,14 +1329,12 @@
 				168600E12681DB7300763775 /* players.cpp in Sources */,
 				1675E71926611B2D00B620F4 /* packets.cpp in Sources */,
 				168A5E7526511AD400A466FD /* packets.cpp in Sources */,
-				168A5E7926511AD400A466FD /* serverMap.cpp in Sources */,
 				1626246826430DD3007E01C4 /* saver.cpp in Sources */,
 				1626245126430B77007E01C4 /* launcher.cpp in Sources */,
 				16B36D342682067D00A4B03A /* blocks.cpp in Sources */,
 				1626246C26430DDA007E01C4 /* light.cpp in Sources */,
 				1626247026430DE4007E01C4 /* print.cpp in Sources */,
 				1626247126430DE6007E01C4 /* serverNetworking.cpp in Sources */,
-				1626246626430DCC007E01C4 /* terrainGenerator.cpp in Sources */,
 				16B36D3D26820ADD00A4B03A /* worldGenerator.cpp in Sources */,
 				1626246726430DCE007E01C4 /* server.cpp in Sources */,
 			);
@@ -1369,7 +1345,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				363BB2522686400800566F3A /* configManager.cpp in Sources */,
-				36B157CA26484E0900528A2B /* serverMap.cpp in Sources */,
 				167B59902665579400BCECBB /* SimplexNoise.cpp in Sources */,
 				167B38BE2642F73900E3C718 /* server.cpp in Sources */,
 				1664388726695A2F00587F5E /* liquid.cpp in Sources */,
@@ -1385,7 +1360,6 @@
 				16987C1E2659010D0016509C /* inventory.cpp in Sources */,
 				167F4D33268496B2004A8D11 /* block.cpp in Sources */,
 				16B36D352682067D00A4B03A /* blocks.cpp in Sources */,
-				167B38BC2642F73900E3C718 /* terrainGenerator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1399,7 +1373,6 @@
 				167B5993266558D000BCECBB /* SimplexNoise.cpp in Sources */,
 				16987C222659014B0016509C /* inventory.cpp in Sources */,
 				16987C242659014B0016509C /* packets.cpp in Sources */,
-				36B157CB26484E0900528A2B /* serverMap.cpp in Sources */,
 				167B38BF2642F73900E3C718 /* server.cpp in Sources */,
 				168600E32681DB7300763775 /* players.cpp in Sources */,
 				16B36D3F26820ADD00A4B03A /* worldGenerator.cpp in Sources */,
@@ -1409,7 +1382,6 @@
 				167B38A92642F73900E3C718 /* light.cpp in Sources */,
 				167B389B2642F73900E3C718 /* serverNetworking.cpp in Sources */,
 				167B389F2642F73900E3C718 /* print.cpp in Sources */,
-				167B38BD2642F73900E3C718 /* terrainGenerator.cpp in Sources */,
 				16B36D362682067D00A4B03A /* blocks.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

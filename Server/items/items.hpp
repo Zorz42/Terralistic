@@ -40,7 +40,7 @@ public:
     itemType getItemId() { return item_id; }
 };
 
-class items {
+class items : serverPacketListener {
 public:
     items(blocks* parent_blocks) : parent_blocks(parent_blocks) {}
     blocks* parent_blocks;
