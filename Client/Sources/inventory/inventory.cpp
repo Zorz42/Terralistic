@@ -9,7 +9,7 @@
 
 #include "inventory.hpp"
 
-char inventory::addItem(map::itemType id, int quantity) {
+char clientInventory::addItem(map::itemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory[i].item_id == id) {
             quantity -= inventory[i].increaseStack((unsigned short)quantity);
@@ -26,17 +26,17 @@ char inventory::addItem(map::itemType id, int quantity) {
     return -1;
 }
 
-void inventory::swapWithMouseItem(inventoryItem* item) {
-    inventoryItem temp = mouse_item;
+void clientInventory::swapWithMouseItem(clientInventoryItem* item) {
+    clientInventoryItem temp = mouse_item;
     mouse_item = *item;
     *item = temp;
 }
 
-inventoryItem* inventory::getMouseItem() {
+clientInventoryItem* clientInventory::getMouseItem() {
     return &mouse_item;
 }
 
-void inventory::clearMouseItem() {
+void clientInventory::clearMouseItem() {
     mouse_item.item_id = map::itemType::NOTHING;
     mouse_item.setStack(0);
 }

@@ -33,7 +33,7 @@ void players::onPacket(packets::packet& packet, connection& conn) {
 
         case packets::RIGHT_CLICK: {
             auto y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
-            getBlock(x, y).rightClickEvent(curr_player);
+            //parent_blocks->getBlock(x, y).rightClickEvent(curr_player);
             break;
         }
 
@@ -41,7 +41,7 @@ void players::onPacket(packets::packet& packet, connection& conn) {
             auto x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
             packets::packet chunk_packet(packets::CHUNK, (sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char)) * 16 * 16 + sizeof(x) + sizeof(y));
             for(int i = 0; i < 16 * 16; i++) {
-                serverMap::block block = getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
+                block block = parent_blocks->getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
                 chunk_packet << (unsigned char)block.getType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
             }
             chunk_packet << y << x;
@@ -83,7 +83,7 @@ void players::onPacket(packets::packet& packet, connection& conn) {
                 curr_player->conn->sendPacket(join_packet);
             }
 
-            for(item& i : items) {
+            for(item& i : parent_items->item_arr) {
                 packets::packet item_packet(packets::ITEM_CREATION, sizeof(i.x) + sizeof(i.y) + sizeof(i.getId()) + sizeof(char));
                 item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
                 curr_player->conn->sendPacket(item_packet);

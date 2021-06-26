@@ -11,21 +11,21 @@
 #include <string>
 #include <utility>
 #include "serverNetworking.hpp"
-#include "serverMap.hpp"
-#include "playerHandler.hpp"
+#include "players.hpp"
 
 void serverInit();
 
 class server {
     std::string working_dir;
     serverNetworkingManager networking_manager;
-    serverMap world_map;
-    playerHandler players;
+    blocks server_blocks;
+    items server_items;
+    players server_players;
 public:
     enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
     serverState state = NEUTRAL;
     
-    server(std::string working_dir, std::string resource_path, unsigned short port) : working_dir(std::move(working_dir)), world_map(&networking_manager, std::move(resource_path)), networking_manager(port) {}
+    server(std::string working_dir, std::string resource_path, unsigned short port) : working_dir(std::move(working_dir)), server_blocks(&networking_manager), server_items(&networking_manager, &server_blocks), server_players(&networking_manager, &server_blocks, &server_items), networking_manager(port) {}
     
     void start();
     static void stop();

@@ -29,7 +29,7 @@ public:
     int position_x, position_y;
     short velocity_x = 0, velocity_y = 0;
     bool flipped = false;
-    inventory player_inventory;
+    clientInventory player_inventory;
     std::string name;
 };
 
@@ -40,7 +40,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
     map* world_map;
     networkingManager* manager;
 
-    inventoryItem *hovered = nullptr;
+    clientInventoryItem *hovered = nullptr;
 
     gfx::rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
     bool is_left_button_pressed = false;
@@ -59,7 +59,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
 
     void initInventory();
 
-    void renderItem(inventoryItem* item, int x, int y, int i);
+    void renderItem(clientInventoryItem* item, int x, int y, int i);
     void updateStackTexture(int i);
 
     gfx::rect inventory_slots[20],

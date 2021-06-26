@@ -8,7 +8,6 @@
 #include "worldGenerator.hpp"
 #include "SimplexNoise.h"
 #include <random>
-#include "serverMap.hpp"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -32,7 +31,7 @@
 //#define STONE_START 0.1
 //#define STONE_LENGTH 1
 
-int serverMap::generateTerrain(unsigned int seed) {
+int worldGenerator::generateTerrain(unsigned int seed) {
     std::mt19937 engine(seed);
     SimplexNoise noise(engine());
 
@@ -40,18 +39,18 @@ int serverMap::generateTerrain(unsigned int seed) {
 
     loadAssets();
     
-    for (int x = 0; x < width; x++) {
+    for (int x = 0; x < server_blocks->width; x++) {
         biomeGeneratorSwitch(x, noise);
     }
-    for (int x = 0; x < width; x++) {
+    for (int x = 0; x < server_blocks->width; x++) {
         terrainGenerator(x, noise);
     }
     for (const structurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }
-    for(unsigned short x = 0; x < width; x++)
-        for(unsigned short y = 0; y < height; y++)
-            getBlock(x, y).update();
+    for(unsigned short x = 0; x < server_blocks->width; x++)
+        for(unsigned short y = 0; y < server_blocks->height; y++)
+            server_blocks->getBlock(x, y).update();
     generating_current++;
     return 0;
 }
@@ -85,7 +84,7 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
     //return heat == 4 ? 3 : heat;
 //}
 
-void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
+void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     /*
     sea level = 300, sea floor = 250
     plains = 325
@@ -102,16 +101,16 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     case 0:
         switch (biomeheight) {
         case 0://icy seas
-            biomes[x] = biome::ICY_SEAS;
+            server_blocks->biomes[x] = biome::ICY_SEAS;
             break;
         case 1://snowy tundra
-            biomes[x] = biome::SNOWY_TUNDRA;
+            server_blocks->biomes[x] = biome::SNOWY_TUNDRA;
             break;
         case 2://cold hills (with taiga trees?)
-            biomes[x] = biome::COLD_HILLS;
+            server_blocks->biomes[x] = biome::COLD_HILLS;
             break;
         case 3://snowy mountains
-            biomes[x] = biome::SNOWY_MOUNTAINS;
+            server_blocks->biomes[x] = biome::SNOWY_MOUNTAINS;
             break;
         }
         break;
@@ -119,16 +118,16 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     case 1:
         switch (biomeheight) {
         case 0://regular sea
-            biomes[x] = biome::SEA;
+            server_blocks->biomes[x] = biome::SEA;
             break;
         case 1://plains
-            biomes[x] = biome::PLAINS;
+            server_blocks->biomes[x] = biome::PLAINS;
             break;
         case 2://forest
-            biomes[x] = biome::FOREST;
+            server_blocks->biomes[x] = biome::FOREST;
             break;
         case 3://regular mountain
-            biomes[x] = biome::MOUNTAINS;
+            server_blocks->biomes[x] = biome::MOUNTAINS;
             break;
         }
         break;
@@ -136,66 +135,66 @@ void serverMap::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     case 2:
         switch (biomeheight) {
         case 0://warm ocean
-            biomes[x] = biome::WARM_OCEAN;
+            server_blocks->biomes[x] = biome::WARM_OCEAN;
             break;
         case 1://desert
-            biomes[x] = biome::DESERT;
+            server_blocks->biomes[x] = biome::DESERT;
             break;
         case 2://savana
-            biomes[x] = biome::SAVANA;
+            server_blocks->biomes[x] = biome::SAVANA;
             break;
         case 3://savana mountains
-            biomes[x] = biome::SAVANA_MOUNTAINS;
+            server_blocks->biomes[x] = biome::SAVANA_MOUNTAINS;
             break;
         }
         break;
     }
 }
 
-void serverMap::terrainGenerator(int x, SimplexNoise& noise) {
-    if (biomes[x] == biome::ICY_SEAS)
+void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
+    if (server_blocks->biomes[x] == biome::ICY_SEAS)
         generateIcySea(x, noise);
-    else if (biomes[x] == biome::SNOWY_TUNDRA)
+    else if (server_blocks->biomes[x] == biome::SNOWY_TUNDRA)
         generateSnowyTundra(x, noise);
-    else if (biomes[x] == biome::COLD_HILLS)
+    else if (server_blocks->biomes[x] == biome::COLD_HILLS)
         generateColdHills(x, noise);
-    else if (biomes[x] == biome::SNOWY_MOUNTAINS)
+    else if (server_blocks->biomes[x] == biome::SNOWY_MOUNTAINS)
         return;
-    else if (biomes[x] == biome::SEA)
+    else if (server_blocks->biomes[x] == biome::SEA)
         generateSea(x, noise);
-    else if (biomes[x] == biome::PLAINS)
+    else if (server_blocks->biomes[x] == biome::PLAINS)
         generatePlains(x, noise);
-    else if (biomes[x] == biome::FOREST)
+    else if (server_blocks->biomes[x] == biome::FOREST)
         generateForest(x, noise);
-    else if (biomes[x] == biome::MOUNTAINS)
+    else if (server_blocks->biomes[x] == biome::MOUNTAINS)
         return;
-    else if (biomes[x] == biome::WARM_OCEAN)
+    else if (server_blocks->biomes[x] == biome::WARM_OCEAN)
         generateWarmOcean(x, noise);
-    else if (biomes[x] == biome::DESERT)
+    else if (server_blocks->biomes[x] == biome::DESERT)
         generateDesert(x, noise);
-    else if (biomes[x] == biome::SAVANA)
+    else if (server_blocks->biomes[x] == biome::SAVANA)
         generateSavana(x, noise);
-    else if (biomes[x] == biome::SAVANA_MOUNTAINS)
+    else if (server_blocks->biomes[x] == biome::SAVANA_MOUNTAINS)
         return;
 }
 
-void serverMap::generatePlains(int x, SimplexNoise& noise) {
+void worldGenerator::generatePlains(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= dirtLayer) {
                 if (y == sliceHeight)
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
                 else
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::DIRT, false);
             }
             else
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
     if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.8 && x > 5)
@@ -203,155 +202,155 @@ void serverMap::generatePlains(int x, SimplexNoise& noise) {
 }
 
 
-void serverMap::generateDesert(int x, SimplexNoise& noise) {
+void worldGenerator::generateDesert(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int sandLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= sandLayer)
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SAND, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::SAND, false);
             else
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
 }
 
-void serverMap::generateSnowyTundra(int x, SimplexNoise& noise) {
+void worldGenerator::generateSnowyTundra(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.2, 0) * 2 + 8);
     int iceLayer = 300 - (noise.noise(x / 2.0f + 0.25, 0) * 2 + 3);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= snowLayer) {
                 if(y == snowLayer + 2)
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SNOWY_GRASS_BLOCK, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::SNOWY_GRASS_BLOCK, false);
                 else if (y < snowLayer + 2)
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::DIRT, false);
                 else
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SNOW_BLOCK, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::SNOW_BLOCK, false);
             }
             else
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
             if (y > iceLayer)
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::ICE, false);
             else {
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
             }
         }
     }
 }
 
-void serverMap::generateSea(int x, SimplexNoise& noise) {
+void worldGenerator::generateSea(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
 }
 
-void serverMap::generateIcySea(int x, SimplexNoise& noise) {
+void worldGenerator::generateIcySea(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int iceLayer = 300 - (noise.noise(x / 2.0f + 0.25, 0) * 2 + 3);
 
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
             if(y > iceLayer)
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::ICE, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::ICE, false);
             else {
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
             }
         }
     }
 }
 
-void serverMap::generateWarmOcean(int x, SimplexNoise& noise) {
+void worldGenerator::generateWarmOcean(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
 }
 
-void serverMap::generateForest(int x, SimplexNoise& noise) {
+void worldGenerator::generateForest(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= dirtLayer) {
                 if (y == sliceHeight)
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
                 else
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::DIRT, false);
             }
             else
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
     if ( x%8 == 0 && noise.noise(x + 0.5, sliceHeight + 0.5) >= -0.8 && x > 5)
         structurePositions.emplace_back("Tree", x - 2/* + noise.noise(x) * 2*/, sliceHeight);
 }
 
-void serverMap::generateColdHills(int x, SimplexNoise& noise) {
+void worldGenerator::generateColdHills(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int snowLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.2, 0) * 2 + 8);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= snowLayer) {
                 if (y == snowLayer + 2)
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SNOWY_GRASS_BLOCK, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::SNOWY_GRASS_BLOCK, false);
                 else if (y < snowLayer + 2)
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::DIRT, false);
                 else
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::SNOW_BLOCK, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::SNOW_BLOCK, false);
             }
             else
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
     }
 }
 
-void serverMap::generateSavana(int x, SimplexNoise& noise) {
+void worldGenerator::generateSavana(int x, SimplexNoise& noise) {
     int sliceHeight = calculateHeight(x, noise);
     int dirtLayer = (int)sliceHeight - (noise.noise(x / 4.0f + 0.25, 0) * 2 + 8);
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < server_blocks->height; y++) {
         if (y <= sliceHeight) {//generates surface
             if (y >= dirtLayer) {
                 if (y == sliceHeight)
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
                 else
-                    getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::DIRT, false);
+                    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::DIRT, false);
             }
             else
-                getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(blockType::STONE_BLOCK, false);
         }
         else if (y < 300) {
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setType(liquidType::WATER, false);
-            getBlock((unsigned short)x, height - (unsigned short)y - 1).setLiquidLevel(127);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setType(liquidType::WATER, false);
+            server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 1).setLiquidLevel(127);
         }
     }
     if (noise.noise(x + 0.5, sliceHeight + 0.5) >= 0.7)
@@ -359,27 +358,27 @@ void serverMap::generateSavana(int x, SimplexNoise& noise) {
 }
 
 
-void serverMap::generateAccaciaTree(int x, int y) {
-    getBlock((unsigned short)x, height - (unsigned short)y - 2).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 3).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 4).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 5).setType(blockType::WOOD, false);
-    getBlock((unsigned short)x, height - (unsigned short)y - 6).setType(blockType::WOOD, false);
+void worldGenerator::generateAccaciaTree(int x, int y) {
+    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 2).setType(blockType::WOOD, false);
+    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 3).setType(blockType::WOOD, false);
+    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 4).setType(blockType::WOOD, false);
+    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 5).setType(blockType::WOOD, false);
+    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y - 6).setType(blockType::WOOD, false);
 
-    getBlock((unsigned short)x, height - (unsigned short)y-7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x, height - (unsigned short)y-8).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x - 1, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x - 1, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x + 1, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x + 1, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x - 2, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x - 2, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x + 2, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x + 2, height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x + 3, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x + 4, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x - 3, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    getBlock((unsigned short)x - 4, height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y-7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x, server_blocks->height - (unsigned short)y-8).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x - 1, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x - 1, server_blocks->height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x + 1, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x + 1, server_blocks->height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x - 2, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x - 2, server_blocks->height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x + 2, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x + 2, server_blocks->height - (unsigned short)y - 8).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x + 3, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x + 4, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x - 3, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
+    server_blocks->getBlock((unsigned short)x - 4, server_blocks->height - (unsigned short)y - 7).setType(blockType::LEAVES, false);
 
 
 }
@@ -389,22 +388,22 @@ void serverMap::generateAccaciaTree(int x, int y) {
 
 
 
-int serverMap::calculateHeight(int x, SimplexNoise& noise) {
-    biome biome1 = biomes[x], biome2 = biome::NO_BIOME;
+int worldGenerator::calculateHeight(int x, SimplexNoise& noise) {
+    biome biome1 = server_blocks->biomes[x], biome2 = biome::NO_BIOME;
     int biomeDistance = 0;
     int sliceHeight = 0, slice1 = 0, slice2 = 0;
 
     for (int i = std::max(0, x - 1); i > std::max(0, x - 10); i--) {
-        if (biomes[i] != biome1) {
-            biome2 = biomes[i];
+        if (server_blocks->biomes[i] != biome1) {
+            biome2 = server_blocks->biomes[i];
             biomeDistance = std::abs(x - i);
             break;
         }
     }
     if (biome2 == biome::NO_BIOME) {
-        for (int i = std::min(width - 1, x + 1); i < std::min(width - 1, x + 10); i++) {
-            if (biomes[i] != biome1) {
-                biome2 = biomes[i];
+        for (int i = std::min(server_blocks->width - 1, x + 1); i < std::min(server_blocks->width - 1, x + 10); i++) {
+            if (server_blocks->biomes[i] != biome1) {
+                biome2 = server_blocks->biomes[i];
                 biomeDistance = std::abs(x - i);
                 break;
             }
@@ -460,7 +459,7 @@ int serverMap::calculateHeight(int x, SimplexNoise& noise) {
 
 #include "print.hpp"
 
-void serverMap::loadAssets() {
+void worldGenerator::loadAssets() {
     std::ifstream structureFile;
     structureFile.open(resource_path + "/Structures.asset", std::ios::in);
 
@@ -497,12 +496,12 @@ void serverMap::loadAssets() {
     delete[] assetData;
 }
 
-void serverMap::generateStructure(const std::string& name, int x, int y) {
+void worldGenerator::generateStructure(const std::string& name, int x, int y) {
     for (auto & structure : structures) {
         if (name == structure.name) {
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != blockType::NOTHING)
-                    getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(height - y + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setType(structure.blocks[j], false);
+                    server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->height - y + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setType(structure.blocks[j], false);
             break;
         }
     }

@@ -11,7 +11,7 @@
 #include <filesystem>
 
 #include "print.hpp"
-#include "serverMap.hpp"
+#include "players.hpp"
 #include "server.hpp"
 
 static bool running = false;
@@ -24,9 +24,10 @@ void inthand(int signum) {
 }
 
 void serverInit() {
-    serverMap::initItems();
-    serverMap::initBlocks();
-    serverMap::initLiquids();
+    initItems();
+    initBlocks();
+    initLiquids();
+    initBlockEvents();
 }
 
 void server::start() {
@@ -37,22 +38,22 @@ void server::start() {
         working_dir.push_back('/');
     running = true;
     
-    world_map.createWorld(275, 75);
+    server_blocks.createWorld(275, 75);
     
     if(std::filesystem::exists(working_dir + "world")) {
         state = LOADING_WORLD;
         print::info("Loading world...");
-        world_map.loadWorld(working_dir + "world");
+        //world_map.loadWorld(working_dir + "world");
     }
     else {
         state = GENERATING_WORLD;
         print::info("Generating world...");
-        world_map.generateTerrain(rand());
+        //world_map.generateTerrain(rand());
     }
     
     print::info("Post initializing modules...");
     
-    world_map.setNaturalLight();
+    server_blocks.setNaturalLight();
     
     signal(SIGINT, inthand);
     networking_manager.startListening();
@@ -69,10 +70,10 @@ void server::start() {
             std::this_thread::sleep_for(std::chrono::milliseconds(50 - tick_length));
         b = a;
         
-        world_map.updateItems(tick_length);
-        world_map.lookForItems(world_map);
-        world_map.updatePlayersBreaking(tick_length);
-        world_map.updateBlocks();
+        server_items.updateItems(tick_length);
+        server_players.lookForItems();
+        server_players.updatePlayersBreaking(tick_length);
+        server_players.updateBlocks();
     }
     
     std::cout << std::endl;
@@ -89,7 +90,7 @@ void server::start() {
     networking_manager.stopListening();
     
     print::info("Saving world...");
-    world_map.saveWorld(working_dir + "world");
+    //world_map.saveWorld(working_dir + "world");
     
     state = STOPPED;
 }
@@ -103,9 +104,11 @@ void server::setPrivate(bool is_private) {
 }
 
 unsigned int server::getGeneratingTotal() const {
-    return world_map.generating_total;
+    //return world_map.generating_total;
+    return 1;
 }
 
 unsigned int server::getGeneratingCurrent() const {
-    return world_map.generating_current;
+    //return world_map.generating_current;
+    return 0;
 }

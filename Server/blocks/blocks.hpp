@@ -16,10 +16,10 @@
 #define MAX_LIGHT 100
 #define UNBREAKABLE -1
 
-enum class blockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE};
-enum class liquidType {EMPTY, WATER};
+enum class blockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, NUM_BLOCKS};
+enum class liquidType {EMPTY, WATER, NUM_LIQUIDS};
 enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
-enum class biome {NO_BIOME, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS};
+enum class biome {NO_BIOME, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
 class block;
 class blocks;
@@ -54,6 +54,8 @@ struct blockData {
 
 inline std::vector<uniqueBlock> unique_blocks;
 inline std::vector<uniqueLiquid> unique_liquids;
+void initBlocks();
+void initLiquids();
 
 class block {
     blockData* block_data = nullptr;
@@ -100,9 +102,6 @@ public:
 
     [[nodiscard]] inline unsigned short getX() const { return x; }
     [[nodiscard]] inline unsigned short getY() const { return y; }
-
-    //void leftClickEvent(connection& connection, unsigned short tick_length);
-    //void rightClickEvent(player* peer);
 };
 
 class blocks {
@@ -110,9 +109,6 @@ public:
     blocks(serverNetworkingManager* manager_) : manager(manager_) {}
     
     serverNetworkingManager* manager;
-    
-    static void initBlocks();
-    static void initLiquids();
     
     block getBlock(unsigned short x, unsigned short y);
     

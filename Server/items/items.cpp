@@ -9,7 +9,7 @@
 #include <random>
 #include "assert.hpp"
 
-void items::initItems() {
+void initItems() {
     // all currently unique items
     unique_items = {
         {"nothing",     0,  blockType::AIR        },

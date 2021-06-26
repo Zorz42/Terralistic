@@ -78,7 +78,7 @@ void playerHandler::onPacketInventory(packets::packet &packet) {
     }
 }
 
-void playerHandler::renderItem(inventoryItem* item, int x, int y, int i) {
+void playerHandler::renderItem(clientInventoryItem* item, int x, int y, int i) {
     item->getUniqueItem().draw(x, y, 4);
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
@@ -94,7 +94,7 @@ void playerHandler::selectSlot(char slot) {
 }
 
 void playerHandler::updateStackTexture(int i) {
-    inventoryItem* item = i == -1 ? player->player_inventory.getMouseItem() : &player->player_inventory.inventory[i];
+    clientInventoryItem* item = i == -1 ? player->player_inventory.getMouseItem() : &player->player_inventory.inventory[i];
     if(item->stack_changed) {
         gfx::image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         if(item->getStack() > 1)

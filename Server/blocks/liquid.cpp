@@ -7,7 +7,7 @@
 
 #include "blocks.hpp"
 
-void blocks::initLiquids() {
+void initLiquids() {
     unique_liquids = {
         uniqueLiquid(0),
         uniqueLiquid(100),

@@ -95,7 +95,7 @@ void game::init() {
 
     modules = {
         world_map,
-        new players(&networking_manager, world_map),
+        new clientPlayers(&networking_manager, world_map),
         new playerHandler(&networking_manager, &main_player, world_map),
         new debugMenu(&main_player, world_map),
         new chat(&networking_manager),

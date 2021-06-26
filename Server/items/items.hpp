@@ -11,7 +11,7 @@
 #include <vector>
 #include "blocks.hpp"
 
-enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
+enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, NUM_ITEMS};
 
 struct uniqueItem {
     uniqueItem(std::string name, unsigned short stack_size, blockType places);
@@ -22,6 +22,8 @@ struct uniqueItem {
 
 inline std::vector<uniqueItem> unique_items;
 inline std::vector<itemType> block_drops;
+
+void initItems();
 
 class item {
     int velocity_x, velocity_y;
@@ -50,8 +52,6 @@ public:
     void updateItems(float frame_length);
     void spawnItem(itemType item_id, int x, int y, short id=-1);
     std::vector<item> item_arr;
-    
-    static void initItems();
 };
 
 #endif /* items_hpp */

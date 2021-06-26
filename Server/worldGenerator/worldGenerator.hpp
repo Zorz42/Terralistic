@@ -10,30 +10,26 @@
 
 #include <string>
 #include "blocks.hpp"
+#include "SimplexNoise.h"
+
+struct structure {
+    std::string name;
+    int x_size, y_size;
+    blockType* blocks;
+    structure(std::string cname, int x, int y, blockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), blocks(cBlocks) {}
+};
+
+struct structurePosition {
+    std::string name;
+    int x, y;
+    structurePosition(std::string cname, int cx, int cy) : name(std::move(cname)), x(cx), y(cy) {}
+};
 
 class worldGenerator {
-    struct structure {
-        std::string name;
-        int x_size, y_size;
-        blockType* blocks;
-        structure(std::string cname, int x, int y, blockType* cBlocks) {
-            name = std::move(cname);
-            x_size = x;
-            y_size = y;
-            blocks = cBlocks;
-        }
-    };
-    struct structurePosition
-    {
-        std::string name;
-        int x, y;
-        structurePosition(std::string cname, int cx, int cy) {
-            name = std::move(cname);
-            x = cx;
-            y = cy;
-        }
-    };
-
+    worldGenerator(blocks* server_blocks) : server_blocks(server_blocks) {}
+    
+    blocks* server_blocks;
+    
     std::vector<structure> structures;
     std::vector<structurePosition> structurePositions;
     
@@ -54,6 +50,7 @@ class worldGenerator {
     //void generateOakTree(int x, int y);
     void generateAccaciaTree(int x, int y);
     void generateStructure(const std::string& name, int x, int y);
+    
     void loadAssets();
 
     [[nodiscard]] int getSpawnX() const;

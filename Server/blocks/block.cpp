@@ -7,11 +7,10 @@
 
 #include "blocks.hpp"
 
-#include "serverMap.hpp"
 #include "assert.hpp"
 #include "serverNetworking.hpp"
 
-void blocks::initBlocks() {
+void initBlocks() {
     unique_blocks = {
         uniqueBlock("air",               /*ghost*/true,  /*only_on_floorfalse,*/  /*transparent*/true,  /*dropitemType::NOTHING,    */ /*break_time*/UNBREAKABLE),
         uniqueBlock("dirt",              /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::DIRT,       */ /*break_time*/1000       ),
@@ -26,29 +25,6 @@ void blocks::initBlocks() {
         uniqueBlock("ice_block",         /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/500        ),
 
     };
-
-    /*unique_blocks[(int)blockType::WOOD].onBreak = [](blocks* world_map, block* this_block) {
-        block blocks[] = {world_map->getBlock(this_block->getX(), this_block->getY() - 1), world_map->getBlock(this_block->getX() + 1, this_block->getY()), world_map->getBlock(this_block->getX() - 1, this_block->getY())};
-        for(block& i : blocks)
-            if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
-                i.breakBlock();
-    };
-
-    unique_blocks[(int)blockType::LEAVES].onBreak = unique_blocks[(int)blockType::WOOD].onBreak;
-
-    unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
-        this_block->setType(blockType::DIRT);
-    };
-
-    unique_blocks[(int)blockType::AIR].onRightClick = [](block* this_block, player* peer) {
-        blockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
-        if(type != blockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
-            this_block->setType(type);
-            this_block->update();
-        }
-    };
-
-    unique_blocks[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = unique_blocks[(int)blockType::GRASS_BLOCK].onLeftClick;*/
 }
 
 block blocks::getBlock(unsigned short x, unsigned short y) {
@@ -139,18 +115,3 @@ void block::update() {
 uniqueBlock& blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
 }
-
-/*void block::leftClickEvent(connection& connection, unsigned short tick_length) {
-    if(block_data->getUniqueBlock().onLeftClick)
-        block_data->getUniqueBlock().onLeftClick(this, parent_map->getPlayerByConnection(&connection));
-    else {
-        setBreakProgress(getBreakProgress() + tick_length);
-        if(getBreakProgress() >= getBreakTime())
-            breakBlock();
-    }
-}
-
-void block::rightClickEvent(player* peer) {
-    if(block_data->getUniqueBlock().onRightClick)
-        block_data->getUniqueBlock().onRightClick(this, peer);
-}*/

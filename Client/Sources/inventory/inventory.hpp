@@ -12,9 +12,9 @@
 
 #include "clientMap.hpp"
 
-struct inventoryItem {
+struct clientInventoryItem {
 public:
-    inventoryItem();
+    clientInventoryItem() : item_id(map::itemType::NOTHING), stack(0) {}
     map::itemType item_id;
     [[nodiscard]] map::uniqueItem& getUniqueItem() const;
     void setStack(unsigned short stack_);
@@ -25,17 +25,17 @@ private:
     unsigned short stack;
 };
 
-struct inventory {
+struct clientInventory {
 public:
-    inventoryItem inventory[INVENTORY_SIZE];
+    clientInventoryItem inventory[INVENTORY_SIZE];
     char addItem(map::itemType id, int quantity);
     bool open = false;
     char selected_slot = 0;
-    void swapWithMouseItem(inventoryItem* item);
+    void swapWithMouseItem(clientInventoryItem* item);
     void clearMouseItem();
-    inventoryItem* getMouseItem();
+    clientInventoryItem* getMouseItem();
 private:
-    inventoryItem mouse_item;
+    clientInventoryItem mouse_item;
 };
 
 #endif /* inventory_hpp */

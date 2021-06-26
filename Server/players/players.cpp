@@ -84,3 +84,45 @@ void players::updateBlocks() {
         }
     }
 }
+
+void players::leftClickEvent(block* this_block, connection& connection, unsigned short tick_length) {
+    if(custom_block_events[(int)this_block->getType()].onLeftClick)
+        custom_block_events[(int)this_block->getType()].onLeftClick(this_block, getPlayerByConnection(&connection));
+    else {
+        this_block->setBreakProgress(this_block->getBreakProgress() + tick_length);
+        //if(getBreakProgress() >= getBreakTime())
+            //breakBlock();
+    }
+}
+
+void players::rightClickEvent(block* this_block, player* peer) {
+    if(custom_block_events[(int)this_block->getType()].onRightClick)
+        custom_block_events[(int)this_block->getType()].onRightClick(this_block, peer);
+}
+
+void initBlockEvents() {
+    custom_block_events = new blockEvents[(int)blockType::NUM_BLOCKS];
+    
+    custom_block_events[(int)blockType::WOOD].onBreak = [](blocks* world_map, block* this_block) {
+        block blocks[] = {world_map->getBlock(this_block->getX(), this_block->getY() - 1), world_map->getBlock(this_block->getX() + 1, this_block->getY()), world_map->getBlock(this_block->getX() - 1, this_block->getY())};
+        //for(block& i : blocks)
+            //if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
+                //i.breakBlock();
+    };
+
+    custom_block_events[(int)blockType::LEAVES].onBreak = custom_block_events[(int)blockType::WOOD].onBreak;
+
+    custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
+        this_block->setType(blockType::DIRT);
+    };
+
+    custom_block_events[(int)blockType::AIR].onRightClick = [](block* this_block, player* peer) {
+        blockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
+        if(type != blockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
+            this_block->setType(type);
+            this_block->update();
+        }
+    };
+
+    custom_block_events[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick;
+}

@@ -5,7 +5,7 @@
 //  Created by Jakob Zorz on 04/12/2020.
 //
 
-#include <filesystem>
+/*#include <filesystem>
 #include <fstream>
 #include "serverMap.hpp"
 
@@ -82,4 +82,4 @@ void serverMap::loadWorld(const std::string& world_path) {
         data_file.read((char*)&player->x, sizeof(player->x));
         data_file.read((char*)&player->y, sizeof(player->y));
     }
-}
+}*/
