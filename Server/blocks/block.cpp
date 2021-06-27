@@ -102,16 +102,6 @@ void block::update() {
     scheduleLightUpdate();
 }
 
-/*void block::breakBlock() {
-    if(getDrop() != itemType::NOTHING)
-        parent_map->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
-    uniqueBlock *unique_block = &block_data->getUniqueBlock();
-    setType(blockType::AIR);
-    setBreakProgress(0);
-    if(unique_block->onBreak)
-        unique_block->onBreak(parent_map, this);
-}*/
-
 uniqueBlock& blockData::getUniqueBlock() const {
     return unique_blocks[(int)block_id];
 }

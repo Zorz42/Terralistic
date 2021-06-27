@@ -127,6 +127,20 @@ void initBlockEvents() {
     };
 
     custom_block_events[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick;
+    
+    block_drops = {
+        itemType::NOTHING,    // air
+        itemType::DIRT,        // dirt
+        itemType::STONE_BLOCK, // stone_block
+        itemType::NOTHING,     // grass_block
+        itemType::STONE,       // stone
+        itemType::WOOD_PLANKS, // wood
+        itemType::NOTHING,     // leaves
+        itemType::NOTHING,     // sand
+        itemType::NOTHING,     // snowy_grass_block
+        itemType::NOTHING,     // snow_block
+        itemType::NOTHING,     // ice_block
+    };
 }
 
 void players::saveTo(std::string path) {
@@ -167,10 +181,11 @@ void players::loadFrom(std::string path) {
 }
 
 void players::breakBlock(block* this_block) {
-    //if(getDrop() != itemType::NOTHING)
-        //parent_map->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+    if(block_drops[(int)this_block->getType()] != itemType::NOTHING)
+        parent_items->spawnItem(block_drops[(int)this_block->getType()], this_block->getX() * BLOCK_WIDTH, this_block->getY() * BLOCK_WIDTH);
+    blockType this_type = this_block->getType();
     this_block->setType(blockType::AIR);
     this_block->setBreakProgress(0);
-    if(custom_block_events[(int)this_block->getType()].onBreak)
-        custom_block_events[(int)this_block->getType()].onBreak(parent_blocks, this, this_block);
+    if(custom_block_events[(int)this_type].onBreak)
+        custom_block_events[(int)this_type].onBreak(parent_blocks, this, this_block);
 }
