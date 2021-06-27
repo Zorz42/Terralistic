@@ -27,7 +27,7 @@ struct structurePosition {
 
 class worldGenerator {
 public:
-    worldGenerator(blocks* server_blocks) : server_blocks(server_blocks) {}
+    worldGenerator(blocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
     
     blocks* server_blocks;
     

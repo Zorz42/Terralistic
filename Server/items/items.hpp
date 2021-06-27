@@ -21,7 +21,6 @@ struct uniqueItem {
 };
 
 inline std::vector<uniqueItem> unique_items;
-inline std::vector<itemType> block_drops;
 
 void initItems();
 

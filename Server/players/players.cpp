@@ -36,9 +36,9 @@ player* players::getPlayerByName(const std::string& name) {
 }
 
 void players::updatePlayersBreaking(unsigned short tick_length) {
-    //for(player* player : online_players)
-        //if(player->breaking)
-            //parent_blocks->getBlock(player->breaking_x, player->breaking_y).leftClickEvent(*player->conn, tick_length);
+    for(player* player : online_players)
+        if(player->breaking)
+            leftClickEvent(parent_blocks->getBlock(player->breaking_x, player->breaking_y), *player->conn, tick_length);
 }
 
 void players::lookForItems() {
@@ -87,29 +87,29 @@ void players::updateBlocks() {
     }
 }
 
-void players::leftClickEvent(block* this_block, connection& connection, unsigned short tick_length) {
-    if(custom_block_events[(int)this_block->getType()].onLeftClick)
-        custom_block_events[(int)this_block->getType()].onLeftClick(this_block, getPlayerByConnection(&connection));
+void players::leftClickEvent(block this_block, connection& connection, unsigned short tick_length) {
+    if(custom_block_events[(int)this_block.getType()].onLeftClick)
+        custom_block_events[(int)this_block.getType()].onLeftClick(&this_block, getPlayerByConnection(&connection));
     else {
-        this_block->setBreakProgress(this_block->getBreakProgress() + tick_length);
-        //if(getBreakProgress() >= getBreakTime())
-            //breakBlock();
+        this_block.setBreakProgress(this_block.getBreakProgress() + tick_length);
+        if(this_block.getBreakProgress() >= this_block.getBreakTime())
+            breakBlock(&this_block);
     }
 }
 
-void players::rightClickEvent(block* this_block, player* peer) {
-    if(custom_block_events[(int)this_block->getType()].onRightClick)
-        custom_block_events[(int)this_block->getType()].onRightClick(this_block, peer);
+void players::rightClickEvent(block this_block, player* peer) {
+    if(custom_block_events[(int)this_block.getType()].onRightClick)
+        custom_block_events[(int)this_block.getType()].onRightClick(&this_block, peer);
 }
 
 void initBlockEvents() {
     custom_block_events = new blockEvents[(int)blockType::NUM_BLOCKS];
     
-    custom_block_events[(int)blockType::WOOD].onBreak = [](blocks* world_map, block* this_block) {
-        block blocks[] = {world_map->getBlock(this_block->getX(), this_block->getY() - 1), world_map->getBlock(this_block->getX() + 1, this_block->getY()), world_map->getBlock(this_block->getX() - 1, this_block->getY())};
-        //for(block& i : blocks)
-            //if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
-                //i.breakBlock();
+    custom_block_events[(int)blockType::WOOD].onBreak = [](blocks* server_blocks, players* server_players, block* this_block) {
+        block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
+        for(block& i : blocks)
+            if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
+                server_players->breakBlock(&i);
     };
 
     custom_block_events[(int)blockType::LEAVES].onBreak = custom_block_events[(int)blockType::WOOD].onBreak;
@@ -164,4 +164,13 @@ void players::loadFrom(std::string path) {
         data_file.read((char*)&player->x, sizeof(player->x));
         data_file.read((char*)&player->y, sizeof(player->y));
     }
+}
+
+void players::breakBlock(block* this_block) {
+    //if(getDrop() != itemType::NOTHING)
+        //parent_map->spawnItem(getDrop(), x * BLOCK_WIDTH, y * BLOCK_WIDTH);
+    this_block->setType(blockType::AIR);
+    this_block->setBreakProgress(0);
+    if(custom_block_events[(int)this_block->getType()].onBreak)
+        custom_block_events[(int)this_block->getType()].onBreak(parent_blocks, this, this_block);
 }

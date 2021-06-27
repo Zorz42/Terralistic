@@ -12,6 +12,8 @@
 
 #include "items.hpp"
 
+inline std::vector<itemType> block_drops;
+
 class inventory;
 class player;
 
@@ -61,15 +63,6 @@ public:
     std::string name;
 };
 
-struct blockEvents {
-    void (*onBreak)(blocks*, block*) = nullptr;
-    void (*onRightClick)(block*, player*) = nullptr;
-    void (*onLeftClick)(block*, player*) = nullptr;
-};
-
-inline blockEvents* custom_block_events;
-void initBlockEvents();
-
 class players : serverPacketListener {
 public:
     players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(manager_), manager(manager_) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION, packets::CHAT}; }
@@ -90,13 +83,24 @@ public:
     
     void onPacket(packets::packet& packet, connection& conn) override;
     
-    void leftClickEvent(block* this_block, connection& connection, unsigned short tick_length);
-    void rightClickEvent(block* this_block, player* peer);
+    void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
+    void rightClickEvent(block this_block, player* peer);
     
     void saveTo(std::string path);
     void loadFrom(std::string path);
     
+    void breakBlock(block* this_block);
+    
     ~players();
 };
+
+struct blockEvents {
+    void (*onBreak)(blocks*, players*, block*) = nullptr;
+    void (*onRightClick)(block*, player*) = nullptr;
+    void (*onLeftClick)(block*, player*) = nullptr;
+};
+
+inline blockEvents* custom_block_events;
+void initBlockEvents();
 
 #endif /* players_hpp */

@@ -51,10 +51,7 @@ void server::start() {
     else {
         state = GENERATING_WORLD;
         print::info("Generating world...");
-        worldGenerator generator(&server_blocks);
-        curr_generator = &generator;
         generator.generateTerrain(rand());
-        curr_generator = nullptr;
     }
     
     print::info("Post initializing modules...");
@@ -112,9 +109,9 @@ void server::setPrivate(bool is_private) {
 }
 
 unsigned int server::getGeneratingTotal() const {
-    return curr_generator == nullptr ? 1 : curr_generator->generating_total;
+    return generator.generating_total;
 }
 
 unsigned int server::getGeneratingCurrent() const {
-    return curr_generator == nullptr ? 0 : curr_generator->generating_current;
+    return generator.generating_current;
 }

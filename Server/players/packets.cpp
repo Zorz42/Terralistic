@@ -33,7 +33,7 @@ void players::onPacket(packets::packet& packet, connection& conn) {
 
         case packets::RIGHT_CLICK: {
             auto y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
-            //parent_blocks->getBlock(x, y).rightClickEvent(curr_player);
+            rightClickEvent(parent_blocks->getBlock(x, y), curr_player);
             break;
         }
 
