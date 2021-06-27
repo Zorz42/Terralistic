@@ -72,7 +72,6 @@ public:
     void setType(blockType block_id, bool process=true);
     void setType(liquidType liquid_id, bool process=true);
     void setType(blockType block_id, liquidType liquid_id, bool process=true);
-    //void breakBlock();
     void setBreakProgress(unsigned short ms);
     void lightUpdate();
     void liquidUpdate();

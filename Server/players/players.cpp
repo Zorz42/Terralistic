@@ -42,13 +42,13 @@ void players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void players::lookForItems() {
-    for(unsigned long i = 0; i < parent_items->item_arr.size(); i++) {
+    for(unsigned long i = 0; i < parent_items->getItems().size(); i++) {
         for(player* player : online_players)
-            if(abs(parent_items->item_arr[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(parent_items->item_arr[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
-                char result = player->player_inventory.addItem(parent_items->item_arr[i].getItemId(), 1);
+            if(abs(parent_items->getItems()[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(parent_items->getItems()[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
+                char result = player->player_inventory.addItem(parent_items->getItems()[i].getItemId(), 1);
                 if(result != -1) {
-                    parent_items->item_arr[i].destroy();
-                    parent_items->item_arr.erase(parent_items->item_arr.begin() + i);
+                    parent_items->getItems()[i].destroy();
+                    parent_items->getItems().erase(parent_items->getItems().begin() + i);
                 }
             }
     }
@@ -129,7 +129,7 @@ void initBlockEvents() {
     custom_block_events[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick;
     
     block_drops = {
-        itemType::NOTHING,    // air
+        itemType::NOTHING,     // air
         itemType::DIRT,        // dirt
         itemType::STONE_BLOCK, // stone_block
         itemType::NOTHING,     // grass_block

@@ -38,19 +38,23 @@ public:
 
     [[maybe_unused]] [[nodiscard]] uniqueItem& getUniqueItem() const;
     [[nodiscard]] unsigned short getId() const { return id; }
-    itemType getItemId() { return item_id; }
+    inline itemType getItemId() const { return item_id; }
 };
 
 class items {
-public:
-    items(serverNetworkingManager* manager_, blocks* parent_blocks) : parent_blocks(parent_blocks), manager(manager_) {}
-    
     blocks* parent_blocks;
     serverNetworkingManager* manager;
     
+    std::vector<item> item_arr;
+public:
+    items(serverNetworkingManager* manager_, blocks* parent_blocks) : parent_blocks(parent_blocks), manager(manager_) {}
+    
     void updateItems(float frame_length);
     void spawnItem(itemType item_id, int x, int y, short id=-1);
-    std::vector<item> item_arr;
+    
+    void destroyItem();
+    
+    inline const std::vector<item>& getItems() { return item_arr; }
 };
 
 #endif /* items_hpp */

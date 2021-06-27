@@ -12,17 +12,17 @@
 
 void initBlocks() {
     unique_blocks = {
-        uniqueBlock("air",               /*ghost*/true,  /*only_on_floorfalse,*/  /*transparent*/true,  /*dropitemType::NOTHING,    */ /*break_time*/UNBREAKABLE),
-        uniqueBlock("dirt",              /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::DIRT,       */ /*break_time*/1000       ),
-        uniqueBlock("stone_block",       /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::STONE_BLOCK,*/ /*break_time*/1000       ),
-        uniqueBlock("grass_block",       /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/1000       ),
-        uniqueBlock("stone",             /*ghost*/true,  /*only_on_floortrue ,*/   /*transparent*/true,  /*dropitemType::STONE,      */ /*break_time*/1500       ),
-        uniqueBlock("wood",              /*ghost*/true,  /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::WOOD_PLANKS,*/ /*break_time*/1000       ),
-        uniqueBlock("leaves",            /*ghost*/true,  /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/UNBREAKABLE),
-        uniqueBlock("sand",              /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/500        ),
-        uniqueBlock("snowy_grass_block", /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/1000       ),
-        uniqueBlock("snow_block",        /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/500        ),
-        uniqueBlock("ice_block",         /*ghost*/false, /*only_on_floorfalse,*/  /*transparent*/false, /*dropitemType::NOTHING,    */ /*break_time*/500        ),
+        uniqueBlock("air",               /*ghost*/true,  /*transparent*/true,  /*break_time*/UNBREAKABLE),
+        uniqueBlock("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
+        uniqueBlock("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
+        uniqueBlock("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
+        uniqueBlock("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500       ),
+        uniqueBlock("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000       ),
+        uniqueBlock("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE),
+        uniqueBlock("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500        ),
+        uniqueBlock("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
+        uniqueBlock("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500        ),
+        uniqueBlock("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500        ),
 
     };
 }

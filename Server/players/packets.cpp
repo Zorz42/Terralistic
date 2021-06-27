@@ -83,7 +83,7 @@ void players::onPacket(packets::packet& packet, connection& conn) {
                 curr_player->conn->sendPacket(join_packet);
             }
 
-            for(item& i : parent_items->item_arr) {
+            for(const item& i : parent_items->getItems()) {
                 packets::packet item_packet(packets::ITEM_CREATION, sizeof(i.x) + sizeof(i.y) + sizeof(i.getId()) + sizeof(char));
                 item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
                 curr_player->conn->sendPacket(item_packet);
