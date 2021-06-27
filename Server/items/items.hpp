@@ -29,8 +29,9 @@ class item {
     unsigned short id;
     itemType item_id;
     blocks* parent_blocks;
+    serverNetworkingManager* manager;
 public:
-    void create(itemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_);
+    void create(itemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_, serverNetworkingManager* manager_);
     void destroy();
     void update(float frame_length);
     bool colliding() const;

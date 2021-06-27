@@ -36,7 +36,7 @@ void block::liquidUpdate() {
     
     block under, left, right;
     
-    if(y != parent_map->height - 1) {
+    if(y != parent_map->getHeight() - 1) {
         block block_under = parent_map->getBlock(x, y + 1);
         if((block_under.isGhost() && block_under.getLiquidType() == liquidType::EMPTY) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
             under = block_under;
@@ -48,7 +48,7 @@ void block::liquidUpdate() {
             left = block_left;
     }
     
-    if(x != parent_map->width - 1) {
+    if(x != parent_map->getWidth() - 1) {
         block block_right = parent_map->getBlock(x + 1, y);
         if((block_right.isGhost() && block_right.getLiquidType() == liquidType::EMPTY) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
             right = block_right;

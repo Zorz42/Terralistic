@@ -30,14 +30,15 @@ void items::spawnItem(itemType item_id, int x, int y, short id) {
     if(id == -1)
         id = curr_id++;
     item_arr.emplace_back();
-    item_arr.back().create(item_id, x, y, id, parent_blocks);
+    item_arr.back().create(item_id, x, y, id, parent_blocks, manager);
 }
 
-void item::create(itemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_) {
+void item::create(itemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_, serverNetworkingManager* manager_) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
     velocity_y = -int(engine() % 100) - 50;
+    manager = manager_;
     
     x = x_ * 100;
     y = y_ * 100;
@@ -47,13 +48,13 @@ void item::create(itemType item_id_, int x_, int y_, unsigned short id_, blocks*
     
     packets::packet packet(packets::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(getId()) + sizeof(char));
     packet << x << y << getId() << (char)getItemId();
-    parent_blocks->manager->sendToEveryone(packet);
+    manager->sendToEveryone(packet);
 }
 
 void item::destroy() {
     packets::packet packet(packets::ITEM_DELETION, sizeof(getId()));
     packet << getId();
-    parent_blocks->manager->sendToEveryone(packet);
+    manager->sendToEveryone(packet);
 }
 
 uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
@@ -116,7 +117,7 @@ void item::update(float frame_length) {
     if(prev_x != x || prev_y != y) {
         packets::packet packet(packets::ITEM_MOVEMENT, sizeof(x) + sizeof(y) + sizeof(getId()));
         packet << x << y << getId();
-        parent_blocks->manager->sendToEveryone(packet);
+        manager->sendToEveryone(packet);
     }
 }
 

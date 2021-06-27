@@ -109,9 +109,9 @@ void server::setPrivate(bool is_private) {
 }
 
 unsigned int server::getGeneratingTotal() const {
-    return generator.generating_total;
+    return generator.getGeneratingTotal();
 }
 
 unsigned int server::getGeneratingCurrent() const {
-    return generator.generating_current;
+    return generator.getGeneratingCurrent();
 }

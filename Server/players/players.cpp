@@ -62,10 +62,10 @@ void players::updateBlocks() {
                 start_x = 0;
             if(start_y < 0)
                 start_y = 0;
-            if(end_y > parent_blocks->height)
-                end_y = parent_blocks->height;
-            if(end_x > parent_blocks->width)
-                end_x = parent_blocks->width;
+            if(end_y > parent_blocks->getHeight())
+                end_y = parent_blocks->getHeight();
+            if(end_x > parent_blocks->getWidth())
+                end_x = parent_blocks->getWidth();
             for(unsigned short x = start_x; x < end_x; x++)
                 for(unsigned short y = end_y - 1; y >= start_y; y--) {
                     block curr_block = parent_blocks->getBlock(x, y);

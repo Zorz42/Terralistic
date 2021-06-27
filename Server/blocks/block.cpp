@@ -29,7 +29,7 @@ void initBlocks() {
 
 block blocks::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
-    return block(x, y, &block_arr[y * width + x], this);
+    return block(x, y, &block_arr[y * width + x], this, manager);
 }
 
 void block::setType(blockType block_id, bool process) {
@@ -71,18 +71,18 @@ void block::updateNeighbors() {
     // update upper, lower, right and left block (neighbours)
     if(x != 0)
         parent_map->getBlock(x - 1, y).update();
-    if(x != parent_map->width - 1)
+    if(x != parent_map->getWidth() - 1)
         parent_map->getBlock(x + 1, y).update();
     if(y != 0)
         parent_map->getBlock(x, y - 1).update();
-    if(y != parent_map->height - 1)
+    if(y != parent_map->getHeight() - 1)
         parent_map->getBlock(x, y + 1).update();
 }
 
 void block::syncWithClient() {
     packets::packet packet(packets::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
     packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
-    parent_map->manager->sendToEveryone(packet);
+    manager->sendToEveryone(packet);
 }
 
 void block::setBreakProgress(unsigned short ms) {
@@ -92,7 +92,7 @@ void block::setBreakProgress(unsigned short ms) {
         block_data->break_stage = stage;
         packets::packet packet(packets::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
         packet << getY() << getX() << getBreakStage();
-        parent_map->manager->sendToEveryone(packet);
+        manager->sendToEveryone(packet);
     }
 }
 

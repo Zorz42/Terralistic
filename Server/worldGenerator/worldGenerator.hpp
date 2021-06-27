@@ -26,9 +26,6 @@ struct structurePosition {
 };
 
 class worldGenerator {
-public:
-    worldGenerator(blocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
-    
     blocks* server_blocks;
     
     std::vector<structure> structures;
@@ -54,12 +51,16 @@ public:
     
     void loadAssets();
 
-    [[nodiscard]] int getSpawnX() const;
-    int getSpawnY();
-
     std::string resource_path;
     
     unsigned int generating_current = 0, generating_total = 6;
+    
+public:
+    worldGenerator(blocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
+    
+    inline unsigned int getGeneratingCurrent() const { return generating_current; }
+    inline unsigned int getGeneratingTotal() const { return generating_total; }
+    
     int generateTerrain(unsigned int seed);
 };
 

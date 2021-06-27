@@ -61,11 +61,12 @@ class block {
     blockData* block_data = nullptr;
     unsigned short x{}, y{};
     blocks* parent_map{};
+    serverNetworkingManager* manager{};
 
     void syncWithClient();
     void updateNeighbors();
 public:
-    block(unsigned short x, unsigned short y, blockData* block_data, blocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    block(unsigned short x, unsigned short y, blockData* block_data, blocks* parent_map, serverNetworkingManager* manager) : x(x), y(y), block_data(block_data), parent_map(parent_map), manager(manager) {}
     block() = default;
 
     void update();
@@ -104,10 +105,12 @@ public:
 };
 
 class blocks {
+    serverNetworkingManager* manager;
+    blockData *block_arr = nullptr;
+    unsigned short width{}, height{};
+    
 public:
     blocks(serverNetworkingManager* manager_) : manager(manager_) {}
-    
-    serverNetworkingManager* manager;
     
     block getBlock(unsigned short x, unsigned short y);
     
@@ -117,8 +120,6 @@ public:
     [[maybe_unused]] void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
     
-    unsigned short width{}, height{};
-    blockData *block_arr = nullptr;
     biome *biomes = nullptr;
     
     int getSpawnX() const;
@@ -126,6 +127,9 @@ public:
     
     void saveTo(std::string path);
     void loadFrom(std::string path);
+    
+    inline unsigned short getHeight() { return height; }
+    inline unsigned short getWidth() { return width; }
     
     ~blocks();
 };
