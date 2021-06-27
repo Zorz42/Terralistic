@@ -7,6 +7,8 @@
 
 #include "players.hpp"
 #include "blocks.hpp"
+#include <filesystem>
+#include <fstream>
 
 players::~players() {
     for(player* i : all_players)
@@ -125,4 +127,41 @@ void initBlockEvents() {
     };
 
     custom_block_events[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick;
+}
+
+void players::saveTo(std::string path) {
+    std::filesystem::create_directory(path);
+    for(player* player : all_players) {
+        std::ofstream data_file(path + player->name, std::ios::binary);
+        for(auto& i : player->player_inventory.inventory_arr) {
+            data_file << (char)i.getId();
+            unsigned short stack = i.getStack();
+            data_file.write((char*)&stack, sizeof(stack));
+        }
+        data_file.write((char*)&player->x, sizeof(player->x));
+        data_file.write((char*)&player->y, sizeof(player->y));
+        data_file.close();
+    }
+}
+
+void players::loadFrom(std::string path) {
+    for (const auto& entry : std::filesystem::directory_iterator(path)) {
+        std::string player_name = entry.path().string();
+        player_name = player_name.substr(player_name.find_last_of('/') + 1, player_name.size() - 1);
+        player* player = getPlayerByName(player_name);
+
+        std::ifstream data_file(entry.path(), std::ios::binary);
+        for(auto & i : player->player_inventory.inventory_arr) {
+            char c;
+            data_file >> c;
+            i.setId((itemType)c);
+
+            unsigned short stack;
+            data_file.read((char*)&stack, sizeof(stack));
+            i.setStack(stack);
+        }
+
+        data_file.read((char*)&player->x, sizeof(player->x));
+        data_file.read((char*)&player->y, sizeof(player->y));
+    }
 }

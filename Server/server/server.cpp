@@ -13,6 +13,7 @@
 #include "print.hpp"
 #include "players.hpp"
 #include "server.hpp"
+#include "worldGenerator.hpp"
 
 static bool running = false;
 
@@ -40,15 +41,20 @@ void server::start() {
     
     server_blocks.createWorld(275, 75);
     
-    if(std::filesystem::exists(working_dir + "world")) {
+    std::string world_path = working_dir + "world/";
+    if(std::filesystem::exists(world_path)) {
         state = LOADING_WORLD;
         print::info("Loading world...");
-        //world_map.loadWorld(working_dir + "world");
+        server_blocks.loadFrom(world_path + "blockdata");
+        server_players.loadFrom(world_path + "playerdata/");
     }
     else {
         state = GENERATING_WORLD;
         print::info("Generating world...");
-        //world_map.generateTerrain(rand());
+        worldGenerator generator(&server_blocks);
+        curr_generator = &generator;
+        generator.generateTerrain(rand());
+        curr_generator = nullptr;
     }
     
     print::info("Post initializing modules...");
@@ -90,7 +96,9 @@ void server::start() {
     networking_manager.stopListening();
     
     print::info("Saving world...");
-    //world_map.saveWorld(working_dir + "world");
+    std::filesystem::create_directory(world_path);
+    server_blocks.saveTo(world_path + "blockdata");
+    server_players.saveTo(world_path + "playerdata/");
     
     state = STOPPED;
 }
@@ -104,11 +112,9 @@ void server::setPrivate(bool is_private) {
 }
 
 unsigned int server::getGeneratingTotal() const {
-    //return world_map.generating_total;
-    return 1;
+    return curr_generator == nullptr ? 1 : curr_generator->generating_total;
 }
 
 unsigned int server::getGeneratingCurrent() const {
-    //return world_map.generating_current;
-    return 0;
+    return curr_generator == nullptr ? 0 : curr_generator->generating_current;
 }

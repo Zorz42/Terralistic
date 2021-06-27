@@ -26,6 +26,7 @@ struct structurePosition {
 };
 
 class worldGenerator {
+public:
     worldGenerator(blocks* server_blocks) : server_blocks(server_blocks) {}
     
     blocks* server_blocks;

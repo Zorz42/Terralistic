@@ -12,6 +12,7 @@
 #include <utility>
 #include "serverNetworking.hpp"
 #include "players.hpp"
+#include "worldGenerator.hpp"
 
 void serverInit();
 
@@ -21,6 +22,8 @@ class server {
     blocks server_blocks;
     items server_items;
     players server_players;
+    
+    worldGenerator* curr_generator = nullptr;
 public:
     enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
     serverState state = NEUTRAL;

@@ -93,6 +93,9 @@ public:
     void leftClickEvent(block* this_block, connection& connection, unsigned short tick_length);
     void rightClickEvent(block* this_block, player* peer);
     
+    void saveTo(std::string path);
+    void loadFrom(std::string path);
+    
     ~players();
 };
 

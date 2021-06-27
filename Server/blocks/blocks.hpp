@@ -125,6 +125,9 @@ public:
     int getSpawnX() const;
     int getSpawnY();
     
+    void saveTo(std::string path);
+    void loadFrom(std::string path);
+    
     ~blocks();
 };
 
