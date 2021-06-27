@@ -133,3 +133,11 @@ bool item::colliding() const {
                 return true;
     return false;
 }
+
+void items::destroyItem(const item& item_to_destroy) {
+    for(unsigned long i = 0; i < item_arr.size(); i++)
+        if(item_arr[i].getId() == item_to_destroy.getId()) {
+            item_arr[i].destroy();
+            item_arr.erase(item_arr.begin() + i);
+        }
+}

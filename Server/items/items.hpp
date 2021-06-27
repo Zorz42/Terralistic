@@ -51,9 +51,7 @@ public:
     
     void updateItems(float frame_length);
     void spawnItem(itemType item_id, int x, int y, short id=-1);
-    
-    void destroyItem();
-    
+    void destroyItem(const item& item_to_destroy);
     inline const std::vector<item>& getItems() { return item_arr; }
 };
 

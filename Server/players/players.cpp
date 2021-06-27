@@ -42,16 +42,11 @@ void players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void players::lookForItems() {
-    for(unsigned long i = 0; i < parent_items->getItems().size(); i++) {
+    for(const item& i : parent_items->getItems())
         for(player* player : online_players)
-            if(abs(parent_items->getItems()[i].x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(parent_items->getItems()[i].y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50) {
-                char result = player->player_inventory.addItem(parent_items->getItems()[i].getItemId(), 1);
-                if(result != -1) {
-                    parent_items->getItems()[i].destroy();
-                    parent_items->getItems().erase(parent_items->getItems().begin() + i);
-                }
-            }
-    }
+            if(abs(i.x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(i.y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
+                if(player->player_inventory.addItem(i.getItemId(), 1) != -1)
+                    parent_items->destroyItem(i);
 }
 
 void players::updateBlocks() {
