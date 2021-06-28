@@ -556,11 +556,11 @@
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
+				1626244C26430B41007E01C4 /* launcher */,
 				16B36D3926820AC700A4B03A /* worldGenerator */,
 				16B36D302682066B00A4B03A /* blocks */,
 				16B36D2A2681FF0400A4B03A /* items */,
 				168600D42681DB1600763775 /* players */,
-				1626244C26430B41007E01C4 /* launcher */,
 				167B387A2642F73900E3C718 /* serverNetworking */,
 				167B387D2642F73900E3C718 /* print */,
 				167B38922642F73900E3C718 /* server */,
@@ -680,7 +680,6 @@
 		1689686F25E9607800D26060 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				16811016263BE9260086D659 /* inventory */,
 				16932055263811A700B73C9F /* fileManager */,
 				1689689325E9607800D26060 /* game */,
 				168968B725E9607800D26060 /* menus */,
@@ -713,6 +712,7 @@
 				3619ACFA26186CBA00BA4EAF /* Modules */,
 				1689689E25E9607800D26060 /* clientNetworking */,
 				1662BC1C2635A9D70062DBB3 /* playerRenderer */,
+				16811016263BE9260086D659 /* inventory */,
 				1689689D25E9607800D26060 /* game.hpp */,
 				168968A325E9607800D26060 /* game.cpp */,
 			);

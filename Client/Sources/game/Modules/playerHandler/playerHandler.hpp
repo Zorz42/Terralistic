@@ -68,8 +68,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
     gfx::image stack_textures[20], mouse_stack_texture;
 
     bool received_spawn_coords = false;
-public:
-    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
+    
     void onKeyUp(gfx::key key) override;
     void onKeyDown(gfx::key key) override;
     void init() override;
@@ -77,6 +76,8 @@ public:
     void render() override;
     void selectSlot(char slot);
     void onPacket(packets::packet &packet) override;
+public:
+    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
 
     static void initItems();
 };
