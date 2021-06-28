@@ -5,22 +5,11 @@
 //  Created by Jakob Zorz on 06/04/2021.
 //
 
+#include <random>
 #include "clientMap.hpp"
 #include "assert.hpp"
-#include <random>
-
-std::vector<map::uniqueItem> map::unique_items;
-
-void map::initItems() {
-    // all currently unique items
-    unique_items = {
-        uniqueItem("nothing"    ),
-        uniqueItem("stone"      ),
-        uniqueItem("dirt"       ),
-        uniqueItem("stone_block"),
-        uniqueItem("wood_planks"),
-    };
-}
+#include "properties.hpp"
+#include "textures.hpp"
 
 map::item* map::getItemById(unsigned short id) {
     for(item& i : map::items)
@@ -30,22 +19,12 @@ map::item* map::getItemById(unsigned short id) {
     return nullptr;
 }
 
-map::uniqueItem::uniqueItem(const std::string& name) : name(name) {
-    texture.setTexture(name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + name + ".png"));
-    texture.scale = 2;
-    texture.free_texture = false;
-}
-
-map::uniqueItem& map::item::getUniqueItem() const {
-    ASSERT((int)item_type >= 0 && (int)item_type < unique_items.size(), "item_id is not valid")
-    return unique_items[(int)item_type];
+const uniqueItem& map::item::getUniqueItem() const {
+    return ::getUniqueItem(item_type);
 }
 
 void map::item::draw(short x_, short y_, unsigned char scale) {
-    getUniqueItem().draw(x_, y_, scale);
-}
-
-void map::uniqueItem::draw(short x, short y, unsigned char scale) {
+    gfx::image& texture = getItemTexture(item_type);
     if(texture.getTexture()) {
         texture.scale = scale;
         gfx::render(texture, x, y);

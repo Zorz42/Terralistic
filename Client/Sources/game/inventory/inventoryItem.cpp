@@ -8,10 +8,11 @@
 // inventoryItem is a class which exists in inventory
 
 #include "inventory.hpp"
+#include "properties.hpp"
 
-map::uniqueItem& clientInventoryItem::getUniqueItem() const {
+const uniqueItem& clientInventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return map::unique_items[(int)item_id];
+    return ::getUniqueItem(item_id);
 }
 
 void clientInventoryItem::setStack(unsigned short stack_) {

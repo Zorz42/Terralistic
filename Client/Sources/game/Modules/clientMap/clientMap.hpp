@@ -33,13 +33,6 @@ class map : public gfx::sceneModule, packetListener {
 public:
     enum class chunkState {unloaded, pending_load, loaded};
 protected:
-    struct uniqueLiquid {
-        uniqueLiquid(const std::string& name, float speed_multiplier);
-        std::string name;
-        gfx::image texture;
-        float speed_multiplier;
-    };
-
     struct blockData {
         explicit blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
@@ -49,7 +42,7 @@ protected:
         bool update = true;
 
         [[nodiscard]] const uniqueBlock& getUniqueBlock() const;
-        [[nodiscard]] uniqueLiquid& getUniqueLiquid() const;
+        [[nodiscard]] const uniqueLiquid& getUniqueLiquid() const;
     };
 
     struct chunkData {
@@ -67,7 +60,7 @@ protected:
 
     networkingManager* networking_manager;
 
-public: // !!! should be protected
+/*public: // !!! should be protected
     struct uniqueItem {
         explicit uniqueItem(const std::string& name);
         uniqueItem() = default;
@@ -76,10 +69,7 @@ public: // !!! should be protected
         gfx::image texture;
 
         void draw(short x, short y, unsigned char scale);
-    };
-
-    static std::vector<uniqueItem> unique_items;
-    static std::vector<uniqueLiquid> unique_liquids;
+    };*/
 
 public:
     class chunk {
@@ -127,7 +117,7 @@ public:
     };
 
     class item {
-        [[nodiscard]] uniqueItem& getUniqueItem() const;
+        [[nodiscard]] const uniqueItem& getUniqueItem() const;
         unsigned short id;
         itemType item_type;
     public:

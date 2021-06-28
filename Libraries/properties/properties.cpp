@@ -10,6 +10,7 @@
 
 static uniqueBlock unique_blocks[(int)blockType::NUM_BLOCKS];
 static uniqueItem unique_items[(int)itemType::NUM_ITEMS];
+static uniqueLiquid unique_liquids[(int)liquidType::NUM_LIQUIDS];
 
 const uniqueBlock& getUniqueBlock(blockType type) {
     ASSERT((int)type >= 0 && type < blockType::NUM_BLOCKS, "block id is not valid")
@@ -19,6 +20,11 @@ const uniqueBlock& getUniqueBlock(blockType type) {
 const uniqueItem& getUniqueItem(itemType type) {
     ASSERT((int)type >= 0 && type < itemType::NUM_ITEMS, "item id is not valid")
     return unique_items[(int)type];
+}
+
+const uniqueLiquid& getUniqueLiquid(liquidType type) {
+    ASSERT((int)type >= 0 && type < liquidType::NUM_LIQUIDS, "item id is not valid")
+    return unique_liquids[(int)type];
 }
 
 void initProperties() {
@@ -58,9 +64,13 @@ void initProperties() {
                 /*connects_to*/{blockType::SNOW_BLOCK                                          });
     
     // unique_items
-    unique_items[(int)itemType::NOTHING] =     uniqueItem("nothing",     0,  blockType::AIR        );
-    unique_items[(int)itemType::STONE] =       uniqueItem("stone",       99, blockType::STONE      );
-    unique_items[(int)itemType::DIRT] =        uniqueItem("dirt",        99, blockType::DIRT       );
-    unique_items[(int)itemType::STONE_BLOCK] = uniqueItem("stone_block", 99, blockType::STONE_BLOCK);
-    unique_items[(int)itemType::WOOD_PLANKS] = uniqueItem("wood_planks", 99, blockType::AIR        );
+    unique_items[(int)itemType::NOTHING] =     uniqueItem(/*name*/"nothing",     /*max_stack*/0,  /*places*/blockType::AIR        );
+    unique_items[(int)itemType::STONE] =       uniqueItem(/*name*/"stone",       /*max_stack*/99, /*places*/blockType::STONE      );
+    unique_items[(int)itemType::DIRT] =        uniqueItem(/*name*/"dirt",        /*max_stack*/99, /*places*/blockType::DIRT       );
+    unique_items[(int)itemType::STONE_BLOCK] = uniqueItem(/*name*/"stone_block", /*max_stack*/99, /*places*/blockType::STONE_BLOCK);
+    unique_items[(int)itemType::WOOD_PLANKS] = uniqueItem(/*name*/"wood_planks", /*max_stack*/99, /*places*/blockType::AIR        );
+    
+    // unqiue_liquids
+    unique_liquids[(int)liquidType::EMPTY] = uniqueLiquid(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1  );
+    unique_liquids[(int)liquidType::WATER] = uniqueLiquid(/*name*/"water", /*flow_time*/0, /*speed_multiplier*/0.5);
 }

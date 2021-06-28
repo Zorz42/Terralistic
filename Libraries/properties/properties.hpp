@@ -38,8 +38,18 @@ struct uniqueItem {
     blockType places;
 };
 
+struct uniqueLiquid {
+    uniqueLiquid() = default;
+    uniqueLiquid(std::string name, unsigned short flow_time, float speed_multiplier) : name(name), flow_time(flow_time), speed_multiplier(speed_multiplier) {}
+    
+    std::string name;
+    unsigned short flow_time;
+    float speed_multiplier;
+};
+
 void initProperties();
 const uniqueBlock& getUniqueBlock(blockType type);
 const uniqueItem& getUniqueItem(itemType type);
+const uniqueLiquid& getUniqueLiquid(liquidType type);
 
 #endif /* properties_hpp */

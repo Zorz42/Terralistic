@@ -18,11 +18,6 @@
 
 class blocks;
 
-struct uniqueLiquid {
-    explicit uniqueLiquid(unsigned short flow_time) : flow_time(flow_time) {}
-    unsigned short flow_time;
-};
-
 struct blockData {
     explicit blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 

@@ -7,13 +7,6 @@
 
 #include "blocks.hpp"
 
-void initLiquids() {
-    unique_liquids = {
-        uniqueLiquid(0),
-        uniqueLiquid(100),
-    };
-}
-
 uniqueLiquid& blockData::getUniqueLiquid() const {
     return unique_liquids[(int)liquid_id];
 }

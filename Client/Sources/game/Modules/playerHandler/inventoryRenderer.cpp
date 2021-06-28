@@ -6,18 +6,9 @@
 //
 
 #include "playerHandler.hpp"
+#include "textures.hpp"
 
 #define MARGIN 10
-
-gfx::image* text_textures;
-
-void playerHandler::initItems() {
-    text_textures = new gfx::image[(int)map::unique_items.size()];
-    for(int i = 0; i < (int)map::unique_items.size(); i++) {
-        text_textures[i].setTexture(gfx::renderText(map::unique_items[i].name, {255, 255, 255}));
-        text_textures[i].scale = 2;
-    }
-}
 
 void playerHandler::initInventory() {
     for(int i = 0; i < 20; i++) {
@@ -36,7 +27,7 @@ void playerHandler::renderInventory() {
     select_rect_inventory.x = (player->player_inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
     gfx::render(select_rect_inventory);
     
-    gfx::image* text_texture = nullptr;
+    const gfx::image* text_texture = nullptr;
     hovered = nullptr;
     for(int i = -1; i < 20; i++)
         updateStackTexture(i);
@@ -46,7 +37,7 @@ void playerHandler::renderInventory() {
             hovered = &player->player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
             if(player->player_inventory.inventory[i].item_id != itemType::NOTHING) {
-                text_texture = &text_textures[(int)player->player_inventory.inventory[i].item_id];
+                text_texture = &getItemTextTexture(player->player_inventory.inventory[i].item_id);
                 under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * MARGIN;
                 under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * MARGIN;
                 under_text_rect.x = gfx::getMouseX() + 20 - MARGIN;
@@ -79,7 +70,7 @@ void playerHandler::onPacketInventory(packets::packet &packet) {
 }
 
 void playerHandler::renderItem(clientInventoryItem* item, int x, int y, int i) {
-    item->getUniqueItem().draw(x, y, 4);
+    item->draw(x, y, 4);
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());

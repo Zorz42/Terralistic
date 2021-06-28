@@ -32,8 +32,8 @@ const uniqueBlock& map::blockData::getUniqueBlock() const {
     return ::getUniqueBlock(block_id);
 }
 
-map::uniqueLiquid& map::blockData::getUniqueLiquid() const {
-    return unique_liquids[(int)liquid_id];
+const uniqueLiquid& map::blockData::getUniqueLiquid() const {
+    return ::getUniqueLiquid(liquid_id);
 }
 
 void map::renderBlocks() {
@@ -105,7 +105,7 @@ void map::block::draw() {
 
     if(getLiquidType() != liquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
-        gfx::render(block_data->getUniqueLiquid().texture, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::rectShape(0, 0, BLOCK_WIDTH / 2, level));
+        gfx::render(getLiquidTexture(getLiquidType()), rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::rectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
 }
 
