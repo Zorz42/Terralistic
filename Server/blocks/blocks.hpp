@@ -15,18 +15,8 @@
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
-#define UNBREAKABLE -1
 
-class block;
 class blocks;
-
-struct uniqueBlock {
-    uniqueBlock(std::string  name, bool ghost, bool transparent, short break_time) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time) {}
-
-    bool ghost, transparent;
-    std::string name;
-    short break_time;
-};
 
 struct uniqueLiquid {
     explicit uniqueLiquid(unsigned short flow_time) : flow_time(flow_time) {}
@@ -44,13 +34,11 @@ struct blockData {
     unsigned int when_to_update_liquid = 1;
     flowDirection flow_direction = flowDirection::NONE;
 
-    [[nodiscard]] uniqueBlock& getUniqueBlock() const;
+    [[nodiscard]] const uniqueBlock& getUniqueBlock() const;
     [[nodiscard]] uniqueLiquid& getUniqueLiquid() const;
 };
 
-inline std::vector<uniqueBlock> unique_blocks;
 inline std::vector<uniqueLiquid> unique_liquids;
-void initBlocks();
 void initLiquids();
 
 class block {

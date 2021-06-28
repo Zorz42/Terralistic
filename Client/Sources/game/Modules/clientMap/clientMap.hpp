@@ -33,16 +33,6 @@ class map : public gfx::sceneModule, packetListener {
 public:
     enum class chunkState {unloaded, pending_load, loaded};
 protected:
-    struct uniqueBlock {
-        uniqueBlock(const std::string& name, bool ghost, std::vector<blockType> connects_to);
-        uniqueBlock() = default;
-
-        bool ghost{}, single_texture{};
-        std::string name;
-        gfx::image texture;
-        std::vector<blockType> connects_to;
-    };
-
     struct uniqueLiquid {
         uniqueLiquid(const std::string& name, float speed_multiplier);
         std::string name;
@@ -58,7 +48,7 @@ protected:
         unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
         bool update = true;
 
-        [[nodiscard]] uniqueBlock& getUniqueBlock() const;
+        [[nodiscard]] const uniqueBlock& getUniqueBlock() const;
         [[nodiscard]] uniqueLiquid& getUniqueLiquid() const;
     };
 
@@ -89,7 +79,6 @@ public: // !!! should be protected
     };
 
     static std::vector<uniqueItem> unique_items;
-    static std::vector<uniqueBlock> unique_blocks;
     static std::vector<uniqueLiquid> unique_liquids;
 
 public:
@@ -165,7 +154,6 @@ public:
     explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::KICK}; }
     int view_x{}, view_y{};
 
-    static void initBlocks();
     static void initItems();
     static void initLiquids();
 

@@ -11,17 +11,6 @@
 #include <vector>
 #include "blocks.hpp"
 
-struct uniqueItem {
-    uniqueItem(std::string name, unsigned short stack_size, blockType places);
-    std::string name;
-    unsigned short stack_size;
-    blockType places;
-};
-
-inline std::vector<uniqueItem> unique_items;
-
-void initItems();
-
 class item {
     int velocity_x, velocity_y;
     unsigned short id;
@@ -35,7 +24,7 @@ public:
     bool colliding() const;
     int x, y;
 
-    [[maybe_unused]] [[nodiscard]] uniqueItem& getUniqueItem() const;
+    [[maybe_unused]] [[nodiscard]] const uniqueItem& getUniqueItem() const;
     [[nodiscard]] unsigned short getId() const { return id; }
     inline itemType getItemId() const { return item_id; }
 };

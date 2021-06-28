@@ -9,6 +9,8 @@
 #include "fileManager.hpp"
 #include "playerHandler.hpp"
 #include "config.hpp"
+#include "properties.hpp"
+#include "textures.hpp"
 
 #ifdef __APPLE__
 
@@ -42,9 +44,10 @@ int main(int argc, char **argv) {
     serverInit();
     fileManager::init();
     config = configFile(fileManager::getDataPath() + "/config.txt");
-    map::initBlocks();
+    initProperties();
     map::initItems();
     map::initLiquids();
+    loadTextures();
     playerHandler::initItems();
 
     gfx::runScene(new startMenu());

@@ -9,23 +9,7 @@
 
 #include "assert.hpp"
 #include "serverNetworking.hpp"
-
-void initBlocks() {
-    unique_blocks = {
-        uniqueBlock("air",               /*ghost*/true,  /*transparent*/true,  /*break_time*/UNBREAKABLE),
-        uniqueBlock("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
-        uniqueBlock("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
-        uniqueBlock("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
-        uniqueBlock("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500       ),
-        uniqueBlock("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000       ),
-        uniqueBlock("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE),
-        uniqueBlock("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500        ),
-        uniqueBlock("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000       ),
-        uniqueBlock("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500        ),
-        uniqueBlock("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500        ),
-
-    };
-}
+#include "properties.hpp"
 
 block blocks::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
@@ -102,6 +86,6 @@ void block::update() {
     scheduleLightUpdate();
 }
 
-uniqueBlock& blockData::getUniqueBlock() const {
-    return unique_blocks[(int)block_id];
+const uniqueBlock& blockData::getUniqueBlock() const {
+    return ::getUniqueBlock(block_id);
 }

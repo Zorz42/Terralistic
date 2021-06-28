@@ -8,6 +8,7 @@
 // inventory is a class which you can easily manage with function calls
 
 #include "players.hpp"
+#include "properties.hpp"
 
 void inventoryItem::setId(itemType id) {
     if(item_id != id) {
@@ -16,9 +17,9 @@ void inventoryItem::setId(itemType id) {
     }
 }
 
-uniqueItem& inventoryItem::getUniqueItem() const {
+const uniqueItem& inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return unique_items[(int)item_id];
+    return ::getUniqueItem(item_id);
 }
 
 void inventoryItem::setStack(unsigned short stack_) {

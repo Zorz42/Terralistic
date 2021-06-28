@@ -5,39 +5,12 @@
 //  Created by Jakob Zorz on 05/04/2021.
 //
 
-#include "clientMap.hpp"
-#include "assert.hpp"
 #include <algorithm>
 #include <utility>
-
-std::vector<map::uniqueBlock> map::unique_blocks;
-gfx::image breaking_texture;
-
-void map::initBlocks() {
-    unique_blocks = {
-        {"air",               /*ghost*/true,  /*connects_to*/{                                                               }},
-        {"dirt",              /*ghost*/false, /*connects_to*/{blockType::GRASS_BLOCK, blockType::SNOWY_GRASS_BLOCK           }},
-        {"stone_block",       /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   }},
-        {"grass_block",       /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::SNOWY_GRASS_BLOCK                  }},
-        {"stone",             /*ghost*/true,  /*connects_to*/{                                                               }},
-        {"wood",              /*ghost*/true,  /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES                      }},
-        {"leaves",            /*ghost*/true,  /*connects_to*/{                                                               }},
-        {"sand",              /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK}},
-        {"snowy_grass_block", /*ghost*/false, /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK}},
-        {"snow_block",        /*ghost*/false, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK, blockType::ICE                   }},
-        {"ice_block",         /*ghost*/false, /*connects_to*/{blockType::SNOW_BLOCK                                          }},
-    };
-
-    breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
-    breaking_texture.scale = 2;
-}
-
-map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<blockType> connects_to) : ghost(ghost), name(name), connects_to(std::move(connects_to)) {
-    texture.setTexture(gfx::loadImageFile("texturePack/blocks/" + name + ".png"));
-    single_texture = texture.getTextureHeight() == 8;
-    texture.scale = 2;
-    texture.free_texture = false;
-}
+#include "clientMap.hpp"
+#include "assert.hpp"
+#include "properties.hpp"
+#include "textures.hpp"
 
 map::block map::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth(), "requested block is out of bounds")
@@ -55,8 +28,8 @@ void map::block::setLightLevel(unsigned char level) {
     update();
 }
 
-map::uniqueBlock& map::blockData::getUniqueBlock() const {
-    return unique_blocks[(int)block_id];
+const uniqueBlock& map::blockData::getUniqueBlock() const {
+    return ::getUniqueBlock(block_id);
 }
 
 map::uniqueLiquid& map::blockData::getUniqueLiquid() const {
@@ -100,7 +73,7 @@ void map::renderBlocks() {
 }
 
 void map::block::updateOrientation() {
-    if(!block_data->getUniqueBlock().single_texture) {
+    if(getBlockTexture(getType()).getTextureHeight() != 8) {
         block_data->orientation = 0;
         char x_[] = {0, 1, 0, -1};
         char y_[] = {-1, 0, 1, 0};
@@ -120,15 +93,15 @@ void map::block::updateOrientation() {
 
 void map::block::draw() {
     gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
-
-    if(block_data->getUniqueBlock().texture.getTexture() && getLightLevel())
-        gfx::render(block_data->getUniqueBlock().texture, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+    
+    if(getBlockTexture(getType()).getTexture() && getLightLevel())
+        gfx::render(getBlockTexture(getType()), rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 
     if(getLightLevel() != MAX_LIGHT)
         gfx::render(rect);
 
     if(getBreakStage())
-        gfx::render(breaking_texture, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
+        gfx::render(getBreakingTexture(), rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 
     if(getLiquidType() != liquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;

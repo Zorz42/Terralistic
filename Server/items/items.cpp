@@ -8,17 +8,7 @@
 #include "items.hpp"
 #include <random>
 #include "assert.hpp"
-
-void initItems() {
-    // all currently unique items
-    unique_items = {
-        {"nothing",     0,  blockType::AIR        },
-        {"stone",       99, blockType::STONE      },
-        {"dirt",        99, blockType::DIRT       },
-        {"stone_block", 99, blockType::STONE_BLOCK},
-        {"wood_planks", 99, blockType::AIR        },
-    };
-}
+#include "properties.hpp"
 
 void items::updateItems(float frame_length) {
     for(auto & item : item_arr)
@@ -57,11 +47,8 @@ void item::destroy() {
     manager->sendToEveryone(packet);
 }
 
-uniqueItem::uniqueItem(std::string  name, unsigned short stack_size, blockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
-
-[[maybe_unused]] uniqueItem& item::getUniqueItem() const {
-    ASSERT((int)item_id >= 0 && (int)item_id < unique_items.size(), "item_id is not valid")
-    return unique_items[(int)item_id];
+[[maybe_unused]] const uniqueItem& item::getUniqueItem() const {
+    return ::getUniqueItem(item_id);
 }
 
 void item::update(float frame_length) {
