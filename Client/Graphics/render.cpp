@@ -31,18 +31,18 @@ void gfx::render(const image& tex, rectShape rect) {
     SDL_RenderCopyEx(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &sdl_rect, 0, nullptr, tex.flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
-void gfx::render(const image& tex, short x, short y) {
-    SDL_Rect rect = {x, y, int(tex.getTextureWidth() * tex.scale), int(tex.getTextureHeight() * tex.scale)};
+void gfx::render(const image& tex, float scale, short x, short y) {
+    SDL_Rect rect = {x, y, int(tex.getTextureWidth() * scale), int(tex.getTextureHeight() * scale)};
     SDL_RenderCopyEx(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &rect, 0, nullptr, tex.flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
-void gfx::render(const image& tex, short x, short y, rectShape src_rect) {
-    SDL_Rect dest_rect_sdl = {x, y, int(src_rect.w * tex.scale), int(src_rect.h * tex.scale)}, src_rect_sdl = {src_rect.x, src_rect.y, src_rect.w, src_rect.h};
+void gfx::render(const image& tex, float scale, short x, short y, rectShape src_rect) {
+    SDL_Rect dest_rect_sdl = {x, y, int(src_rect.w * scale), int(src_rect.h * scale)}, src_rect_sdl = {src_rect.x, src_rect.y, src_rect.w, src_rect.h};
     SDL_RenderCopyEx(renderer, (SDL_Texture*)tex.getTexture(), &src_rect_sdl, &dest_rect_sdl, 0, nullptr, tex.flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void gfx::render(const sprite& spr) {
-    render(spr, spr.getTranslatedX(), spr.getTranslatedY());
+    render(spr, spr.scale, spr.getTranslatedX(), spr.getTranslatedY());
 }
 
 void gfx::render(button& b) {
@@ -55,7 +55,7 @@ void gfx::render(button& b) {
         (unsigned char)((int)b.hover_color.b * (int)b.hover_progress / 255 + (int)b.def_color.b * (int)(255 - b.hover_progress) / 255),
     };
     render(rect, button_color);
-    render(b, rect.x + b.margin * b.scale, rect.y + b.margin * b.scale);
+    render(b, b.scale, rect.x + b.margin * b.scale, rect.y + b.margin * b.scale);
 }
 
 void gfx::render(const textInput& t) {
@@ -66,7 +66,7 @@ void gfx::render(const textInput& t) {
     rect.y += t.margin * t.scale;
     rect.w = t.getTextureWidth() * t.scale;
     rect.h -= t.margin * 2 * t.scale;
-    render(t, rect.x, rect.y, rectShape(rect.w - t.cut_length > t.width * t.scale ? rect.w / t.scale - t.width : t.cut_length, 0, rect.w - t.cut_length > t.width * t.scale ? t.width : rect.w / t.scale - t.cut_length, rect.h / t.scale));
+    render(t, t.scale, rect.x, rect.y, rectShape(rect.w - t.cut_length > t.width * t.scale ? rect.w / t.scale - t.width : t.cut_length, 0, rect.w - t.cut_length > t.width * t.scale ? t.width : rect.w / t.scale - t.cut_length, rect.h / t.scale));
     if(t.active)
         render(gfx::rect(rect.x + (rect.w > t.width * t.scale ? t.width * t.scale : rect.w - t.cut_length * t.scale), rect.y, t.scale, rect.h, t.text_color));
 }

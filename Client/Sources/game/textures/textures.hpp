@@ -23,8 +23,8 @@
 #endif
 
 const gfx::image& getBlockTexture(blockType type);
-gfx::image& getItemTexture(itemType type);
-gfx::image& getItemTextTexture(itemType type);
+const gfx::image& getItemTexture(itemType type);
+const gfx::image& getItemTextTexture(itemType type);
 const gfx::image& getLiquidTexture(liquidType type);
 const gfx::image& getBreakingTexture();
 void loadTextures();

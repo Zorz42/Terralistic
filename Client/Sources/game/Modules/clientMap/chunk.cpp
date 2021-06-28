@@ -23,7 +23,7 @@ void map::chunk::updateTexture() {
 }
 
 void map::chunk::draw() {
-    gfx::render(chunk_data->texture, (x << 4) * BLOCK_WIDTH - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - parent_map->view_y + (gfx::getWindowHeight() >> 1));
+    gfx::render(chunk_data->texture, 1, (x << 4) * BLOCK_WIDTH - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - parent_map->view_y + (gfx::getWindowHeight() >> 1));
 }
 
 void map::chunk::createTexture() {

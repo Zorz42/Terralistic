@@ -19,12 +19,12 @@ const gfx::image& getBlockTexture(blockType type) {
     return block_textures[(int)type];
 }
 
-gfx::image& getItemTexture(itemType type) {
+const gfx::image& getItemTexture(itemType type) {
     ASSERT((int)type >= 0 && type < itemType::NUM_ITEMS, "item id is not valid")
     return item_textures[(int)type];
 }
 
-gfx::image& getItemTextTexture(itemType type) {
+const gfx::image& getItemTextTexture(itemType type) {
     ASSERT((int)type >= 0 && type < itemType::NUM_ITEMS, "item id is not valid")
     return item_text_textures[(int)type];
 }
@@ -40,27 +40,16 @@ const gfx::image& getBreakingTexture() {
 
 void loadTextures() {
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
-    breaking_texture.scale = 2;
     
-    for(int i = 0; i < (int)blockType::NUM_BLOCKS; i++) {
-        gfx::image& texture = block_textures[i];
-        texture.setTexture(gfx::loadImageFile("texturePack/blocks/" + getUniqueBlock((blockType)i).name + ".png"));
-        texture.scale = 2;
-    }
+    for(int i = 0; i < (int)blockType::NUM_BLOCKS; i++)
+        block_textures[i].setTexture(gfx::loadImageFile("texturePack/blocks/" + getUniqueBlock((blockType)i).name + ".png"));
     
     for(int i = 0; i < (int)itemType::NUM_ITEMS; i++) {
-        gfx::image& texture = item_textures[i];
-        texture.setTexture(getUniqueItem((itemType)i).name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + getUniqueItem((itemType)i).name + ".png"));
-        texture.scale = 2;
+        item_textures[i].setTexture(getUniqueItem((itemType)i).name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + getUniqueItem((itemType)i).name + ".png"));
         
-        gfx::image& text_texture = item_text_textures[i];
-        text_texture.setTexture(gfx::renderText(getUniqueItem((itemType)i).name, {255, 255, 255}));
-        text_texture.scale = 2;
+        item_text_textures[i].setTexture(gfx::renderText(getUniqueItem((itemType)i).name, {255, 255, 255}));
     }
     
-    for(int i = 0; i < (int)liquidType::NUM_LIQUIDS; i++) {
-        gfx::image& texture = liquid_textures[i];
-        texture.setTexture(gfx::loadImageFile("texturePack/liquids/" + getUniqueLiquid((liquidType)i).name + ".png"));
-        texture.scale = 2;
-    }
+    for(int i = 0; i < (int)liquidType::NUM_LIQUIDS; i++)
+        liquid_textures[i].setTexture(gfx::loadImageFile("texturePack/liquids/" + getUniqueLiquid((liquidType)i).name + ".png"));
 }

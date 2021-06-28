@@ -96,10 +96,10 @@ void map::init() {
 }
 
 void map::render() {
-    background_image.scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
-    int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * background_image.scale);
-    for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * background_image.scale) + 2; i++)
-        gfx::render(background_image, position_x + i * background_image.getTextureWidth() * background_image.scale, 0);
+    float scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
+    int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * scale);
+    for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * scale) + 2; i++)
+        gfx::render(background_image, scale, position_x + i * background_image.getTextureWidth() * scale, 0);
     renderBlocks();
     renderItems();
     if(kicked) {

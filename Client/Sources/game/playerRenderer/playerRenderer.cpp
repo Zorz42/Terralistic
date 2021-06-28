@@ -23,25 +23,24 @@ static gfx::image player;
 
 void playerRenderer::init() {
     player.setTexture(gfx::loadImageFile("texturePack/misc/player.png"));
-    player.scale = 2;
 }
 
 #define HEADER_PADDING 4
 
 void playerRenderer::render(int x, int y, int view_x, int view_y, bool flipped, gfx::image& header) {
     render(x, y, view_x, view_y, flipped);
-    gfx::render(header, gfx::getWindowWidth() / 2 - header.getTextureWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y - header.getTextureHeight() - HEADER_PADDING);
+    gfx::render(header, 1, gfx::getWindowWidth() / 2 - header.getTextureWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y - header.getTextureHeight() - HEADER_PADDING);
 }
 
 void playerRenderer::render(int x, int y, int view_x, int view_y, bool flipped) {
     player.flipped = flipped;
-    gfx::render(player, gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y);
+    gfx::render(player, 2, gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y);
 }
 
 unsigned short playerRenderer::getPlayerWidth() {
-    return player.getTextureWidth() * player.scale;
+    return player.getTextureWidth() * 2;
 }
 
 unsigned short playerRenderer::getPlayerHeight() {
-    return player.getTextureHeight() * player.scale;
+    return player.getTextureHeight() * 2;
 }

@@ -59,7 +59,6 @@ struct image {
     bool free_texture = true, flipped = false;
     [[nodiscard]] unsigned short getTextureWidth() const;
     [[nodiscard]] unsigned short getTextureHeight() const;
-    float scale = 1;
     void clear();
     void setAlpha(unsigned char alpha);
 protected:
@@ -68,6 +67,7 @@ protected:
 };
 
 struct sprite : _centeredObject, image {
+    float scale = 1;
     [[nodiscard]] inline unsigned short getWidth() const override { return getTextureWidth() * scale; }
     [[nodiscard]] inline unsigned short getHeight() const override { return getTextureHeight() * scale; }
     sprite() : _centeredObject(0, 0) {};
@@ -103,9 +103,9 @@ protected:
 
 void render(rectShape x, color c, bool fill=true);
 void render(const rect& x, bool fill=true);
-void render(const image& tex, short x, short y);
+void render(const image& tex, float scale, short x, short y);
 void render(const image& tex, rectShape rect);
-void render(const image& tex, short x, short y, rectShape src_rect);
+void render(const image& tex, float scale, short x, short y, rectShape src_rect);
 void render(const sprite& spr);
 void render(button& b);
 void render(const textInput& b);

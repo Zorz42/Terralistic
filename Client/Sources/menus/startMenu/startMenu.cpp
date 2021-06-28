@@ -63,10 +63,10 @@ void startMenu::onKeyDown(gfx::key key) {
 }
 
 void startMenu::render() {
-    background.scale = (float)gfx::getWindowHeight() / (float)background.getTextureHeight();
-    int pos = gfx::getTicks() / 30 % int(background.getTextureWidth() * background.scale);
-    gfx::render(background, pos, 0);
-    gfx::render(background, pos - background.getTextureWidth() * background.scale, 0);
+    float scale = (float)gfx::getWindowHeight() / (float)background.getTextureHeight();
+    int pos = gfx::getTicks() / 30 % int(background.getTextureWidth() * scale);
+    gfx::render(background, scale, pos, 0);
+    gfx::render(background, scale, pos - background.getTextureWidth() * scale, 0);
     back_rect.h = gfx::getWindowHeight();
     gfx::render(back_rect);
     gfx::render(title);

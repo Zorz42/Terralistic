@@ -52,7 +52,7 @@ void playerHandler::renderInventory() {
     
     if(text_texture) {
         gfx::render(under_text_rect);
-        gfx::render(*text_texture, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
+        gfx::render(*text_texture, 2, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
     }
     renderItem(player->player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
@@ -70,15 +70,14 @@ void playerHandler::onPacketInventory(packets::packet &packet) {
 }
 
 void playerHandler::renderItem(clientInventoryItem* item, int x, int y, int i) {
-    gfx::image& texture = getItemTexture(item->item_id);
+    const gfx::image& texture = getItemTexture(item->item_id);
     if(texture.getTexture()) {
-        texture.scale = 4;
-        gfx::render(texture, x, y);
+        gfx::render(texture, 4, x, y);
     }
     
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
-        gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
+        gfx::render(*stack_texture, 1, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
     }
 }
 

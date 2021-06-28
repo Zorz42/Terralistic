@@ -25,10 +25,8 @@ const uniqueItem& map::item::getUniqueItem() const {
 
 void map::renderItems() {
     for(map::item& item : items) {
-        gfx::image& texture = getItemTexture(item.getType());
-        if(texture.getTexture()) {
-            texture.scale = 2;
-            gfx::render(texture, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2);
-        }
+        const gfx::image& texture = getItemTexture(item.getType());
+        if(texture.getTexture())
+            gfx::render(texture, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2, 2);
     }
 }
