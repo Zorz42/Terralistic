@@ -87,7 +87,7 @@ void players::leftClickEvent(block this_block, connection& connection, unsigned 
         custom_block_events[(int)this_block.getType()].onLeftClick(&this_block, getPlayerByConnection(&connection));
     else {
         this_block.setBreakProgress(this_block.getBreakProgress() + tick_length);
-        if(this_block.getBreakProgress() >= this_block.getBreakTime())
+        if(this_block.getBreakProgress() >= this_block.getUniqueBlock().break_time)
             breakBlock(&this_block);
     }
 }
@@ -122,20 +122,6 @@ void initBlockEvents() {
     };
 
     custom_block_events[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick;
-    
-    block_drops = {
-        itemType::NOTHING,     // air
-        itemType::DIRT,        // dirt
-        itemType::STONE_BLOCK, // stone_block
-        itemType::NOTHING,     // grass_block
-        itemType::STONE,       // stone
-        itemType::WOOD_PLANKS, // wood
-        itemType::NOTHING,     // leaves
-        itemType::NOTHING,     // sand
-        itemType::NOTHING,     // snowy_grass_block
-        itemType::NOTHING,     // snow_block
-        itemType::NOTHING,     // ice_block
-    };
 }
 
 void players::saveTo(std::string path) {
@@ -176,8 +162,8 @@ void players::loadFrom(std::string path) {
 }
 
 void players::breakBlock(block* this_block) {
-    if(block_drops[(int)this_block->getType()] != itemType::NOTHING)
-        parent_items->spawnItem(block_drops[(int)this_block->getType()], this_block->getX() * BLOCK_WIDTH, this_block->getY() * BLOCK_WIDTH);
+    if(this_block->getUniqueBlock().drop != itemType::NOTHING)
+        parent_items->spawnItem(this_block->getUniqueBlock().drop, this_block->getX() * BLOCK_WIDTH, this_block->getY() * BLOCK_WIDTH);
     blockType this_type = this_block->getType();
     this_block->setType(blockType::AIR);
     this_block->setBreakProgress(0);

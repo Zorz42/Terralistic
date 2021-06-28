@@ -30,15 +30,15 @@ void block::setType(blockType block_id, liquidType liquid_id, bool process) {
         block_data->liquid_id = liquid_id;
     }
     else if(block_id != block_data->block_id || liquid_id != block_data->liquid_id) {
-        bool was_transparent = isTransparent();
+        bool was_transparent = getUniqueBlock().transparent;
         block_data->block_id = block_id;
         block_data->liquid_id = liquid_id;
         if(liquid_id == liquidType::EMPTY)
             setLiquidLevel(0);
 
-        if(isTransparent() != was_transparent) {
-            if(isTransparent())
-                for(int curr_y = y; parent_map->getBlock(x, curr_y).isTransparent(); curr_y++)
+        if(getUniqueBlock().transparent != was_transparent) {
+            if(getUniqueBlock().transparent)
+                for(int curr_y = y; parent_map->getBlock(x, curr_y).getUniqueBlock().transparent; curr_y++)
                     parent_map->getBlock(x, curr_y).setLightSource(MAX_LIGHT);
             else
                 for(int curr_y = y; parent_map->getBlock(x, curr_y).isLightSource(); curr_y++)
@@ -71,7 +71,7 @@ void block::syncWithClient() {
 
 void block::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
-    auto stage = (unsigned char)((float)getBreakProgress() / (float)getBreakTime() * 9.0f);
+    auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
         block_data->break_stage = stage;
         packets::packet packet(packets::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
@@ -84,8 +84,4 @@ void block::update() {
     //if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         //breakBlock();
     scheduleLightUpdate();
-}
-
-const uniqueBlock& blockData::getUniqueBlock() const {
-    return ::getUniqueBlock(block_id);
 }

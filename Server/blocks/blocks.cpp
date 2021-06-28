@@ -23,7 +23,7 @@ int blocks::getSpawnX() const {
 int blocks::getSpawnY() {
     int result = 0;
     for(unsigned short y = 0; y < height; y++) {
-        if(!getBlock(width / 2 - 1, y).isTransparent() || !getBlock(width / 2, y).isTransparent())
+        if(!getBlock(width / 2 - 1, y).getUniqueBlock().transparent || !getBlock(width / 2, y).getUniqueBlock().transparent)
             break;
         result += BLOCK_WIDTH;
     }
@@ -70,4 +70,12 @@ void blocks::loadFrom(std::string path) {
         delete[] world_buffer;
     }
     world_file.close();
+}
+
+const uniqueBlock& block::getUniqueBlock() {
+    return ::getUniqueBlock(block_data->block_id);
+}
+
+const uniqueLiquid& block::getUniqueLiquid() {
+    return ::getUniqueLiquid(block_data->liquid_id);
 }

@@ -28,9 +28,6 @@ struct blockData {
     unsigned char break_stage = 0, liquid_level = 0, light_level = 0;
     unsigned int when_to_update_liquid = 1;
     flowDirection flow_direction = flowDirection::NONE;
-
-    [[nodiscard]] const uniqueBlock& getUniqueBlock() const;
-    [[nodiscard]] const uniqueLiquid& getUniqueLiquid() const;
 };
 
 class block {
@@ -58,10 +55,7 @@ public:
 
     inline bool refersToABlock() { return block_data != nullptr; }
 
-    inline bool isTransparent() { return block_data->getUniqueBlock().transparent; }
     inline bool isLightSource() { return block_data->light_source; }
-    inline bool isGhost() { return block_data->getUniqueBlock().ghost; }
-    inline unsigned short getBreakTime() { return block_data->getUniqueBlock().break_time; }
     inline unsigned char getLightLevel() { return block_data->light_level; }
     inline unsigned short getBreakProgress() { return block_data->break_progress; }
     inline unsigned char getBreakStage() { return block_data->break_stage; }
@@ -72,12 +66,14 @@ public:
     inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
     void setLiquidLevel(unsigned char level);
     inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
-    inline unsigned short getFlowTime() { return block_data->getUniqueLiquid().flow_time; }
     inline flowDirection getFlowDirection() { return block_data->flow_direction; }
     inline void setFlowDirection(flowDirection flow_direction) { block_data->flow_direction = flow_direction; }
 
     [[nodiscard]] inline unsigned short getX() const { return x; }
     [[nodiscard]] inline unsigned short getY() const { return y; }
+    
+    const uniqueBlock& getUniqueBlock();
+    const uniqueLiquid& getUniqueLiquid();
 };
 
 class blocks {

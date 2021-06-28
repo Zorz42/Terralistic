@@ -12,8 +12,6 @@
 
 #include "items.hpp"
 
-inline std::vector<itemType> block_drops;
-
 class inventory;
 class player;
 

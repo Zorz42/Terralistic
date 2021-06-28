@@ -117,7 +117,7 @@ bool item::colliding() const {
     int block_x = x / 100 / BLOCK_WIDTH, block_y = y / 100 / BLOCK_WIDTH;
     for(int x_ = 0; x_ < height_x; x_++)
         for(int y_ = 0; y_ < height_y; y_++)
-            if(!parent_blocks->getBlock((unsigned short)(block_x + x_), (unsigned short)(block_y + y_)).isTransparent())
+            if(!parent_blocks->getBlock((unsigned short)(block_x + x_), (unsigned short)(block_y + y_)).getUniqueBlock().transparent)
                 return true;
     return false;
 }

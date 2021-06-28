@@ -24,7 +24,7 @@ void block::lightUpdate() {
         unsigned char level_to_be = 0;
         for(auto & neighbor : neighbors) {
             if(neighbor.refersToABlock()) {
-                unsigned char light_step = neighbor.isTransparent() ? 3 : 15;
+                unsigned char light_step = neighbor.getUniqueBlock().transparent ? 3 : 15;
                 unsigned char light = light_step > neighbor.getLightLevel() ? 0 : neighbor.getLightLevel() - light_step;
                 if(light > level_to_be)
                     level_to_be = light;
@@ -50,12 +50,12 @@ void blocks::setNaturalLight() {
 }
 
 void blocks::setNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < height && getBlock(x, y).isTransparent(); y++)
+    for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
 [[maybe_unused]] void blocks::removeNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < height && getBlock(x, y).isTransparent(); y++)
+    for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).removeLightSource();
 }
 

@@ -21,12 +21,13 @@ enum class biome {NO_BIOME, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS,
 
 struct uniqueBlock {
     uniqueBlock() = default;
-    uniqueBlock(std::string name, bool ghost, bool transparent, short break_time, std::vector<blockType> connects_to) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(connects_to) {}
+    uniqueBlock(std::string name, bool ghost, bool transparent, short break_time, itemType drop, std::vector<blockType> connects_to) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), drop(drop), connects_to(connects_to) {}
     
     bool ghost, transparent;
     std::string name;
     std::vector<blockType> connects_to;
     short break_time;
+    itemType drop;
 };
 
 struct uniqueItem {

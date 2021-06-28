@@ -8,10 +8,6 @@
 #include "blocks.hpp"
 #include "properties.hpp"
 
-const uniqueLiquid& blockData::getUniqueLiquid() const {
-    return ::getUniqueLiquid(liquid_id);
-}
-
 void block::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         block_data->liquid_level = level;
@@ -21,8 +17,8 @@ void block::setLiquidLevel(unsigned char level) {
 }
 
 void block::liquidUpdate() {
-    block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getFlowTime();
-    if(!isGhost())
+    block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getUniqueLiquid().flow_time;
+    if(!getUniqueBlock().ghost)
         setType(liquidType::EMPTY);
     
     if(getLiquidLevel() == 0)
@@ -32,19 +28,19 @@ void block::liquidUpdate() {
     
     if(y != parent_map->getHeight() - 1) {
         block block_under = parent_map->getBlock(x, y + 1);
-        if((block_under.isGhost() && block_under.getLiquidType() == liquidType::EMPTY) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
+        if((getUniqueBlock().ghost && block_under.getLiquidType() == liquidType::EMPTY) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
             under = block_under;
     }
     
     if(x != 0) {
         block block_left = parent_map->getBlock(x - 1, y);
-        if((block_left.isGhost() && block_left.getLiquidType() == liquidType::EMPTY) || (block_left.getLiquidType() == getLiquidType() && block_left.getLiquidLevel() < getLiquidLevel()))
+        if((getUniqueBlock().ghost && block_left.getLiquidType() == liquidType::EMPTY) || (block_left.getLiquidType() == getLiquidType() && block_left.getLiquidLevel() < getLiquidLevel()))
             left = block_left;
     }
     
     if(x != parent_map->getWidth() - 1) {
         block block_right = parent_map->getBlock(x + 1, y);
-        if((block_right.isGhost() && block_right.getLiquidType() == liquidType::EMPTY) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
+        if((getUniqueBlock().ghost && block_right.getLiquidType() == liquidType::EMPTY) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
             right = block_right;
     }
     

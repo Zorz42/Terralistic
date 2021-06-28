@@ -30,38 +30,27 @@ const uniqueLiquid& getUniqueLiquid(liquidType type) {
 void initProperties() {
     // unique_blocks
     unique_blocks[(int)blockType::AIR] =
-    uniqueBlock("air",               /*ghost*/true,  /*transparent*/true,  /*break_time*/UNBREAKABLE,
-                /*connects_to*/{                                                               });
+    uniqueBlock("air",               /*ghost*/true,  /*transparent*/true,  /*break_time*/UNBREAKABLE, /*drops*/itemType::NOTHING,     /*connects_to*/ {                                                               });
     unique_blocks[(int)blockType::DIRT] =
-    uniqueBlock("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000,
-                /*connects_to*/{blockType::GRASS_BLOCK, blockType::SNOWY_GRASS_BLOCK           });
+    uniqueBlock("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::DIRT,        /*connects_to*/{blockType::GRASS_BLOCK, blockType::SNOWY_GRASS_BLOCK           });
     unique_blocks[(int)blockType::STONE_BLOCK] =
-    uniqueBlock("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,
-                /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   });
+    uniqueBlock("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::STONE_BLOCK, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   });
     unique_blocks[(int)blockType::GRASS_BLOCK] =
-    uniqueBlock("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,
-                /*connects_to*/{blockType::DIRT, blockType::SNOWY_GRASS_BLOCK                  });
+    uniqueBlock("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::DIRT, blockType::SNOWY_GRASS_BLOCK                  });
     unique_blocks[(int)blockType::STONE] =
-    uniqueBlock("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500,
-                /*connects_to*/{                                                               });
+    uniqueBlock("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500,        /*drops*/itemType::STONE,       /*connects_to*/{                                                               });
     unique_blocks[(int)blockType::WOOD] =
-    uniqueBlock("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000,
-                /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES                      });
+    uniqueBlock("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::WOOD_PLANKS, /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES                      });
     unique_blocks[(int)blockType::LEAVES] =
-    uniqueBlock("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE,
-                /*connects_to*/{                                                               });
+    uniqueBlock("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE, /*drops*/itemType::NOTHING,     /*connects_to*/{                                                               });
     unique_blocks[(int)blockType::SAND] =
-    uniqueBlock("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500,
-                /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK});
+    uniqueBlock("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK});
     unique_blocks[(int)blockType::SNOWY_GRASS_BLOCK] =
-    uniqueBlock("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000,
-                /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK});
+    uniqueBlock("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK});
     unique_blocks[(int)blockType::SNOW_BLOCK] =
-    uniqueBlock("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500,
-                /*connects_to*/{blockType::SNOWY_GRASS_BLOCK, blockType::ICE                   });
+    uniqueBlock("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::SNOWY_GRASS_BLOCK, blockType::ICE                   });
     unique_blocks[(int)blockType::ICE] =
-    uniqueBlock("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,
-                /*connects_to*/{blockType::SNOW_BLOCK                                          });
+    uniqueBlock("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::SNOW_BLOCK                                          });
     
     // unique_items
     unique_items[(int)itemType::NOTHING] =     uniqueItem(/*name*/"nothing",     /*max_stack*/0,  /*places*/blockType::AIR        );
