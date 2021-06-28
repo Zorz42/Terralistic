@@ -70,7 +70,12 @@ void playerHandler::onPacketInventory(packets::packet &packet) {
 }
 
 void playerHandler::renderItem(clientInventoryItem* item, int x, int y, int i) {
-    item->draw(x, y, 4);
+    gfx::image& texture = getItemTexture(item->item_id);
+    if(texture.getTexture()) {
+        texture.scale = 4;
+        gfx::render(texture, x, y);
+    }
+    
     if(item->getStack() > 1) {
         gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         gfx::render(*stack_texture, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());

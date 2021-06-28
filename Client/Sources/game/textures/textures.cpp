@@ -53,9 +53,9 @@ void loadTextures() {
         texture.setTexture(getUniqueItem((itemType)i).name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + getUniqueItem((itemType)i).name + ".png"));
         texture.scale = 2;
         
-        texture = item_text_textures[i];
-        texture.setTexture(gfx::renderText(getUniqueItem((itemType)i).name, {255, 255, 255}));
-        texture.scale = 2;
+        gfx::image& text_texture = item_text_textures[i];
+        text_texture.setTexture(gfx::renderText(getUniqueItem((itemType)i).name, {255, 255, 255}));
+        text_texture.scale = 2;
     }
     
     for(int i = 0; i < (int)liquidType::NUM_LIQUIDS; i++) {

@@ -25,7 +25,6 @@ void inthand(int signum) {
 }
 
 void serverInit() {
-    initLiquids();
     initBlockEvents();
 }
 

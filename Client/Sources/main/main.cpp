@@ -45,10 +45,7 @@ int main(int argc, char **argv) {
     fileManager::init();
     config = configFile(fileManager::getDataPath() + "/config.txt");
     initProperties();
-    map::initItems();
-    map::initLiquids();
     loadTextures();
-    playerHandler::initItems();
 
     gfx::runScene(new startMenu());
 

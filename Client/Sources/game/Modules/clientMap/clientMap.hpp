@@ -60,17 +60,6 @@ protected:
 
     networkingManager* networking_manager;
 
-/*public: // !!! should be protected
-    struct uniqueItem {
-        explicit uniqueItem(const std::string& name);
-        uniqueItem() = default;
-
-        std::string name;
-        gfx::image texture;
-
-        void draw(short x, short y, unsigned char scale);
-    };*/
-
 public:
     class chunk {
         chunkData* chunk_data;
@@ -124,7 +113,7 @@ public:
         item(itemType item_type, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_type(item_type) {}
         int x, y;
         [[nodiscard]] unsigned short getId() const { return id; }
-        void draw(short x, short y, unsigned char scale);
+        [[nodiscard]] itemType getType() const { return item_type; }
     };
 
 protected:
@@ -143,9 +132,6 @@ protected:
 public:
     explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::KICK}; }
     int view_x{}, view_y{};
-
-    static void initItems();
-    static void initLiquids();
 
     chunk getChunk(unsigned short x, unsigned short y);
     block getBlock(unsigned short x, unsigned short y);

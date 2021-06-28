@@ -658,6 +658,7 @@
 			isa = PBXGroup;
 			children = (
 				3619ACFA26186CBA00BA4EAF /* Modules */,
+				36DDF8B5268A0484002337F3 /* textures */,
 				1689689E25E9607800D26060 /* clientNetworking */,
 				1662BC1C2635A9D70062DBB3 /* playerRenderer */,
 				16811016263BE9260086D659 /* inventory */,
@@ -862,7 +863,6 @@
 		3619ACFA26186CBA00BA4EAF /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				36DDF8B5268A0484002337F3 /* textures */,
 				167C1B7D2676564400BCFE27 /* chat */,
 				16906514266CC0A90075EF55 /* debugMenu */,
 				1681100A263BE9260086D659 /* clientMap */,

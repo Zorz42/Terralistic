@@ -30,11 +30,8 @@ struct blockData {
     flowDirection flow_direction = flowDirection::NONE;
 
     [[nodiscard]] const uniqueBlock& getUniqueBlock() const;
-    [[nodiscard]] uniqueLiquid& getUniqueLiquid() const;
+    [[nodiscard]] const uniqueLiquid& getUniqueLiquid() const;
 };
-
-inline std::vector<uniqueLiquid> unique_liquids;
-void initLiquids();
 
 class block {
     blockData* block_data = nullptr;

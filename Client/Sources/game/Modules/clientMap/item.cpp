@@ -23,15 +23,12 @@ const uniqueItem& map::item::getUniqueItem() const {
     return ::getUniqueItem(item_type);
 }
 
-void map::item::draw(short x_, short y_, unsigned char scale) {
-    gfx::image& texture = getItemTexture(item_type);
-    if(texture.getTexture()) {
-        texture.scale = scale;
-        gfx::render(texture, x, y);
-    }
-}
-
 void map::renderItems() {
-    for(map::item& item : items)
-        item.draw(item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2, 2);
+    for(map::item& item : items) {
+        gfx::image& texture = getItemTexture(item.getType());
+        if(texture.getTexture()) {
+            texture.scale = 2;
+            gfx::render(texture, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2);
+        }
+    }
 }

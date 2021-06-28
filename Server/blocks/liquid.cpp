@@ -6,9 +6,10 @@
 //
 
 #include "blocks.hpp"
+#include "properties.hpp"
 
-uniqueLiquid& blockData::getUniqueLiquid() const {
-    return unique_liquids[(int)liquid_id];
+const uniqueLiquid& blockData::getUniqueLiquid() const {
+    return ::getUniqueLiquid(liquid_id);
 }
 
 void block::setLiquidLevel(unsigned char level) {

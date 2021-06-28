@@ -78,8 +78,6 @@ class playerHandler : public gfx::sceneModule, packetListener {
     void onPacket(packets::packet &packet) override;
 public:
     playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
-
-    static void initItems();
 };
 
 #endif /* playerHandler_hpp */
