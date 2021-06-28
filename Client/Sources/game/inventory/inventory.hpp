@@ -14,8 +14,8 @@
 
 struct clientInventoryItem {
 public:
-    clientInventoryItem() : item_id(map::itemType::NOTHING), stack(0) {}
-    map::itemType item_id;
+    clientInventoryItem() : item_id(itemType::NOTHING), stack(0) {}
+    itemType item_id;
     [[nodiscard]] map::uniqueItem& getUniqueItem() const;
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
@@ -28,7 +28,7 @@ private:
 struct clientInventory {
 public:
     clientInventoryItem inventory[INVENTORY_SIZE];
-    char addItem(map::itemType id, int quantity);
+    char addItem(itemType id, int quantity);
     bool open = false;
     char selected_slot = 0;
     void swapWithMouseItem(clientInventoryItem* item);

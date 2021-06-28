@@ -11,8 +11,6 @@
 #include <vector>
 #include "blocks.hpp"
 
-enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, NUM_ITEMS};
-
 struct uniqueItem {
     uniqueItem(std::string name, unsigned short stack_size, blockType places);
     std::string name;

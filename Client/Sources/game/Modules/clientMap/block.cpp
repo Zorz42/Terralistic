@@ -32,7 +32,7 @@ void map::initBlocks() {
     breaking_texture.scale = 2;
 }
 
-map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to) : ghost(ghost), name(name), connects_to(std::move(connects_to)) {
+map::uniqueBlock::uniqueBlock(const std::string& name, bool ghost, std::vector<blockType> connects_to) : ghost(ghost), name(name), connects_to(std::move(connects_to)) {
     texture.setTexture(gfx::loadImageFile("texturePack/blocks/" + name + ".png"));
     single_texture = texture.getTextureHeight() == 8;
     texture.scale = 2;

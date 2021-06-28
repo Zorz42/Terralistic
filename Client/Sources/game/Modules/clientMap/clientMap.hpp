@@ -24,26 +24,23 @@
 #endif
 
 #include "clientNetworking.hpp"
+#include "properties.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
 
 class map : public gfx::sceneModule, packetListener {
 public:
-    enum class blockType {UNLOADED = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE};
     enum class chunkState {unloaded, pending_load, loaded};
-    enum class itemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS};
-    enum class liquidType {EMPTY, WATER};
-
 protected:
     struct uniqueBlock {
-        uniqueBlock(const std::string& name, bool ghost, std::vector<map::blockType> connects_to);
+        uniqueBlock(const std::string& name, bool ghost, std::vector<blockType> connects_to);
         uniqueBlock() = default;
 
         bool ghost{}, single_texture{};
         std::string name;
         gfx::image texture;
-        std::vector<map::blockType> connects_to;
+        std::vector<blockType> connects_to;
     };
 
     struct uniqueLiquid {
@@ -54,7 +51,7 @@ protected:
     };
 
     struct blockData {
-        explicit blockData(blockType block_id=blockType::UNLOADED, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+        explicit blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
         blockType block_id;
         liquidType liquid_id;

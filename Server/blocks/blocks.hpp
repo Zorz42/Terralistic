@@ -11,15 +11,11 @@
 #include <string>
 #include "serverNetworking.hpp"
 #include "packets.hpp"
+#include "properties.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
 #define UNBREAKABLE -1
-
-enum class blockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, NUM_BLOCKS};
-enum class liquidType {EMPTY, WATER, NUM_LIQUIDS};
-enum class flowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
-enum class biome {NO_BIOME, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
 class block;
 class blocks;

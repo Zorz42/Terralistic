@@ -24,7 +24,7 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
 void map::onPacket(packets::packet &packet) {
     switch(packet.type) {
         case packets::ITEM_CREATION: {
-            auto type = (map::itemType)packet.get<char>();
+            auto type = (itemType)packet.get<char>();
             auto id = packet.get<unsigned short>();
             int y = packet.get<int>(), x = packet.get<int>();
             items.emplace_back(item(type, x, y, id));
