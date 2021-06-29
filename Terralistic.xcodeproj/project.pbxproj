@@ -657,7 +657,12 @@
 		1689689325E9607800D26060 /* game */ = {
 			isa = PBXGroup;
 			children = (
-				3619ACFA26186CBA00BA4EAF /* Modules */,
+				167C1B7D2676564400BCFE27 /* chat */,
+				16906514266CC0A90075EF55 /* debugMenu */,
+				1681100A263BE9260086D659 /* clientMap */,
+				168968AA25E9607800D26060 /* playerHandler */,
+				168968A725E9607800D26060 /* pauseScreen */,
+				1689689725E9607800D26060 /* otherPlayers */,
 				36DDF8B5268A0484002337F3 /* textures */,
 				1689689E25E9607800D26060 /* clientNetworking */,
 				1662BC1C2635A9D70062DBB3 /* playerRenderer */,
@@ -858,19 +863,6 @@
 				1695428D2680B5B400F1F4FE /* version.hpp */,
 			);
 			path = Libraries;
-			sourceTree = "<group>";
-		};
-		3619ACFA26186CBA00BA4EAF /* Modules */ = {
-			isa = PBXGroup;
-			children = (
-				167C1B7D2676564400BCFE27 /* chat */,
-				16906514266CC0A90075EF55 /* debugMenu */,
-				1681100A263BE9260086D659 /* clientMap */,
-				168968AA25E9607800D26060 /* playerHandler */,
-				168968A725E9607800D26060 /* pauseScreen */,
-				1689689725E9607800D26060 /* otherPlayers */,
-			);
-			path = Modules;
 			sourceTree = "<group>";
 		};
 		36DDF87A2689EAC5002337F3 /* properties */ = {

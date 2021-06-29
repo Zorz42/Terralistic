@@ -12,7 +12,8 @@
 
 #include "clientMap.hpp"
 
-struct clientInventoryItem {
+class clientInventoryItem {
+    unsigned short stack;
 public:
     clientInventoryItem() : item_id(itemType::NOTHING), stack(0) {}
     itemType item_id;
@@ -21,11 +22,10 @@ public:
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool stack_changed = true;
-private:
-    unsigned short stack;
 };
 
-struct clientInventory {
+class clientInventory {
+    clientInventoryItem mouse_item;
 public:
     clientInventoryItem inventory[INVENTORY_SIZE];
     char addItem(itemType id, int quantity);
@@ -34,8 +34,6 @@ public:
     void swapWithMouseItem(clientInventoryItem* item);
     void clearMouseItem();
     clientInventoryItem* getMouseItem();
-private:
-    clientInventoryItem mouse_item;
 };
 
 #endif /* inventory_hpp */
