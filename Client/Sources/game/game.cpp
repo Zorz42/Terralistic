@@ -16,19 +16,8 @@
 #include "choiceScreen.hpp"
 #include "debugMenu.hpp"
 #include "chat.hpp"
-
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Server_Debug/server.hpp>
-#else
-#include <Server/server.hpp>
-#endif
-
-#else
 #include "server.hpp"
 
-#endif
 
 #define FROM_PORT 49152
 #define TO_PORT 65535

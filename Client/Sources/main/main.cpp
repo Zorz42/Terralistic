@@ -12,18 +12,8 @@
 #include "properties.hpp"
 #include "textures.hpp"
 
-#ifdef __APPLE__
 
-#ifdef DEVELOPER_MODE
-#include <Server_Debug/server.hpp>
-#else
-#include <Server/server.hpp>
-#endif
-
-#else
 #include "server.hpp"
-
-#endif
 
 /*#ifdef _WIN32
 #define main Terralistic_main

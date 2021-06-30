@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "167B380F2642F63000E3C718"
-               BuildableName = "Terralistic-server-Debug"
-               BlueprintName = "Terralistic-server-Debug"
+               BlueprintIdentifier = "167B38042642F61300E3C718"
+               BuildableName = "Terralistic-server"
+               BlueprintName = "Terralistic-server"
                ReferencedContainer = "container:Terralistic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -26,17 +26,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      enableAddressSanitizer = "YES"
-      enableASanStackUseAfterReturn = "YES"
-      enableUBSanitizer = "YES">
-      <AdditionalOptions>
-         <AdditionalOption
-            key = "MallocScribble"
-            value = ""
-            isEnabled = "YES">
-         </AdditionalOption>
-      </AdditionalOptions>
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
    </TestAction>
@@ -54,9 +44,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "167B380F2642F63000E3C718"
-            BuildableName = "Terralistic-server-Debug"
-            BlueprintName = "Terralistic-server-Debug"
+            BlueprintIdentifier = "167B38042642F61300E3C718"
+            BuildableName = "Terralistic-server"
+            BlueprintName = "Terralistic-server"
             ReferencedContainer = "container:Terralistic.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -71,9 +61,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "167B380F2642F63000E3C718"
-            BuildableName = "Terralistic-server-Debug"
-            BlueprintName = "Terralistic-server-Debug"
+            BlueprintIdentifier = "167B38042642F61300E3C718"
+            BuildableName = "Terralistic-server"
+            BlueprintName = "Terralistic-server"
             ReferencedContainer = "container:Terralistic.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
