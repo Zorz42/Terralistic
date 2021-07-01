@@ -13,6 +13,6 @@ int main(int argc, char **argv) {
     serverInit();
     initProperties();
     
-    server main_server(std::filesystem::current_path(), std::filesystem::current_path(), 33770);
+    server main_server(std::filesystem::current_path().string(), std::filesystem::current_path().string(), 33770);
     main_server.start();
 }
