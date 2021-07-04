@@ -1,5 +1,7 @@
 # Terralistic
 
+Discord server: https://discord.gg/dSStXTucCc
+
 To build, just run:
 ```
 python3 build.py
