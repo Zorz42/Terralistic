@@ -12,15 +12,15 @@
 #include <string>
 #include <fstream>
 
-enum class TokenType {SYMBOL, KEYWORD, INDENT, STRING, CONSTANT_INTEGER};
-enum class Symbol {NONE, ASSIGNMENT, EQUALS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY_BRACKET, RIGHT_CURLY_BRACKET};
-enum class Keyword {NONE, IF, WHILE};
+enum class TokenType {
+    NONE, INDENT, STRING, CONSTANT_INTEGER,
+    ASSIGNMENT, EQUALS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY_BRACKET, RIGHT_CURLY_BRACKET,
+    IF, WHILE,
+};
  
 struct Token {
     TokenType type;
     std::string text;
-    Symbol symbol;
-    Keyword keyword;
     int const_int;
 };
 

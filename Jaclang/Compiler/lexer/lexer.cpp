@@ -15,60 +15,55 @@ inline bool isInteger(const std::string& text) {
    return *p == 0;
 }
 
-Symbol getSymbol(char c) {
+TokenType getSymbol(char c) {
     switch(c) {
         case '=':
-            return Symbol::ASSIGNMENT;
+            return TokenType::ASSIGNMENT;
         case '(':
-            return Symbol::LEFT_BRACKET;
+            return TokenType::LEFT_BRACKET;
         case ')':
-            return Symbol::RIGHT_BRACKET;
+            return TokenType::RIGHT_BRACKET;
         case '{':
-            return Symbol::LEFT_CURLY_BRACKET;
+            return TokenType::LEFT_CURLY_BRACKET;
         case '}':
-            return Symbol::RIGHT_CURLY_BRACKET;
+            return TokenType::RIGHT_CURLY_BRACKET;
             
         default:
-            return Symbol::NONE;
+            return TokenType::NONE;
     }
 }
 
-Symbol getSymbol(char c1, char c2) {
+TokenType getSymbol(char c1, char c2) {
     switch(c1) {
         case '=':
             switch(c2) {
                 case '=': // ==
-                    return Symbol::EQUALS;
+                    return TokenType::EQUALS;
                 default:
-                    return Symbol::NONE;
+                    return TokenType::NONE;
             }
         default:
-            return Symbol::NONE;
+            return TokenType::NONE;
     }
 }
 
 static std::string curr_token;
 
 Token endToken() {
-    static const std::vector<std::string> keywords = {
-        "IF",
-        "WHILE",
-    };
     Token result;
-    std::string upper_token = curr_token;
-    for(int i = 0; i < curr_token.size(); i++)
-        upper_token[i] = toupper(curr_token[i]);
-    auto position = std::find(keywords.begin(), keywords.end(), upper_token);
-    if(position != keywords.end()) {
-        result.keyword = Keyword(int(position - keywords.begin()) + 1);
-        result.type = TokenType::KEYWORD;
-    } else if(isInteger(curr_token)) {
+    
+    if(curr_token == "if")
+        result.type = TokenType::IF;
+    else if(curr_token == "while")
+        result.type = TokenType::WHILE;
+    else if(isInteger(curr_token)) {
         result.const_int = std::stoi(curr_token);
         result.type = TokenType::CONSTANT_INTEGER;
     } else {
         result.text = curr_token;
         result.type = TokenType::INDENT;
     }
+    
     curr_token.clear();
     return result;
 }
@@ -81,8 +76,8 @@ std::vector<Token> tokenize(std::filebuf* file_buffer) {
         i++;
         char next = *i;
         
-        Symbol one_symbol = getSymbol(curr);
-        Symbol two_symbol = getSymbol(curr, next);
+        TokenType one_symbol = getSymbol(curr);
+        TokenType two_symbol = getSymbol(curr, next);
         if(curr == '"') {
             if(!curr_token.empty())
                 tokens.push_back(endToken());
@@ -97,20 +92,18 @@ std::vector<Token> tokenize(std::filebuf* file_buffer) {
             curr_token.clear();
             tokens.push_back(result);
             i++;
-        } else if(two_symbol != Symbol::NONE) {
+        } else if(two_symbol != TokenType::NONE) {
             if(!curr_token.empty())
                 tokens.push_back(endToken());
             Token symbol_token;
-            symbol_token.symbol = two_symbol;
-            symbol_token.type = TokenType::SYMBOL;
+            symbol_token.type = two_symbol;
             tokens.push_back(symbol_token);
             i++;
-        } else if(one_symbol != Symbol::NONE) {
+        } else if(one_symbol != TokenType::NONE) {
             if(!curr_token.empty())
                 tokens.push_back(endToken());
             Token symbol_token;
-            symbol_token.symbol = one_symbol;
-            symbol_token.type = TokenType::SYMBOL;
+            symbol_token.type = one_symbol;
             tokens.push_back(symbol_token);
         } else if(curr == ' ' || curr == '\t' || curr == '\n') {
             if(!curr_token.empty())

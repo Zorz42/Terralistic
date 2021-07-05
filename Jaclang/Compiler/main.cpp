@@ -10,11 +10,11 @@
 
 #include "lexer.hpp"
 
-#define TOKEN_PRINT_SPACING 20
+#define TOKEN_PRINT_SPACING 25
 
 void printToken(std::string prefix, std::string content) {
     std::cout << prefix;
-    for(int i = prefix.size(); i < TOKEN_PRINT_SPACING; i++)
+    for(int i = (int)prefix.size(); i < TOKEN_PRINT_SPACING; i++)
         std::cout << " ";
     std::cout << content << std::endl;
 }
@@ -27,42 +27,32 @@ int main(int argc, const char * argv[]) {
     
     for(Token& token : tokens) {
         switch(token.type) {
-            case TokenType::SYMBOL:
-                switch(token.symbol) {
-                    case Symbol::NONE:
-                        break;
-                    case Symbol::ASSIGNMENT:
-                        printToken("ASSIGNMENT", "=");
-                        break;
-                    case Symbol::EQUALS:
-                        printToken("EQUALS", "==");
-                        break;
-                    case Symbol::LEFT_BRACKET:
-                        printToken("LEFT_BRACKET", "(");
-                        break;
-                    case Symbol::RIGHT_BRACKET:
-                        printToken("RIGHT_BRACKET", ")");
-                        break;
-                    case Symbol::LEFT_CURLY_BRACKET:
-                        printToken("LEFT_CURLY_BRACKET", "{");
-                        break;
-                    case Symbol::RIGHT_CURLY_BRACKET:
-                        printToken("RIGHT_CURLY_BRACKET", "}");
-                        break;
-                }
+            case TokenType::ASSIGNMENT:
+                printToken("ASSIGNMENT", "=");
                 break;
-            case TokenType::KEYWORD:
-                switch(token.keyword) {
-                    case Keyword::NONE:
-                        break;
-                    case Keyword::IF:
-                        printToken("KEYWORD", "IF");
-                        break;
-                    case Keyword::WHILE:
-                        printToken("KEYWORD", "WHILE");
-                        break;
-                }
+            case TokenType::EQUALS:
+                printToken("EQUALS", "==");
                 break;
+            case TokenType::LEFT_BRACKET:
+                printToken("LEFT_BRACKET", "(");
+                break;
+            case TokenType::RIGHT_BRACKET:
+                printToken("RIGHT_BRACKET", ")");
+                break;
+            case TokenType::LEFT_CURLY_BRACKET:
+                printToken("LEFT_CURLY_BRACKET", "{");
+                break;
+            case TokenType::RIGHT_CURLY_BRACKET:
+                printToken("RIGHT_CURLY_BRACKET", "}");
+                break;
+
+            case TokenType::IF:
+                printToken("IF", "if");
+                break;
+            case TokenType::WHILE:
+                printToken("WHILE", "while");
+                break;
+                
             case TokenType::INDENT:
                 printToken("INDENT", token.text);
                 break;
@@ -71,6 +61,9 @@ int main(int argc, const char * argv[]) {
                 break;
             case TokenType::CONSTANT_INTEGER:
                 printToken("CONST_INT", std::to_string(token.const_int));
+                break;
+                
+            case TokenType::NONE:
                 break;
         }
     }
