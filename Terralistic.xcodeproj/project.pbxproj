@@ -13,7 +13,6 @@
 		1626245B26430D85007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		1626246126430D93007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		1642F8362691C1C500D4B80A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1642F8352691C1C500D4B80A /* main.cpp */; };
-		1642F8402691D84B00D4B80A /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1642F83E2691D84B00D4B80A /* lexer.cpp */; };
 		1661660125EA3656002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
 		1661661625EA3689002A3815 /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* clientNetworking.cpp */; };
@@ -97,6 +96,7 @@
 		16987C18265901020016509C /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C14265901020016509C /* block.cpp */; };
 		16B36D332682067D00A4B03A /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D312682067D00A4B03A /* blocks.cpp */; };
 		16B36D3C26820ADD00A4B03A /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
+		361531CD269306A40080CE7C /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 361531CB269306A40080CE7C /* lexer.cpp */; };
 		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		3619ACFF261889E200BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		363BB2472686387800566F3A /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E4C267CB1470015C23D /* SDL2_image.framework */; };
@@ -239,7 +239,6 @@
 		1642F8332691C1C500D4B80A /* Jaclang */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Jaclang; sourceTree = BUILT_PRODUCTS_DIR; };
 		1642F8352691C1C500D4B80A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		1642F83E2691D84B00D4B80A /* lexer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
-		1642F83F2691D84B00D4B80A /* lexer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = lexer.hpp; sourceTree = "<group>"; };
 		1661657B25EA2D0D002A3815 /* Terralistic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Terralistic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661658925EA2DDF002A3815 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Client/Frameworks/Release/SDL2_ttf.framework; sourceTree = "<group>"; };
 		1661658A25EA2DDF002A3815 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Frameworks/Release/SDL2_image.framework; sourceTree = "<group>"; };
@@ -345,6 +344,8 @@
 		16B36D322682067D00A4B03A /* blocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blocks.hpp; sourceTree = "<group>"; };
 		16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = worldGenerator.cpp; sourceTree = "<group>"; };
 		16B36D3B26820ADD00A4B03A /* worldGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = worldGenerator.hpp; sourceTree = "<group>"; };
+		361531CB269306A40080CE7C /* lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
+		361531CC269306A40080CE7C /* lexer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = lexer.hpp; sourceTree = "<group>"; };
 		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
 		36B157D226484E2000528A2B /* clientMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientMap.cpp; sourceTree = "<group>"; };
 		36B157EC2648500300528A2B /* packets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
@@ -431,38 +432,12 @@
 		1642F83A2691C1FD00D4B80A /* Compiler */ = {
 			isa = PBXGroup;
 			children = (
-				1642F83D2691D83900D4B80A /* lexer */,
+				361531CA269306A40080CE7C /* lexer */,
 				1642F8352691C1C500D4B80A /* main.cpp */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
 		};
-<<<<<<< Updated upstream
-=======
-		1642F83B2691C20300D4B80A /* Interpreter */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Interpreter;
-			sourceTree = "<group>";
-		};
-		1642F83C2691C20900D4B80A /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Shared;
-			sourceTree = "<group>";
-		};
-		1642F83D2691D83900D4B80A /* lexer */ = {
-			isa = PBXGroup;
-			children = (
-				1642F83F2691D84B00D4B80A /* lexer.hpp */,
-				1642F83E2691D84B00D4B80A /* lexer.cpp */,
-			);
-			path = lexer;
-			sourceTree = "<group>";
-		};
->>>>>>> Stashed changes
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -654,6 +629,7 @@
 				1642F8342691C1C500D4B80A /* Jaclang */,
 				1661654A25EA2CC8002A3815 /* Frameworks */,
 				1661662B25EA3873002A3815 /* Products */,
+				361531C7269306960080CE7C /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -897,6 +873,23 @@
 			children = (
 			);
 			path = Interpreter;
+			sourceTree = "<group>";
+		};
+		361531C7269306960080CE7C /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				1642F83E2691D84B00D4B80A /* lexer.cpp */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		361531CA269306A40080CE7C /* lexer */ = {
+			isa = PBXGroup;
+			children = (
+				361531CC269306A40080CE7C /* lexer.hpp */,
+				361531CB269306A40080CE7C /* lexer.cpp */,
+			);
+			path = lexer;
 			sourceTree = "<group>";
 		};
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
@@ -1157,8 +1150,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1642F8402691D84B00D4B80A /* lexer.cpp in Sources */,
 				1642F8362691C1C500D4B80A /* main.cpp in Sources */,
+				361531CD269306A40080CE7C /* lexer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1328,7 +1321,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.2;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1339,7 +1332,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.2;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
