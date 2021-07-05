@@ -13,6 +13,7 @@
 		1626245B26430D85007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
 		1626246126430D93007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		1642F8362691C1C500D4B80A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1642F8352691C1C500D4B80A /* main.cpp */; };
+		1642F8402691D84B00D4B80A /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1642F83E2691D84B00D4B80A /* lexer.cpp */; };
 		1661660125EA3656002A3815 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		1661661425EA3689002A3815 /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
 		1661661625EA3689002A3815 /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* clientNetworking.cpp */; };
@@ -237,6 +238,8 @@
 		1626245226430B94007E01C4 /* server.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = server.hpp; sourceTree = "<group>"; };
 		1642F8332691C1C500D4B80A /* Jaclang */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Jaclang; sourceTree = BUILT_PRODUCTS_DIR; };
 		1642F8352691C1C500D4B80A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		1642F83E2691D84B00D4B80A /* lexer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
+		1642F83F2691D84B00D4B80A /* lexer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = lexer.hpp; sourceTree = "<group>"; };
 		1661657B25EA2D0D002A3815 /* Terralistic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Terralistic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661658925EA2DDF002A3815 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Client/Frameworks/Release/SDL2_ttf.framework; sourceTree = "<group>"; };
 		1661658A25EA2DDF002A3815 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Frameworks/Release/SDL2_image.framework; sourceTree = "<group>"; };
@@ -415,13 +418,6 @@
 			path = launcher;
 			sourceTree = "<group>";
 		};
-		1642F82E2691C1AC00D4B80A /* Jaclang */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Jaclang;
-			sourceTree = "<group>";
-		};
 		1642F8342691C1C500D4B80A /* Jaclang */ = {
 			isa = PBXGroup;
 			children = (
@@ -435,11 +431,38 @@
 		1642F83A2691C1FD00D4B80A /* Compiler */ = {
 			isa = PBXGroup;
 			children = (
+				1642F83D2691D83900D4B80A /* lexer */,
 				1642F8352691C1C500D4B80A /* main.cpp */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
 		};
+<<<<<<< Updated upstream
+=======
+		1642F83B2691C20300D4B80A /* Interpreter */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Interpreter;
+			sourceTree = "<group>";
+		};
+		1642F83C2691C20900D4B80A /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		1642F83D2691D83900D4B80A /* lexer */ = {
+			isa = PBXGroup;
+			children = (
+				1642F83F2691D84B00D4B80A /* lexer.hpp */,
+				1642F83E2691D84B00D4B80A /* lexer.cpp */,
+			);
+			path = lexer;
+			sourceTree = "<group>";
+		};
+>>>>>>> Stashed changes
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -628,7 +651,6 @@
 				3619ACED26173D7000BA4EAF /* Libraries */,
 				1689699C25E9653E00D26060 /* Client */,
 				167B38752642F73900E3C718 /* Server */,
-				1642F82E2691C1AC00D4B80A /* Jaclang */,
 				1642F8342691C1C500D4B80A /* Jaclang */,
 				1661654A25EA2CC8002A3815 /* Frameworks */,
 				1661662B25EA3873002A3815 /* Products */,
@@ -1135,6 +1157,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1642F8402691D84B00D4B80A /* lexer.cpp in Sources */,
 				1642F8362691C1C500D4B80A /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
