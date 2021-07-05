@@ -51,12 +51,16 @@ static std::string curr_token;
 
 Token endToken() {
     static const std::vector<std::string> keywords = {
-        "if",
+        "IF",
+        "WHILE",
     };
     Token result;
-    auto position = std::find(keywords.begin(), keywords.end(), curr_token);
+    std::string upper_token = curr_token;
+    for(int i = 0; i < curr_token.size(); i++)
+        upper_token[i] = toupper(curr_token[i]);
+    auto position = std::find(keywords.begin(), keywords.end(), upper_token);
     if(position != keywords.end()) {
-        result.keyword = Keyword(int(Keyword::NONE) + int(position - keywords.begin()) + 1);
+        result.keyword = Keyword(int(position - keywords.begin()) + 1);
         result.type = TokenType::KEYWORD;
     } else if(isInteger(curr_token)) {
         result.const_int = std::stoi(curr_token);

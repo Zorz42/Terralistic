@@ -14,7 +14,7 @@
 
 enum class TokenType {SYMBOL, KEYWORD, INDENT, STRING, CONSTANT_INTEGER};
 enum class Symbol {NONE, ASSIGNMENT, EQUALS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY_BRACKET, RIGHT_CURLY_BRACKET};
-enum class Keyword {NONE, IF};
+enum class Keyword {NONE, IF, WHILE};
  
 struct Token {
     TokenType type;

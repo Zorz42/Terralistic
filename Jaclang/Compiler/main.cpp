@@ -10,6 +10,15 @@
 
 #include "lexer.hpp"
 
+#define TOKEN_PRINT_SPACING 20
+
+void printToken(std::string prefix, std::string content) {
+    std::cout << prefix;
+    for(int i = prefix.size(); i < TOKEN_PRINT_SPACING; i++)
+        std::cout << " ";
+    std::cout << content << std::endl;
+}
+
 int main(int argc, const char * argv[]) {
     std::string file_path = argv[1];
     std::ifstream file(file_path);
@@ -23,22 +32,22 @@ int main(int argc, const char * argv[]) {
                     case Symbol::NONE:
                         break;
                     case Symbol::ASSIGNMENT:
-                        std::cout << "ASSIGNMENT =" << std::endl;
+                        printToken("ASSIGNMENT", "=");
                         break;
                     case Symbol::EQUALS:
-                        std::cout << "EQUALS ==" << std::endl;
+                        printToken("EQUALS", "==");
                         break;
                     case Symbol::LEFT_BRACKET:
-                        std::cout << "LEFT_BRACKET (" << std::endl;
+                        printToken("LEFT_BRACKET", "(");
                         break;
                     case Symbol::RIGHT_BRACKET:
-                        std::cout << "RIGHT_BRACKET )" << std::endl;
+                        printToken("RIGHT_BRACKET", ")");
                         break;
                     case Symbol::LEFT_CURLY_BRACKET:
-                        std::cout << "LEFT_CURLY_BRACKET {" << std::endl;
+                        printToken("LEFT_CURLY_BRACKET", "{");
                         break;
                     case Symbol::RIGHT_CURLY_BRACKET:
-                        std::cout << "RIGHT_CURLY_BRACKET }" << std::endl;
+                        printToken("RIGHT_CURLY_BRACKET", "}");
                         break;
                 }
                 break;
@@ -47,18 +56,21 @@ int main(int argc, const char * argv[]) {
                     case Keyword::NONE:
                         break;
                     case Keyword::IF:
-                        std::cout << "IF" << std::endl;
+                        printToken("KEYWORD", "IF");
+                        break;
+                    case Keyword::WHILE:
+                        printToken("KEYWORD", "WHILE");
                         break;
                 }
                 break;
             case TokenType::INDENT:
-                std::cout << token.text << std::endl;
+                printToken("INDENT", token.text);
                 break;
             case TokenType::STRING:
-                std::cout << "\"" << token.text << "\"" << std::endl;
+                printToken("STRING", (std::string)"\"" + token.text + "\"");
                 break;
             case TokenType::CONSTANT_INTEGER:
-                std::cout << "CONST_INT " << token.const_int << std::endl;
+                printToken("CONST_INT", std::to_string(token.const_int));
                 break;
         }
     }
