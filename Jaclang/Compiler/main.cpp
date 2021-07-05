@@ -23,22 +23,22 @@ int main(int argc, const char * argv[]) {
                     case Symbol::NONE:
                         break;
                     case Symbol::ASSIGNMENT:
-                        std::cout << "= (ASSIGNMENT)" << std::endl;
+                        std::cout << "ASSIGNMENT =" << std::endl;
                         break;
                     case Symbol::EQUALS:
-                        std::cout << "== (EQUALS)" << std::endl;
+                        std::cout << "EQUALS ==" << std::endl;
                         break;
                     case Symbol::LEFT_BRACKET:
-                        std::cout << "( (LEFT_BRACKET)" << std::endl;
+                        std::cout << "LEFT_BRACKET (" << std::endl;
                         break;
                     case Symbol::RIGHT_BRACKET:
-                        std::cout << ") (RIGHT_BRACKET)" << std::endl;
+                        std::cout << "RIGHT_BRACKET )" << std::endl;
                         break;
                     case Symbol::LEFT_CURLY_BRACKET:
-                        std::cout << "{ (LEFT_CURLY_BRACKET)" << std::endl;
+                        std::cout << "LEFT_CURLY_BRACKET {" << std::endl;
                         break;
                     case Symbol::RIGHT_CURLY_BRACKET:
-                        std::cout << "} (RIGHT_CURLY_BRACKET)" << std::endl;
+                        std::cout << "RIGHT_CURLY_BRACKET }" << std::endl;
                         break;
                 }
                 break;

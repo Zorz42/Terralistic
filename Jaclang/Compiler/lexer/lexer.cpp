@@ -79,7 +79,21 @@ std::vector<Token> tokenize(std::filebuf* file_buffer) {
         
         Symbol one_symbol = getSymbol(curr);
         Symbol two_symbol = getSymbol(curr, next);
-        if(two_symbol != Symbol::NONE) {
+        if(curr == '"') {
+            if(!curr_token.empty())
+                tokens.push_back(endToken());
+            
+            while(*i != '"') {
+                curr_token.push_back(*i);
+                i++;
+            }
+            Token result;
+            result.type = TokenType::STRING;
+            result.text = curr_token;
+            curr_token.clear();
+            tokens.push_back(result);
+            i++;
+        } else if(two_symbol != Symbol::NONE) {
             if(!curr_token.empty())
                 tokens.push_back(endToken());
             Token symbol_token;
