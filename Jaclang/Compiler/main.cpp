@@ -22,6 +22,10 @@ void printToken(std::string prefix, std::string content) {
 int main(int argc, const char * argv[]) {
     std::string file_path = argv[1];
     std::ifstream file(file_path);
+    if(!file.is_open()) {
+        std::cerr << "Could not open file " << file_path << std::endl;
+        return 1;
+    }
     
     std::vector<Token> tokens = tokenize(file.rdbuf());
     
@@ -57,7 +61,7 @@ int main(int argc, const char * argv[]) {
                 printToken("INDENT", token.text);
                 break;
             case TokenType::STRING:
-                printToken("STRING", (std::string)"\"" + token.text + "\"");
+                printToken("STRING", std::string("\"") + token.text + "\"");
                 break;
             case TokenType::CONSTANT_INTEGER:
                 printToken("CONST_INT", std::to_string(token.const_int));
