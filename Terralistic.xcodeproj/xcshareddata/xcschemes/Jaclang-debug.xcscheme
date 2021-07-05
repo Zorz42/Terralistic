@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/jakobzorz/Terralistic-development/jl_testing/main.jl"
+            argument = "main.jl"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

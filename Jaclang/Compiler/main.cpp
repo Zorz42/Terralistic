@@ -25,6 +25,21 @@ int main(int argc, const char * argv[]) {
                     case Symbol::ASSIGNMENT:
                         std::cout << "= (ASSIGNMENT)" << std::endl;
                         break;
+                    case Symbol::EQUALS:
+                        std::cout << "== (EQUALS)" << std::endl;
+                        break;
+                    case Symbol::LEFT_BRACKET:
+                        std::cout << "( (LEFT_BRACKET)" << std::endl;
+                        break;
+                    case Symbol::RIGHT_BRACKET:
+                        std::cout << ") (RIGHT_BRACKET)" << std::endl;
+                        break;
+                    case Symbol::LEFT_CURLY_BRACKET:
+                        std::cout << "{ (LEFT_CURLY_BRACKET)" << std::endl;
+                        break;
+                    case Symbol::RIGHT_CURLY_BRACKET:
+                        std::cout << "} (RIGHT_CURLY_BRACKET)" << std::endl;
+                        break;
                 }
                 break;
             case TokenType::KEYWORD:
@@ -43,7 +58,7 @@ int main(int argc, const char * argv[]) {
                 std::cout << "\"" << token.text << "\"" << std::endl;
                 break;
             case TokenType::CONSTANT_INTEGER:
-                std::cout << token.const_int << std::endl;
+                std::cout << "CONST_INT " << token.const_int << std::endl;
                 break;
         }
     }

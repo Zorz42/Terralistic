@@ -13,7 +13,7 @@
 #include <fstream>
 
 enum class TokenType {SYMBOL, KEYWORD, INDENT, STRING, CONSTANT_INTEGER};
-enum class Symbol {NONE, ASSIGNMENT};
+enum class Symbol {NONE, ASSIGNMENT, EQUALS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY_BRACKET, RIGHT_CURLY_BRACKET};
 enum class Keyword {NONE, IF};
  
 struct Token {

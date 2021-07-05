@@ -238,7 +238,6 @@
 		1626245226430B94007E01C4 /* server.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = server.hpp; sourceTree = "<group>"; };
 		1642F8332691C1C500D4B80A /* Jaclang */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Jaclang; sourceTree = BUILT_PRODUCTS_DIR; };
 		1642F8352691C1C500D4B80A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		1642F83E2691D84B00D4B80A /* lexer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
 		1661657B25EA2D0D002A3815 /* Terralistic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Terralistic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1661658925EA2DDF002A3815 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Client/Frameworks/Release/SDL2_ttf.framework; sourceTree = "<group>"; };
 		1661658A25EA2DDF002A3815 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Frameworks/Release/SDL2_image.framework; sourceTree = "<group>"; };
@@ -629,7 +628,6 @@
 				1642F8342691C1C500D4B80A /* Jaclang */,
 				1661654A25EA2CC8002A3815 /* Frameworks */,
 				1661662B25EA3873002A3815 /* Products */,
-				361531C7269306960080CE7C /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -873,14 +871,6 @@
 			children = (
 			);
 			path = Interpreter;
-			sourceTree = "<group>";
-		};
-		361531C7269306960080CE7C /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				1642F83E2691D84B00D4B80A /* lexer.cpp */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		361531CA269306A40080CE7C /* lexer */ = {
