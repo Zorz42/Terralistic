@@ -425,8 +425,8 @@
 		1642F8342691C1C500D4B80A /* Jaclang */ = {
 			isa = PBXGroup;
 			children = (
-				1642F83C2691C20900D4B80A /* Shared */,
-				1642F83B2691C20300D4B80A /* Interpreter */,
+				361531C4269304020080CE7C /* Interpreter */,
+				361531C3269304020080CE7C /* Shared */,
 				1642F83A2691C1FD00D4B80A /* Compiler */,
 			);
 			path = Jaclang;
@@ -438,20 +438,6 @@
 				1642F8352691C1C500D4B80A /* main.cpp */,
 			);
 			path = Compiler;
-			sourceTree = "<group>";
-		};
-		1642F83B2691C20300D4B80A /* Interpreter */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Interpreter;
-			sourceTree = "<group>";
-		};
-		1642F83C2691C20900D4B80A /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Shared;
 			sourceTree = "<group>";
 		};
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
@@ -875,6 +861,20 @@
 				16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */,
 			);
 			path = worldGenerator;
+			sourceTree = "<group>";
+		};
+		361531C3269304020080CE7C /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		361531C4269304020080CE7C /* Interpreter */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Interpreter;
 			sourceTree = "<group>";
 		};
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
