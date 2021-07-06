@@ -56,7 +56,7 @@ int worldGenerator::generateTerrain(unsigned int seed) {
                 for (auto & structure : structures) {
                     for(int j = 0; j < structure.y_size * structure.x_size; j++)
                         if(structure.blocks[j] != blockType::NOTHING)
-                            erver_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setType(structure.blocks[j], false);
+                            server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setType(structure.blocks[j], false);
                     x += structure.x_size;
                 }
             }
