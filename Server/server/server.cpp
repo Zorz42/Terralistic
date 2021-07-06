@@ -52,7 +52,7 @@ void server::start() {
           working_dir.at(working_dir.length() - 4) == '/'&&
           working_dir.at(working_dir.length() - 3) == 's'&&
           working_dir.at(working_dir.length() - 2) == 't'&&
-          working_dir.at(working_dir.length() - 1) == 'r'&&
+          working_dir.at(working_dir.length() - 1) == 'r'
           )
           generator.generateTerrain(1000);
         else
