@@ -38,17 +38,17 @@ void configFile::setStr(const std::string& key, std::string value) {
     values[key] = std::move(value);
 }
 void configFile::setInt(const std::string& key, int value) {
-    values[key] = std::move(std::to_string(value));
+    values[key] = std::to_string(value);
 }
 
 void configFile::setDefaultStr(const std::string& key, std::string value) {
     if(values.find(key) == values.end())
-        setStr(key, std::move(value));
+        setStr(key, value);
 }
 
 void configFile::setDefaultInt(const std::string& key, int value) {
-    if (values.find(key) == values.end())
-        setStr(key, std::move(std::to_string(value)));
+    if(values.find(key) == values.end())
+        setStr(key, std::to_string(value));
 }
 
 
