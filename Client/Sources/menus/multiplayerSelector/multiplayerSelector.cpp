@@ -15,8 +15,8 @@
 #define PADDING 20
 
 void multiplayerSelector::init() {
-    config.setDefault("username", "");
-    config.setDefault("server ip", "");
+    config.setDefaultStr("username", "");
+    config.setDefaultStr("server ip", "");
     
     // the back button
     back_button.scale = 3;
@@ -39,7 +39,7 @@ void multiplayerSelector::init() {
     server_ip.setText("");
     server_ip.y = 3 * PADDING;
     server_ip.active = true;
-    server_ip.setText(config.get("server ip"));
+    server_ip.setText(config.getStr("server ip"));
     server_ip.textProcessing = [](char c, int length) {
         if((c >= '0' && c <= '9') || c == '.')
             return c;
@@ -57,7 +57,7 @@ void multiplayerSelector::init() {
     username.orientation = gfx::center;
     username.setText("");
     username.y = server_ip_title.y - server_ip_title.getHeight() - 3 * PADDING;
-    username.setText(config.get("username"));
+    username.setText(config.getStr("username"));
     username.textProcessing = [](char c, int length) {
         if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
             return c;
@@ -97,6 +97,6 @@ void multiplayerSelector::render() {
 }
 
 void multiplayerSelector::stop() {
-    config.set("username", username.getText());
-    config.set("server ip", server_ip.getText());
+    config.setStr("username", username.getText());
+    config.setStr("server ip", server_ip.getText());
 }
