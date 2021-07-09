@@ -48,12 +48,7 @@ void server::start() {
     else {
         state = GENERATING_WORLD;
         print::info("Generating world...");
-        if(
-          working_dir.at(working_dir.length() - 4) == '/'&&
-          working_dir.at(working_dir.length() - 3) == 's'&&
-          working_dir.at(working_dir.length() - 2) == 't'&&
-          working_dir.at(working_dir.length() - 1) == 'r'
-          )
+        if(working_dir.substr(working_dir.length() - 16, 16) == "/StructureWorld/")
           generator.generateTerrain(1000);
         else
           generator.generateTerrain(rand());

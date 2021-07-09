@@ -56,20 +56,15 @@ int worldGenerator::generateTerrain(unsigned int seed) {
                 for (auto & structure : structures) {
                     for(int j = 0; j < structure.y_size * structure.x_size; j++)
                         if(structure.blocks[j] != blockType::NOTHING)
-                            server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setType(structure.blocks[j], false);
-                    x += structure.x_size;
+                            server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size).setType(structure.blocks[j], false);
+                    x += structure.x_size + 1;
                 }
             }
         }
         for(unsigned short x = 0; x < server_blocks->getWidth(); x++)
             for(unsigned short y = 0; y < server_blocks->getHeight(); y++)
                 server_blocks->getBlock(x, y).update();
-    }
-
-
-
-
-    else{//deafult generation
+    }else{//deafult generation
         for (int x = 0; x < server_blocks->getWidth(); x++) {
             biomeGeneratorSwitch(x, noise);
         }
