@@ -9,16 +9,26 @@
 
 #define BUFFER_SIZE 2048
 
-Packet::Packet(PacketType type, unsigned char* buffer, unsigned short size) {
+void Packet::allocateContents(unsigned short size, PacketType type) {
     contents = new unsigned char[size + 3];
+    contents[0] = (size) & 255;
+    contents[1] = ((size) >> 8) & 255;
     contents[2] = (unsigned char)type;
+}
+
+void Packet::copyBufferToContents(unsigned char *buffer, unsigned short size) {
     memcpy(contents + 3, buffer + 3, size * sizeof(unsigned char));
+}
+
+Packet::Packet(PacketType type, unsigned char* buffer, unsigned short size) {
+    allocateContents(size, type);
+    copyBufferToContents(buffer, size);
     curr_pos = size;
 }
 
 Packet::Packet(PacketType type, unsigned short size) {
-    contents = new unsigned char[size + 3];
-    contents[2] = (unsigned char)type;
+    allocateContents(size, type);
+    curr_pos = 0;
 }
 
 Packet& Packet::operator=(Packet& target) {
@@ -33,8 +43,6 @@ PacketType Packet::getType() {
 }
 
 void Packet::send(int socket) const {
-    contents[0] = (curr_pos) & 255;
-    contents[1] = ((curr_pos) >> 8) & 255;
     ::send(socket, (char*)contents, curr_pos + 3, 0);
 }
 
@@ -52,7 +60,7 @@ std::string Packet::get<std::string>() {
 Packet& Packet::operator<<(std::string x) {
     memcpy(contents + curr_pos + 3, &x[0], x.size());
     curr_pos += x.size();
-    contents[curr_pos++] = x.size();
+    contents[curr_pos++ + 3] = x.size();
     return *this;
 }
 

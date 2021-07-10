@@ -8,7 +8,11 @@ enum class PacketType {DISCONNECT, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT
 
 class Packet {
     unsigned char* contents = nullptr;
-    unsigned short curr_pos = 3;
+    unsigned short curr_pos;
+    
+    void allocateContents(unsigned short size, PacketType type);
+    
+    void copyBufferToContents(unsigned char *buffer, unsigned short size);
     
 public:
     Packet(PacketType type, unsigned char* buffer, unsigned short size);
@@ -40,7 +44,7 @@ public:
 
 template<class Type>
 Packet& Packet::operator<<(Type x) {
-    memcpy(contents + curr_pos, &x, sizeof(Type));
+    memcpy(contents + curr_pos + 3, &x, sizeof(Type));
     curr_pos += sizeof(Type);
     return *this;
 }
@@ -48,7 +52,7 @@ Packet& Packet::operator<<(Type x) {
 template<class Type>
 Type Packet::get() {
     Type result = 0;
-    memcpy(&result, contents + curr_pos - sizeof(Type), sizeof(Type));
+    memcpy(&result, contents + curr_pos + 3 - sizeof(Type), sizeof(Type));
     curr_pos -= sizeof(Type);
     return result;
 }
