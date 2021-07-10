@@ -14,15 +14,13 @@
 
 class configFile {
     std::string path;
-    
     std::map<std::string, std::string> values;
-public:
+    
     void loadConfig();
-
-
+    void saveConfig();
+public:
     explicit configFile(const std::string& path);
     configFile() = default;
-    void save();
     ~configFile();
     
     std::string getStr(const std::string& key);
@@ -32,6 +30,8 @@ public:
 
     void setDefaultStr(const std::string& key, std::string value);
     void setDefaultInt(const std::string& key, int value);
+    
+    bool keyExists(const std::string& key);
 };
 
 #endif /* configManager_hpp */
