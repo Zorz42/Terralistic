@@ -11,8 +11,10 @@
 #include "config.hpp"
 #include "properties.hpp"
 #include "textures.hpp"
-
 #include "server.hpp"
+
+#include "events.hpp"
+#include <iostream>
 
 #ifdef _WIN32
 #define main Terralistic_main
