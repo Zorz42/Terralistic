@@ -70,7 +70,7 @@ void players::onPacket(packets::packet& packet, connection& conn) {
         case packets::PLAYER_JOIN: {
             std::string name = packet.get<std::string>();
 
-            player* curr_player = getPlayerByName(name);
+            curr_player = getPlayerByName(name);
             curr_player->conn = &conn;
 
             packets::packet spawn_packet(packets::SPAWN_POS, sizeof(curr_player->y) + sizeof(curr_player->x));
