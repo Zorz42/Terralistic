@@ -9,33 +9,51 @@
 
 #define BUFFER_SIZE 2048
 
-Packet::Packet(PacketType type, unsigned char* buffer, unsigned short size) : type(type) {
+Packet::Packet(PacketType type, unsigned char* buffer, unsigned short size) {
     contents = new unsigned char[size + 3];
+    contents[2] = (unsigned char)type;
     memcpy(contents + 3, buffer + 3, size * sizeof(unsigned char));
-    curr_pos = size + 3;
+    curr_pos = size;
 }
 
-Packet::Packet(PacketType type, unsigned short size) : type(type) {
+Packet::Packet(PacketType type, unsigned short size) {
     contents = new unsigned char[size + 3];
+    contents[2] = (unsigned char)type;
 }
 
 Packet& Packet::operator=(Packet& target) {
     target.contents = contents;
     contents = nullptr;
     target.curr_pos = curr_pos;
-    target.type = type;
     return *this;
 }
 
 PacketType Packet::getType() {
-    return type;
+    return (PacketType)contents[2];
 }
 
 void Packet::send(int socket) const {
-    contents[0] = (curr_pos - 3) & 255;
-    contents[1] = ((curr_pos - 3) >> 8) & 255;
-    contents[2] = (unsigned char)type;
-    ::send(socket, (char*)contents, curr_pos, 0);
+    contents[0] = (curr_pos) & 255;
+    contents[1] = ((curr_pos) >> 8) & 255;
+    ::send(socket, (char*)contents, curr_pos + 3, 0);
+}
+
+template<>
+std::string Packet::get<std::string>() {
+    std::string result;
+    unsigned char size = contents[--curr_pos];
+    result.reserve(size);
+    for(int i = 0; i < size; i++)
+        result.push_back(contents[curr_pos + 3 - size + i]);
+    curr_pos -= size;
+    return result;
+}
+
+Packet& Packet::operator<<(std::string x) {
+    memcpy(contents + curr_pos + 3, &x[0], x.size());
+    curr_pos += x.size();
+    contents[curr_pos++] = x.size();
+    return *this;
 }
 
 Packet::~Packet() {
@@ -43,13 +61,6 @@ Packet::~Packet() {
 }
 
 Packet PacketManager::getPacket() {
-    /*
-     Through TCP packets are array of bytes. In those packets you can
-     serialize just about anything that has a fixed size. Int can be
-     for example deconstructed into 4 bytes and then reconstructed at
-     the other side.
-     */
-    
     // size of the packet are the first two bytes
     unsigned short size = buffer_size < 2 ? 0 : buffer[0] + (buffer[1] << 8);
     

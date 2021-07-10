@@ -8,47 +8,19 @@ enum class PacketType {DISCONNECT, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT
 
 class Packet {
     unsigned char* contents = nullptr;
-    PacketType type;
     unsigned short curr_pos = 3;
-public:
     
+public:
     Packet(PacketType type, unsigned char* buffer, unsigned short size);
     Packet(PacketType type, unsigned short size);
     
     PacketType getType();
     
-    template<class T>
-    Packet& operator<<(T x) {
-        memcpy(contents + curr_pos, &x, sizeof(T));
-        curr_pos += sizeof(T);
-        return *this;
-    }
+    template<class Type> Packet& operator<<(Type x);
+    Packet& operator<<(std::string x);
     
-    Packet& operator<<(std::string x) {
-        memcpy(contents + curr_pos, &x[0], x.size());
-        curr_pos += x.size();
-        contents[curr_pos++] = x.size();
-        return *this;
-    }
-    
-    template<class T>
-    T get() {
-        T result = 0;
-        memcpy(&result, contents + curr_pos - sizeof(T), sizeof(T));
-        curr_pos -= sizeof(T);
-        return result;
-    }
-    
-    template<>
-    std::string get<std::string>() {
-        std::string result;
-        unsigned char size = contents[--curr_pos];
-        result.reserve(size);
-        for(int i = 0; i < size; i++)
-            result.push_back(contents[curr_pos - size + i]);
-        curr_pos -= size;
-        return result;
-    }
+    template<class Type> Type get();
+    template<> std::string get<std::string>();
     
     Packet& operator=(Packet& target);
     void send(int socket) const;
@@ -58,11 +30,27 @@ public:
 class PacketManager {
     unsigned char* buffer = nullptr;
     int buffer_size = 0;
+    
 public:
     int socket = -1;
     
     Packet getPacket();
     void sendPacket(const Packet& packet) const;
 };
+
+template<class Type>
+Packet& Packet::operator<<(Type x) {
+    memcpy(contents + curr_pos, &x, sizeof(Type));
+    curr_pos += sizeof(Type);
+    return *this;
+}
+
+template<class Type>
+Type Packet::get() {
+    Type result = 0;
+    memcpy(&result, contents + curr_pos - sizeof(Type), sizeof(Type));
+    curr_pos -= sizeof(Type);
+    return result;
+}
 
 #endif /* packets_hpp */
