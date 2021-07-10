@@ -12,7 +12,6 @@
 #include "properties.hpp"
 #include "textures.hpp"
 
-
 #include "server.hpp"
 
 #ifdef _WIN32

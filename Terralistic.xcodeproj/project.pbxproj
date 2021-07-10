@@ -251,7 +251,6 @@
 		1675E71B26611B8000B620F4 /* configManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = configManager.cpp; sourceTree = "<group>"; };
 		1675E71C26611B8000B620F4 /* configManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = configManager.hpp; sourceTree = "<group>"; };
 		1675E72126612BF700B620F4 /* config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = config.hpp; sourceTree = "<group>"; };
-		167B37FF2642F43C00E3C718 /* debugBreak.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugBreak.hpp; sourceTree = "<group>"; };
 		167B38002642F49200E3C718 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
 		167B38052642F61300E3C718 /* Terralistic-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		167B387B2642F73900E3C718 /* serverNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverNetworking.cpp; sourceTree = "<group>"; };
@@ -460,7 +459,6 @@
 			isa = PBXGroup;
 			children = (
 				167B38002642F49200E3C718 /* assert.hpp */,
-				167B37FF2642F43C00E3C718 /* debugBreak.hpp */,
 			);
 			path = assert;
 			sourceTree = "<group>";
