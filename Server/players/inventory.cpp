@@ -59,7 +59,7 @@ bool inventoryItem::decreaseStack(unsigned short stack_) {
 
 void inventoryItem::sendPacket() {
     if(holder->owner->conn) {
-        packets::packet packet(packets::INVENTORY_CHANGE, sizeof(unsigned short) + sizeof(unsigned char) + sizeof(char));
+        Packet packet(PacketType::INVENTORY_CHANGE, sizeof(unsigned short) + sizeof(unsigned char) + sizeof(char));
         packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
         holder->owner->conn->sendPacket(packet);
     }

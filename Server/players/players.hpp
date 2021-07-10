@@ -69,12 +69,12 @@ class players : serverPacketListener {
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     
-    void onPacket(packets::packet& packet, connection& conn) override;
+    void onPacket(Packet& packet, connection& conn) override;
     
     void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
     void rightClickEvent(block this_block, player* peer);
 public:
-    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(manager_), manager(manager_) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION, packets::CHAT}; }
+    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(manager_), manager(manager_) { listening_to = {PacketType::STARTED_BREAKING, PacketType::STOPPED_BREAKING, PacketType::RIGHT_CLICK, PacketType::CHUNK, PacketType::VIEW_SIZE_CHANGE, PacketType::PLAYER_MOVEMENT, PacketType::PLAYER_JOIN, PacketType::DISCONNECT, PacketType::INVENTORY_SWAP, PacketType::HOTBAR_SELECTION, PacketType::CHAT}; }
     
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }

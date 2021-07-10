@@ -19,8 +19,8 @@ class packetListener {
 public:
     explicit packetListener(networkingManager* manager);
     virtual ~packetListener() = default;
-    std::set<packets::packetType> listening_to;
-    virtual void onPacket(packets::packet& packet) = 0;
+    std::set<PacketType> listening_to;
+    virtual void onPacket(Packet& packet) = 0;
 };
 
 class networkingManager {
@@ -28,12 +28,12 @@ class networkingManager {
     bool listener_running = true;
     static void listenerLoop(networkingManager* manager);
     std::vector<packetListener*> listeners;
-    packets::packetBuffer buffer;
+    PacketManager packet_manager;
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();
 
-    void sendPacket(packets::packet& packet_) const;
+    void sendPacket(Packet& packet_) const;
     void registerListener(packetListener* listener);
 };
 

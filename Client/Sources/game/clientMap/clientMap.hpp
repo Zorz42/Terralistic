@@ -55,7 +55,7 @@ protected:
     void renderItems();
 
     void render() override;
-    void onPacket(packets::packet &packet) override;
+    void onPacket(Packet &packet) override;
     void init() override;
 
     networkingManager* networking_manager;
@@ -130,7 +130,7 @@ protected:
     gfx::image background_image;
 
 public:
-    explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {packets::BLOCK_CHANGE, packets::CHUNK, packets::BLOCK_PROGRESS_CHANGE, packets::ITEM_CREATION, packets::ITEM_DELETION, packets::ITEM_MOVEMENT, packets::KICK}; }
+    explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {PacketType::BLOCK_CHANGE, PacketType::CHUNK, PacketType::BLOCK_PROGRESS_CHANGE, PacketType::ITEM_CREATION, PacketType::ITEM_DELETION, PacketType::ITEM_MOVEMENT, PacketType::KICK}; }
     int view_x{}, view_y{};
 
     chunk getChunk(unsigned short x, unsigned short y);

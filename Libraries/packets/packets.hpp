@@ -1,41 +1,28 @@
-//
-//  packets.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 15/01/2021.
-//
-
 #ifndef packets_hpp
 #define packets_hpp
 
 #include <string>
 #include <cstring>
 
-namespace packets {
+enum class PacketType {DISCONNECT, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE, KICK, CHAT};
 
-enum packetType {DISCONNECT, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE, KICK, CHAT};
-
-struct packetBuffer {
-    unsigned char* buffer = nullptr;
-    int size = 0;
-};
-
-struct packet {
-    packet(packetType type, unsigned short size) : type(type) {
+struct Packet {
+    Packet(PacketType type, unsigned short size) : type(type) {
         contents = new unsigned char[size + 3];
     }
+    
     unsigned char* contents = nullptr;
-    packetType type;
+    PacketType type;
     unsigned short curr_pos = 3;
     
     template<class T>
-    packet& operator<<(T x) {
+    Packet& operator<<(T x) {
         memcpy(contents + curr_pos, &x, sizeof(T));
         curr_pos += sizeof(T);
         return *this;
     }
     
-    packet& operator<<(std::string x) {
+    Packet& operator<<(std::string x) {
         memcpy(contents + curr_pos, &x[0], x.size());
         curr_pos += x.size();
         contents[curr_pos++] = x.size();
@@ -61,7 +48,7 @@ struct packet {
         return result;
     }
     
-    packet& operator=(packet& target) {
+    Packet& operator=(Packet& target) {
         target.contents = contents;
         contents = nullptr;
         target.curr_pos = curr_pos;
@@ -69,14 +56,19 @@ struct packet {
         return *this;
     }
     
-    ~packet() {
+    ~Packet() {
         delete[] contents;
     }
 };
 
-packet getPacket(int socket, packetBuffer& buffer);
-void sendPacket(int socket, const packet& content);
-
-}
+class PacketManager {
+    unsigned char* buffer = nullptr;
+    int buffer_size = 0;
+public:
+    int socket = -1;
+    
+    Packet getPacket();
+    void sendPacket(const Packet& packet) const;
+};
 
 #endif /* packets_hpp */

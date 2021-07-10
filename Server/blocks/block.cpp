@@ -64,7 +64,7 @@ void block::updateNeighbors() {
 }
 
 void block::syncWithClient() {
-    packets::packet packet(packets::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
+    Packet packet(PacketType::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
     packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
     manager->sendToEveryone(packet);
 }
@@ -74,7 +74,7 @@ void block::setBreakProgress(unsigned short ms) {
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
         block_data->break_stage = stage;
-        packets::packet packet(packets::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
+        Packet packet(PacketType::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
         packet << getY() << getX() << getBreakStage();
         manager->sendToEveryone(packet);
     }

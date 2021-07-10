@@ -59,7 +59,7 @@ void chat::render() {
 void chat::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
-            packets::packet chat_packet(packets::CHAT, (int)chat_box.getText().size() + 1);
+            Packet chat_packet(PacketType::CHAT, (int)chat_box.getText().size() + 1);
             chat_packet << chat_box.getText();
             manager->sendPacket(chat_packet);
             chat_box.setText("");
@@ -74,9 +74,9 @@ void chat::onKeyDown(gfx::key key) {
     }
 }
 
-void chat::onPacket(packets::packet &packet) {
+void chat::onPacket(Packet &packet) {
     switch(packet.type) {
-        case packets::CHAT: {
+        case PacketType::CHAT: {
             auto* new_line = new chatLine;
             new_line->text = packet.get<std::string>();
             new_line->time_created = gfx::getTicks();

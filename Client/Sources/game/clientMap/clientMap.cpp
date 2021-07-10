@@ -21,16 +21,16 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
             getChunk(x, y).createTexture();
 }
 
-void map::onPacket(packets::packet &packet) {
+void map::onPacket(Packet &packet) {
     switch(packet.type) {
-        case packets::ITEM_CREATION: {
+        case PacketType::ITEM_CREATION: {
             auto type = (itemType)packet.get<char>();
             auto id = packet.get<unsigned short>();
             int y = packet.get<int>(), x = packet.get<int>();
             items.emplace_back(item(type, x, y, id));
             break;
         }
-        case packets::ITEM_DELETION: {
+        case PacketType::ITEM_DELETION: {
             auto id = packet.get<unsigned short>();
             for(auto i = items.begin(); i != items.end(); i++)
                 if(i->getId() == id) {
@@ -39,13 +39,13 @@ void map::onPacket(packets::packet &packet) {
                 }
             break;
         }
-        case packets::ITEM_MOVEMENT: {
+        case PacketType::ITEM_MOVEMENT: {
             item* item = getItemById(packet.get<unsigned short>());
             item->y = packet.get<int>();
             item->x = packet.get<int>();
             break;
         }
-        case packets::BLOCK_CHANGE: {
+        case PacketType::BLOCK_CHANGE: {
             auto type = (blockType)packet.get<unsigned char>();
             auto light_level = packet.get<unsigned char>();
             auto liquid_level = packet.get<unsigned char>();
@@ -57,7 +57,7 @@ void map::onPacket(packets::packet &packet) {
             curr_block.setLightLevel(light_level);
             break;
         }
-        case packets::CHUNK: {
+        case PacketType::CHUNK: {
             chunks_pending--;
             auto x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
             
@@ -77,13 +77,13 @@ void map::onPacket(packets::packet &packet) {
             getChunk(x, y).setState(map::chunkState::loaded);
             break;
         }
-        case packets::BLOCK_PROGRESS_CHANGE: {
+        case PacketType::BLOCK_PROGRESS_CHANGE: {
             auto stage = packet.get<unsigned char>();
             auto x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
             getBlock(x, y).setBreakStage(stage);
             break;
         }
-        case packets::KICK: {
+        case PacketType::KICK: {
             kick_message = packet.get<std::string>();
             kicked = true;
         }

@@ -36,13 +36,13 @@ void item::create(itemType item_id_, int x_, int y_, unsigned short id_, blocks*
     item_id = item_id_;
     parent_blocks = parent_blocks_;
     
-    packets::packet packet(packets::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(getId()) + sizeof(char));
+    Packet packet(PacketType::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(getId()) + sizeof(char));
     packet << x << y << getId() << (char)getItemId();
     manager->sendToEveryone(packet);
 }
 
 void item::destroy() {
-    packets::packet packet(packets::ITEM_DELETION, sizeof(getId()));
+    Packet packet(PacketType::ITEM_DELETION, sizeof(getId()));
     packet << getId();
     manager->sendToEveryone(packet);
 }
@@ -102,7 +102,7 @@ void item::update(float frame_length) {
     }
     
     if(prev_x != x || prev_y != y) {
-        packets::packet packet(packets::ITEM_MOVEMENT, sizeof(x) + sizeof(y) + sizeof(getId()));
+        Packet packet(PacketType::ITEM_MOVEMENT, sizeof(x) + sizeof(y) + sizeof(getId()));
         packet << x << y << getId();
         manager->sendToEveryone(packet);
     }
