@@ -6,14 +6,16 @@
 
 enum class PacketType {DISCONNECT, CHUNK, BLOCK_CHANGE, PLAYER_JOIN, PLAYER_QUIT, PLAYER_MOVEMENT, ITEM_CREATION, ITEM_DELETION, ITEM_MOVEMENT, INVENTORY_CHANGE, INVENTORY_SWAP, HOTBAR_SELECTION, RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS_CHANGE, SPAWN_POS, VIEW_SIZE_CHANGE, KICK, CHAT};
 
-struct Packet {
-    Packet(PacketType type, unsigned short size) : type(type) {
-        contents = new unsigned char[size + 3];
-    }
-    
+class Packet {
     unsigned char* contents = nullptr;
     PacketType type;
     unsigned short curr_pos = 3;
+public:
+    
+    Packet(PacketType type, unsigned char* buffer, unsigned short size);
+    Packet(PacketType type, unsigned short size);
+    
+    PacketType getType();
     
     template<class T>
     Packet& operator<<(T x) {
@@ -48,17 +50,9 @@ struct Packet {
         return result;
     }
     
-    Packet& operator=(Packet& target) {
-        target.contents = contents;
-        contents = nullptr;
-        target.curr_pos = curr_pos;
-        target.type = type;
-        return *this;
-    }
-    
-    ~Packet() {
-        delete[] contents;
-    }
+    Packet& operator=(Packet& target);
+    void send(int socket) const;
+    ~Packet();
 };
 
 class PacketManager {

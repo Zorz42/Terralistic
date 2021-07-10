@@ -17,7 +17,7 @@
 
 void players::onPacket(Packet& packet, connection& conn) {
     player* curr_player = getPlayerByConnection(&conn);
-    switch (packet.type) {
+    switch (packet.getType()) {
         case PacketType::STARTED_BREAKING: {
             auto y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
             curr_player->breaking_x = x;

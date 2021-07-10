@@ -26,7 +26,7 @@ clientPlayer* clientPlayers::getPlayerById(unsigned short id) {
 }
 
 void clientPlayers::onPacket(Packet &packet) {
-    switch(packet.type) {
+    switch(packet.getType()) {
         case PacketType::PLAYER_JOIN: {
             auto* new_player = new clientPlayer();
             new_player->name = packet.get<std::string>();

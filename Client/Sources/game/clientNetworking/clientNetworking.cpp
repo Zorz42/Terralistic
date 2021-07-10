@@ -28,7 +28,7 @@ void networkingManager::listenerLoop(networkingManager* manager) {
     while(manager->listener_running) {
         Packet packet = manager->packet_manager.getPacket();
         for(packetListener* listener : manager->listeners)
-            if(listener->listening_to.find(packet.type) != listener->listening_to.end()) {
+            if(listener->listening_to.find(packet.getType()) != listener->listening_to.end()) {
                 listener->onPacket(packet);
                 break;
             }

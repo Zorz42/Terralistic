@@ -75,7 +75,7 @@ void chat::onKeyDown(gfx::key key) {
 }
 
 void chat::onPacket(Packet &packet) {
-    switch(packet.type) {
+    switch(packet.getType()) {
         case PacketType::CHAT: {
             auto* new_line = new chatLine;
             new_line->text = packet.get<std::string>();

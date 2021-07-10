@@ -58,7 +58,7 @@ void playerHandler::renderInventory() {
 }
 
 void playerHandler::onPacketInventory(Packet &packet) {
-    switch(packet.type) {
+    switch(packet.getType()) {
         case PacketType::INVENTORY_CHANGE: {
             char pos = packet.get<char>();
             player->player_inventory.inventory[(int)pos].item_id = (itemType)packet.get<unsigned char>();

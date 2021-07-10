@@ -204,7 +204,7 @@ void playerHandler::render() {
 }
 
 void playerHandler::onPacket(Packet &packet) {
-    switch(packet.type) {
+    switch(packet.getType()) {
         case PacketType::SPAWN_POS: {
             int x = packet.get<int>(), y = packet.get<int>();
             player->position_x = x;
