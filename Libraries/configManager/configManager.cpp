@@ -1,13 +1,7 @@
-//
-//  configManager.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 28/05/2021.
-//
-
-#include "configManager.hpp"
-
 #include <utility>
+#include <fstream>
+#include <iostream>
+#include "configManager.hpp"
 
 configFile::configFile(const std::string& path) : path(path) {
     loadConfig();
@@ -16,11 +10,13 @@ configFile::configFile(const std::string& path) : path(path) {
 void configFile::loadConfig() {
     std::ifstream file(path);
     std::string line;
-    while(std::getline(file, line))
-        if(!line.empty()) {
-            unsigned long separator_index = line.find(':');
+    while(std::getline(file, line)) {
+        unsigned long separator_index = line.find(':');
+        if(separator_index < line.length())
             values[line.substr(0, separator_index)] = line.substr(separator_index + 1, line.size());
-        }
+        else
+            std::cout << "File incorrectly formatted: ignoring line: " << line << std::endl;
+    }
     file.close();
 }
 

@@ -8,7 +8,6 @@
 #ifndef configManager_hpp
 #define configManager_hpp
 
-#include <fstream>
 #include <string>
 #include <map>
 
