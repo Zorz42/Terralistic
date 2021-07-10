@@ -10,6 +10,6 @@
 
 #include "configManager.hpp"
 
-inline configFile config;
+inline ConfigFile config;
 
 #endif /* config_h */

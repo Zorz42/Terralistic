@@ -28,12 +28,12 @@ void map::block::setLightLevel(unsigned char level) {
     update();
 }
 
-const uniqueBlock& map::blockData::getUniqueBlock() const {
-    return ::getUniqueBlock(block_id);
+const BlockInfo& map::blockData::getUniqueBlock() const {
+    return ::getBlockInfo(block_id);
 }
 
-const uniqueLiquid& map::blockData::getUniqueLiquid() const {
-    return ::getUniqueLiquid(liquid_id);
+const LiquidInfo& map::blockData::getUniqueLiquid() const {
+    return ::getLiquidInfo(liquid_id);
 }
 
 void map::renderBlocks() {

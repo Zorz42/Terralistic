@@ -72,8 +72,8 @@ public:
     [[nodiscard]] inline unsigned short getX() const { return x; }
     [[nodiscard]] inline unsigned short getY() const { return y; }
     
-    const uniqueBlock& getUniqueBlock();
-    const uniqueLiquid& getUniqueLiquid();
+    const BlockInfo& getUniqueBlock();
+    const LiquidInfo& getUniqueLiquid();
 };
 
 class blocks {

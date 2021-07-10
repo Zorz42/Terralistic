@@ -17,9 +17,9 @@ void inventoryItem::setId(itemType id) {
     }
 }
 
-const uniqueItem& inventoryItem::getUniqueItem() const {
+const ItemInfo& inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return ::getUniqueItem(item_id);
+    return ::getItemInfo(item_id);
 }
 
 void inventoryItem::setStack(unsigned short stack_) {

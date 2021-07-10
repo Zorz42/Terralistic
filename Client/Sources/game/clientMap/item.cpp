@@ -19,8 +19,8 @@ map::item* map::getItemById(unsigned short id) {
     return nullptr;
 }
 
-const uniqueItem& map::item::getUniqueItem() const {
-    return ::getUniqueItem(item_type);
+const ItemInfo& map::item::getUniqueItem() const {
+    return ::getItemInfo(item_type);
 }
 
 void map::renderItems() {

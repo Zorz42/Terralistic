@@ -455,6 +455,13 @@
 			path = configManager;
 			sourceTree = "<group>";
 		};
+		1676E9F62699BF8600034070 /* events */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = events;
+			sourceTree = "<group>";
+		};
 		167B37FD2642F43C00E3C718 /* assert */ = {
 			isa = PBXGroup;
 			children = (
@@ -817,6 +824,7 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				1676E9F62699BF8600034070 /* events */,
 				36DDF87A2689EAC5002337F3 /* properties */,
 				1675E71A26611B6300B620F4 /* configManager */,
 				167B37FD2642F43C00E3C718 /* assert */,

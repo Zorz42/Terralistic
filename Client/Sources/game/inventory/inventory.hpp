@@ -17,7 +17,7 @@ class clientInventoryItem {
 public:
     clientInventoryItem() : item_id(itemType::NOTHING), stack(0) {}
     itemType item_id;
-    [[nodiscard]] const uniqueItem& getUniqueItem() const;
+    [[nodiscard]] const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);

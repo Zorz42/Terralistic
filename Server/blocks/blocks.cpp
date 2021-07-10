@@ -72,10 +72,10 @@ void blocks::loadFrom(std::string path) {
     world_file.close();
 }
 
-const uniqueBlock& block::getUniqueBlock() {
-    return ::getUniqueBlock(block_data->block_id);
+const BlockInfo& block::getUniqueBlock() {
+    return ::getBlockInfo(block_data->block_id);
 }
 
-const uniqueLiquid& block::getUniqueLiquid() {
-    return ::getUniqueLiquid(block_data->liquid_id);
+const LiquidInfo& block::getUniqueLiquid() {
+    return ::getLiquidInfo(block_data->liquid_id);
 }

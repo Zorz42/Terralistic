@@ -42,14 +42,14 @@ void loadTextures() {
     breaking_texture.setTexture(gfx::loadImageFile("texturePack/misc/breaking.png"));
     
     for(int i = 0; i < (int)blockType::NUM_BLOCKS; i++)
-        block_textures[i].setTexture(gfx::loadImageFile("texturePack/blocks/" + getUniqueBlock((blockType)i).name + ".png"));
+        block_textures[i].setTexture(gfx::loadImageFile("texturePack/blocks/" + getBlockInfo((blockType)i).name + ".png"));
     
     for(int i = 0; i < (int)itemType::NUM_ITEMS; i++) {
-        item_textures[i].setTexture(getUniqueItem((itemType)i).name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + getUniqueItem((itemType)i).name + ".png"));
+        item_textures[i].setTexture(getItemInfo((itemType)i).name == "nothing" ? nullptr : gfx::loadImageFile("texturePack/items/" + getItemInfo((itemType)i).name + ".png"));
         
-        item_text_textures[i].setTexture(gfx::renderText(getUniqueItem((itemType)i).name, {255, 255, 255}));
+        item_text_textures[i].setTexture(gfx::renderText(getItemInfo((itemType)i).name, {255, 255, 255}));
     }
     
     for(int i = 0; i < (int)liquidType::NUM_LIQUIDS; i++)
-        liquid_textures[i].setTexture(gfx::loadImageFile("texturePack/liquids/" + getUniqueLiquid((liquidType)i).name + ".png"));
+        liquid_textures[i].setTexture(gfx::loadImageFile("texturePack/liquids/" + getLiquidInfo((liquidType)i).name + ".png"));
 }

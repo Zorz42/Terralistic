@@ -25,7 +25,7 @@ public:
 
     inline itemType getId() { return item_id; }
     void setId(itemType id);
-    [[nodiscard]] const uniqueItem& getUniqueItem() const;
+    [[nodiscard]] const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);

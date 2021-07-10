@@ -19,7 +19,6 @@ void fileManager::init() {
     std::filesystem::create_directory(data_path);
 
     std::string dirs_to_create[] = {getWorldsPath()};
-
     for(const std::string& dir : dirs_to_create)
         std::filesystem::create_directory(dir);
 }

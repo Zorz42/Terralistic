@@ -24,7 +24,7 @@ public:
     bool colliding() const;
     int x, y;
 
-    [[maybe_unused]] [[nodiscard]] const uniqueItem& getUniqueItem() const;
+    [[maybe_unused]] [[nodiscard]] const ItemInfo& getUniqueItem() const;
     [[nodiscard]] unsigned short getId() const { return id; }
     inline itemType getItemId() const { return item_id; }
 };

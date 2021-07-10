@@ -41,8 +41,8 @@ protected:
         unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
         bool update = true;
 
-        [[nodiscard]] const uniqueBlock& getUniqueBlock() const;
-        [[nodiscard]] const uniqueLiquid& getUniqueLiquid() const;
+        [[nodiscard]] const BlockInfo& getUniqueBlock() const;
+        [[nodiscard]] const LiquidInfo& getUniqueLiquid() const;
     };
 
     struct chunkData {
@@ -106,7 +106,7 @@ public:
     };
 
     class item {
-        [[nodiscard]] const uniqueItem& getUniqueItem() const;
+        [[nodiscard]] const ItemInfo& getUniqueItem() const;
         unsigned short id;
         itemType item_type;
     public:

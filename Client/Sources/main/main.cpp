@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
     serverInit();
     fileManager::init();
-    config = configFile(fileManager::getDataPath() + "/config.txt");
+    config = ConfigFile(fileManager::getDataPath() + "/config.txt");
     initProperties();
     loadTextures();
 
