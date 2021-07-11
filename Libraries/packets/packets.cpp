@@ -84,6 +84,22 @@ void PacketManager::appendToBuffer(unsigned char *appended_buffer, int appended_
     buffer_size += appended_buffer_size;
 }
 
+bool PacketManager::otherSideDisconneceted() {
+    return buffer_size <= 0;
+}
+
+PacketType PacketManager::getTypeFromBuffer() {
+    return (PacketType)buffer[2];
+}
+
+void PacketManager::eraseFrontOfBuffer(unsigned short size) {
+    buffer_size -= size;
+    unsigned char* temp = new unsigned char[buffer_size];
+    memcpy(temp, buffer + size, buffer_size);
+    buffer = (unsigned char*)realloc(buffer, buffer_size);
+    memcpy(buffer, temp, buffer_size);
+}
+
 Packet PacketManager::getPacket() {
     unsigned short size = getPacketSizeFromBuffer();
     
@@ -93,20 +109,11 @@ Packet PacketManager::getPacket() {
         appendToBuffer(temp_buffer, bytes_received);
     }
     
-    size = buffer_size < 2 ? 0 : buffer[0] + (buffer[1] << 8);
+    size = getPacketSizeFromBuffer();
     
-    // if bytes_received is 0 that means, that the other side disconnected
-    if(buffer_size > 0) {
-        // packet type is the third byte
-        Packet result((PacketType)buffer[2], buffer, size);
-        
-        // erase size + 3 for size variable and 1 for type
-        buffer_size -= size + 3;
-        unsigned char* temp = new unsigned char[buffer_size];
-        memcpy(temp, buffer + size + 3, buffer_size);
-        buffer = (unsigned char*)realloc(buffer, buffer_size);
-        memcpy(buffer, temp, buffer_size);
-        
+    if(!otherSideDisconneceted()) {
+        Packet result(getTypeFromBuffer(), buffer, size);
+        eraseFrontOfBuffer(size + 3);
         return result;
     } else
         return Packet(PacketType::DISCONNECT, 0);

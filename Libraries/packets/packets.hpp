@@ -38,6 +38,9 @@ class PacketManager {
     unsigned short getPacketSizeFromBuffer();
     bool isBufferSufficient(unsigned short size);
     void appendToBuffer(unsigned char *appended_buffer, int appended_buffer_size);
+    bool otherSideDisconneceted();
+    PacketType getTypeFromBuffer();
+    void eraseFrontOfBuffer(unsigned short size);
     
 public:
     int socket = -1;
