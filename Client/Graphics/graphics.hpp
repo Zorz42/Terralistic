@@ -10,6 +10,8 @@
 
 #include <string>
 #include <vector>
+#include "rect/rect.hpp"
+#include "color/color.hpp"
 
 namespace gfx {
 
@@ -22,16 +24,9 @@ enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C
 
 enum objectType {top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right};
 
-struct color {
-    color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255) : r(r), g(g), b(b), a(a) {}
-    unsigned char r, g, b, a;
-};
+/*
 
-struct rectShape {
-    explicit rectShape(short x=0, short y=0, unsigned short w=0, unsigned short h=0) : x(x), y(y), w(w), h(h) {}
-    short x, y;
-    unsigned short w, h;
-};
+
 
 struct _centeredObject {
     _centeredObject(short x, short y, objectType orientation=top_left) : orientation(orientation), x(x), y(y) {}
@@ -50,7 +45,7 @@ struct rect : _centeredObject {
     [[nodiscard]] inline unsigned short getHeight() const override { return h; };
     unsigned short w, h;
     color c;
-};
+};*/
 
 struct image {
     void setTexture(void* texture_);
@@ -101,7 +96,7 @@ protected:
     std::string text;
 };
 
-void render(rectShape x, color c, bool fill=true);
+
 void render(const rect& x, bool fill=true);
 void render(const image& tex, float scale, short x, short y);
 void render(const image& tex, rectShape rect);

@@ -7,14 +7,7 @@
 
 #include "graphics-internal.hpp"
 
-void gfx::render(rectShape x, color c, bool fill) {
-    SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
-    SDL_Rect sdl_rect = {x.x, x.y, x.w, x.h};
-    if(fill)
-        SDL_RenderFillRect(renderer, &sdl_rect);
-    else
-        SDL_RenderDrawRect(renderer, &sdl_rect);
-}
+
 
 void gfx::render(const rect& x, bool fill) {
     SDL_SetRenderDrawColor(renderer, x.c.r, x.c.g, x.c.b, x.c.a);
