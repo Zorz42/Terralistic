@@ -69,20 +69,28 @@ Packet::~Packet() {
     delete[] contents;
 }
 
+unsigned short PacketManager::getPacketSizeFromBuffer() {
+    return buffer_size == 0 ? 0 : buffer[0] + (buffer[1] << 8);
+}
+
+bool PacketManager::isBufferSufficient(unsigned short size) {
+    return size + 3 <= buffer_size;
+}
+
+void PacketManager::appendToBuffer(unsigned char *appended_buffer, int appended_buffer_size) {
+    buffer = (unsigned char*)realloc(buffer, buffer_size + appended_buffer_size);
+    for(int i = 0; i < appended_buffer_size; i++)
+        buffer[buffer_size + i] = appended_buffer[i];
+    buffer_size += appended_buffer_size;
+}
+
 Packet PacketManager::getPacket() {
-    // size of the packet are the first two bytes
-    unsigned short size = buffer_size < 2 ? 0 : buffer[0] + (buffer[1] << 8);
+    unsigned short size = getPacketSizeFromBuffer();
     
-    // packets can be merged so if multiple packets come in one piece,
-    // it can process one buffer multiple times. Only refill it when its empty
-    if(size + 3 > buffer_size) {
-        // get packet/s and apply it to the buffer
+    if(!isBufferSufficient(size)) {
         unsigned char temp_buffer[BUFFER_SIZE];
         int bytes_received = (int)recv(socket, (char*)temp_buffer, BUFFER_SIZE, 0);
-        buffer = (unsigned char*)realloc(buffer, buffer_size + bytes_received);
-        for(int i = 0; i < bytes_received; i++)
-            buffer[buffer_size + i] = temp_buffer[i];
-        buffer_size += bytes_received;
+        appendToBuffer(temp_buffer, bytes_received);
     }
     
     size = buffer_size < 2 ? 0 : buffer[0] + (buffer[1] << 8);

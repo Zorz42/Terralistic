@@ -35,6 +35,10 @@ class PacketManager {
     unsigned char* buffer = nullptr;
     int buffer_size = 0;
     
+    unsigned short getPacketSizeFromBuffer();
+    bool isBufferSufficient(unsigned short size);
+    void appendToBuffer(unsigned char *appended_buffer, int appended_buffer_size);
+    
 public:
     int socket = -1;
     
