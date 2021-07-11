@@ -8,6 +8,8 @@ public:
     unsigned short w, h;
     RectShape(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0);
     void render(Color c, bool fill = true);
+    void render(const Image& tex);
+    void render(const Image& tex, float scale, short x, short y);
 };
 
 class _CenteredObject {
@@ -31,4 +33,7 @@ public:
     [[nodiscard]] inline unsigned short getHeight() const override { return h; };
     unsigned short w, h;
     Color c;
+
+    void render(bool fill = true);
+
 };

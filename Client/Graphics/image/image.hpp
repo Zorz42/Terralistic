@@ -2,8 +2,8 @@
 class Image {
 public:
     void setTexture(void* texture_);
-    [[nodiscard]] void* getTexture() const { return texture; }
-    ~image();
+    [[nodiscard]] inline void* getTexture() const { return texture; }
+    ~Image();
     bool free_texture = true, flipped = false;
     [[nodiscard]] unsigned short getTextureWidth() const;
     [[nodiscard]] unsigned short getTextureHeight() const;

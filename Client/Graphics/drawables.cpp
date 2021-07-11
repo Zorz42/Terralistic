@@ -6,12 +6,10 @@
 //
 
 #include "graphics-internal.hpp"
-
+/*
 // _centeredObject
 
-gfx::rectShape gfx::_centeredObject::getTranslatedRect() const {
-    return rectShape(getTranslatedX(), getTranslatedY(), getWidth(), getHeight());
-}
+
 
 short gfx::_centeredObject::getTranslatedX() const {
     return orientation % 3 == 1 ? (window_width >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? window_width - getWidth() + x : x);
@@ -97,3 +95,4 @@ gfx::textInput::textInput() {
     temp.setTexture(gfx::renderText("|g", {0, 0, 0}));
     cut_length = temp.getTextureWidth() - 1;
 }
+*/

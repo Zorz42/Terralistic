@@ -45,21 +45,8 @@ struct rect : _centeredObject {
     [[nodiscard]] inline unsigned short getHeight() const override { return h; };
     unsigned short w, h;
     color c;
-};*/
-
-struct image {
-    void setTexture(void* texture_);
-    [[nodiscard]] void* getTexture() const { return texture; }
-    ~image();
-    bool free_texture = true, flipped = false;
-    [[nodiscard]] unsigned short getTextureWidth() const;
-    [[nodiscard]] unsigned short getTextureHeight() const;
-    void clear();
-    void setAlpha(unsigned char alpha);
-protected:
-    void freeTexture();
-    void* texture=nullptr;
 };
+
 
 struct sprite : _centeredObject, image {
     float scale = 1;
@@ -67,7 +54,6 @@ struct sprite : _centeredObject, image {
     [[nodiscard]] inline unsigned short getHeight() const override { return getTextureHeight() * scale; }
     sprite() : _centeredObject(0, 0) {};
 };
-
 struct button : sprite {
     unsigned short margin = 10;
     
@@ -79,6 +65,7 @@ struct button : sprite {
     bool disabled = false;
     unsigned char hover_progress = 0;
 };
+
 
 struct textInput : button {
     textInput();
@@ -94,16 +81,16 @@ struct textInput : button {
     unsigned char cut_length;
 protected:
     std::string text;
-};
+};*/
 
 
-void render(const rect& x, bool fill=true);
-void render(const image& tex, float scale, short x, short y);
-void render(const image& tex, rectShape rect);
-void render(const image& tex, float scale, short x, short y, rectShape src_rect);
-void render(const sprite& spr);
-void render(button& b);
-void render(const textInput& b);
+//void render(const rect& x, bool fill=true);
+//void render(const image& tex, float scale, short x, short y);
+//void render(const image& tex, rectShape rect);
+//void render(const image& tex, float scale, short x, short y, rectShape src_rect);
+//void render(const sprite& spr);
+//void render(button& b);
+//void render(const textInput& b);
 
 struct scene;
 
