@@ -34,10 +34,10 @@ public:
     enum class chunkState {unloaded, pending_load, loaded};
 protected:
     struct blockData {
-        explicit blockData(blockType block_id=blockType::AIR, liquidType liquid_id=liquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+        explicit blockData(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
-        blockType block_id;
-        liquidType liquid_id;
+        BlockType block_id;
+        LiquidType liquid_id;
         unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
         bool update = true;
 
@@ -89,7 +89,7 @@ public:
         void updateOrientation();
     public:
         block(unsigned short x, unsigned short y, blockData* block_data, map* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
-        void setType(blockType block_id, liquidType liquid_id);
+        void setType(BlockType block_id, LiquidType liquid_id);
         void setLightLevel(unsigned char level);
         void setBreakStage(unsigned char stage);
         void draw();
@@ -98,8 +98,8 @@ public:
         inline bool isGhost() { return block_data->getUniqueBlock().ghost; }
         inline unsigned char getLightLevel() { return block_data->light_level; }
         inline unsigned char getBreakStage() { return block_data->break_stage; }
-        inline blockType getType() { return block_data->block_id; }
-        inline liquidType getLiquidType() { return block_data->liquid_id; }
+        inline BlockType getType() { return block_data->block_id; }
+        inline LiquidType getLiquidType() { return block_data->liquid_id; }
         inline void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
         inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
         inline float getSpeedMultiplier() { return block_data->getUniqueLiquid().speed_multiplier; }
@@ -108,12 +108,12 @@ public:
     class item {
         [[nodiscard]] const ItemInfo& getUniqueItem() const;
         unsigned short id;
-        itemType item_type;
+        ItemType item_type;
     public:
-        item(itemType item_type, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_type(item_type) {}
+        item(ItemType item_type, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_type(item_type) {}
         int x, y;
         [[nodiscard]] unsigned short getId() const { return id; }
-        [[nodiscard]] itemType getType() const { return item_type; }
+        [[nodiscard]] ItemType getType() const { return item_type; }
     };
 
 protected:

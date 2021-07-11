@@ -15,8 +15,8 @@
 class clientInventoryItem {
     unsigned short stack;
 public:
-    clientInventoryItem() : item_id(itemType::NOTHING), stack(0) {}
-    itemType item_id;
+    clientInventoryItem() : item_id(ItemType::NOTHING), stack(0) {}
+    ItemType item_id;
     [[nodiscard]] const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
@@ -28,7 +28,7 @@ class clientInventory {
     clientInventoryItem mouse_item;
 public:
     clientInventoryItem inventory[INVENTORY_SIZE];
-    char addItem(itemType id, int quantity);
+    char addItem(ItemType id, int quantity);
     bool open = false;
     char selected_slot = 0;
     void swapWithMouseItem(clientInventoryItem* item);

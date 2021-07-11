@@ -90,7 +90,7 @@ void players::onPacket(Packet& packet, connection& conn) {
             }
 
             for(inventoryItem& i : curr_player->player_inventory.inventory_arr) // send the whole inventory
-                if(i.getId() != itemType::NOTHING)
+                if(i.getId() != ItemType::NOTHING)
                     i.sendPacket();
 
             Packet join_packet_out(PacketType::PLAYER_JOIN, sizeof(curr_player->x) + sizeof(curr_player->y) + sizeof(curr_player->id) + (int)curr_player->name.size() + 1);

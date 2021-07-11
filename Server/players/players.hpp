@@ -18,13 +18,13 @@ class player;
 class inventoryItem {
     unsigned short stack;
     inventory* holder;
-    itemType item_id;
+    ItemType item_id;
 public:
-    inventoryItem() : holder(nullptr), item_id(itemType::NOTHING), stack(0) {}
-    explicit inventoryItem(inventory* holder) : holder(holder), item_id(itemType::NOTHING), stack(0) {}
+    inventoryItem() : holder(nullptr), item_id(ItemType::NOTHING), stack(0) {}
+    explicit inventoryItem(inventory* holder) : holder(holder), item_id(ItemType::NOTHING), stack(0) {}
 
-    inline itemType getId() { return item_id; }
-    void setId(itemType id);
+    inline ItemType getId() { return item_id; }
+    void setId(ItemType id);
     [[nodiscard]] const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
@@ -40,7 +40,7 @@ class inventory {
 public:
     explicit inventory(player* owner);
     inventoryItem inventory_arr[INVENTORY_SIZE];
-    char addItem(itemType id, int quantity);
+    char addItem(ItemType id, int quantity);
     bool open = false;
     char selected_slot = 0;
     inventoryItem* getSelectedSlot();
@@ -82,7 +82,7 @@ class players : serverPacketListener {
     void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
     void rightClickEvent(block this_block, player* peer);
     
-    blockEvents custom_block_events[(int)blockType::NUM_BLOCKS];
+    blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
 public:
     players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_);
     

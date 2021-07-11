@@ -15,7 +15,7 @@ void items::updateItems(float frame_length) {
         item.update(frame_length);
 }
 
-void items::spawnItem(itemType item_id, int x, int y, short id) {
+void items::spawnItem(ItemType item_id, int x, int y, short id) {
     static short curr_id = 0;
     if(id == -1)
         id = curr_id++;
@@ -23,7 +23,7 @@ void items::spawnItem(itemType item_id, int x, int y, short id) {
     item_arr.back().create(item_id, x, y, id, parent_blocks, manager);
 }
 
-void item::create(itemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_, serverNetworkingManager* manager_) {
+void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_, serverNetworkingManager* manager_) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;

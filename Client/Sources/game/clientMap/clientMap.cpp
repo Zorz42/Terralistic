@@ -24,7 +24,7 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
 void map::onPacket(Packet &packet) {
     switch(packet.getType()) {
         case PacketType::ITEM_CREATION: {
-            auto type = (itemType)packet.get<char>();
+            auto type = (ItemType)packet.get<char>();
             auto id = packet.get<unsigned short>();
             int y = packet.get<int>(), x = packet.get<int>();
             items.emplace_back(item(type, x, y, id));
@@ -46,10 +46,10 @@ void map::onPacket(Packet &packet) {
             break;
         }
         case PacketType::BLOCK_CHANGE: {
-            auto type = (blockType)packet.get<unsigned char>();
+            auto type = (BlockType)packet.get<unsigned char>();
             auto light_level = packet.get<unsigned char>();
             auto liquid_level = packet.get<unsigned char>();
-            auto liquid_type = (liquidType)packet.get<unsigned char>();
+            auto liquid_type = (LiquidType)packet.get<unsigned char>();
             auto y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
             block curr_block = getBlock(x, y);
             curr_block.setType(type, liquid_type);
@@ -65,8 +65,8 @@ void map::onPacket(Packet &packet) {
                 for(unsigned short x_ = 0; x_ < 16; x_++) {
                     auto light_level = packet.get<unsigned char>();
                     auto liquid_level = packet.get<unsigned char>();
-                    auto liquid_type = (liquidType)packet.get<unsigned char>();
-                    auto type = (blockType)packet.get<unsigned char>();
+                    auto liquid_type = (LiquidType)packet.get<unsigned char>();
+                    auto type = (BlockType)packet.get<unsigned char>();
                     block block = getBlock((x << 4) + x_, (y << 4) + y_);
                     block.setType(type, liquid_type);
                     block.setLightLevel(light_level);

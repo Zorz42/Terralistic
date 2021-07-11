@@ -12,7 +12,7 @@ void blocks::createWorld(unsigned short world_width, unsigned short world_height
     block_arr = new blockData[(world_width << 4) * (world_height << 4)];
     this->width = world_width << 4;
     this->height = world_height << 4;
-    biomes = new biome[width];
+    biomes = new Biome[width];
 
 }
 
@@ -63,8 +63,8 @@ void blocks::loadFrom(std::string path) {
         for(int x = 0; x < width; x++) {
             block curr_block = getBlock(x, y);
             int pos = x * 3;
-            curr_block.setType((blockType) world_buffer[pos], false);
-            curr_block.setType((liquidType) world_buffer[pos + 1], false);
+            curr_block.setType((BlockType) world_buffer[pos], false);
+            curr_block.setType((LiquidType) world_buffer[pos + 1], false);
             curr_block.setLiquidLevel(world_buffer[pos + 2]);
         }
         delete[] world_buffer;
