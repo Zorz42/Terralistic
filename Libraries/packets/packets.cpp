@@ -49,20 +49,21 @@ void Packet::send(int socket) const {
 template<>
 std::string Packet::get<std::string>() {
     std::string result;
-    unsigned char size = contents[--curr_pos];
-    result.reserve(size);
-    for(int i = 0; i < size; i++)
-        result.push_back(contents[curr_pos + 3 - size + i]);
+    curr_pos--;
+    unsigned char size = contents[curr_pos + 3];
     curr_pos -= size;
+    result.append(contents + curr_pos + 3, contents + curr_pos + 3 + size);
     return result;
 }
 
 Packet& Packet::operator<<(std::string x) {
     memcpy(contents + curr_pos + 3, &x[0], x.size());
     curr_pos += x.size();
-    contents[curr_pos++ + 3] = x.size();
+    contents[curr_pos + 3] = x.size();
+    curr_pos++;
     return *this;
 }
+
 
 Packet::~Packet() {
     delete[] contents;
