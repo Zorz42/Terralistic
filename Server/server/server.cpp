@@ -24,10 +24,6 @@ void inthand(int signum) {
     running = false;
 }
 
-void serverInit() {
-    initBlockEvents();
-}
-
 void server::start() {
     state = STARTING;
     print::info("Initialising server");

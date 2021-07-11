@@ -61,6 +61,14 @@ public:
     std::string name;
 };
 
+class players;
+
+struct blockEvents {
+    void (*onBreak)(blocks*, players*, block*) = nullptr;
+    void (*onRightClick)(block*, player*) = nullptr;
+    void (*onLeftClick)(block*, player*) = nullptr;
+};
+
 class players : serverPacketListener {
     items* parent_items;
     blocks* parent_blocks;
@@ -73,8 +81,10 @@ class players : serverPacketListener {
     
     void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
     void rightClickEvent(block this_block, player* peer);
+    
+    blockEvents custom_block_events[(int)blockType::NUM_BLOCKS];
 public:
-    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(manager_), manager(manager_) { listening_to = {PacketType::STARTED_BREAKING, PacketType::STOPPED_BREAKING, PacketType::RIGHT_CLICK, PacketType::CHUNK, PacketType::VIEW_SIZE_CHANGE, PacketType::PLAYER_MOVEMENT, PacketType::PLAYER_JOIN, PacketType::DISCONNECT, PacketType::INVENTORY_SWAP, PacketType::HOTBAR_SELECTION, PacketType::CHAT}; }
+    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_);
     
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }
@@ -93,14 +103,5 @@ public:
     
     ~players();
 };
-
-struct blockEvents {
-    void (*onBreak)(blocks*, players*, block*) = nullptr;
-    void (*onRightClick)(block*, player*) = nullptr;
-    void (*onLeftClick)(block*, player*) = nullptr;
-};
-
-inline blockEvents* custom_block_events;
-void initBlockEvents();
 
 #endif /* players_hpp */

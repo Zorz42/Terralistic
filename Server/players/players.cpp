@@ -10,6 +10,32 @@
 #include <filesystem>
 #include <fstream>
 
+players::players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(manager_), manager(manager_) {
+    listening_to = {PacketType::STARTED_BREAKING, PacketType::STOPPED_BREAKING, PacketType::RIGHT_CLICK, PacketType::CHUNK, PacketType::VIEW_SIZE_CHANGE, PacketType::PLAYER_MOVEMENT, PacketType::PLAYER_JOIN, PacketType::DISCONNECT, PacketType::INVENTORY_SWAP, PacketType::HOTBAR_SELECTION, PacketType::CHAT};
+    custom_block_events[(int)blockType::WOOD].onBreak = [](blocks* server_blocks, players* server_players, block* this_block) {
+        block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
+        for(block& i : blocks)
+            if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
+                server_players->breakBlock(&i);
+    };
+
+    custom_block_events[(int)blockType::LEAVES].onBreak = custom_block_events[(int)blockType::WOOD].onBreak;
+
+    custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
+        this_block->setType(blockType::DIRT);
+    };
+
+    custom_block_events[(int)blockType::AIR].onRightClick = [](block* this_block, player* peer) {
+        blockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
+        if(type != blockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
+            this_block->setType(type);
+            this_block->update();
+        }
+    };
+
+    custom_block_events[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick;
+}
+
 players::~players() {
     for(player* i : all_players)
         delete i;
@@ -95,33 +121,6 @@ void players::leftClickEvent(block this_block, connection& connection, unsigned 
 void players::rightClickEvent(block this_block, player* peer) {
     if(custom_block_events[(int)this_block.getType()].onRightClick)
         custom_block_events[(int)this_block.getType()].onRightClick(&this_block, peer);
-}
-
-void initBlockEvents() {
-    custom_block_events = new blockEvents[(int)blockType::NUM_BLOCKS];
-    
-    custom_block_events[(int)blockType::WOOD].onBreak = [](blocks* server_blocks, players* server_players, block* this_block) {
-        block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
-        for(block& i : blocks)
-            if(i.getType() == blockType::WOOD || i.getType() == blockType::LEAVES)
-                server_players->breakBlock(&i);
-    };
-
-    custom_block_events[(int)blockType::LEAVES].onBreak = custom_block_events[(int)blockType::WOOD].onBreak;
-
-    custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
-        this_block->setType(blockType::DIRT);
-    };
-
-    custom_block_events[(int)blockType::AIR].onRightClick = [](block* this_block, player* peer) {
-        blockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
-        if(type != blockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
-            this_block->setType(type);
-            this_block->update();
-        }
-    };
-
-    custom_block_events[(int)blockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)blockType::GRASS_BLOCK].onLeftClick;
 }
 
 void players::saveTo(std::string path) {
