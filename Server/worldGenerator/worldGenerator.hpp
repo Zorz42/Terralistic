@@ -15,8 +15,8 @@
 struct structure {
     std::string name;
     int x_size, y_size;
-    blockType* blocks;
-    structure(std::string cname, int x, int y, blockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), blocks(cBlocks) {}
+    BlockType* blocks;
+    structure(std::string cname, int x, int y, BlockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), blocks(cBlocks) {}
 };
 
 struct structurePosition {

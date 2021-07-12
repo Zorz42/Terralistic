@@ -1,65 +1,64 @@
-//
-//  properties.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 28/06/2021.
-//
-
 #include "properties.hpp"
 #include "assert.hpp"
 
-static uniqueBlock unique_blocks[(int)blockType::NUM_BLOCKS];
-static uniqueItem unique_items[(int)itemType::NUM_ITEMS];
-static uniqueLiquid unique_liquids[(int)liquidType::NUM_LIQUIDS];
+static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
+static ItemInfo item_infos[(int)ItemType::NUM_ITEMS];
+static LiquidInfo liquid_infos[(int)LiquidType::NUM_LIQUIDS];
 
-const uniqueBlock& getUniqueBlock(blockType type) {
-    ASSERT((int)type >= 0 && type < blockType::NUM_BLOCKS, "block id is not valid")
-    return unique_blocks[(int)type];
+BlockInfo::BlockInfo(std::string name, bool ghost, bool transparent, short break_time, ItemType drop, std::vector<BlockType> connects_to) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), drop(drop), connects_to(connects_to) {}
+
+ItemInfo::ItemInfo(std::string  name, unsigned short stack_size, BlockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
+
+LiquidInfo::LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier) : name(name), flow_time(flow_time), speed_multiplier(speed_multiplier) {}
+
+const BlockInfo& getBlockInfo(BlockType type) {
+    ASSERT((int)type >= 0 && type < BlockType::NUM_BLOCKS, "block id is not valid")
+    return block_infos[(int)type];
 }
 
-const uniqueItem& getUniqueItem(itemType type) {
-    ASSERT((int)type >= 0 && type < itemType::NUM_ITEMS, "item id is not valid")
-    return unique_items[(int)type];
+const ItemInfo& getItemInfo(ItemType type) {
+    ASSERT((int)type >= 0 && type < ItemType::NUM_ITEMS, "item id is not valid")
+    return item_infos[(int)type];
 }
 
-const uniqueLiquid& getUniqueLiquid(liquidType type) {
-    ASSERT((int)type >= 0 && type < liquidType::NUM_LIQUIDS, "item id is not valid")
-    return unique_liquids[(int)type];
+const LiquidInfo& getLiquidInfo(LiquidType type) {
+    ASSERT((int)type >= 0 && type < LiquidType::NUM_LIQUIDS, "item id is not valid")
+    return liquid_infos[(int)type];
 }
 
 void initProperties() {
     // unique_blocks
-    unique_blocks[(int)blockType::AIR] =
-    uniqueBlock("air",               /*ghost*/true,  /*transparent*/true,  /*break_time*/UNBREAKABLE, /*drops*/itemType::NOTHING,     /*connects_to*/ {                                                               });
-    unique_blocks[(int)blockType::DIRT] =
-    uniqueBlock("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::DIRT,        /*connects_to*/{blockType::GRASS_BLOCK, blockType::SNOWY_GRASS_BLOCK           });
-    unique_blocks[(int)blockType::STONE_BLOCK] =
-    uniqueBlock("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::STONE_BLOCK, /*connects_to*/{blockType::SNOWY_GRASS_BLOCK                                   });
-    unique_blocks[(int)blockType::GRASS_BLOCK] =
-    uniqueBlock("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::DIRT, blockType::SNOWY_GRASS_BLOCK                  });
-    unique_blocks[(int)blockType::STONE] =
-    uniqueBlock("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500,        /*drops*/itemType::STONE,       /*connects_to*/{                                                               });
-    unique_blocks[(int)blockType::WOOD] =
-    uniqueBlock("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::WOOD_PLANKS, /*connects_to*/{blockType::GRASS_BLOCK, blockType::LEAVES                      });
-    unique_blocks[(int)blockType::LEAVES] =
-    uniqueBlock("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE, /*drops*/itemType::NOTHING,     /*connects_to*/{                                                               });
-    unique_blocks[(int)blockType::SAND] =
-    uniqueBlock("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK});
-    unique_blocks[(int)blockType::SNOWY_GRASS_BLOCK] =
-    uniqueBlock("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::DIRT, blockType::GRASS_BLOCK, blockType::STONE_BLOCK});
-    unique_blocks[(int)blockType::SNOW_BLOCK] =
-    uniqueBlock("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::SNOWY_GRASS_BLOCK, blockType::ICE                   });
-    unique_blocks[(int)blockType::ICE] =
-    uniqueBlock("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/itemType::NOTHING,     /*connects_to*/{blockType::SNOW_BLOCK                                          });
+    block_infos[(int)BlockType::AIR] =
+    BlockInfo("air",               /*ghost*/true,  /*transparent*/true,  /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/ {                                                               });
+    block_infos[(int)BlockType::DIRT] =
+    BlockInfo("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::DIRT,        /*connects_to*/{BlockType::GRASS_BLOCK, BlockType::SNOWY_GRASS_BLOCK           });
+    block_infos[(int)BlockType::STONE_BLOCK] =
+    BlockInfo("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::STONE_BLOCK, /*connects_to*/{BlockType::SNOWY_GRASS_BLOCK                                   });
+    block_infos[(int)BlockType::GRASS_BLOCK] =
+    BlockInfo("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::SNOWY_GRASS_BLOCK                  });
+    block_infos[(int)BlockType::STONE] =
+    BlockInfo("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500,        /*drops*/ItemType::STONE,       /*connects_to*/{                                                               });
+    block_infos[(int)BlockType::WOOD] =
+    BlockInfo("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::WOOD_PLANKS, /*connects_to*/{BlockType::GRASS_BLOCK, BlockType::LEAVES                      });
+    block_infos[(int)BlockType::LEAVES] =
+    BlockInfo("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/{                                                               });
+    block_infos[(int)BlockType::SAND] =
+    BlockInfo("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::GRASS_BLOCK, BlockType::STONE_BLOCK});
+    block_infos[(int)BlockType::SNOWY_GRASS_BLOCK] =
+    BlockInfo("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::GRASS_BLOCK, BlockType::STONE_BLOCK});
+    block_infos[(int)BlockType::SNOW_BLOCK] =
+    BlockInfo("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::SNOWY_GRASS_BLOCK, BlockType::ICE                   });
+    block_infos[(int)BlockType::ICE] =
+    BlockInfo("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::SNOW_BLOCK                                          });
     
     // unique_items
-    unique_items[(int)itemType::NOTHING] =     uniqueItem(/*name*/"nothing",     /*max_stack*/0,  /*places*/blockType::AIR        );
-    unique_items[(int)itemType::STONE] =       uniqueItem(/*name*/"stone",       /*max_stack*/99, /*places*/blockType::STONE      );
-    unique_items[(int)itemType::DIRT] =        uniqueItem(/*name*/"dirt",        /*max_stack*/99, /*places*/blockType::DIRT       );
-    unique_items[(int)itemType::STONE_BLOCK] = uniqueItem(/*name*/"stone_block", /*max_stack*/99, /*places*/blockType::STONE_BLOCK);
-    unique_items[(int)itemType::WOOD_PLANKS] = uniqueItem(/*name*/"wood_planks", /*max_stack*/99, /*places*/blockType::AIR        );
+    item_infos[(int)ItemType::NOTHING] =     ItemInfo(/*name*/"nothing",     /*max_stack*/0,  /*places*/BlockType::AIR        );
+    item_infos[(int)ItemType::STONE] =       ItemInfo(/*name*/"stone",       /*max_stack*/99, /*places*/BlockType::STONE      );
+    item_infos[(int)ItemType::DIRT] =        ItemInfo(/*name*/"dirt",        /*max_stack*/99, /*places*/BlockType::DIRT       );
+    item_infos[(int)ItemType::STONE_BLOCK] = ItemInfo(/*name*/"stone_block", /*max_stack*/99, /*places*/BlockType::STONE_BLOCK);
+    item_infos[(int)ItemType::WOOD_PLANKS] = ItemInfo(/*name*/"wood_planks", /*max_stack*/99, /*places*/BlockType::AIR        );
     
     // unqiue_liquids
-    unique_liquids[(int)liquidType::EMPTY] = uniqueLiquid(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1  );
-    unique_liquids[(int)liquidType::WATER] = uniqueLiquid(/*name*/"water", /*flow_time*/0, /*speed_multiplier*/0.5);
+    liquid_infos[(int)LiquidType::EMPTY] = LiquidInfo(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1  );
+    liquid_infos[(int)LiquidType::WATER] = LiquidInfo(/*name*/"water", /*flow_time*/0, /*speed_multiplier*/0.5);
 }

@@ -1,10 +1,3 @@
-//
-//  fileManager.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 27/04/2021.
-//
-
 #ifndef fileManager_hpp
 #define fileManager_hpp
 

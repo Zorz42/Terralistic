@@ -34,7 +34,7 @@ class chat : public gfx::sceneModule, packetListener {
     networkingManager* manager;
     std::vector<chatLine*> chat_lines;
 public:
-    explicit chat(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {packets::CHAT}; }
+    explicit chat(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {PacketType::CHAT}; }
 
     void init() override;
     void update() override;
@@ -42,7 +42,7 @@ public:
     void onKeyDown(gfx::key key) override;
     void stop() override;
 
-    void onPacket(packets::packet &packet) override;
+    void onPacket(Packet &packet) override;
 };
 
 #endif /* chat_hpp */

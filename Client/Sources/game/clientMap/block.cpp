@@ -17,7 +17,7 @@ map::block map::getBlock(unsigned short x, unsigned short y) {
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 
-void map::block::setType(blockType block_id, liquidType liquid_id) {
+void map::block::setType(BlockType block_id, LiquidType liquid_id) {
     block_data->block_id = block_id;
     block_data->liquid_id = liquid_id;
     update();
@@ -28,12 +28,12 @@ void map::block::setLightLevel(unsigned char level) {
     update();
 }
 
-const uniqueBlock& map::blockData::getUniqueBlock() const {
-    return ::getUniqueBlock(block_id);
+const BlockInfo& map::blockData::getUniqueBlock() const {
+    return ::getBlockInfo(block_id);
 }
 
-const uniqueLiquid& map::blockData::getUniqueLiquid() const {
-    return ::getUniqueLiquid(liquid_id);
+const LiquidInfo& map::blockData::getUniqueLiquid() const {
+    return ::getLiquidInfo(liquid_id);
 }
 
 void map::renderBlocks() {
@@ -59,7 +59,7 @@ void map::renderBlocks() {
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
             if(getChunk(x, y).getState() == chunkState::unloaded && chunks_pending < REQUEST_LIMIT) {
-                packets::packet packet(packets::CHUNK, sizeof(y) + sizeof(x));
+                Packet packet(PacketType::CHUNK, sizeof(y) + sizeof(x));
                 packet << y << x;
                 networking_manager->sendPacket(packet);
                 getChunk(x, y).setState(chunkState::pending_load);
@@ -103,7 +103,7 @@ void map::block::draw() {
     if(getBreakStage())
         gfx::render(getBreakingTexture(), 2, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 
-    if(getLiquidType() != liquidType::EMPTY) {
+    if(getLiquidType() != LiquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
         gfx::render(getLiquidTexture(getLiquidType()), 2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::rectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
