@@ -12,74 +12,20 @@
 #include <vector>
 #include <string>
 
-// terrain generation parameters
-
-// TERRAIN
-//#define TERRAIN_VERTICAL_MULTIPLIER 140
-//#define TERRAIN_HORIZONTAL_DIVIDER 4
-//#define TERRAIN_HORIZONT ((float)world_map.getHeight() / 2 - 50)
-//#define TURB_SIZE 64.0 //initial size of the turbulence
 #define PI 3.14159265
 
-// CAVES
 
-//#define CAVE_START 0.15
-//#define CAVE_LENGTH 0.3
-
-// STONE
-
-//#define STONE_START 0.1
-//#define STONE_LENGTH 1
-
-int worldGenerator::generateTerrain(unsigned int seed) {
+int worldGenerator::generateWorld(unsigned int seed) {
     std::mt19937 engine(seed);
     SimplexNoise noise(engine());
-
     generating_current = 0;
 
     loadAssets();
     if(seed == 1000){//structure generation
-        for (int x = 0; x < server_blocks->getWidth(); x++) {
-            server_blocks->biomes[x] = biome::PLAINS;
-        }
-        for (int x = 0; x < server_blocks->getWidth(); x++) {
-            for (int y = 0; y < server_blocks->getHeight(); y++) {
-                if (y <= 324) {//generates surface
-                    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setType(blockType::DIRT, false);
-                }else if(y == 325)
-                    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
-            }
-        }
-        {
-            int x = 0;
-            while(x < server_blocks->getWidth()){
-                for (auto & structure : structures) {
-                    for(int j = 0; j < structure.y_size * structure.x_size; j++)
-                        if(structure.blocks[j] != blockType::NOTHING)
-                            server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size).setType(structure.blocks[j], false);
-                    x += structure.x_size + 1;
-                }
-            }
-        }
-        for(unsigned short x = 0; x < server_blocks->getWidth(); x++)
-            for(unsigned short y = 0; y < server_blocks->getHeight(); y++)
-                server_blocks->getBlock(x, y).update();
+        generateStructureWorld();
     }else{//deafult generation
-        for (int x = 0; x < server_blocks->getWidth(); x++) {
-            biomeGeneratorSwitch(x, noise);
-        }
-        for (int x = 0; x < server_blocks->getWidth(); x++) {
-            terrainGenerator(x, noise);
-        }
-        for (const structurePosition& i : structurePositions) {
-            generateStructure(i.name, i.x, i.y);
-        }
-        for(unsigned short x = 0; x < server_blocks->getWidth(); x++)
-            for(unsigned short y = 0; y < server_blocks->getHeight(); y++)
-                server_blocks->getBlock(x, y).update();
+        generateDeafultWorld(noise);
     }
-
-
     generating_current++;
     return 0;
 }
@@ -95,23 +41,21 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
     return value / initialSize;
 }
 
-/*int heatGeneratorInt(unsigned int x, SimplexNoise& noise) {
+int worldGenerator::heatGeneratorInt(unsigned int x, SimplexNoise &noise) {
     int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 1.5;
     return heat == 3 ? 2 : heat;
-}*/
+}
 
-//int serverMap::getHeight()GeneratorInt(unsigned int x, SimplexNoise& noise) {
-    /*if (x < 50 || x > getWidth() - 50)
+int worldGenerator::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
+    if (x < 50 || x > server_blocks->getWidth() - 50)
         return 0;
-    else if (x < 100 || x > getWidth() - 100)
+    else if (x < 100 || x > server_blocks->getWidth() - 100)
         return 1;
     else {
         int heat = (noise.noise((float)x / 600.0 + 0.001) + 1) * 2;
         return std::min(std::max(1, heat), 3);
-    }*/
-    //int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 2;
-    //return heat == 4 ? 3 : heat;
-//}
+    }
+}
 
 void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     /*
@@ -121,63 +65,9 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     mountains 600-700
     */
 
-    int heat = 1;// heatGeneratorInt(x, noise);
-    int biome_height = 2;// getHeight()GeneratorInt(x, noise);
-    /*if (biomegetHeight() > 1)
-        biomegetHeight() = 3 - biomegetHeight();*/
-
-    switch (heat) {
-    case 0:
-        switch (biome_height) {
-        case 0://icy seas
-            server_blocks->biomes[x] = biome::ICY_SEAS;
-            break;
-        case 1://snowy tundra
-            server_blocks->biomes[x] = biome::SNOWY_TUNDRA;
-            break;
-        case 2://cold hills (with taiga trees?)
-            server_blocks->biomes[x] = biome::COLD_HILLS;
-            break;
-        case 3://snowy mountains
-            server_blocks->biomes[x] = biome::SNOWY_MOUNTAINS;
-            break;
-        }
-        break;
-
-    case 1:
-        switch (biome_height) {
-        case 0://regular sea
-            server_blocks->biomes[x] = biome::SEA;
-            break;
-        case 1://plains
-            server_blocks->biomes[x] = biome::PLAINS;
-            break;
-        case 2://forest
-            server_blocks->biomes[x] = biome::FOREST;
-            break;
-        case 3://regular mountain
-            server_blocks->biomes[x] = biome::MOUNTAINS;
-            break;
-        }
-        break;
-
-    case 2:
-        switch (biome_height) {
-        case 0://warm ocean
-            server_blocks->biomes[x] = biome::WARM_OCEAN;
-            break;
-        case 1://desert
-            server_blocks->biomes[x] = biome::DESERT;
-            break;
-        case 2://savana
-            server_blocks->biomes[x] = biome::SAVANA;
-            break;
-        case 3://savana mountains
-            server_blocks->biomes[x] = biome::SAVANA_MOUNTAINS;
-            break;
-        }
-        break;
-    }
+    int heat = heatGeneratorInt(x, noise);
+    int biome_height = heightGeneratorInt(x, noise);
+    server_blocks->biomes[x] = (biome)((biome_height << 2) + heat);
 }
 
 void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
@@ -383,35 +273,8 @@ void worldGenerator::generateSavana(int x, SimplexNoise& noise) {
         }
     }
     if (noise.noise(x + 0.5, slice_height + 0.5) >= 0.7)
-        generateAccaciaTree(x, slice_height);
+        //generateAccaciaTree(x, slice_height);
 }
-
-
-void worldGenerator::generateAccaciaTree(int x, int y) {
-    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 2).setType(blockType::WOOD, false);
-    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 3).setType(blockType::WOOD, false);
-    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 4).setType(blockType::WOOD, false);
-    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 5).setType(blockType::WOOD, false);
-    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 6).setType(blockType::WOOD, false);
-
-    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y-7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y-8).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x - 1, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x - 1, server_blocks->getHeight() - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x + 1, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x + 1, server_blocks->getHeight() - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x - 2, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x - 2, server_blocks->getHeight() - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x + 2, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x + 2, server_blocks->getHeight() - (unsigned short)y - 8).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x + 3, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x + 4, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x - 3, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-    server_blocks->getBlock((unsigned short)x - 4, server_blocks->getHeight() - (unsigned short)y - 7).setType(blockType::LEAVES, false);
-
-
-}
-
 
 
 
@@ -535,4 +398,55 @@ void worldGenerator::generateStructure(const std::string& name, int x, int y) {
         }
     }
 
+}
+
+void worldGenerator::generateStructureWorld(){
+    generateFlatTerrain();
+    generateStructuresForStrWorld();
+    updateBlocks();
+}
+
+void worldGenerator::generateFlatTerrain() {
+    for (int x = 0; x < server_blocks->getWidth(); x++) {
+        server_blocks->biomes[x] = biome::PLAINS;
+    }
+    for (int x = 0; x < server_blocks->getWidth(); x++) {
+        for (int y = 0; y < server_blocks->getHeight(); y++) {
+            if (y <= 324) {//generates surface
+                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setType(blockType::DIRT, false);
+            }else if(y == 325)
+                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setType(blockType::GRASS_BLOCK, false);
+        }
+    }
+}
+
+void worldGenerator::generateStructuresForStrWorld() {
+    int x = 0;
+    while(x < server_blocks->getWidth()){
+        for (auto & structure : structures) {
+            for(int j = 0; j < structure.y_size * structure.x_size; j++)
+                if(structure.blocks[j] != blockType::NOTHING)
+                    server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size).setType(structure.blocks[j], false);
+            x += structure.x_size + 1;
+        }
+    }
+}
+
+void worldGenerator::updateBlocks() {
+    for(unsigned short x = 0; x < server_blocks->getWidth(); x++)
+        for(unsigned short y = 0; y < server_blocks->getHeight(); y++)
+            server_blocks->getBlock(x, y).update();
+}
+
+void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
+    for (int x = 0; x < server_blocks->getWidth(); x++) {
+        biomeGeneratorSwitch(x, noise);
+    }
+    for (int x = 0; x < server_blocks->getWidth(); x++) {
+        terrainGenerator(x, noise);
+    }
+    for (const structurePosition& i : structurePositions) {
+        generateStructure(i.name, i.x, i.y);
+    }
+    updateBlocks();
 }

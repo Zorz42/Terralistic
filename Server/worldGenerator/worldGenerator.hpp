@@ -44,9 +44,16 @@ class worldGenerator {
     void generateForest(int x, SimplexNoise& noise);
     void generateColdHills(int x, SimplexNoise& noise);
     void generateSavana(int x, SimplexNoise& noise);
+    void generateStructureWorld();
+    void generateFlatTerrain();
+    void generateStructuresForStrWorld();
+    void updateBlocks();
+    void generateDeafultWorld(SimplexNoise& noise);
+    int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
+    int heatGeneratorInt(unsigned int x, SimplexNoise& noise);
 
     //void generateOakTree(int x, int y);
-    void generateAccaciaTree(int x, int y);
+    //void generateAccaciaTree(int x, int y);
     void generateStructure(const std::string& name, int x, int y);
 
     void loadAssets();
@@ -61,7 +68,7 @@ public:
     inline unsigned int getGeneratingCurrent() const { return generating_current; }
     inline unsigned int getGeneratingTotal() const { return generating_total; }
 
-    int generateTerrain(unsigned int seed);
+    int generateWorld(unsigned int seed);
 };
 
 #endif /* worldGenerator_hpp */

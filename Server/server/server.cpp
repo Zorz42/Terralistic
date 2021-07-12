@@ -49,9 +49,9 @@ void server::start() {
         state = GENERATING_WORLD;
         print::info("Generating world...");
         if(working_dir.substr(working_dir.length() - 16, 16) == "/StructureWorld/")
-          generator.generateTerrain(1000);
+          generator.generateWorld(1000);
         else
-          generator.generateTerrain(rand());
+          generator.generateWorld(rand());
     }
 
     print::info("Post initializing modules...");
