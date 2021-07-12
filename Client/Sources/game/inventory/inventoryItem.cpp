@@ -10,9 +10,9 @@
 #include "inventory.hpp"
 #include "properties.hpp"
 
-const uniqueItem& clientInventoryItem::getUniqueItem() const {
+const ItemInfo& clientInventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return ::getUniqueItem(item_id);
+    return ::getItemInfo(item_id);
 }
 
 void clientInventoryItem::setStack(unsigned short stack_) {

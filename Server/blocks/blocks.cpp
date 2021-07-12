@@ -8,11 +8,11 @@
 #include "blocks.hpp"
 #include <fstream>
 
-void blocks::createWorld(unsigned short width, unsigned short height) {
-    block_arr = new blockData[(width << 4) * (height << 4)];
-    this->width = width << 4;
-    this->height = height << 4;
-    biomes = new biome[this->width];
+void blocks::createWorld(unsigned short world_width, unsigned short world_height) {
+    block_arr = new blockData[(world_width << 4) * (world_height << 4)];
+    this->width = world_width << 4;
+    this->height = world_height << 4;
+    biomes = new Biome[width];
 
 }
 
@@ -63,8 +63,8 @@ void blocks::loadFrom(std::string path) {
         for(int x = 0; x < width; x++) {
             block curr_block = getBlock(x, y);
             int pos = x * 3;
-            curr_block.setType((blockType) world_buffer[pos], false);
-            curr_block.setType((liquidType) world_buffer[pos + 1], false);
+            curr_block.setType((BlockType) world_buffer[pos], false);
+            curr_block.setType((LiquidType) world_buffer[pos + 1], false);
             curr_block.setLiquidLevel(world_buffer[pos + 2]);
         }
         delete[] world_buffer;
@@ -72,10 +72,10 @@ void blocks::loadFrom(std::string path) {
     world_file.close();
 }
 
-const uniqueBlock& block::getUniqueBlock() {
-    return ::getUniqueBlock(block_data->block_id);
+const BlockInfo& block::getUniqueBlock() {
+    return ::getBlockInfo(block_data->block_id);
 }
 
-const uniqueLiquid& block::getUniqueLiquid() {
-    return ::getUniqueLiquid(block_data->liquid_id);
+const LiquidInfo& block::getUniqueLiquid() {
+    return ::getLiquidInfo(block_data->liquid_id);
 }

@@ -20,28 +20,36 @@
 #include "print.hpp"
 #include "serverNetworking.hpp"
 
-packets::packet connection::getPacket() {
-    return packets::getPacket(socket, buffer);
+Packet connection::getPacket() {
+    return packet_manager.getPacket();
 }
 
 void serverNetworkingManager::registerListener(serverPacketListener *listener) {
     listeners.push_back(listener);
 }
 
-void connection::sendPacket(const packets::packet& packet_) const {
-    packets::sendPacket(socket, packet_);
+void connection::sendPacket(const Packet& packet) const {
+    packet_manager.sendPacket(packet);
 }
 
-void serverNetworkingManager::sendToEveryone(const packets::packet& packet, connection* exclusion) {
+void connection::setSocket(int socket) {
+    packet_manager.socket = socket;
+}
+
+int connection::getSocket() {
+    return packet_manager.socket;
+}
+
+void serverNetworkingManager::sendToEveryone(const Packet& packet, connection* exclusion) {
     for(connection& conn : connections)
-        if(conn.socket != -1)
-            if((!exclusion || conn.socket != exclusion->socket) && conn.registered)
+        if(conn.getSocket() != -1)
+            if((!exclusion || conn.getSocket() != exclusion->getSocket()) && conn.registered)
                 conn.sendPacket(packet);
 }
 
-void serverNetworkingManager::onPacket(packets::packet& packet, connection& conn) {
+void serverNetworkingManager::onPacket(Packet& packet, connection& conn) {
     for(serverPacketListener* listener : listeners)
-        if(listener->listening_to.find(packet.type) != listener->listening_to.end())
+        if(listener->listening_to.find(packet.getType()) != listener->listening_to.end())
             listener->onPacket(packet, conn);
 }
 
@@ -59,10 +67,10 @@ void serverNetworkingManager::listenerLoop() {
         max_sd = server_fd;
 
         for(connection& conn : connections)
-            if(conn.socket != -1) {
-                FD_SET(conn.socket, &readfds);
-                if(conn.socket > max_sd)
-                    max_sd = conn.socket;
+            if(conn.getSocket() != -1) {
+                FD_SET(conn.getSocket(), &readfds);
+                if(conn.getSocket() > max_sd)
+                    max_sd = conn.getSocket();
             }
 
         activity = select(max_sd + 1, &readfds, nullptr, nullptr, nullptr);
@@ -76,9 +84,9 @@ void serverNetworkingManager::listenerLoop() {
             if (!accept_only_itself || new_connection.ip == "0.0.0.0") {
                 new_socket = accept(server_fd, nullptr, nullptr);
                 if (new_socket != -1 ) {
-                    new_connection.socket = new_socket;
+                    new_connection.setSocket(new_socket);
                     for (connection& conn : connections)
-                        if (conn.socket == -1) {
+                        if (conn.getSocket() == -1) {
                             conn = new_connection;
                             break;
                         }
@@ -87,9 +95,9 @@ void serverNetworkingManager::listenerLoop() {
         }
 
         for(connection& conn : connections)
-            if(conn.socket != -1) {
-                if (FD_ISSET(conn.socket, &readfds)) {
-                    packets::packet packet = conn.getPacket();
+            if(conn.getSocket() != -1) {
+                if (FD_ISSET(conn.getSocket(), &readfds)) {
+                    Packet packet = conn.getPacket();
                     onPacket(packet, conn);
                 }
         }
@@ -194,7 +202,7 @@ void serverNetworkingManager::startListening() {
         exit(EXIT_FAILURE);
     }
 #endif
-
+    
     listener_running = true;
     listener_thread = std::thread(std::bind(&serverNetworkingManager::listenerLoop, this));
 }

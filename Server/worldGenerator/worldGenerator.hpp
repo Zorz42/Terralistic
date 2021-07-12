@@ -15,8 +15,8 @@
 struct structure {
     std::string name;
     int x_size, y_size;
-    blockType* blocks;
-    structure(std::string cname, int x, int y, blockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), blocks(cBlocks) {}
+    BlockType* blocks;
+    structure(std::string cname, int x, int y, BlockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), blocks(cBlocks) {}
 };
 
 struct structurePosition {
@@ -27,10 +27,10 @@ struct structurePosition {
 
 class worldGenerator {
     blocks* server_blocks;
-    
+
     std::vector<structure> structures;
     std::vector<structurePosition> structurePositions;
-    
+
     void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
     int calculateHeight(int x, SimplexNoise& noise);
     //static int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
@@ -48,19 +48,19 @@ class worldGenerator {
     //void generateOakTree(int x, int y);
     void generateAccaciaTree(int x, int y);
     void generateStructure(const std::string& name, int x, int y);
-    
+
     void loadAssets();
 
     std::string resource_path;
-    
+
     unsigned int generating_current = 0, generating_total = 6;
-    
+
 public:
     worldGenerator(blocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
-    
+
     inline unsigned int getGeneratingCurrent() const { return generating_current; }
     inline unsigned int getGeneratingTotal() const { return generating_total; }
-    
+
     int generateTerrain(unsigned int seed);
 };
 

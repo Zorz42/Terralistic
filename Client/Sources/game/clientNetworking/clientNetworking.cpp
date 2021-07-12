@@ -20,15 +20,15 @@
 #include "clientNetworking.hpp"
 #include <thread>
 
-void networkingManager::sendPacket(packets::packet& packet_) const {
-    packets::sendPacket(sock, packet_);
+void networkingManager::sendPacket(Packet& packet_) const {
+    packet_manager.sendPacket(packet_);
 }
 
 void networkingManager::listenerLoop(networkingManager* manager) {
     while(manager->listener_running) {
-        packets::packet packet = packets::getPacket(manager->sock, manager->buffer);
+        Packet packet = manager->packet_manager.getPacket();
         for(packetListener* listener : manager->listeners)
-            if(listener->listening_to.find(packet.type) != listener->listening_to.end()) {
+            if(listener->listening_to.find(packet.getType()) != listener->listening_to.end()) {
                 listener->onPacket(packet);
                 break;
             }
@@ -105,6 +105,9 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     
     sock = curr_sock;
 #endif
+    
+    packet_manager.socket = sock;
+    
     std::thread listener = std::thread(listenerLoop, this);
     listener.detach();
 
