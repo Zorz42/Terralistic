@@ -33,16 +33,20 @@ void connection::sendPacket(const Packet& packet) const {
 }
 
 void connection::setSocket(int socket) {
-    packet_manager.socket = socket;
+    packet_manager.bindToSocket(socket);
 }
 
 int connection::getSocket() {
-    return packet_manager.socket;
+    return packet_manager.getSocket();
+}
+
+bool connection::isConnected() {
+    return packet_manager.isSocketSet();
 }
 
 void serverNetworkingManager::sendToEveryone(const Packet& packet, connection* exclusion) {
     for(connection& conn : connections)
-        if(conn.getSocket() != -1)
+        if(conn.isConnected())
             if((!exclusion || conn.getSocket() != exclusion->getSocket()) && conn.registered)
                 conn.sendPacket(packet);
 }
@@ -54,54 +58,57 @@ void serverNetworkingManager::onPacket(Packet& packet, connection& conn) {
 }
 
 void serverNetworkingManager::listenerLoop() {
-    int new_socket, activity, max_sd;
-    sockaddr_in address{};
-
-    fd_set readfds;
-
-
+    listener_running = true;
     while(listener_running) {
+        fd_set readfds;
         FD_ZERO(&readfds);
 
         FD_SET(server_fd, &readfds);
-        max_sd = server_fd;
+        int max_sd = server_fd;
 
         for(connection& conn : connections)
-            if(conn.getSocket() != -1) {
+            if(conn.isConnected()) {
                 FD_SET(conn.getSocket(), &readfds);
                 if(conn.getSocket() > max_sd)
                     max_sd = conn.getSocket();
             }
 
-        activity = select(max_sd + 1, &readfds, nullptr, nullptr, nullptr);
+        int activity = select(max_sd + 1, &readfds, nullptr, nullptr, nullptr);
 
         if((activity < 0) && (errno != EINTR))
             return;
 
         if(FD_ISSET(server_fd, &readfds)) {
             connection new_connection;
+            sockaddr_in address;
+            socklen_t addrlen = sizeof(address);
+            int new_socket = accept(server_fd, (sockaddr*)&address, &addrlen);
             new_connection.ip = inet_ntoa(address.sin_addr);
-            if (!accept_only_itself || new_connection.ip == "0.0.0.0") {
-                new_socket = accept(server_fd, nullptr, nullptr);
-                if (new_socket != -1 ) {
-                    new_connection.setSocket(new_socket);
-                    for (connection& conn : connections)
-                        if (conn.getSocket() == -1) {
-                            conn = new_connection;
-                            break;
-                        }
-                }
+            if((!accept_only_itself || new_connection.ip == "127.0.0.1") && new_socket != -1) {
+                new_connection.setSocket(new_socket);
+                for (connection& conn : connections)
+                    if (!conn.isConnected()) {
+                        conn = new_connection;
+                        break;
+                    }
+            } else {
+            #ifdef _WIN32
+                closesocket(server_fd);
+            #else
+                close(server_fd);
+            #endif
             }
         }
 
         for(connection& conn : connections)
-            if(conn.getSocket() != -1) {
+            if(conn.isConnected()) {
                 if (FD_ISSET(conn.getSocket(), &readfds)) {
                     Packet packet = conn.getPacket();
                     onPacket(packet, conn);
                 }
         }
     }
+    
 #ifdef _WIN32
     closesocket(server_fd);
 #else
@@ -202,8 +209,7 @@ void serverNetworkingManager::startListening() {
         exit(EXIT_FAILURE);
     }
 #endif
-    
-    listener_running = true;
+
     listener_thread = std::thread(std::bind(&serverNetworkingManager::listenerLoop, this));
 }
 

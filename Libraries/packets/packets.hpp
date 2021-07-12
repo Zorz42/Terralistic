@@ -41,27 +41,16 @@ class PacketManager {
     bool otherSideDisconneceted();
     PacketType getTypeFromBuffer();
     void eraseFrontOfBuffer(unsigned short size);
+    int socket;
+    bool socket_is_set = false;
     
 public:
-    int socket = -1;
+    int getSocket() const;
+    void bindToSocket(int sock);
+    bool isSocketSet() const;
     
     Packet getPacket();
     void sendPacket(const Packet& packet) const;
 };
-
-template<class Type>
-Packet& Packet::operator<<(Type x) {
-    memcpy(contents + curr_pos + 3, &x, sizeof(Type));
-    curr_pos += sizeof(Type);
-    return *this;
-}
-
-template<class Type>
-Type Packet::get() {
-    Type result = 0;
-    memcpy(&result, contents + curr_pos + 3 - sizeof(Type), sizeof(Type));
-    curr_pos -= sizeof(Type);
-    return result;
-}
 
 #endif /* packets_hpp */

@@ -26,6 +26,7 @@ public:
     
     int getSocket();
     void setSocket(int socket);
+    bool isConnected();
     
     Packet getPacket();
     void sendPacket(const Packet& packet_) const;

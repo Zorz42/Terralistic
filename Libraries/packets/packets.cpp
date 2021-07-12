@@ -46,6 +46,21 @@ void Packet::send(int socket) const {
     ::send(socket, (char*)contents, curr_pos + 3, 0);
 }
 
+template<class Type>
+Type Packet::get() {
+    Type result = 0;
+    memcpy(&result, contents + curr_pos + 3 - sizeof(Type), sizeof(Type));
+    curr_pos -= sizeof(Type);
+    return result;
+}
+
+template char Packet::get();
+template unsigned char Packet::get();
+template short Packet::get();
+template unsigned short Packet::get();
+template int Packet::get();
+template unsigned int Packet::get();
+
 template<>
 std::string Packet::get<std::string>() {
     std::string result;
@@ -55,6 +70,20 @@ std::string Packet::get<std::string>() {
     result.append(contents + curr_pos + 3, contents + curr_pos + 3 + size);
     return result;
 }
+
+template<class Type>
+Packet& Packet::operator<<(Type x) {
+    memcpy(contents + curr_pos + 3, &x, sizeof(Type));
+    curr_pos += sizeof(Type);
+    return *this;
+}
+
+template Packet& Packet::operator<<(char x);
+template Packet& Packet::operator<<(unsigned char x);
+template Packet& Packet::operator<<(short x);
+template Packet& Packet::operator<<(unsigned short x);
+template Packet& Packet::operator<<(int x);
+template Packet& Packet::operator<<(unsigned int x);
 
 Packet& Packet::operator<<(std::string x) {
     memcpy(contents + curr_pos + 3, &x[0], x.size());
@@ -70,7 +99,7 @@ Packet::~Packet() {
 }
 
 unsigned short PacketManager::getPacketSizeFromBuffer() {
-    return buffer_size == 0 ? 0 : buffer[0] + (buffer[1] << 8);
+    return buffer_size <= 0 ? 0 : buffer[0] + (buffer[1] << 8);
 }
 
 bool PacketManager::isBufferSufficient(unsigned short size) {
@@ -85,7 +114,7 @@ void PacketManager::appendToBuffer(unsigned char *appended_buffer, int appended_
 }
 
 bool PacketManager::otherSideDisconneceted() {
-    return buffer_size <= 0;
+    return buffer_size == -1;
 }
 
 PacketType PacketManager::getTypeFromBuffer() {
@@ -101,6 +130,8 @@ void PacketManager::eraseFrontOfBuffer(unsigned short size) {
 }
 
 Packet PacketManager::getPacket() {
+    if(!isSocketSet())
+        throw "socket is not set";
     unsigned short size = getPacketSizeFromBuffer();
     
     if(!isBufferSufficient(size)) {
@@ -120,5 +151,24 @@ Packet PacketManager::getPacket() {
 }
 
 void PacketManager::sendPacket(const Packet& packet) const {
+    if(!isSocketSet())
+        throw "socket is not set";
     packet.send(socket);
+}
+
+int PacketManager::getSocket() const {
+    if(!isSocketSet())
+        throw "socket is not set";
+    return socket;
+}
+
+void PacketManager::bindToSocket(int sock) {
+    if(isSocketSet())
+        throw "socket is already set";
+    socket = sock;
+    socket_is_set = true;
+}
+
+bool PacketManager::isSocketSet() const {
+    return socket_is_set;
 }

@@ -106,7 +106,7 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     sock = curr_sock;
 #endif
     
-    packet_manager.socket = sock;
+    packet_manager.bindToSocket(sock);
     
     std::thread listener = std::thread(listenerLoop, this);
     listener.detach();
