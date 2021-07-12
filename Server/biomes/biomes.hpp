@@ -1,0 +1,8 @@
+//
+// Created by nejc on 12.07.21.
+//
+
+#ifndef TERRALISTIC_SERVER_BIOMES_H
+#define TERRALISTIC_SERVER_BIOMES_H
+
+#endif //TERRALISTIC_SERVER_BIOMES_H
