@@ -1,10 +1,3 @@
-//
-//  packets.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 15/01/2021.
-//
-
 #include "packets.hpp"
 
 #ifdef _WIN32
@@ -16,56 +9,166 @@
 
 #define BUFFER_SIZE 2048
 
-packets::packet packets::getPacket(int socket, packetBuffer& buffer) {
-    /*
-     Through TCP packets are array of bytes. In those packets you can
-     serialize just about anything that has a fixed size. Int can be
-     for example deconstructed into 4 bytes and then reconstructed at
-     the other side. Also data is stored in vector of unsigned char.
-     */
-    
-    // size of the packet are the first two bytes
-    unsigned short size = buffer.size < 2 ? 0 : buffer.buffer[0] + (buffer.buffer[1] << 8);
-    
-    // packets can be merged so if multiple packets come in one piece,
-    // it can process one buffer multiple times. Only refill it when its empty
-    if(size + 3 > buffer.size) {
-        // get packet/s and apply it to the buffer
-        unsigned char temp_buffer[BUFFER_SIZE];
-        int bytes_received = (int)recv(socket, (char*)temp_buffer, BUFFER_SIZE, 0);
-        buffer.buffer = (unsigned char*)realloc(buffer.buffer, buffer.size + bytes_received);
-        for(int i = 0; i < bytes_received; i++)
-            buffer.buffer[buffer.size + i] = temp_buffer[i];
-        buffer.size += bytes_received;
-    }
-    
-    size = buffer.size < 2 ? 0 : buffer.buffer[0] + (buffer.buffer[1] << 8);
-    
-    // if bytes_received is 0 that means, that the other side disconnected
-    if(buffer.size > 0) {
-        // packet type is the third byte
-        packet result((packets::packetType)buffer.buffer[2], size);
-        for(unsigned short i = 0; i < size; i++)
-            result.contents[i + 3] = buffer.buffer[i + 3];
-        result.curr_pos = size + 3;
-        // erase size + 3 for size variable and 1 for type
-        
-        //buffer.buffer.erase(buffer.buffer.begin(), buffer.buffer.begin() + size + 3);
-        buffer.size -= size + 3;
-        unsigned char* temp = new unsigned char[buffer.size];
-        memcpy(temp, buffer.buffer + size + 3, buffer.size);
-        buffer.buffer = (unsigned char*)realloc(buffer.buffer, buffer.size);
-        memcpy(buffer.buffer, temp, buffer.size);
-        
-        return result;
-    } else
-        return packet(packets::DISCONNECT, 0);
+void Packet::allocateContents(unsigned short size, PacketType type) {
+    contents = new unsigned char[size + 3];
+    contents[0] = (size) & 255;
+    contents[1] = ((size) >> 8) & 255;
+    contents[2] = (unsigned char)type;
 }
 
-void packets::sendPacket(int socket, const packet& packet_) {
-    // first pack the size and type
-    packet_.contents[0] = (packet_.curr_pos - 3) & 255;
-    packet_.contents[1] = ((packet_.curr_pos - 3) >> 8) & 255;
-    packet_.contents[2] = packet_.type;
-    send(socket, (char*)packet_.contents, packet_.curr_pos, 0);
+void Packet::copyBufferToContents(unsigned char *buffer, unsigned short size) {
+    memcpy(contents + 3, buffer + 3, size * sizeof(unsigned char));
+}
+
+Packet::Packet(PacketType type, unsigned char* buffer, unsigned short size) {
+    allocateContents(size, type);
+    copyBufferToContents(buffer, size);
+    curr_pos = size;
+}
+
+Packet::Packet(PacketType type, unsigned short size) {
+    allocateContents(size, type);
+    curr_pos = 0;
+}
+
+Packet& Packet::operator=(Packet& target) {
+    target.contents = contents;
+    contents = nullptr;
+    target.curr_pos = curr_pos;
+    return *this;
+}
+
+PacketType Packet::getType() {
+    return (PacketType)contents[2];
+}
+
+void Packet::send(int socket) const {
+    ::send(socket, (char*)contents, curr_pos + 3, 0);
+}
+
+template<class Type>
+Type Packet::get() {
+    Type result = 0;
+    memcpy(&result, contents + curr_pos + 3 - sizeof(Type), sizeof(Type));
+    curr_pos -= sizeof(Type);
+    return result;
+}
+
+template char Packet::get();
+template unsigned char Packet::get();
+template short Packet::get();
+template unsigned short Packet::get();
+template int Packet::get();
+template unsigned int Packet::get();
+
+template<>
+std::string Packet::get<std::string>() {
+    std::string result;
+    curr_pos--;
+    unsigned char size = contents[curr_pos + 3];
+    curr_pos -= size;
+    result.append(contents + curr_pos + 3, contents + curr_pos + 3 + size);
+    return result;
+}
+
+template<class Type>
+Packet& Packet::operator<<(Type x) {
+    memcpy(contents + curr_pos + 3, &x, sizeof(Type));
+    curr_pos += sizeof(Type);
+    return *this;
+}
+
+template Packet& Packet::operator<<(char x);
+template Packet& Packet::operator<<(unsigned char x);
+template Packet& Packet::operator<<(short x);
+template Packet& Packet::operator<<(unsigned short x);
+template Packet& Packet::operator<<(int x);
+template Packet& Packet::operator<<(unsigned int x);
+
+Packet& Packet::operator<<(std::string x) {
+    memcpy(contents + curr_pos + 3, &x[0], x.size());
+    curr_pos += x.size();
+    contents[curr_pos + 3] = x.size();
+    curr_pos++;
+    return *this;
+}
+
+
+Packet::~Packet() {
+    delete[] contents;
+}
+
+unsigned short PacketManager::getPacketSizeFromBuffer() {
+    return buffer_size <= 0 ? 0 : buffer[0] + (buffer[1] << 8);
+}
+
+bool PacketManager::isBufferSufficient(unsigned short size) {
+    return size + 3 <= buffer_size;
+}
+
+void PacketManager::appendToBuffer(unsigned char *appended_buffer, int appended_buffer_size) {
+    buffer = (unsigned char*)realloc(buffer, buffer_size + appended_buffer_size);
+    for(int i = 0; i < appended_buffer_size; i++)
+        buffer[buffer_size + i] = appended_buffer[i];
+    buffer_size += appended_buffer_size;
+}
+
+bool PacketManager::otherSideDisconneceted() {
+    return buffer_size == -1;
+}
+
+PacketType PacketManager::getTypeFromBuffer() {
+    return (PacketType)buffer[2];
+}
+
+void PacketManager::eraseFrontOfBuffer(unsigned short size) {
+    buffer_size -= size;
+    unsigned char* temp = new unsigned char[buffer_size];
+    memcpy(temp, buffer + size, buffer_size);
+    buffer = (unsigned char*)realloc(buffer, buffer_size);
+    memcpy(buffer, temp, buffer_size);
+}
+
+Packet PacketManager::getPacket() {
+    if(!isSocketSet())
+        throw "socket is not set";
+    unsigned short size = getPacketSizeFromBuffer();
+    
+    if(!isBufferSufficient(size)) {
+        unsigned char temp_buffer[BUFFER_SIZE];
+        int bytes_received = (int)recv(socket, (char*)temp_buffer, BUFFER_SIZE, 0);
+        appendToBuffer(temp_buffer, bytes_received);
+    }
+    
+    size = getPacketSizeFromBuffer();
+    
+    if(!otherSideDisconneceted()) {
+        Packet result(getTypeFromBuffer(), buffer, size);
+        eraseFrontOfBuffer(size + 3);
+        return result;
+    } else
+        return Packet(PacketType::DISCONNECT, 0);
+}
+
+void PacketManager::sendPacket(const Packet& packet) const {
+    if(!isSocketSet())
+        throw "socket is not set";
+    packet.send(socket);
+}
+
+int PacketManager::getSocket() const {
+    if(!isSocketSet())
+        throw "socket is not set";
+    return socket;
+}
+
+void PacketManager::bindToSocket(int sock) {
+    if(isSocketSet())
+        throw "socket is already set";
+    socket = sock;
+    socket_is_set = true;
+}
+
+bool PacketManager::isSocketSet() const {
+    return socket_is_set;
 }

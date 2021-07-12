@@ -10,16 +10,16 @@
 #include "players.hpp"
 #include "properties.hpp"
 
-void inventoryItem::setId(itemType id) {
+void inventoryItem::setId(ItemType id) {
     if(item_id != id) {
         item_id = id;
         sendPacket();
     }
 }
 
-const uniqueItem& inventoryItem::getUniqueItem() const {
+const ItemInfo& inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return ::getUniqueItem(item_id);
+    return ::getItemInfo(item_id);
 }
 
 void inventoryItem::setStack(unsigned short stack_) {
@@ -27,7 +27,7 @@ void inventoryItem::setStack(unsigned short stack_) {
     if(stack != stack_) {
         stack = stack_;
         if(!stack)
-            item_id = itemType::NOTHING;
+            item_id = ItemType::NOTHING;
         
         sendPacket();
     }
@@ -59,7 +59,7 @@ bool inventoryItem::decreaseStack(unsigned short stack_) {
 
 void inventoryItem::sendPacket() {
     if(holder->owner->conn) {
-        packets::packet packet(packets::INVENTORY_CHANGE, sizeof(unsigned short) + sizeof(unsigned char) + sizeof(char));
+        Packet packet(PacketType::INVENTORY_CHANGE, sizeof(unsigned short) + sizeof(unsigned char) + sizeof(char));
         packet << (unsigned short)getStack() << (unsigned char)item_id << char(this - &holder->inventory_arr[0]);
         holder->owner->conn->sendPacket(packet);
     }
@@ -70,7 +70,7 @@ inventory::inventory(player* owner) : owner(owner) {
         i = inventoryItem(this);
 }
 
-char inventory::addItem(itemType id, int quantity) {
+char inventory::addItem(ItemType id, int quantity) {
     // adds item to inventory
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].getId() == id) {
@@ -79,7 +79,7 @@ char inventory::addItem(itemType id, int quantity) {
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].getId() == itemType::NOTHING) {
+        if(inventory_arr[i].getId() == ItemType::NOTHING) {
             inventory_arr[i].setId(id);
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)

@@ -25,9 +25,9 @@ clientPlayer* clientPlayers::getPlayerById(unsigned short id) {
     return nullptr;
 }
 
-void clientPlayers::onPacket(packets::packet &packet) {
-    switch(packet.type) {
-        case packets::PLAYER_JOIN: {
+void clientPlayers::onPacket(Packet &packet) {
+    switch(packet.getType()) {
+        case PacketType::PLAYER_JOIN: {
             auto* new_player = new clientPlayer();
             new_player->name = packet.get<std::string>();
             new_player->id = packet.get<unsigned short>();
@@ -37,7 +37,7 @@ void clientPlayers::onPacket(packets::packet &packet) {
             other_players.push_back(new_player);
             break;
         }
-        case packets::PLAYER_QUIT: {
+        case PacketType::PLAYER_QUIT: {
             auto id = packet.get<unsigned short>();
             for(auto i = other_players.begin(); i != other_players.end(); i++)
                 if((*i)->id == id) {
@@ -46,7 +46,7 @@ void clientPlayers::onPacket(packets::packet &packet) {
                 }
             break;
         }
-        case packets::PLAYER_MOVEMENT: {
+        case PacketType::PLAYER_MOVEMENT: {
             clientPlayer* player = getPlayerById(packet.get<unsigned short>());
             player->flipped = packet.get<char>();
             player->y = packet.get<int>();

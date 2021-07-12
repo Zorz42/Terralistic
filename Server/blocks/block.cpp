@@ -16,15 +16,15 @@ block blocks::getBlock(unsigned short x, unsigned short y) {
     return block(x, y, &block_arr[y * width + x], this, manager);
 }
 
-void block::setType(blockType block_id, bool process) {
+void block::setType(BlockType block_id, bool process) {
     setType(block_id, block_data->liquid_id, process);
 }
 
-void block::setType(liquidType liquid_id, bool process) {
+void block::setType(LiquidType liquid_id, bool process) {
     setType(block_data->block_id, liquid_id, process);
 }
 
-void block::setType(blockType block_id, liquidType liquid_id, bool process) {
+void block::setType(BlockType block_id, LiquidType liquid_id, bool process) {
     if(!process) {
         block_data->block_id = block_id;
         block_data->liquid_id = liquid_id;
@@ -33,7 +33,7 @@ void block::setType(blockType block_id, liquidType liquid_id, bool process) {
         bool was_transparent = getUniqueBlock().transparent;
         block_data->block_id = block_id;
         block_data->liquid_id = liquid_id;
-        if(liquid_id == liquidType::EMPTY)
+        if(liquid_id == LiquidType::EMPTY)
             setLiquidLevel(0);
 
         if(getUniqueBlock().transparent != was_transparent) {
@@ -64,7 +64,7 @@ void block::updateNeighbors() {
 }
 
 void block::syncWithClient() {
-    packets::packet packet(packets::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
+    Packet packet(PacketType::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
     packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
     manager->sendToEveryone(packet);
 }
@@ -74,7 +74,7 @@ void block::setBreakProgress(unsigned short ms) {
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
         block_data->break_stage = stage;
-        packets::packet packet(packets::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
+        Packet packet(PacketType::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
         packet << getY() << getX() << getBreakStage();
         manager->sendToEveryone(packet);
     }

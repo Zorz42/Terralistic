@@ -55,7 +55,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
     void onKeyDownInventory(gfx::key key);
     void onKeyDownSelector(gfx::key key);
     void onKeyUpSelector(gfx::key key);
-    void onPacketInventory(packets::packet &packet);
+    void onPacketInventory(Packet &packet);
 
     void initInventory();
 
@@ -75,9 +75,9 @@ class playerHandler : public gfx::sceneModule, packetListener {
     void update() override;
     void render() override;
     void selectSlot(char slot);
-    void onPacket(packets::packet &packet) override;
+    void onPacket(Packet &packet) override;
 public:
-    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {packets::SPAWN_POS, packets::INVENTORY_CHANGE}; }
+    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {PacketType::SPAWN_POS, PacketType::INVENTORY_CHANGE}; }
 };
 
 #endif /* playerHandler_hpp */

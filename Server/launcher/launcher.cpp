@@ -10,7 +10,6 @@
 #include "properties.hpp"
 
 int main(int argc, char **argv) {
-    serverInit();
     initProperties();
     
     server main_server(std::filesystem::current_path().string(), std::filesystem::current_path().string(), 33770);

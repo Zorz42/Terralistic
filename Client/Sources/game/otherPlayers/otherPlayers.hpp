@@ -36,9 +36,9 @@ class clientPlayers : public gfx::sceneModule, packetListener {
     clientPlayer* getPlayerById(unsigned short id);
     map* world_map;
 public:
-    clientPlayers(networkingManager* manager, map* world_map) : packetListener(manager), world_map(world_map) { listening_to = {packets::PLAYER_JOIN, packets::PLAYER_QUIT, packets::PLAYER_MOVEMENT}; }
+    clientPlayers(networkingManager* manager, map* world_map) : packetListener(manager), world_map(world_map) { listening_to = {PacketType::PLAYER_JOIN, PacketType::PLAYER_QUIT, PacketType::PLAYER_MOVEMENT}; }
     void render() override;
-    void onPacket(packets::packet &packet) override;
+    void onPacket(Packet &packet) override;
 };
 
 #endif /* otherPlayers_hpp */
