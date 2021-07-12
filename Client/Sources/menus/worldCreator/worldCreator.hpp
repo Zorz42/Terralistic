@@ -8,17 +8,7 @@
 #ifndef worldCreator_hpp
 #define worldCreator_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
 #include <string>
 #include <utility>

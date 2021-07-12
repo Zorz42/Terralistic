@@ -8,20 +8,9 @@
 #ifndef game_hpp
 #define game_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include <utility>
 
 #include "graphics.hpp"
-#endif
-
 #include "playerHandler.hpp"
 #include "clientNetworking.hpp"
 

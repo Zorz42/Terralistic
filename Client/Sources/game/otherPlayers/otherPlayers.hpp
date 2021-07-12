@@ -8,17 +8,7 @@
 #ifndef otherPlayers_hpp
 #define otherPlayers_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
-#include "graphics.hpp"
-#endif
+#include <iostream>
 
 #include "clientNetworking.hpp"
 #include "clientMap.hpp"

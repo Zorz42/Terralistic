@@ -5,19 +5,7 @@
 //  Created by Jakob Zorz on 26/03/2021.
 //
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
-
-
 #include "textScreen.hpp"
 
 void renderTextScreen(const std::string &text) {

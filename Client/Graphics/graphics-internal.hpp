@@ -25,6 +25,8 @@
 #endif
 #include <stack>
 
+#include <SFML/Graphics.hpp>
+
 namespace gfx {
 
 inline SDL_Window* window = nullptr;
