@@ -15,21 +15,20 @@ void gfx::returnFromScene() {
     running_scene = false;
 }
 
-void gfx::scene::_onKeyDown(key key_) {
+/*void gfx::scene::_onKeyDown(key key_) {
     if(!disable_events_gl || disable_events)
         onKeyDown(key_);
     for(sceneModule* module : modules)
         if(!disable_events_gl || module->disable_events)
             module->onKeyDown(key_);
 }
-
 void gfx::scene::_onKeyUp(key key_) {
     if(!disable_events_gl || disable_events)
         onKeyUp(key_);
     for(sceneModule* module : modules)
         if(!disable_events_gl || module->disable_events)
             module->onKeyUp(key_);
-}
+}*/
 
 gfx::key translateMouseKey(int sdl_button) {
     switch(sdl_button) {
