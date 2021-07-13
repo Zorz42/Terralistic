@@ -109,7 +109,7 @@ void players::onPacket(Packet& packet, connection& conn) {
             print::info(curr_player->name + " (" + curr_player->conn->ip + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
             player* player = getPlayerByConnection(&conn);
 #ifdef _WIN32
-            closesocket(conn.socket);
+            closesocket(conn.getSocket());
 #else
             close(conn.getSocket());
 #endif

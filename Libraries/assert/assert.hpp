@@ -9,7 +9,7 @@
 
 #else
 
-#define ASSERT(x, message) x;
+#define ASSERT(x, message) void(x);
 
 #endif
 

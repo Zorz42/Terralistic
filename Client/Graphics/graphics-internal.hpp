@@ -23,7 +23,6 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #endif
-#include <stack>
 
 #include <SFML/Graphics.hpp>
 

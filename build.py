@@ -1,8 +1,9 @@
 import os
 import sys
 import shutil
-import requests
+import urllib.request
 import tarfile
+import zipfile
 
 project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -19,10 +20,10 @@ if sys.platform == "darwin":
 
         sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-macOS-clang.tar.gz"
         sfml_file = project_path + "sfml.tar.gz"
-        sfml_request = requests.get(sfml_url, allow_redirects=True)
 
-        with open(sfml_file, 'wb') as sfml_download:
-            sfml_download.write(sfml_request.content)
+        with urllib.request.urlopen(sfml_url) as sfml_request:
+            with open(sfml_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
 
         with tarfile.open(sfml_file, "r:gz") as sfml_tar:
             sfml_tar.extractall(project_path + "Dependencies/")
@@ -41,6 +42,8 @@ if sys.platform == "darwin":
     shutil.move(project_path + "Temp/Release/Terralistic-server.app/", project_path + "Output/MacOS/")
 
     shutil.rmtree(project_path + "Temp/")
+
+
 elif sys.platform == "linux":
     lib_files = ["/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0"]
 
@@ -65,12 +68,25 @@ elif sys.platform == "linux":
 
     shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic/")
     shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic/")
+
+
 elif sys.platform == "win32":
     createDir("Dependencies/")
-    if not os.path.exists(project_path + "Dependencies/Windows/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-Windows-Dependencies {project_path}Dependencies/Windows/")
-    else:
-        os.system(f"git -C {project_path}Dependencies/Windows/ pull --rebase")
+
+    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
+        print("Downloading SFML libraries")
+
+        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-64-bit.zip"
+        sfml_file = project_path + "sfml.zip"
+
+        with urllib.request.urlopen(sfml_url) as sfml_request:
+            with open(sfml_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
+
+        with zipfile.ZipFile(sfml_file, "r") as sfml_zip:
+            sfml_zip.extractall(project_path + "Dependencies/")
+
+        os.remove(sfml_file)
 
     createDir("Build/")
     cmake_path = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe\""
@@ -82,6 +98,8 @@ elif sys.platform == "win32":
 
     createDir("Output/Windows/Terralistic/")
     shutil.move(project_path + "Build/Debug/Terralistic.exe", project_path + "Output/Windows/Terralistic/")
+    shutil.move(project_path + "Build/Debug/Terralistic-server.exe", project_path + "Output/Windows/Terralistic/")
+
     for file in os.listdir(project_path + "Build/"):
         if file.endswith(".dll"):
             shutil.move(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic/")
