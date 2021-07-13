@@ -19,14 +19,17 @@
 class serverPacketListener;
 
 class connection {
-    packets::packetBuffer buffer;
+    PacketManager packet_manager;
 public:
     std::string ip;
-    int socket{-1};
     bool disconnected = false, registered = false;
     
-    packets::packet getPacket();
-    void sendPacket(const packets::packet& packet_) const;
+    int getSocket();
+    void setSocket(int socket);
+    bool isConnected();
+    
+    Packet getPacket();
+    void sendPacket(const Packet& packet_) const;
 };
 
 class serverNetworkingManager {
@@ -35,7 +38,7 @@ class serverNetworkingManager {
     unsigned short port;
     std::vector<serverPacketListener*> listeners;
     std::thread listener_thread;
-    void onPacket(packets::packet& packet, connection& conn);
+    void onPacket(Packet& packet, connection& conn);
     void listenerLoop();
 public:
     serverNetworkingManager(unsigned short port) : port(port) {}
@@ -45,7 +48,7 @@ public:
     
     void startListening();
     void stopListening();
-    void sendToEveryone(const packets::packet& packet, connection* exclusion=nullptr);
+    void sendToEveryone(const Packet& packet, connection* exclusion=nullptr);
     void registerListener(serverPacketListener* listener);
     
     inline unsigned short getPort() { return port; }
@@ -54,8 +57,8 @@ public:
 class serverPacketListener {
 public:
     serverPacketListener(serverNetworkingManager* manager) { manager->registerListener(this); }
-    std::set<packets::packetType> listening_to;
-    virtual void onPacket(packets::packet& packet, connection& conn) = 0;
+    std::set<PacketType> listening_to;
+    virtual void onPacket(Packet& packet, connection& conn) = 0;
 };
 
 #endif /* serverNetworking_hpp */

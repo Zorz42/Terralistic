@@ -36,7 +36,7 @@ void playerHandler::renderInventory() {
         if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::rectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0)) && player->player_inventory.open) {
             hovered = &player->player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
-            if(player->player_inventory.inventory[i].item_id != itemType::NOTHING) {
+            if(player->player_inventory.inventory[i].item_id != ItemType::NOTHING) {
                 text_texture = &getItemTextTexture(player->player_inventory.inventory[i].item_id);
                 under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * MARGIN;
                 under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * MARGIN;
@@ -57,11 +57,11 @@ void playerHandler::renderInventory() {
     renderItem(player->player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
 
-void playerHandler::onPacketInventory(packets::packet &packet) {
-    switch(packet.type) {
-        case packets::INVENTORY_CHANGE: {
+void playerHandler::onPacketInventory(Packet &packet) {
+    switch(packet.getType()) {
+        case PacketType::INVENTORY_CHANGE: {
             char pos = packet.get<char>();
-            player->player_inventory.inventory[(int)pos].item_id = (itemType)packet.get<unsigned char>();
+            player->player_inventory.inventory[(int)pos].item_id = (ItemType)packet.get<unsigned char>();
             player->player_inventory.inventory[(int)pos].setStack(packet.get<unsigned short>());
             break;
         }
@@ -83,7 +83,7 @@ void playerHandler::renderItem(clientInventoryItem* item, int x, int y, int i) {
 
 void playerHandler::selectSlot(char slot) {
     player->player_inventory.selected_slot = slot;
-    packets::packet packet(packets::HOTBAR_SELECTION, sizeof(slot));
+    Packet packet(PacketType::HOTBAR_SELECTION, sizeof(slot));
     packet << slot;
     manager->sendPacket(packet);
 }
@@ -111,10 +111,10 @@ void playerHandler::onKeyDownInventory(gfx::key key) {
         case gfx::KEY_0: selectSlot(9); break;
         case gfx::KEY_E:
             player->player_inventory.open = !player->player_inventory.open;
-            if(!player->player_inventory.open && player->player_inventory.getMouseItem()->item_id != itemType::NOTHING) {
+            if(!player->player_inventory.open && player->player_inventory.getMouseItem()->item_id != ItemType::NOTHING) {
                 unsigned char result = player->player_inventory.addItem(player->player_inventory.getMouseItem()->item_id, player->player_inventory.getMouseItem()->getStack());
                 player->player_inventory.clearMouseItem();
-                packets::packet packet(packets::INVENTORY_SWAP, sizeof(result));
+                Packet packet(PacketType::INVENTORY_SWAP, sizeof(result));
                 packet << result;
                 manager->sendPacket(packet);
             }
@@ -122,7 +122,7 @@ void playerHandler::onKeyDownInventory(gfx::key key) {
         case gfx::KEY_MOUSE_LEFT: {
             if(hovered) {
                 player->player_inventory.swapWithMouseItem(hovered);
-                packets::packet packet(packets::INVENTORY_SWAP, sizeof(unsigned char));
+                Packet packet(PacketType::INVENTORY_SWAP, sizeof(unsigned char));
                 packet << (unsigned char)(hovered - &player->player_inventory.inventory[0]);
                 manager->sendPacket(packet);
             }

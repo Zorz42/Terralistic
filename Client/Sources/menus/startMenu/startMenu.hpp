@@ -10,17 +10,7 @@
 
 #undef main
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
 class startMenu : public gfx::scene {
     gfx::button singleplayer_button, multiplayer_button, exit_button;

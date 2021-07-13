@@ -14,8 +14,6 @@
 #include "players.hpp"
 #include "worldGenerator.hpp"
 
-void serverInit();
-
 class server {
     std::string working_dir;
     serverNetworkingManager networking_manager;

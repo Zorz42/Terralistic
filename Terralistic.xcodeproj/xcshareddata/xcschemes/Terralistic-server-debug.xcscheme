@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "167B38042642F61300E3C718"
-               BuildableName = "Terralistic-server"
+               BlueprintIdentifier = "16BF6913269D6CCA00CFE175"
+               BuildableName = "Terralistic-server.app"
                BlueprintName = "Terralistic-server"
                ReferencedContainer = "container:Terralistic.xcodeproj">
             </BuildableReference>
@@ -44,8 +44,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "167B38042642F61300E3C718"
-            BuildableName = "Terralistic-server"
+            BlueprintIdentifier = "16BF6913269D6CCA00CFE175"
+            BuildableName = "Terralistic-server.app"
             BlueprintName = "Terralistic-server"
             ReferencedContainer = "container:Terralistic.xcodeproj">
          </BuildableReference>
@@ -61,8 +61,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "167B38042642F61300E3C718"
-            BuildableName = "Terralistic-server"
+            BlueprintIdentifier = "16BF6913269D6CCA00CFE175"
+            BuildableName = "Terralistic-server.app"
             BlueprintName = "Terralistic-server"
             ReferencedContainer = "container:Terralistic.xcodeproj">
          </BuildableReference>

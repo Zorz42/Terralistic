@@ -18,14 +18,14 @@ class player;
 class inventoryItem {
     unsigned short stack;
     inventory* holder;
-    itemType item_id;
+    ItemType item_id;
 public:
-    inventoryItem() : holder(nullptr), item_id(itemType::NOTHING), stack(0) {}
-    explicit inventoryItem(inventory* holder) : holder(holder), item_id(itemType::NOTHING), stack(0) {}
+    inventoryItem() : holder(nullptr), item_id(ItemType::NOTHING), stack(0) {}
+    explicit inventoryItem(inventory* holder) : holder(holder), item_id(ItemType::NOTHING), stack(0) {}
 
-    inline itemType getId() { return item_id; }
-    void setId(itemType id);
-    [[nodiscard]] const uniqueItem& getUniqueItem() const;
+    inline ItemType getId() { return item_id; }
+    void setId(ItemType id);
+    [[nodiscard]] const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
@@ -40,7 +40,7 @@ class inventory {
 public:
     explicit inventory(player* owner);
     inventoryItem inventory_arr[INVENTORY_SIZE];
-    char addItem(itemType id, int quantity);
+    char addItem(ItemType id, int quantity);
     bool open = false;
     char selected_slot = 0;
     inventoryItem* getSelectedSlot();
@@ -61,6 +61,14 @@ public:
     std::string name;
 };
 
+class players;
+
+struct blockEvents {
+    void (*onBreak)(blocks*, players*, block*) = nullptr;
+    void (*onRightClick)(block*, player*) = nullptr;
+    void (*onLeftClick)(block*, player*) = nullptr;
+};
+
 class players : serverPacketListener {
     items* parent_items;
     blocks* parent_blocks;
@@ -69,12 +77,14 @@ class players : serverPacketListener {
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     
-    void onPacket(packets::packet& packet, connection& conn) override;
+    void onPacket(Packet& packet, connection& conn) override;
     
     void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
     void rightClickEvent(block this_block, player* peer);
+    
+    blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
 public:
-    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_), serverPacketListener(manager_), manager(manager_) { listening_to = {packets::STARTED_BREAKING, packets::STOPPED_BREAKING, packets::RIGHT_CLICK, packets::CHUNK, packets::VIEW_SIZE_CHANGE, packets::PLAYER_MOVEMENT, packets::PLAYER_JOIN, packets::DISCONNECT, packets::INVENTORY_SWAP, packets::HOTBAR_SELECTION, packets::CHAT}; }
+    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_);
     
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }
@@ -93,14 +103,5 @@ public:
     
     ~players();
 };
-
-struct blockEvents {
-    void (*onBreak)(blocks*, players*, block*) = nullptr;
-    void (*onRightClick)(block*, player*) = nullptr;
-    void (*onLeftClick)(block*, player*) = nullptr;
-};
-
-inline blockEvents* custom_block_events;
-void initBlockEvents();
 
 #endif /* players_hpp */

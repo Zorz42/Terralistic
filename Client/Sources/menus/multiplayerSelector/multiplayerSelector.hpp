@@ -8,17 +8,7 @@
 #ifndef multiplayerSelector_hpp
 #define multiplayerSelector_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
 struct multiplayerSelector : gfx::scene {
     void init() override;

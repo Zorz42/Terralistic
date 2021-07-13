@@ -105,7 +105,7 @@ void game::stop() {
     while(private_server && private_server->state != server::STOPPING)
         renderTextScreen("Saving world");
     
-    packets::packet disconnect_packet(packets::DISCONNECT, 0);
+    Packet disconnect_packet(PacketType::DISCONNECT, 0);
     networking_manager.sendPacket(disconnect_packet);
     networking_manager.closeConnection();
 

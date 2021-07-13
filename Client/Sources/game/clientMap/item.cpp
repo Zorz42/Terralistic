@@ -19,14 +19,14 @@ map::item* map::getItemById(unsigned short id) {
     return nullptr;
 }
 
-const uniqueItem& map::item::getUniqueItem() const {
-    return ::getUniqueItem(item_type);
+const ItemInfo& map::item::getUniqueItem() const {
+    return ::getItemInfo(item_type);
 }
 
 void map::renderItems() {
     for(map::item& item : items) {
         const gfx::image& texture = getItemTexture(item.getType());
         if(texture.getTexture())
-            gfx::render(texture, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2, 2);
+            gfx::render(texture, 2, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2);
     }
 }

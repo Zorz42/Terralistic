@@ -29,6 +29,8 @@
 #include "scene/scene.hpp"
 #include "ui/ui.hpp"
 
+#include <SFML/Graphics.hpp>
+
 namespace gfx {
 
 inline SDL_Window* window = nullptr;

@@ -10,22 +10,12 @@
 
 #include "properties.hpp"
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
-const gfx::image& getBlockTexture(blockType type);
-const gfx::image& getItemTexture(itemType type);
-const gfx::image& getItemTextTexture(itemType type);
-const gfx::image& getLiquidTexture(liquidType type);
+const gfx::image& getBlockTexture(BlockType type);
+const gfx::image& getItemTexture(ItemType type);
+const gfx::image& getItemTextTexture(ItemType type);
+const gfx::image& getLiquidTexture(LiquidType type);
 const gfx::image& getBreakingTexture();
 void loadTextures();
 

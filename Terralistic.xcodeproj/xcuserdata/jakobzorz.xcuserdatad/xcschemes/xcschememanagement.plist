@@ -4,16 +4,6 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Graphics-Debug.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>4</integer>
-		</dict>
-		<key>Graphics.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>3</integer>
-		</dict>
 		<key>Server-Debug.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -24,7 +14,7 @@
 			<key>orderHint</key>
 			<integer>6</integer>
 		</dict>
-		<key>Terralistic-Debug.xcscheme_^#shared#^_</key>
+		<key>Terralistic-debug.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>1</integer>
@@ -32,7 +22,7 @@
 		<key>Terralistic-server-debug.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>3</integer>
 		</dict>
 		<key>Terralistic-server.xcscheme_^#shared#^_</key>
 		<dict>
@@ -83,6 +73,11 @@
 			<true/>
 		</dict>
 		<key>169124BE25F6B89700F7EB4F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>16BF6913269D6CCA00CFE175</key>
 		<dict>
 			<key>primary</key>
 			<true/>
