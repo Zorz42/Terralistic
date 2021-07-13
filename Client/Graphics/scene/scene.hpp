@@ -16,7 +16,7 @@ class GraphicalModule {
 };
 
 class GraphicalModule : Scene {
-    std::vector<*GraphicalModule> modules;
+    std::vector<GraphicalModule> modules;
 
     void onKeyDownCallback(key key_);
     void onKeyUpCallback(key key_);
