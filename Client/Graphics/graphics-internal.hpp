@@ -1,14 +1,7 @@
-//
-//  graphics-internal.h
-//  Terralistic
-//
-//  Created by Jakob Zorz on 09/03/2021.
-//
-
 #ifndef graphics_internal_hpp
 #define graphics_internal_hpp
 
-
+#include "graphics.hpp"
 
 #ifdef _WIN32
 #include <SDL.h>
@@ -23,11 +16,6 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #endif
-
-#include "color/color.hpp"
-#include "rect/rect.hpp"
-#include "scene/scene.hpp"
-#include "ui/ui.hpp"
 
 #include <SFML/Graphics.hpp>
 

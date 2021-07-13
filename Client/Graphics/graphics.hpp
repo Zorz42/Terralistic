@@ -1,17 +1,12 @@
-//
-//  graphics.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 08/03/2021.
-//
-
 #ifndef graphics_hpp
 #define graphics_hpp
 
 #include <string>
 #include <vector>
-#include "rect/rect.hpp"
 #include "color/color.hpp"
+#include "rect/rect.hpp"
+#include "scene/scene.hpp"
+#include "ui/ui.hpp"
 
 namespace gfx {
 

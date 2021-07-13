@@ -1,10 +1,3 @@
-//
-//  main.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 08/03/2021.
-//
-
 #include "graphics-internal.hpp"
 #include <iostream>
 
@@ -24,8 +17,6 @@ void gfx::init(unsigned short window_width_, unsigned short window_height_) {
         sfml_window.clear();
         sfml_window.display();
     }
-
-    
     
     window_width = window_width_;
     window_height = window_height_;

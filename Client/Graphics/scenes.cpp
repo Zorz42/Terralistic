@@ -1,10 +1,3 @@
-//
-//  scenes.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 09/03/2021.
-//
-
 #include "graphics-internal.hpp"
 
 #include <iostream>
