@@ -119,6 +119,8 @@ if(WIN32)
             ${SFML_LIBS_TO_USE}
             )
 
+    include_directories(Terralistic ${SFML_DIR}include/)
+
     file(COPY
             Dependencies/Windows/SDL2-2.0.14/lib/x64/SDL2.dll
             Dependencies/Windows/SDL2_image-2.0.5/lib/x64/SDL2_image.dll
@@ -133,10 +135,8 @@ if(WIN32)
             ${SFML_DLLS_TO_USE}
 
             DESTINATION .)
-
-    include_directories(Terralistic ${SFML_DIR}include/)
 else()
-    target_link_libraries(Terralistic SDL2 SDL2_ttf SDL2_image)
+    target_link_libraries(Terralistic SDL2 SDL2_ttf SDL2_image sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
 endif()
 
 file(COPY Client/Resources DESTINATION .)

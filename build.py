@@ -45,11 +45,13 @@ if sys.platform == "darwin":
 
 
 elif sys.platform == "linux":
-    lib_files = ["/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0"]
+    lib_files = [
+
+    ]
 
     for lib_file in lib_files:
         if not os.path.exists(lib_file):
-            os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
+            os.system("sudo apt install libsfml-audio2.5 libsfml-graphics2.5 libsfml-network2.5 libsfml-system2.5 libsfml-window2.5 libsfml-dev")
             break
 
     createDir("Build/")
