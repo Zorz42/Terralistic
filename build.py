@@ -1,6 +1,8 @@
 import os
 import sys
 import shutil
+import requests
+import tarfile
 
 project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -11,10 +13,21 @@ def createDir(path):
 
 if sys.platform == "darwin":
     createDir(project_path + "Dependencies/")
-    if not os.path.exists(project_path + "Dependencies/MacOS/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependencies {project_path}Dependencies/MacOS/")
-    else:
-        os.system(f"git -C {project_path}Dependencies/MacOS/ pull --rebase")
+
+    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1-macos-clang/"):
+        print("Downloading SFML libraries")
+
+        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-macOS-clang.tar.gz"
+        sfml_file = project_path + "sfml.tar.gz"
+        sfml_request = requests.get(sfml_url, allow_redirects=True)
+
+        with open(sfml_file, 'wb') as sfml_download:
+            sfml_download.write(sfml_request.content)
+
+        with tarfile.open(sfml_file, "r:gz") as sfml_tar:
+            sfml_tar.extractall(project_path + "Dependencies/")
+
+        os.remove(sfml_file)
 
     os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
     os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
@@ -23,10 +36,10 @@ if sys.platform == "darwin":
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
     shutil.move(project_path + "Temp/Release/Terralistic.app/", project_path + "Output/MacOS/")
-    if os.path.exists(project_path + "Output/MacOS/Terralistic-server"):
-        os.remove(project_path + "Output/MacOS/Terralistic-server")
-    shutil.move(project_path + "Temp/Release/Terralistic-server", project_path + "Output/MacOS/")
-    shutil.copy(project_path + "Client/Resources/Structures.asset", project_path + "Output/MacOS/")
+
+    shutil.rmtree(project_path + "Output/MacOS/Terralistic-server.app/", ignore_errors=True)
+    shutil.move(project_path + "Temp/Release/Terralistic-server.app/", project_path + "Output/MacOS/")
+
     shutil.rmtree(project_path + "Temp/")
 elif sys.platform == "linux":
     lib_files = ["/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0"]
