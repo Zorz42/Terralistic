@@ -1,5 +1,5 @@
 #pragma once
-#include "../rect/rect.hpp"
+#include "../graphics-internal.hpp"
 class Image {
 public:
     void render(RectShape rect);

@@ -1,5 +1,4 @@
 #include "rect.hpp"
-#include "../ui/ui.hpp"
 #include "../graphics-internal.hpp"
 //RectShape
 RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
