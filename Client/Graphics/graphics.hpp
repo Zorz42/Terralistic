@@ -66,7 +66,7 @@ struct button : sprite {
     unsigned char hover_progress = 0;
 };
 
-*/
+
 struct textInput : button {
     textInput();
     
@@ -81,7 +81,7 @@ struct textInput : button {
     unsigned char cut_length;
 protected:
     std::string text;
-};*/
+};
 
 
 void render(const rect& x, bool fill=true);
@@ -91,7 +91,7 @@ void render(const image& tex, float scale, short x, short y, rectShape src_rect)
 void render(const sprite& spr);
 void render(button& b);
 void render(const textInput& b);
-
+*/
 struct scene;
 
 struct sceneModule {

@@ -4,12 +4,14 @@
 //
 //  Created by Jakob Zorz on 11/03/2021.
 //
-
-#include "graphics-internal.hpp"
 /*
+#include "graphics-internal.hpp"
+
 // _centeredObject
 
-
+gfx::rectShape gfx::_centeredObject::getTranslatedRect() const {
+    return rectShape(getTranslatedX(), getTranslatedY(), getWidth(), getHeight());
+}
 
 short gfx::_centeredObject::getTranslatedX() const {
     return orientation % 3 == 1 ? (window_width >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? window_width - getWidth() + x : x);
@@ -31,7 +33,7 @@ gfx::image::~image() {
 }
 
 void gfx::image::freeTexture() {
-    if(texture && free_texture) {
+    if (texture && free_texture) {
         SDL_DestroyTexture((SDL_Texture*)texture);
         texture = nullptr;
     }
@@ -72,7 +74,7 @@ unsigned short gfx::button::getHeight() const {
 }
 
 bool gfx::button::isHovered() const {
-    if(disabled)
+    if (disabled)
         return false;
     rectShape rect = getTranslatedRect();
     return mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
@@ -92,7 +94,6 @@ unsigned short gfx::textInput::getWidth() const {
 gfx::textInput::textInput() {
     margin = 3;
     gfx::image temp;
-    temp.setTexture(gfx::renderText("|g", {0, 0, 0}));
+    temp.setTexture(gfx::renderText("|g", { 0, 0, 0 }));
     cut_length = temp.getTextureWidth() - 1;
-}
-*/
+}*/
