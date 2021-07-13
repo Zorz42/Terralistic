@@ -99,11 +99,11 @@ void map::render() {
     float scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
     int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * scale) + 2; i++)
-        gfx::render(background_image, scale, position_x + i * background_image.getTextureWidth() * scale, 0);
+        background_image.render(scale, position_x + i * background_image.getTextureWidth() * scale, 0);
     renderBlocks();
     renderItems();
     if(kicked) {
-        gfx::runScene(new choiceScreen(kick_message, {"Close"}));
+        choiceScreen(kick_message, {"Close"}).run();
         gfx::returnFromScene();
     }
 }

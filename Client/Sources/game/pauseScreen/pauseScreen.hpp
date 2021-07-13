@@ -10,9 +10,9 @@
 
 #include "graphics.hpp"
 
-class pauseScreen : public gfx::sceneModule {
-    gfx::button resume_button, quit_button;
-    gfx::rect back_rect;
+class pauseScreen : public gfx::GraphicalModule {
+    gfx::Button resume_button, quit_button;
+    gfx::Rect back_rect;
     bool paused = false;
     int x_to_be = 0;
 public:

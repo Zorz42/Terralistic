@@ -12,13 +12,13 @@
 
 #include "graphics.hpp"
 
-class startMenu : public gfx::scene {
-    gfx::button singleplayer_button, multiplayer_button, exit_button;
-    gfx::sprite title, version;
-    gfx::image background;
-    gfx::rect back_rect;
+class startMenu : public gfx::Scene {
+    gfx::Button singleplayer_button, multiplayer_button, exit_button;
+    gfx::Sprite title, version;
+    gfx::Image background;
+    gfx::Rect back_rect;
 #ifdef DEVELOPER_MODE
-    gfx::sprite debug_title;
+    gfx::Sprite debug_title;
 #endif
 public:
     void init() override;

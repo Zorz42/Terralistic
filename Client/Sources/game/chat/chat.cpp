@@ -12,7 +12,7 @@
 void chat::init() {
     chat_box.scale = 2;
     chat_box.setText("");
-    chat_box.orientation = gfx::bottom_left;
+    chat_box.orientation = gfx::BOTTOM_LEFT;
     chat_box.y = -PADDING;
     chat_box.x = PADDING;
     
@@ -35,7 +35,7 @@ void chat::render() {
             i->text_sprite.scale = 2;
             i->text_sprite.y = chat_box.y;
             i->text_sprite.x = PADDING;
-            i->text_sprite.orientation = gfx::bottom_left;
+            i->text_sprite.orientation = gfx::BOTTOM_LEFT;
             i->y_to_be = chat_box.y - chat_box.getHeight();
             i->text.clear();
             
@@ -49,11 +49,11 @@ void chat::render() {
             if(alpha < 0 || alpha >= 500)
                 alpha = 500;
             i->text_sprite.setAlpha((float)alpha / 500.0f * 255);
-            gfx::render(i->text_sprite);
+            i->text_sprite.render();
         }
     }
             
-    gfx::render(chat_box);
+    chat_box.render();
 }
 
 void chat::onKeyDown(gfx::key key) {

@@ -9,7 +9,7 @@
 
 #include "graphics.hpp"
 
-static gfx::image player;
+static gfx::Image player;
 
 void playerRenderer::init() {
     player.setTexture(gfx::loadImageFile("texturePack/misc/player.png"));
@@ -17,14 +17,14 @@ void playerRenderer::init() {
 
 #define HEADER_PADDING 4
 
-void playerRenderer::render(int x, int y, int view_x, int view_y, bool flipped, gfx::image& header) {
+void playerRenderer::render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header) {
     render(x, y, view_x, view_y, flipped);
-    gfx::render(header, 1, gfx::getWindowWidth() / 2 - header.getTextureWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y - header.getTextureHeight() - HEADER_PADDING);
+    header.render(1, gfx::getWindowWidth() / 2 - header.getTextureWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y - header.getTextureHeight() - HEADER_PADDING);
 }
 
 void playerRenderer::render(int x, int y, int view_x, int view_y, bool flipped) {
     player.flipped = flipped;
-    gfx::render(player, 2, gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y);
+    player.render(2, gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2 + y - view_y);
 }
 
 unsigned short playerRenderer::getPlayerWidth() {

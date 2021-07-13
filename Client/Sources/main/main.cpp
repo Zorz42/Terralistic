@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     initProperties();
     loadTextures();
     
-    gfx::runScene(new startMenu());
+    startMenu().run();
 
     gfx::quit();
 

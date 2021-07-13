@@ -32,14 +32,14 @@ static server* private_server = nullptr;
 #define LOADING_RECT_ELEVATION 50
 
 void startPrivateWorld(const std::string& world_name) {
-    gfx::sprite loading_text;
-    gfx::rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::bottom},
-    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::bottom};
+    gfx::Sprite loading_text;
+    gfx::Rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::BOTTOM},
+    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::BOTTOM};
 
     loading_text.scale = TEXT_SCALE;
     loading_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     loading_text.setTexture(gfx::renderText("Generating world", {255, 255, 255}));
-    loading_text.orientation = gfx::center;
+    loading_text.orientation = gfx::CENTER;
 
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
 
@@ -61,9 +61,9 @@ void startPrivateWorld(const std::string& world_name) {
                 loading_bar.w += (private_server->getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server->getGeneratingTotal() - loading_bar.w) / 3;
                 loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
                 gfx::clearWindow();
-                gfx::render(loading_text);
-                gfx::render(loading_bar_back);
-                gfx::render(loading_bar);
+                loading_text.render();
+                loading_bar_back.render();
+                loading_bar.render();
                 gfx::updateWindow();
                 break;
             default:
@@ -73,7 +73,7 @@ void startPrivateWorld(const std::string& world_name) {
 
     private_server->setPrivate(true);
 
-    gfx::runScene(new game("_", "127.0.0.1", private_server->getPort()));
+    game("_", "127.0.0.1", private_server->getPort()).run();
     delete private_server;
     private_server = nullptr;
 }
@@ -93,7 +93,7 @@ void game::init() {
 
     renderTextScreen("Connecting to server");
     if(!networking_manager.establishConnection(ip_address, port)) {
-        gfx::runScene(new choiceScreen("Could not connect to the server!", {"Close"}));
+        choiceScreen("Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
     }
 }

@@ -14,7 +14,7 @@ namespace playerRenderer {
 
 void init();
 void render(int x, int y, int view_x, int view_y, bool flipped);
-void render(int x, int y, int view_x, int view_y, bool flipped, gfx::image& header);
+void render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header);
 unsigned short getPlayerWidth();
 unsigned short getPlayerHeight();
 

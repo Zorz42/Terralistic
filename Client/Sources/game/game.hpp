@@ -16,7 +16,7 @@
 
 void startPrivateWorld(const std::string& world_name);
 
-class game : public gfx::scene {
+class game : public gfx::Scene {
 public:
     const std::string ip_address;
     const unsigned short port;

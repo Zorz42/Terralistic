@@ -12,15 +12,15 @@
 
 #include "clientNetworking.hpp"
 
-class chat : public gfx::sceneModule, packetListener {
+class chat : public gfx::GraphicalModule, packetListener {
     struct chatLine {
         std::string text;
-        gfx::sprite text_sprite;
+        gfx::Sprite text_sprite;
         int y_to_be{};
         unsigned int time_created{};
     };
 
-    gfx::textInput chat_box;
+    gfx::TextInput chat_box;
     networkingManager* manager;
     std::vector<chatLine*> chat_lines;
 public:

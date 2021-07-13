@@ -76,7 +76,7 @@ unsigned short gfx::getMouseY() {
     return mouse_y;
 }
 
-void gfx::setRenderTarget(image& tex) {
+void gfx::setRenderTarget(Image& tex) {
     SDL_SetRenderTarget(renderer, (SDL_Texture*)tex.getTexture());
 }
 
@@ -84,7 +84,7 @@ void gfx::resetRenderTarget() {
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
-bool gfx::colliding(gfx::rectShape a, gfx::rectShape b) {
+bool gfx::colliding(RectShape a, RectShape b) {
     return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
 }
 
@@ -107,4 +107,30 @@ void gfx::updateWindow() {
 
 void gfx::sleep(unsigned short ms) {
     SDL_Delay(ms);
+}
+
+void* gfx::loadImageFile(const std::string& path) {
+    // load picture and return texture
+    SDL_Texture *loaded_texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
+    SDL_assert(loaded_texture);
+    return (void*)loaded_texture;
+}
+
+void* gfx::renderText(const std::string& text, Color text_color) {
+    // render text to texture
+    SDL_assert(font);
+    SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
+    SDL_assert(rendered_surface);
+    
+    SDL_Texture* result = SDL_CreateTextureFromSurface(gfx::renderer, rendered_surface);
+    SDL_FreeSurface(rendered_surface);
+    
+    return (void*)result;
+}
+
+void* gfx::createBlankTexture(unsigned short w, unsigned short h) {
+    SDL_Texture* result = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    SDL_assert(result);
+    SDL_SetTextureBlendMode(result, SDL_BLENDMODE_BLEND);
+    return result;
 }

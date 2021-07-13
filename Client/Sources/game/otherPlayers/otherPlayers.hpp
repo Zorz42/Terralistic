@@ -18,10 +18,10 @@ struct clientPlayer {
     int x{0}, y{0};
     bool flipped = false;
     std::string name;
-    gfx::image name_text;
+    gfx::Image name_text;
 };
 
-class clientPlayers : public gfx::sceneModule, packetListener {
+class clientPlayers : public gfx::GraphicalModule, packetListener {
     std::vector<clientPlayer*> other_players;
     clientPlayer* getPlayerById(unsigned short id);
     map* world_map;

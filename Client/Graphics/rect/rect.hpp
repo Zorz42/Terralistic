@@ -1,7 +1,11 @@
 #pragma once
-#include "../color/color.hpp"
 
-enum objectType { TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT };
+#include "color.hpp"
+
+namespace gfx {
+
+enum ObjectType {TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
+
 class RectShape {
 public:
     short x, y;
@@ -12,8 +16,8 @@ public:
 
 class _CenteredObject {
 public:
-    _CenteredObject(short x, short y, objectType orientation = TOP_LEFT);
-    objectType orientation;
+    _CenteredObject(short x, short y, ObjectType orientation = TOP_LEFT);
+    ObjectType orientation;
     [[nodiscard]] RectShape getTranslatedRect() const;
     [[nodiscard]] inline virtual unsigned short getWidth() const { return 0; };
     [[nodiscard]] inline virtual unsigned short getHeight() const { return 0; };
@@ -24,12 +28,14 @@ public:
 };
 
 
-class Rect : _CenteredObject {
+class Rect : public _CenteredObject {
 public:
-    explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = { 255, 255, 255 }, objectType orientation = TOP_LEFT);
+    explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = { 255, 255, 255 }, ObjectType orientation = TOP_LEFT);
     [[nodiscard]] inline unsigned short getWidth() const override { return w; };
     [[nodiscard]] inline unsigned short getHeight() const override { return h; };
     unsigned short w, h;
     Color c;
-    void render(bool fill=true);
+    void render(bool fill=true) const;
+};
+
 };

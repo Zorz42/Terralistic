@@ -9,12 +9,12 @@
 #include "textScreen.hpp"
 
 void renderTextScreen(const std::string &text) {
-    gfx::sprite text_image;
+    gfx::Sprite text_image;
     text_image.setTexture(gfx::renderText(text, {255, 255, 255}));
-    text_image.orientation = gfx::center;
+    text_image.orientation = gfx::CENTER;
     text_image.scale = 3;
 
     gfx::clearWindow();
-    gfx::render(text_image);
+    text_image.render();
     gfx::updateWindow();
 }

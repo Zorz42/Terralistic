@@ -19,7 +19,7 @@
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
 
-class map : public gfx::sceneModule, packetListener {
+class map : public gfx::GraphicalModule, packetListener {
 public:
     enum class chunkState {unloaded, pending_load, loaded};
 protected:
@@ -38,7 +38,7 @@ protected:
     struct chunkData {
         chunkState state = chunkState::unloaded;
         bool update = true;
-        gfx::image texture;
+        gfx::Image texture;
     };
 
     void renderBlocks();
@@ -117,7 +117,7 @@ protected:
     std::string kick_message;
     bool kicked = false;
 
-    gfx::image background_image;
+    gfx::Image background_image;
 
 public:
     explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {PacketType::BLOCK_CHANGE, PacketType::CHUNK, PacketType::BLOCK_PROGRESS_CHANGE, PacketType::ITEM_CREATION, PacketType::ITEM_DELETION, PacketType::ITEM_MOVEMENT, PacketType::KICK}; }

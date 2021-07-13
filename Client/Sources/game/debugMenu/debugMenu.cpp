@@ -11,14 +11,14 @@ void debugMenu::init() {
     fps_text.scale = 3;
     fps_text.x = 10;
     fps_text.y = 10;
-    fps_text.orientation = gfx::top_left;
+    fps_text.orientation = gfx::TOP_LEFT;
     
     renderFpsText();
     
     coords_text.scale = 3;
     coords_text.y = fps_text.y + fps_text.getHeight() + 10;
     coords_text.x = 10;
-    coords_text.orientation = gfx::top_left;
+    coords_text.orientation = gfx::TOP_LEFT;
 
     /*
     biome_text.scale = 3;
@@ -52,9 +52,8 @@ void debugMenu::update() {
 
 void debugMenu::render() {
     if(debug_menu_open) {
-        gfx::render(fps_text);
-        gfx::render(coords_text);
-        //gfx::render(biome_text);
+        fps_text.render();
+        coords_text.render();
     }
 }
 

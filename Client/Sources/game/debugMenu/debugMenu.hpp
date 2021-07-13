@@ -13,9 +13,9 @@
 #include "playerHandler.hpp"
 #include "clientMap.hpp"
 
-class debugMenu : public gfx::sceneModule {
+class debugMenu : public gfx::GraphicalModule {
     bool debug_menu_open = false, m_down = false;
-    gfx::sprite fps_text, coords_text;// biome_text;
+    gfx::Sprite fps_text, coords_text;// biome_text;
     mainPlayer* main_player;
     void renderFpsText();
     unsigned int fps_count = 0;

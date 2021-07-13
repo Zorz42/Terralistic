@@ -23,7 +23,7 @@ public:
     std::string name;
 };
 
-class playerHandler : public gfx::sceneModule, packetListener {
+class playerHandler : public gfx::GraphicalModule, packetListener {
     bool key_up = false, jump = false, key_left = false, key_right = false;
 
     mainPlayer* player;
@@ -32,7 +32,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
 
     clientInventoryItem *hovered = nullptr;
 
-    gfx::rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
+    gfx::Rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
     bool is_left_button_pressed = false;
     unsigned short prev_selected_x{}, prev_selected_y{}, selected_block_x{}, selected_block_y{};
 
@@ -52,10 +52,10 @@ class playerHandler : public gfx::sceneModule, packetListener {
     void renderItem(clientInventoryItem* item, int x, int y, int i);
     void updateStackTexture(int i);
 
-    gfx::rect inventory_slots[20],
-    select_rect_inventory{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::top},
+    gfx::Rect inventory_slots[20],
+    select_rect_inventory{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::TOP},
     under_text_rect{0, 0, 0, 0, {0, 0, 0}};
-    gfx::image stack_textures[20], mouse_stack_texture;
+    gfx::Image stack_textures[20], mouse_stack_texture;
 
     bool received_spawn_coords = false;
     

@@ -1,10 +1,15 @@
 #pragma once
-#include "../graphics-internal.hpp"
+
+#include <string>
+#include "rect.hpp"
+
+namespace gfx {
+
 class Image {
 public:
-    void render(RectShape rect);
-    void render(float scale, short x, short y);
-    void render(float scale, short x, short y, RectShape src_rect)
+    void render(RectShape rect) const;
+    void render(float scale, short x, short y) const;
+    void render(float scale, short x, short y, RectShape src_rect) const;
     void setTexture(void* texture_);
     [[nodiscard]] inline void* getTexture() const { return texture; }
     ~Image();
@@ -19,17 +24,17 @@ protected:
 };
 
 
-class Sprite : _CenteredObject, Image {
+class Sprite : public _CenteredObject, public Image {
 public:
     float scale = 1;
     [[nodiscard]] inline unsigned short getWidth() const override { return getTextureWidth() * scale; }
     [[nodiscard]] inline unsigned short getHeight() const override { return getTextureHeight() * scale; }
     Sprite();
-    void render();
+    void render() const;
 
 };
 
-class Button : Sprite {
+class Button : public Sprite {
 public:
     unsigned short margin = 10;
 
@@ -43,9 +48,9 @@ public:
     void render();
 };
 
-class TextInput : Button {
+class TextInput : public Button {
 public:
-    void render();
+    void render() const;
     TextInput();
 
     [[nodiscard]] inline std::string getText() const { return text; }
@@ -59,4 +64,6 @@ public:
     unsigned char cut_length;
 protected:
     std::string text;
+};
+
 };

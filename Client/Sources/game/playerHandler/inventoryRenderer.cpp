@@ -12,7 +12,7 @@
 
 void playerHandler::initInventory() {
     for(int i = 0; i < 20; i++) {
-        inventory_slots[i].orientation = gfx::top;
+        inventory_slots[i].orientation = gfx::TOP;
         inventory_slots[i].c = {100, 100, 100};
         inventory_slots[i].h = 2 * BLOCK_WIDTH + MARGIN;
         inventory_slots[i].w = 2 * BLOCK_WIDTH + MARGIN;
@@ -25,15 +25,15 @@ void playerHandler::initInventory() {
 
 void playerHandler::renderInventory() {
     select_rect_inventory.x = (player->player_inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
-    gfx::render(select_rect_inventory);
+    select_rect_inventory.render();
     
-    const gfx::image* text_texture = nullptr;
+    const gfx::Image* text_texture = nullptr;
     hovered = nullptr;
     for(int i = -1; i < 20; i++)
         updateStackTexture(i);
     
     for(int i = 0; i < (player->player_inventory.open ? 20 : 10); i++) {
-        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::rectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0)) && player->player_inventory.open) {
+        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::RectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0)) && player->player_inventory.open) {
             hovered = &player->player_inventory.inventory[i];
             inventory_slots[i].c = {70, 70, 70};
             if(player->player_inventory.inventory[i].item_id != ItemType::NOTHING) {
@@ -46,13 +46,13 @@ void playerHandler::renderInventory() {
         }
         else
             inventory_slots[i].c = {100, 100, 100};
-        gfx::render(inventory_slots[i]);
+        inventory_slots[i].render();
         renderItem(&player->player_inventory.inventory[i], inventory_slots[i].getTranslatedX() + MARGIN / 2, inventory_slots[i].getTranslatedY() + MARGIN / 2, i);
     }
     
     if(text_texture) {
-        gfx::render(under_text_rect);
-        gfx::render(*text_texture, 2, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
+        under_text_rect.render();
+        text_texture->render(2, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
     }
     renderItem(player->player_inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
 }
@@ -70,14 +70,13 @@ void playerHandler::onPacketInventory(Packet &packet) {
 }
 
 void playerHandler::renderItem(clientInventoryItem* item, int x, int y, int i) {
-    const gfx::image& texture = getItemTexture(item->item_id);
-    if(texture.getTexture()) {
-        gfx::render(texture, 4, x, y);
-    }
+    const gfx::Image& texture = getItemTexture(item->item_id);
+    if(texture.getTexture())
+        texture.render(4, x, y);
     
     if(item->getStack() > 1) {
-        gfx::image *stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
-        gfx::render(*stack_texture, 1, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
+        gfx::Image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
+        stack_texture->render(1, x + BLOCK_WIDTH * 2 - stack_texture->getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture->getTextureHeight());
     }
 }
 
@@ -91,7 +90,7 @@ void playerHandler::selectSlot(char slot) {
 void playerHandler::updateStackTexture(int i) {
     clientInventoryItem* item = i == -1 ? player->player_inventory.getMouseItem() : &player->player_inventory.inventory[i];
     if(item->stack_changed) {
-        gfx::image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
+        gfx::Image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         if(item->getStack() > 1)
             stack_texture->setTexture(gfx::renderText(std::to_string(item->getStack()), {255, 255, 255}));
     }
