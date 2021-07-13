@@ -2,6 +2,7 @@
 #include "fileManager.hpp"
 #include "config.hpp"
 #include "textures.hpp"
+#include "resourcePath.hpp"
 
 #ifdef _WIN32
 #define main Terralistic_main
@@ -13,7 +14,7 @@ extern "C" int SDL_main(int argc, char **argv) {
 
 int main(int argc, char **argv) {
     gfx::init(1000, 600);
-    gfx::resource_path = fileManager::getResourcePath(argv[0]);
+    gfx::resource_path = getResourcePath(argv[0]);
     gfx::loadFont("pixel_font.ttf", 8);
     gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
 

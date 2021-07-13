@@ -7,29 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1626245026430B77007E01C4 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
-		1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
-		1626245726430D74007E01C4 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
-		1626245B26430D85007E01C4 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
-		1626246126430D93007E01C4 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		1661663C25EA5608002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
 		1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
-		1664388A26695B2000587F5E /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
-		16645DEF2678B94B003EDC5F /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		1665D8912678E7AB00A7BB61 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 1665D8902678E7AB00A7BB61 /* Structures.asset */; };
-		1675E71326611B1D00B620F4 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
-		1675E71526611B1D00B620F4 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
 		1675E71D26611B8000B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
-		1675E71F26611BBF00B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		167C1B802676565700BCFE27 /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C1B7E2676565700BCFE27 /* chat.cpp */; };
 		167C22C62673956800FF487D /* choiceScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22C42673956800FF487D /* choiceScreen.cpp */; };
 		167C22CB2673A46800FF487D /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22CA2673A46800FF487D /* textScreen.cpp */; };
-		167F4D31268496B2004A8D11 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167F4D30268496B2004A8D11 /* block.cpp */; };
 		16811020263BE9260086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
-		168600E02681DB7300763775 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1689699B25E962F800D26060 /* texturePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* texturePack */; };
-		168A5E7B26511ADF00A466FD /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
 		16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16906515266CC0C20075EF55 /* debugMenu.cpp */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689825E9607800D26060 /* otherPlayers.cpp */; };
@@ -47,8 +34,54 @@
 		16987C11265900F90016509C /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C10265900F80016509C /* inventory.cpp */; };
 		16987C15265901020016509C /* item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C13265901020016509C /* item.cpp */; };
 		16987C17265901020016509C /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C14265901020016509C /* block.cpp */; };
-		16B36D332682067D00A4B03A /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D312682067D00A4B03A /* blocks.cpp */; };
-		16B36D3C26820ADD00A4B03A /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
+		16BF6928269D6D7300CFE175 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
+		16BF6929269D6D7300CFE175 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
+		16BF692A269D6D7300CFE175 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
+		16BF692B269D6D7300CFE175 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
+		16BF692C269D6D7300CFE175 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
+		16BF692D269D6D7300CFE175 /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D312682067D00A4B03A /* blocks.cpp */; };
+		16BF692E269D6D7300CFE175 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167F4D30268496B2004A8D11 /* block.cpp */; };
+		16BF692F269D6D7300CFE175 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38842642F73900E3C718 /* light.cpp */; };
+		16BF6930269D6D7300CFE175 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
+		16BF6931269D6D7300CFE175 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
+		16BF6932269D6D7300CFE175 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
+		16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
+		16BF6934269D6D7300CFE175 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
+		16BF6935269D6D7300CFE175 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
+		16BF6936269D6D7300CFE175 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
+		16BF6937269D6D7300CFE175 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
+		16BF6938269D6DC000CFE175 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
+		16BF6939269D709000CFE175 /* sfml-audio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29318269CDE910059A9AF /* sfml-audio.framework */; };
+		16BF693A269D709000CFE175 /* sfml-audio.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29318269CDE910059A9AF /* sfml-audio.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF693B269D709000CFE175 /* sfml-graphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29317269CDE910059A9AF /* sfml-graphics.framework */; };
+		16BF693C269D709000CFE175 /* sfml-graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29317269CDE910059A9AF /* sfml-graphics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF693D269D709000CFE175 /* sfml-network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29315269CDE910059A9AF /* sfml-network.framework */; };
+		16BF693E269D709000CFE175 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29315269CDE910059A9AF /* sfml-network.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF693F269D709000CFE175 /* sfml-system.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29316269CDE910059A9AF /* sfml-system.framework */; };
+		16BF6940269D709000CFE175 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29316269CDE910059A9AF /* sfml-system.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6941269D709000CFE175 /* sfml-window.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29313269CDE910059A9AF /* sfml-window.framework */; };
+		16BF6942269D709000CFE175 /* sfml-window.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29313269CDE910059A9AF /* sfml-window.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6943269D709000CFE175 /* SFML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29314269CDE910059A9AF /* SFML.framework */; };
+		16BF6944269D709000CFE175 /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29314269CDE910059A9AF /* SFML.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6946269D709F00CFE175 /* FLAC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29325269CDE9D0059A9AF /* FLAC.framework */; };
+		16BF6947269D709F00CFE175 /* FLAC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29325269CDE9D0059A9AF /* FLAC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6948269D709F00CFE175 /* freetype.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29328269CDE9D0059A9AF /* freetype.framework */; };
+		16BF6949269D709F00CFE175 /* freetype.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29328269CDE9D0059A9AF /* freetype.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF694A269D709F00CFE175 /* ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29326269CDE9D0059A9AF /* ogg.framework */; };
+		16BF694B269D709F00CFE175 /* ogg.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29326269CDE9D0059A9AF /* ogg.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF694C269D709F00CFE175 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29327269CDE9D0059A9AF /* OpenAL.framework */; };
+		16BF694D269D709F00CFE175 /* OpenAL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29327269CDE9D0059A9AF /* OpenAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF694E269D709F00CFE175 /* vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C2932A269CDE9D0059A9AF /* vorbis.framework */; };
+		16BF694F269D709F00CFE175 /* vorbis.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C2932A269CDE9D0059A9AF /* vorbis.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6950269D709F00CFE175 /* vorbisenc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C2932B269CDE9D0059A9AF /* vorbisenc.framework */; };
+		16BF6951269D709F00CFE175 /* vorbisenc.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C2932B269CDE9D0059A9AF /* vorbisenc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6952269D709F00CFE175 /* vorbisfile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29329269CDE9D0059A9AF /* vorbisfile.framework */; };
+		16BF6953269D709F00CFE175 /* vorbisfile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29329269CDE9D0059A9AF /* vorbisfile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6955269D7E1D00CFE175 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 1665D8902678E7AB00A7BB61 /* Structures.asset */; };
+		16BF6956269D7E1D00CFE175 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
+		16BF6957269D7EC900CFE175 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
+		16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BF6959269D7F4D00CFE175 /* resourcePath.cpp */; };
+		16BF695C269D7FC100CFE175 /* resourcePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BF6959269D7F4D00CFE175 /* resourcePath.cpp */; };
 		16C29309269CDE030059A9AF /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157F52648501F00528A2B /* gfx.cpp */; };
 		16C2930A269CDE030059A9AF /* scenes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9125F79DB200BBEA74 /* scenes.cpp */; };
 		16C2930B269CDE030059A9AF /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168ABE9425F7A1A900BBEA74 /* render.cpp */; };
@@ -86,11 +119,9 @@
 		16C293A5269CECC50059A9AF /* SFML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29314269CDE910059A9AF /* SFML.framework */; };
 		16C293A6269CECC50059A9AF /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16C29314269CDE910059A9AF /* SFML.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
-		363BB25D2686401A00566F3A /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		36B157D726484E2000528A2B /* clientMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157D226484E2000528A2B /* clientMap.cpp */; };
 		36B157ED2648500300528A2B /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
 		36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
-		36DDF8802689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		36DDF8A62689F725002337F3 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8A82689F725002337F3 /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D312682067D00A4B03A /* blocks.cpp */; };
@@ -135,14 +166,28 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		167B38032642F61300E3C718 /* CopyFiles */ = {
+		16BF6945269D709100CFE175 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstPath = "";
+			dstSubfolderSpec = 10;
 			files = (
+				16BF6944269D709000CFE175 /* SFML.framework in Embed Frameworks */,
+				16BF6953269D709F00CFE175 /* vorbisfile.framework in Embed Frameworks */,
+				16BF694F269D709F00CFE175 /* vorbis.framework in Embed Frameworks */,
+				16BF6951269D709F00CFE175 /* vorbisenc.framework in Embed Frameworks */,
+				16BF693A269D709000CFE175 /* sfml-audio.framework in Embed Frameworks */,
+				16BF6949269D709F00CFE175 /* freetype.framework in Embed Frameworks */,
+				16BF694D269D709F00CFE175 /* OpenAL.framework in Embed Frameworks */,
+				16BF6940269D709000CFE175 /* sfml-system.framework in Embed Frameworks */,
+				16BF693E269D709000CFE175 /* sfml-network.framework in Embed Frameworks */,
+				16BF694B269D709F00CFE175 /* ogg.framework in Embed Frameworks */,
+				16BF6947269D709F00CFE175 /* FLAC.framework in Embed Frameworks */,
+				16BF6942269D709000CFE175 /* sfml-window.framework in Embed Frameworks */,
+				16BF693C269D709000CFE175 /* sfml-graphics.framework in Embed Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -176,14 +221,12 @@
 		1675E72126612BF700B620F4 /* config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = config.hpp; sourceTree = "<group>"; };
 		1676E9F82699C30B00034070 /* events.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = events.hpp; sourceTree = "<group>"; };
 		167B38002642F49200E3C718 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
-		167B38052642F61300E3C718 /* Terralistic-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Terralistic-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		167B387B2642F73900E3C718 /* serverNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverNetworking.cpp; sourceTree = "<group>"; };
 		167B387C2642F73900E3C718 /* serverNetworking.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverNetworking.hpp; sourceTree = "<group>"; };
 		167B387E2642F73900E3C718 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
 		167B387F2642F73900E3C718 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
 		167B38842642F73900E3C718 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
 		167B38932642F73900E3C718 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
-		167B38C02642FB5100E3C718 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 		167B598E2665579400BCECBB /* SimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplexNoise.cpp; sourceTree = "<group>"; };
 		167B598F2665579400BCECBB /* SimplexNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplexNoise.h; sourceTree = "<group>"; };
 		167C1B7E2676565700BCFE27 /* chat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chat.cpp; sourceTree = "<group>"; };
@@ -251,6 +294,10 @@
 		16B36D322682067D00A4B03A /* blocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blocks.hpp; sourceTree = "<group>"; };
 		16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = worldGenerator.cpp; sourceTree = "<group>"; };
 		16B36D3B26820ADD00A4B03A /* worldGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = worldGenerator.hpp; sourceTree = "<group>"; };
+		16BF6914269D6CCA00CFE175 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		16BF6921269D6CCB00CFE175 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		16BF6959269D7F4D00CFE175 /* resourcePath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = resourcePath.cpp; sourceTree = "<group>"; };
+		16BF695A269D7F4D00CFE175 /* resourcePath.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = resourcePath.hpp; sourceTree = "<group>"; };
 		16C29313269CDE910059A9AF /* sfml-window.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sfml-window.framework"; path = "Dependencies/MacOS/SFML/sfml-window.framework"; sourceTree = "<group>"; };
 		16C29314269CDE910059A9AF /* SFML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFML.framework; path = Dependencies/MacOS/SFML/SFML.framework; sourceTree = "<group>"; };
 		16C29315269CDE910059A9AF /* sfml-network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sfml-network.framework"; path = "Dependencies/MacOS/SFML/sfml-network.framework"; sourceTree = "<group>"; };
@@ -265,7 +312,6 @@
 		16C2932A269CDE9D0059A9AF /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = "Dependencies/MacOS/SFML-extlibs/vorbis.framework"; sourceTree = "<group>"; };
 		16C2932B269CDE9D0059A9AF /* vorbisenc.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbisenc.framework; path = "Dependencies/MacOS/SFML-extlibs/vorbisenc.framework"; sourceTree = "<group>"; };
 		16C2933C269CE1100059A9AF /* FLAC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FLAC.framework; path = "../../Downloads/SFML-2.5.1-macos-clang/extlibs/FLAC.framework"; sourceTree = "<group>"; };
-		16C29359269CE3C30059A9AF /* Terralistic.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Terralistic.entitlements; sourceTree = "<group>"; };
 		16C2935A269CE4710059A9AF /* libsfml-audio.2.5.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-audio.2.5.1.dylib"; path = "../../Downloads/SFML-2.5.1-macos-clang/lib/libsfml-audio.2.5.1.dylib"; sourceTree = "<group>"; };
 		16C2935B269CE4710059A9AF /* libsfml-system.2.5.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-system.2.5.1.dylib"; path = "../../Downloads/SFML-2.5.1-macos-clang/lib/libsfml-system.2.5.1.dylib"; sourceTree = "<group>"; };
 		16C2935C269CE4710059A9AF /* libsfml-network.2.5.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-network.2.5.1.dylib"; path = "../../Downloads/SFML-2.5.1-macos-clang/lib/libsfml-network.2.5.1.dylib"; sourceTree = "<group>"; };
@@ -293,13 +339,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		167B38022642F61300E3C718 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1689685325E95FD000D26060 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -320,6 +359,26 @@
 				16C2930F269CDE840059A9AF /* SDL2_ttf.framework in Frameworks */,
 				16C2930D269CDE840059A9AF /* SDL2_image.framework in Frameworks */,
 				16C2939D269CECC50059A9AF /* sfml-graphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16BF6911269D6CCA00CFE175 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16BF6943269D709000CFE175 /* SFML.framework in Frameworks */,
+				16BF6952269D709F00CFE175 /* vorbisfile.framework in Frameworks */,
+				16BF694E269D709F00CFE175 /* vorbis.framework in Frameworks */,
+				16BF6950269D709F00CFE175 /* vorbisenc.framework in Frameworks */,
+				16BF6939269D709000CFE175 /* sfml-audio.framework in Frameworks */,
+				16BF6948269D709F00CFE175 /* freetype.framework in Frameworks */,
+				16BF694C269D709F00CFE175 /* OpenAL.framework in Frameworks */,
+				16BF693F269D709000CFE175 /* sfml-system.framework in Frameworks */,
+				16BF693D269D709000CFE175 /* sfml-network.framework in Frameworks */,
+				16BF694A269D709F00CFE175 /* ogg.framework in Frameworks */,
+				16BF6946269D709F00CFE175 /* FLAC.framework in Frameworks */,
+				16BF6941269D709000CFE175 /* sfml-window.framework in Frameworks */,
+				16BF693B269D709000CFE175 /* sfml-graphics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,7 +456,7 @@
 			isa = PBXGroup;
 			children = (
 				1661657B25EA2D0D002A3815 /* Terralistic.app */,
-				167B38052642F61300E3C718 /* Terralistic-server */,
+				16BF6914269D6CCA00CFE175 /* Terralistic-server.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -447,7 +506,7 @@
 				167B387A2642F73900E3C718 /* serverNetworking */,
 				167B387D2642F73900E3C718 /* print */,
 				167B38922642F73900E3C718 /* server */,
-				167B38C02642FB5100E3C718 /* info.plist */,
+				16BF6921269D6CCB00CFE175 /* Info.plist */,
 			);
 			path = Server;
 			sourceTree = "<group>";
@@ -551,7 +610,6 @@
 		1689684D25E95FD000D26060 = {
 			isa = PBXGroup;
 			children = (
-				16C29359269CE3C30059A9AF /* Terralistic.entitlements */,
 				3619ACED26173D7000BA4EAF /* Libraries */,
 				1689699C25E9653E00D26060 /* Client */,
 				167B38752642F73900E3C718 /* Server */,
@@ -750,7 +808,6 @@
 		16932055263811A700B73C9F /* fileManager */ = {
 			isa = PBXGroup;
 			children = (
-				1689687725E9607800D26060 /* sago */,
 				16932057263811C100B73C9F /* fileManager.hpp */,
 				16932056263811C100B73C9F /* fileManager.cpp */,
 			);
@@ -788,9 +845,20 @@
 			path = worldGenerator;
 			sourceTree = "<group>";
 		};
+		16BF6958269D7F3E00CFE175 /* resourcePath */ = {
+			isa = PBXGroup;
+			children = (
+				16BF695A269D7F4D00CFE175 /* resourcePath.hpp */,
+				16BF6959269D7F4D00CFE175 /* resourcePath.cpp */,
+			);
+			path = resourcePath;
+			sourceTree = "<group>";
+		};
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				16BF6958269D7F3E00CFE175 /* resourcePath */,
+				1689687725E9607800D26060 /* sago */,
 				1676E9F62699BF8600034070 /* events */,
 				36DDF87A2689EAC5002337F3 /* properties */,
 				1675E71A26611B6300B620F4 /* configManager */,
@@ -822,23 +890,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		167B38042642F61300E3C718 /* Terralistic-server */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 167B38092642F61300E3C718 /* Build configuration list for PBXNativeTarget "Terralistic-server" */;
-			buildPhases = (
-				167B38012642F61300E3C718 /* Sources */,
-				167B38022642F61300E3C718 /* Frameworks */,
-				167B38032642F61300E3C718 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Terralistic-server";
-			productName = "Terralistic-server";
-			productReference = 167B38052642F61300E3C718 /* Terralistic-server */;
-			productType = "com.apple.product-type.tool";
-		};
 		1689685525E95FD000D26060 /* Terralistic */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1689686A25E95FD100D26060 /* Build configuration list for PBXNativeTarget "Terralistic" */;
@@ -857,6 +908,24 @@
 			productReference = 1661657B25EA2D0D002A3815 /* Terralistic.app */;
 			productType = "com.apple.product-type.application";
 		};
+		16BF6913269D6CCA00CFE175 /* Terralistic-server */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16BF6925269D6CCB00CFE175 /* Build configuration list for PBXNativeTarget "Terralistic-server" */;
+			buildPhases = (
+				16BF6910269D6CCA00CFE175 /* Sources */,
+				16BF6911269D6CCA00CFE175 /* Frameworks */,
+				16BF6912269D6CCA00CFE175 /* Resources */,
+				16BF6945269D709100CFE175 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Terralistic-server";
+			productName = "Terralistic-server";
+			productReference = 16BF6914269D6CCA00CFE175 /* Terralistic-server.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -865,11 +934,11 @@
 			attributes = {
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
-					167B38042642F61300E3C718 = {
-						CreatedOnToolsVersion = 12.5;
-					};
 					1689685525E95FD000D26060 = {
 						CreatedOnToolsVersion = 12.4;
+					};
+					16BF6913269D6CCA00CFE175 = {
+						CreatedOnToolsVersion = 12.5.1;
 					};
 				};
 			};
@@ -887,7 +956,7 @@
 			projectRoot = "";
 			targets = (
 				1689685525E95FD000D26060 /* Terralistic */,
-				167B38042642F61300E3C718 /* Terralistic-server */,
+				16BF6913269D6CCA00CFE175 /* Terralistic-server */,
 			);
 		};
 /* End PBXProject section */
@@ -904,33 +973,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXSourcesBuildPhase section */
-		167B38012642F61300E3C718 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
+		16BF6912269D6CCA00CFE175 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				363BB25D2686401A00566F3A /* items.cpp in Sources */,
-				16645DEF2678B94B003EDC5F /* SimplexNoise.cpp in Sources */,
-				36DDF8802689EAF9002337F3 /* properties.cpp in Sources */,
-				1664388A26695B2000587F5E /* liquid.cpp in Sources */,
-				1675E71F26611BBF00B620F4 /* configManager.cpp in Sources */,
-				1675E71326611B1D00B620F4 /* inventory.cpp in Sources */,
-				167F4D31268496B2004A8D11 /* block.cpp in Sources */,
-				168600E02681DB7300763775 /* players.cpp in Sources */,
-				1675E71526611B1D00B620F4 /* packets.cpp in Sources */,
-				168A5E7B26511ADF00A466FD /* packets.cpp in Sources */,
-				1626245026430B77007E01C4 /* launcher.cpp in Sources */,
-				1626245626430D72007E01C4 /* serverNetworking.cpp in Sources */,
-				16B36D332682067D00A4B03A /* blocks.cpp in Sources */,
-				1626245B26430D85007E01C4 /* light.cpp in Sources */,
-				1626246126430D93007E01C4 /* server.cpp in Sources */,
-				16B36D3C26820ADD00A4B03A /* worldGenerator.cpp in Sources */,
-				1626245726430D74007E01C4 /* print.cpp in Sources */,
+				16BF6955269D7E1D00CFE175 /* Structures.asset in Resources */,
+				16BF6956269D7E1D00CFE175 /* icon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
 		1689685225E95FD000D26060 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -945,6 +999,7 @@
 				36DDF8A92689F725002337F3 /* block.cpp in Sources */,
 				36DDF8AA2689F725002337F3 /* light.cpp in Sources */,
 				36DDF8AB2689F725002337F3 /* liquid.cpp in Sources */,
+				16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */,
 				36DDF8AC2689F725002337F3 /* items.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* players.cpp in Sources */,
 				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
@@ -984,36 +1039,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		16BF6910269D6CCA00CFE175 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16BF695C269D7FC100CFE175 /* resourcePath.cpp in Sources */,
+				16BF6957269D7EC900CFE175 /* sago.cpp in Sources */,
+				16BF6938269D6DC000CFE175 /* launcher.cpp in Sources */,
+				16BF6928269D6D7300CFE175 /* properties.cpp in Sources */,
+				16BF6929269D6D7300CFE175 /* configManager.cpp in Sources */,
+				16BF692A269D6D7300CFE175 /* packets.cpp in Sources */,
+				16BF692B269D6D7300CFE175 /* SimplexNoise.cpp in Sources */,
+				16BF692C269D6D7300CFE175 /* worldGenerator.cpp in Sources */,
+				16BF692D269D6D7300CFE175 /* blocks.cpp in Sources */,
+				16BF692E269D6D7300CFE175 /* block.cpp in Sources */,
+				16BF692F269D6D7300CFE175 /* light.cpp in Sources */,
+				16BF6930269D6D7300CFE175 /* liquid.cpp in Sources */,
+				16BF6931269D6D7300CFE175 /* items.cpp in Sources */,
+				16BF6932269D6D7300CFE175 /* players.cpp in Sources */,
+				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
+				16BF6934269D6D7300CFE175 /* packets.cpp in Sources */,
+				16BF6935269D6D7300CFE175 /* serverNetworking.cpp in Sources */,
+				16BF6936269D6D7300CFE175 /* print.cpp in Sources */,
+				16BF6937269D6D7300CFE175 /* server.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		167B380A2642F61300E3C718 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4CKFJDZL4P;
-				ENABLE_HARDENED_RUNTIME = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		167B380B2642F61300E3C718 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4CKFJDZL4P;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		1689686825E95FD100D26060 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1138,7 +1192,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
-				CODE_SIGN_ENTITLEMENTS = Terralistic.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Client/Terralistic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1198,7 +1252,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
-				CODE_SIGN_ENTITLEMENTS = Terralistic.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Client/Terralistic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1239,6 +1293,7 @@
 					"$(PROJECT_DIR)/Dependencies/MacOS/SFML-dylib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
@@ -1246,18 +1301,62 @@
 			};
 			name = Release;
 		};
+		16BF6926269D6CCB00CFE175 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "Server/Terralistic-server.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dependencies/MacOS/SFML",
+					"$(PROJECT_DIR)/Dependencies/MacOS/SFML-extlibs",
+				);
+				INFOPLIST_FILE = Server/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		16BF6927269D6CCB00CFE175 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "Server/Terralistic-server.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dependencies/MacOS/SFML",
+					"$(PROJECT_DIR)/Dependencies/MacOS/SFML-extlibs",
+				);
+				INFOPLIST_FILE = Server/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		167B38092642F61300E3C718 /* Build configuration list for PBXNativeTarget "Terralistic-server" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				167B380A2642F61300E3C718 /* Debug */,
-				167B380B2642F61300E3C718 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		1689685125E95FD000D26060 /* Build configuration list for PBXProject "Terralistic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1272,6 +1371,15 @@
 			buildConfigurations = (
 				1689686B25E95FD100D26060 /* Debug */,
 				1689686C25E95FD100D26060 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16BF6925269D6CCB00CFE175 /* Build configuration list for PBXNativeTarget "Terralistic-server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16BF6926269D6CCB00CFE175 /* Debug */,
+				16BF6927269D6CCB00CFE175 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
