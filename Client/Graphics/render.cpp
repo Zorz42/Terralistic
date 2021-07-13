@@ -4,7 +4,7 @@
 //
 //  Created by Jakob Zorz on 09/03/2021.
 //
-
+/*
 #include "graphics-internal.hpp"
 
 
@@ -91,3 +91,4 @@ void* gfx::createBlankTexture(unsigned short w, unsigned short h) {
     SDL_SetTextureBlendMode(result, SDL_BLENDMODE_BLEND);
     return result;
 }
+*/
