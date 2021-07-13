@@ -66,7 +66,7 @@ struct button : sprite {
     unsigned char hover_progress = 0;
 };
 
-
+*/
 struct textInput : button {
     textInput();
     
@@ -84,13 +84,13 @@ protected:
 };*/
 
 
-//void render(const rect& x, bool fill=true);
-//void render(const image& tex, float scale, short x, short y);
-//void render(const image& tex, rectShape rect);
-//void render(const image& tex, float scale, short x, short y, rectShape src_rect);
-//void render(const sprite& spr);
-//void render(button& b);
-//void render(const textInput& b);
+void render(const rect& x, bool fill=true);
+void render(const image& tex, float scale, short x, short y);
+void render(const image& tex, rectShape rect);
+void render(const image& tex, float scale, short x, short y, rectShape src_rect);
+void render(const sprite& spr);
+void render(button& b);
+void render(const textInput& b);
 
 struct scene;
 

@@ -2,8 +2,9 @@
 #include "../rect/rect.hpp"
 class Image {
 public:
+    void render(RectShape rect);
     void render(float scale, short x, short y);
-
+    void render(float scale, short x, short y, RectShape src_rect)
     void setTexture(void* texture_);
     [[nodiscard]] inline void* getTexture() const { return texture; }
     ~Image();
@@ -25,6 +26,7 @@ public:
     [[nodiscard]] inline unsigned short getHeight() const override { return getTextureHeight() * scale; }
     Sprite();
     void render();
+
 };
 
 class Button : Sprite {
@@ -34,7 +36,7 @@ public:
     [[nodiscard]] unsigned short getWidth() const override;
     [[nodiscard]] unsigned short getHeight() const override;
 
-    color def_color = { 0, 0, 0 }, hover_color = { 100, 100, 100 };
+    Color def_color = { 0, 0, 0 }, hover_color = { 100, 100, 100 };
     [[nodiscard]] bool isHovered() const;
     bool disabled = false;
     unsigned char hover_progress = 0;
@@ -44,7 +46,6 @@ public:
 class TextInput : Button {
 public:
     void render();
-
     TextInput();
 
     [[nodiscard]] inline std::string getText() const { return text; }
@@ -54,7 +55,7 @@ public:
     bool active = false, ignore_one_input = false;
     char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
-    color border_color = { 255, 255, 255 }, text_color = { 255, 255, 255 };
+    Color border_color = { 255, 255, 255 }, text_color = { 255, 255, 255 };
     unsigned char cut_length;
 protected:
     std::string text;

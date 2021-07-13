@@ -19,6 +19,7 @@ void gfx::render(const rect& x, bool fill) {
         SDL_RenderDrawRect(renderer, &sdl_rect);
 }
 
+
 void gfx::render(const image& tex, rectShape rect) {
     SDL_Rect sdl_rect = {rect.x, rect.y, rect.w, rect.h};
     SDL_RenderCopyEx(renderer, (SDL_Texture*)tex.getTexture(), nullptr, &sdl_rect, 0, nullptr, tex.flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
@@ -37,6 +38,7 @@ void gfx::render(const image& tex, float scale, short x, short y, rectShape src_
 void gfx::render(const sprite& spr) {
     render(spr, spr.scale, spr.getTranslatedX(), spr.getTranslatedY());
 }
+
 
 void gfx::render(button& b) {
     rectShape rect = b.getTranslatedRect();

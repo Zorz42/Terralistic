@@ -4,16 +4,15 @@
 //RectShape
 RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
 void RectShape::render(Color c, bool fill) {
-    SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
-    SDL_Rect sdl_rect = { x.x, x.y, x.w, x.h };
-    if (fill) {
-
-        SDL_RenderFillRect(renderer, &sdl_rect);
-    }
-    else {
-        SDL_RenderDrawRect(renderer, &sdl_rect);
+    SDL_SetRenderDrawColor(gfx::renderer, c.r, c.g, c.b, c.a);
+        SDL_Rect sdl_rect = { this->x, this->y, this->w, this->h };
+        if (fill)
+            SDL_RenderFillRect(gfx::renderer, &sdl_rect);
+        else
+            SDL_RenderDrawRect(gfx::renderer, &sdl_rect);
     }
 }
+
 
 //_CenteredObject
 RectShape _CenteredObject::getTranslatedRect() const {
@@ -32,3 +31,12 @@ _CenteredObject::_CenteredObject(short x, short y, objectType orientation) : ori
 
 //Rect
 explicit Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, objectType orientation) : _centeredObject(x, y, orientation), w(w), h(h), c(c) {}
+void Rect::render(bool fill) {
+    SDL_SetRenderDrawColor(gfx::renderer, this->c.r, this->c.g, this->c.b, this->c.a);
+    RectShape gfx_rect = this->getTranslatedRect();
+    SDL_Rect sdl_rect = { gfx_rect.x, gfx_rect.y, gfx_rect.w, gfx_rect.h };
+    if (fill)
+        SDL_RenderFillRect(gfx::renderer, &sdl_rect);
+    else
+        SDL_RenderDrawRect(gfx::renderer, &sdl_rect);
+}
