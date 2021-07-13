@@ -24,10 +24,6 @@ Packet connection::getPacket() {
     return packet_manager.getPacket();
 }
 
-void serverNetworkingManager::registerListener(serverPacketListener *listener) {
-    listeners.push_back(listener);
-}
-
 void connection::sendPacket(const Packet& packet) const {
     packet_manager.sendPacket(packet);
 }
@@ -52,9 +48,7 @@ void serverNetworkingManager::sendToEveryone(const Packet& packet, connection* e
 }
 
 void serverNetworkingManager::onPacket(Packet& packet, connection& conn) {
-    for(serverPacketListener* listener : listeners)
-        if(listener->listening_to.find(packet.getType()) != listener->listening_to.end())
-            listener->onPacket(packet, conn);
+    ServerPacketEvent(packet, conn).call();
 }
 
 void serverNetworkingManager::listenerLoop() {

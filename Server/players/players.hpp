@@ -69,7 +69,7 @@ struct blockEvents {
     void (*onLeftClick)(block*, player*) = nullptr;
 };
 
-class players : serverPacketListener {
+class players : EventListener<ServerPacketEvent> {
     items* parent_items;
     blocks* parent_blocks;
     serverNetworkingManager* manager;
@@ -77,7 +77,7 @@ class players : serverPacketListener {
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     
-    void onPacket(Packet& packet, connection& conn) override;
+    void onEvent(ServerPacketEvent& event) override;
     
     void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
     void rightClickEvent(block this_block, player* peer);
