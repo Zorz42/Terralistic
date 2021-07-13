@@ -57,7 +57,7 @@ void gfx::Image::render(float scale, short x, short y) const {
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};
 
 void gfx::Sprite::render() const {
-    ((Image)(*this)).render(scale, getTranslatedX(), getTranslatedY());
+    Image::render(scale, getTranslatedX(), getTranslatedY());
 }
 
 unsigned short gfx::Button::getWidth() const {
@@ -85,7 +85,7 @@ void gfx::Button::render() {
         (unsigned char)((int)this->hover_color.b * (int)this->hover_progress / 255 + (int)this->def_color.b * (int)(255 - this->hover_progress) / 255),
     };
     rect.render(button_color);
-    ((Image)(*this)).render(scale, rect.x + margin * scale, rect.y + margin * scale);
+    Image::render(scale, rect.x + margin * scale, rect.y + margin * scale);
 }
 
 void gfx::TextInput::setText(const std::string& text_) {
@@ -111,7 +111,7 @@ void gfx::TextInput::render() const {
     rect.y += this->margin * this->scale;
     rect.w = this->getTextureWidth() * this->scale;
     rect.h -= this->margin * 2 * this->scale;
-    ((Image)(*this)).render(scale, rect.x, rect.y, RectShape(rect.w - this->cut_length > this->width * this->scale ? rect.w / this->scale - this->width : this->cut_length, 0, rect.w - this->cut_length > this->width * this->scale ? this->width : rect.w / this->scale - this->cut_length, rect.h / this->scale));
+    Image::render(scale, rect.x, rect.y, RectShape(rect.w - this->cut_length > this->width * this->scale ? rect.w / this->scale - this->width : this->cut_length, 0, rect.w - this->cut_length > this->width * this->scale ? this->width : rect.w / this->scale - this->cut_length, rect.h / this->scale));
     //((Image)(*this)).render(scale, rect.x, rect.y, RectShape(rect.w - this->cut_length > this->width * this->scale ? rect.w / this->scale - this->width : this->cut_length, 0, rect.w - this->cut_length > this->width * this->scale ? this->width : rect.w / this->scale - this->cut_length, rect.h / this->scale));
     if (active)
         Rect(rect.x + (rect.w > width * scale ? width * scale : rect.w - cut_length * scale), rect.y, scale, rect.h, text_color).render();
