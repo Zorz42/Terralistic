@@ -25,20 +25,20 @@ clientPlayer* clientPlayers::getPlayerById(unsigned short id) {
     return nullptr;
 }
 
-void clientPlayers::onPacket(Packet &packet) {
-    switch(packet.getType()) {
+void clientPlayers::onEvent(ClientPacketEvent &event) {
+    switch(event.packet.getType()) {
         case PacketType::PLAYER_JOIN: {
             auto* new_player = new clientPlayer();
-            new_player->name = packet.get<std::string>();
-            new_player->id = packet.get<unsigned short>();
-            new_player->y = packet.get<int>();
-            new_player->x = packet.get<int>();
+            new_player->name = event.packet.get<std::string>();
+            new_player->id = event.packet.get<unsigned short>();
+            new_player->y = event.packet.get<int>();
+            new_player->x = event.packet.get<int>();
             new_player->name_text.renderText(new_player->name, {0, 0, 0});
             other_players.push_back(new_player);
             break;
         }
         case PacketType::PLAYER_QUIT: {
-            auto id = packet.get<unsigned short>();
+            auto id = event.packet.get<unsigned short>();
             for(auto i = other_players.begin(); i != other_players.end(); i++)
                 if((*i)->id == id) {
                     other_players.erase(i);
@@ -47,10 +47,10 @@ void clientPlayers::onPacket(Packet &packet) {
             break;
         }
         case PacketType::PLAYER_MOVEMENT: {
-            clientPlayer* player = getPlayerById(packet.get<unsigned short>());
-            player->flipped = packet.get<char>();
-            player->y = packet.get<int>();
-            player->x = packet.get<int>();
+            clientPlayer* player = getPlayerById(event.packet.get<unsigned short>());
+            player->flipped = event.packet.get<char>();
+            player->y = event.packet.get<int>();
+            player->x = event.packet.get<int>();
             break;
         }
         default:;

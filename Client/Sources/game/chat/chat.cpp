@@ -74,11 +74,11 @@ void chat::onKeyDown(gfx::key key) {
     }
 }
 
-void chat::onPacket(Packet &packet) {
-    switch(packet.getType()) {
+void chat::onEvent(ClientPacketEvent &event) {
+    switch(event.packet.getType()) {
         case PacketType::CHAT: {
             auto* new_line = new chatLine;
-            new_line->text = packet.get<std::string>();
+            new_line->text = event.packet.get<std::string>();
             new_line->time_created = gfx::getTicks();
             chat_lines.push_back(new_line);
             break;

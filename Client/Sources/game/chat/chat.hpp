@@ -12,7 +12,7 @@
 
 #include "clientNetworking.hpp"
 
-class chat : public gfx::GraphicalModule, packetListener {
+class chat : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     struct chatLine {
         std::string text;
         gfx::Sprite text_sprite;
@@ -24,7 +24,7 @@ class chat : public gfx::GraphicalModule, packetListener {
     networkingManager* manager;
     std::vector<chatLine*> chat_lines;
 public:
-    explicit chat(networkingManager* manager) : manager(manager), packetListener(manager) { listening_to = {PacketType::CHAT}; }
+    explicit chat(networkingManager* manager) : manager(manager) {}
 
     void init() override;
     void update() override;
@@ -32,7 +32,7 @@ public:
     void onKeyDown(gfx::key key) override;
     void stop() override;
 
-    void onPacket(Packet &packet) override;
+    void onEvent(ClientPacketEvent& event) override;
 };
 
 #endif /* chat_hpp */

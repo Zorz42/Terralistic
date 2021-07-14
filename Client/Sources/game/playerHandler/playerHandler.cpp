@@ -203,10 +203,10 @@ void playerHandler::render() {
     renderInventory();
 }
 
-void playerHandler::onPacket(Packet &packet) {
-    switch(packet.getType()) {
+void playerHandler::onEvent(ClientPacketEvent &event) {
+    switch(event.packet.getType()) {
         case PacketType::SPAWN_POS: {
-            int x = packet.get<int>(), y = packet.get<int>();
+            int x = event.packet.get<int>(), y = event.packet.get<int>();
             player->position_x = x;
             player->position_y = y;
             world_map->view_x = x;
@@ -216,5 +216,5 @@ void playerHandler::onPacket(Packet &packet) {
         }
         default:;
     }
-    onPacketInventory(packet);
+    onPacketInventory(event.packet);
 }

@@ -23,7 +23,7 @@ public:
     std::string name;
 };
 
-class playerHandler : public gfx::GraphicalModule, packetListener {
+class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     bool key_up = false, jump = false, key_left = false, key_right = false;
 
     mainPlayer* player;
@@ -65,9 +65,9 @@ class playerHandler : public gfx::GraphicalModule, packetListener {
     void update() override;
     void render() override;
     void selectSlot(char slot);
-    void onPacket(Packet &packet) override;
+    void onEvent(ClientPacketEvent& event) override;
 public:
-    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {PacketType::SPAWN_POS, PacketType::INVENTORY_CHANGE}; }
+    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : manager(manager), player(player), world_map(world_map) {}
 };
 
 #endif /* playerHandler_hpp */

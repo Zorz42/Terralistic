@@ -19,7 +19,7 @@
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
 
-class map : public gfx::GraphicalModule, packetListener {
+class map : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
 public:
     enum class chunkState {unloaded, pending_load, loaded};
 protected:
@@ -45,7 +45,7 @@ protected:
     void renderItems();
 
     void render() override;
-    void onPacket(Packet &packet) override;
+    void onEvent(ClientPacketEvent& event) override;
     void init() override;
 
     networkingManager* networking_manager;
@@ -120,7 +120,7 @@ protected:
     gfx::Image background_image;
 
 public:
-    explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {PacketType::BLOCK_CHANGE, PacketType::CHUNK, PacketType::BLOCK_PROGRESS_CHANGE, PacketType::ITEM_CREATION, PacketType::ITEM_DELETION, PacketType::ITEM_MOVEMENT, PacketType::KICK}; }
+    explicit map(networkingManager* manager) : networking_manager(manager) {}
     int view_x{}, view_y{};
 
     chunk getChunk(unsigned short x, unsigned short y);

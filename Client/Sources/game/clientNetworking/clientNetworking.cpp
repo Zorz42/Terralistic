@@ -27,11 +27,7 @@ void networkingManager::sendPacket(Packet& packet_) const {
 void networkingManager::listenerLoop(networkingManager* manager) {
     while(manager->listener_running) {
         Packet packet = manager->packet_manager.getPacket();
-        for(packetListener* listener : manager->listeners)
-            if(listener->listening_to.find(packet.getType()) != listener->listening_to.end()) {
-                listener->onPacket(packet);
-                break;
-            }
+        ClientPacketEvent(packet).call();
     }
 #ifdef _WIN32
     closesocket(manager->sock);
@@ -116,12 +112,4 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
 
 void networkingManager::closeConnection() {
     listener_running = false;
-}
-
-void networkingManager::registerListener(packetListener *listener) {
-    listeners.push_back(listener);
-}
-
-packetListener::packetListener(networkingManager* manager) {
-    manager->registerListener(this);
 }
