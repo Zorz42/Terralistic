@@ -10,7 +10,6 @@
 
 #include <string>
 #include "serverNetworking.hpp"
-#include "packets.hpp"
 #include "properties.hpp"
 
 #define BLOCK_WIDTH 16

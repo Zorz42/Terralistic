@@ -15,6 +15,8 @@
 		167C22C62673956800FF487D /* choiceScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22C42673956800FF487D /* choiceScreen.cpp */; };
 		167C22CB2673A46800FF487D /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22CA2673A46800FF487D /* textScreen.cpp */; };
 		16811020263BE9260086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
+		168161CD269EFD4E00A95DA9 /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168161CB269EFD4E00A95DA9 /* networking.cpp */; };
+		168161CE269EFD4E00A95DA9 /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168161CB269EFD4E00A95DA9 /* networking.cpp */; };
 		1683E7CC269DFF03008735C6 /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C1269DFF03008735C6 /* color.cpp */; };
 		1683E7CD269DFF03008735C6 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C5269DFF03008735C6 /* rect.cpp */; };
 		1683E7CE269DFF03008735C6 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C7269DFF03008735C6 /* scene.cpp */; };
@@ -40,7 +42,6 @@
 		16987C17265901020016509C /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C14265901020016509C /* block.cpp */; };
 		16BF6928269D6D7300CFE175 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		16BF6929269D6D7300CFE175 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
-		16BF692A269D6D7300CFE175 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
 		16BF692B269D6D7300CFE175 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		16BF692C269D6D7300CFE175 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		16BF692D269D6D7300CFE175 /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D312682067D00A4B03A /* blocks.cpp */; };
@@ -61,17 +62,17 @@
 		16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BF6959269D7F4D00CFE175 /* resourcePath.cpp */; };
 		16BF695C269D7FC100CFE175 /* resourcePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BF6959269D7F4D00CFE175 /* resourcePath.cpp */; };
 		16BF6963269D853100CFE175 /* sfml-network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; };
-		16BF6964269D853100CFE175 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6964269D853100CFE175 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		16BF6965269D853100CFE175 /* sfml-graphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; };
-		16BF6966269D853100CFE175 /* sfml-graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6966269D853100CFE175 /* sfml-graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		16BF6967269D853100CFE175 /* sfml-window.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; };
-		16BF6968269D853100CFE175 /* sfml-window.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF6968269D853100CFE175 /* sfml-window.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		16BF6969269D853100CFE175 /* sfml-audio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; };
-		16BF696A269D853100CFE175 /* sfml-audio.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF696A269D853100CFE175 /* sfml-audio.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		16BF696B269D853100CFE175 /* SFML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; };
-		16BF696C269D853100CFE175 /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF696C269D853100CFE175 /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		16BF696D269D853100CFE175 /* sfml-system.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; };
-		16BF696E269D853100CFE175 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16BF696E269D853100CFE175 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		16BF6977269D853A00CFE175 /* ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6970269D853A00CFE175 /* ogg.framework */; };
 		16BF6978269D853A00CFE175 /* ogg.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6970269D853A00CFE175 /* ogg.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF6979269D853A00CFE175 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6971269D853A00CFE175 /* OpenAL.framework */; };
@@ -121,7 +122,6 @@
 		16C29312269CDE840059A9AF /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16644E57267CB1640015C23D /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		36B157D726484E2000528A2B /* clientMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157D226484E2000528A2B /* clientMap.cpp */; };
-		36B157ED2648500300528A2B /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157EC2648500300528A2B /* packets.cpp */; };
 		36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		36DDF8A62689F725002337F3 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B598E2665579400BCECBB /* SimplexNoise.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
@@ -240,6 +240,8 @@
 		1681100B263BE9260086D659 /* clientMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientMap.hpp; sourceTree = "<group>"; };
 		16811017263BE9260086D659 /* inventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = inventory.hpp; sourceTree = "<group>"; };
 		16811018263BE9260086D659 /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
+		168161CB269EFD4E00A95DA9 /* networking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = networking.cpp; sourceTree = "<group>"; };
+		168161CF269EFFB600A95DA9 /* packetType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = packetType.hpp; sourceTree = "<group>"; };
 		1683E7C1269DFF03008735C6 /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
 		1683E7C2269DFF03008735C6 /* color.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
 		1683E7C4269DFF03008735C6 /* rect.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = rect.hpp; sourceTree = "<group>"; };
@@ -252,7 +254,6 @@
 		168600DF2681DB7300763775 /* players.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = players.hpp; sourceTree = "<group>"; };
 		1689687825E9607800D26060 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
 		1689687925E9607800D26060 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
-		1689687C25E9607800D26060 /* packets.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = packets.hpp; sourceTree = "<group>"; };
 		1689689825E9607800D26060 /* otherPlayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = otherPlayers.cpp; sourceTree = "<group>"; };
 		1689689925E9607800D26060 /* otherPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = otherPlayers.hpp; sourceTree = "<group>"; };
 		1689689D25E9607800D26060 /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game.hpp; sourceTree = "<group>"; };
@@ -348,7 +349,6 @@
 		16C2937E269CE65F0059A9AF /* libsfml-audio.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-audio.2.5.dylib"; path = "Dependencies/MacOS/SFML-dylib/libsfml-audio.2.5.dylib"; sourceTree = "<group>"; };
 		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
 		36B157D226484E2000528A2B /* clientMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientMap.cpp; sourceTree = "<group>"; };
-		36B157EC2648500300528A2B /* packets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
 		36B157F52648501F00528A2B /* graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graphics.cpp; sourceTree = "<group>"; };
 		36DDF87C2689EAF9002337F3 /* properties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = properties.cpp; sourceTree = "<group>"; };
 		36DDF87D2689EAF9002337F3 /* properties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = properties.hpp; sourceTree = "<group>"; };
@@ -671,6 +671,7 @@
 				168600DE2681DB7300763775 /* players.cpp */,
 				16987C1A2659010D0016509C /* inventory.cpp */,
 				16987C192659010D0016509C /* packets.cpp */,
+				168161CB269EFD4E00A95DA9 /* networking.cpp */,
 			);
 			path = players;
 			sourceTree = "<group>";
@@ -704,15 +705,6 @@
 				1689687925E9607800D26060 /* sago.cpp */,
 			);
 			path = sago;
-			sourceTree = "<group>";
-		};
-		1689687B25E9607800D26060 /* packets */ = {
-			isa = PBXGroup;
-			children = (
-				1689687C25E9607800D26060 /* packets.hpp */,
-				36B157EC2648500300528A2B /* packets.cpp */,
-			);
-			path = packets;
 			sourceTree = "<group>";
 		};
 		1689689325E9607800D26060 /* game */ = {
@@ -932,8 +924,8 @@
 				36DDF87A2689EAC5002337F3 /* properties */,
 				1675E71A26611B6300B620F4 /* configManager */,
 				167B37FD2642F43C00E3C718 /* assert */,
-				1689687B25E9607800D26060 /* packets */,
 				1695428D2680B5B400F1F4FE /* version.hpp */,
+				168161CF269EFFB600A95DA9 /* packetType.hpp */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -1076,12 +1068,12 @@
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				16932058263811C100B73C9F /* fileManager.cpp in Sources */,
-				36B157ED2648500300528A2B /* packets.cpp in Sources */,
 				36DDF8B8268A0499002337F3 /* textures.cpp in Sources */,
 				16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */,
 				167C22CB2673A46800FF487D /* textScreen.cpp in Sources */,
 				16987C11265900F90016509C /* inventory.cpp in Sources */,
 				36B157D726484E2000528A2B /* clientMap.cpp in Sources */,
+				168161CD269EFD4E00A95DA9 /* networking.cpp in Sources */,
 				1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */,
 				1691250225F6BCD500F7EB4F /* clientNetworking.cpp in Sources */,
 				1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */,
@@ -1118,7 +1110,6 @@
 				16BF6938269D6DC000CFE175 /* launcher.cpp in Sources */,
 				16BF6928269D6D7300CFE175 /* properties.cpp in Sources */,
 				16BF6929269D6D7300CFE175 /* configManager.cpp in Sources */,
-				16BF692A269D6D7300CFE175 /* packets.cpp in Sources */,
 				16BF692B269D6D7300CFE175 /* SimplexNoise.cpp in Sources */,
 				16BF692C269D6D7300CFE175 /* worldGenerator.cpp in Sources */,
 				16BF692D269D6D7300CFE175 /* blocks.cpp in Sources */,
@@ -1128,6 +1119,7 @@
 				16BF6931269D6D7300CFE175 /* items.cpp in Sources */,
 				16BF6932269D6D7300CFE175 /* players.cpp in Sources */,
 				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
+				168161CE269EFD4E00A95DA9 /* networking.cpp in Sources */,
 				16BF6934269D6D7300CFE175 /* packets.cpp in Sources */,
 				16BF6935269D6D7300CFE175 /* serverNetworking.cpp in Sources */,
 				16BF6936269D6D7300CFE175 /* print.cpp in Sources */,

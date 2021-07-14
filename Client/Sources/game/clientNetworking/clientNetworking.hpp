@@ -9,27 +9,29 @@
 #define clientNetworking_hpp
 
 #include <vector>
-#include <set>
+#include <SFML/Network.hpp>
+#include <thread>
 
-#include "packets.hpp"
 #include "events.hpp"
+#include "packetType.hpp"
 
 class networkingManager {
-    int sock = -1;
     bool listener_running = true;
-    static void listenerLoop(networkingManager* manager);
-    PacketManager packet_manager;
+    void listenerLoop();
+    sf::TcpSocket socket;
+    std::thread listener_thread;
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();
 
-    void sendPacket(Packet& packet_) const;
+    void sendPacket(sf::Packet& packet);
 };
 
 class ClientPacketEvent : public Event<ClientPacketEvent> {
 public:
-    ClientPacketEvent(Packet& packet) : packet(packet) {}
-    Packet& packet;
+    ClientPacketEvent(sf::Packet& packet, PacketType packet_type) : packet(packet), packet_type(packet_type) {}
+    sf::Packet& packet;
+    PacketType packet_type;
 };
 
 #endif /* clientNetworking_hpp */

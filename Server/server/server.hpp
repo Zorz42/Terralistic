@@ -16,7 +16,6 @@
 
 class server {
     std::string working_dir;
-    serverNetworkingManager networking_manager;
     blocks server_blocks;
     items server_items;
     players server_players;

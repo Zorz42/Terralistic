@@ -55,7 +55,7 @@ void server::start() {
     server_blocks.setNaturalLight();
 
     signal(SIGINT, inthand);
-    networking_manager.startListening();
+    server_players.establishSocket();
 
     state = RUNNING;
     print::info("Server has started!");

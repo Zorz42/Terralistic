@@ -17,7 +17,7 @@ void playerHandler::init() {
     world_map->view_x = player->position_x;
     world_map->view_y = player->position_y;
     
-    Packet join_packet(PacketType::PLAYER_JOIN, (int)player->name.size() + 1);
+    sf::Packet join_packet;
     join_packet << player->name;
     manager->sendPacket(join_packet);
     
@@ -204,7 +204,7 @@ void playerHandler::render() {
 }
 
 void playerHandler::onEvent(ClientPacketEvent &event) {
-    switch(event.packet.getType()) {
+    switch(event.packet_type) {
         case PacketType::SPAWN_POS: {
             int x = event.packet.get<int>(), y = event.packet.get<int>();
             player->position_x = x;

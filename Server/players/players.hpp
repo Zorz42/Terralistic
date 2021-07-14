@@ -11,6 +11,8 @@
 #define INVENTORY_SIZE 20
 
 #include "items.hpp"
+#include "packetType.hpp"
+#include <SFML/Network.hpp>
 
 class inventory;
 class player;
@@ -50,15 +52,22 @@ public:
 class player {
 public:
     explicit player(unsigned short id) : id(id), player_inventory(this) {}
-    connection* conn = nullptr;
+    std::string name;
+    
+    std::string ip;
+    bool disconnected = false, registered = false;
+    
+    
     const unsigned short id;
     bool flipped = false;
     int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
     inventory player_inventory;
-    unsigned short breaking_x{}, breaking_y{};
+    
     bool breaking = false;
-    std::string name;
+    unsigned short breaking_x{}, breaking_y{};
+    
+    sf::TcpSocket* socket;
 };
 
 class players;
@@ -69,11 +78,18 @@ struct blockEvents {
     void (*onLeftClick)(block*, player*) = nullptr;
 };
 
+class ServerPacketEvent : public Event<ServerPacketEvent> {
+public:
+    ServerPacketEvent(sf::Packet& packet, player& sender) : packet(packet), sender(sender) {}
+    sf::Packet& packet;
+    player& sender;
+};
+
 class players : EventListener<ServerPacketEvent> {
     items* parent_items;
     blocks* parent_blocks;
-    serverNetworkingManager* manager;
     
+    std::vector<sf::TcpSocket*> pending_connections;
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     
@@ -83,8 +99,10 @@ class players : EventListener<ServerPacketEvent> {
     void rightClickEvent(block this_block, player* peer);
     
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
+    
+    sf::TcpListener listener;
 public:
-    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_);
+    players(blocks* parent_blocks_, items* parent_items_);
     
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }
@@ -100,6 +118,13 @@ public:
     void loadFrom(std::string path);
     
     void breakBlock(block* this_block);
+    
+    void openSocket(unsigned short port);
+    void closeSocket();
+    void sendToEveryone(sf::Packet& packet, player* exclusion=nullptr);
+    
+    void checkForNewConnections();
+    void getPacketsFromPlayers();
     
     ~players();
 };

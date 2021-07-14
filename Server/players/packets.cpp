@@ -67,44 +67,6 @@ void players::onEvent(ServerPacketEvent& event) {
             break;
         }
 
-        case PacketType::PLAYER_JOIN: {
-            std::string name = event.packet.get<std::string>();
-
-            curr_player = getPlayerByName(name);
-            curr_player->conn = &event.conn;
-
-            Packet spawn_packet(PacketType::SPAWN_POS, sizeof(curr_player->y) + sizeof(curr_player->x));
-            spawn_packet << curr_player->y << curr_player->x;
-            event.conn.sendPacket(spawn_packet);
-
-            for(player* player : online_players) {
-                Packet join_packet(PacketType::PLAYER_JOIN, sizeof(player->x) + sizeof(player->y) + sizeof(player->id) + (int)player->name.size() + 1);
-                join_packet << player->x << player->y << player->id << player->name;
-                curr_player->conn->sendPacket(join_packet);
-            }
-
-            for(const item& i : parent_items->getItems()) {
-                Packet item_packet(PacketType::ITEM_CREATION, sizeof(i.x) + sizeof(i.y) + sizeof(i.getId()) + sizeof(char));
-                item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
-                curr_player->conn->sendPacket(item_packet);
-            }
-
-            for(inventoryItem& i : curr_player->player_inventory.inventory_arr) // send the whole inventory
-                if(i.getId() != ItemType::NOTHING)
-                    i.sendPacket();
-
-            Packet join_packet_out(PacketType::PLAYER_JOIN, sizeof(curr_player->x) + sizeof(curr_player->y) + sizeof(curr_player->id) + (int)curr_player->name.size() + 1);
-            join_packet_out << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
-            manager->sendToEveryone(join_packet_out, curr_player->conn);
-
-            curr_player->conn->registered = true;
-
-            online_players.push_back(curr_player);
-
-            print::info(curr_player->name + " (" + curr_player->conn->ip + ") connected (" + std::to_string(online_players.size()) + " players online)");
-            break;
-        }
-
         case PacketType::DISCONNECT: {
             print::info(curr_player->name + " (" + curr_player->conn->ip + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
             player* player = getPlayerByConnection(&event.conn);

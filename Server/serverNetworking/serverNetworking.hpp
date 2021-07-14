@@ -11,15 +11,15 @@
 #define MAX_PLAYERS 100
 
 #include <string>
-#include <set>
 #include <thread>
 #include <vector>
+#include <SFML/Network.hpp>
 
-#include "packets.hpp"
 #include "events.hpp"
+#include "packetType.hpp"
 
 class connection {
-    PacketManager packet_manager;
+    sf::Socket socket;
 public:
     std::string ip;
     bool disconnected = false, registered = false;
@@ -28,8 +28,8 @@ public:
     void setSocket(int socket);
     bool isConnected();
     
-    Packet getPacket();
-    void sendPacket(const Packet& packet_) const;
+    sf::Packet getPacket();
+    void sendPacket(const sf::Packet& packet_);
 };
 
 class serverNetworkingManager {
@@ -37,7 +37,7 @@ class serverNetworkingManager {
     int server_fd;
     unsigned short port;
     std::thread listener_thread;
-    void onPacket(Packet& packet, connection& conn);
+    void onPacket(sf::Packet& packet, connection& conn);
     void listenerLoop();
 public:
     serverNetworkingManager(unsigned short port) : port(port) {}
@@ -47,16 +47,9 @@ public:
     
     void startListening();
     void stopListening();
-    void sendToEveryone(const Packet& packet, connection* exclusion=nullptr);
+    void sendToEveryone(const sf::Packet& packet, connection* exclusion=nullptr);
     
     inline unsigned short getPort() { return port; }
-};
-
-class ServerPacketEvent : public Event<ServerPacketEvent> {
-public:
-    ServerPacketEvent(Packet& packet, connection& conn) : packet(packet), conn(conn) {}
-    Packet& packet;
-    connection& conn;
 };
 
 #endif /* serverNetworking_hpp */
