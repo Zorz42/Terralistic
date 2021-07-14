@@ -1,8 +1,24 @@
 #include "graphics-internal.hpp"
 
-void gfx::Image::setTexture(void* texture_) {
+void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     freeTexture();
-    texture = texture_;
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+    SDL_assert(texture);
+    SDL_SetTextureBlendMode((SDL_Texture*)texture, SDL_BLENDMODE_BLEND);
+}
+
+void gfx::Image::renderText(const std::string& text, Color text_color) {
+    SDL_assert(font);
+    SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
+    SDL_assert(rendered_surface);
+    
+    texture = SDL_CreateTextureFromSurface(gfx::renderer, rendered_surface);
+    SDL_FreeSurface(rendered_surface);
+}
+
+void gfx::Image::loadFromFile(const std::string& path) {
+    texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
+    SDL_assert(texture);
 }
 
 gfx::Image::~Image() {
@@ -10,7 +26,7 @@ gfx::Image::~Image() {
 }
 
 void gfx::Image::freeTexture() {
-    if (texture && free_texture) {
+    if(texture && free_texture) {
         SDL_DestroyTexture((SDL_Texture*)texture);
         texture = nullptr;
     }
@@ -90,7 +106,7 @@ void gfx::Button::render() {
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
-    setTexture(gfx::renderText((std::string)"|g" + text, text_color));
+    renderText((std::string)"|g" + text, text_color);
 }
 
 unsigned short gfx::TextInput::getWidth() const {
@@ -100,7 +116,7 @@ unsigned short gfx::TextInput::getWidth() const {
 gfx::TextInput::TextInput() {
     margin = 3;
     Image temp;
-    temp.setTexture(gfx::renderText("|g", { 0, 0, 0 }));
+    temp.renderText("|g", { 0, 0, 0 });
     cut_length = temp.getTextureWidth() - 1;
 }
 void gfx::TextInput::render() const {

@@ -20,13 +20,13 @@ void multiplayerSelector::init() {
     
     // the back button
     back_button.scale = 3;
-    back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
+    back_button.renderText("Back", {255, 255, 255});
     back_button.y = -PADDING;
     back_button.orientation = gfx::BOTTOM;
     
     // "Join Server" button
     join_button.scale = 3;
-    join_button.setTexture(gfx::renderText("Join Server", {255, 255, 255}));
+    join_button.renderText("Join Server", {255, 255, 255});
     join_button.y = -PADDING;
     join_button.orientation = gfx::BOTTOM;
     
@@ -47,7 +47,7 @@ void multiplayerSelector::init() {
     };
     
     // "Server IP:" text in the top
-    server_ip_title.setTexture(gfx::renderText("Server IP:", {255, 255, 255}));
+    server_ip_title.renderText("Server IP:", {255, 255, 255});
     server_ip_title.scale = 3;
     server_ip_title.y = server_ip.y - server_ip.Sprite::getHeight() - PADDING;
     server_ip_title.orientation = gfx::CENTER;
@@ -67,7 +67,7 @@ void multiplayerSelector::init() {
     };
     
     // "Username:" text in the top
-    username_title.setTexture(gfx::renderText("Username:", {255, 255, 255}));
+    username_title.renderText("Username:", {255, 255, 255});
     username_title.scale = 3;
     username_title.y = username.y - username.Sprite::getHeight() - PADDING;
     username_title.orientation = gfx::CENTER;
@@ -85,7 +85,7 @@ void multiplayerSelector::onKeyDown(gfx::key key) {
 void multiplayerSelector::render() {
     if(can_connect != (username.getText().size() >= 3 && !server_ip.getText().empty())) {
         can_connect = !can_connect;
-        join_button.setTexture(gfx::renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)}));
+        join_button.renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)});
         join_button.disabled = !can_connect;
     }
     join_button.render();

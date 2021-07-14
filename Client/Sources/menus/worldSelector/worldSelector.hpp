@@ -21,7 +21,6 @@ class worldSelector : public gfx::Scene {
     };
 
     gfx::Sprite title;
-    gfx::Image x_image;
     gfx::Button back_button, new_button;
     std::vector<std::string> worlds_names;
     std::vector<world_to_select> worlds;

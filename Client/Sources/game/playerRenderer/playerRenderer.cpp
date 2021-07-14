@@ -12,7 +12,7 @@
 static gfx::Image player;
 
 void playerRenderer::init() {
-    player.setTexture(gfx::loadImageFile("texturePack/misc/player.png"));
+    player.loadFromFile("texturePack/misc/player.png");
 }
 
 #define HEADER_PADDING 4

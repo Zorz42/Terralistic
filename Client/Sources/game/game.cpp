@@ -38,7 +38,7 @@ void startPrivateWorld(const std::string& world_name) {
 
     loading_text.scale = TEXT_SCALE;
     loading_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
-    loading_text.setTexture(gfx::renderText("Generating world", {255, 255, 255}));
+    loading_text.renderText("Generating world", {255, 255, 255});
     loading_text.orientation = gfx::CENTER;
 
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);

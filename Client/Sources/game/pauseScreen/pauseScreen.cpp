@@ -14,11 +14,11 @@
 
 void pauseScreen::init() {
     resume_button.scale = 3;
-    resume_button.setTexture(gfx::renderText("Resume", {255, 255, 255}));
+    resume_button.renderText("Resume", {255, 255, 255});
     resume_button.y = PADDING;
 
     quit_button.scale = 3;
-    quit_button.setTexture(gfx::renderText("Leave Game", {255, 255, 255}));
+    quit_button.renderText("Leave Game", {255, 255, 255});
     quit_button.y = short(resume_button.getHeight() + 2 * PADDING);
     
     back_rect.w = quit_button.getWidth() + 2 * PADDING;

@@ -92,7 +92,7 @@ void playerHandler::updateStackTexture(int i) {
     if(item->stack_changed) {
         gfx::Image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         if(item->getStack() > 1)
-            stack_texture->setTexture(gfx::renderText(std::to_string(item->getStack()), {255, 255, 255}));
+            stack_texture->renderText(std::to_string(item->getStack()), {255, 255, 255});
     }
 }
 

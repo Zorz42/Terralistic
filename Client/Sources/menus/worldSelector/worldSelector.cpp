@@ -32,22 +32,20 @@ void worldSelector::world_to_select::render(int position_) {
 void worldSelector::init() {
     // set some dimensions for shapes
     title.scale = 3;
-    title.setTexture(gfx::renderText("Select a world to play!", {255, 255, 255}));
+    title.renderText("Select a world to play!", {255, 255, 255});
     title.y = PADDING;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
-    back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
+    back_button.renderText("Back", {255, 255, 255});
     back_button.y = -PADDING;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
-    new_button.setTexture(gfx::renderText("New", {255, 255, 255}));
+    new_button.renderText("New", {255, 255, 255});
     new_button.y = -PADDING;
     new_button.x = -PADDING;
     new_button.orientation = gfx::BOTTOM_RIGHT;
-
-    x_image.setTexture(gfx::loadImageFile("texturePack/misc/x-button.png"));
 
     refresh();
 }
@@ -73,12 +71,11 @@ void worldSelector::refresh() {
     for(auto& world : worlds) {
         world.button.orientation = gfx::TOP;
         world.button.scale = 3;
-        world.button.setTexture(gfx::renderText(world.name, {255, 255, 255}));
+        world.button.renderText(world.name, {255, 255, 255});
         world.button_y = scroll_limit + title.getTranslatedRect().h + 2 * PADDING;
 
         world.delete_button.orientation = gfx::TOP;
-        world.delete_button.free_texture = false;
-        world.delete_button.setTexture(x_image.getTexture());
+        world.delete_button.loadFromFile("texturePack/misc/x-button.png");
         world.delete_button.scale = 3;
         world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + PADDING);
 

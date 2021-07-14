@@ -10,7 +10,6 @@ public:
     void render(RectShape rect) const;
     void render(float scale, short x, short y) const;
     void render(float scale, short x, short y, RectShape src_rect) const;
-    void setTexture(void* texture_);
     [[nodiscard]] inline void* getTexture() const { return texture; }
     ~Image();
     bool free_texture = true, flipped = false;
@@ -18,6 +17,9 @@ public:
     [[nodiscard]] unsigned short getTextureHeight() const;
     void clear();
     void setAlpha(unsigned char alpha);
+    void createBlankImage(unsigned short width, unsigned short height);
+    void renderText(const std::string& text, Color text_color);
+    void loadFromFile(const std::string& path);
 protected:
     void freeTexture();
     void* texture = nullptr;

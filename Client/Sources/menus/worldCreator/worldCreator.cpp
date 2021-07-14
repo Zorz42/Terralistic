@@ -16,17 +16,17 @@
 
 void worldCreator::init() {
     back_button.scale = 3;
-    back_button.setTexture(gfx::renderText("Back", {255, 255, 255}));
+    back_button.renderText("Back", {255, 255, 255});
     back_button.y = -PADDING;
     back_button.orientation = gfx::BOTTOM;
     
-    new_world_title.setTexture(gfx::renderText("New world name:", {255, 255, 255}));
+    new_world_title.renderText("New world name:", {255, 255, 255});
     new_world_title.scale = 3;
     new_world_title.y = PADDING;
     new_world_title.orientation = gfx::TOP;
     
     create_button.scale = 3;
-    create_button.setTexture(gfx::renderText("Create world", {255, 255, 255}));
+    create_button.renderText("Create world", {255, 255, 255});
     create_button.y = -PADDING;
     create_button.orientation = gfx::BOTTOM;
 
@@ -60,7 +60,7 @@ void worldCreator::onKeyDown(gfx::key key) {
 void worldCreator::render() {
     if(can_create != (!world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText()))) {
         can_create = !can_create;
-        create_button.setTexture(gfx::renderText("Create world", {(unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100)}));
+        create_button.renderText("Create world", {(unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100)});
         create_button.disabled = !can_create;
     }
     create_button.render();

@@ -31,7 +31,7 @@ void chat::update() {
 void chat::render() {
     for(chatLine* i : chat_lines) {
         if(!i->text_sprite.getTexture()) {
-            i->text_sprite.setTexture(gfx::renderText(i->text, {255, 255, 255}));
+            i->text_sprite.renderText(i->text, {255, 255, 255});
             i->text_sprite.scale = 2;
             i->text_sprite.y = chat_box.y;
             i->text_sprite.x = PADDING;

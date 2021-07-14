@@ -92,7 +92,7 @@ void map::onPacket(Packet &packet) {
 }
 
 void map::init() {
-    background_image.setTexture(gfx::loadImageFile("texturePack/misc/background.png"));
+    background_image.loadFromFile("texturePack/misc/background.png");
 }
 
 void map::render() {

@@ -27,7 +27,7 @@ void map::chunk::draw() {
 }
 
 void map::chunk::createTexture() {
-    chunk_data->texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
+    chunk_data->texture.createBlankImage(BLOCK_WIDTH * 16, BLOCK_WIDTH * 16);
 }
 
 map::chunk map::getChunk(unsigned short x, unsigned short y) {

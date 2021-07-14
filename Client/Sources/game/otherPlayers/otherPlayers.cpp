@@ -33,7 +33,7 @@ void clientPlayers::onPacket(Packet &packet) {
             new_player->id = packet.get<unsigned short>();
             new_player->y = packet.get<int>();
             new_player->x = packet.get<int>();
-            new_player->name_text.setTexture(gfx::renderText(new_player->name, {0, 0, 0}));
+            new_player->name_text.renderText(new_player->name, {0, 0, 0});
             other_players.push_back(new_player);
             break;
         }

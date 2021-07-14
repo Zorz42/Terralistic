@@ -15,10 +15,6 @@ inline std::string resource_path;
 void setWindowMinimumSize(unsigned short width, unsigned short height);
 void loadFont(const std::string& path, unsigned char size);
 
-void* loadImageFile(const std::string& path);
-void* renderText(const std::string& text, Color text_color);
-void* createBlankTexture(unsigned short w, unsigned short h);
-
 unsigned short getMouseX(), getMouseY(), getWindowWidth(), getWindowHeight();
 float getDeltaTime();
 
