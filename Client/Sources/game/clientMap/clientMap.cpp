@@ -62,16 +62,16 @@ void map::onEvent(ClientPacketEvent &event) {
         }
         case PacketType::CHUNK: {
             chunks_pending--;
-            auto x = event.packet.get<unsigned short>(), y = event.packet.get<unsigned short>();
+            unsigned short x, y;
+            event.packet >> x >> y;
             
-            for(unsigned short y_ = 0; y_ < 16; y_++)
-                for(unsigned short x_ = 0; x_ < 16; x_++) {
-                    auto light_level = event.packet.get<unsigned char>();
-                    auto liquid_level = event.packet.get<unsigned char>();
-                    auto liquid_type = (LiquidType)event.packet.get<unsigned char>();
-                    auto type = (BlockType)event.packet.get<unsigned char>();
-                    block block = getBlock((x << 4) + x_, (y << 4) + y_);
-                    block.setType(type, liquid_type);
+            for(unsigned short chunk_x = 0; chunk_x < 16; chunk_x++)
+                for(unsigned short chunk_y = 0; chunk_y < 16; chunk_y++) {
+                    unsigned char block_type, liquid_type, liquid_level, light_level;
+                    chunk_packet << block_type << liquid_type << liquid_level << light_level;
+                    
+                    block block = getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
+                    block.setType((BlockType)type, (LiquidType)liquid_type);
                     block.setLightLevel(light_level);
                     block.setLiquidLevel(liquid_level);
                     block.update();

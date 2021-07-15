@@ -16,10 +16,11 @@
 #include "players.hpp"
 
 void players::onEvent(ServerPacketEvent& event) {
-    player* curr_player = getPlayerByConnection(&event.conn);
-    switch (event.packet.getType()) {
+    player* curr_player = &event.sender;
+    switch (event.packet_type) {
         case PacketType::STARTED_BREAKING: {
-            auto y = event.packet.get<unsigned short>(), x = event.packet.get<unsigned short>();
+            unsigned short x, y;
+            event.packet >> x >> y;
             curr_player->breaking_x = x;
             curr_player->breaking_y = y;
             curr_player->breaking = true;
@@ -32,20 +33,23 @@ void players::onEvent(ServerPacketEvent& event) {
         }
 
         case PacketType::RIGHT_CLICK: {
-            auto y = event.packet.get<unsigned short>(), x = event.packet.get<unsigned short>();
+            unsigned short x, y;
+            event.packet >> x >> y;
             rightClickEvent(parent_blocks->getBlock(x, y), curr_player);
             break;
         }
 
         case PacketType::CHUNK: {
-            auto x = event.packet.get<unsigned short>(), y = event.packet.get<unsigned short>();
-            Packet chunk_packet(PacketType::CHUNK, (sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char)) * 16 * 16 + sizeof(x) + sizeof(y));
-            for(int i = 0; i < 16 * 16; i++) {
-                block block = parent_blocks->getBlock((x << 4) + 15 - i % 16, (y << 4) + 15 - i / 16);
-                chunk_packet << (unsigned char)block.getType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
-            }
-            chunk_packet << y << x;
-            event.conn.sendPacket(chunk_packet);
+            unsigned short x, y;
+            event.packet >> x >> y;
+            sf::Packet chunk_packet;
+            chunk_packet << PacketType::CHUNK << y << x;
+            for(int chunk_x = 0; chunk_x < 16; chunk_x++)
+                for(int chunk_y = 0; chunk_y < 16; chunk_y++) {
+                    block block = parent_blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
+                    chunk_packet << (unsigned char)block.getType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
+                }
+            event.sender.socket->send(chunk_packet);
             break;
         }
 

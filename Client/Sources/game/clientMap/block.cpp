@@ -59,8 +59,8 @@ void map::renderBlocks() {
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
             if(getChunk(x, y).getState() == chunkState::unloaded && chunks_pending < REQUEST_LIMIT) {
-                Packet packet(PacketType::CHUNK, sizeof(y) + sizeof(x));
-                packet << y << x;
+                sf::Packet packet;
+                packet << PacketType::CHUNK << y << x;
                 networking_manager->sendPacket(packet);
                 getChunk(x, y).setState(chunkState::pending_load);
                 chunks_pending++;

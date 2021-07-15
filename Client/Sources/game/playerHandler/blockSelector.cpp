@@ -12,8 +12,8 @@
 
 void playerHandler::renderBlockSelector() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {
-        Packet packet(PacketType::STARTED_BREAKING, sizeof(selected_block_x) + sizeof(selected_block_y));
-        packet << selected_block_x << selected_block_y;
+        sf::Packet packet;
+        packet << PacketType::STARTED_BREAKING << selected_block_x << selected_block_y;
         manager->sendPacket(packet);
 
         prev_selected_x = selected_block_x;
@@ -37,8 +37,8 @@ void playerHandler::onKeyDownSelector(gfx::key key) {
     } else if(key == gfx::KEY_MOUSE_RIGHT && !playerHandler::hovered) {
         gfx::RectShape rect = gfx::RectShape(gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2, playerRenderer::getPlayerWidth(), playerRenderer::getPlayerHeight());
         if(!gfx::colliding(rect, select_rect.getTranslatedRect())) {
-            Packet packet(PacketType::RIGHT_CLICK, sizeof(selected_block_x) + sizeof(selected_block_y));
-            packet << selected_block_x << selected_block_y;
+            sf::Packet packet;
+            packet << PacketType::RIGHT_CLICK << selected_block_x << selected_block_y;
             manager->sendPacket(packet);
         }
     }

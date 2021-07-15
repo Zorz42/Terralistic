@@ -64,12 +64,10 @@ void players::getPacketsFromPlayers() {
             for(inventoryItem& curr_item : curr_player->player_inventory.inventory_arr) // send the whole inventory
                 if(curr_item.getId() != ItemType::NOTHING)
                     curr_item.sendPacket();
-
-            /*Packet join_packet_out(PacketType::PLAYER_JOIN, sizeof(curr_player->x) + sizeof(curr_player->y) + sizeof(curr_player->id) + (int)curr_player->name.size() + 1);
-            join_packet_out << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
-            manager->sendToEveryone(join_packet_out, curr_player->conn);*/
-
-            //curr_player->conn->registered = true;
+            
+            sf::Packet join_packet;
+            join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
+            sendToEveryone(join_packet);
 
             online_players.push_back(curr_player);
 
@@ -85,7 +83,7 @@ void players::getPacketsFromPlayers() {
             if(curr_player->socket->receive(packet) != sf::Socket::NotReady) {
                 unsigned char packet_type;
                 packet >> packet_type;
-                ServerPacketEvent(packet, *curr_player).call();
+                ServerPacketEvent(packet, (PacketType)packet_type, *curr_player).call();
             } else
                 break;
         }

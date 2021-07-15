@@ -12,7 +12,7 @@
 
 #include "items.hpp"
 #include "packetType.hpp"
-#include <SFML/Network.hpp>
+#include "events.hpp"
 
 class inventory;
 class player;
@@ -80,8 +80,9 @@ struct blockEvents {
 
 class ServerPacketEvent : public Event<ServerPacketEvent> {
 public:
-    ServerPacketEvent(sf::Packet& packet, player& sender) : packet(packet), sender(sender) {}
+    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, player& sender) : packet(packet), packet_type(packet_type), sender(sender) {}
     sf::Packet& packet;
+    PacketType packet_type;
     player& sender;
 };
 
@@ -95,7 +96,7 @@ class players : EventListener<ServerPacketEvent> {
     
     void onEvent(ServerPacketEvent& event) override;
     
-    void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
+    void leftClickEvent(block this_block, player* peer, unsigned short tick_length);
     void rightClickEvent(block this_block, player* peer);
     
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
@@ -107,7 +108,6 @@ public:
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }
     
-    player* getPlayerByConnection(connection* conn);
     player* getPlayerByName(const std::string& name);
     
     void updatePlayersBreaking(unsigned short tick_length);

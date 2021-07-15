@@ -21,15 +21,14 @@ void items::spawnItem(ItemType item_id, int x, int y, short id) {
     if(id == -1)
         id = curr_id++;
     item_arr.emplace_back();
-    item_arr.back().create(item_id, x, y, id, parent_blocks, manager);
+    item_arr.back().create(item_id, x, y, id, parent_blocks);
 }
 
-void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_, serverNetworkingManager* manager_) {
+void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
     velocity_y = -int(engine() % 100) - 50;
-    manager = manager_;
     
     x = x_ * 100;
     y = y_ * 100;
@@ -43,9 +42,9 @@ void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks*
 }
 
 void item::destroy() {
-    Packet packet(PacketType::ITEM_DELETION, sizeof(getId()));
-    packet << getId();
-    manager->sendToEveryone(packet);
+    /*sf::Packet packet;
+    packet << PacketType::ITEM_DELETION << getId();
+    manager->sendToEveryone(packet);*/
 }
 
 [[maybe_unused]] const ItemInfo& item::getUniqueItem() const {
