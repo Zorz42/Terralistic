@@ -102,9 +102,9 @@ void item::update(float frame_length) {
     }
     
     if(prev_x != x || prev_y != y) {
-        Packet packet(PacketType::ITEM_MOVEMENT, sizeof(x) + sizeof(y) + sizeof(getId()));
-        packet << x << y << getId();
-        manager->sendToEveryone(packet);
+        /*sf::Packet packet;
+        packet << PacketType::ITEM_MOVEMENT << x << y << getId();
+        manager->sendToEveryone(packet);*/
     }
 }
 

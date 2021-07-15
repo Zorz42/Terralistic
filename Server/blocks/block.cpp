@@ -8,8 +8,8 @@
 #include "blocks.hpp"
 
 #include "assert.hpp"
-#include "serverNetworking.hpp"
 #include "properties.hpp"
+#include "packetType.hpp"
 
 block blocks::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
@@ -64,8 +64,8 @@ void block::updateNeighbors() {
 }
 
 void block::syncWithClient() {
-    Packet packet(PacketType::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
-    packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
+    sf::Packet packet;
+    packet << PacketType::BLOCK_CHANGE << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
     manager->sendToEveryone(packet);
 }
 

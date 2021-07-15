@@ -34,7 +34,8 @@ void map::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::ITEM_DELETION: {
-            auto id = event.packet.get<unsigned short>();
+            unsigned short id;
+            event.packet >> id;
             for(auto i = items.begin(); i != items.end(); i++)
                 if(i->getId() == id) {
                     items.erase(i);
@@ -43,19 +44,22 @@ void map::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::ITEM_MOVEMENT: {
-            item* item = getItemById(event.packet.get<unsigned short>());
-            item->y = event.packet.get<int>();
-            item->x = event.packet.get<int>();
+            unsigned short id;
+            int x, y;
+            event.packet >> x >> y >> id;
+            
+            item* item = getItemById(id);
+            item->x = x;
+            item->y = y;
             break;
         }
         case PacketType::BLOCK_CHANGE: {
-            auto type = (BlockType)event.packet.get<unsigned char>();
-            auto light_level = event.packet.get<unsigned char>();
-            auto liquid_level = event.packet.get<unsigned char>();
-            auto liquid_type = (LiquidType)event.packet.get<unsigned char>();
-            auto y = event.packet.get<unsigned short>(), x = event.packet.get<unsigned short>();
+            unsigned short x, y;
+            unsigned char liquid_type, liquid_level, light_level, block_type;
+            event.packet >> x >> y >> liquid_type >> liquid_level >> light_level >> block_type;
+            
             block curr_block = getBlock(x, y);
-            curr_block.setType(type, liquid_type);
+            curr_block.setType((BlockType)block_type, (LiquidType)liquid_type);
             curr_block.setLiquidLevel(liquid_level);
             curr_block.setLightLevel(light_level);
             break;
