@@ -24,7 +24,7 @@ void networkingManager::listenerLoop() {
 bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
     if(socket.connect(ip, port) != sf::Socket::Done)
         return false;
-    listener_thread = std::thread(&networkingManager::listenerLoop, *this);
+    listener_thread = std::thread(&networkingManager::listenerLoop, this);
     return true;
 }
 
