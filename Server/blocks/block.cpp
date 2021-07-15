@@ -13,7 +13,7 @@
 
 block blocks::getBlock(unsigned short x, unsigned short y) {
     ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
-    return block(x, y, &block_arr[y * width + x], this, manager);
+    return block(x, y, &block_arr[y * width + x], this);
 }
 
 void block::setType(BlockType block_id, bool process) {
@@ -64,9 +64,9 @@ void block::updateNeighbors() {
 }
 
 void block::syncWithClient() {
-    sf::Packet packet;
+    /*sf::Packet packet;
     packet << PacketType::BLOCK_CHANGE << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
-    manager->sendToEveryone(packet);
+    manager->sendToEveryone(packet);*/
 }
 
 void block::setBreakProgress(unsigned short ms) {
@@ -74,9 +74,10 @@ void block::setBreakProgress(unsigned short ms) {
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
         block_data->break_stage = stage;
-        Packet packet(PacketType::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
-        packet << getY() << getX() << getBreakStage();
-        manager->sendToEveryone(packet);
+        
+        /*sf::Packet packet;
+        packet << PacketType::BLOCK_PROGRESS_CHANGE << getX() << getY() << getBreakStage();
+        manager->sendToEveryone(packet);*/
     }
 }
 

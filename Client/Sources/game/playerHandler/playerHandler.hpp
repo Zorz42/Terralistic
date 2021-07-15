@@ -45,7 +45,7 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void onKeyDownInventory(gfx::key key);
     void onKeyDownSelector(gfx::key key);
     void onKeyUpSelector(gfx::key key);
-    void onPacketInventory(sf::Packet &packet);
+    void onPacketInventory(ClientPacketEvent &event);
 
     void initInventory();
 

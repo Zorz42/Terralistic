@@ -55,7 +55,7 @@ void server::start() {
     server_blocks.setNaturalLight();
 
     signal(SIGINT, inthand);
-    server_players.establishSocket();
+    server_players.openSocket(port);
 
     state = RUNNING;
     print::info("Server has started!");
@@ -77,16 +77,17 @@ void server::start() {
 
     std::cout << std::endl;
 
-    if(!networking_manager.accept_only_itself) {
-        Packet kick_packet(PacketType::KICK, (int)std::string("Server stopped!").size() + 1);
-        kick_packet << std::string("Server stopped!");
-        networking_manager.sendToEveryone(kick_packet);
+    if(!server_players.accept_itself) {
+        sf::Packet kick_packet;
+        kick_packet << PacketType::KICK << std::string("Server stopped!");
+        server_players.sendToEveryone(kick_packet);
     }
 
     state = STOPPING;
     print::info("Stopping server");
 
-    networking_manager.stopListening();
+    
+    server_players.closeSocket();
 
     print::info("Saving world...");
     std::filesystem::create_directory(world_path);
@@ -101,7 +102,7 @@ void server::stop() {
 }
 
 void server::setPrivate(bool is_private) {
-    networking_manager.accept_only_itself = is_private;
+    server_players.accept_itself = is_private;
 }
 
 unsigned int server::getGeneratingTotal() const {

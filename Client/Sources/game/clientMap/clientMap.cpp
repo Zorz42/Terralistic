@@ -72,10 +72,10 @@ void map::onEvent(ClientPacketEvent &event) {
             for(unsigned short chunk_x = 0; chunk_x < 16; chunk_x++)
                 for(unsigned short chunk_y = 0; chunk_y < 16; chunk_y++) {
                     unsigned char block_type, liquid_type, liquid_level, light_level;
-                    chunk_packet << block_type << liquid_type << liquid_level << light_level;
+                    event.packet >> block_type >> liquid_type >> liquid_level >> light_level;
                     
                     block block = getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
-                    block.setType((BlockType)type, (LiquidType)liquid_type);
+                    block.setType((BlockType)block_type, (LiquidType)liquid_type);
                     block.setLightLevel(light_level);
                     block.setLiquidLevel(liquid_level);
                     block.update();
@@ -85,13 +85,14 @@ void map::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::BLOCK_PROGRESS_CHANGE: {
-            auto stage = event.packet.get<unsigned char>();
-            auto x = event.packet.get<unsigned short>(), y = event.packet.get<unsigned short>();
+            unsigned char stage;
+            unsigned short x, y;
+            event.packet >> x >> y >> stage;
             getBlock(x, y).setBreakStage(stage);
             break;
         }
         case PacketType::KICK: {
-            kick_message = event.packet.get<std::string>();
+            event.packet >> kick_message;
             kicked = true;
         }
         default:;

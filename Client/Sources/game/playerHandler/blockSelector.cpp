@@ -47,7 +47,8 @@ void playerHandler::onKeyDownSelector(gfx::key key) {
 void playerHandler::onKeyUpSelector(gfx::key key) {
     if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = false;
-        Packet packet(PacketType::STOPPED_BREAKING, 0);
+        sf::Packet packet;
+        packet << PacketType::STOPPED_BREAKING;
         manager->sendPacket(packet);
     }
 }

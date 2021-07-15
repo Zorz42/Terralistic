@@ -44,7 +44,7 @@ public:
     inventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
     bool open = false;
-    char selected_slot = 0;
+    unsigned char selected_slot = 0;
     inventoryItem* getSelectedSlot();
     void swapWithMouseItem(inventoryItem* item);
 };
@@ -125,6 +125,8 @@ public:
     
     void checkForNewConnections();
     void getPacketsFromPlayers();
+    
+    bool accept_itself = false;
     
     ~players();
 };

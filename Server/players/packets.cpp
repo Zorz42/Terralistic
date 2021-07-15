@@ -54,68 +54,56 @@ void players::onEvent(ServerPacketEvent& event) {
         }
 
         case PacketType::VIEW_SIZE_CHANGE: {
-            auto width = event.packet.get<unsigned short>(), height = event.packet.get<unsigned short>();
-            curr_player->sight_width = width;
-            curr_player->sight_height = height;
+            event.packet >> curr_player->sight_width >> curr_player->sight_height;
             break;
         }
 
         case PacketType::PLAYER_MOVEMENT: {
-            curr_player->flipped = event.packet.get<char>();
-            curr_player->y = event.packet.get<int>();
-            curr_player->x = event.packet.get<int>();
-
-            Packet movement_packet(PacketType::PLAYER_MOVEMENT, sizeof(curr_player->x) + sizeof(curr_player->y) + sizeof(char) + sizeof(curr_player->id));
-            movement_packet << curr_player->x << curr_player->y << (char)curr_player->flipped << curr_player->id;
-            manager->sendToEveryone(movement_packet, curr_player->conn);
+            event.packet << curr_player->x << curr_player->y << curr_player->flipped;
+            
+            /*sf::Packet movement_packet;
+            movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << (char)curr_player->flipped << curr_player->id;
+            manager->sendToEveryone(movement_packet, curr_player->conn);*/
             break;
         }
 
         case PacketType::DISCONNECT: {
-            print::info(curr_player->name + " (" + curr_player->conn->ip + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
-            player* player = getPlayerByConnection(&event.conn);
-#ifdef _WIN32
-            closesocket(event.conn.getSocket());
-#else
-            close(event.conn.getSocket());
-#endif
-            for(connection& i : manager->connections)
-                if(i.getSocket() == event.conn.getSocket()) {
-                    i.setSocket(-1);
-                    i.ip.clear();
-                    break;
-                }
-
-            Packet quit_packet(PacketType::PLAYER_QUIT, sizeof(player->id));
-            quit_packet << player->id;
-
+            print::info(curr_player->name + " (" + curr_player->socket->getRemoteAddress().toString() + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
+            delete curr_player->socket;
             for(auto i = online_players.begin(); i != online_players.end(); i++)
-                if((*i)->id == player->id) {
+                if((*i)->id == curr_player->id) {
                     online_players.erase(i);
                     break;
                 }
-            manager->sendToEveryone(quit_packet);
+
+            /*sf::Packet quit_packet;
+            quit_packet << PacketType::PLAYER_QUIT << player->id;
+            manager->sendToEveryone(quit_packet);*/
+            
             break;
         }
 
         case PacketType::INVENTORY_SWAP: {
-            auto pos = event.packet.get<unsigned char>();
-            player* player = getPlayerByConnection(&event.conn);
-            player->player_inventory.swapWithMouseItem(&player->player_inventory.inventory_arr[pos]);
+            unsigned char pos;
+            event.packet >> pos;
+            curr_player->player_inventory.swapWithMouseItem(&curr_player->player_inventory.inventory_arr[pos]);
             break;
         }
 
         case PacketType::HOTBAR_SELECTION: {
-            curr_player->player_inventory.selected_slot = event.packet.get<char>();
+            event.packet >> curr_player->player_inventory.selected_slot;
             break;
         }
 
         case PacketType::CHAT: {
-            std::string chat_format = (curr_player->name == "_" ? "Protagonist" : curr_player->name) + ": " + event.packet.get<std::string>();
+            std::string message;
+            event.packet >> message;
+            std::string chat_format = (curr_player->name == "_" ? "Protagonist" : curr_player->name) + ": " + message;
             print::info(chat_format);
-            Packet chat_packet(PacketType::CHAT, (int)chat_format.size() + 1);
-            chat_packet << chat_format;
-            manager->sendToEveryone(chat_packet);
+            
+            /*sf::Packet chat_packet;
+            chat_packet << PacketType::CHAT << chat_format;
+            manager->sendToEveryone(chat_packet);*/
             break;
         }
 

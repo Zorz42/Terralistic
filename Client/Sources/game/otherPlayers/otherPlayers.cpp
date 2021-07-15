@@ -35,7 +35,8 @@ void clientPlayers::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::PLAYER_QUIT: {
-            auto id = event.packet.get<unsigned short>();
+            unsigned id;
+            event.packet >> id;
             for(auto i = other_players.begin(); i != other_players.end(); i++)
                 if((*i)->id == id) {
                     other_players.erase(i);
@@ -44,10 +45,15 @@ void clientPlayers::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::PLAYER_MOVEMENT: {
-            clientPlayer* player = getPlayerById(event.packet.get<unsigned short>());
-            player->flipped = event.packet.get<char>();
-            player->y = event.packet.get<int>();
-            player->x = event.packet.get<int>();
+            int x, y;
+            unsigned short id;
+            bool flipped;
+            event.packet >> x >> y >> flipped >> id;
+            
+            clientPlayer* player = getPlayerById(id);
+            player->flipped = flipped;
+            player->x = x;
+            player->y = y;
             break;
         }
         default:;
