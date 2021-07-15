@@ -16,14 +16,12 @@
 #include "packetType.hpp"
 
 class networkingManager {
-    bool listener_running = true;
-    void listenerLoop();
     sf::TcpSocket socket;
-    std::thread listener_thread;
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
-    void closeConnection();
-
+    
+    void checkForPackets();
+    
     void sendPacket(sf::Packet& packet);
 };
 

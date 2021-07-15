@@ -11,10 +11,10 @@ void networkingManager::sendPacket(sf::Packet& packet) {
     socket.send(packet);
 }
 
-void networkingManager::listenerLoop() {
-    while(listener_running) {
-        sf::Packet packet;
-        socket.receive(packet);
+void networkingManager::checkForPackets() {
+    sf::Packet packet;
+    
+    if(socket.receive(packet) != sf::Socket::NotReady) {
         PacketType packet_type;
         packet >> packet_type;
         ClientPacketEvent(packet, packet_type).call();
@@ -24,11 +24,6 @@ void networkingManager::listenerLoop() {
 bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
     if(socket.connect(ip, port) != sf::Socket::Done)
         return false;
-    listener_thread = std::thread(&networkingManager::listenerLoop, this);
+    socket.setBlocking(false);
     return true;
-}
-
-void networkingManager::closeConnection() {
-    listener_running = false;
-    listener_thread.join();
 }

@@ -26,6 +26,7 @@ public:
 
     game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = std::move(username); }
     void init() override;
+    void update() override;
     void stop() override;
 };
 

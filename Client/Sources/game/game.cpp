@@ -98,6 +98,10 @@ void game::init() {
     }
 }
 
+void game::update() {
+    networking_manager.checkForPackets();
+}
+
 void game::stop() {
     if(private_server)
         private_server->stop();
@@ -108,7 +112,6 @@ void game::stop() {
     sf::Packet disconnect_packet;
     disconnect_packet << PacketType::DISCONNECT;
     networking_manager.sendPacket(disconnect_packet);
-    networking_manager.closeConnection();
 
     if(private_server) {
         server_thread.join();
