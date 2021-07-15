@@ -9,6 +9,7 @@
 #include <random>
 #include "assert.hpp"
 #include "properties.hpp"
+#include "packetType.hpp"
 
 void items::updateItems(float frame_length) {
     for(auto & item : item_arr)
@@ -36,9 +37,9 @@ void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks*
     item_id = item_id_;
     parent_blocks = parent_blocks_;
     
-    Packet packet(PacketType::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(getId()) + sizeof(char));
-    packet << x << y << getId() << (char)getItemId();
-    manager->sendToEveryone(packet);
+    /*sf::Packet item_packet;
+    item_packet << PacketType::ITEM_CREATION << x << y << getId() << (char)getItemId();
+    manager->sendToEveryone(item_packet);*/
 }
 
 void item::destroy() {

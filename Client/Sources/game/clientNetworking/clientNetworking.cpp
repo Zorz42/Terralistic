@@ -15,9 +15,9 @@ void networkingManager::listenerLoop() {
     while(listener_running) {
         sf::Packet packet;
         socket.receive(packet);
-        unsigned char packet_type;
+        PacketType packet_type;
         packet >> packet_type;
-        ClientPacketEvent(packet, (PacketType)packet_type).call();
+        ClientPacketEvent(packet, packet_type).call();
     }
 }
 

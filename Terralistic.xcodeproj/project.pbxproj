@@ -52,7 +52,6 @@
 		16BF6932269D6D7300CFE175 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
 		16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
 		16BF6934269D6D7300CFE175 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
-		16BF6935269D6D7300CFE175 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
 		16BF6936269D6D7300CFE175 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		16BF6937269D6D7300CFE175 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		16BF6938269D6DC000CFE175 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
@@ -133,7 +132,6 @@
 		36DDF8AD2689F725002337F3 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
 		36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
 		36DDF8AF2689F725002337F3 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
-		36DDF8B02689F725002337F3 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387B2642F73900E3C718 /* serverNetworking.cpp */; };
 		36DDF8B12689F725002337F3 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		36DDF8B22689F725002337F3 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		36DDF8B8268A0499002337F3 /* textures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF8B6268A0499002337F3 /* textures.cpp */; };
@@ -222,8 +220,6 @@
 		1675E72126612BF700B620F4 /* config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = config.hpp; sourceTree = "<group>"; };
 		1676E9F82699C30B00034070 /* events.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = events.hpp; sourceTree = "<group>"; };
 		167B38002642F49200E3C718 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
-		167B387B2642F73900E3C718 /* serverNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverNetworking.cpp; sourceTree = "<group>"; };
-		167B387C2642F73900E3C718 /* serverNetworking.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverNetworking.hpp; sourceTree = "<group>"; };
 		167B387E2642F73900E3C718 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
 		167B387F2642F73900E3C718 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
 		167B38842642F73900E3C718 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
@@ -535,21 +531,11 @@
 				16B36D302682066B00A4B03A /* blocks */,
 				16B36D2A2681FF0400A4B03A /* items */,
 				168600D42681DB1600763775 /* players */,
-				167B387A2642F73900E3C718 /* serverNetworking */,
 				167B387D2642F73900E3C718 /* print */,
 				167B38922642F73900E3C718 /* server */,
 				16BF6921269D6CCB00CFE175 /* Info.plist */,
 			);
 			path = Server;
-			sourceTree = "<group>";
-		};
-		167B387A2642F73900E3C718 /* serverNetworking */ = {
-			isa = PBXGroup;
-			children = (
-				167B387C2642F73900E3C718 /* serverNetworking.hpp */,
-				167B387B2642F73900E3C718 /* serverNetworking.cpp */,
-			);
-			path = serverNetworking;
 			sourceTree = "<group>";
 		};
 		167B387D2642F73900E3C718 /* print */ = {
@@ -1063,7 +1049,6 @@
 				36DDF8AD2689F725002337F3 /* players.cpp in Sources */,
 				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
 				36DDF8AF2689F725002337F3 /* packets.cpp in Sources */,
-				36DDF8B02689F725002337F3 /* serverNetworking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
@@ -1121,7 +1106,6 @@
 				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
 				168161CE269EFD4E00A95DA9 /* networking.cpp in Sources */,
 				16BF6934269D6D7300CFE175 /* packets.cpp in Sources */,
-				16BF6935269D6D7300CFE175 /* serverNetworking.cpp in Sources */,
 				16BF6936269D6D7300CFE175 /* print.cpp in Sources */,
 				16BF6937269D6D7300CFE175 /* server.cpp in Sources */,
 			);

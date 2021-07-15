@@ -44,22 +44,22 @@ void players::getPacketsFromPlayers() {
             packet >> player_name;
             player* curr_player = getPlayerByName(player_name);
             curr_player->socket = pending_connections[i];
+            
+            sf::Packet spawn_packet;
+            spawn_packet << PacketType::SPAWN_POS << curr_player->x << curr_player->y;
+            curr_player->socket->send(spawn_packet);
 
-            //Packet spawn_packet(PacketType::SPAWN_POS, sizeof(curr_player->y) + sizeof(curr_player->x));
-            //spawn_packet << curr_player->y << curr_player->x;
-            //event.conn.sendPacket(spawn_packet);
-
-            /*for(player* player : online_players) {
-                Packet join_packet(PacketType::PLAYER_JOIN, sizeof(player->x) + sizeof(player->y) + sizeof(player->id) + (int)player->name.size() + 1);
-                join_packet << player->x << player->y << player->id << player->name;
-                curr_player->conn->sendPacket(join_packet);
+            for(player* player : online_players) {
+                sf::Packet join_packet;
+                join_packet << PacketType::PLAYER_JOIN << player->x << player->y << player->id << player->name;
+                curr_player->socket->send(join_packet);
             }
 
-            for(const item& i : parent_items->getItems()) {
-                Packet item_packet(PacketType::ITEM_CREATION, sizeof(i.x) + sizeof(i.y) + sizeof(i.getId()) + sizeof(char));
-                item_packet << i.x << i.y << i.getId() << (char)i.getItemId();
-                curr_player->conn->sendPacket(item_packet);
-            }*/
+            for(const item& curr_item : parent_items->getItems()) {
+                sf::Packet item_packet;
+                item_packet << PacketType::ITEM_CREATION << curr_item.x << curr_item.y << curr_item.getId() << (unsigned char)curr_item.getItemId();
+                curr_player->socket->send(item_packet);
+            }
 
             for(inventoryItem& curr_item : curr_player->player_inventory.inventory_arr) // send the whole inventory
                 if(curr_item.getId() != ItemType::NOTHING)

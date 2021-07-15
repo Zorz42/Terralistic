@@ -24,9 +24,12 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
 void map::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::ITEM_CREATION: {
-            auto type = (ItemType)event.packet.get<char>();
-            auto id = event.packet.get<unsigned short>();
-            int y = event.packet.get<int>(), x = event.packet.get<int>();
+            int x, y;
+            unsigned short id;
+            unsigned char type_char;
+            event.packet >> x >> y >> id >> type_char;
+            ItemType type = (ItemType)type_char;
+            
             items.emplace_back(item(type, x, y, id));
             break;
         }

@@ -206,7 +206,8 @@ void playerHandler::render() {
 void playerHandler::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::SPAWN_POS: {
-            int x = event.packet.get<int>(), y = event.packet.get<int>();
+            int x, y;
+            event.packet >> x >> y;
             player->position_x = x;
             player->position_y = y;
             world_map->view_x = x;

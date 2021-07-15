@@ -9,7 +9,6 @@
 #define blocks_hpp
 
 #include <string>
-#include "serverNetworking.hpp"
 #include "properties.hpp"
 
 #define BLOCK_WIDTH 16
@@ -35,12 +34,11 @@ class block {
     blockData* block_data = nullptr;
     unsigned short x{}, y{};
     blocks* parent_map{};
-    serverNetworkingManager* manager{};
 
     void syncWithClient();
     void updateNeighbors();
 public:
-    block(unsigned short x, unsigned short y, blockData* block_data, blocks* parent_map, serverNetworkingManager* manager) : x(x), y(y), block_data(block_data), parent_map(parent_map), manager(manager) {}
+    block(unsigned short x, unsigned short y, blockData* block_data, blocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
     block() = default;
 
     void update();
@@ -78,13 +76,10 @@ public:
 };
 
 class blocks {
-    serverNetworkingManager* manager;
     blockData *block_arr = nullptr;
     unsigned short width{}, height{};
     
 public:
-    blocks(serverNetworkingManager* manager_) : manager(manager_) {}
-    
     block getBlock(unsigned short x, unsigned short y);
     
     void createWorld(unsigned short width, unsigned short height);
