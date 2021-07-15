@@ -42,8 +42,9 @@ void players::onEvent(ServerPacketEvent& event) {
         case PacketType::CHUNK: {
             unsigned short x, y;
             event.packet >> x >> y;
+            
             sf::Packet chunk_packet;
-            chunk_packet << PacketType::CHUNK << y << x;
+            chunk_packet << PacketType::CHUNK << x << y;
             for(int chunk_x = 0; chunk_x < 16; chunk_x++)
                 for(int chunk_y = 0; chunk_y < 16; chunk_y++) {
                     block block = parent_blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
@@ -61,9 +62,9 @@ void players::onEvent(ServerPacketEvent& event) {
         case PacketType::PLAYER_MOVEMENT: {
             event.packet << curr_player->x << curr_player->y << curr_player->flipped;
             
-            /*sf::Packet movement_packet;
+            sf::Packet movement_packet;
             movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << (char)curr_player->flipped << curr_player->id;
-            manager->sendToEveryone(movement_packet, curr_player->conn);*/
+            sendToEveryone(movement_packet, curr_player);
             break;
         }
 
@@ -76,9 +77,9 @@ void players::onEvent(ServerPacketEvent& event) {
                     break;
                 }
 
-            /*sf::Packet quit_packet;
-            quit_packet << PacketType::PLAYER_QUIT << player->id;
-            manager->sendToEveryone(quit_packet);*/
+            sf::Packet quit_packet;
+            quit_packet << PacketType::PLAYER_QUIT << curr_player->id;
+            sendToEveryone(quit_packet);
             
             break;
         }
@@ -101,9 +102,9 @@ void players::onEvent(ServerPacketEvent& event) {
             std::string chat_format = (curr_player->name == "_" ? "Protagonist" : curr_player->name) + ": " + message;
             print::info(chat_format);
             
-            /*sf::Packet chat_packet;
+            sf::Packet chat_packet;
             chat_packet << PacketType::CHAT << chat_format;
-            manager->sendToEveryone(chat_packet);*/
+            sendToEveryone(chat_packet);
             break;
         }
 

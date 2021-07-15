@@ -52,6 +52,8 @@ void blocks::saveTo(std::string path) {
     world_file.close();
 }
 
+#include <iostream>
+
 void blocks::loadFrom(std::string path) {
     std::ifstream world_file(path, std::ios::binary);
     world_file.unsetf(std::ios::skipws);
@@ -63,8 +65,8 @@ void blocks::loadFrom(std::string path) {
         for(int x = 0; x < width; x++) {
             block curr_block = getBlock(x, y);
             int pos = x * 3;
-            curr_block.setType((BlockType) world_buffer[pos], false);
-            curr_block.setType((LiquidType) world_buffer[pos + 1], false);
+            curr_block.setType((BlockType)world_buffer[pos], false);
+            curr_block.setType((LiquidType)world_buffer[pos + 1], false);
             curr_block.setLiquidLevel(world_buffer[pos + 2]);
         }
         delete[] world_buffer;

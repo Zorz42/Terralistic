@@ -73,6 +73,8 @@ void server::start() {
         server_players.lookForItems();
         server_players.updatePlayersBreaking(tick_length);
         server_players.updateBlocks();
+        server_players.checkForNewConnections();
+        server_players.getPacketsFromPlayers();
     }
 
     std::cout << std::endl;
@@ -85,8 +87,6 @@ void server::start() {
 
     state = STOPPING;
     print::info("Stopping server");
-
-    
     server_players.closeSocket();
 
     print::info("Saving world...");
