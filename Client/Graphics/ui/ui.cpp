@@ -16,10 +16,7 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
 }
 
 void gfx::Image::loadFromFile(const std::string& path) {
-    delete texture;
-    texture = new sf::Texture();
-    assert(texture->loadFromFile((resource_path + path).c_str()));
-
+    assert(sfml_texture.loadFromFile((resource_path + path).c_str()));
 
     texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
     SDL_assert(texture);
