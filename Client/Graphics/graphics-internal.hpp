@@ -31,6 +31,8 @@ inline sf::Font sfml_font;
 inline unsigned short mouse_x, mouse_y;
 inline float frame_length;
 
+inline unsigned short font_size;
+
 }
 
 #endif /* graphics_internal_hpp */

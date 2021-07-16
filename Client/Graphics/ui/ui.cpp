@@ -75,33 +75,30 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
 }
 
 void gfx::Image::setAlpha(unsigned char alpha) {
-    if (hasText) {
-        sfml_window->draw(*sfml_text);
-    }
-
     SDL_SetTextureAlphaMod((SDL_Texture*)texture, alpha);
 }
 
-void gfx::Image::render(RectShape rect) const {
-    if (hasText) {
-        sfml_text->setPosition(sf::Vector2f(rect.x, rect.y));
-        sfml_window->draw(*sfml_text);
-    }
-
+/*void gfx::Image::render(RectShape rect) const {
     SDL_Rect sdl_rect = { rect.x, rect.y, rect.w, rect.h };
     SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)this->getTexture(), nullptr, &sdl_rect, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
-}
+}*/
 
 void gfx::Image::render(float scale, short x, short y) const {
 
     if (hasText) {
         sfml_text->setPosition(sf::Vector2f(x, y));
-        sfml_text->setCharacterSize(scale);
+        sfml_text->setCharacterSize(scale * font_size);
         sfml_window->draw(*sfml_text);
+    } else {
+        sf::RectangleShape sfml_rect;
+        sfml_rect.setPosition(x, y);
+        sfml_rect.setSize({getTextureWidth() * scale, getTextureHeight() * scale});
+        sfml_rect.setTexture(&sfml_texture);
+        sfml_window->draw(sfml_rect);
     }
 
-    SDL_Rect rect = { x, y, int(this->getTextureWidth() * scale), int(this->getTextureHeight() * scale) };
-    SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)this->getTexture(), nullptr, &rect, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    SDL_Rect rect = { x, y, int(getTextureWidth() * scale), int(getTextureHeight() * scale) };
+    SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)getTexture(), nullptr, &rect, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};

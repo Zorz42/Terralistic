@@ -8,7 +8,7 @@ namespace gfx {
 
 class Image {
 public:
-    void render(RectShape rect) const;
+    //void render(RectShape rect) const;
     void render(float scale, short x, short y) const;
     void render(float scale, short x, short y, RectShape src_rect) const;
     [[nodiscard]] inline void* getTexture() const { return texture; }
