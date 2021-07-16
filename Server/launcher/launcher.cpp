@@ -14,7 +14,7 @@
 int main(int argc, char **argv) {
     initProperties();
     
-    std::string data_folder = sago::getDataHome() + "/Terralistic/";
+    std::string data_folder = sago::getDataHome() + "/Terralistic-Server/";
     std::string resource_path = getResourcePath(argv[0]);
     
     if(!std::filesystem::exists(data_folder))
