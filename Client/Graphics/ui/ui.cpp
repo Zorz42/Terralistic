@@ -1,6 +1,9 @@
 #include "graphics-internal.hpp"
 
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
+    assert(sfml_texture.create(width, height));
+
+
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
     SDL_assert(texture);
     SDL_SetTextureBlendMode((SDL_Texture*)texture, SDL_BLENDMODE_BLEND);
