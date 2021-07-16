@@ -9,7 +9,7 @@ class Color{
 public:
     unsigned char r, g, b, a;
     Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255);
-    inline operator sf::Color() { return(sf::Color(r, g, b, a)); }
+    inline operator sf::Color() const { return(sf::Color(r, g, b, a)); }
 
 };
 
