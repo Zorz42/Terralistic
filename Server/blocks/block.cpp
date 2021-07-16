@@ -54,21 +54,17 @@ void Block::updateNeighbors() {
         parent_map->getBlock(x, y + 1).update();
 }
 
-void Block::syncWithClient() {
-    /*sf::Packet packet;
-    packet << PacketType::BLOCK_CHANGE << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
-    manager->sendToEveryone(packet);*/
-}
-
 void Block::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
-        block_data->break_stage = stage;
+        ServerBlockBreakStageChangeEvent event(*this, stage);
+        event.call();
         
-        /*sf::Packet packet;
-        packet << PacketType::BLOCK_PROGRESS_CHANGE << getX() << getY() << getBreakStage();
-        manager->sendToEveryone(packet);*/
+        if(event.cancelled)
+            return;
+        
+        block_data->break_stage = stage;
     }
 }
 

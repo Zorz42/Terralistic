@@ -67,6 +67,5 @@ void Block::setLightLevel(unsigned char light_level) {
         for(auto neighbor : neighbors)
             if(neighbor.refersToABlock() && !neighbor.isLightSource())
                 neighbor.scheduleLightUpdate();
-        syncWithClient();
     }
 }

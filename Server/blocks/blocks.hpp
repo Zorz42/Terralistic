@@ -34,7 +34,6 @@ class Block {
     unsigned short x = 0, y = 0;
     Blocks* parent_map{};
 
-    void syncWithClient();
     void updateNeighbors();
 public:
     Block(unsigned short x, unsigned short y, MapBlock* block_data, Blocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
@@ -79,6 +78,13 @@ public:
     ServerBlockChangeEvent(Block block, BlockType type) : block(block), type(type) {}
     Block block;
     BlockType type;
+};
+
+class ServerBlockBreakStageChangeEvent : public Event<ServerBlockBreakStageChangeEvent> {
+public:
+    ServerBlockBreakStageChangeEvent(Block block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
+    Block block;
+    unsigned char break_stage;
 };
 
 class Blocks {

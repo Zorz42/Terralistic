@@ -18,7 +18,6 @@ void Block::setType(LiquidType liquid_id) {
         
         update();
         updateNeighbors();
-        syncWithClient();
     }
 }
 
@@ -26,7 +25,6 @@ void Block::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         block_data->liquid_level = level;
         update();
-        syncWithClient();
     }
 }
 

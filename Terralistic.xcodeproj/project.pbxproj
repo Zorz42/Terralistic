@@ -10,6 +10,8 @@
 		1661663C25EA5608002A3815 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 1689692B25E9607800D26060 /* icon.icns */; };
 		1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */; };
 		1665D8912678E7AB00A7BB61 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 1665D8902678E7AB00A7BB61 /* Structures.asset */; };
+		166ECC8126A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
+		166ECC8226A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
 		1675E71D26611B8000B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		167C1B802676565700BCFE27 /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C1B7E2676565700BCFE27 /* chat.cpp */; };
 		167C22C62673956800FF487D /* choiceScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22C42673956800FF487D /* choiceScreen.cpp */; };
@@ -213,6 +215,7 @@
 		16644E56267CB1640015C23D /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Dependencies/MacOS/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
 		16644E57267CB1640015C23D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Dependencies/MacOS/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		1665D8902678E7AB00A7BB61 /* Structures.asset */ = {isa = PBXFileReference; lastKnownFileType = file; path = Structures.asset; sourceTree = "<group>"; };
+		166ECC8026A1B8C800E36052 /* saver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = saver.cpp; sourceTree = "<group>"; };
 		1675CD73267F83680070E325 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Dependencies/MacOS/SDL2_ttf.framework; sourceTree = "<group>"; };
 		1675CD74267F83680070E325 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Dependencies/MacOS/SDL2.framework; sourceTree = "<group>"; };
 		1675CD75267F83680070E325 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Dependencies/MacOS/SDL2_image.framework; sourceTree = "<group>"; };
@@ -866,6 +869,7 @@
 				167F4D30268496B2004A8D11 /* block.cpp */,
 				167B38842642F73900E3C718 /* light.cpp */,
 				1664388626695A2F00587F5E /* liquid.cpp */,
+				166ECC8026A1B8C800E36052 /* saver.cpp */,
 			);
 			path = blocks;
 			sourceTree = "<group>";
@@ -1034,6 +1038,7 @@
 				16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */,
 				36DDF8AC2689F725002337F3 /* items.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* players.cpp in Sources */,
+				166ECC8126A1B8C800E36052 /* saver.cpp in Sources */,
 				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
 				36DDF8AF2689F725002337F3 /* packets.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
@@ -1092,6 +1097,7 @@
 				16BF6932269D6D7300CFE175 /* players.cpp in Sources */,
 				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
 				1682944426A16D780017E2FD /* packetType.cpp in Sources */,
+				166ECC8226A1B8C800E36052 /* saver.cpp in Sources */,
 				168161CE269EFD4E00A95DA9 /* networking.cpp in Sources */,
 				16BF6934269D6D7300CFE175 /* packets.cpp in Sources */,
 				16BF6936269D6D7300CFE175 /* print.cpp in Sources */,

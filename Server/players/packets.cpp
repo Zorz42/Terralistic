@@ -117,3 +117,9 @@ void players::onEvent(ServerBlockChangeEvent& event) {
     packet << PacketType::BLOCK_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.type;
     sendToEveryone(packet);
 }
+
+void players::onEvent(ServerBlockBreakStageChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::BLOCK_PROGRESS_CHANGE << event.block.getX() << event.block.getY() << event.break_stage;
+    sendToEveryone(packet);
+}
