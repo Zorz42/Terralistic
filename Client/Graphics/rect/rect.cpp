@@ -50,7 +50,7 @@ gfx::_CenteredObject::_CenteredObject(short x, short y, ObjectType orientation) 
 gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(x, y, orientation), w(w), h(h), c(c) {}
 
 void gfx::Rect::render(bool fill) const {
-    short x, y, w, h;
+    //short x, y, w, h;
     RectShape gfx_rect = getTranslatedRect();
     sf::RectangleShape rec(sf::Vector2f(gfx_rect.w, gfx_rect.h));
     rec.setPosition(gfx_rect.x, gfx_rect.y);
