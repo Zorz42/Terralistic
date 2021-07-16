@@ -98,8 +98,7 @@ void gfx::Scene::run() {
             if(event.type == SDL_MOUSEMOTION)
                 SDL_GetMouseState((int*)&mouse_x, (int*)&mouse_y);
             else if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                window_width = (unsigned short)event.window.data1;
-                window_height = (unsigned short)event.window.data2;
+                // update window data (probably not needed because of sfml)
             } else if(event.type == SDL_MOUSEBUTTONDOWN) {
                 gfx::key key = translateMouseKey(event.button.button);
                 bool clicked_text_box = false;
