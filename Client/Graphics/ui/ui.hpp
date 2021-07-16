@@ -2,6 +2,7 @@
 
 #include <string>
 #include "rect.hpp"
+#include <cassert>
 
 namespace gfx {
 

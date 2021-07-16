@@ -1,9 +1,6 @@
 #include "graphics-internal.hpp"
 
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
-    delete sfmlTexture;
-    sfmlTexture = new sf::Texture()
-
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
     SDL_assert(texture);
     SDL_SetTextureBlendMode((SDL_Texture*)texture, SDL_BLENDMODE_BLEND);
@@ -19,6 +16,11 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
 }
 
 void gfx::Image::loadFromFile(const std::string& path) {
+    delete texture;
+    texture = new sf::Texture();
+    assert(texture->loadFromFile((resource_path + path).c_str()));
+
+
     texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
     SDL_assert(texture);
 }
