@@ -26,6 +26,8 @@ protected:
     void* texture = nullptr;
 
     sf::Texture sfml_texture;
+    sf::Text sfml_text;
+    bool hasText = false;
 };
 
 

@@ -10,6 +10,12 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
 }
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
+    hasText = true;
+    sfml_text.setFont(sfml_font);
+    sfml_text.setString(text.c_str());
+    sfml_text.setFillColor((sf::Color)text_color);
+
+
     SDL_assert(font);
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
     SDL_assert(rendered_surface);
@@ -56,20 +62,41 @@ void gfx::Image::clear() {
     SDL_SetRenderTarget(gfx::renderer, prev_target);
 }
 void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const {
+    sfml_text.setPosition( (float)x,(float)y);
+    //sfml_text.setCharacterSize(scale);
+    if (hasText) {
+        sfml_window->draw(sfml_text);
+    }
+
     SDL_Rect dest_rect_sdl = { x, y, int(src_rect.w * scale), int(src_rect.h * scale) }, src_rect_sdl = { src_rect.x, src_rect.y, src_rect.w, src_rect.h };
     SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)this->getTexture(), &src_rect_sdl, &dest_rect_sdl, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void gfx::Image::setAlpha(unsigned char alpha) {
+    if (hasText) {
+        sfml_window->draw(sfml_text);
+    }
+
     SDL_SetTextureAlphaMod((SDL_Texture*)texture, alpha);
 }
 
 void gfx::Image::render(RectShape rect) const {
+    sfml_text.setPosition(sf::Vector2f(rect.x, rect.y));
+    if (hasText) {
+        sfml_window->draw(sfml_text);
+    }
+
     SDL_Rect sdl_rect = { rect.x, rect.y, rect.w, rect.h };
     SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)this->getTexture(), nullptr, &sdl_rect, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void gfx::Image::render(float scale, short x, short y) const {
+    sfml_text.setPosition(sf::Vector2f(x, y));
+    sfml_text.setCharacterSize(scale);
+    if (hasText) {
+        sfml_window->draw(sfml_text);
+    }
+
     SDL_Rect rect = { x, y, int(this->getTextureWidth() * scale), int(this->getTextureHeight() * scale) };
     SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)this->getTexture(), nullptr, &rect, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
