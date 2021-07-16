@@ -1,10 +1,3 @@
-//
-//  blocks.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #include "blocks.hpp"
 #include <cassert>
 #include <fstream>
@@ -12,14 +5,14 @@
 void Blocks::createWorld(unsigned short world_width, unsigned short world_height) {
     assert(world_width % 16 == 0);
     assert(world_height % 16 == 0);
-    block_arr = new MapBlock[world_width * world_height];
+    blocks = new MapBlock[world_width * world_height];
     width = world_width;
     height = world_height;
     biomes = new Biome[width];
 
 }
 
-int Blocks::getSpawnX() const {
+int Blocks::getSpawnX() {
     return width / 2 * BLOCK_WIDTH;
 }
 
@@ -34,7 +27,7 @@ int Blocks::getSpawnY() {
 }
 
 Blocks::~Blocks() {
-    delete[] block_arr;
+    delete[] blocks;
 }
 
 void Blocks::saveTo(std::string path) {
@@ -45,7 +38,7 @@ void Blocks::saveTo(std::string path) {
         for(int x = 0; x < width; x++) {
             Block curr_block = getBlock(x, y);
             int pos = x * 3;
-            world_buffer[pos] = (char)curr_block.getType();
+            world_buffer[pos] = (char)curr_block.getBlockType();
             world_buffer[pos + 1] = (char)curr_block.getLiquidType();
             world_buffer[pos + 2] = (char)curr_block.getLiquidLevel();
         }
@@ -73,12 +66,4 @@ void Blocks::loadFrom(std::string path) {
         delete[] world_buffer;
     }
     world_file.close();
-}
-
-const BlockInfo& Block::getUniqueBlock() {
-    return ::getBlockInfo(block_data->block_id);
-}
-
-const LiquidInfo& Block::getUniqueLiquid() {
-    return ::getLiquidInfo(block_data->liquid_id);
 }

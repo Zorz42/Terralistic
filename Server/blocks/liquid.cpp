@@ -1,12 +1,26 @@
-//
-//  liquid.cpp
-//  Server
-//
-//  Created by Jakob Zorz on 03/06/2021.
-//
-
 #include "blocks.hpp"
 #include "properties.hpp"
+
+const LiquidInfo& Block::getUniqueLiquid() {
+    return ::getLiquidInfo(block_data->liquid_id);
+}
+
+void Block::setTypeWithoutProcessing(LiquidType liquid_id) {
+    block_data->liquid_id = liquid_id;
+}
+
+void Block::setType(LiquidType liquid_id) {
+    if(liquid_id != block_data->liquid_id) {
+        setTypeWithoutProcessing(liquid_id);
+        
+        if(liquid_id == LiquidType::EMPTY)
+            setLiquidLevel(0);
+        
+        update();
+        updateNeighbors();
+        syncWithClient();
+    }
+}
 
 void Block::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {

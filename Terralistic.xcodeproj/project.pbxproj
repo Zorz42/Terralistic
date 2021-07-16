@@ -21,7 +21,6 @@
 		1682944426A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		1682944826A177EC0017E2FD /* sfml-network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; };
 		1682944926A177EC0017E2FD /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1683E7CC269DFF03008735C6 /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C1269DFF03008735C6 /* color.cpp */; };
 		1683E7CD269DFF03008735C6 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C5269DFF03008735C6 /* rect.cpp */; };
 		1683E7CE269DFF03008735C6 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C7269DFF03008735C6 /* scene.cpp */; };
 		1683E7CF269DFF03008735C6 /* ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7CA269DFF03008735C6 /* ui.cpp */; };
@@ -240,8 +239,6 @@
 		168161CB269EFD4E00A95DA9 /* networking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = networking.cpp; sourceTree = "<group>"; };
 		168161CF269EFFB600A95DA9 /* packetType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = packetType.hpp; sourceTree = "<group>"; };
 		1682944226A16D780017E2FD /* packetType.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packetType.cpp; sourceTree = "<group>"; };
-		1683E7C1269DFF03008735C6 /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
-		1683E7C2269DFF03008735C6 /* color.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
 		1683E7C4269DFF03008735C6 /* rect.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = rect.hpp; sourceTree = "<group>"; };
 		1683E7C5269DFF03008735C6 /* rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rect.cpp; sourceTree = "<group>"; };
 		1683E7C7269DFF03008735C6 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cpp; sourceTree = "<group>"; };
@@ -615,15 +612,6 @@
 			path = packetType;
 			sourceTree = "<group>";
 		};
-		1683E7C0269DFF03008735C6 /* color */ = {
-			isa = PBXGroup;
-			children = (
-				1683E7C2269DFF03008735C6 /* color.hpp */,
-				1683E7C1269DFF03008735C6 /* color.cpp */,
-			);
-			path = color;
-			sourceTree = "<group>";
-		};
 		1683E7C3269DFF03008735C6 /* rect */ = {
 			isa = PBXGroup;
 			children = (
@@ -845,7 +833,6 @@
 				1691249825F6B38200F7EB4F /* graphics.hpp */,
 				168ABE8F25F7967600BBEA74 /* graphics-internal.hpp */,
 				36B157F52648501F00528A2B /* graphics.cpp */,
-				1683E7C0269DFF03008735C6 /* color */,
 				1683E7C3269DFF03008735C6 /* rect */,
 				1683E7C9269DFF03008735C6 /* ui */,
 				1683E7C6269DFF03008735C6 /* scene */,
@@ -1074,7 +1061,6 @@
 				36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */,
 				167C22C62673956800FF487D /* choiceScreen.cpp in Sources */,
 				1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */,
-				1683E7CC269DFF03008735C6 /* color.cpp in Sources */,
 				3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */,
 				1683E7CE269DFF03008735C6 /* scene.cpp in Sources */,
 				1691250D25F6BCD500F7EB4F /* worldCreator.cpp in Sources */,

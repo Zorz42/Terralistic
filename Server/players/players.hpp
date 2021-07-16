@@ -86,7 +86,7 @@ public:
     player& sender;
 };
 
-class players : EventListener<ServerPacketEvent> {
+class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent> {
     items* parent_items;
     Blocks* parent_blocks;
     
@@ -95,6 +95,7 @@ class players : EventListener<ServerPacketEvent> {
     std::vector<player*> online_players;
     
     void onEvent(ServerPacketEvent& event) override;
+    void onEvent(ServerBlockChangeEvent& event) override;
     
     void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
     void rightClickEvent(Block this_block, player* peer);

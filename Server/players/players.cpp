@@ -14,7 +14,7 @@ players::players(Blocks* parent_blocks_, items* parent_items_) : parent_blocks(p
     custom_block_events[(int)BlockType::WOOD].onBreak = [](Blocks* server_blocks, players* server_players, Block* this_block) {
         Block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
         for(Block& i : blocks)
-            if(i.getType() == BlockType::WOOD || i.getType() == BlockType::LEAVES)
+            if(i.getBlockType() == BlockType::WOOD || i.getBlockType() == BlockType::LEAVES)
                 server_players->breakBlock(&i);
     };
 
@@ -101,8 +101,8 @@ void players::updateBlocks() {
 }
 
 void players::leftClickEvent(Block this_block, player* peer, unsigned short tick_length) {
-    if(custom_block_events[(int)this_block.getType()].onLeftClick)
-        custom_block_events[(int)this_block.getType()].onLeftClick(&this_block, peer);
+    if(custom_block_events[(int)this_block.getBlockType()].onLeftClick)
+        custom_block_events[(int)this_block.getBlockType()].onLeftClick(&this_block, peer);
     else {
         this_block.setBreakProgress(this_block.getBreakProgress() + tick_length);
         if(this_block.getBreakProgress() >= this_block.getUniqueBlock().break_time)
@@ -111,8 +111,8 @@ void players::leftClickEvent(Block this_block, player* peer, unsigned short tick
 }
 
 void players::rightClickEvent(Block this_block, player* peer) {
-    if(custom_block_events[(int)this_block.getType()].onRightClick)
-        custom_block_events[(int)this_block.getType()].onRightClick(&this_block, peer);
+    if(custom_block_events[(int)this_block.getBlockType()].onRightClick)
+        custom_block_events[(int)this_block.getBlockType()].onRightClick(&this_block, peer);
 }
 
 void players::saveTo(std::string path) {
@@ -155,7 +155,7 @@ void players::loadFrom(std::string path) {
 void players::breakBlock(Block* this_block) {
     if(this_block->getUniqueBlock().drop != ItemType::NOTHING)
         parent_items->spawnItem(this_block->getUniqueBlock().drop, this_block->getX() * BLOCK_WIDTH, this_block->getY() * BLOCK_WIDTH);
-    BlockType this_type = this_block->getType();
+    BlockType this_type = this_block->getBlockType();
     this_block->setType(BlockType::AIR);
     this_block->setBreakProgress(0);
     if(custom_block_events[(int)this_type].onBreak)

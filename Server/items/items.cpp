@@ -46,7 +46,7 @@ void item::destroy() {
     manager->sendToEveryone(packet);*/
 }
 
-[[maybe_unused]] const ItemInfo& item::getUniqueItem() const {
+const ItemInfo& item::getUniqueItem() const {
     return ::getItemInfo(item_id);
 }
 

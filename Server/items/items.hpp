@@ -23,7 +23,7 @@ public:
     bool colliding() const;
     int x, y;
 
-    [[maybe_unused]] [[nodiscard]] const ItemInfo& getUniqueItem() const;
+    [[nodiscard]] const ItemInfo& getUniqueItem() const;
     [[nodiscard]] unsigned short getId() const { return id; }
     inline ItemType getItemId() const { return item_id; }
 };

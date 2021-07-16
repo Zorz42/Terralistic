@@ -1,7 +1,7 @@
 #include "graphics-internal.hpp"
 
 void gfx::init(unsigned short window_width_, unsigned short window_height_) {
-    sf::RenderWindow sfml_window(sf::VideoMode(800, 600), "SFML window");
+    /*sf::RenderWindow sfml_window(sf::VideoMode(800, 600), "SFML window");
 
     while (sfml_window.isOpen()) {
         sf::Event event;
@@ -15,7 +15,7 @@ void gfx::init(unsigned short window_width_, unsigned short window_height_) {
 
         sfml_window.clear();
         sfml_window.display();
-    }
+    }*/
     
     window_width = window_width_;
     window_height = window_height_;

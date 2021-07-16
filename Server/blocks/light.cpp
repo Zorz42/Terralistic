@@ -1,10 +1,3 @@
-//
-//  light.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 05/04/2021.
-//
-
 #include "blocks.hpp"
 
 void Block::lightUpdate() {
@@ -54,7 +47,7 @@ void Blocks::setNaturalLight(unsigned short x) {
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
-[[maybe_unused]] void Blocks::removeNaturalLight(unsigned short x) {
+void Blocks::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).removeLightSource();
 }

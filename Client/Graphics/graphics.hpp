@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include "color.hpp"
 #include "rect.hpp"
 #include "scene.hpp"
 #include "ui.hpp"

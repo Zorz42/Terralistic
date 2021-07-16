@@ -48,7 +48,7 @@ void players::onEvent(ServerPacketEvent& event) {
             for(int chunk_x = 0; chunk_x < 16; chunk_x++)
                 for(int chunk_y = 0; chunk_y < 16; chunk_y++) {
                     Block block = parent_blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
-                    chunk_packet << (unsigned char)block.getType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
+                    chunk_packet << (unsigned char)block.getBlockType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
                 }
             event.sender.socket->send(chunk_packet);
             break;
@@ -110,4 +110,10 @@ void players::onEvent(ServerPacketEvent& event) {
 
         default:;
     }
+}
+
+void players::onEvent(ServerBlockChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::BLOCK_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.block.getBlockType();
+    sendToEveryone(packet);
 }

@@ -54,13 +54,11 @@ void map::onEvent(ClientPacketEvent &event) {
         }
         case PacketType::BLOCK_CHANGE: {
             unsigned short x, y;
-            unsigned char liquid_type, liquid_level, light_level, block_type;
-            event.packet >> x >> y >> liquid_type >> liquid_level >> light_level >> block_type;
+            unsigned char block_type;
+            event.packet >> x >> y >> block_type;
             
             block curr_block = getBlock(x, y);
-            curr_block.setType((BlockType)block_type, (LiquidType)liquid_type);
-            curr_block.setLiquidLevel(liquid_level);
-            curr_block.setLightLevel(light_level);
+            curr_block.setType((BlockType)block_type, curr_block.getLiquidType());
             break;
         }
         case PacketType::CHUNK: {

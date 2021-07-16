@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 #include "properties.hpp"
+#include "events.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -30,7 +31,7 @@ struct MapBlock {
 
 class Block {
     MapBlock* block_data = nullptr;
-    unsigned short x{}, y{};
+    unsigned short x = 0, y = 0;
     Blocks* parent_map{};
 
     void syncWithClient();
@@ -40,60 +41,62 @@ public:
     Block() = default;
 
     void update();
-    
-    void setType(BlockType block_id);
-    void setType(LiquidType liquid_id);
-    void setType(BlockType block_id, LiquidType liquid_id);
-    void setTypeWithoutProcessing(BlockType block_id);
-    void setTypeWithoutProcessing(LiquidType liquid_id);
-    void setTypeWithoutProcessing(BlockType block_id, LiquidType liquid_id);
-    
-    void setBreakProgress(unsigned short ms);
-    void lightUpdate();
-    void liquidUpdate();
-    void setLightSource(unsigned char power);
-    void removeLightSource();
-    void setLightLevel(unsigned char light_level);
-
     inline bool refersToABlock() { return block_data != nullptr; }
-
-    inline bool isLightSource() { return block_data->light_source; }
-    inline unsigned char getLightLevel() { return block_data->light_level; }
+    [[nodiscard]] inline unsigned short getX() const { return x; }
+    [[nodiscard]] inline unsigned short getY() const { return y; }
+    
+    void setTypeWithoutProcessing(BlockType block_id);
+    void setType(BlockType block_id);
+    void setBreakProgress(unsigned short ms);
     inline unsigned short getBreakProgress() { return block_data->break_progress; }
     inline unsigned char getBreakStage() { return block_data->break_stage; }
-    inline BlockType getType() { return block_data->block_id; }
+    inline BlockType getBlockType() { return block_data->block_id; }
+    const BlockInfo& getUniqueBlock();
+    
+    void setTypeWithoutProcessing(LiquidType liquid_id);
+    void setType(LiquidType liquid_id);
+    void liquidUpdate();
     inline LiquidType getLiquidType() { return block_data->liquid_id; }
-    inline void scheduleLightUpdate() { block_data->update_light = true; }
-    inline bool hasScheduledLightUpdate() { return block_data->update_light; }
     inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
     void setLiquidLevel(unsigned char level);
     inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
     inline FlowDirection getFlowDirection() { return block_data->flow_direction; }
     inline void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
-
-    [[nodiscard]] inline unsigned short getX() const { return x; }
-    [[nodiscard]] inline unsigned short getY() const { return y; }
-    
-    const BlockInfo& getUniqueBlock();
     const LiquidInfo& getUniqueLiquid();
+    
+    void lightUpdate();
+    void setLightSource(unsigned char power);
+    inline bool isLightSource() { return block_data->light_source; }
+    void removeLightSource();
+    void setLightLevel(unsigned char light_level);
+    inline unsigned char getLightLevel() { return block_data->light_level; }
+    inline void scheduleLightUpdate() { block_data->update_light = true; }
+    inline bool hasScheduledLightUpdate() { return block_data->update_light; }
+};
+
+class ServerBlockChangeEvent : public Event<ServerBlockChangeEvent> {
+public:
+    ServerBlockChangeEvent(Block block, BlockType type) : block(block), type(type) {}
+    Block block;
+    BlockType type;
 };
 
 class Blocks {
-    MapBlock *block_arr = nullptr;
-    unsigned short width{}, height{};
+    MapBlock *blocks = nullptr;
+    unsigned short width, height;
     
 public:
     Block getBlock(unsigned short x, unsigned short y);
     
     void createWorld(unsigned short width, unsigned short height);
-    void setNaturalLight();
     
-    [[maybe_unused]] void removeNaturalLight(unsigned short x);
+    void setNaturalLight();
+    void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
     
     Biome *biomes = nullptr;
     
-    int getSpawnX() const;
+    int getSpawnX();
     int getSpawnY();
     
     void saveTo(std::string path);
