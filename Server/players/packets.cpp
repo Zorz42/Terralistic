@@ -114,6 +114,6 @@ void players::onEvent(ServerPacketEvent& event) {
 
 void players::onEvent(ServerBlockChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::BLOCK_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.block.getBlockType();
+    packet << PacketType::BLOCK_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.type;
     sendToEveryone(packet);
 }
