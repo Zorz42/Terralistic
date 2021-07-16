@@ -23,7 +23,7 @@ public:
     void setDefaultStr(const std::string& key, std::string value);
     void setDefaultInt(const std::string& key, int value);
     
-    bool keyExists(const std::string& key);
+    bool keyExists(const std::string& key) const;
 };
 
 #endif /* configManager_hpp */

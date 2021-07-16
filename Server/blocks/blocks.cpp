@@ -52,8 +52,6 @@ void blocks::saveTo(std::string path) {
     world_file.close();
 }
 
-#include <iostream>
-
 void blocks::loadFrom(std::string path) {
     std::ifstream world_file(path, std::ios::binary);
     world_file.unsetf(std::ios::skipws);

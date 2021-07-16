@@ -45,7 +45,7 @@ void ConfigFile::setDefaultInt(const std::string& key, int value) {
         setInt(key, value);
 }
 
-bool ConfigFile::keyExists(const std::string& key) {
+bool ConfigFile::keyExists(const std::string& key) const {
     return values.find(key) != values.end();
 }
 

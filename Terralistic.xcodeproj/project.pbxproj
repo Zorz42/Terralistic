@@ -17,6 +17,8 @@
 		16811020263BE9260086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
 		168161CD269EFD4E00A95DA9 /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168161CB269EFD4E00A95DA9 /* networking.cpp */; };
 		168161CE269EFD4E00A95DA9 /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168161CB269EFD4E00A95DA9 /* networking.cpp */; };
+		1682944326A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
+		1682944426A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		1683E7CC269DFF03008735C6 /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C1269DFF03008735C6 /* color.cpp */; };
 		1683E7CD269DFF03008735C6 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C5269DFF03008735C6 /* rect.cpp */; };
 		1683E7CE269DFF03008735C6 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C7269DFF03008735C6 /* scene.cpp */; };
@@ -219,7 +221,6 @@
 		1675E71C26611B8000B620F4 /* configManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = configManager.hpp; sourceTree = "<group>"; };
 		1675E72126612BF700B620F4 /* config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = config.hpp; sourceTree = "<group>"; };
 		1676E9F82699C30B00034070 /* events.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = events.hpp; sourceTree = "<group>"; };
-		167B38002642F49200E3C718 /* assert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = assert.hpp; sourceTree = "<group>"; };
 		167B387E2642F73900E3C718 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
 		167B387F2642F73900E3C718 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
 		167B38842642F73900E3C718 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
@@ -238,6 +239,7 @@
 		16811018263BE9260086D659 /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
 		168161CB269EFD4E00A95DA9 /* networking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = networking.cpp; sourceTree = "<group>"; };
 		168161CF269EFFB600A95DA9 /* packetType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = packetType.hpp; sourceTree = "<group>"; };
+		1682944226A16D780017E2FD /* packetType.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packetType.cpp; sourceTree = "<group>"; };
 		1683E7C1269DFF03008735C6 /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
 		1683E7C2269DFF03008735C6 /* color.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
 		1683E7C4269DFF03008735C6 /* rect.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = rect.hpp; sourceTree = "<group>"; };
@@ -515,14 +517,6 @@
 			path = events;
 			sourceTree = "<group>";
 		};
-		167B37FD2642F43C00E3C718 /* assert */ = {
-			isa = PBXGroup;
-			children = (
-				167B38002642F49200E3C718 /* assert.hpp */,
-			);
-			path = assert;
-			sourceTree = "<group>";
-		};
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
@@ -612,6 +606,15 @@
 				16811018263BE9260086D659 /* inventoryItem.cpp */,
 			);
 			path = inventory;
+			sourceTree = "<group>";
+		};
+		1682944126A16D5C0017E2FD /* packetType */ = {
+			isa = PBXGroup;
+			children = (
+				168161CF269EFFB600A95DA9 /* packetType.hpp */,
+				1682944226A16D780017E2FD /* packetType.cpp */,
+			);
+			path = packetType;
 			sourceTree = "<group>";
 		};
 		1683E7C0269DFF03008735C6 /* color */ = {
@@ -904,14 +907,13 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				1682944126A16D5C0017E2FD /* packetType */,
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
 				1689687725E9607800D26060 /* sago */,
 				1676E9F62699BF8600034070 /* events */,
 				36DDF87A2689EAC5002337F3 /* properties */,
 				1675E71A26611B6300B620F4 /* configManager */,
-				167B37FD2642F43C00E3C718 /* assert */,
 				1695428D2680B5B400F1F4FE /* version.hpp */,
-				168161CF269EFFB600A95DA9 /* packetType.hpp */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -1061,6 +1063,7 @@
 				168161CD269EFD4E00A95DA9 /* networking.cpp in Sources */,
 				1691250025F6BCD400F7EB4F /* otherPlayers.cpp in Sources */,
 				1691250225F6BCD500F7EB4F /* clientNetworking.cpp in Sources */,
+				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */,
 				1691250725F6BCD500F7EB4F /* playerHandler.cpp in Sources */,
 				1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */,
@@ -1104,6 +1107,7 @@
 				16BF6931269D6D7300CFE175 /* items.cpp in Sources */,
 				16BF6932269D6D7300CFE175 /* players.cpp in Sources */,
 				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
+				1682944426A16D780017E2FD /* packetType.cpp in Sources */,
 				168161CE269EFD4E00A95DA9 /* networking.cpp in Sources */,
 				16BF6934269D6D7300CFE175 /* packets.cpp in Sources */,
 				16BF6936269D6D7300CFE175 /* print.cpp in Sources */,
@@ -1252,9 +1256,8 @@
 					"$(PROJECT_DIR)/Dependencies/MacOS/Frameworks-Debug",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					DEVELOPER_MODE,
 					"$(inherited)",
+					DEVELOPER_MODE,
 				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
@@ -1313,6 +1316,7 @@
 					"$(PROJECT_DIR)/Dependencies/MacOS/Frameworks-Debug",
 				);
 				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = NO;
@@ -1360,7 +1364,6 @@
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"$(inherited)",
 					DEVELOPER_MODE,
 				);
@@ -1390,6 +1393,7 @@
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				INFOPLIST_FILE = Server/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

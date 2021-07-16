@@ -7,7 +7,6 @@
 
 #include "items.hpp"
 #include <random>
-#include "assert.hpp"
 #include "properties.hpp"
 #include "packetType.hpp"
 

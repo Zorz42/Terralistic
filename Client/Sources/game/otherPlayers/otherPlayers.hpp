@@ -8,8 +8,6 @@
 #ifndef otherPlayers_hpp
 #define otherPlayers_hpp
 
-#include <iostream>
-
 #include "clientNetworking.hpp"
 #include "clientMap.hpp"
 

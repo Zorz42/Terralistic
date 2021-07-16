@@ -7,12 +7,11 @@
 
 #include "blocks.hpp"
 
-#include "assert.hpp"
 #include "properties.hpp"
 #include "packetType.hpp"
 
 block blocks::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
+    assert(y >= 0 && y < height && x >= 0 && x < width);
     return block(x, y, &block_arr[y * width + x], this);
 }
 

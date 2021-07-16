@@ -8,7 +8,6 @@
 #ifndef worldSelector_hpp
 #define worldSelector_hpp
 
-#include <iostream>
 #include "graphics.hpp"
 
 class worldSelector : public gfx::Scene {

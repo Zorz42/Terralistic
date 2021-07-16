@@ -12,7 +12,6 @@
 #include "otherPlayers.hpp"
 #include "textScreen.hpp"
 #include "fileManager.hpp"
-#include "assert.hpp"
 #include "choiceScreen.hpp"
 #include "debugMenu.hpp"
 #include "chat.hpp"
@@ -67,7 +66,7 @@ void startPrivateWorld(const std::string& world_name) {
                 gfx::updateWindow();
                 break;
             default:
-                ASSERT(false, "Unregistered loading state!")
+                assert(false);
                 break;
         }
 

@@ -1,5 +1,4 @@
 #include "graphics-internal.hpp"
-#include <iostream>
 
 void gfx::init(unsigned short window_width_, unsigned short window_height_) {
     sf::RenderWindow sfml_window(sf::VideoMode(800, 600), "SFML window");

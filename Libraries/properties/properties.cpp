@@ -1,5 +1,4 @@
 #include "properties.hpp"
-#include "assert.hpp"
 
 static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 static ItemInfo item_infos[(int)ItemType::NUM_ITEMS];
@@ -12,17 +11,17 @@ ItemInfo::ItemInfo(std::string  name, unsigned short stack_size, BlockType place
 LiquidInfo::LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier) : name(name), flow_time(flow_time), speed_multiplier(speed_multiplier) {}
 
 const BlockInfo& getBlockInfo(BlockType type) {
-    ASSERT((int)type >= 0 && type < BlockType::NUM_BLOCKS, "block id is not valid")
+    assert((int)type >= 0 && type < BlockType::NUM_BLOCKS);
     return block_infos[(int)type];
 }
 
 const ItemInfo& getItemInfo(ItemType type) {
-    ASSERT((int)type >= 0 && type < ItemType::NUM_ITEMS, "item id is not valid")
+    assert((int)type >= 0 && type < ItemType::NUM_ITEMS);
     return item_infos[(int)type];
 }
 
 const LiquidInfo& getLiquidInfo(LiquidType type) {
-    ASSERT((int)type >= 0 && type < LiquidType::NUM_LIQUIDS, "item id is not valid")
+    assert((int)type >= 0 && type < LiquidType::NUM_LIQUIDS);
     return liquid_infos[(int)type];
 }
 

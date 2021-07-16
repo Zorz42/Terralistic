@@ -8,12 +8,11 @@
 #include <algorithm>
 #include <utility>
 #include "clientMap.hpp"
-#include "assert.hpp"
 #include "properties.hpp"
 #include "textures.hpp"
 
 map::block map::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth(), "requested block is out of bounds")
+    assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 

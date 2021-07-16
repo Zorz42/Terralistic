@@ -7,7 +7,6 @@
 
 #include "otherPlayers.hpp"
 #include "playerRenderer.hpp"
-#include "assert.hpp"
 
 // module for handling other players in online game
 
@@ -21,7 +20,7 @@ clientPlayer* clientPlayers::getPlayerById(unsigned short id) {
     for(clientPlayer* player : other_players)
         if(player->id == id)
             return player;
-    ASSERT(false, "Could not get player by id")
+    assert(false);
     return nullptr;
 }
 

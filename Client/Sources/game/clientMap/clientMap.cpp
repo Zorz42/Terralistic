@@ -6,7 +6,6 @@
 //
 
 #include "clientMap.hpp"
-#include "assert.hpp"
 #include "choiceScreen.hpp"
 #include "fileManager.hpp"
 
