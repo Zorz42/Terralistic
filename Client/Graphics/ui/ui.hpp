@@ -23,6 +23,8 @@ public:
 protected:
     void freeTexture();
     void* texture = nullptr;
+
+    sf::Texture *sfmlTexture = nullptr;
 };
 
 
