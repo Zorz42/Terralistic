@@ -26,7 +26,7 @@ protected:
     void* texture = nullptr;
 
     sf::Texture sfml_texture;
-    sf::Text sfml_text;
+    sf::Text *sfml_text; //MORE BIT POINTER DO NOT CHANGEEE
     bool hasText = false;
 };
 
