@@ -9,6 +9,7 @@
 
 #include "properties.hpp"
 #include "packetType.hpp"
+#include <cassert>
 
 Block Blocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < height && x >= 0 && x < width);

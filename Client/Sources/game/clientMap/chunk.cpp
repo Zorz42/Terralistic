@@ -6,6 +6,7 @@
 //
 
 #include "clientMap.hpp"
+#include <cassert>
 
 void map::chunk::updateTexture() {
     chunk_data->update = false;

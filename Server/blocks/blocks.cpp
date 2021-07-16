@@ -6,6 +6,7 @@
 //
 
 #include "blocks.hpp"
+#include <cassert>
 #include <fstream>
 
 void Blocks::createWorld(unsigned short world_width, unsigned short world_height) {

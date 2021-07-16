@@ -2,6 +2,7 @@
 #define blocks_hpp
 
 #include <string>
+#include <chrono>
 #include "properties.hpp"
 
 #define BLOCK_WIDTH 16

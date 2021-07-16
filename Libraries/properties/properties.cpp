@@ -1,4 +1,5 @@
 #include "properties.hpp"
+#include <cassert>
 
 static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 static ItemInfo item_infos[(int)ItemType::NUM_ITEMS];

@@ -6,6 +6,7 @@
 //
 
 #include <thread>
+#include <cassert>
 #include <filesystem>
 #include "game.hpp"
 #include "pauseScreen.hpp"

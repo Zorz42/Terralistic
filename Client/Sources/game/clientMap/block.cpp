@@ -10,6 +10,7 @@
 #include "clientMap.hpp"
 #include "properties.hpp"
 #include "textures.hpp"
+#include <cassert>
 
 map::block map::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());

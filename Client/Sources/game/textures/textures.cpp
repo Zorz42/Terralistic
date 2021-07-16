@@ -6,6 +6,7 @@
 //
 
 #include "textures.hpp"
+#include <cassert>
 
 static gfx::Image block_textures[(int)BlockType::NUM_BLOCKS],
 item_textures[(int)ItemType::NUM_ITEMS],

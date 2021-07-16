@@ -37,3 +37,6 @@ void gfx::Rect::render(bool fill) const {
     else
         SDL_RenderDrawRect(gfx::renderer, &sdl_rect);
 }
+
+
+gfx::Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : r(r), g(g), b(b), a(a) {}

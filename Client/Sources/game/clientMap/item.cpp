@@ -9,6 +9,7 @@
 #include "clientMap.hpp"
 #include "properties.hpp"
 #include "textures.hpp"
+#include <cassert>
 
 map::item* map::getItemById(unsigned short id) {
     for(item& i : map::items)
