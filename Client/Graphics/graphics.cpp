@@ -1,22 +1,22 @@
 #include "graphics-internal.hpp"
 
 void gfx::init(unsigned short window_width_, unsigned short window_height_) {
-    /*sf::RenderWindow sfml_window(sf::VideoMode(800, 600), "SFML window");
+    sfml_window = new sf::RenderWindow(sf::VideoMode(800, 600), "SFML window");
 
-    while (sfml_window.isOpen()) {
+    while (sfml_window->isOpen()) {
         sf::Event event;
-        while (sfml_window.pollEvent(event)) {
+        while (sfml_window->pollEvent(event)) {
             if (event.type == sf::Event::Closed)
-                sfml_window.close();
+                sfml_window->close();
             
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-                sfml_window.close();
+                sfml_window->close();
         }
 
-        sfml_window.clear();
-        sfml_window.display();
-    }*/
-    
+        sfml_window->clear();
+        sfml_window->display();
+    }
+
     window_width = window_width_;
     window_height = window_height_;
     

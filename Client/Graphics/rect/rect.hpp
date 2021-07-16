@@ -1,13 +1,16 @@
 #pragma once
+#include <SFML/Graphics.hpp>
 
 namespace gfx {
 
 enum ObjectType {TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
 
-class Color {
+class Color{
 public:
-    Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255);
     unsigned char r, g, b, a;
+    Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255);
+    inline operator sf::Color() { return(sf::Color(r, g, b, a)); }
+
 };
 
 class RectShape {
