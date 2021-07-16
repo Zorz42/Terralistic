@@ -3,20 +3,6 @@
 void gfx::init(unsigned short window_width_, unsigned short window_height_) {
     sfml_window = new sf::RenderWindow(sf::VideoMode(800, 600), "SFML window");
 
-    while (sfml_window->isOpen()) {
-        sf::Event event;
-        while (sfml_window->pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                sfml_window->close();
-            
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-                sfml_window->close();
-        }
-
-        sfml_window->clear();
-        sfml_window->display();
-    }
-
     window_width = window_width_;
     window_height = window_height_;
     
@@ -55,6 +41,8 @@ void gfx::loadFont(const std::string& path, unsigned char size) {
 }
 
 void gfx::quit() {
+    delete sfml_window;
+    
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
@@ -98,10 +86,12 @@ float gfx::getDeltaTime() {
 void gfx::clearWindow() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
+    sfml_window->clear();
 }
 
 void gfx::updateWindow() {
     SDL_RenderPresent(renderer);
+    sfml_window->display();
 }
 
 void gfx::sleep(unsigned short ms) {

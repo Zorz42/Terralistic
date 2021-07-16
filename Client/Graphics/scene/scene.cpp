@@ -90,7 +90,10 @@ void gfx::Scene::run() {
                 break;
             disable_events_gl = module->disable_events;
         }
-            
+        
+        sf::Event sfml_event;
+        while (sfml_window->pollEvent(sfml_event));
+        
         while(SDL_PollEvent(&event)) {
             if(event.type == SDL_MOUSEMOTION)
                 SDL_GetMouseState((int*)&mouse_x, (int*)&mouse_y);
@@ -188,7 +191,6 @@ void gfx::Scene::run() {
             module->render();
         render();
         
-    
         updateWindow();
         
         Uint64 end = SDL_GetPerformanceCounter();
