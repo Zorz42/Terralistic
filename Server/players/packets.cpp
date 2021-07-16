@@ -47,7 +47,7 @@ void players::onEvent(ServerPacketEvent& event) {
             chunk_packet << PacketType::CHUNK << x << y;
             for(int chunk_x = 0; chunk_x < 16; chunk_x++)
                 for(int chunk_y = 0; chunk_y < 16; chunk_y++) {
-                    block block = parent_blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
+                    Block block = parent_blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
                     chunk_packet << (unsigned char)block.getType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
                 }
             event.sender.socket->send(chunk_packet);

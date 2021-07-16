@@ -10,21 +10,21 @@
 #include <filesystem>
 #include <fstream>
 
-players::players(blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {
-    custom_block_events[(int)BlockType::WOOD].onBreak = [](blocks* server_blocks, players* server_players, block* this_block) {
-        block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
-        for(block& i : blocks)
+players::players(Blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {
+    custom_block_events[(int)BlockType::WOOD].onBreak = [](Blocks* server_blocks, players* server_players, Block* this_block) {
+        Block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
+        for(Block& i : blocks)
             if(i.getType() == BlockType::WOOD || i.getType() == BlockType::LEAVES)
                 server_players->breakBlock(&i);
     };
 
     custom_block_events[(int)BlockType::LEAVES].onBreak = custom_block_events[(int)BlockType::WOOD].onBreak;
 
-    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](block* this_block, player* peer) {
+    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Block* this_block, player* peer) {
         this_block->setType(BlockType::DIRT);
     };
 
-    custom_block_events[(int)BlockType::AIR].onRightClick = [](block* this_block, player* peer) {
+    custom_block_events[(int)BlockType::AIR].onRightClick = [](Block* this_block, player* peer) {
         BlockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
         if(type != BlockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
             this_block->setType(type);
@@ -86,7 +86,7 @@ void players::updateBlocks() {
                 end_x = parent_blocks->getWidth();
             for(unsigned short x = start_x; x < end_x; x++)
                 for(unsigned short y = end_y - 1; y >= start_y; y--) {
-                    block curr_block = parent_blocks->getBlock(x, y);
+                    Block curr_block = parent_blocks->getBlock(x, y);
                     if(curr_block.hasScheduledLightUpdate()) {
                         curr_block.lightUpdate();
                         finished = false;
@@ -100,7 +100,7 @@ void players::updateBlocks() {
     }
 }
 
-void players::leftClickEvent(block this_block, player* peer, unsigned short tick_length) {
+void players::leftClickEvent(Block this_block, player* peer, unsigned short tick_length) {
     if(custom_block_events[(int)this_block.getType()].onLeftClick)
         custom_block_events[(int)this_block.getType()].onLeftClick(&this_block, peer);
     else {
@@ -110,7 +110,7 @@ void players::leftClickEvent(block this_block, player* peer, unsigned short tick
     }
 }
 
-void players::rightClickEvent(block this_block, player* peer) {
+void players::rightClickEvent(Block this_block, player* peer) {
     if(custom_block_events[(int)this_block.getType()].onRightClick)
         custom_block_events[(int)this_block.getType()].onRightClick(&this_block, peer);
 }
@@ -152,7 +152,7 @@ void players::loadFrom(std::string path) {
     }
 }
 
-void players::breakBlock(block* this_block) {
+void players::breakBlock(Block* this_block) {
     if(this_block->getUniqueBlock().drop != ItemType::NOTHING)
         parent_items->spawnItem(this_block->getUniqueBlock().drop, this_block->getX() * BLOCK_WIDTH, this_block->getY() * BLOCK_WIDTH);
     BlockType this_type = this_block->getType();

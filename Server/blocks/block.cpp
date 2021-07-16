@@ -10,28 +10,38 @@
 #include "properties.hpp"
 #include "packetType.hpp"
 
-block blocks::getBlock(unsigned short x, unsigned short y) {
+Block Blocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < height && x >= 0 && x < width);
-    return block(x, y, &block_arr[y * width + x], this);
+    return Block(x, y, &block_arr[y * width + x], this);
 }
 
-void block::setType(BlockType block_id, bool process) {
-    setType(block_id, block_data->liquid_id, process);
+void Block::setTypeWithoutProcessing(BlockType block_id) {
+    setTypeWithoutProcessing(block_id, block_data->liquid_id);
 }
 
-void block::setType(LiquidType liquid_id, bool process) {
-    setType(block_data->block_id, liquid_id, process);
+void Block::setTypeWithoutProcessing(LiquidType liquid_id) {
+    setTypeWithoutProcessing(block_data->block_id, liquid_id);
 }
 
-void block::setType(BlockType block_id, LiquidType liquid_id, bool process) {
-    if(!process) {
-        block_data->block_id = block_id;
-        block_data->liquid_id = liquid_id;
-    }
-    else if(block_id != block_data->block_id || liquid_id != block_data->liquid_id) {
+void Block::setTypeWithoutProcessing(BlockType block_id, LiquidType liquid_id) {
+    block_data->block_id = block_id;
+    block_data->liquid_id = liquid_id;
+}
+
+void Block::setType(BlockType block_id) {
+    setType(block_id, block_data->liquid_id);
+}
+
+void Block::setType(LiquidType liquid_id) {
+    setType(block_data->block_id, liquid_id);
+}
+
+void Block::setType(BlockType block_id, LiquidType liquid_id) {
+    if(block_id != block_data->block_id || liquid_id != block_data->liquid_id) {
         bool was_transparent = getUniqueBlock().transparent;
-        block_data->block_id = block_id;
-        block_data->liquid_id = liquid_id;
+        
+        setTypeWithoutProcessing(block_id, liquid_id);
+        
         if(liquid_id == LiquidType::EMPTY)
             setLiquidLevel(0);
 
@@ -50,7 +60,7 @@ void block::setType(BlockType block_id, LiquidType liquid_id, bool process) {
     }
 }
 
-void block::updateNeighbors() {
+void Block::updateNeighbors() {
     // update upper, lower, right and left block (neighbours)
     if(x != 0)
         parent_map->getBlock(x - 1, y).update();
@@ -62,13 +72,13 @@ void block::updateNeighbors() {
         parent_map->getBlock(x, y + 1).update();
 }
 
-void block::syncWithClient() {
+void Block::syncWithClient() {
     /*sf::Packet packet;
     packet << PacketType::BLOCK_CHANGE << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
     manager->sendToEveryone(packet);*/
 }
 
-void block::setBreakProgress(unsigned short ms) {
+void Block::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
@@ -80,7 +90,7 @@ void block::setBreakProgress(unsigned short ms) {
     }
 }
 
-void block::update() {
+void Block::update() {
     //if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         //breakBlock();
     scheduleLightUpdate();

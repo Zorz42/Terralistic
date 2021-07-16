@@ -7,10 +7,10 @@
 
 #include "blocks.hpp"
 
-void block::lightUpdate() {
+void Block::lightUpdate() {
     block_data->update_light = false;
     
-    block neighbors[4];
+    Block neighbors[4];
     if(x != 0)
         neighbors[0] = parent_map->getBlock(x - 1, y);
     if(x != parent_map->getWidth() - 1)
@@ -34,35 +34,35 @@ void block::lightUpdate() {
     }
 }
 
-void block::setLightSource(unsigned char power) {
+void Block::setLightSource(unsigned char power) {
     block_data->light_source = true;
     setLightLevel(power);
 }
 
-void block::removeLightSource() {
+void Block::removeLightSource() {
     block_data->light_source = false;
     setLightLevel(0);
 }
 
-void blocks::setNaturalLight() {
+void Blocks::setNaturalLight() {
     for(unsigned short x = 0; x < width; x++)
         setNaturalLight(x);
 }
 
-void blocks::setNaturalLight(unsigned short x) {
+void Blocks::setNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
-[[maybe_unused]] void blocks::removeNaturalLight(unsigned short x) {
+[[maybe_unused]] void Blocks::removeNaturalLight(unsigned short x) {
     for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).removeLightSource();
 }
 
-void block::setLightLevel(unsigned char light_level) {
+void Block::setLightLevel(unsigned char light_level) {
     if(block_data->light_level != light_level) {
         block_data->light_level = light_level;
-        block neighbors[4];
+        Block neighbors[4];
         if(x != 0)
             neighbors[0] = parent_map->getBlock(x - 1, y);
         if(x != parent_map->getWidth() - 1)

@@ -23,7 +23,7 @@ void items::spawnItem(ItemType item_id, int x, int y, short id) {
     item_arr.back().create(item_id, x, y, id, parent_blocks);
 }
 
-void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_) {
+void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks* parent_blocks_) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;

@@ -8,7 +8,7 @@
 #include "blocks.hpp"
 #include "properties.hpp"
 
-void block::setLiquidLevel(unsigned char level) {
+void Block::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         block_data->liquid_level = level;
         update();
@@ -16,7 +16,7 @@ void block::setLiquidLevel(unsigned char level) {
     }
 }
 
-void block::liquidUpdate() {
+void Block::liquidUpdate() {
     block_data->when_to_update_liquid = (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + getUniqueLiquid().flow_time;
     if(!getUniqueBlock().ghost)
         setType(LiquidType::EMPTY);
@@ -24,22 +24,22 @@ void block::liquidUpdate() {
     if(getLiquidLevel() == 0)
         return;
     
-    block under, left, right;
+    Block under, left, right;
     
     if(y != parent_map->getHeight() - 1) {
-        block block_under = parent_map->getBlock(x, y + 1);
+        Block block_under = parent_map->getBlock(x, y + 1);
         if((getUniqueBlock().ghost && block_under.getLiquidType() == LiquidType::EMPTY) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
             under = block_under;
     }
     
     if(x != 0) {
-        block block_left = parent_map->getBlock(x - 1, y);
+        Block block_left = parent_map->getBlock(x - 1, y);
         if((getUniqueBlock().ghost && block_left.getLiquidType() == LiquidType::EMPTY) || (block_left.getLiquidType() == getLiquidType() && block_left.getLiquidLevel() < getLiquidLevel()))
             left = block_left;
     }
     
     if(x != parent_map->getWidth() - 1) {
-        block block_right = parent_map->getBlock(x + 1, y);
+        Block block_right = parent_map->getBlock(x + 1, y);
         if((getUniqueBlock().ghost && block_right.getLiquidType() == LiquidType::EMPTY) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
             right = block_right;
     }

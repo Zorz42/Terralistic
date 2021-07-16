@@ -15,9 +15,9 @@ class item {
     int velocity_x, velocity_y;
     unsigned short id;
     ItemType item_id;
-    blocks* parent_blocks;
+    Blocks* parent_blocks;
 public:
-    void create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_);
+    void create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks* parent_blocks_);
     void destroy();
     void update(float frame_length);
     bool colliding() const;
@@ -29,11 +29,11 @@ public:
 };
 
 class items {
-    blocks* parent_blocks;
+    Blocks* parent_blocks;
     
     std::vector<item> item_arr;
 public:
-    items(blocks* parent_blocks) : parent_blocks(parent_blocks) {}
+    items(Blocks* parent_blocks) : parent_blocks(parent_blocks) {}
     
     void updateItems(float frame_length);
     void spawnItem(ItemType item_id, int x, int y, short id=-1);

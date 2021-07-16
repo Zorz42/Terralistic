@@ -15,7 +15,7 @@
 
 class server {
     std::string working_dir;
-    blocks server_blocks;
+    Blocks server_blocks;
     items server_items;
     players server_players;
     

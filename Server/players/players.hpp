@@ -73,9 +73,9 @@ public:
 class players;
 
 struct blockEvents {
-    void (*onBreak)(blocks*, players*, block*) = nullptr;
-    void (*onRightClick)(block*, player*) = nullptr;
-    void (*onLeftClick)(block*, player*) = nullptr;
+    void (*onBreak)(Blocks*, players*, Block*) = nullptr;
+    void (*onRightClick)(Block*, player*) = nullptr;
+    void (*onLeftClick)(Block*, player*) = nullptr;
 };
 
 class ServerPacketEvent : public Event<ServerPacketEvent> {
@@ -88,7 +88,7 @@ public:
 
 class players : EventListener<ServerPacketEvent> {
     items* parent_items;
-    blocks* parent_blocks;
+    Blocks* parent_blocks;
     
     std::vector<sf::TcpSocket*> pending_connections;
     std::vector<player*> all_players;
@@ -96,14 +96,14 @@ class players : EventListener<ServerPacketEvent> {
     
     void onEvent(ServerPacketEvent& event) override;
     
-    void leftClickEvent(block this_block, player* peer, unsigned short tick_length);
-    void rightClickEvent(block this_block, player* peer);
+    void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
+    void rightClickEvent(Block this_block, player* peer);
     
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
     sf::TcpListener listener;
 public:
-    players(blocks* parent_blocks_, items* parent_items_);
+    players(Blocks* parent_blocks_, items* parent_items_);
     
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }
@@ -117,7 +117,7 @@ public:
     void saveTo(std::string path);
     void loadFrom(std::string path);
     
-    void breakBlock(block* this_block);
+    void breakBlock(Block* this_block);
     
     void openSocket(unsigned short port);
     void closeSocket();

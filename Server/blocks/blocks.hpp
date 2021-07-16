@@ -1,10 +1,3 @@
-//
-//  blocks.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #ifndef blocks_hpp
 #define blocks_hpp
 
@@ -16,35 +9,44 @@
 
 enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 
-class blocks;
+class Blocks;
 
-struct blockData {
-    explicit blockData(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+struct MapBlock {
+    MapBlock(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
     BlockType block_id;
-    LiquidType liquid_id = LiquidType::EMPTY;
-    bool light_source = false, update_light = true;
     unsigned short break_progress = 0;
-    unsigned char break_stage = 0, liquid_level = 0, light_level = 0;
+    unsigned char break_stage = 0;
+    
+    bool light_source = false, update_light = true;
+    unsigned char light_level = 0;
+    
+    LiquidType liquid_id = LiquidType::EMPTY;
+    unsigned char liquid_level = 0;
     unsigned int when_to_update_liquid = 1;
     FlowDirection flow_direction = FlowDirection::NONE;
 };
 
-class block {
-    blockData* block_data = nullptr;
+class Block {
+    MapBlock* block_data = nullptr;
     unsigned short x{}, y{};
-    blocks* parent_map{};
+    Blocks* parent_map{};
 
     void syncWithClient();
     void updateNeighbors();
 public:
-    block(unsigned short x, unsigned short y, blockData* block_data, blocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
-    block() = default;
+    Block(unsigned short x, unsigned short y, MapBlock* block_data, Blocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    Block() = default;
 
     void update();
-    void setType(BlockType block_id, bool process=true);
-    void setType(LiquidType liquid_id, bool process=true);
-    void setType(BlockType block_id, LiquidType liquid_id, bool process=true);
+    
+    void setType(BlockType block_id);
+    void setType(LiquidType liquid_id);
+    void setType(BlockType block_id, LiquidType liquid_id);
+    void setTypeWithoutProcessing(BlockType block_id);
+    void setTypeWithoutProcessing(LiquidType liquid_id);
+    void setTypeWithoutProcessing(BlockType block_id, LiquidType liquid_id);
+    
     void setBreakProgress(unsigned short ms);
     void lightUpdate();
     void liquidUpdate();
@@ -75,12 +77,12 @@ public:
     const LiquidInfo& getUniqueLiquid();
 };
 
-class blocks {
-    blockData *block_arr = nullptr;
+class Blocks {
+    MapBlock *block_arr = nullptr;
     unsigned short width{}, height{};
     
 public:
-    block getBlock(unsigned short x, unsigned short y);
+    Block getBlock(unsigned short x, unsigned short y);
     
     void createWorld(unsigned short width, unsigned short height);
     void setNaturalLight();
@@ -99,7 +101,7 @@ public:
     inline unsigned short getHeight() { return height; }
     inline unsigned short getWidth() { return width; }
     
-    ~blocks();
+    ~Blocks();
 };
 
 #endif /* blocks_hpp */
