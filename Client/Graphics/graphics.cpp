@@ -1,9 +1,6 @@
 #include "graphics-internal.hpp"
 
-void gfx::init(unsigned short window_width_, unsigned short window_height_) {
-    window_width = window_width_;
-    window_height = window_height_;
-    
+void gfx::init(unsigned short window_width, unsigned short window_height) {
     sfml_window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     
     // initialize basic sdl module
@@ -38,6 +35,8 @@ void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
 void gfx::loadFont(const std::string& path, unsigned char size) {
     font = TTF_OpenFont((resource_path + path).c_str(), size);
     SDL_assert(font);
+    
+    sfml_font.loadFromFile(resource_path + path);
 }
 
 void gfx::quit() {
@@ -48,11 +47,11 @@ void gfx::quit() {
 }
 
 unsigned short gfx::getWindowWidth() {
-    return window_width;
+    return sfml_window->getSize().x;
 }
 
 unsigned short gfx::getWindowHeight() {
-    return window_height;
+    return sfml_window->getSize().y;
 }
 
 unsigned short gfx::getMouseX() {

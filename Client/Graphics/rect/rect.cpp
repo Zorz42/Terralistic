@@ -37,11 +37,11 @@ gfx::RectShape gfx::_CenteredObject::getTranslatedRect() const {
     return RectShape(getTranslatedX(), getTranslatedY(), getWidth(), getHeight());
 }  
 short gfx::_CenteredObject::getTranslatedX() const {
-    return orientation % 3 == 1 ? (window_width >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? window_width - getWidth() + x : x);
+    return orientation % 3 == 1 ? (getWindowWidth() >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? getWindowHeight() - getWidth() + x : x);
 }
 
 short gfx::_CenteredObject::getTranslatedY() const {
-    return orientation / 3 == 1 ? (window_height >> 1) - (getHeight() >> 1) + y : (orientation / 3 == 2 ? window_height - getHeight() + y : y);
+    return orientation / 3 == 1 ? (getWindowHeight() >> 1) - (getHeight() >> 1) + y : (orientation / 3 == 2 ? getWindowHeight() - getHeight() + y : y);
 }
 
 gfx::_CenteredObject::_CenteredObject(short x, short y, ObjectType orientation) : orientation(orientation), x(x), y(y) {}

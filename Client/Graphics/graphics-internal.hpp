@@ -26,9 +26,9 @@ inline SDL_Renderer* renderer = nullptr;
 inline TTF_Font *font = nullptr;
 
 inline sf::RenderWindow *sfml_window = nullptr;
+inline sf::Font sfml_font;
 
 inline unsigned short mouse_x, mouse_y;
-inline unsigned short window_height = 100, window_width = 100;
 inline float frame_length;
 
 }
