@@ -35,6 +35,8 @@ void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
 void gfx::loadFont(const std::string& path, unsigned char size) {
     font = TTF_OpenFont((resource_path + path).c_str(), size);
     SDL_assert(font);
+    
+    sfml_font.loadFromFile(resource_path + path);
 }
 
 void gfx::quit() {
