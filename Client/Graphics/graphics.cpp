@@ -1,10 +1,10 @@
 #include "graphics-internal.hpp"
 
 void gfx::init(unsigned short window_width_, unsigned short window_height_) {
-    sfml_window = new sf::RenderWindow(sf::VideoMode(800, 600), "SFML window");
-
     window_width = window_width_;
     window_height = window_height_;
+    
+    sfml_window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     
     // initialize basic sdl module
     int result = SDL_Init(SDL_INIT_EVERYTHING);
