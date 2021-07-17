@@ -75,8 +75,7 @@ void playerHandler::onPacketInventory(ClientPacketEvent &event) {
 
 void playerHandler::renderItem(clientInventoryItem* item, int x, int y, int i) {
     const gfx::Image& texture = getItemTexture(item->item_id);
-    if(texture.getTexture())
-        texture.render(4, x, y);
+    texture.render(4, x, y);
     
     if(item->getStack() > 1) {
         gfx::Image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];

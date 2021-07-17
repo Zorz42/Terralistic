@@ -14,9 +14,7 @@ inline unsigned short mouse_x, mouse_y;
 inline float frame_length;
 
 inline unsigned short font_size;
-
 inline sf::RenderTarget *render_target = nullptr;
-
 inline sf::Clock clock;
 
 }

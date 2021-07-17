@@ -4,16 +4,12 @@
 #include "rect.hpp"
 #include <cassert>
 
-enum class ImageType {NONE, TEXTURE, TEXT, RENDER_TEXTURE};
-
 namespace gfx {
 
 class Image {
 public:
-    //void render(RectShape rect) const;
     void render(float scale, short x, short y) const;
     void render(float scale, short x, short y, RectShape src_rect) const;
-    [[nodiscard]] inline void* getTexture() const { return texture; }
     ~Image();
     bool free_texture = true, flipped = false;
     [[nodiscard]] unsigned short getTextureWidth() const;
@@ -26,12 +22,7 @@ public:
     inline sf::RenderTexture* getSfmlTexture() { return sfml_render_texture; }
 protected:
     void freeTexture();
-    void* texture = nullptr;
-
-    sf::Texture sfml_texture;
-    sf::Text *sfml_text = nullptr; //MORE BIT POINTER DO NOT CHANGEEE
     sf::RenderTexture *sfml_render_texture = nullptr;
-    ImageType type = ImageType::NONE;
 };
 
 

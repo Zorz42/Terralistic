@@ -94,7 +94,7 @@ void map::block::updateOrientation() {
 void map::block::draw() {
     gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
     
-    if(getBlockTexture(getType()).getTexture() && getLightLevel())
+    if(getLightLevel())
         getBlockTexture(getType()).render(2, rect.x, rect.y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 
     if(getLightLevel() != MAX_LIGHT)

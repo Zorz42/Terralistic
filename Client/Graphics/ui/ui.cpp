@@ -1,17 +1,12 @@
 #include "graphics-internal.hpp"
 
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
-    type = ImageType::RENDER_TEXTURE;
     delete sfml_render_texture;
     sfml_render_texture = new sf::RenderTexture;
     assert(sfml_render_texture->create(width, height));
 }
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
-    type = ImageType::RENDER_TEXTURE;
-    
-    //delete sfml_text;
-    //sfml_text = new sf::Text();
     sf::Text sf_text;
     sf_text.setFont(sfml_font);
     sf_text.setString(text.c_str());
@@ -28,8 +23,14 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
 }
 
 void gfx::Image::loadFromFile(const std::string& path) {
-    type = ImageType::TEXTURE;
-    assert(sfml_texture.loadFromFile((resource_path + path).c_str()));
+    sf::Texture image_texture;
+    assert(image_texture.loadFromFile((resource_path + path).c_str()));
+    createBlankImage(image_texture.getSize().x, image_texture.getSize().y);
+    sf::RectangleShape sfml_rect;
+    sfml_rect.setSize({(float)image_texture.getSize().x, (float)image_texture.getSize().y});
+    sfml_rect.setTexture(&image_texture);
+    sfml_render_texture->draw(sfml_rect);
+    sfml_render_texture->display();
 }
 
 gfx::Image::~Image() {
@@ -37,55 +38,31 @@ gfx::Image::~Image() {
 }
 
 void gfx::Image::freeTexture() {
-    if(texture && free_texture) {
+    if(free_texture) {
         delete sfml_render_texture;
         sfml_render_texture = nullptr;
     }
 }
 
 unsigned short gfx::Image::getTextureWidth() const {
-    if(type == ImageType::RENDER_TEXTURE)
-        return sfml_render_texture->getSize().x;
-    else if(type == ImageType::TEXTURE)
-        return sfml_texture.getSize().x;
-    else
-        return sfml_text->getLocalBounds().width;
+    return sfml_render_texture->getSize().x;
 }
 
 unsigned short gfx::Image::getTextureHeight() const {
-    if(type == ImageType::RENDER_TEXTURE)
-        return sfml_render_texture->getSize().y;
-    else if(type == ImageType::TEXTURE)
-        return sfml_texture.getSize().y;
-    else
-        return sfml_text->getLocalBounds().height;
+    return sfml_render_texture->getSize().y;
 }
 
 void gfx::Image::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
 void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const {
-
-    //sfml_text.setCharacterSize(scale);
-    if(type == ImageType::TEXT) {
-        sfml_text->setPosition((float)x, (float)y);
-        render_target->draw(*sfml_text);
-    } else if(type == ImageType::TEXTURE) {
-        sf::Sprite sprite;
-        sprite.setTexture(sfml_texture);
-        sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
-        sprite.setPosition(x, y);
-        sprite.setScale(scale, scale);
-        render_target->draw(sprite);
-    } else if(type == ImageType::RENDER_TEXTURE) {
-        sfml_render_texture->display();
-        sf::Sprite sprite;
-        sprite.setTexture(sfml_render_texture->getTexture());
-        sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
-        sprite.setPosition(x, y);
-        sprite.setScale(scale, scale);
-        render_target->draw(sprite);
-    }
+    sfml_render_texture->display();
+    sf::Sprite sprite;
+    sprite.setTexture(sfml_render_texture->getTexture());
+    sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
+    sprite.setPosition(x, y);
+    sprite.setScale(scale, scale);
+    render_target->draw(sprite);
 }
 
 void gfx::Image::setAlpha(unsigned char alpha) {
@@ -93,25 +70,12 @@ void gfx::Image::setAlpha(unsigned char alpha) {
 }
 
 void gfx::Image::render(float scale, short x, short y) const {
-    if (type == ImageType::TEXT) {
-        sfml_text->setPosition(sf::Vector2f(x, y));
-        sfml_text->setScale(scale, scale);
-        render_target->draw(*sfml_text);
-    } else if(type == ImageType::TEXTURE) {
-        sf::RectangleShape sfml_rect;
-        sfml_rect.setPosition(x, y);
-        sfml_rect.setSize({(float)getTextureWidth(), (float)getTextureHeight()});
-        sfml_rect.setScale(scale, scale);
-        sfml_rect.setTexture(&sfml_texture);
-        render_target->draw(sfml_rect);
-    } else if(type == ImageType::RENDER_TEXTURE) {
-        sf::RectangleShape sfml_rect;
-        sfml_rect.setPosition(x, y);
-        sfml_rect.setSize({(float)getTextureWidth(), (float)getTextureHeight()});
-        sfml_rect.setScale(scale, scale);
-        sfml_rect.setTexture(&sfml_render_texture->getTexture());
-        render_target->draw(sfml_rect);
-    }
+    sf::RectangleShape sfml_rect;
+    sfml_rect.setPosition(x, y);
+    sfml_rect.setSize({(float)getTextureWidth(), (float)getTextureHeight()});
+    sfml_rect.setScale(scale, scale);
+    sfml_rect.setTexture(&sfml_render_texture->getTexture());
+    render_target->draw(sfml_rect);
 }
 
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};

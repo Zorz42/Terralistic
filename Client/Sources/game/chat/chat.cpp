@@ -30,7 +30,7 @@ void chat::update() {
 
 void chat::render() {
     for(chatLine* i : chat_lines) {
-        if(!i->text_sprite.getTexture()) {
+        //if(!i->text_sprite.getTexture()) {
             i->text_sprite.renderText(i->text, {255, 255, 255});
             i->text_sprite.scale = 2;
             i->text_sprite.y = chat_box.y;
@@ -42,7 +42,7 @@ void chat::render() {
             for(chatLine* line : chat_lines)
                 if(line != i)
                     line->y_to_be -= i->text_sprite.getHeight();
-        }
+        //}
         
         if(i->time_created + 10500 > gfx::getTicks() || chat_box.active) {
             int alpha = i->time_created + 10500 - gfx::getTicks();

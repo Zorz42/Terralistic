@@ -39,6 +39,7 @@ void gfx::setRenderTarget(Image& tex) {
 }
 
 void gfx::resetRenderTarget() {
+    ((sf::RenderTexture*)render_target)->display();
     render_target = sfml_window;
 }
 

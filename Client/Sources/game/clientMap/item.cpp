@@ -26,7 +26,6 @@ const ItemInfo& map::item::getUniqueItem() const {
 void map::renderItems() {
     for(map::item& item : items) {
         const gfx::Image& texture = getItemTexture(item.getType());
-        if(texture.getTexture())
-            texture.render(2, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2);
+        texture.render(2, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2);
     }
 }
