@@ -7,8 +7,8 @@
 
 #include "items.hpp"
 #include <random>
-#include "assert.hpp"
 #include "properties.hpp"
+#include "packetType.hpp"
 
 void items::updateItems(float frame_length) {
     for(auto & item : item_arr)
@@ -20,15 +20,14 @@ void items::spawnItem(ItemType item_id, int x, int y, short id) {
     if(id == -1)
         id = curr_id++;
     item_arr.emplace_back();
-    item_arr.back().create(item_id, x, y, id, parent_blocks, manager);
+    item_arr.back().create(item_id, x, y, id, parent_blocks);
 }
 
-void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_, serverNetworkingManager* manager_) {
+void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks* parent_blocks_) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
     velocity_y = -int(engine() % 100) - 50;
-    manager = manager_;
     
     x = x_ * 100;
     y = y_ * 100;
@@ -36,18 +35,18 @@ void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks*
     item_id = item_id_;
     parent_blocks = parent_blocks_;
     
-    Packet packet(PacketType::ITEM_CREATION, sizeof(x) + sizeof(y) + sizeof(getId()) + sizeof(char));
-    packet << x << y << getId() << (char)getItemId();
-    manager->sendToEveryone(packet);
+    /*sf::Packet item_packet;
+    item_packet << PacketType::ITEM_CREATION << x << y << getId() << (char)getItemId();
+    manager->sendToEveryone(item_packet);*/
 }
 
 void item::destroy() {
-    Packet packet(PacketType::ITEM_DELETION, sizeof(getId()));
-    packet << getId();
-    manager->sendToEveryone(packet);
+    /*sf::Packet packet;
+    packet << PacketType::ITEM_DELETION << getId();
+    manager->sendToEveryone(packet);*/
 }
 
-[[maybe_unused]] const ItemInfo& item::getUniqueItem() const {
+const ItemInfo& item::getUniqueItem() const {
     return ::getItemInfo(item_id);
 }
 
@@ -102,9 +101,9 @@ void item::update(float frame_length) {
     }
     
     if(prev_x != x || prev_y != y) {
-        Packet packet(PacketType::ITEM_MOVEMENT, sizeof(x) + sizeof(y) + sizeof(getId()));
-        packet << x << y << getId();
-        manager->sendToEveryone(packet);
+        /*sf::Packet packet;
+        packet << PacketType::ITEM_MOVEMENT << x << y << getId();
+        manager->sendToEveryone(packet);*/
     }
 }
 

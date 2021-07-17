@@ -1,102 +1,108 @@
-//
-//  blocks.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #ifndef blocks_hpp
 #define blocks_hpp
 
 #include <string>
-#include "serverNetworking.hpp"
-#include "packets.hpp"
+#include <chrono>
 #include "properties.hpp"
+#include "events.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
 
 enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 
-class blocks;
+class Blocks;
 
-struct blockData {
-    explicit blockData(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+struct MapBlock {
+    MapBlock(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
     BlockType block_id;
-    LiquidType liquid_id = LiquidType::EMPTY;
-    bool light_source = false, update_light = true;
     unsigned short break_progress = 0;
-    unsigned char break_stage = 0, liquid_level = 0, light_level = 0;
+    unsigned char break_stage = 0;
+    
+    bool light_source = false, update_light = true;
+    unsigned char light_level = 0;
+    
+    LiquidType liquid_id = LiquidType::EMPTY;
+    unsigned char liquid_level = 0;
     unsigned int when_to_update_liquid = 1;
     FlowDirection flow_direction = FlowDirection::NONE;
 };
 
-class block {
-    blockData* block_data = nullptr;
-    unsigned short x{}, y{};
-    blocks* parent_map{};
-    serverNetworkingManager* manager{};
+class Block {
+    MapBlock* block_data = nullptr;
+    unsigned short x = 0, y = 0;
+    Blocks* parent_map{};
 
-    void syncWithClient();
     void updateNeighbors();
 public:
-    block(unsigned short x, unsigned short y, blockData* block_data, blocks* parent_map, serverNetworkingManager* manager) : x(x), y(y), block_data(block_data), parent_map(parent_map), manager(manager) {}
-    block() = default;
+    Block(unsigned short x, unsigned short y, MapBlock* block_data, Blocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    Block() = default;
 
     void update();
-    void setType(BlockType block_id, bool process=true);
-    void setType(LiquidType liquid_id, bool process=true);
-    void setType(BlockType block_id, LiquidType liquid_id, bool process=true);
-    void setBreakProgress(unsigned short ms);
-    void lightUpdate();
-    void liquidUpdate();
-    void setLightSource(unsigned char power);
-    void removeLightSource();
-    void setLightLevel(unsigned char light_level);
-
     inline bool refersToABlock() { return block_data != nullptr; }
-
-    inline bool isLightSource() { return block_data->light_source; }
-    inline unsigned char getLightLevel() { return block_data->light_level; }
+    [[nodiscard]] inline unsigned short getX() const { return x; }
+    [[nodiscard]] inline unsigned short getY() const { return y; }
+    
+    void setTypeWithoutProcessing(BlockType block_id);
+    void setType(BlockType block_id);
+    void setBreakProgress(unsigned short ms);
     inline unsigned short getBreakProgress() { return block_data->break_progress; }
     inline unsigned char getBreakStage() { return block_data->break_stage; }
-    inline BlockType getType() { return block_data->block_id; }
+    inline BlockType getBlockType() { return block_data->block_id; }
+    const BlockInfo& getUniqueBlock();
+    
+    void setTypeWithoutProcessing(LiquidType liquid_id);
+    void setType(LiquidType liquid_id);
+    void liquidUpdate();
     inline LiquidType getLiquidType() { return block_data->liquid_id; }
-    inline void scheduleLightUpdate() { block_data->update_light = true; }
-    inline bool hasScheduledLightUpdate() { return block_data->update_light; }
     inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
     void setLiquidLevel(unsigned char level);
     inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
     inline FlowDirection getFlowDirection() { return block_data->flow_direction; }
     inline void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
-
-    [[nodiscard]] inline unsigned short getX() const { return x; }
-    [[nodiscard]] inline unsigned short getY() const { return y; }
-    
-    const BlockInfo& getUniqueBlock();
     const LiquidInfo& getUniqueLiquid();
+    
+    void lightUpdate();
+    void setLightSource(unsigned char power);
+    inline bool isLightSource() { return block_data->light_source; }
+    void removeLightSource();
+    void setLightLevel(unsigned char light_level);
+    inline unsigned char getLightLevel() { return block_data->light_level; }
+    inline void scheduleLightUpdate() { block_data->update_light = true; }
+    inline bool hasScheduledLightUpdate() { return block_data->update_light; }
 };
 
-class blocks {
-    serverNetworkingManager* manager;
-    blockData *block_arr = nullptr;
-    unsigned short width{}, height{};
+class ServerBlockChangeEvent : public Event<ServerBlockChangeEvent> {
+public:
+    ServerBlockChangeEvent(Block block, BlockType type) : block(block), type(type) {}
+    Block block;
+    BlockType type;
+};
+
+class ServerBlockBreakStageChangeEvent : public Event<ServerBlockBreakStageChangeEvent> {
+public:
+    ServerBlockBreakStageChangeEvent(Block block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
+    Block block;
+    unsigned char break_stage;
+};
+
+class Blocks {
+    MapBlock *blocks = nullptr;
+    unsigned short width, height;
     
 public:
-    blocks(serverNetworkingManager* manager_) : manager(manager_) {}
-    
-    block getBlock(unsigned short x, unsigned short y);
+    Block getBlock(unsigned short x, unsigned short y);
     
     void createWorld(unsigned short width, unsigned short height);
-    void setNaturalLight();
     
-    [[maybe_unused]] void removeNaturalLight(unsigned short x);
+    void setNaturalLight();
+    void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
     
     Biome *biomes = nullptr;
     
-    int getSpawnX() const;
+    int getSpawnX();
     int getSpawnY();
     
     void saveTo(std::string path);
@@ -105,7 +111,7 @@ public:
     inline unsigned short getHeight() { return height; }
     inline unsigned short getWidth() { return width; }
     
-    ~blocks();
+    ~Blocks();
 };
 
 #endif /* blocks_hpp */

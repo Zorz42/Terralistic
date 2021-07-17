@@ -8,23 +8,13 @@
 #ifndef playerRenderer_hpp
 #define playerRenderer_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
 namespace playerRenderer {
 
 void init();
 void render(int x, int y, int view_x, int view_y, bool flipped);
-void render(int x, int y, int view_x, int view_y, bool flipped, gfx::image& header);
+void render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header);
 unsigned short getPlayerWidth();
 unsigned short getPlayerHeight();
 

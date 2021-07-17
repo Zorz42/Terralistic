@@ -11,25 +11,15 @@
 #include <string>
 #include <vector>
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
-class choiceScreen : public gfx::scene {
+class choiceScreen : public gfx::Scene {
     struct button {
         std::string option;
-        gfx::button gfx_button;
+        gfx::Button gfx_button;
     };
 
-    gfx::sprite notification_sprite;
+    gfx::Sprite notification_sprite;
     std::string notification, *result;
     std::vector<button> buttons;
 public:

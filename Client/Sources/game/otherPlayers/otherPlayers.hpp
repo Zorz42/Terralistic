@@ -8,18 +8,6 @@
 #ifndef otherPlayers_hpp
 #define otherPlayers_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
-#include "graphics.hpp"
-#endif
-
 #include "clientNetworking.hpp"
 #include "clientMap.hpp"
 
@@ -28,17 +16,17 @@ struct clientPlayer {
     int x{0}, y{0};
     bool flipped = false;
     std::string name;
-    gfx::image name_text;
+    gfx::Image name_text;
 };
 
-class clientPlayers : public gfx::sceneModule, packetListener {
+class clientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     std::vector<clientPlayer*> other_players;
     clientPlayer* getPlayerById(unsigned short id);
     map* world_map;
 public:
-    clientPlayers(networkingManager* manager, map* world_map) : packetListener(manager), world_map(world_map) { listening_to = {PacketType::PLAYER_JOIN, PacketType::PLAYER_QUIT, PacketType::PLAYER_MOVEMENT}; }
+    clientPlayers(networkingManager* manager, map* world_map) : world_map(world_map) {}
     void render() override;
-    void onPacket(Packet &packet) override;
+    void onEvent(ClientPacketEvent &event) override;
 };
 
 #endif /* otherPlayers_hpp */

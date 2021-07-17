@@ -30,7 +30,7 @@ public:
     clientInventoryItem inventory[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
     bool open = false;
-    char selected_slot = 0;
+    unsigned char selected_slot = 0;
     void swapWithMouseItem(clientInventoryItem* item);
     void clearMouseItem();
     clientInventoryItem* getMouseItem();

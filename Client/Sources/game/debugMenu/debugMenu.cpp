@@ -11,14 +11,14 @@ void debugMenu::init() {
     fps_text.scale = 3;
     fps_text.x = 10;
     fps_text.y = 10;
-    fps_text.orientation = gfx::top_left;
+    fps_text.orientation = gfx::TOP_LEFT;
     
     renderFpsText();
     
     coords_text.scale = 3;
     coords_text.y = fps_text.y + fps_text.getHeight() + 10;
     coords_text.x = 10;
-    coords_text.orientation = gfx::top_left;
+    coords_text.orientation = gfx::TOP_LEFT;
 
     /*
     biome_text.scale = 3;
@@ -44,17 +44,16 @@ void debugMenu::update() {
         if(curr_x != prev_x || curr_y != prev_y) {
             prev_x = curr_x;
             prev_y = curr_y;
-            coords_text.setTexture(gfx::renderText(std::string("X: ") + std::to_string(main_player->position_x / BLOCK_WIDTH) + ", Y: " + std::to_string(world_map->getWorldHeight() - main_player->position_y / BLOCK_WIDTH), {0, 0, 0}));
-            //biome_text.setTexture(gfx::renderText(std::to_string(world_map->biomes[0]), { 0, 0, 0 }));
+            coords_text.renderText(std::string("X: ") + std::to_string(main_player->position_x / BLOCK_WIDTH) + ", Y: " + std::to_string(world_map->getWorldHeight() - main_player->position_y / BLOCK_WIDTH), {0, 0, 0});
+            //biome_text.renderText(std::to_string(world_map->biomes[0]), { 0, 0, 0 }));
         }
     }
 }
 
 void debugMenu::render() {
     if(debug_menu_open) {
-        gfx::render(fps_text);
-        gfx::render(coords_text);
-        //gfx::render(biome_text);
+        fps_text.render();
+        coords_text.render();
     }
 }
 
@@ -73,5 +72,5 @@ void debugMenu::onKeyUp(gfx::key key) {
 }
 
 void debugMenu::renderFpsText() {
-    fps_text.setTexture(gfx::renderText(std::to_string(fps_count) + " fps", {0, 0, 0}));
+    fps_text.renderText(std::to_string(fps_count) + " fps", {0, 0, 0});
 }

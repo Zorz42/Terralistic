@@ -15,27 +15,25 @@ class item {
     int velocity_x, velocity_y;
     unsigned short id;
     ItemType item_id;
-    blocks* parent_blocks;
-    serverNetworkingManager* manager;
+    Blocks* parent_blocks;
 public:
-    void create(ItemType item_id_, int x_, int y_, unsigned short id_, blocks* parent_blocks_, serverNetworkingManager* manager_);
+    void create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks* parent_blocks_);
     void destroy();
     void update(float frame_length);
     bool colliding() const;
     int x, y;
 
-    [[maybe_unused]] [[nodiscard]] const ItemInfo& getUniqueItem() const;
+    [[nodiscard]] const ItemInfo& getUniqueItem() const;
     [[nodiscard]] unsigned short getId() const { return id; }
     inline ItemType getItemId() const { return item_id; }
 };
 
 class items {
-    blocks* parent_blocks;
-    serverNetworkingManager* manager;
+    Blocks* parent_blocks;
     
     std::vector<item> item_arr;
 public:
-    items(serverNetworkingManager* manager_, blocks* parent_blocks) : parent_blocks(parent_blocks), manager(manager_) {}
+    items(Blocks* parent_blocks) : parent_blocks(parent_blocks) {}
     
     void updateItems(float frame_length);
     void spawnItem(ItemType item_id, int x, int y, short id=-1);

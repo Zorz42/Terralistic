@@ -17,12 +17,12 @@ void playerHandler::init() {
     world_map->view_x = player->position_x;
     world_map->view_y = player->position_y;
     
-    Packet join_packet(PacketType::PLAYER_JOIN, (int)player->name.size() + 1);
+    sf::Packet join_packet;
     join_packet << player->name;
     manager->sendPacket(join_packet);
     
-    Packet packet(PacketType::VIEW_SIZE_CHANGE, sizeof(unsigned short) + sizeof(unsigned short));
-    packet << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH);
+    sf::Packet packet;
+    packet << PacketType::VIEW_SIZE_CHANGE << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH);
     manager->sendPacket(packet);
     
     initInventory();
@@ -119,8 +119,8 @@ void playerHandler::update() {
     if(received_spawn_coords) {
         static unsigned short prev_width = gfx::getWindowWidth(), prev_height = gfx::getWindowHeight();
         if(prev_width != gfx::getWindowWidth() || prev_height != gfx::getWindowHeight()) {
-            Packet packet(PacketType::VIEW_SIZE_CHANGE, sizeof(unsigned short) + sizeof(unsigned short));
-            packet << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH);
+            sf::Packet packet;
+            packet << PacketType::VIEW_SIZE_CHANGE << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH);
             manager->sendPacket(packet);
             
             prev_width = gfx::getWindowWidth();
@@ -190,8 +190,8 @@ void playerHandler::update() {
             world_map->view_y = world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
         
         if(move_x || move_y) {
-            Packet packet(PacketType::PLAYER_MOVEMENT, sizeof(player->position_x) + sizeof(player->position_y) + sizeof(char));
-            packet << player->position_x << player->position_y << (char)player->flipped;
+            sf::Packet packet;
+            packet << PacketType::PLAYER_MOVEMENT << player->position_x << player->position_y << player->flipped;
             manager->sendPacket(packet);
         }
     }
@@ -203,10 +203,11 @@ void playerHandler::render() {
     renderInventory();
 }
 
-void playerHandler::onPacket(Packet &packet) {
-    switch(packet.getType()) {
+void playerHandler::onEvent(ClientPacketEvent &event) {
+    switch(event.packet_type) {
         case PacketType::SPAWN_POS: {
-            int x = packet.get<int>(), y = packet.get<int>();
+            int x, y;
+            event.packet >> x >> y;
             player->position_x = x;
             player->position_y = y;
             world_map->view_x = x;
@@ -216,5 +217,5 @@ void playerHandler::onPacket(Packet &packet) {
         }
         default:;
     }
-    onPacketInventory(packet);
+    onPacketInventory(event);
 }

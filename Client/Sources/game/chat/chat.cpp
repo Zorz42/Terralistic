@@ -12,7 +12,7 @@
 void chat::init() {
     chat_box.scale = 2;
     chat_box.setText("");
-    chat_box.orientation = gfx::bottom_left;
+    chat_box.orientation = gfx::BOTTOM_LEFT;
     chat_box.y = -PADDING;
     chat_box.x = PADDING;
     
@@ -30,37 +30,37 @@ void chat::update() {
 
 void chat::render() {
     for(chatLine* i : chat_lines) {
-        if(!i->text_sprite.getTexture()) {
-            i->text_sprite.setTexture(gfx::renderText(i->text, {255, 255, 255}));
+        //if(!i->text_sprite.getTexture()) {
+            i->text_sprite.renderText(i->text, {255, 255, 255});
             i->text_sprite.scale = 2;
             i->text_sprite.y = chat_box.y;
             i->text_sprite.x = PADDING;
-            i->text_sprite.orientation = gfx::bottom_left;
+            i->text_sprite.orientation = gfx::BOTTOM_LEFT;
             i->y_to_be = chat_box.y - chat_box.getHeight();
             i->text.clear();
             
             for(chatLine* line : chat_lines)
                 if(line != i)
                     line->y_to_be -= i->text_sprite.getHeight();
-        }
+        //}
         
         if(i->time_created + 10500 > gfx::getTicks() || chat_box.active) {
             int alpha = i->time_created + 10500 - gfx::getTicks();
             if(alpha < 0 || alpha >= 500)
                 alpha = 500;
             i->text_sprite.setAlpha((float)alpha / 500.0f * 255);
-            gfx::render(i->text_sprite);
+            i->text_sprite.render();
         }
     }
             
-    gfx::render(chat_box);
+    chat_box.render();
 }
 
 void chat::onKeyDown(gfx::key key) {
     if(key == gfx::KEY_ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
-            Packet chat_packet(PacketType::CHAT, (int)chat_box.getText().size() + 1);
-            chat_packet << chat_box.getText();
+            sf::Packet chat_packet;
+            chat_packet << PacketType::CHAT << chat_box.getText();
             manager->sendPacket(chat_packet);
             chat_box.setText("");
         }
@@ -74,11 +74,11 @@ void chat::onKeyDown(gfx::key key) {
     }
 }
 
-void chat::onPacket(Packet &packet) {
-    switch(packet.getType()) {
+void chat::onEvent(ClientPacketEvent &event) {
+    switch(event.packet_type) {
         case PacketType::CHAT: {
-            auto* new_line = new chatLine;
-            new_line->text = packet.get<std::string>();
+            chatLine* new_line = new chatLine;
+            event.packet >> new_line->text;
             new_line->time_created = gfx::getTicks();
             chat_lines.push_back(new_line);
             break;

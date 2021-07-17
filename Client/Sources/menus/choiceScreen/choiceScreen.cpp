@@ -20,15 +20,15 @@ choiceScreen::choiceScreen(std::string notification, const std::vector<std::stri
 
 void choiceScreen::init() {
     notification_sprite.scale = 3;
-    notification_sprite.setTexture(gfx::renderText(notification, {255, 255, 255}));
-    notification_sprite.orientation = gfx::center;
+    notification_sprite.renderText(notification, {255, 255, 255});
+    notification_sprite.orientation = gfx::CENTER;
     
     int combined_width = 0;
     
     for(button& i : buttons) {
         i.gfx_button.scale = 3;
-        i.gfx_button.setTexture(gfx::renderText(i.option, {255, 255, 255}));
-        i.gfx_button.orientation = gfx::bottom;
+        i.gfx_button.renderText(i.option, {255, 255, 255});
+        i.gfx_button.orientation = gfx::BOTTOM;
         i.gfx_button.y = -20;
         combined_width += i.gfx_button.getWidth();
     }
@@ -54,6 +54,6 @@ void choiceScreen::onKeyDown(gfx::key key) {
 
 void choiceScreen::render() {
     for(button& i : buttons)
-        gfx::render(i.gfx_button);
-    gfx::render(notification_sprite);
+        i.gfx_button.render();
+    notification_sprite.render();
 }

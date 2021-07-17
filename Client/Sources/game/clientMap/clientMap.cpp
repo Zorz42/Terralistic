@@ -6,7 +6,6 @@
 //
 
 #include "clientMap.hpp"
-#include "assert.hpp"
 #include "choiceScreen.hpp"
 #include "fileManager.hpp"
 
@@ -21,17 +20,21 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
             getChunk(x, y).createTexture();
 }
 
-void map::onPacket(Packet &packet) {
-    switch(packet.getType()) {
+void map::onEvent(ClientPacketEvent &event) {
+    switch(event.packet_type) {
         case PacketType::ITEM_CREATION: {
-            auto type = (ItemType)packet.get<char>();
-            auto id = packet.get<unsigned short>();
-            int y = packet.get<int>(), x = packet.get<int>();
+            int x, y;
+            unsigned short id;
+            unsigned char type_char;
+            event.packet >> x >> y >> id >> type_char;
+            ItemType type = (ItemType)type_char;
+            
             items.emplace_back(item(type, x, y, id));
             break;
         }
         case PacketType::ITEM_DELETION: {
-            auto id = packet.get<unsigned short>();
+            unsigned short id;
+            event.packet >> id;
             for(auto i = items.begin(); i != items.end(); i++)
                 if(i->getId() == id) {
                     items.erase(i);
@@ -40,35 +43,36 @@ void map::onPacket(Packet &packet) {
             break;
         }
         case PacketType::ITEM_MOVEMENT: {
-            item* item = getItemById(packet.get<unsigned short>());
-            item->y = packet.get<int>();
-            item->x = packet.get<int>();
+            unsigned short id;
+            int x, y;
+            event.packet >> x >> y >> id;
+            
+            item* item = getItemById(id);
+            item->x = x;
+            item->y = y;
             break;
         }
         case PacketType::BLOCK_CHANGE: {
-            auto type = (BlockType)packet.get<unsigned char>();
-            auto light_level = packet.get<unsigned char>();
-            auto liquid_level = packet.get<unsigned char>();
-            auto liquid_type = (LiquidType)packet.get<unsigned char>();
-            auto y = packet.get<unsigned short>(), x = packet.get<unsigned short>();
+            unsigned short x, y;
+            unsigned char block_type;
+            event.packet >> x >> y >> block_type;
+            
             block curr_block = getBlock(x, y);
-            curr_block.setType(type, liquid_type);
-            curr_block.setLiquidLevel(liquid_level);
-            curr_block.setLightLevel(light_level);
+            curr_block.setType((BlockType)block_type, curr_block.getLiquidType());
             break;
         }
         case PacketType::CHUNK: {
             chunks_pending--;
-            auto x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
+            unsigned short x, y;
+            event.packet >> x >> y;
             
-            for(unsigned short y_ = 0; y_ < 16; y_++)
-                for(unsigned short x_ = 0; x_ < 16; x_++) {
-                    auto light_level = packet.get<unsigned char>();
-                    auto liquid_level = packet.get<unsigned char>();
-                    auto liquid_type = (LiquidType)packet.get<unsigned char>();
-                    auto type = (BlockType)packet.get<unsigned char>();
-                    block block = getBlock((x << 4) + x_, (y << 4) + y_);
-                    block.setType(type, liquid_type);
+            for(unsigned short chunk_x = 0; chunk_x < 16; chunk_x++)
+                for(unsigned short chunk_y = 0; chunk_y < 16; chunk_y++) {
+                    unsigned char block_type, liquid_type, liquid_level, light_level;
+                    event.packet >> block_type >> liquid_type >> liquid_level >> light_level;
+                    
+                    block block = getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
+                    block.setType((BlockType)block_type, (LiquidType)liquid_type);
                     block.setLightLevel(light_level);
                     block.setLiquidLevel(liquid_level);
                     block.update();
@@ -78,13 +82,14 @@ void map::onPacket(Packet &packet) {
             break;
         }
         case PacketType::BLOCK_PROGRESS_CHANGE: {
-            auto stage = packet.get<unsigned char>();
-            auto x = packet.get<unsigned short>(), y = packet.get<unsigned short>();
+            unsigned char stage;
+            unsigned short x, y;
+            event.packet >> x >> y >> stage;
             getBlock(x, y).setBreakStage(stage);
             break;
         }
         case PacketType::KICK: {
-            kick_message = packet.get<std::string>();
+            event.packet >> kick_message;
             kicked = true;
         }
         default:;
@@ -92,18 +97,18 @@ void map::onPacket(Packet &packet) {
 }
 
 void map::init() {
-    background_image.setTexture(gfx::loadImageFile("texturePack/misc/background.png"));
+    background_image.loadFromFile("texturePack/misc/background.png");
 }
 
 void map::render() {
     float scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
     int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * scale) + 2; i++)
-        gfx::render(background_image, scale, position_x + i * background_image.getTextureWidth() * scale, 0);
+        background_image.render(scale, position_x + i * background_image.getTextureWidth() * scale, 0);
     renderBlocks();
     renderItems();
     if(kicked) {
-        gfx::runScene(new choiceScreen(kick_message, {"Close"}));
+        choiceScreen(kick_message, {"Close"}).run();
         gfx::returnFromScene();
     }
 }

@@ -8,12 +8,12 @@
 #include <algorithm>
 #include <utility>
 #include "clientMap.hpp"
-#include "assert.hpp"
 #include "properties.hpp"
 #include "textures.hpp"
+#include <cassert>
 
 map::block map::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth(), "requested block is out of bounds")
+    assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());
     return block(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 
@@ -59,8 +59,8 @@ void map::renderBlocks() {
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
             if(getChunk(x, y).getState() == chunkState::unloaded && chunks_pending < REQUEST_LIMIT) {
-                Packet packet(PacketType::CHUNK, sizeof(y) + sizeof(x));
-                packet << y << x;
+                sf::Packet packet;
+                packet << PacketType::CHUNK << x << y;
                 networking_manager->sendPacket(packet);
                 getChunk(x, y).setState(chunkState::pending_load);
                 chunks_pending++;
@@ -92,20 +92,20 @@ void map::block::updateOrientation() {
 }
 
 void map::block::draw() {
-    gfx::rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
+    gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
     
-    if(getBlockTexture(getType()).getTexture() && getLightLevel())
-        gfx::render(getBlockTexture(getType()), 2, rect.x, rect.y, gfx::rectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+    if(getLightLevel())
+        getBlockTexture(getType()).render(2, rect.x, rect.y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 
     if(getLightLevel() != MAX_LIGHT)
-        gfx::render(rect);
+        rect.render();
 
     if(getBreakStage())
-        gfx::render(getBreakingTexture(), 2, rect.x, rect.y, gfx::rectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
+        getBreakingTexture().render(2, rect.x, rect.y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 
     if(getLiquidType() != LiquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
-        gfx::render(getLiquidTexture(getLiquidType()), 2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::rectShape(0, 0, BLOCK_WIDTH / 2, level));
+        getLiquidTexture(getLiquidType()).render(2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
 }
 

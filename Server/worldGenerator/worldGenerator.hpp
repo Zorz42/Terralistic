@@ -27,7 +27,7 @@ struct structurePosition {
 };
 
 class worldGenerator {
-    blocks* server_blocks;
+    Blocks* server_blocks;
 
     std::vector<structure> structures;
     std::vector<structurePosition> structurePositions;
@@ -56,7 +56,7 @@ class worldGenerator {
     unsigned int generating_current = 0, generating_total = 6;
 
 public:
-    worldGenerator(blocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
+    worldGenerator(Blocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
 
     inline unsigned int getGeneratingCurrent() const { return generating_current; }
     inline unsigned int getGeneratingTotal() const { return generating_total; }

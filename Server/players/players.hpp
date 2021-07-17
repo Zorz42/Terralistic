@@ -11,6 +11,8 @@
 #define INVENTORY_SIZE 20
 
 #include "items.hpp"
+#include "packetType.hpp"
+#include "events.hpp"
 
 class inventory;
 class player;
@@ -42,7 +44,7 @@ public:
     inventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
     bool open = false;
-    char selected_slot = 0;
+    unsigned char selected_slot = 0;
     inventoryItem* getSelectedSlot();
     void swapWithMouseItem(inventoryItem* item);
 };
@@ -50,46 +52,64 @@ public:
 class player {
 public:
     explicit player(unsigned short id) : id(id), player_inventory(this) {}
-    connection* conn = nullptr;
+    std::string name;
+    
+    std::string ip;
+    bool disconnected = false, registered = false;
+    
+    
     const unsigned short id;
     bool flipped = false;
     int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
     inventory player_inventory;
-    unsigned short breaking_x{}, breaking_y{};
+    
     bool breaking = false;
-    std::string name;
+    unsigned short breaking_x{}, breaking_y{};
+    
+    sf::TcpSocket* socket;
 };
 
 class players;
 
 struct blockEvents {
-    void (*onBreak)(blocks*, players*, block*) = nullptr;
-    void (*onRightClick)(block*, player*) = nullptr;
-    void (*onLeftClick)(block*, player*) = nullptr;
+    void (*onBreak)(Blocks*, players*, Block*) = nullptr;
+    void (*onRightClick)(Block*, player*) = nullptr;
+    void (*onLeftClick)(Block*, player*) = nullptr;
 };
 
-class players : serverPacketListener {
+class ServerPacketEvent : public Event<ServerPacketEvent> {
+public:
+    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, player& sender) : packet(packet), packet_type(packet_type), sender(sender) {}
+    sf::Packet& packet;
+    PacketType packet_type;
+    player& sender;
+};
+
+class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent> {
     items* parent_items;
-    blocks* parent_blocks;
-    serverNetworkingManager* manager;
+    Blocks* parent_blocks;
     
+    std::vector<sf::TcpSocket*> pending_connections;
     std::vector<player*> all_players;
     std::vector<player*> online_players;
     
-    void onPacket(Packet& packet, connection& conn) override;
+    void onEvent(ServerPacketEvent& event) override;
+    void onEvent(ServerBlockChangeEvent& event) override;
+    void onEvent(ServerBlockBreakStageChangeEvent& event) override;
     
-    void leftClickEvent(block this_block, connection& connection, unsigned short tick_length);
-    void rightClickEvent(block this_block, player* peer);
+    void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
+    void rightClickEvent(Block this_block, player* peer);
     
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
+    
+    sf::TcpListener listener;
 public:
-    players(serverNetworkingManager* manager_, blocks* parent_blocks_, items* parent_items_);
+    players(Blocks* parent_blocks_, items* parent_items_);
     
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }
     
-    player* getPlayerByConnection(connection* conn);
     player* getPlayerByName(const std::string& name);
     
     void updatePlayersBreaking(unsigned short tick_length);
@@ -99,7 +119,16 @@ public:
     void saveTo(std::string path);
     void loadFrom(std::string path);
     
-    void breakBlock(block* this_block);
+    void breakBlock(Block* this_block);
+    
+    void openSocket(unsigned short port);
+    void closeSocket();
+    void sendToEveryone(sf::Packet& packet, player* exclusion=nullptr);
+    
+    void checkForNewConnections();
+    void getPacketsFromPlayers();
+    
+    bool accept_itself = false;
     
     ~players();
 };
