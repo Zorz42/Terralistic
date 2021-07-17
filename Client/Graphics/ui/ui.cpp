@@ -12,14 +12,13 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
 }
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
-    sf::Text sfml_text;
-    sfml_text.setFont(sfml_font);
-    sfml_text.setString(text.c_str());
-    sfml_text.setFillColor((sf::Color)text_color);
+    type = ImageType::TEXT;
+    delete sfml_text;
+    sfml_text = new sf::Text();
+    sfml_text->setFont(sfml_font);
+    sfml_text->setString(text.c_str());
+    sfml_text->setFillColor((sf::Color)text_color);
     
-    createBlankImage(sfml_text.getLocalBounds().width, sfml_text.getLocalBounds().height);
-    sfml_render_texture->draw(sfml_text);
-
     SDL_assert(font);
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
     SDL_assert(rendered_surface);
@@ -44,16 +43,29 @@ void gfx::Image::freeTexture() {
     if(texture && free_texture) {
         SDL_DestroyTexture((SDL_Texture*)texture);
         texture = nullptr;
+        
+        delete sfml_render_texture;
+        sfml_render_texture = nullptr;
     }
 }
 
 unsigned short gfx::Image::getTextureWidth() const {
+    /*if(type == ImageType::RENDER_TEXTURE)
+        return sfml_render_texture->getSize().x;
+    else
+        return sfml_texture.getSize().x;*/
+    
     int width = 0;
     SDL_QueryTexture((SDL_Texture*)texture, nullptr, nullptr, &width, nullptr);
     return width;
 }
 
 unsigned short gfx::Image::getTextureHeight() const {
+    /*if(type == ImageType::RENDER_TEXTURE)
+        return sfml_render_texture->getSize().y;
+    else
+        return sfml_texture.getSize().y;*/
+    
     int height = 0;
     SDL_QueryTexture((SDL_Texture*)texture, nullptr, nullptr, nullptr, &height);
     return height;
@@ -63,7 +75,7 @@ void gfx::Image::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
     
     SDL_Texture* prev_target = SDL_GetRenderTarget(gfx::renderer);
-    setRenderTarget(*this);
+    SDL_SetRenderTarget(renderer, (SDL_Texture*)getTexture());
     SDL_SetRenderDrawColor(gfx::renderer, 0, 0, 0, 0);
     SDL_RenderClear(gfx::renderer);
     SDL_SetRenderTarget(gfx::renderer, prev_target);
@@ -72,15 +84,8 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
 
     //sfml_text.setCharacterSize(scale);
     if(type == ImageType::TEXT) {
-        /*sf::Sprite sprite;
-        sprite.setTexture(sfml_text->getTexture());
-        sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
-        sprite.setPosition(x, y);
-        sprite.setScale(scale, scale);
-        render_target->draw(sprite);
-        
         sfml_text->setPosition((float)x, (float)y);
-        render_target->draw(*sfml_text);*/
+        render_target->draw(*sfml_text);
     } else if(type == ImageType::TEXTURE) {
         sf::Sprite sprite;
         sprite.setTexture(sfml_texture);
@@ -113,20 +118,21 @@ void gfx::Image::setAlpha(unsigned char alpha) {
 
 void gfx::Image::render(float scale, short x, short y) const {
     if (type == ImageType::TEXT) {
-        /*sfml_text->setPosition(sf::Vector2f(x, y));
+        sfml_text->setPosition(sf::Vector2f(x, y));
         sfml_text->setCharacterSize(scale * font_size);
-        render_target->draw(*sfml_text);*/
+        render_target->draw(*sfml_text);
     } else if(type == ImageType::TEXTURE) {
         sf::RectangleShape sfml_rect;
         sfml_rect.setPosition(x, y);
-        sfml_rect.setSize({getTextureWidth() * scale, getTextureHeight() * scale});
+        sfml_rect.setSize({(float)getTextureWidth(), (float)getTextureHeight()});
+        sfml_rect.setScale(scale, scale);
         sfml_rect.setTexture(&sfml_texture);
         render_target->draw(sfml_rect);
     } else if(type == ImageType::RENDER_TEXTURE) {
-        sfml_render_texture->display();
         sf::RectangleShape sfml_rect;
         sfml_rect.setPosition(x, y);
-        sfml_rect.setSize({getTextureWidth() * scale, getTextureHeight() * scale});
+        sfml_rect.setSize({(float)getTextureWidth(), (float)getTextureHeight()});
+        sfml_rect.setScale(scale, scale);
         sfml_rect.setTexture(&sfml_render_texture->getTexture());
         render_target->draw(sfml_rect);
     }

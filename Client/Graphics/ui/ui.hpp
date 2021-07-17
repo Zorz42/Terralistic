@@ -29,7 +29,7 @@ protected:
     void* texture = nullptr;
 
     sf::Texture sfml_texture;
-    //+sf::Text *sfml_text = nullptr; //MORE BIT POINTER DO NOT CHANGEEE
+    sf::Text *sfml_text = nullptr; //MORE BIT POINTER DO NOT CHANGEEE
     sf::RenderTexture *sfml_render_texture = nullptr;
     ImageType type = ImageType::NONE;
 };
