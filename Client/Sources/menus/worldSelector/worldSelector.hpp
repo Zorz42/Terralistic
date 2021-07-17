@@ -8,32 +8,19 @@
 #ifndef worldSelector_hpp
 #define worldSelector_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
-#include <iostream>
-
-class worldSelector : public gfx::scene {
+class worldSelector : public gfx::Scene {
     struct world_to_select {
         std::string name;
         explicit world_to_select(std::string name) : name(std::move(name)) {}
-        gfx::button button, delete_button;
+        gfx::Button button, delete_button;
         void render(int position);
         int button_y{};
     };
 
-    gfx::sprite title;
-    gfx::image x_image;
-    gfx::button back_button, new_button;
+    gfx::Sprite title;
+    gfx::Button back_button, new_button;
     std::vector<std::string> worlds_names;
     std::vector<world_to_select> worlds;
     int scroll_limit, position;

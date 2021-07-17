@@ -14,11 +14,11 @@
 
 void pauseScreen::init() {
     resume_button.scale = 3;
-    resume_button.setTexture(gfx::renderText("Resume", {255, 255, 255}));
+    resume_button.renderText("Resume", {255, 255, 255});
     resume_button.y = PADDING;
 
     quit_button.scale = 3;
-    quit_button.setTexture(gfx::renderText("Leave Game", {255, 255, 255}));
+    quit_button.renderText("Leave Game", {255, 255, 255});
     quit_button.y = short(resume_button.getHeight() + 2 * PADDING);
     
     back_rect.w = quit_button.getWidth() + 2 * PADDING;
@@ -34,10 +34,10 @@ void pauseScreen::render() {
         resume_button.x = back_rect.x + PADDING;
         quit_button.x = back_rect.x + PADDING;
         back_rect.h = gfx::getWindowHeight();
-        gfx::render(gfx::rect(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight(), {0, 0, 0, (unsigned char)(float(back_rect.w + back_rect.x) / (float)back_rect.w * 150)}));
-        gfx::render(back_rect);
-        gfx::render(resume_button);
-        gfx::render(quit_button);
+        gfx::Rect(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight(), {0, 0, 0, (unsigned char)(float(back_rect.w + back_rect.x) / (float)back_rect.w * 150)}).render();
+        back_rect.render();
+        resume_button.render();
+        quit_button.render();
     }
 }
 

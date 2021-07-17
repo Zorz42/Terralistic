@@ -8,21 +8,11 @@
 #ifndef pauseScreen_hpp
 #define pauseScreen_hpp
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
-class pauseScreen : public gfx::sceneModule {
-    gfx::button resume_button, quit_button;
-    gfx::rect back_rect;
+class pauseScreen : public gfx::GraphicalModule {
+    gfx::Button resume_button, quit_button;
+    gfx::Rect back_rect;
     bool paused = false;
     int x_to_be = 0;
 public:

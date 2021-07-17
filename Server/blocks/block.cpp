@@ -1,41 +1,34 @@
-//
-//  block.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 24/06/2021.
-//
-
 #include "blocks.hpp"
 
-#include "assert.hpp"
-#include "serverNetworking.hpp"
-#include "properties.hpp"
+#include "packetType.hpp"
+#include <cassert>
 
-block blocks::getBlock(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < height && x >= 0 && x < width, "requested block is out of bounds")
-    return block(x, y, &block_arr[y * width + x], this, manager);
+
+Block Blocks::getBlock(unsigned short x, unsigned short y) {
+    assert(y >= 0 && y < height && x >= 0 && x < width);
+    return Block(x, y, &blocks[y * width + x], this);
 }
 
-void block::setType(BlockType block_id, bool process) {
-    setType(block_id, block_data->liquid_id, process);
+const BlockInfo& Block::getUniqueBlock() {
+    return ::getBlockInfo(block_data->block_id);
 }
 
-void block::setType(LiquidType liquid_id, bool process) {
-    setType(block_data->block_id, liquid_id, process);
+void Block::setTypeWithoutProcessing(BlockType block_id) {
+    block_data->block_id = block_id;
 }
 
-void block::setType(BlockType block_id, LiquidType liquid_id, bool process) {
-    if(!process) {
-        block_data->block_id = block_id;
-        block_data->liquid_id = liquid_id;
-    }
-    else if(block_id != block_data->block_id || liquid_id != block_data->liquid_id) {
+void Block::setType(BlockType block_id) {
+    if(block_id != block_data->block_id) {
+        ServerBlockChangeEvent event(*this, block_id);
+        event.call();
+        
+        if(event.cancelled)
+            return;
+        
         bool was_transparent = getUniqueBlock().transparent;
-        block_data->block_id = block_id;
-        block_data->liquid_id = liquid_id;
-        if(liquid_id == LiquidType::EMPTY)
-            setLiquidLevel(0);
-
+        
+        setTypeWithoutProcessing(block_id);
+        
         if(getUniqueBlock().transparent != was_transparent) {
             if(getUniqueBlock().transparent)
                 for(int curr_y = y; parent_map->getBlock(x, curr_y).getUniqueBlock().transparent; curr_y++)
@@ -44,15 +37,13 @@ void block::setType(BlockType block_id, LiquidType liquid_id, bool process) {
                 for(int curr_y = y; parent_map->getBlock(x, curr_y).isLightSource(); curr_y++)
                     parent_map->getBlock(x, curr_y).removeLightSource();
         }
-
+        
         update();
         updateNeighbors();
-        syncWithClient();
     }
 }
 
-void block::updateNeighbors() {
-    // update upper, lower, right and left block (neighbours)
+void Block::updateNeighbors() {
     if(x != 0)
         parent_map->getBlock(x - 1, y).update();
     if(x != parent_map->getWidth() - 1)
@@ -63,24 +54,21 @@ void block::updateNeighbors() {
         parent_map->getBlock(x, y + 1).update();
 }
 
-void block::syncWithClient() {
-    Packet packet(PacketType::BLOCK_CHANGE, sizeof(getX()) + sizeof(getY()) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char) + sizeof(unsigned char));
-    packet << getX() << getY() << (unsigned char)getLiquidType() << (unsigned char)getLiquidLevel() << (unsigned char)getLightLevel() << (unsigned char)getType();
-    manager->sendToEveryone(packet);
-}
-
-void block::setBreakProgress(unsigned short ms) {
+void Block::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
+        ServerBlockBreakStageChangeEvent event(*this, stage);
+        event.call();
+        
+        if(event.cancelled)
+            return;
+        
         block_data->break_stage = stage;
-        Packet packet(PacketType::BLOCK_PROGRESS_CHANGE, sizeof(getY()) + sizeof(getX()) + sizeof(getBreakStage()));
-        packet << getY() << getX() << getBreakStage();
-        manager->sendToEveryone(packet);
     }
 }
 
-void block::update() {
+void Block::update() {
     //if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
         //breakBlock();
     scheduleLightUpdate();

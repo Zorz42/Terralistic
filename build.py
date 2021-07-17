@@ -1,6 +1,9 @@
 import os
 import sys
 import shutil
+import urllib.request
+import tarfile
+import zipfile
 
 project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -11,10 +14,21 @@ def createDir(path):
 
 if sys.platform == "darwin":
     createDir(project_path + "Dependencies/")
-    if not os.path.exists(project_path + "Dependencies/MacOS/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-MacOS-Dependencies {project_path}Dependencies/MacOS/")
-    else:
-        os.system(f"git -C {project_path}Dependencies/MacOS/ pull --rebase")
+
+    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1-macos-clang/"):
+        print("Downloading SFML libraries")
+
+        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-macOS-clang.tar.gz"
+        sfml_file = project_path + "sfml.tar.gz"
+
+        with urllib.request.urlopen(sfml_url) as sfml_request:
+            with open(sfml_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
+
+        with tarfile.open(sfml_file, "r:gz") as sfml_tar:
+            sfml_tar.extractall(project_path + "Dependencies/")
+
+        os.remove(sfml_file)
 
     os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
     os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
@@ -23,17 +37,21 @@ if sys.platform == "darwin":
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
     shutil.move(project_path + "Temp/Release/Terralistic.app/", project_path + "Output/MacOS/")
-    if os.path.exists(project_path + "Output/MacOS/Terralistic-server"):
-        os.remove(project_path + "Output/MacOS/Terralistic-server")
-    shutil.move(project_path + "Temp/Release/Terralistic-server", project_path + "Output/MacOS/")
-    shutil.copy(project_path + "Client/Resources/Structures.asset", project_path + "Output/MacOS/")
+
+    shutil.rmtree(project_path + "Output/MacOS/Terralistic-server.app/", ignore_errors=True)
+    shutil.move(project_path + "Temp/Release/Terralistic-server.app/", project_path + "Output/MacOS/")
+
     shutil.rmtree(project_path + "Temp/")
+
+
 elif sys.platform == "linux":
-    lib_files = ["/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0", "/usr/lib/x86_64-linux-gnu/libSDL2_image-2.0.so.0"]
+    lib_files = [
+
+    ]
 
     for lib_file in lib_files:
         if not os.path.exists(lib_file):
-            os.system("sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev")
+            os.system("sudo apt install libsfml-audio2.5 libsfml-graphics2.5 libsfml-network2.5 libsfml-system2.5 libsfml-window2.5 libsfml-dev")
             break
 
     createDir("Build/")
@@ -52,12 +70,25 @@ elif sys.platform == "linux":
 
     shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic/")
     shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic/")
+
+
 elif sys.platform == "win32":
     createDir("Dependencies/")
-    if not os.path.exists(project_path + "Dependencies/Windows/"):
-        os.system(f"git clone https://github.com/Zorz42/Terralistic-Windows-Dependencies {project_path}Dependencies/Windows/")
-    else:
-        os.system(f"git -C {project_path}Dependencies/Windows/ pull --rebase")
+
+    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
+        print("Downloading SFML libraries")
+
+        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-64-bit.zip"
+        sfml_file = project_path + "sfml.zip"
+
+        with urllib.request.urlopen(sfml_url) as sfml_request:
+            with open(sfml_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
+
+        with zipfile.ZipFile(sfml_file, "r") as sfml_zip:
+            sfml_zip.extractall(project_path + "Dependencies/")
+
+        os.remove(sfml_file)
 
     createDir("Build/")
     cmake_path = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe\""
@@ -69,6 +100,8 @@ elif sys.platform == "win32":
 
     createDir("Output/Windows/Terralistic/")
     shutil.move(project_path + "Build/Debug/Terralistic.exe", project_path + "Output/Windows/Terralistic/")
+    shutil.move(project_path + "Build/Debug/Terralistic-server.exe", project_path + "Output/Windows/Terralistic/")
+
     for file in os.listdir(project_path + "Build/"):
         if file.endswith(".dll"):
             shutil.move(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic/")

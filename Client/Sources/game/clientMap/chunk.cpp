@@ -6,7 +6,7 @@
 //
 
 #include "clientMap.hpp"
-#include "assert.hpp"
+#include <cassert>
 
 void map::chunk::updateTexture() {
     chunk_data->update = false;
@@ -23,14 +23,14 @@ void map::chunk::updateTexture() {
 }
 
 void map::chunk::draw() {
-    gfx::render(chunk_data->texture, 1, (x << 4) * BLOCK_WIDTH - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - parent_map->view_y + (gfx::getWindowHeight() >> 1));
+    chunk_data->texture.render(1, (x << 4) * BLOCK_WIDTH - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - parent_map->view_y + (gfx::getWindowHeight() >> 1));
 }
 
 void map::chunk::createTexture() {
-    chunk_data->texture.setTexture(gfx::createBlankTexture(BLOCK_WIDTH << 4, BLOCK_WIDTH << 4));
+    chunk_data->texture.createBlankImage(BLOCK_WIDTH * 16, BLOCK_WIDTH * 16);
 }
 
 map::chunk map::getChunk(unsigned short x, unsigned short y) {
-    ASSERT(y >= 0 && y < (getWorldHeight() >> 4) && x >= 0 && x < (getWorldWidth() >> 4), "requested chunk is out of bounds")
+    assert(y >= 0 && y < (getWorldHeight() >> 4) && x >= 0 && x < (getWorldWidth() >> 4));
     return chunk(x, y, &chunks[y * (getWorldWidth() >> 4) + x], this);
 }

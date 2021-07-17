@@ -13,9 +13,14 @@ class Event {
     inline static std::vector<EventListener<ChildType>*> listeners;
 public:
     void call() {
-        for(EventListener<ChildType>* listener : listeners)
+        for(EventListener<ChildType>* listener : listeners) {
+            if(cancelled)
+                break;
             listener->onEvent(*(ChildType*)this);
+        }
     }
+    
+    bool cancelled = false;
 };
 
 

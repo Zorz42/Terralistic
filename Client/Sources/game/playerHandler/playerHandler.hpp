@@ -10,17 +10,7 @@
 
 #include <string>
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
 #include "inventory.hpp"
 
@@ -33,7 +23,7 @@ public:
     std::string name;
 };
 
-class playerHandler : public gfx::sceneModule, packetListener {
+class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     bool key_up = false, jump = false, key_left = false, key_right = false;
 
     mainPlayer* player;
@@ -42,7 +32,7 @@ class playerHandler : public gfx::sceneModule, packetListener {
 
     clientInventoryItem *hovered = nullptr;
 
-    gfx::rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
+    gfx::Rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
     bool is_left_button_pressed = false;
     unsigned short prev_selected_x{}, prev_selected_y{}, selected_block_x{}, selected_block_y{};
 
@@ -55,17 +45,17 @@ class playerHandler : public gfx::sceneModule, packetListener {
     void onKeyDownInventory(gfx::key key);
     void onKeyDownSelector(gfx::key key);
     void onKeyUpSelector(gfx::key key);
-    void onPacketInventory(Packet &packet);
+    void onPacketInventory(ClientPacketEvent &event);
 
     void initInventory();
 
     void renderItem(clientInventoryItem* item, int x, int y, int i);
     void updateStackTexture(int i);
 
-    gfx::rect inventory_slots[20],
-    select_rect_inventory{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::top},
+    gfx::Rect inventory_slots[20],
+    select_rect_inventory{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::TOP},
     under_text_rect{0, 0, 0, 0, {0, 0, 0}};
-    gfx::image stack_textures[20], mouse_stack_texture;
+    gfx::Image stack_textures[20], mouse_stack_texture;
 
     bool received_spawn_coords = false;
     
@@ -75,9 +65,9 @@ class playerHandler : public gfx::sceneModule, packetListener {
     void update() override;
     void render() override;
     void selectSlot(char slot);
-    void onPacket(Packet &packet) override;
+    void onEvent(ClientPacketEvent& event) override;
 public:
-    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : packetListener(manager), manager(manager), player(player), world_map(world_map) { listening_to = {PacketType::SPAWN_POS, PacketType::INVENTORY_CHANGE}; }
+    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : manager(manager), player(player), world_map(world_map) {}
 };
 
 #endif /* playerHandler_hpp */

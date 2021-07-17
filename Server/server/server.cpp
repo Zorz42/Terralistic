@@ -32,7 +32,7 @@ void server::start() {
         working_dir.push_back('/');
     running = true;
 
-    server_blocks.createWorld(275, 75);
+    server_blocks.createWorld(4400, 1200);
 
     std::string world_path = working_dir + "world/";
     if(std::filesystem::exists(world_path)) {
@@ -55,7 +55,7 @@ void server::start() {
     server_blocks.setNaturalLight();
 
     signal(SIGINT, inthand);
-    networking_manager.startListening();
+    server_players.openSocket(port);
 
     state = RUNNING;
     print::info("Server has started!");
@@ -73,20 +73,21 @@ void server::start() {
         server_players.lookForItems();
         server_players.updatePlayersBreaking(tick_length);
         server_players.updateBlocks();
+        server_players.checkForNewConnections();
+        server_players.getPacketsFromPlayers();
     }
 
     std::cout << std::endl;
 
-    if(!networking_manager.accept_only_itself) {
-        Packet kick_packet(PacketType::KICK, (int)std::string("Server stopped!").size() + 1);
-        kick_packet << std::string("Server stopped!");
-        networking_manager.sendToEveryone(kick_packet);
+    if(!server_players.accept_itself) {
+        sf::Packet kick_packet;
+        kick_packet << PacketType::KICK << std::string("Server stopped!");
+        server_players.sendToEveryone(kick_packet);
     }
 
     state = STOPPING;
     print::info("Stopping server");
-
-    networking_manager.stopListening();
+    server_players.closeSocket();
 
     print::info("Saving world...");
     std::filesystem::create_directory(world_path);
@@ -101,7 +102,7 @@ void server::stop() {
 }
 
 void server::setPrivate(bool is_private) {
-    networking_manager.accept_only_itself = is_private;
+    server_players.accept_itself = is_private;
 }
 
 unsigned int server::getGeneratingTotal() const {

@@ -7,7 +7,7 @@
 
 #include "otherPlayers.hpp"
 #include "playerRenderer.hpp"
-#include "assert.hpp"
+#include <cassert>
 
 // module for handling other players in online game
 
@@ -21,24 +21,22 @@ clientPlayer* clientPlayers::getPlayerById(unsigned short id) {
     for(clientPlayer* player : other_players)
         if(player->id == id)
             return player;
-    ASSERT(false, "Could not get player by id")
+    assert(false);
     return nullptr;
 }
 
-void clientPlayers::onPacket(Packet &packet) {
-    switch(packet.getType()) {
+void clientPlayers::onEvent(ClientPacketEvent &event) {
+    switch(event.packet_type) {
         case PacketType::PLAYER_JOIN: {
             auto* new_player = new clientPlayer();
-            new_player->name = packet.get<std::string>();
-            new_player->id = packet.get<unsigned short>();
-            new_player->y = packet.get<int>();
-            new_player->x = packet.get<int>();
-            new_player->name_text.setTexture(gfx::renderText(new_player->name, {0, 0, 0}));
+            event.packet << new_player->x << new_player->y << new_player->id << new_player->name;
+            new_player->name_text.renderText(new_player->name, {0, 0, 0});
             other_players.push_back(new_player);
             break;
         }
         case PacketType::PLAYER_QUIT: {
-            auto id = packet.get<unsigned short>();
+            unsigned id;
+            event.packet >> id;
             for(auto i = other_players.begin(); i != other_players.end(); i++)
                 if((*i)->id == id) {
                     other_players.erase(i);
@@ -47,10 +45,15 @@ void clientPlayers::onPacket(Packet &packet) {
             break;
         }
         case PacketType::PLAYER_MOVEMENT: {
-            clientPlayer* player = getPlayerById(packet.get<unsigned short>());
-            player->flipped = packet.get<char>();
-            player->y = packet.get<int>();
-            player->x = packet.get<int>();
+            int x, y;
+            unsigned short id;
+            bool flipped;
+            event.packet >> x >> y >> flipped >> id;
+            
+            clientPlayer* player = getPlayerById(id);
+            player->flipped = flipped;
+            player->x = x;
+            player->y = y;
             break;
         }
         default:;

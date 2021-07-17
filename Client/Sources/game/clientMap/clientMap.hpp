@@ -11,17 +11,7 @@
 #include <vector>
 #include <string>
 
-#ifdef __APPLE__
-
-#ifdef DEVELOPER_MODE
-#include <Graphics_Debug/graphics.hpp>
-#else
-#include <Graphics/graphics.hpp>
-#endif
-
-#else
 #include "graphics.hpp"
-#endif
 
 #include "clientNetworking.hpp"
 #include "properties.hpp"
@@ -29,7 +19,7 @@
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
 
-class map : public gfx::sceneModule, packetListener {
+class map : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
 public:
     enum class chunkState {unloaded, pending_load, loaded};
 protected:
@@ -48,14 +38,14 @@ protected:
     struct chunkData {
         chunkState state = chunkState::unloaded;
         bool update = true;
-        gfx::image texture;
+        gfx::Image texture;
     };
 
     void renderBlocks();
     void renderItems();
 
     void render() override;
-    void onPacket(Packet &packet) override;
+    void onEvent(ClientPacketEvent& event) override;
     void init() override;
 
     networkingManager* networking_manager;
@@ -127,10 +117,10 @@ protected:
     std::string kick_message;
     bool kicked = false;
 
-    gfx::image background_image;
+    gfx::Image background_image;
 
 public:
-    explicit map(networkingManager* manager) : packetListener(manager), networking_manager(manager) { listening_to = {PacketType::BLOCK_CHANGE, PacketType::CHUNK, PacketType::BLOCK_PROGRESS_CHANGE, PacketType::ITEM_CREATION, PacketType::ITEM_DELETION, PacketType::ITEM_MOVEMENT, PacketType::KICK}; }
+    explicit map(networkingManager* manager) : networking_manager(manager) {}
     int view_x{}, view_y{};
 
     chunk getChunk(unsigned short x, unsigned short y);

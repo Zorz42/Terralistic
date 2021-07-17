@@ -1,10 +1,3 @@
-//
-//  print.hpp
-//  Terralistic-server
-//
-//  Created by Jakob Zorz on 11/01/2021.
-//
-
 #ifndef print_hpp
 #define print_hpp
 
