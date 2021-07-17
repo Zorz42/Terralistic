@@ -92,13 +92,17 @@ void gfx::Scene::run() {
         }
         
         sf::Event sfml_event;
-        while (sfml_window->pollEvent(sfml_event));
+        while (sfml_window->pollEvent(sfml_event)) {
+            // TODO: implement sfml events
+        }
         
         while(SDL_PollEvent(&event)) {
             if(event.type == SDL_MOUSEMOTION)
                 SDL_GetMouseState((int*)&mouse_x, (int*)&mouse_y);
             else if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                // update window data (probably not needed because of sfml)
+                sfml_window->setSize({(unsigned int)event.window.data1, (unsigned int)event.window.data2});
+                sf::FloatRect visibleArea(0, 0, (unsigned int)event.window.data1, (unsigned int)event.window.data2);
+                sfml_window->setView(sf::View(visibleArea));
             } else if(event.type == SDL_MOUSEBUTTONDOWN) {
                 gfx::key key = translateMouseKey(event.button.button);
                 bool clicked_text_box = false;
