@@ -18,11 +18,17 @@ void gfx::Scene::onKeyUpCallback(key key_) {
             module->onKeyUp(key_);
  }
 
-/*gfx::key translateMouseKey(int sdl_button) {
-    switch(sdl_button) {
-        case SDL_BUTTON_LEFT: return gfx::KEY_MOUSE_LEFT;
-        case SDL_BUTTON_MIDDLE: return gfx::KEY_MOUSE_MIDDLE;
-        case SDL_BUTTON_RIGHT: return gfx::KEY_MOUSE_RIGHT;
+gfx::key translateMouseKey(sf::Mouse::Button sfml_button) {
+    switch(sfml_button) {
+        case sf::Mouse::Left: return gfx::KEY_MOUSE_LEFT;
+        case sf::Mouse::Middle: return gfx::KEY_MOUSE_MIDDLE;
+        case sf::Mouse::Right: return gfx::KEY_MOUSE_RIGHT;
+        default: return gfx::KEY_UNKNOWN;
+    }
+}
+
+/*gfx::key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
+    switch(sfml_button) {
         case SDLK_a: return gfx::KEY_A;
         case SDLK_b: return gfx::KEY_B;
         case SDLK_c: return gfx::KEY_C;
@@ -99,9 +105,29 @@ void gfx::Scene::run() {
             } else if(event.type == sf::Event::Resized) {
                 sf::FloatRect visibleArea(0, 0, (unsigned int)event.size.width, (unsigned int)event.size.height);
                 sfml_window->setView(sf::View(visibleArea));
+            } else if(event.type == sf::Event::MouseButtonPressed) {
+                gfx::key key = translateMouseKey(event.mouseButton.button);
+                bool clicked_text_box = false;
+                if(key == KEY_MOUSE_LEFT) {
+                    if(!disable_events_gl || disable_events)
+                        for(TextInput* i : text_inputs) {
+                            i->active = i->isHovered();
+                            if(i->active)
+                                clicked_text_box = true;
+                        }
+                    
+                    for(GraphicalModule* module : modules)
+                        if(!disable_events_gl || module->disable_events)
+                            for(TextInput* i : module->text_inputs) {
+                                i->active = i->isHovered();
+                                if(i->active)
+                                    clicked_text_box = true;
+                            }
+                }
+                if(key != KEY_UNKNOWN && !clicked_text_box)
+                    onKeyDownCallback(key);
             } else if(event.type == sf::Event::Closed)
                 quit = true;
-            // TODO: implement sfml events
         }
         
         /*while(SDL_PollEvent(&event)) {

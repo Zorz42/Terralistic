@@ -18,9 +18,8 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
     sf_text.setFillColor((sf::Color)text_color);
     sf_text.setCharacterSize(font_size);
     
-    sf::FloatRect textRect = sf_text.getLocalBounds();
-    sf_text.setOrigin(textRect.left + textRect.width/2.0f,
-                   textRect.top  + textRect.height/2.0f);
+    sf::FloatRect text_rect = sf_text.getLocalBounds();
+    sf_text.setOrigin(text_rect.left + text_rect.width / 2, text_rect.top  + text_rect.height / 2);
     sf_text.setPosition(sf::Vector2f(sf_text.getLocalBounds().width / 2, sf_text.getLocalBounds().height / 2));
     
     createBlankImage(sf_text.getLocalBounds().width, sf_text.getLocalBounds().height);
