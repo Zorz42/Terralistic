@@ -14,6 +14,7 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
     sfml_text->setFont(sfml_font);
     sfml_text->setString(text.c_str());
     sfml_text->setFillColor((sf::Color)text_color);
+    sfml_text->setCharacterSize(font_size);
 }
 
 void gfx::Image::loadFromFile(const std::string& path) {
@@ -84,7 +85,7 @@ void gfx::Image::setAlpha(unsigned char alpha) {
 void gfx::Image::render(float scale, short x, short y) const {
     if (type == ImageType::TEXT) {
         sfml_text->setPosition(sf::Vector2f(x, y));
-        sfml_text->setCharacterSize(scale * font_size);
+        sfml_text->setScale(scale, scale);
         render_target->draw(*sfml_text);
     } else if(type == ImageType::TEXTURE) {
         sf::RectangleShape sfml_rect;
