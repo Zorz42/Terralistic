@@ -82,25 +82,25 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
     for(int y = surface_height; y > 0; y--){
         if(slice_biome.ground_layers[generating_layer].layer_height_mode == LayerHeightMode::PREVIOUS_LAYER){
             if(y > last_layer - slice_biome.ground_layers[generating_layer].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer].height_variation)
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setType(slice_biome.ground_layers[generating_layer].block);
+                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
             else {
                 last_layer = y - 1;
                 generating_layer++;
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setType(slice_biome.ground_layers[generating_layer].block);
+                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
             }
         }else{
             if(y < slice_biome.ground_layers[generating_layer + 1].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer + 1].height_variation){
                 generating_layer++;
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setType(slice_biome.ground_layers[generating_layer].block);
+                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
             }else if(y < slice_biome.ground_layers[generating_layer].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer].height_variation){
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setType(slice_biome.ground_layers[generating_layer].block);
+                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
             }else
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setType(BlockType::STONE_BLOCK);
+                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(BlockType::STONE_BLOCK);
         }
     }
     if(surface_height < server_blocks->getHeight() / 3 * 2){
         for(int y = surface_height + 1; y < server_blocks->getHeight() / 3 * 2 + 1; y++) {
-            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setType(LiquidType::WATER);
+            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
             server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setLiquidLevel(127);
         }
     }
@@ -171,7 +171,7 @@ void worldGenerator::generateStructure(const std::string& name, int x, int y) {
         if (name == structure.name) {
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != BlockType::NOTHING)
-                    server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setType(structure.blocks[j], false);
+                    server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setTypeWithoutProcessing(structure.blocks[j]);
             break;
         }
     }
@@ -191,9 +191,9 @@ void worldGenerator::generateFlatTerrain() {
     for (int x = 0; x < server_blocks->getWidth(); x++) {
         for (int y = 0; y < server_blocks->getHeight(); y++) {
             if (y <= 324) {//generates surface
-                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setType(BlockType::DIRT, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setTypeWithoutProcessing(BlockType::DIRT);
             }else if(y == 325)
-                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setType(BlockType::GRASS_BLOCK, false);
+                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setTypeWithoutProcessing(BlockType::GRASS_BLOCK);
         }
     }
 }
@@ -204,7 +204,7 @@ void worldGenerator::generateStructuresForStrWorld() {
         for (auto & structure : structures) {
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != BlockType::NOTHING)
-                    server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size).setType(structure.blocks[j], false);
+                    server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size).setTypeWithoutProcessing(structure.blocks[j]);
             x += structure.x_size + 1;
         }
     }
