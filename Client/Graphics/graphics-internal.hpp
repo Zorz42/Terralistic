@@ -33,6 +33,8 @@ inline float frame_length;
 
 inline unsigned short font_size;
 
+inline sf::RenderTarget *render_target = nullptr;
+
 }
 
 #endif /* graphics_internal_hpp */

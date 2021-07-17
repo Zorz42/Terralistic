@@ -12,13 +12,13 @@ void gfx::RectShape::render(Color c, bool fill) {
     if (fill) {
         rec.setOutlineColor(sf::Color::Transparent);
         rec.setFillColor((const sf::Color)c);
-        gfx::sfml_window->draw(rec);
+        gfx::render_target->draw(rec);
     }
     else {
         rec.setFillColor(sf::Color::Transparent);
         rec.setOutlineColor((const sf::Color)c);
         rec.setOutlineThickness(5.0f);
-        gfx::sfml_window->draw(rec);
+        gfx::render_target->draw(rec);
     }
         
     
@@ -49,19 +49,18 @@ gfx::_CenteredObject::_CenteredObject(short x, short y, ObjectType orientation) 
 gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(x, y, orientation), w(w), h(h), c(c) {}
 
 void gfx::Rect::render(bool fill) const {
-    //short x, y, w, h;
     RectShape gfx_rect = getTranslatedRect();
     sf::RectangleShape rec(sf::Vector2f(gfx_rect.w, gfx_rect.h));
     rec.setPosition(gfx_rect.x, gfx_rect.y);
     if(fill) {
         rec.setOutlineColor(sf::Color::Transparent);
         rec.setFillColor((const sf::Color)c);
-        gfx::sfml_window->draw(rec);
+        gfx::render_target->draw(rec);
     } else {
         rec.setFillColor(sf::Color::Transparent);
         rec.setOutlineColor((const sf::Color)c);
-        rec.setOutlineThickness(5.0f);
-        gfx::sfml_window->draw(rec);
+        rec.setOutlineThickness(1.0f);
+        gfx::render_target->draw(rec);
     }
 
 

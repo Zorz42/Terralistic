@@ -2,6 +2,7 @@
 
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     sfml_window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
+    render_target = sfml_window;
     
     // initialize basic sdl module
     int result = SDL_Init(SDL_INIT_EVERYTHING);
@@ -65,10 +66,12 @@ unsigned short gfx::getMouseY() {
 }
 
 void gfx::setRenderTarget(Image& tex) {
+    render_target = tex.getSfmlTexture();
     SDL_SetRenderTarget(renderer, (SDL_Texture*)tex.getTexture());
 }
 
 void gfx::resetRenderTarget() {
+    render_target = sfml_window;
     SDL_SetRenderTarget(renderer, nullptr);
 }
 

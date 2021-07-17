@@ -4,6 +4,8 @@
 #include "rect.hpp"
 #include <cassert>
 
+enum class ImageType {NONE, TEXTURE, TEXT, RENDER_TEXTURE};
+
 namespace gfx {
 
 class Image {
@@ -21,13 +23,15 @@ public:
     void createBlankImage(unsigned short width, unsigned short height);
     void renderText(const std::string& text, Color text_color);
     void loadFromFile(const std::string& path);
+    inline sf::RenderTexture* getSfmlTexture() { return sfml_render_texture; }
 protected:
     void freeTexture();
     void* texture = nullptr;
 
     sf::Texture sfml_texture;
-    sf::Text *sfml_text; //MORE BIT POINTER DO NOT CHANGEEE
-    bool hasText = false;
+    //+sf::Text *sfml_text = nullptr; //MORE BIT POINTER DO NOT CHANGEEE
+    sf::RenderTexture *sfml_render_texture = nullptr;
+    ImageType type = ImageType::NONE;
 };
 
 

@@ -1,8 +1,10 @@
 #include "graphics-internal.hpp"
 
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
-    assert(sfml_texture.create(width, height));
-
+    type = ImageType::RENDER_TEXTURE;
+    delete sfml_render_texture;
+    sfml_render_texture = new sf::RenderTexture;
+    assert(sfml_render_texture->create(width, height));
 
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
     SDL_assert(texture);
@@ -10,12 +12,13 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
 }
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
-    hasText = true;
-    sfml_text = new sf::Text();
-    sfml_text->setFont(sfml_font);
-    sfml_text->setString(text.c_str());
-    sfml_text->setFillColor((sf::Color)text_color);
-
+    sf::Text sfml_text;
+    sfml_text.setFont(sfml_font);
+    sfml_text.setString(text.c_str());
+    sfml_text.setFillColor((sf::Color)text_color);
+    
+    createBlankImage(sfml_text.getLocalBounds().width, sfml_text.getLocalBounds().height);
+    sfml_render_texture->draw(sfml_text);
 
     SDL_assert(font);
     SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
@@ -26,6 +29,7 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
 }
 
 void gfx::Image::loadFromFile(const std::string& path) {
+    type = ImageType::TEXTURE;
     assert(sfml_texture.loadFromFile((resource_path + path).c_str()));
 
     texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
@@ -56,6 +60,8 @@ unsigned short gfx::Image::getTextureHeight() const {
 }
 
 void gfx::Image::clear() {
+    sfml_render_texture->clear({0, 0, 0, 0});
+    
     SDL_Texture* prev_target = SDL_GetRenderTarget(gfx::renderer);
     setRenderTarget(*this);
     SDL_SetRenderDrawColor(gfx::renderer, 0, 0, 0, 0);
@@ -65,9 +71,31 @@ void gfx::Image::clear() {
 void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const {
 
     //sfml_text.setCharacterSize(scale);
-    if (hasText) {
+    if(type == ImageType::TEXT) {
+        /*sf::Sprite sprite;
+        sprite.setTexture(sfml_text->getTexture());
+        sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
+        sprite.setPosition(x, y);
+        sprite.setScale(scale, scale);
+        render_target->draw(sprite);
+        
         sfml_text->setPosition((float)x, (float)y);
-        sfml_window->draw(*sfml_text);
+        render_target->draw(*sfml_text);*/
+    } else if(type == ImageType::TEXTURE) {
+        sf::Sprite sprite;
+        sprite.setTexture(sfml_texture);
+        sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
+        sprite.setPosition(x, y);
+        sprite.setScale(scale, scale);
+        render_target->draw(sprite);
+    } else if(type == ImageType::RENDER_TEXTURE) {
+        sfml_render_texture->display();
+        sf::Sprite sprite;
+        sprite.setTexture(sfml_render_texture->getTexture());
+        sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
+        sprite.setPosition(x, y);
+        sprite.setScale(scale, scale);
+        render_target->draw(sprite);
     }
 
     SDL_Rect dest_rect_sdl = { x, y, int(src_rect.w * scale), int(src_rect.h * scale) }, src_rect_sdl = { src_rect.x, src_rect.y, src_rect.w, src_rect.h };
@@ -84,17 +112,23 @@ void gfx::Image::setAlpha(unsigned char alpha) {
 }*/
 
 void gfx::Image::render(float scale, short x, short y) const {
-
-    if (hasText) {
-        sfml_text->setPosition(sf::Vector2f(x, y));
+    if (type == ImageType::TEXT) {
+        /*sfml_text->setPosition(sf::Vector2f(x, y));
         sfml_text->setCharacterSize(scale * font_size);
-        sfml_window->draw(*sfml_text);
-    } else {
+        render_target->draw(*sfml_text);*/
+    } else if(type == ImageType::TEXTURE) {
         sf::RectangleShape sfml_rect;
         sfml_rect.setPosition(x, y);
         sfml_rect.setSize({getTextureWidth() * scale, getTextureHeight() * scale});
         sfml_rect.setTexture(&sfml_texture);
-        sfml_window->draw(sfml_rect);
+        render_target->draw(sfml_rect);
+    } else if(type == ImageType::RENDER_TEXTURE) {
+        sfml_render_texture->display();
+        sf::RectangleShape sfml_rect;
+        sfml_rect.setPosition(x, y);
+        sfml_rect.setSize({getTextureWidth() * scale, getTextureHeight() * scale});
+        sfml_rect.setTexture(&sfml_render_texture->getTexture());
+        render_target->draw(sfml_rect);
     }
 
     SDL_Rect rect = { x, y, int(getTextureWidth() * scale), int(getTextureHeight() * scale) };
