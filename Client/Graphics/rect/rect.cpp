@@ -20,16 +20,6 @@ void gfx::RectShape::render(Color c, bool fill) {
         rec.setOutlineThickness(5.0f);
         gfx::render_target->draw(rec);
     }
-        
-    
-
-
-    SDL_SetRenderDrawColor(gfx::renderer, c.r, c.g, c.b, c.a);
-    SDL_Rect sdl_rect = { this->x, this->y, this->w, this->h };
-    if (fill)
-        SDL_RenderFillRect(gfx::renderer, &sdl_rect);
-    else
-        SDL_RenderDrawRect(gfx::renderer, &sdl_rect); 
 }
 
 
@@ -62,13 +52,4 @@ void gfx::Rect::render(bool fill) const {
         rec.setOutlineThickness(1.0f);
         gfx::render_target->draw(rec);
     }
-
-
-
-    SDL_SetRenderDrawColor(gfx::renderer, this->c.r, this->c.g, this->c.b, this->c.a);
-    SDL_Rect sdl_rect = { gfx_rect.x, gfx_rect.y, gfx_rect.w, gfx_rect.h };
-    if (fill)
-        SDL_RenderFillRect(gfx::renderer, &sdl_rect);
-    else
-        SDL_RenderDrawRect(gfx::renderer, &sdl_rect);
 }

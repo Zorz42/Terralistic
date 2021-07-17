@@ -18,7 +18,7 @@ void gfx::Scene::onKeyUpCallback(key key_) {
             module->onKeyUp(key_);
  }
 
-gfx::key translateMouseKey(int sdl_button) {
+/*gfx::key translateMouseKey(int sdl_button) {
     switch(sdl_button) {
         case SDL_BUTTON_LEFT: return gfx::KEY_MOUSE_LEFT;
         case SDL_BUTTON_MIDDLE: return gfx::KEY_MOUSE_MIDDLE;
@@ -66,7 +66,7 @@ gfx::key translateMouseKey(int sdl_button) {
         case SDLK_RSHIFT: return gfx::KEY_SHIFT;
         default: return gfx::KEY_UNKNOWN;
     }
-}
+}*/
 
 void gfx::returnFromScene() {
     running_scene = false;
@@ -74,15 +74,15 @@ void gfx::returnFromScene() {
 
 void gfx::Scene::run() {
     static bool quit = false;
-    SDL_Event event;
+    //SDL_Event event;
     
     init();
     for(GraphicalModule* module : modules)
         module->init();
     
-    SDL_StartTextInput();
+    //SDL_StartTextInput();
     while(running_scene && !quit) {
-        Uint64 start = SDL_GetPerformanceCounter();
+        unsigned int start = getTicks();
         
         disable_events_gl = disable_events;
         for(GraphicalModule* module : modules) {
@@ -91,12 +91,20 @@ void gfx::Scene::run() {
             disable_events_gl = module->disable_events;
         }
         
-        sf::Event sfml_event;
-        while (sfml_window->pollEvent(sfml_event)) {
+        sf::Event event;
+        while (sfml_window->pollEvent(event)) {
+            if(event.type == sf::Event::MouseMoved) {
+                mouse_x = event.mouseMove.x;
+                mouse_y = event.mouseMove.y;
+            } else if(event.type == sf::Event::Resized) {
+                sf::FloatRect visibleArea(0, 0, (unsigned int)event.size.width, (unsigned int)event.size.height);
+                sfml_window->setView(sf::View(visibleArea));
+            } else if(event.type == sf::Event::Closed)
+                quit = true;
             // TODO: implement sfml events
         }
         
-        while(SDL_PollEvent(&event)) {
+        /*while(SDL_PollEvent(&event)) {
             if(event.type == SDL_MOUSEMOTION)
                 SDL_GetMouseState((int*)&mouse_x, (int*)&mouse_y);
             else if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -182,7 +190,7 @@ void gfx::Scene::run() {
                 onMouseScroll(event.wheel.y);
             else if(event.type == SDL_QUIT)
                 quit = true;
-        }
+        }*/
         
         update();
         for(GraphicalModule* module : modules)
@@ -196,10 +204,10 @@ void gfx::Scene::run() {
         
         updateWindow();
         
-        Uint64 end = SDL_GetPerformanceCounter();
-        frame_length = float(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+        unsigned int end = getTicks();
+        frame_length = end - start;
         if(frame_length < 5) {
-            SDL_Delay(5 - frame_length);
+            sleep(5 - frame_length);
             frame_length = 5;
         }
     }

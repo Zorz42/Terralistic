@@ -5,10 +5,6 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     delete sfml_render_texture;
     sfml_render_texture = new sf::RenderTexture;
     assert(sfml_render_texture->create(width, height));
-
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
-    SDL_assert(texture);
-    SDL_SetTextureBlendMode((SDL_Texture*)texture, SDL_BLENDMODE_BLEND);
 }
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
@@ -18,21 +14,11 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
     sfml_text->setFont(sfml_font);
     sfml_text->setString(text.c_str());
     sfml_text->setFillColor((sf::Color)text_color);
-    
-    SDL_assert(font);
-    SDL_Surface *rendered_surface = TTF_RenderText_Solid(font, text.c_str(), {text_color.r, text_color.g, text_color.b, text_color.a});
-    SDL_assert(rendered_surface);
-    
-    texture = SDL_CreateTextureFromSurface(gfx::renderer, rendered_surface);
-    SDL_FreeSurface(rendered_surface);
 }
 
 void gfx::Image::loadFromFile(const std::string& path) {
     type = ImageType::TEXTURE;
     assert(sfml_texture.loadFromFile((resource_path + path).c_str()));
-
-    texture = IMG_LoadTexture(gfx::renderer, (resource_path + path).c_str());;
-    SDL_assert(texture);
 }
 
 gfx::Image::~Image() {
@@ -41,44 +27,31 @@ gfx::Image::~Image() {
 
 void gfx::Image::freeTexture() {
     if(texture && free_texture) {
-        SDL_DestroyTexture((SDL_Texture*)texture);
-        texture = nullptr;
-        
         delete sfml_render_texture;
         sfml_render_texture = nullptr;
     }
 }
 
 unsigned short gfx::Image::getTextureWidth() const {
-    /*if(type == ImageType::RENDER_TEXTURE)
+    if(type == ImageType::RENDER_TEXTURE)
         return sfml_render_texture->getSize().x;
+    else if(type == ImageType::TEXTURE)
+        return sfml_texture.getSize().x;
     else
-        return sfml_texture.getSize().x;*/
-    
-    int width = 0;
-    SDL_QueryTexture((SDL_Texture*)texture, nullptr, nullptr, &width, nullptr);
-    return width;
+        return sfml_text->getLocalBounds().width;
 }
 
 unsigned short gfx::Image::getTextureHeight() const {
-    /*if(type == ImageType::RENDER_TEXTURE)
+    if(type == ImageType::RENDER_TEXTURE)
         return sfml_render_texture->getSize().y;
+    else if(type == ImageType::TEXTURE)
+        return sfml_texture.getSize().y;
     else
-        return sfml_texture.getSize().y;*/
-    
-    int height = 0;
-    SDL_QueryTexture((SDL_Texture*)texture, nullptr, nullptr, nullptr, &height);
-    return height;
+        return sfml_text->getLocalBounds().height;
 }
 
 void gfx::Image::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
-    
-    SDL_Texture* prev_target = SDL_GetRenderTarget(gfx::renderer);
-    SDL_SetRenderTarget(renderer, (SDL_Texture*)getTexture());
-    SDL_SetRenderDrawColor(gfx::renderer, 0, 0, 0, 0);
-    SDL_RenderClear(gfx::renderer);
-    SDL_SetRenderTarget(gfx::renderer, prev_target);
 }
 void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const {
 
@@ -102,19 +75,11 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
         sprite.setScale(scale, scale);
         render_target->draw(sprite);
     }
-
-    SDL_Rect dest_rect_sdl = { x, y, int(src_rect.w * scale), int(src_rect.h * scale) }, src_rect_sdl = { src_rect.x, src_rect.y, src_rect.w, src_rect.h };
-    SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)this->getTexture(), &src_rect_sdl, &dest_rect_sdl, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void gfx::Image::setAlpha(unsigned char alpha) {
-    SDL_SetTextureAlphaMod((SDL_Texture*)texture, alpha);
+    // TODO: set alpha
 }
-
-/*void gfx::Image::render(RectShape rect) const {
-    SDL_Rect sdl_rect = { rect.x, rect.y, rect.w, rect.h };
-    SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)this->getTexture(), nullptr, &sdl_rect, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
-}*/
 
 void gfx::Image::render(float scale, short x, short y) const {
     if (type == ImageType::TEXT) {
@@ -136,9 +101,6 @@ void gfx::Image::render(float scale, short x, short y) const {
         sfml_rect.setTexture(&sfml_render_texture->getTexture());
         render_target->draw(sfml_rect);
     }
-
-    SDL_Rect rect = { x, y, int(getTextureWidth() * scale), int(getTextureHeight() * scale) };
-    SDL_RenderCopyEx(gfx::renderer, (SDL_Texture*)getTexture(), nullptr, &rect, 0, nullptr, this->flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};
@@ -199,7 +161,6 @@ void gfx::TextInput::render() const {
     rect.w = this->getTextureWidth() * this->scale;
     rect.h -= this->margin * 2 * this->scale;
     Image::render(scale, rect.x, rect.y, RectShape(rect.w - this->cut_length > this->width * this->scale ? rect.w / this->scale - this->width : this->cut_length, 0, rect.w - this->cut_length > this->width * this->scale ? this->width : rect.w / this->scale - this->cut_length, rect.h / this->scale));
-    //((Image)(*this)).render(scale, rect.x, rect.y, RectShape(rect.w - this->cut_length > this->width * this->scale ? rect.w / this->scale - this->width : this->cut_length, 0, rect.w - this->cut_length > this->width * this->scale ? this->width : rect.w / this->scale - this->cut_length, rect.h / this->scale));
     if (active)
         Rect(rect.x + (rect.w > width * scale ? width * scale : rect.w - cut_length * scale), rect.y, scale, rect.h, text_color).render();
         
