@@ -87,6 +87,21 @@ public:
     unsigned char break_stage;
 };
 
+class ServerLightChangeEvent : public Event<ServerLightChangeEvent> {
+public:
+    ServerLightChangeEvent(Block block, unsigned char light_level) : block(block), light_level(light_level) {}
+    Block block;
+    unsigned char light_level;
+};
+
+class ServerLiquidChangeEvent : public Event<ServerLiquidChangeEvent> {
+public:
+    ServerLiquidChangeEvent(Block block, LiquidType liquid_type, unsigned char liquid_level) : block(block), liquid_type(liquid_type), liquid_level(liquid_level) {}
+    Block block;
+    LiquidType liquid_type;
+    unsigned char liquid_level;
+};
+
 class Blocks {
     MapBlock *blocks = nullptr;
     unsigned short width, height;
