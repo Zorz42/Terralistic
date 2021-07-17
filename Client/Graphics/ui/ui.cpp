@@ -8,13 +8,24 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
 }
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
-    type = ImageType::TEXT;
-    delete sfml_text;
-    sfml_text = new sf::Text();
-    sfml_text->setFont(sfml_font);
-    sfml_text->setString(text.c_str());
-    sfml_text->setFillColor((sf::Color)text_color);
-    sfml_text->setCharacterSize(font_size);
+    type = ImageType::RENDER_TEXTURE;
+    
+    //delete sfml_text;
+    //sfml_text = new sf::Text();
+    sf::Text sf_text;
+    sf_text.setFont(sfml_font);
+    sf_text.setString(text.c_str());
+    sf_text.setFillColor((sf::Color)text_color);
+    sf_text.setCharacterSize(font_size);
+    
+    sf::FloatRect textRect = sf_text.getLocalBounds();
+    sf_text.setOrigin(textRect.left + textRect.width/2.0f,
+                   textRect.top  + textRect.height/2.0f);
+    sf_text.setPosition(sf::Vector2f(sf_text.getLocalBounds().width / 2, sf_text.getLocalBounds().height / 2));
+    
+    createBlankImage(sf_text.getLocalBounds().width, sf_text.getLocalBounds().height);
+    sfml_render_texture->draw(sf_text);
+    sfml_render_texture->display();
 }
 
 void gfx::Image::loadFromFile(const std::string& path) {
