@@ -14,10 +14,6 @@ void map::createWorld(unsigned short map_width, unsigned short map_height) {
     blocks = new blockData[(map_width << 4) * (map_height << 4)];
     width = map_width << 4;
     height = map_height << 4;
-    
-    for(unsigned short x = 0; x < (getWorldWidth() >> 4); x++)
-        for(unsigned short y = 0; y < (getWorldHeight() >> 4); y++)
-            getChunk(x, y).createTexture();
 }
 
 void map::onEvent(ClientPacketEvent &event) {
@@ -79,6 +75,7 @@ void map::onEvent(ClientPacketEvent &event) {
                 }
             
             getChunk(x, y).setState(map::chunkState::loaded);
+            getChunk(x, y).createTexture();
             break;
         }
         case PacketType::BLOCK_PROGRESS_CHANGE: {

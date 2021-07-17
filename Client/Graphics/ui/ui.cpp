@@ -1,5 +1,9 @@
 #include "graphics-internal.hpp"
 
+gfx::Image::Image() {
+    //sfml_render_texture = new sf::RenderTexture;
+}
+
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     delete sfml_render_texture;
     sfml_render_texture = new sf::RenderTexture;
@@ -24,11 +28,12 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
 
 void gfx::Image::loadFromFile(const std::string& path) {
     sf::Texture image_texture;
-    assert(image_texture.loadFromFile((resource_path + path).c_str()));
-    createBlankImage(image_texture.getSize().x, image_texture.getSize().y);
+    assert(image_texture.loadFromFile(resource_path + path));
     sf::RectangleShape sfml_rect;
     sfml_rect.setSize({(float)image_texture.getSize().x, (float)image_texture.getSize().y});
     sfml_rect.setTexture(&image_texture);
+    
+    createBlankImage(image_texture.getSize().x, image_texture.getSize().y);
     sfml_render_texture->draw(sfml_rect);
     sfml_render_texture->display();
 }
@@ -70,6 +75,7 @@ void gfx::Image::setAlpha(unsigned char alpha) {
 }
 
 void gfx::Image::render(float scale, short x, short y) const {
+    sfml_render_texture->display();
     sf::RectangleShape sfml_rect;
     sfml_rect.setPosition(x, y);
     sfml_rect.setSize({(float)getTextureWidth(), (float)getTextureHeight()});
@@ -127,6 +133,7 @@ gfx::TextInput::TextInput() {
     temp.renderText("|g", { 0, 0, 0 });
     cut_length = temp.getTextureWidth() - 1;
 }
+
 void gfx::TextInput::render() const {
     RectShape rect = this->getTranslatedRect();
     rect.render(border_color);
