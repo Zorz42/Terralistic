@@ -123,3 +123,15 @@ void players::onEvent(ServerBlockBreakStageChangeEvent& event) {
     packet << PacketType::BLOCK_PROGRESS_CHANGE << event.block.getX() << event.block.getY() << event.break_stage;
     sendToEveryone(packet);
 }
+
+void players::onEvent(ServerLightChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.light_level;
+    sendToEveryone(packet);
+}
+
+void players::onEvent(ServerLiquidChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::LIQUID_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.liquid_type << event.liquid_level;
+    sendToEveryone(packet);
+}

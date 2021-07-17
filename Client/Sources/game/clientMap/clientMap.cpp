@@ -57,6 +57,25 @@ void map::onEvent(ClientPacketEvent &event) {
             curr_block.setType((BlockType)block_type, curr_block.getLiquidType());
             break;
         }
+        case PacketType::LIGHT_CHANGE: {
+            unsigned short x, y;
+            unsigned char light_level;
+            event.packet >> x >> y >> light_level;
+            
+            block curr_block = getBlock(x, y);
+            curr_block.setLightLevel(light_level);
+            break;
+        }
+        case PacketType::LIQUID_CHANGE: {
+            unsigned short x, y;
+            unsigned char liquid_type, liquid_level;
+            event.packet >> x >> y >> liquid_type >> liquid_level;
+            
+            block curr_block = getBlock(x, y);
+            curr_block.setType(curr_block.getType(), (LiquidType)liquid_type);
+            curr_block.setLiquidLevel(liquid_level);
+            break;
+        }
         case PacketType::CHUNK: {
             chunks_pending--;
             unsigned short x, y;

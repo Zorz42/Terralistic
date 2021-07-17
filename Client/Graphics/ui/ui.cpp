@@ -1,9 +1,5 @@
 #include "graphics-internal.hpp"
 
-gfx::Image::Image() {
-    //sfml_render_texture = new sf::RenderTexture;
-}
-
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     delete sfml_render_texture;
     sfml_render_texture = new sf::RenderTexture;
