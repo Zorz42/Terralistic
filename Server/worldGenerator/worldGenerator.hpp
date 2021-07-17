@@ -12,6 +12,7 @@
 #include "blocks.hpp"
 #include "SimplexNoise.h"
 
+
 struct structure {
     std::string name;
     int x_size, y_size;
@@ -34,16 +35,7 @@ class worldGenerator {
     void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
     int calculateHeight(int x, SimplexNoise& noise);
     //static int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
-    void generatePlains(int x, SimplexNoise& noise);
-    void generateDesert(int x, SimplexNoise& noise);
-    void generateSnowyTundra(int x, SimplexNoise& noise);
     void terrainGenerator(int x, SimplexNoise& noise);
-    void generateSea(int x, SimplexNoise& noise);
-    void generateIcySea(int x, SimplexNoise& noise);
-    void generateWarmOcean(int x, SimplexNoise& noise);
-    void generateForest(int x, SimplexNoise& noise);
-    void generateColdHills(int x, SimplexNoise& noise);
-    void generateSavana(int x, SimplexNoise& noise);
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();
@@ -51,6 +43,7 @@ class worldGenerator {
     void generateDeafultWorld(SimplexNoise& noise);
     int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
     int heatGeneratorInt(unsigned int x, SimplexNoise& noise);
+    void loadBiomes();
 
     //void generateOakTree(int x, int y);
     //void generateAccaciaTree(int x, int y);
