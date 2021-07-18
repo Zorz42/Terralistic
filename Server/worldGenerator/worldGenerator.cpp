@@ -84,18 +84,20 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
             if(y > last_layer - slice_biome.ground_layers[generating_layer].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer].height_variation)
                 server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
             else {
-                last_layer = y - 1;
+                last_layer = y + 1;
                 generating_layer++;
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
+                y++;
             }
         }else{
             if(y < slice_biome.ground_layers[generating_layer + 1].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer + 1].height_variation){
                 generating_layer++;
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
+                y++;
             }else if(y < slice_biome.ground_layers[generating_layer].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer].height_variation){
                 server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
-            }else
-                server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(BlockType::STONE_BLOCK);
+            //}else{
+                //server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
+                //server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
+            }
         }
     }
     if(surface_height < server_blocks->getHeight() / 3 * 2){
@@ -233,8 +235,9 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
 }
 
 void worldGenerator::loadBiomes() {
-    loaded_biomes.push_back(biome(Biome::ICY_SEAS, server_blocks->getHeight() / 3 * 2 - 50, 10,
-                     {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+    loaded_biomes.push_back(biome(Biome::ICY_SEAS, server_blocks->getHeight() / 3 * 2, 0,
+                     {layer(BlockType::ICE, LayerHeightMode::PREVIOUS_LAYER, 3, 1),
+                     layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight() / 3 * 2 - 50, 10)},
                      {}));
     loaded_biomes.push_back(biome(Biome::SNOWY_TUNDRA, server_blocks -> getHeight() / 6 * 4 + 20, 7,
                            {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
@@ -244,4 +247,7 @@ void worldGenerator::loadBiomes() {
                            {}));
     loaded_biomes.push_back(biome(Biome::COLD_HILLS, 0, 0, {}, {}));
     loaded_biomes.push_back(biome(Biome::SNOWY_MOUNTAINS, 0, 0, {}, {}));
+    loaded_biomes.push_back(biome(Biome::ICY_SEAS, server_blocks->getHeight() / 3 * 2 - 50, 10,
+                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
 }

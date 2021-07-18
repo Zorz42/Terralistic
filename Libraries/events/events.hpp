@@ -2,6 +2,7 @@
 #define events_hpp
 
 #include <vector>
+#include <algorithm>
 
 template<class EventListeningTo>
 class EventListener;
