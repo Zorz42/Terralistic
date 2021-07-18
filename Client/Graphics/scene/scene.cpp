@@ -101,11 +101,10 @@ void gfx::Scene::run() {
         sf::Event event;
         while (sfml_window->pollEvent(event)) {
             if(event.type == sf::Event::MouseMoved) {
-                mouse_x = event.mouseMove.x;
-                mouse_y = event.mouseMove.y;
+                mouse_x = event.mouseMove.x / global_scale;
+                mouse_y = event.mouseMove.y / global_scale;
             } else if(event.type == sf::Event::Resized) {
-                sf::FloatRect visibleArea(0, 0, (unsigned int)event.size.width, (unsigned int)event.size.height);
-                sfml_window->setView(sf::View(visibleArea));
+                setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
             } else if(event.type == sf::Event::MouseButtonPressed) {
                 gfx::Key key = translateMouseKey(event.mouseButton.button);
                 bool clicked_text_box = false;

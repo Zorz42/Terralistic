@@ -3,10 +3,12 @@
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     sfml_window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     render_target = sfml_window;
+    setWindowSize(window_width, window_height);
 }
 
 void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
-    // TODO: set limit
+    min_window_width = width;
+    min_window_height = height;
 }
 
 void gfx::loadFont(const std::string& path, unsigned char size) {
@@ -19,11 +21,11 @@ void gfx::quit() {
 }
 
 unsigned short gfx::getWindowWidth() {
-    return sfml_window->getSize().x;
+    return sfml_window->getSize().x / global_scale;
 }
 
 unsigned short gfx::getWindowHeight() {
-    return sfml_window->getSize().y;
+    return sfml_window->getSize().y / global_scale;
 }
 
 unsigned short gfx::getMouseX() {
@@ -65,4 +67,23 @@ void gfx::updateWindow() {
 
 void gfx::sleep(unsigned short ms) {
     sf::sleep(sf::milliseconds(ms));
+}
+
+void gfx::setScale(float scale) {
+    global_scale = scale;
+    setWindowSize(getWindowWidth() * global_scale, getWindowHeight() * global_scale);
+}
+
+void gfx::setWindowSize(unsigned short width, unsigned short height) {
+    width *= global_scale;
+    height *= global_scale;
+    
+    if(width < min_window_width)
+        width = min_window_width;
+    if(height < min_window_height)
+        height = min_window_height;
+    
+    sf::FloatRect visibleArea(0, 0, (unsigned int)width / global_scale, (unsigned int)height / global_scale);
+    sfml_window->setView(sf::View(visibleArea));
+    sfml_window->setSize({(unsigned int)width, (unsigned int)height});
 }
