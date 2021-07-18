@@ -33,22 +33,22 @@ void playerHandler::init() {
 #define VELOCITY 90
 #define JUMP_VELOCITY 240
 
-void playerHandler::onKeyDown(gfx::key key) {
+void playerHandler::onKeyDown(gfx::Key key) {
     switch(key) {
-        case gfx::KEY_SPACE:
+        case gfx::Key::SPACE:
             if(!key_up) {
                 key_up = true;
                 jump = true;
             }
             break;
-        case gfx::KEY_A:
+        case gfx::Key::A:
             if(!key_left) {
                 key_left = true;
                 player->velocity_x -= VELOCITY;
                 player->flipped = true;
             }
             break;
-        case gfx::KEY_D:
+        case gfx::Key::D:
             if(!key_right) {
                 key_right = true;
                 player->velocity_x += VELOCITY;
@@ -62,9 +62,9 @@ void playerHandler::onKeyDown(gfx::key key) {
     onKeyDownSelector(key);
 }
 
-void playerHandler::onKeyUp(gfx::key key) {
+void playerHandler::onKeyUp(gfx::Key key) {
     switch (key) {
-        case gfx::KEY_SPACE:
+        case gfx::Key::SPACE:
             if(key_up) {
                 key_up = false;
                 jump = false;
@@ -72,13 +72,13 @@ void playerHandler::onKeyUp(gfx::key key) {
                     player->velocity_y = -10;
             }
             break;
-        case gfx::KEY_A:
+        case gfx::Key::A:
             if(key_left) {
                 key_left = false;
                 player->velocity_x += VELOCITY;
             }
             break;
-        case gfx::KEY_D:
+        case gfx::Key::D:
             if(key_right) {
                 key_right = false;
                 player->velocity_x -= VELOCITY;

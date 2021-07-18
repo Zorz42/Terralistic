@@ -22,7 +22,7 @@ class startMenu : public gfx::Scene {
 #endif
 public:
     void init() override;
-    void onKeyDown(gfx::key key) override;
+    void onKeyDown(gfx::Key key) override;
     void render() override;
 };
 

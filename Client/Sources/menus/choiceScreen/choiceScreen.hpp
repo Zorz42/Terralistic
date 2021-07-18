@@ -26,7 +26,7 @@ public:
     choiceScreen(std::string notification, const std::vector<std::string>& options, std::string* result = nullptr);
 
     void init() override;
-    void onKeyDown(gfx::key key) override;
+    void onKeyDown(gfx::Key key) override;
     void render() override;
 };
 

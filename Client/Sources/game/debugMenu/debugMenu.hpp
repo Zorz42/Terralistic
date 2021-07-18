@@ -25,8 +25,8 @@ public:
     void init() override;
     void update() override;
     void render() override;
-    void onKeyDown(gfx::key key) override;
-    void onKeyUp(gfx::key key) override;
+    void onKeyDown(gfx::Key key) override;
+    void onKeyUp(gfx::Key key) override;
 };
 
 #endif /* debugMenu_hpp */

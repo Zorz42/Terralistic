@@ -1231,7 +1231,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
-					"$(PROJECT_DIR)/Dependencies/MacOS/Frameworks-Debug",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1291,7 +1290,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
-					"$(PROJECT_DIR)/Dependencies/MacOS/Frameworks-Debug",
 				);
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;

@@ -30,7 +30,7 @@ void chat::update() {
 
 void chat::render() {
     for(chatLine* i : chat_lines) {
-        //if(!i->text_sprite.getTexture()) {
+        if(!i->text.empty()) {
             i->text_sprite.renderText(i->text, {255, 255, 255});
             i->text_sprite.scale = 2;
             i->text_sprite.y = chat_box.y;
@@ -42,7 +42,7 @@ void chat::render() {
             for(chatLine* line : chat_lines)
                 if(line != i)
                     line->y_to_be -= i->text_sprite.getHeight();
-        //}
+        }
         
         if(i->time_created + 10500 > gfx::getTicks() || chat_box.active) {
             int alpha = i->time_created + 10500 - gfx::getTicks();
@@ -56,8 +56,8 @@ void chat::render() {
     chat_box.render();
 }
 
-void chat::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_ENTER && chat_box.active) {
+void chat::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
             sf::Packet chat_packet;
             chat_packet << PacketType::CHAT << chat_box.getText();
@@ -65,10 +65,10 @@ void chat::onKeyDown(gfx::key key) {
             chat_box.setText("");
         }
         chat_box.active = false;
-    } else if(key == gfx::KEY_T && !chat_box.active) {
+    } else if(key == gfx::Key::T && !chat_box.active) {
         chat_box.active = true;
         chat_box.ignore_one_input = true;
-    } else if(key == gfx::KEY_ESCAPE && chat_box.active) {
+    } else if(key == gfx::Key::ESCAPE && chat_box.active) {
         chat_box.setText("");
         chat_box.active = false;
     }

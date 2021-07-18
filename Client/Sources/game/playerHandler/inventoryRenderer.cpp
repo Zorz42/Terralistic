@@ -99,19 +99,19 @@ void playerHandler::updateStackTexture(int i) {
     }
 }
 
-void playerHandler::onKeyDownInventory(gfx::key key) {
+void playerHandler::onKeyDownInventory(gfx::Key key) {
     switch (key) {
-        case gfx::KEY_1: selectSlot(0); break;
-        case gfx::KEY_2: selectSlot(1); break;
-        case gfx::KEY_3: selectSlot(2); break;
-        case gfx::KEY_4: selectSlot(3); break;
-        case gfx::KEY_5: selectSlot(4); break;
-        case gfx::KEY_6: selectSlot(5); break;
-        case gfx::KEY_7: selectSlot(6); break;
-        case gfx::KEY_8: selectSlot(7); break;
-        case gfx::KEY_9: selectSlot(8); break;
-        case gfx::KEY_0: selectSlot(9); break;
-        case gfx::KEY_E:
+        case gfx::Key::NUM1: selectSlot(0); break;
+        case gfx::Key::NUM2: selectSlot(1); break;
+        case gfx::Key::NUM3: selectSlot(2); break;
+        case gfx::Key::NUM4: selectSlot(3); break;
+        case gfx::Key::NUM5: selectSlot(4); break;
+        case gfx::Key::NUM6: selectSlot(5); break;
+        case gfx::Key::NUM7: selectSlot(6); break;
+        case gfx::Key::NUM8: selectSlot(7); break;
+        case gfx::Key::NUM9: selectSlot(8); break;
+        case gfx::Key::NUM0: selectSlot(9); break;
+        case gfx::Key::E:
             player->player_inventory.open = !player->player_inventory.open;
             if(!player->player_inventory.open && player->player_inventory.getMouseItem()->item_id != ItemType::NOTHING) {
                 unsigned char result = player->player_inventory.addItem(player->player_inventory.getMouseItem()->item_id, player->player_inventory.getMouseItem()->getStack());
@@ -121,7 +121,7 @@ void playerHandler::onKeyDownInventory(gfx::key key) {
                 manager->sendPacket(packet);
             }
             break;
-        case gfx::KEY_MOUSE_LEFT: {
+        case gfx::Key::MOUSE_LEFT: {
             if(hovered) {
                 player->player_inventory.swapWithMouseItem(hovered);
                 sf::Packet packet;

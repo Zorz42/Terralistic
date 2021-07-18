@@ -27,7 +27,7 @@ gfx::RectShape gfx::_CenteredObject::getTranslatedRect() const {
     return RectShape(getTranslatedX(), getTranslatedY(), getWidth(), getHeight());
 }  
 short gfx::_CenteredObject::getTranslatedX() const {
-    return orientation % 3 == 1 ? (getWindowWidth() >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? getWindowHeight() - getWidth() + x : x);
+    return orientation % 3 == 1 ? (getWindowWidth() >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? getWindowWidth() - getWidth() + x : x);
 }
 
 short gfx::_CenteredObject::getTranslatedY() const {

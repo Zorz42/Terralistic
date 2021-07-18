@@ -29,12 +29,12 @@ void playerHandler::renderBlockSelector() {
     }
 }
 
-void playerHandler::onKeyDownSelector(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
+void playerHandler::onKeyDownSelector(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = true;
         prev_selected_x = world_map->getWorldWidth();
         prev_selected_y = world_map->getWorldHeight();
-    } else if(key == gfx::KEY_MOUSE_RIGHT && !playerHandler::hovered) {
+    } else if(key == gfx::Key::MOUSE_RIGHT && !playerHandler::hovered) {
         gfx::RectShape rect = gfx::RectShape(gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2, playerRenderer::getPlayerWidth(), playerRenderer::getPlayerHeight());
         if(!gfx::colliding(rect, select_rect.getTranslatedRect())) {
             sf::Packet packet;
@@ -44,8 +44,8 @@ void playerHandler::onKeyDownSelector(gfx::key key) {
     }
 }
 
-void playerHandler::onKeyUpSelector(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT && !playerHandler::hovered) {
+void playerHandler::onKeyUpSelector(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT && !playerHandler::hovered) {
         is_left_button_pressed = false;
         sf::Packet packet;
         packet << PacketType::STOPPED_BREAKING;
