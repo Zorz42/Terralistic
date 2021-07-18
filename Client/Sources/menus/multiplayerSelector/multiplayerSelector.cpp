@@ -8,13 +8,15 @@
 #include <vector>
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
-#include "config.hpp"
+#include "configManager.hpp"
+#include "fileManager.hpp"
 
 // this is a menu, where you select the server you want to play on
 
 #define PADDING 20
 
 void multiplayerSelector::init() {
+    ConfigFile config(fileManager::getDataPath() + "/config.txt");
     config.setDefaultStr("username", "");
     config.setDefaultStr("server ip", "");
     
@@ -97,6 +99,7 @@ void multiplayerSelector::render() {
 }
 
 void multiplayerSelector::stop() {
+    ConfigFile config(fileManager::getDataPath() + "/config.txt");
     config.setStr("username", username.getText());
     config.setStr("server ip", server_ip.getText());
 }

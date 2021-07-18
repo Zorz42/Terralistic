@@ -1,6 +1,6 @@
 #include "startMenu.hpp"
 #include "fileManager.hpp"
-#include "config.hpp"
+#include "configManager.hpp"
 #include "textures.hpp"
 #include "resourcePath.hpp"
 
@@ -20,9 +20,11 @@ int main(int argc, char **argv) {
     gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
     fileManager::init();
-    config = ConfigFile(fileManager::getDataPath() + "/config.txt");
-    config.setDefaultInt("ui_scale", 100);
-    gfx::setScale((float)config.getInt("ui_scale") / 100);
+    {
+        ConfigFile config(fileManager::getDataPath() + "/config.txt");
+        config.setDefaultInt("ui_scale", 100);
+        gfx::setScale((float)config.getInt("ui_scale") / 100);
+    }
     initProperties();
     loadTextures();
     

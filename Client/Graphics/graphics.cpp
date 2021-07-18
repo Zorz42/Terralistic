@@ -2,6 +2,7 @@
 
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     sfml_window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
+    sfml_window->setVerticalSyncEnabled(true);
     render_target = sfml_window;
     setWindowSize(window_width, window_height);
 }

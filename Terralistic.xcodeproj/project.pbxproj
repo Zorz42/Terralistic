@@ -212,7 +212,6 @@
 		1675CD75267F83680070E325 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Dependencies/MacOS/SDL2_image.framework; sourceTree = "<group>"; };
 		1675E71B26611B8000B620F4 /* configManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = configManager.cpp; sourceTree = "<group>"; };
 		1675E71C26611B8000B620F4 /* configManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = configManager.hpp; sourceTree = "<group>"; };
-		1675E72126612BF700B620F4 /* config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = config.hpp; sourceTree = "<group>"; };
 		1676E9F82699C30B00034070 /* events.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = events.hpp; sourceTree = "<group>"; };
 		167B387E2642F73900E3C718 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
 		167B387F2642F73900E3C718 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
@@ -782,7 +781,6 @@
 		168968C425E9607800D26060 /* main */ = {
 			isa = PBXGroup;
 			children = (
-				1675E72126612BF700B620F4 /* config.hpp */,
 				168968C625E9607800D26060 /* main.cpp */,
 			);
 			path = main;
