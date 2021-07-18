@@ -41,8 +41,8 @@ void choiceScreen::init() {
     }
 }
 
-void choiceScreen::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT)
+void choiceScreen::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT)
         for(button& i : buttons)
             if(i.gfx_button.isHovered()) {
                 if(result)

@@ -31,6 +31,10 @@ public:
         EventListeningTo::listeners.push_back(this);
     }
     
+    virtual ~EventListener() {
+        EventListeningTo::listeners.erase(std::find(EventListeningTo::listeners.begin(), EventListeningTo::listeners.end(), this));
+    }
+    
     virtual void onEvent(EventListeningTo& event) = 0;
 };
 

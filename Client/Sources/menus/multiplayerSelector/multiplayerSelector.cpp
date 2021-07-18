@@ -75,10 +75,10 @@ void multiplayerSelector::init() {
     text_inputs = {&server_ip, &username};
 }
 
-void multiplayerSelector::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT && back_button.isHovered())
+void multiplayerSelector::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
-    else if((key == gfx::KEY_MOUSE_LEFT && join_button.isHovered()) || (key == gfx::KEY_ENTER && can_connect))
+    else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered()) || (key == gfx::Key::ENTER && can_connect))
         game(username.getText(), server_ip.getText()).run();
 }
 

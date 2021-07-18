@@ -41,13 +41,13 @@ void pauseScreen::render() {
     }
 }
 
-void pauseScreen::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_ESCAPE) {
+void pauseScreen::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::ESCAPE) {
         paused = !paused;
         x_to_be = !paused * (-back_rect.w);
         disable_events = paused;
     }
-    else if(key == gfx::KEY_MOUSE_LEFT) {
+    else if(key == gfx::Key::MOUSE_LEFT) {
         if(resume_button.isHovered())
             paused = false;
         else if(quit_button.isHovered()) {

@@ -18,7 +18,7 @@ struct worldCreator : gfx::Scene {
     explicit worldCreator(std::vector<std::string> worlds) : worlds(std::move(worlds)) {}
     bool running = true, can_create = true;
     void init() override;
-    void onKeyDown(gfx::key key) override;
+    void onKeyDown(gfx::Key key) override;
     void render() override;
 
 private:
