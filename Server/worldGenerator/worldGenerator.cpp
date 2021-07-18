@@ -71,7 +71,7 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     /*int heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
     server_blocks->biomes[x] = (Biome)((biome_height << 2) + heat);*/
-    server_blocks->biomes[x] = Biome::SNOWY_TUNDRA;
+    server_blocks->biomes[x] = Biome::ICY_SEAS;
 }
 
 void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
@@ -100,8 +100,9 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
     }
     if(surface_height < server_blocks->getHeight() / 3 * 2){
         for(int y = surface_height + 1; y < server_blocks->getHeight() / 3 * 2 + 1; y++) {
-            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
-            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setLiquidLevel(127);
+            /*server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
+            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setLiquidLevel(127);*/
+            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(BlockType::ICE);
         }
     }
 }
@@ -202,6 +203,8 @@ void worldGenerator::generateStructuresForStrWorld() {
     int x = 0;
     while(x < server_blocks->getWidth()){
         for (auto & structure : structures) {
+            if(structure.y_size + x >= server_blocks->getWidth())
+                return;
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != BlockType::NOTHING)
                     server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size).setTypeWithoutProcessing(structure.blocks[j]);
@@ -239,4 +242,6 @@ void worldGenerator::loadBiomes() {
                             layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
                             layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
                            {}));
+    loaded_biomes.push_back(biome(Biome::COLD_HILLS, 0, 0, {}, {}));
+    loaded_biomes.push_back(biome(Biome::SNOWY_MOUNTAINS, 0, 0, {}, {}));
 }
