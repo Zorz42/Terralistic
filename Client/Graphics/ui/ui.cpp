@@ -1,13 +1,10 @@
 #include "graphics-internal.hpp"
 
-gfx::Image::Image() {
-    //sfml_render_texture = new sf::RenderTexture;
-}
-
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     delete sfml_render_texture;
     sfml_render_texture = new sf::RenderTexture;
     assert(sfml_render_texture->create(width, height));
+    clear();
 }
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
@@ -145,5 +142,4 @@ void gfx::TextInput::render() const {
     Image::render(scale, rect.x, rect.y, RectShape(rect.w - this->cut_length > this->width * this->scale ? rect.w / this->scale - this->width : this->cut_length, 0, rect.w - this->cut_length > this->width * this->scale ? this->width : rect.w / this->scale - this->cut_length, rect.h / this->scale));
     if (active)
         Rect(rect.x + (rect.w > width * scale ? width * scale : rect.w - cut_length * scale), rect.y, scale, rect.h, text_color).render();
-        
 }

@@ -11,6 +11,12 @@ void Block::setTypeWithoutProcessing(LiquidType liquid_id) {
 
 void Block::setType(LiquidType liquid_id) {
     if(liquid_id != block_data->liquid_id) {
+        ServerLiquidChangeEvent event(*this, liquid_id, getLiquidLevel());
+        event.call();
+        
+        if(event.cancelled)
+            return;
+        
         setTypeWithoutProcessing(liquid_id);
         
         if(liquid_id == LiquidType::EMPTY)
@@ -21,9 +27,19 @@ void Block::setType(LiquidType liquid_id) {
     }
 }
 
+void Block::setLiquidLevelWithoutProcessing(unsigned char level) {
+    block_data->liquid_level = level;
+}
+
 void Block::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
-        block_data->liquid_level = level;
+        ServerLiquidChangeEvent event(*this, getLiquidType(), level);
+        event.call();
+        
+        if(event.cancelled)
+            return;
+        
+        setLiquidLevelWithoutProcessing(level);
         update();
     }
 }

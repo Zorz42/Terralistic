@@ -86,7 +86,7 @@ public:
     player& sender;
 };
 
-class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent> {
+class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLightChangeEvent>, EventListener<ServerLiquidChangeEvent> {
     items* parent_items;
     Blocks* parent_blocks;
     
@@ -97,6 +97,8 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
     void onEvent(ServerPacketEvent& event) override;
     void onEvent(ServerBlockChangeEvent& event) override;
     void onEvent(ServerBlockBreakStageChangeEvent& event) override;
+    void onEvent(ServerLightChangeEvent& event) override;
+    void onEvent(ServerLiquidChangeEvent& event) override;
     
     void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
     void rightClickEvent(Block this_block, player* peer);

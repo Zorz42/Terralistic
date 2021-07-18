@@ -5,7 +5,7 @@
 
 namespace gfx {
 
-enum key {KEY_MOUSE_LEFT, KEY_MOUSE_RIGHT, KEY_MOUSE_MIDDLE, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_SPACE, KEY_ESCAPE, KEY_ENTER, KEY_SHIFT, KEY_BACKSPACE, KEY_UNKNOWN};
+enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, UNKNOWN};
 
 class GraphicalModule {
 public:
@@ -13,8 +13,8 @@ public:
     virtual void update() {}
     virtual void render() {}
     virtual void stop() {}
-    virtual void onKeyDown(key key_) {}
-    virtual void onKeyUp(key key_) {}
+    virtual void onKeyDown(Key key_) {}
+    virtual void onKeyUp(Key key_) {}
     
     virtual ~GraphicalModule() {};
 
@@ -30,8 +30,8 @@ public:
     
     void run();
 
-    void onKeyDownCallback(key key_);
-    void onKeyUpCallback(key key_);
+    void onKeyDownCallback(Key key_);
+    void onKeyUpCallback(Key key_);
 };
 
 };

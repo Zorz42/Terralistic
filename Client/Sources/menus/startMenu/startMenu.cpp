@@ -51,8 +51,8 @@ void startMenu::init() {
     version.y = -5;
 }
 
-void startMenu::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT) {
+void startMenu::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT) {
         if(exit_button.isHovered())
             gfx::returnFromScene();
         else if(singleplayer_button.isHovered())

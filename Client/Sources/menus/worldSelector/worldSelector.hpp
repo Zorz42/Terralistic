@@ -28,8 +28,8 @@ class worldSelector : public gfx::Scene {
 public:
     void init() override;
     void refresh();
-    void onKeyDown(gfx::key key) override;
-    void onKeyUp(gfx::key key) override;
+    void onKeyDown(gfx::Key key) override;
+    void onKeyUp(gfx::Key key) override;
     void render() override;
     void onMouseScroll(int distance) override;
 };

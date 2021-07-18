@@ -18,7 +18,7 @@ class pauseScreen : public gfx::GraphicalModule {
 public:
     void init() override;
     void render() override;
-    void onKeyDown(gfx::key key) override;
+    void onKeyDown(gfx::Key key) override;
 };
 
 #endif /* pauseScreen_hpp */

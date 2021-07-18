@@ -14,18 +14,20 @@ inline std::string resource_path;
 void setWindowMinimumSize(unsigned short width, unsigned short height);
 void loadFont(const std::string& path, unsigned char size);
 
-unsigned short getMouseX(), getMouseY(), getWindowWidth(), getWindowHeight();
-float getDeltaTime();
+unsigned short getMouseX(), getMouseY();
+unsigned short getWindowWidth(), getWindowHeight();
 
 void setRenderTarget(Image& tex);
 void resetRenderTarget();
+
 bool colliding(RectShape a, RectShape b);
+
 unsigned int getTicks();
+void sleep(unsigned short ms);
+float getDeltaTime();
 
 void clearWindow();
 void updateWindow();
-
-void sleep(unsigned short ms);
 
 void returnFromScene();
 

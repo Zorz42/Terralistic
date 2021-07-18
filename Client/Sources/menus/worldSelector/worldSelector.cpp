@@ -85,8 +85,8 @@ void worldSelector::refresh() {
     }
 }
 
-void worldSelector::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_MOUSE_LEFT) {
+void worldSelector::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered())
             gfx::returnFromScene();
         else if(new_button.isHovered()) {
@@ -111,12 +111,12 @@ void worldSelector::onKeyDown(gfx::key key) {
                     refresh();
                 }
             }
-    } else if(key == gfx::KEY_SHIFT)
+    } else if(key == gfx::Key::SHIFT)
         shift_pressed = true;
 }
 
-void worldSelector::onKeyUp(gfx::key key) {
-    if(key == gfx::KEY_SHIFT)
+void worldSelector::onKeyUp(gfx::Key key) {
+    if(key == gfx::Key::SHIFT)
         shift_pressed = false;
 }
 

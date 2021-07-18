@@ -10,7 +10,6 @@ class Image {
 public:
     void render(float scale, short x, short y) const;
     void render(float scale, short x, short y, RectShape src_rect) const;
-    Image();
     ~Image();
     bool free_texture = true, flipped = false;
     [[nodiscard]] unsigned short getTextureWidth() const;

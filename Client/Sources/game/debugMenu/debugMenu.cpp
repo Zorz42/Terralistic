@@ -57,8 +57,8 @@ void debugMenu::render() {
     }
 }
 
-void debugMenu::onKeyDown(gfx::key key) {
-    if(key == gfx::KEY_M && !m_down) {
+void debugMenu::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::M && !m_down) {
         m_down = true;
         debug_menu_open = !debug_menu_open;
         if(debug_menu_open)
@@ -66,8 +66,8 @@ void debugMenu::onKeyDown(gfx::key key) {
     }
 }
 
-void debugMenu::onKeyUp(gfx::key key) {
-    if(key == gfx::KEY_M)
+void debugMenu::onKeyUp(gfx::Key key) {
+    if(key == gfx::Key::M)
         m_down = false;
 }
 

@@ -42,9 +42,9 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void renderInventory();
     void renderBlockSelector();
 
-    void onKeyDownInventory(gfx::key key);
-    void onKeyDownSelector(gfx::key key);
-    void onKeyUpSelector(gfx::key key);
+    void onKeyDownInventory(gfx::Key key);
+    void onKeyDownSelector(gfx::Key key);
+    void onKeyUpSelector(gfx::Key key);
     void onPacketInventory(ClientPacketEvent &event);
 
     void initInventory();
@@ -59,8 +59,8 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
 
     bool received_spawn_coords = false;
     
-    void onKeyUp(gfx::key key) override;
-    void onKeyDown(gfx::key key) override;
+    void onKeyUp(gfx::Key key) override;
+    void onKeyDown(gfx::Key key) override;
     void init() override;
     void update() override;
     void render() override;
