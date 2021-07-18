@@ -62,8 +62,7 @@ void map::onEvent(ClientPacketEvent &event) {
             unsigned char light_level;
             event.packet >> x >> y >> light_level;
             
-            block curr_block = getBlock(x, y);
-            curr_block.setLightLevel(light_level);
+            getBlock(x, y).setLightLevel(light_level);
             break;
         }
         case PacketType::LIQUID_CHANGE: {
