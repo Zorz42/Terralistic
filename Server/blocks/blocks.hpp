@@ -58,6 +58,7 @@ public:
     inline LiquidType getLiquidType() { return block_data->liquid_id; }
     inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
     void setLiquidLevel(unsigned char level);
+    void setLiquidLevelWithoutProcessing(unsigned char level);
     inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
     inline FlowDirection getFlowDirection() { return block_data->flow_direction; }
     inline void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
