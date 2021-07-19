@@ -3,7 +3,8 @@
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     delete sfml_render_texture;
     sfml_render_texture = new sf::RenderTexture;
-    assert(sfml_render_texture->create(width, height));
+    bool result = sfml_render_texture->create(width, height);
+    assert(result);
     clear();
 }
 
@@ -25,7 +26,8 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
 
 void gfx::Image::loadFromFile(const std::string& path) {
     sf::Texture image_texture;
-    assert(image_texture.loadFromFile(resource_path + path));
+    bool result = image_texture.loadFromFile(resource_path + path);
+    assert(result);
     sf::RectangleShape sfml_rect;
     sfml_rect.setSize({(float)image_texture.getSize().x, (float)image_texture.getSize().y});
     sfml_rect.setTexture(&image_texture);
