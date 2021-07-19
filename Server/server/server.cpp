@@ -19,6 +19,7 @@ static bool running = false;
 
 #define ms_time std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count
 #define PORT 33770
+#define TPS_LIMIT 100
 
 void inthand(int signum) {
     running = false;
@@ -62,12 +63,14 @@ void server::start() {
     print::info("Server has started!");
     long long a, b = ms_time();
     unsigned short tick_length;
-
+    
+    int ms_per_tick = 1000 / TPS_LIMIT;
+    
     while(running) {
         a = ms_time();
         tick_length = a - b;
-        if(tick_length < 50)
-            std::this_thread::sleep_for(std::chrono::milliseconds(50 - tick_length));
+        if(tick_length < ms_per_tick)
+            std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_tick - tick_length));
         b = a;
 
         server_players.checkForNewConnections();

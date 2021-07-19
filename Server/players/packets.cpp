@@ -63,7 +63,7 @@ void players::onEvent(ServerPacketEvent& event) {
             event.packet >> curr_player->x >> curr_player->y >> curr_player->flipped;
             
             sf::Packet movement_packet;
-            movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << (char)curr_player->flipped << curr_player->id;
+            movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << curr_player->flipped << curr_player->id;
             sendToEveryone(movement_packet, curr_player);
             break;
         }
