@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
     
     fileManager::init();
     {
-        ConfigFile config(fileManager::getDataPath() + "/config.txt");
+        ConfigFile config(fileManager::getConfigPath());
         config.setDefaultInt("ui_scale", 100);
         gfx::setScale((float)config.getInt("ui_scale") / 100);
     }

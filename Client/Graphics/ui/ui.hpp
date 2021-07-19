@@ -15,7 +15,7 @@ public:
     [[nodiscard]] unsigned short getTextureWidth() const;
     [[nodiscard]] unsigned short getTextureHeight() const;
     void clear();
-    void setAlpha(unsigned char alpha);
+    void setAlpha(unsigned char alpha_);
     void createBlankImage(unsigned short width, unsigned short height);
     void renderText(const std::string& text, Color text_color);
     void loadFromFile(const std::string& path);
@@ -23,6 +23,7 @@ public:
 protected:
     void freeTexture();
     sf::RenderTexture *sfml_render_texture = nullptr;
+    unsigned char alpha = 255;
 };
 
 

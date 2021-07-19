@@ -16,7 +16,7 @@
 #define PADDING 20
 
 void multiplayerSelector::init() {
-    ConfigFile config(fileManager::getDataPath() + "/config.txt");
+    ConfigFile config(fileManager::getConfigPath());
     config.setDefaultStr("username", "");
     config.setDefaultStr("server ip", "");
     
@@ -99,7 +99,7 @@ void multiplayerSelector::render() {
 }
 
 void multiplayerSelector::stop() {
-    ConfigFile config(fileManager::getDataPath() + "/config.txt");
+    ConfigFile config(fileManager::getConfigPath());
     config.setStr("username", username.getText());
     config.setStr("server ip", server_ip.getText());
 }

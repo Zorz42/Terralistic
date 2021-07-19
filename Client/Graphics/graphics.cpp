@@ -79,10 +79,10 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     width *= global_scale;
     height *= global_scale;
     
-    if(width < min_window_width)
-        width = min_window_width;
-    if(height < min_window_height)
-        height = min_window_height;
+    if(width < min_window_width * global_scale)
+        width = min_window_width * global_scale;
+    if(height < min_window_height * global_scale)
+        height = min_window_height * global_scale;
     
     sf::FloatRect visibleArea(0, 0, (unsigned int)width / global_scale, (unsigned int)height / global_scale);
     sfml_window->setView(sf::View(visibleArea));

@@ -63,22 +63,26 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
     sprite.setTexture(sfml_render_texture->getTexture());
     sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
     sprite.setPosition(x, y);
-    sprite.setScale(scale, scale);
+    int flip_factor = flipped ? -1 : 1;
+    sprite.setScale(flip_factor * scale, scale);
+    sprite.setColor({255, 255, 255, alpha});
     render_target->draw(sprite);
 }
 
-void gfx::Image::setAlpha(unsigned char alpha) {
-    // TODO: set alpha
+void gfx::Image::setAlpha(unsigned char alpha_) {
+    alpha = alpha_;
 }
 
 void gfx::Image::render(float scale, short x, short y) const {
     sfml_render_texture->display();
-    sf::RectangleShape sfml_rect;
-    sfml_rect.setPosition(x, y);
-    sfml_rect.setSize({(float)getTextureWidth(), (float)getTextureHeight()});
-    sfml_rect.setScale(scale, scale);
-    sfml_rect.setTexture(&sfml_render_texture->getTexture());
-    render_target->draw(sfml_rect);
+    sf::Sprite sprite;
+    int x_offset = flipped ? getTextureWidth() * scale : 0;
+    sprite.setPosition(x + x_offset, y);
+    sprite.setTexture(sfml_render_texture->getTexture());
+    int flip_factor = flipped ? -1 : 1;
+    sprite.setScale(flip_factor * scale, scale);
+    sprite.setColor({255, 255, 255, alpha});
+    render_target->draw(sprite);
 }
 
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};

@@ -124,14 +124,26 @@ void players::onEvent(ServerBlockBreakStageChangeEvent& event) {
     sendToEveryone(packet);
 }
 
-void players::onEvent(ServerLightChangeEvent& event) {
-    /*sf::Packet packet;
-    packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.light_level;
-    sendToEveryone(packet);*/
-}
-
 void players::onEvent(ServerLiquidChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::LIQUID_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.liquid_type << event.liquid_level;
+    sendToEveryone(packet);
+}
+
+void players::onEvent(ServerItemCreationEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ITEM_CREATION << event.x << event.y << event.id << (unsigned char)event.item_id;
+    sendToEveryone(packet);
+}
+
+void players::onEvent(ServerItemDeletionEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ITEM_DELETION << (short)event.item_to_delete.getId();
+    sendToEveryone(packet);
+}
+
+void players::onEvent(ServerItemMovementEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ITEM_MOVEMENT << event.moved_item.x <<  event.moved_item.y << event.moved_item.getId();
     sendToEveryone(packet);
 }
