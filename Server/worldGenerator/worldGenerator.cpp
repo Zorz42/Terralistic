@@ -17,10 +17,12 @@
 #define PI 3.14159265
 
 
-int worldGenerator::generateWorld(unsigned int seed) {
+int worldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
     std::mt19937 engine(seed);
     SimplexNoise noise(engine());
     generating_current = 0;
+    
+    server_blocks->createWorld(world_width, world_height);
 
     loadAssets();
     if(seed == 1000){//structure generation

@@ -10,15 +10,16 @@ Block Blocks::getBlock(unsigned short x, unsigned short y) {
 }
 
 const BlockInfo& Block::getUniqueBlock() {
-    return ::getBlockInfo(block_data->block_id);
+    return ::getBlockInfo(block_data->block_type);
 }
 
 void Block::setTypeWithoutProcessing(BlockType block_id) {
-    block_data->block_id = block_id;
+    assert((int)block_id >= 0 && block_id < BlockType::NUM_BLOCKS);
+    block_data->block_type = block_id;
 }
 
 void Block::setType(BlockType block_id) {
-    if(block_id != block_data->block_id) {
+    if(block_id != block_data->block_type) {
         ServerBlockChangeEvent event(*this, block_id);
         event.call();
         

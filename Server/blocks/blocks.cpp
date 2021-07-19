@@ -16,13 +16,13 @@ int Blocks::getSpawnX() {
 }
 
 int Blocks::getSpawnY() {
-    int result = 0;
+    int spawn_y = 0;
     for(unsigned short y = 0; y < height; y++) {
         if(!getBlock(width / 2 - 1, y).getUniqueBlock().transparent || !getBlock(width / 2, y).getUniqueBlock().transparent)
             break;
-        result += BLOCK_WIDTH;
+        spawn_y += BLOCK_WIDTH;
     }
-    return result;
+    return spawn_y;
 }
 
 Blocks::~Blocks() {

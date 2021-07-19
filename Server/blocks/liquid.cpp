@@ -2,15 +2,15 @@
 #include "properties.hpp"
 
 const LiquidInfo& Block::getUniqueLiquid() {
-    return ::getLiquidInfo(block_data->liquid_id);
+    return ::getLiquidInfo(block_data->liquid_type);
 }
 
 void Block::setTypeWithoutProcessing(LiquidType liquid_id) {
-    block_data->liquid_id = liquid_id;
+    block_data->liquid_type = liquid_id;
 }
 
 void Block::setType(LiquidType liquid_id) {
-    if(liquid_id != block_data->liquid_id) {
+    if(liquid_id != block_data->liquid_type) {
         ServerLiquidChangeEvent event(*this, liquid_id, getLiquidLevel());
         event.call();
         
