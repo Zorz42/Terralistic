@@ -103,15 +103,13 @@ void game::update() {
 }
 
 void game::stop() {
+    networking_manager.closeConnection();
+    
     if(private_server)
         private_server->stop();
 
     while(private_server && private_server->state != server::STOPPING)
         renderTextScreen("Saving world");
-    
-    sf::Packet disconnect_packet;
-    disconnect_packet << PacketType::DISCONNECT;
-    networking_manager.sendPacket(disconnect_packet);
 
     if(private_server) {
         server_thread.join();

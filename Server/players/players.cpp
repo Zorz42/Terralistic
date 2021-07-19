@@ -96,6 +96,16 @@ void players::updateBlocks() {
                         finished = false;
                     }
                 }
+            for(unsigned short x = start_x; x < end_x; x++)
+                for(unsigned short y = end_y - 1; y >= start_y; y--) {
+                    Block curr_block = parent_blocks->getBlock(x, y);
+                    if(curr_block.hasLightChanged()) {
+                        curr_block.markLightUnchanged();
+                        sf::Packet packet;
+                        packet << PacketType::LIGHT_CHANGE << x << y << (unsigned char)curr_block.getLightLevel();
+                        sendToEveryone(packet);
+                    }
+                }
         }
     }
 }

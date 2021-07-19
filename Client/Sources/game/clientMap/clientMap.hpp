@@ -97,7 +97,7 @@ public:
 
     class item {
         [[nodiscard]] const ItemInfo& getUniqueItem() const;
-        unsigned short id;
+        short id;
         ItemType item_type;
     public:
         item(ItemType item_type, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_type(item_type) {}

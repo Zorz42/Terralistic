@@ -108,7 +108,9 @@ void worldSelector::onKeyDown(gfx::Key key) {
 
                     if(result == "Yes")
                         std::filesystem::remove_all(fileManager::getWorldsPath() + i.name);
+                    
                     refresh();
+                    break;
                 }
             }
     } else if(key == gfx::Key::SHIFT)

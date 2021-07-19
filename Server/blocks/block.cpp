@@ -25,18 +25,9 @@ void Block::setType(BlockType block_id) {
         if(event.cancelled)
             return;
         
-        bool was_transparent = getUniqueBlock().transparent;
-        
+        parent_map->removeNaturalLight(x);
         setTypeWithoutProcessing(block_id);
-        
-        if(getUniqueBlock().transparent != was_transparent) {
-            if(getUniqueBlock().transparent)
-                for(int curr_y = y; parent_map->getBlock(x, curr_y).getUniqueBlock().transparent; curr_y++)
-                    parent_map->getBlock(x, curr_y).setLightSource(MAX_LIGHT);
-            else
-                for(int curr_y = y; parent_map->getBlock(x, curr_y).isLightSource(); curr_y++)
-                    parent_map->getBlock(x, curr_y).removeLightSource();
-        }
+        parent_map->setNaturalLight(x);
         
         update();
         updateNeighbors();

@@ -29,7 +29,7 @@ void clientPlayers::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::PLAYER_JOIN: {
             auto* new_player = new clientPlayer();
-            event.packet << new_player->x << new_player->y << new_player->id << new_player->name;
+            event.packet >> new_player->x >> new_player->y >> new_player->id >> new_player->name;
             new_player->name_text.renderText(new_player->name, {0, 0, 0});
             other_players.push_back(new_player);
             break;

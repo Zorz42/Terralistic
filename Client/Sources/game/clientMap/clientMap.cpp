@@ -20,7 +20,7 @@ void map::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::ITEM_CREATION: {
             int x, y;
-            unsigned short id;
+            short id;
             unsigned char type_char;
             event.packet >> x >> y >> id >> type_char;
             ItemType type = (ItemType)type_char;
@@ -29,7 +29,7 @@ void map::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::ITEM_DELETION: {
-            unsigned short id;
+            short id;
             event.packet >> id;
             for(auto i = items.begin(); i != items.end(); i++)
                 if(i->getId() == id) {
@@ -62,8 +62,7 @@ void map::onEvent(ClientPacketEvent &event) {
             unsigned char light_level;
             event.packet >> x >> y >> light_level;
             
-            block curr_block = getBlock(x, y);
-            curr_block.setLightLevel(light_level);
+            getBlock(x, y).setLightLevel(light_level);
             break;
         }
         case PacketType::LIQUID_CHANGE: {

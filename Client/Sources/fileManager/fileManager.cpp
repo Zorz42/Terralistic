@@ -23,3 +23,7 @@ std::string fileManager::getDataPath() {
 std::string fileManager::getWorldsPath() {
     return data_path + "worlds/";
 }
+
+std::string fileManager::getConfigPath() {
+    return data_path + "config.txt";
+}

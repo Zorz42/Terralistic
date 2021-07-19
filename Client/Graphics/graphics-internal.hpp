@@ -17,6 +17,10 @@ inline unsigned short font_size;
 inline sf::RenderTarget *render_target = nullptr;
 inline sf::Clock clock;
 
+inline unsigned short min_window_width, min_window_height;
+
+inline float global_scale = 1;
+
 }
 
 #endif /* graphics_internal_hpp */

@@ -19,6 +19,13 @@ void items::spawnItem(ItemType item_id, int x, int y, short id) {
     static short curr_id = 0;
     if(id == -1)
         id = curr_id++;
+    
+    ServerItemCreationEvent event(item_id, x, y, id);
+    event.call();
+    
+    if(event.cancelled)
+        return;
+    
     item_arr.emplace_back();
     item_arr.back().create(item_id, x, y, id, parent_blocks);
 }
@@ -34,16 +41,6 @@ void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks*
     id = id_;
     item_id = item_id_;
     parent_blocks = parent_blocks_;
-    
-    /*sf::Packet item_packet;
-    item_packet << PacketType::ITEM_CREATION << x << y << getId() << (char)getItemId();
-    manager->sendToEveryone(item_packet);*/
-}
-
-void item::destroy() {
-    /*sf::Packet packet;
-    packet << PacketType::ITEM_DELETION << getId();
-    manager->sendToEveryone(packet);*/
 }
 
 const ItemInfo& item::getUniqueItem() const {
@@ -101,9 +98,13 @@ void item::update(float frame_length) {
     }
     
     if(prev_x != x || prev_y != y) {
-        /*sf::Packet packet;
-        packet << PacketType::ITEM_MOVEMENT << x << y << getId();
-        manager->sendToEveryone(packet);*/
+        ServerItemMovementEvent event(*this);
+        event.call();
+        
+        if(event.cancelled) {
+            x = prev_x;
+            y = prev_y;
+        }
     }
 }
 
@@ -124,7 +125,12 @@ bool item::colliding() const {
 void items::destroyItem(const item& item_to_destroy) {
     for(unsigned long i = 0; i < item_arr.size(); i++)
         if(item_arr[i].getId() == item_to_destroy.getId()) {
-            item_arr[i].destroy();
+            ServerItemDeletionEvent event(item_arr[i]);
+            event.call();
+            
+            if(event.cancelled)
+                return;
+            
             item_arr.erase(item_arr.begin() + i);
         }
 }

@@ -20,7 +20,7 @@ struct MapBlock {
     unsigned short break_progress = 0;
     unsigned char break_stage = 0;
     
-    bool light_source = false, update_light = true;
+    bool light_source = false, update_light = true, has_changed_light = false;
     unsigned char light_level = 0;
     
     LiquidType liquid_id = LiquidType::EMPTY;
@@ -72,6 +72,8 @@ public:
     inline unsigned char getLightLevel() { return block_data->light_level; }
     inline void scheduleLightUpdate() { block_data->update_light = true; }
     inline bool hasScheduledLightUpdate() { return block_data->update_light; }
+    inline bool hasLightChanged() { return block_data->has_changed_light; }
+    inline void markLightUnchanged() { block_data->has_changed_light = false; }
 };
 
 class ServerBlockChangeEvent : public Event<ServerBlockChangeEvent> {

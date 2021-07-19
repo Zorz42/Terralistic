@@ -60,27 +60,11 @@ void players::onEvent(ServerPacketEvent& event) {
         }
 
         case PacketType::PLAYER_MOVEMENT: {
-            event.packet << curr_player->x << curr_player->y << curr_player->flipped;
+            event.packet >> curr_player->x >> curr_player->y >> curr_player->flipped;
             
             sf::Packet movement_packet;
-            movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << (char)curr_player->flipped << curr_player->id;
+            movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << curr_player->flipped << curr_player->id;
             sendToEveryone(movement_packet, curr_player);
-            break;
-        }
-
-        case PacketType::DISCONNECT: {
-            print::info(curr_player->name + " (" + curr_player->socket->getRemoteAddress().toString() + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
-            delete curr_player->socket;
-            for(auto i = online_players.begin(); i != online_players.end(); i++)
-                if((*i)->id == curr_player->id) {
-                    online_players.erase(i);
-                    break;
-                }
-
-            sf::Packet quit_packet;
-            quit_packet << PacketType::PLAYER_QUIT << curr_player->id;
-            sendToEveryone(quit_packet);
-            
             break;
         }
 
@@ -124,14 +108,40 @@ void players::onEvent(ServerBlockBreakStageChangeEvent& event) {
     sendToEveryone(packet);
 }
 
-void players::onEvent(ServerLightChangeEvent& event) {
-    sf::Packet packet;
-    packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.light_level;
-    sendToEveryone(packet);
-}
-
 void players::onEvent(ServerLiquidChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::LIQUID_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.liquid_type << event.liquid_level;
     sendToEveryone(packet);
+}
+
+void players::onEvent(ServerItemCreationEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ITEM_CREATION << event.x << event.y << event.id << (unsigned char)event.item_id;
+    sendToEveryone(packet);
+}
+
+void players::onEvent(ServerItemDeletionEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ITEM_DELETION << (short)event.item_to_delete.getId();
+    sendToEveryone(packet);
+}
+
+void players::onEvent(ServerItemMovementEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ITEM_MOVEMENT << event.moved_item.x <<  event.moved_item.y << event.moved_item.getId();
+    sendToEveryone(packet);
+}
+
+void players::sendInventoryItemPacket(inventoryItem& item, ItemType type, unsigned short stack) {
+    sf::Packet packet;
+    packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();
+    item.getHolderInventory().getOwner().socket->send(packet);
+}
+
+void players::onEvent(ServerInventoryItemStackChangeEvent& event) {
+    sendInventoryItemPacket(event.item, event.item.getId(), event.stack);
+}
+
+void players::onEvent(ServerInventoryItemTypeChangeEvent& event) {
+    sendInventoryItemPacket(event.item, event.type, event.item.getStack());
 }
