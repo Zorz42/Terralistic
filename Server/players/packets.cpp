@@ -125,9 +125,9 @@ void players::onEvent(ServerBlockBreakStageChangeEvent& event) {
 }
 
 void players::onEvent(ServerLightChangeEvent& event) {
-    sf::Packet packet;
+    /*sf::Packet packet;
     packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.light_level;
-    sendToEveryone(packet);
+    sendToEveryone(packet);*/
 }
 
 void players::onEvent(ServerLiquidChangeEvent& event) {

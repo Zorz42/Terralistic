@@ -14,10 +14,13 @@ void networkingManager::sendPacket(sf::Packet& packet) {
 void networkingManager::checkForPackets() {
     sf::Packet packet;
     
-    if(socket.receive(packet) != sf::Socket::NotReady) {
-        PacketType packet_type;
-        packet >> packet_type;
-        ClientPacketEvent(packet, packet_type).call();
+    while(true) {
+        if(socket.receive(packet) != sf::Socket::NotReady) {
+            PacketType packet_type;
+            packet >> packet_type;
+            ClientPacketEvent(packet, packet_type).call();
+        } else
+            break;
     }
 }
 

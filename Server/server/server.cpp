@@ -69,12 +69,12 @@ void server::start() {
             std::this_thread::sleep_for(std::chrono::milliseconds(50 - tick_length));
         b = a;
 
+        server_players.checkForNewConnections();
+        server_players.getPacketsFromPlayers();
         server_items.updateItems(tick_length);
         server_players.lookForItems();
         server_players.updatePlayersBreaking(tick_length);
         server_players.updateBlocks();
-        server_players.checkForNewConnections();
-        server_players.getPacketsFromPlayers();
     }
 
     std::cout << std::endl;
