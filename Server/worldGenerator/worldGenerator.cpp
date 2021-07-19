@@ -71,7 +71,7 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     /*int heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
     server_blocks->biomes[x] = (Biome)((biome_height << 2) + heat);*/
-    server_blocks->biomes[x] = Biome::SNOWY_TUNDRA;
+    server_blocks->biomes[x] = Biome::ICY_SEAS;
 }
 
 void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
@@ -251,7 +251,12 @@ void worldGenerator::loadBiomes() {
                            {}));
     loaded_biomes.push_back(biome(Biome::COLD_HILLS, 0, 0, {}, {}));
     loaded_biomes.push_back(biome(Biome::SNOWY_MOUNTAINS, 0, 0, {}, {}));
-    loaded_biomes.push_back(biome(Biome::SEA, server_blocks->getHeight() / 3 * 2 - 50, 10,
-                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+    loaded_biomes.push_back(biome(Biome::SEA, server_blocks->getHeight() / 3 * 2, 0,
+                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight() / 3 * 2 - 50, 10)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::PLAINS, server_blocks -> getHeight() / 6 * 4 + 22, 7,
+                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 1, 0),
+                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
                                   {}));
 }
