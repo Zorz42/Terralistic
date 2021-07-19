@@ -131,3 +131,17 @@ void players::onEvent(ServerItemMovementEvent& event) {
     packet << PacketType::ITEM_MOVEMENT << event.moved_item.x <<  event.moved_item.y << event.moved_item.getId();
     sendToEveryone(packet);
 }
+
+void players::sendInventoryItemPacket(inventoryItem& item, ItemType type, unsigned short stack) {
+    sf::Packet packet;
+    packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();
+    item.getHolderInventory().getOwner().socket->send(packet);
+}
+
+void players::onEvent(ServerInventoryItemStackChangeEvent& event) {
+    sendInventoryItemPacket(event.item, event.item.getId(), event.stack);
+}
+
+void players::onEvent(ServerInventoryItemTypeChangeEvent& event) {
+    sendInventoryItemPacket(event.item, event.type, event.item.getStack());
+}

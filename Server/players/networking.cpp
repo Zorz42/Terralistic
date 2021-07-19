@@ -62,7 +62,7 @@ void players::getPacketsFromPlayers() {
 
             for(inventoryItem& curr_item : curr_player->player_inventory.inventory_arr)
                 if(curr_item.getId() != ItemType::NOTHING)
-                    curr_item.sendPacket();
+                    sendInventoryItemPacket(curr_item, curr_item.getId(), curr_item.getStack());
             
             sf::Packet join_packet;
             join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;

@@ -32,7 +32,9 @@ public:
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
-    void sendPacket();
+    unsigned char getPosInInventory();
+    void syncWithClient();
+    inline inventory& getHolderInventory() { return *holder; } 
 };
 
 class inventory {
@@ -47,6 +49,7 @@ public:
     unsigned char selected_slot = 0;
     inventoryItem* getSelectedSlot();
     void swapWithMouseItem(inventoryItem* item);
+    inline player& getOwner() { return *owner; }
 };
 
 class player {
@@ -86,7 +89,21 @@ public:
     player& sender;
 };
 
-class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent> {
+class ServerInventoryItemTypeChangeEvent : public Event<ServerInventoryItemTypeChangeEvent> {
+public:
+    ServerInventoryItemTypeChangeEvent(inventoryItem& item, ItemType type) : item(item), type(type) {}
+    inventoryItem& item;
+    ItemType type;
+};
+
+class ServerInventoryItemStackChangeEvent : public Event<ServerInventoryItemStackChangeEvent> {
+public:
+    ServerInventoryItemStackChangeEvent(inventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
+    inventoryItem& item;
+    unsigned short stack;
+};
+
+class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent> {
     items* parent_items;
     Blocks* parent_blocks;
     
@@ -101,6 +118,8 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
     void onEvent(ServerItemCreationEvent& event) override;
     void onEvent(ServerItemDeletionEvent& event) override;
     void onEvent(ServerItemMovementEvent& event) override;
+    void onEvent(ServerInventoryItemStackChangeEvent& event) override;
+    void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
     
     void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
     void rightClickEvent(Block this_block, player* peer);
@@ -131,6 +150,8 @@ public:
     
     void checkForNewConnections();
     void getPacketsFromPlayers();
+    
+    void sendInventoryItemPacket(inventoryItem& item, ItemType type, unsigned short stack);
     
     bool accept_itself = false;
     

@@ -12,8 +12,13 @@
 
 void inventoryItem::setId(ItemType id) {
     if(item_id != id) {
+        ServerInventoryItemTypeChangeEvent event(*this, id);
+        event.call();
+        
+        if(event.cancelled)
+            return;
+        
         item_id = id;
-        sendPacket();
     }
 }
 
@@ -25,11 +30,15 @@ const ItemInfo& inventoryItem::getUniqueItem() const {
 void inventoryItem::setStack(unsigned short stack_) {
     // just update to nothing if stack reaches 0
     if(stack != stack_) {
+        ServerInventoryItemStackChangeEvent event(*this, stack_);
+        event.call();
+        
+        if(event.cancelled)
+            return;
+        
         stack = stack_;
         if(!stack)
-            item_id = ItemType::NOTHING;
-        
-        sendPacket();
+            setId(ItemType::NOTHING);
     }
 }
 
@@ -57,10 +66,8 @@ bool inventoryItem::decreaseStack(unsigned short stack_) {
     }
 }
 
-void inventoryItem::sendPacket() {
-    /*sf::Packet packet;
-    packet << PacketType::INVENTORY_CHANGE << (unsigned short)getStack() << (unsigned char)item_id << (unsigned char)(this - &holder->inventory_arr[0]);
-    holder->owner->conn->sendPacket(packet);*/
+unsigned char inventoryItem::getPosInInventory() {
+    return this - &holder->inventory_arr[0];
 }
 
 inventory::inventory(player* owner) : owner(owner) {
