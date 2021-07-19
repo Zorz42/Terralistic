@@ -68,22 +68,6 @@ void players::onEvent(ServerPacketEvent& event) {
             break;
         }
 
-        case PacketType::DISCONNECT: {
-            print::info(curr_player->name + " (" + curr_player->socket->getRemoteAddress().toString() + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
-            delete curr_player->socket;
-            for(auto i = online_players.begin(); i != online_players.end(); i++)
-                if((*i)->id == curr_player->id) {
-                    online_players.erase(i);
-                    break;
-                }
-
-            sf::Packet quit_packet;
-            quit_packet << PacketType::PLAYER_QUIT << curr_player->id;
-            sendToEveryone(quit_packet);
-            
-            break;
-        }
-
         case PacketType::INVENTORY_SWAP: {
             unsigned char pos;
             event.packet >> pos;

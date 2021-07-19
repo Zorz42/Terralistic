@@ -22,6 +22,7 @@ static bool running = false;
 
 void inthand(int signum) {
     running = false;
+    std::cout << std::endl;
 }
 
 void server::start() {
@@ -76,8 +77,6 @@ void server::start() {
         server_players.updatePlayersBreaking(tick_length);
         server_players.updateBlocks();
     }
-
-    std::cout << std::endl;
 
     if(!server_players.accept_itself) {
         sf::Packet kick_packet;

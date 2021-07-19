@@ -24,15 +24,14 @@ void players::sendToEveryone(sf::Packet& packet, player* exclusion) {
 }
 
 void players::checkForNewConnections() {
+    static sf::TcpSocket *socket = new sf::TcpSocket;
     while(true) {
-        sf::TcpSocket* socket = new sf::TcpSocket();
         if(listener.accept(*socket) != sf::Socket::NotReady) {
             socket->setBlocking(false);
             pending_connections.push_back(socket);
-        } else {
-            delete socket;
+            socket = new sf::TcpSocket;
+        } else
             break;
-        }
     }
 }
 
@@ -61,7 +60,7 @@ void players::getPacketsFromPlayers() {
                 curr_player->socket->send(item_packet);
             }
 
-            for(inventoryItem& curr_item : curr_player->player_inventory.inventory_arr) // send the whole inventory
+            for(inventoryItem& curr_item : curr_player->player_inventory.inventory_arr)
                 if(curr_item.getId() != ItemType::NOTHING)
                     curr_item.sendPacket();
             
@@ -80,12 +79,28 @@ void players::getPacketsFromPlayers() {
     for(player* curr_player : online_players) {
         while(true) {
             sf::Packet packet;
-            if(curr_player->socket->receive(packet) != sf::Socket::NotReady) {
+            sf::Socket::Status status = curr_player->socket->receive(packet);
+            if(status == sf::Socket::NotReady)
+                break;
+            else if(status == sf::Socket::Disconnected) {
+                print::info(curr_player->name + " (" + curr_player->socket->getRemoteAddress().toString() + ") disconnected (" + std::to_string(online_players.size() - 1) + " players online)");
+                delete curr_player->socket;
+                for(auto i = online_players.begin(); i != online_players.end(); i++)
+                    if((*i)->id == curr_player->id) {
+                        online_players.erase(i);
+                        break;
+                    }
+
+                sf::Packet quit_packet;
+                quit_packet << PacketType::PLAYER_QUIT << curr_player->id;
+                sendToEveryone(quit_packet);
+                
+                break;
+            } else if(status == sf::Socket::Done) {
                 unsigned char packet_type;
                 packet >> packet_type;
                 ServerPacketEvent(packet, (PacketType)packet_type, *curr_player).call();
-            } else
-                break;
+            }
         }
     }
 }

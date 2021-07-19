@@ -30,3 +30,7 @@ bool networkingManager::establishConnection(const std::string &ip, unsigned shor
     socket.setBlocking(false);
     return true;
 }
+
+void networkingManager::closeConnection() {
+    socket.disconnect();
+}

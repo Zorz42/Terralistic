@@ -19,6 +19,7 @@ class networkingManager {
     sf::TcpSocket socket;
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
+    void closeConnection();
     
     void checkForPackets();
     
