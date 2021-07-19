@@ -60,7 +60,7 @@ void players::onEvent(ServerPacketEvent& event) {
         }
 
         case PacketType::PLAYER_MOVEMENT: {
-            event.packet << curr_player->x << curr_player->y << curr_player->flipped;
+            event.packet >> curr_player->x >> curr_player->y >> curr_player->flipped;
             
             sf::Packet movement_packet;
             movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << (char)curr_player->flipped << curr_player->id;
