@@ -29,10 +29,11 @@ void gfx::Image::loadFromFile(const std::string& path) {
     bool result = image_texture.loadFromFile(resource_path + path);
     assert(result);
     sf::RectangleShape sfml_rect;
-    sfml_rect.setSize({(float)image_texture.getSize().x, (float)image_texture.getSize().y});
+    sf::Vector2u size = image_texture.getSize();
+    sfml_rect.setSize({(float)size.x, (float)size.y});
     sfml_rect.setTexture(&image_texture);
     
-    createBlankImage(image_texture.getSize().x, image_texture.getSize().y);
+    createBlankImage(size.x, size.y);
     sfml_render_texture->draw(sfml_rect);
     sfml_render_texture->display();
 }
