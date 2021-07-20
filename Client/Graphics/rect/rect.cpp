@@ -3,22 +3,20 @@
 
 gfx::Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : r(r), g(g), b(b), a(a) {}
 
-
 gfx::RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
 
 void gfx::RectShape::render(Color c, bool fill) {
-    sf::RectangleShape rec(sf::Vector2f(w, h));
-    rec.setPosition(x, y);
+    sf::RectangleShape rect(sf::Vector2f(w, h));
+    rect.setPosition(x, y);
     if (fill) {
-        rec.setOutlineColor(sf::Color::Transparent);
-        rec.setFillColor((const sf::Color)c);
-        gfx::render_target->draw(rec);
-    }
-    else {
-        rec.setFillColor(sf::Color::Transparent);
-        rec.setOutlineColor((const sf::Color)c);
-        rec.setOutlineThickness(5.0f);
-        gfx::render_target->draw(rec);
+        rect.setOutlineColor(sf::Color::Transparent);
+        rect.setFillColor((const sf::Color)c);
+        gfx::render_target->draw(rect);
+    } else {
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineColor((const sf::Color)c);
+        rect.setOutlineThickness(1);
+        gfx::render_target->draw(rect);
     }
 }
 
@@ -39,17 +37,6 @@ gfx::_CenteredObject::_CenteredObject(short x, short y, ObjectType orientation) 
 gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(x, y, orientation), w(w), h(h), c(c) {}
 
 void gfx::Rect::render(bool fill) const {
-    RectShape gfx_rect = getTranslatedRect();
-    sf::RectangleShape rec(sf::Vector2f(gfx_rect.w, gfx_rect.h));
-    rec.setPosition(gfx_rect.x, gfx_rect.y);
-    if(fill) {
-        rec.setOutlineColor(sf::Color::Transparent);
-        rec.setFillColor((const sf::Color)c);
-        gfx::render_target->draw(rec);
-    } else {
-        rec.setFillColor(sf::Color::Transparent);
-        rec.setOutlineColor((const sf::Color)c);
-        rec.setOutlineThickness(1.0f);
-        gfx::render_target->draw(rec);
-    }
+    RectShape rect = getTranslatedRect();
+    rect.render(c, fill);
 }

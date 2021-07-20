@@ -79,19 +79,17 @@ void gfx::returnFromScene() {
     running_scene = false;
 }
 
-void gfx::Scene::operateEvent(sf::Event event) 
-{
-    start = getTicks();
+static bool quit_game = false;
 
+void gfx::Scene::operateEvent(sf::Event event) {
     disable_events_gl = disable_events;
     sf::Event::EventType type = event.type;
     if (type == sf::Event::MouseMoved) {
         mouse_x = event.mouseMove.x / global_scale;
         mouse_y = event.mouseMove.y / global_scale;
     }
-    else if (type == sf::Event::Resized) {
+    else if (type == sf::Event::Resized)
         setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
-    }
     else if (type == sf::Event::MouseButtonPressed) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         bool clicked_text_box = false;
@@ -175,20 +173,17 @@ void gfx::Scene::operateEvent(sf::Event event)
         onMouseScroll(event.mouseWheel.delta);
     }
     else if (type == sf::Event::Closed)
-    {
-        this->quitScene = true;
-    }
+        quit_game = true;
 }
 
 void gfx::Scene::run() {
-    quitScene = false;
-    
     init();
     for (GraphicalModule* module : modules) {
         module->init();
     }
     
-    while(running_scene && !quitScene) {
+    while(running_scene && !quit_game) {
+        unsigned int frame_start = getTicks();
         
         for(GraphicalModule* module : modules) {
             if(disable_events_gl)
@@ -213,8 +208,8 @@ void gfx::Scene::run() {
         
         updateWindow();
         
-        unsigned int end = getTicks();
-        frame_length = end - start;
+        unsigned int frame_end = getTicks();
+        frame_length = frame_end - frame_start;
         if(frame_length < 5) {
             sleep(5 - frame_length);
             frame_length = 5;

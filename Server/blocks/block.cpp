@@ -61,6 +61,12 @@ void Block::setBreakProgress(unsigned short ms) {
 }
 
 void Block::update() {
+    ServerBlockUpdateEvent event(*this);
+    event.call();
+    
+    if(event.cancelled)
+        return;
+    
     if(getUniqueBlock().only_on_floor && parent_map->getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
         breakBlock();
     scheduleLightUpdate();

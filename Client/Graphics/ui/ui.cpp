@@ -69,7 +69,8 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());
     sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
-    sprite.setPosition(x, y);
+    int x_offset = flipped ? getTextureWidth() : 0;
+    sprite.setPosition(x + x_offset * scale, y);
     int flip_factor = flipped ? -1 : 1;
     sprite.setScale(flip_factor * scale, scale);
     sprite.setColor({color.r, color.g, color.b, color.a});
@@ -77,16 +78,7 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
 }
 
 void gfx::Image::render(float scale, short x, short y) const {
-    sfml_render_texture->display();
-    sf::Sprite sprite;
-    int x_offset = flipped ? getTextureWidth() * scale : 0;
-    sprite.setPosition(x + x_offset, y);
-    sprite.setTexture(sfml_render_texture->getTexture());
-    int flip_factor = flipped ? -1 : 1;
-    
-    sprite.setScale(flip_factor * scale, scale);
-    sprite.setColor({color.r, color.g, color.b, color.a});
-    render_target->draw(sprite);
+    render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()});
 }
 
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};
@@ -158,10 +150,9 @@ void gfx::TextInput::render() const {
         x = cut_length;
         w = rect.w / scale - cut_length;
     }
-    RectShape rec(x, 0, w, rect.h / scale);
-    Image::render(scale, rect.x, rect.y, rec);
-    if (active)
-    {
+    
+    Image::render(scale, rect.x, rect.y, {x, 0, w, (unsigned short)(rect.h / scale)});
+    if (active) {
         Rect rec(rect.x + (rect.w > width * scale ? width * scale : rect.w - cut_length * scale), rect.y, scale, rect.h, text_color);
         rec.render();
     }

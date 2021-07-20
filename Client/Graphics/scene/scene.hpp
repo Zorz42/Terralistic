@@ -33,9 +33,6 @@ public:
     void onKeyDownCallback(Key key_);
     void onKeyUpCallback(Key key_);
 private:
-    //static bool quitScene;
-    bool quitScene;
-    unsigned int start;
     void operateEvent(sf::Event event);
 };
 

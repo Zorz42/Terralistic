@@ -138,7 +138,6 @@ void playerHandler::update() {
             for(unsigned short y = starting_y; y <= ending_y; y++)
                 speed_multiplier = std::min(speed_multiplier, world_map->getBlock(x, y).getSpeedMultiplier());
         
-        // gravity
         player->velocity_y = touchingGround() && player->velocity_y >= 0 ? short(0) : short(player->velocity_y + gfx::getDeltaTime() / 4 * speed_multiplier);
         
         int move_x = float(player->velocity_x * gfx::getDeltaTime() / 100) * speed_multiplier, move_y = float(player->velocity_y * gfx::getDeltaTime() / 100) * speed_multiplier;

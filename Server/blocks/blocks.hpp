@@ -122,6 +122,12 @@ public:
     Block block;
 };
 
+class ServerBlockUpdateEvent : public Event<ServerBlockUpdateEvent> {
+public:
+    ServerBlockUpdateEvent(Block block) : block(block) {}
+    Block block;
+};
+
 class ServerBlockBreakStageChangeEvent : public Event<ServerBlockBreakStageChangeEvent> {
 public:
     ServerBlockBreakStageChangeEvent(Block block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
