@@ -64,6 +64,7 @@ void Block::update() {
     if(getUniqueBlock().only_on_floor && parent_map->getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
         breakBlock();
     scheduleLightUpdate();
+    liquidUpdate();
 }
 
 void Block::breakBlock() {

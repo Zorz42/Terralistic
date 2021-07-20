@@ -5,6 +5,7 @@
 #include <chrono>
 #include "properties.hpp"
 #include "events.hpp"
+#include "biomes.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100

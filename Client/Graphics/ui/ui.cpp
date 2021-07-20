@@ -48,6 +48,10 @@ void gfx::Image::freeTexture() {
     }
 }
 
+void gfx::Image::setColor(Color color_) {
+    color = color_;
+}
+
 unsigned short gfx::Image::getTextureWidth() const {
     return sfml_render_texture->getSize().x;
 }
@@ -67,12 +71,8 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
     sprite.setPosition(x, y);
     int flip_factor = flipped ? -1 : 1;
     sprite.setScale(flip_factor * scale, scale);
-    sprite.setColor({255, 255, 255, alpha});
+    sprite.setColor({color.r, color.g, color.b, color.a});
     render_target->draw(sprite);
-}
-
-void gfx::Image::setAlpha(unsigned char alpha_) {
-    alpha = alpha_;
 }
 
 void gfx::Image::render(float scale, short x, short y) const {
@@ -82,8 +82,9 @@ void gfx::Image::render(float scale, short x, short y) const {
     sprite.setPosition(x + x_offset, y);
     sprite.setTexture(sfml_render_texture->getTexture());
     int flip_factor = flipped ? -1 : 1;
+    
     sprite.setScale(flip_factor * scale, scale);
-    sprite.setColor({255, 255, 255, alpha});
+    sprite.setColor({color.r, color.g, color.b, color.a});
     render_target->draw(sprite);
 }
 

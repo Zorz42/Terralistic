@@ -2,11 +2,11 @@
 #include <cassert>
 
 void Blocks::createWorld(unsigned short world_width, unsigned short world_height) {
-    assert(world_width % 16 == 0);
-    assert(world_height % 16 == 0);
-    blocks = new MapBlock[world_width * world_height];
     width = world_width;
     height = world_height;
+    
+    assert(width % 16 == 0 && height % 16 == 0);
+    blocks = new MapBlock[width * height];
     biomes = new Biome[width];
 
 }
