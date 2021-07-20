@@ -141,14 +141,29 @@ gfx::TextInput::TextInput() {
 }
 
 void gfx::TextInput::render() const {
-    RectShape rect = this->getTranslatedRect();
+    RectShape rect = getTranslatedRect();
     rect.render(border_color);
-    RectShape(rect.x + this->scale, rect.y + this->scale, rect.w - this->scale * 2, rect.h - this->scale * 2).render(isHovered() ? hover_color : def_color);
-    rect.x += this->margin * this->scale;
-    rect.y += this->margin * this->scale;
-    rect.w = this->getTextureWidth() * this->scale;
-    rect.h -= this->margin * 2 * this->scale;
-    Image::render(scale, rect.x, rect.y, RectShape(rect.w - this->cut_length > this->width * this->scale ? rect.w / this->scale - this->width : this->cut_length, 0, rect.w - this->cut_length > this->width * this->scale ? this->width : rect.w / this->scale - this->cut_length, rect.h / this->scale));
+    RectShape(rect.x + scale, rect.y + scale, rect.w - scale * 2, rect.h - scale * 2).render(isHovered() ? hover_color : def_color);
+    rect.x += margin * scale;
+    rect.y += margin * scale;
+    rect.w = getTextureWidth() * scale;
+    rect.h -= margin * 2 * scale;
+    short x;
+    unsigned short w;
+    if (rect.w - cut_length > width * scale) {
+        x = rect.w / scale - width;
+        w = width;
+    }
+    else {
+        x = cut_length;
+        w = rect.w / scale - cut_length;
+    }
+    RectShape rec(x, 0, w, rect.h / scale);
+    Image::render(scale, rect.x, rect.y, rec);
     if (active)
-        Rect(rect.x + (rect.w > width * scale ? width * scale : rect.w - cut_length * scale), rect.y, scale, rect.h, text_color).render();
+    {
+        Rect rec(rect.x + (rect.w > width * scale ? width * scale : rect.w - cut_length * scale), rect.y, scale, rect.h, text_color);
+        rec.render();
+    }
+        
 }
