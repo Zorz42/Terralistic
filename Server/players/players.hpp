@@ -106,7 +106,7 @@ public:
 };
 
 class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<ServerBlockBreakEvent> {
-    items* parent_items;
+    Items* parent_items;
     Blocks* parent_blocks;
     
     std::vector<sf::TcpSocket*> pending_connections;
@@ -131,7 +131,7 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
     
     sf::TcpListener listener;
 public:
-    players(Blocks* parent_blocks_, items* parent_items_);
+    players(Blocks* parent_blocks_, Items* parent_items_);
     
     inline const std::vector<player*>& getAllPlayers() { return all_players; }
     inline const std::vector<player*>& getOnlinePlayers() { return online_players; }

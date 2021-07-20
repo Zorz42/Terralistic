@@ -128,7 +128,7 @@ void players::onEvent(ServerItemDeletionEvent& event) {
 
 void players::onEvent(ServerItemMovementEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ITEM_MOVEMENT << event.moved_item.x <<  event.moved_item.y << event.moved_item.getId();
+    packet << PacketType::ITEM_MOVEMENT << event.moved_item.getX() <<  event.moved_item.getY() << event.moved_item.getId();
     sendToEveryone(packet);
 }
 

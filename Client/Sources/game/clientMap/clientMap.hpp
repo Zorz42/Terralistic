@@ -38,10 +38,10 @@ protected:
     struct chunkData {
         chunkState state = chunkState::unloaded;
         bool update = true;
-        gfx::Image texture;
+        gfx::Image back_texture, front_texture;
     };
 
-    void renderBlocks();
+    void renderBlocksBack();
     void renderItems();
 
     void render() override;
@@ -66,7 +66,8 @@ public:
 
         void createTexture();
         void updateTexture();
-        void draw();
+        void drawBack();
+        void drawFront();
     };
 
     class block {
@@ -82,7 +83,8 @@ public:
         void setType(BlockType block_id, LiquidType liquid_id);
         void setLightLevel(unsigned char level);
         void setBreakStage(unsigned char stage);
-        void draw();
+        void drawBack();
+        void drawFront();
         void update();
 
         inline bool isGhost() { return block_data->getUniqueBlock().ghost; }
@@ -97,7 +99,7 @@ public:
 
     class item {
         [[nodiscard]] const ItemInfo& getUniqueItem() const;
-        short id;
+        unsigned short id;
         ItemType item_type;
     public:
         item(ItemType item_type, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_type(item_type) {}
@@ -126,6 +128,8 @@ public:
     chunk getChunk(unsigned short x, unsigned short y);
     block getBlock(unsigned short x, unsigned short y);
 
+    void renderBlocksFront();
+    
     [[nodiscard]] inline unsigned short getWorldWidth() const { return width; }
     [[nodiscard]] inline unsigned short getWorldHeight() const { return height; }
 
@@ -134,6 +138,14 @@ public:
     item* getItemById(unsigned short id);
 
     ~map() override;
+};
+
+class mapFront : public gfx::GraphicalModule {
+    map* world_map;
+public:
+    mapFront(map* world_map) : world_map(world_map) {}
+    
+    void render() override;
 };
 
 #endif /* clientMap_hpp */

@@ -20,7 +20,7 @@ void map::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::ITEM_CREATION: {
             int x, y;
-            short id;
+            unsigned short id;
             unsigned char type_char;
             event.packet >> x >> y >> id >> type_char;
             ItemType type = (ItemType)type_char;
@@ -29,7 +29,7 @@ void map::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::ITEM_DELETION: {
-            short id;
+            unsigned short id;
             event.packet >> id;
             for(auto i = items.begin(); i != items.end(); i++)
                 if(i->getId() == id) {
@@ -120,12 +120,16 @@ void map::render() {
     int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * scale) + 2; i++)
         background_image.render(scale, position_x + i * background_image.getTextureWidth() * scale, 0);
-    renderBlocks();
+    renderBlocksBack();
     renderItems();
     if(kicked) {
         choiceScreen(kick_message, {"Close"}).run();
         gfx::returnFromScene();
     }
+}
+
+void mapFront::render() {
+    world_map->renderBlocksFront();
 }
 
 map::~map() {

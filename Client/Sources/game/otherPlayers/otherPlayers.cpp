@@ -13,16 +13,8 @@
 
 void clientPlayers::render() {
     // iterate through every player and render them
-    for(clientPlayer* i : other_players) {
-        int intensity = 0;
-        for(int x = i->x / BLOCK_WIDTH; x < i->x / BLOCK_WIDTH + 2; x++)
-            for(int y = i->y / BLOCK_WIDTH; y < i->y / BLOCK_WIDTH + 3; y++)
-                intensity += world_map->getBlock(x, y).getLightLevel();
-        
-        intensity /= 3 * 2;
-        
-        playerRenderer::render(i->x, i->y, world_map->view_x, world_map->view_y, i->flipped, intensity * 255 / MAX_LIGHT, i->name_text);
-    }
+    for(clientPlayer* i : other_players)
+        playerRenderer::render(i->x, i->y, world_map->view_x, world_map->view_y, i->flipped, i->name_text);
 }
 
 clientPlayer* clientPlayers::getPlayerById(unsigned short id) {

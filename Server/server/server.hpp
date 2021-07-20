@@ -16,7 +16,7 @@
 class server {
     std::string working_dir;
     Blocks server_blocks;
-    items server_items;
+    Items server_items;
     players server_players;
     
     worldGenerator generator;
