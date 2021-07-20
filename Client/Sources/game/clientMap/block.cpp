@@ -36,7 +36,7 @@ const LiquidInfo& map::blockData::getUniqueLiquid() const {
     return ::getLiquidInfo(liquid_id);
 }
 
-void map::renderBlocks() {
+void map::renderBlocksBack() {
     // figure out, what the window is covering and only render that
     short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
@@ -67,9 +67,35 @@ void map::renderBlocks() {
             } else if(getChunk(x, y).getState() == chunkState::loaded) {
                 if(getChunk(x, y).hasToUpdate())
                     getChunk(x, y).updateTexture();
-                getChunk(x, y).draw();
+                getChunk(x, y).drawBack();
             }
         }
+}
+
+void map::renderBlocksFront() {
+    // figure out, what the window is covering and only render that
+    short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
+    short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
+
+    short begin_y = view_y / (BLOCK_WIDTH << 4) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) - 1;
+    short end_y = view_y / (BLOCK_WIDTH << 4) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) + 2;
+
+    if(begin_x < 0)
+        begin_x = 0;
+    if(end_x > getWorldWidth() >> 4)
+        end_x = getWorldWidth() >> 4;
+    if(begin_y < 0)
+        begin_y = 0;
+    if(end_y > getWorldHeight() >> 4)
+        end_y = getWorldHeight() >> 4;
+
+    for(unsigned short x = begin_x; x < end_x; x++)
+        for(unsigned short y = begin_y; y < end_y; y++)
+            if(getChunk(x, y).getState() == chunkState::loaded) {
+                if(getChunk(x, y).hasToUpdate())
+                    getChunk(x, y).updateTexture();
+                getChunk(x, y).drawFront();
+            }
 }
 
 void map::block::updateOrientation() {
@@ -91,22 +117,26 @@ void map::block::updateOrientation() {
     block_data->update = false;
 }
 
-void map::block::draw() {
+void map::block::drawBack() {
     gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
     
     if(getLightLevel())
         getBlockTexture(getType()).render(2, rect.x, rect.y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 
-    if(getLightLevel() != MAX_LIGHT)
-        rect.render();
-
     if(getBreakStage())
         getBreakingTexture().render(2, rect.x, rect.y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
+}
+
+void map::block::drawFront() {
+    gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
 
     if(getLiquidType() != LiquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
         getLiquidTexture(getLiquidType()).render(2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
+    
+    if(getLightLevel() != MAX_LIGHT)
+        rect.render();
 }
 
 void map::block::scheduleTextureUpdate() {

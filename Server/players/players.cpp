@@ -10,7 +10,7 @@
 #include <filesystem>
 #include <fstream>
 
-players::players(Blocks* parent_blocks_, items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {
+players::players(Blocks* parent_blocks_, Items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {
     custom_block_events[(int)BlockType::WOOD].onBreak = [](Blocks* server_blocks, players* server_players, Block* this_block) {
         Block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
         for(Block& i : blocks)
@@ -60,7 +60,7 @@ void players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void players::lookForItems() {
-    for(const item& i : parent_items->getItems())
+    for(const Item& i : parent_items->getItems())
         for(player* player : online_players)
             if(abs(i.x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(i.y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
                 if(player->player_inventory.addItem(i.getItemId(), 1) != -1)

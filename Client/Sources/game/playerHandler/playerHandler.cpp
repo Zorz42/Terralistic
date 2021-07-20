@@ -198,14 +198,7 @@ void playerHandler::update() {
 }
 
 void playerHandler::render() {
-    int intensity = 0;
-    for(int x = player->position_x / BLOCK_WIDTH; x < player->position_x / BLOCK_WIDTH + 2; x++)
-        for(int y = player->position_y / BLOCK_WIDTH; y < player->position_y / BLOCK_WIDTH + 3; y++)
-            intensity += world_map->getBlock(x, y).getLightLevel();
-    
-    intensity /= 3 * 2;
-    
-    playerRenderer::render(player->position_x, player->position_y, world_map->view_x, world_map->view_y, player->flipped, intensity * 255 / MAX_LIGHT);
+    playerRenderer::render(player->position_x, player->position_y, world_map->view_x, world_map->view_y, player->flipped);
     renderBlockSelector();
     renderInventory();
 }

@@ -1,21 +1,14 @@
-//
-//  items.cpp
-//  Server
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #include "items.hpp"
 #include <random>
 #include "properties.hpp"
 #include "packetType.hpp"
 
-void items::updateItems(float frame_length) {
+void Items::updateItems(float frame_length) {
     for(auto & item : item_arr)
         item.update(frame_length);
 }
 
-void items::spawnItem(ItemType item_id, int x, int y, short id) {
+void Items::spawnItem(ItemType item_id, int x, int y, short id) {
     static short curr_id = 0;
     if(id == -1)
         id = curr_id++;
@@ -30,7 +23,7 @@ void items::spawnItem(ItemType item_id, int x, int y, short id) {
     item_arr.back().create(item_id, x, y, id, parent_blocks);
 }
 
-void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks* parent_blocks_) {
+void Item::create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks* parent_blocks_) {
     static std::random_device device;
     static std::mt19937 engine(device());
     velocity_x = (int)engine() % 100;
@@ -43,11 +36,11 @@ void item::create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks*
     parent_blocks = parent_blocks_;
 }
 
-const ItemInfo& item::getUniqueItem() const {
+const ItemInfo& Item::getUniqueItem() const {
     return ::getItemInfo(item_id);
 }
 
-void item::update(float frame_length) {
+void Item::update(float frame_length) {
     int prev_x = x, prev_y = y;
     
     // move and go back if colliding
@@ -55,35 +48,35 @@ void item::update(float frame_length) {
     
     for(int i = 0; i < frame_length / 16 * velocity_x; i++) {
         x++;
-        if(colliding()) {
+        if(collidingWithBlocks()) {
             x--;
             break;
         }
     }
     for(int i = 0; i > frame_length / 16 * velocity_x; i--) {
         x--;
-        if(colliding()) {
+        if(collidingWithBlocks()) {
             x++;
             break;
         }
     }
     for(int i = 0; i < frame_length / 16 * velocity_y; i++) {
         y++;
-        if(colliding()) {
+        if(collidingWithBlocks()) {
             y--;
             break;
         }
     }
     for(int i = 0; i > frame_length / 16 * velocity_y; i--) {
         y--;
-        if(colliding()) {
+        if(collidingWithBlocks()) {
             y++;
             break;
         }
     }
     
     y++;
-    if(colliding())
+    if(collidingWithBlocks())
         velocity_y = 0;
     y--;
     
@@ -109,7 +102,7 @@ void item::update(float frame_length) {
     }
 }
 
-bool item::colliding() const {
+bool Item::collidingWithBlocks() const {
     int height_x = 1, height_y = 1;
     if(x / 100 % BLOCK_WIDTH)
         height_x++;
@@ -123,7 +116,7 @@ bool item::colliding() const {
     return false;
 }
 
-void items::destroyItem(const item& item_to_destroy) {
+void Items::destroyItem(const Item& item_to_destroy) {
     for(unsigned long i = 0; i < item_arr.size(); i++)
         if(item_arr[i].getId() == item_to_destroy.getId()) {
             ServerItemDeletionEvent event(item_arr[i]);
