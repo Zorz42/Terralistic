@@ -111,16 +111,17 @@ bool gfx::Button::isHovered() const {
 }
 
 void gfx::Button::render() {
-    RectShape rect = this->getTranslatedRect();
-    int hover_progress_target = this->isHovered() ? 255 : 0;
-    this->hover_progress += (hover_progress_target - (int)this->hover_progress) / 2;
+    RectShape rect = getTranslatedRect();
+    int hover_progress_target = isHovered() ? 255 : 0;
+    hover_progress += (hover_progress_target - (int)hover_progress) / 2;
     Color button_color{
-        (unsigned char)((int)this->hover_color.r * (int)this->hover_progress / 255 + (int)this->def_color.r * (int)(255 - this->hover_progress) / 255),
-        (unsigned char)((int)this->hover_color.g * (int)this->hover_progress / 255 + (int)this->def_color.g * (int)(255 - this->hover_progress) / 255),
-        (unsigned char)((int)this->hover_color.b * (int)this->hover_progress / 255 + (int)this->def_color.b * (int)(255 - this->hover_progress) / 255),
+        (unsigned char)((int)hover_color.r * (int)hover_progress / 255 + (int)def_color.r * (int)(255 - hover_progress) / 255),
+        (unsigned char)((int)hover_color.g * (int)hover_progress / 255 + (int)def_color.g * (int)(255 - hover_progress) / 255),
+        (unsigned char)((int)hover_color.b * (int)hover_progress / 255 + (int)def_color.b * (int)(255 - hover_progress) / 255),
     };
     rect.render(button_color);
-    Image::render(scale, rect.x + margin * scale, rect.y + margin * scale);
+    float ms = margin * scale;
+    Image::render(scale, rect.x + ms, rect.y + ms);
 }
 
 void gfx::TextInput::setText(const std::string& text_) {
