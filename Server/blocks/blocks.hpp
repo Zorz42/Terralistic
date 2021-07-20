@@ -43,6 +43,7 @@ public:
     inline bool refersToABlock() { return block_data != nullptr; }
     [[nodiscard]] inline unsigned short getX() const { return x; }
     [[nodiscard]] inline unsigned short getY() const { return y; }
+    void breakBlock();
     
     void setTypeWithoutProcessing(BlockType block_id);
     void setType(BlockType block_id);
@@ -110,6 +111,12 @@ public:
     ServerBlockChangeEvent(Block block, BlockType type) : block(block), type(type) {}
     Block block;
     BlockType type;
+};
+
+class ServerBlockBreakEvent : public Event<ServerBlockBreakEvent> {
+public:
+    ServerBlockBreakEvent(Block block) : block(block) {}
+    Block block;
 };
 
 class ServerBlockBreakStageChangeEvent : public Event<ServerBlockBreakStageChangeEvent> {

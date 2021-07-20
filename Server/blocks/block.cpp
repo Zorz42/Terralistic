@@ -61,7 +61,18 @@ void Block::setBreakProgress(unsigned short ms) {
 }
 
 void Block::update() {
-    //if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
-        //breakBlock();
+    if(getUniqueBlock().only_on_floor && parent_map->getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
+        breakBlock();
     scheduleLightUpdate();
+}
+
+void Block::breakBlock() {
+    ServerBlockBreakEvent event(*this);
+    event.call();
+    
+    if(event.cancelled)
+        return;
+    
+    setType(BlockType::AIR);
+    setBreakProgress(0);
 }

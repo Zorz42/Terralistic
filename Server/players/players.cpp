@@ -15,7 +15,7 @@ players::players(Blocks* parent_blocks_, items* parent_items_) : parent_blocks(p
         Block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
         for(Block& i : blocks)
             if(i.getBlockType() == BlockType::WOOD || i.getBlockType() == BlockType::LEAVES)
-                server_players->breakBlock(&i);
+                i.breakBlock();
     };
 
     custom_block_events[(int)BlockType::LEAVES].onBreak = custom_block_events[(int)BlockType::WOOD].onBreak;
@@ -113,10 +113,10 @@ void players::updateBlocks() {
 void players::leftClickEvent(Block this_block, player* peer, unsigned short tick_length) {
     if(custom_block_events[(int)this_block.getBlockType()].onLeftClick)
         custom_block_events[(int)this_block.getBlockType()].onLeftClick(&this_block, peer);
-    else {
+    else if(this_block.getUniqueBlock().break_time != UNBREAKABLE) {
         this_block.setBreakProgress(this_block.getBreakProgress() + tick_length);
         if(this_block.getBreakProgress() >= this_block.getUniqueBlock().break_time)
-            breakBlock(&this_block);
+            this_block.breakBlock();
     }
 }
 
@@ -162,12 +162,9 @@ void players::loadFrom(std::string path) {
     }
 }
 
-void players::breakBlock(Block* this_block) {
-    if(this_block->getUniqueBlock().drop != ItemType::NOTHING)
-        parent_items->spawnItem(this_block->getUniqueBlock().drop, this_block->getX() * BLOCK_WIDTH, this_block->getY() * BLOCK_WIDTH);
-    BlockType this_type = this_block->getBlockType();
-    this_block->setType(BlockType::AIR);
-    this_block->setBreakProgress(0);
-    if(custom_block_events[(int)this_type].onBreak)
-        custom_block_events[(int)this_type].onBreak(parent_blocks, this, this_block);
+void players::onEvent(ServerBlockBreakEvent& event) {
+    if(event.block.getUniqueBlock().drop != ItemType::NOTHING)
+        parent_items->spawnItem(event.block.getUniqueBlock().drop, event.block.getX() * BLOCK_WIDTH, event.block.getY() * BLOCK_WIDTH);
+    if(custom_block_events[(int)event.block.getBlockType()].onBreak)
+        custom_block_events[(int)event.block.getBlockType()].onBreak(parent_blocks, this, &event.block);
 }
