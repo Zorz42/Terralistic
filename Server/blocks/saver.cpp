@@ -20,6 +20,7 @@ void Blocks::saveTo(std::string path) {
 }
 
 void Blocks::loadFrom(std::string path) {
+    createWorld(4400, 1200);
     std::ifstream world_file(path, std::ios::binary);
     world_file.unsetf(std::ios::skipws);
 

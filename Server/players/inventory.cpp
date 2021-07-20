@@ -10,6 +10,10 @@
 #include "players.hpp"
 #include "properties.hpp"
 
+void inventoryItem::setIdWithoutProcessing(ItemType id) {
+    item_id = id;
+}
+
 void inventoryItem::setId(ItemType id) {
     if(item_id != id) {
         ServerInventoryItemTypeChangeEvent event(*this, id);
@@ -18,13 +22,17 @@ void inventoryItem::setId(ItemType id) {
         if(event.cancelled)
             return;
         
-        item_id = id;
+        setIdWithoutProcessing(id);
     }
 }
 
 const ItemInfo& inventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
     return ::getItemInfo(item_id);
+}
+
+void inventoryItem::setStackWithoutProcessing(unsigned short stack_) {
+    stack = stack_;
 }
 
 void inventoryItem::setStack(unsigned short stack_) {
@@ -36,7 +44,7 @@ void inventoryItem::setStack(unsigned short stack_) {
         if(event.cancelled)
             return;
         
-        stack = stack_;
+        setStackWithoutProcessing(stack_);
         if(!stack)
             setId(ItemType::NOTHING);
     }

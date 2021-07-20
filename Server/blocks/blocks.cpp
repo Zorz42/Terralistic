@@ -2,11 +2,11 @@
 #include <cassert>
 
 void Blocks::createWorld(unsigned short world_width, unsigned short world_height) {
-    assert(world_width % 16 == 0);
-    assert(world_height % 16 == 0);
-    blocks = new MapBlock[world_width * world_height];
     width = world_width;
     height = world_height;
+    
+    assert(width % 16 == 0 && height % 16 == 0);
+    blocks = new MapBlock[width * height];
     biomes = new Biome[width];
 
 }
@@ -16,13 +16,13 @@ int Blocks::getSpawnX() {
 }
 
 int Blocks::getSpawnY() {
-    int result = 0;
+    int spawn_y = 0;
     for(unsigned short y = 0; y < height; y++) {
         if(!getBlock(width / 2 - 1, y).getUniqueBlock().transparent || !getBlock(width / 2, y).getUniqueBlock().transparent)
             break;
-        result += BLOCK_WIDTH;
+        spawn_y += BLOCK_WIDTH;
     }
-    return result;
+    return spawn_y;
 }
 
 Blocks::~Blocks() {

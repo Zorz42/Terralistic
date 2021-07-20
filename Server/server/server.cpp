@@ -34,8 +34,6 @@ void server::start() {
         working_dir.push_back('/');
     running = true;
 
-    server_blocks.createWorld(4400, 1200);
-
     std::string world_path = working_dir + "world/";
     if(std::filesystem::exists(world_path)) {
         state = LOADING_WORLD;
@@ -47,9 +45,9 @@ void server::start() {
         state = GENERATING_WORLD;
         print::info("Generating world...");
         if(working_dir.substr(working_dir.length() - 16, 16) == "/StructureWorld/")
-          generator.generateWorld(1000);
+          generator.generateWorld(4400, 1200, 1000);
         else
-          generator.generateWorld(rand());
+          generator.generateWorld(4400, 1200, rand());
     }
 
     print::info("Post initializing modules...");

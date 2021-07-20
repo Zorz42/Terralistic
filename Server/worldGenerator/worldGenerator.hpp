@@ -61,7 +61,7 @@ public:
     inline unsigned int getGeneratingCurrent() const { return generating_current; }
     inline unsigned int getGeneratingTotal() const { return generating_total; }
 
-    int generateWorld(unsigned int seed);
+    int generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed);
 };
 
 #endif /* worldGenerator_hpp */

@@ -27,8 +27,10 @@ public:
 
     inline ItemType getId() { return item_id; }
     void setId(ItemType id);
+    void setIdWithoutProcessing(ItemType id);
     [[nodiscard]] const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
+    void setStackWithoutProcessing(unsigned short stack_);
     [[nodiscard]] unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
@@ -103,7 +105,7 @@ public:
     unsigned short stack;
 };
 
-class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent> {
+class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<ServerBlockBreakEvent> {
     items* parent_items;
     Blocks* parent_blocks;
     
@@ -120,6 +122,7 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
     void onEvent(ServerItemMovementEvent& event) override;
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
+    void onEvent(ServerBlockBreakEvent& event) override;
     
     void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
     void rightClickEvent(Block this_block, player* peer);
@@ -141,8 +144,6 @@ public:
     
     void saveTo(std::string path);
     void loadFrom(std::string path);
-    
-    void breakBlock(Block* this_block);
     
     void openSocket(unsigned short port);
     void closeSocket();

@@ -2,9 +2,9 @@
 #define blocks_hpp
 
 #include <string>
-#include <chrono>
 #include "properties.hpp"
 #include "events.hpp"
+#include "biomes.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -14,16 +14,16 @@ enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 class Blocks;
 
 struct MapBlock {
-    MapBlock(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+    MapBlock(BlockType block_type=BlockType::AIR, LiquidType liquid_type=LiquidType::EMPTY) : block_type(block_type), liquid_type(liquid_type) {}
 
-    BlockType block_id;
+    BlockType block_type;
     unsigned short break_progress = 0;
     unsigned char break_stage = 0;
     
     bool light_source = false, update_light = true, has_changed_light = false;
     unsigned char light_level = 0;
     
-    LiquidType liquid_id = LiquidType::EMPTY;
+    LiquidType liquid_type = LiquidType::EMPTY;
     unsigned char liquid_level = 0;
     unsigned int when_to_update_liquid = 1;
     FlowDirection flow_direction = FlowDirection::NONE;
@@ -43,26 +43,30 @@ public:
     inline bool refersToABlock() { return block_data != nullptr; }
     [[nodiscard]] inline unsigned short getX() const { return x; }
     [[nodiscard]] inline unsigned short getY() const { return y; }
+    void breakBlock();
     
-    void setTypeWithoutProcessing(BlockType block_id);
-    void setType(BlockType block_id);
+    void setTypeWithoutProcessing(BlockType block_type);
+    void setType(BlockType block_type);
     void setBreakProgress(unsigned short ms);
     inline unsigned short getBreakProgress() { return block_data->break_progress; }
     inline unsigned char getBreakStage() { return block_data->break_stage; }
-    inline BlockType getBlockType() { return block_data->block_id; }
+    inline BlockType getBlockType() { return block_data->block_type; }
     const BlockInfo& getUniqueBlock();
     
-    void setTypeWithoutProcessing(LiquidType liquid_id);
-    void setType(LiquidType liquid_id);
+    void setTypeWithoutProcessing(LiquidType liquid_type);
+    void setType(LiquidType liquid_type);
+    bool extracted(Block &block_under);
+    
     void liquidUpdate();
-    inline LiquidType getLiquidType() { return block_data->liquid_id; }
-    inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
+    inline LiquidType getLiquidType() { return block_data->liquid_type; }
+    bool canUpdateLiquid();
     void setLiquidLevel(unsigned char level);
     void setLiquidLevelWithoutProcessing(unsigned char level);
     inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
     inline FlowDirection getFlowDirection() { return block_data->flow_direction; }
     inline void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
     const LiquidInfo& getUniqueLiquid();
+    void scheduleLiquidUpdate();
     
     void lightUpdate();
     void setLightSource(unsigned char power);
@@ -74,35 +78,6 @@ public:
     inline bool hasScheduledLightUpdate() { return block_data->update_light; }
     inline bool hasLightChanged() { return block_data->has_changed_light; }
     inline void markLightUnchanged() { block_data->has_changed_light = false; }
-};
-
-class ServerBlockChangeEvent : public Event<ServerBlockChangeEvent> {
-public:
-    ServerBlockChangeEvent(Block block, BlockType type) : block(block), type(type) {}
-    Block block;
-    BlockType type;
-};
-
-class ServerBlockBreakStageChangeEvent : public Event<ServerBlockBreakStageChangeEvent> {
-public:
-    ServerBlockBreakStageChangeEvent(Block block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
-    Block block;
-    unsigned char break_stage;
-};
-
-class ServerLightChangeEvent : public Event<ServerLightChangeEvent> {
-public:
-    ServerLightChangeEvent(Block block, unsigned char light_level) : block(block), light_level(light_level) {}
-    Block block;
-    unsigned char light_level;
-};
-
-class ServerLiquidChangeEvent : public Event<ServerLiquidChangeEvent> {
-public:
-    ServerLiquidChangeEvent(Block block, LiquidType liquid_type, unsigned char liquid_level) : block(block), liquid_type(liquid_type), liquid_level(liquid_level) {}
-    Block block;
-    LiquidType liquid_type;
-    unsigned char liquid_level;
 };
 
 class Blocks {
@@ -130,6 +105,43 @@ public:
     inline unsigned short getWidth() { return width; }
     
     ~Blocks();
+};
+
+
+
+class ServerBlockChangeEvent : public Event<ServerBlockChangeEvent> {
+public:
+    ServerBlockChangeEvent(Block block, BlockType type) : block(block), type(type) {}
+    Block block;
+    BlockType type;
+};
+
+class ServerBlockBreakEvent : public Event<ServerBlockBreakEvent> {
+public:
+    ServerBlockBreakEvent(Block block) : block(block) {}
+    Block block;
+};
+
+class ServerBlockBreakStageChangeEvent : public Event<ServerBlockBreakStageChangeEvent> {
+public:
+    ServerBlockBreakStageChangeEvent(Block block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
+    Block block;
+    unsigned char break_stage;
+};
+
+class ServerLightChangeEvent : public Event<ServerLightChangeEvent> {
+public:
+    ServerLightChangeEvent(Block block, unsigned char light_level) : block(block), light_level(light_level) {}
+    Block block;
+    unsigned char light_level;
+};
+
+class ServerLiquidChangeEvent : public Event<ServerLiquidChangeEvent> {
+public:
+    ServerLiquidChangeEvent(Block block, LiquidType liquid_type, unsigned char liquid_level) : block(block), liquid_type(liquid_type), liquid_level(liquid_level) {}
+    Block block;
+    LiquidType liquid_type;
+    unsigned char liquid_level;
 };
 
 #endif /* blocks_hpp */

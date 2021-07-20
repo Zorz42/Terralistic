@@ -10,23 +10,24 @@ Block Blocks::getBlock(unsigned short x, unsigned short y) {
 }
 
 const BlockInfo& Block::getUniqueBlock() {
-    return ::getBlockInfo(block_data->block_id);
+    return ::getBlockInfo(block_data->block_type);
 }
 
-void Block::setTypeWithoutProcessing(BlockType block_id) {
-    block_data->block_id = block_id;
+void Block::setTypeWithoutProcessing(BlockType block_type) {
+    assert((int)block_type >= 0 && block_type < BlockType::NUM_BLOCKS);
+    block_data->block_type = block_type;
 }
 
-void Block::setType(BlockType block_id) {
-    if(block_id != block_data->block_id) {
-        ServerBlockChangeEvent event(*this, block_id);
+void Block::setType(BlockType block_type) {
+    if(block_type != block_data->block_type) {
+        ServerBlockChangeEvent event(*this, block_type);
         event.call();
         
         if(event.cancelled)
             return;
         
         parent_map->removeNaturalLight(x);
-        setTypeWithoutProcessing(block_id);
+        setTypeWithoutProcessing(block_type);
         parent_map->setNaturalLight(x);
         
         update();
@@ -60,7 +61,19 @@ void Block::setBreakProgress(unsigned short ms) {
 }
 
 void Block::update() {
-    //if(isOnlyOnFloor() && parent_map->getBlock(x, (unsigned short)(y + 1)).isTransparent())
-        //breakBlock();
+    if(getUniqueBlock().only_on_floor && parent_map->getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
+        breakBlock();
     scheduleLightUpdate();
+    scheduleLiquidUpdate();
+}
+
+void Block::breakBlock() {
+    ServerBlockBreakEvent event(*this);
+    event.call();
+    
+    if(event.cancelled)
+        return;
+    
+    setType(BlockType::AIR);
+    setBreakProgress(0);
 }
