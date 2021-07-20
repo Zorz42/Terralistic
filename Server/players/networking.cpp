@@ -56,7 +56,7 @@ void players::getPacketsFromPlayers() {
 
             for(const Item& curr_item : parent_items->getItems()) {
                 sf::Packet item_packet;
-                item_packet << PacketType::ITEM_CREATION << curr_item.x << curr_item.y << curr_item.getId() << (unsigned char)curr_item.getItemId();
+                item_packet << PacketType::ITEM_CREATION << curr_item.getX() << curr_item.getY() << curr_item.getId() << (unsigned char)curr_item.getType();
                 curr_player->socket->send(item_packet);
             }
 

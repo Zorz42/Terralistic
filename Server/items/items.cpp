@@ -8,77 +8,75 @@ void Items::updateItems(float frame_length) {
         item.update(frame_length);
 }
 
-void Items::spawnItem(ItemType item_id, int x, int y, short id) {
-    static short curr_id = 0;
-    if(id == -1)
-        id = curr_id++;
+void Items::spawnItem(ItemType type, int x, int y) {
+    static std::random_device device;
+    static std::mt19937 engine(device());
+    Item item(parent_blocks, type, x, y);
     
-    ServerItemCreationEvent event(item_id, x, y, id);
+    ServerItemCreationEvent event(type, x, y, item.getId());
     event.call();
     
     if(event.cancelled)
         return;
     
-    item_arr.emplace_back();
-    item_arr.back().create(item_id, x, y, id, parent_blocks);
-}
-
-void Item::create(ItemType item_id_, int x_, int y_, unsigned short id_, Blocks* parent_blocks_) {
-    static std::random_device device;
-    static std::mt19937 engine(device());
-    velocity_x = (int)engine() % 100;
-    velocity_y = -int(engine() % 100) - 50;
+    item.addVelocityX(engine() % 100);
+    item.addVelocityY(-(engine() % 100) - 50);
     
-    x = x_ * 100;
-    y = y_ * 100;
-    id = id_;
-    item_id = item_id_;
-    parent_blocks = parent_blocks_;
+    item_arr.emplace_back(item);
 }
 
 const ItemInfo& Item::getUniqueItem() const {
-    return ::getItemInfo(item_id);
+    return ::getItemInfo(type);
+}
+
+void Item::addVelocityX(int vel_x) {
+    velocity_x += vel_x;
+}
+
+void Item::addVelocityY(int vel_y) {
+    velocity_y += vel_y;
+}
+
+int Item::getX() const {
+    return x;
+}
+
+int Item::getY() const {
+    return y;
+}
+
+unsigned short Item::getId() const {
+    return id;
+}
+
+ItemType Item::getType() const {
+    return type;
 }
 
 void Item::update(float frame_length) {
     int prev_x = x, prev_y = y;
+
+    velocity_y += frame_length / 16.0f * 5.0f;
     
-    // move and go back if colliding
-    velocity_y += (int)frame_length / 16.0f * 5.0f;
-    
-    for(int i = 0; i < frame_length / 16 * velocity_x; i++) {
-        x++;
+    int x_to_go = x + frame_length / 16.0f * velocity_x;
+    while(x_to_go != x) {
+        x += x_to_go > x ? 1 : -1;
         if(collidingWithBlocks()) {
-            x--;
-            break;
-        }
-    }
-    for(int i = 0; i > frame_length / 16 * velocity_x; i--) {
-        x--;
-        if(collidingWithBlocks()) {
-            x++;
-            break;
-        }
-    }
-    for(int i = 0; i < frame_length / 16 * velocity_y; i++) {
-        y++;
-        if(collidingWithBlocks()) {
-            y--;
-            break;
-        }
-    }
-    for(int i = 0; i > frame_length / 16 * velocity_y; i--) {
-        y--;
-        if(collidingWithBlocks()) {
-            y++;
+            x -= x_to_go > x ? 1 : -1;
             break;
         }
     }
     
-    y++;
-    if(collidingWithBlocks())
-        velocity_y = 0;
-    y--;
+    int y_to_go = y + frame_length / 16.0f * velocity_y;
+    while(y_to_go != y) {
+        y += y_to_go > y ? 1 : -1;
+        if(collidingWithBlocks()) {
+            y -= y_to_go > y ? 1 : -1;
+            break;
+        }
+    }
+    
+    grounded();
     
     if(velocity_x > 0) {
         velocity_x -= frame_length / 8;
@@ -116,9 +114,16 @@ bool Item::collidingWithBlocks() const {
     return false;
 }
 
-void Items::destroyItem(const Item& item_to_destroy) {
+bool Item::grounded() {
+    y++;
+    bool is_grounded = collidingWithBlocks();
+    y--;
+    return is_grounded;
+}
+
+void Items::removeItem(const Item& item_to_remove) {
     for(unsigned long i = 0; i < item_arr.size(); i++)
-        if(item_arr[i].getId() == item_to_destroy.getId()) {
+        if(item_arr[i].getId() == item_to_remove.getId()) {
             ServerItemDeletionEvent event(item_arr[i]);
             event.call();
             
@@ -127,4 +132,9 @@ void Items::destroyItem(const Item& item_to_destroy) {
             
             item_arr.erase(item_arr.begin() + i);
         }
+}
+
+void Items::onEvent(ServerBlockBreakEvent& event) {
+    if(event.block.getUniqueBlock().drop != ItemType::NOTHING)
+        spawnItem(event.block.getUniqueBlock().drop, event.block.getX() * BLOCK_WIDTH, event.block.getY() * BLOCK_WIDTH);
 }

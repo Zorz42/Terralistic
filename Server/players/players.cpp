@@ -62,9 +62,9 @@ void players::updatePlayersBreaking(unsigned short tick_length) {
 void players::lookForItems() {
     for(const Item& i : parent_items->getItems())
         for(player* player : online_players)
-            if(abs(i.x / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(i.y / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
-                if(player->player_inventory.addItem(i.getItemId(), 1) != -1)
-                    parent_items->destroyItem(i);
+            if(abs(i.getX() / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(i.getY() / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
+                if(player->player_inventory.addItem(i.getType(), 1) != -1)
+                    parent_items->removeItem(i);
 }
 
 void players::updateBlocks() {
@@ -163,8 +163,6 @@ void players::loadFrom(std::string path) {
 }
 
 void players::onEvent(ServerBlockBreakEvent& event) {
-    if(event.block.getUniqueBlock().drop != ItemType::NOTHING)
-        parent_items->spawnItem(event.block.getUniqueBlock().drop, event.block.getX() * BLOCK_WIDTH, event.block.getY() * BLOCK_WIDTH);
     if(custom_block_events[(int)event.block.getBlockType()].onBreak)
         custom_block_events[(int)event.block.getBlockType()].onBreak(parent_blocks, this, &event.block);
 }
