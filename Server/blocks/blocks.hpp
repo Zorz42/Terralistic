@@ -2,7 +2,6 @@
 #define blocks_hpp
 
 #include <string>
-#include <chrono>
 #include "properties.hpp"
 #include "events.hpp"
 #include "biomes.hpp"
@@ -15,7 +14,7 @@ enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 class Blocks;
 
 struct MapBlock {
-    MapBlock(BlockType type=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_type(type), liquid_type(liquid_id) {}
+    MapBlock(BlockType block_type=BlockType::AIR, LiquidType liquid_type=LiquidType::EMPTY) : block_type(block_type), liquid_type(liquid_type) {}
 
     BlockType block_type;
     unsigned short break_progress = 0;
@@ -46,25 +45,28 @@ public:
     [[nodiscard]] inline unsigned short getY() const { return y; }
     void breakBlock();
     
-    void setTypeWithoutProcessing(BlockType block_id);
-    void setType(BlockType block_id);
+    void setTypeWithoutProcessing(BlockType block_type);
+    void setType(BlockType block_type);
     void setBreakProgress(unsigned short ms);
     inline unsigned short getBreakProgress() { return block_data->break_progress; }
     inline unsigned char getBreakStage() { return block_data->break_stage; }
     inline BlockType getBlockType() { return block_data->block_type; }
     const BlockInfo& getUniqueBlock();
     
-    void setTypeWithoutProcessing(LiquidType liquid_id);
-    void setType(LiquidType liquid_id);
+    void setTypeWithoutProcessing(LiquidType liquid_type);
+    void setType(LiquidType liquid_type);
+    bool extracted(Block &block_under);
+    
     void liquidUpdate();
     inline LiquidType getLiquidType() { return block_data->liquid_type; }
-    inline bool canUpdateLiquid() { return block_data->when_to_update_liquid != 0 && (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() > block_data->when_to_update_liquid; }
+    bool canUpdateLiquid();
     void setLiquidLevel(unsigned char level);
     void setLiquidLevelWithoutProcessing(unsigned char level);
     inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
     inline FlowDirection getFlowDirection() { return block_data->flow_direction; }
     inline void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
     const LiquidInfo& getUniqueLiquid();
+    void scheduleLiquidUpdate();
     
     void lightUpdate();
     void setLightSource(unsigned char power);

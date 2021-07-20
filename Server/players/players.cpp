@@ -68,24 +68,24 @@ void players::lookForItems() {
 }
 
 void players::updateBlocks() {
-    bool finished = false;
-    while(!finished) {
-        finished = true;
-        for(player* player : online_players) {
-            int start_x = player->x / 16 - player->sight_width / 2 - 20,
-                start_y = player->y / 16 - player->sight_height / 2 - 20,
-                end_x = player->x / 16 + player->sight_width / 2 + 20,
-                end_y = player->y / 16 + player->sight_height / 2 + 20;
-            if(start_x < 0)
-                start_x = 0;
-            if(start_y < 0)
-                start_y = 0;
-            if(end_y > parent_blocks->getHeight())
-                end_y = parent_blocks->getHeight();
-            if(end_x > parent_blocks->getWidth())
-                end_x = parent_blocks->getWidth();
-            for(unsigned short x = start_x; x < end_x; x++)
-                for(unsigned short y = end_y - 1; y >= start_y; y--) {
+    for(player* player : online_players) {
+        int start_x = player->x / 16 - player->sight_width / 2 - 20,
+            start_y = player->y / 16 - player->sight_height / 2 - 20,
+            end_x = player->x / 16 + player->sight_width / 2 + 20,
+            end_y = player->y / 16 + player->sight_height / 2 + 20;
+        if(start_x < 0)
+            start_x = 0;
+        if(start_y < 0)
+            start_y = 0;
+        if(end_y > parent_blocks->getHeight())
+            end_y = parent_blocks->getHeight();
+        if(end_x > parent_blocks->getWidth())
+            end_x = parent_blocks->getWidth();
+        bool finished = false;
+        while(!finished) {
+            finished = true;
+            for(unsigned short y = start_y; y < end_y; y++)
+                for(unsigned short x = start_x; x < end_x; x++) {
                     Block curr_block = parent_blocks->getBlock(x, y);
                     if(curr_block.hasScheduledLightUpdate()) {
                         curr_block.lightUpdate();
@@ -96,17 +96,17 @@ void players::updateBlocks() {
                         finished = false;
                     }
                 }
-            for(unsigned short x = start_x; x < end_x; x++)
-                for(unsigned short y = end_y - 1; y >= start_y; y--) {
-                    Block curr_block = parent_blocks->getBlock(x, y);
-                    if(curr_block.hasLightChanged()) {
-                        curr_block.markLightUnchanged();
-                        sf::Packet packet;
-                        packet << PacketType::LIGHT_CHANGE << x << y << (unsigned char)curr_block.getLightLevel();
-                        sendToEveryone(packet);
-                    }
-                }
         }
+        for(unsigned short y = start_y; y < end_y; y++)
+            for(unsigned short x = start_x; x < end_x; x++) {
+                Block curr_block = parent_blocks->getBlock(x, y);
+                if(curr_block.hasLightChanged()) {
+                    curr_block.markLightUnchanged();
+                    sf::Packet packet;
+                    packet << PacketType::LIGHT_CHANGE << x << y << (unsigned char)curr_block.getLightLevel();
+                    sendToEveryone(packet);
+                }
+            }
     }
 }
 

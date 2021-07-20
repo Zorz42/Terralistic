@@ -12,7 +12,6 @@ ItemInfo::ItemInfo(std::string  name, unsigned short stack_size, BlockType place
 LiquidInfo::LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier) : name(name), flow_time(flow_time), speed_multiplier(speed_multiplier) {}
 
 const BlockInfo& getBlockInfo(BlockType type) {
-    assert((int)type >= 0 && type < BlockType::NUM_BLOCKS);
     return block_infos[(int)type];
 }
 
@@ -22,7 +21,6 @@ const ItemInfo& getItemInfo(ItemType type) {
 }
 
 const LiquidInfo& getLiquidInfo(LiquidType type) {
-    assert((int)type >= 0 && type < LiquidType::NUM_LIQUIDS);
     return liquid_infos[(int)type];
 }
 
@@ -59,6 +57,6 @@ void initProperties() {
     item_infos[(int)ItemType::WOOD_PLANKS] = ItemInfo(/*name*/"wood_planks", /*max_stack*/99, /*places*/BlockType::AIR        );
     
     // unqiue_liquids
-    liquid_infos[(int)LiquidType::EMPTY] = LiquidInfo(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1  );
-    liquid_infos[(int)LiquidType::WATER] = LiquidInfo(/*name*/"water", /*flow_time*/0, /*speed_multiplier*/0.5);
+    liquid_infos[(int)LiquidType::EMPTY] = LiquidInfo(/*name*/"empty", /*flow_time*/0,   /*speed_multiplier*/1  );
+    liquid_infos[(int)LiquidType::WATER] = LiquidInfo(/*name*/"water", /*flow_time*/100, /*speed_multiplier*/0.5);
 }
