@@ -17,10 +17,11 @@
 #define PI 3.14159265
 
 
-int worldGenerator::generateWorld(unsigned int seed) {
+int worldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
     std::mt19937 engine(seed);
     SimplexNoise noise(engine());
     generating_current = 0;
+    server_blocks->createWorld(world_width, world_height);
 
     loadAssets();
     if(seed == 1000){//structure generation
@@ -103,10 +104,10 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
                                slice_biome.ground_layers[generating_layer].height_variation) {
                     server_blocks->getBlock(x, server_blocks->getHeight() - y).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
                 }
-                //else{
-                    //server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
-                    //server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
-                //}
+                else{
+                    server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
+                    server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
+                }
             }
         }
     }
