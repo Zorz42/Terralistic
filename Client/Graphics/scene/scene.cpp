@@ -79,19 +79,117 @@ void gfx::returnFromScene() {
     running_scene = false;
 }
 
+void gfx::Scene::operateEvent(sf::Event event) 
+{
+    start = getTicks();
+
+    disable_events_gl = disable_events;
+    sf::Event::EventType type = event.type;
+    if (type == sf::Event::MouseMoved) {
+        mouse_x = event.mouseMove.x / global_scale;
+        mouse_y = event.mouseMove.y / global_scale;
+    }
+    else if (type == sf::Event::Resized) {
+        setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
+    }
+    else if (type == sf::Event::MouseButtonPressed) {
+        gfx::Key key = translateMouseKey(event.mouseButton.button);
+        bool clicked_text_box = false;
+        if (key == Key::MOUSE_LEFT) {
+            if (!disable_events_gl || disable_events)
+                for (TextInput* i : text_inputs) {
+                    i->active = i->isHovered();
+                    if (i->active)
+                        clicked_text_box = true;
+                }
+    
+            for (GraphicalModule* module : modules)
+                if (!disable_events_gl || module->disable_events)
+                    for (TextInput* i : module->text_inputs) {
+                        i->active = i->isHovered();
+                        if (i->active)
+                            clicked_text_box = true;
+                    }
+        }
+        if (key != Key::UNKNOWN && !clicked_text_box)
+            onKeyDownCallback(key);
+    }
+    else if (type == sf::Event::MouseButtonReleased) {
+        gfx::Key key = translateMouseKey(event.mouseButton.button);
+        if (key != Key::UNKNOWN)
+            onKeyUpCallback(key);
+    }
+    else if (type == sf::Event::KeyPressed) {
+        gfx::Key key = translateKeyboardKey(event.key.code);
+        if (key == Key::BACKSPACE) {
+            for (TextInput* i : text_inputs)
+                if (i->active && !i->getText().empty()) {
+                    std::string str = i->getText();
+                    str.pop_back();
+                    i->setText(str);
+                }
+            for (GraphicalModule* module : modules)
+                for (TextInput* i : module->text_inputs)
+                    if (i->active && !i->getText().empty()) {
+                        std::string str = i->getText();
+                        str.pop_back();
+                        i->setText(str);
+                    }
+        }
+        if (key != Key::UNKNOWN)
+            onKeyDownCallback(key);
+    }
+    else if (type == sf::Event::KeyReleased) {
+        gfx::Key key = translateKeyboardKey(event.key.code);
+        if (key != Key::UNKNOWN)
+            onKeyUpCallback(key);
+    }
+    else if (type == sf::Event::TextEntered) {
+        char c = event.text.unicode;
+    
+        for (TextInput* i : text_inputs)
+            if (i->active) {
+                char result = c;
+                if (!i->ignore_one_input) {
+                    if (i->textProcessing)
+                        result = i->textProcessing(result, (int)i->getText().size());
+                    if (result)
+                        i->setText(i->getText() + result);
+                }
+                i->ignore_one_input = false;
+            }
+        for (GraphicalModule* module : modules)
+            for (TextInput* i : module->text_inputs)
+                if (i->active) {
+                    char result = c;
+                    if (!i->ignore_one_input) {
+                        if (i->textProcessing)
+                            result = i->textProcessing(result, (int)i->getText().size());
+                        if (result)
+                            i->setText(i->getText() + result);
+                    }
+                    i->ignore_one_input = false;
+                }
+    }
+    else if (type == sf::Event::MouseWheelScrolled) {
+        onMouseScroll(event.mouseWheel.delta);
+    }
+    else if (type == sf::Event::Closed)
+    {
+        this->quitScene = true;
+    }
+}
+
 void gfx::Scene::run() {
-    static bool quit = false;
-    //SDL_Event event;
+    quitScene = false;
     
     init();
-    for(GraphicalModule* module : modules)
+    for (GraphicalModule* module : modules) {
         module->init();
+    }
     
-    //SDL_StartTextInput();
-    while(running_scene && !quit) {
-        unsigned int start = getTicks();
+    while(running_scene && !quitScene) {
         
-        disable_events_gl = disable_events;
         for(GraphicalModule* module : modules) {
             if(disable_events_gl)
                 break;
@@ -100,89 +198,7 @@ void gfx::Scene::run() {
         
         sf::Event event;
         while (sfml_window->pollEvent(event)) {
-            if(event.type == sf::Event::MouseMoved) {
-                mouse_x = event.mouseMove.x / global_scale;
-                mouse_y = event.mouseMove.y / global_scale;
-            } else if(event.type == sf::Event::Resized) {
-                setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
-            } else if(event.type == sf::Event::MouseButtonPressed) {
-                gfx::Key key = translateMouseKey(event.mouseButton.button);
-                bool clicked_text_box = false;
-                if(key == Key::MOUSE_LEFT) {
-                    if(!disable_events_gl || disable_events)
-                        for(TextInput* i : text_inputs) {
-                            i->active = i->isHovered();
-                            if(i->active)
-                                clicked_text_box = true;
-                        }
-                    
-                    for(GraphicalModule* module : modules)
-                        if(!disable_events_gl || module->disable_events)
-                            for(TextInput* i : module->text_inputs) {
-                                i->active = i->isHovered();
-                                if(i->active)
-                                    clicked_text_box = true;
-                            }
-                }
-                if(key != Key::UNKNOWN && !clicked_text_box)
-                    onKeyDownCallback(key);
-            } else if(event.type == sf::Event::MouseButtonReleased) {
-                gfx::Key key = translateMouseKey(event.mouseButton.button);
-                if(key != Key::UNKNOWN)
-                    onKeyUpCallback(key);
-            } else if(event.type == sf::Event::KeyPressed) {
-                gfx::Key key = translateKeyboardKey(event.key.code);
-                if(key == Key::BACKSPACE) {
-                    for(TextInput* i : text_inputs)
-                        if(i->active && !i->getText().empty()) {
-                            std::string str = i->getText();
-                            str.pop_back();
-                            i->setText(str);
-                        }
-                    for(GraphicalModule* module : modules)
-                        for(TextInput* i : module->text_inputs)
-                            if(i->active && !i->getText().empty()) {
-                                std::string str = i->getText();
-                                str.pop_back();
-                                i->setText(str);
-                            }
-                }
-                if(key != Key::UNKNOWN)
-                    onKeyDownCallback(key);
-            } else if(event.type == sf::Event::KeyReleased) {
-                gfx::Key key = translateKeyboardKey(event.key.code);
-                if(key != Key::UNKNOWN)
-                    onKeyUpCallback(key);
-            } else if(event.type == sf::Event::TextEntered) {
-                char c = event.text.unicode;
-                
-                for(TextInput* i : text_inputs)
-                    if(i->active) {
-                        char result = c;
-                        if(!i->ignore_one_input) {
-                            if(i->textProcessing)
-                                result = i->textProcessing(result, (int)i->getText().size());
-                            if(result)
-                                i->setText(i->getText() + result);
-                        }
-                    i->ignore_one_input = false;
-                    }
-                for(GraphicalModule* module : modules)
-                    for(TextInput* i : module->text_inputs)
-                        if(i->active) {
-                            char result = c;
-                            if(!i->ignore_one_input) {
-                                if(i->textProcessing)
-                                    result = i->textProcessing(result, (int)i->getText().size());
-                                if(result)
-                                    i->setText(i->getText() + result);
-                            }
-                            i->ignore_one_input = false;
-                        }
-            } else if(event.type == sf::Event::MouseWheelScrolled) {
-                onMouseScroll(event.mouseWheel.delta);
-            } else if(event.type == sf::Event::Closed)
-                quit = true;
+            operateEvent(event);
         }
         
         update();
