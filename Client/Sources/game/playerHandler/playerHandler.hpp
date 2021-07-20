@@ -16,7 +16,7 @@
 
 class mainPlayer {
 public:
-    int position_x, position_y;
+    int position_x = 0, position_y = 0;
     short velocity_x = 0, velocity_y = 0;
     bool flipped = false;
     clientInventory player_inventory;

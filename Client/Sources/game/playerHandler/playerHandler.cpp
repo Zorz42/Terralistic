@@ -178,8 +178,8 @@ void playerHandler::update() {
             jump = false;
         }
         
-        world_map->view_x += (player->position_x - world_map->view_x) / 2;
-        world_map->view_y += (player->position_y - world_map->view_y) / 2;
+        world_map->view_x += (player->position_x - world_map->view_x) / 3;
+        world_map->view_y += (player->position_y - world_map->view_y) / 3;
         if(world_map->view_x < gfx::getWindowWidth() / 2)
             world_map->view_x = gfx::getWindowWidth() / 2;
         if(world_map->view_y < gfx::getWindowHeight() / 2)
@@ -198,7 +198,14 @@ void playerHandler::update() {
 }
 
 void playerHandler::render() {
-    playerRenderer::render(player->position_x, player->position_y, world_map->view_x, world_map->view_y, player->flipped);
+    int intensity = 0;
+    for(int x = player->position_x / BLOCK_WIDTH; x < player->position_x / BLOCK_WIDTH + 2; x++)
+        for(int y = player->position_y / BLOCK_WIDTH; y < player->position_y / BLOCK_WIDTH + 3; y++)
+            intensity += world_map->getBlock(x, y).getLightLevel();
+    
+    intensity /= 3 * 2;
+    
+    playerRenderer::render(player->position_x, player->position_y, world_map->view_x, world_map->view_y, player->flipped, intensity * 255 / MAX_LIGHT);
     renderBlockSelector();
     renderInventory();
 }
