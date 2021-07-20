@@ -83,22 +83,22 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
     biome slice_biome = loaded_biomes[(int)server_blocks->biomes[x]];
     for(int y = server_blocks->getHeight() / 3 * 2; y > 0; y--) {
         if (y > surface_height) {
-            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
-            server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
+            //server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
+            //server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
         }else{
             if (slice_biome.ground_layers[generating_layer].layer_height_mode == LayerHeightMode::PREVIOUS_LAYER) {
                 if (y > last_layer - slice_biome.ground_layers[generating_layer].height +
                         noise.noise(x / 3 + 0.1, y * 2 + 0.5) *
-                        slice_biome.ground_layers[generating_layer].height_variation)
+                    slice_biome.ground_layers[generating_layer].height_variation || generating_layer == slice_biome.ground_layers.size() - 1) {
                     server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(
                             slice_biome.ground_layers[generating_layer].block);
-                else {
+                } else {
                     last_layer = y + 1;
                     generating_layer++;
                     y++;
                 }
             } else {
-                if (y < slice_biome.ground_layers[generating_layer + 1].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) *
+                if (generating_layer < slice_biome.ground_layers.size() - 1 && y < slice_biome.ground_layers[generating_layer + 1].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) *
                                                                                  slice_biome.ground_layers[
                                                                                          generating_layer +
                                                                                          1].height_variation) {
@@ -111,8 +111,8 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
                             slice_biome.ground_layers[generating_layer].block);
                 }
                 else{
-                    server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
-                    server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
+                    //server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
+                    //server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
                 }
             }
         }

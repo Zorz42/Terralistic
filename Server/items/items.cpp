@@ -51,7 +51,8 @@ void item::update(float frame_length) {
     int prev_x = x, prev_y = y;
     
     // move and go back if colliding
-    velocity_y += (int)frame_length / 16 * 5;
+    velocity_y += (int)frame_length / 16.0f * 5.0f;
+    
     for(int i = 0; i < frame_length / 16 * velocity_x; i++) {
         x++;
         if(colliding()) {

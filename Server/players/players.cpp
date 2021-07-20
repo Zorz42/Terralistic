@@ -150,11 +150,11 @@ void players::loadFrom(std::string path) {
         for(auto & i : player->player_inventory.inventory_arr) {
             char c;
             data_file >> c;
-            i.setId((ItemType)c);
+            i.setIdWithoutProcessing((ItemType)c);
 
             unsigned short stack;
             data_file.read((char*)&stack, sizeof(stack));
-            i.setStack(stack);
+            i.setStackWithoutProcessing(stack);
         }
 
         data_file.read((char*)&player->x, sizeof(player->x));
