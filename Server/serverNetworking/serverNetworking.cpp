@@ -12,7 +12,7 @@ void NetworkingManager::closeSocket() {
 
 void NetworkingManager::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
     for(Connection& connection : connections)
-        if(exclusion && exclusion->socket != connection.socket)
+        if(exclusion == nullptr || exclusion->socket != connection.socket)
             connection.socket->send(packet);
 }
 
