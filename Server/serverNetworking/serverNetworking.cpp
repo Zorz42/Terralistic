@@ -211,7 +211,7 @@ void NetworkingManager::onEvent(ServerLightChangeEvent& event) {
     packet << PacketType::LIGHT_CHANGE << x << y << event.block.getLightLevel();
     
     for(Connection& connection : connections)
-        if(connection.player->getSightBeginX() < x && x < connection.player->getSightEndX() && connection.player->getSightBeginY() < y && y < connection.player->getSightEndY())
+        if(connection.player && connection.player->getSightBeginX() < x && x < connection.player->getSightEndX() && connection.player->getSightBeginY() < y && y < connection.player->getSightEndY())
             connection.socket->send(packet);
 }
 
@@ -222,9 +222,17 @@ void NetworkingManager::sendInventoryItemPacket(Connection& connection, Inventor
 }
 
 void NetworkingManager::onEvent(ServerInventoryItemStackChangeEvent& event) {
-    //sendInventoryItemPacket(event.item, event.item.getType(), event.stack);
+    for(Connection& connection : connections)
+        if(connection.player && &connection.player->inventory == event.item.getInventory()) {
+            sendInventoryItemPacket(connection, event.item, event.item.getType(), event.stack);
+            break;
+        }
 }
 
 void NetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event) {
-    //sendInventoryItemPacket(event.item, event.type, event.item.getStack());
+    for(Connection& connection : connections)
+        if(connection.player && &connection.player->inventory == event.item.getInventory()) {
+            sendInventoryItemPacket(connection, event.item, event.type, event.item.getStack());
+            break;
+        }
 }

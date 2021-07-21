@@ -73,11 +73,11 @@ Player* Players::addPlayer(const std::string& name) {
     if(!player) {
         player = new Player;
         all_players.emplace_back(player);
+        player->y = parent_blocks->getSpawnY() - BLOCK_WIDTH * 2;
+        player->x = parent_blocks->getSpawnX();
+        player->name = name;
     }
     
-    player->y = parent_blocks->getSpawnY() - BLOCK_WIDTH * 2;
-    player->x = parent_blocks->getSpawnX();
-    player->name = name;
     online_players.push_back(player);
     return player;
 }
@@ -172,7 +172,7 @@ void Players::loadFrom(std::string path) {
         std::string player_name = entry.path().string();
         player_name = player_name.substr(player_name.find_last_of('/') + 1, player_name.size() - 1);
         Player* player = new Player;
-        all_players.push_back(player);
+        player->name = player_name;
 
         std::ifstream data_file(entry.path(), std::ios::binary);
         for(auto & i : player->inventory.inventory_arr) {
@@ -187,6 +187,7 @@ void Players::loadFrom(std::string path) {
 
         data_file.read((char*)&player->x, sizeof(player->x));
         data_file.read((char*)&player->y, sizeof(player->y));
+        all_players.push_back(player);
     }
 }
 
