@@ -1,28 +1,19 @@
-//
-//  inventory.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 13/12/2020.
-//
-
-// inventory is a class which you can easily manage with function calls
-
 #include "players.hpp"
 #include "properties.hpp"
 
-void InventoryItem::setIdWithoutProcessing(ItemType id) {
-    type = id;
+void InventoryItem::setTypeWithoutProcessing(ItemType type_) {
+    type = type_;
 }
 
-void InventoryItem::setId(ItemType id) {
-    if(type != id) {
-        ServerInventoryItemTypeChangeEvent event(*this, id);
+void InventoryItem::setType(ItemType type_) {
+    if(type != type_) {
+        ServerInventoryItemTypeChangeEvent event(*this, type_);
         event.call();
         
         if(event.cancelled)
             return;
         
-        setIdWithoutProcessing(id);
+        setTypeWithoutProcessing(type_);
     }
 }
 
@@ -46,7 +37,7 @@ void InventoryItem::setStack(unsigned short stack_) {
         
         setStackWithoutProcessing(stack_);
         if(!stack)
-            setId(ItemType::NOTHING);
+            setType(ItemType::NOTHING);
     }
 }
 
@@ -86,14 +77,14 @@ Inventory::Inventory(Player* owner) : player(owner) {
 char Inventory::addItem(ItemType id, int quantity) {
     // adds item to inventory
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].getId() == id) {
+        if(inventory_arr[i].getType() == id) {
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].getId() == ItemType::NOTHING) {
-            inventory_arr[i].setId(id);
+        if(inventory_arr[i].getType() == ItemType::NOTHING) {
+            inventory_arr[i].setType(id);
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
             if(!quantity)
                 return (char)i;

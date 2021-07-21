@@ -1,10 +1,3 @@
-//
-//  networking.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 14/07/2021.
-//
-
 #include "players.hpp"
 #include "print.hpp"
 
@@ -61,8 +54,8 @@ void players::getPacketsFromPlayers() {
             }
 
             for(InventoryItem& curr_item : curr_player->inventory.inventory_arr)
-                if(curr_item.getId() != ItemType::NOTHING)
-                    sendInventoryItemPacket(curr_item, curr_item.getId(), curr_item.getStack());
+                if(curr_item.getType() != ItemType::NOTHING)
+                    sendInventoryItemPacket(curr_item, curr_item.getType(), curr_item.getStack());
             
             sf::Packet join_packet;
             join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;

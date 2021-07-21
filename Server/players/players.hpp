@@ -1,10 +1,3 @@
-//
-//  players.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #ifndef players_hpp
 #define players_hpp
 
@@ -24,9 +17,9 @@ public:
     InventoryItem() : inventory(nullptr), type(ItemType::NOTHING), stack(0) {}
     explicit InventoryItem(Inventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
 
-    inline ItemType getId() { return type; }
-    void setId(ItemType id);
-    void setIdWithoutProcessing(ItemType id);
+    inline ItemType getType() { return type; }
+    void setType(ItemType type);
+    void setTypeWithoutProcessing(ItemType type);
     const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     void setStackWithoutProcessing(unsigned short stack_);

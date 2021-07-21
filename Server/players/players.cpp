@@ -1,10 +1,3 @@
-//
-//  players.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #include "players.hpp"
 #include "blocks.hpp"
 #include <filesystem>
@@ -157,7 +150,7 @@ void players::saveTo(std::string path) {
     for(Player* player : all_players) {
         std::ofstream data_file(path + player->name, std::ios::binary);
         for(auto& i : player->inventory.inventory_arr) {
-            data_file << (char)i.getId();
+            data_file << (char)i.getType();
             unsigned short stack = i.getStack();
             data_file.write((char*)&stack, sizeof(stack));
         }
@@ -177,7 +170,7 @@ void players::loadFrom(std::string path) {
         for(auto & i : player->inventory.inventory_arr) {
             char c;
             data_file >> c;
-            i.setIdWithoutProcessing((ItemType)c);
+            i.setTypeWithoutProcessing((ItemType)c);
 
             unsigned short stack;
             data_file.read((char*)&stack, sizeof(stack));

@@ -14,6 +14,10 @@
 		166ECC8226A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
 		1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* serverNetworking.cpp */; };
 		1673274D26A80F9A0063281A /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* serverNetworking.cpp */; };
+		1673274E26A814740063281A /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157F52648501F00528A2B /* graphics.cpp */; };
+		1673274F26A814740063281A /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C5269DFF03008735C6 /* rect.cpp */; };
+		1673275026A814740063281A /* ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7CA269DFF03008735C6 /* ui.cpp */; };
+		1673275126A814740063281A /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1683E7C7269DFF03008735C6 /* scene.cpp */; };
 		167513C426A498DA00E21C68 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		167513C526A4A47600E21C68 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		1675E71D26611B8000B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
@@ -1098,6 +1102,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1673274E26A814740063281A /* graphics.cpp in Sources */,
+				1673274F26A814740063281A /* rect.cpp in Sources */,
+				1673275026A814740063281A /* ui.cpp in Sources */,
+				1673275126A814740063281A /* scene.cpp in Sources */,
 				1673274D26A80F9A0063281A /* serverNetworking.cpp in Sources */,
 				167513C526A4A47600E21C68 /* biomes.cpp in Sources */,
 				16BF695C269D7FC100CFE175 /* resourcePath.cpp in Sources */,
@@ -1268,6 +1276,7 @@
 				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -1293,6 +1302,7 @@
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
 			name = Debug;
 		};
@@ -1325,6 +1335,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -1351,6 +1362,7 @@
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
 			name = Release;
 		};
@@ -1359,6 +1371,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_ENTITLEMENTS = "Server/Terralistic-server.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1381,6 +1394,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
 			name = Debug;
 		};
@@ -1389,6 +1403,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CODE_SIGN_ENTITLEMENTS = "Server/Terralistic-server.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1409,6 +1424,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
 			name = Release;
 		};

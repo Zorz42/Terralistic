@@ -1,17 +1,3 @@
-//
-//  packets.cpp
-//  Terralistic-server
-//
-//  Created by Jakob Zorz on 04/05/2021.
-//
-
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <arpa/inet.h>
-#include <unistd.h>
-#endif
-
 #include "print.hpp"
 #include "players.hpp"
 
@@ -139,7 +125,7 @@ void players::sendInventoryItemPacket(InventoryItem& item, ItemType type, unsign
 }
 
 void players::onEvent(ServerInventoryItemStackChangeEvent& event) {
-    sendInventoryItemPacket(event.item, event.item.getId(), event.stack);
+    sendInventoryItemPacket(event.item, event.item.getType(), event.stack);
 }
 
 void players::onEvent(ServerInventoryItemTypeChangeEvent& event) {
