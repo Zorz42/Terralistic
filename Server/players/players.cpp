@@ -130,9 +130,8 @@ void Players::updateBlocks() {
                 Block curr_block = parent_blocks->getBlock(x, y);
                 if(curr_block.hasLightChanged()) {
                     curr_block.markLightUnchanged();
-                    /*sf::Packet packet;
-                    packet << PacketType::LIGHT_CHANGE << x << y << (unsigned char)curr_block.getLightLevel();
-                    sendToEveryone(packet);*/
+                    ServerLightChangeEvent event(curr_block);
+                    event.call();
                 }
             }
     }

@@ -75,9 +75,9 @@ void NetworkingManager::getPacketsFromPlayers() {
                 connection.socket->send(item_packet);
             }
 
-            /*for(InventoryItem& curr_item : player->inventory.inventory_arr)
+            for(InventoryItem& curr_item : player->inventory.inventory_arr)
                 if(curr_item.getType() != ItemType::NOTHING)
-                    sendInventoryItemPacket(curr_item, curr_item.getType(), curr_item.getStack());*/
+                    sendInventoryItemPacket(connection, curr_item, curr_item.getType(), curr_item.getStack());
             
             sf::Packet join_packet;
             join_packet << PacketType::PLAYER_JOIN << player->x << player->y << player->id << player->name;
@@ -206,26 +206,25 @@ void NetworkingManager::onEvent(ServerItemMovementEvent& event) {
 }
 
 void NetworkingManager::onEvent(ServerLightChangeEvent& event) {
-    sf::Packet packet;
-    packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.block.getLightLevel();
     unsigned short x = event.block.getX(), y = event.block.getY();
+    sf::Packet packet;
+    packet << PacketType::LIGHT_CHANGE << x << y << event.block.getLightLevel();
     
-    for(Connection& connection : connections) {
+    for(Connection& connection : connections)
         if(connection.player->getSightBeginX() < x && x < connection.player->getSightEndX() && connection.player->getSightBeginY() < y && y < connection.player->getSightEndY())
             connection.socket->send(packet);
-    }
 }
 
-/*void NetworkingManager::sendInventoryItemPacket(InventoryItem& item, ItemType type, unsigned short stack) {
+void NetworkingManager::sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack) {
     sf::Packet packet;
     packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();
-    item.getInventory()->getPlayer().socket->send(packet);
+    connection.socket->send(packet);
 }
 
 void NetworkingManager::onEvent(ServerInventoryItemStackChangeEvent& event) {
-    sendInventoryItemPacket(event.item, event.item.getType(), event.stack);
+    //sendInventoryItemPacket(event.item, event.item.getType(), event.stack);
 }
 
 void NetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event) {
-    sendInventoryItemPacket(event.item, event.type, event.item.getStack());
-}*/
+    //sendInventoryItemPacket(event.item, event.type, event.item.getStack());
+}

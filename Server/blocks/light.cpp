@@ -53,12 +53,6 @@ void Blocks::removeNaturalLight(unsigned short x) {
 
 void Block::setLightLevel(unsigned char light_level) {
     if(block_data->light_level != light_level) {
-        ServerLightChangeEvent event(*this, light_level);
-        event.call();
-        
-        if(event.cancelled)
-            return;
-        
         block_data->has_changed_light = true;
         block_data->light_level = light_level;
         updateNeighbors();

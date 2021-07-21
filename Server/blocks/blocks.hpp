@@ -137,9 +137,8 @@ public:
 
 class ServerLightChangeEvent : public Event<ServerLightChangeEvent> {
 public:
-    ServerLightChangeEvent(Block block, unsigned char light_level) : block(block), light_level(light_level) {}
+    ServerLightChangeEvent(Block block) : block(block) {}
     Block block;
-    unsigned char light_level;
 };
 
 class ServerLiquidChangeEvent : public Event<ServerLiquidChangeEvent> {

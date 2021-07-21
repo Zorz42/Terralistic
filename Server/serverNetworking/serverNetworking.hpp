@@ -21,7 +21,7 @@ public:
     Connection& conn;
 };
 
-class NetworkingManager : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerLightChangeEvent>/*, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>*/ {
+class NetworkingManager : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerLightChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent> {
     void onEvent(ServerPacketEvent& event) override;
     std::vector<Connection> connections;
     sf::TcpListener listener;
@@ -37,8 +37,10 @@ class NetworkingManager : EventListener<ServerPacketEvent>, EventListener<Server
     void onEvent(ServerItemDeletionEvent& event) override;
     void onEvent(ServerItemMovementEvent& event) override;
     void onEvent(ServerLightChangeEvent& event) override;
-    //void onEvent(ServerInventoryItemStackChangeEvent& event) override;
-    //void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
+    void onEvent(ServerInventoryItemStackChangeEvent& event) override;
+    void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
+    
+    void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
     NetworkingManager(Blocks* blocks, Items* items, Players* players) : blocks(blocks), items(items), players(players) {}
     
