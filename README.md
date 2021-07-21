@@ -13,7 +13,7 @@ You will need to have installed to build:
 - clang
 - git
 
-SDL2 will be installed by build.py.
+SFML will be installed by build.py.
 
 If you want to edit code use:
 - Windows: CLion
