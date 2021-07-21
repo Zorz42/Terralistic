@@ -58,6 +58,10 @@ public:
     int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
     Inventory inventory;
+    unsigned short getSightBeginX();
+    unsigned short getSightEndX();
+    unsigned short getSightBeginY();
+    unsigned short getSightEndY();
     
     bool breaking = false;
     unsigned short breaking_x{}, breaking_y{};

@@ -205,6 +205,17 @@ void NetworkingManager::onEvent(ServerItemMovementEvent& event) {
     sendToEveryone(packet);
 }
 
+void NetworkingManager::onEvent(ServerLightChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.block.getLightLevel();
+    unsigned short x = event.block.getX(), y = event.block.getY();
+    
+    for(Connection& connection : connections) {
+        if(connection.player->getSightBeginX() < x && x < connection.player->getSightEndX() && connection.player->getSightBeginY() < y && y < connection.player->getSightEndY())
+            connection.socket->send(packet);
+    }
+}
+
 /*void NetworkingManager::sendInventoryItemPacket(InventoryItem& item, ItemType type, unsigned short stack) {
     sf::Packet packet;
     packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();

@@ -106,18 +106,8 @@ void Players::lookForItems() {
 
 void Players::updateBlocks() {
     for(Player* player : online_players) {
-        int start_x = player->x / 16 - player->sight_width / 2 - 20,
-            start_y = player->y / 16 - player->sight_height / 2 - 20,
-            end_x = player->x / 16 + player->sight_width / 2 + 20,
-            end_y = player->y / 16 + player->sight_height / 2 + 20;
-        if(start_x < 0)
-            start_x = 0;
-        if(start_y < 0)
-            start_y = 0;
-        if(end_y > parent_blocks->getHeight())
-            end_y = parent_blocks->getHeight();
-        if(end_x > parent_blocks->getWidth())
-            end_x = parent_blocks->getWidth();
+        int start_x = player->getSightBeginX(), start_y = player->getSightBeginY(), end_x = player->getSightEndX(), end_y = player->getSightEndY();
+        
         bool finished = false;
         while(!finished) {
             finished = true;
@@ -135,16 +125,16 @@ void Players::updateBlocks() {
                 }
         }
         
-        /*for(unsigned short y = start_y; y < end_y; y++)
+        for(unsigned short y = start_y; y < end_y; y++)
             for(unsigned short x = start_x; x < end_x; x++) {
                 Block curr_block = parent_blocks->getBlock(x, y);
                 if(curr_block.hasLightChanged()) {
                     curr_block.markLightUnchanged();
-                    sf::Packet packet;
+                    /*sf::Packet packet;
                     packet << PacketType::LIGHT_CHANGE << x << y << (unsigned char)curr_block.getLightLevel();
-                    sendToEveryone(packet);
+                    sendToEveryone(packet);*/
                 }
-            }*/
+            }
     }
 }
 
@@ -204,4 +194,20 @@ void Players::loadFrom(std::string path) {
 void Players::onEvent(ServerBlockUpdateEvent& event) {
     if(custom_block_events[(int)event.block.getBlockType()].onUpdate)
         custom_block_events[(int)event.block.getBlockType()].onUpdate(parent_blocks, &event.block);
+}
+
+unsigned short Player::getSightBeginX() {
+    return x / 16 - sight_width / 2 - 20;
+}
+
+unsigned short Player::getSightEndX() {
+    return x / 16 + sight_width / 2 + 20;
+}
+
+unsigned short Player::getSightBeginY() {
+    return y / 16 - sight_height / 2 - 20;
+}
+
+unsigned short Player::getSightEndY() {
+    return y / 16 + sight_height / 2 + 20;
 }
