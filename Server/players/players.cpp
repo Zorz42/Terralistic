@@ -152,43 +152,41 @@ void Players::rightClickEvent(Block this_block, Player* peer) {
         custom_block_events[(int)this_block.getBlockType()].onRightClick(&this_block, peer);
 }
 
-void Players::saveTo(std::string path) {
-    std::filesystem::create_directory(path);
-    for(Player* player : all_players) {
-        std::ofstream data_file(path + player->name, std::ios::binary);
-        for(auto& i : player->inventory.inventory_arr) {
-            data_file << (char)i.getType();
-            unsigned short stack = i.getStack();
-            data_file.write((char*)&stack, sizeof(stack));
-        }
-        data_file.write((char*)&player->x, sizeof(player->x));
-        data_file.write((char*)&player->y, sizeof(player->y));
-        data_file.close();
-    }
+Player* Players::addPlayerFromFile(const std::string& path) {
+    Player* player = new Player;
+    player->loadFrom(path);
+    all_players.push_back(player);
+    return player;
 }
 
-void Players::loadFrom(std::string path) {
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        std::string player_name = entry.path().string();
-        player_name = player_name.substr(player_name.find_last_of('/') + 1, player_name.size() - 1);
-        Player* player = new Player;
-        player->name = player_name;
-
-        std::ifstream data_file(entry.path(), std::ios::binary);
-        for(auto & i : player->inventory.inventory_arr) {
-            char c;
-            data_file >> c;
-            i.setTypeWithoutProcessing((ItemType)c);
-
-            unsigned short stack;
-            data_file.read((char*)&stack, sizeof(stack));
-            i.setStackWithoutProcessing(stack);
-        }
-
-        data_file.read((char*)&player->x, sizeof(player->x));
-        data_file.read((char*)&player->y, sizeof(player->y));
-        all_players.push_back(player);
+void Player::saveTo(std::string path) const {
+    std::ofstream data_file(path, std::ios::binary);
+    for(const auto& i : inventory.inventory_arr) {
+        data_file << (char)i.getType();
+        unsigned short stack = i.getStack();
+        data_file.write((char*)&stack, sizeof(stack));
     }
+    data_file.write((char*)&x, sizeof(x));
+    data_file.write((char*)&y, sizeof(y));
+    data_file.close();
+}
+
+void Player::loadFrom(std::string path) {
+    name = path.substr(path.find_last_of('/') + 1, path.size() - 1);
+
+    std::ifstream data_file(path, std::ios::binary);
+    for(auto & i : inventory.inventory_arr) {
+        char c;
+        data_file >> c;
+        i.setTypeWithoutProcessing((ItemType)c);
+
+        unsigned short stack;
+        data_file.read((char*)&stack, sizeof(stack));
+        i.setStackWithoutProcessing(stack);
+    }
+
+    data_file.read((char*)&x, sizeof(x));
+    data_file.read((char*)&y, sizeof(y));
 }
 
 void Players::onEvent(ServerBlockUpdateEvent& event) {

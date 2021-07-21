@@ -39,7 +39,8 @@ void server::start() {
         state = LOADING_WORLD;
         print::info("Loading world...");
         server_blocks.loadFrom(world_path + "blockdata");
-        server_players.loadFrom(world_path + "playerdata/");
+        for (const auto& file : std::filesystem::directory_iterator(world_path + "playerdata/"))
+            server_players.addPlayerFromFile(file.path().string());
     }
     else {
         state = GENERATING_WORLD;
@@ -92,7 +93,9 @@ void server::start() {
     print::info("Saving world...");
     std::filesystem::create_directory(world_path);
     server_blocks.saveTo(world_path + "blockdata");
-    server_players.saveTo(world_path + "playerdata/");
+    std::filesystem::create_directory(world_path + "playerdata/");
+    for(const Player* player : server_players.getAllPlayers())
+        player->saveTo(world_path + "playerdata/" + player->name);
 
     state = STOPPED;
 }

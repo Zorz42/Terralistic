@@ -16,7 +16,7 @@ public:
     InventoryItem() : inventory(nullptr), type(ItemType::NOTHING), stack(0) {}
     explicit InventoryItem(Inventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
 
-    inline ItemType getType() { return type; }
+    inline ItemType getType() const { return type; }
     void setType(ItemType type_);
     void setTypeWithoutProcessing(ItemType type_);
     const ItemInfo& getUniqueItem() const;
@@ -65,28 +65,15 @@ public:
     
     bool breaking = false;
     unsigned short breaking_x{}, breaking_y{};
+    
+    void saveTo(std::string path) const;
+    void loadFrom(std::string path);
 };
-
-class Players;
 
 struct blockEvents {
     void (*onUpdate)(Blocks*, Block*) = nullptr;
     void (*onRightClick)(Block*, Player*) = nullptr;
     void (*onLeftClick)(Block*, Player*) = nullptr;
-};
-
-class ServerInventoryItemTypeChangeEvent : public Event<ServerInventoryItemTypeChangeEvent> {
-public:
-    ServerInventoryItemTypeChangeEvent(InventoryItem& item, ItemType type) : item(item), type(type) {}
-    InventoryItem& item;
-    ItemType type;
-};
-
-class ServerInventoryItemStackChangeEvent : public Event<ServerInventoryItemStackChangeEvent> {
-public:
-    ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
-    InventoryItem& item;
-    unsigned short stack;
 };
 
 class Players : EventListener<ServerBlockUpdateEvent> {
@@ -111,20 +98,34 @@ public:
     Player* getPlayerByName(const std::string& name);
     
     Player* addPlayer(const std::string& name);
+    Player* addPlayerFromFile(const std::string& path);
     void removePlayer(Player* player);
     
     void updatePlayersBreaking(unsigned short tick_length);
     void updateBlocks();
     void lookForItems();
     
-    void saveTo(std::string path);
-    void loadFrom(std::string path);
-    
     void sendInventoryItemPacket(InventoryItem& item, ItemType type, unsigned short stack);
     
     bool accept_itself = false;
     
     ~Players();
+};
+
+
+
+class ServerInventoryItemTypeChangeEvent : public Event<ServerInventoryItemTypeChangeEvent> {
+public:
+    ServerInventoryItemTypeChangeEvent(InventoryItem& item, ItemType type) : item(item), type(type) {}
+    InventoryItem& item;
+    ItemType type;
+};
+
+class ServerInventoryItemStackChangeEvent : public Event<ServerInventoryItemStackChangeEvent> {
+public:
+    ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
+    InventoryItem& item;
+    unsigned short stack;
 };
 
 #endif /* players_hpp */
