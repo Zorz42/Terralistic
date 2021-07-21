@@ -78,7 +78,7 @@ public:
 class players;
 
 struct blockEvents {
-    void (*onBreak)(Blocks*, players*, Block*) = nullptr;
+    void (*onUpdate)(Blocks*, Block*) = nullptr;
     void (*onRightClick)(Block*, player*) = nullptr;
     void (*onLeftClick)(Block*, player*) = nullptr;
 };
@@ -105,7 +105,7 @@ public:
     unsigned short stack;
 };
 
-class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<ServerBlockBreakEvent> {
+class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<ServerBlockUpdateEvent> {
     Items* parent_items;
     Blocks* parent_blocks;
     
@@ -122,7 +122,7 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
     void onEvent(ServerItemMovementEvent& event) override;
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
-    void onEvent(ServerBlockBreakEvent& event) override;
+    void onEvent(ServerBlockUpdateEvent& event) override;
     
     void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
     void rightClickEvent(Block this_block, player* peer);

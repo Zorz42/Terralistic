@@ -10,15 +10,42 @@
 #include <filesystem>
 #include <fstream>
 
+static bool isBlockTree(Block block) {
+    return block.refersToABlock() && (block.getBlockType() == BlockType::WOOD || block.getBlockType() == BlockType::LEAVES);
+}
+
+static bool isBlockWood(Block block) {
+    return block.refersToABlock() && block.getBlockType() == BlockType::WOOD;
+}
+
+static bool isBlockLeaves(Block block) {
+    return block.refersToABlock() && block.getBlockType() == BlockType::LEAVES;
+}
+
 players::players(Blocks* parent_blocks_, Items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {
-    custom_block_events[(int)BlockType::WOOD].onBreak = [](Blocks* server_blocks, players* server_players, Block* this_block) {
-        Block blocks[] = {server_blocks->getBlock(this_block->getX(), this_block->getY() - 1), server_blocks->getBlock(this_block->getX() + 1, this_block->getY()), server_blocks->getBlock(this_block->getX() - 1, this_block->getY())};
-        for(Block& i : blocks)
-            if(i.getBlockType() == BlockType::WOOD || i.getBlockType() == BlockType::LEAVES)
-                i.breakBlock();
+    custom_block_events[(int)BlockType::WOOD].onUpdate = [](Blocks* server_blocks, Block* this_block) {
+        Block upper, lower, left, right;
+        if(this_block->getY() != 0)
+            upper = server_blocks->getBlock(this_block->getX(), this_block->getY() - 1);
+        if(this_block->getY() != server_blocks->getHeight() - 1)
+            lower = server_blocks->getBlock(this_block->getX(), this_block->getY() + 1);
+        if(this_block->getX() != 0)
+            left = server_blocks->getBlock(this_block->getX() - 1, this_block->getY());
+        if(this_block->getX() != server_blocks->getWidth() - 1)
+            right = server_blocks->getBlock(this_block->getX() + 1, this_block->getY());
+        
+        if(
+           (!isBlockTree(lower) && !isBlockTree(left) && !isBlockTree(right)) ||
+           (isBlockWood(upper) && isBlockWood(right) && !isBlockTree(left) && !isBlockTree(lower)) ||
+           (isBlockWood(upper) && isBlockWood(left) && !isBlockTree(right) && !isBlockTree(lower)) ||
+           (isBlockLeaves(left) && !isBlockTree(right) && !isBlockTree(upper) && !isBlockTree(lower)) ||
+           (isBlockLeaves(right) && !isBlockTree(left) && !isBlockTree(upper) && !isBlockTree(lower)) ||
+           (!isBlockTree(lower) && isBlockLeaves(left) && isBlockLeaves(right) && isBlockLeaves(upper))
+           )
+            this_block->breakBlock();
     };
 
-    custom_block_events[(int)BlockType::LEAVES].onBreak = custom_block_events[(int)BlockType::WOOD].onBreak;
+    custom_block_events[(int)BlockType::LEAVES].onUpdate = custom_block_events[(int)BlockType::WOOD].onUpdate;
 
     custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Block* this_block, player* peer) {
         this_block->setType(BlockType::DIRT);
@@ -162,7 +189,7 @@ void players::loadFrom(std::string path) {
     }
 }
 
-void players::onEvent(ServerBlockBreakEvent& event) {
-    if(custom_block_events[(int)event.block.getBlockType()].onBreak)
-        custom_block_events[(int)event.block.getBlockType()].onBreak(parent_blocks, this, &event.block);
+void players::onEvent(ServerBlockUpdateEvent& event) {
+    if(custom_block_events[(int)event.block.getBlockType()].onUpdate)
+        custom_block_events[(int)event.block.getBlockType()].onUpdate(parent_blocks, &event.block);
 }
