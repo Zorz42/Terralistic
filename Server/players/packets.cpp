@@ -16,7 +16,7 @@
 #include "players.hpp"
 
 void players::onEvent(ServerPacketEvent& event) {
-    player* curr_player = &event.sender;
+    Player* curr_player = &event.sender;
     switch (event.packet_type) {
         case PacketType::STARTED_BREAKING: {
             unsigned short x, y;
@@ -71,12 +71,12 @@ void players::onEvent(ServerPacketEvent& event) {
         case PacketType::INVENTORY_SWAP: {
             unsigned char pos;
             event.packet >> pos;
-            curr_player->player_inventory.swapWithMouseItem(&curr_player->player_inventory.inventory_arr[pos]);
+            curr_player->inventory.swapWithMouseItem(&curr_player->inventory.inventory_arr[pos]);
             break;
         }
 
         case PacketType::HOTBAR_SELECTION: {
-            event.packet >> curr_player->player_inventory.selected_slot;
+            event.packet >> curr_player->inventory.selected_slot;
             break;
         }
 
@@ -132,10 +132,10 @@ void players::onEvent(ServerItemMovementEvent& event) {
     sendToEveryone(packet);
 }
 
-void players::sendInventoryItemPacket(inventoryItem& item, ItemType type, unsigned short stack) {
+void players::sendInventoryItemPacket(InventoryItem& item, ItemType type, unsigned short stack) {
     sf::Packet packet;
     packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();
-    item.getHolderInventory().getOwner().socket->send(packet);
+    item.getHolderInventory().getPlayer().socket->send(packet);
 }
 
 void players::onEvent(ServerInventoryItemStackChangeEvent& event) {

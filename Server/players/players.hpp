@@ -12,62 +12,60 @@
 
 #include "items.hpp"
 #include "packetType.hpp"
-#include "events.hpp"
 
-class inventory;
-class player;
+class Inventory;
+class Player;
 
-class inventoryItem {
+class InventoryItem {
     unsigned short stack;
-    inventory* holder;
-    ItemType item_id;
+    Inventory* inventory;
+    ItemType type;
 public:
-    inventoryItem() : holder(nullptr), item_id(ItemType::NOTHING), stack(0) {}
-    explicit inventoryItem(inventory* holder) : holder(holder), item_id(ItemType::NOTHING), stack(0) {}
+    InventoryItem() : inventory(nullptr), type(ItemType::NOTHING), stack(0) {}
+    explicit InventoryItem(Inventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
 
-    inline ItemType getId() { return item_id; }
+    inline ItemType getId() { return type; }
     void setId(ItemType id);
     void setIdWithoutProcessing(ItemType id);
-    [[nodiscard]] const ItemInfo& getUniqueItem() const;
+    const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     void setStackWithoutProcessing(unsigned short stack_);
-    [[nodiscard]] unsigned short getStack() const;
+    unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
     unsigned char getPosInInventory();
     void syncWithClient();
-    inline inventory& getHolderInventory() { return *holder; } 
+    inline Inventory& getHolderInventory() { return *inventory; } 
 };
 
-class inventory {
-    friend inventoryItem;
-    inventoryItem mouse_item;
-    player* owner;
+class Inventory {
+    friend InventoryItem;
+    InventoryItem mouse_item;
+    Player* player;
 public:
-    explicit inventory(player* owner);
-    inventoryItem inventory_arr[INVENTORY_SIZE];
+    explicit Inventory(Player* owner);
+    InventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
     bool open = false;
     unsigned char selected_slot = 0;
-    inventoryItem* getSelectedSlot();
-    void swapWithMouseItem(inventoryItem* item);
-    inline player& getOwner() { return *owner; }
+    InventoryItem* getSelectedSlot();
+    void swapWithMouseItem(InventoryItem* item);
+    inline Player& getPlayer() { return *player; }
 };
 
-class player {
+class Player {
+    static inline unsigned int curr_id = 0;
 public:
-    explicit player(unsigned short id) : id(id), player_inventory(this) {}
+    explicit Player() : id(curr_id++), inventory(this) {}
     std::string name;
     
-    std::string ip;
-    bool disconnected = false, registered = false;
-    
+    bool disconnected = false;
     
     const unsigned short id;
     bool flipped = false;
     int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
-    inventory player_inventory;
+    Inventory inventory;
     
     bool breaking = false;
     unsigned short breaking_x{}, breaking_y{};
@@ -79,29 +77,29 @@ class players;
 
 struct blockEvents {
     void (*onUpdate)(Blocks*, Block*) = nullptr;
-    void (*onRightClick)(Block*, player*) = nullptr;
-    void (*onLeftClick)(Block*, player*) = nullptr;
+    void (*onRightClick)(Block*, Player*) = nullptr;
+    void (*onLeftClick)(Block*, Player*) = nullptr;
 };
 
 class ServerPacketEvent : public Event<ServerPacketEvent> {
 public:
-    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, player& sender) : packet(packet), packet_type(packet_type), sender(sender) {}
+    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, Player& sender) : packet(packet), packet_type(packet_type), sender(sender) {}
     sf::Packet& packet;
     PacketType packet_type;
-    player& sender;
+    Player& sender;
 };
 
 class ServerInventoryItemTypeChangeEvent : public Event<ServerInventoryItemTypeChangeEvent> {
 public:
-    ServerInventoryItemTypeChangeEvent(inventoryItem& item, ItemType type) : item(item), type(type) {}
-    inventoryItem& item;
+    ServerInventoryItemTypeChangeEvent(InventoryItem& item, ItemType type) : item(item), type(type) {}
+    InventoryItem& item;
     ItemType type;
 };
 
 class ServerInventoryItemStackChangeEvent : public Event<ServerInventoryItemStackChangeEvent> {
 public:
-    ServerInventoryItemStackChangeEvent(inventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
-    inventoryItem& item;
+    ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
+    InventoryItem& item;
     unsigned short stack;
 };
 
@@ -110,8 +108,8 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
     Blocks* parent_blocks;
     
     std::vector<sf::TcpSocket*> pending_connections;
-    std::vector<player*> all_players;
-    std::vector<player*> online_players;
+    std::vector<Player*> all_players;
+    std::vector<Player*> online_players;
     
     void onEvent(ServerPacketEvent& event) override;
     void onEvent(ServerBlockChangeEvent& event) override;
@@ -124,8 +122,8 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
     void onEvent(ServerBlockUpdateEvent& event) override;
     
-    void leftClickEvent(Block this_block, player* peer, unsigned short tick_length);
-    void rightClickEvent(Block this_block, player* peer);
+    void leftClickEvent(Block this_block, Player* peer, unsigned short tick_length);
+    void rightClickEvent(Block this_block, Player* peer);
     
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
@@ -133,10 +131,10 @@ class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChang
 public:
     players(Blocks* parent_blocks_, Items* parent_items_);
     
-    inline const std::vector<player*>& getAllPlayers() { return all_players; }
-    inline const std::vector<player*>& getOnlinePlayers() { return online_players; }
+    inline const std::vector<Player*>& getAllPlayers() { return all_players; }
+    inline const std::vector<Player*>& getOnlinePlayers() { return online_players; }
     
-    player* getPlayerByName(const std::string& name);
+    Player* getPlayerByName(const std::string& name);
     
     void updatePlayersBreaking(unsigned short tick_length);
     void updateBlocks();
@@ -147,12 +145,12 @@ public:
     
     void openSocket(unsigned short port);
     void closeSocket();
-    void sendToEveryone(sf::Packet& packet, player* exclusion=nullptr);
+    void sendToEveryone(sf::Packet& packet, Player* exclusion=nullptr);
     
     void checkForNewConnections();
     void getPacketsFromPlayers();
     
-    void sendInventoryItemPacket(inventoryItem& item, ItemType type, unsigned short stack);
+    void sendInventoryItemPacket(InventoryItem& item, ItemType type, unsigned short stack);
     
     bool accept_itself = false;
     

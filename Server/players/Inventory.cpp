@@ -10,12 +10,12 @@
 #include "players.hpp"
 #include "properties.hpp"
 
-void inventoryItem::setIdWithoutProcessing(ItemType id) {
-    item_id = id;
+void InventoryItem::setIdWithoutProcessing(ItemType id) {
+    type = id;
 }
 
-void inventoryItem::setId(ItemType id) {
-    if(item_id != id) {
+void InventoryItem::setId(ItemType id) {
+    if(type != id) {
         ServerInventoryItemTypeChangeEvent event(*this, id);
         event.call();
         
@@ -26,16 +26,16 @@ void inventoryItem::setId(ItemType id) {
     }
 }
 
-const ItemInfo& inventoryItem::getUniqueItem() const {
+const ItemInfo& InventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share
-    return ::getItemInfo(item_id);
+    return ::getItemInfo(type);
 }
 
-void inventoryItem::setStackWithoutProcessing(unsigned short stack_) {
+void InventoryItem::setStackWithoutProcessing(unsigned short stack_) {
     stack = stack_;
 }
 
-void inventoryItem::setStack(unsigned short stack_) {
+void InventoryItem::setStack(unsigned short stack_) {
     // just update to nothing if stack reaches 0
     if(stack != stack_) {
         ServerInventoryItemStackChangeEvent event(*this, stack_);
@@ -50,11 +50,11 @@ void inventoryItem::setStack(unsigned short stack_) {
     }
 }
 
-unsigned short inventoryItem::getStack() const {
+unsigned short InventoryItem::getStack() const {
     return stack;
 }
 
-unsigned short inventoryItem::increaseStack(unsigned short stack_) {
+unsigned short InventoryItem::increaseStack(unsigned short stack_) {
     // increase stack by stack_ and if it reaches limit, return what left. example: stack_limit is 99, current stack is 40, you increase stack by 100. current stack becomes 99 and increase stack returns 41
     int stack_to_be = stack + stack_, result;
     if(stack_to_be > getUniqueItem().stack_size)
@@ -64,7 +64,7 @@ unsigned short inventoryItem::increaseStack(unsigned short stack_) {
     return (unsigned short)result;
 }
 
-bool inventoryItem::decreaseStack(unsigned short stack_) {
+bool InventoryItem::decreaseStack(unsigned short stack_) {
     // returns true if stack can be decreased
     if(stack_ > stack)
         return false;
@@ -74,16 +74,16 @@ bool inventoryItem::decreaseStack(unsigned short stack_) {
     }
 }
 
-unsigned char inventoryItem::getPosInInventory() {
-    return this - &holder->inventory_arr[0];
+unsigned char InventoryItem::getPosInInventory() {
+    return this - &inventory->inventory_arr[0];
 }
 
-inventory::inventory(player* owner) : owner(owner) {
-    for(inventoryItem& i : inventory_arr)
-        i = inventoryItem(this);
+Inventory::Inventory(Player* owner) : player(owner) {
+    for(InventoryItem& i : inventory_arr)
+        i = InventoryItem(this);
 }
 
-char inventory::addItem(ItemType id, int quantity) {
+char Inventory::addItem(ItemType id, int quantity) {
     // adds item to inventory
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].getId() == id) {
@@ -101,12 +101,12 @@ char inventory::addItem(ItemType id, int quantity) {
     return -1;
 }
 
-inventoryItem* inventory::getSelectedSlot() {
+InventoryItem* Inventory::getSelectedSlot() {
     return &inventory_arr[(int)(unsigned char)selected_slot];
 }
 
-void inventory::swapWithMouseItem(inventoryItem* item) {
-    inventoryItem temp = mouse_item;
+void Inventory::swapWithMouseItem(InventoryItem* item) {
+    InventoryItem temp = mouse_item;
     mouse_item = *item;
     *item = temp;
 }

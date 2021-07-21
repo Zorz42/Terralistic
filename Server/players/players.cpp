@@ -47,13 +47,13 @@ players::players(Blocks* parent_blocks_, Items* parent_items_) : parent_blocks(p
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = custom_block_events[(int)BlockType::WOOD].onUpdate;
 
-    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Block* this_block, player* peer) {
+    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Block* this_block, Player* peer) {
         this_block->setType(BlockType::DIRT);
     };
 
-    custom_block_events[(int)BlockType::AIR].onRightClick = [](Block* this_block, player* peer) {
-        BlockType type = peer->player_inventory.getSelectedSlot()->getUniqueItem().places;
-        if(type != BlockType::AIR && peer->player_inventory.inventory_arr[peer->player_inventory.selected_slot].decreaseStack(1)) {
+    custom_block_events[(int)BlockType::AIR].onRightClick = [](Block* this_block, Player* peer) {
+        BlockType type = peer->inventory.getSelectedSlot()->getUniqueItem().places;
+        if(type != BlockType::AIR && peer->inventory.inventory_arr[peer->inventory.selected_slot].decreaseStack(1)) {
             this_block->setType(type);
             this_block->update();
         }
@@ -63,17 +63,17 @@ players::players(Blocks* parent_blocks_, Items* parent_items_) : parent_blocks(p
 }
 
 players::~players() {
-    for(player* i : all_players)
+    for(Player* i : all_players)
         delete i;
 }
 
-player* players::getPlayerByName(const std::string& name) {
-    static unsigned int curr_id = 0;
-    for(player* player : all_players)
+Player* players::getPlayerByName(const std::string& name) {
+    for(Player* player : all_players)
         if(player->name == name)
             return player;
-    all_players.emplace_back(new player(curr_id++));
-    player* curr_player = all_players.back();
+    
+    all_players.emplace_back(new Player);
+    Player* curr_player = all_players.back();
     curr_player->y = parent_blocks->getSpawnY() - BLOCK_WIDTH * 2;
     curr_player->x = parent_blocks->getSpawnX();
     curr_player->name = name;
@@ -81,21 +81,21 @@ player* players::getPlayerByName(const std::string& name) {
 }
 
 void players::updatePlayersBreaking(unsigned short tick_length) {
-    for(player* player : online_players)
+    for(Player* player : online_players)
         if(player->breaking)
             leftClickEvent(parent_blocks->getBlock(player->breaking_x, player->breaking_y), player, tick_length);
 }
 
 void players::lookForItems() {
     for(const Item& i : parent_items->getItems())
-        for(player* player : online_players)
+        for(Player* player : online_players)
             if(abs(i.getX() / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(i.getY() / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
-                if(player->player_inventory.addItem(i.getType(), 1) != -1)
+                if(player->inventory.addItem(i.getType(), 1) != -1)
                     parent_items->removeItem(i);
 }
 
 void players::updateBlocks() {
-    for(player* player : online_players) {
+    for(Player* player : online_players) {
         int start_x = player->x / 16 - player->sight_width / 2 - 20,
             start_y = player->y / 16 - player->sight_height / 2 - 20,
             end_x = player->x / 16 + player->sight_width / 2 + 20,
@@ -137,7 +137,7 @@ void players::updateBlocks() {
     }
 }
 
-void players::leftClickEvent(Block this_block, player* peer, unsigned short tick_length) {
+void players::leftClickEvent(Block this_block, Player* peer, unsigned short tick_length) {
     if(custom_block_events[(int)this_block.getBlockType()].onLeftClick)
         custom_block_events[(int)this_block.getBlockType()].onLeftClick(&this_block, peer);
     else if(this_block.getUniqueBlock().break_time != UNBREAKABLE) {
@@ -147,16 +147,16 @@ void players::leftClickEvent(Block this_block, player* peer, unsigned short tick
     }
 }
 
-void players::rightClickEvent(Block this_block, player* peer) {
+void players::rightClickEvent(Block this_block, Player* peer) {
     if(custom_block_events[(int)this_block.getBlockType()].onRightClick)
         custom_block_events[(int)this_block.getBlockType()].onRightClick(&this_block, peer);
 }
 
 void players::saveTo(std::string path) {
     std::filesystem::create_directory(path);
-    for(player* player : all_players) {
+    for(Player* player : all_players) {
         std::ofstream data_file(path + player->name, std::ios::binary);
-        for(auto& i : player->player_inventory.inventory_arr) {
+        for(auto& i : player->inventory.inventory_arr) {
             data_file << (char)i.getId();
             unsigned short stack = i.getStack();
             data_file.write((char*)&stack, sizeof(stack));
@@ -171,10 +171,10 @@ void players::loadFrom(std::string path) {
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         std::string player_name = entry.path().string();
         player_name = player_name.substr(player_name.find_last_of('/') + 1, player_name.size() - 1);
-        player* player = getPlayerByName(player_name);
+        Player* player = getPlayerByName(player_name);
 
         std::ifstream data_file(entry.path(), std::ios::binary);
-        for(auto & i : player->player_inventory.inventory_arr) {
+        for(auto & i : player->inventory.inventory_arr) {
             char c;
             data_file >> c;
             i.setIdWithoutProcessing((ItemType)c);

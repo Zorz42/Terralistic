@@ -12,6 +12,8 @@
 		1665D8912678E7AB00A7BB61 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 1665D8902678E7AB00A7BB61 /* Structures.asset */; };
 		166ECC8126A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
 		166ECC8226A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
+		1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* serverNetworking.cpp */; };
+		1673274D26A80F9A0063281A /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* serverNetworking.cpp */; };
 		167513C426A498DA00E21C68 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		167513C526A4A47600E21C68 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		1675E71D26611B8000B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
@@ -57,7 +59,7 @@
 		16BF6930269D6D7300CFE175 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
 		16BF6931269D6D7300CFE175 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		16BF6932269D6D7300CFE175 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
-		16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
+		16BF6933269D6D7300CFE175 /* Inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* Inventory.cpp */; };
 		16BF6934269D6D7300CFE175 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
 		16BF6936269D6D7300CFE175 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		16BF6937269D6D7300CFE175 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
@@ -129,7 +131,7 @@
 		36DDF8AB2689F725002337F3 /* liquid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1664388626695A2F00587F5E /* liquid.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		36DDF8AD2689F725002337F3 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
-		36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
+		36DDF8AE2689F725002337F3 /* Inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* Inventory.cpp */; };
 		36DDF8AF2689F725002337F3 /* packets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C192659010D0016509C /* packets.cpp */; };
 		36DDF8B12689F725002337F3 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		36DDF8B22689F725002337F3 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
@@ -209,6 +211,8 @@
 		16644E57267CB1640015C23D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Dependencies/MacOS/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		1665D8902678E7AB00A7BB61 /* Structures.asset */ = {isa = PBXFileReference; lastKnownFileType = file; path = Structures.asset; sourceTree = "<group>"; };
 		166ECC8026A1B8C800E36052 /* saver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = saver.cpp; sourceTree = "<group>"; };
+		1673274A26A80EF40063281A /* serverNetworking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverNetworking.cpp; sourceTree = "<group>"; };
+		1673274B26A80EF40063281A /* serverNetworking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverNetworking.hpp; sourceTree = "<group>"; };
 		167513C226A498DA00E21C68 /* biomes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = biomes.cpp; sourceTree = "<group>"; };
 		167513C326A498DA00E21C68 /* biomes.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = biomes.hpp; sourceTree = "<group>"; };
 		1675CD73267F83680070E325 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Dependencies/MacOS/SDL2_ttf.framework; sourceTree = "<group>"; };
@@ -286,7 +290,7 @@
 		16987C13265901020016509C /* item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = item.cpp; sourceTree = "<group>"; };
 		16987C14265901020016509C /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		16987C192659010D0016509C /* packets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packets.cpp; sourceTree = "<group>"; };
-		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
+		16987C1A2659010D0016509C /* Inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inventory.cpp; sourceTree = "<group>"; };
 		16B36D2C2682000F00A4B03A /* items.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = items.cpp; sourceTree = "<group>"; };
 		16B36D2D2682000F00A4B03A /* items.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = items.hpp; sourceTree = "<group>"; };
 		16B36D312682067D00A4B03A /* blocks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blocks.cpp; sourceTree = "<group>"; };
@@ -490,6 +494,15 @@
 			path = playerRenderer;
 			sourceTree = "<group>";
 		};
+		1673274926A80E760063281A /* serverNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				1673274B26A80EF40063281A /* serverNetworking.hpp */,
+				1673274A26A80EF40063281A /* serverNetworking.cpp */,
+			);
+			path = serverNetworking;
+			sourceTree = "<group>";
+		};
 		167513C126A498DA00E21C68 /* biomes */ = {
 			isa = PBXGroup;
 			children = (
@@ -525,6 +538,7 @@
 				16B36D302682066B00A4B03A /* blocks */,
 				16B36D2A2681FF0400A4B03A /* items */,
 				168600D42681DB1600763775 /* players */,
+				1673274926A80E760063281A /* serverNetworking */,
 				167B387D2642F73900E3C718 /* print */,
 				167B38922642F73900E3C718 /* server */,
 			);
@@ -648,7 +662,7 @@
 			children = (
 				168600DF2681DB7300763775 /* players.hpp */,
 				168600DE2681DB7300763775 /* players.cpp */,
-				16987C1A2659010D0016509C /* inventory.cpp */,
+				16987C1A2659010D0016509C /* Inventory.cpp */,
 				16987C192659010D0016509C /* packets.cpp */,
 				168161CB269EFD4E00A95DA9 /* networking.cpp */,
 			);
@@ -1039,8 +1053,9 @@
 				36DDF8AC2689F725002337F3 /* items.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* players.cpp in Sources */,
 				166ECC8126A1B8C800E36052 /* saver.cpp in Sources */,
-				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
+				36DDF8AE2689F725002337F3 /* Inventory.cpp in Sources */,
 				36DDF8AF2689F725002337F3 /* packets.cpp in Sources */,
+				1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
@@ -1083,6 +1098,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1673274D26A80F9A0063281A /* serverNetworking.cpp in Sources */,
 				167513C526A4A47600E21C68 /* biomes.cpp in Sources */,
 				16BF695C269D7FC100CFE175 /* resourcePath.cpp in Sources */,
 				16BF6957269D7EC900CFE175 /* sago.cpp in Sources */,
@@ -1097,7 +1113,7 @@
 				16BF6930269D6D7300CFE175 /* liquid.cpp in Sources */,
 				16BF6931269D6D7300CFE175 /* items.cpp in Sources */,
 				16BF6932269D6D7300CFE175 /* players.cpp in Sources */,
-				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
+				16BF6933269D6D7300CFE175 /* Inventory.cpp in Sources */,
 				1682944426A16D780017E2FD /* packetType.cpp in Sources */,
 				166ECC8226A1B8C800E36052 /* saver.cpp in Sources */,
 				168161CE269EFD4E00A95DA9 /* networking.cpp in Sources */,

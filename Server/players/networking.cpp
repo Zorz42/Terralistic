@@ -17,8 +17,8 @@ void players::closeSocket() {
     listener.close();
 }
 
-void players::sendToEveryone(sf::Packet& packet, player* exclusion) {
-    for(player* curr_player : online_players)
+void players::sendToEveryone(sf::Packet& packet, Player* exclusion) {
+    for(Player* curr_player : online_players)
         if(curr_player != exclusion)
             curr_player->socket->send(packet);
 }
@@ -41,14 +41,14 @@ void players::getPacketsFromPlayers() {
         if(pending_connections[i]->receive(packet) != sf::Socket::NotReady) {
             std::string player_name;
             packet >> player_name;
-            player* curr_player = getPlayerByName(player_name);
+            Player* curr_player = getPlayerByName(player_name);
             curr_player->socket = pending_connections[i];
             
             sf::Packet spawn_packet;
             spawn_packet << PacketType::SPAWN_POS << curr_player->x << curr_player->y;
             curr_player->socket->send(spawn_packet);
 
-            for(player* player : online_players) {
+            for(Player* player : online_players) {
                 sf::Packet join_packet;
                 join_packet << PacketType::PLAYER_JOIN << player->x << player->y << player->id << player->name;
                 curr_player->socket->send(join_packet);
@@ -60,7 +60,7 @@ void players::getPacketsFromPlayers() {
                 curr_player->socket->send(item_packet);
             }
 
-            for(inventoryItem& curr_item : curr_player->player_inventory.inventory_arr)
+            for(InventoryItem& curr_item : curr_player->inventory.inventory_arr)
                 if(curr_item.getId() != ItemType::NOTHING)
                     sendInventoryItemPacket(curr_item, curr_item.getId(), curr_item.getStack());
             
@@ -76,7 +76,7 @@ void players::getPacketsFromPlayers() {
         }
     }
     
-    for(player* curr_player : online_players) {
+    for(Player* curr_player : online_players) {
         while(true) {
             sf::Packet packet;
             sf::Socket::Status status = curr_player->socket->receive(packet);
