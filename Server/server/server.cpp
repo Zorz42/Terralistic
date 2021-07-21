@@ -55,7 +55,7 @@ void server::start() {
     server_blocks.setNaturalLight();
 
     signal(SIGINT, inthand);
-    server_players.openSocket(port);
+    networking_manager.openSocket(port);
 
     state = RUNNING;
     print::info("Server has started!");
@@ -71,8 +71,8 @@ void server::start() {
             std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_tick - tick_length));
         b = a;
 
-        server_players.checkForNewConnections();
-        server_players.getPacketsFromPlayers();
+        networking_manager.checkForNewConnections();
+        networking_manager.getPacketsFromPlayers();
         server_items.updateItems(tick_length);
         server_players.lookForItems();
         server_players.updatePlayersBreaking(tick_length);
@@ -82,12 +82,12 @@ void server::start() {
     if(!server_players.accept_itself) {
         sf::Packet kick_packet;
         kick_packet << PacketType::KICK << std::string("Server stopped!");
-        server_players.sendToEveryone(kick_packet);
+        networking_manager.sendToEveryone(kick_packet);
     }
 
     state = STOPPING;
     print::info("Stopping server");
-    server_players.closeSocket();
+    networking_manager.closeSocket();
 
     print::info("Saving world...");
     std::filesystem::create_directory(world_path);

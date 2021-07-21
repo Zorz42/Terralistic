@@ -4,7 +4,6 @@
 #define INVENTORY_SIZE 20
 
 #include "items.hpp"
-#include "packetType.hpp"
 
 class Inventory;
 class Player;
@@ -18,8 +17,8 @@ public:
     explicit InventoryItem(Inventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
 
     inline ItemType getType() { return type; }
-    void setType(ItemType type);
-    void setTypeWithoutProcessing(ItemType type);
+    void setType(ItemType type_);
+    void setTypeWithoutProcessing(ItemType type_);
     const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
     void setStackWithoutProcessing(unsigned short stack_);
@@ -28,7 +27,7 @@ public:
     bool decreaseStack(unsigned short stack_);
     unsigned char getPosInInventory();
     void syncWithClient();
-    inline Inventory& getHolderInventory() { return *inventory; } 
+    inline Inventory* getInventory() { return inventory; } 
 };
 
 class Inventory {
@@ -62,24 +61,14 @@ public:
     
     bool breaking = false;
     unsigned short breaking_x{}, breaking_y{};
-    
-    sf::TcpSocket* socket;
 };
 
-class players;
+class Players;
 
 struct blockEvents {
     void (*onUpdate)(Blocks*, Block*) = nullptr;
     void (*onRightClick)(Block*, Player*) = nullptr;
     void (*onLeftClick)(Block*, Player*) = nullptr;
-};
-
-class ServerPacketEvent : public Event<ServerPacketEvent> {
-public:
-    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, Player& sender) : packet(packet), packet_type(packet_type), sender(sender) {}
-    sf::Packet& packet;
-    PacketType packet_type;
-    Player& sender;
 };
 
 class ServerInventoryItemTypeChangeEvent : public Event<ServerInventoryItemTypeChangeEvent> {
@@ -96,38 +85,29 @@ public:
     unsigned short stack;
 };
 
-class players : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<ServerBlockUpdateEvent> {
+class Players : EventListener<ServerBlockUpdateEvent> {
     Items* parent_items;
     Blocks* parent_blocks;
     
-    std::vector<sf::TcpSocket*> pending_connections;
     std::vector<Player*> all_players;
     std::vector<Player*> online_players;
     
-    void onEvent(ServerPacketEvent& event) override;
-    void onEvent(ServerBlockChangeEvent& event) override;
-    void onEvent(ServerBlockBreakStageChangeEvent& event) override;
-    void onEvent(ServerLiquidChangeEvent& event) override;
-    void onEvent(ServerItemCreationEvent& event) override;
-    void onEvent(ServerItemDeletionEvent& event) override;
-    void onEvent(ServerItemMovementEvent& event) override;
-    void onEvent(ServerInventoryItemStackChangeEvent& event) override;
-    void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
     void onEvent(ServerBlockUpdateEvent& event) override;
+
+    blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
+public:
+    Players(Blocks* parent_blocks_, Items* parent_items_);
     
     void leftClickEvent(Block this_block, Player* peer, unsigned short tick_length);
     void rightClickEvent(Block this_block, Player* peer);
-    
-    blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
-    
-    sf::TcpListener listener;
-public:
-    players(Blocks* parent_blocks_, Items* parent_items_);
     
     inline const std::vector<Player*>& getAllPlayers() { return all_players; }
     inline const std::vector<Player*>& getOnlinePlayers() { return online_players; }
     
     Player* getPlayerByName(const std::string& name);
+    
+    Player* addPlayer(const std::string& name);
+    void removePlayer(Player* player);
     
     void updatePlayersBreaking(unsigned short tick_length);
     void updateBlocks();
@@ -136,18 +116,11 @@ public:
     void saveTo(std::string path);
     void loadFrom(std::string path);
     
-    void openSocket(unsigned short port);
-    void closeSocket();
-    void sendToEveryone(sf::Packet& packet, Player* exclusion=nullptr);
-    
-    void checkForNewConnections();
-    void getPacketsFromPlayers();
-    
     void sendInventoryItemPacket(InventoryItem& item, ItemType type, unsigned short stack);
     
     bool accept_itself = false;
     
-    ~players();
+    ~Players();
 };
 
 #endif /* players_hpp */

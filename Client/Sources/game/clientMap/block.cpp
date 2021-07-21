@@ -53,17 +53,14 @@ void map::renderBlocksBack() {
     if(end_y > getWorldHeight() >> 4)
         end_y = getWorldHeight() >> 4;
 
-    // only request finite number of chunks per frame from server
-#define REQUEST_LIMIT 5
 
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
-            if(getChunk(x, y).getState() == chunkState::unloaded && chunks_pending < REQUEST_LIMIT) {
+            if(getChunk(x, y).getState() == chunkState::unloaded) {
                 sf::Packet packet;
                 packet << PacketType::CHUNK << x << y;
                 networking_manager->sendPacket(packet);
                 getChunk(x, y).setState(chunkState::pending_load);
-                chunks_pending++;
             } else if(getChunk(x, y).getState() == chunkState::loaded) {
                 if(getChunk(x, y).hasToUpdate())
                     getChunk(x, y).updateTexture();

@@ -115,7 +115,6 @@ protected:
 
     std::vector<item> items;
 
-    unsigned short chunks_pending = 0;
     std::string kick_message;
     bool kicked = false;
 

@@ -76,7 +76,6 @@ void map::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::CHUNK: {
-            chunks_pending--;
             unsigned short x, y;
             event.packet >> x >> y;
             
