@@ -62,11 +62,12 @@ void NetworkingManager::getPacketsFromPlayers() {
             spawn_packet << PacketType::SPAWN_POS << player->x << player->y;
             connection.socket->send(spawn_packet);
 
-            for(Player* curr_player : players->getOnlinePlayers()) {
-                sf::Packet join_packet;
-                join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
-                connection.socket->send(join_packet);
-            }
+            for(Player* curr_player : players->getOnlinePlayers())
+                if(curr_player != player) {
+                    sf::Packet join_packet;
+                    join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
+                    connection.socket->send(join_packet);
+                }
 
             for(const Item& curr_item : items->getItems()) {
                 sf::Packet item_packet;
@@ -80,7 +81,7 @@ void NetworkingManager::getPacketsFromPlayers() {
             
             sf::Packet join_packet;
             join_packet << PacketType::PLAYER_JOIN << player->x << player->y << player->id << player->name;
-            sendToEveryone(join_packet);
+            sendToEveryone(join_packet, &connection);
 
             print::info(player->name + " (" + connection.socket->getRemoteAddress().toString() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
         }
