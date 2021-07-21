@@ -20,8 +20,12 @@ void NetworkingManager::checkForNewConnections() {
     static sf::TcpSocket *socket = new sf::TcpSocket;
     while(true) {
         if(listener.accept(*socket) != sf::Socket::NotReady) {
-            socket->setBlocking(false);
-            connections.push_back(socket);
+            if(!accept_itself || socket->getRemoteAddress().toString() == "127.0.0.1") {
+                socket->setBlocking(false);
+                connections.push_back(socket);
+            } else {
+                delete socket;
+            }
             socket = new sf::TcpSocket;
         } else
             break;

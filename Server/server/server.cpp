@@ -75,12 +75,12 @@ void server::start() {
         networking_manager.checkForNewConnections();
         networking_manager.getPacketsFromPlayers();
         server_items.updateItems(tick_length);
-        server_players.lookForItems();
+        server_players.lookForItemsThatCanBePickedUp();
         server_players.updatePlayersBreaking(tick_length);
-        server_players.updateBlocks();
+        server_players.updateBlocksInVisibleAreas();
     }
 
-    if(!server_players.accept_itself) {
+    if(!networking_manager.accept_itself) {
         sf::Packet kick_packet;
         kick_packet << PacketType::KICK << std::string("Server stopped!");
         networking_manager.sendToEveryone(kick_packet);
@@ -105,7 +105,7 @@ void server::stop() {
 }
 
 void server::setPrivate(bool is_private) {
-    server_players.accept_itself = is_private;
+    networking_manager.accept_itself = is_private;
 }
 
 unsigned int server::getGeneratingTotal() const {

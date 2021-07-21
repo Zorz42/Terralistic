@@ -51,6 +51,8 @@ public:
     
     void checkForNewConnections();
     void getPacketsFromPlayers();
+    
+    bool accept_itself = false;
 };
 
 #endif /* serverNetworking_hpp */

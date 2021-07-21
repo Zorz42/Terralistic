@@ -6,7 +6,6 @@
 #include "items.hpp"
 
 class Inventory;
-class Player;
 
 class InventoryItem {
     unsigned short stack;
@@ -19,55 +18,52 @@ public:
     inline ItemType getType() const { return type; }
     void setType(ItemType type_);
     void setTypeWithoutProcessing(ItemType type_);
+    
     const ItemInfo& getUniqueItem() const;
+    unsigned short getStack() const;
     void setStack(unsigned short stack_);
     void setStackWithoutProcessing(unsigned short stack_);
-    unsigned short getStack() const;
+    
     unsigned short increaseStack(unsigned short stack_);
     bool decreaseStack(unsigned short stack_);
+    
     unsigned char getPosInInventory();
-    void syncWithClient();
     inline Inventory* getInventory() { return inventory; } 
 };
 
 class Inventory {
-    friend InventoryItem;
     InventoryItem mouse_item;
-    Player* player;
 public:
-    explicit Inventory(Player* owner);
+    Inventory();
     InventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
-    bool open = false;
     unsigned char selected_slot = 0;
     InventoryItem* getSelectedSlot();
     void swapWithMouseItem(InventoryItem* item);
-    inline Player& getPlayer() { return *player; }
 };
 
 class Player {
     static inline unsigned int curr_id = 0;
 public:
-    explicit Player() : id(curr_id++), inventory(this) {}
-    std::string name;
-    
-    bool disconnected = false;
-    
+    Player(const std::string& name) : id(curr_id++), name(name) {}
+    Player(const std::string& path, const std::string& name);
+    const std::string name;
     const unsigned short id;
+    
     bool flipped = false;
     int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
-    Inventory inventory;
     unsigned short getSightBeginX();
     unsigned short getSightEndX();
     unsigned short getSightBeginY();
     unsigned short getSightEndY();
     
+    Inventory inventory;
+    
     bool breaking = false;
-    unsigned short breaking_x{}, breaking_y{};
+    unsigned short breaking_x = 0, breaking_y = 0;
     
     void saveTo(std::string path) const;
-    void loadFrom(std::string path);
 };
 
 struct blockEvents {
@@ -77,8 +73,8 @@ struct blockEvents {
 };
 
 class Players : EventListener<ServerBlockUpdateEvent> {
-    Items* parent_items;
-    Blocks* parent_blocks;
+    Items* items;
+    Blocks* blocks;
     
     std::vector<Player*> all_players;
     std::vector<Player*> online_players;
@@ -86,28 +82,24 @@ class Players : EventListener<ServerBlockUpdateEvent> {
     void onEvent(ServerBlockUpdateEvent& event) override;
 
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
-public:
-    Players(Blocks* parent_blocks_, Items* parent_items_);
     
     void leftClickEvent(Block this_block, Player* peer, unsigned short tick_length);
+public:
+    Players(Blocks* parent_blocks, Items* parent_items);
+    
     void rightClickEvent(Block this_block, Player* peer);
     
     inline const std::vector<Player*>& getAllPlayers() { return all_players; }
     inline const std::vector<Player*>& getOnlinePlayers() { return online_players; }
     
     Player* getPlayerByName(const std::string& name);
-    
     Player* addPlayer(const std::string& name);
     Player* addPlayerFromFile(const std::string& path);
     void removePlayer(Player* player);
     
     void updatePlayersBreaking(unsigned short tick_length);
-    void updateBlocks();
-    void lookForItems();
-    
-    void sendInventoryItemPacket(InventoryItem& item, ItemType type, unsigned short stack);
-    
-    bool accept_itself = false;
+    void updateBlocksInVisibleAreas();
+    void lookForItemsThatCanBePickedUp();
     
     ~Players();
 };

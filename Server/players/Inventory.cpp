@@ -65,13 +65,12 @@ unsigned char InventoryItem::getPosInInventory() {
     return this - &inventory->inventory_arr[0];
 }
 
-Inventory::Inventory(Player* owner) : player(owner) {
+Inventory::Inventory() {
     for(InventoryItem& i : inventory_arr)
         i = InventoryItem(this);
 }
 
 char Inventory::addItem(ItemType id, int quantity) {
-    // adds item to inventory
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].getType() == id) {
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);

@@ -15,7 +15,7 @@ static bool isBlockLeaves(Block block) {
     return block.refersToABlock() && block.getBlockType() == BlockType::LEAVES;
 }
 
-Players::Players(Blocks* parent_blocks_, Items* parent_items_) : parent_blocks(parent_blocks_), parent_items(parent_items_) {
+Players::Players(Blocks* parent_blocks, Items* parent_items) : blocks(parent_blocks), items(parent_items) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = [](Blocks* server_blocks, Block* this_block) {
         Block upper, lower, left, right;
         if(this_block->getY() != 0)
@@ -71,11 +71,10 @@ Player* Players::addPlayer(const std::string& name) {
     Player* player = getPlayerByName(name);
     
     if(!player) {
-        player = new Player;
+        player = new Player(name);
         all_players.emplace_back(player);
-        player->y = parent_blocks->getSpawnY() - BLOCK_WIDTH * 2;
-        player->x = parent_blocks->getSpawnX();
-        player->name = name;
+        player->y = blocks->getSpawnY() - BLOCK_WIDTH * 2;
+        player->x = blocks->getSpawnX();
     }
     
     online_players.push_back(player);
@@ -93,18 +92,18 @@ void Players::removePlayer(Player* player) {
 void Players::updatePlayersBreaking(unsigned short tick_length) {
     for(Player* player : online_players)
         if(player->breaking)
-            leftClickEvent(parent_blocks->getBlock(player->breaking_x, player->breaking_y), player, tick_length);
+            leftClickEvent(blocks->getBlock(player->breaking_x, player->breaking_y), player, tick_length);
 }
 
-void Players::lookForItems() {
-    for(const Item& i : parent_items->getItems())
+void Players::lookForItemsThatCanBePickedUp() {
+    for(const Item& i : items->getItems())
         for(Player* player : online_players)
             if(abs(i.getX() / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(i.getY() / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
                 if(player->inventory.addItem(i.getType(), 1) != -1)
-                    parent_items->removeItem(i);
+                    items->removeItem(i);
 }
 
-void Players::updateBlocks() {
+void Players::updateBlocksInVisibleAreas() {
     for(Player* player : online_players) {
         int start_x = player->getSightBeginX(), start_y = player->getSightBeginY(), end_x = player->getSightEndX(), end_y = player->getSightEndY();
         
@@ -113,7 +112,7 @@ void Players::updateBlocks() {
             finished = true;
             for(unsigned short y = start_y; y < end_y; y++)
                 for(unsigned short x = start_x; x < end_x; x++) {
-                    Block curr_block = parent_blocks->getBlock(x, y);
+                    Block curr_block = blocks->getBlock(x, y);
                     if(curr_block.hasScheduledLightUpdate()) {
                         curr_block.lightUpdate();
                         finished = false;
@@ -127,7 +126,7 @@ void Players::updateBlocks() {
         
         for(unsigned short y = start_y; y < end_y; y++)
             for(unsigned short x = start_x; x < end_x; x++) {
-                Block curr_block = parent_blocks->getBlock(x, y);
+                Block curr_block = blocks->getBlock(x, y);
                 if(curr_block.hasLightChanged()) {
                     curr_block.markLightUnchanged();
                     ServerLightChangeEvent event(curr_block);
@@ -153,27 +152,12 @@ void Players::rightClickEvent(Block this_block, Player* peer) {
 }
 
 Player* Players::addPlayerFromFile(const std::string& path) {
-    Player* player = new Player;
-    player->loadFrom(path);
+    Player* player = new Player(path, path.substr(path.find_last_of('/') + 1, path.size() - 1));
     all_players.push_back(player);
     return player;
 }
 
-void Player::saveTo(std::string path) const {
-    std::ofstream data_file(path, std::ios::binary);
-    for(const auto& i : inventory.inventory_arr) {
-        data_file << (char)i.getType();
-        unsigned short stack = i.getStack();
-        data_file.write((char*)&stack, sizeof(stack));
-    }
-    data_file.write((char*)&x, sizeof(x));
-    data_file.write((char*)&y, sizeof(y));
-    data_file.close();
-}
-
-void Player::loadFrom(std::string path) {
-    name = path.substr(path.find_last_of('/') + 1, path.size() - 1);
-
+Player::Player(const std::string& path, const std::string& name) : id(curr_id++), name(name) {
     std::ifstream data_file(path, std::ios::binary);
     for(auto & i : inventory.inventory_arr) {
         char c;
@@ -189,9 +173,21 @@ void Player::loadFrom(std::string path) {
     data_file.read((char*)&y, sizeof(y));
 }
 
+void Player::saveTo(std::string path) const {
+    std::ofstream data_file(path, std::ios::binary);
+    for(const auto& i : inventory.inventory_arr) {
+        data_file << (char)i.getType();
+        unsigned short stack = i.getStack();
+        data_file.write((char*)&stack, sizeof(stack));
+    }
+    data_file.write((char*)&x, sizeof(x));
+    data_file.write((char*)&y, sizeof(y));
+    data_file.close();
+}
+
 void Players::onEvent(ServerBlockUpdateEvent& event) {
     if(custom_block_events[(int)event.block.getBlockType()].onUpdate)
-        custom_block_events[(int)event.block.getBlockType()].onUpdate(parent_blocks, &event.block);
+        custom_block_events[(int)event.block.getBlockType()].onUpdate(blocks, &event.block);
 }
 
 unsigned short Player::getSightBeginX() {
