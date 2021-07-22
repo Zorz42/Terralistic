@@ -45,14 +45,22 @@ if sys.platform == "darwin":
 
 
 elif sys.platform == "linux":
-    lib_files = [
+    createDir("Dependencies/")
 
-    ]
+    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
+        print("Downloading SFML libraries")
 
-    for lib_file in lib_files:
-        if not os.path.exists(lib_file):
-            os.system("sudo apt install libsfml-audio2.5 libsfml-graphics2.5 libsfml-network2.5 libsfml-system2.5 libsfml-window2.5 libsfml-dev")
-            break
+        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz"
+        sfml_file = project_path + "sfml.tar.gz"
+
+        with urllib.request.urlopen(sfml_url) as sfml_request:
+            with open(sfml_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
+
+        with tarfile.open(sfml_file, "r") as sfml_tar:
+            sfml_tar.extractall(project_path + "Dependencies/")
+
+        os.remove(sfml_file)
 
     createDir("Build/")
     os.system(f"cd {project_path}Build/ && cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. && make -j$(nproc)")
@@ -65,8 +73,8 @@ elif sys.platform == "linux":
     shutil.rmtree(project_path + "Output/Linux/Terralistic/Resources/", ignore_errors=True)
     shutil.move(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic/")
 
-    for lib_file in lib_files:
-        shutil.copy(lib_file, project_path + "Output/Linux/Terralistic/")
+    #for lib_file in lib_files:
+        #shutil.copy(lib_file, project_path + "Output/Linux/Terralistic/")
 
     shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic/")
     shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic/")

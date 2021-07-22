@@ -20,7 +20,7 @@ else()
 endif()
 
 if(NOT WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -I/usr/include/SDL2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath='$ORIGIN'")
 endif()
 
@@ -136,7 +136,12 @@ if(WIN32)
 
             DESTINATION .)
 else()
-    target_link_libraries(Terralistic SDL2 SDL2_ttf SDL2_image sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
+    include_directories(${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/include/)
+    target_link_directories(Terralistic PUBLIC ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/lib/)
+    target_link_libraries(Terralistic sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
+
+    target_link_directories(Terralistic-server PUBLIC ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/lib/)
+    target_link_libraries(Terralistic-server sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
 endif()
 
 file(COPY Client/Resources DESTINATION .)
