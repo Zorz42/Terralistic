@@ -11,20 +11,14 @@ else()
     set(IS_RELEASE TRUE)
 endif()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-# settings
 if(IS_DEBUG)
     add_compile_definitions(DEVELOPER_MODE)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
 endif()
 
-if(NOT WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath='$ORIGIN'")
-endif()
-
-# set sources
 file(GLOB_RECURSE SRC_LIBRARIES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/*.cpp)
 file(GLOB_RECURSE SRC_CLIENT CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Client/*.cpp)
 file(GLOB_RECURSE SRC_SERVER CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Server/*.cpp)
@@ -34,7 +28,6 @@ add_executable(Terralistic WIN32 ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER})
 add_executable(Terralistic-server ${SRC_LIBRARIES} ${SRC_SERVER} ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
 
 
-# set includes
 FILE(GLOB_RECURSE HEADER_LIST *.hpp *.h)
 SET(INCLUDES "")
 FOREACH(FILE_PATH ${HEADER_LIST})
@@ -46,7 +39,6 @@ LIST(REMOVE_DUPLICATES INCLUDES)
 include_directories(Terralistic ${INCLUDES})
 include_directories(Terralistic-server ${INCLUDES})
 
-# link libs
 if(WIN32)
     SET(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
 
