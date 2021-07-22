@@ -37,7 +37,7 @@ int worldGenerator::generateWorld(unsigned short world_width, unsigned short wor
 double turbulence(double x, double y, double size, SimplexNoise& noise) {
     double value = 0, initialSize = size;
 
-    while(size >= 2) {
+    while(size >= 8) {
         value += noise.noise(x / size, y / size) * size;
         size /= 2.0;
     }
@@ -69,21 +69,21 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     mountains 600-700
     */
 
-    /*int heat = heatGeneratorInt(x, noise);
+    int heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
-    server_blocks->biomes[x] = (Biome)((biome_height << 2) + heat);*/
-    server_blocks->biomes[x] = Biome::ICY_SEAS;
+    server_blocks->biomes[x] = (Biome)((heat * 4) + biome_height);
+    //server_blocks->biomes[x] = Biome::ICY_SEAS;
 }
 
 void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
     int surface_height = calculateHeight(x, noise);
     int last_layer = surface_height + 1;
     int generating_layer = 0;
-    biome slice_biome = loaded_biomes[(int)server_blocks->biomes[x]];
-    for(int y = server_blocks->getHeight() / 3 * 2; y > 0; y--) {
+    biome &slice_biome = loaded_biomes[(int)server_blocks->biomes[x]];
+    for(int y = std::max(server_blocks->getHeight() / 3 * 2, surface_height); y > 0; y--) {
         if (y > surface_height) {
-            server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
-            server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
+            server_blocks->getBlock(x, server_blocks->getHeight() - y).setTypeWithoutProcessing(LiquidType::WATER);
+            server_blocks->getBlock(x, server_blocks->getHeight() - y).setLiquidLevelWithoutProcessing(127);
         }else{
             if (slice_biome.ground_layers[generating_layer].layer_height_mode == LayerHeightMode::PREVIOUS_LAYER) {
                 if (y > last_layer - slice_biome.ground_layers[generating_layer].height +
@@ -105,8 +105,8 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
                     server_blocks->getBlock(x, server_blocks->getHeight() - y).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
                 }
                 else{
-                    server_blocks->getBlock(x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(LiquidType::WATER);
-                    server_blocks->getBlock(x, server_blocks->getHeight() - y -1).setLiquidLevel(127);
+                    server_blocks->getBlock(x, server_blocks->getHeight() - y).setTypeWithoutProcessing(LiquidType::WATER);
+                    server_blocks->getBlock(x, server_blocks->getHeight() - y).setLiquidLevelWithoutProcessing(127);
                 }
             }
         }
@@ -194,9 +194,9 @@ void worldGenerator::generateFlatTerrain() {
     for (int x = 0; x < server_blocks->getWidth(); x++) {
         for (int y = 0; y < server_blocks->getHeight(); y++) {
             if (y <= 324) {//generates surface
-                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setTypeWithoutProcessing(BlockType::DIRT);
+                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(BlockType::DIRT);
             }else if(y == 325)
-                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - (unsigned short)y - 1).setTypeWithoutProcessing(BlockType::GRASS_BLOCK);
+                server_blocks->getBlock((unsigned short)x, server_blocks->getHeight() - y - 1).setTypeWithoutProcessing(BlockType::GRASS_BLOCK);
         }
     }
 }
@@ -236,22 +236,56 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
 
 void worldGenerator::loadBiomes() {
     loaded_biomes.push_back(biome(Biome::ICY_SEAS, server_blocks->getHeight() / 3 * 2, 0,
-                     {layer(BlockType::ICE, LayerHeightMode::PREVIOUS_LAYER, 3, 1),
-                     layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight() / 30, 10)},
-                     {}));
-    loaded_biomes.push_back(biome(Biome::SNOWY_TUNDRA, server_blocks -> getHeight() / 6 * 4 + 20, 7,
-                           {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
-                            layer(BlockType::SNOWY_GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 1, 0),
-                            layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
-                            layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
-                           {}));
-    loaded_biomes.push_back(biome(Biome::COLD_HILLS, 0, 0, {}, {}));
-    loaded_biomes.push_back(biome(Biome::SNOWY_MOUNTAINS, 0, 0, {}, {}));
-    loaded_biomes.push_back(biome(Biome::SEA, server_blocks->getHeight() / 3 * 2, 0,
-                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight() / 3 * 2 - 50, 10)},
+                                  {layer(BlockType::ICE, LayerHeightMode::PREVIOUS_LAYER, 3, 1),
+                                  layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight() / 3 * 2 - 50, 10)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::PLAINS, server_blocks -> getHeight() / 6 * 4 + 22, 7,
-                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 1, 0),
+    loaded_biomes.push_back(biome(Biome::SNOWY_TUNDRA, server_blocks -> getHeight() / 3 * 2 + 20, 4,
+                                  {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   layer(BlockType::SNOWY_GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                   {}));
+    loaded_biomes.push_back(biome(Biome::COLD_HILLS, server_blocks -> getHeight() / 3 * 2 + 29, 15,
+                                  {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   layer(BlockType::SNOWY_GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 1, 0),
+                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 4, 2),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                   {}));
+    loaded_biomes.push_back(biome(Biome::SNOWY_MOUNTAINS, server_blocks -> getHeight() / 3 * 2 + 70, 37,
+                                  {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 2, 1),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::SEA, server_blocks->getHeight() / 3 * 2 - 50, 10,
+                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::PLAINS, server_blocks -> getHeight() / 6 * 4 + 22, 4,
+                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::FOREST, server_blocks -> getHeight() / 3 * 2 + 26, 10,
+                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::MOUNTAINS, server_blocks -> getHeight() / 3 * 2 + 70, 33,
+                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::WARM_OCEAN, server_blocks->getHeight() / 3 * 2 - 50, 10,
+                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::DESERT, server_blocks -> getHeight() / 6 * 4 + 22, 4,
+                                  {layer(BlockType::SAND, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::SAVANA, server_blocks -> getHeight() / 3 * 2 + 26, 10,
+                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
+                                  {}));
+    loaded_biomes.push_back(biome(Biome::SAVANA_MOUNTAINS, server_blocks -> getHeight() / 3 * 2 + 50, 25,
+                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
                                    layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
                                    layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
                                   {}));
