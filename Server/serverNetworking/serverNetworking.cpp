@@ -168,6 +168,11 @@ void NetworkingManager::onEvent(ServerPacketEvent& event) {
             sendToEveryone(chat_packet);
             break;
         }
+            
+        case PacketType::VIEW_POS_CHANGE: {
+            event.packet >> curr_player->sight_x >> curr_player->sight_y;
+            break;
+        }
 
         default:;
     }
@@ -215,7 +220,7 @@ void NetworkingManager::onEvent(ServerLightChangeEvent& event) {
     packet << PacketType::LIGHT_CHANGE << x << y << event.block.getLightLevel();
     
     for(Connection& connection : connections)
-        if(connection.player && connection.player->getSightBeginX() < x && x < connection.player->getSightEndX() && connection.player->getSightBeginY() < y && y < connection.player->getSightEndY())
+        if(connection.player && (int)connection.player->getSightBeginX() - 20 < x && x < connection.player->getSightEndX() + 20 && (int)connection.player->getSightBeginY() - 20 < y && y < connection.player->getSightEndY() + 20)
             connection.socket->send(packet);
 }
 
