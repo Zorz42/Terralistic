@@ -96,11 +96,11 @@ void Players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void Players::lookForItemsThatCanBePickedUp() {
-    for(const Item& i : items->getItems())
+    for(int i = 0; i < items->getItems().size(); i++)
         for(Player* player : online_players)
-            if(abs(i.getX() / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(i.getY() / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
-                if(player->inventory.addItem(i.getType(), 1) != -1)
-                    items->removeItem(i);
+            if(abs(items->getItems()[i].getX() / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(items->getItems()[i].getY() / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
+                if(player->inventory.addItem(items->getItems()[i].getType(), 1) != -1)
+                    items->removeItem(items->getItems()[i]);
 }
 
 void Players::updateBlocksInVisibleAreas() {
