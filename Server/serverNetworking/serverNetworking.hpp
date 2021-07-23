@@ -2,15 +2,21 @@
 #define serverNetworking_hpp
 
 #include <vector>
+#include <string>
 
 #include "packetType.hpp"
 #include "players.hpp"
 
 class Connection {
+    sf::TcpSocket* socket;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
-    sf::TcpSocket* socket;
     Player* player = nullptr;
+    void send(sf::Packet& packet);
+    sf::Socket::Status receive(sf::Packet& packet);
+    std::string getIpAddress();
+    void freeSocket();
+    
 };
 
 class ServerPacketEvent : public Event<ServerPacketEvent> {

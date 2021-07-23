@@ -1,6 +1,22 @@
 #include "serverNetworking.hpp"
 #include "print.hpp"
 
+void Connection::send(sf::Packet& packet) {
+    socket->send(packet);
+}
+
+sf::Socket::Status Connection::receive(sf::Packet& packet) {
+    return socket->receive(packet);
+}
+
+std::string Connection::getIpAddress() {
+    return socket->getRemoteAddress().toString();
+}
+
+void Connection::freeSocket() {
+    delete socket;
+}
+
 void NetworkingManager::openSocket(unsigned short port) {
     listener.listen(port);
     listener.setBlocking(false);
@@ -12,8 +28,8 @@ void NetworkingManager::closeSocket() {
 
 void NetworkingManager::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
     for(Connection& connection : connections)
-        if(exclusion == nullptr || exclusion->socket != connection.socket)
-            connection.socket->send(packet);
+        if(exclusion == nullptr || exclusion->player != connection.player)
+            connection.send(packet);
 }
 
 void NetworkingManager::checkForNewConnections() {
@@ -34,60 +50,62 @@ void NetworkingManager::checkForNewConnections() {
 
 void NetworkingManager::getPacketsFromPlayers() {
     sf::Packet packet;
-    for(Connection& connection : connections) {
-        if(connection.player) {
+    for(int i = 0; i < connections.size(); i++) {
+        if(connections[i].player) {
             while(true) {
-                sf::Socket::Status status = connection.socket->receive(packet);
+                sf::Socket::Status status = connections[i].receive(packet);
                 if(status == sf::Socket::NotReady)
                     break;
                 else if(status == sf::Socket::Disconnected) {
-                    print::info(connection.player->name + " (" + connection.socket->getRemoteAddress().toString() + ") disconnected (" + std::to_string(players->getOnlinePlayers().size() - 1) + " players online)");
-                    delete connection.socket;
-                    players->removePlayer(connection.player);
+                    print::info(connections[i].player->name + " (" + connections[i].getIpAddress() + ") disconnected (" + std::to_string(players->getOnlinePlayers().size() - 1) + " players online)");
+                    players->removePlayer(connections[i].player);
                     
                     sf::Packet quit_packet;
-                    quit_packet << PacketType::PLAYER_QUIT << connection.player->id;
+                    quit_packet << PacketType::PLAYER_QUIT << connections[i].player->id;
                     sendToEveryone(quit_packet);
+                    
+                    connections[i].freeSocket();
+                    connections.erase(connections.begin() + i);
                     
                     break;
                 } else if(status == sf::Socket::Done) {
                     unsigned char packet_type;
                     packet >> packet_type;
-                    ServerPacketEvent(packet, (PacketType)packet_type, connection).call();
+                    ServerPacketEvent(packet, (PacketType)packet_type, connections[i]).call();
                 }
             }
-        } else if(connection.socket->receive(packet) != sf::Socket::NotReady) {
+        } else if(connections[i].receive(packet) != sf::Socket::NotReady) {
             std::string player_name;
             packet >> player_name;
             Player* player = players->addPlayer(player_name);
-            connection.player = player;
+            connections[i].player = player;
             
             sf::Packet spawn_packet;
             spawn_packet << PacketType::SPAWN_POS << player->x << player->y;
-            connection.socket->send(spawn_packet);
+            connections[i].send(spawn_packet);
 
             for(Player* curr_player : players->getOnlinePlayers())
                 if(curr_player != player) {
                     sf::Packet join_packet;
                     join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
-                    connection.socket->send(join_packet);
+                    connections[i].send(join_packet);
                 }
 
             for(const Item& curr_item : items->getItems()) {
                 sf::Packet item_packet;
                 item_packet << PacketType::ITEM_CREATION << curr_item.getX() << curr_item.getY() << curr_item.getId() << (unsigned char)curr_item.getType();
-                connection.socket->send(item_packet);
+                connections[i].send(item_packet);
             }
 
             for(InventoryItem& curr_item : player->inventory.inventory_arr)
                 if(curr_item.getType() != ItemType::NOTHING)
-                    sendInventoryItemPacket(connection, curr_item, curr_item.getType(), curr_item.getStack());
+                    sendInventoryItemPacket(connections[i], curr_item, curr_item.getType(), curr_item.getStack());
             
             sf::Packet join_packet;
             join_packet << PacketType::PLAYER_JOIN << player->x << player->y << player->id << player->name;
-            sendToEveryone(join_packet, &connection);
+            sendToEveryone(join_packet, &connections[i]);
 
-            print::info(player->name + " (" + connection.socket->getRemoteAddress().toString() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
+            print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
         }
     }
 }
@@ -127,7 +145,7 @@ void NetworkingManager::onEvent(ServerPacketEvent& event) {
                     Block block = blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
                     chunk_packet << (unsigned char)block.getBlockType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
                 }
-            event.conn.socket->send(chunk_packet);
+            event.conn.send(chunk_packet);
             break;
         }
 
@@ -221,13 +239,13 @@ void NetworkingManager::onEvent(ServerLightChangeEvent& event) {
     
     for(Connection& connection : connections)
         if(connection.player && (int)connection.player->getSightBeginX() - 20 < x && x < connection.player->getSightEndX() + 20 && (int)connection.player->getSightBeginY() - 20 < y && y < connection.player->getSightEndY() + 20)
-            connection.socket->send(packet);
+            connection.send(packet);
 }
 
 void NetworkingManager::sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack) {
     sf::Packet packet;
     packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();
-    connection.socket->send(packet);
+    connection.send(packet);
 }
 
 void NetworkingManager::onEvent(ServerInventoryItemStackChangeEvent& event) {
