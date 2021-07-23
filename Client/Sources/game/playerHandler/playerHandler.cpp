@@ -129,6 +129,8 @@ void playerHandler::update() {
         
         float speed_multiplier = 1;
         
+        int prev_x = player->position_x, prev_y = player->position_y, prev_view_x = world_map->view_x, prev_view_y = world_map->view_y;
+        
         unsigned short starting_x = (player->position_x - playerRenderer::getPlayerWidth() / 2) / BLOCK_WIDTH;
         unsigned short starting_y = (player->position_y - playerRenderer::getPlayerHeight() / 2) / BLOCK_WIDTH;
         unsigned short ending_x = (player->position_x + playerRenderer::getPlayerWidth() / 2 - 1) / BLOCK_WIDTH;
@@ -188,9 +190,15 @@ void playerHandler::update() {
         if(world_map->view_y >= world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2)
             world_map->view_y = world_map->getWorldHeight() * BLOCK_WIDTH - gfx::getWindowHeight() / 2;
         
-        if(move_x || move_y) {
+        if(prev_x != player->position_x || prev_y != player->position_y) {
             sf::Packet packet;
             packet << PacketType::PLAYER_MOVEMENT << player->position_x << player->position_y << player->flipped;
+            manager->sendPacket(packet);
+        }
+        
+        if(prev_view_x != world_map->view_x || prev_view_y != world_map->view_y) {
+            sf::Packet packet;
+            packet << PacketType::VIEW_POS_CHANGE << world_map->view_x << world_map->view_y;
             manager->sendPacket(packet);
         }
     }
