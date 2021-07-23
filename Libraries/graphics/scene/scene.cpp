@@ -192,7 +192,7 @@ void gfx::Scene::run() {
         }
         
         sf::Event event;
-        while (sfml_window->pollEvent(event)) {
+        while (window->pollEvent(event)) {
             operateEvent(event);
         }
         

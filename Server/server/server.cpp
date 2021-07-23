@@ -78,6 +78,7 @@ void server::start() {
         server_players.lookForItemsThatCanBePickedUp();
         server_players.updatePlayersBreaking(tick_length);
         server_players.updateBlocksInVisibleAreas();
+        networking_manager.syncLightWithPlayers();
     }
 
     if(!networking_manager.accept_itself) {

@@ -10,7 +10,7 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
 
 void gfx::Image::renderText(const std::string& text, Color text_color) {
     sf::Text sf_text;
-    sf_text.setFont(sfml_font);
+    sf_text.setFont(font);
     sf_text.setString(text.c_str());
     sf_text.setFillColor((sf::Color)text_color);
     sf_text.setCharacterSize(font_size);

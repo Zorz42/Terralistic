@@ -133,16 +133,6 @@ void Players::updateBlocksInVisibleAreas() {
                     }
                 }
         }
-        
-        for(unsigned short y = start_y; y < end_y; y++)
-            for(unsigned short x = start_x; x < end_x; x++) {
-                Block curr_block = blocks->getBlock(x, y);
-                if(curr_block.hasLightChanged()) {
-                    curr_block.markLightUnchanged();
-                    ServerLightChangeEvent event(curr_block);
-                    event.call();
-                }
-            }
     }
 }
 
