@@ -1,14 +1,13 @@
 #include "graphics-internal.hpp"
 
 static unsigned short min_window_width, min_window_height;
-static sf::Clock *global_clock;
+static sf::Clock global_clock;
 
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     window->setVerticalSyncEnabled(true);
     render_target = window;
     setWindowSize(window_width, window_height);
-    global_clock = new sf::Clock;
 }
 
 void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
@@ -22,7 +21,6 @@ void gfx::loadFont(const std::string& path, unsigned char size) {
 }
 
 void gfx::quit() {
-    delete global_clock;
     delete window;
 }
 
@@ -56,7 +54,7 @@ bool gfx::colliding(RectShape a, RectShape b) {
 }
 
 unsigned int gfx::getTicks() {
-    return global_clock->getElapsedTime().asMilliseconds();
+    return global_clock.getElapsedTime().asMilliseconds();
 }
 
 float gfx::getDeltaTime() {

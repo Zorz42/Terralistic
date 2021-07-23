@@ -587,15 +587,15 @@
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				167513C126A498DA00E21C68 /* biomes */,
-				1626244C26430B41007E01C4 /* launcher */,
-				16B36D3926820AC700A4B03A /* worldGenerator */,
+				167B387D2642F73900E3C718 /* print */,
 				16B36D302682066B00A4B03A /* blocks */,
+				167513C126A498DA00E21C68 /* biomes */,
+				16B36D3926820AC700A4B03A /* worldGenerator */,
 				16B36D2A2681FF0400A4B03A /* items */,
 				168600D42681DB1600763775 /* players */,
 				1673274926A80E760063281A /* serverNetworking */,
-				167B387D2642F73900E3C718 /* print */,
 				167B38922642F73900E3C718 /* server */,
+				1626244C26430B41007E01C4 /* launcher */,
 			);
 			path = Server;
 			sourceTree = "<group>";

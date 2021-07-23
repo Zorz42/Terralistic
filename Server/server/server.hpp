@@ -13,30 +13,30 @@
 #include "serverNetworking.hpp"
 #include "worldGenerator.hpp"
 
-class server {
+enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
+
+class Server {
     std::string working_dir;
-    Blocks server_blocks;
-    Items server_items;
-    Players server_players;
+    Blocks blocks;
+    Items items;
+    Players players;
     NetworkingManager networking_manager;
     
     worldGenerator generator;
-    unsigned short port;
 public:
-    enum serverState { NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED };
-    serverState state = NEUTRAL;
+    ServerState state = ServerState::NEUTRAL;
     
-    server(std::string working_dir, std::string resource_path, unsigned short port) : working_dir(std::move(working_dir)), server_blocks(), server_items(&server_blocks), server_players(&server_blocks, &server_items), networking_manager(&server_blocks, &server_items, &server_players), generator(&server_blocks, resource_path), port(port) {}
+    Server(std::string working_dir, std::string resource_path) : working_dir(std::move(working_dir)), blocks(), items(&blocks), players(&blocks, &items), networking_manager(&blocks, &items, &players), generator(&blocks, resource_path) {}
     
-    void start();
+    void start(unsigned short port);
     static void stop();
     
     void setPrivate(bool is_private);
     
-    [[nodiscard]] unsigned int getGeneratingTotal() const;
-    [[nodiscard]] unsigned int getGeneratingCurrent() const;
+    unsigned int getGeneratingTotal() const;
+    unsigned int getGeneratingCurrent() const;
     
-    inline unsigned short getPort() { return port; }
+    //inline unsigned short getPort() { return port; }
 };
 
 #endif /* server_h */
