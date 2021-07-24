@@ -37,7 +37,7 @@ int worldGenerator::generateWorld(unsigned short world_width, unsigned short wor
 double turbulence(double x, double y, double size, SimplexNoise& noise) {
     double value = 0, initialSize = size;
 
-    while(size >= 2) {
+    while(size >= 8) {
         value += noise.noise(x / size, y / size) * size;
         size /= 2.0;
     }
@@ -46,8 +46,8 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
 }
 
 int worldGenerator::heatGeneratorInt(unsigned int x, SimplexNoise &noise) {
-    int heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 1.5;
-    return heat == 3 ? 2 : heat;
+    int biome_heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 1.5;
+    return biome_heat == 3 ? 2 : biome_heat;
 }
 
 int worldGenerator::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
@@ -56,8 +56,8 @@ int worldGenerator::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
     else if (x < 100 || x > server_blocks->getWidth() - 100)
         return 1;
     else {
-        int heat = (noise.noise((float)x / 600.0 + 0.001) + 1) * 2;
-        return std::min(std::max(1, heat), 3);
+        int biome_heat = (noise.noise((float)x / 600.0 + 0.001) + 1) * 2;
+        return std::min(std::max(1, biome_heat), 3);
     }
 }
 
@@ -69,9 +69,9 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     mountains 600-700
     */
 
-    int heat = heatGeneratorInt(x, noise);
+    int biome_heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
-    server_blocks->biomes[x] = (Biome)((heat * 4) + biome_height);
+    server_blocks->biomes[x] = (Biome)((biome_heat * 4) + biome_height);
     //server_blocks->biomes[x] = Biome::ICY_SEAS;
 }
 
@@ -114,16 +114,17 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
 }
 
 int worldGenerator::calculateHeight(int x, SimplexNoise& noise) {
-    int biome_blend = 10;
+    int biome_blend = 20;
     int slice_height = 0;
+    int slice_height_variation = 0;
     float divide_at_end = 0;
         for(int i = std::max(0, x - biome_blend); i < std::min(server_blocks->getWidth() - 1, x + biome_blend); i++){
-            slice_height += (loaded_biomes[(int)server_blocks->biomes[i]].surface_height + turbulence(i + 0.003, 0, 64, noise) * loaded_biomes[(int)server_blocks->biomes[i]].surface_height_variation)
-                             * (1 / (std::abs(1 * (i - x) / biome_blend) + 1) - 1/2);
-            divide_at_end += 1 / (std::abs(1 * (i - x) / biome_blend) + 1) - 1/2;
+            slice_height += loaded_biomes[(int)server_blocks->biomes[i]].surface_height * (1 - (float)std::abs(x - i) / biome_blend);
+            slice_height_variation += loaded_biomes[(int)server_blocks->biomes[i]].surface_height_variation * (1 - (float)std::abs(x - i) / biome_blend);
+            divide_at_end += (1 - (float)std::abs(x - i) / biome_blend);
         }
 
-    return slice_height / divide_at_end;
+    return (slice_height + turbulence(x + 0.003, 0, 64, noise) * slice_height_variation) / divide_at_end;
 }
 
 #include "print.hpp"
