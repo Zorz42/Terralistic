@@ -1,4 +1,4 @@
-set DEP_PATH=./Dependencies
+set DEP_PATH=./Deps
 set SFML_PATH=%DEP_PATH%/SFML
 
 IF NOT EXIST %DEP_PATH% (

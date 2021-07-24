@@ -679,12 +679,12 @@ FodyWeavers.xsd
 **/UserInterfaceState.xcuserstate
 x64/
 .vs/Terralistic/
-Debug/
-Build/
-Dependencies/
-Output/
+Deps
 cmake-build-debug/
 venv/
 .idea/workspace.xml
+
+Terraria
+TerrariaServer
 
 # End of https://www.toptal.com/developers/gitignore/api/vim,emacs,c,c++,ninja,macos,cmake,visualstudio,clion+all

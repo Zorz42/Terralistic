@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-DEP_PATH=./Dependencies
+DEP_PATH=./Deps
 SFML_PATH=$DEP_PATH/SFML
 
 if test -d "$DEP_PATH"; then
