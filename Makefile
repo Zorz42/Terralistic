@@ -1,9 +1,9 @@
 MODE 			?=		DEBUG
-SFML_DIR	?=		Deps/SFML
+SFML_DIR		?=		Deps/SFML
 CC				?=		g++
-CFLAGS 		?=		-Wall -std=c++17
-CXXFLAGS	?= 		-Ithird_party -Ithird_party/properties -Ithird_party/simplexNoise -Ithird_party/events -Ithird_party/graphics -Ithird_party/graphics/scene -Ithird_party/graphics/rect -Ithird_party/graphics/ui -Ithird_party/packetType -Ithird_party/resourcePath -Ithird_party/sago -Ithird_party/configManager -I$(SFML_DIR)/include
-LDFLAGS		?=		-lm -lpthread -lstdc++ -L$(SFML_DIR)/lib -lsfml-system -lsfml-graphics -lsfml-audio -lsfml-network -lsfml-window
+CFLAGS 			?=		-Wall -std=c++17
+CXXFLAGS		?= 		-Ithird_party -Ithird_party/properties -Ithird_party/simplexNoise -Ithird_party/events -Ithird_party/graphics -Ithird_party/graphics/scene -Ithird_party/graphics/rect -Ithird_party/graphics/ui -Ithird_party/packetType -Ithird_party/resourcePath -Ithird_party/sago -Ithird_party/configManager -I$(SFML_DIR)/include
+LDFLAGS			?=		-lm -lpthread -lstdc++ -L$(SFML_DIR)/lib -lsfml-system -lsfml-graphics -lsfml-audio -lsfml-network -lsfml-window
 
 ifeq ($(MODE),DEBUG)
 	CFLAGS 	+= -Og -g3
