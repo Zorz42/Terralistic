@@ -1,23 +1,16 @@
 # Terralistic
 
-Discord server: https://discord.gg/dSStXTucCc
+Join the [Discord server](https://discord.gg/dSStXTucCc)
 
-To build, just run:
-```
-python3 build.py
-```
+To build, just run `make` in the current directory
 You will need to have installed to build:
-- python3
-- cmake
 - make
-- clang
+- gnu build-essential
 - git
-
-SFML will be installed by build.py.
 
 If you want to edit code use:
 - Windows: CLion
 - MacOS: XCode
 - Linux: CLion
 
-Before you edit code, you should run build.py, so that all dependencies download.
+Before you edit code, you should run install-deps.sh or install-deps.bat based on your os, so that all dependencies download.
