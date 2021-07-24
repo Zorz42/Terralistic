@@ -23,7 +23,7 @@
 #define TO_PORT 65535
 
 static std::thread server_thread;
-static server* private_server = nullptr;
+static Server* private_server = nullptr;
 
 #define TEXT_SCALE 3
 
@@ -43,21 +43,22 @@ void startPrivateWorld(const std::string& world_name) {
 
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
 
-    private_server = new server(fileManager::getWorldsPath() + world_name, gfx::resource_path, rand() % (TO_PORT - FROM_PORT) + TO_PORT);
-    server_thread = std::thread([ObjectPtr = private_server] { ObjectPtr->start(); });
+    private_server = new Server(fileManager::getWorldsPath() + world_name, gfx::resource_path);
+    unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
+    server_thread = std::thread(&Server::start, private_server, port);
 
-    while(private_server->state != server::RUNNING)
+    while(private_server->state != ServerState::RUNNING)
         switch (private_server->state) {
-            case server::NEUTRAL:
+            case ServerState::NEUTRAL:
                 gfx::sleep(1);
                 break;
-            case server::STARTING:
+            case ServerState::STARTING:
                 renderTextScreen("Starting server");
                 break;
-            case server::LOADING_WORLD:
+            case ServerState::LOADING_WORLD:
                 renderTextScreen("Loading world");
                 break;
-            case server::GENERATING_WORLD:
+            case ServerState::GENERATING_WORLD:
                 loading_bar.w += (private_server->getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server->getGeneratingTotal() - loading_bar.w) / 3;
                 loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
                 gfx::clearWindow();
@@ -73,7 +74,7 @@ void startPrivateWorld(const std::string& world_name) {
 
     private_server->setPrivate(true);
 
-    game("_", "127.0.0.1", private_server->getPort()).run();
+    game("_", "127.0.0.1", port).run();
     delete private_server;
     private_server = nullptr;
 }
@@ -109,7 +110,7 @@ void game::stop() {
     if(private_server)
         private_server->stop();
 
-    while(private_server && private_server->state != server::STOPPING)
+    while(private_server && private_server->state != ServerState::STOPPING)
         renderTextScreen("Saving world");
 
     if(private_server) {
