@@ -1,9 +1,12 @@
 #include "graphics-internal.hpp"
 
+static unsigned short min_window_width, min_window_height;
+static sf::Clock global_clock;
+
 void gfx::init(unsigned short window_width, unsigned short window_height) {
-    sfml_window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
-    sfml_window->setVerticalSyncEnabled(true);
-    render_target = sfml_window;
+    window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
+    window->setVerticalSyncEnabled(true);
+    render_target = window;
     setWindowSize(window_width, window_height);
 }
 
@@ -14,19 +17,19 @@ void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
 
 void gfx::loadFont(const std::string& path, unsigned char size) {
     font_size = size;
-    sfml_font.loadFromFile(resource_path + path);
+    font.loadFromFile(resource_path + path);
 }
 
 void gfx::quit() {
-    delete sfml_window;
+    delete window;
 }
 
 unsigned short gfx::getWindowWidth() {
-    return sfml_window->getSize().x / global_scale;
+    return window->getSize().x / global_scale;
 }
 
 unsigned short gfx::getWindowHeight() {
-    return sfml_window->getSize().y / global_scale;
+    return window->getSize().y / global_scale;
 }
 
 unsigned short gfx::getMouseX() {
@@ -43,7 +46,7 @@ void gfx::setRenderTarget(Image& tex) {
 
 void gfx::resetRenderTarget() {
     ((sf::RenderTexture*)render_target)->display();
-    render_target = sfml_window;
+    render_target = window;
 }
 
 bool gfx::colliding(RectShape a, RectShape b) {
@@ -51,7 +54,7 @@ bool gfx::colliding(RectShape a, RectShape b) {
 }
 
 unsigned int gfx::getTicks() {
-    return clock.getElapsedTime().asMilliseconds();
+    return global_clock.getElapsedTime().asMilliseconds();
 }
 
 float gfx::getDeltaTime() {
@@ -59,11 +62,11 @@ float gfx::getDeltaTime() {
 }
 
 void gfx::clearWindow() {
-    sfml_window->clear();
+    window->clear();
 }
 
 void gfx::updateWindow() {
-    sfml_window->display();
+    window->display();
 }
 
 void gfx::sleep(unsigned short ms) {
@@ -85,6 +88,6 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
         height = min_window_height * global_scale;
     
     sf::FloatRect visibleArea(0, 0, (unsigned int)width / global_scale, (unsigned int)height / global_scale);
-    sfml_window->setView(sf::View(visibleArea));
-    sfml_window->setSize({(unsigned int)width, (unsigned int)height});
+    window->setView(sf::View(visibleArea));
+    window->setSize({(unsigned int)width, (unsigned int)height});
 }

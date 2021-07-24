@@ -2,27 +2,24 @@
 #define serverNetworking_hpp
 
 #include <vector>
+#include <string>
 
 #include "packetType.hpp"
 #include "players.hpp"
 
 class Connection {
+    sf::TcpSocket* socket;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
-    sf::TcpSocket* socket;
     Player* player = nullptr;
+    void send(sf::Packet& packet);
+    sf::Socket::Status receive(sf::Packet& packet);
+    std::string getIpAddress();
+    void freeSocket();
+    
 };
 
-class ServerPacketEvent : public Event<ServerPacketEvent> {
-public:
-    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, Connection& conn) : packet(packet), packet_type(packet_type), conn(conn) {}
-    sf::Packet& packet;
-    PacketType packet_type;
-    Connection& conn;
-};
-
-class NetworkingManager : EventListener<ServerPacketEvent>, EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerLightChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent> {
-    void onEvent(ServerPacketEvent& event) override;
+class NetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent> {
     std::vector<Connection> connections;
     sf::TcpListener listener;
     
@@ -36,9 +33,10 @@ class NetworkingManager : EventListener<ServerPacketEvent>, EventListener<Server
     void onEvent(ServerItemCreationEvent& event) override;
     void onEvent(ServerItemDeletionEvent& event) override;
     void onEvent(ServerItemMovementEvent& event) override;
-    void onEvent(ServerLightChangeEvent& event) override;
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
+    
+    void onPacket(sf::Packet& packet, PacketType packet_type, Connection& conn);
     
     void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
@@ -51,6 +49,8 @@ public:
     
     void checkForNewConnections();
     void getPacketsFromPlayers();
+    
+    void syncLightWithPlayers();
     
     bool accept_itself = false;
 };

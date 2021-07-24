@@ -53,6 +53,7 @@ public:
     bool flipped = false;
     int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
+    int sight_x, sight_y;
     unsigned short getSightBeginX();
     unsigned short getSightEndX();
     unsigned short getSightBeginY();

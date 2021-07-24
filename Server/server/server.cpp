@@ -14,70 +14,68 @@
 #include "players.hpp"
 #include "server.hpp"
 #include "worldGenerator.hpp"
+#include "graphics.hpp"
 
 static bool running = false;
 
-#define ms_time std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count
 #define PORT 33770
 #define TPS_LIMIT 100
 
-void inthand(int signum) {
+void onInterrupt(int signum) {
     running = false;
     std::cout << std::endl;
 }
 
-void server::start() {
-    state = STARTING;
-    print::info("Initialising server");
-
+void Server::start(unsigned short port) {
     if(working_dir.back() != '/')
         working_dir.push_back('/');
-    running = true;
 
     std::string world_path = working_dir + "world/";
     if(std::filesystem::exists(world_path)) {
-        state = LOADING_WORLD;
+        state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
-        server_blocks.loadFrom(world_path + "blockdata");
+        blocks.loadFrom(world_path + "blockdata");
         for (const auto& file : std::filesystem::directory_iterator(world_path + "playerdata/"))
-            server_players.addPlayerFromFile(file.path().string());
-    }
-    else {
-        state = GENERATING_WORLD;
+            players.addPlayerFromFile(file.path().string());
+    } else {
+        state = ServerState::GENERATING_WORLD;
         print::info("Generating world...");
-        if(working_dir.substr(working_dir.length() - 16, 16) == "/StructureWorld/")
+        if(working_dir.size() >= 16 && working_dir.substr(working_dir.length() - 16, 16) == "/StructureWorld/")
           generator.generateWorld(4400, 1200, 1000);
         else
           generator.generateWorld(4400, 1200, rand());
     }
 
-    print::info("Post initializing modules...");
+    print::info("Starting server...");
+    state = ServerState::STARTING;
 
-    server_blocks.setNaturalLight();
+    blocks.setNaturalLight();
 
-    signal(SIGINT, inthand);
+    signal(SIGINT, onInterrupt);
     networking_manager.openSocket(port);
 
-    state = RUNNING;
+    state = ServerState::RUNNING;
     print::info("Server has started!");
-    long long a, b = ms_time();
+    unsigned int a, b = gfx::getTicks();
     unsigned short tick_length;
     
     int ms_per_tick = 1000 / TPS_LIMIT;
     
+    running = true;
     while(running) {
-        a = ms_time();
+        a = gfx::getTicks();
         tick_length = a - b;
         if(tick_length < ms_per_tick)
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_tick - tick_length));
+            gfx::sleep(ms_per_tick - tick_length);
         b = a;
 
         networking_manager.checkForNewConnections();
         networking_manager.getPacketsFromPlayers();
-        server_items.updateItems(tick_length);
-        server_players.lookForItemsThatCanBePickedUp();
-        server_players.updatePlayersBreaking(tick_length);
-        server_players.updateBlocksInVisibleAreas();
+        items.updateItems(tick_length);
+        players.lookForItemsThatCanBePickedUp();
+        players.updatePlayersBreaking(tick_length);
+        players.updateBlocksInVisibleAreas();
+        networking_manager.syncLightWithPlayers();
     }
 
     if(!networking_manager.accept_itself) {
@@ -86,32 +84,32 @@ void server::start() {
         networking_manager.sendToEveryone(kick_packet);
     }
 
-    state = STOPPING;
+    state = ServerState::STOPPING;
     print::info("Stopping server");
     networking_manager.closeSocket();
 
     print::info("Saving world...");
     std::filesystem::create_directory(world_path);
-    server_blocks.saveTo(world_path + "blockdata");
+    blocks.saveTo(world_path + "blockdata");
     std::filesystem::create_directory(world_path + "playerdata/");
-    for(const Player* player : server_players.getAllPlayers())
+    for(const Player* player : players.getAllPlayers())
         player->saveTo(world_path + "playerdata/" + player->name);
 
-    state = STOPPED;
+    state = ServerState::STOPPED;
 }
 
-void server::stop() {
+void Server::stop() {
     running = false;
 }
 
-void server::setPrivate(bool is_private) {
+void Server::setPrivate(bool is_private) {
     networking_manager.accept_itself = is_private;
 }
 
-unsigned int server::getGeneratingTotal() const {
+unsigned int Server::getGeneratingTotal() const {
     return generator.getGeneratingTotal();
 }
 
-unsigned int server::getGeneratingCurrent() const {
+unsigned int Server::getGeneratingCurrent() const {
     return generator.getGeneratingCurrent();
 }

@@ -73,8 +73,10 @@ Player* Players::addPlayer(const std::string& name) {
     if(!player) {
         player = new Player(name);
         all_players.emplace_back(player);
-        player->y = blocks->getSpawnY() - BLOCK_WIDTH * 2;
         player->x = blocks->getSpawnX();
+        player->y = blocks->getSpawnY() - BLOCK_WIDTH * 2;
+        player->sight_x = player->x;
+        player->sight_y = player->y;
     }
     
     online_players.push_back(player);
@@ -105,7 +107,15 @@ void Players::lookForItemsThatCanBePickedUp() {
 
 void Players::updateBlocksInVisibleAreas() {
     for(Player* player : online_players) {
-        int start_x = player->getSightBeginX(), start_y = player->getSightBeginY(), end_x = player->getSightEndX(), end_y = player->getSightEndY();
+        int start_x = (int)player->getSightBeginX() - 20, start_y = (int)player->getSightBeginY() - 20, end_x = player->getSightEndX() + 20, end_y = player->getSightEndY() + 20;
+        if(start_x < 0)
+            start_x = 0;
+        if(start_y < 0)
+            start_y = 0;
+        if(end_x > blocks->getWidth())
+            end_x = blocks->getWidth();
+        if(end_y > blocks->getHeight())
+            end_y = blocks->getHeight();
         
         bool finished = false;
         while(!finished) {
@@ -123,16 +133,6 @@ void Players::updateBlocksInVisibleAreas() {
                     }
                 }
         }
-        
-        for(unsigned short y = start_y; y < end_y; y++)
-            for(unsigned short x = start_x; x < end_x; x++) {
-                Block curr_block = blocks->getBlock(x, y);
-                if(curr_block.hasLightChanged()) {
-                    curr_block.markLightUnchanged();
-                    ServerLightChangeEvent event(curr_block);
-                    event.call();
-                }
-            }
     }
 }
 
@@ -171,6 +171,9 @@ Player::Player(const std::string& path, const std::string& name) : id(curr_id++)
 
     data_file.read((char*)&x, sizeof(x));
     data_file.read((char*)&y, sizeof(y));
+    
+    sight_x = x;
+    sight_y = y;
 }
 
 void Player::saveTo(std::string path) const {
@@ -191,17 +194,17 @@ void Players::onEvent(ServerBlockUpdateEvent& event) {
 }
 
 unsigned short Player::getSightBeginX() {
-    return x / 16 - sight_width / 2 - 20;
+    return sight_x / BLOCK_WIDTH - sight_width / 2;
 }
 
 unsigned short Player::getSightEndX() {
-    return x / 16 + sight_width / 2 + 20;
+    return sight_x / BLOCK_WIDTH + sight_width / 2;
 }
 
 unsigned short Player::getSightBeginY() {
-    return y / 16 - sight_height / 2 - 20;
+    return sight_y / BLOCK_WIDTH - sight_height / 2;
 }
 
 unsigned short Player::getSightEndY() {
-    return y / 16 + sight_height / 2 + 20;
+    return sight_y / BLOCK_WIDTH + sight_height / 2;
 }
