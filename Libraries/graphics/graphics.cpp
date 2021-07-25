@@ -153,4 +153,5 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width, height);
+    blurred_texture.create(width, height);
 }
