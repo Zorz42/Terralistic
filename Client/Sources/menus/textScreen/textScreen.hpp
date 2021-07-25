@@ -1,10 +1,3 @@
-//
-//  textScreen.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 26/03/2021.
-//
-
 #ifndef textScreen_hpp
 #define textScreen_hpp
 

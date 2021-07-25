@@ -32,6 +32,7 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     window_texture.create(window_width, window_height);
     blurred_texture.create(window_width, window_height);
     window->setVerticalSyncEnabled(true);
+    window->setFramerateLimit(360);
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
     

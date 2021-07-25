@@ -79,8 +79,6 @@ void gfx::returnFromScene() {
     running_scene = false;
 }
 
-static bool quit_game = false;
-
 void gfx::Scene::operateEvent(sf::Event event) {
     //disable_events_gl = disable_events;
     sf::Event::EventType type = event.type;
@@ -173,7 +171,7 @@ void gfx::Scene::operateEvent(sf::Event event) {
         onMouseScroll(event.mouseWheel.delta);
     }
     else if (type == sf::Event::Closed)
-        quit_game = true;
+        window->close();
 }
 
 void gfx::Scene::run() {
@@ -182,9 +180,7 @@ void gfx::Scene::run() {
         module->init();
     }
     
-    while(running_scene && !quit_game) {
-        unsigned int frame_start = getTicks();
-        
+    while(running_scene && window->isOpen()) {
         disable_events_gl = disable_events;
         for(GraphicalModule* module : modules) {
             if(disable_events_gl)
@@ -193,9 +189,8 @@ void gfx::Scene::run() {
         }
         
         sf::Event event;
-        while (window->pollEvent(event)) {
+        while (window->pollEvent(event))
             operateEvent(event);
-        }
         
         update();
         for(GraphicalModule* module : modules)
@@ -208,13 +203,6 @@ void gfx::Scene::run() {
         render();
         
         updateWindow();
-        
-        unsigned int frame_end = getTicks();
-        frame_length = frame_end - frame_start;
-        if(frame_length < 5) {
-            sleep(5 - frame_length);
-            frame_length = 5;
-        }
     }
     
     running_scene = true;

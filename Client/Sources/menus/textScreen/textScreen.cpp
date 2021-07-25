@@ -1,10 +1,3 @@
-//
-//  textScreen.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 26/03/2021.
-//
-
 #include "graphics.hpp"
 #include "textScreen.hpp"
 

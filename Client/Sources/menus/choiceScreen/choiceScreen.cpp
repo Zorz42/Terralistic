@@ -9,8 +9,8 @@
 
 #include <utility>
 
-choiceScreen::choiceScreen(std::string notification, const std::vector<std::string>& options, std::string* result) {
-    this->notification = std::move(notification);
+choiceScreen::choiceScreen(std::string question, const std::vector<std::string>& options, std::string* result) {
+    this->question = std::move(question);
     this->result = result;
     for(const std::string& option : options) {
         buttons.emplace_back();
@@ -19,9 +19,9 @@ choiceScreen::choiceScreen(std::string notification, const std::vector<std::stri
 }
 
 void choiceScreen::init() {
-    notification_sprite.scale = 3;
-    notification_sprite.renderText(notification, {255, 255, 255});
-    notification_sprite.orientation = gfx::CENTER;
+    question_sprite.scale = 3;
+    question_sprite.renderText(question, {255, 255, 255});
+    question_sprite.orientation = gfx::CENTER;
     
     int combined_width = 0;
     
@@ -55,5 +55,5 @@ void choiceScreen::onKeyDown(gfx::Key key) {
 void choiceScreen::render() {
     for(button& i : buttons)
         i.gfx_button.render();
-    notification_sprite.render();
+    question_sprite.render();
 }

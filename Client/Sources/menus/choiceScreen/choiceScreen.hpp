@@ -1,10 +1,3 @@
-//
-//  choiceScreen.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 11/06/2021.
-//
-
 #ifndef choiceScreen_hpp
 #define choiceScreen_hpp
 
@@ -19,11 +12,11 @@ class choiceScreen : public gfx::Scene {
         gfx::Button gfx_button;
     };
 
-    gfx::Sprite notification_sprite;
-    std::string notification, *result;
+    gfx::Sprite question_sprite;
+    std::string question, *result;
     std::vector<button> buttons;
 public:
-    choiceScreen(std::string notification, const std::vector<std::string>& options, std::string* result = nullptr);
+    choiceScreen(std::string question, const std::vector<std::string>& options, std::string* result = nullptr);
 
     void init() override;
     void onKeyDown(gfx::Key key) override;
