@@ -181,6 +181,8 @@ void gfx::Scene::run() {
     }
     
     while(running_scene && window->isOpen()) {
+        unsigned int start = getTicks();
+        
         disable_events_gl = disable_events;
         for(GraphicalModule* module : modules) {
             if(disable_events_gl)
@@ -203,6 +205,8 @@ void gfx::Scene::run() {
         render();
         
         updateWindow();
+        
+        frame_length = getTicks() - start;
     }
     
     running_scene = true;
