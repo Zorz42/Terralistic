@@ -44,7 +44,7 @@ public:
     [[nodiscard]] unsigned short getWidth() const override;
     [[nodiscard]] unsigned short getHeight() const override;
 
-    Color def_color = { 0, 0, 0 }, hover_color = { 100, 100, 100 };
+    Color def_color = { 0, 0, 0, 0 }, hover_color = { 100, 100, 100 };
     [[nodiscard]] bool isHovered() const;
     bool disabled = false;
     unsigned char hover_progress = 0;

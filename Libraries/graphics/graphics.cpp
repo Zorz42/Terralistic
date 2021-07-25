@@ -1,13 +1,41 @@
+#include <cmath>
 #include "graphics-internal.hpp"
 
 static unsigned short min_window_width, min_window_height;
 static sf::Clock global_clock;
 
+static std::string blur_shader_code =
+"uniform sampler2D source;"
+"uniform vec2 offsetFactor;"
+""
+"void main()"
+"{"
+"    vec2 textureCoordinates = gl_TexCoord[0].xy;"
+"    vec4 color = vec4(0.0);"
+"    color += texture2D(source, textureCoordinates - 4.0 * offsetFactor) * 0.0162162162;"
+"    color += texture2D(source, textureCoordinates - 3.0 * offsetFactor) * 0.0540540541;"
+"    color += texture2D(source, textureCoordinates - 2.0 * offsetFactor) * 0.1216216216;"
+"    color += texture2D(source, textureCoordinates - offsetFactor) * 0.1945945946;"
+"    color += texture2D(source, textureCoordinates) * 0.2270270270;"
+"    color += texture2D(source, textureCoordinates + offsetFactor) * 0.1945945946;"
+"    color += texture2D(source, textureCoordinates + 2.0 * offsetFactor) * 0.1216216216;"
+"    color += texture2D(source, textureCoordinates + 3.0 * offsetFactor) * 0.0540540541;"
+"    color += texture2D(source, textureCoordinates + 4.0 * offsetFactor) * 0.0162162162;"
+"    gl_FragColor = color;"
+"}"
+;
+static sf::RenderTexture window_texture;
+static sf::RenderTexture blurred_texture;
+
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
+    window_texture.create(window_width, window_height);
+    blurred_texture.create(window_width, window_height);
     window->setVerticalSyncEnabled(true);
-    render_target = window;
+    render_target = &window_texture;
     setWindowSize(window_width, window_height);
+    
+    assert(blur_shader.loadFromMemory(blur_shader_code,  sf::Shader::Type::Fragment));
 }
 
 void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
@@ -45,8 +73,8 @@ void gfx::setRenderTarget(Image& tex) {
 }
 
 void gfx::resetRenderTarget() {
-    ((sf::RenderTexture*)render_target)->display();
-    render_target = window;
+    render_target->display();
+    render_target = &window_texture;
 }
 
 bool gfx::colliding(RectShape a, RectShape b) {
@@ -62,10 +90,44 @@ float gfx::getDeltaTime() {
 }
 
 void gfx::clearWindow() {
-    window->clear();
+    window_texture.clear();
+}
+
+void gfx::blurRegion(RectShape region, unsigned short blur_intensity) {
+    sf::Sprite sprite;
+    window_texture.display();
+    sprite.setTexture(window_texture.getTexture());
+    
+    blurred_texture.draw(sprite);
+    blurred_texture.display();
+    
+    sf::Sprite blurred_sprite;
+    blurred_sprite.setTexture(blurred_texture.getTexture());
+    
+    window->draw(sprite);
+    
+    blur_shader.setUniform("source", blurred_texture.getTexture());
+    float blur_intensity_shader = std::pow(2, blur_intensity);
+    for(int i = 0; i < blur_intensity; i++) {
+        blur_shader.setUniform("offsetFactor", sf::Vector2f(blur_intensity_shader / getWindowWidth() / global_scale, blur_intensity_shader / getWindowHeight() / global_scale));
+        blurred_texture.draw(blurred_sprite, &blur_shader);
+        blurred_texture.display();
+        
+        blur_shader.setUniform("offsetFactor", sf::Vector2f(blur_intensity_shader / -getWindowWidth() / global_scale, blur_intensity_shader / getWindowHeight() / global_scale));
+        blurred_texture.draw(blurred_sprite, &blur_shader);
+        blurred_texture.display();
+        blur_intensity_shader /= 2.f;
+    }
+    
+    blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
+    blurred_sprite.setPosition(region.x, region.y);
+    window->draw(blurred_sprite);
+    window_texture.clear({0, 0, 0, 0});
 }
 
 void gfx::updateWindow() {
+    window_texture.display();
+    window->draw(sf::Sprite(window_texture.getTexture()));
     window->display();
 }
 
@@ -90,4 +152,5 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     sf::FloatRect visibleArea(0, 0, (unsigned int)width / global_scale, (unsigned int)height / global_scale);
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
+    window_texture.create(width, height);
 }

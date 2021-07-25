@@ -14,9 +14,13 @@ inline unsigned short mouse_x, mouse_y;
 inline float frame_length;
 
 inline unsigned short font_size;
-inline sf::RenderTarget *render_target = nullptr;
+inline sf::RenderTexture *render_target = nullptr;
 
 inline float global_scale = 1;
+
+inline sf::Shader blur_shader;
+
+void blurRegion(RectShape region, unsigned short blur_intensity);
 
 }
 

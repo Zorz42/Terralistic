@@ -36,6 +36,8 @@ void startMenu::init() {
     back_rect.c = {0, 0, 0};
     back_rect.orientation = gfx::CENTER;
     back_rect.w = singleplayer_button.getWidth() + 100;
+    back_rect.c = {0, 0, 0, 200};
+    back_rect.blur_intensity = 4;
 #ifdef DEVELOPER_MODE
     debug_title.renderText("DEBUG MODE", {100, 100, 100});
     debug_title.orientation = gfx::TOP;

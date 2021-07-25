@@ -11,12 +11,12 @@ void gfx::RectShape::render(Color c, bool fill) {
     if (fill) {
         rect.setOutlineColor(sf::Color::Transparent);
         rect.setFillColor((const sf::Color)c);
-        gfx::render_target->draw(rect);
+        render_target->draw(rect);
     } else {
         rect.setFillColor(sf::Color::Transparent);
         rect.setOutlineColor((const sf::Color)c);
         rect.setOutlineThickness(1);
-        gfx::render_target->draw(rect);
+        render_target->draw(rect);
     }
 }
 
@@ -38,5 +38,7 @@ gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, O
 
 void gfx::Rect::render(bool fill) const {
     RectShape rect = getTranslatedRect();
+    if(blur_intensity)
+        blurRegion(rect, blur_intensity);
     rect.render(c, fill);
 }

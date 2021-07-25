@@ -42,6 +42,7 @@ public:
     [[nodiscard]] inline unsigned short getHeight() const override { return h; };
     unsigned short w, h;
     Color c;
+    unsigned short blur_intensity = 0;
     void render(bool fill=true) const;
 };
 

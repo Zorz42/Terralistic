@@ -514,8 +514,8 @@
 		166D85C326AA0B9E00DB87B1 /* ui */ = {
 			isa = PBXGroup;
 			children = (
-				166D85C426AA0B9E00DB87B1 /* ui.cpp */,
 				166D85C526AA0B9E00DB87B1 /* ui.hpp */,
+				166D85C426AA0B9E00DB87B1 /* ui.cpp */,
 			);
 			path = ui;
 			sourceTree = "<group>";

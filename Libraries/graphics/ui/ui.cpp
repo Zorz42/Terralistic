@@ -110,6 +110,7 @@ void gfx::Button::render() {
         (unsigned char)((int)hover_color.r * (int)hover_progress / 255 + (int)def_color.r * (int)(255 - hover_progress) / 255),
         (unsigned char)((int)hover_color.g * (int)hover_progress / 255 + (int)def_color.g * (int)(255 - hover_progress) / 255),
         (unsigned char)((int)hover_color.b * (int)hover_progress / 255 + (int)def_color.b * (int)(255 - hover_progress) / 255),
+        (unsigned char)((int)hover_color.a * (int)hover_progress / 255 + (int)def_color.a * (int)(255 - hover_progress) / 255),
     };
     rect.render(button_color);
     float ms = margin * scale;
@@ -127,6 +128,7 @@ unsigned short gfx::TextInput::getWidth() const {
 
 gfx::TextInput::TextInput() {
     margin = 3;
+    def_color.a = 255;
     Image temp;
     temp.renderText("|g", { 0, 0, 0 });
     cut_length = temp.getTextureWidth() - 1;
