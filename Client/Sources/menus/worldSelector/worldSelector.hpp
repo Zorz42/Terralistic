@@ -1,10 +1,3 @@
-//
-//  worldSelector.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 05/12/2020.
-//
-
 #ifndef worldSelector_hpp
 #define worldSelector_hpp
 
@@ -25,13 +18,13 @@ class worldSelector : public gfx::Scene {
     std::vector<world_to_select> worlds;
     int scroll_limit, position;
     bool shift_pressed = false;
-public:
+    
     void init() override;
-    void refresh();
     void onKeyDown(gfx::Key key) override;
     void onKeyUp(gfx::Key key) override;
     void render() override;
     void onMouseScroll(int distance) override;
+    void refresh();
 };
 
 #endif /* worldSelector_hpp */

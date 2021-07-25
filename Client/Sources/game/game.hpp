@@ -22,7 +22,7 @@ public:
     const unsigned short port;
     networkingManager networking_manager;
     map *world_map{};
-    mainPlayer main_player;
+    MainPlayer main_player;
 
     game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = std::move(username); }
     void init() override;

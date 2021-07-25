@@ -92,7 +92,7 @@ void Server::start(unsigned short port) {
     std::filesystem::create_directory(world_path);
     blocks.saveTo(world_path + "blockdata");
     std::filesystem::create_directory(world_path + "playerdata/");
-    for(const Player* player : players.getAllPlayers())
+    for(const ServerPlayer* player : players.getAllPlayers())
         player->saveTo(world_path + "playerdata/" + player->name);
 
     state = ServerState::STOPPED;

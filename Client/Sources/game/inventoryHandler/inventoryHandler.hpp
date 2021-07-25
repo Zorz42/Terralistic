@@ -1,16 +1,9 @@
-//
-//  inventory.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 13/12/2020.
-//
-
-#ifndef inventory_hpp
-#define inventory_hpp
+#ifndef inventoryHandler_hpp
+#define inventoryHandler_hpp
 
 #define INVENTORY_SIZE 20
 
-#include "clientMap.hpp"
+#include "properties.hpp"
 
 class clientInventoryItem {
     unsigned short stack;
@@ -36,4 +29,8 @@ public:
     clientInventoryItem* getMouseItem();
 };
 
-#endif /* inventory_hpp */
+class InventoryHandler {
+    
+};
+
+#endif /* inventoryHandler_hpp */

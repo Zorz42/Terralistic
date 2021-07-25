@@ -10,7 +10,6 @@
 #include <filesystem>
 #include "game.hpp"
 #include "pauseScreen.hpp"
-#include "otherPlayers.hpp"
 #include "textScreen.hpp"
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
@@ -85,7 +84,6 @@ void game::init() {
 
     modules = {
         world_map,
-        new clientPlayers(&networking_manager, world_map),
         new playerHandler(&networking_manager, &main_player, world_map),
         new mapFront(world_map),
         new debugMenu(&main_player, world_map),

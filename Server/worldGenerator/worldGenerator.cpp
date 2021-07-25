@@ -16,10 +16,11 @@
 
 #define PI 3.14159265
 
+#include <iostream>
 
 int worldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
-    std::mt19937 engine(seed);
-    SimplexNoise noise(engine());
+    //std::mt19937 engine(seed);
+    SimplexNoise noise(seed);
     generating_current = 0;
     server_blocks->createWorld(world_width, world_height);
 

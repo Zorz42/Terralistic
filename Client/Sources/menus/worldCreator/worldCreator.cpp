@@ -1,16 +1,7 @@
-//
-//  worldCreator.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 05/12/2020.
-//
-
 #include <algorithm>
+#include <utility>
 #include "worldCreator.hpp"
 #include "game.hpp"
-
-// menu, where you create worlds
-// for guide, check multiplayer selector, which is quite similar
 
 #define PADDING 20
 

@@ -1,15 +1,6 @@
-//
-//  startMenu.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 06/07/2020.
-//
-
 #include "startMenu.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
-
-// this is the main menu, which you see on the start of the app
 
 void startMenu::init() {
     singleplayer_button.scale = 3;

@@ -2,7 +2,7 @@
 #include "print.hpp"
 
 void NetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Connection &conn) {
-    Player* curr_player = conn.player;
+    ServerPlayer* curr_player = conn.player;
     switch (packet_type) {
         case PacketType::STARTED_BREAKING: {
             unsigned short x, y;

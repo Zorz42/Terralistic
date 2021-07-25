@@ -6,7 +6,6 @@
 //
 
 #include "playerHandler.hpp"
-#include "playerRenderer.hpp"
 
 // this is a rectangle with which you select which block to break or where to place selected block
 
@@ -35,7 +34,7 @@ void playerHandler::onKeyDownSelector(gfx::Key key) {
         prev_selected_x = world_map->getWorldWidth();
         prev_selected_y = world_map->getWorldHeight();
     } else if(key == gfx::Key::MOUSE_RIGHT && !playerHandler::hovered) {
-        gfx::RectShape rect = gfx::RectShape(gfx::getWindowWidth() / 2 - playerRenderer::getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - playerRenderer::getPlayerHeight() / 2, playerRenderer::getPlayerWidth(), playerRenderer::getPlayerHeight());
+        gfx::RectShape rect = gfx::RectShape(gfx::getWindowWidth() / 2 - getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - getPlayerHeight() / 2, getPlayerWidth(), getPlayerHeight());
         if(!gfx::colliding(rect, select_rect.getTranslatedRect())) {
             sf::Packet packet;
             packet << PacketType::RIGHT_CLICK << selected_block_x << selected_block_y;

@@ -9,28 +9,48 @@
 #define playerHandler_hpp
 
 #include <string>
-
 #include "graphics.hpp"
+#include "inventoryHandler.hpp"
+#include "clientMap.hpp"
 
-#include "inventory.hpp"
-
-class mainPlayer {
+class ClientPlayer {
 public:
-    int position_x = 0, position_y = 0;
-    short velocity_x = 0, velocity_y = 0;
-    bool flipped = false;
-    clientInventory player_inventory;
+    int x, y;
+    bool flipped;
     std::string name;
+};
+
+class MainPlayer : public ClientPlayer {
+public:
+    short velocity_x = 0, velocity_y = 0;
+    clientInventory inventory;
+};
+
+class OtherPlayer : public ClientPlayer {
+public:
+    unsigned short id{0};
+    gfx::Image name_text;
 };
 
 class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     bool key_up = false, jump = false, key_left = false, key_right = false;
 
-    mainPlayer* player;
+    gfx::Image player_image;
+    
+    MainPlayer* player;
+    std::vector<OtherPlayer*> other_players;
     map* world_map;
     networkingManager* manager;
+    OtherPlayer* getPlayerById(unsigned short id);
+    
+    void render(int x, int y, int view_x, int view_y, bool flipped);
+    void render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header);
+    unsigned short getPlayerWidth();
+    unsigned short getPlayerHeight();
 
     clientInventoryItem *hovered = nullptr;
+    
+    void initRenderer();
 
     gfx::Rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
     bool is_left_button_pressed = false;
@@ -66,8 +86,9 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void render() override;
     void selectSlot(char slot);
     void onEvent(ClientPacketEvent& event) override;
+    
 public:
-    playerHandler(networkingManager* manager, mainPlayer* player, map* world_map) : manager(manager), player(player), world_map(world_map) {}
+    playerHandler(networkingManager* manager, MainPlayer* player, map* world_map) : manager(manager), player(player), world_map(world_map) {}
 };
 
 #endif /* playerHandler_hpp */

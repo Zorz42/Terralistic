@@ -1,10 +1,3 @@
-//
-//  worldSelector.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 05/12/2020.
-//
-
 #include <algorithm>
 #include <filesystem>
 #include "worldSelector.hpp"
@@ -12,10 +5,6 @@
 #include "worldCreator.hpp"
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
-
-// this is the menu where you select all the worlds you have
-
-// every loaded world becomes a class/struct which is in array and rendered
 
 #define PADDING 20
 #define TOP_HEIGHT 70
@@ -30,7 +19,6 @@ void worldSelector::world_to_select::render(int position_) {
 }
 
 void worldSelector::init() {
-    // set some dimensions for shapes
     title.scale = 3;
     title.renderText("Select a world to play!", {255, 255, 255});
     title.y = PADDING;
@@ -51,7 +39,6 @@ void worldSelector::init() {
 }
 
 void worldSelector::refresh() {
-    // scans for worlds in world folder and sets their positions and renders them
     position = 0;
     scroll_limit = 0;
 

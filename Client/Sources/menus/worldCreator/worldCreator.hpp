@@ -1,17 +1,9 @@
-//
-//  worldCreator.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 05/12/2020.
-//
-
 #ifndef worldCreator_hpp
 #define worldCreator_hpp
 
 #include "graphics.hpp"
 
 #include <string>
-#include <utility>
 #include <vector>
 
 struct worldCreator : gfx::Scene {

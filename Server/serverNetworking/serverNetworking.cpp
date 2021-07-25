@@ -77,14 +77,14 @@ void NetworkingManager::getPacketsFromPlayers() {
         } else if(connections[i].receive(packet) != sf::Socket::NotReady) {
             std::string player_name;
             packet >> player_name;
-            Player* player = players->addPlayer(player_name);
+            ServerPlayer* player = players->addPlayer(player_name);
             connections[i].player = player;
             
             sf::Packet spawn_packet;
             spawn_packet << PacketType::SPAWN_POS << player->x << player->y;
             connections[i].send(spawn_packet);
 
-            for(Player* curr_player : players->getOnlinePlayers())
+            for(ServerPlayer* curr_player : players->getOnlinePlayers())
                 if(curr_player != player) {
                     sf::Packet join_packet;
                     join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;

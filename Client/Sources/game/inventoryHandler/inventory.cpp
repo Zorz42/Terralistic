@@ -7,7 +7,7 @@
 
 // inventory is a class which you can easily manage with function calls
 
-#include "inventory.hpp"
+#include "inventoryHandler.hpp"
 
 char clientInventory::addItem(ItemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)

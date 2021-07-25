@@ -11,7 +11,7 @@ class Connection {
     sf::TcpSocket* socket;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
-    Player* player = nullptr;
+    ServerPlayer* player = nullptr;
     void send(sf::Packet& packet);
     sf::Socket::Status receive(sf::Packet& packet);
     std::string getIpAddress();

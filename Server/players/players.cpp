@@ -40,11 +40,11 @@ Players::Players(Blocks* parent_blocks, Items* parent_items) : blocks(parent_blo
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = custom_block_events[(int)BlockType::WOOD].onUpdate;
 
-    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Block* this_block, Player* peer) {
+    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Block* this_block, ServerPlayer* peer) {
         this_block->setType(BlockType::DIRT);
     };
 
-    custom_block_events[(int)BlockType::AIR].onRightClick = [](Block* this_block, Player* peer) {
+    custom_block_events[(int)BlockType::AIR].onRightClick = [](Block* this_block, ServerPlayer* peer) {
         BlockType type = peer->inventory.getSelectedSlot()->getUniqueItem().places;
         if(type != BlockType::AIR && peer->inventory.inventory_arr[peer->inventory.selected_slot].decreaseStack(1)) {
             this_block->setType(type);
@@ -56,22 +56,22 @@ Players::Players(Blocks* parent_blocks, Items* parent_items) : blocks(parent_blo
 }
 
 Players::~Players() {
-    for(Player* i : all_players)
+    for(ServerPlayer* i : all_players)
         delete i;
 }
 
-Player* Players::getPlayerByName(const std::string& name) {
-    for(Player* player : all_players)
+ServerPlayer* Players::getPlayerByName(const std::string& name) {
+    for(ServerPlayer* player : all_players)
         if(player->name == name)
             return player;
     return nullptr;
 }
 
-Player* Players::addPlayer(const std::string& name) {
-    Player* player = getPlayerByName(name);
+ServerPlayer* Players::addPlayer(const std::string& name) {
+    ServerPlayer* player = getPlayerByName(name);
     
     if(!player) {
-        player = new Player(name);
+        player = new ServerPlayer(name);
         all_players.emplace_back(player);
         player->x = blocks->getSpawnX();
         player->y = blocks->getSpawnY() - BLOCK_WIDTH * 2;
@@ -83,7 +83,7 @@ Player* Players::addPlayer(const std::string& name) {
     return player;
 }
 
-void Players::removePlayer(Player* player) {
+void Players::removePlayer(ServerPlayer* player) {
     for(int i = 0; i < online_players.size(); i++)
         if(player == online_players[i]) {
             online_players.erase(online_players.begin() + i);
@@ -92,21 +92,21 @@ void Players::removePlayer(Player* player) {
 }
 
 void Players::updatePlayersBreaking(unsigned short tick_length) {
-    for(Player* player : online_players)
+    for(ServerPlayer* player : online_players)
         if(player->breaking)
             leftClickEvent(blocks->getBlock(player->breaking_x, player->breaking_y), player, tick_length);
 }
 
 void Players::lookForItemsThatCanBePickedUp() {
     for(int i = 0; i < items->getItems().size(); i++)
-        for(Player* player : online_players)
+        for(ServerPlayer* player : online_players)
             if(abs(items->getItems()[i].getX() / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(items->getItems()[i].getY() / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
                 if(player->inventory.addItem(items->getItems()[i].getType(), 1) != -1)
                     items->removeItem(items->getItems()[i]);
 }
 
 void Players::updateBlocksInVisibleAreas() {
-    for(Player* player : online_players) {
+    for(ServerPlayer* player : online_players) {
         int start_x = (int)player->getSightBeginX() - 20, start_y = (int)player->getSightBeginY() - 20, end_x = player->getSightEndX() + 20, end_y = player->getSightEndY() + 20;
         if(start_x < 0)
             start_x = 0;
@@ -136,7 +136,7 @@ void Players::updateBlocksInVisibleAreas() {
     }
 }
 
-void Players::leftClickEvent(Block this_block, Player* peer, unsigned short tick_length) {
+void Players::leftClickEvent(Block this_block, ServerPlayer* peer, unsigned short tick_length) {
     if(custom_block_events[(int)this_block.getBlockType()].onLeftClick)
         custom_block_events[(int)this_block.getBlockType()].onLeftClick(&this_block, peer);
     else if(this_block.getUniqueBlock().break_time != UNBREAKABLE) {
@@ -146,18 +146,18 @@ void Players::leftClickEvent(Block this_block, Player* peer, unsigned short tick
     }
 }
 
-void Players::rightClickEvent(Block this_block, Player* peer) {
+void Players::rightClickEvent(Block this_block, ServerPlayer* peer) {
     if(custom_block_events[(int)this_block.getBlockType()].onRightClick)
         custom_block_events[(int)this_block.getBlockType()].onRightClick(&this_block, peer);
 }
 
-Player* Players::addPlayerFromFile(const std::string& path) {
-    Player* player = new Player(path, path.substr(path.find_last_of('/') + 1, path.size() - 1));
+ServerPlayer* Players::addPlayerFromFile(const std::string& path) {
+    ServerPlayer* player = new ServerPlayer(path, path.substr(path.find_last_of('/') + 1, path.size() - 1));
     all_players.push_back(player);
     return player;
 }
 
-Player::Player(const std::string& path, const std::string& name) : id(curr_id++), name(name) {
+ServerPlayer::ServerPlayer(const std::string& path, const std::string& name) : id(curr_id++), name(name) {
     std::ifstream data_file(path, std::ios::binary);
     for(auto & i : inventory.inventory_arr) {
         char c;
@@ -176,7 +176,7 @@ Player::Player(const std::string& path, const std::string& name) : id(curr_id++)
     sight_y = y;
 }
 
-void Player::saveTo(std::string path) const {
+void ServerPlayer::saveTo(std::string path) const {
     std::ofstream data_file(path, std::ios::binary);
     for(const auto& i : inventory.inventory_arr) {
         data_file << (char)i.getType();
@@ -193,18 +193,18 @@ void Players::onEvent(ServerBlockUpdateEvent& event) {
         custom_block_events[(int)event.block.getBlockType()].onUpdate(blocks, &event.block);
 }
 
-unsigned short Player::getSightBeginX() {
+unsigned short ServerPlayer::getSightBeginX() {
     return sight_x / BLOCK_WIDTH - sight_width / 2;
 }
 
-unsigned short Player::getSightEndX() {
+unsigned short ServerPlayer::getSightEndX() {
     return sight_x / BLOCK_WIDTH + sight_width / 2;
 }
 
-unsigned short Player::getSightBeginY() {
+unsigned short ServerPlayer::getSightBeginY() {
     return sight_y / BLOCK_WIDTH - sight_height / 2;
 }
 
-unsigned short Player::getSightEndY() {
+unsigned short ServerPlayer::getSightEndY() {
     return sight_y / BLOCK_WIDTH + sight_height / 2;
 }

@@ -16,12 +16,12 @@
 class debugMenu : public gfx::GraphicalModule {
     bool debug_menu_open = false, m_down = false;
     gfx::Sprite fps_text, coords_text;// biome_text;
-    mainPlayer* main_player;
+    MainPlayer* main_player;
     void renderFpsText();
     unsigned int fps_count = 0;
     map* world_map;
 public:
-    debugMenu(mainPlayer* main_player, map* world_map) : main_player(main_player), world_map(world_map) {}
+    debugMenu(MainPlayer* main_player, map* world_map) : main_player(main_player), world_map(world_map) {}
     void init() override;
     void update() override;
     void render() override;

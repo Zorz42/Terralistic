@@ -1,17 +1,8 @@
-//
-//  multiplayerSelector.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 12/01/2021.
-//
-
 #include <vector>
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
 #include "configManager.hpp"
 #include "fileManager.hpp"
-
-// this is a menu, where you select the server you want to play on
 
 #define PADDING 20
 
@@ -20,13 +11,11 @@ void multiplayerSelector::init() {
     config.setDefaultStr("username", "");
     config.setDefaultStr("server ip", "");
     
-    // the back button
     back_button.scale = 3;
     back_button.renderText("Back", {255, 255, 255});
     back_button.y = -PADDING;
     back_button.orientation = gfx::BOTTOM;
     
-    // "Join Server" button
     join_button.scale = 3;
     join_button.renderText("Join Server", {255, 255, 255});
     join_button.y = -PADDING;
@@ -35,7 +24,6 @@ void multiplayerSelector::init() {
     back_button.x = short((-join_button.getWidth() - back_button.getWidth() + back_button.getWidth() - PADDING) / 2);
     join_button.x = short((join_button.getWidth() + back_button.getWidth() - join_button.getWidth() + PADDING) / 2);
     
-    // server ip text box
     server_ip.scale = 3;
     server_ip.orientation = gfx::CENTER;
     server_ip.setText("");
@@ -48,13 +36,11 @@ void multiplayerSelector::init() {
         return '\0';
     };
     
-    // "Server IP:" text in the top
     server_ip_title.renderText("Server IP:", {255, 255, 255});
     server_ip_title.scale = 3;
     server_ip_title.y = server_ip.y - server_ip.Sprite::getHeight() - PADDING;
     server_ip_title.orientation = gfx::CENTER;
     
-    // username text box
     username.scale = 3;
     username.orientation = gfx::CENTER;
     username.setText("");
@@ -68,7 +54,6 @@ void multiplayerSelector::init() {
         return '\0';
     };
     
-    // "Username:" text in the top
     username_title.renderText("Username:", {255, 255, 255});
     username_title.scale = 3;
     username_title.y = username.y - username.Sprite::getHeight() - PADDING;

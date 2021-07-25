@@ -7,8 +7,7 @@
 
 // inventoryItem is a class which exists in inventory
 
-#include "inventory.hpp"
-#include "properties.hpp"
+#include "inventoryHandler.hpp"
 
 const ItemInfo& clientInventoryItem::getUniqueItem() const {
     // unique item holds properties which all items of the same type share

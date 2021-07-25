@@ -25,8 +25,10 @@ public:
     /**
      * Constructor of to initialize a fractal noise summation
      */
-    explicit SimplexNoise(unsigned int seed) : seed((float)seed / 4294967295.0f) {}
+    explicit SimplexNoise(unsigned int seed);
 
 private:
-    float seed;
+    unsigned int seed;
+    uint8_t hash(int32_t i);
+    uint8_t perm[256];
 };

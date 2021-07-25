@@ -42,11 +42,11 @@ public:
     void swapWithMouseItem(InventoryItem* item);
 };
 
-class Player {
+class ServerPlayer {
     static inline unsigned int curr_id = 0;
 public:
-    Player(const std::string& name) : id(curr_id++), name(name) {}
-    Player(const std::string& path, const std::string& name);
+    ServerPlayer(const std::string& name) : id(curr_id++), name(name) {}
+    ServerPlayer(const std::string& path, const std::string& name);
     const std::string name;
     const unsigned short id;
     
@@ -69,34 +69,34 @@ public:
 
 struct blockEvents {
     void (*onUpdate)(Blocks*, Block*) = nullptr;
-    void (*onRightClick)(Block*, Player*) = nullptr;
-    void (*onLeftClick)(Block*, Player*) = nullptr;
+    void (*onRightClick)(Block*, ServerPlayer*) = nullptr;
+    void (*onLeftClick)(Block*, ServerPlayer*) = nullptr;
 };
 
 class Players : EventListener<ServerBlockUpdateEvent> {
     Items* items;
     Blocks* blocks;
     
-    std::vector<Player*> all_players;
-    std::vector<Player*> online_players;
+    std::vector<ServerPlayer*> all_players;
+    std::vector<ServerPlayer*> online_players;
     
     void onEvent(ServerBlockUpdateEvent& event) override;
 
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
-    void leftClickEvent(Block this_block, Player* peer, unsigned short tick_length);
+    void leftClickEvent(Block this_block, ServerPlayer* peer, unsigned short tick_length);
 public:
     Players(Blocks* parent_blocks, Items* parent_items);
     
-    void rightClickEvent(Block this_block, Player* peer);
+    void rightClickEvent(Block this_block, ServerPlayer* peer);
     
-    inline const std::vector<Player*>& getAllPlayers() { return all_players; }
-    inline const std::vector<Player*>& getOnlinePlayers() { return online_players; }
+    inline const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
+    inline const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }
     
-    Player* getPlayerByName(const std::string& name);
-    Player* addPlayer(const std::string& name);
-    Player* addPlayerFromFile(const std::string& path);
-    void removePlayer(Player* player);
+    ServerPlayer* getPlayerByName(const std::string& name);
+    ServerPlayer* addPlayer(const std::string& name);
+    ServerPlayer* addPlayerFromFile(const std::string& path);
+    void removePlayer(ServerPlayer* player);
     
     void updatePlayersBreaking(unsigned short tick_length);
     void updateBlocksInVisibleAreas();
