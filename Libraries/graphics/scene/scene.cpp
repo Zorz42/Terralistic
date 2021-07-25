@@ -82,7 +82,7 @@ void gfx::returnFromScene() {
 static bool quit_game = false;
 
 void gfx::Scene::operateEvent(sf::Event event) {
-    disable_events_gl = disable_events;
+    //disable_events_gl = disable_events;
     sf::Event::EventType type = event.type;
     if (type == sf::Event::MouseMoved) {
         mouse_x = event.mouseMove.x / global_scale;
@@ -185,6 +185,7 @@ void gfx::Scene::run() {
     while(running_scene && !quit_game) {
         unsigned int frame_start = getTicks();
         
+        disable_events_gl = disable_events;
         for(GraphicalModule* module : modules) {
             if(disable_events_gl)
                 break;

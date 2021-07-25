@@ -93,7 +93,7 @@ void gfx::clearWindow() {
     window_texture.clear();
 }
 
-void gfx::blurRegion(RectShape region, unsigned short blur_intensity) {
+void gfx::blurRegion(RectShape region, float blur_intensity) {
     sf::Sprite sprite;
     window_texture.display();
     sprite.setTexture(window_texture.getTexture());

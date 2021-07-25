@@ -20,7 +20,7 @@ inline float global_scale = 1;
 
 inline sf::Shader blur_shader;
 
-void blurRegion(RectShape region, unsigned short blur_intensity);
+void blurRegion(RectShape region, float blur_intensity);
 
 }
 

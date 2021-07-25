@@ -16,8 +16,6 @@
 		166D85D626AA0B9E00DB87B1 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C826AA0B9E00DB87B1 /* rect.cpp */; };
 		166D85D726AA0B9E00DB87B1 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85CA26AA0B9E00DB87B1 /* graphics.cpp */; };
 		166D85D826AA0B9E00DB87B1 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85CA26AA0B9E00DB87B1 /* graphics.cpp */; };
-		166D85D926AA0B9E00DB87B1 /* echo in Resources */ = {isa = PBXBuildFile; fileRef = 166D85CD26AA0B9E00DB87B1 /* echo */; };
-		166D85DA26AA0B9E00DB87B1 /* echo in Resources */ = {isa = PBXBuildFile; fileRef = 166D85CD26AA0B9E00DB87B1 /* echo */; };
 		166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85CE26AA0B9E00DB87B1 /* scene.cpp */; };
 		166D85DC26AA0B9E00DB87B1 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85CE26AA0B9E00DB87B1 /* scene.cpp */; };
 		166D85DD26AA0B9E00DB87B1 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */; };
@@ -221,7 +219,6 @@
 		166D85C926AA0B9E00DB87B1 /* graphics.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = graphics.hpp; sourceTree = "<group>"; };
 		166D85CA26AA0B9E00DB87B1 /* graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graphics.cpp; sourceTree = "<group>"; };
 		166D85CB26AA0B9E00DB87B1 /* graphics-internal.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "graphics-internal.hpp"; sourceTree = "<group>"; };
-		166D85CD26AA0B9E00DB87B1 /* echo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = echo; sourceTree = "<group>"; };
 		166D85CE26AA0B9E00DB87B1 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cpp; sourceTree = "<group>"; };
 		166D85CF26AA0B9E00DB87B1 /* scene.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = scene.hpp; sourceTree = "<group>"; };
 		166D85D126AA0B9E00DB87B1 /* SimplexNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplexNoise.h; sourceTree = "<group>"; };
@@ -532,9 +529,8 @@
 		166D85CC26AA0B9E00DB87B1 /* scene */ = {
 			isa = PBXGroup;
 			children = (
-				166D85CD26AA0B9E00DB87B1 /* echo */,
-				166D85CE26AA0B9E00DB87B1 /* scene.cpp */,
 				166D85CF26AA0B9E00DB87B1 /* scene.hpp */,
+				166D85CE26AA0B9E00DB87B1 /* scene.cpp */,
 			);
 			path = scene;
 			sourceTree = "<group>";
@@ -1023,7 +1019,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1661663C25EA5608002A3815 /* icon.icns in Resources */,
-				166D85D926AA0B9E00DB87B1 /* echo in Resources */,
 				1689697725E9607900D26060 /* pixel_font.ttf in Resources */,
 				1665D8912678E7AB00A7BB61 /* Structures.asset in Resources */,
 				1689699B25E962F800D26060 /* texturePack in Resources */,
@@ -1035,7 +1030,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				16BF6955269D7E1D00CFE175 /* Structures.asset in Resources */,
-				166D85DA26AA0B9E00DB87B1 /* echo in Resources */,
 				16BF6956269D7E1D00CFE175 /* icon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
