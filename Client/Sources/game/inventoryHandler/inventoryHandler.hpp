@@ -45,11 +45,12 @@ class InventoryHandler : EventListener<ClientPacketEvent>, public gfx::Graphical
     void renderItem(ClientInventoryItem* item, int x, int y, int i);
     void updateStackTexture(int i);
     networkingManager* manager;
+    bool inventory_hovered;
 public:
     InventoryHandler(networkingManager* manager) : manager(manager) {}
     void render() override;
     void init() override;
-    inline bool isHovered() { return hovered; }
+    inline bool isHovered() { return inventory_hovered; }
 };
 
 #endif /* inventoryHandler_hpp */

@@ -9,9 +9,9 @@ void playerHandler::render() {
 }
 
 OtherPlayer* playerHandler::getPlayerById(unsigned short id) {
-    for(OtherPlayer* player : other_players)
-        if(player->id == id)
-            return player;
+    for(OtherPlayer* i : other_players)
+        if(i->id == id)
+            return i;
     assert(false);
     return nullptr;
 }
@@ -41,10 +41,10 @@ void playerHandler::onEvent(ClientPacketEvent &event) {
             bool flipped;
             event.packet >> x >> y >> flipped >> id;
             
-            OtherPlayer* player = getPlayerById(id);
-            player->flipped = flipped;
-            player->x = x;
-            player->y = y;
+            OtherPlayer* curr_player = getPlayerById(id);
+            curr_player->flipped = flipped;
+            curr_player->x = x;
+            curr_player->y = y;
             break;
         }
         case PacketType::SPAWN_POS: {

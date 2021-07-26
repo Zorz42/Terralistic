@@ -24,21 +24,24 @@ void InventoryHandler::render() {
     hovered = nullptr;
     for(int i = -1; i < 20; i++)
         updateStackTexture(i);
+    inventory_hovered = false;
     
     for(int i = 0; i < (inventory.open ? 20 : 10); i++) {
-        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::RectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0)) && inventory.open) {
-            hovered = &inventory.inventory[i];
-            inventory_slots[i].c = {70, 70, 70};
-            if(inventory.inventory[i].item_id != ItemType::NOTHING) {
-                
-                text_texture = &getItemTextTexture(inventory.inventory[i].item_id);
-                under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * MARGIN;
-                under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * MARGIN;
-                under_text_rect.x = gfx::getMouseX() + 20 - MARGIN;
-                under_text_rect.y = gfx::getMouseY() + 20 - MARGIN;
+        if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::RectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0))) {
+            inventory_hovered = true;
+            if (inventory.open) {
+                hovered = &inventory.inventory[i];
+                inventory_slots[i].c = {70, 70, 70};
+                if(inventory.inventory[i].item_id != ItemType::NOTHING) {
+                    
+                    text_texture = &getItemTextTexture(inventory.inventory[i].item_id);
+                    under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * MARGIN;
+                    under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * MARGIN;
+                    under_text_rect.x = gfx::getMouseX() + 20 - MARGIN;
+                    under_text_rect.y = gfx::getMouseY() + 20 - MARGIN;
+                }
             }
-        }
-        else
+        } else
             inventory_slots[i].c = {100, 100, 100};
         inventory_slots[i].render();
         renderItem(&inventory.inventory[i], inventory_slots[i].getTranslatedX() + MARGIN / 2, inventory_slots[i].getTranslatedY() + MARGIN / 2, i);
