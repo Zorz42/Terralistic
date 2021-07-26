@@ -62,7 +62,7 @@ void worldSelector::refresh() {
         world.button_y = scroll_limit + title.getTranslatedRect().h + 2 * PADDING;
 
         world.delete_button.orientation = gfx::TOP;
-        world.delete_button.loadFromFile("texturePack/misc/x-button.png");
+        world.delete_button.loadFromFile("resourcePack/misc/x-button.png");
         world.delete_button.scale = 3;
         world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + PADDING);
 

@@ -9,7 +9,7 @@
 #include <utility>
 #include "clientMap.hpp"
 #include "properties.hpp"
-#include "textures.hpp"
+#include "resourcePack.hpp"
 #include <cassert>
 
 map::block map::getBlock(unsigned short x, unsigned short y) {
@@ -96,7 +96,7 @@ void map::renderBlocksFront() {
 }
 
 void map::block::updateOrientation() {
-    if(getBlockTexture(getType()).getTextureHeight() != 8) {
+    if(parent_map->resource_pack->getBlockTexture(getType()).getTextureHeight() != 8) {
         block_data->orientation = 0;
         char x_[] = {0, 1, 0, -1};
         char y_[] = {-1, 0, 1, 0};
@@ -118,10 +118,10 @@ void map::block::drawBack() {
     gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
     
     if(getLightLevel())
-        getBlockTexture(getType()).render(2, rect.x, rect.y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+        parent_map->resource_pack->getBlockTexture(getType()).render(2, rect.x, rect.y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 
     if(getBreakStage())
-        getBreakingTexture().render(2, rect.x, rect.y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
+        parent_map->resource_pack->getBreakingTexture().render(2, rect.x, rect.y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 }
 
 void map::block::drawFront() {
@@ -129,7 +129,7 @@ void map::block::drawFront() {
 
     if(getLiquidType() != LiquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
-        getLiquidTexture(getLiquidType()).render(2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
+        parent_map->resource_pack->getLiquidTexture(getLiquidType()).render(2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
     
     if(getLightLevel() != MAX_LIGHT)

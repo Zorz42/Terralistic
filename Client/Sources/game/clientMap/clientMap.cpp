@@ -111,7 +111,7 @@ void map::onEvent(ClientPacketEvent &event) {
 }
 
 void map::init() {
-    background_image.loadFromFile("texturePack/misc/background.png");
+    background_image.loadFromFile("resourcePack/misc/background.png");
 }
 
 void map::render() {

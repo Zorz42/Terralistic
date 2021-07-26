@@ -1,5 +1,5 @@
 #include "inventoryHandler.hpp"
-#include "textures.hpp"
+#include "resourcePack.hpp"
 
 #define MARGIN 10
 
@@ -34,7 +34,7 @@ void InventoryHandler::render() {
                 inventory_slots[i].c = {70, 70, 70};
                 if(inventory.inventory[i].item_id != ItemType::NOTHING) {
                     
-                    text_texture = &getItemTextTexture(inventory.inventory[i].item_id);
+                    text_texture = &resource_pack->getItemTextTexture(inventory.inventory[i].item_id);
                     under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * MARGIN;
                     under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * MARGIN;
                     under_text_rect.x = gfx::getMouseX() + 20 - MARGIN;
@@ -71,7 +71,7 @@ void InventoryHandler::onEvent(ClientPacketEvent &event) {
 }
 
 void InventoryHandler::renderItem(ClientInventoryItem* item, int x, int y, int i) {
-    const gfx::Image& texture = getItemTexture(item->item_id);
+    const gfx::Image& texture = resource_pack->getItemTexture(item->item_id);
     texture.render(4, x, y);
     
     if(item->getStack() > 1) {

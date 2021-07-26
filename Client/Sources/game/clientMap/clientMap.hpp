@@ -15,6 +15,7 @@
 
 #include "clientNetworking.hpp"
 #include "properties.hpp"
+#include "resourcePack.hpp"
 
 #define BLOCK_WIDTH 16
 #define MAX_LIGHT 100
@@ -121,8 +122,10 @@ protected:
     gfx::Image background_image;
 
 public:
-    explicit map(networkingManager* manager) : networking_manager(manager) {}
+    explicit map(networkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
     int view_x{}, view_y{};
+    
+    ResourcePack* resource_pack;
 
     chunk getChunk(unsigned short x, unsigned short y);
     block getBlock(unsigned short x, unsigned short y);

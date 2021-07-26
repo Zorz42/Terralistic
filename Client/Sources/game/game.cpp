@@ -81,11 +81,13 @@ void startPrivateWorld(const std::string& world_name) {
 }
 
 void game::init() {
-    world_map = new map(&networking_manager);
+    resource_pack.load("resourcePack");
+    
+    world_map = new map(&networking_manager, &resource_pack);
     world_map->createWorld(275, 75); // dimensions in chunks
-
-    InventoryHandler* inventory_handler = new InventoryHandler(&networking_manager);
+    
     playerHandler* player_handler = new playerHandler(&networking_manager, &main_player, world_map);
+    InventoryHandler* inventory_handler = new InventoryHandler(&networking_manager, &resource_pack);
     
     modules = {
         world_map,

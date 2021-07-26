@@ -36,7 +36,8 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
     
-    assert(blur_shader.loadFromMemory(blur_shader_code,  sf::Shader::Type::Fragment));
+    bool result = blur_shader.loadFromMemory(blur_shader_code,  sf::Shader::Type::Fragment);
+    assert(result);
 }
 
 void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {

@@ -8,7 +8,7 @@
 #include <random>
 #include "clientMap.hpp"
 #include "properties.hpp"
-#include "textures.hpp"
+#include "resourcePack.hpp"
 #include <cassert>
 
 map::item* map::getItemById(unsigned short id) {
@@ -25,7 +25,7 @@ const ItemInfo& map::item::getUniqueItem() const {
 
 void map::renderItems() {
     for(map::item& item : items) {
-        const gfx::Image& texture = getItemTexture(item.getType());
+        const gfx::Image& texture = resource_pack->getItemTexture(item.getType());
         texture.render(2, item.x / 100 - view_x + gfx::getWindowWidth() / 2, item.y / 100 - view_y + gfx::getWindowHeight() / 2);
     }
 }

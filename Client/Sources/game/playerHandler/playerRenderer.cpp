@@ -10,7 +10,7 @@
 #include "graphics.hpp"
 
 void playerHandler::initRenderer() {
-    player_image.loadFromFile("texturePack/misc/player.png");
+    player_image.loadFromFile("resourcePack/misc/player.png");
 }
 
 #define HEADER_PADDING 4

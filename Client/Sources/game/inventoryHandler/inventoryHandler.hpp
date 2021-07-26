@@ -7,6 +7,7 @@
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
 #include "clientMap.hpp"
+#include "resourcePack.hpp"
 
 class ClientInventoryItem {
     unsigned short stack;
@@ -46,8 +47,9 @@ class InventoryHandler : EventListener<ClientPacketEvent>, public gfx::Graphical
     void updateStackTexture(int i);
     networkingManager* manager;
     bool inventory_hovered;
+    ResourcePack* resource_pack;
 public:
-    InventoryHandler(networkingManager* manager) : manager(manager) {}
+    InventoryHandler(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
     void render() override;
     void init() override;
     inline bool isHovered() { return inventory_hovered; }

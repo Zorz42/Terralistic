@@ -13,6 +13,8 @@
 #include "graphics.hpp"
 #include "playerHandler.hpp"
 #include "clientNetworking.hpp"
+#include "inventoryHandler.hpp"
+#include "resourcePack.hpp"
 
 void startPrivateWorld(const std::string& world_name);
 
@@ -23,6 +25,7 @@ public:
     networkingManager networking_manager;
     map *world_map{};
     MainPlayer main_player;
+    ResourcePack resource_pack;
 
     game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = std::move(username); }
     void init() override;
