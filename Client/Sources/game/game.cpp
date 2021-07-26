@@ -16,6 +16,7 @@
 #include "debugMenu.hpp"
 #include "chat.hpp"
 #include "server.hpp"
+#include "inventoryHandler.hpp"
 
 
 #define FROM_PORT 49152
@@ -86,6 +87,7 @@ void game::init() {
         world_map,
         new playerHandler(&networking_manager, &main_player, world_map),
         new mapFront(world_map),
+        new InventoryHandler(&networking_manager),
         new debugMenu(&main_player, world_map),
         new chat(&networking_manager),
         new pauseScreen(),

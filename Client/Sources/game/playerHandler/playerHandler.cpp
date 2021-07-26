@@ -7,7 +7,6 @@ void playerHandler::render() {
     
     render(player->x, player->y, world_map->view_x, world_map->view_y, player->flipped);
     renderBlockSelector();
-    renderInventory();
 }
 
 OtherPlayer* playerHandler::getPlayerById(unsigned short id) {
@@ -61,5 +60,4 @@ void playerHandler::onEvent(ClientPacketEvent &event) {
         }
         default:;
     }
-    onPacketInventory(event);
 }

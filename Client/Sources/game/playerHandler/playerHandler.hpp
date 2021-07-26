@@ -10,7 +10,6 @@
 
 #include <string>
 #include "graphics.hpp"
-#include "inventoryHandler.hpp"
 #include "clientMap.hpp"
 
 class ClientPlayer {
@@ -23,7 +22,6 @@ public:
 class MainPlayer : public ClientPlayer {
 public:
     short velocity_x = 0, velocity_y = 0;
-    clientInventory inventory;
 };
 
 class OtherPlayer : public ClientPlayer {
@@ -47,8 +45,6 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header);
     unsigned short getPlayerWidth();
     unsigned short getPlayerHeight();
-
-    clientInventoryItem *hovered = nullptr;
     
     void initRenderer();
 
@@ -59,23 +55,10 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     bool isPlayerColliding();
     bool touchingGround();
 
-    void renderInventory();
     void renderBlockSelector();
 
-    void onKeyDownInventory(gfx::Key key);
     void onKeyDownSelector(gfx::Key key);
     void onKeyUpSelector(gfx::Key key);
-    void onPacketInventory(ClientPacketEvent &event);
-
-    void initInventory();
-
-    void renderItem(clientInventoryItem* item, int x, int y, int i);
-    void updateStackTexture(int i);
-
-    gfx::Rect inventory_slots[20],
-    select_rect_inventory{0, 5, 2 * (BLOCK_WIDTH + 10), 2 * (BLOCK_WIDTH + 10), {50, 50, 50}, gfx::TOP},
-    under_text_rect{0, 0, 0, 0, {0, 0, 0}};
-    gfx::Image stack_textures[20], mouse_stack_texture;
 
     bool received_spawn_coords = false;
     
@@ -84,7 +67,6 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void init() override;
     void update() override;
     void render() override;
-    void selectSlot(char slot);
     void onEvent(ClientPacketEvent& event) override;
     
 public:

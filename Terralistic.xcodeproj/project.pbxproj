@@ -125,7 +125,6 @@
 		16BF699C269D855A00CFE175 /* vorbisenc.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6972269D853A00CFE175 /* vorbisenc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF699D269D855A00CFE175 /* vorbisfile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6976269D853A00CFE175 /* vorbisfile.framework */; };
 		16BF699E269D855A00CFE175 /* vorbisfile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6976269D853A00CFE175 /* vorbisfile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */; };
 		36B157D726484E2000528A2B /* clientMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157D226484E2000528A2B /* clientMap.cpp */; };
 		36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
@@ -344,7 +343,6 @@
 		16C2937C269CE65F0059A9AF /* libsfml-network.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-network.2.5.dylib"; path = "Dependencies/MacOS/SFML-dylib/libsfml-network.2.5.dylib"; sourceTree = "<group>"; };
 		16C2937D269CE65F0059A9AF /* libsfml-graphics.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-graphics.2.5.dylib"; path = "Dependencies/MacOS/SFML-dylib/libsfml-graphics.2.5.dylib"; sourceTree = "<group>"; };
 		16C2937E269CE65F0059A9AF /* libsfml-audio.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-audio.2.5.dylib"; path = "Dependencies/MacOS/SFML-dylib/libsfml-audio.2.5.dylib"; sourceTree = "<group>"; };
-		3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryRenderer.cpp; sourceTree = "<group>"; };
 		36B157D226484E2000528A2B /* clientMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientMap.cpp; sourceTree = "<group>"; };
 		36DDF87C2689EAF9002337F3 /* properties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = properties.cpp; sourceTree = "<group>"; };
 		36DDF87D2689EAF9002337F3 /* properties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = properties.hpp; sourceTree = "<group>"; };
@@ -747,7 +745,6 @@
 				16712C6F26ADF5250050CC46 /* playerHandler.cpp */,
 				168968AB25E9607800D26060 /* mainPlayer.cpp */,
 				168968B525E9607800D26060 /* blockSelector.cpp */,
-				3619ACFC26187C4B00BA4EAF /* inventoryRenderer.cpp */,
 				1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */,
 			);
 			path = playerHandler;
@@ -1063,7 +1060,6 @@
 				166D85E026AAB7EC00DB87B1 /* packetHandling.cpp in Sources */,
 				167C22C62673956800FF487D /* choiceScreen.cpp in Sources */,
 				1662BC1F2635A9E70062DBB3 /* playerRenderer.cpp in Sources */,
-				3619ACFE26187C4B00BA4EAF /* inventoryRenderer.cpp in Sources */,
 				167513C426A498DA00E21C68 /* biomes.cpp in Sources */,
 				1691250D25F6BCD500F7EB4F /* worldCreator.cpp in Sources */,
 				166D85D526AA0B9E00DB87B1 /* rect.cpp in Sources */,

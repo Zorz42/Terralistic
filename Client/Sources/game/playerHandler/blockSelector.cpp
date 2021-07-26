@@ -19,21 +19,21 @@ void playerHandler::renderBlockSelector() {
         prev_selected_y = selected_block_y;
     }
     
-    if(!playerHandler::hovered) {
+    //if(!playerHandler::hovered) {
         selected_block_x = (unsigned short)(gfx::getMouseX() + world_map->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
         selected_block_y = (unsigned short)(gfx::getMouseY() + world_map->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
         select_rect.x = -world_map->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
         select_rect.y = -world_map->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
         select_rect.render(false);
-    }
+    //}
 }
 
 void playerHandler::onKeyDownSelector(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && !playerHandler::hovered) {
+    if(key == gfx::Key::MOUSE_LEFT/* && !playerHandler::hovered*/) {
         is_left_button_pressed = true;
         prev_selected_x = world_map->getWorldWidth();
         prev_selected_y = world_map->getWorldHeight();
-    } else if(key == gfx::Key::MOUSE_RIGHT && !playerHandler::hovered) {
+    } else if(key == gfx::Key::MOUSE_RIGHT/* && !playerHandler::hovered*/) {
         gfx::RectShape rect = gfx::RectShape(gfx::getWindowWidth() / 2 - getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - getPlayerHeight() / 2, getPlayerWidth(), getPlayerHeight());
         if(!gfx::colliding(rect, select_rect.getTranslatedRect())) {
             sf::Packet packet;
@@ -44,7 +44,7 @@ void playerHandler::onKeyDownSelector(gfx::Key key) {
 }
 
 void playerHandler::onKeyUpSelector(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && !playerHandler::hovered) {
+    if(key == gfx::Key::MOUSE_LEFT/* && !playerHandler::hovered*/) {
         is_left_button_pressed = false;
         sf::Packet packet;
         packet << PacketType::STOPPED_BREAKING;

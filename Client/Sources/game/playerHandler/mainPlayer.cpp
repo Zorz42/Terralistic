@@ -23,8 +23,6 @@ void playerHandler::init() {
     sf::Packet packet;
     packet << PacketType::VIEW_SIZE_CHANGE << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH);
     manager->sendPacket(packet);
-    
-    initInventory();
 }
 
 //#define VELOCITY 30
@@ -57,7 +55,6 @@ void playerHandler::onKeyDown(gfx::Key key) {
         default:;
     }
     
-    onKeyDownInventory(key);
     onKeyDownSelector(key);
 }
 
