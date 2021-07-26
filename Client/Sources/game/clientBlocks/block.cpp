@@ -1,9 +1,7 @@
 #include <algorithm>
 #include <utility>
-#include "clientBlocks.hpp"
-#include "properties.hpp"
-#include "resourcePack.hpp"
 #include <cassert>
+#include "clientBlocks.hpp"
 
 ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());
@@ -13,21 +11,15 @@ ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
 void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
     block_data->block_id = block_id;
     block_data->liquid_id = liquid_id;
-    update();
+    scheduleTextureUpdate();
+    scheduleTextureUpdateForNeighbors();
 }
 
 void ClientBlock::setLightLevel(unsigned char level) {
     block_data->light_level = level;
-    update();
+    scheduleTextureUpdate();
 }
 
-const BlockInfo& ClientMapBlock::getUniqueBlock() const {
-    return ::getBlockInfo(block_id);
-}
-
-const LiquidInfo& ClientMapBlock::getUniqueLiquid() const {
-    return ::getLiquidInfo(liquid_id);
-}
 
 void ClientBlocks::renderBackBlocks() {
     short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
@@ -87,8 +79,8 @@ void ClientBlocks::renderFrontBlocks() {
             }
 }
 
-void ClientBlock::updateOrientation() {
-    if(parent_map->resource_pack->getBlockTexture(getType()).getTextureHeight() != 8) {
+void ClientBlock::updateTexture() {
+    if(parent_map->getResourcePack()->getBlockTexture(getBlockType()).getTextureHeight() != 8) {
         block_data->orientation = 0;
         char x_[] = {0, 1, 0, -1};
         char y_[] = {-1, 0, 1, 0};
@@ -96,8 +88,8 @@ void ClientBlock::updateOrientation() {
         for(int i = 0; i < 4; i++) {
             if(
                x + x_[i] >= parent_map->getWorldWidth() || x + x_[i] < 0 || y + y_[i] >= parent_map->getWorldHeight() || y + y_[i] < 0 ||
-               parent_map->getBlock(x + x_[i], y + y_[i]).getType() == getType() ||
-               std::count(block_data->getUniqueBlock().connects_to.begin(), block_data->getUniqueBlock().connects_to.end(), parent_map->getBlock(x + x_[i], y + y_[i]).getType())
+               parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
+               std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType())
             )
                 block_data->orientation += c;
             c += c;
@@ -107,13 +99,13 @@ void ClientBlock::updateOrientation() {
 }
 
 void ClientBlock::drawBack() {
-    gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
+    int block_x = (x & 15) * BLOCK_WIDTH, block_y = (y & 15) * BLOCK_WIDTH;
     
     if(getLightLevel())
-        parent_map->resource_pack->getBlockTexture(getType()).render(2, rect.x, rect.y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+        parent_map->getResourcePack()->getBlockTexture(getBlockType()).render(2, block_x, block_y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 
     if(getBreakStage())
-        parent_map->resource_pack->getBreakingTexture().render(2, rect.x, rect.y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
+        parent_map->getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 }
 
 void ClientBlock::drawFront() {
@@ -121,7 +113,7 @@ void ClientBlock::drawFront() {
 
     if(getLiquidType() != LiquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
-        parent_map->resource_pack->getLiquidTexture(getLiquidType()).render(2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
+        parent_map->getResourcePack()->getLiquidTexture(getLiquidType()).render(2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
     
     if(getLightLevel() != MAX_LIGHT)
@@ -133,10 +125,7 @@ void ClientBlock::scheduleTextureUpdate() {
     parent_map->getChunk(x >> 4, y >> 4).scheduleUpdate();
 }
 
-void ClientBlock::update() {
-    scheduleTextureUpdate();
-
-    // also update neighbors
+void ClientBlock::scheduleTextureUpdateForNeighbors() {
     if(x != 0)
         parent_map->getBlock(x - 1, y).scheduleTextureUpdate();
     if(x != parent_map->getWorldWidth() - 1)
@@ -149,5 +138,5 @@ void ClientBlock::update() {
 
 void ClientBlock::setBreakStage(unsigned char stage) {
     block_data->break_stage = stage;
-    update();
+    scheduleTextureUpdate();
 }

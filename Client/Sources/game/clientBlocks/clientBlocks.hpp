@@ -2,7 +2,6 @@
 #define clientBlocks_hpp
 
 #include <string>
-
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
 #include "properties.hpp"
@@ -15,16 +14,14 @@ enum class ChunkState {unloaded, pending_load, loaded};
 
 class ClientBlocks;
 
-struct ClientMapBlock {
+class ClientMapBlock {
+public:
     explicit ClientMapBlock(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
     BlockType block_id;
     LiquidType liquid_id;
     unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
     bool update = true;
-
-    const BlockInfo& getUniqueBlock() const;
-    const LiquidInfo& getUniqueLiquid() const;
 };
 
 class ClientBlock {
@@ -32,30 +29,32 @@ class ClientBlock {
     unsigned short x, y;
     ClientBlocks* parent_map;
 
-    void scheduleTextureUpdate();
 public:
     ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
-    void setType(BlockType block_id, LiquidType liquid_id);
-    void setLightLevel(unsigned char level);
-    void setBreakStage(unsigned char stage);
     void drawBack();
     void drawFront();
-    void update();
-
-    void updateOrientation();
+    void updateTexture();
+    void scheduleTextureUpdate();
+    void scheduleTextureUpdateForNeighbors();
+    inline bool hasToUpdateTexture() { return block_data->update; }
     
-    inline bool isGhost() { return block_data->getUniqueBlock().ghost; }
-    inline unsigned char getLightLevel() { return block_data->light_level; }
-    inline unsigned char getBreakStage() { return block_data->break_stage; }
-    inline BlockType getType() { return block_data->block_id; }
+    void setType(BlockType block_id, LiquidType liquid_id);
+    inline const BlockInfo& getBlockInfo() { return ::getBlockInfo(getBlockType()); }
+    inline const LiquidInfo& getLiquidInfo() { return ::getLiquidInfo(getLiquidType()); }
+    inline BlockType getBlockType() { return block_data->block_id; }
     inline LiquidType getLiquidType() { return block_data->liquid_id; }
     inline void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
     inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
-    inline float getSpeedMultiplier() { return block_data->getUniqueLiquid().speed_multiplier; }
-    inline bool hasToUpdate() { return block_data->update; }
+    
+
+    inline unsigned char getLightLevel() { return block_data->light_level; }
+    void setLightLevel(unsigned char level);
+    inline unsigned char getBreakStage() { return block_data->break_stage; }
+    void setBreakStage(unsigned char stage);
 };
 
-struct ClientMapChunk {
+class ClientMapChunk {
+public:
     ChunkState state = ChunkState::unloaded;
     bool update = true;
     gfx::Image back_texture, front_texture;
@@ -87,14 +86,16 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
 
     networkingManager* networking_manager;
     
+    void onEvent(ClientPacketEvent& event) override;
+    
+    ResourcePack* resource_pack;
+    
 public:
     explicit ClientBlocks(networkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
     int view_x{}, view_y{};
+
+    inline ResourcePack* getResourcePack() { return resource_pack; }
     
-    ResourcePack* resource_pack;
-
-    void onEvent(ClientPacketEvent& event) override;
-
     ClientChunk getChunk(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
 
@@ -106,7 +107,7 @@ public:
 
     void createWorld(unsigned short map_width, unsigned short map_height);
 
-    ~ClientBlocks() override;
+    ~ClientBlocks();
 };
 
 #endif

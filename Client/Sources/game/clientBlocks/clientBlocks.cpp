@@ -34,7 +34,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             event.packet >> x >> y >> liquid_type >> liquid_level;
             
             ClientBlock curr_block = getBlock(x, y);
-            curr_block.setType(curr_block.getType(), (LiquidType)liquid_type);
+            curr_block.setType(curr_block.getBlockType(), (LiquidType)liquid_type);
             curr_block.setLiquidLevel(liquid_level);
             break;
         }
@@ -51,7 +51,8 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
                     block.setType((BlockType)block_type, (LiquidType)liquid_type);
                     block.setLightLevel(light_level);
                     block.setLiquidLevel(liquid_level);
-                    block.update();
+                    block.scheduleTextureUpdate();
+                    block.scheduleTextureUpdateForNeighbors();
                 }
             
             getChunk(x, y).setState(ChunkState::loaded);

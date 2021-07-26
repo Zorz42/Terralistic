@@ -140,7 +140,7 @@
 		36DDF8B12689F725002337F3 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		36DDF8B22689F725002337F3 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 		36DDF8B8268A0499002337F3 /* resourcePack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF8B6268A0499002337F3 /* resourcePack.cpp */; };
-		36F45E882620A88400C751E4 /* ClientChunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E872620A88400C751E4 /* ClientChunk.cpp */; };
+		36F45E882620A88400C751E4 /* chunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36F45E872620A88400C751E4 /* chunk.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -354,7 +354,7 @@
 		36DDF87D2689EAF9002337F3 /* properties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = properties.hpp; sourceTree = "<group>"; };
 		36DDF8B6268A0499002337F3 /* resourcePack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = resourcePack.cpp; sourceTree = "<group>"; };
 		36DDF8B7268A0499002337F3 /* resourcePack.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = resourcePack.hpp; sourceTree = "<group>"; };
-		36F45E872620A88400C751E4 /* ClientChunk.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ClientChunk.cpp; sourceTree = "<group>"; };
+		36F45E872620A88400C751E4 /* chunk.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chunk.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -662,7 +662,7 @@
 				1681100B263BE9260086D659 /* clientBlocks.hpp */,
 				36B157D226484E2000528A2B /* clientBlocks.cpp */,
 				16987C14265901020016509C /* block.cpp */,
-				36F45E872620A88400C751E4 /* ClientChunk.cpp */,
+				36F45E872620A88400C751E4 /* chunk.cpp */,
 			);
 			path = clientBlocks;
 			sourceTree = "<group>";
@@ -1082,7 +1082,7 @@
 				167C1B802676565700BCFE27 /* chat.cpp in Sources */,
 				1691250A25F6BCD500F7EB4F /* game.cpp in Sources */,
 				1691250B25F6BCD500F7EB4F /* startMenu.cpp in Sources */,
-				36F45E882620A88400C751E4 /* ClientChunk.cpp in Sources */,
+				36F45E882620A88400C751E4 /* chunk.cpp in Sources */,
 				1691250C25F6BCD500F7EB4F /* multiplayerSelector.cpp in Sources */,
 				36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */,
 				166D85E026AAB7EC00DB87B1 /* packetHandling.cpp in Sources */,

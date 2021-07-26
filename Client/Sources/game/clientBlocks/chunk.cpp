@@ -1,21 +1,24 @@
-#include "clientBlocks.hpp"
 #include <cassert>
+#include "clientBlocks.hpp"
 
 void ClientChunk::updateTexture() {
     chunk_data->update = false;
-    gfx::setRenderTarget(chunk_data->back_texture);
     for(unsigned short y_ = 0; y_ < 16; y_++)
         for(unsigned short x_ = 0; x_ < 16; x_++) {
             ClientBlock curr_block = parent_map->getBlock((x << 4) + x_, (y << 4) + y_);
-            if(curr_block.hasToUpdate())
-                curr_block.updateOrientation();
+            if(curr_block.hasToUpdateTexture())
+                curr_block.updateTexture();
         }
+    
+    gfx::setRenderTarget(chunk_data->back_texture);
     chunk_data->back_texture.clear();
     for(unsigned short y_ = 0; y_ < 16; y_++)
         for(unsigned short x_ = 0; x_ < 16; x_++) {
             ClientBlock curr_block = parent_map->getBlock((x << 4) + x_, (y << 4) + y_);
             curr_block.drawBack();
         }
+    gfx::resetRenderTarget();
+    
     gfx::setRenderTarget(chunk_data->front_texture);
     chunk_data->front_texture.clear();
     for(unsigned short y_ = 0; y_ < 16; y_++)
