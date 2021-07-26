@@ -1,10 +1,3 @@
-//
-//  debugMenu.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 06/06/2021.
-//
-
 #include "debugMenu.hpp"
 
 void debugMenu::init() {
@@ -19,13 +12,6 @@ void debugMenu::init() {
     coords_text.y = fps_text.y + fps_text.getHeight() + 10;
     coords_text.x = 10;
     coords_text.orientation = gfx::TOP_LEFT;
-
-    /*
-    biome_text.scale = 3;
-    biome_text.y = coords_text.y + coords_text.getHeight() + 10;
-    biome_text.x = 10;
-    biome_text.orientation = gfx::top_left;
-    */
 }
 
 void debugMenu::update() {
@@ -45,7 +31,6 @@ void debugMenu::update() {
             prev_x = curr_x;
             prev_y = curr_y;
             coords_text.renderText(std::string("X: ") + std::to_string(main_player->x / BLOCK_WIDTH) + ", Y: " + std::to_string(world_map->getWorldHeight() - main_player->y / BLOCK_WIDTH), {0, 0, 0});
-            //biome_text.renderText(std::to_string(world_map->biomes[0]), { 0, 0, 0 }));
         }
     }
 }

@@ -1,10 +1,3 @@
-//
-//  debugMenu.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 06/06/2021.
-//
-
 #ifndef debugMenu_hpp
 #define debugMenu_hpp
 
@@ -15,7 +8,7 @@
 
 class debugMenu : public gfx::GraphicalModule {
     bool debug_menu_open = false, m_down = false;
-    gfx::Sprite fps_text, coords_text;// biome_text;
+    gfx::Sprite fps_text, coords_text;
     MainPlayer* main_player;
     void renderFpsText();
     unsigned int fps_count = 0;
@@ -29,4 +22,4 @@ public:
     void onKeyUp(gfx::Key key) override;
 };
 
-#endif /* debugMenu_hpp */
+#endif

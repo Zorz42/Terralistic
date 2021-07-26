@@ -96,9 +96,11 @@ void game::init() {
         world_map,
         player_handler,
         new ClientItems(&resource_pack, world_map),
-        new BlockSelector(world_map, &networking_manager, inventory_handler, player_handler),
+        new BlockSelector(&networking_manager, world_map, inventory_handler, player_handler),
         inventory_handler,
+#ifdef DEVELOPER_MODE
         new debugMenu(&main_player, world_map),
+#endif
         new chat(&networking_manager),
         new pauseScreen(),
     };

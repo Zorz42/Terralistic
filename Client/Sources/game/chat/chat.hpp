@@ -1,10 +1,3 @@
-//
-//  chat.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 13/06/2021.
-//
-
 #ifndef chat_hpp
 #define chat_hpp
 
@@ -23,9 +16,7 @@ class chat : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
     networkingManager* manager;
     std::vector<chatLine*> chat_lines;
-public:
-    explicit chat(networkingManager* manager) : manager(manager) {}
-
+    
     void init() override;
     void update() override;
     void render() override;
@@ -33,6 +24,8 @@ public:
     void stop() override;
 
     void onEvent(ClientPacketEvent& event) override;
+public:
+    explicit chat(networkingManager* manager) : manager(manager) {}
 };
 
-#endif /* chat_hpp */
+#endif

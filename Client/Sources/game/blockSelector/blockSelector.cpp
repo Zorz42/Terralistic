@@ -1,14 +1,5 @@
-//
-//  blockSelector.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 13/07/2020.
-//
-
 #include "blockSelector.hpp"
 #include "packetType.hpp"
-
-// this is a rectangle with which you select which block to break or where to place selected block
 
 void BlockSelector::render() {
     if((prev_selected_y != selected_block_y || prev_selected_x != selected_block_x) && is_left_button_pressed) {

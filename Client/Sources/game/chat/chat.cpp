@@ -1,10 +1,3 @@
-//
-//  chat.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 13/06/2021.
-//
-
 #include "chat.hpp"
 
 #define PADDING 5

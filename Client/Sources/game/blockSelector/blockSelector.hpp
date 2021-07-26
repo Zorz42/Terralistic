@@ -17,12 +17,12 @@ class BlockSelector : public gfx::GraphicalModule {
     
     bool is_left_button_pressed = false;
     
-    ClientBlocks* world_map;
     networkingManager* manager;
+    ClientBlocks* world_map;
     InventoryHandler* inventory_handler;
     playerHandler* player_handler;
 public:
-    BlockSelector(ClientBlocks* world_map, networkingManager* manager, InventoryHandler* inventory_handler, playerHandler* player_handler) : world_map(world_map), manager(manager), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(networkingManager* manager, ClientBlocks* world_map, InventoryHandler* inventory_handler, playerHandler* player_handler) : manager(manager), world_map(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
-#endif /* blockSelector_hpp */
+#endif
