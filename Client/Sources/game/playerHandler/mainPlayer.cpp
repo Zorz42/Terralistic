@@ -54,8 +54,6 @@ void playerHandler::onKeyDown(gfx::Key key) {
             break;
         default:;
     }
-    
-    onKeyDownSelector(key);
 }
 
 void playerHandler::onKeyUp(gfx::Key key) {
@@ -82,7 +80,6 @@ void playerHandler::onKeyUp(gfx::Key key) {
             break;
         default:;
     }
-    onKeyUpSelector(key);
 }
 
 bool playerHandler::isPlayerColliding() {

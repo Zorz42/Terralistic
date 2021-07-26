@@ -43,22 +43,11 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     
     void render(int x, int y, int view_x, int view_y, bool flipped);
     void render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header);
-    unsigned short getPlayerWidth();
-    unsigned short getPlayerHeight();
     
     void initRenderer();
 
-    gfx::Rect select_rect{0, 0, BLOCK_WIDTH, BLOCK_WIDTH, {255, 0, 0}};
-    bool is_left_button_pressed = false;
-    unsigned short prev_selected_x{}, prev_selected_y{}, selected_block_x{}, selected_block_y{};
-
     bool isPlayerColliding();
     bool touchingGround();
-
-    void renderBlockSelector();
-
-    void onKeyDownSelector(gfx::Key key);
-    void onKeyUpSelector(gfx::Key key);
 
     bool received_spawn_coords = false;
     
@@ -71,6 +60,9 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     
 public:
     playerHandler(networkingManager* manager, MainPlayer* player, map* world_map) : manager(manager), player(player), world_map(world_map) {}
+    
+    unsigned short getPlayerWidth();
+    unsigned short getPlayerHeight();
 };
 
 #endif /* playerHandler_hpp */

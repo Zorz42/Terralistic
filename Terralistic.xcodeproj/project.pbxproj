@@ -203,6 +203,7 @@
 		1661662C25EA3882002A3815 /* Terralistic-Debug.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = "Terralistic-Debug.app"; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic-Debug.app"; sourceTree = "<group>"; };
 		1661662D25EA3882002A3815 /* Terralistic.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Terralistic.app; path = "../Library/Developer/Xcode/DerivedData/Terralistic-ccxriuvresccdzaopctdceowetlr/Build/Products/Debug/Terralistic.app"; sourceTree = "<group>"; };
 		1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = playerRenderer.cpp; sourceTree = "<group>"; };
+		1663450226AEA20800D9E3C3 /* blockSelector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blockSelector.hpp; sourceTree = "<group>"; };
 		1664388626695A2F00587F5E /* liquid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liquid.cpp; sourceTree = "<group>"; };
 		16644E4B267CB1470015C23D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "Dependencies/MacOS/Frameworks-Debug/SDL2.framework"; sourceTree = "<group>"; };
 		16644E4C267CB1470015C23D /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = "Dependencies/MacOS/Frameworks-Debug/SDL2_image.framework"; sourceTree = "<group>"; };
@@ -484,6 +485,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		1663450126AEA1F400D9E3C3 /* blockSelector */ = {
+			isa = PBXGroup;
+			children = (
+				1663450226AEA20800D9E3C3 /* blockSelector.hpp */,
+				168968B525E9607800D26060 /* blockSelector.cpp */,
+			);
+			path = blockSelector;
+			sourceTree = "<group>";
+		};
 		166D85C226AA0B9E00DB87B1 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
@@ -706,6 +716,7 @@
 		1689689325E9607800D26060 /* game */ = {
 			isa = PBXGroup;
 			children = (
+				1663450126AEA1F400D9E3C3 /* blockSelector */,
 				167C1B7D2676564400BCFE27 /* chat */,
 				16906514266CC0A90075EF55 /* debugMenu */,
 				1681100A263BE9260086D659 /* clientMap */,
@@ -744,7 +755,6 @@
 				168968AC25E9607800D26060 /* playerHandler.hpp */,
 				16712C6F26ADF5250050CC46 /* playerHandler.cpp */,
 				168968AB25E9607800D26060 /* mainPlayer.cpp */,
-				168968B525E9607800D26060 /* blockSelector.cpp */,
 				1662BC1D2635A9E70062DBB3 /* playerRenderer.cpp */,
 			);
 			path = playerHandler;

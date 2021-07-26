@@ -146,26 +146,27 @@ void NetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event) {
 }
 
 void NetworkingManager::syncLightWithPlayers() {
-    for(Connection& connection : connections) {
-        int start_x = (int)connection.player->getSightBeginX() - 20, start_y = (int)connection.player->getSightBeginY() - 20, end_x = connection.player->getSightEndX() + 20, end_y = connection.player->getSightEndY() + 20;
-        if(start_x < 0)
-            start_x = 0;
-        if(start_y < 0)
-            start_y = 0;
-        if(end_x > blocks->getWidth())
-            end_x = blocks->getWidth();
-        if(end_y > blocks->getHeight())
-            end_y = blocks->getHeight();
-        
-        for(unsigned short y = start_y; y < end_y; y++)
-            for(unsigned short x = start_x; x < end_x; x++) {
-                Block curr_block = blocks->getBlock(x, y);
-                if(curr_block.hasLightChanged()) {
-                    curr_block.markLightUnchanged();
-                    sf::Packet packet;
-                    packet << PacketType::LIGHT_CHANGE << curr_block.getX() << curr_block.getY() << curr_block.getLightLevel();
-                    connection.send(packet);
+    for(Connection& connection : connections)
+        if(connection.player) {
+            int start_x = (int)connection.player->getSightBeginX() - 20, start_y = (int)connection.player->getSightBeginY() - 20, end_x = connection.player->getSightEndX() + 20, end_y = connection.player->getSightEndY() + 20;
+            if(start_x < 0)
+                start_x = 0;
+            if(start_y < 0)
+                start_y = 0;
+            if(end_x > blocks->getWidth())
+                end_x = blocks->getWidth();
+            if(end_y > blocks->getHeight())
+                end_y = blocks->getHeight();
+            
+            for(unsigned short y = start_y; y < end_y; y++)
+                for(unsigned short x = start_x; x < end_x; x++) {
+                    Block curr_block = blocks->getBlock(x, y);
+                    if(curr_block.hasLightChanged()) {
+                        curr_block.markLightUnchanged();
+                        sf::Packet packet;
+                        packet << PacketType::LIGHT_CHANGE << curr_block.getX() << curr_block.getY() << curr_block.getLightLevel();
+                        connection.send(packet);
+                    }
                 }
-            }
-    }
+        }
 }

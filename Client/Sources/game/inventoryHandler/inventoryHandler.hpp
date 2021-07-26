@@ -49,6 +49,7 @@ public:
     InventoryHandler(networkingManager* manager) : manager(manager) {}
     void render() override;
     void init() override;
+    inline bool isHovered() { return hovered; }
 };
 
 #endif /* inventoryHandler_hpp */

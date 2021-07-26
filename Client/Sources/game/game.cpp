@@ -17,6 +17,7 @@
 #include "chat.hpp"
 #include "server.hpp"
 #include "inventoryHandler.hpp"
+#include "blockSelector.hpp"
 
 
 #define FROM_PORT 49152
@@ -83,11 +84,15 @@ void game::init() {
     world_map = new map(&networking_manager);
     world_map->createWorld(275, 75); // dimensions in chunks
 
+    InventoryHandler* inventory_handler = new InventoryHandler(&networking_manager);
+    playerHandler* player_handler = new playerHandler(&networking_manager, &main_player, world_map);
+    
     modules = {
         world_map,
-        new playerHandler(&networking_manager, &main_player, world_map),
+        player_handler,
         new mapFront(world_map),
-        new InventoryHandler(&networking_manager),
+        new BlockSelector(world_map, &networking_manager, inventory_handler, player_handler),
+        inventory_handler,
         new debugMenu(&main_player, world_map),
         new chat(&networking_manager),
         new pauseScreen(),

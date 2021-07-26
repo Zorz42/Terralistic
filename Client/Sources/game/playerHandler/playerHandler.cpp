@@ -6,7 +6,6 @@ void playerHandler::render() {
         render(i->x, i->y, world_map->view_x, world_map->view_y, i->flipped, i->name_text);
     
     render(player->x, player->y, world_map->view_x, world_map->view_y, player->flipped);
-    renderBlockSelector();
 }
 
 OtherPlayer* playerHandler::getPlayerById(unsigned short id) {
