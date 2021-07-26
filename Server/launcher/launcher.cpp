@@ -11,6 +11,6 @@ int main(int argc, char **argv) {
     if(!std::filesystem::exists(data_folder))
         std::filesystem::create_directory(data_folder);
     
-    server main_server(data_folder, getResourcePath(argv[0]), 33770);
-    main_server.start();
+    Server main_server(data_folder, getResourcePath(argv[0]));
+    main_server.start(33770);
 }

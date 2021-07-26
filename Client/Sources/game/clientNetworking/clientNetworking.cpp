@@ -8,7 +8,8 @@ void networkingManager::checkForPackets() {
     sf::Packet packet;
     
     while(true) {
-        if(socket.receive(packet) != sf::Socket::NotReady) {
+        sf::Socket::Status status = socket.receive(packet);
+        if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
             PacketType packet_type;
             packet >> packet_type;
             ClientPacketEvent(packet, packet_type).call();

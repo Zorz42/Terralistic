@@ -1,10 +1,3 @@
-//
-//  chunk.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 09/04/2021.
-//
-
 #include "clientBlocks.hpp"
 #include <cassert>
 

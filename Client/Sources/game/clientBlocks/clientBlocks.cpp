@@ -1,10 +1,3 @@
-//
-//  map.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 04/04/2021.
-//
-
 #include "clientBlocks.hpp"
 #include "choiceScreen.hpp"
 #include "fileManager.hpp"
@@ -72,32 +65,8 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             getBlock(x, y).setBreakStage(stage);
             break;
         }
-        case PacketType::KICK: {
-            event.packet >> kick_message;
-            kicked = true;
-        }
         default:;
     }
-}
-
-void ClientBlocks::init() {
-    background_image.loadFromFile("resourcePack/misc/background.png");
-}
-
-void ClientBlocks::render() {
-    float scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
-    int position_x = -(view_x / 5) % int(background_image.getTextureWidth() * scale);
-    for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * scale) + 2; i++)
-        background_image.render(scale, position_x + i * background_image.getTextureWidth() * scale, 0);
-    renderBlocksBack();
-    if(kicked) {
-        choiceScreen(kick_message, {"Close"}).run();
-        gfx::returnFromScene();
-    }
-}
-
-void mapFront::render() {
-    world_map->renderBlocksFront();
 }
 
 ClientBlocks::~ClientBlocks() {

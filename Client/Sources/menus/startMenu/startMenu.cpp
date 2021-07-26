@@ -22,7 +22,7 @@ void startMenu::init() {
     title.orientation = gfx::TOP;
     title.y = 40;
     
-    background.loadFromFile("resourcePack/misc/background.png");
+    background.loadFromFile("background.png");
     
     back_rect.c = {0, 0, 0};
     back_rect.orientation = gfx::CENTER;

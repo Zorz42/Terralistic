@@ -28,7 +28,6 @@ struct ClientMapBlock {
 };
 
 class ClientBlock {
-    //friend ClientChunk;
     ClientMapBlock* block_data;
     unsigned short x, y;
     ClientBlocks* parent_map;
@@ -82,35 +81,25 @@ public:
 };
 
 class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
-
-    void renderBlocksBack();
-
-    void render() override;
-    void onEvent(ClientPacketEvent& event) override;
-    void init() override;
-
-    networkingManager* networking_manager;
-
-protected:
     unsigned short width{}, height{};
     ClientMapChunk *chunks = nullptr;
     ClientMapBlock *blocks = nullptr;
 
-    std::string kick_message;
-    bool kicked = false;
-
-    gfx::Image background_image;
-
+    networkingManager* networking_manager;
+    
 public:
     explicit ClientBlocks(networkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
     int view_x{}, view_y{};
     
     ResourcePack* resource_pack;
 
+    void onEvent(ClientPacketEvent& event) override;
+
     ClientChunk getChunk(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
 
-    void renderBlocksFront();
+    void renderBackBlocks();
+    void renderFrontBlocks();
     
     inline unsigned short getWorldWidth() const { return width; }
     inline unsigned short getWorldHeight() const { return height; }
@@ -118,14 +107,6 @@ public:
     void createWorld(unsigned short map_width, unsigned short map_height);
 
     ~ClientBlocks() override;
-};
-
-class mapFront : public gfx::GraphicalModule {
-    ClientBlocks* world_map;
-public:
-    mapFront(ClientBlocks* world_map) : world_map(world_map) {}
-    
-    void render() override;
 };
 
 #endif

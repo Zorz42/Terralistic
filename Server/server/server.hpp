@@ -28,8 +28,6 @@ public:
     
     unsigned int getGeneratingTotal() const;
     unsigned int getGeneratingCurrent() const;
-    
-    //inline unsigned short getPort() { return port; }
 };
 
 #endif

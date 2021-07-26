@@ -15,10 +15,13 @@
 #include "clientNetworking.hpp"
 #include "inventoryHandler.hpp"
 #include "resourcePack.hpp"
+#include "events.hpp"
+#include "clientNetworking.hpp"
 
 void startPrivateWorld(const std::string& world_name);
 
-class game : public gfx::Scene {
+class game : public gfx::Scene, EventListener<ClientPacketEvent> {
+    void onEvent(ClientPacketEvent& event) override;
 public:
     const std::string ip_address;
     const unsigned short port;
@@ -26,10 +29,12 @@ public:
     ClientBlocks *world_map{};
     MainPlayer main_player;
     ResourcePack resource_pack;
+    gfx::Image background_image;
 
     game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = std::move(username); }
     void init() override;
     void update() override;
+    void render() override;
     void stop() override;
 };
 

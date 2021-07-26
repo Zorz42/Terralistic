@@ -42,14 +42,12 @@ void playerHandler::onKeyDown(gfx::Key key) {
             if(!key_left) {
                 key_left = true;
                 player->velocity_x -= VELOCITY;
-                player->flipped = true;
             }
             break;
         case gfx::Key::D:
             if(!key_right) {
                 key_right = true;
                 player->velocity_x += VELOCITY;
-                player->flipped = false;
             }
             break;
         default:;
@@ -110,6 +108,8 @@ bool playerHandler::touchingGround() {
 
 void playerHandler::update() {
     if(received_spawn_coords) {
+        if(player->velocity_x)
+            player->flipped = player->velocity_x < 0;
         static unsigned short prev_width = gfx::getWindowWidth(), prev_height = gfx::getWindowHeight();
         if(prev_width != gfx::getWindowWidth() || prev_height != gfx::getWindowHeight()) {
             sf::Packet packet;

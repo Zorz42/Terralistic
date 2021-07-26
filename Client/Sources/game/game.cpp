@@ -87,6 +87,8 @@ void game::init() {
     world_map = new ClientBlocks(&networking_manager, &resource_pack);
     world_map->createWorld(275, 75); // dimensions in chunks
     
+    background_image.loadFromFile("resourcePack/misc/background.png");
+    
     playerHandler* player_handler = new playerHandler(&networking_manager, &main_player, world_map);
     InventoryHandler* inventory_handler = new InventoryHandler(&networking_manager, &resource_pack);
     
@@ -94,7 +96,6 @@ void game::init() {
         world_map,
         player_handler,
         new ClientItems(&resource_pack, world_map),
-        new mapFront(world_map),
         new BlockSelector(world_map, &networking_manager, inventory_handler, player_handler),
         inventory_handler,
         new debugMenu(&main_player, world_map),
@@ -109,8 +110,29 @@ void game::init() {
     }
 }
 
+void game::onEvent(ClientPacketEvent& event) {
+    switch(event.packet_type) {
+        case PacketType::KICK: {
+            std::string kick_message;
+            event.packet >> kick_message;
+            choiceScreen(kick_message, {"Close"}).run();
+            gfx::returnFromScene();
+        }
+        default:;
+    }
+}
+
 void game::update() {
     networking_manager.checkForPackets();
+}
+
+void game::render() {
+    float scale = (float)gfx::getWindowHeight() / background_image.getTextureHeight();
+    int position_x = -(world_map->view_x / 5) % int(background_image.getTextureWidth() * scale);
+    for(int i = 0; i < gfx::getWindowWidth() / (background_image.getTextureWidth() * scale) + 2; i++)
+        background_image.render(scale, position_x + i * background_image.getTextureWidth() * scale, 0);
+    world_map->renderBackBlocks();
+    world_map->renderFrontBlocks();
 }
 
 void game::stop() {

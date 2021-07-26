@@ -14,6 +14,8 @@ public:
     const gfx::Image& getItemTextTexture(ItemType type);
     const gfx::Image& getLiquidTexture(LiquidType type);
     const gfx::Image& getBreakingTexture();
+    const gfx::Image& getPlayerTexture();
+    const gfx::Image& getBackground();
 };
 
 #endif /* resourcePack_hpp */

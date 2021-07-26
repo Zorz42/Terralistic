@@ -1,10 +1,3 @@
-//
-//  block.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 05/04/2021.
-//
-
 #include <algorithm>
 #include <utility>
 #include "clientBlocks.hpp"
@@ -36,8 +29,7 @@ const LiquidInfo& ClientMapBlock::getUniqueLiquid() const {
     return ::getLiquidInfo(liquid_id);
 }
 
-void ClientBlocks::renderBlocksBack() {
-    // figure out, what the window is covering and only render that
+void ClientBlocks::renderBackBlocks() {
     short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
 
@@ -69,7 +61,7 @@ void ClientBlocks::renderBlocksBack() {
         }
 }
 
-void ClientBlocks::renderBlocksFront() {
+void ClientBlocks::renderFrontBlocks() {
     // figure out, what the window is covering and only render that
     short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
