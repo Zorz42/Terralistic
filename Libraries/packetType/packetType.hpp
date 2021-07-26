@@ -1,10 +1,3 @@
-//
-//  packetType.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 14/07/2021.
-//
-
 #ifndef packetType_hpp
 #define packetType_hpp
 
@@ -15,4 +8,4 @@ enum class PacketType {CHUNK, BLOCK_CHANGE, LIGHT_CHANGE, LIQUID_CHANGE, PLAYER_
 sf::Packet& operator<<(sf::Packet& packet, PacketType packet_type);
 sf::Packet& operator>>(sf::Packet& packet, PacketType& packet_type);
 
-#endif /* packetType_hpp */
+#endif

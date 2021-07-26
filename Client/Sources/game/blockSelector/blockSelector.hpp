@@ -2,7 +2,7 @@
 #define blockSelector_hpp
 
 #include "graphics.hpp"
-#include "clientMap.hpp"
+#include "clientBlocks.hpp"
 #include "inventoryHandler.hpp"
 #include "playerHandler.hpp"
 
@@ -17,12 +17,12 @@ class BlockSelector : public gfx::GraphicalModule {
     
     bool is_left_button_pressed = false;
     
-    map* world_map;
+    ClientBlocks* world_map;
     networkingManager* manager;
     InventoryHandler* inventory_handler;
     playerHandler* player_handler;
 public:
-    BlockSelector(map* world_map, networkingManager* manager, InventoryHandler* inventory_handler, playerHandler* player_handler) : world_map(world_map), manager(manager), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(ClientBlocks* world_map, networkingManager* manager, InventoryHandler* inventory_handler, playerHandler* player_handler) : world_map(world_map), manager(manager), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
 #endif /* blockSelector_hpp */

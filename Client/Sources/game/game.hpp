@@ -23,7 +23,7 @@ public:
     const std::string ip_address;
     const unsigned short port;
     networkingManager networking_manager;
-    map *world_map{};
+    ClientBlocks *world_map{};
     MainPlayer main_player;
     ResourcePack resource_pack;
 

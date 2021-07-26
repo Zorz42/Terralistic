@@ -200,9 +200,9 @@ void gfx::Scene::run() {
         
         clearWindow();
         
+        render();
         for(GraphicalModule* module : modules)
             module->render();
-        render();
         
         updateWindow();
         

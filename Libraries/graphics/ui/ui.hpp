@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ui_hpp
+#define ui_hpp
 
 #include <string>
 #include "rect.hpp"
@@ -12,8 +13,8 @@ public:
     void render(float scale, short x, short y, RectShape src_rect) const;
     ~Image();
     bool free_texture = true, flipped = false;
-    [[nodiscard]] unsigned short getTextureWidth() const;
-    [[nodiscard]] unsigned short getTextureHeight() const;
+    unsigned short getTextureWidth() const;
+    unsigned short getTextureHeight() const;
     void clear();
     void createBlankImage(unsigned short width, unsigned short height);
     void renderText(const std::string& text, Color text_color);
@@ -30,8 +31,8 @@ protected:
 class Sprite : public _CenteredObject, public Image {
 public:
     float scale = 1;
-    [[nodiscard]] inline unsigned short getWidth() const override { return getTextureWidth() * scale; }
-    [[nodiscard]] inline unsigned short getHeight() const override { return getTextureHeight() * scale; }
+    inline unsigned short getWidth() const override { return getTextureWidth() * scale; }
+    inline unsigned short getHeight() const override { return getTextureHeight() * scale; }
     Sprite();
     void render() const;
 
@@ -41,11 +42,11 @@ class Button : public Sprite {
 public:
     unsigned short margin = 10;
 
-    [[nodiscard]] unsigned short getWidth() const override;
-    [[nodiscard]] unsigned short getHeight() const override;
+    unsigned short getWidth() const override;
+    unsigned short getHeight() const override;
 
     Color def_color = { 0, 0, 0, 0 }, hover_color = { 100, 100, 100 };
-    [[nodiscard]] bool isHovered() const;
+    bool isHovered() const;
     bool disabled = false;
     unsigned char hover_progress = 0;
     void render();
@@ -56,8 +57,8 @@ public:
     void render() const;
     TextInput();
 
-    [[nodiscard]] inline std::string getText() const { return text; }
-    [[nodiscard]] unsigned short getWidth() const override;
+    inline std::string getText() const { return text; }
+    unsigned short getWidth() const override;
     void setText(const std::string& text);
 
     bool active = false, ignore_one_input = false;
@@ -70,3 +71,5 @@ protected:
 };
 
 };
+
+#endif

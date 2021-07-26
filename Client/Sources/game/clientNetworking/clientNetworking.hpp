@@ -1,16 +1,7 @@
-//
-//  clientNetworking.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 12/01/2021.
-//
-
 #ifndef clientNetworking_hpp
 #define clientNetworking_hpp
 
-#include <vector>
 #include <SFML/Network.hpp>
-#include <thread>
 
 #include "events.hpp"
 #include "packetType.hpp"

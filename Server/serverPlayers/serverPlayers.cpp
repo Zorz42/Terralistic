@@ -1,23 +1,23 @@
-#include "players.hpp"
-#include "blocks.hpp"
+#include "serverPlayers.hpp"
+#include "serverBlocks.hpp"
 #include <filesystem>
 #include <fstream>
 
-static bool isBlockTree(Block block) {
+static bool isBlockTree(ServerBlock block) {
     return block.refersToABlock() && (block.getBlockType() == BlockType::WOOD || block.getBlockType() == BlockType::LEAVES);
 }
 
-static bool isBlockWood(Block block) {
+static bool isBlockWood(ServerBlock block) {
     return block.refersToABlock() && block.getBlockType() == BlockType::WOOD;
 }
 
-static bool isBlockLeaves(Block block) {
+static bool isBlockLeaves(ServerBlock block) {
     return block.refersToABlock() && block.getBlockType() == BlockType::LEAVES;
 }
 
-Players::Players(Blocks* parent_blocks, Items* parent_items) : blocks(parent_blocks), items(parent_items) {
-    custom_block_events[(int)BlockType::WOOD].onUpdate = [](Blocks* server_blocks, Block* this_block) {
-        Block upper, lower, left, right;
+Players::Players(ServerBlocks* parent_blocks, ServerItems* parent_items) : blocks(parent_blocks), items(parent_items) {
+    custom_block_events[(int)BlockType::WOOD].onUpdate = [](ServerBlocks* server_blocks, ServerBlock* this_block) {
+        ServerBlock upper, lower, left, right;
         if(this_block->getY() != 0)
             upper = server_blocks->getBlock(this_block->getX(), this_block->getY() - 1);
         if(this_block->getY() != server_blocks->getHeight() - 1)
@@ -40,11 +40,11 @@ Players::Players(Blocks* parent_blocks, Items* parent_items) : blocks(parent_blo
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = custom_block_events[(int)BlockType::WOOD].onUpdate;
 
-    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Block* this_block, ServerPlayer* peer) {
+    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](ServerBlock* this_block, ServerPlayer* peer) {
         this_block->setType(BlockType::DIRT);
     };
 
-    custom_block_events[(int)BlockType::AIR].onRightClick = [](Block* this_block, ServerPlayer* peer) {
+    custom_block_events[(int)BlockType::AIR].onRightClick = [](ServerBlock* this_block, ServerPlayer* peer) {
         BlockType type = peer->inventory.getSelectedSlot()->getUniqueItem().places;
         if(type != BlockType::AIR && peer->inventory.inventory_arr[peer->inventory.selected_slot].decreaseStack(1)) {
             this_block->setType(type);
@@ -122,7 +122,7 @@ void Players::updateBlocksInVisibleAreas() {
             finished = true;
             for(unsigned short y = start_y; y < end_y; y++)
                 for(unsigned short x = start_x; x < end_x; x++) {
-                    Block curr_block = blocks->getBlock(x, y);
+                    ServerBlock curr_block = blocks->getBlock(x, y);
                     if(curr_block.hasScheduledLightUpdate()) {
                         curr_block.lightUpdate();
                         finished = false;
@@ -136,7 +136,7 @@ void Players::updateBlocksInVisibleAreas() {
     }
 }
 
-void Players::leftClickEvent(Block this_block, ServerPlayer* peer, unsigned short tick_length) {
+void Players::leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length) {
     if(custom_block_events[(int)this_block.getBlockType()].onLeftClick)
         custom_block_events[(int)this_block.getBlockType()].onLeftClick(&this_block, peer);
     else if(this_block.getUniqueBlock().break_time != UNBREAKABLE) {
@@ -146,7 +146,7 @@ void Players::leftClickEvent(Block this_block, ServerPlayer* peer, unsigned shor
     }
 }
 
-void Players::rightClickEvent(Block this_block, ServerPlayer* peer) {
+void Players::rightClickEvent(ServerBlock this_block, ServerPlayer* peer) {
     if(custom_block_events[(int)this_block.getBlockType()].onRightClick)
         custom_block_events[(int)this_block.getBlockType()].onRightClick(&this_block, peer);
 }

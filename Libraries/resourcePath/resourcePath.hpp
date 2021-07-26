@@ -5,4 +5,4 @@
 
 std::string getResourcePath(std::string executable_path);
 
-#endif /* resourcePath_hpp */
+#endif

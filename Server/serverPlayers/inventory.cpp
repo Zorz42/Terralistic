@@ -1,4 +1,4 @@
-#include "players.hpp"
+#include "serverPlayers.hpp"
 #include "properties.hpp"
 
 void InventoryItem::setTypeWithoutProcessing(ItemType type_) {
@@ -65,12 +65,12 @@ unsigned char InventoryItem::getPosInInventory() {
     return this - &inventory->inventory_arr[0];
 }
 
-Inventory::Inventory() {
+ServerInventory::ServerInventory() {
     for(InventoryItem& i : inventory_arr)
         i = InventoryItem(this);
 }
 
-char Inventory::addItem(ItemType id, int quantity) {
+char ServerInventory::addItem(ItemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].getType() == id) {
             quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
@@ -87,11 +87,11 @@ char Inventory::addItem(ItemType id, int quantity) {
     return -1;
 }
 
-InventoryItem* Inventory::getSelectedSlot() {
+InventoryItem* ServerInventory::getSelectedSlot() {
     return &inventory_arr[(int)(unsigned char)selected_slot];
 }
 
-void Inventory::swapWithMouseItem(InventoryItem* item) {
+void ServerInventory::swapWithMouseItem(InventoryItem* item) {
     InventoryItem temp = mouse_item;
     mouse_item = *item;
     *item = temp;

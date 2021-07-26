@@ -1,13 +1,13 @@
-#include "blocks.hpp"
+#include "serverBlocks.hpp"
 #include <fstream>
 
-void Blocks::saveTo(std::string path) {
+void ServerBlocks::saveTo(std::string path) {
     std::ofstream world_file(path, std::ios::binary);
 
     for(int y = 0; y < height; y++) {
         char* world_buffer = new char[width * 3];
         for(int x = 0; x < width; x++) {
-            Block curr_block = getBlock(x, y);
+            ServerBlock curr_block = getBlock(x, y);
             int pos = x * 3;
             world_buffer[pos] = (char)curr_block.getBlockType();
             world_buffer[pos + 1] = (char)curr_block.getLiquidType();
@@ -19,7 +19,7 @@ void Blocks::saveTo(std::string path) {
     world_file.close();
 }
 
-void Blocks::loadFrom(std::string path) {
+void ServerBlocks::loadFrom(std::string path) {
     createWorld(4400, 1200);
     std::ifstream world_file(path, std::ios::binary);
     world_file.unsetf(std::ios::skipws);
@@ -29,7 +29,7 @@ void Blocks::loadFrom(std::string path) {
         world_file.read(world_buffer, width * 3);
 
         for(int x = 0; x < width; x++) {
-            Block curr_block = getBlock(x, y);
+            ServerBlock curr_block = getBlock(x, y);
             int pos = x * 3;
             curr_block.setTypeWithoutProcessing((BlockType)world_buffer[pos]);
             curr_block.setTypeWithoutProcessing((LiquidType)world_buffer[pos + 1]);

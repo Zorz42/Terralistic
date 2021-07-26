@@ -10,7 +10,7 @@
 
 #include <string>
 #include "graphics.hpp"
-#include "clientMap.hpp"
+#include "clientBlocks.hpp"
 
 class ClientPlayer {
 public:
@@ -37,7 +37,7 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     
     MainPlayer* player;
     std::vector<OtherPlayer*> other_players;
-    map* world_map;
+    ClientBlocks* world_map;
     networkingManager* manager;
     OtherPlayer* getPlayerById(unsigned short id);
     
@@ -59,7 +59,7 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void onEvent(ClientPacketEvent& event) override;
     
 public:
-    playerHandler(networkingManager* manager, MainPlayer* player, map* world_map) : manager(manager), player(player), world_map(world_map) {}
+    playerHandler(networkingManager* manager, MainPlayer* player, ClientBlocks* world_map) : manager(manager), player(player), world_map(world_map) {}
     
     unsigned short getPlayerWidth();
     unsigned short getPlayerHeight();

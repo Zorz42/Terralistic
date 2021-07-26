@@ -95,7 +95,7 @@ bool playerHandler::isPlayerColliding() {
     
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
-            if(world_map->getChunk(x >> 4, y >> 4).getState() != map::chunkState::loaded || !world_map->getBlock(x, y).isGhost())
+            if(world_map->getChunk(x >> 4, y >> 4).getState() != ChunkState::loaded || !world_map->getBlock(x, y).isGhost())
                 return true;
     
     return false;

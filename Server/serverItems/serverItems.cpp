@@ -1,17 +1,17 @@
-#include "items.hpp"
+#include "serverItems.hpp"
 #include <random>
 #include "properties.hpp"
 #include "packetType.hpp"
 
-void Items::updateItems(float frame_length) {
+void ServerItems::updateItems(float frame_length) {
     for(auto & item : item_arr)
         item.update(frame_length);
 }
 
-void Items::spawnItem(ItemType type, int x, int y) {
+void ServerItems::spawnItem(ItemType type, int x, int y) {
     static std::random_device device;
     static std::mt19937 engine(device());
-    Item item(parent_blocks, type, x, y);
+    ServerItem item(parent_blocks, type, x, y);
     
     ServerItemCreationEvent event(type, x, y, item.getId());
     event.call();
@@ -25,35 +25,35 @@ void Items::spawnItem(ItemType type, int x, int y) {
     item_arr.emplace_back(item);
 }
 
-const ItemInfo& Item::getUniqueItem() const {
+const ItemInfo& ServerItem::getUniqueItem() const {
     return ::getItemInfo(type);
 }
 
-void Item::addVelocityX(int vel_x) {
+void ServerItem::addVelocityX(int vel_x) {
     velocity_x += vel_x;
 }
 
-void Item::addVelocityY(int vel_y) {
+void ServerItem::addVelocityY(int vel_y) {
     velocity_y += vel_y;
 }
 
-int Item::getX() const {
+int ServerItem::getX() const {
     return x;
 }
 
-int Item::getY() const {
+int ServerItem::getY() const {
     return y;
 }
 
-unsigned short Item::getId() const {
+unsigned short ServerItem::getId() const {
     return id;
 }
 
-ItemType Item::getType() const {
+ItemType ServerItem::getType() const {
     return type;
 }
 
-void Item::update(float frame_length) {
+void ServerItem::update(float frame_length) {
     int prev_x = x, prev_y = y;
 
     velocity_y += frame_length / 16.0f * 5.0f;
@@ -100,7 +100,7 @@ void Item::update(float frame_length) {
     }
 }
 
-bool Item::collidingWithBlocks() const {
+bool ServerItem::collidingWithBlocks() const {
     int height_x = 1, height_y = 1;
     if(x / 100 % BLOCK_WIDTH)
         height_x++;
@@ -114,14 +114,14 @@ bool Item::collidingWithBlocks() const {
     return false;
 }
 
-bool Item::grounded() {
+bool ServerItem::grounded() {
     y++;
     bool is_grounded = collidingWithBlocks();
     y--;
     return is_grounded;
 }
 
-void Items::removeItem(const Item& item_to_remove) {
+void ServerItems::removeItem(const ServerItem& item_to_remove) {
     for(unsigned long i = 0; i < item_arr.size(); i++)
         if(item_arr[i].getId() == item_to_remove.getId()) {
             ServerItemDeletionEvent event(item_arr[i]);
@@ -134,7 +134,7 @@ void Items::removeItem(const Item& item_to_remove) {
         }
 }
 
-void Items::onEvent(ServerBlockBreakEvent& event) {
+void ServerItems::onEvent(ServerBlockBreakEvent& event) {
     if(event.block.getUniqueBlock().drop != ItemType::NOTHING)
         spawnItem(event.block.getUniqueBlock().drop, event.block.getX() * BLOCK_WIDTH, event.block.getY() * BLOCK_WIDTH);
 }

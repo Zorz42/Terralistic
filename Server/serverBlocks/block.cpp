@@ -1,24 +1,24 @@
-#include "blocks.hpp"
+#include "serverBlocks.hpp"
 
 #include "packetType.hpp"
 #include <cassert>
 
 
-Block Blocks::getBlock(unsigned short x, unsigned short y) {
+ServerBlock ServerBlocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < height && x >= 0 && x < width);
-    return Block(x, y, &blocks[y * width + x], this);
+    return ServerBlock(x, y, &blocks[y * width + x], this);
 }
 
-const BlockInfo& Block::getUniqueBlock() {
+const BlockInfo& ServerBlock::getUniqueBlock() {
     return ::getBlockInfo(block_data->block_type);
 }
 
-void Block::setTypeWithoutProcessing(BlockType block_type) {
+void ServerBlock::setTypeWithoutProcessing(BlockType block_type) {
     assert((int)block_type >= 0 && block_type < BlockType::NUM_BLOCKS);
     block_data->block_type = block_type;
 }
 
-void Block::setType(BlockType block_type) {
+void ServerBlock::setType(BlockType block_type) {
     if(block_type != block_data->block_type) {
         ServerBlockChangeEvent event(*this, block_type);
         event.call();
@@ -35,7 +35,7 @@ void Block::setType(BlockType block_type) {
     }
 }
 
-void Block::updateNeighbors() {
+void ServerBlock::updateNeighbors() {
     if(x != 0)
         parent_map->getBlock(x - 1, y).update();
     if(x != parent_map->getWidth() - 1)
@@ -46,7 +46,7 @@ void Block::updateNeighbors() {
         parent_map->getBlock(x, y + 1).update();
 }
 
-void Block::setBreakProgress(unsigned short ms) {
+void ServerBlock::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
     auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
@@ -60,7 +60,7 @@ void Block::setBreakProgress(unsigned short ms) {
     }
 }
 
-void Block::update() {
+void ServerBlock::update() {
     ServerBlockUpdateEvent event(*this);
     event.call();
     
@@ -73,7 +73,7 @@ void Block::update() {
     scheduleLiquidUpdate();
 }
 
-void Block::breakBlock() {
+void ServerBlock::breakBlock() {
     ServerBlockBreakEvent event(*this);
     event.call();
     

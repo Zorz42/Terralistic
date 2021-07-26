@@ -6,7 +6,7 @@
 #include "properties.hpp"
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
-#include "clientMap.hpp"
+#include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 
 class ClientInventoryItem {
@@ -14,9 +14,9 @@ class ClientInventoryItem {
 public:
     ClientInventoryItem() : item_id(ItemType::NOTHING), stack(0) {}
     ItemType item_id;
-    [[nodiscard]] const ItemInfo& getUniqueItem() const;
+    const ItemInfo& getUniqueItem() const;
     void setStack(unsigned short stack_);
-    [[nodiscard]] unsigned short getStack() const;
+    unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     bool stack_changed = true;
 };

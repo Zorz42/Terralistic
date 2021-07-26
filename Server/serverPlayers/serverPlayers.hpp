@@ -1,19 +1,19 @@
-#ifndef players_hpp
-#define players_hpp
+#ifndef serverPlayers_hpp
+#define serverPlayers_hpp
 
 #define INVENTORY_SIZE 20
 
-#include "items.hpp"
+#include "serverItems.hpp"
 
-class Inventory;
+class ServerInventory;
 
 class InventoryItem {
     unsigned short stack;
-    Inventory* inventory;
+    ServerInventory* inventory;
     ItemType type;
 public:
     InventoryItem() : inventory(nullptr), type(ItemType::NOTHING), stack(0) {}
-    explicit InventoryItem(Inventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
+    explicit InventoryItem(ServerInventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
 
     inline ItemType getType() const { return type; }
     void setType(ItemType type_);
@@ -28,13 +28,13 @@ public:
     bool decreaseStack(unsigned short stack_);
     
     unsigned char getPosInInventory();
-    inline Inventory* getInventory() { return inventory; } 
+    inline ServerInventory* getInventory() { return inventory; } 
 };
 
-class Inventory {
+class ServerInventory {
     InventoryItem mouse_item;
 public:
-    Inventory();
+    ServerInventory();
     InventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
     unsigned char selected_slot = 0;
@@ -59,7 +59,7 @@ public:
     unsigned short getSightBeginY();
     unsigned short getSightEndY();
     
-    Inventory inventory;
+    ServerInventory inventory;
     
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
@@ -68,14 +68,14 @@ public:
 };
 
 struct blockEvents {
-    void (*onUpdate)(Blocks*, Block*) = nullptr;
-    void (*onRightClick)(Block*, ServerPlayer*) = nullptr;
-    void (*onLeftClick)(Block*, ServerPlayer*) = nullptr;
+    void (*onUpdate)(ServerBlocks*, ServerBlock*) = nullptr;
+    void (*onRightClick)(ServerBlock*, ServerPlayer*) = nullptr;
+    void (*onLeftClick)(ServerBlock*, ServerPlayer*) = nullptr;
 };
 
 class Players : EventListener<ServerBlockUpdateEvent> {
-    Items* items;
-    Blocks* blocks;
+    ServerItems* items;
+    ServerBlocks* blocks;
     
     std::vector<ServerPlayer*> all_players;
     std::vector<ServerPlayer*> online_players;
@@ -84,11 +84,11 @@ class Players : EventListener<ServerBlockUpdateEvent> {
 
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
-    void leftClickEvent(Block this_block, ServerPlayer* peer, unsigned short tick_length);
+    void leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length);
 public:
-    Players(Blocks* parent_blocks, Items* parent_items);
+    Players(ServerBlocks* parent_blocks, ServerItems* parent_items);
     
-    void rightClickEvent(Block this_block, ServerPlayer* peer);
+    void rightClickEvent(ServerBlock this_block, ServerPlayer* peer);
     
     inline const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
     inline const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }
@@ -121,4 +121,4 @@ public:
     unsigned short stack;
 };
 
-#endif /* players_hpp */
+#endif

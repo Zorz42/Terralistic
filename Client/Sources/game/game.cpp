@@ -8,6 +8,7 @@
 #include <thread>
 #include <cassert>
 #include <filesystem>
+#include <thread>
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "textScreen.hpp"
@@ -18,7 +19,7 @@
 #include "server.hpp"
 #include "inventoryHandler.hpp"
 #include "blockSelector.hpp"
-
+#include "clientItems.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535
@@ -83,7 +84,7 @@ void startPrivateWorld(const std::string& world_name) {
 void game::init() {
     resource_pack.load("resourcePack");
     
-    world_map = new map(&networking_manager, &resource_pack);
+    world_map = new ClientBlocks(&networking_manager, &resource_pack);
     world_map->createWorld(275, 75); // dimensions in chunks
     
     playerHandler* player_handler = new playerHandler(&networking_manager, &main_player, world_map);
@@ -92,6 +93,7 @@ void game::init() {
     modules = {
         world_map,
         player_handler,
+        new ClientItems(&resource_pack, world_map),
         new mapFront(world_map),
         new BlockSelector(world_map, &networking_manager, inventory_handler, player_handler),
         inventory_handler,

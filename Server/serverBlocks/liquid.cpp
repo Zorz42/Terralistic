@@ -1,21 +1,21 @@
 #include "graphics.hpp"
-#include "blocks.hpp"
+#include "serverBlocks.hpp"
 #include "properties.hpp"
 
-const LiquidInfo& Block::getUniqueLiquid() {
+const LiquidInfo& ServerBlock::getUniqueLiquid() {
     return ::getLiquidInfo(block_data->liquid_type);
 }
 
-void Block::setTypeWithoutProcessing(LiquidType liquid_type) {
+void ServerBlock::setTypeWithoutProcessing(LiquidType liquid_type) {
     assert((int)liquid_type >= 0 && liquid_type < LiquidType::NUM_LIQUIDS);
     block_data->liquid_type = liquid_type;
 }
 
-bool Block::canUpdateLiquid() {
+bool ServerBlock::canUpdateLiquid() {
     return block_data->when_to_update_liquid != 0 && gfx::getTicks() > block_data->when_to_update_liquid;
 }
 
-void Block::setType(LiquidType liquid_type) {
+void ServerBlock::setType(LiquidType liquid_type) {
     if(liquid_type != block_data->liquid_type) {
         ServerLiquidChangeEvent event(*this, liquid_type, getLiquidLevel());
         event.call();
@@ -33,11 +33,11 @@ void Block::setType(LiquidType liquid_type) {
     }
 }
 
-void Block::setLiquidLevelWithoutProcessing(unsigned char level) {
+void ServerBlock::setLiquidLevelWithoutProcessing(unsigned char level) {
     block_data->liquid_level = level;
 }
 
-void Block::setLiquidLevel(unsigned char level) {
+void ServerBlock::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         ServerLiquidChangeEvent event(*this, getLiquidType(), level);
         event.call();
@@ -54,15 +54,15 @@ void Block::setLiquidLevel(unsigned char level) {
     }
 }
 
-static bool isFlowable(Block &block) {
+static bool isFlowable(ServerBlock &block) {
     return block.getUniqueBlock().ghost && block.getLiquidType() == LiquidType::EMPTY;
 }
 
-void Block::scheduleLiquidUpdate() {
+void ServerBlock::scheduleLiquidUpdate() {
     block_data->when_to_update_liquid = gfx::getTicks() + getUniqueLiquid().flow_time;
 }
 
-void Block::liquidUpdate() {
+void ServerBlock::liquidUpdate() {
     block_data->when_to_update_liquid = 0;
     
     if(!getUniqueBlock().ghost)
@@ -71,22 +71,22 @@ void Block::liquidUpdate() {
     if(getLiquidLevel() == 0)
         return;
     
-    Block under, left, right;
+    ServerBlock under, left, right;
     
     if(y != parent_map->getHeight() - 1) {
-        Block block_under = parent_map->getBlock(x, y + 1);
+        ServerBlock block_under = parent_map->getBlock(x, y + 1);
         if(isFlowable(block_under) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
             under = block_under;
     }
     
     if(x != 0) {
-        Block block_left = parent_map->getBlock(x - 1, y);
+        ServerBlock block_left = parent_map->getBlock(x - 1, y);
         if(isFlowable(block_left) || (block_left.getLiquidType() == getLiquidType() && block_left.getLiquidLevel() < getLiquidLevel()))
             left = block_left;
     }
     
     if(x != parent_map->getWidth() - 1) {
-        Block block_right = parent_map->getBlock(x + 1, y);
+        ServerBlock block_right = parent_map->getBlock(x + 1, y);
         if(isFlowable(block_right) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
             right = block_right;
     }

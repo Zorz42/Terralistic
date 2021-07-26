@@ -1,10 +1,3 @@
-//
-//  clientNetworking.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 12/01/2021.
-//
-
 #include "clientNetworking.hpp"
 
 void networkingManager::sendPacket(sf::Packet& packet) {

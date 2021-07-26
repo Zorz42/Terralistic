@@ -7,36 +7,36 @@
 
 #include <algorithm>
 #include <utility>
-#include "clientMap.hpp"
+#include "clientBlocks.hpp"
 #include "properties.hpp"
 #include "resourcePack.hpp"
 #include <cassert>
 
-map::block map::getBlock(unsigned short x, unsigned short y) {
+ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());
-    return block(x, y, &blocks[y * getWorldWidth() + x], this);
+    return ClientBlock(x, y, &blocks[y * getWorldWidth() + x], this);
 }
 
-void map::block::setType(BlockType block_id, LiquidType liquid_id) {
+void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
     block_data->block_id = block_id;
     block_data->liquid_id = liquid_id;
     update();
 }
 
-void map::block::setLightLevel(unsigned char level) {
+void ClientBlock::setLightLevel(unsigned char level) {
     block_data->light_level = level;
     update();
 }
 
-const BlockInfo& map::blockData::getUniqueBlock() const {
+const BlockInfo& ClientMapBlock::getUniqueBlock() const {
     return ::getBlockInfo(block_id);
 }
 
-const LiquidInfo& map::blockData::getUniqueLiquid() const {
+const LiquidInfo& ClientMapBlock::getUniqueLiquid() const {
     return ::getLiquidInfo(liquid_id);
 }
 
-void map::renderBlocksBack() {
+void ClientBlocks::renderBlocksBack() {
     // figure out, what the window is covering and only render that
     short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
@@ -56,12 +56,12 @@ void map::renderBlocksBack() {
 
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
-            if(getChunk(x, y).getState() == chunkState::unloaded) {
+            if(getChunk(x, y).getState() == ChunkState::unloaded) {
                 sf::Packet packet;
                 packet << PacketType::CHUNK << x << y;
                 networking_manager->sendPacket(packet);
-                getChunk(x, y).setState(chunkState::pending_load);
-            } else if(getChunk(x, y).getState() == chunkState::loaded) {
+                getChunk(x, y).setState(ChunkState::pending_load);
+            } else if(getChunk(x, y).getState() == ChunkState::loaded) {
                 if(getChunk(x, y).hasToUpdate())
                     getChunk(x, y).updateTexture();
                 getChunk(x, y).drawBack();
@@ -69,7 +69,7 @@ void map::renderBlocksBack() {
         }
 }
 
-void map::renderBlocksFront() {
+void ClientBlocks::renderBlocksFront() {
     // figure out, what the window is covering and only render that
     short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
     short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
@@ -88,14 +88,14 @@ void map::renderBlocksFront() {
 
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++)
-            if(getChunk(x, y).getState() == chunkState::loaded) {
+            if(getChunk(x, y).getState() == ChunkState::loaded) {
                 if(getChunk(x, y).hasToUpdate())
                     getChunk(x, y).updateTexture();
                 getChunk(x, y).drawFront();
             }
 }
 
-void map::block::updateOrientation() {
+void ClientBlock::updateOrientation() {
     if(parent_map->resource_pack->getBlockTexture(getType()).getTextureHeight() != 8) {
         block_data->orientation = 0;
         char x_[] = {0, 1, 0, -1};
@@ -114,7 +114,7 @@ void map::block::updateOrientation() {
     block_data->update = false;
 }
 
-void map::block::drawBack() {
+void ClientBlock::drawBack() {
     gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
     
     if(getLightLevel())
@@ -124,7 +124,7 @@ void map::block::drawBack() {
         parent_map->resource_pack->getBreakingTexture().render(2, rect.x, rect.y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
 }
 
-void map::block::drawFront() {
+void ClientBlock::drawFront() {
     gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
 
     if(getLiquidType() != LiquidType::EMPTY) {
@@ -136,12 +136,12 @@ void map::block::drawFront() {
         rect.render();
 }
 
-void map::block::scheduleTextureUpdate() {
+void ClientBlock::scheduleTextureUpdate() {
     block_data->update = true;
     parent_map->getChunk(x >> 4, y >> 4).scheduleUpdate();
 }
 
-void map::block::update() {
+void ClientBlock::update() {
     scheduleTextureUpdate();
 
     // also update neighbors
@@ -155,7 +155,7 @@ void map::block::update() {
         parent_map->getBlock(x, y + 1).scheduleTextureUpdate();
 }
 
-void map::block::setBreakStage(unsigned char stage) {
+void ClientBlock::setBreakStage(unsigned char stage) {
     block_data->break_stage = stage;
     update();
 }

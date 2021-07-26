@@ -1,22 +1,22 @@
-#ifndef items_hpp
-#define items_hpp
+#ifndef serverItems_hpp
+#define serverItems_hpp
 
 #include <vector>
-#include "blocks.hpp"
+#include "serverBlocks.hpp"
 
-class Item {
+class ServerItem {
     inline static unsigned short curr_id = 0;
     
     int velocity_x = 0, velocity_y = 0;
     int x, y;
     unsigned short id;
     ItemType type;
-    Blocks* parent_blocks;
+    ServerBlocks* parent_blocks;
     
     bool collidingWithBlocks() const;
     bool grounded();
 public:
-    Item(Blocks* parent_blocks, ItemType type, int x, int y) : parent_blocks(parent_blocks), type(type), x(x * 100), y(y * 100), id(curr_id++) {}
+    ServerItem(ServerBlocks* parent_blocks, ItemType type, int x, int y) : parent_blocks(parent_blocks), type(type), x(x * 100), y(y * 100), id(curr_id++) {}
     void update(float frame_length);
     const ItemInfo& getUniqueItem() const;
     unsigned short getId() const;
@@ -27,18 +27,18 @@ public:
     void addVelocityY(int vel_y);
 };
 
-class Items : EventListener<ServerBlockBreakEvent> {
-    Blocks* parent_blocks;
-    std::vector<Item> item_arr;
+class ServerItems : EventListener<ServerBlockBreakEvent> {
+    ServerBlocks* parent_blocks;
+    std::vector<ServerItem> item_arr;
     void onEvent(ServerBlockBreakEvent& event) override;
 public:
-    Items(Blocks* parent_blocks) : parent_blocks(parent_blocks) {}
+    ServerItems(ServerBlocks* parent_blocks) : parent_blocks(parent_blocks) {}
     
     void spawnItem(ItemType item_id, int x, int y);
     void updateItems(float frame_length);
-    void removeItem(const Item& item_to_destroy);
+    void removeItem(const ServerItem& item_to_destroy);
     
-    inline const std::vector<Item>& getItems() { return item_arr; }
+    inline const std::vector<ServerItem>& getItems() { return item_arr; }
 };
 
 
@@ -53,14 +53,14 @@ public:
 
 class ServerItemMovementEvent : public Event<ServerItemMovementEvent> {
 public:
-    ServerItemMovementEvent(Item& moved_item) : moved_item(moved_item) {}
-    Item& moved_item;
+    ServerItemMovementEvent(ServerItem& moved_item) : moved_item(moved_item) {}
+    ServerItem& moved_item;
 };
 
 class ServerItemDeletionEvent : public Event<ServerItemDeletionEvent> {
 public:
-    ServerItemDeletionEvent(Item& item_to_delete) : item_to_delete(item_to_delete) {}
-    Item& item_to_delete;
+    ServerItemDeletionEvent(ServerItem& item_to_delete) : item_to_delete(item_to_delete) {}
+    ServerItem& item_to_delete;
 };
 
-#endif /* items_hpp */
+#endif

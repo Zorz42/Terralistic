@@ -1,7 +1,7 @@
 #include "serverNetworking.hpp"
 #include "print.hpp"
 
-void NetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Connection &conn) {
+void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Connection &conn) {
     ServerPlayer* curr_player = conn.player;
     switch (packet_type) {
         case PacketType::STARTED_BREAKING: {
@@ -33,7 +33,7 @@ void NetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Con
             chunk_packet << PacketType::CHUNK << x << y;
             for(int chunk_x = 0; chunk_x < 16; chunk_x++)
                 for(int chunk_y = 0; chunk_y < 16; chunk_y++) {
-                    Block block = blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
+                    ServerBlock block = blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
                     chunk_packet << (unsigned char)block.getBlockType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
                 }
             conn.send(chunk_packet);
@@ -87,49 +87,49 @@ void NetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Con
     }
 }
 
-void NetworkingManager::onEvent(ServerBlockChangeEvent& event) {
+void ServerNetworkingManager::onEvent(ServerBlockChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::BLOCK_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.type;
     sendToEveryone(packet);
 }
 
-void NetworkingManager::onEvent(ServerBlockBreakStageChangeEvent& event) {
+void ServerNetworkingManager::onEvent(ServerBlockBreakStageChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::BLOCK_PROGRESS_CHANGE << event.block.getX() << event.block.getY() << event.break_stage;
     sendToEveryone(packet);
 }
 
-void NetworkingManager::onEvent(ServerLiquidChangeEvent& event) {
+void ServerNetworkingManager::onEvent(ServerLiquidChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::LIQUID_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.liquid_type << event.liquid_level;
     sendToEveryone(packet);
 }
 
-void NetworkingManager::onEvent(ServerItemCreationEvent& event) {
+void ServerNetworkingManager::onEvent(ServerItemCreationEvent& event) {
     sf::Packet packet;
     packet << PacketType::ITEM_CREATION << event.x << event.y << event.id << (unsigned char)event.item_id;
     sendToEveryone(packet);
 }
 
-void NetworkingManager::onEvent(ServerItemDeletionEvent& event) {
+void ServerNetworkingManager::onEvent(ServerItemDeletionEvent& event) {
     sf::Packet packet;
     packet << PacketType::ITEM_DELETION << (short)event.item_to_delete.getId();
     sendToEveryone(packet);
 }
 
-void NetworkingManager::onEvent(ServerItemMovementEvent& event) {
+void ServerNetworkingManager::onEvent(ServerItemMovementEvent& event) {
     sf::Packet packet;
     packet << PacketType::ITEM_MOVEMENT << event.moved_item.getX() <<  event.moved_item.getY() << event.moved_item.getId();
     sendToEveryone(packet);
 }
 
-void NetworkingManager::sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack) {
+void ServerNetworkingManager::sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack) {
     sf::Packet packet;
     packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();
     connection.send(packet);
 }
 
-void NetworkingManager::onEvent(ServerInventoryItemStackChangeEvent& event) {
+void ServerNetworkingManager::onEvent(ServerInventoryItemStackChangeEvent& event) {
     for(Connection& connection : connections)
         if(connection.player && &connection.player->inventory == event.item.getInventory()) {
             sendInventoryItemPacket(connection, event.item, event.item.getType(), event.stack);
@@ -137,7 +137,7 @@ void NetworkingManager::onEvent(ServerInventoryItemStackChangeEvent& event) {
         }
 }
 
-void NetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event) {
+void ServerNetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event) {
     for(Connection& connection : connections)
         if(connection.player && &connection.player->inventory == event.item.getInventory()) {
             sendInventoryItemPacket(connection, event.item, event.type, event.item.getStack());
@@ -145,7 +145,7 @@ void NetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event) {
         }
 }
 
-void NetworkingManager::syncLightWithPlayers() {
+void ServerNetworkingManager::syncLightWithPlayers() {
     for(Connection& connection : connections)
         if(connection.player) {
             int start_x = (int)connection.player->getSightBeginX() - 20, start_y = (int)connection.player->getSightBeginY() - 20, end_x = connection.player->getSightEndX() + 20, end_y = connection.player->getSightEndY() + 20;
@@ -160,7 +160,7 @@ void NetworkingManager::syncLightWithPlayers() {
             
             for(unsigned short y = start_y; y < end_y; y++)
                 for(unsigned short x = start_x; x < end_x; x++) {
-                    Block curr_block = blocks->getBlock(x, y);
+                    ServerBlock curr_block = blocks->getBlock(x, y);
                     if(curr_block.hasLightChanged()) {
                         curr_block.markLightUnchanged();
                         sf::Packet packet;
