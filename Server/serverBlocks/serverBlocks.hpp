@@ -14,17 +14,17 @@ enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 class ServerBlocks;
 
 struct ServerMapBlock {
-    ServerMapBlock(BlockType block_type=BlockType::AIR, LiquidType liquid_type=LiquidType::EMPTY) : block_type(block_type), liquid_type(liquid_type) {}
+    ServerMapBlock(BlockType block_type=BlockType::AIR, LiquidType liquid_type=LiquidType::EMPTY) : block_type(block_type), liquid_type(liquid_type), break_stage(0), flow_direction(FlowDirection::NONE) {}
 
     BlockType block_type:8;
     unsigned short break_progress = 0;
-    unsigned break_stage:4 = 0;
+    unsigned break_stage:4;
     
     bool light_source = false, update_light = true, has_changed_light = false;
     unsigned char light_level = 0;
     
     LiquidType liquid_type:8;
-    FlowDirection flow_direction:4 = FlowDirection::NONE;
+    FlowDirection flow_direction:4;
     unsigned char liquid_level = 0;
     unsigned int when_to_update_liquid = 1;
 };
