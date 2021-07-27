@@ -6,29 +6,29 @@
 //
 
 #include "playerHandler.hpp"
-
 #include "graphics.hpp"
 
-void playerHandler::initRenderer() {
+void PlayerHandler::initRenderer() {
     player_image.loadFromFile("resourcePack/misc/player.png");
 }
 
 #define HEADER_PADDING 4
 
-void playerHandler::render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header) {
-    render(x, y, view_x, view_y, flipped);
-    header.render(1, gfx::getWindowWidth() / 2 - header.getTextureWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - getPlayerHeight() / 2 + y - view_y - header.getTextureHeight() - HEADER_PADDING);
+void PlayerHandler::render(ClientPlayer& player_to_draw) {
+    player_image.flipped = player_to_draw.flipped;
+    player_image.render(2, gfx::getWindowWidth() / 2 - getPlayerWidth() / 2 + player_to_draw.x - world_map->view_x, gfx::getWindowHeight() / 2 - getPlayerHeight() / 2 + player_to_draw.y - world_map->view_y);
 }
 
-void playerHandler::render(int x, int y, int view_x, int view_y, bool flipped) {
-    player_image.flipped = flipped;
-    player_image.render(2, gfx::getWindowWidth() / 2 - getPlayerWidth() / 2 + x - view_x, gfx::getWindowHeight() / 2 - getPlayerHeight() / 2 + y - view_y);
+void PlayerHandler::render(OtherPlayer& player_to_draw) {
+    ClientPlayer client_player = player_to_draw;
+    render(client_player);
+    player_to_draw.name_text.render(1, gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.x - world_map->view_x, gfx::getWindowHeight() / 2 - getPlayerHeight() / 2 + player_to_draw.y - world_map->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_PADDING);
 }
 
-unsigned short playerHandler::getPlayerWidth() {
+unsigned short PlayerHandler::getPlayerWidth() {
     return player_image.getTextureWidth() * 2;
 }
 
-unsigned short playerHandler::getPlayerHeight() {
+unsigned short PlayerHandler::getPlayerHeight() {
     return player_image.getTextureHeight() * 2;
 }

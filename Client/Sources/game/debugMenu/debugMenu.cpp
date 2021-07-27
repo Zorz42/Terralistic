@@ -26,11 +26,11 @@ void debugMenu::update() {
     
     if(debug_menu_open) {
         static unsigned int prev_x = 0, prev_y = 0;
-        unsigned int curr_x = main_player->x / BLOCK_WIDTH, curr_y = main_player->y / BLOCK_WIDTH;
+        unsigned int curr_x = player_handler->getMainPlayer().x / BLOCK_WIDTH, curr_y = player_handler->getMainPlayer().y / BLOCK_WIDTH;
         if(curr_x != prev_x || curr_y != prev_y) {
             prev_x = curr_x;
             prev_y = curr_y;
-            coords_text.renderText(std::string("X: ") + std::to_string(main_player->x / BLOCK_WIDTH) + ", Y: " + std::to_string(world_map->getWorldHeight() - main_player->y / BLOCK_WIDTH), {0, 0, 0});
+            coords_text.renderText(std::string("X: ") + std::to_string(player_handler->getMainPlayer().x / BLOCK_WIDTH) + ", Y: " + std::to_string(world_map->getWorldHeight() - player_handler->getMainPlayer().y / BLOCK_WIDTH), {0, 0, 0});
         }
     }
 }

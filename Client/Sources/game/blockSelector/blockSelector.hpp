@@ -4,7 +4,7 @@
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
 #include "inventoryHandler.hpp"
-#include "playerHandler.hpp"
+#include "PlayerHandler.hpp"
 
 class BlockSelector : public gfx::GraphicalModule {
     void render() override;
@@ -20,9 +20,9 @@ class BlockSelector : public gfx::GraphicalModule {
     networkingManager* manager;
     ClientBlocks* world_map;
     InventoryHandler* inventory_handler;
-    playerHandler* player_handler;
+    PlayerHandler* player_handler;
 public:
-    BlockSelector(networkingManager* manager, ClientBlocks* world_map, InventoryHandler* inventory_handler, playerHandler* player_handler) : manager(manager), world_map(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(networkingManager* manager, ClientBlocks* world_map, InventoryHandler* inventory_handler, PlayerHandler* player_handler) : manager(manager), world_map(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
 #endif

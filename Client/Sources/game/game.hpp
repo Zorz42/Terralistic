@@ -27,11 +27,11 @@ public:
     const unsigned short port;
     networkingManager networking_manager;
     ClientBlocks *world_map{};
-    MainPlayer main_player;
     ResourcePack resource_pack;
     gfx::Image background_image;
+    std::string username;
 
-    game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port) { main_player.name = std::move(username); }
+    game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port), username(username) {}
     void init() override;
     void update() override;
     void render() override;

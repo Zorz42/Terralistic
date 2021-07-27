@@ -1,14 +1,13 @@
 #include "playerHandler.hpp"
 
-void playerHandler::render() {
-    // iterate through every player and render them
+void PlayerHandler::render() {
     for(OtherPlayer* i : other_players)
-        render(i->x, i->y, world_map->view_x, world_map->view_y, i->flipped, i->name_text);
+        render(*i);
     
-    render(player->x, player->y, world_map->view_x, world_map->view_y, player->flipped);
+    render(main_player);
 }
 
-OtherPlayer* playerHandler::getPlayerById(unsigned short id) {
+OtherPlayer* PlayerHandler::getPlayerById(unsigned short id) {
     for(OtherPlayer* i : other_players)
         if(i->id == id)
             return i;
@@ -16,7 +15,7 @@ OtherPlayer* playerHandler::getPlayerById(unsigned short id) {
     return nullptr;
 }
 
-void playerHandler::onEvent(ClientPacketEvent &event) {
+void PlayerHandler::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::PLAYER_JOIN: {
             OtherPlayer* new_player = new OtherPlayer();
@@ -50,8 +49,8 @@ void playerHandler::onEvent(ClientPacketEvent &event) {
         case PacketType::SPAWN_POS: {
             int x, y;
             event.packet >> x >> y;
-            player->x = x;
-            player->y = y;
+            main_player.x = x;
+            main_player.y = y;
             world_map->view_x = x;
             world_map->view_y = y;
             received_spawn_coords = true;

@@ -1,10 +1,3 @@
-//
-//  playerHandler.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 01/07/2020.
-//
-
 #ifndef playerHandler_hpp
 #define playerHandler_hpp
 
@@ -30,19 +23,19 @@ public:
     gfx::Image name_text;
 };
 
-class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
+class PlayerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     bool key_up = false, jump = false, key_left = false, key_right = false;
 
     gfx::Image player_image;
     
-    MainPlayer* player;
+    MainPlayer main_player;
     std::vector<OtherPlayer*> other_players;
     ClientBlocks* world_map;
     networkingManager* manager;
     OtherPlayer* getPlayerById(unsigned short id);
     
-    void render(int x, int y, int view_x, int view_y, bool flipped);
-    void render(int x, int y, int view_x, int view_y, bool flipped, gfx::Image& header);
+    void render(ClientPlayer& player_to_draw);
+    void render(OtherPlayer& player_to_draw);
     
     void initRenderer();
 
@@ -59,10 +52,12 @@ class playerHandler : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void onEvent(ClientPacketEvent& event) override;
     
 public:
-    playerHandler(networkingManager* manager, MainPlayer* player, ClientBlocks* world_map) : manager(manager), player(player), world_map(world_map) {}
+    PlayerHandler(networkingManager* manager, ClientBlocks* world_map, std::string username) : manager(manager), world_map(world_map) { main_player.name = username; }
     
     unsigned short getPlayerWidth();
     unsigned short getPlayerHeight();
+    
+    inline const MainPlayer& getMainPlayer() { return main_player; }
 };
 
-#endif /* playerHandler_hpp */
+#endif

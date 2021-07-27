@@ -89,7 +89,7 @@ void game::init() {
     
     background_image.loadFromFile("resourcePack/misc/background.png");
     
-    playerHandler* player_handler = new playerHandler(&networking_manager, &main_player, world_map);
+    PlayerHandler* player_handler = new PlayerHandler(&networking_manager, world_map, username);
     InventoryHandler* inventory_handler = new InventoryHandler(&networking_manager, &resource_pack);
     
     modules = {
@@ -99,7 +99,7 @@ void game::init() {
         new BlockSelector(&networking_manager, world_map, inventory_handler, player_handler),
         inventory_handler,
 #ifdef DEVELOPER_MODE
-        new debugMenu(&main_player, world_map),
+        new debugMenu(player_handler, world_map),
 #endif
         new chat(&networking_manager),
         new pauseScreen(),
