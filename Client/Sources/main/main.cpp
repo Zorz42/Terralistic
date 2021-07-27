@@ -4,11 +4,7 @@
 #include "resourcePack.hpp"
 #include "resourcePath.hpp"
 
-#include "clientBlocks.hpp"
-#include <iostream>
-
 int main(int argc, char **argv) {
-    std::cout << sizeof(ClientMapBlock) << std::endl;
     gfx::init(1000, 600);
     gfx::resource_path = getResourcePath(argv[0]);
     gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
