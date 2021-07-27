@@ -2,24 +2,26 @@
 #define debugMenu_hpp
 
 #include "graphics.hpp"
-
-#include "playerHandler.hpp"
+#include "clientPlayers.hpp"
 #include "clientBlocks.hpp"
 
-class debugMenu : public gfx::GraphicalModule {
+class DebugMenu : public gfx::GraphicalModule {
     bool debug_menu_open = false, m_down = false;
     gfx::Sprite fps_text, coords_text;
-    PlayerHandler* player_handler;
-    void renderFpsText();
+    ClientPlayers* player_handler;
     unsigned int fps_count = 0;
-    ClientBlocks* world_map;
-public:
-    debugMenu(PlayerHandler* player_handler, ClientBlocks* world_map) : player_handler(player_handler), world_map(world_map) {}
+    ClientBlocks* blocks;
+    
+    void updateFpsText();
+    void updateCoordsText();
+    
     void init() override;
     void update() override;
     void render() override;
     void onKeyDown(gfx::Key key) override;
     void onKeyUp(gfx::Key key) override;
+public:
+    DebugMenu(ClientPlayers* player_handler, ClientBlocks* world_map) : player_handler(player_handler), blocks(world_map) {}
 };
 
 #endif

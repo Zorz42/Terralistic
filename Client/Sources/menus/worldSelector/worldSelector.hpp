@@ -27,4 +27,4 @@ class worldSelector : public gfx::Scene {
     void refresh();
 };
 
-#endif /* worldSelector_hpp */
+#endif

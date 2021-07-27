@@ -20,13 +20,13 @@ public:
 
 class ClientItems : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     std::vector<ClientItem> items;
-    void render() override;
     ResourcePack* resource_pack;
     void onEvent(ClientPacketEvent& event) override;
     ClientBlocks* blocks;
 public:
     ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks) : resource_pack(resource_pack), blocks(blocks) {}
     ClientItem* getItemById(unsigned short id);
+    void renderItems();
 };
 
 #endif

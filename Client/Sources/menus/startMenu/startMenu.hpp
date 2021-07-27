@@ -17,4 +17,4 @@ public:
     void render() override;
 };
 
-#endif /* startMenu_hpp */
+#endif

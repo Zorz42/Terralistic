@@ -16,4 +16,4 @@ private:
     bool can_connect = true;
 };
 
-#endif /* multiplayerSelector_hpp */
+#endif

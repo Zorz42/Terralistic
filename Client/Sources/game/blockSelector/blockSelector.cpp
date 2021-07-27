@@ -12,10 +12,10 @@ void BlockSelector::render() {
     }
     
     if(!inventory_handler->isHovered()) {
-        selected_block_x = (unsigned short)(gfx::getMouseX() + world_map->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
-        selected_block_y = (unsigned short)(gfx::getMouseY() + world_map->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
-        select_rect.x = -world_map->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
-        select_rect.y = -world_map->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
+        selected_block_x = (unsigned short)(gfx::getMouseX() + blocks->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
+        selected_block_y = (unsigned short)(gfx::getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
+        select_rect.x = -blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
+        select_rect.y = -blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
         select_rect.render(false);
     }
 }
@@ -23,8 +23,8 @@ void BlockSelector::render() {
 void BlockSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && !inventory_handler->isHovered()) {
         is_left_button_pressed = true;
-        prev_selected_x = world_map->getWorldWidth();
-        prev_selected_y = world_map->getWorldHeight();
+        prev_selected_x = blocks->getWorldWidth();
+        prev_selected_y = blocks->getWorldHeight();
     } else if(key == gfx::Key::MOUSE_RIGHT && !inventory_handler->isHovered()) {
         gfx::RectShape rect = gfx::RectShape(gfx::getWindowWidth() / 2 - player_handler->getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - player_handler->getPlayerHeight() / 2, player_handler->getPlayerWidth(), player_handler->getPlayerHeight());
         if(!gfx::colliding(rect, select_rect.getTranslatedRect())) {

@@ -16,7 +16,7 @@ const ItemInfo& ClientItem::getUniqueItem() const {
     return ::getItemInfo(item_type);
 }
 
-void ClientItems::render() {
+void ClientItems::renderItems() {
     for(ClientItem& item : items) {
         const gfx::Image& texture = resource_pack->getItemTexture(item.getType());
         texture.render(2, item.x / 100 - blocks->view_x + gfx::getWindowWidth() / 2, item.y / 100 - blocks->view_y + gfx::getWindowHeight() / 2);

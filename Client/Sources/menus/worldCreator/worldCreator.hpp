@@ -20,4 +20,4 @@ private:
     gfx::TextInput world_name;
 };
 
-#endif /* worldCreator_hpp */
+#endif

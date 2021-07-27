@@ -1,12 +1,14 @@
 #include "clientBlocks.hpp"
 #include "choiceScreen.hpp"
 #include "fileManager.hpp"
+#include <cassert>
 
 void ClientBlocks::createWorld(unsigned short map_width, unsigned short map_height) {
-    chunks = new ClientMapChunk[map_width * map_height];
-    blocks = new ClientMapBlock[(map_width << 4) * (map_height << 4)];
-    width = map_width << 4;
-    height = map_height << 4;
+    assert(map_width % 16 == 0 && map_height % 16 == 0);
+    width = map_width;
+    height = map_height;
+    chunks = new ClientMapChunk[(width >> 4) * (height >> 4)];
+    blocks = new ClientMapBlock[width * height];
 }
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {

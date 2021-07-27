@@ -13,4 +13,4 @@ std::string getConfigPath();
 
 }
 
-#endif /* fileManager_hpp */
+#endif

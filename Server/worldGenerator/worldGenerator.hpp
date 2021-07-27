@@ -1,10 +1,3 @@
-//
-//  worldGenerator.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #ifndef worldGenerator_hpp
 #define worldGenerator_hpp
 
@@ -64,4 +57,4 @@ public:
     int generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed);
 };
 
-#endif /* worldGenerator_hpp */
+#endif

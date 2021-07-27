@@ -24,4 +24,4 @@ public:
     PacketType packet_type;
 };
 
-#endif /* clientNetworking_hpp */
+#endif

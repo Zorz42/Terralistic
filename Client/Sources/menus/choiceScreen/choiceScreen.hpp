@@ -23,4 +23,4 @@ public:
     void render() override;
 };
 
-#endif /* choiceScreen_hpp */
+#endif

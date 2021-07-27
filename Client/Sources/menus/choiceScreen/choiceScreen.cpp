@@ -1,10 +1,3 @@
-//
-//  choiceScreen.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 11/06/2021.
-//
-
 #include "choiceScreen.hpp"
 
 #include <utility>

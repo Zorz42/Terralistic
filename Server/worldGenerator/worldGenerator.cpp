@@ -1,10 +1,3 @@
-//
-//  worldGenerator.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #include "worldGenerator.hpp"
 #include "SimplexNoise.h"
 #include <random>

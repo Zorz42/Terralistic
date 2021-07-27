@@ -3,8 +3,8 @@
 
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
-#include "inventoryHandler.hpp"
-#include "PlayerHandler.hpp"
+#include "clientInventory.hpp"
+#include "clientPlayers.hpp"
 
 class BlockSelector : public gfx::GraphicalModule {
     void render() override;
@@ -18,11 +18,11 @@ class BlockSelector : public gfx::GraphicalModule {
     bool is_left_button_pressed = false;
     
     networkingManager* manager;
-    ClientBlocks* world_map;
-    InventoryHandler* inventory_handler;
-    PlayerHandler* player_handler;
+    ClientBlocks* blocks;
+    ClientInventory* inventory_handler;
+    ClientPlayers* player_handler;
 public:
-    BlockSelector(networkingManager* manager, ClientBlocks* world_map, InventoryHandler* inventory_handler, PlayerHandler* player_handler) : manager(manager), world_map(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(networkingManager* manager, ClientBlocks* world_map, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
 #endif

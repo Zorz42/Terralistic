@@ -1,9 +1,9 @@
-#include "inventoryHandler.hpp"
+#include "clientInventory.hpp"
 #include "resourcePack.hpp"
 
 #define MARGIN 10
 
-void InventoryHandler::init() {
+void ClientInventory::init() {
     for(int i = 0; i < 20; i++) {
         inventory_slots[i].orientation = gfx::TOP;
         inventory_slots[i].c = {100, 100, 100};
@@ -16,8 +16,8 @@ void InventoryHandler::init() {
     selectSlot(0);
 }
 
-void InventoryHandler::render() {
-    select_rect_inventory.x = (inventory.selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
+void ClientInventory::render() {
+    select_rect_inventory.x = (selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * MARGIN) + 2 * BLOCK_WIDTH / 2 + MARGIN;
     select_rect_inventory.render();
     
     const gfx::Image* text_texture = nullptr;
@@ -26,15 +26,15 @@ void InventoryHandler::render() {
         updateStackTexture(i);
     inventory_hovered = false;
     
-    for(int i = 0; i < (inventory.open ? 20 : 10); i++) {
+    for(int i = 0; i < (open ? 20 : 10); i++) {
         if(gfx::colliding(inventory_slots[i].getTranslatedRect(), gfx::RectShape((short)gfx::getMouseX(), (short)gfx::getMouseY(), 0, 0))) {
             inventory_hovered = true;
-            if (inventory.open) {
-                hovered = &inventory.inventory[i];
+            if (open) {
+                hovered = &inventory[i];
                 inventory_slots[i].c = {70, 70, 70};
-                if(inventory.inventory[i].item_id != ItemType::NOTHING) {
+                if(inventory[i].item_id != ItemType::NOTHING) {
                     
-                    text_texture = &resource_pack->getItemTextTexture(inventory.inventory[i].item_id);
+                    text_texture = &resource_pack->getItemTextTexture(inventory[i].item_id);
                     under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * MARGIN;
                     under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * MARGIN;
                     under_text_rect.x = gfx::getMouseX() + 20 - MARGIN;
@@ -44,17 +44,17 @@ void InventoryHandler::render() {
         } else
             inventory_slots[i].c = {100, 100, 100};
         inventory_slots[i].render();
-        renderItem(&inventory.inventory[i], inventory_slots[i].getTranslatedX() + MARGIN / 2, inventory_slots[i].getTranslatedY() + MARGIN / 2, i);
+        renderItem(&inventory[i], inventory_slots[i].getTranslatedX() + MARGIN / 2, inventory_slots[i].getTranslatedY() + MARGIN / 2, i);
     }
     
     if(text_texture) {
         under_text_rect.render();
         text_texture->render(2, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
     }
-    renderItem(inventory.getMouseItem(), gfx::getMouseX(), gfx::getMouseY(), -1);
+    renderItem(&mouse_item, gfx::getMouseX(), gfx::getMouseY(), -1);
 }
 
-void InventoryHandler::onEvent(ClientPacketEvent &event) {
+void ClientInventory::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::INVENTORY_CHANGE: {
             unsigned short stack;
@@ -62,15 +62,15 @@ void InventoryHandler::onEvent(ClientPacketEvent &event) {
             unsigned char pos;
             event.packet >> stack >> item_id >> pos;
             
-            inventory.inventory[(int)pos].item_id = (ItemType)item_id;
-            inventory.inventory[(int)pos].setStack(stack);
+            inventory[(int)pos].item_id = (ItemType)item_id;
+            inventory[(int)pos].setStack(stack);
             break;
         }
         default: break;
     }
 }
 
-void InventoryHandler::renderItem(ClientInventoryItem* item, int x, int y, int i) {
+void ClientInventory::renderItem(ClientInventoryItem* item, int x, int y, int i) {
     const gfx::Image& texture = resource_pack->getItemTexture(item->item_id);
     texture.render(4, x, y);
     
@@ -80,15 +80,15 @@ void InventoryHandler::renderItem(ClientInventoryItem* item, int x, int y, int i
     }
 }
 
-void InventoryHandler::selectSlot(char slot) {
-    inventory.selected_slot = slot;
+void ClientInventory::selectSlot(char slot) {
+    selected_slot = slot;
     sf::Packet packet;
     packet << PacketType::HOTBAR_SELECTION << slot;
     manager->sendPacket(packet);
 }
 
-void InventoryHandler::updateStackTexture(int i) {
-    ClientInventoryItem* item = i == -1 ? inventory.getMouseItem() : &inventory.inventory[i];
+void ClientInventory::updateStackTexture(int i) {
+    ClientInventoryItem* item = i == -1 ? &mouse_item : &inventory[i];
     if(item->stack_changed) {
         gfx::Image* stack_texture = i == -1 ? &mouse_stack_texture : &stack_textures[i];
         if(item->getStack() > 1)
@@ -96,7 +96,7 @@ void InventoryHandler::updateStackTexture(int i) {
     }
 }
 
-void InventoryHandler::onKeyDown(gfx::Key key) {
+void ClientInventory::onKeyDown(gfx::Key key) {
     switch (key) {
         case gfx::Key::NUM1: selectSlot(0); break;
         case gfx::Key::NUM2: selectSlot(1); break;
@@ -109,10 +109,10 @@ void InventoryHandler::onKeyDown(gfx::Key key) {
         case gfx::Key::NUM9: selectSlot(8); break;
         case gfx::Key::NUM0: selectSlot(9); break;
         case gfx::Key::E:
-            inventory.open = !inventory.open;
-            if(!inventory.open && inventory.getMouseItem()->item_id != ItemType::NOTHING) {
-                unsigned char result = inventory.addItem(inventory.getMouseItem()->item_id, inventory.getMouseItem()->getStack());
-                inventory.clearMouseItem();
+            open = !open;
+            if(!open && mouse_item.item_id != ItemType::NOTHING) {
+                unsigned char result = addItem(mouse_item.item_id, mouse_item.getStack());
+                clearMouseItem();
                 sf::Packet packet;
                 packet << PacketType::INVENTORY_SWAP << result;
                 manager->sendPacket(packet);
@@ -120,9 +120,9 @@ void InventoryHandler::onKeyDown(gfx::Key key) {
             break;
         case gfx::Key::MOUSE_LEFT: {
             if(hovered) {
-                inventory.swapWithMouseItem(hovered);
+                swapWithMouseItem(hovered);
                 sf::Packet packet;
-                packet << PacketType::INVENTORY_SWAP << (unsigned char)(hovered - &inventory.inventory[0]);
+                packet << PacketType::INVENTORY_SWAP << (unsigned char)(hovered - &inventory[0]);
                 manager->sendPacket(packet);
             }
             break;

@@ -21,20 +21,15 @@ public:
     bool stack_changed = true;
 };
 
-class ClientInventory {
+class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalModule {
     ClientInventoryItem mouse_item;
-public:
     ClientInventoryItem inventory[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
     bool open = false;
     unsigned char selected_slot = 0;
     void swapWithMouseItem(ClientInventoryItem* item);
     void clearMouseItem();
-    ClientInventoryItem* getMouseItem();
-};
-
-class InventoryHandler : EventListener<ClientPacketEvent>, public gfx::GraphicalModule {
-    ClientInventory inventory;
+    
     void onEvent(ClientPacketEvent &event) override;
     void onKeyDown(gfx::Key key) override;
     gfx::Rect inventory_slots[INVENTORY_SIZE],
@@ -49,10 +44,10 @@ class InventoryHandler : EventListener<ClientPacketEvent>, public gfx::Graphical
     bool inventory_hovered;
     ResourcePack* resource_pack;
 public:
-    InventoryHandler(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
+    ClientInventory(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
     void render() override;
     void init() override;
     inline bool isHovered() { return inventory_hovered; }
 };
 
-#endif /* inventoryHandler_hpp */
+#endif

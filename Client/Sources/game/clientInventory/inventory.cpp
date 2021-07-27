@@ -1,13 +1,4 @@
-//
-//  inventory.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 13/12/2020.
-//
-
-// inventory is a class which you can easily manage with function calls
-
-#include "inventoryHandler.hpp"
+#include "clientInventory.hpp"
 
 char ClientInventory::addItem(ItemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
@@ -30,10 +21,6 @@ void ClientInventory::swapWithMouseItem(ClientInventoryItem* item) {
     ClientInventoryItem temp = mouse_item;
     mouse_item = *item;
     *item = temp;
-}
-
-ClientInventoryItem* ClientInventory::getMouseItem() {
-    return &mouse_item;
 }
 
 void ClientInventory::clearMouseItem() {

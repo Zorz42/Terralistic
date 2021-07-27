@@ -2,7 +2,7 @@
 
 #define PADDING 5
 
-void chat::init() {
+void Chat::init() {
     chat_box.scale = 2;
     chat_box.setText("");
     chat_box.orientation = gfx::BOTTOM_LEFT;
@@ -12,17 +12,17 @@ void chat::init() {
     text_inputs = {&chat_box};
 }
 
-void chat::update() {
+void Chat::update() {
     int target_width = chat_box.active ? 300 : 100;
     chat_box.width += (target_width - (int)chat_box.width) / 3;
     disable_events = chat_box.active;
     
-    for(chatLine* i : chat_lines)
+    for(ChatLine* i : chat_lines)
         i->text_sprite.y += (i->y_to_be - i->text_sprite.y) / 2;
 }
 
-void chat::render() {
-    for(chatLine* i : chat_lines) {
+void Chat::render() {
+    for(ChatLine* i : chat_lines) {
         if(!i->text.empty()) {
             i->text_sprite.renderText(i->text, {255, 255, 255});
             i->text_sprite.scale = 2;
@@ -32,7 +32,7 @@ void chat::render() {
             i->y_to_be = chat_box.y - chat_box.getHeight();
             i->text.clear();
             
-            for(chatLine* line : chat_lines)
+            for(ChatLine* line : chat_lines)
                 if(line != i)
                     line->y_to_be -= i->text_sprite.getHeight();
         }
@@ -49,7 +49,7 @@ void chat::render() {
     chat_box.render();
 }
 
-void chat::onKeyDown(gfx::Key key) {
+void Chat::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
             sf::Packet chat_packet;
@@ -67,10 +67,10 @@ void chat::onKeyDown(gfx::Key key) {
     }
 }
 
-void chat::onEvent(ClientPacketEvent &event) {
+void Chat::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::CHAT: {
-            chatLine* new_line = new chatLine;
+            ChatLine* new_line = new ChatLine;
             event.packet >> new_line->text;
             new_line->time_created = gfx::getTicks();
             chat_lines.push_back(new_line);
@@ -80,7 +80,7 @@ void chat::onEvent(ClientPacketEvent &event) {
     }
 }
 
-void chat::stop() {
-    for(chatLine* i : chat_lines)
+void Chat::stop() {
+    for(ChatLine* i : chat_lines)
         delete i;
 }

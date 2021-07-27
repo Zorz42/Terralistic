@@ -27,8 +27,18 @@ const gfx::Image& ResourcePack::getBreakingTexture() {
     return breaking_texture;
 }
 
+const gfx::Image& ResourcePack::getPlayerTexture() {
+    return player_texture;
+}
+
+const gfx::Image& ResourcePack::getBackground() {
+    return background;
+}
+
 void ResourcePack::load(std::string path) {
     breaking_texture.loadFromFile(path + "/misc/breaking.png");
+    player_texture.loadFromFile(path + "/misc/player.png");
+    background.loadFromFile(path + "/misc/background.png");
     
     for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++)
         block_textures[i].loadFromFile(path + "/blocks/" + getBlockInfo((BlockType)i).name + ".png");

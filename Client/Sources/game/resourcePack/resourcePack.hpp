@@ -5,7 +5,7 @@
 #include "graphics.hpp"
 
 class ResourcePack {
-    gfx::Image block_textures[(int)BlockType::NUM_BLOCKS], item_textures[(int)ItemType::NUM_ITEMS], item_text_textures[(int)ItemType::NUM_ITEMS], liquid_textures[(int)LiquidType::NUM_LIQUIDS], breaking_texture;
+    gfx::Image block_textures[(int)BlockType::NUM_BLOCKS], item_textures[(int)ItemType::NUM_ITEMS], item_text_textures[(int)ItemType::NUM_ITEMS], liquid_textures[(int)LiquidType::NUM_LIQUIDS], breaking_texture, player_texture, background;
 public:
     void load(std::string path);
     
@@ -18,4 +18,4 @@ public:
     const gfx::Image& getBackground();
 };
 
-#endif /* resourcePack_hpp */
+#endif

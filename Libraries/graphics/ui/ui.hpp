@@ -9,10 +9,10 @@ namespace gfx {
 
 class Image {
 public:
-    void render(float scale, short x, short y) const;
-    void render(float scale, short x, short y, RectShape src_rect) const;
+    void render(float scale, short x, short y, bool flipped=false) const;
+    void render(float scale, short x, short y, RectShape src_rect, bool flipped=false) const;
     ~Image();
-    bool free_texture = true, flipped = false;
+    bool free_texture = true;
     unsigned short getTextureWidth() const;
     unsigned short getTextureHeight() const;
     void clear();
@@ -30,6 +30,7 @@ protected:
 
 class Sprite : public _CenteredObject, public Image {
 public:
+    bool flipped = false;
     float scale = 1;
     inline unsigned short getWidth() const override { return getTextureWidth() * scale; }
     inline unsigned short getHeight() const override { return getTextureHeight() * scale; }

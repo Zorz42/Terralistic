@@ -1,10 +1,3 @@
-//
-//  main.cpp
-//  Terralistic-server
-//
-//  Created by Jakob Zorz on 11/01/2021.
-//
-
 #include <thread>
 #include <iostream>
 #include <signal.h>

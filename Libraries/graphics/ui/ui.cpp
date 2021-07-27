@@ -64,7 +64,7 @@ unsigned short gfx::Image::getTextureHeight() const {
 void gfx::Image::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
-void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const {
+void gfx::Image::render(float scale, short x, short y, RectShape src_rect, bool flipped) const {
     sfml_render_texture->display();
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());
@@ -77,14 +77,14 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect) const
     render_target->draw(sprite);
 }
 
-void gfx::Image::render(float scale, short x, short y) const {
-    render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()});
+void gfx::Image::render(float scale, short x, short y, bool flipped) const {
+    render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped);
 }
 
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};
 
 void gfx::Sprite::render() const {
-    Image::render(scale, getTranslatedX(), getTranslatedY());
+    Image::render(scale, getTranslatedX(), getTranslatedY(), flipped);
 }
 
 unsigned short gfx::Button::getWidth() const {

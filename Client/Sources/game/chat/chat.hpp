@@ -2,20 +2,19 @@
 #define chat_hpp
 
 #include "graphics.hpp"
-
 #include "clientNetworking.hpp"
 
-class chat : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
-    struct chatLine {
-        std::string text;
-        gfx::Sprite text_sprite;
-        int y_to_be{};
-        unsigned int time_created{};
-    };
+struct ChatLine {
+    std::string text;
+    gfx::Sprite text_sprite;
+    int y_to_be{};
+    unsigned int time_created{};
+};
 
+class Chat : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
     networkingManager* manager;
-    std::vector<chatLine*> chat_lines;
+    std::vector<ChatLine*> chat_lines;
     
     void init() override;
     void update() override;
@@ -25,7 +24,7 @@ class chat : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
 
     void onEvent(ClientPacketEvent& event) override;
 public:
-    explicit chat(networkingManager* manager) : manager(manager) {}
+    explicit Chat(networkingManager* manager) : manager(manager) {}
 };
 
 #endif
