@@ -18,8 +18,8 @@ class ClientMapBlock {
 public:
     explicit ClientMapBlock(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
 
-    BlockType block_id;
-    LiquidType liquid_id;
+    BlockType block_id:8;
+    LiquidType liquid_id:8;
     unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
     bool update = true;
 };

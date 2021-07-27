@@ -1251,7 +1251,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_MODULES_DISABLE_PRIVATE_WARNING = NO;
 				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_FLOAT_CONVERSION = NO;
@@ -1272,6 +1272,7 @@
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
 				);
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					DEVELOPER_MODE,
@@ -1312,7 +1313,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_MODULES_DISABLE_PRIVATE_WARNING = NO;
 				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_FLOAT_CONVERSION = NO;
@@ -1333,6 +1334,7 @@
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
 					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
 				);
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;

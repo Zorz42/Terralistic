@@ -80,13 +80,11 @@ void gfx::returnFromScene() {
 }
 
 void gfx::Scene::operateEvent(sf::Event event) {
-    //disable_events_gl = disable_events;
     sf::Event::EventType type = event.type;
     if (type == sf::Event::MouseMoved) {
         mouse_x = event.mouseMove.x / global_scale;
         mouse_y = event.mouseMove.y / global_scale;
-    }
-    else if (type == sf::Event::Resized)
+    } else if (type == sf::Event::Resized)
         setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
     else if (type == sf::Event::MouseButtonPressed) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
@@ -191,7 +189,7 @@ void gfx::Scene::run() {
         }
         
         sf::Event event;
-        while (window->pollEvent(event))
+        while(window->pollEvent(event))
             operateEvent(event);
         
         update();
