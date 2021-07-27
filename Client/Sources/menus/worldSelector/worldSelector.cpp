@@ -11,14 +11,14 @@
 #define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
 #define LINE_HEIGHT 2
 
-void worldSelector::world_to_select::render(int position_) {
+void WorldSelector::world_to_select::render(int position_) {
     button.y = short(button_y - position_);
     button.render();
     delete_button.y = short(button_y - position_ + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
     delete_button.render();
 }
 
-void worldSelector::init() {
+void WorldSelector::init() {
     title.scale = 3;
     title.renderText("Select a world to play!", {255, 255, 255});
     title.y = PADDING;
@@ -38,7 +38,7 @@ void worldSelector::init() {
     refresh();
 }
 
-void worldSelector::refresh() {
+void WorldSelector::refresh() {
     position = 0;
     scroll_limit = 0;
 
@@ -72,12 +72,12 @@ void worldSelector::refresh() {
     }
 }
 
-void worldSelector::onKeyDown(gfx::Key key) {
+void WorldSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered())
             gfx::returnFromScene();
         else if(new_button.isHovered()) {
-            worldCreator(worlds_names).run();
+            WorldCreator(worlds_names).run();
             refresh();
         }
         else
@@ -91,7 +91,7 @@ void worldSelector::onKeyDown(gfx::Key key) {
                     if(shift_pressed)
                         result = "Yes";
                     else
-                        choiceScreen(std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result).run();
+                        ChoiceScreen(std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result).run();
 
                     if(result == "Yes")
                         std::filesystem::remove_all(fileManager::getWorldsPath() + worlds[i].name);
@@ -104,12 +104,12 @@ void worldSelector::onKeyDown(gfx::Key key) {
         shift_pressed = true;
 }
 
-void worldSelector::onKeyUp(gfx::Key key) {
+void WorldSelector::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::SHIFT)
         shift_pressed = false;
 }
 
-void worldSelector::onMouseScroll(int distance) {
+void WorldSelector::onMouseScroll(int distance) {
     position -= distance * 4;
     if(position < 0)
         position = 0;
@@ -118,7 +118,7 @@ void worldSelector::onMouseScroll(int distance) {
         position = scroll_limit_ > 0 ? scroll_limit_ : 0;
 }
 
-void worldSelector::render() {
+void WorldSelector::render() {
     bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
     for(world_to_select& world : worlds) {

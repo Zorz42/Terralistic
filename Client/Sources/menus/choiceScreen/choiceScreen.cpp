@@ -2,7 +2,7 @@
 
 #include <utility>
 
-choiceScreen::choiceScreen(std::string question, const std::vector<std::string>& options, std::string* result) {
+ChoiceScreen::ChoiceScreen(std::string question, const std::vector<std::string>& options, std::string* result) {
     this->question = std::move(question);
     this->result = result;
     for(const std::string& option : options) {
@@ -11,14 +11,14 @@ choiceScreen::choiceScreen(std::string question, const std::vector<std::string>&
     }
 }
 
-void choiceScreen::init() {
+void ChoiceScreen::init() {
     question_sprite.scale = 3;
     question_sprite.renderText(question, {255, 255, 255});
     question_sprite.orientation = gfx::CENTER;
     
     int combined_width = 0;
     
-    for(button& i : buttons) {
+    for(ChoiceScreenButton& i : buttons) {
         i.gfx_button.scale = 3;
         i.gfx_button.renderText(i.option, {255, 255, 255});
         i.gfx_button.orientation = gfx::BOTTOM;
@@ -28,15 +28,15 @@ void choiceScreen::init() {
     
     int curr_x = -combined_width / 2;
     
-    for(button& i : buttons) {
+    for(ChoiceScreenButton& i : buttons) {
         i.gfx_button.x = curr_x + i.gfx_button.getWidth() / 2;
         curr_x += i.gfx_button.getWidth();
     }
 }
 
-void choiceScreen::onKeyDown(gfx::Key key) {
+void ChoiceScreen::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT)
-        for(button& i : buttons)
+        for(ChoiceScreenButton& i : buttons)
             if(i.gfx_button.isHovered()) {
                 if(result)
                     *result = i.option;
@@ -45,8 +45,8 @@ void choiceScreen::onKeyDown(gfx::Key key) {
             }
 }
 
-void choiceScreen::render() {
-    for(button& i : buttons)
+void ChoiceScreen::render() {
+    for(ChoiceScreenButton& i : buttons)
         i.gfx_button.render();
     question_sprite.render();
 }

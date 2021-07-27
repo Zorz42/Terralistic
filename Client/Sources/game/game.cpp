@@ -99,7 +99,7 @@ void game::init() {
 
     renderTextScreen("Connecting to server");
     if(!networking_manager.establishConnection(ip_address, port)) {
-        choiceScreen("Could not connect to the server!", {"Close"}).run();
+        ChoiceScreen("Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
     }
 }
@@ -109,7 +109,7 @@ void game::onEvent(ClientPacketEvent& event) {
         case PacketType::KICK: {
             std::string kick_message;
             event.packet >> kick_message;
-            choiceScreen(kick_message, {"Close"}).run();
+            ChoiceScreen(kick_message, {"Close"}).run();
             gfx::returnFromScene();
         }
         default:;

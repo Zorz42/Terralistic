@@ -5,7 +5,7 @@
 
 #define PADDING 20
 
-void worldCreator::init() {
+void WorldCreator::init() {
     back_button.scale = 3;
     back_button.renderText("Back", {255, 255, 255});
     back_button.y = -PADDING;
@@ -39,7 +39,7 @@ void worldCreator::init() {
     text_inputs = {&world_name};
 }
 
-void worldCreator::onKeyDown(gfx::Key key) {
+void WorldCreator::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
     else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered()) || (key == gfx::Key::ENTER && can_create)) {
@@ -48,7 +48,7 @@ void worldCreator::onKeyDown(gfx::Key key) {
     }
 }
 
-void worldCreator::render() {
+void WorldCreator::render() {
     if(can_create != (!world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText()))) {
         can_create = !can_create;
         create_button.renderText("Create world", {(unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100), (unsigned char)(can_create ? 255 : 100)});

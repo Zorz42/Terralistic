@@ -2,7 +2,7 @@
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
 
-void startMenu::init() {
+void StartMenu::init() {
     singleplayer_button.scale = 3;
     singleplayer_button.renderText("Singleplayer", {255, 255, 255});
     singleplayer_button.y = short(-singleplayer_button.getTranslatedRect().h - 5);
@@ -44,18 +44,18 @@ void startMenu::init() {
     version.y = -5;
 }
 
-void startMenu::onKeyDown(gfx::Key key) {
+void StartMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(exit_button.isHovered())
             gfx::returnFromScene();
         else if(singleplayer_button.isHovered())
-            worldSelector().run();
+            WorldSelector().run();
         else if(multiplayer_button.isHovered())
-            multiplayerSelector().run();
+            MultiplayerSelector().run();
     }
 }
 
-void startMenu::render() {
+void StartMenu::render() {
     float scale = (float)gfx::getWindowHeight() / (float)background.getTextureHeight();
     int pos = gfx::getTicks() / 30 % int(background.getTextureWidth() * scale);
     background.render(scale, pos, 0);

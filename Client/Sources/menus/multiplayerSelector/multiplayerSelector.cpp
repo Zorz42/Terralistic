@@ -6,7 +6,7 @@
 
 #define PADDING 20
 
-void multiplayerSelector::init() {
+void MultiplayerSelector::init() {
     ConfigFile config(fileManager::getConfigPath());
     config.setDefaultStr("username", "");
     config.setDefaultStr("server ip", "");
@@ -62,14 +62,14 @@ void multiplayerSelector::init() {
     text_inputs = {&server_ip, &username};
 }
 
-void multiplayerSelector::onKeyDown(gfx::Key key) {
+void MultiplayerSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
     else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered()) || (key == gfx::Key::ENTER && can_connect))
         game(username.getText(), server_ip.getText()).run();
 }
 
-void multiplayerSelector::render() {
+void MultiplayerSelector::render() {
     if(can_connect != (username.getText().size() >= 3 && !server_ip.getText().empty())) {
         can_connect = !can_connect;
         join_button.renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)});
@@ -83,7 +83,7 @@ void multiplayerSelector::render() {
     username_title.render();
 }
 
-void multiplayerSelector::stop() {
+void MultiplayerSelector::stop() {
     ConfigFile config(fileManager::getConfigPath());
     config.setStr("username", username.getText());
     config.setStr("server ip", server_ip.getText());

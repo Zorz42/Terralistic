@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     }
     initProperties();
     
-    startMenu().run();
+    StartMenu().run();
 
     gfx::quit();
 

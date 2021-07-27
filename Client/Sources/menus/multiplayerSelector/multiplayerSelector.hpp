@@ -3,7 +3,7 @@
 
 #include "graphics.hpp"
 
-struct multiplayerSelector : gfx::Scene {
+struct MultiplayerSelector : gfx::Scene {
     void init() override;
     void onKeyDown(gfx::Key key) override;
     void render() override;

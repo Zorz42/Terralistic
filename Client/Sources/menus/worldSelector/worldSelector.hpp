@@ -3,7 +3,7 @@
 
 #include "graphics.hpp"
 
-class worldSelector : public gfx::Scene {
+class WorldSelector : public gfx::Scene {
     struct world_to_select {
         std::string name;
         explicit world_to_select(std::string name) : name(std::move(name)) {}
