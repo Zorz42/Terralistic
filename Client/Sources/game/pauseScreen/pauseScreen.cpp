@@ -1,21 +1,17 @@
 #include "pauseScreen.hpp"
 #include <cmath>
 
-#define PADDING 20
-
 void PauseScreen::init() {
     resume_button.scale = 3;
-    resume_button.renderText("Resume", {255, 255, 255});
-    resume_button.y = PADDING;
+    resume_button.renderText("Resume");
+    resume_button.y = SPACING;
 
     quit_button.scale = 3;
-    quit_button.renderText("Leave Game", {255, 255, 255});
-    quit_button.y = short(resume_button.getHeight() + 2 * PADDING);
+    quit_button.renderText("Leave Game");
+    quit_button.y = short(resume_button.getHeight() + 2 * SPACING);
     
-    back_rect.w = quit_button.getWidth() + 2 * PADDING;
-    back_rect.c = {0, 0, 0, 200};
-    
-    fade_rect.c = {0, 0, 0};
+    back_rect.w = quit_button.getWidth() + 2 * SPACING;
+    back_rect.c.a = 200;
     
     x_to_be = -back_rect.w;
     back_rect.x = x_to_be;
@@ -24,8 +20,8 @@ void PauseScreen::init() {
 void PauseScreen::render() {
     if(back_rect.x != -back_rect.w || x_to_be != -back_rect.w) {
         back_rect.x += std::floor(float(x_to_be - back_rect.x) / 2.0f);
-        resume_button.x = back_rect.x + PADDING;
-        quit_button.x = back_rect.x + PADDING;
+        resume_button.x = back_rect.x + SPACING;
+        quit_button.x = back_rect.x + SPACING;
         back_rect.h = gfx::getWindowHeight();
         fade_rect.w = gfx::getWindowWidth();
         fade_rect.h = gfx::getWindowHeight();

@@ -2,6 +2,7 @@
 #define rect_hpp
 
 #include <SFML/Graphics.hpp>
+#include "theme.hpp"
 
 namespace gfx {
 
@@ -39,7 +40,7 @@ public:
 
 class Rect : public _CenteredObject {
 public:
-    explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = { 255, 255, 255 }, ObjectType orientation = TOP_LEFT);
+    explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = GFX_DEFAULT_RECT_COLOR, ObjectType orientation = TOP_LEFT);
     inline unsigned short getWidth() const override { return w; };
     inline unsigned short getHeight() const override { return h; };
     unsigned short w, h;

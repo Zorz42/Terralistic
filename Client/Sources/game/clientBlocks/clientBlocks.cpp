@@ -1,7 +1,7 @@
+#include <cassert>
 #include "clientBlocks.hpp"
 #include "choiceScreen.hpp"
 #include "fileManager.hpp"
-#include <cassert>
 
 void ClientBlocks::createWorld(unsigned short map_width, unsigned short map_height) {
     assert(map_width % 16 == 0 && map_height % 16 == 0);

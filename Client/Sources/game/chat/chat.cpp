@@ -1,13 +1,11 @@
 #include "chat.hpp"
 
-#define PADDING 5
-
 void Chat::init() {
     chat_box.scale = 2;
     chat_box.setText("");
     chat_box.orientation = gfx::BOTTOM_LEFT;
-    chat_box.y = -PADDING;
-    chat_box.x = PADDING;
+    chat_box.y = -SPACING;
+    chat_box.x = SPACING;
     
     text_inputs = {&chat_box};
 }
@@ -24,10 +22,10 @@ void Chat::update() {
 void Chat::render() {
     for(ChatLine* i : chat_lines) {
         if(!i->text.empty()) {
-            i->text_sprite.renderText(i->text, {255, 255, 255});
+            i->text_sprite.renderText(i->text);
             i->text_sprite.scale = 2;
             i->text_sprite.y = chat_box.y;
-            i->text_sprite.x = PADDING;
+            i->text_sprite.x = SPACING;
             i->text_sprite.orientation = gfx::BOTTOM_LEFT;
             i->y_to_be = chat_box.y - chat_box.getHeight();
             i->text.clear();

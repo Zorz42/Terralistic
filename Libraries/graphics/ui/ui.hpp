@@ -1,9 +1,10 @@
 #ifndef ui_hpp
 #define ui_hpp
 
+#include <cassert>
 #include <string>
 #include "rect.hpp"
-#include <cassert>
+#include "theme.hpp"
 
 namespace gfx {
 
@@ -17,7 +18,7 @@ public:
     unsigned short getTextureHeight() const;
     void clear();
     void createBlankImage(unsigned short width, unsigned short height);
-    void renderText(const std::string& text, Color text_color);
+    void renderText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
     void loadFromFile(const std::string& path);
     void setColor(Color color_);
     inline sf::RenderTexture* getSfmlTexture() { return sfml_render_texture; }
@@ -46,7 +47,7 @@ public:
     unsigned short getWidth() const override;
     unsigned short getHeight() const override;
 
-    Color def_color = { 0, 0, 0, 0 }, hover_color = { 100, 100, 100 };
+    Color def_color = GFX_DEFAULT_BUTTON_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR;
     bool isHovered() const;
     bool disabled = false;
     unsigned char hover_progress = 0;
@@ -65,7 +66,7 @@ public:
     bool active = false, ignore_one_input = false;
     char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
-    Color border_color = { 255, 255, 255 }, text_color = { 255, 255, 255 };
+    Color border_color = GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, text_color = GFX_DEFAULT_TEXT_COLOR;
     unsigned char cut_length;
 protected:
     std::string text;

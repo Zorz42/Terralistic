@@ -354,6 +354,7 @@
 		36DDF87D2689EAF9002337F3 /* properties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = properties.hpp; sourceTree = "<group>"; };
 		36DDF8B6268A0499002337F3 /* resourcePack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = resourcePack.cpp; sourceTree = "<group>"; };
 		36DDF8B7268A0499002337F3 /* resourcePack.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = resourcePack.hpp; sourceTree = "<group>"; };
+		36EBE54226B1AC81005D2115 /* theme.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = theme.hpp; sourceTree = "<group>"; };
 		36F45E872620A88400C751E4 /* chunk.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chunk.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -502,6 +503,7 @@
 		166D85C226AA0B9E00DB87B1 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				36EBE54226B1AC81005D2115 /* theme.hpp */,
 				166D85C926AA0B9E00DB87B1 /* graphics.hpp */,
 				166D85CB26AA0B9E00DB87B1 /* graphics-internal.hpp */,
 				166D85CA26AA0B9E00DB87B1 /* graphics.cpp */,

@@ -6,10 +6,9 @@
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
 
-#define PADDING 20
-#define TOP_HEIGHT 70
-#define BOTTOM_HEIGHT (back_button.getHeight() + PADDING + PADDING / 2)
-#define LINE_HEIGHT 2
+#define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
+#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
+#define LINE_THICKNESS 2
 
 void WorldSelector::world_to_select::render(int position_) {
     button.y = short(button_y - position_);
@@ -20,19 +19,19 @@ void WorldSelector::world_to_select::render(int position_) {
 
 void WorldSelector::init() {
     title.scale = 3;
-    title.renderText("Select a world to play!", {255, 255, 255});
-    title.y = PADDING;
+    title.renderText("Select a world to play!");
+    title.y = SPACING;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
-    back_button.renderText("Back", {255, 255, 255});
-    back_button.y = -PADDING;
+    back_button.renderText("Back");
+    back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
-    new_button.renderText("New", {255, 255, 255});
-    new_button.y = -PADDING;
-    new_button.x = -PADDING;
+    new_button.renderText("New");
+    new_button.y = -SPACING;
+    new_button.x = -SPACING;
     new_button.orientation = gfx::BOTTOM_RIGHT;
 
     refresh();
@@ -58,15 +57,15 @@ void WorldSelector::refresh() {
     for(auto& world : worlds) {
         world.button.orientation = gfx::TOP;
         world.button.scale = 3;
-        world.button.renderText(world.name, {255, 255, 255});
-        world.button_y = scroll_limit + title.getTranslatedRect().h + 2 * PADDING;
+        world.button.renderText(world.name);
+        world.button_y = scroll_limit + title.getTranslatedRect().h + 2 * SPACING;
 
         world.delete_button.orientation = gfx::TOP;
         world.delete_button.loadFromFile("x-button.png");
         world.delete_button.scale = 3;
-        world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + PADDING);
+        world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + SPACING);
 
-        scroll_limit += world.button.getTranslatedRect().h + PADDING;
+        scroll_limit += world.button.getTranslatedRect().h + SPACING;
 
         worlds_names.push_back(world.name);
     }
@@ -109,8 +108,10 @@ void WorldSelector::onKeyUp(gfx::Key key) {
         shift_pressed = false;
 }
 
+#include <iostream>
+
 void WorldSelector::onMouseScroll(int distance) {
-    position -= distance * 4;
+    position -= distance * 8;
     if(position < 0)
         position = 0;
     int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
@@ -129,11 +130,11 @@ void WorldSelector::render() {
     for(world_to_select& world : worlds)
         world.render(position);
 
-    gfx::Rect(0, 0, gfx::getWindowWidth(), TOP_HEIGHT, {0, 0, 0}).render();
-    gfx::Rect(0, 0, gfx::getWindowWidth(), BOTTOM_HEIGHT, {0, 0, 0}, gfx::BOTTOM_LEFT).render();
-    if(position != 0)
-        gfx::Rect(0, TOP_HEIGHT, gfx::getWindowWidth(), LINE_HEIGHT, {100, 100, 100}).render();
-    gfx::Rect(0, -BOTTOM_HEIGHT, gfx::getWindowWidth(), LINE_HEIGHT, {100, 100, 100}, gfx::BOTTOM_LEFT).render();
+    gfx::Rect(0, 0, gfx::getWindowWidth(), TOP_HEIGHT, BLACK).render();
+    gfx::Rect(0, 0, gfx::getWindowWidth(), BOTTOM_HEIGHT, BLACK, gfx::BOTTOM_LEFT).render();
+    //if(position != 0)
+        gfx::Rect(0, TOP_HEIGHT, gfx::getWindowWidth(), LINE_THICKNESS, GREY).render();
+    gfx::Rect(0, -BOTTOM_HEIGHT, gfx::getWindowWidth(), LINE_THICKNESS, GREY, gfx::BOTTOM_LEFT).render();
 
     title.render();
     back_button.render();

@@ -26,12 +26,12 @@ static std::thread server_thread;
 
 void startPrivateWorld(const std::string& world_name) {
     gfx::Sprite generating_text;
-    gfx::Rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::BOTTOM},
-    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::BOTTOM};
+    gfx::Rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, GREY, gfx::BOTTOM},
+    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, WHITE, gfx::BOTTOM};
 
     generating_text.scale = TEXT_SCALE;
     generating_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
-    generating_text.renderText("Generating world", {255, 255, 255});
+    generating_text.renderText("Generating world");
     generating_text.orientation = gfx::CENTER;
 
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);

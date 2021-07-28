@@ -26,7 +26,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             new_player->x = x;
             new_player->y = y;
             new_player->id = id;
-            new_player->name_text.renderText(new_player->name, {0, 0, 0});
+            new_player->name_text.renderText(new_player->name, BLACK);
             other_players.push_back(new_player);
             break;
         }

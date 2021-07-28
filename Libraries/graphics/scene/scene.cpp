@@ -165,9 +165,8 @@ void gfx::Scene::operateEvent(sf::Event event) {
                     i->ignore_one_input = false;
                 }
     }
-    else if (type == sf::Event::MouseWheelScrolled) {
-        onMouseScroll(event.mouseWheel.delta);
-    }
+    else if (type == sf::Event::MouseWheelScrolled)
+        onMouseScroll(event.mouseWheelScroll.delta);
     else if (type == sf::Event::Closed)
         window->close();
 }

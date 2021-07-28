@@ -1,5 +1,5 @@
-#include "resourcePack.hpp"
 #include <cassert>
+#include "resourcePack.hpp"
 
 static gfx::Image block_textures[(int)BlockType::NUM_BLOCKS], item_textures[(int)ItemType::NUM_ITEMS], item_text_textures[(int)ItemType::NUM_ITEMS], liquid_textures[(int)LiquidType::NUM_LIQUIDS], breaking_texture;
 
@@ -46,7 +46,7 @@ void ResourcePack::load(std::string path) {
     for(int i = 0; i < (int)ItemType::NUM_ITEMS; i++) {
         item_textures[i].loadFromFile(path + "/items/" + getItemInfo((ItemType)i).name + ".png");
         
-        item_text_textures[i].renderText(getItemInfo((ItemType)i).name, {255, 255, 255});
+        item_text_textures[i].renderText(getItemInfo((ItemType)i).name);
     }
     
     for(int i = 0; i < (int)LiquidType::NUM_LIQUIDS; i++)

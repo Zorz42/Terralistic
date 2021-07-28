@@ -1,8 +1,8 @@
 #include <random>
+#include <cassert>
 #include "clientItems.hpp"
 #include "properties.hpp"
 #include "resourcePack.hpp"
-#include <cassert>
 
 ClientItem* ClientItems::getItemById(unsigned short id) {
     for(ClientItem& i : items)

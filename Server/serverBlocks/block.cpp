@@ -1,8 +1,6 @@
-#include "serverBlocks.hpp"
-
-#include "packetType.hpp"
 #include <cassert>
-
+#include "serverBlocks.hpp"
+#include "packetType.hpp"
 
 ServerBlock ServerBlocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < height && x >= 0 && x < width);

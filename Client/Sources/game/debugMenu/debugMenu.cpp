@@ -56,9 +56,9 @@ void DebugMenu::onKeyUp(gfx::Key key) {
 }
 
 void DebugMenu::updateFpsText() {
-    fps_text.renderText(std::to_string(fps_count) + " fps", {0, 0, 0});
+    fps_text.renderText(std::to_string(fps_count) + " fps", BLACK);
 }
 
 void DebugMenu::updateCoordsText() {
-    coords_text.renderText(std::string("X: ") + std::to_string(player_handler->getMainPlayer().x / BLOCK_WIDTH) + ", Y: " + std::to_string(blocks->getWorldHeight() - player_handler->getMainPlayer().y / BLOCK_WIDTH), {0, 0, 0});
+    coords_text.renderText(std::string("X: ") + std::to_string(player_handler->getMainPlayer().x / BLOCK_WIDTH) + ", Y: " + std::to_string(blocks->getWorldHeight() - player_handler->getMainPlayer().y / BLOCK_WIDTH), BLACK);
 }

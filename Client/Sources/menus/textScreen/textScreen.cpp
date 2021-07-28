@@ -3,7 +3,7 @@
 
 void renderTextScreen(const std::string &text) {
     gfx::Sprite text_image;
-    text_image.renderText(text, {255, 255, 255});
+    text_image.renderText(text);
     text_image.orientation = gfx::CENTER;
     text_image.scale = 3;
 
