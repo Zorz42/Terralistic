@@ -132,9 +132,11 @@ void WorldSelector::render() {
 
     gfx::Rect(0, 0, gfx::getWindowWidth(), TOP_HEIGHT, BLACK).render();
     gfx::Rect(0, 0, gfx::getWindowWidth(), BOTTOM_HEIGHT, BLACK, gfx::BOTTOM_LEFT).render();
-    //if(position != 0)
+    if(position != 0)
         gfx::Rect(0, TOP_HEIGHT, gfx::getWindowWidth(), LINE_THICKNESS, GREY).render();
-    gfx::Rect(0, -BOTTOM_HEIGHT, gfx::getWindowWidth(), LINE_THICKNESS, GREY, gfx::BOTTOM_LEFT).render();
+    int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
+    if(position != scroll_limit_ && scroll_limit_ > 0)
+        gfx::Rect(0, -BOTTOM_HEIGHT, gfx::getWindowWidth(), LINE_THICKNESS, GREY, gfx::BOTTOM_LEFT).render();
 
     title.render();
     back_button.render();

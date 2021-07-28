@@ -1,24 +1,30 @@
 #include "clientInventory.hpp"
 #include "resourcePack.hpp"
 
-#define SPACING 10
+#define INVENTORY_UI_SPACING 10
 
 void ClientInventory::init() {
     for(int i = 0; i < 20; i++) {
         inventory_slots[i].orientation = gfx::TOP;
         inventory_slots[i].c = GREY;
-        inventory_slots[i].h = 2 * BLOCK_WIDTH + SPACING;
-        inventory_slots[i].w = 2 * BLOCK_WIDTH + SPACING;
-        inventory_slots[i].x = (i - 5 - i / 10 * 10) * (2 * BLOCK_WIDTH + 2 * SPACING) + 2 * BLOCK_WIDTH / 2 + SPACING;
-        inventory_slots[i].y = SPACING + i / 10 * 2 * SPACING + i / 10 * 2 * BLOCK_WIDTH;
+        inventory_slots[i].h = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
+        inventory_slots[i].w = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
+        inventory_slots[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
+        inventory_slots[i].y = INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH);
     }
+    
+    behind_inventory_rect.orientation = gfx::TOP;
+    behind_inventory_rect.w = 10 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING;
+    behind_inventory_rect.c = BLACK;
+    
+    under_text_rect.c = BLACK;
     
     selectSlot(0);
 }
 
 void ClientInventory::render() {
-    select_rect_inventory.x = (selected_slot - 5) * (2 * BLOCK_WIDTH + 2 * SPACING) + 2 * BLOCK_WIDTH / 2 + SPACING;
-    select_rect_inventory.render();
+    behind_inventory_rect.h = open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
+    behind_inventory_rect.render();
     
     const gfx::Image* text_texture = nullptr;
     hovered = nullptr;
@@ -33,18 +39,17 @@ void ClientInventory::render() {
                 hovered = &inventory[i];
                 inventory_slots[i].c = {70, 70, 70};
                 if(inventory[i].item_id != ItemType::NOTHING) {
-                    
                     text_texture = &resource_pack->getItemTextTexture(inventory[i].item_id);
-                    under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * SPACING;
-                    under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * SPACING;
-                    under_text_rect.x = gfx::getMouseX() + 20 - SPACING;
-                    under_text_rect.y = gfx::getMouseY() + 20 - SPACING;
+                    under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING;
+                    under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING;
+                    under_text_rect.x = gfx::getMouseX() + 20 - INVENTORY_UI_SPACING;
+                    under_text_rect.y = gfx::getMouseY() + 20 - INVENTORY_UI_SPACING;
                 }
             }
         } else
             inventory_slots[i].c = GREY;
         inventory_slots[i].render();
-        renderItem(&inventory[i], inventory_slots[i].getTranslatedX() + SPACING / 2, inventory_slots[i].getTranslatedY() + SPACING / 2, i);
+        renderItem(&inventory[i], inventory_slots[i].getTranslatedX() + INVENTORY_UI_SPACING / 2, inventory_slots[i].getTranslatedY() + INVENTORY_UI_SPACING / 2, i);
     }
     
     if(text_texture) {

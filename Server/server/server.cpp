@@ -2,6 +2,7 @@
 #include <iostream>
 #include <signal.h>
 #include <filesystem>
+#include <chrono>
 
 #include "print.hpp"
 #include "serverPlayers.hpp"
@@ -36,7 +37,7 @@ void Server::start(unsigned short port) {
         if(working_dir.size() >= 16 && working_dir.substr(working_dir.length() - 16, 16) == "/StructureWorld/")
           generator.generateWorld(4400, 1200, 1000);
         else
-          generator.generateWorld(4400, 1200, rand());
+          generator.generateWorld(4400, 1200, (unsigned int)std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     }
 
     print::info("Starting server...");
