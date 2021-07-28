@@ -8,8 +8,7 @@ static std::string blur_shader_code =
 "uniform sampler2D source;"
 "uniform vec2 offsetFactor;"
 ""
-"void main()"
-"{"
+"void main() {"
 "    vec2 textureCoordinates = gl_TexCoord[0].xy;"
 "    vec4 color = vec4(0.0);"
 "    color += texture2D(source, textureCoordinates - 4.0 * offsetFactor) * 0.0162162162;"
@@ -97,34 +96,25 @@ void gfx::clearWindow() {
 
 void gfx::blurRegion(RectShape region, float blur_intensity) {
     sf::Sprite sprite;
-    //window_texture.display();
     sprite.setTexture(window_texture.getTexture());
+    sprite.setTextureRect({region.x, region.y, region.w, region.h});
+    sprite.setPosition(region.x, region.y);
     
-    //blurred_texture.draw(sprite);
-    //blurred_texture.display();
+    blur_shader.setUniform("source", window_texture.getTexture());
     
-    //sf::Sprite blurred_sprite;
-    //blurred_sprite.setTexture(blurred_texture.getTexture());
-    
-    window->draw(sprite);
-    
-    blur_shader.setUniform("source", blurred_texture.getTexture());
     float blur_intensity_shader = std::pow(2, blur_intensity);
-    for(int i = 0; i < blur_intensity; i++) {
+    for(float i = 0;; i += 2.f) {
         blur_shader.setUniform("offsetFactor", sf::Vector2f(blur_intensity_shader / getWindowWidth() / global_scale, blur_intensity_shader / getWindowHeight() / global_scale));
         window_texture.draw(sprite, &blur_shader);
-        //window_texture.display();
         
         blur_shader.setUniform("offsetFactor", sf::Vector2f(blur_intensity_shader / -getWindowWidth() / global_scale, blur_intensity_shader / getWindowHeight() / global_scale));
         window_texture.draw(sprite, &blur_shader);
-        //window_texture.display();
-        blur_intensity_shader /= 2.f;
+        
+        if(i > blur_intensity)
+            break;
+        
+        blur_intensity_shader /= 4;
     }
-    
-    //blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
-    //blurred_sprite.setPosition(region.x, region.y);
-    //window->draw(blurred_sprite);
-    //window_texture.clear({0, 0, 0, 0});
 }
 
 void gfx::updateWindow() {
