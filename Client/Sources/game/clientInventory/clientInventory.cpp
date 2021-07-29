@@ -9,13 +9,22 @@ void ClientInventory::init() {
         inventory_slots[i].h = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
         inventory_slots[i].w = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
         inventory_slots[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
-        inventory_slots[i].y = INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH);
-        inventory_slots[i].blur_intensity = BLUR;
+        inventory_slots[i].y = 1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH);
     }
     
     behind_inventory_rect.orientation = gfx::TOP;
     behind_inventory_rect.w = 10 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING;
     behind_inventory_rect.c = BLACK;
+    behind_inventory_rect.y = INVENTORY_UI_SPACING / 2;
+    behind_inventory_rect.blur_intensity = BLUR / 8;
+    behind_inventory_rect.c.a = TRANSPARENCY;
+    
+    select_rect.orientation = gfx::TOP;
+    select_rect.c = GREY;
+    select_rect.c.a = TRANSPARENCY;
+    select_rect.y = INVENTORY_UI_SPACING / 2;
+    select_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
+    select_rect.w = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
     
     under_text_rect.c = BLACK;
     
@@ -24,7 +33,10 @@ void ClientInventory::init() {
 
 void ClientInventory::render() {
     behind_inventory_rect.h = open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
-    //behind_inventory_rect.render();
+    behind_inventory_rect.render();
+    
+    select_rect.x = (2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
+    select_rect.render();
     
     const gfx::Image* text_texture = nullptr;
     hovered = nullptr;
@@ -47,8 +59,8 @@ void ClientInventory::render() {
                 }
             }
         } else {
-            inventory_slots[i].c = BLACK;
-            inventory_slots[i].c.a = TRANSPARENCY / 2;
+            inventory_slots[i].c = WHITE;
+            inventory_slots[i].c.a = TRANSPARENCY;
         }
         inventory_slots[i].render();
         renderItem(&inventory[i], inventory_slots[i].getTranslatedX() + INVENTORY_UI_SPACING / 2, inventory_slots[i].getTranslatedY() + INVENTORY_UI_SPACING / 2, i);

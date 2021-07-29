@@ -10,22 +10,32 @@ static sf::Clock global_clock;
 static std::string blur_shader_code =
 "uniform sampler2D source;"
 "uniform vec2 offset;"
-"uniform vec2 bottom_left, top_right;"
 ""
 "void main() {"
-"   vec2 textureCoordinates = gl_TexCoord[0].xy;"
-"   vec2 inside_box = step(bottom_left, textureCoordinates) - step(top_right, textureCoordinates); "
-"   vec4 color = vec4(0.0);"
-"   color += texture2D(source, textureCoordinates - 4.0 * offset) * 0.0162162162;"
-"   color += texture2D(source, textureCoordinates - 3.0 * offset) * 0.0540540541;"
-"   color += texture2D(source, textureCoordinates - 2.0 * offset) * 0.1216216216;"
-"   color += texture2D(source, textureCoordinates - offset) * 0.1945945946;"
-"   color += texture2D(source, textureCoordinates) * 0.2270270270;"
-"   color += texture2D(source, textureCoordinates + offset) * 0.1945945946;"
-"   color += texture2D(source, textureCoordinates + 2.0 * offset) * 0.1216216216;"
-"   color += texture2D(source, textureCoordinates + 3.0 * offset) * 0.0540540541;"
-"   color += texture2D(source, textureCoordinates + 4.0 * offset) * 0.0162162162;"
-"   gl_FragColor = mix(texture2D(source, textureCoordinates), color, inside_box.x * inside_box.y);"
+"    vec2 textureCoordinates = gl_TexCoord[0].xy;"
+"    vec4 color = vec4(0.0);"
+"    color += texture2D(source, textureCoordinates - 10.0 * offset) * 0.0012;"
+"    color += texture2D(source, textureCoordinates - 9.0 * offset) * 0.0015;"
+"    color += texture2D(source, textureCoordinates - 8.0 * offset) * 0.0038;"
+"    color += texture2D(source, textureCoordinates - 7.0 * offset) * 0.0087;"
+"    color += texture2D(source, textureCoordinates - 6.0 * offset) * 0.0180;"
+"    color += texture2D(source, textureCoordinates - 5.0 * offset) * 0.0332;"
+"    color += texture2D(source, textureCoordinates - 4.0 * offset) * 0.0547;"
+"    color += texture2D(source, textureCoordinates - 3.0 * offset) * 0.0807;"
+"    color += texture2D(source, textureCoordinates - 2.0 * offset) * 0.1065;"
+"    color += texture2D(source, textureCoordinates - offset) * 0.1258;"
+"    color += texture2D(source, textureCoordinates) * 0.1330;"
+"    color += texture2D(source, textureCoordinates + offset) * 0.1258;"
+"    color += texture2D(source, textureCoordinates + 2.0 * offset) * 0.1065;"
+"    color += texture2D(source, textureCoordinates + 3.0 * offset) * 0.0807;"
+"    color += texture2D(source, textureCoordinates + 4.0 * offset) * 0.0547;"
+"    color += texture2D(source, textureCoordinates + 5.0 * offset) * 0.0332;"
+"    color += texture2D(source, textureCoordinates + 6.0 * offset) * 0.0180;"
+"    color += texture2D(source, textureCoordinates - 7.0 * offset) * 0.0087;"
+"    color += texture2D(source, textureCoordinates - 8.0 * offset) * 0.0038;"
+"    color += texture2D(source, textureCoordinates - 9.0 * offset) * 0.0015;"
+"    color += texture2D(source, textureCoordinates - 10.0 * offset) * 0.0012;"
+"    gl_FragColor = color;"
 "}"
 ;
 static sf::RenderTexture window_texture, blurred_texture;
@@ -116,9 +126,9 @@ void gfx::blurRegion(RectShape region, float blur_intensity) {
     blurred_texture.clear(TRANSPARENT);
     blurred_texture.draw(sf::Sprite(window_texture.getTexture()));
     
-    blur_shader.setUniform("bottom_left", sf::Vector2f(float(region.x) / getWindowWidth(), 1.f - float(region.y + region.h) / getWindowHeight()));
-    blur_shader.setUniform("top_right", sf::Vector2f(float(region.x + region.w) / getWindowWidth(), 1.f - float(region.y) / getWindowWidth()));
     blur_shader.setUniform("source", blurred_texture.getTexture());
+    
+    blur_intensity /= SHADER_QUALITY;
     
     blur_intensity = std::pow(2, blur_intensity);
     
