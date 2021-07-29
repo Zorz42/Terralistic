@@ -4,6 +4,9 @@
 static unsigned short min_window_width, min_window_height;
 static sf::Clock global_clock;
 
+// higher number = faster, but worse quality
+#define SHADER_QUALITY 4
+
 static std::string blur_shader_code =
 "uniform sampler2D source;"
 "uniform vec2 offset;"
@@ -97,10 +100,10 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);
-    vertices[0] = sf::Vertex(sf::Vector2f(0, 0),            sf::Vector2f(0, 1));
-    vertices[1] = sf::Vertex(sf::Vector2f(outputSize.x, 0), sf::Vector2f(1, 1));
-    vertices[2] = sf::Vertex(sf::Vector2f(0, outputSize.y), sf::Vector2f(0, 0));
-    vertices[3] = sf::Vertex(sf::Vector2f(outputSize.x, outputSize.y),      sf::Vector2f(1, 0));
+    vertices[0] = sf::Vertex(sf::Vector2f(0, 0),                       sf::Vector2f(0, 1));
+    vertices[1] = sf::Vertex(sf::Vector2f(outputSize.x, 0),            sf::Vector2f(1, 1));
+    vertices[2] = sf::Vertex(sf::Vector2f(0, outputSize.y),            sf::Vector2f(0, 0));
+    vertices[3] = sf::Vertex(sf::Vector2f(outputSize.x, outputSize.y), sf::Vector2f(1, 0));
 
     sf::RenderStates states;
     states.shader    = &shader;
@@ -110,25 +113,25 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
 }
 
 void gfx::blurRegion(RectShape region, float blur_intensity) {
+    blurred_texture.clear(TRANSPARENT);
     blurred_texture.draw(sf::Sprite(window_texture.getTexture()));
-    
-    float blur_intensity_shader = std::pow(2, blur_intensity);
     
     blur_shader.setUniform("bottom_left", sf::Vector2f(float(region.x) / getWindowWidth(), 1.f - float(region.y + region.h) / getWindowHeight()));
     blur_shader.setUniform("top_right", sf::Vector2f(float(region.x + region.w) / getWindowWidth(), 1.f - float(region.y) / getWindowWidth()));
-    for(float i = 0;; i += 2.f) {
-        blur_shader.setUniform("source", blurred_texture.getTexture());
-        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity_shader / region.w / global_scale, 0));
+    blur_shader.setUniform("source", blurred_texture.getTexture());
+    
+    blur_intensity = std::pow(2, blur_intensity);
+    
+    float horz_offset = blur_intensity / region.w / global_scale, vert_offset = blur_intensity / region.h / global_scale;
+    
+    while(blur_intensity >= 1.f / SHADER_QUALITY) {
+        blur_shader.setUniform("offset", sf::Vector2f(horz_offset, 0));
         applyShader(blur_shader, blurred_texture);
         
-        blur_shader.setUniform("source", blurred_texture.getTexture());
-        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity_shader / region.h / global_scale));
+        blur_shader.setUniform("offset", sf::Vector2f(0, vert_offset));
         applyShader(blur_shader, blurred_texture);
         
-        if(i > blur_intensity)
-            break;
-        
-        blur_intensity_shader /= 4;
+        blur_intensity /= SHADER_QUALITY;
     }
     
     blurred_texture.display();
@@ -141,7 +144,6 @@ void gfx::blurRegion(RectShape region, float blur_intensity) {
 }
 
 void gfx::updateWindow() {
-    //blurRegion({short(getWindowWidth() / 4), short(getWindowHeight() / 4), (unsigned short)(getWindowWidth() / 2), (unsigned short)(getWindowHeight() / 2)}, 4);
     window_texture.display();
     window->draw(sf::Sprite(window_texture.getTexture()));
     window->display();

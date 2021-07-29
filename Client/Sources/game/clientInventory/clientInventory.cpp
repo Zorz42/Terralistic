@@ -10,7 +10,7 @@ void ClientInventory::init() {
         inventory_slots[i].w = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
         inventory_slots[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
         inventory_slots[i].y = INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH);
-        inventory_slots[i].blur_intensity = BLUR / 2;
+        inventory_slots[i].blur_intensity = BLUR;
     }
     
     behind_inventory_rect.orientation = gfx::TOP;
