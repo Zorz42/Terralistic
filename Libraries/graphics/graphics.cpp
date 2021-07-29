@@ -122,13 +122,11 @@ void gfx::blurRegion(RectShape region, float blur_intensity) {
     
     blur_intensity = std::pow(2, blur_intensity);
     
-    float horz_offset = blur_intensity / region.w / global_scale, vert_offset = blur_intensity / region.h / global_scale;
-    
     while(blur_intensity >= 1.f / SHADER_QUALITY) {
-        blur_shader.setUniform("offset", sf::Vector2f(horz_offset, 0));
+        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / region.w / global_scale, 0));
         applyShader(blur_shader, blurred_texture);
         
-        blur_shader.setUniform("offset", sf::Vector2f(0, vert_offset));
+        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / region.h / global_scale));
         applyShader(blur_shader, blurred_texture);
         
         blur_intensity /= SHADER_QUALITY;
