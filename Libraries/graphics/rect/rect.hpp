@@ -1,5 +1,8 @@
-#pragma once
+#ifndef rect_hpp
+#define rect_hpp
+
 #include <SFML/Graphics.hpp>
+#include "theme.hpp"
 
 namespace gfx {
 
@@ -25,11 +28,11 @@ class _CenteredObject {
 public:
     _CenteredObject(short x, short y, ObjectType orientation = TOP_LEFT);
     ObjectType orientation;
-    [[nodiscard]] RectShape getTranslatedRect() const;
-    [[nodiscard]] inline virtual unsigned short getWidth() const { return 0; };
-    [[nodiscard]] inline virtual unsigned short getHeight() const { return 0; };
-    [[nodiscard]] short getTranslatedX() const;
-    [[nodiscard]] short getTranslatedY() const;
+    RectShape getTranslatedRect() const;
+    inline virtual unsigned short getWidth() const { return 0; };
+    inline virtual unsigned short getHeight() const { return 0; };
+    short getTranslatedX() const;
+    short getTranslatedY() const;
 
     short x, y;
 };
@@ -37,9 +40,9 @@ public:
 
 class Rect : public _CenteredObject {
 public:
-    explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = { 255, 255, 255 }, ObjectType orientation = TOP_LEFT);
-    [[nodiscard]] inline unsigned short getWidth() const override { return w; };
-    [[nodiscard]] inline unsigned short getHeight() const override { return h; };
+    explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = GFX_DEFAULT_RECT_COLOR, ObjectType orientation = TOP_LEFT);
+    inline unsigned short getWidth() const override { return w; };
+    inline unsigned short getHeight() const override { return h; };
     unsigned short w, h;
     Color c;
     float blur_intensity = 0;
@@ -47,3 +50,5 @@ public:
 };
 
 };
+
+#endif

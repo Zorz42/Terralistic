@@ -40,4 +40,4 @@ public:
 };
 
 
-#endif /* events_hpp */
+#endif

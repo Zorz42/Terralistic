@@ -5,4 +5,4 @@
 
 void renderTextScreen(const std::string& text);
 
-#endif /* textScreen_hpp */
+#endif

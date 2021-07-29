@@ -1,4 +1,5 @@
-#pragma once
+#ifndef scene_hpp
+#define scene_hpp
 
 #include "ui.hpp"
 #include <vector>
@@ -37,3 +38,5 @@ private:
 };
 
 };
+
+#endif

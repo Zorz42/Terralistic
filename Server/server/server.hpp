@@ -1,10 +1,3 @@
-//
-//  server.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 05/05/2021.
-//
-
 #ifndef server_hpp
 #define server_hpp
 
@@ -17,10 +10,10 @@ enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNN
 
 class Server {
     std::string working_dir;
-    Blocks blocks;
-    Items items;
+    ServerBlocks blocks;
+    ServerItems items;
     Players players;
-    NetworkingManager networking_manager;
+    ServerNetworkingManager networking_manager;
     
     worldGenerator generator;
 public:
@@ -35,8 +28,6 @@ public:
     
     unsigned int getGeneratingTotal() const;
     unsigned int getGeneratingCurrent() const;
-    
-    //inline unsigned short getPort() { return port; }
 };
 
-#endif /* server_h */
+#endif

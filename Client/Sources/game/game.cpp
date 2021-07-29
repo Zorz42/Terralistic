@@ -1,28 +1,22 @@
-//
-//  game.cpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on ???.
-//
-
 #include <thread>
 #include <cassert>
 #include <filesystem>
+#include <thread>
+#include <utility>
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "textScreen.hpp"
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
-#include "debugMenu.hpp"
+#include "DebugMenu.hpp"
 #include "chat.hpp"
 #include "server.hpp"
-
+#include "blockSelector.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535
 
 static std::thread server_thread;
-static Server* private_server = nullptr;
 
 #define TEXT_SCALE 3
 
@@ -31,23 +25,23 @@ static Server* private_server = nullptr;
 #define LOADING_RECT_ELEVATION 50
 
 void startPrivateWorld(const std::string& world_name) {
-    gfx::Sprite loading_text;
-    gfx::Rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, {100, 100, 100}, gfx::BOTTOM},
-    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, {255, 255, 255}, gfx::BOTTOM};
+    gfx::Sprite generating_text;
+    gfx::Rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, GREY, gfx::BOTTOM},
+    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, WHITE, gfx::BOTTOM};
 
-    loading_text.scale = TEXT_SCALE;
-    loading_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
-    loading_text.renderText("Generating world", {255, 255, 255});
-    loading_text.orientation = gfx::CENTER;
+    generating_text.scale = TEXT_SCALE;
+    generating_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
+    generating_text.renderText("Generating world");
+    generating_text.orientation = gfx::CENTER;
 
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
 
-    private_server = new Server(fileManager::getWorldsPath() + world_name, gfx::resource_path);
+    Server private_server(fileManager::getWorldsPath() + world_name, gfx::resource_path);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
-    server_thread = std::thread(&Server::start, private_server, port);
+    server_thread = std::thread(&Server::start, &private_server, port);
 
-    while(private_server->state != ServerState::RUNNING)
-        switch (private_server->state) {
+    while(private_server.state != ServerState::RUNNING)
+        switch (private_server.state) {
             case ServerState::NEUTRAL:
                 gfx::sleep(1);
                 break;
@@ -58,10 +52,10 @@ void startPrivateWorld(const std::string& world_name) {
                 renderTextScreen("Loading world");
                 break;
             case ServerState::GENERATING_WORLD:
-                loading_bar.w += (private_server->getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server->getGeneratingTotal() - loading_bar.w) / 3;
+                loading_bar.w += (private_server.getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server.getGeneratingTotal() - loading_bar.w) / 3;
                 loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
                 gfx::clearWindow();
-                loading_text.render();
+                generating_text.render();
                 loading_bar_back.render();
                 loading_bar.render();
                 gfx::updateWindow();
@@ -71,30 +65,54 @@ void startPrivateWorld(const std::string& world_name) {
                 break;
         }
 
-    private_server->setPrivate(true);
+    private_server.setPrivate(true);
 
     game("_", "127.0.0.1", port).run();
-    delete private_server;
-    private_server = nullptr;
+    private_server.stop();
+    while(private_server.state != ServerState::STOPPING)
+        renderTextScreen("Saving world");
+    server_thread.join();
 }
 
 void game::init() {
-    world_map = new map(&networking_manager);
-    world_map->createWorld(275, 75); // dimensions in chunks
-
+    resource_pack.load("resourcePack");
+    
+    blocks = new ClientBlocks(&networking_manager, &resource_pack);
+    blocks->createWorld(4400, 1200);
+    
+    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, username);
+    ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
+    items = new ClientItems(&resource_pack, blocks);
+    
     modules = {
-        world_map,
-        new playerHandler(&networking_manager, &main_player, world_map),
-        new mapFront(world_map),
-        new debugMenu(&main_player, world_map),
-        new chat(&networking_manager),
-        new pauseScreen(),
+        blocks,
+        player_handler,
+        items,
+        new BlockSelector(&networking_manager, blocks, inventory_handler, player_handler),
+        inventory_handler,
+#ifdef DEVELOPER_MODE
+        new DebugMenu(player_handler, blocks),
+#endif
+        new Chat(&networking_manager),
+        new PauseScreen(),
     };
 
     renderTextScreen("Connecting to server");
     if(!networking_manager.establishConnection(ip_address, port)) {
-        choiceScreen("Could not connect to the server!", {"Close"}).run();
+        ChoiceScreen("Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
+    }
+}
+
+void game::onEvent(ClientPacketEvent& event) {
+    switch(event.packet_type) {
+        case PacketType::KICK: {
+            std::string kick_message;
+            event.packet >> kick_message;
+            ChoiceScreen(kick_message, {"Close"}).run();
+            gfx::returnFromScene();
+        }
+        default:;
     }
 }
 
@@ -102,18 +120,17 @@ void game::update() {
     networking_manager.checkForPackets();
 }
 
+void game::render() {
+    float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
+    int position_x = -(blocks->view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
+    for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
+        resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
+    blocks->renderBackBlocks();
+    player_handler->renderPlayers();
+    items->renderItems();
+    blocks->renderFrontBlocks();
+}
+
 void game::stop() {
     networking_manager.closeConnection();
-    
-    if(private_server)
-        private_server->stop();
-
-    while(private_server && private_server->state != ServerState::STOPPING)
-        renderTextScreen("Saving world");
-
-    if(private_server) {
-        server_thread.join();
-        delete private_server;
-        private_server = nullptr;
-    }
 }

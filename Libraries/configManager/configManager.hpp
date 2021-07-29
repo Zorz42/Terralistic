@@ -26,4 +26,4 @@ public:
     bool keyExists(const std::string& key) const;
 };
 
-#endif /* configManager_hpp */
+#endif

@@ -11,4 +11,4 @@ void error(const std::string& text);
 
 }
 
-#endif /* print_hpp */
+#endif

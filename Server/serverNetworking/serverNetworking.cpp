@@ -17,22 +17,22 @@ void Connection::freeSocket() {
     delete socket;
 }
 
-void NetworkingManager::openSocket(unsigned short port) {
+void ServerNetworkingManager::openSocket(unsigned short port) {
     listener.listen(port);
     listener.setBlocking(false);
 }
 
-void NetworkingManager::closeSocket() {
+void ServerNetworkingManager::closeSocket() {
     listener.close();
 }
 
-void NetworkingManager::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
+void ServerNetworkingManager::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
     for(Connection& connection : connections)
         if(exclusion == nullptr || exclusion->player != connection.player)
             connection.send(packet);
 }
 
-void NetworkingManager::checkForNewConnections() {
+void ServerNetworkingManager::checkForNewConnections() {
     static sf::TcpSocket *socket = new sf::TcpSocket;
     while(true) {
         if(listener.accept(*socket) != sf::Socket::NotReady) {
@@ -48,7 +48,7 @@ void NetworkingManager::checkForNewConnections() {
     }
 }
 
-void NetworkingManager::getPacketsFromPlayers() {
+void ServerNetworkingManager::getPacketsFromPlayers() {
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
         if(connections[i].player) {
@@ -91,7 +91,7 @@ void NetworkingManager::getPacketsFromPlayers() {
                     connections[i].send(join_packet);
                 }
 
-            for(const Item& curr_item : items->getItems()) {
+            for(const ServerItem& curr_item : items->getItems()) {
                 sf::Packet item_packet;
                 item_packet << PacketType::ITEM_CREATION << curr_item.getX() << curr_item.getY() << curr_item.getId() << (unsigned char)curr_item.getType();
                 connections[i].send(item_packet);

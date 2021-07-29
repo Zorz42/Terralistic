@@ -25,4 +25,4 @@ void blurRegion(RectShape region, float blur_intensity);
 
 }
 
-#endif /* graphics_internal_hpp */
+#endif

@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-struct worldCreator : gfx::Scene {
-    explicit worldCreator(std::vector<std::string> worlds) : worlds(std::move(worlds)) {}
+struct WorldCreator : gfx::Scene {
+    explicit WorldCreator(std::vector<std::string> worlds) : worlds(std::move(worlds)) {}
     bool running = true, can_create = true;
     void init() override;
     void onKeyDown(gfx::Key key) override;
@@ -20,4 +20,4 @@ private:
     gfx::TextInput world_name;
 };
 
-#endif /* worldCreator_hpp */
+#endif

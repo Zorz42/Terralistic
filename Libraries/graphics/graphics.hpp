@@ -37,4 +37,4 @@ void setWindowSize(unsigned short width, unsigned short height);
 
 };
 
-#endif /* graphics_hpp */
+#endif

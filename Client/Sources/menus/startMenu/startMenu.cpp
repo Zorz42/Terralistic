@@ -2,35 +2,34 @@
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
 
-void startMenu::init() {
+void StartMenu::init() {
     singleplayer_button.scale = 3;
-    singleplayer_button.renderText("Singleplayer", {255, 255, 255});
+    singleplayer_button.renderText("Singleplayer");
     singleplayer_button.y = short(-singleplayer_button.getTranslatedRect().h - 5);
     singleplayer_button.orientation = gfx::CENTER;
 
     multiplayer_button.scale = 3;
-    multiplayer_button.renderText("Multiplayer", {255, 255, 255});
+    multiplayer_button.renderText("Multiplayer");
     multiplayer_button.orientation = gfx::CENTER;
 
     exit_button.scale = 3;
-    exit_button.renderText("Exit", {255, 255, 255});
+    exit_button.renderText("Exit");
     exit_button.y = short(exit_button.getTranslatedRect().h + 5);
     exit_button.orientation = gfx::CENTER;
     
-    title.renderText("Terralistic", {255, 255, 255});
+    title.renderText("Terralistic");
     title.scale = 4;
     title.orientation = gfx::TOP;
     title.y = 40;
     
-    background.loadFromFile("texturePack/misc/background.png");
+    background.loadFromFile("background.png");
     
-    back_rect.c = {0, 0, 0};
     back_rect.orientation = gfx::CENTER;
     back_rect.w = singleplayer_button.getWidth() + 100;
-    back_rect.c = {0, 0, 0, 200};
-    back_rect.blur_intensity = 4;
+    back_rect.c.a = TRANSPARENCY;
+    back_rect.blur_intensity = BLUR;
 #ifdef DEVELOPER_MODE
-    debug_title.renderText("DEBUG MODE", {100, 100, 100});
+    debug_title.renderText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2;
     debug_title.y = 10;
@@ -38,24 +37,24 @@ void startMenu::init() {
     
     version.renderText(
 #include "version.hpp"
-                                       , {100, 100, 100});
+                                       , GREY);
     version.orientation = gfx::BOTTOM;
     version.scale = 2;
     version.y = -5;
 }
 
-void startMenu::onKeyDown(gfx::Key key) {
+void StartMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(exit_button.isHovered())
             gfx::returnFromScene();
         else if(singleplayer_button.isHovered())
-            worldSelector().run();
+            WorldSelector().run();
         else if(multiplayer_button.isHovered())
-            multiplayerSelector().run();
+            MultiplayerSelector().run();
     }
 }
 
-void startMenu::render() {
+void StartMenu::render() {
     float scale = (float)gfx::getWindowHeight() / (float)background.getTextureHeight();
     int pos = gfx::getTicks() / 30 % int(background.getTextureWidth() * scale);
     background.render(scale, pos, 0);

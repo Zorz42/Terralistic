@@ -1,10 +1,8 @@
 #include "startMenu.hpp"
 #include "fileManager.hpp"
 #include "configManager.hpp"
-#include "textures.hpp"
+#include "resourcePack.hpp"
 #include "resourcePath.hpp"
-
-#include <iostream>
 
 int main(int argc, char **argv) {
     gfx::init(1000, 600);
@@ -19,9 +17,8 @@ int main(int argc, char **argv) {
         gfx::setScale((float)config.getInt("ui_scale") / 100);
     }
     initProperties();
-    loadTextures();
     
-    startMenu().run();
+    StartMenu().run();
 
     gfx::quit();
 

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "packetType.hpp"
-#include "players.hpp"
+#include "serverPlayers.hpp"
 
 class Connection {
     sf::TcpSocket* socket;
@@ -19,12 +19,12 @@ public:
     
 };
 
-class NetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent> {
+class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent> {
     std::vector<Connection> connections;
     sf::TcpListener listener;
     
-    Blocks* blocks;
-    Items* items;
+    ServerBlocks* blocks;
+    ServerItems* items;
     Players* players;
     
     void onEvent(ServerBlockChangeEvent& event) override;
@@ -40,7 +40,7 @@ class NetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<S
     
     void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
-    NetworkingManager(Blocks* blocks, Items* items, Players* players) : blocks(blocks), items(items), players(players) {}
+    ServerNetworkingManager(ServerBlocks* blocks, ServerItems* items, Players* players) : blocks(blocks), items(items), players(players) {}
     
     void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
     
@@ -55,4 +55,4 @@ public:
     bool accept_itself = false;
 };
 
-#endif /* serverNetworking_hpp */
+#endif

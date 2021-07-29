@@ -45,4 +45,4 @@ const BlockInfo& getBlockInfo(BlockType type);
 const ItemInfo& getItemInfo(ItemType type);
 const LiquidInfo& getLiquidInfo(LiquidType type);
 
-#endif /* properties_hpp */
+#endif

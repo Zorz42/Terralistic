@@ -1,15 +1,8 @@
-//
-//  worldGenerator.hpp
-//  Terralistic
-//
-//  Created by Jakob Zorz on 22/06/2021.
-//
-
 #ifndef worldGenerator_hpp
 #define worldGenerator_hpp
 
 #include <string>
-#include "blocks.hpp"
+#include "serverBlocks.hpp"
 #include "SimplexNoise.h"
 
 
@@ -27,7 +20,7 @@ struct structurePosition {
 };
 
 class worldGenerator {
-    Blocks* server_blocks;
+    ServerBlocks* server_blocks;
 
     std::vector<structure> structures;
     std::vector<structurePosition> structurePositions;
@@ -57,7 +50,7 @@ class worldGenerator {
     unsigned int generating_current = 0, generating_total = 6;
 
 public:
-    worldGenerator(Blocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
+    worldGenerator(ServerBlocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
 
     inline unsigned int getGeneratingCurrent() const { return generating_current; }
     inline unsigned int getGeneratingTotal() const { return generating_total; }
@@ -65,4 +58,4 @@ public:
     int generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed);
 };
 
-#endif /* worldGenerator_hpp */
+#endif

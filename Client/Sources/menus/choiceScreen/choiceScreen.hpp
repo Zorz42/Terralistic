@@ -6,21 +6,21 @@
 
 #include "graphics.hpp"
 
-class choiceScreen : public gfx::Scene {
-    struct button {
-        std::string option;
-        gfx::Button gfx_button;
-    };
+struct ChoiceScreenButton {
+    std::string option;
+    gfx::Button gfx_button;
+};
 
+class ChoiceScreen : public gfx::Scene {
     gfx::Sprite question_sprite;
     std::string question, *result;
-    std::vector<button> buttons;
+    std::vector<ChoiceScreenButton> buttons;
 public:
-    choiceScreen(std::string question, const std::vector<std::string>& options, std::string* result = nullptr);
+    ChoiceScreen(std::string question, const std::vector<std::string>& options, std::string* result = nullptr);
 
     void init() override;
     void onKeyDown(gfx::Key key) override;
     void render() override;
 };
 
-#endif /* choiceScreen_hpp */
+#endif

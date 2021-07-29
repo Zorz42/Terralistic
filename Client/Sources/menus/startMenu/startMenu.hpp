@@ -3,7 +3,7 @@
 
 #include "graphics.hpp"
 
-class startMenu : public gfx::Scene {
+class StartMenu : public gfx::Scene {
     gfx::Button singleplayer_button, multiplayer_button, exit_button;
     gfx::Sprite title, version;
     gfx::Image background;
@@ -17,4 +17,4 @@ public:
     void render() override;
 };
 
-#endif /* startMenu_hpp */
+#endif
