@@ -78,6 +78,18 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
 
 void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
     int surface_height = calculateHeight(x, noise);
+    generateSurface(x, surface_height, noise);
+    for(auto &checking_structure : loaded_biomes[(int)server_blocks->biomes[x]].structure_chances){
+        if((noise.noise((float)x + 0.5, (float)surface_height + 0.5) + 1) * checking_structure.chance_on_each_block <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance_between_instances) {
+            structurePositions.emplace_back(structurePosition(checking_structure.structure_name +
+                                         std::to_string((int)((noise.noise((float)x - 0.5, (float)surface_height - 0.5) + 1) / 2 * checking_structure.unique_structures_of_type)),
+                                         x, surface_height - 1));
+            checking_structure.x_of_last_instance = x;
+        }
+    }
+}
+
+void worldGenerator::generateSurface(int x, int surface_height, SimplexNoise &noise) {
     int last_layer = surface_height + 1;
     int generating_layer = 0;
     biome &slice_biome = loaded_biomes[(int)server_blocks->biomes[x]];
@@ -154,12 +166,14 @@ void worldGenerator::loadAssets() {
         counter++;
         int y_size = assetData[counter];
         counter++;
+        int y_offset = assetData[counter];
+        counter++;
         auto *blocks = new BlockType[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {
             blocks[i] = (BlockType)assetData[counter];
             counter++;
         }
-        structures.emplace_back(name, x_size, y_size, blocks);
+        structures.emplace_back(name, x_size, y_size, y_offset, blocks);
         previousEnd = counter;
     }
 
@@ -170,6 +184,8 @@ void worldGenerator::loadAssets() {
 void worldGenerator::generateStructure(const std::string& name, int x, int y) {
     for (auto & structure : structures) {
         if (name == structure.name) {
+            x -= structure.x_size / 2;
+            y += structure.y_offset;
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != BlockType::NOTHING)
                     server_blocks->getBlock((unsigned short)(x + j % structure.x_size), (unsigned short)(server_blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1).setTypeWithoutProcessing(structure.blocks[j]);
@@ -261,12 +277,13 @@ void worldGenerator::loadBiomes() {
                                   {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
                                    layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
                                    layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
-                                  {}));
+                                  {structureChance("tree_", 5, 20, -1000, 2)
+                                  }));
     loaded_biomes.push_back(biome(Biome::FOREST, server_blocks -> getHeight() / 3 * 2 + 26, 10,
                                   {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
                                    layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
                                    layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
-                                  {}));
+                                  {structureChance("tree_", 3, 6, -1000, 2)}));
     loaded_biomes.push_back(biome(Biome::MOUNTAINS, server_blocks -> getHeight() / 3 * 2 + 70, 33,
                                   {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
                                   {}));

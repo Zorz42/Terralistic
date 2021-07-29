@@ -15,9 +15,9 @@
 
 struct structure {
     std::string name;
-    int x_size, y_size;
+    int x_size, y_size, y_offset;
     BlockType* blocks;
-    structure(std::string cname, int x, int y, BlockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), blocks(cBlocks) {}
+    structure(std::string cname, int x, int y, int offset, BlockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
 };
 
 struct structurePosition {
@@ -36,6 +36,7 @@ class worldGenerator {
     int calculateHeight(int x, SimplexNoise& noise);
     //static int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
     void terrainGenerator(int x, SimplexNoise& noise);
+    void generateSurface(int x, int surface_height, SimplexNoise& noise);
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();

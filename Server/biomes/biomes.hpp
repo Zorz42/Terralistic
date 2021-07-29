@@ -35,5 +35,6 @@ struct structureChance{
     float chance_on_each_block;
     int least_distance_between_instances;
     int x_of_last_instance;
-    structureChance(std::string name, float chance_on_block, int least_distance, int x_of_last);
+    int unique_structures_of_type;
+    structureChance(std::string name, float chance_on_block, int least_distance, int x_of_last, int unique_structures);
 };

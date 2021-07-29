@@ -19,9 +19,11 @@ layer::layer(BlockType cblock, LayerHeightMode height_mode, int cheight, int var
     height_variation = variation;
 }
 
-structureChance::structureChance(std::string name, float chance_on_block, int least_distance, int x_of_last) {
+structureChance::structureChance(std::string name, float chance_on_block, int least_distance, int x_of_last, int unique_structures) {
     structure_name = name;
     chance_on_each_block = chance_on_block;
     least_distance_between_instances =  least_distance;
     x_of_last_instance = -10000;
+    unique_structures_of_type = unique_structures;
+
 }
