@@ -8,7 +8,7 @@
 #include "textScreen.hpp"
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
-#include "DebugMenu.hpp"
+#include "debugMenu.hpp"
 #include "chat.hpp"
 #include "server.hpp"
 #include "blockSelector.hpp"
