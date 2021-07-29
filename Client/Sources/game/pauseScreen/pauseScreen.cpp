@@ -11,7 +11,7 @@ void PauseScreen::init() {
     quit_button.y = short(resume_button.getHeight() + 2 * SPACING);
     
     back_rect.w = quit_button.getWidth() + 2 * SPACING;
-    back_rect.c.a = 200;
+    back_rect.c.a = TRANSPARENCY;
     
     x_to_be = -back_rect.w;
     back_rect.x = x_to_be;
@@ -26,7 +26,7 @@ void PauseScreen::render() {
         fade_rect.w = gfx::getWindowWidth();
         fade_rect.h = gfx::getWindowHeight();
         fade_rect.c.a = float(back_rect.w + back_rect.x) / (float)back_rect.w * 150;
-        fade_rect.blur_intensity = float(back_rect.w + back_rect.x) / (float)back_rect.w * 4;
+        fade_rect.blur_intensity = float(back_rect.w + back_rect.x) / (float)back_rect.w * BLUR;
         if(fade_rect.blur_intensity < 0.5f)
             fade_rect.blur_intensity = 0;
         fade_rect.render();

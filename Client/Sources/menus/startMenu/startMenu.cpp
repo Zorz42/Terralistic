@@ -26,8 +26,8 @@ void StartMenu::init() {
     
     back_rect.orientation = gfx::CENTER;
     back_rect.w = singleplayer_button.getWidth() + 100;
-    back_rect.c.a = 200;
-    back_rect.blur_intensity = 4;
+    back_rect.c.a = TRANSPARENCY;
+    back_rect.blur_intensity = BLUR;
 #ifdef DEVELOPER_MODE
     debug_title.renderText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;

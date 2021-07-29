@@ -6,11 +6,11 @@
 void ClientInventory::init() {
     for(int i = 0; i < 20; i++) {
         inventory_slots[i].orientation = gfx::TOP;
-        inventory_slots[i].c = GREY;
         inventory_slots[i].h = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
         inventory_slots[i].w = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
         inventory_slots[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
         inventory_slots[i].y = INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH);
+        inventory_slots[i].blur_intensity = BLUR / 2;
     }
     
     behind_inventory_rect.orientation = gfx::TOP;
@@ -24,7 +24,7 @@ void ClientInventory::init() {
 
 void ClientInventory::render() {
     behind_inventory_rect.h = open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
-    behind_inventory_rect.render();
+    //behind_inventory_rect.render();
     
     const gfx::Image* text_texture = nullptr;
     hovered = nullptr;
@@ -46,8 +46,10 @@ void ClientInventory::render() {
                     under_text_rect.y = gfx::getMouseY() + 20 - INVENTORY_UI_SPACING;
                 }
             }
-        } else
-            inventory_slots[i].c = GREY;
+        } else {
+            inventory_slots[i].c = BLACK;
+            inventory_slots[i].c.a = TRANSPARENCY / 2;
+        }
         inventory_slots[i].render();
         renderItem(&inventory[i], inventory_slots[i].getTranslatedX() + INVENTORY_UI_SPACING / 2, inventory_slots[i].getTranslatedY() + INVENTORY_UI_SPACING / 2, i);
     }

@@ -6,30 +6,29 @@ static sf::Clock global_clock;
 
 static std::string blur_shader_code =
 "uniform sampler2D source;"
-"uniform vec2 offsetFactor;"
+"uniform vec2 offset;"
+"uniform vec2 bottom_left, top_right;"
 ""
 "void main() {"
-"    vec2 textureCoordinates = gl_TexCoord[0].xy;"
-"    vec4 color = vec4(0.0);"
-"    color += texture2D(source, textureCoordinates - 4.0 * offsetFactor) * 0.0162162162;"
-"    color += texture2D(source, textureCoordinates - 3.0 * offsetFactor) * 0.0540540541;"
-"    color += texture2D(source, textureCoordinates - 2.0 * offsetFactor) * 0.1216216216;"
-"    color += texture2D(source, textureCoordinates - offsetFactor) * 0.1945945946;"
-"    color += texture2D(source, textureCoordinates) * 0.2270270270;"
-"    color += texture2D(source, textureCoordinates + offsetFactor) * 0.1945945946;"
-"    color += texture2D(source, textureCoordinates + 2.0 * offsetFactor) * 0.1216216216;"
-"    color += texture2D(source, textureCoordinates + 3.0 * offsetFactor) * 0.0540540541;"
-"    color += texture2D(source, textureCoordinates + 4.0 * offsetFactor) * 0.0162162162;"
-"    gl_FragColor = color;"
+"   vec2 textureCoordinates = gl_TexCoord[0].xy;"
+"   vec2 inside_box = step(bottom_left, textureCoordinates) - step(top_right, textureCoordinates); "
+"   vec4 color = vec4(0.0);"
+"   color += texture2D(source, textureCoordinates - 4.0 * offset) * 0.0162162162;"
+"   color += texture2D(source, textureCoordinates - 3.0 * offset) * 0.0540540541;"
+"   color += texture2D(source, textureCoordinates - 2.0 * offset) * 0.1216216216;"
+"   color += texture2D(source, textureCoordinates - offset) * 0.1945945946;"
+"   color += texture2D(source, textureCoordinates) * 0.2270270270;"
+"   color += texture2D(source, textureCoordinates + offset) * 0.1945945946;"
+"   color += texture2D(source, textureCoordinates + 2.0 * offset) * 0.1216216216;"
+"   color += texture2D(source, textureCoordinates + 3.0 * offset) * 0.0540540541;"
+"   color += texture2D(source, textureCoordinates + 4.0 * offset) * 0.0162162162;"
+"   gl_FragColor = mix(texture2D(source, textureCoordinates), color, inside_box.x * inside_box.y);"
 "}"
 ;
-static sf::RenderTexture window_texture;
-static sf::RenderTexture blurred_texture;
+static sf::RenderTexture window_texture, blurred_texture;
 
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
-    window_texture.create(window_width, window_height);
-    blurred_texture.create(window_width, window_height);
     window->setVerticalSyncEnabled(true);
     window->setFramerateLimit(360);
     render_target = &window_texture;
@@ -94,30 +93,55 @@ void gfx::clearWindow() {
     window_texture.clear(GFX_BACKGROUND_COLOR);
 }
 
+void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
+    sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
+
+    sf::VertexArray vertices(sf::TrianglesStrip, 4);
+    vertices[0] = sf::Vertex(sf::Vector2f(0, 0),            sf::Vector2f(0, 1));
+    vertices[1] = sf::Vertex(sf::Vector2f(outputSize.x, 0), sf::Vector2f(1, 1));
+    vertices[2] = sf::Vertex(sf::Vector2f(0, outputSize.y), sf::Vector2f(0, 0));
+    vertices[3] = sf::Vertex(sf::Vector2f(outputSize.x, outputSize.y),      sf::Vector2f(1, 0));
+
+    sf::RenderStates states;
+    states.shader    = &shader;
+    states.blendMode = sf::BlendNone;
+
+    output.draw(vertices, states);
+}
+
 void gfx::blurRegion(RectShape region, float blur_intensity) {
-    sf::Sprite sprite;
-    sprite.setTexture(window_texture.getTexture());
-    sprite.setTextureRect({region.x, region.y, region.w, region.h});
-    sprite.setPosition(region.x, region.y);
-    
-    blur_shader.setUniform("source", window_texture.getTexture());
+    blurred_texture.draw(sf::Sprite(window_texture.getTexture()));
     
     float blur_intensity_shader = std::pow(2, blur_intensity);
+    
+    blur_shader.setUniform("bottom_left", sf::Vector2f(float(region.x) / getWindowWidth(), 1.f - float(region.y + region.h) / getWindowHeight()));
+    blur_shader.setUniform("top_right", sf::Vector2f(float(region.x + region.w) / getWindowWidth(), 1.f - float(region.y) / getWindowWidth()));
     for(float i = 0;; i += 2.f) {
-        blur_shader.setUniform("offsetFactor", sf::Vector2f(blur_intensity_shader / getWindowWidth() / global_scale, blur_intensity_shader / getWindowHeight() / global_scale));
-        window_texture.draw(sprite, &blur_shader);
+        blur_shader.setUniform("source", blurred_texture.getTexture());
+        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity_shader / region.w / global_scale, 0));
+        applyShader(blur_shader, blurred_texture);
         
-        blur_shader.setUniform("offsetFactor", sf::Vector2f(blur_intensity_shader / -getWindowWidth() / global_scale, blur_intensity_shader / getWindowHeight() / global_scale));
-        window_texture.draw(sprite, &blur_shader);
+        blur_shader.setUniform("source", blurred_texture.getTexture());
+        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity_shader / region.h / global_scale));
+        applyShader(blur_shader, blurred_texture);
         
         if(i > blur_intensity)
             break;
         
         blur_intensity_shader /= 4;
     }
+    
+    blurred_texture.display();
+    sf::Sprite blurred_sprite;
+    blurred_sprite.setTexture(blurred_texture.getTexture());
+    blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
+    blurred_sprite.setPosition(region.x, region.y);
+    window_texture.draw(blurred_sprite);
+    
 }
 
 void gfx::updateWindow() {
+    //blurRegion({short(getWindowWidth() / 4), short(getWindowHeight() / 4), (unsigned short)(getWindowWidth() / 2), (unsigned short)(getWindowHeight() / 2)}, 4);
     window_texture.display();
     window->draw(sf::Sprite(window_texture.getTexture()));
     window->display();
@@ -144,6 +168,6 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     sf::FloatRect visibleArea(0, 0, (unsigned int)width / global_scale, (unsigned int)height / global_scale);
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
-    window_texture.create(width, height);
-    blurred_texture.create(width, height);
+    window_texture.create(width / global_scale, height / global_scale);
+    blurred_texture.create(width / global_scale, height / global_scale);
 }
