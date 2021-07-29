@@ -102,7 +102,7 @@ void worldGenerator::generateSurface(int x, int surface_height, SimplexNoise &no
                     y++;
                 }
             } else {
-                if (y < slice_biome.ground_layers[generating_layer + 1].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer + 1].height_variation && slice_biome.ground_layers.size() != generating_layer + 1) {
+                if (slice_biome.ground_layers.size() != generating_layer + 1 && y < slice_biome.ground_layers[generating_layer + 1].height + noise.noise(x / 3 + 0.1, y * 2 + 0.5) * slice_biome.ground_layers[generating_layer + 1].height_variation) {
                     generating_layer++;
                     y++;
                 } else if (y < slice_biome.ground_layers[generating_layer].height +
@@ -110,7 +110,7 @@ void worldGenerator::generateSurface(int x, int surface_height, SimplexNoise &no
                                slice_biome.ground_layers[generating_layer].height_variation) {
                     server_blocks->getBlock(x, server_blocks->getHeight() - y).setTypeWithoutProcessing(slice_biome.ground_layers[generating_layer].block);
                 }
-                else{
+                else {
                     server_blocks->getBlock(x, server_blocks->getHeight() - y).setTypeWithoutProcessing(LiquidType::WATER);
                     server_blocks->getBlock(x, server_blocks->getHeight() - y).setLiquidLevelWithoutProcessing(127);
                 }
