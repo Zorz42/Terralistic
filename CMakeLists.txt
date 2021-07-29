@@ -24,7 +24,7 @@ file(GLOB_RECURSE SRC_CLIENT CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Clien
 file(GLOB_RECURSE SRC_SERVER CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Server/*.cpp)
 list(REMOVE_ITEM SRC_SERVER ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
 
-add_executable(Terralistic ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER})
+add_executable(Terralistic WIN32 ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER})
 add_executable(Terralistic-server ${SRC_LIBRARIES} ${SRC_SERVER} ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
 
 
@@ -38,6 +38,8 @@ LIST(REMOVE_DUPLICATES INCLUDES)
 
 include_directories(Terralistic ${INCLUDES})
 include_directories(Terralistic-server ${INCLUDES})
+
+message(${CMAKE_CXX_COMPILER})
 
 if(WIN32)
     SET(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)

@@ -7,36 +7,36 @@ static sf::Clock global_clock;
 // higher number = faster, but worse quality
 #define SHADER_QUALITY 4
 
-static std::string blur_shader_code =
-"uniform sampler2D source;"
-"uniform vec2 offset;"
-""
-"void main() {"
-"    vec2 textureCoordinates = gl_TexCoord[0].xy;"
-"    vec4 color = vec4(0.0);"
-"    color += texture2D(source, textureCoordinates - 10.0 * offset) * 0.0012;"
-"    color += texture2D(source, textureCoordinates - 9.0 * offset) * 0.0015;"
-"    color += texture2D(source, textureCoordinates - 8.0 * offset) * 0.0038;"
-"    color += texture2D(source, textureCoordinates - 7.0 * offset) * 0.0087;"
-"    color += texture2D(source, textureCoordinates - 6.0 * offset) * 0.0180;"
-"    color += texture2D(source, textureCoordinates - 5.0 * offset) * 0.0332;"
-"    color += texture2D(source, textureCoordinates - 4.0 * offset) * 0.0547;"
-"    color += texture2D(source, textureCoordinates - 3.0 * offset) * 0.0807;"
-"    color += texture2D(source, textureCoordinates - 2.0 * offset) * 0.1065;"
-"    color += texture2D(source, textureCoordinates - offset) * 0.1258;"
-"    color += texture2D(source, textureCoordinates) * 0.1330;"
-"    color += texture2D(source, textureCoordinates + offset) * 0.1258;"
-"    color += texture2D(source, textureCoordinates + 2.0 * offset) * 0.1065;"
-"    color += texture2D(source, textureCoordinates + 3.0 * offset) * 0.0807;"
-"    color += texture2D(source, textureCoordinates + 4.0 * offset) * 0.0547;"
-"    color += texture2D(source, textureCoordinates + 5.0 * offset) * 0.0332;"
-"    color += texture2D(source, textureCoordinates + 6.0 * offset) * 0.0180;"
-"    color += texture2D(source, textureCoordinates - 7.0 * offset) * 0.0087;"
-"    color += texture2D(source, textureCoordinates - 8.0 * offset) * 0.0038;"
-"    color += texture2D(source, textureCoordinates - 9.0 * offset) * 0.0015;"
-"    color += texture2D(source, textureCoordinates - 10.0 * offset) * 0.0012;"
-"    gl_FragColor = color;"
-"}"
+static const char* blur_shader_code =
+"uniform sampler2D source;\n"
+"uniform vec2 offset;\n"
+"\n"
+"void main() {\n"
+"    vec2 textureCoordinates = gl_TexCoord[0].xy;\n"
+"    vec4 color = vec4(0.0);\n"
+"    color += texture2D(source, textureCoordinates - 10.0 * offset) * 0.0012;\n"
+"    color += texture2D(source, textureCoordinates - 9.0 * offset) * 0.0015;\n"
+"    color += texture2D(source, textureCoordinates - 8.0 * offset) * 0.0038;\n"
+"    color += texture2D(source, textureCoordinates - 7.0 * offset) * 0.0087;\n"
+"    color += texture2D(source, textureCoordinates - 6.0 * offset) * 0.0180;\n"
+"    color += texture2D(source, textureCoordinates - 5.0 * offset) * 0.0332;\n"
+"    color += texture2D(source, textureCoordinates - 4.0 * offset) * 0.0547;\n"
+"    color += texture2D(source, textureCoordinates - 3.0 * offset) * 0.0807;\n"
+"    color += texture2D(source, textureCoordinates - 2.0 * offset) * 0.1065;\n"
+"    color += texture2D(source, textureCoordinates - offset) * 0.1258;\n"
+"    color += texture2D(source, textureCoordinates) * 0.1330;\n"
+"    color += texture2D(source, textureCoordinates + offset) * 0.1258;\n"
+"    color += texture2D(source, textureCoordinates + 2.0 * offset) * 0.1065;\n"
+"    color += texture2D(source, textureCoordinates + 3.0 * offset) * 0.0807;\n"
+"    color += texture2D(source, textureCoordinates + 4.0 * offset) * 0.0547;\n"
+"    color += texture2D(source, textureCoordinates + 5.0 * offset) * 0.0332;\n"
+"    color += texture2D(source, textureCoordinates + 6.0 * offset) * 0.0180;\n"
+"    color += texture2D(source, textureCoordinates - 7.0 * offset) * 0.0087;\n"
+"    color += texture2D(source, textureCoordinates - 8.0 * offset) * 0.0038;\n"
+"    color += texture2D(source, textureCoordinates - 9.0 * offset) * 0.0015;\n"
+"    color += texture2D(source, textureCoordinates - 10.0 * offset) * 0.0012;\n"
+"    gl_FragColor = color;\n"
+"}\n"
 ;
 static sf::RenderTexture window_texture, blurred_texture;
 
@@ -46,7 +46,7 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     window->setFramerateLimit(360);
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
-    
+
     bool result = blur_shader.loadFromMemory(blur_shader_code,  sf::Shader::Type::Fragment);
     assert(result);
 }
