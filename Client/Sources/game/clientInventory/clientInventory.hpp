@@ -29,11 +29,11 @@ class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalM
     unsigned char selected_slot = 0;
     void swapWithMouseItem(ClientInventoryItem* item);
     void clearMouseItem();
-    
     void onEvent(ClientPacketEvent &event) override;
     void onKeyDown(gfx::Key key) override;
     gfx::Rect inventory_slots[INVENTORY_SIZE], under_text_rect, behind_inventory_rect, select_rect;
     gfx::Image stack_textures[20], mouse_stack_texture;
+    short select_rect_x_should_be, behind_rect_h_should_be;
     void selectSlot(char slot);
     ClientInventoryItem *hovered = nullptr;
     void renderItem(ClientInventoryItem* item, int x, int y, int i);

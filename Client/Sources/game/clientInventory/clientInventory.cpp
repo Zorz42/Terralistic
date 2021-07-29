@@ -18,6 +18,8 @@ void ClientInventory::init() {
     behind_inventory_rect.y = INVENTORY_UI_SPACING / 2;
     behind_inventory_rect.blur_intensity = BLUR / 8;
     behind_inventory_rect.c.a = TRANSPARENCY;
+    behind_inventory_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
+    behind_rect_h_should_be = behind_inventory_rect.h;
     
     select_rect.orientation = gfx::TOP;
     select_rect.c = GREY;
@@ -25,6 +27,8 @@ void ClientInventory::init() {
     select_rect.y = INVENTORY_UI_SPACING / 2;
     select_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
     select_rect.w = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
+    select_rect.x = -9 * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
+    select_rect_x_should_be = select_rect.x;
     
     under_text_rect.c = BLACK;
     
@@ -32,10 +36,16 @@ void ClientInventory::init() {
 }
 
 void ClientInventory::render() {
-    behind_inventory_rect.h = open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
+    behind_rect_h_should_be = open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
+    behind_inventory_rect.h += (behind_rect_h_should_be - behind_inventory_rect.h) / 2;
+    if(abs(behind_inventory_rect.h - behind_rect_h_should_be) == 1)
+        behind_inventory_rect.h = behind_rect_h_should_be;
     behind_inventory_rect.render();
     
-    select_rect.x = (2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
+    select_rect_x_should_be = (2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
+    select_rect.x += (select_rect_x_should_be - select_rect.x) / 2;
+    if(abs(select_rect.x - select_rect_x_should_be) == 1)
+        select_rect.x = select_rect_x_should_be;
     select_rect.render();
     
     const gfx::Image* text_texture = nullptr;
