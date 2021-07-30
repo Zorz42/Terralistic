@@ -2,12 +2,12 @@
 #define mainMenu_hpp
 
 #include "graphics.hpp"
+#include "menuBack.hpp"
 
 class MainMenu : public gfx::Scene {
     gfx::Button singleplayer_button, multiplayer_button, exit_button;
     gfx::Sprite title, version;
-    gfx::Image background;
-    gfx::Rect back_rect;
+    MenuBack menu_back;
 #ifdef DEVELOPER_MODE
     gfx::Sprite debug_title;
 #endif

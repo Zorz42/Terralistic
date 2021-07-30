@@ -146,7 +146,6 @@ void gfx::blurRegion(sf::RenderTexture& target, RectShape region, float blur_int
     blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
     blurred_sprite.setPosition(region.x, region.y);
     target.draw(blurred_sprite);
-    
 }
 
 void gfx::updateWindow() {

@@ -2,22 +2,25 @@
 #define worldSelector_hpp
 
 #include "graphics.hpp"
+#include "menuBack.hpp"
+
+struct WorldToSelect {
+    std::string name;
+    explicit WorldToSelect(std::string name) : name(std::move(name)) {}
+    gfx::Button button, delete_button;
+    void render(int position);
+    int button_y{};
+};
 
 class WorldSelector : public gfx::Scene {
-    struct world_to_select {
-        std::string name;
-        explicit world_to_select(std::string name) : name(std::move(name)) {}
-        gfx::Button button, delete_button;
-        void render(int position);
-        int button_y{};
-    };
-
     gfx::Sprite title;
     gfx::Button back_button, new_button;
     std::vector<std::string> worlds_names;
-    std::vector<world_to_select> worlds;
+    std::vector<WorldToSelect> worlds;
     int scroll_limit, position;
     bool shift_pressed = false;
+    MenuBack* menu_back;
+    gfx::Rect top_rect_blur, bottom_rect_blur, top_rect, bottom_rect;
     
     void init() override;
     void onKeyDown(gfx::Key key) override;
@@ -25,6 +28,8 @@ class WorldSelector : public gfx::Scene {
     void render() override;
     void onMouseScroll(int distance) override;
     void refresh();
+public:
+    WorldSelector(MenuBack* menu_back) : menu_back(menu_back) {}
 };
 
 #endif

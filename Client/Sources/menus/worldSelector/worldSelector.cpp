@@ -6,11 +6,11 @@
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
 
-#define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
-#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
+#define TOP_HEIGHT (title.getHeight() + SPACING)
+#define BOTTOM_HEIGHT (back_button.getHeight() + SPACING)
 #define LINE_THICKNESS 2
 
-void WorldSelector::world_to_select::render(int position_) {
+void WorldToSelect::render(int position_) {
     button.y = short(button_y - position_);
     button.render();
     delete_button.y = short(button_y - position_ + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
@@ -20,20 +20,41 @@ void WorldSelector::world_to_select::render(int position_) {
 void WorldSelector::init() {
     title.scale = 3;
     title.renderText("Select a world to play!");
-    title.y = SPACING;
+    title.y = SPACING / 2;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
     back_button.renderText("Back");
-    back_button.y = -SPACING;
+    back_button.y = -SPACING / 2;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
     new_button.renderText("New");
-    new_button.y = -SPACING;
-    new_button.x = -SPACING;
+    new_button.y = -SPACING / 2;
     new_button.orientation = gfx::BOTTOM_RIGHT;
-
+    
+    top_rect_blur.orientation = gfx::TOP;
+    top_rect_blur.h = TOP_HEIGHT;
+    top_rect_blur.c = TRANSPARENT;
+    top_rect_blur.blur_intensity = BLUR / 2;
+    
+    bottom_rect_blur.orientation = gfx::BOTTOM;
+    bottom_rect_blur.h = BOTTOM_HEIGHT;
+    bottom_rect_blur.c = TRANSPARENT;
+    bottom_rect_blur.blur_intensity = BLUR / 2;
+    
+    top_rect.orientation = gfx::TOP;
+    top_rect.h = TOP_HEIGHT;
+    top_rect.c = BLACK;
+    top_rect.c.a = TRANSPARENCY / 3;
+    top_rect.enableShadow(SHADOW_INTENSITY / 2);
+    
+    bottom_rect.orientation = gfx::BOTTOM;
+    bottom_rect.h = BOTTOM_HEIGHT;
+    bottom_rect.c = BLACK;
+    bottom_rect.c.a = TRANSPARENCY / 3;
+    bottom_rect.enableShadow(SHADOW_INTENSITY / 2);
+    
     refresh();
 }
 
@@ -58,7 +79,7 @@ void WorldSelector::refresh() {
         world.button.orientation = gfx::TOP;
         world.button.scale = 3;
         world.button.renderText(world.name);
-        world.button_y = scroll_limit + title.getTranslatedRect().h + 2 * SPACING;
+        world.button_y = scroll_limit + TOP_HEIGHT;
 
         world.delete_button.orientation = gfx::TOP;
         world.delete_button.loadFromFile("x-button.png");
@@ -118,25 +139,32 @@ void WorldSelector::onMouseScroll(int distance) {
 }
 
 void WorldSelector::render() {
+    menu_back->setWidth(gfx::getWindowWidth() / 5 * 4);
+    menu_back->render();
+    
     bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
-    for(world_to_select& world : worlds) {
+    for(WorldToSelect& world : worlds) {
         world.button.disabled = !hoverable;
         world.delete_button.disabled = !hoverable;
     }
 
-    for(world_to_select& world : worlds)
+    for(WorldToSelect& world : worlds)
         world.render(position);
 
-    gfx::Rect(0, 0, gfx::getWindowWidth(), TOP_HEIGHT, BLACK).render();
-    gfx::Rect(0, 0, gfx::getWindowWidth(), BOTTOM_HEIGHT, BLACK, gfx::BOTTOM_LEFT).render();
-    if(position != 0)
-        gfx::Rect(0, TOP_HEIGHT, gfx::getWindowWidth(), LINE_THICKNESS, GREY).render();
-    int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
-    if(position != scroll_limit_ && scroll_limit_ > 0)
-        gfx::Rect(0, -BOTTOM_HEIGHT, gfx::getWindowWidth(), LINE_THICKNESS, GREY, gfx::BOTTOM_LEFT).render();
+    top_rect_blur.w = menu_back->getWidth() - 200;
+    top_rect_blur.render();
+    top_rect.w = menu_back->getWidth();
+    top_rect.render();
+    
+    bottom_rect_blur.w = menu_back->getWidth() - 200;
+    bottom_rect_blur.render();
+    bottom_rect.w = menu_back->getWidth();
+    bottom_rect.render();
 
     title.render();
     back_button.render();
+    
+    new_button.x = -SPACING / 2 - gfx::getWindowWidth() / 10;
     new_button.render();
 }

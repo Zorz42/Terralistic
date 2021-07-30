@@ -49,6 +49,9 @@ void gfx::Rect::render(bool fill) {
             updateShadowTexture();
         }
         
+        if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
+            updateShadowTexture();
+        
         render_target->draw(sf::Sprite(shadow_texture->getTexture()));
     }
     rect.render(c, fill);
@@ -68,7 +71,8 @@ void gfx::Rect::disableShadow() {
 }
 
 void gfx::Rect::updateShadowTexture() {
-    shadow_texture->create(getWindowWidth(), getWindowHeight());
+    if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
+        shadow_texture->create(getWindowWidth(), getWindowHeight());
     shadow_texture->clear({0, 0, 0, 0});
     
     sf::RectangleShape rect(sf::Vector2f(getWidth(), getHeight()));
