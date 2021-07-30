@@ -22,10 +22,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             unsigned short id;
             std::string name;
             event.packet >> x >> y >> id >> name;
-            OtherPlayer* new_player = new OtherPlayer(name);
-            new_player->x = x;
-            new_player->y = y;
-            new_player->id = id;
+            OtherPlayer* new_player = new OtherPlayer(name, x, y, id);
             new_player->name_text.renderText(new_player->name, BLACK);
             other_players.push_back(new_player);
             break;

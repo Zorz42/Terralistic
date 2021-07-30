@@ -1,12 +1,10 @@
 #include "clientInventory.hpp"
 
 const ItemInfo& ClientInventoryItem::getUniqueItem() const {
-    // unique item holds properties which all items of the same type share
     return ::getItemInfo(item_id);
 }
 
 void ClientInventoryItem::setStack(unsigned short stack_) {
-    // just upadate to nothing if stack reaches 0
     if(stack != stack_) {
         stack = stack_;
         stack_changed = true;

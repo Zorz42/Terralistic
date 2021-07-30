@@ -32,7 +32,7 @@ class ServerItems : EventListener<ServerBlockBreakEvent> {
     std::vector<ServerItem> item_arr;
     void onEvent(ServerBlockBreakEvent& event) override;
 public:
-    ServerItems(ServerBlocks* parent_blocks) : parent_blocks(parent_blocks) {}
+    explicit ServerItems(ServerBlocks* parent_blocks) : parent_blocks(parent_blocks) {}
     
     void spawnItem(ItemType item_id, int x, int y);
     void updateItems(float frame_length);
@@ -53,13 +53,13 @@ public:
 
 class ServerItemMovementEvent : public Event<ServerItemMovementEvent> {
 public:
-    ServerItemMovementEvent(ServerItem& moved_item) : moved_item(moved_item) {}
+    explicit ServerItemMovementEvent(ServerItem& moved_item) : moved_item(moved_item) {}
     ServerItem& moved_item;
 };
 
 class ServerItemDeletionEvent : public Event<ServerItemDeletionEvent> {
 public:
-    ServerItemDeletionEvent(ServerItem& item_to_delete) : item_to_delete(item_to_delete) {}
+    explicit ServerItemDeletionEvent(ServerItem& item_to_delete) : item_to_delete(item_to_delete) {}
     ServerItem& item_to_delete;
 };
 

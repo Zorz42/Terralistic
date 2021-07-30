@@ -81,7 +81,7 @@ void gfx::Image::render(float scale, short x, short y, bool flipped) const {
     render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped);
 }
 
-gfx::Sprite::Sprite() : _CenteredObject(0, 0) {};
+gfx::Sprite::Sprite() : _CenteredObject(0, 0) {}
 
 void gfx::Sprite::render() const {
     Image::render(scale, getTranslatedX(), getTranslatedY(), flipped);

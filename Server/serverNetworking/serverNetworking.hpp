@@ -3,14 +3,13 @@
 
 #include <vector>
 #include <string>
-
 #include "packetType.hpp"
 #include "serverPlayers.hpp"
 
 class Connection {
     sf::TcpSocket* socket;
 public:
-    Connection(sf::TcpSocket* socket) : socket(socket) {}
+    explicit Connection(sf::TcpSocket* socket) : socket(socket) {}
     ServerPlayer* player = nullptr;
     void send(sf::Packet& packet);
     sf::Socket::Status receive(sf::Packet& packet);

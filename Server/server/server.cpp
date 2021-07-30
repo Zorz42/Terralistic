@@ -1,26 +1,26 @@
 #include <thread>
 #include <iostream>
-#include <signal.h>
+#include <csignal>
 #include <filesystem>
 #include <chrono>
 
 #include "print.hpp"
 #include "serverPlayers.hpp"
 #include "server.hpp"
-#include "worldGenerator.hpp"
 #include "graphics.hpp"
 
-static bool running = false;
-
-#define PORT 33770
 #define TPS_LIMIT 100
 
+Server* curr_server = nullptr;
+
 void onInterrupt(int signum) {
-    running = false;
+    curr_server->stop();
     std::cout << std::endl;
 }
 
 void Server::start(unsigned short port) {
+    curr_server = this;
+
     if(working_dir.back() != '/')
         working_dir.push_back('/');
 
@@ -54,8 +54,7 @@ void Server::start(unsigned short port) {
     unsigned short tick_length;
     
     int ms_per_tick = 1000 / TPS_LIMIT;
-    
-    running = true;
+
     while(running) {
         a = gfx::getTicks();
         tick_length = a - b;

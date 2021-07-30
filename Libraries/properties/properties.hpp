@@ -24,7 +24,7 @@ struct BlockInfo {
 
 struct ItemInfo {
     ItemInfo() = default;
-    ItemInfo(std::string  name, unsigned short stack_size, BlockType places);
+    ItemInfo(std::string name, unsigned short stack_size, BlockType places);
     
     std::string name;
     unsigned short stack_size;

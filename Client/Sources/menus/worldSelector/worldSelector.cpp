@@ -108,8 +108,6 @@ void WorldSelector::onKeyUp(gfx::Key key) {
         shift_pressed = false;
 }
 
-#include <iostream>
-
 void WorldSelector::onMouseScroll(int distance) {
     position -= distance * 8;
     if(position < 0)

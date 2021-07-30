@@ -5,7 +5,7 @@ gfx::Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned ch
 
 gfx::RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
 
-void gfx::RectShape::render(Color c, bool fill) {
+void gfx::RectShape::render(Color c, bool fill) const {
     sf::RectangleShape rect(sf::Vector2f(w, h));
     rect.setPosition(x, y);
     if (fill) {
@@ -22,7 +22,7 @@ void gfx::RectShape::render(Color c, bool fill) {
 
 
 gfx::RectShape gfx::_CenteredObject::getTranslatedRect() const {
-    return RectShape(getTranslatedX(), getTranslatedY(), getWidth(), getHeight());
+    return {getTranslatedX(), getTranslatedY(), getWidth(), getHeight()};
 }  
 short gfx::_CenteredObject::getTranslatedX() const {
     return orientation % 3 == 1 ? (getWindowWidth() >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? getWindowWidth() - getWidth() + x : x);

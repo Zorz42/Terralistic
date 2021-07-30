@@ -1,13 +1,9 @@
 #include "worldGenerator.hpp"
 #include "SimplexNoise.h"
-#include <random>
 #include <fstream>
 #include <vector>
 #include <string>
 #include "biomes.hpp"
-
-
-#define PI 3.14159265
 
 #include <iostream>
 
@@ -133,8 +129,6 @@ int worldGenerator::calculateHeight(int x, SimplexNoise& noise) {
     return (slice_height + turbulence(x + 0.003, 0, 64, noise) * slice_height_variation) / divide_at_end;
 }
 
-#include "print.hpp"
-
 void worldGenerator::loadAssets() {
     std::ifstream structureFile;
     structureFile.open(resource_path + "/Structures.asset", std::ios::in);
@@ -149,17 +143,17 @@ void worldGenerator::loadAssets() {
     int previousEnd = 0;
     while (counter < size - 1) {
         std::string name;
-        int nameSize = assetData[counter];
+        int nameSize = (unsigned char)assetData[counter];
         counter++;
         while (counter - previousEnd <= nameSize) {
             name += assetData[counter];
             counter++;
         }
-        int x_size = assetData[counter];
+        int x_size = (unsigned char)assetData[counter];
         counter++;
-        int y_size = assetData[counter];
+        int y_size = (unsigned char)assetData[counter];
         counter++;
-        int y_offset = assetData[counter];
+        int y_offset = (unsigned char)assetData[counter];
         counter++;
         auto *blocks = new BlockType[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {

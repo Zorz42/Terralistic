@@ -1,11 +1,10 @@
 #include <algorithm>
-#include <utility>
 #include <cassert>
 #include "clientBlocks.hpp"
 
 ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());
-    return ClientBlock(x, y, &blocks[y * getWorldWidth() + x], this);
+    return {x, y, &blocks[y * getWorldWidth() + x], this};
 }
 
 void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {

@@ -3,6 +3,8 @@
 
 #define INVENTORY_SIZE 20
 
+#include <utility>
+
 #include "serverItems.hpp"
 
 class ServerInventory;
@@ -45,26 +47,26 @@ public:
 class ServerPlayer {
     static inline unsigned int curr_id = 0;
 public:
-    ServerPlayer(const std::string& name) : id(curr_id++), name(name) {}
-    ServerPlayer(const std::string& path, const std::string& name);
+    explicit ServerPlayer(std::string name) : id(curr_id++), name(std::move(name)) {}
+    ServerPlayer(const std::string& path, std::string  name);
     const std::string name;
     const unsigned short id;
     
     bool flipped = false;
     int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
-    int sight_x, sight_y;
-    unsigned short getSightBeginX();
-    unsigned short getSightEndX();
-    unsigned short getSightBeginY();
-    unsigned short getSightEndY();
+    int sight_x = 0, sight_y = 0;
+    unsigned short getSightBeginX() const;
+    unsigned short getSightEndX() const;
+    unsigned short getSightBeginY() const;
+    unsigned short getSightEndY() const;
     
     ServerInventory inventory;
     
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
     
-    void saveTo(std::string path) const;
+    void saveTo(const std::string& path) const;
 };
 
 struct blockEvents {
@@ -102,7 +104,7 @@ public:
     void updateBlocksInVisibleAreas();
     void lookForItemsThatCanBePickedUp();
     
-    ~Players();
+    ~Players() override;
 };
 
 

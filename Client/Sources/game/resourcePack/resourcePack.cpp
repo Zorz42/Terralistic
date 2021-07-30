@@ -1,8 +1,6 @@
 #include <cassert>
 #include "resourcePack.hpp"
 
-static gfx::Image block_textures[(int)BlockType::NUM_BLOCKS], item_textures[(int)ItemType::NUM_ITEMS], item_text_textures[(int)ItemType::NUM_ITEMS], liquid_textures[(int)LiquidType::NUM_LIQUIDS], breaking_texture;
-
 const gfx::Image& ResourcePack::getBlockTexture(BlockType type) {
     assert((int)type >= 0 && type < BlockType::NUM_BLOCKS);
     return block_textures[(int)type];

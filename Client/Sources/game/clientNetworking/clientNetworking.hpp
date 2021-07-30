@@ -2,7 +2,6 @@
 #define clientNetworking_hpp
 
 #include <SFML/Network.hpp>
-
 #include "events.hpp"
 #include "packetType.hpp"
 

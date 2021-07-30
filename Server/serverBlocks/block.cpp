@@ -1,10 +1,9 @@
 #include <cassert>
 #include "serverBlocks.hpp"
-#include "packetType.hpp"
 
 ServerBlock ServerBlocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < height && x >= 0 && x < width);
-    return ServerBlock(x, y, &blocks[y * width + x], this);
+    return {x, y, &blocks[y * width + x], this};
 }
 
 const BlockInfo& ServerBlock::getUniqueBlock() {
@@ -46,7 +45,7 @@ void ServerBlock::updateNeighbors() {
 
 void ServerBlock::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
-    auto stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
+    unsigned char stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
     if(stage != getBreakStage()) {
         ServerBlockBreakStageChangeEvent event(*this, stage);
         event.call();

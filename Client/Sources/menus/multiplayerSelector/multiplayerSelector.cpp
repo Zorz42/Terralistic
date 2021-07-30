@@ -1,4 +1,3 @@
-#include <vector>
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
 #include "configManager.hpp"

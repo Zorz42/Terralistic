@@ -1,6 +1,5 @@
 #include <cassert>
 #include "clientBlocks.hpp"
-#include "choiceScreen.hpp"
 #include "fileManager.hpp"
 
 void ClientBlocks::createWorld(unsigned short map_width, unsigned short map_height) {

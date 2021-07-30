@@ -14,7 +14,7 @@ enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
 class ServerBlocks;
 
 struct ServerMapBlock {
-    ServerMapBlock(BlockType block_type=BlockType::AIR, LiquidType liquid_type=LiquidType::EMPTY) : block_type(block_type), liquid_type(liquid_type), break_stage(0), flow_direction(FlowDirection::NONE) {}
+    explicit ServerMapBlock(BlockType block_type=BlockType::AIR, LiquidType liquid_type=LiquidType::EMPTY) : block_type(block_type), liquid_type(liquid_type), break_stage(0), flow_direction(FlowDirection::NONE) {}
 
     BlockType block_type:8;
     unsigned short break_progress = 0;
@@ -55,7 +55,6 @@ public:
     
     void setTypeWithoutProcessing(LiquidType liquid_type);
     void setType(LiquidType liquid_type);
-    bool extracted(ServerBlock &block_under);
     
     void liquidUpdate();
     inline LiquidType getLiquidType() { return block_data->liquid_type; }
@@ -82,7 +81,7 @@ public:
 
 class ServerBlocks {
     ServerMapBlock *blocks = nullptr;
-    unsigned short width, height;
+    unsigned short width = 0, height = 0;
     
 public:
     ServerBlock getBlock(unsigned short x, unsigned short y);
@@ -95,14 +94,14 @@ public:
     
     Biome *biomes = nullptr;
     
-    int getSpawnX();
+    int getSpawnX() const;
     int getSpawnY();
     
-    void saveTo(std::string path);
-    void loadFrom(std::string path);
+    void saveTo(const std::string& path);
+    void loadFrom(const std::string& path);
     
-    inline unsigned short getHeight() { return height; }
-    inline unsigned short getWidth() { return width; }
+    inline unsigned short getHeight() const { return height; }
+    inline unsigned short getWidth() const { return width; }
     
     ~ServerBlocks();
 };
@@ -118,13 +117,13 @@ public:
 
 class ServerBlockBreakEvent : public Event<ServerBlockBreakEvent> {
 public:
-    ServerBlockBreakEvent(ServerBlock block) : block(block) {}
+    explicit ServerBlockBreakEvent(ServerBlock block) : block(block) {}
     ServerBlock block;
 };
 
 class ServerBlockUpdateEvent : public Event<ServerBlockUpdateEvent> {
 public:
-    ServerBlockUpdateEvent(ServerBlock block) : block(block) {}
+    explicit ServerBlockUpdateEvent(ServerBlock block) : block(block) {}
     ServerBlock block;
 };
 

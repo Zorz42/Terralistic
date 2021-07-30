@@ -16,13 +16,15 @@ class Server {
     ServerNetworkingManager networking_manager;
     
     worldGenerator generator;
+
+    bool running = true;
 public:
     ServerState state = ServerState::NEUTRAL;
     
-    Server(std::string working_dir, std::string resource_path) : working_dir(std::move(working_dir)), blocks(), items(&blocks), players(&blocks, &items), networking_manager(&blocks, &items, &players), generator(&blocks, resource_path) {}
+    Server(std::string working_dir, std::string resource_path) : working_dir(std::move(working_dir)), blocks(), items(&blocks), players(&blocks, &items), networking_manager(&blocks, &items, &players), generator(&blocks, std::move(resource_path)) {}
     
     void start(unsigned short port);
-    static void stop();
+    void stop();
     
     void setPrivate(bool is_private);
     

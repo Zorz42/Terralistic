@@ -11,7 +11,7 @@ void ServerBlocks::createWorld(unsigned short world_width, unsigned short world_
 
 }
 
-int ServerBlocks::getSpawnX() {
+int ServerBlocks::getSpawnX() const {
     return width / 2 * BLOCK_WIDTH;
 }
 

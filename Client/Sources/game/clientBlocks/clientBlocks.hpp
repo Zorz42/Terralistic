@@ -107,7 +107,7 @@ public:
 
     void createWorld(unsigned short map_width, unsigned short map_height);
 
-    ~ClientBlocks();
+    ~ClientBlocks() override;
 };
 
 #endif

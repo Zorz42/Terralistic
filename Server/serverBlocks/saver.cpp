@@ -1,7 +1,7 @@
 #include "serverBlocks.hpp"
 #include <fstream>
 
-void ServerBlocks::saveTo(std::string path) {
+void ServerBlocks::saveTo(const std::string& path) {
     std::ofstream world_file(path, std::ios::binary);
 
     for(int y = 0; y < height; y++) {
@@ -19,7 +19,7 @@ void ServerBlocks::saveTo(std::string path) {
     world_file.close();
 }
 
-void ServerBlocks::loadFrom(std::string path) {
+void ServerBlocks::loadFrom(const std::string& path) {
     createWorld(4400, 1200);
     std::ifstream world_file(path, std::ios::binary);
     world_file.unsetf(std::ios::skipws);

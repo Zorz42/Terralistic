@@ -2,28 +2,29 @@
 #define playerHandler_hpp
 
 #include <string>
+#include <utility>
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 
 class ClientPlayer {
 public:
-    ClientPlayer(std::string name) : name(name) {}
+    ClientPlayer(std::string name, int x, int y) : name(std::move(name)), x(x), y(y) {}
     int x, y;
-    bool flipped;
+    bool flipped = false;
     const std::string name;
 };
 
 class MainPlayer : public ClientPlayer {
 public:
-    MainPlayer(std::string name) : ClientPlayer(name) {}
+    explicit MainPlayer(std::string name) : ClientPlayer(std::move(name), 0, 0) {}
     short velocity_x = 0, velocity_y = 0;
 };
 
 class OtherPlayer : public ClientPlayer {
 public:
-    OtherPlayer(std::string name) : ClientPlayer(name) {}
-    unsigned short id{0};
+    explicit OtherPlayer(std::string name, int x, int y, unsigned short id) : ClientPlayer(std::move(name), x, y), id(id) {}
+    const unsigned short id;
     gfx::Image name_text;
 };
 
@@ -52,7 +53,7 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     networkingManager* manager;
     ResourcePack* resource_pack;
 public:
-    ClientPlayers(networkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, std::string username) : manager(manager), blocks(world_map), resource_pack(resource_pack), main_player(username) {}
+    ClientPlayers(networkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, std::string username) : manager(manager), blocks(world_map), resource_pack(resource_pack), main_player(std::move(username)) {}
     
     unsigned short getPlayerWidth();
     unsigned short getPlayerHeight();

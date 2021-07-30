@@ -2,6 +2,7 @@
 #include "serverBlocks.hpp"
 #include <filesystem>
 #include <fstream>
+#include <utility>
 
 static bool isBlockTree(ServerBlock block) {
     return block.refersToABlock() && (block.getBlockType() == BlockType::WOOD || block.getBlockType() == BlockType::LEAVES);
@@ -120,8 +121,8 @@ void Players::updateBlocksInVisibleAreas() {
         bool finished = false;
         while(!finished) {
             finished = true;
-            for(unsigned short y = start_y; y < end_y; y++)
-                for(unsigned short x = start_x; x < end_x; x++) {
+            for(int y = start_y; y < end_y; y++)
+                for(int x = start_x; x < end_x; x++) {
                     ServerBlock curr_block = blocks->getBlock(x, y);
                     if(curr_block.hasScheduledLightUpdate()) {
                         curr_block.lightUpdate();
@@ -157,7 +158,7 @@ ServerPlayer* Players::addPlayerFromFile(const std::string& path) {
     return player;
 }
 
-ServerPlayer::ServerPlayer(const std::string& path, const std::string& name) : id(curr_id++), name(name) {
+ServerPlayer::ServerPlayer(const std::string& path, std::string  name) : id(curr_id++), name(std::move(name)) {
     std::ifstream data_file(path, std::ios::binary);
     for(auto & i : inventory.inventory_arr) {
         char c;
@@ -176,7 +177,7 @@ ServerPlayer::ServerPlayer(const std::string& path, const std::string& name) : i
     sight_y = y;
 }
 
-void ServerPlayer::saveTo(std::string path) const {
+void ServerPlayer::saveTo(const std::string& path) const {
     std::ofstream data_file(path, std::ios::binary);
     for(const auto& i : inventory.inventory_arr) {
         data_file << (char)i.getType();
@@ -193,18 +194,18 @@ void Players::onEvent(ServerBlockUpdateEvent& event) {
         custom_block_events[(int)event.block.getBlockType()].onUpdate(blocks, &event.block);
 }
 
-unsigned short ServerPlayer::getSightBeginX() {
+unsigned short ServerPlayer::getSightBeginX() const {
     return sight_x / BLOCK_WIDTH - sight_width / 2;
 }
 
-unsigned short ServerPlayer::getSightEndX() {
+unsigned short ServerPlayer::getSightEndX() const {
     return sight_x / BLOCK_WIDTH + sight_width / 2;
 }
 
-unsigned short ServerPlayer::getSightBeginY() {
+unsigned short ServerPlayer::getSightBeginY() const {
     return sight_y / BLOCK_WIDTH - sight_height / 2;
 }
 
-unsigned short ServerPlayer::getSightEndY() {
+unsigned short ServerPlayer::getSightEndY() const {
     return sight_y / BLOCK_WIDTH + sight_height / 2;
 }

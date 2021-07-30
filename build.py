@@ -63,7 +63,7 @@ elif sys.platform == "linux":
         os.remove(sfml_file)
 
     createDir("Build/")
-    os.system(f"cd {project_path}Build/ && cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. && make -j$(nproc)")
+    os.system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
 
     createDir("Output/Linux/Terralistic")
 
@@ -73,12 +73,11 @@ elif sys.platform == "linux":
     shutil.rmtree(project_path + "Output/Linux/Terralistic/Resources/", ignore_errors=True)
     shutil.move(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic/")
 
-    #for lib_file in lib_files:
-        #shutil.copy(lib_file, project_path + "Output/Linux/Terralistic/")
-
     shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic/")
     shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic/")
 
+    if len(sys.argv) != 1 and sys.argv[1] == "run":
+        os.system(project_path + "Output/Linux/Terralistic/Terralistic")
 
 elif sys.platform == "win32":
     createDir("Dependencies/")

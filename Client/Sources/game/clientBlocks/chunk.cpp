@@ -44,5 +44,5 @@ void ClientChunk::createTexture() {
 
 ClientChunk ClientBlocks::getChunk(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < (getWorldHeight() >> 4) && x >= 0 && x < (getWorldWidth() >> 4));
-    return ClientChunk(x, y, &chunks[y * (getWorldWidth() >> 4) + x], this);
+    return {x, y, &chunks[y * (getWorldWidth() >> 4) + x], this};
 }

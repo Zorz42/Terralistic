@@ -1,7 +1,6 @@
 #include "serverItems.hpp"
 #include <random>
 #include "properties.hpp"
-#include "packetType.hpp"
 
 void ServerItems::updateItems(float frame_length) {
     for(auto & item : item_arr)

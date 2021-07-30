@@ -2,6 +2,7 @@
 #define worldGenerator_hpp
 
 #include <string>
+#include <utility>
 #include "serverBlocks.hpp"
 #include "SimplexNoise.h"
 
@@ -50,7 +51,7 @@ class worldGenerator {
     unsigned int generating_current = 0, generating_total = 6;
 
 public:
-    worldGenerator(ServerBlocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(resource_path) {}
+    worldGenerator(ServerBlocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(std::move(resource_path)) {}
 
     inline unsigned int getGeneratingCurrent() const { return generating_current; }
     inline unsigned int getGeneratingTotal() const { return generating_total; }

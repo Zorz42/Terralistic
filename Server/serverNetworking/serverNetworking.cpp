@@ -38,7 +38,7 @@ void ServerNetworkingManager::checkForNewConnections() {
         if(listener.accept(*socket) != sf::Socket::NotReady) {
             if(!accept_itself || socket->getRemoteAddress().toString() == "127.0.0.1") {
                 socket->setBlocking(false);
-                connections.push_back(socket);
+                connections.emplace_back(socket);
             } else {
                 delete socket;
             }

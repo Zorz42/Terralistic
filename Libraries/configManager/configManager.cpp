@@ -3,7 +3,7 @@
 #include <iostream>
 #include "configManager.hpp"
 
-ConfigFile::ConfigFile(const std::string& path) : path(path) {
+ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
     loadConfig();
 }
 
@@ -29,7 +29,7 @@ int ConfigFile::getInt(const std::string& key) {
 }
 
 void ConfigFile::setStr(const std::string& key, std::string value) {
-    values[key] = value;
+    values[key] = std::move(value);
 }
 void ConfigFile::setInt(const std::string& key, int value) {
     setStr(key, std::to_string(value));
@@ -37,7 +37,7 @@ void ConfigFile::setInt(const std::string& key, int value) {
 
 void ConfigFile::setDefaultStr(const std::string& key, std::string value) {
     if(!keyExists(key))
-        setStr(key, value);
+        setStr(key, std::move(value));
 }
 
 void ConfigFile::setDefaultInt(const std::string& key, int value) {

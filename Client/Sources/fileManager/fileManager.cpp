@@ -1,5 +1,4 @@
 #include <filesystem>
-#include <set>
 
 #include "fileManager.hpp"
 #include "platform_folders.h"
@@ -14,10 +13,6 @@ void fileManager::init() {
     std::string dirs_to_create[] = {getWorldsPath()};
     for(const std::string& dir : dirs_to_create)
         std::filesystem::create_directory(dir);
-}
-
-std::string fileManager::getDataPath() {
-    return data_path;
 }
 
 std::string fileManager::getWorldsPath() {

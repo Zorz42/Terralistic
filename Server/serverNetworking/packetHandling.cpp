@@ -158,8 +158,8 @@ void ServerNetworkingManager::syncLightWithPlayers() {
             if(end_y > blocks->getHeight())
                 end_y = blocks->getHeight();
             
-            for(unsigned short y = start_y; y < end_y; y++)
-                for(unsigned short x = start_x; x < end_x; x++) {
+            for(int y = start_y; y < end_y; y++)
+                for(int x = start_x; x < end_x; x++) {
                     ServerBlock curr_block = blocks->getBlock(x, y);
                     if(curr_block.hasLightChanged()) {
                         curr_block.markLightUnchanged();

@@ -11,7 +11,7 @@ class ConfigFile {
     void loadConfig();
     void saveConfig();
 public:
-    explicit ConfigFile(const std::string& path);
+    explicit ConfigFile(std::string  path);
     ConfigFile() = default;
     ~ConfigFile();
     

@@ -1,8 +1,6 @@
 #include <thread>
 #include <cassert>
 #include <filesystem>
-#include <thread>
-#include <utility>
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "textScreen.hpp"

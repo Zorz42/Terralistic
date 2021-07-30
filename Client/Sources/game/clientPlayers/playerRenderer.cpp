@@ -7,8 +7,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
 }
 
 void ClientPlayers::render(OtherPlayer& player_to_draw) {
-    ClientPlayer client_player = player_to_draw;
-    render(client_player);
+    render(*(ClientPlayer*)&player_to_draw);
     player_to_draw.name_text.render(1, gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.x - blocks->view_x, gfx::getWindowHeight() / 2 - getPlayerHeight() / 2 + player_to_draw.y - blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_PADDING);
 }
 

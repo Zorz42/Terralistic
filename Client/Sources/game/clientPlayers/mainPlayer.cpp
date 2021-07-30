@@ -13,10 +13,10 @@ void ClientPlayers::init() {
     manager->sendPacket(packet);
 }
 
-//#define VELOCITY 30
-//#define JUMP_VELOCITY 80
-#define VELOCITY 90
-#define JUMP_VELOCITY 240
+#define VELOCITY 30
+#define JUMP_VELOCITY 80
+//#define VELOCITY 90
+//#define JUMP_VELOCITY 240
 
 void ClientPlayers::onKeyDown(gfx::Key key) {
     switch(key) {
@@ -103,7 +103,7 @@ void ClientPlayers::update() {
             sf::Packet packet;
             packet << PacketType::VIEW_SIZE_CHANGE << (unsigned short)(gfx::getWindowWidth() / BLOCK_WIDTH) << (unsigned short)(gfx::getWindowHeight() / BLOCK_WIDTH);
             manager->sendPacket(packet);
-            
+
             prev_width = gfx::getWindowWidth();
             prev_height = gfx::getWindowHeight();
         }

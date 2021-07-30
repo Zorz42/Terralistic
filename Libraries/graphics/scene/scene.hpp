@@ -17,7 +17,7 @@ public:
     virtual void onKeyDown(Key key_) {}
     virtual void onKeyUp(Key key_) {}
     
-    virtual ~GraphicalModule() {};
+    virtual ~GraphicalModule() = default;
 
     std::vector<TextInput*> text_inputs;
     bool disable_events = false;
@@ -37,6 +37,6 @@ private:
     void operateEvent(sf::Event event);
 };
 
-};
+}
 
 #endif

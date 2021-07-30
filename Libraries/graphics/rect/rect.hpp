@@ -12,7 +12,7 @@ class Color{
 public:
     unsigned char r, g, b, a;
     Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255);
-    inline operator sf::Color() const { return(sf::Color(r, g, b, a)); }
+    inline operator sf::Color() const { return {r, g, b, a}; }
 
 };
 
@@ -21,7 +21,7 @@ public:
     short x, y;
     unsigned short w, h;
     RectShape(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0);
-    void render(Color c, bool fill=true);
+    void render(Color c, bool fill=true) const;
 };
 
 class _CenteredObject {

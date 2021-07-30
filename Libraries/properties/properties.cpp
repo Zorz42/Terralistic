@@ -1,15 +1,16 @@
 #include <cassert>
+#include <utility>
 #include "properties.hpp"
 
 static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 static ItemInfo item_infos[(int)ItemType::NUM_ITEMS];
 static LiquidInfo liquid_infos[(int)LiquidType::NUM_LIQUIDS];
 
-BlockInfo::BlockInfo(std::string name, bool ghost, bool transparent, bool only_on_floor, short break_time, ItemType drop, std::vector<BlockType> connects_to) : ghost(ghost), transparent(transparent), only_on_floor(only_on_floor), name(std::move(name)), break_time(break_time), drop(drop), connects_to(connects_to) {}
+BlockInfo::BlockInfo(std::string name, bool ghost, bool transparent, bool only_on_floor, short break_time, ItemType drop, std::vector<BlockType> connects_to) : ghost(ghost), transparent(transparent), only_on_floor(only_on_floor), name(std::move(name)), break_time(break_time), drop(drop), connects_to(std::move(connects_to)) {}
 
 ItemInfo::ItemInfo(std::string  name, unsigned short stack_size, BlockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
-LiquidInfo::LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier) : name(name), flow_time(flow_time), speed_multiplier(speed_multiplier) {}
+LiquidInfo::LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier) : name(std::move(name)), flow_time(flow_time), speed_multiplier(speed_multiplier) {}
 
 const BlockInfo& getBlockInfo(BlockType type) {
     return block_infos[(int)type];
