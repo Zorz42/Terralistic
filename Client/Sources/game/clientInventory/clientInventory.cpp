@@ -112,7 +112,7 @@ void ClientInventory::renderItem(ClientInventoryItem* item, int x, int y, int i)
 void ClientInventory::selectSlot(char slot) {
     selected_slot = slot;
     sf::Packet packet;
-    packet << PacketType::HOTBAR_SELECTION << slot;
+    packet << PacketType::HOTBAR_SELECTION << selected_slot;
     manager->sendPacket(packet);
 }
 

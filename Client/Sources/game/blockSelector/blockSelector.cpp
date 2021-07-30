@@ -12,8 +12,8 @@ void BlockSelector::render() {
     }
     
     if(!inventory_handler->isHovered()) {
-        selected_block_x = (unsigned short)(gfx::getMouseX() + blocks->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH;
-        selected_block_y = (unsigned short)(gfx::getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH;
+        selected_block_x = (unsigned short)((gfx::getMouseX() + blocks->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH);
+        selected_block_y = (unsigned short)((gfx::getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH);
         select_rect.x = -blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH;
         select_rect.y = -blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH;
         select_rect.render(false);

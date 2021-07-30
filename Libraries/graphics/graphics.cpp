@@ -36,8 +36,8 @@ static const char* blur_shader_code =
 "    color += texture2D(source, textureCoordinates - 9.0 * offset) * 0.0015;"
 "    color += texture2D(source, textureCoordinates - 10.0 * offset) * 0.0012;"
 "    gl_FragColor = color;"
-"}"
-;
+"}";
+
 static sf::RenderTexture window_texture, blurred_texture;
 
 void gfx::init(unsigned short window_width, unsigned short window_height) {
