@@ -1,4 +1,4 @@
-#include "startMenu.hpp"
+#include "mainMenu.hpp"
 #include "fileManager.hpp"
 #include "configManager.hpp"
 #include "resourcePack.hpp"
@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     }
     initProperties();
     
-    StartMenu().run();
+    MainMenu().run();
 
     gfx::quit();
 

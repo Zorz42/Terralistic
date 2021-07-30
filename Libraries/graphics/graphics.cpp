@@ -4,9 +4,6 @@
 static unsigned short min_window_width, min_window_height;
 static sf::Clock global_clock;
 
-// higher number = faster, but worse quality
-#define SHADER_QUALITY 12
-
 static const char* blur_shader_code =
 "uniform sampler2D source;"
 "uniform vec2 offset;"
@@ -122,9 +119,9 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     output.draw(vertices, states);
 }
 
-void gfx::blurRegion(RectShape region, float blur_intensity) {
+void gfx::blurRegion(sf::RenderTexture& target, RectShape region, float blur_intensity, int quality) {
     blurred_texture.clear(TRANSPARENT);
-    blurred_texture.draw(sf::Sprite(window_texture.getTexture()));
+    blurred_texture.draw(sf::Sprite(target.getTexture()));
     
     blur_shader.setUniform("source", blurred_texture.getTexture());
     
@@ -137,10 +134,10 @@ void gfx::blurRegion(RectShape region, float blur_intensity) {
         blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / region.h / global_scale));
         applyShader(blur_shader, blurred_texture);
         
-        if(blur_intensity < SHADER_QUALITY && blur_intensity != 1)
+        if(blur_intensity < quality && blur_intensity != 1)
             blur_intensity = 1;
         else
-            blur_intensity /= SHADER_QUALITY;
+            blur_intensity /= quality;
     }
     
     blurred_texture.display();
@@ -148,7 +145,7 @@ void gfx::blurRegion(RectShape region, float blur_intensity) {
     blurred_sprite.setTexture(blurred_texture.getTexture());
     blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
     blurred_sprite.setPosition(region.x, region.y);
-    window_texture.draw(blurred_sprite);
+    target.draw(blurred_sprite);
     
 }
 

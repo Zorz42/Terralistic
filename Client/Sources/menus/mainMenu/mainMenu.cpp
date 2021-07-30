@@ -1,8 +1,8 @@
-#include "startMenu.hpp"
+#include "mainMenu.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
 
-void StartMenu::init() {
+void MainMenu::init() {
     singleplayer_button.scale = 3;
     singleplayer_button.renderText("Singleplayer");
     singleplayer_button.y = short(-singleplayer_button.getTranslatedRect().h - 5);
@@ -28,6 +28,8 @@ void StartMenu::init() {
     back_rect.w = singleplayer_button.getWidth() + 100;
     back_rect.c.a = TRANSPARENCY;
     back_rect.blur_intensity = BLUR;
+    back_rect.enableShadow();
+    
 #ifdef DEVELOPER_MODE
     debug_title.renderText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
@@ -43,7 +45,7 @@ void StartMenu::init() {
     version.y = -5;
 }
 
-void StartMenu::onKeyDown(gfx::Key key) {
+void MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(exit_button.isHovered())
             gfx::returnFromScene();
@@ -54,7 +56,7 @@ void StartMenu::onKeyDown(gfx::Key key) {
     }
 }
 
-void StartMenu::render() {
+void MainMenu::render() {
     float scale = (float)gfx::getWindowHeight() / (float)background.getTextureHeight();
     int pos = gfx::getTicks() / 30 % int(background.getTextureWidth() * scale);
     background.render(scale, pos, 0);

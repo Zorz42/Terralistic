@@ -50,7 +50,7 @@
 		1691250725F6BCD500F7EB4F /* mainPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968AB25E9607800D26060 /* mainPlayer.cpp */; };
 		1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968B525E9607800D26060 /* blockSelector.cpp */; };
 		1691250A25F6BCD500F7EB4F /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A325E9607800D26060 /* game.cpp */; };
-		1691250B25F6BCD500F7EB4F /* startMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968BA25E9607800D26060 /* startMenu.cpp */; };
+		1691250B25F6BCD500F7EB4F /* mainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968BA25E9607800D26060 /* mainMenu.cpp */; };
 		1691250C25F6BCD500F7EB4F /* multiplayerSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968BC25E9607800D26060 /* multiplayerSelector.cpp */; };
 		1691250D25F6BCD500F7EB4F /* worldCreator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C025E9607800D26060 /* worldCreator.cpp */; };
 		1691250E25F6BCD500F7EB4F /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C225E9607800D26060 /* worldSelector.cpp */; };
@@ -270,8 +270,8 @@
 		168968AB25E9607800D26060 /* mainPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainPlayer.cpp; sourceTree = "<group>"; };
 		168968AC25E9607800D26060 /* clientPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientPlayers.hpp; sourceTree = "<group>"; };
 		168968B525E9607800D26060 /* blockSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockSelector.cpp; sourceTree = "<group>"; };
-		168968B925E9607800D26060 /* startMenu.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = startMenu.hpp; sourceTree = "<group>"; };
-		168968BA25E9607800D26060 /* startMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = startMenu.cpp; sourceTree = "<group>"; };
+		168968B925E9607800D26060 /* mainMenu.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = mainMenu.hpp; sourceTree = "<group>"; };
+		168968BA25E9607800D26060 /* mainMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainMenu.cpp; sourceTree = "<group>"; };
 		168968BC25E9607800D26060 /* multiplayerSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multiplayerSelector.cpp; sourceTree = "<group>"; };
 		168968BD25E9607800D26060 /* multiplayerSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = multiplayerSelector.hpp; sourceTree = "<group>"; };
 		168968BF25E9607800D26060 /* worldCreator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldCreator.hpp; sourceTree = "<group>"; };
@@ -772,7 +772,7 @@
 			children = (
 				167C22C82673A46800FF487D /* textScreen */,
 				167C22C32673953A00FF487D /* choiceScreen */,
-				168968B825E9607800D26060 /* startMenu */,
+				168968B825E9607800D26060 /* mainMenu */,
 				168968BB25E9607800D26060 /* multiplayerSelector */,
 				168968C125E9607800D26060 /* worldSelector */,
 				168968BE25E9607800D26060 /* worldCreator */,
@@ -780,13 +780,13 @@
 			path = menus;
 			sourceTree = "<group>";
 		};
-		168968B825E9607800D26060 /* startMenu */ = {
+		168968B825E9607800D26060 /* mainMenu */ = {
 			isa = PBXGroup;
 			children = (
-				168968B925E9607800D26060 /* startMenu.hpp */,
-				168968BA25E9607800D26060 /* startMenu.cpp */,
+				168968B925E9607800D26060 /* mainMenu.hpp */,
+				168968BA25E9607800D26060 /* mainMenu.cpp */,
 			);
-			path = startMenu;
+			path = mainMenu;
 			sourceTree = "<group>";
 		};
 		168968BB25E9607800D26060 /* multiplayerSelector */ = {
@@ -1083,7 +1083,7 @@
 				1691250825F6BCD500F7EB4F /* blockSelector.cpp in Sources */,
 				167C1B802676565700BCFE27 /* chat.cpp in Sources */,
 				1691250A25F6BCD500F7EB4F /* game.cpp in Sources */,
-				1691250B25F6BCD500F7EB4F /* startMenu.cpp in Sources */,
+				1691250B25F6BCD500F7EB4F /* mainMenu.cpp in Sources */,
 				36F45E882620A88400C751E4 /* chunk.cpp in Sources */,
 				1691250C25F6BCD500F7EB4F /* multiplayerSelector.cpp in Sources */,
 				36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */,

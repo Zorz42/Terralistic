@@ -6,6 +6,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
+// higher number = faster, but worse quality
+#define BLUR_QUALITY 12
+
 namespace gfx {
 
 inline sf::RenderWindow *window = nullptr;
@@ -21,7 +24,7 @@ inline float global_scale = 1;
 
 inline sf::Shader blur_shader;
 
-void blurRegion(RectShape region, float blur_intensity);
+void blurRegion(sf::RenderTexture& target, RectShape region, float blur_intensity, int quality=BLUR_QUALITY);
 
 }
 
