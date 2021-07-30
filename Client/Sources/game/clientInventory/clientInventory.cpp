@@ -16,7 +16,7 @@ void ClientInventory::init() {
     behind_inventory_rect.w = 10 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING;
     behind_inventory_rect.c = BLACK;
     behind_inventory_rect.y = INVENTORY_UI_SPACING / 2;
-    behind_inventory_rect.blur_intensity = BLUR / 8;
+    behind_inventory_rect.blur_intensity = BLUR - 2;
     behind_inventory_rect.c.a = TRANSPARENCY;
     behind_inventory_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
     behind_rect_h_should_be = behind_inventory_rect.h;

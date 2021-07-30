@@ -5,7 +5,7 @@ static unsigned short min_window_width, min_window_height;
 static sf::Clock global_clock;
 
 // higher number = faster, but worse quality
-#define SHADER_QUALITY 4
+#define SHADER_QUALITY 12
 
 static const char* blur_shader_code =
 "uniform sampler2D source;"
@@ -128,18 +128,19 @@ void gfx::blurRegion(RectShape region, float blur_intensity) {
     
     blur_shader.setUniform("source", blurred_texture.getTexture());
     
-    blur_intensity /= SHADER_QUALITY;
-    
     blur_intensity = std::pow(2, blur_intensity);
     
-    while(blur_intensity >= 1.f / SHADER_QUALITY) {
+    while(blur_intensity >= 1.f) {
         blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / region.w / global_scale, 0));
         applyShader(blur_shader, blurred_texture);
         
         blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / region.h / global_scale));
         applyShader(blur_shader, blurred_texture);
         
-        blur_intensity /= SHADER_QUALITY;
+        if(blur_intensity < SHADER_QUALITY && blur_intensity != 1)
+            blur_intensity = 1;
+        else
+            blur_intensity /= SHADER_QUALITY;
     }
     
     blurred_texture.display();

@@ -8,7 +8,7 @@
 #define TRANSPARENT gfx::Color(0, 0, 0, 0)
 #define SPACING 20
 #define TRANSPARENCY 170
-#define BLUR 16
+#define BLUR 4
 
 #define GFX_DEFAULT_RECT_COLOR BLACK
 #define GFX_DEFAULT_BUTTON_COLOR TRANSPARENT
