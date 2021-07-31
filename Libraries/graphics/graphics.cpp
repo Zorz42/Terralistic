@@ -3,7 +3,6 @@
 
 static unsigned short min_window_width, min_window_height;
 static sf::Clock global_clock;
-static sf::RenderTexture back_texture;
 
 static const char* blur_shader_code =
 "uniform sampler2D source;"
@@ -105,7 +104,8 @@ void gfx::clearWindow() {
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
-    /*sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
+    output.generateMipmap(); // without that it doesnt work on smaller textures
+    sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);
     vertices[0] = sf::Vertex(sf::Vector2f(0, 0),                       sf::Vector2f(0, 1));
@@ -117,9 +117,7 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     states.shader    = &shader;
     states.blendMode = sf::BlendNone;
 
-    output.draw(vertices, states);*/
-    output.generateMipmap();
-    output.draw(sf::Sprite(output.getTexture()), &gfx::blur_shader);
+    output.draw(vertices, states);
 }
 
 void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality) {
@@ -170,5 +168,4 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width / global_scale, height / global_scale);
-    back_texture.create(width / global_scale, height / global_scale);
 }
