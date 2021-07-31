@@ -82,7 +82,7 @@ void gfx::Rect::updateShadowTexture() {
     
     shadow_texture->display();
     
-    blurRegion(*shadow_texture, {0, 0, getWindowWidth(), getWindowHeight()}, shadow_blur, 4);
+    blurRegion(*shadow_texture, {0, 0, getWindowWidth(), getWindowHeight()}, shadow_blur, 2);
     
     rect.setFillColor({0, 0, 0, 0});
     shadow_texture->draw(rect, sf::BlendNone);

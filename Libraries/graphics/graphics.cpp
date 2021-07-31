@@ -126,12 +126,13 @@ void gfx::blurRegion(sf::RenderTexture& target, RectShape region, float blur_int
     blur_shader.setUniform("source", blurred_texture.getTexture());
     
     blur_intensity = std::pow(2, blur_intensity);
+    quality = 2 << quality;
     
     while(blur_intensity >= 1.f) {
-        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / region.w / global_scale, 0));
+        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / region.w, 0));
         applyShader(blur_shader, blurred_texture);
         
-        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / region.h / global_scale));
+        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / region.h));
         applyShader(blur_shader, blurred_texture);
         
         if(blur_intensity < quality && blur_intensity != 1)

@@ -7,7 +7,7 @@
 #include <SFML/Window.hpp>
 
 // higher number = faster, but worse quality
-#define BLUR_QUALITY 12
+#define BLUR_QUALITY 2
 
 namespace gfx {
 
