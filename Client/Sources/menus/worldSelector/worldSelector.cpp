@@ -89,7 +89,7 @@ void WorldSelector::onKeyDown(gfx::Key key) {
         if(back_button.isHovered())
             gfx::returnFromScene();
         else if(new_button.isHovered()) {
-            WorldCreator(worlds_names).run();
+            WorldCreator(worlds_names, menu_back).run();
             refresh();
         }
         else

@@ -49,8 +49,10 @@ void MainMenu::onKeyDown(gfx::Key key) {
             WorldSelector(&menu_back).run();
             menu_back.setWidth(singleplayer_button.getWidth() + 100);
         }
-        else if(multiplayer_button.isHovered())
-            MultiplayerSelector().run();
+        else if(multiplayer_button.isHovered()) {
+            MultiplayerSelector(&menu_back).run();
+            menu_back.setWidth(singleplayer_button.getWidth() + 100);
+        }
     }
 }
 

@@ -56,6 +56,8 @@ void MultiplayerSelector::init() {
     username_title.y = username.y - username.Sprite::getHeight() - SPACING;
     username_title.orientation = gfx::CENTER;
     
+    menu_back->setWidth(username.getWidth() + 100);
+    
     text_inputs = {&server_ip, &username};
 }
 
@@ -67,6 +69,7 @@ void MultiplayerSelector::onKeyDown(gfx::Key key) {
 }
 
 void MultiplayerSelector::render() {
+    menu_back->render();
     if(can_connect != (username.getText().size() >= 3 && !server_ip.getText().empty())) {
         can_connect = !can_connect;
         join_button.renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)});
