@@ -120,20 +120,28 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
 }
 
 void gfx::blurRegion(sf::RenderTexture& target, RectShape region, float blur_intensity, int quality) {
-    blurred_texture.clear(TRANSPARENT);
-    blurred_texture.draw(sf::Sprite(target.getTexture()));
-    
-    blur_shader.setUniform("source", blurred_texture.getTexture());
+    target.display();
+    sf::RenderTexture blur_texture;
+    blur_texture.create(region.w, region.h);
+    blur_texture.clear(TRANSPARENT);
+    //blurred_texture.clear(TRANSPARENT);
+    sf::Sprite target_sprite;
+    target_sprite.setTexture(target.getTexture());
+    target_sprite.setTextureRect({region.x, region.y, region.w, region.h});
+    blur_texture.draw(target_sprite);
+    blur_texture.display();
     
     blur_intensity = std::pow(2, blur_intensity);
     quality = 2 << quality;
     
     while(blur_intensity >= 1.f) {
-        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / region.w, 0));
-        applyShader(blur_shader, blurred_texture);
+        blur_shader.setUniform("source", blur_texture.getTexture());
+        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / getWindowWidth(), 0));
+        applyShader(blur_shader, blur_texture);
         
-        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / region.h));
-        applyShader(blur_shader, blurred_texture);
+        blur_shader.setUniform("source", blur_texture.getTexture());
+        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / getWindowHeight()));
+        applyShader(blur_shader, blur_texture);
         
         if(blur_intensity < quality && blur_intensity != 1)
             blur_intensity = 1;
@@ -141,15 +149,16 @@ void gfx::blurRegion(sf::RenderTexture& target, RectShape region, float blur_int
             blur_intensity /= quality;
     }
     
-    blurred_texture.display();
+    blur_texture.display();
     sf::Sprite blurred_sprite;
-    blurred_sprite.setTexture(blurred_texture.getTexture());
-    blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
+    blurred_sprite.setTexture(blur_texture.getTexture());
+    //blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
     blurred_sprite.setPosition(region.x, region.y);
     target.draw(blurred_sprite);
 }
 
 void gfx::updateWindow() {
+    //blurRegion(window_texture, {0, 0, getWindowWidth(), getWindowHeight()}, BLUR);
     window_texture.display();
     window->draw(sf::Sprite(window_texture.getTexture()));
     window->display();

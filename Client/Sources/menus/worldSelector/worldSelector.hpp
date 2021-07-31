@@ -20,7 +20,7 @@ class WorldSelector : public gfx::Scene {
     int scroll_limit, position;
     bool shift_pressed = false;
     MenuBack* menu_back;
-    gfx::Rect top_rect_blur, bottom_rect_blur, top_rect, bottom_rect;
+    gfx::Rect top_rect, bottom_rect;
     
     void init() override;
     void onKeyDown(gfx::Key key) override;

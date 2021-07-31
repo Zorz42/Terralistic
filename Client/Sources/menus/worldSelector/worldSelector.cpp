@@ -33,27 +33,19 @@ void WorldSelector::init() {
     new_button.y = -SPACING / 2;
     new_button.orientation = gfx::BOTTOM_RIGHT;
     
-    top_rect_blur.orientation = gfx::TOP;
-    top_rect_blur.h = TOP_HEIGHT;
-    top_rect_blur.c = TRANSPARENT;
-    top_rect_blur.blur_intensity = BLUR / 2;
-    
-    bottom_rect_blur.orientation = gfx::BOTTOM;
-    bottom_rect_blur.h = BOTTOM_HEIGHT;
-    bottom_rect_blur.c = TRANSPARENT;
-    bottom_rect_blur.blur_intensity = BLUR / 2;
-    
     top_rect.orientation = gfx::TOP;
     top_rect.h = TOP_HEIGHT;
     top_rect.c = BLACK;
     top_rect.c.a = TRANSPARENCY / 3;
     top_rect.enableShadow(SHADOW_INTENSITY / 2);
+    top_rect.blur_intensity = BLUR / 2;
     
     bottom_rect.orientation = gfx::BOTTOM;
     bottom_rect.h = BOTTOM_HEIGHT;
     bottom_rect.c = BLACK;
     bottom_rect.c.a = TRANSPARENCY / 3;
     bottom_rect.enableShadow(SHADOW_INTENSITY / 2);
+    bottom_rect.blur_intensity = BLUR / 2;
     
     refresh();
 }
@@ -152,13 +144,9 @@ void WorldSelector::render() {
     for(WorldToSelect& world : worlds)
         world.render(position);
 
-    top_rect_blur.w = menu_back->getWidth() - 200;
-    top_rect_blur.render();
     top_rect.w = menu_back->getWidth();
     top_rect.render();
     
-    bottom_rect_blur.w = menu_back->getWidth() - 200;
-    bottom_rect_blur.render();
     bottom_rect.w = menu_back->getWidth();
     bottom_rect.render();
 
