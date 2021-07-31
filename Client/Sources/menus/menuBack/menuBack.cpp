@@ -7,7 +7,7 @@ void MenuBack::init() {
     back_rect.w = 0;
     back_rect.c.a = TRANSPARENCY;
     back_rect.blur_intensity = BLUR;
-    back_rect.enableShadow();
+    back_rect.shadow_intensity = SHADOW_INTENSITY;
 }
 
 void MenuBack::render() {

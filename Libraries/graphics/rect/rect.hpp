@@ -53,7 +53,6 @@ public:
     unsigned char shadow_intensity = 0;
     float shadow_blur = GFX_DEFAULT_SHADOW_BLUR;
     void render(bool fill=true);
-    void enableShadow(unsigned char intensity=GFX_DEFAULT_SHADOW_INTENSITY, float blur=GFX_DEFAULT_SHADOW_BLUR);
     ~Rect();
 };
 

@@ -19,7 +19,7 @@ void ClientInventory::init() {
     behind_inventory_rect.blur_intensity = BLUR - 2;
     behind_inventory_rect.c.a = TRANSPARENCY;
     behind_inventory_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
-    behind_inventory_rect.enableShadow();
+    behind_inventory_rect.shadow_intensity = SHADOW_INTENSITY;
     behind_rect_h_should_be = behind_inventory_rect.h;
     
     select_rect.orientation = gfx::TOP;

@@ -61,7 +61,11 @@ void gfx::Rect::render(bool fill) {
         render_target->draw(sprite);
     }
     
-    if(shadow_texture) {
+    if(shadow_intensity) {
+        if(!shadow_texture) {
+            shadow_texture = new sf::RenderTexture;
+            updateShadowTexture();
+        }
         if(prev_x != x || prev_y != y || prev_w != w || prev_h != h) {
             prev_x = x;
             prev_y = y;
@@ -77,14 +81,6 @@ void gfx::Rect::render(bool fill) {
     rect.render(c, fill);
 }
 
-void gfx::Rect::enableShadow(unsigned char intensity, float blur) {
-    shadow_intensity = intensity;
-    shadow_blur = blur;
-    delete shadow_texture;
-    shadow_texture = new sf::RenderTexture;
-    updateShadowTexture();
-}
-
 void gfx::Rect::updateShadowTexture() {
     if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
         shadow_texture->create(getWindowWidth(), getWindowHeight());
@@ -97,7 +93,7 @@ void gfx::Rect::updateShadowTexture() {
     
     shadow_texture->display();
     
-    //blurTexture(*shadow_texture, shadow_blur, 2);
+    blurTexture(*shadow_texture, shadow_blur, 2);
     
     rect.setFillColor({0, 0, 0, 0});
     shadow_texture->draw(rect, sf::BlendNone);
