@@ -146,6 +146,10 @@ void WorldSelector::render() {
 
     top_rect.w = menu_back->getWidth();
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
+    if(top_rect_visibility < 0.01f)
+        top_rect_visibility = 0;
+    if(top_rect_visibility > 0.99f)
+        top_rect_visibility = 1;
     top_rect.c.a = top_rect_visibility * TRANSPARENCY / 2;
     top_rect.blur_intensity = top_rect_visibility * (BLUR - 1);
     top_rect.shadow_intensity = top_rect_visibility * SHADOW_INTENSITY / 2;
