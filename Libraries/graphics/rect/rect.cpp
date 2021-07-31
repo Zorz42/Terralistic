@@ -66,11 +66,13 @@ void gfx::Rect::render(bool fill) {
             shadow_texture = new sf::RenderTexture;
             updateShadowTexture();
         }
-        if(prev_x != x || prev_y != y || prev_w != w || prev_h != h) {
+        if(prev_x != x || prev_y != y || prev_w != w || prev_h != h || prev_shadow_intensity != shadow_intensity || prev_shadow_blur != shadow_blur) {
             prev_x = x;
             prev_y = y;
             prev_w = w;
             prev_h = h;
+            prev_shadow_blur = shadow_blur;
+            prev_shadow_intensity = shadow_intensity;
             updateShadowTexture();
         }
         if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)

@@ -145,10 +145,16 @@ void WorldSelector::render() {
         world.render(position);
 
     top_rect.w = menu_back->getWidth();
+    top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
+    top_rect.c.a = top_rect_visibility * TRANSPARENCY / 2;
+    top_rect.blur_intensity = top_rect_visibility * (BLUR - 1);
+    top_rect.shadow_intensity = top_rect_visibility * SHADOW_INTENSITY / 2;
     top_rect.render();
     
     bottom_rect.w = menu_back->getWidth();
-    bottom_rect.render();
+    int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
+    if(scroll_limit_ > 0)
+        bottom_rect.render();
 
     title.render();
     back_button.render();

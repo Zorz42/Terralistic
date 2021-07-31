@@ -21,6 +21,8 @@ class WorldSelector : public gfx::Scene {
     bool shift_pressed = false;
     MenuBack* menu_back;
     gfx::Rect top_rect, bottom_rect;
+    float top_rect_visibility = 0;
+    float bottom_rect_visibility = 0;
     
     void init() override;
     void onKeyDown(gfx::Key key) override;

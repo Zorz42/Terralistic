@@ -16,7 +16,7 @@ void MenuBack::render() {
     background.render(scale, pos, 0);
     background.render(scale, pos - background.getTextureWidth() * scale, 0);
     
-    back_rect.w += (width - back_rect.w) / 2;
+    back_rect.w += (width - back_rect.w) / 3;
     back_rect.h = gfx::getWindowHeight();
     back_rect.render();
 }

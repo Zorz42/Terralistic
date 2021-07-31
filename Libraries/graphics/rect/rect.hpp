@@ -42,6 +42,8 @@ class Rect : public _CenteredObject {
     sf::RenderTexture* blur_texture = nullptr;
     short prev_x, prev_y;
     unsigned short prev_w, prev_h;
+    unsigned char prev_shadow_intensity = 0;
+    float prev_shadow_blur = GFX_DEFAULT_SHADOW_BLUR;
     void updateShadowTexture();
 public:
     explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = GFX_DEFAULT_RECT_COLOR, ObjectType orientation = TOP_LEFT);
