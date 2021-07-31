@@ -140,6 +140,8 @@ void gfx::Scene::operateEvent(sf::Event event) {
     }
     else if (type == sf::Event::TextEntered) {
         char c = event.text.unicode;
+        if(c == '\b')
+            return;
     
         for (TextInput* i : text_inputs)
             if (i->active) {
