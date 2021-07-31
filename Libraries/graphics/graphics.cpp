@@ -119,6 +119,26 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     output.draw(vertices, states);
 }
 
+void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality) {
+    blur_intensity = std::pow(2, blur_intensity);
+    quality = 2 << quality;
+    
+    while(blur_intensity >= 1.f) {
+        blur_shader.setUniform("source", blur_texture.getTexture());
+        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / getWindowWidth(), 0));
+        applyShader(blur_shader, blur_texture);
+        
+        blur_shader.setUniform("source", blur_texture.getTexture());
+        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / getWindowHeight()));
+        applyShader(blur_shader, blur_texture);
+        
+        if(blur_intensity < quality && blur_intensity != 1)
+            blur_intensity = 1;
+        else
+            blur_intensity /= quality;
+    }
+}
+
 void gfx::blurRegion(sf::RenderTexture& target, RectShape region, float blur_intensity, int quality) {
     target.display();
     sf::RenderTexture blur_texture;
