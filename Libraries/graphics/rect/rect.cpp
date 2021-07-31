@@ -38,8 +38,29 @@ gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, O
 
 void gfx::Rect::render(bool fill) {
     RectShape rect = getTranslatedRect();
-    if(blur_intensity)
-        blurRegion(*render_target, rect, blur_intensity);
+
+    if(blur_intensity) {
+        if(blur_intensity && !blur_texture)
+            blur_texture = new sf::RenderTexture;
+        if(blur_texture->getSize().x != w || blur_texture->getSize().y != h)
+            blur_texture->create(w, h);
+        
+        blur_texture->clear({0, 0, 0});
+        sf::Sprite back_sprite;
+        back_sprite.setTexture(render_target->getTexture());
+        back_sprite.setTextureRect({rect.x, rect.y, rect.w, rect.h});
+        blur_texture->draw(back_sprite);
+        blur_texture->display();
+        
+        blurTexture(*blur_texture, blur_intensity);
+        blur_texture->display();
+        
+        sf::Sprite sprite;
+        sprite.setTexture(blur_texture->getTexture());
+        sprite.setPosition(getTranslatedX(), getTranslatedY());
+        render_target->draw(sprite);
+    }
+    
     if(shadow_texture) {
         if(prev_x != x || prev_y != y || prev_w != w || prev_h != h) {
             prev_x = x;
@@ -48,7 +69,6 @@ void gfx::Rect::render(bool fill) {
             prev_h = h;
             updateShadowTexture();
         }
-        
         if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
             updateShadowTexture();
         
@@ -60,14 +80,9 @@ void gfx::Rect::render(bool fill) {
 void gfx::Rect::enableShadow(unsigned char intensity, float blur) {
     shadow_intensity = intensity;
     shadow_blur = blur;
-    disableShadow();
+    delete shadow_texture;
     shadow_texture = new sf::RenderTexture;
     updateShadowTexture();
-}
-
-void gfx::Rect::disableShadow() {
-    delete shadow_texture;
-    shadow_texture = nullptr;
 }
 
 void gfx::Rect::updateShadowTexture() {
@@ -82,7 +97,7 @@ void gfx::Rect::updateShadowTexture() {
     
     shadow_texture->display();
     
-    blurRegion(*shadow_texture, {0, 0, getWindowWidth(), getWindowHeight()}, shadow_blur, 2);
+    //blurTexture(*shadow_texture, shadow_blur, 2);
     
     rect.setFillColor({0, 0, 0, 0});
     shadow_texture->draw(rect, sf::BlendNone);
@@ -91,5 +106,6 @@ void gfx::Rect::updateShadowTexture() {
 }
 
 gfx::Rect::~Rect() {
-    disableShadow();
+    delete shadow_texture;
+    delete blur_texture;
 }

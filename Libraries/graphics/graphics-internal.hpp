@@ -24,8 +24,7 @@ inline float global_scale = 1;
 
 inline sf::Shader blur_shader;
 
-void blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality);
-void blurRegion(sf::RenderTexture& target, RectShape region, float blur_intensity, int quality=BLUR_QUALITY);
+void blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality=BLUR_QUALITY);
 
 }
 

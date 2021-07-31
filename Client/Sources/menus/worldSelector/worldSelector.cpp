@@ -38,14 +38,14 @@ void WorldSelector::init() {
     top_rect.c = BLACK;
     top_rect.c.a = TRANSPARENCY / 3;
     top_rect.enableShadow(SHADOW_INTENSITY / 2);
-    top_rect.blur_intensity = BLUR / 2;
+    top_rect.blur_intensity = BLUR - 2;
     
     bottom_rect.orientation = gfx::BOTTOM;
     bottom_rect.h = BOTTOM_HEIGHT;
     bottom_rect.c = BLACK;
     bottom_rect.c.a = TRANSPARENCY / 3;
     bottom_rect.enableShadow(SHADOW_INTENSITY / 2);
-    bottom_rect.blur_intensity = BLUR / 2;
+    bottom_rect.blur_intensity = BLUR - 2;
     
     refresh();
 }

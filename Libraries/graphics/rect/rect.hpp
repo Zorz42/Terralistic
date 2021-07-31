@@ -37,14 +37,12 @@ public:
     short x, y;
 };
 
-
 class Rect : public _CenteredObject {
     sf::RenderTexture* shadow_texture = nullptr;
+    sf::RenderTexture* blur_texture = nullptr;
     short prev_x, prev_y;
     unsigned short prev_w, prev_h;
     void updateShadowTexture();
-    unsigned char shadow_intensity;
-    float shadow_blur;
 public:
     explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = GFX_DEFAULT_RECT_COLOR, ObjectType orientation = TOP_LEFT);
     inline unsigned short getWidth() const override { return w; };
@@ -52,9 +50,10 @@ public:
     unsigned short w, h;
     Color c;
     float blur_intensity = 0;
+    unsigned char shadow_intensity = 0;
+    float shadow_blur = GFX_DEFAULT_SHADOW_BLUR;
     void render(bool fill=true);
     void enableShadow(unsigned char intensity=GFX_DEFAULT_SHADOW_INTENSITY, float blur=GFX_DEFAULT_SHADOW_BLUR);
-    void disableShadow();
     ~Rect();
 };
 

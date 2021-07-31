@@ -3,6 +3,7 @@
 
 static unsigned short min_window_width, min_window_height;
 static sf::Clock global_clock;
+static sf::RenderTexture back_texture;
 
 static const char* blur_shader_code =
 "uniform sampler2D source;"
@@ -35,7 +36,7 @@ static const char* blur_shader_code =
 "    gl_FragColor = color;"
 "}";
 
-static sf::RenderTexture window_texture, blurred_texture;
+static sf::RenderTexture window_texture;
 
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
@@ -104,7 +105,7 @@ void gfx::clearWindow() {
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
-    sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
+    /*sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);
     vertices[0] = sf::Vertex(sf::Vector2f(0, 0),                       sf::Vector2f(0, 1));
@@ -116,69 +117,32 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     states.shader    = &shader;
     states.blendMode = sf::BlendNone;
 
-    output.draw(vertices, states);
+    output.draw(vertices, states);*/
+    output.generateMipmap();
+    output.draw(sf::Sprite(output.getTexture()), &gfx::blur_shader);
 }
 
 void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality) {
     blur_intensity = std::pow(2, blur_intensity);
     quality = 2 << quality;
     
+    blur_shader.setUniform("source", texture.getTexture());
+    
     while(blur_intensity >= 1.f) {
-        blur_shader.setUniform("source", blur_texture.getTexture());
-        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / getWindowWidth(), 0));
-        applyShader(blur_shader, blur_texture);
+        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / texture.getSize().x, 0));
+        applyShader(blur_shader, texture);
         
-        blur_shader.setUniform("source", blur_texture.getTexture());
-        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / getWindowHeight()));
-        applyShader(blur_shader, blur_texture);
+        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / texture.getSize().y));
+        applyShader(blur_shader, texture);
         
         if(blur_intensity < quality && blur_intensity != 1)
             blur_intensity = 1;
         else
             blur_intensity /= quality;
     }
-}
-
-void gfx::blurRegion(sf::RenderTexture& target, RectShape region, float blur_intensity, int quality) {
-    target.display();
-    sf::RenderTexture blur_texture;
-    blur_texture.create(region.w, region.h);
-    blur_texture.clear(TRANSPARENT);
-    //blurred_texture.clear(TRANSPARENT);
-    sf::Sprite target_sprite;
-    target_sprite.setTexture(target.getTexture());
-    target_sprite.setTextureRect({region.x, region.y, region.w, region.h});
-    blur_texture.draw(target_sprite);
-    blur_texture.display();
-    
-    blur_intensity = std::pow(2, blur_intensity);
-    quality = 2 << quality;
-    
-    while(blur_intensity >= 1.f) {
-        blur_shader.setUniform("source", blur_texture.getTexture());
-        blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / getWindowWidth(), 0));
-        applyShader(blur_shader, blur_texture);
-        
-        blur_shader.setUniform("source", blur_texture.getTexture());
-        blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / getWindowHeight()));
-        applyShader(blur_shader, blur_texture);
-        
-        if(blur_intensity < quality && blur_intensity != 1)
-            blur_intensity = 1;
-        else
-            blur_intensity /= quality;
-    }
-    
-    blur_texture.display();
-    sf::Sprite blurred_sprite;
-    blurred_sprite.setTexture(blur_texture.getTexture());
-    //blurred_sprite.setTextureRect({region.x, region.y, region.w, region.h});
-    blurred_sprite.setPosition(region.x, region.y);
-    target.draw(blurred_sprite);
 }
 
 void gfx::updateWindow() {
-    //blurRegion(window_texture, {0, 0, getWindowWidth(), getWindowHeight()}, BLUR);
     window_texture.display();
     window->draw(sf::Sprite(window_texture.getTexture()));
     window->display();
@@ -206,5 +170,5 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width / global_scale, height / global_scale);
-    blurred_texture.create(width / global_scale, height / global_scale);
+    back_texture.create(width / global_scale, height / global_scale);
 }
