@@ -33,6 +33,8 @@ void WorldCreator::init() {
         return '\0';
     };
     
+    menu_back->setWidth(world_name.getWidth() + 100);
+    
     text_inputs = {&world_name};
 }
 

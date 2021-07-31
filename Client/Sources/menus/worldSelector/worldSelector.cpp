@@ -153,7 +153,8 @@ void WorldSelector::render() {
     top_rect.c.a = top_rect_visibility * TRANSPARENCY / 2;
     top_rect.blur_intensity = top_rect_visibility * (BLUR - 1);
     top_rect.shadow_intensity = top_rect_visibility * SHADOW_INTENSITY / 2;
-    top_rect.render();
+    if(top_rect_visibility)
+        top_rect.render();
     
     bottom_rect.w = menu_back->getWidth();
     int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;

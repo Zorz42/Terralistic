@@ -1,4 +1,7 @@
+#include <set>
 #include "chat.hpp"
+
+static const std::set<char> allowed_chars = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`'};
 
 void Chat::init() {
     chat_box.scale = 2;
@@ -6,6 +9,11 @@ void Chat::init() {
     chat_box.orientation = gfx::BOTTOM_LEFT;
     chat_box.y = -SPACING;
     chat_box.x = SPACING;
+    chat_box.textProcessing = [](char c, int length) {
+        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || allowed_chars.find(c) != allowed_chars.end())
+            return c;
+        return '\0';
+    };
     
     text_inputs = {&chat_box};
 }
