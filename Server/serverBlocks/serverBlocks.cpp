@@ -9,6 +9,9 @@ void ServerBlocks::createWorld(unsigned short world_width, unsigned short world_
     blocks = new ServerMapBlock[width * height];
     biomes = new Biome[width];
 
+    is_light_set = new bool[width];
+    for(int i = 0; i < width; i++)
+        is_light_set[i] = false;
 }
 
 int ServerBlocks::getSpawnX() const {
@@ -27,4 +30,5 @@ int ServerBlocks::getSpawnY() {
 
 ServerBlocks::~ServerBlocks() {
     delete[] blocks;
+    delete[] is_light_set;
 }

@@ -29,6 +29,10 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             unsigned short x, y;
             packet >> x >> y;
             
+            for(int chunk_x = 0; chunk_x < 16; chunk_x++)
+                if(!blocks->isLightSet((x << 4) + chunk_x))
+                    blocks->setNaturalLight((x << 4) + chunk_x);
+            
             sf::Packet chunk_packet;
             chunk_packet << PacketType::CHUNK << x << y;
             for(int chunk_x = 0; chunk_x < 16; chunk_x++)

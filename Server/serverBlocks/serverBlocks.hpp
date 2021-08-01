@@ -82,13 +82,13 @@ public:
 class ServerBlocks {
     ServerMapBlock *blocks = nullptr;
     unsigned short width = 0, height = 0;
+    bool* is_light_set;
     
 public:
     ServerBlock getBlock(unsigned short x, unsigned short y);
     
     void createWorld(unsigned short width, unsigned short height);
     
-    void setNaturalLight();
     void removeNaturalLight(unsigned short x);
     void setNaturalLight(unsigned short x);
     
@@ -102,6 +102,8 @@ public:
     
     inline unsigned short getHeight() const { return height; }
     inline unsigned short getWidth() const { return width; }
+    
+    inline bool isLightSet(unsigned short x) const { return is_light_set[x]; }
     
     ~ServerBlocks();
 };
