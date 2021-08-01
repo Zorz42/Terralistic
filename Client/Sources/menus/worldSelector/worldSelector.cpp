@@ -95,7 +95,7 @@ void WorldSelector::onKeyDown(gfx::Key key) {
         else
             for(int i = 0; i < worlds.size(); i++) {
                 if(worlds[i].button.isHovered()) {
-                    startPrivateWorld(worlds[i].name);
+                    startPrivateWorld(worlds[i].name, menu_back);
                     refresh();
                 }
                 else if(worlds[i].delete_button.isHovered()) {
@@ -103,7 +103,7 @@ void WorldSelector::onKeyDown(gfx::Key key) {
                     if(shift_pressed)
                         result = "Yes";
                     else
-                        ChoiceScreen(std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result).run();
+                        ChoiceScreen(menu_back, std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result).run();
 
                     if(result == "Yes")
                         std::filesystem::remove_all(fileManager::getWorldsPath() + worlds[i].name);

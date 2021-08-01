@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-
 #include "graphics.hpp"
+#include "menuBack.hpp"
 
 struct ChoiceScreenButton {
     std::string option;
@@ -15,8 +15,9 @@ class ChoiceScreen : public gfx::Scene {
     gfx::Sprite question_sprite;
     std::string question, *result;
     std::vector<ChoiceScreenButton> buttons;
+    MenuBack* menu_back;
 public:
-    ChoiceScreen(std::string question, const std::vector<std::string>& options, std::string* result = nullptr);
+    ChoiceScreen(MenuBack* menu_back, std::string question, const std::vector<std::string>& options, std::string* result = nullptr);
 
     void init() override;
     void onKeyDown(gfx::Key key) override;

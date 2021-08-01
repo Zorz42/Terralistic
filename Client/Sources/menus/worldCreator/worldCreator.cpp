@@ -42,7 +42,7 @@ void WorldCreator::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
     else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered()) || (key == gfx::Key::ENTER && can_create)) {
-        startPrivateWorld(world_name.getText());
+        startPrivateWorld(world_name.getText(), menu_back);
         gfx::returnFromScene();
     }
 }

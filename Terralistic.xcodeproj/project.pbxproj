@@ -35,7 +35,6 @@
 		1675E71D26611B8000B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		167C1B802676565700BCFE27 /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C1B7E2676565700BCFE27 /* chat.cpp */; };
 		167C22C62673956800FF487D /* choiceScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22C42673956800FF487D /* choiceScreen.cpp */; };
-		167C22CB2673A46800FF487D /* textScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C22CA2673A46800FF487D /* textScreen.cpp */; };
 		16811020263BE9260086D659 /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16811018263BE9260086D659 /* inventoryItem.cpp */; };
 		1682944326A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		1682944426A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
@@ -251,8 +250,6 @@
 		167C1B7F2676565700BCFE27 /* chat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = chat.hpp; sourceTree = "<group>"; };
 		167C22C42673956800FF487D /* choiceScreen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = choiceScreen.cpp; sourceTree = "<group>"; };
 		167C22C52673956800FF487D /* choiceScreen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = choiceScreen.hpp; sourceTree = "<group>"; };
-		167C22C92673A46800FF487D /* textScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = textScreen.hpp; sourceTree = "<group>"; };
-		167C22CA2673A46800FF487D /* textScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = textScreen.cpp; sourceTree = "<group>"; };
 		167F4D30268496B2004A8D11 /* block.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		1681100B263BE9260086D659 /* clientBlocks.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientBlocks.hpp; sourceTree = "<group>"; };
 		16811018263BE9260086D659 /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
@@ -652,15 +649,6 @@
 			path = choiceScreen;
 			sourceTree = "<group>";
 		};
-		167C22C82673A46800FF487D /* textScreen */ = {
-			isa = PBXGroup;
-			children = (
-				167C22C92673A46800FF487D /* textScreen.hpp */,
-				167C22CA2673A46800FF487D /* textScreen.cpp */,
-			);
-			path = textScreen;
-			sourceTree = "<group>";
-		};
 		1681100A263BE9260086D659 /* clientBlocks */ = {
 			isa = PBXGroup;
 			children = (
@@ -774,7 +762,6 @@
 			isa = PBXGroup;
 			children = (
 				3673AEC426B4561B00F4F170 /* menuBack */,
-				167C22C82673A46800FF487D /* textScreen */,
 				167C22C32673953A00FF487D /* choiceScreen */,
 				168968B825E9607800D26060 /* mainMenu */,
 				168968BB25E9607800D26060 /* multiplayerSelector */,
@@ -1083,7 +1070,6 @@
 				36DDF8B8268A0499002337F3 /* resourcePack.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */,
-				167C22CB2673A46800FF487D /* textScreen.cpp in Sources */,
 				16987C11265900F90016509C /* inventory.cpp in Sources */,
 				36B157D726484E2000528A2B /* clientBlocks.cpp in Sources */,
 				166D85D326AA0B9E00DB87B1 /* ui.cpp in Sources */,

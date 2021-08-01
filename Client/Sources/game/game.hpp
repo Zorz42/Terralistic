@@ -4,8 +4,9 @@
 #include "graphics.hpp"
 #include "clientPlayers.hpp"
 #include "clientItems.hpp"
+#include "menuBack.hpp"
 
-void startPrivateWorld(const std::string& world_name);
+void startPrivateWorld(const std::string& world_name, MenuBack* menu_back);
 
 class game : public gfx::Scene, EventListener<ClientPacketEvent> {
     void onEvent(ClientPacketEvent& event) override;
@@ -21,9 +22,10 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent> {
     ClientBlocks *blocks;
     ClientPlayers* player_handler;
     ClientItems* items;
-
+    MenuBack* menu_back;
+    
 public:
-    game(std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port), username(username) {}
+    game(MenuBack* menu_back, std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port), username(username), menu_back(menu_back) {}
 };
 
 #endif

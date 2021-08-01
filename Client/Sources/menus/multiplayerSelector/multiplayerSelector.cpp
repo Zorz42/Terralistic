@@ -64,8 +64,10 @@ void MultiplayerSelector::init() {
 void MultiplayerSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
         gfx::returnFromScene();
-    else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered()) || (key == gfx::Key::ENTER && can_connect))
-        game(username.getText(), server_ip.getText()).run();
+    else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered()) || (key == gfx::Key::ENTER && can_connect)) {
+        game(menu_back, username.getText(), server_ip.getText()).run();
+        menu_back->setWidth(username.getWidth() + 100);
+    }
 }
 
 void MultiplayerSelector::render() {

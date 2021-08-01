@@ -3,7 +3,6 @@
 #include <filesystem>
 #include "game.hpp"
 #include "pauseScreen.hpp"
-#include "textScreen.hpp"
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
 #include "debugMenu.hpp"
@@ -16,59 +15,82 @@
 
 static std::thread server_thread;
 
-#define TEXT_SCALE 3
-
 #define LOADING_RECT_HEIGHT 20
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
-void startPrivateWorld(const std::string& world_name) {
-    gfx::Sprite generating_text;
-    gfx::Rect loading_bar_back{0, -LOADING_RECT_ELEVATION, (unsigned short)(LOADING_RECT_WIDTH), LOADING_RECT_HEIGHT, GREY, gfx::BOTTOM},
-    loading_bar{0, -LOADING_RECT_ELEVATION, 0, LOADING_RECT_HEIGHT, WHITE, gfx::BOTTOM};
+class ServerStart : public gfx::Scene {
+    MenuBack* menu_back;
+    gfx::Sprite text;
+    void init() override;
+    void render() override;
+    Server* server;
+    ServerState prev_server_state = ServerState::NEUTRAL;
+public:
+    ServerStart(MenuBack* menu_back, Server* server) : menu_back(menu_back), server(server) {}
+};
 
-    generating_text.scale = TEXT_SCALE;
-    generating_text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
-    generating_text.renderText("Generating world");
-    generating_text.orientation = gfx::CENTER;
+void ServerStart::init() {
+    text.scale = 3;
+    text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
+    text.createBlankImage(1, 1);
+    text.orientation = gfx::CENTER;
+}
 
-    std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
-
-    Server private_server(fileManager::getWorldsPath() + world_name, gfx::resource_path);
-    unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
-    server_thread = std::thread(&Server::start, &private_server, port);
-
-    while(private_server.state != ServerState::RUNNING)
-        switch (private_server.state) {
+void ServerStart::render() {
+    if(server->state != prev_server_state) {
+        prev_server_state = server->state;
+        if(server->state == ServerState::RUNNING) {
+            gfx::returnFromScene();
+            return;
+        }
+        switch(server->state) {
             case ServerState::NEUTRAL:
                 gfx::sleep(1);
                 break;
             case ServerState::STARTING:
-                renderTextScreen("Starting server");
+                text.renderText("Starting server");
                 break;
             case ServerState::LOADING_WORLD:
-                renderTextScreen("Loading world");
+                text.renderText("Loading world");
                 break;
             case ServerState::GENERATING_WORLD:
-                loading_bar.w += (private_server.getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server.getGeneratingTotal() - loading_bar.w) / 3;
+                text.renderText("Generating world");
+                /*loading_bar.w += (private_server.getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server.getGeneratingTotal() - loading_bar.w) / 3;
                 loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
                 gfx::clearWindow();
                 generating_text.render();
                 loading_bar_back.render();
                 loading_bar.render();
-                gfx::updateWindow();
+                gfx::updateWindow();*/
                 break;
+            case ServerState::STOPPING:
+                text.renderText("Saving world");
             default:
                 assert(false);
                 break;
         }
+        menu_back->setWidth(text.getWidth() + 300);
+    }
+    menu_back->render();
+    text.render();
+}
 
+void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
+    std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
+
+    Server private_server(fileManager::getWorldsPath() + world_name, gfx::resource_path);
+    unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     private_server.setPrivate(true);
+    server_thread = std::thread(&Server::start, &private_server, port);
+    
+    ServerStart(menu_back, &private_server).run();
 
-    game("_", "127.0.0.1", port).run();
+    game(menu_back, "_", "127.0.0.1", port).run();
     private_server.stop();
-    while(private_server.state != ServerState::STOPPING)
-        renderTextScreen("Saving world");
+    
+    ServerStart(menu_back, &private_server).run();
+    
     server_thread.join();
 }
 
@@ -95,9 +117,9 @@ void game::init() {
         new PauseScreen(),
     };
 
-    renderTextScreen("Connecting to server");
+    //renderTextScreen("Connecting to server");
     if(!networking_manager.establishConnection(ip_address, port)) {
-        ChoiceScreen("Could not connect to the server!", {"Close"}).run();
+        ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
     }
 }
@@ -107,7 +129,7 @@ void game::onEvent(ClientPacketEvent& event) {
         case PacketType::KICK: {
             std::string kick_message;
             event.packet >> kick_message;
-            ChoiceScreen(kick_message, {"Close"}).run();
+            ChoiceScreen(menu_back, kick_message, {"Close"}).run();
             gfx::returnFromScene();
         }
         default:;

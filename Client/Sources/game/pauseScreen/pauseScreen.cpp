@@ -26,7 +26,7 @@ void PauseScreen::render() {
         back_rect.h = gfx::getWindowHeight();
         fade_rect.w = gfx::getWindowWidth();
         fade_rect.h = gfx::getWindowHeight();
-        fade_rect.c.a = float(back_rect.w + back_rect.x) / (float)back_rect.w * 150;
+        fade_rect.c.a = float(back_rect.w + back_rect.x) / (float)back_rect.w * 70;
         fade_rect.blur_intensity = float(back_rect.w + back_rect.x) / (float)back_rect.w * BLUR;
         if(fade_rect.blur_intensity < 0.5f)
             fade_rect.blur_intensity = 0;
