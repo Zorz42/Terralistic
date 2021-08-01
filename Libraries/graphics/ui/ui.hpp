@@ -55,8 +55,10 @@ public:
 };
 
 class TextInput : public Button {
+    std::string text;
+    Rect back_rect;
 public:
-    void render() const;
+    void render();
     TextInput();
 
     inline std::string getText() const { return text; }
@@ -68,8 +70,7 @@ public:
     unsigned short width = 200;
     Color border_color = GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, text_color = GFX_DEFAULT_TEXT_COLOR;
     unsigned char cut_length;
-protected:
-    std::string text;
+    void setBlurIntensity(float blur_intensity);
 };
 
 };

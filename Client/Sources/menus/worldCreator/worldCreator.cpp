@@ -35,6 +35,8 @@ void WorldCreator::init() {
     
     menu_back->setWidth(world_name.getWidth() + 100);
     
+    world_name.def_color.a = TRANSPARENCY;
+    
     text_inputs = {&world_name};
 }
 

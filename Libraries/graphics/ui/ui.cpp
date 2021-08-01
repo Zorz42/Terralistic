@@ -128,16 +128,25 @@ unsigned short gfx::TextInput::getWidth() const {
 
 gfx::TextInput::TextInput() {
     margin = 3;
-    def_color.a = 255;
     Image temp;
+    back_rect.shadow_intensity = GFX_DEFAULT_TEXT_BOX_SHADOW_INTENSITY;
     temp.renderText("|g", { 0, 0, 0 });
     cut_length = temp.getTextureWidth() - 1;
 }
 
-void gfx::TextInput::render() const {
+void gfx::TextInput::setBlurIntensity(float blur_intensity) {
+    back_rect.blur_intensity = blur_intensity;
+}
+
+void gfx::TextInput::render() {
     RectShape rect = getTranslatedRect();
-    rect.render(border_color);
-    RectShape(rect.x + scale, rect.y + scale, rect.w - scale * 2, rect.h - scale * 2).render(isHovered() ? hover_color : def_color);
+    back_rect.x = rect.x;
+    back_rect.y = rect.y;
+    back_rect.w = rect.w;
+    back_rect.h = rect.h;
+    back_rect.c = isHovered() ? hover_color : def_color;
+    back_rect.render();
+    
     rect.x += margin * scale;
     rect.y += margin * scale;
     rect.w = getTextureWidth() * scale;

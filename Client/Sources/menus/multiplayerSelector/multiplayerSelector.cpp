@@ -58,6 +58,9 @@ void MultiplayerSelector::init() {
     
     menu_back->setWidth(username.getWidth() + 100);
     
+    server_ip.def_color.a = TRANSPARENCY;
+    username.def_color.a = TRANSPARENCY;
+    
     text_inputs = {&server_ip, &username};
 }
 
