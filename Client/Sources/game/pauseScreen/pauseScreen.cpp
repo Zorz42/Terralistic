@@ -13,6 +13,8 @@ void PauseScreen::init() {
     back_rect.w = quit_button.getWidth() + 2 * SPACING;
     back_rect.c.a = TRANSPARENCY;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
+    back_rect.border_color = BORDER_COLOR;
+    back_rect.border_color.a = TRANSPARENCY;
     
     x_to_be = -back_rect.w;
     back_rect.x = x_to_be;

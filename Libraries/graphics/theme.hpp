@@ -4,6 +4,7 @@
 #define WHITE gfx::Color(255, 255, 255)
 #define LIGHT_GREY gfx::Color(200, 200, 200)
 #define GREY gfx::Color(100, 100, 100)
+#define BORDER_COLOR gfx::Color(70, 70, 70)
 #define BLACK gfx::Color(0, 0, 0)
 #define TRANSPARENT gfx::Color(0, 0, 0, 0)
 #define SPACING 20

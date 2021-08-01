@@ -17,6 +17,7 @@ void Chat::init() {
     
     chat_box.def_color.a = TRANSPARENCY;
     chat_box.setBlurIntensity(BLUR);
+    chat_box.setBorderColor(BORDER_COLOR);
     
     text_inputs = {&chat_box};
 }

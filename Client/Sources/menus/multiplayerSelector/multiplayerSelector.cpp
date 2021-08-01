@@ -82,9 +82,9 @@ void MultiplayerSelector::render() {
     }
     join_button.render();
     back_button.render();
-    server_ip_title.render();
     server_ip.render();
     username.render();
+    server_ip_title.render();
     username_title.render();
 }
 

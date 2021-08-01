@@ -56,6 +56,7 @@ public:
     float shadow_blur = GFX_DEFAULT_SHADOW_BLUR;
     void render(bool fill=true);
     ~Rect();
+    Color border_color = {0, 0, 0, 0};
 };
 
 };

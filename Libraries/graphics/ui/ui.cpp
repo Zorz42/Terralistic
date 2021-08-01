@@ -169,3 +169,7 @@ void gfx::TextInput::render() {
     }
         
 }
+
+void gfx::TextInput::setBorderColor(Color color) {
+    back_rect.border_color = color;
+}

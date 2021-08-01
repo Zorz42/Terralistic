@@ -81,6 +81,7 @@ void gfx::Rect::render(bool fill) {
         render_target->draw(sf::Sprite(shadow_texture->getTexture()));
     }
     rect.render(c, fill);
+    rect.render(border_color, false);
 }
 
 void gfx::Rect::updateShadowTexture() {
