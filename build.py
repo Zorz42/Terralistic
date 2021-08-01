@@ -113,7 +113,6 @@ elif sys.platform == "win32":
             shutil.move(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic/")
 
     shutil.move(project_path + "Build/Resources/", project_path + "Output/Windows/Terralistic/Resources/")
-    shutil.move(project_path + "Build/Debug/Terralistic-server.exe", project_path + "Output/Windows/Terralistic/")
     shutil.move(project_path + "Build/Structures.asset", project_path + "Output/Windows/Terralistic/")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
