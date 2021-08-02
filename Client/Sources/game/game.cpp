@@ -45,10 +45,6 @@ void ServerStart::render() {
             return;
         }
         switch(server->state) {
-            case ServerState::NEUTRAL:
-            case ServerState::RUNNING:
-                gfx::sleep(1);
-                break;
             case ServerState::STARTING:
                 text.renderText("Starting server");
                 break;
@@ -67,9 +63,9 @@ void ServerStart::render() {
                 break;
             case ServerState::STOPPING:
                 text.renderText("Saving world");
-            default:
-                assert(false);
                 break;
+            default:
+                gfx::sleep(1);
         }
         menu_back->setWidth(text.getWidth() + 300);
     }
