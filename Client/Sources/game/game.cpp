@@ -46,6 +46,7 @@ void ServerStart::render() {
         }
         switch(server->state) {
             case ServerState::NEUTRAL:
+            case ServerState::RUNNING:
                 gfx::sleep(1);
                 break;
             case ServerState::STARTING:

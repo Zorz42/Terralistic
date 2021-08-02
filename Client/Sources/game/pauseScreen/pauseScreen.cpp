@@ -18,20 +18,21 @@ void PauseScreen::init() {
     back_rect.border_color.a = TRANSPARENCY;
     back_rect.setX(x_to_be);
     back_rect.smooth_factor = 2;
+    back_rect.blur_intensity = BLUR;
 }
 
 void PauseScreen::render() {
-    resume_button.x = back_rect.getX() + SPACING;
-    quit_button.x = back_rect.getX() + SPACING;
     back_rect.setHeight(gfx::getWindowHeight());
     fade_rect.setWidth(gfx::getWindowWidth());
     fade_rect.setHeight(gfx::getWindowHeight());
     fade_rect.c.a = float(back_rect.getWidth() + back_rect.getX()) / (float)back_rect.getWidth() * 70;
-    fade_rect.blur_intensity = float(back_rect.getWidth() + back_rect.getX()) / (float)back_rect.getWidth() * BLUR;
+    fade_rect.blur_intensity = float(back_rect.getWidth() + back_rect.getX()) / (float)back_rect.getWidth() * BLUR / 2;
     if(fade_rect.blur_intensity < 0.5f)
         fade_rect.blur_intensity = 0;
     fade_rect.render();
     back_rect.render();
+    resume_button.x = back_rect.getX() + SPACING;
+    quit_button.x = back_rect.getX() + SPACING;
     resume_button.render();
     quit_button.render();
 }
