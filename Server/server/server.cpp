@@ -68,6 +68,8 @@ void Server::start(unsigned short port) {
         players.updateBlocksInVisibleAreas();
         networking_manager.syncLightWithPlayers();
     }
+    
+    state = ServerState::STOPPING;
 
     if(!networking_manager.accept_itself) {
         sf::Packet kick_packet;
@@ -75,7 +77,6 @@ void Server::start(unsigned short port) {
         networking_manager.sendToEveryone(kick_packet);
     }
 
-    state = ServerState::STOPPING;
     print::info("Stopping server");
     networking_manager.closeSocket();
 

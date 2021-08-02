@@ -7,6 +7,7 @@
 #include "clientPlayers.hpp"
 
 class BlockSelector : public gfx::GraphicalModule {
+    void init() override;
     void render() override;
 
     void onKeyDown(gfx::Key key) override;

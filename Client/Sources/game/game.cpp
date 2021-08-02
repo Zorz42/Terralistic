@@ -40,7 +40,7 @@ void ServerStart::init() {
 void ServerStart::render() {
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
-        if(server->state == ServerState::RUNNING) {
+        if(server->state == ServerState::RUNNING || server->state == ServerState::STOPPED) {
             gfx::returnFromScene();
             return;
         }
@@ -64,8 +64,7 @@ void ServerStart::render() {
             case ServerState::STOPPING:
                 text.renderText("Saving world");
                 break;
-            default:
-                gfx::sleep(1);
+            default:;
         }
         menu_back->setWidth(text.getWidth() + 300);
     }
@@ -85,6 +84,9 @@ void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
 
     game(menu_back, "_", "127.0.0.1", port).run();
     private_server.stop();
+    
+    while(private_server.state == ServerState::RUNNING)
+        gfx::sleep(1);
     
     ServerStart(menu_back, &private_server).run();
     
