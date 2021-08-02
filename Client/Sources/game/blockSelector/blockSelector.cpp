@@ -26,8 +26,12 @@ void BlockSelector::onKeyDown(gfx::Key key) {
         prev_selected_x = blocks->getWorldWidth();
         prev_selected_y = blocks->getWorldHeight();
     } else if(key == gfx::Key::MOUSE_RIGHT && !inventory_handler->isHovered()) {
-        gfx::RectShape rect = gfx::RectShape(gfx::getWindowWidth() / 2 - player_handler->getPlayerWidth() / 2, gfx::getWindowHeight() / 2 - player_handler->getPlayerHeight() / 2, player_handler->getPlayerWidth(), player_handler->getPlayerHeight());
-        if(!gfx::colliding(rect, select_rect.getTranslatedRect())) {
+        unsigned short starting_x = (player_handler->getMainPlayer().x - player_handler->getPlayerWidth() / 2) / BLOCK_WIDTH;
+        unsigned short starting_y = (player_handler->getMainPlayer().y - player_handler->getPlayerHeight() / 2) / BLOCK_WIDTH;
+        unsigned short ending_x = (player_handler->getMainPlayer().x + player_handler->getPlayerWidth() / 2 - 1) / BLOCK_WIDTH;
+        unsigned short ending_y = (player_handler->getMainPlayer().y + player_handler->getPlayerHeight() / 2 - 1) / BLOCK_WIDTH;
+
+        if(selected_block_x < starting_x || selected_block_x > ending_x || selected_block_y < starting_y || selected_block_y > ending_y) {
             sf::Packet packet;
             packet << PacketType::RIGHT_CLICK << selected_block_x << selected_block_y;
             manager->sendPacket(packet);
