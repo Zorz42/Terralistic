@@ -43,8 +43,6 @@ void Server::start(unsigned short port) {
     print::info("Starting server...");
     state = ServerState::STARTING;
 
-    //blocks.setNaturalLight();
-
     signal(SIGINT, onInterrupt);
     networking_manager.openSocket(port);
 
