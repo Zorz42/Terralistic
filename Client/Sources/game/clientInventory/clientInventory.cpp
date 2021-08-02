@@ -6,30 +6,30 @@
 void ClientInventory::init() {
     for(int i = 0; i < 20; i++) {
         inventory_slots[i].orientation = gfx::TOP;
-        inventory_slots[i].h = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
-        inventory_slots[i].w = 2 * BLOCK_WIDTH + INVENTORY_UI_SPACING;
-        inventory_slots[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
-        inventory_slots[i].y = 1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH);
+        inventory_slots[i].setHeight(2 * BLOCK_WIDTH + INVENTORY_UI_SPACING);
+        inventory_slots[i].setWidth(2 * BLOCK_WIDTH + INVENTORY_UI_SPACING);
+        inventory_slots[i].setX((2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING));
+        inventory_slots[i].setY(1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH));
     }
     
     behind_inventory_rect.orientation = gfx::TOP;
-    behind_inventory_rect.w = 10 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING;
+    behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
     behind_inventory_rect.c = BLACK;
-    behind_inventory_rect.y = INVENTORY_UI_SPACING / 2;
+    behind_inventory_rect.setY(INVENTORY_UI_SPACING / 2);
     behind_inventory_rect.blur_intensity = BLUR - 2;
     behind_inventory_rect.c.a = TRANSPARENCY;
-    behind_inventory_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
+    behind_inventory_rect.setHeight(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
     behind_inventory_rect.shadow_intensity = SHADOW_INTENSITY;
-    behind_rect_h_should_be = behind_inventory_rect.h;
+    behind_inventory_rect.smooth_factor = 2;
     
     select_rect.orientation = gfx::TOP;
     select_rect.c = GREY;
     select_rect.c.a = TRANSPARENCY;
-    select_rect.y = INVENTORY_UI_SPACING / 2;
-    select_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
-    select_rect.w = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
-    select_rect.x = -9 * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
-    select_rect_x_should_be = select_rect.x;
+    select_rect.setY(INVENTORY_UI_SPACING / 2);
+    select_rect.setHeight(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
+    select_rect.setWidth(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
+    select_rect.setX(-9 * (BLOCK_WIDTH + INVENTORY_UI_SPACING));
+    select_rect.smooth_factor = 2;
     
     under_text_rect.c = BLACK;
     
@@ -37,16 +37,10 @@ void ClientInventory::init() {
 }
 
 void ClientInventory::render() {
-    behind_rect_h_should_be = open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
-    behind_inventory_rect.h += (behind_rect_h_should_be - behind_inventory_rect.h) / 2;
-    if(abs(behind_inventory_rect.h - behind_rect_h_should_be) == 1)
-        behind_inventory_rect.h = behind_rect_h_should_be;
+    behind_inventory_rect.setHeight(open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
     behind_inventory_rect.render();
     
-    select_rect_x_should_be = (2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING);
-    select_rect.x += (select_rect_x_should_be - select_rect.x) / 2;
-    if(abs(select_rect.x - select_rect_x_should_be) == 1)
-        select_rect.x = select_rect_x_should_be;
+    select_rect.setX((2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING));
     select_rect.render();
     
     const gfx::Image* text_texture = nullptr;
@@ -63,10 +57,10 @@ void ClientInventory::render() {
                 inventory_slots[i].c = {70, 70, 70};
                 if(inventory[i].item_id != ItemType::NOTHING) {
                     text_texture = &resource_pack->getItemTextTexture(inventory[i].item_id);
-                    under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING;
-                    under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING;
-                    under_text_rect.x = gfx::getMouseX() + 20 - INVENTORY_UI_SPACING;
-                    under_text_rect.y = gfx::getMouseY() + 20 - INVENTORY_UI_SPACING;
+                    under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
+                    under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
+                    under_text_rect.setX(gfx::getMouseX() + 20 - INVENTORY_UI_SPACING);
+                    under_text_rect.setY(gfx::getMouseY() + 20 - INVENTORY_UI_SPACING);
                 }
             }
         } else {

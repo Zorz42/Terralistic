@@ -31,25 +31,48 @@ public:
     RectShape getTranslatedRect() const;
     inline virtual unsigned short getWidth() const { return 0; };
     inline virtual unsigned short getHeight() const { return 0; };
-    short getTranslatedX() const;
-    short getTranslatedY() const;
+    short getTranslatedX(unsigned short width=0) const;
+    short getTranslatedY(unsigned short height=0) const;
 
     short x, y;
 };
 
 class Rect : public _CenteredObject {
     sf::RenderTexture* shadow_texture = nullptr;
+    sf::RenderTexture* shadow_front_texture = nullptr;
     sf::RenderTexture* blur_texture = nullptr;
-    short prev_x, prev_y;
     unsigned short prev_w, prev_h;
     unsigned char prev_shadow_intensity = 0;
     float prev_shadow_blur = GFX_DEFAULT_SHADOW_BLUR;
     void updateShadowTexture();
+    using _CenteredObject::x;
+    using _CenteredObject::y;
+    unsigned short width, height;
+    
+    short target_x = 0, target_y = 0;
+    unsigned short target_width = 0, target_height = 0;
+    
+    bool first_time = true;
+    
+    void updateBlurTextureSize();
+    void updateFrontShadowTexture();
+    
 public:
     explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = GFX_DEFAULT_RECT_COLOR, ObjectType orientation = TOP_LEFT);
-    inline unsigned short getWidth() const override { return w; };
-    inline unsigned short getHeight() const override { return h; };
-    unsigned short w, h;
+    
+    unsigned short getWidth() const override;
+    void setWidth(unsigned short width_);
+    
+    unsigned short getHeight() const override;
+    void setHeight(unsigned short height_);
+    
+    short getX() const;
+    void setX(short x_);
+    
+    short getY() const;
+    void setY(short y_);
+    
+    unsigned short smooth_factor = 1;
     Color c;
     float blur_intensity = 0;
     unsigned char shadow_intensity = 0;

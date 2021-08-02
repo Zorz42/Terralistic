@@ -1,7 +1,7 @@
 #ifndef theme_hpp
 #define theme_hpp
 
-#define WHITE gfx::Color(255, 255, 255)
+#define WHITE gfx::Color(230, 230, 230)
 #define LIGHT_GREY gfx::Color(200, 200, 200)
 #define GREY gfx::Color(100, 100, 100)
 #define BORDER_COLOR gfx::Color(70, 70, 70)

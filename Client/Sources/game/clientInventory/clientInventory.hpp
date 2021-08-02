@@ -33,7 +33,6 @@ class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalM
     void onKeyDown(gfx::Key key) override;
     gfx::Rect inventory_slots[INVENTORY_SIZE], under_text_rect, behind_inventory_rect, select_rect;
     gfx::Image stack_textures[20], mouse_stack_texture;
-    short select_rect_x_should_be = 0, behind_rect_h_should_be = 0;
     void selectSlot(char slot);
     ClientInventoryItem *hovered = nullptr;
     void renderItem(ClientInventoryItem* item, int x, int y, int i);

@@ -140,10 +140,10 @@ void gfx::TextInput::setBlurIntensity(float blur_intensity) {
 
 void gfx::TextInput::render() {
     RectShape rect = getTranslatedRect();
-    back_rect.x = rect.x;
-    back_rect.y = rect.y;
-    back_rect.w = rect.w;
-    back_rect.h = rect.h;
+    back_rect.setX(rect.x);
+    back_rect.setY(rect.y);
+    back_rect.setWidth(rect.w);
+    back_rect.setHeight(rect.h);
     back_rect.c = isHovered() ? hover_color : def_color;
     back_rect.render();
     

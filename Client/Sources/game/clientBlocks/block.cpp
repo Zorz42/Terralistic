@@ -112,7 +112,7 @@ void ClientBlock::drawFront() {
 
     if(getLiquidType() != LiquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
-        parent_map->getResourcePack()->getLiquidTexture(getLiquidType()).render(2, rect.x, rect.y + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
+        parent_map->getResourcePack()->getLiquidTexture(getLiquidType()).render(2, rect.getX(), rect.getY() + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
     }
     
     if(getLightLevel() != MAX_LIGHT)

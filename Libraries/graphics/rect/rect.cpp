@@ -24,31 +24,76 @@ void gfx::RectShape::render(Color c, bool fill) const {
 gfx::RectShape gfx::_CenteredObject::getTranslatedRect() const {
     return {getTranslatedX(), getTranslatedY(), getWidth(), getHeight()};
 }  
-short gfx::_CenteredObject::getTranslatedX() const {
-    return orientation % 3 == 1 ? (getWindowWidth() >> 1) - (getWidth() >> 1) + x : (orientation % 3 == 2 ? getWindowWidth() - getWidth() + x : x);
+short gfx::_CenteredObject::getTranslatedX(unsigned short width) const {
+    if(!width)
+        width = getWidth();
+    return (orientation % 3 == 1 ? (getWindowWidth() >> 1) - (width >> 1) : (orientation % 3 == 2 ? getWindowWidth() - width : 0)) + x;
 }
 
-short gfx::_CenteredObject::getTranslatedY() const {
-    return orientation / 3 == 1 ? (getWindowHeight() >> 1) - (getHeight() >> 1) + y : (orientation / 3 == 2 ? getWindowHeight() - getHeight() + y : y);
+short gfx::_CenteredObject::getTranslatedY(unsigned short height) const {
+    if(!height)
+        height = getHeight();
+    return (orientation / 3 == 1 ? (getWindowHeight() >> 1) - (height >> 1) : (orientation / 3 == 2 ? getWindowHeight() - height : 0)) + y;
 }
 
 gfx::_CenteredObject::_CenteredObject(short x, short y, ObjectType orientation) : orientation(orientation), x(x), y(y) {}
 
-gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(x, y, orientation), w(w), h(h), c(c), prev_x(x), prev_y(y), prev_w(w), prev_h(h) {}
+gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(0, 0, orientation), c(c) {
+    setX(x);
+    setY(y);
+    setWidth(w);
+    setHeight(h);
+}
+
+int approach(int object, int target, int smooth_factor) {
+    if(std::abs(target - object) < smooth_factor)
+        return target;
+    return object + (target - object) / smooth_factor;
+}
 
 void gfx::Rect::render(bool fill) {
+    if(first_time) {
+        first_time = false;
+        x = target_x;
+        y = target_y;
+        width = target_width;
+        height = target_height;
+    }
+    
+    bool changed = false;
+    
+    short prev_x = x;
+    x = approach(x, target_x, smooth_factor);
+    if(prev_x != x)
+        changed = true;
+    
+    short prev_y = y;
+    y = approach(y, target_y, smooth_factor);
+    if(prev_y != y)
+        changed = true;
+    
+    unsigned short prev_width = width;
+    width = approach(width, target_width, smooth_factor);
+    if(prev_width != width)
+        changed = true;
+    
+    unsigned short prev_height = height;
+    height = approach(height, target_height, smooth_factor);
+    if(prev_height != height)
+        changed = true;
+    
     RectShape rect = getTranslatedRect();
 
     if(blur_intensity) {
-        if(blur_intensity && !blur_texture)
+        if(blur_intensity && !blur_texture) {
             blur_texture = new sf::RenderTexture;
-        if(blur_texture->getSize().x != w || blur_texture->getSize().y != h)
-            blur_texture->create(w, h);
+            updateBlurTextureSize();
+        }
         
         blur_texture->clear({0, 0, 0});
         sf::Sprite back_sprite;
         back_sprite.setTexture(render_target->getTexture());
-        back_sprite.setTextureRect({rect.x, rect.y, rect.w, rect.h});
+        back_sprite.setTextureRect({getTranslatedX() - x + target_x, getTranslatedY() - y + target_y, target_width, target_height});
         blur_texture->draw(back_sprite);
         blur_texture->display();
         
@@ -58,39 +103,54 @@ void gfx::Rect::render(bool fill) {
         sf::Sprite sprite;
         sprite.setTexture(blur_texture->getTexture());
         sprite.setPosition(getTranslatedX(), getTranslatedY());
+        sprite.setTextureRect({0, 0, width, height});
         render_target->draw(sprite);
     }
     
     if(shadow_intensity) {
         if(!shadow_texture) {
             shadow_texture = new sf::RenderTexture;
+            shadow_front_texture = new sf::RenderTexture;
             updateShadowTexture();
         }
-        if(prev_x != x || prev_y != y || prev_w != w || prev_h != h || prev_shadow_intensity != shadow_intensity || prev_shadow_blur != shadow_blur) {
-            prev_x = x;
-            prev_y = y;
-            prev_w = w;
-            prev_h = h;
-            prev_shadow_blur = shadow_blur;
-            prev_shadow_intensity = shadow_intensity;
-            updateShadowTexture();
-        }
+        
         if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
             updateShadowTexture();
         
-        render_target->draw(sf::Sprite(shadow_texture->getTexture()));
+        if(changed)
+            updateFrontShadowTexture();
+        
+        render_target->draw(sf::Sprite(shadow_front_texture->getTexture()));
     }
     rect.render(c, fill);
     rect.render(border_color, false);
 }
 
+void gfx::Rect::updateFrontShadowTexture() {
+    shadow_front_texture->clear({0, 0, 0, 0});
+    shadow_front_texture->draw(sf::Sprite(shadow_texture->getTexture()));
+    
+    sf::RectangleShape back_rect;
+    back_rect.setPosition(getTranslatedX(), getTranslatedY());
+    back_rect.setSize({(float)getWidth(), (float)getHeight()});
+    back_rect.setFillColor({0, 0, 0, 0});
+    shadow_front_texture->draw(back_rect, sf::BlendNone);
+    
+    shadow_front_texture->display();
+}
+
 void gfx::Rect::updateShadowTexture() {
-    if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
+    if(!shadow_texture)
+        return;
+    if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y) {
         shadow_texture->create(getWindowWidth(), getWindowHeight());
+        shadow_front_texture->create(getWindowWidth(), getWindowHeight());
+    }
+    
     shadow_texture->clear({0, 0, 0, 0});
     
-    sf::RectangleShape rect(sf::Vector2f(getWidth(), getHeight()));
-    rect.setPosition(getTranslatedX(), getTranslatedY());
+    sf::RectangleShape rect(sf::Vector2f(target_width, target_height));
+    rect.setPosition(getTranslatedX(target_width) - x + target_x, getTranslatedY(target_height) - y + target_y);
     rect.setFillColor({0, 0, 0, shadow_intensity});
     shadow_texture->draw(rect);
     
@@ -98,13 +158,64 @@ void gfx::Rect::updateShadowTexture() {
     
     blurTexture(*shadow_texture, shadow_blur, 2);
     
-    rect.setFillColor({0, 0, 0, 0});
-    shadow_texture->draw(rect, sf::BlendNone);
-    
     shadow_texture->display();
+    
+    updateFrontShadowTexture();
+}
+
+void gfx::Rect::updateBlurTextureSize() {
+    if(blur_texture)
+        blur_texture->create(target_width, target_height);
+}
+
+unsigned short gfx::Rect::getWidth() const {
+    return width;
+}
+
+void gfx::Rect::setWidth(unsigned short width_) {
+    if(target_width != width_) {
+        target_width = width_;
+        updateBlurTextureSize();
+        updateShadowTexture();
+    }
+}
+
+unsigned short gfx::Rect::getHeight() const {
+    return height;
+}
+
+void gfx::Rect::setHeight(unsigned short height_) {
+    if(target_height != height_) {
+        target_height = height_;
+        updateBlurTextureSize();
+        updateShadowTexture();
+    }
+}
+
+short gfx::Rect::getX() const {
+    return x;
+}
+
+void gfx::Rect::setX(short x_) {
+    if(target_x != x_) {
+        target_x = x_;
+        updateShadowTexture();
+    }
+}
+
+short gfx::Rect::getY() const {
+    return y;
+}
+
+void gfx::Rect::setY(short y_) {
+    if(target_y != y_) {
+        target_y = y_;
+        updateShadowTexture();
+    }
 }
 
 gfx::Rect::~Rect() {
     delete shadow_texture;
+    delete shadow_front_texture;
     delete blur_texture;
 }

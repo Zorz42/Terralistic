@@ -8,7 +8,6 @@ class PauseScreen : public gfx::GraphicalModule {
     gfx::Rect back_rect;
     gfx::Rect fade_rect;
     bool paused = false;
-    int x_to_be = 0;
     void init() override;
     void render() override;
     void onKeyDown(gfx::Key key) override;
