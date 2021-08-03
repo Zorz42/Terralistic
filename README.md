@@ -11,6 +11,7 @@ You will need to have installed to build:
 - cmake (on linux and windows)
 - make (on linux and windows)
 - gcc
+- zlib
 
 SFML will be installed by build.py.
 
