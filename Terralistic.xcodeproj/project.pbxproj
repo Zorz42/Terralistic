@@ -24,8 +24,8 @@
 		166D85DE26AA0B9E00DB87B1 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */; };
 		166D85E026AAB7EC00DB87B1 /* packetHandling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85DF26AAB7EC00DB87B1 /* packetHandling.cpp */; };
 		166D85E126AAB7EC00DB87B1 /* packetHandling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85DF26AAB7EC00DB87B1 /* packetHandling.cpp */; };
-		166ECC8126A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
-		166ECC8226A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
+		166ECC8126A1B8C800E36052 /* serializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* serializer.cpp */; };
+		166ECC8226A1B8C800E36052 /* serializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* serializer.cpp */; };
 		16712C7026ADF5250050CC46 /* clientPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16712C6F26ADF5250050CC46 /* clientPlayers.cpp */; };
 		16712C7426AE004A0050CC46 /* clientInventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16712C7226AE004A0050CC46 /* clientInventory.cpp */; };
 		1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* serverNetworking.cpp */; };
@@ -228,7 +228,7 @@
 		166D85D126AA0B9E00DB87B1 /* SimplexNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplexNoise.h; sourceTree = "<group>"; };
 		166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplexNoise.cpp; sourceTree = "<group>"; };
 		166D85DF26AAB7EC00DB87B1 /* packetHandling.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packetHandling.cpp; sourceTree = "<group>"; };
-		166ECC8026A1B8C800E36052 /* saver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = saver.cpp; sourceTree = "<group>"; };
+		166ECC8026A1B8C800E36052 /* serializer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serializer.cpp; sourceTree = "<group>"; };
 		16712C6F26ADF5250050CC46 /* clientPlayers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clientPlayers.cpp; sourceTree = "<group>"; };
 		16712C7226AE004A0050CC46 /* clientInventory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clientInventory.cpp; sourceTree = "<group>"; };
 		16712C7326AE004A0050CC46 /* clientInventory.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientInventory.hpp; sourceTree = "<group>"; };
@@ -602,9 +602,9 @@
 			children = (
 				167B387D2642F73900E3C718 /* print */,
 				16B36D302682066B00A4B03A /* serverBlocks */,
-				16B36D2A2681FF0400A4B03A /* serverItems */,
 				167513C126A498DA00E21C68 /* biomes */,
 				16B36D3926820AC700A4B03A /* worldGenerator */,
+				16B36D2A2681FF0400A4B03A /* serverItems */,
 				168600D42681DB1600763775 /* serverPlayers */,
 				1673274926A80E760063281A /* serverNetworking */,
 				167B38922642F73900E3C718 /* server */,
@@ -872,7 +872,7 @@
 				167F4D30268496B2004A8D11 /* block.cpp */,
 				167B38842642F73900E3C718 /* light.cpp */,
 				1664388626695A2F00587F5E /* liquid.cpp */,
-				166ECC8026A1B8C800E36052 /* saver.cpp */,
+				166ECC8026A1B8C800E36052 /* serializer.cpp */,
 			);
 			path = serverBlocks;
 			sourceTree = "<group>";
@@ -1060,7 +1060,7 @@
 				16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */,
 				36DDF8AC2689F725002337F3 /* serverItems.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* serverPlayers.cpp in Sources */,
-				166ECC8126A1B8C800E36052 /* saver.cpp in Sources */,
+				166ECC8126A1B8C800E36052 /* serializer.cpp in Sources */,
 				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
 				1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
@@ -1129,7 +1129,7 @@
 				16BF6932269D6D7300CFE175 /* serverPlayers.cpp in Sources */,
 				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
 				1682944426A16D780017E2FD /* packetType.cpp in Sources */,
-				166ECC8226A1B8C800E36052 /* saver.cpp in Sources */,
+				166ECC8226A1B8C800E36052 /* serializer.cpp in Sources */,
 				16BF6936269D6D7300CFE175 /* print.cpp in Sources */,
 				16BF6937269D6D7300CFE175 /* server.cpp in Sources */,
 			);

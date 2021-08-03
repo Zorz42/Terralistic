@@ -152,41 +152,51 @@ void Players::rightClickEvent(ServerBlock this_block, ServerPlayer* peer) {
         custom_block_events[(int)this_block.getBlockType()].onRightClick(&this_block, peer);
 }
 
-ServerPlayer* Players::addPlayerFromFile(const std::string& path) {
-    ServerPlayer* player = new ServerPlayer(path, path.substr(path.find_last_of('/') + 1, path.size() - 1));
+ServerPlayer* Players::addPlayerFromSerial(std::vector<char>& serial) {
+    ServerPlayer* player = new ServerPlayer(serial);
     all_players.push_back(player);
     return player;
 }
 
-ServerPlayer::ServerPlayer(const std::string& path, std::string  name) : id(curr_id++), name(std::move(name)) {
-    std::ifstream data_file(path, std::ios::binary);
-    for(auto & i : inventory.inventory_arr) {
-        char c;
-        data_file >> c;
-        i.setTypeWithoutProcessing((ItemType)c);
-
-        unsigned short stack;
-        data_file.read((char*)&stack, sizeof(stack));
-        i.setStackWithoutProcessing(stack);
+ServerPlayer::ServerPlayer(std::vector<char>& serial) : id(curr_id++) {
+    char* iter = &serial[0];
+    
+    for(int i = 0; i < INVENTORY_SIZE; i++) {
+        inventory.inventory_arr[i].setTypeWithoutProcessing((ItemType)*iter++);
+        inventory.inventory_arr[i].setStackWithoutProcessing(*(short*)iter);
+        iter += 2;
     }
-
-    data_file.read((char*)&x, sizeof(x));
-    data_file.read((char*)&y, sizeof(y));
+    
+    x = *(int*)iter;
+    iter += 4;
+    y = *(int*)iter;
+    iter += 4;
+    
+    do
+        name.push_back(*iter++);
+    while(*iter);
     
     sight_x = x;
     sight_y = y;
 }
 
-void ServerPlayer::saveTo(const std::string& path) const {
-    std::ofstream data_file(path, std::ios::binary);
+std::vector<char> ServerPlayer::serialize() const {
+    std::vector<char> serial;
+    
     for(const auto& i : inventory.inventory_arr) {
-        data_file << (char)i.getType();
-        unsigned short stack = i.getStack();
-        data_file.write((char*)&stack, sizeof(stack));
+        serial.push_back((char)i.getType());
+        serial.insert(serial.end(), {0, 0});
+        *(short*)&serial[serial.size() - 2] = i.getStack();
     }
-    data_file.write((char*)&x, sizeof(x));
-    data_file.write((char*)&y, sizeof(y));
-    data_file.close();
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    *(int*)&serial[serial.size() - 4] = x;
+    
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    *(int*)&serial[serial.size() - 4] = y;
+    
+    serial.insert(serial.end(), name.begin(), name.end() + 1);
+    
+    return serial;
 }
 
 void Players::onEvent(ServerBlockUpdateEvent& event) {

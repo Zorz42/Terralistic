@@ -19,6 +19,9 @@ class Server {
     worldGenerator generator;
 
     bool running = true;
+    
+    void saveWorld();
+    void loadWorld();
 public:
     ServerState state = ServerState::NEUTRAL;
     

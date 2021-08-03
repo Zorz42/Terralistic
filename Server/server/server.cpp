@@ -20,6 +20,43 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
+void Server::saveWorld() {
+    std::filesystem::create_directory(world_path);
+    
+    std::ofstream blockdata(world_path + "/blockdata", std::ios::trunc | std::ios::binary);
+    std::vector<char> blockdata_serial = blocks.serialize();
+    blockdata.write(&blockdata_serial[0], blockdata_serial.size());
+    blockdata.close();
+    
+    std::filesystem::create_directory(world_path + "/playerdata/");
+    for(const ServerPlayer* player : players.getAllPlayers()) {
+        std::ofstream data_file(world_path + "/playerdata/" + player->name, std::ios::binary);
+        std::vector<char> serial = player->serialize();
+        data_file.write(&serial[0], serial.size());
+        data_file.close();
+    }
+}
+
+void Server::loadWorld() {
+    blocks.createWorld(4400, 1200);
+    
+    std::ifstream blockdata(world_path + "/blockdata", std::ios::binary);
+    blockdata.unsetf(std::ios::skipws);
+    std::vector<char> blockdata_serial(blocks.getWidth() * blocks.getHeight() * 3);
+    blockdata.read(&blockdata_serial[0], blockdata_serial.size());
+    blockdata.close();
+    
+    blocks.loadFromSerial(blockdata_serial);
+    for (const auto& file : std::filesystem::directory_iterator(world_path + "/playerdata/")) {
+        std::ifstream data_file(file, std::ios::binary);
+        data_file.unsetf(std::ios::skipws);
+        
+        std::vector<char> serial((std::istreambuf_iterator<char>(data_file)), std::istreambuf_iterator<char>());
+        
+        players.addPlayerFromSerial(serial);
+    }
+}
+
 void Server::start(unsigned short port) {
     curr_server = this;
 
@@ -29,9 +66,7 @@ void Server::start(unsigned short port) {
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
-        blocks.loadFrom(world_path + "/blockdata");
-        for (const auto& file : std::filesystem::directory_iterator(world_path + "/playerdata/"))
-            players.addPlayerFromFile(file.path().string());
+        loadWorld();
     } else {
         state = ServerState::GENERATING_WORLD;
         print::info("Generating world...");
@@ -82,14 +117,7 @@ void Server::start(unsigned short port) {
     networking_manager.closeSocket();
 
     print::info("Saving world...");
-    
-    std::filesystem::create_directory(world_path);
-    blocks.saveTo(world_path + "/blockdata");
-    std::filesystem::create_directory(world_path + "/playerdata/");
-    for(const ServerPlayer* player : players.getAllPlayers())
-        player->saveTo(world_path + "/playerdata/" + player->name);
-    
-    //std::ofstream world_file(world_path);
+    saveWorld();
 
     state = ServerState::STOPPED;
 }

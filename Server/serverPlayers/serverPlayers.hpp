@@ -48,8 +48,8 @@ class ServerPlayer {
     static inline unsigned int curr_id = 0;
 public:
     explicit ServerPlayer(std::string name) : id(curr_id++), name(std::move(name)) {}
-    ServerPlayer(const std::string& path, std::string  name);
-    const std::string name;
+    ServerPlayer(std::vector<char>& serial);
+    std::string name;
     const unsigned short id;
     
     bool flipped = false;
@@ -66,7 +66,7 @@ public:
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
     
-    void saveTo(const std::string& path) const;
+    std::vector<char> serialize() const;
 };
 
 struct blockEvents {
@@ -97,7 +97,7 @@ public:
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
-    ServerPlayer* addPlayerFromFile(const std::string& path);
+    ServerPlayer* addPlayerFromSerial(std::vector<char>& seria);
     void removePlayer(ServerPlayer* player);
     
     void updatePlayersBreaking(unsigned short tick_length);
