@@ -118,7 +118,7 @@ void gfx::Rect::render(bool fill) {
             updateShadowTexture();
         
         if(changed)
-            updateFrontShadowTexture();
+            updateShadowTexture();
         
         render_target->draw(sf::Sprite(shadow_front_texture->getTexture()));
     }
@@ -149,14 +149,17 @@ void gfx::Rect::updateShadowTexture() {
     
     shadow_texture->clear({0, 0, 0, 0});
     
-    sf::RectangleShape rect(sf::Vector2f(target_width, target_height));
-    rect.setPosition(getTranslatedX(target_width) - x + target_x, getTranslatedY(target_height) - y + target_y);
+    sf::RectangleShape rect(sf::Vector2f(width, height));
+    rect.setPosition(getTranslatedX(), getTranslatedY());
     rect.setFillColor({0, 0, 0, shadow_intensity});
     shadow_texture->draw(rect);
     
     shadow_texture->display();
     
     blurTexture(*shadow_texture, shadow_blur, 2);
+    
+    rect.setFillColor({0, 0, 0, 0});
+    shadow_texture->draw(rect, sf::BlendNone);
     
     shadow_texture->display();
     
