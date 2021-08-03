@@ -99,7 +99,7 @@ elif sys.platform == "win32":
 
     createDir("Build/")
 
-    os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build .\"")
+    os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build .\"")
 
     if os.path.exists(project_path + "Output/Windows/Terralistic/"):
         shutil.rmtree(project_path + "Output/Windows/Terralistic/")
