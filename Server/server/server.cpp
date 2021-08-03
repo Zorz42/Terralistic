@@ -3,6 +3,8 @@
 #include <csignal>
 #include <filesystem>
 #include <chrono>
+#include <zlib.h>
+#include <fstream>
 
 #include "print.hpp"
 #include "serverPlayers.hpp"
@@ -81,11 +83,14 @@ void Server::start(unsigned short port) {
     networking_manager.closeSocket();
 
     print::info("Saving world...");
-    std::filesystem::create_directory(world_path);
+    
+    /*std::filesystem::create_directory(world_path);
     blocks.saveTo(world_path + "blockdata");
     std::filesystem::create_directory(world_path + "playerdata/");
     for(const ServerPlayer* player : players.getAllPlayers())
-        player->saveTo(world_path + "playerdata/" + player->name);
+        player->saveTo(world_path + "playerdata/" + player->name);*/
+    
+    //std::ofstream world_file(world_path);
 
     state = ServerState::STOPPED;
 }
