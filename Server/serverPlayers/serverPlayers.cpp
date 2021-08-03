@@ -152,20 +152,14 @@ void Players::rightClickEvent(ServerBlock this_block, ServerPlayer* peer) {
         custom_block_events[(int)this_block.getBlockType()].onRightClick(&this_block, peer);
 }
 
-ServerPlayer* Players::addPlayerFromSerial(std::vector<char>& serial) {
-    ServerPlayer* player = new ServerPlayer(serial);
-    all_players.push_back(player);
-    return player;
+char* Players::addPlayerFromSerial(char* iter) {
+    all_players.push_back(new ServerPlayer(iter));
+    return iter;
 }
 
-ServerPlayer::ServerPlayer(std::vector<char>& serial) : id(curr_id++) {
-    char* iter = &serial[0];
-    
-    for(int i = 0; i < INVENTORY_SIZE; i++) {
-        inventory.inventory_arr[i].setTypeWithoutProcessing((ItemType)*iter++);
-        inventory.inventory_arr[i].setStackWithoutProcessing(*(short*)iter);
-        iter += 2;
-    }
+ServerPlayer::ServerPlayer(char*& iter) : id(curr_id++) {
+    for(InventoryItem& i : inventory.inventory_arr)
+        iter = i.loadFromSerial(iter);
     
     x = *(int*)iter;
     iter += 4;
@@ -180,14 +174,10 @@ ServerPlayer::ServerPlayer(std::vector<char>& serial) : id(curr_id++) {
     sight_y = y;
 }
 
-std::vector<char> ServerPlayer::serialize() const {
-    std::vector<char> serial;
+void ServerPlayer::serialize(std::vector<char>& serial) const {
+    for(const InventoryItem& i : inventory.inventory_arr)
+        i.serialize(serial);
     
-    for(const auto& i : inventory.inventory_arr) {
-        serial.push_back((char)i.getType());
-        serial.insert(serial.end(), {0, 0});
-        *(short*)&serial[serial.size() - 2] = i.getStack();
-    }
     serial.insert(serial.end(), {0, 0, 0, 0});
     *(int*)&serial[serial.size() - 4] = x;
     
@@ -195,8 +185,6 @@ std::vector<char> ServerPlayer::serialize() const {
     *(int*)&serial[serial.size() - 4] = y;
     
     serial.insert(serial.end(), name.begin(), name.end() + 1);
-    
-    return serial;
 }
 
 void Players::onEvent(ServerBlockUpdateEvent& event) {

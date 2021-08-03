@@ -20,23 +20,6 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
-void Server::saveWorld() {
-    std::filesystem::create_directory(world_path);
-    
-    std::ofstream blockdata(world_path + "/blockdata", std::ios::trunc | std::ios::binary);
-    std::vector<char> blockdata_serial = blocks.serialize();
-    blockdata.write(&blockdata_serial[0], blockdata_serial.size());
-    blockdata.close();
-    
-    std::filesystem::create_directory(world_path + "/playerdata/");
-    for(const ServerPlayer* player : players.getAllPlayers()) {
-        std::ofstream data_file(world_path + "/playerdata/" + player->name, std::ios::binary);
-        std::vector<char> serial = player->serialize();
-        data_file.write(&serial[0], serial.size());
-        data_file.close();
-    }
-}
-
 void Server::loadWorld() {
     blocks.createWorld(4400, 1200);
     
@@ -46,14 +29,33 @@ void Server::loadWorld() {
     blockdata.read(&blockdata_serial[0], blockdata_serial.size());
     blockdata.close();
     
-    blocks.loadFromSerial(blockdata_serial);
+    blocks.loadFromSerial(&blockdata_serial[0]);
     for (const auto& file : std::filesystem::directory_iterator(world_path + "/playerdata/")) {
         std::ifstream data_file(file, std::ios::binary);
         data_file.unsetf(std::ios::skipws);
         
         std::vector<char> serial((std::istreambuf_iterator<char>(data_file)), std::istreambuf_iterator<char>());
         
-        players.addPlayerFromSerial(serial);
+        players.addPlayerFromSerial(&serial[0]);
+    }
+}
+
+void Server::saveWorld() {
+    std::filesystem::create_directory(world_path);
+    
+    std::ofstream blockdata(world_path + "/blockdata", std::ios::trunc | std::ios::binary);
+    std::vector<char> blockdata_serial;
+    blocks.serialize(blockdata_serial);
+    blockdata.write(&blockdata_serial[0], blockdata_serial.size());
+    blockdata.close();
+    
+    std::filesystem::create_directory(world_path + "/playerdata/");
+    for(const ServerPlayer* player : players.getAllPlayers()) {
+        std::ofstream data_file(world_path + "/playerdata/" + player->name, std::ios::binary);
+        std::vector<char> serial;
+        player->serialize(serial);
+        data_file.write(&serial[0], serial.size());
+        data_file.close();
     }
 }
 
