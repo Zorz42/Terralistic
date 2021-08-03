@@ -110,7 +110,6 @@ void gfx::Rect::render(bool fill) {
     if(shadow_intensity) {
         if(!shadow_texture) {
             shadow_texture = new sf::RenderTexture;
-            shadow_front_texture = new sf::RenderTexture;
             updateShadowTexture();
         }
         
@@ -120,32 +119,17 @@ void gfx::Rect::render(bool fill) {
         if(changed)
             updateShadowTexture();
         
-        render_target->draw(sf::Sprite(shadow_front_texture->getTexture()));
+        render_target->draw(sf::Sprite(shadow_texture->getTexture()));
     }
     rect.render(c, fill);
     rect.render(border_color, false);
 }
 
-void gfx::Rect::updateFrontShadowTexture() {
-    shadow_front_texture->clear({0, 0, 0, 0});
-    shadow_front_texture->draw(sf::Sprite(shadow_texture->getTexture()));
-    
-    sf::RectangleShape back_rect;
-    back_rect.setPosition(getTranslatedX(), getTranslatedY());
-    back_rect.setSize({(float)getWidth(), (float)getHeight()});
-    back_rect.setFillColor({0, 0, 0, 0});
-    shadow_front_texture->draw(back_rect, sf::BlendNone);
-    
-    shadow_front_texture->display();
-}
-
 void gfx::Rect::updateShadowTexture() {
     if(!shadow_texture)
         return;
-    if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y) {
+    if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
         shadow_texture->create(getWindowWidth(), getWindowHeight());
-        shadow_front_texture->create(getWindowWidth(), getWindowHeight());
-    }
     
     shadow_texture->clear({0, 0, 0, 0});
     
@@ -162,8 +146,6 @@ void gfx::Rect::updateShadowTexture() {
     shadow_texture->draw(rect, sf::BlendNone);
     
     shadow_texture->display();
-    
-    updateFrontShadowTexture();
 }
 
 void gfx::Rect::updateBlurTextureSize() {
@@ -219,6 +201,5 @@ void gfx::Rect::setY(short y_) {
 
 gfx::Rect::~Rect() {
     delete shadow_texture;
-    delete shadow_front_texture;
     delete blur_texture;
 }
