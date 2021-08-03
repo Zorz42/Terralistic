@@ -26,12 +26,11 @@ void Server::start(unsigned short port) {
     if(working_dir.back() != '/')
         working_dir.push_back('/');
 
-    std::string world_path = working_dir + "world/";
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
-        blocks.loadFrom(world_path + "blockdata");
-        for (const auto& file : std::filesystem::directory_iterator(world_path + "playerdata/"))
+        blocks.loadFrom(world_path + "/blockdata");
+        for (const auto& file : std::filesystem::directory_iterator(world_path + "/playerdata/"))
             players.addPlayerFromFile(file.path().string());
     } else {
         state = ServerState::GENERATING_WORLD;
@@ -84,11 +83,11 @@ void Server::start(unsigned short port) {
 
     print::info("Saving world...");
     
-    /*std::filesystem::create_directory(world_path);
-    blocks.saveTo(world_path + "blockdata");
-    std::filesystem::create_directory(world_path + "playerdata/");
+    std::filesystem::create_directory(world_path);
+    blocks.saveTo(world_path + "/blockdata");
+    std::filesystem::create_directory(world_path + "/playerdata/");
     for(const ServerPlayer* player : players.getAllPlayers())
-        player->saveTo(world_path + "playerdata/" + player->name);*/
+        player->saveTo(world_path + "/playerdata/" + player->name);
     
     //std::ofstream world_file(world_path);
 
