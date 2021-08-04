@@ -89,10 +89,10 @@ else()
 
     include_directories(${SFML_DIR}include/)
     target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/)
-    target_link_libraries(Terralistic sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
+    target_link_libraries(Terralistic z sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
 
     target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/)
-    target_link_libraries(Terralistic-server sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
+    target_link_libraries(Terralistic-server z sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
 endif()
 
 file(COPY Client/Resources DESTINATION .)
