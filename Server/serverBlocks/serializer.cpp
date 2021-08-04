@@ -2,13 +2,15 @@
 #include <fstream>
 
 void ServerBlocks::serialize(std::vector<char>& serial) {
-    serial.reserve(width * height * 3);
+    unsigned long initial_pos = serial.size();
+    serial.resize(serial.size() + width * height * 3);
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             ServerBlock curr_block = getBlock(x, y);
-            serial.push_back((char)curr_block.getBlockType());
-            serial.push_back((char)curr_block.getLiquidType());
-            serial.push_back((char)curr_block.getLiquidLevel());
+            unsigned long pos = initial_pos + (y * width + x) * 3;
+            serial[pos] = (char)curr_block.getBlockType();
+            serial[pos + 1] = (char)curr_block.getLiquidType();
+            serial[pos + 2] = (char)curr_block.getLiquidLevel();
         }
     }
 }
