@@ -1,9 +1,8 @@
 #include <cassert>
 #include "resourcePack.hpp"
 
-const gfx::Image& ResourcePack::getBlockTexture(BlockType type) {
-    assert((int)type >= 0 && type < BlockType::NUM_BLOCKS);
-    return block_textures[(int)type];
+const gfx::Image& ResourcePack::getBlockTexture(){
+    return texture_atlas;
 }
 
 const gfx::Image& ResourcePack::getItemTexture(ItemType type) {
@@ -53,8 +52,10 @@ void ResourcePack::load(std::string path) {
     unsigned short max_y_size = 8;
     int texture_atlas_height = 0;
     for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++){
-        if(block_textures[i].getTextureWidth() > max_y_size)
-            max_y_size = block_textures[i].getTextureWidth();
+        //if(block_textures[i].getTextureWidth() > max_y_size)
+            //max_y_size = block_textures[i].getTextureWidth();
+        //block_infos[i].unique_textures = block_textures[i].getTextureWidth() / 8;
+        block_infos[i].y_on_text_atlas = 16;//texture_atlas_height;
         texture_atlas_height += block_textures[i].getTextureHeight();
     }
 

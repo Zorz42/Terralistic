@@ -9,7 +9,7 @@ class ResourcePack {
 public:
     void load(std::string path);
     
-    const gfx::Image& getBlockTexture(BlockType type);
+    const gfx::Image& getBlockTexture();
     const gfx::Image& getItemTexture(ItemType type);
     const gfx::Image& getItemTextTexture(ItemType type);
     const gfx::Image& getLiquidTexture(LiquidType type);

@@ -11,6 +11,8 @@ enum class ItemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, NUM_ITEMS};
 enum class LiquidType {EMPTY, WATER, NUM_LIQUIDS};
 enum class Biome {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
+
+
 struct BlockInfo {
     BlockInfo() = default;
     BlockInfo(std::string name, bool ghost, bool transparent, bool only_on_floor, short break_time, ItemType drop, std::vector<BlockType> connects_to);
@@ -20,7 +22,11 @@ struct BlockInfo {
     std::vector<BlockType> connects_to;
     short break_time;
     ItemType drop;
+public:
+    unsigned int y_on_text_atlas = 0;
+    unsigned short unique_textures, states;
 };
+static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 
 struct ItemInfo {
     ItemInfo() = default;
