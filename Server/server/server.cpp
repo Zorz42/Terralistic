@@ -25,13 +25,19 @@ void Server::loadWorld() {
     
     std::ifstream world_file(world_path, std::ios::binary);
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
+    
+    unsigned long uncompressed_size = *(unsigned long*)&world_file_serial[world_file_serial.size() - 8];
+    world_file_serial.erase(world_file_serial.end() - 8, world_file_serial.end());
+    std::vector<char> world_file_serial_uncompressed(uncompressed_size);
+    
+    uncompress((Bytef*)&world_file_serial_uncompressed[0], &uncompressed_size, (Bytef*)&world_file_serial[0], world_file_serial.size());
+    
     world_file.close();
-    char* iter = &world_file_serial[0];
+    char* iter = &world_file_serial_uncompressed[0];
     iter = blocks.loadFromSerial(iter);
     
-    while(iter != &world_file_serial.back()) {
+    while(iter != &world_file_serial_uncompressed.back())
         iter = players.addPlayerFromSerial(iter);
-    }
 }
 
 void Server::saveWorld() {
@@ -41,8 +47,16 @@ void Server::saveWorld() {
     for(const ServerPlayer* player : players.getAllPlayers())
         player->serialize(world_file_serial);
     
+    std::vector<char> world_file_serial_compressed(world_file_serial.size() * 1.1 + 12);
+    unsigned long compressed_size = world_file_serial_compressed.size();
+    
+    compress((Bytef*)&world_file_serial_compressed[0], &compressed_size, (Bytef*)&world_file_serial[0], world_file_serial.size());
+    
+    *(unsigned long*)&world_file_serial_compressed[compressed_size] = world_file_serial.size();
+    compressed_size += 8;
+    
     std::ofstream world_file(world_path, std::ios::trunc | std::ios::binary);
-    world_file.write(&world_file_serial[0], world_file_serial.size());
+    world_file.write(&world_file_serial_compressed[0], compressed_size);
     world_file.close();
 }
 

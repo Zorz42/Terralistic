@@ -43,6 +43,8 @@
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1689699B25E962F800D26060 /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* resourcePack */; };
 		16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16906515266CC0C20075EF55 /* debugMenu.cpp */; };
+		1690D7DA26BA88640007755C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
+		1690D7DB26BA88710007755C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		1691250225F6BCD500F7EB4F /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* clientNetworking.cpp */; };
 		1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A925E9607800D26060 /* pauseScreen.cpp */; };
@@ -282,6 +284,8 @@
 		1689699A25E962F800D26060 /* resourcePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resourcePack; sourceTree = "<group>"; };
 		16906515266CC0C20075EF55 /* debugMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debugMenu.cpp; sourceTree = "<group>"; };
 		16906516266CC0C20075EF55 /* debugMenu.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugMenu.hpp; sourceTree = "<group>"; };
+		1690D7D626BA869F0007755C /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
+		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		169124A125F6B70F00F7EB4F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Graphics/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
 		169124A225F6B70F00F7EB4F /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Client/Graphics/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Client/Graphics/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
@@ -372,6 +376,7 @@
 				16BF6999269D855A00CFE175 /* vorbis.framework in Frameworks */,
 				16BF6985269D854F00CFE175 /* sfml-audio.framework in Frameworks */,
 				16BF6987269D854F00CFE175 /* sfml-graphics.framework in Frameworks */,
+				1690D7DA26BA88640007755C /* libz.tbd in Frameworks */,
 				16BF6997269D855A00CFE175 /* OpenAL.framework in Frameworks */,
 				16BF698F269D854F00CFE175 /* SFML.framework in Frameworks */,
 				16BF698B269D854F00CFE175 /* sfml-system.framework in Frameworks */,
@@ -392,6 +397,7 @@
 				16BF6979269D853A00CFE175 /* OpenAL.framework in Frameworks */,
 				16BF696D269D853100CFE175 /* sfml-system.framework in Frameworks */,
 				16BF697B269D853A00CFE175 /* vorbisenc.framework in Frameworks */,
+				1690D7DB26BA88710007755C /* libz.tbd in Frameworks */,
 				16BF697D269D853A00CFE175 /* freetype.framework in Frameworks */,
 				16BF6977269D853A00CFE175 /* ogg.framework in Frameworks */,
 				16BF696B269D853100CFE175 /* SFML.framework in Frameworks */,
@@ -413,6 +419,8 @@
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1690D7D826BA87B90007755C /* libz.tbd */,
+				1690D7D626BA869F0007755C /* libz.1.2.11.tbd */,
 				16BF6975269D853A00CFE175 /* FLAC.framework */,
 				16BF6973269D853A00CFE175 /* freetype.framework */,
 				16BF6970269D853A00CFE175 /* ogg.framework */,
@@ -1305,6 +1313,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
@@ -1366,6 +1375,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
@@ -1398,6 +1408,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_LDFLAGS = "";
+				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
@@ -1428,6 +1440,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
