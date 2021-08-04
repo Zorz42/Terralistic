@@ -57,15 +57,14 @@ void WorldSelector::refresh() {
     worlds.clear();
     worlds_names.clear();
 
-    std::vector<std::string> ignored_dirs = {
-            ".",
-            "..",
-            ".DS_Store",
-    };
-
-    for(auto& p: std::filesystem::directory_iterator(fileManager::getWorldsPath().c_str()))
-        if(p.is_directory())
-            worlds.emplace_back(p.path().filename().string());
+    for(auto& p: std::filesystem::directory_iterator(fileManager::getWorldsPath().c_str())) {
+        std::string file_name = p.path().filename().string();
+        std::string ending = ".world";
+        if(file_name.size() > ending.size() && std::equal(ending.rbegin(), ending.rend(), file_name.rbegin())) {
+            file_name.erase(file_name.end() - ending.size(), file_name.end());
+            worlds.emplace_back(file_name);
+        }
+    }
 
     for(auto& world : worlds) {
         world.button.orientation = gfx::TOP;
@@ -105,10 +104,10 @@ void WorldSelector::onKeyDown(gfx::Key key) {
                     else
                         ChoiceScreen(menu_back, std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result).run();
 
-                    if(result == "Yes")
-                        std::filesystem::remove_all(fileManager::getWorldsPath() + worlds[i].name);
-                    
-                    refresh();
+                    if(result == "Yes") {
+                        std::filesystem::remove(fileManager::getWorldsPath() + worlds[i].name + ".world");
+                        refresh();
+                    }
                     break;
                 }
             }
