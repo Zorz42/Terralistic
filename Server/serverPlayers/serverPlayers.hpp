@@ -9,13 +9,18 @@
 
 class ServerInventory;
 
-class InventoryItem {
-    unsigned short stack;
+struct ItemStack {
+    ItemStack(ItemType type, unsigned short stack) : type(type), stack(stack) {}
+    ItemStack() = default;
+    ItemType type = ItemType::NOTHING;
+    unsigned short stack = 0;
+};
+
+class InventoryItem : ItemStack {
     ServerInventory* inventory;
-    ItemType type;
 public:
-    InventoryItem() : inventory(nullptr), type(ItemType::NOTHING), stack(0) {}
-    explicit InventoryItem(ServerInventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
+    InventoryItem() : inventory(nullptr) {}
+    explicit InventoryItem(ServerInventory* holder) : inventory(holder) {}
     
     char* loadFromSerial(char* iter);
     void serialize(std::vector<char>& serial) const;
@@ -77,6 +82,15 @@ struct blockEvents {
     void (*onRightClick)(ServerBlock*, ServerPlayer*) = nullptr;
     void (*onLeftClick)(ServerBlock*, ServerPlayer*) = nullptr;
 };
+
+struct Recipe {
+    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(ingredients), result(result) {}
+    std::vector<ItemStack> ingredients;
+    ItemStack result;
+};
+
+void initRecipes();
+const std::vector<Recipe>& getRecipes();
 
 class Players : EventListener<ServerBlockUpdateEvent> {
     ServerItems* items;

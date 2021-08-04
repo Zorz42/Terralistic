@@ -2,9 +2,11 @@
 #include "server.hpp"
 #include "platform_folders.h"
 #include "resourcePath.hpp"
+#include "serverPlayers.hpp"
 
 int main(int argc, char **argv) {
     initProperties();
+    initRecipes();
     
     std::string data_folder = sago::getDataHome() + "/Terralistic-Server/";
     
