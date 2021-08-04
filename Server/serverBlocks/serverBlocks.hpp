@@ -97,6 +97,9 @@ public:
     int getSpawnX() const;
     int getSpawnY();
     
+    void serialize(std::vector<char>& serial);
+    char* loadFromSerial(char* iter);
+    
     void saveTo(const std::string& path);
     void loadFrom(const std::string& path);
     

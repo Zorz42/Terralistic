@@ -96,3 +96,16 @@ void ServerInventory::swapWithMouseItem(InventoryItem* item) {
     mouse_item = *item;
     *item = temp;
 }
+
+char* InventoryItem::loadFromSerial(char* iter) {
+    setTypeWithoutProcessing((ItemType)*iter++);
+    setStackWithoutProcessing(*(short*)iter);
+    iter += 2;
+    return iter;
+}
+
+void InventoryItem::serialize(std::vector<char>& serial) const {
+    serial.push_back((char)getType());
+    serial.insert(serial.end(), {0, 0});
+    *(short*)&serial[serial.size() - 2] = getStack();
+}

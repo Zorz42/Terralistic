@@ -16,7 +16,10 @@ class InventoryItem {
 public:
     InventoryItem() : inventory(nullptr), type(ItemType::NOTHING), stack(0) {}
     explicit InventoryItem(ServerInventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
-
+    
+    char* loadFromSerial(char* iter);
+    void serialize(std::vector<char>& serial) const;
+    
     inline ItemType getType() const { return type; }
     void setType(ItemType type_);
     void setTypeWithoutProcessing(ItemType type_);
@@ -48,8 +51,8 @@ class ServerPlayer {
     static inline unsigned int curr_id = 0;
 public:
     explicit ServerPlayer(std::string name) : id(curr_id++), name(std::move(name)) {}
-    ServerPlayer(const std::string& path, std::string  name);
-    const std::string name;
+    ServerPlayer(char*& iter);
+    std::string name;
     const unsigned short id;
     
     bool flipped = false;
@@ -66,7 +69,7 @@ public:
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
     
-    void saveTo(const std::string& path) const;
+    void serialize(std::vector<char>& serial) const;
 };
 
 struct blockEvents {
@@ -97,7 +100,7 @@ public:
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
-    ServerPlayer* addPlayerFromFile(const std::string& path);
+    char* addPlayerFromSerial(char* iter);
     void removePlayer(ServerPlayer* player);
     
     void updatePlayersBreaking(unsigned short tick_length);

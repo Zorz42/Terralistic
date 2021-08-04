@@ -3,6 +3,8 @@
 #include <csignal>
 #include <filesystem>
 #include <chrono>
+#include <zlib.h>
+#include <fstream>
 
 #include "print.hpp"
 #include "serverPlayers.hpp"
@@ -18,19 +20,56 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
+void Server::loadWorld() {
+    blocks.createWorld(4400, 1200);
+    
+    std::ifstream world_file(world_path, std::ios::binary);
+    std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
+    
+    unsigned long uncompressed_size = *(unsigned long*)&world_file_serial[world_file_serial.size() - 8];
+    world_file_serial.erase(world_file_serial.end() - 8, world_file_serial.end());
+    std::vector<char> world_file_serial_uncompressed(uncompressed_size);
+    
+    uncompress((Bytef*)&world_file_serial_uncompressed[0], &uncompressed_size, (Bytef*)&world_file_serial[0], world_file_serial.size());
+    
+    world_file.close();
+    char* iter = &world_file_serial_uncompressed[0];
+    iter = blocks.loadFromSerial(iter);
+    
+    while(iter != &world_file_serial_uncompressed.back())
+        iter = players.addPlayerFromSerial(iter);
+}
+
+void Server::saveWorld() {
+    std::vector<char> world_file_serial;
+    blocks.serialize(world_file_serial);
+    
+    for(const ServerPlayer* player : players.getAllPlayers())
+        player->serialize(world_file_serial);
+    
+    std::vector<char> world_file_serial_compressed(world_file_serial.size() * 1.1 + 12);
+    unsigned long compressed_size = world_file_serial_compressed.size();
+    
+    compress((Bytef*)&world_file_serial_compressed[0], &compressed_size, (Bytef*)&world_file_serial[0], world_file_serial.size());
+    
+    *(unsigned long*)&world_file_serial_compressed[compressed_size] = world_file_serial.size();
+    compressed_size += 8;
+    
+    std::ofstream world_file(world_path, std::ios::trunc | std::ios::binary);
+    world_file.write(&world_file_serial_compressed[0], compressed_size);
+    world_file.close();
+}
+
 void Server::start(unsigned short port) {
     curr_server = this;
 
     if(working_dir.back() != '/')
         working_dir.push_back('/');
 
-    std::string world_path = working_dir + "world/";
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
-        blocks.loadFrom(world_path + "blockdata");
-        for (const auto& file : std::filesystem::directory_iterator(world_path + "playerdata/"))
-            players.addPlayerFromFile(file.path().string());
+        loadWorld();
     } else {
         state = ServerState::GENERATING_WORLD;
         print::info("Generating world...");
@@ -81,11 +120,7 @@ void Server::start(unsigned short port) {
     networking_manager.closeSocket();
 
     print::info("Saving world...");
-    std::filesystem::create_directory(world_path);
-    blocks.saveTo(world_path + "blockdata");
-    std::filesystem::create_directory(world_path + "playerdata/");
-    for(const ServerPlayer* player : players.getAllPlayers())
-        player->saveTo(world_path + "playerdata/" + player->name);
+    saveWorld();
 
     state = ServerState::STOPPED;
 }
