@@ -2,6 +2,8 @@
 #include "properties.hpp"
 
 void InventoryItem::setTypeWithoutProcessing(ItemType type_) {
+    inventory->item_counts[(int)type] -= stack;
+    inventory->item_counts[(int)type_] += stack;
     type = type_;
 }
 
@@ -22,6 +24,7 @@ const ItemInfo& InventoryItem::getUniqueItem() const {
 }
 
 void InventoryItem::setStackWithoutProcessing(unsigned short stack_) {
+    inventory->item_counts[(int)type] += (int)stack_ - stack;
     stack = stack_;
 }
 
@@ -68,6 +71,9 @@ unsigned char InventoryItem::getPosInInventory() {
 ServerInventory::ServerInventory() {
     for(InventoryItem& i : inventory_arr)
         i = InventoryItem(this);
+    
+    for(unsigned int& i : item_counts)
+        i = 0;
 }
 
 char ServerInventory::addItem(ItemType id, int quantity) {
@@ -109,3 +115,27 @@ void InventoryItem::serialize(std::vector<char>& serial) const {
     serial.insert(serial.end(), {0, 0});
     *(short*)&serial[serial.size() - 2] = getStack();
 }
+
+bool ServerInventory::hasIngredientsForRecipe(const Recipe& recipe) {
+    for(const ItemStack& ingredient : recipe.ingredients)
+       if(item_counts[(int)ingredient.type] < ingredient.stack)
+           return false;
+    return true;
+}
+
+const std::vector<const Recipe*>& ServerInventory::getAvailableRecipes() {
+    return available_recipes;
+}
+
+void ServerInventory::updateAvailableRecipes() {
+    std::vector<const Recipe*> new_available_recipes;
+    for(const Recipe& recipe : getRecipes())
+        if(hasIngredientsForRecipe(recipe))
+            new_available_recipes.emplace_back(&recipe);
+    
+    if(available_recipes != new_available_recipes)
+    
+    
+    available_recipes = new_available_recipes;
+}
+

@@ -16,6 +16,12 @@ struct ItemStack {
     unsigned short stack = 0;
 };
 
+struct Recipe {
+    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(ingredients), result(result) {}
+    std::vector<ItemStack> ingredients;
+    ItemStack result;
+};
+
 class InventoryItem : ItemStack {
     ServerInventory* inventory;
 public:
@@ -42,8 +48,14 @@ public:
 };
 
 class ServerInventory {
+    friend InventoryItem;
     InventoryItem mouse_item;
+    unsigned int item_counts[(int)ItemType::NUM_ITEMS];
+    std::vector<const Recipe*> available_recipes;
 public:
+    bool hasIngredientsForRecipe(const Recipe& recipe);
+    const std::vector<const Recipe*>& getAvailableRecipes();
+    void updateAvailableRecipes();
     ServerInventory();
     InventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
@@ -81,12 +93,6 @@ struct blockEvents {
     void (*onUpdate)(ServerBlocks*, ServerBlock*) = nullptr;
     void (*onRightClick)(ServerBlock*, ServerPlayer*) = nullptr;
     void (*onLeftClick)(ServerBlock*, ServerPlayer*) = nullptr;
-};
-
-struct Recipe {
-    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(ingredients), result(result) {}
-    std::vector<ItemStack> ingredients;
-    ItemStack result;
 };
 
 void initRecipes();
@@ -138,6 +144,12 @@ public:
     ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
     InventoryItem& item;
     unsigned short stack;
+};
+
+class RecipeAvailabilityChangeEvent : public Event<ServerInventoryItemStackChangeEvent> {
+public:
+    RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
+    ServerInventory* inventory;
 };
 
 #endif
