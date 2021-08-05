@@ -146,7 +146,7 @@ public:
     unsigned short stack;
 };
 
-class RecipeAvailabilityChangeEvent : public Event<ServerInventoryItemStackChangeEvent> {
+class RecipeAvailabilityChangeEvent : public Event<RecipeAvailabilityChangeEvent> {
 public:
     RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
     ServerInventory* inventory;

@@ -16,6 +16,7 @@ void InventoryItem::setType(ItemType type_) {
             return;
         
         setTypeWithoutProcessing(type_);
+        inventory->updateAvailableRecipes();
     }
 }
 
@@ -37,6 +38,7 @@ void InventoryItem::setStack(unsigned short stack_) {
             return;
         
         setStackWithoutProcessing(stack_);
+        inventory->updateAvailableRecipes();
         if(!stack)
             setType(ItemType::NOTHING);
     }
@@ -133,9 +135,9 @@ void ServerInventory::updateAvailableRecipes() {
         if(hasIngredientsForRecipe(recipe))
             new_available_recipes.emplace_back(&recipe);
     
-    if(available_recipes != new_available_recipes)
-    
-    
-    available_recipes = new_available_recipes;
+    if(available_recipes != new_available_recipes) {
+        available_recipes = new_available_recipes;
+        RecipeAvailabilityChangeEvent(this).call();
+    }
 }
 

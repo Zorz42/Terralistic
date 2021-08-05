@@ -149,6 +149,10 @@ void ServerNetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event)
         }
 }
 
+void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
+    
+}
+
 void ServerNetworkingManager::syncLightWithPlayers() {
     for(Connection& connection : connections)
         if(connection.player) {
