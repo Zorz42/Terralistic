@@ -76,6 +76,14 @@ void ClientInventory::render() {
         text_texture->render(2, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
     }
     renderItem(&mouse_item, gfx::getMouseX(), gfx::getMouseY(), -1);
+    
+    if(open) {
+        int x = 0;
+        for(const Recipe* recipe : available_recipes) {
+            resource_pack->getItemTexture(recipe->result.type).render(2, x, 0);
+            x += 16;
+        }
+    }
 }
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {
@@ -90,6 +98,14 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             inventory[(int)pos].setStack(stack);
             break;
         }
+        case PacketType::RECIPE_AVAILABILTY_CHANGE:
+            available_recipes.clear();
+            while(!event.packet.endOfPacket()) {
+                unsigned short index;
+                event.packet >> index;
+                available_recipes.push_back(&getRecipes()[index]);
+            }
+            break;
         default: break;
     }
 }

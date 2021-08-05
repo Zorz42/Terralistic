@@ -40,6 +40,7 @@ class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalM
     networkingManager* manager;
     bool inventory_hovered = false;
     ResourcePack* resource_pack;
+    std::vector<const Recipe*> available_recipes;
 public:
     ClientInventory(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
     void render() override;

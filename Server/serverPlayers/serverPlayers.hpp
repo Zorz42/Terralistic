@@ -9,19 +9,6 @@
 
 class ServerInventory;
 
-struct ItemStack {
-    ItemStack(ItemType type, unsigned short stack) : type(type), stack(stack) {}
-    ItemStack() = default;
-    ItemType type = ItemType::NOTHING;
-    unsigned short stack = 0;
-};
-
-struct Recipe {
-    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(ingredients), result(result) {}
-    std::vector<ItemStack> ingredients;
-    ItemStack result;
-};
-
 class InventoryItem : ItemStack {
     ServerInventory* inventory;
 public:
@@ -94,9 +81,6 @@ struct blockEvents {
     void (*onRightClick)(ServerBlock*, ServerPlayer*) = nullptr;
     void (*onLeftClick)(ServerBlock*, ServerPlayer*) = nullptr;
 };
-
-void initRecipes();
-const std::vector<Recipe>& getRecipes();
 
 class Players : EventListener<ServerBlockUpdateEvent> {
     ServerItems* items;

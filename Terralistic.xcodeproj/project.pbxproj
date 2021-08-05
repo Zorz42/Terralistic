@@ -128,8 +128,6 @@
 		16BF699C269D855A00CFE175 /* vorbisenc.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6972269D853A00CFE175 /* vorbisenc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF699D269D855A00CFE175 /* vorbisfile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6976269D853A00CFE175 /* vorbisfile.framework */; };
 		16BF699E269D855A00CFE175 /* vorbisfile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6976269D853A00CFE175 /* vorbisfile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3640ACE026BB008D00BE86E7 /* recipes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3640ACDF26BB008D00BE86E7 /* recipes.cpp */; };
-		3640ACE126BB008D00BE86E7 /* recipes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3640ACDF26BB008D00BE86E7 /* recipes.cpp */; };
 		3673AEC726B4563C00F4F170 /* menuBack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3673AEC526B4563C00F4F170 /* menuBack.cpp */; };
 		36B157D726484E2000528A2B /* clientBlocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36B157D226484E2000528A2B /* clientBlocks.cpp */; };
 		36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
@@ -352,7 +350,6 @@
 		16C2937C269CE65F0059A9AF /* libsfml-network.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-network.2.5.dylib"; path = "Dependencies/MacOS/SFML-dylib/libsfml-network.2.5.dylib"; sourceTree = "<group>"; };
 		16C2937D269CE65F0059A9AF /* libsfml-graphics.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-graphics.2.5.dylib"; path = "Dependencies/MacOS/SFML-dylib/libsfml-graphics.2.5.dylib"; sourceTree = "<group>"; };
 		16C2937E269CE65F0059A9AF /* libsfml-audio.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-audio.2.5.dylib"; path = "Dependencies/MacOS/SFML-dylib/libsfml-audio.2.5.dylib"; sourceTree = "<group>"; };
-		3640ACDF26BB008D00BE86E7 /* recipes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = recipes.cpp; sourceTree = "<group>"; };
 		3669216026AF1587003E3A55 /* clientItems.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientItems.hpp; sourceTree = "<group>"; };
 		3673AEC526B4563C00F4F170 /* menuBack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = menuBack.cpp; sourceTree = "<group>"; };
 		3673AEC626B4563C00F4F170 /* menuBack.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = menuBack.hpp; sourceTree = "<group>"; };
@@ -686,7 +683,6 @@
 				168600DF2681DB7300763775 /* serverPlayers.hpp */,
 				168600DE2681DB7300763775 /* serverPlayers.cpp */,
 				16987C1A2659010D0016509C /* inventory.cpp */,
-				3640ACDF26BB008D00BE86E7 /* recipes.cpp */,
 			);
 			path = serverPlayers;
 			sourceTree = "<group>";
@@ -1078,7 +1074,6 @@
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
-				3640ACE026BB008D00BE86E7 /* recipes.cpp in Sources */,
 				16932058263811C100B73C9F /* fileManager.cpp in Sources */,
 				36DDF8B8268A0499002337F3 /* resourcePack.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
@@ -1137,7 +1132,6 @@
 				16BF692D269D6D7300CFE175 /* serverBlocks.cpp in Sources */,
 				16BF692E269D6D7300CFE175 /* block.cpp in Sources */,
 				16BF692F269D6D7300CFE175 /* light.cpp in Sources */,
-				3640ACE126BB008D00BE86E7 /* recipes.cpp in Sources */,
 				16BF6930269D6D7300CFE175 /* liquid.cpp in Sources */,
 				16BF6931269D6D7300CFE175 /* serverItems.cpp in Sources */,
 				16BF6932269D6D7300CFE175 /* serverPlayers.cpp in Sources */,

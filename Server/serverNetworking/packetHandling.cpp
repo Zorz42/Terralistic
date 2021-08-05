@@ -150,7 +150,15 @@ void ServerNetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event)
 }
 
 void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
-    
+    for(Connection& connection : connections)
+        if(connection.player && &connection.player->inventory == event.inventory) {
+            sf::Packet packet;
+            packet << PacketType::RECIPE_AVAILABILTY_CHANGE;
+            for(const Recipe* recipe : event.inventory->getAvailableRecipes())
+                packet << getRecipeIndex(recipe);
+            connection.send(packet);
+            break;
+        }
 }
 
 void ServerNetworkingManager::syncLightWithPlayers() {

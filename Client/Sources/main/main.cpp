@@ -18,7 +18,6 @@ int main(int argc, char **argv) {
         gfx::setScale((float)config.getInt("ui_scale") / 100);
     }
     initProperties();
-    initRecipes();
     
     MainMenu().run();
 

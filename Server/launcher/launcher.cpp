@@ -6,7 +6,6 @@
 
 int main(int argc, char **argv) {
     initProperties();
-    initRecipes();
     
     std::string data_folder = sago::getDataHome() + "/Terralistic-Server/";
     
