@@ -24,12 +24,19 @@ unsigned short ClientInventoryItem::increaseStack(unsigned short stack_) {
     return (unsigned short)result;
 }
 
-void ClientInventoryItem::render(int x, int y) const {
+void ClientInventoryItem::render() const {
     const gfx::Image& texture = resource_pack->getItemTexture(type);
-    texture.render(4, x, y);
+    texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2);
     
     if(stack > 1)
-        stack_texture.render(1, x + BLOCK_WIDTH * 2 - stack_texture.getTextureWidth(), y + BLOCK_WIDTH * 2 - stack_texture.getTextureHeight());
+        stack_texture.render(1, x + BLOCK_WIDTH * 2 - stack_texture.getTextureWidth() + INVENTORY_UI_SPACING / 2, y + BLOCK_WIDTH * 2 - stack_texture.getTextureHeight() + INVENTORY_UI_SPACING / 2);
+}
+
+void ClientInventoryItem::renderWithBack() const {
+    gfx::Color color = GREY;
+    color.a = TRANSPARENCY;
+    gfx::RectShape(x, y, INVENTORY_ITEM_BACK_RECT_WIDTH, INVENTORY_ITEM_BACK_RECT_WIDTH).render(isHovered() ? GREY : color);
+    render();
 }
 
 ClientInventoryItem& ClientInventoryItem::operator=(const ClientInventoryItem& item) {
@@ -39,21 +46,20 @@ ClientInventoryItem& ClientInventoryItem::operator=(const ClientInventoryItem& i
     return *this;
 }
 
+bool ClientInventoryItem::isHovered() const {
+    return gfx::getMouseX() > x && gfx::getMouseY() > y && gfx::getMouseX() < x + INVENTORY_ITEM_BACK_RECT_WIDTH && gfx::getMouseY() < y + INVENTORY_ITEM_BACK_RECT_WIDTH;
+}
+
 void DisplayRecipe::updateResult() {
     result_display.type = recipe->result.type;
     result_display.setStack(recipe->result.stack);
 }
 
 void DisplayRecipe::render() {
-    back_rect.render();
-    result_display.render(back_rect.getTranslatedX() + INVENTORY_UI_SPACING / 2, back_rect.getTranslatedY() + INVENTORY_UI_SPACING / 2);
+    result_display.renderWithBack();
 }
 
 DisplayRecipe::DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y) : recipe(recipe), result_display(resource_pack) {
-    back_rect.setX(x);
-    back_rect.setY(y);
-    back_rect.setWidth(32 + INVENTORY_UI_SPACING);
-    back_rect.setHeight(32 + INVENTORY_UI_SPACING);
-    back_rect.c = WHITE;
-    back_rect.c.a = TRANSPARENCY;
+    result_display.x = x;
+    result_display.y = y;
 }

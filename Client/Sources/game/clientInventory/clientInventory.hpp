@@ -1,14 +1,15 @@
 #ifndef inventoryHandler_hpp
 #define inventoryHandler_hpp
 
-#define INVENTORY_SIZE 20
-#define INVENTORY_UI_SPACING 10
-
 #include "properties.hpp"
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
+
+#define INVENTORY_SIZE 20
+#define INVENTORY_UI_SPACING 10
+#define INVENTORY_ITEM_BACK_RECT_WIDTH (4 * 8 + INVENTORY_UI_SPACING)
 
 class ClientInventoryItem : ItemStack {
     gfx::Image stack_texture;
@@ -27,12 +28,15 @@ public:
     unsigned short increaseStack(unsigned short stack_);
     
     const gfx::Image& getStackTexture() const { return stack_texture; }
-    void render(int x, int y) const;
+    int x, y;
+    void render() const;
+    void renderWithBack() const;
+    
+    bool isHovered() const;
 };
 
 class DisplayRecipe {
     ClientInventoryItem result_display;
-    gfx::Rect back_rect;
 public:
     DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y);
     void updateResult();
@@ -45,7 +49,7 @@ class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalM
     ClientInventoryItem inventory[INVENTORY_SIZE];
     bool open = false;
     unsigned char selected_slot = 0;
-    gfx::Rect inventory_slots[INVENTORY_SIZE], under_text_rect, behind_inventory_rect, select_rect, crafting_back;
+    gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
     ClientInventoryItem *hovered = nullptr;
     bool inventory_hovered = false;
     std::vector<DisplayRecipe*> available_recipes;
