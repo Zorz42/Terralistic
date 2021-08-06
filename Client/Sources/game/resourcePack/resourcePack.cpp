@@ -43,7 +43,6 @@ void ResourcePack::load(std::string path) {
     
     for(int i = 0; i < (int)ItemType::NUM_ITEMS; i++) {
         item_textures[i].loadFromFile(path + "/items/" + getItemInfo((ItemType)i).name + ".png");
-        
         item_text_textures[i].renderText(getItemInfo((ItemType)i).name);
     }
     

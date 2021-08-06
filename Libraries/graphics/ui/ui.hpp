@@ -9,6 +9,11 @@
 namespace gfx {
 
 class Image {
+protected:
+    Image& operator=(const Image&);
+    void freeTexture();
+    sf::RenderTexture *sfml_render_texture = nullptr;
+    Color color{255, 255, 255};
 public:
     void render(float scale, short x, short y, bool flipped=false) const;
     void render(float scale, short x, short y, RectShape src_rect, bool flipped=false) const;
@@ -22,10 +27,6 @@ public:
     void loadFromFile(const std::string& path);
     void setColor(Color color_);
     inline sf::RenderTexture* getSfmlTexture() { return sfml_render_texture; }
-protected:
-    void freeTexture();
-    sf::RenderTexture *sfml_render_texture = nullptr;
-    Color color{255, 255, 255};
 };
 
 

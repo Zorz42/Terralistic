@@ -72,6 +72,8 @@ void initProperties() {
     
     // recipes
     recipes = {
-        Recipe({{ItemType::STONE_BLOCK, 1}}, {ItemType::DIRT, 2}),
+        Recipe({{ItemType::STONE_BLOCK, 1}},                {ItemType::DIRT, 2}),
+        Recipe({{ItemType::WOOD_PLANKS, 4}},                {ItemType::DIRT, 1}),
+        Recipe({{ItemType::STONE, 2}, {ItemType::DIRT, 2}}, {ItemType::STONE_BLOCK, 1}),
     };
 }

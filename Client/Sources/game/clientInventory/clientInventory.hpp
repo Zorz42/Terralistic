@@ -9,42 +9,60 @@
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 
-class ClientInventoryItem {
-    unsigned short stack;
+class ClientInventoryItem : ItemStack {
+    gfx::Image stack_texture;
+    ResourcePack* resource_pack = nullptr;
 public:
-    ClientInventoryItem() : item_id(ItemType::NOTHING), stack(0) {}
-    ItemType item_id;
+    ClientInventoryItem(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
+    ClientInventoryItem() = default;
+    
+    ClientInventoryItem& operator=(const ClientInventoryItem& item);
+    
+    using ItemStack::type;
     const ItemInfo& getUniqueItem() const;
+    
     void setStack(unsigned short stack_);
     unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
-    bool stack_changed = true;
+    
+    inline const gfx::Image& getStackTexture() const { return stack_texture; }
+    void render(int x, int y) const;
+};
+
+class DisplayRecipe {
+    ClientInventoryItem result_display;
+public:
+    DisplayRecipe(const Recipe* recipe) : recipe(recipe) {}
+    void updateResult();
+    void setResourcePack(ResourcePack* resource_pack);
+    void render(int x, int y) const;
+    const Recipe* recipe;
 };
 
 class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalModule {
     ClientInventoryItem mouse_item;
     ClientInventoryItem inventory[INVENTORY_SIZE];
-    char addItem(ItemType id, int quantity);
     bool open = false;
     unsigned char selected_slot = 0;
+    gfx::Rect inventory_slots[INVENTORY_SIZE], under_text_rect, behind_inventory_rect, select_rect;
+    ClientInventoryItem *hovered = nullptr;
+    bool inventory_hovered = false;
+    std::vector<DisplayRecipe> available_recipes;
+    
     void swapWithMouseItem(ClientInventoryItem* item);
     void clearMouseItem();
+    char addItem(ItemType id, int quantity);
+    void selectSlot(char slot);
+    
+    void init() override;
+    void render() override;
     void onEvent(ClientPacketEvent &event) override;
     void onKeyDown(gfx::Key key) override;
-    gfx::Rect inventory_slots[INVENTORY_SIZE], under_text_rect, behind_inventory_rect, select_rect;
-    gfx::Image stack_textures[20], mouse_stack_texture;
-    void selectSlot(char slot);
-    ClientInventoryItem *hovered = nullptr;
-    void renderItem(ClientInventoryItem* item, int x, int y, int i);
-    void updateStackTexture(int i);
-    networkingManager* manager;
-    bool inventory_hovered = false;
+    
     ResourcePack* resource_pack;
-    std::vector<const Recipe*> available_recipes;
+    networkingManager* manager;
 public:
-    ClientInventory(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
-    void render() override;
-    void init() override;
+    ClientInventory(networkingManager* manager, ResourcePack* resource_pack);
     inline bool isHovered() const { return inventory_hovered; }
 };
 
