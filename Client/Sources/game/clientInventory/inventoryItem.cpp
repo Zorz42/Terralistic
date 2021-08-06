@@ -44,10 +44,16 @@ void DisplayRecipe::updateResult() {
     result_display.setStack(recipe->result.stack);
 }
 
-void DisplayRecipe::render(int x, int y) const {
-    result_display.render(x, y);
+void DisplayRecipe::render() {
+    back_rect.render();
+    result_display.render(back_rect.getTranslatedX() + INVENTORY_UI_SPACING / 2, back_rect.getTranslatedY() + INVENTORY_UI_SPACING / 2);
 }
 
-void DisplayRecipe::setResourcePack(ResourcePack *resource_pack) {
-    result_display = ClientInventoryItem(resource_pack);
+DisplayRecipe::DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y) : recipe(recipe), result_display(resource_pack) {
+    back_rect.setX(x);
+    back_rect.setY(y);
+    back_rect.setWidth(32 + INVENTORY_UI_SPACING);
+    back_rect.setHeight(32 + INVENTORY_UI_SPACING);
+    back_rect.c = WHITE;
+    back_rect.c.a = TRANSPARENCY;
 }

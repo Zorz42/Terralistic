@@ -18,7 +18,7 @@ public:
     char* loadFromSerial(char* iter);
     void serialize(std::vector<char>& serial) const;
     
-    inline ItemType getType() const { return type; }
+    ItemType getType() const { return type; }
     void setType(ItemType type_);
     void setTypeWithoutProcessing(ItemType type_);
     
@@ -31,7 +31,7 @@ public:
     bool decreaseStack(unsigned short stack_);
     
     unsigned char getPosInInventory();
-    inline ServerInventory* getInventory() { return inventory; } 
+    ServerInventory* getInventory() { return inventory; }
 };
 
 class ServerInventory {
@@ -99,8 +99,8 @@ public:
     
     void rightClickEvent(ServerBlock this_block, ServerPlayer* peer);
     
-    inline const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
-    inline const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }
+    const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
+    const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);

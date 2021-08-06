@@ -36,20 +36,20 @@ public:
     void updateTexture();
     void scheduleTextureUpdate();
     void scheduleTextureUpdateForNeighbors();
-    inline bool hasToUpdateTexture() { return block_data->update; }
+    bool hasToUpdateTexture() { return block_data->update; }
     
     void setType(BlockType block_id, LiquidType liquid_id);
-    inline const BlockInfo& getBlockInfo() { return ::getBlockInfo(getBlockType()); }
-    inline const LiquidInfo& getLiquidInfo() { return ::getLiquidInfo(getLiquidType()); }
-    inline BlockType getBlockType() { return block_data->block_id; }
-    inline LiquidType getLiquidType() { return block_data->liquid_id; }
-    inline void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
-    inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
+    const BlockInfo& getBlockInfo() { return ::getBlockInfo(getBlockType()); }
+    const LiquidInfo& getLiquidInfo() { return ::getLiquidInfo(getLiquidType()); }
+    BlockType getBlockType() { return block_data->block_id; }
+    LiquidType getLiquidType() { return block_data->liquid_id; }
+    void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
+    unsigned char getLiquidLevel() { return block_data->liquid_level; }
     
 
-    inline unsigned char getLightLevel() { return block_data->light_level; }
+    unsigned char getLightLevel() { return block_data->light_level; }
     void setLightLevel(unsigned char level);
-    inline unsigned char getBreakStage() { return block_data->break_stage; }
+    unsigned char getBreakStage() { return block_data->break_stage; }
     void setBreakStage(unsigned char stage);
 };
 
@@ -68,10 +68,10 @@ class ClientChunk {
 public:
     ClientChunk(unsigned short x, unsigned short y, ClientMapChunk* chunk_data, ClientBlocks* parent_map) : x(x), y(y), chunk_data(chunk_data), parent_map(parent_map) {}
 
-    inline ChunkState getState() { return chunk_data->state; };
-    inline void setState(ChunkState state) { chunk_data->state = state; }
-    inline bool hasToUpdate() { return chunk_data->update; }
-    inline void scheduleUpdate() { chunk_data->update = true; }
+    ChunkState getState() { return chunk_data->state; };
+    void setState(ChunkState state) { chunk_data->state = state; }
+    bool hasToUpdate() { return chunk_data->update; }
+    void scheduleUpdate() { chunk_data->update = true; }
 
     void createTexture();
     void updateTexture();
@@ -94,7 +94,7 @@ public:
     explicit ClientBlocks(networkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
     int view_x{}, view_y{};
 
-    inline ResourcePack* getResourcePack() { return resource_pack; }
+    ResourcePack* getResourcePack() { return resource_pack; }
     
     ClientChunk getChunk(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
@@ -102,8 +102,8 @@ public:
     void renderBackBlocks();
     void renderFrontBlocks();
     
-    inline unsigned short getWorldWidth() const { return width; }
-    inline unsigned short getWorldHeight() const { return height; }
+    unsigned short getWorldWidth() const { return width; }
+    unsigned short getWorldHeight() const { return height; }
 
     void createWorld(unsigned short map_width, unsigned short map_height);
 

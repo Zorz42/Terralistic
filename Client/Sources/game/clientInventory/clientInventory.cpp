@@ -1,26 +1,22 @@
 #include "clientInventory.hpp"
 #include "resourcePack.hpp"
 
-#define INVENTORY_UI_SPACING 10
-
-ClientInventory::ClientInventory(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {
+ClientInventory::ClientInventory(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack), mouse_item(resource_pack) {
     for(ClientInventoryItem& item : inventory)
         item = ClientInventoryItem(resource_pack);
-    mouse_item = ClientInventoryItem(resource_pack);
 }
 
 void ClientInventory::init() {
     for(int i = 0; i < 20; i++) {
         inventory_slots[i].orientation = gfx::TOP;
-        inventory_slots[i].setHeight(2 * BLOCK_WIDTH + INVENTORY_UI_SPACING);
-        inventory_slots[i].setWidth(2 * BLOCK_WIDTH + INVENTORY_UI_SPACING);
+        inventory_slots[i].setHeight(32 + INVENTORY_UI_SPACING);
+        inventory_slots[i].setWidth(32 + INVENTORY_UI_SPACING);
         inventory_slots[i].setX((2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING));
         inventory_slots[i].setY(1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH));
     }
     
     behind_inventory_rect.orientation = gfx::TOP;
     behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
-    behind_inventory_rect.c = BLACK;
     behind_inventory_rect.setY(INVENTORY_UI_SPACING / 2);
     behind_inventory_rect.blur_intensity = BLUR - 2;
     behind_inventory_rect.c.a = TRANSPARENCY;
@@ -37,7 +33,13 @@ void ClientInventory::init() {
     select_rect.setX(-9 * (BLOCK_WIDTH + INVENTORY_UI_SPACING));
     select_rect.smooth_factor = 2;
     
-    under_text_rect.c = BLACK;
+    crafting_back.setX(INVENTORY_UI_SPACING / 2);
+    crafting_back.setY(INVENTORY_UI_SPACING / 2);
+    crafting_back.setWidth(32 + 3 * INVENTORY_UI_SPACING);
+    crafting_back.blur_intensity = BLUR - 2;
+    crafting_back.c.a = TRANSPARENCY;
+    crafting_back.shadow_intensity = SHADOW_INTENSITY;
+    crafting_back.smooth_factor = 2;
     
     selectSlot(0);
 }
@@ -82,11 +84,9 @@ void ClientInventory::render() {
     mouse_item.render(gfx::getMouseX(), gfx::getMouseY());
     
     if(open) {
-        int y = SPACING;
-        for(DisplayRecipe* recipe : available_recipes) {
-            recipe->render(0, y);
-            y += 32 + SPACING;
-        }
+        crafting_back.render();
+        for(DisplayRecipe* recipe : available_recipes)
+            recipe->render();
     }
 }
 
@@ -102,18 +102,21 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             inventory[(int)pos].setStack(stack);
             break;
         }
-        case PacketType::RECIPE_AVAILABILTY_CHANGE:
+        case PacketType::RECIPE_AVAILABILTY_CHANGE: {
             for(DisplayRecipe* recipe : available_recipes)
                 delete recipe;
             available_recipes.clear();
-            while(!event.packet.endOfPacket()) {
+            int back_height = INVENTORY_UI_SPACING;
+            for(int y = 1.5 * INVENTORY_UI_SPACING; !event.packet.endOfPacket(); y += 32 + INVENTORY_UI_SPACING * 2) {
                 unsigned short index;
                 event.packet >> index;
-                available_recipes.emplace_back(new DisplayRecipe(&getRecipes()[index]));
-                available_recipes.back()->setResourcePack(resource_pack);
+                available_recipes.emplace_back(new DisplayRecipe(&getRecipes()[index], resource_pack, 1.5 * INVENTORY_UI_SPACING, y));
                 available_recipes.back()->updateResult();
+                back_height += 32 + 2 * INVENTORY_UI_SPACING;
             }
+            crafting_back.setHeight(back_height);
             break;
+        }
         default: break;
     }
 }

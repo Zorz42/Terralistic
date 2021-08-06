@@ -9,8 +9,8 @@ class MenuBack {
 public:
     void init();
     void render();
-    inline void setWidth(unsigned short width) { back_rect.setWidth(width); }
-    inline unsigned short getWidth() { return back_rect.getWidth(); }
+    void setWidth(unsigned short width) { back_rect.setWidth(width); }
+    unsigned short getWidth() { return back_rect.getWidth(); }
 };
 
 #endif
