@@ -1,7 +1,5 @@
 #include "graphics-internal.hpp"
 
-#include <iostream> ////------------------
-
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     freeTexture();
     sfml_render_texture = new sf::RenderTexture;
@@ -46,8 +44,6 @@ gfx::Image::~Image() {
 
 void gfx::Image::freeTexture() {
     if(free_texture) {
-        if(sfml_render_texture)
-            std::cout << sfml_render_texture << " from " << this << std::endl;
         delete sfml_render_texture;
         sfml_render_texture = nullptr;
     }

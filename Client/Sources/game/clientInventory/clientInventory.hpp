@@ -31,6 +31,7 @@ public:
 
 class DisplayRecipe {
     ClientInventoryItem result_display;
+    gfx::Rect back_rect;
 public:
     DisplayRecipe(const Recipe* recipe) : recipe(recipe) {}
     void updateResult();

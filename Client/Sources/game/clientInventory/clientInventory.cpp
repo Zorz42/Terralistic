@@ -82,10 +82,10 @@ void ClientInventory::render() {
     mouse_item.render(gfx::getMouseX(), gfx::getMouseY());
     
     if(open) {
-        int y = 0;
+        int y = SPACING;
         for(DisplayRecipe* recipe : available_recipes) {
             recipe->render(0, y);
-            y += 32;
+            y += 32 + SPACING;
         }
     }
 }
