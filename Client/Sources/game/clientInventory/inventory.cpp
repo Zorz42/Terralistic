@@ -18,7 +18,8 @@ char ClientInventory::addItem(ItemType id, int quantity) {
 }
 
 void ClientInventory::swapWithMouseItem(ClientInventoryItem* item) {
-    ClientInventoryItem temp = mouse_item;
+    ClientInventoryItem temp;
+    temp = mouse_item;
     mouse_item = *item;
     *item = temp;
 }

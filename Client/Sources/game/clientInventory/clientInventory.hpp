@@ -47,7 +47,7 @@ class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalM
     gfx::Rect inventory_slots[INVENTORY_SIZE], under_text_rect, behind_inventory_rect, select_rect;
     ClientInventoryItem *hovered = nullptr;
     bool inventory_hovered = false;
-    std::vector<DisplayRecipe> available_recipes;
+    std::vector<DisplayRecipe*> available_recipes;
     
     void swapWithMouseItem(ClientInventoryItem* item);
     void clearMouseItem();

@@ -83,8 +83,8 @@ void ClientInventory::render() {
     
     if(open) {
         int y = 0;
-        for(const DisplayRecipe& recipe : available_recipes) {
-            recipe.render(0, y);
+        for(DisplayRecipe* recipe : available_recipes) {
+            recipe->render(0, y);
             y += 32;
         }
     }
@@ -103,13 +103,15 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::RECIPE_AVAILABILTY_CHANGE:
+            for(DisplayRecipe* recipe : available_recipes)
+                delete recipe;
             available_recipes.clear();
             while(!event.packet.endOfPacket()) {
                 unsigned short index;
                 event.packet >> index;
-                available_recipes.emplace_back(&getRecipes()[index]);
-                available_recipes.back().setResourcePack(resource_pack);
-                available_recipes.back().updateResult();
+                available_recipes.emplace_back(new DisplayRecipe(&getRecipes()[index]));
+                available_recipes.back()->setResourcePack(resource_pack);
+                available_recipes.back()->updateResult();
             }
             break;
         default: break;
