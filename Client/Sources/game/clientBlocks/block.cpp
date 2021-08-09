@@ -96,6 +96,8 @@ void ClientBlock::updateTexture() {
             c += c;
         }
     }
+    else
+        block_data->orientation = 0;
     block_data->update = false;
 }
 
