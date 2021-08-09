@@ -22,9 +22,6 @@ struct BlockInfo {
     std::vector<BlockType> connects_to;
     short break_time;
     ItemType drop;
-public:
-    unsigned int y_on_text_atlas = 0;
-    unsigned short unique_textures, states;
 };
 static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 

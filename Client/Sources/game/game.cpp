@@ -76,7 +76,7 @@ void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
     std::filesystem::create_directory(fileManager::getWorldsPath() + world_name);
 
     Server private_server(fileManager::getWorldsPath() + world_name, gfx::resource_path);
-    unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
+    unsigned short port = 25565;//rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     private_server.setPrivate(true);
     server_thread = std::thread(&Server::start, &private_server, port);
     
