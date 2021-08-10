@@ -41,6 +41,7 @@ public:
     DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y);
     void updateResult();
     void render();
+    bool isHovered() { return result_display.isHovered(); }
     const Recipe* recipe;
 };
 
@@ -51,6 +52,7 @@ class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalM
     unsigned char selected_slot = 0;
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
     ClientInventoryItem *hovered = nullptr;
+    char crafting_hovered = -1;
     bool inventory_hovered = false;
     std::vector<DisplayRecipe*> available_recipes;
     

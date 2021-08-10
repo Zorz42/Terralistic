@@ -57,12 +57,14 @@ unsigned short InventoryItem::increaseStack(unsigned short stack_) {
     return (unsigned short)result;
 }
 
-bool InventoryItem::decreaseStack(unsigned short stack_) {
-    if(stack_ > stack)
-        return false;
-    else {
+unsigned short InventoryItem::decreaseStack(unsigned short stack_) {
+    if(stack_ > stack) {
+        unsigned short prev_stack = stack;
+        setStack(0);
+        return prev_stack;
+    } else {
         setStack(stack - stack_);
-        return true;
+        return stack_;
     }
 }
 
@@ -95,8 +97,23 @@ char ServerInventory::addItem(ItemType id, int quantity) {
     return -1;
 }
 
+char ServerInventory::removeItem(ItemType id, int quantity) {
+    for(int i = 0; i < INVENTORY_SIZE; i++)
+        if(inventory_arr[i].getType() == id) {
+            quantity -= inventory_arr[i].decreaseStack((unsigned short)quantity);
+            if(!quantity)
+                return (char)i;
+        }
+    if(mouse_item.getType() == id) {
+        quantity -= mouse_item.decreaseStack((unsigned short)quantity);
+        if(!quantity)
+            return (char)-1;
+    }
+    return -1;
+}
+
 InventoryItem* ServerInventory::getSelectedSlot() {
-    return &inventory_arr[(int)(unsigned char)selected_slot];
+    return &inventory_arr[(int)selected_slot];
 }
 
 void ServerInventory::swapWithMouseItem(InventoryItem* item) {

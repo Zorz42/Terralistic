@@ -86,6 +86,15 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             packet >> curr_player->sight_x >> curr_player->sight_y;
             break;
         }
+            
+        case PacketType::CRAFT: {
+            sf::Int8 craft_index;
+            packet >> craft_index;
+            const Recipe* recipe_crafted = curr_player->inventory.getAvailableRecipes()[(int)craft_index];
+            curr_player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+            for(const ItemStack& ingredient : recipe_crafted->ingredients)
+                curr_player->inventory.removeItem(ingredient.type, ingredient.stack);
+        }
 
         default:;
     }

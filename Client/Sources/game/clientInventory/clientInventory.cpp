@@ -76,9 +76,13 @@ void ClientInventory::render() {
     mouse_item.render();
     
     if(open) {
+        crafting_hovered = -1;
         behind_crafting_rect.render();
-        for(DisplayRecipe* recipe : available_recipes)
-            recipe->render();
+        for(int i = 0; i < available_recipes.size(); i++) {
+            available_recipes[i]->render();
+            if(available_recipes[i]->isHovered())
+                crafting_hovered = i;
+        }
     }
 }
 
@@ -105,7 +109,10 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
                 available_recipes.emplace_back(new DisplayRecipe(&getRecipes()[index], resource_pack, 1.5 * INVENTORY_UI_SPACING, y));
                 available_recipes.back()->updateResult();
             }
-            behind_crafting_rect.setHeight(y - INVENTORY_UI_SPACING / 2);
+            if(available_recipes.empty())
+                behind_crafting_rect.setHeight(0);
+            else
+                behind_crafting_rect.setHeight(y - INVENTORY_UI_SPACING / 2);
             break;
         }
         default: break;
@@ -146,6 +153,10 @@ void ClientInventory::onKeyDown(gfx::Key key) {
                 swapWithMouseItem(hovered);
                 sf::Packet packet;
                 packet << PacketType::INVENTORY_SWAP << (unsigned char)(hovered - &inventory[0]);
+                manager->sendPacket(packet);
+            } else if(crafting_hovered != -1) {
+                sf::Packet packet;
+                packet << PacketType::CRAFT << (sf::Int8)crafting_hovered;
                 manager->sendPacket(packet);
             }
             break;

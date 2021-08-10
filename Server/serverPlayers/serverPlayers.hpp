@@ -28,7 +28,7 @@ public:
     void setStackWithoutProcessing(unsigned short stack_);
     
     unsigned short increaseStack(unsigned short stack_);
-    bool decreaseStack(unsigned short stack_);
+    unsigned short decreaseStack(unsigned short stack_);
     
     unsigned char getPosInInventory();
     ServerInventory* getInventory() { return inventory; }
@@ -46,6 +46,7 @@ public:
     ServerInventory();
     InventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
+    char removeItem(ItemType id, int quantity);
     unsigned char selected_slot = 0;
     InventoryItem* getSelectedSlot();
     void swapWithMouseItem(InventoryItem* item);
