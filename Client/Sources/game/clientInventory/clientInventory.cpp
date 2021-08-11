@@ -79,11 +79,14 @@ void ClientInventory::render() {
             if(available_recipes[i]->isHovered())
                 crafting_hovered = i;
         }
-    }
     
-    mouse_item.x = gfx::getMouseX();
-    mouse_item.y = gfx::getMouseY();
-    mouse_item.render();
+        mouse_item.x = gfx::getMouseX();
+        mouse_item.y = gfx::getMouseY();
+        mouse_item.render();
+        
+        if(crafting_hovered != -1)
+            available_recipes[crafting_hovered]->renderIngredients(gfx::getMouseX(), gfx::getMouseY());
+    }
 }
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {
@@ -109,7 +112,6 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
                 unsigned short index;
                 event.packet >> index;
                 available_recipes.emplace_back(new DisplayRecipe(&getRecipes()[index], resource_pack, 1.5 * INVENTORY_UI_SPACING, y));
-                available_recipes.back()->updateResult();
             }
             if(available_recipes.empty())
                 behind_crafting_rect.setHeight(0);

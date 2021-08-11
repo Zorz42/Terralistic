@@ -37,10 +37,11 @@ public:
 
 class DisplayRecipe {
     ClientInventoryItem result_display;
+    std::vector<ClientInventoryItem> ingredients;
 public:
     DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y);
-    void updateResult();
     void render();
+    void renderIngredients(int x, int y);
     bool isHovered() { return result_display.isHovered(); }
     const Recipe* recipe;
 };
