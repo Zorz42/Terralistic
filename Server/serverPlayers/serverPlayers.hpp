@@ -30,7 +30,7 @@ public:
     unsigned short increaseStack(unsigned short stack_);
     unsigned short decreaseStack(unsigned short stack_);
     
-    unsigned char getPosInInventory();
+    short getPosInInventory();
     ServerInventory* getInventory() { return inventory; }
 };
 

@@ -71,10 +71,6 @@ void ClientInventory::render() {
         text_texture->render(2, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
     }
     
-    mouse_item.x = gfx::getMouseX();
-    mouse_item.y = gfx::getMouseY();
-    mouse_item.render();
-    
     if(open) {
         crafting_hovered = -1;
         behind_crafting_rect.render();
@@ -84,6 +80,10 @@ void ClientInventory::render() {
                 crafting_hovered = i;
         }
     }
+    
+    mouse_item.x = gfx::getMouseX();
+    mouse_item.y = gfx::getMouseY();
+    mouse_item.render();
 }
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {
@@ -91,11 +91,13 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
         case PacketType::INVENTORY_CHANGE: {
             unsigned short stack;
             unsigned char item_id;
-            unsigned char pos;
+            short pos;
             event.packet >> stack >> item_id >> pos;
             
-            inventory[(int)pos].type = (ItemType)item_id;
-            inventory[(int)pos].setStack(stack);
+            ClientInventoryItem& item = pos == -1 ? mouse_item : inventory[(int)pos];
+            
+            item.type = (ItemType)item_id;
+            item.setStack(stack);
             break;
         }
         case PacketType::RECIPE_AVAILABILTY_CHANGE: {
@@ -156,7 +158,7 @@ void ClientInventory::onKeyDown(gfx::Key key) {
                 manager->sendPacket(packet);
             } else if(crafting_hovered != -1) {
                 sf::Packet packet;
-                packet << PacketType::CRAFT << (sf::Int8)crafting_hovered;
+                packet << PacketType::CRAFT << (unsigned char)crafting_hovered;
                 manager->sendPacket(packet);
             }
             break;

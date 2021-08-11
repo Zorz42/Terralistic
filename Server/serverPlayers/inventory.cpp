@@ -68,8 +68,11 @@ unsigned short InventoryItem::decreaseStack(unsigned short stack_) {
     }
 }
 
-unsigned char InventoryItem::getPosInInventory() {
-    return this - &inventory->inventory_arr[0];
+short InventoryItem::getPosInInventory() {
+    if(this == &inventory->mouse_item)
+        return -1;
+    else
+        return this - &inventory->inventory_arr[0];
 }
 
 ServerInventory::ServerInventory() {
