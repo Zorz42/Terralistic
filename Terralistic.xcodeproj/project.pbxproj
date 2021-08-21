@@ -245,6 +245,7 @@
 		168600DF2681DB7300763775 /* serverPlayers.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverPlayers.hpp; sourceTree = "<group>"; };
 		1689687825E9607800D26060 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
 		1689687925E9607800D26060 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
+		1690693A26D1A1C80057345A /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game.hpp; sourceTree = "<group>"; };
 		1690D7D626BA869F0007755C /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		169124A125F6B70F00F7EB4F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Graphics/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
@@ -316,7 +317,6 @@
 		365721D226D07180005AB3CC /* clientNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientNetworking.cpp; sourceTree = "<group>"; };
 		365721D426D07180005AB3CC /* chat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chat.cpp; sourceTree = "<group>"; };
 		365721D526D07180005AB3CC /* chat.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = chat.hpp; sourceTree = "<group>"; };
-		365721D626D07180005AB3CC /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game.hpp; sourceTree = "<group>"; };
 		365721D826D07180005AB3CC /* clientInventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientInventory.cpp; sourceTree = "<group>"; };
 		365721D926D07180005AB3CC /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
 		365721DA26D07180005AB3CC /* clientInventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientInventory.hpp; sourceTree = "<group>"; };
@@ -749,7 +749,7 @@
 				365721E726D07180005AB3CC /* clientPlayers */,
 				365721EC26D07180005AB3CC /* blockSelector */,
 				365721EF26D07180005AB3CC /* clientBlocks */,
-				365721D626D07180005AB3CC /* game.hpp */,
+				1690693A26D1A1C80057345A /* game.hpp */,
 				365721F426D07180005AB3CC /* game.cpp */,
 			);
 			path = game;
