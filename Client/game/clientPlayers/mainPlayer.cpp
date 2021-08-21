@@ -15,8 +15,6 @@ void ClientPlayers::init() {
 
 #define VELOCITY 30
 #define JUMP_VELOCITY 80
-//#define VELOCITY 90
-//#define JUMP_VELOCITY 240
 
 void ClientPlayers::onKeyDown(gfx::Key key) {
     switch(key) {

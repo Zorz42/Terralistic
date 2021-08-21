@@ -741,7 +741,6 @@
 			children = (
 				365721D026D07180005AB3CC /* clientNetworking */,
 				365721D326D07180005AB3CC /* chat */,
-				365721D626D07180005AB3CC /* game.hpp */,
 				365721D726D07180005AB3CC /* clientInventory */,
 				365721DB26D07180005AB3CC /* debugMenu */,
 				365721DE26D07180005AB3CC /* pauseScreen */,
@@ -750,6 +749,7 @@
 				365721E726D07180005AB3CC /* clientPlayers */,
 				365721EC26D07180005AB3CC /* blockSelector */,
 				365721EF26D07180005AB3CC /* clientBlocks */,
+				365721D626D07180005AB3CC /* game.hpp */,
 				365721F426D07180005AB3CC /* game.cpp */,
 			);
 			path = game;
@@ -767,8 +767,8 @@
 		365721D326D07180005AB3CC /* chat */ = {
 			isa = PBXGroup;
 			children = (
-				365721D426D07180005AB3CC /* chat.cpp */,
 				365721D526D07180005AB3CC /* chat.hpp */,
+				365721D426D07180005AB3CC /* chat.cpp */,
 			);
 			path = chat;
 			sourceTree = "<group>";
@@ -776,9 +776,9 @@
 		365721D726D07180005AB3CC /* clientInventory */ = {
 			isa = PBXGroup;
 			children = (
+				365721DA26D07180005AB3CC /* clientInventory.hpp */,
 				365721D826D07180005AB3CC /* clientInventory.cpp */,
 				365721D926D07180005AB3CC /* inventoryItem.cpp */,
-				365721DA26D07180005AB3CC /* clientInventory.hpp */,
 			);
 			path = clientInventory;
 			sourceTree = "<group>";
@@ -786,8 +786,8 @@
 		365721DB26D07180005AB3CC /* debugMenu */ = {
 			isa = PBXGroup;
 			children = (
-				365721DC26D07180005AB3CC /* debugMenu.cpp */,
 				365721DD26D07180005AB3CC /* debugMenu.hpp */,
+				365721DC26D07180005AB3CC /* debugMenu.cpp */,
 			);
 			path = debugMenu;
 			sourceTree = "<group>";
@@ -804,8 +804,8 @@
 		365721E126D07180005AB3CC /* clientItems */ = {
 			isa = PBXGroup;
 			children = (
-				365721E226D07180005AB3CC /* clientItems.cpp */,
 				365721E326D07180005AB3CC /* clientItems.hpp */,
+				365721E226D07180005AB3CC /* clientItems.cpp */,
 			);
 			path = clientItems;
 			sourceTree = "<group>";
@@ -813,8 +813,8 @@
 		365721E426D07180005AB3CC /* resourcePack */ = {
 			isa = PBXGroup;
 			children = (
-				365721E526D07180005AB3CC /* resourcePack.cpp */,
 				365721E626D07180005AB3CC /* resourcePack.hpp */,
+				365721E526D07180005AB3CC /* resourcePack.cpp */,
 			);
 			path = resourcePack;
 			sourceTree = "<group>";
@@ -822,8 +822,8 @@
 		365721E726D07180005AB3CC /* clientPlayers */ = {
 			isa = PBXGroup;
 			children = (
-				365721E826D07180005AB3CC /* clientPlayers.cpp */,
 				365721E926D07180005AB3CC /* clientPlayers.hpp */,
+				365721E826D07180005AB3CC /* clientPlayers.cpp */,
 				365721EA26D07180005AB3CC /* mainPlayer.cpp */,
 				365721EB26D07180005AB3CC /* playerRenderer.cpp */,
 			);
