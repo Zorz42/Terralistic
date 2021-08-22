@@ -12,6 +12,7 @@ public:
     ClientPlayer(std::string name, int x, int y) : name(std::move(name)), x(x), y(y) {}
     int x, y;
     bool flipped = false;
+    unsigned char texture_frame = 0;
     const std::string name;
 };
 
@@ -19,6 +20,7 @@ class MainPlayer : public ClientPlayer {
 public:
     explicit MainPlayer(std::string name) : ClientPlayer(std::move(name), 0, 0) {}
     short velocity_x = 0, velocity_y = 0;
+    unsigned int started_walking = 0;
 };
 
 class OtherPlayer : public ClientPlayer {

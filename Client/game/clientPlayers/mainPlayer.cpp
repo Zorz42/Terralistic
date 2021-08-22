@@ -28,12 +28,16 @@ void ClientPlayers::onKeyDown(gfx::Key key) {
             if(!key_left) {
                 key_left = true;
                 main_player.velocity_x -= VELOCITY;
+                if(!main_player.started_walking)
+                    main_player.started_walking = gfx::getTicks();
             }
             break;
         case gfx::Key::D:
             if(!key_right) {
                 key_right = true;
                 main_player.velocity_x += VELOCITY;
+                if(!main_player.started_walking)
+                    main_player.started_walking = gfx::getTicks();
             }
             break;
         default:;
@@ -180,5 +184,10 @@ void ClientPlayers::update() {
             packet << PacketType::VIEW_POS_CHANGE << blocks->view_x << blocks->view_y;
             manager->sendPacket(packet);
         }
+        
+        if(!main_player.velocity_x && !main_player.texture_frame)
+            main_player.started_walking = 0;
+        
+        main_player.texture_frame = main_player.started_walking ? (gfx::getTicks() - main_player.started_walking) / 50 % 16 : 0;
     }
 }
