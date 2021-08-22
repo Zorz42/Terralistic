@@ -160,6 +160,7 @@ void ClientPlayers::update() {
         if(isPlayerTouchingGround() && jump) {
             main_player.velocity_y = -JUMP_VELOCITY;
             jump = false;
+            main_player.has_jumped = true;
         }
         
         blocks->view_x += (main_player.x - blocks->view_x) / 8;
@@ -185,9 +186,18 @@ void ClientPlayers::update() {
             manager->sendPacket(packet);
         }
         
-        if(!main_player.velocity_x && !main_player.texture_frame)
+        if(isPlayerTouchingGround() && main_player.velocity_y == 0)
+            main_player.has_jumped = false;
+        
+        if(!main_player.velocity_x && main_player.texture_frame == 2)
             main_player.started_walking = 0;
         
-        main_player.texture_frame = main_player.started_walking ? (gfx::getTicks() - main_player.started_walking) / 50 % 16 : 0;
+        main_player.texture_frame = 0;
+        
+        if(main_player.started_walking)
+            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 50 % 14 + 2;
+        
+        if(main_player.has_jumped)
+            main_player.texture_frame = 1;
     }
 }

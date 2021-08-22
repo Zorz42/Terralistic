@@ -21,6 +21,7 @@ public:
     explicit MainPlayer(std::string name) : ClientPlayer(std::move(name), 0, 0) {}
     short velocity_x = 0, velocity_y = 0;
     unsigned int started_walking = 0;
+    bool has_jumped = false;
 };
 
 class OtherPlayer : public ClientPlayer {
