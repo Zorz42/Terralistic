@@ -18,7 +18,6 @@ class WorldSelector : public gfx::Scene {
     std::vector<std::string> worlds_names;
     std::vector<WorldToSelect> worlds;
     int scroll_limit, position;
-    bool shift_pressed = false;
     MenuBack* menu_back;
     gfx::Rect top_rect, bottom_rect;
     float top_rect_visibility = 0;
@@ -26,7 +25,6 @@ class WorldSelector : public gfx::Scene {
     
     void init() override;
     void onKeyDown(gfx::Key key) override;
-    void onKeyUp(gfx::Key key) override;
     void render() override;
     void onMouseScroll(int distance) override;
     void refresh();

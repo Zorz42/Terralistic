@@ -7,6 +7,8 @@
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 
+enum class MovingType { STANDING, WALKING, SNEAKING };
+
 class ClientPlayer {
 public:
     ClientPlayer(std::string name, int x, int y) : name(std::move(name)), x(x), y(y) {}
@@ -22,6 +24,7 @@ public:
     short velocity_x = 0, velocity_y = 0;
     unsigned int started_walking = 0;
     bool has_jumped = false;
+    MovingType moving_type = MovingType::STANDING;
 };
 
 class OtherPlayer : public ClientPlayer {
@@ -32,7 +35,7 @@ public:
 };
 
 class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
-    bool key_up = false, jump = false, key_left = false, key_right = false;
+    bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false;
     
     MainPlayer main_player;
     std::vector<OtherPlayer*> other_players;
@@ -46,8 +49,6 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
 
     bool received_spawn_coords = false;
     
-    void onKeyUp(gfx::Key key) override;
-    void onKeyDown(gfx::Key key) override;
     void init() override;
     void update() override;
     void onEvent(ClientPacketEvent& event) override;

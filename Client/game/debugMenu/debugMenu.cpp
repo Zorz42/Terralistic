@@ -42,17 +42,11 @@ void DebugMenu::render() {
 }
 
 void DebugMenu::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::M && !m_down) {
-        m_down = true;
+    if(key == gfx::Key::M) {
         debug_menu_open = !debug_menu_open;
         if(debug_menu_open)
             updateFpsText();
     }
-}
-
-void DebugMenu::onKeyUp(gfx::Key key) {
-    if(key == gfx::Key::M)
-        m_down = false;
 }
 
 void DebugMenu::updateFpsText() {

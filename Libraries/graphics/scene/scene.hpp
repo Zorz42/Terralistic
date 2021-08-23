@@ -15,7 +15,8 @@ public:
     virtual void render() {}
     virtual void stop() {}
     virtual void onKeyDown(Key key_) {}
-    virtual void onKeyUp(Key key_) {}
+    
+    bool getKeyState(Key key_);
     
     virtual ~GraphicalModule() = default;
 
@@ -32,7 +33,6 @@ public:
     void run();
 
     void onKeyDownCallback(Key key_);
-    void onKeyUpCallback(Key key_);
 private:
     void operateEvent(sf::Event event);
 };

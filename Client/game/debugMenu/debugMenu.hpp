@@ -6,7 +6,7 @@
 #include "clientBlocks.hpp"
 
 class DebugMenu : public gfx::GraphicalModule {
-    bool debug_menu_open = false, m_down = false;
+    bool debug_menu_open = false;
     gfx::Sprite fps_text, coords_text;
     ClientPlayers* player_handler;
     unsigned int fps_count = 0;
@@ -19,7 +19,6 @@ class DebugMenu : public gfx::GraphicalModule {
     void update() override;
     void render() override;
     void onKeyDown(gfx::Key key) override;
-    void onKeyUp(gfx::Key key) override;
 public:
     DebugMenu(ClientPlayers* player_handler, ClientBlocks* world_map) : player_handler(player_handler), blocks(world_map) {}
 };
