@@ -138,7 +138,7 @@ void ClientPlayers::update() {
         int x_factor = move_x > 0 ? 1 : -1;
         for(int i = 0; i < abs(move_x); i++) {
             main_player.x += x_factor;
-            if(isPlayerColliding()) {
+            if(isPlayerColliding() || (main_player.moving_type == MovingType::SNEAKING && !isPlayerTouchingGround() && main_player.velocity_y == 0)) {
                 main_player.x -= x_factor;
                 break;
             }
