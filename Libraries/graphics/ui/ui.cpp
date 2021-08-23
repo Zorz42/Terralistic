@@ -1,7 +1,7 @@
 #include "graphics-internal.hpp"
 
 void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
-    delete sfml_render_texture;
+    freeTexture();
     sfml_render_texture = new sf::RenderTexture;
     bool result = sfml_render_texture->create(width, height);
     assert(result);
@@ -11,11 +11,11 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
 void gfx::Image::renderText(const std::string& text, Color text_color) {
     sf::Text sf_text;
     sf_text.setFont(font);
-    sf_text.setString(text.c_str());
+    sf_text.setString(text);
     sf_text.setFillColor((sf::Color)text_color);
     sf_text.setCharacterSize(font_size);
     
-    sf::FloatRect text_rect = sf_text.getLocalBounds();
+    sf::Rect text_rect = sf_text.getLocalBounds();
     sf_text.setOrigin(text_rect.left + text_rect.width / 2, text_rect.top  + text_rect.height / 2);
     sf_text.setPosition(sf::Vector2f(sf_text.getLocalBounds().width / 2, sf_text.getLocalBounds().height / 2));
     
@@ -96,10 +96,8 @@ unsigned short gfx::Button::getHeight() const {
 }
 
 bool gfx::Button::isHovered() const {
-    if (disabled)
-        return false;
     RectShape rect = getTranslatedRect();
-    return mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
+    return !disabled && mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
 
 void gfx::Button::render() {

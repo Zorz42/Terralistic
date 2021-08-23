@@ -9,15 +9,16 @@
 
 class ServerInventory;
 
-class InventoryItem {
-    unsigned short stack;
+class InventoryItem : ItemStack {
     ServerInventory* inventory;
-    ItemType type;
 public:
-    InventoryItem() : inventory(nullptr), type(ItemType::NOTHING), stack(0) {}
-    explicit InventoryItem(ServerInventory* holder) : inventory(holder), type(ItemType::NOTHING), stack(0) {}
-
-    inline ItemType getType() const { return type; }
+    InventoryItem() : inventory(nullptr) {}
+    explicit InventoryItem(ServerInventory* holder) : inventory(holder) {}
+    
+    char* loadFromSerial(char* iter);
+    void serialize(std::vector<char>& serial) const;
+    
+    ItemType getType() const { return type; }
     void setType(ItemType type_);
     void setTypeWithoutProcessing(ItemType type_);
     
@@ -27,18 +28,25 @@ public:
     void setStackWithoutProcessing(unsigned short stack_);
     
     unsigned short increaseStack(unsigned short stack_);
-    bool decreaseStack(unsigned short stack_);
+    unsigned short decreaseStack(unsigned short stack_);
     
-    unsigned char getPosInInventory();
-    inline ServerInventory* getInventory() { return inventory; } 
+    short getPosInInventory();
+    ServerInventory* getInventory() { return inventory; }
 };
 
 class ServerInventory {
+    friend InventoryItem;
     InventoryItem mouse_item;
+    unsigned int item_counts[(int)ItemType::NUM_ITEMS];
+    std::vector<const Recipe*> available_recipes;
 public:
+    bool hasIngredientsForRecipe(const Recipe& recipe);
+    const std::vector<const Recipe*>& getAvailableRecipes();
+    void updateAvailableRecipes();
     ServerInventory();
     InventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
+    char removeItem(ItemType id, int quantity);
     unsigned char selected_slot = 0;
     InventoryItem* getSelectedSlot();
     void swapWithMouseItem(InventoryItem* item);
@@ -48,8 +56,8 @@ class ServerPlayer {
     static inline unsigned int curr_id = 0;
 public:
     explicit ServerPlayer(std::string name) : id(curr_id++), name(std::move(name)) {}
-    ServerPlayer(const std::string& path, std::string  name);
-    const std::string name;
+    ServerPlayer(char*& iter);
+    std::string name;
     const unsigned short id;
     
     bool flipped = false;
@@ -66,7 +74,7 @@ public:
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
     
-    void saveTo(const std::string& path) const;
+    void serialize(std::vector<char>& serial) const;
 };
 
 struct blockEvents {
@@ -92,12 +100,12 @@ public:
     
     void rightClickEvent(ServerBlock this_block, ServerPlayer* peer);
     
-    inline const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
-    inline const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }
+    const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
+    const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
-    ServerPlayer* addPlayerFromFile(const std::string& path);
+    char* addPlayerFromSerial(char* iter);
     void removePlayer(ServerPlayer* player);
     
     void updatePlayersBreaking(unsigned short tick_length);
@@ -121,6 +129,12 @@ public:
     ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
     InventoryItem& item;
     unsigned short stack;
+};
+
+class RecipeAvailabilityChangeEvent : public Event<RecipeAvailabilityChangeEvent> {
+public:
+    RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
+    ServerInventory* inventory;
 };
 
 #endif

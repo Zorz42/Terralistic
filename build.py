@@ -97,6 +97,42 @@ elif sys.platform == "win32":
 
         os.remove(sfml_file)
 
+    if not os.path.exists(project_path + "Dependencies/zlib/"):
+        print("Downloading zlib libraries")
+
+        os.mkdir(project_path + "Dependencies/zlib/")
+
+        zlib_url = "https://deac-riga.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip"
+        zlib_file = project_path + "zlib.zip"
+
+        with urllib.request.urlopen(zlib_url) as sfml_request:
+            with open(zlib_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
+
+        with zipfile.ZipFile(zlib_file, "r") as sfml_zip:
+            sfml_zip.extractall(project_path + "Dependencies/zlib/")
+
+        os.remove(zlib_file)
+
+        zlib_url = "https://deac-fra.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip"
+        zlib_file = project_path + "zlib.zip"
+
+        with urllib.request.urlopen(zlib_url) as sfml_request:
+            with open(zlib_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
+
+        with zipfile.ZipFile(zlib_file, "r") as sfml_zip:
+            sfml_zip.extractall(project_path + "Dependencies/zlib/")
+
+        os.remove(zlib_file)
+
+        lines = []
+        with open(project_path + "Dependencies/zlib/include/zconf.h", "r") as header:
+            lines = header.readlines()
+        lines[286] = "#if 0\n"
+        with open(project_path + "Dependencies/zlib/include/zconf.h", "w") as header:
+            header.writelines(lines)
+
     createDir("Build/")
 
     os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build .\"")

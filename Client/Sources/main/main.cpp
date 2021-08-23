@@ -3,6 +3,7 @@
 #include "configManager.hpp"
 #include "resourcePack.hpp"
 #include "resourcePath.hpp"
+#include "serverPlayers.hpp"
 
 int main(int argc, char **argv) {
     gfx::init(1000, 600);

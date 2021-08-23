@@ -12,7 +12,7 @@ class Color{
 public:
     unsigned char r, g, b, a;
     Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255);
-    inline operator sf::Color() const { return {r, g, b, a}; }
+    operator sf::Color() const { return {r, g, b, a}; }
 
 };
 
@@ -29,8 +29,8 @@ public:
     _CenteredObject(short x, short y, ObjectType orientation = TOP_LEFT);
     ObjectType orientation;
     RectShape getTranslatedRect() const;
-    inline virtual unsigned short getWidth() const { return 0; };
-    inline virtual unsigned short getHeight() const { return 0; };
+    virtual unsigned short getWidth() const { return 0; };
+    virtual unsigned short getHeight() const { return 0; };
     short getTranslatedX(unsigned short width=0) const;
     short getTranslatedY(unsigned short height=0) const;
 

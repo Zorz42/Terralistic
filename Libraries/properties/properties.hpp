@@ -43,9 +43,24 @@ struct LiquidInfo {
     float speed_multiplier;
 };
 
+struct ItemStack {
+    ItemStack(ItemType type, unsigned short stack) : type(type), stack(stack) {}
+    ItemStack() = default;
+    ItemType type = ItemType::NOTHING;
+    unsigned short stack = 0;
+};
+
+struct Recipe {
+    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(ingredients), result(result) {}
+    std::vector<ItemStack> ingredients;
+    ItemStack result;
+};
+
 void initProperties();
 const BlockInfo& getBlockInfo(BlockType type);
 const ItemInfo& getItemInfo(ItemType type);
 const LiquidInfo& getLiquidInfo(LiquidType type);
+const std::vector<Recipe>& getRecipes();
+unsigned short getRecipeIndex(const Recipe* recipe);
 
 #endif

@@ -41,6 +41,7 @@ void Chat::render() {
             i->text_sprite.orientation = gfx::BOTTOM_LEFT;
             i->y_to_be = chat_box.y - chat_box.getHeight();
             i->text.clear();
+            i->text.shrink_to_fit();
             
             for(ChatLine* line : chat_lines)
                 if(line != i)

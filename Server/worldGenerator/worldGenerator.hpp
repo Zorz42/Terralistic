@@ -53,8 +53,8 @@ class worldGenerator {
 public:
     worldGenerator(ServerBlocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(std::move(resource_path)) {}
 
-    inline unsigned int getGeneratingCurrent() const { return generating_current; }
-    inline unsigned int getGeneratingTotal() const { return generating_total; }
+    unsigned int getGeneratingCurrent() const { return generating_current; }
+    unsigned int getGeneratingTotal() const { return generating_total; }
 
     int generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed);
 };

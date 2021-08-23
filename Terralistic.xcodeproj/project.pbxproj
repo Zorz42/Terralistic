@@ -24,8 +24,8 @@
 		166D85DE26AA0B9E00DB87B1 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */; };
 		166D85E026AAB7EC00DB87B1 /* packetHandling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85DF26AAB7EC00DB87B1 /* packetHandling.cpp */; };
 		166D85E126AAB7EC00DB87B1 /* packetHandling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85DF26AAB7EC00DB87B1 /* packetHandling.cpp */; };
-		166ECC8126A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
-		166ECC8226A1B8C800E36052 /* saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* saver.cpp */; };
+		166ECC8126A1B8C800E36052 /* serializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* serializer.cpp */; };
+		166ECC8226A1B8C800E36052 /* serializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* serializer.cpp */; };
 		16712C7026ADF5250050CC46 /* clientPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16712C6F26ADF5250050CC46 /* clientPlayers.cpp */; };
 		16712C7426AE004A0050CC46 /* clientInventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16712C7226AE004A0050CC46 /* clientInventory.cpp */; };
 		1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* serverNetworking.cpp */; };
@@ -43,6 +43,8 @@
 		1689697725E9607900D26060 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1689692C25E9607800D26060 /* pixel_font.ttf */; };
 		1689699B25E962F800D26060 /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 1689699A25E962F800D26060 /* resourcePack */; };
 		16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16906515266CC0C20075EF55 /* debugMenu.cpp */; };
+		1690D7DA26BA88640007755C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
+		1690D7DB26BA88710007755C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		1691250225F6BCD500F7EB4F /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689689F25E9607800D26060 /* clientNetworking.cpp */; };
 		1691250625F6BCD500F7EB4F /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968A925E9607800D26060 /* pauseScreen.cpp */; };
@@ -55,7 +57,6 @@
 		1691250E25F6BCD500F7EB4F /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C225E9607800D26060 /* worldSelector.cpp */; };
 		1691250F25F6BCD500F7EB4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168968C625E9607800D26060 /* main.cpp */; };
 		16932058263811C100B73C9F /* fileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16932056263811C100B73C9F /* fileManager.cpp */; };
-		16987C11265900F90016509C /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C10265900F80016509C /* inventory.cpp */; };
 		16987C15265901020016509C /* clientItems.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C13265901020016509C /* clientItems.cpp */; };
 		16987C17265901020016509C /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C14265901020016509C /* block.cpp */; };
 		16BF6928269D6D7300CFE175 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
@@ -228,7 +229,7 @@
 		166D85D126AA0B9E00DB87B1 /* SimplexNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplexNoise.h; sourceTree = "<group>"; };
 		166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplexNoise.cpp; sourceTree = "<group>"; };
 		166D85DF26AAB7EC00DB87B1 /* packetHandling.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packetHandling.cpp; sourceTree = "<group>"; };
-		166ECC8026A1B8C800E36052 /* saver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = saver.cpp; sourceTree = "<group>"; };
+		166ECC8026A1B8C800E36052 /* serializer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serializer.cpp; sourceTree = "<group>"; };
 		16712C6F26ADF5250050CC46 /* clientPlayers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clientPlayers.cpp; sourceTree = "<group>"; };
 		16712C7226AE004A0050CC46 /* clientInventory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clientInventory.cpp; sourceTree = "<group>"; };
 		16712C7326AE004A0050CC46 /* clientInventory.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientInventory.hpp; sourceTree = "<group>"; };
@@ -282,6 +283,8 @@
 		1689699A25E962F800D26060 /* resourcePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resourcePack; sourceTree = "<group>"; };
 		16906515266CC0C20075EF55 /* debugMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debugMenu.cpp; sourceTree = "<group>"; };
 		16906516266CC0C20075EF55 /* debugMenu.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debugMenu.hpp; sourceTree = "<group>"; };
+		1690D7D626BA869F0007755C /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
+		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		169124A125F6B70F00F7EB4F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Client/Graphics/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
 		169124A225F6B70F00F7EB4F /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Client/Graphics/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		169124A325F6B70F00F7EB4F /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Client/Graphics/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
@@ -291,7 +294,6 @@
 		16932056263811C100B73C9F /* fileManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileManager.cpp; sourceTree = "<group>"; };
 		16932057263811C100B73C9F /* fileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fileManager.hpp; sourceTree = "<group>"; };
 		1695428D2680B5B400F1F4FE /* version.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = version.hpp; sourceTree = "<group>"; };
-		16987C10265900F80016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
 		16987C13265901020016509C /* clientItems.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientItems.cpp; sourceTree = "<group>"; };
 		16987C14265901020016509C /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
@@ -372,6 +374,7 @@
 				16BF6999269D855A00CFE175 /* vorbis.framework in Frameworks */,
 				16BF6985269D854F00CFE175 /* sfml-audio.framework in Frameworks */,
 				16BF6987269D854F00CFE175 /* sfml-graphics.framework in Frameworks */,
+				1690D7DA26BA88640007755C /* libz.tbd in Frameworks */,
 				16BF6997269D855A00CFE175 /* OpenAL.framework in Frameworks */,
 				16BF698F269D854F00CFE175 /* SFML.framework in Frameworks */,
 				16BF698B269D854F00CFE175 /* sfml-system.framework in Frameworks */,
@@ -392,6 +395,7 @@
 				16BF6979269D853A00CFE175 /* OpenAL.framework in Frameworks */,
 				16BF696D269D853100CFE175 /* sfml-system.framework in Frameworks */,
 				16BF697B269D853A00CFE175 /* vorbisenc.framework in Frameworks */,
+				1690D7DB26BA88710007755C /* libz.tbd in Frameworks */,
 				16BF697D269D853A00CFE175 /* freetype.framework in Frameworks */,
 				16BF6977269D853A00CFE175 /* ogg.framework in Frameworks */,
 				16BF696B269D853100CFE175 /* SFML.framework in Frameworks */,
@@ -413,6 +417,8 @@
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1690D7D826BA87B90007755C /* libz.tbd */,
+				1690D7D626BA869F0007755C /* libz.1.2.11.tbd */,
 				16BF6975269D853A00CFE175 /* FLAC.framework */,
 				16BF6973269D853A00CFE175 /* freetype.framework */,
 				16BF6970269D853A00CFE175 /* ogg.framework */,
@@ -555,7 +561,6 @@
 			children = (
 				16712C7326AE004A0050CC46 /* clientInventory.hpp */,
 				16712C7226AE004A0050CC46 /* clientInventory.cpp */,
-				16987C10265900F80016509C /* inventory.cpp */,
 				16811018263BE9260086D659 /* inventoryItem.cpp */,
 			);
 			path = clientInventory;
@@ -602,9 +607,9 @@
 			children = (
 				167B387D2642F73900E3C718 /* print */,
 				16B36D302682066B00A4B03A /* serverBlocks */,
-				16B36D2A2681FF0400A4B03A /* serverItems */,
 				167513C126A498DA00E21C68 /* biomes */,
 				16B36D3926820AC700A4B03A /* worldGenerator */,
+				16B36D2A2681FF0400A4B03A /* serverItems */,
 				168600D42681DB1600763775 /* serverPlayers */,
 				1673274926A80E760063281A /* serverNetworking */,
 				167B38922642F73900E3C718 /* server */,
@@ -872,7 +877,7 @@
 				167F4D30268496B2004A8D11 /* block.cpp */,
 				167B38842642F73900E3C718 /* light.cpp */,
 				1664388626695A2F00587F5E /* liquid.cpp */,
-				166ECC8026A1B8C800E36052 /* saver.cpp */,
+				166ECC8026A1B8C800E36052 /* serializer.cpp */,
 			);
 			path = serverBlocks;
 			sourceTree = "<group>";
@@ -1060,7 +1065,7 @@
 				16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */,
 				36DDF8AC2689F725002337F3 /* serverItems.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* serverPlayers.cpp in Sources */,
-				166ECC8126A1B8C800E36052 /* saver.cpp in Sources */,
+				166ECC8126A1B8C800E36052 /* serializer.cpp in Sources */,
 				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
 				1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
@@ -1070,7 +1075,6 @@
 				36DDF8B8268A0499002337F3 /* resourcePack.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				16906517266CC0C20075EF55 /* debugMenu.cpp in Sources */,
-				16987C11265900F90016509C /* inventory.cpp in Sources */,
 				36B157D726484E2000528A2B /* clientBlocks.cpp in Sources */,
 				166D85D326AA0B9E00DB87B1 /* ui.cpp in Sources */,
 				1691250225F6BCD500F7EB4F /* clientNetworking.cpp in Sources */,
@@ -1129,7 +1133,7 @@
 				16BF6932269D6D7300CFE175 /* serverPlayers.cpp in Sources */,
 				16BF6933269D6D7300CFE175 /* inventory.cpp in Sources */,
 				1682944426A16D780017E2FD /* packetType.cpp in Sources */,
-				166ECC8226A1B8C800E36052 /* saver.cpp in Sources */,
+				166ECC8226A1B8C800E36052 /* serializer.cpp in Sources */,
 				16BF6936269D6D7300CFE175 /* print.cpp in Sources */,
 				16BF6937269D6D7300CFE175 /* server.cpp in Sources */,
 			);
@@ -1305,6 +1309,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
@@ -1366,6 +1371,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
@@ -1398,6 +1404,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_LDFLAGS = "";
+				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
@@ -1428,6 +1436,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jakobzorz.Terralistic-server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";

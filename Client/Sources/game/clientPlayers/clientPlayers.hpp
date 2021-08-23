@@ -60,7 +60,7 @@ public:
     
     void renderPlayers();
     
-    inline const MainPlayer& getMainPlayer() { return main_player; }
+    const MainPlayer& getMainPlayer() { return main_player; }
 };
 
 #endif

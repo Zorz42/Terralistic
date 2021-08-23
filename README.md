@@ -7,11 +7,11 @@ To build, just run:
 python3 build.py
 ```
 You will need to have installed to build:
-- python3
-- cmake
-- make
-- clang
-- git
+- python3 (to run build.py, nothing else)
+- cmake (on linux and windows)
+- make (on linux and windows)
+- gcc
+- zlib
 
 SFML will be installed by build.py.
 
