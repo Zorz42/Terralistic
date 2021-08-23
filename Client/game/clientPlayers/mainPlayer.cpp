@@ -13,8 +13,8 @@ void ClientPlayers::init() {
     manager->sendPacket(packet);
 }
 
-#define WALK_SPEED 20
-#define SNEAK_SPEED 10
+#define WALK_SPEED 15
+#define SNEAK_SPEED 7
 #define JUMP_VELOCITY 70
 
 bool ClientPlayers::isPlayerColliding() {
@@ -181,13 +181,13 @@ void ClientPlayers::update() {
         if(isPlayerTouchingGround() && main_player.velocity_y == 0)
             main_player.has_jumped = false;
         
-        if(!main_player.velocity_x && main_player.texture_frame == 3)
+        if(main_player.moving_type == MovingType::STANDING)
             main_player.started_walking = 0;
         
         main_player.texture_frame = 0;
         
         if(main_player.started_walking)
-            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 50 % 8 + 3;
+            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 60 % 9 + 3;
         
         if(main_player.has_jumped)
             main_player.texture_frame = 1;
