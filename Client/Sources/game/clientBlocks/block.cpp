@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include "clientBlocks.hpp"
+#include "print.hpp"
+#include "resourcePack.hpp"
 
 ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());
@@ -79,29 +81,31 @@ void ClientBlocks::renderFrontBlocks() {
 }
 
 void ClientBlock::updateTexture() {
-    if(parent_map->getResourcePack()->getBlockTexture(getBlockType()).getTextureHeight() != 8) {
+    if(parent_map->getResourcePack()->getTextureRectangle(getBlockType()).h != 8) {
         block_data->orientation = 0;
         char x_[] = {0, 1, 0, -1};
         char y_[] = {-1, 0, 1, 0};
         unsigned char c = 1;
         for(int i = 0; i < 4; i++) {
             if(
-               x + x_[i] >= parent_map->getWorldWidth() || x + x_[i] < 0 || y + y_[i] >= parent_map->getWorldHeight() || y + y_[i] < 0 ||
-               parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
-               std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType())
-            )
+                    x + x_[i] >= parent_map->getWorldWidth() || x + x_[i] < 0 || y + y_[i] >= parent_map->getWorldHeight() || y + y_[i] < 0 ||
+                    parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
+                    std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType())
+                    )
                 block_data->orientation += c;
             c += c;
         }
     }
+    else
+        block_data->orientation = 0;
     block_data->update = false;
 }
 
 void ClientBlock::drawBack() {
     int block_x = (x & 15) * BLOCK_WIDTH, block_y = (y & 15) * BLOCK_WIDTH;
-    
+
     if(getLightLevel())
-        parent_map->getResourcePack()->getBlockTexture(getBlockType()).render(2, block_x, block_y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+        parent_map->getResourcePack()->getBlockTexture().render(2, block_x, block_y, gfx::RectShape(0, short(parent_map->getResourcePack()->getTextureRectangle(getBlockType()).y + (BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
 
     if(getBreakStage())
         parent_map->getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));

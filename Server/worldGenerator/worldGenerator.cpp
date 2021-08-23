@@ -20,7 +20,6 @@ int worldGenerator::generateWorld(unsigned short world_width, unsigned short wor
         loadBiomes();
         generateDeafultWorld(noise);
     }
-    generating_current++;
     return 0;
 }
 
@@ -228,6 +227,7 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
     }
     for (int x = 0; x < server_blocks->getWidth(); x++) {
         terrainGenerator(x, noise);
+        //generating_current++;
     }
     for (const structurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);

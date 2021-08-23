@@ -1,9 +1,9 @@
 #include <cassert>
+#include "print.hpp"
 #include "resourcePack.hpp"
 
-const gfx::Image& ResourcePack::getBlockTexture(BlockType type) {
-    assert((int)type >= 0 && type < BlockType::NUM_BLOCKS);
-    return block_textures[(int)type];
+const gfx::Image& ResourcePack::getBlockTexture(){
+    return texture_atlas;
 }
 
 const gfx::Image& ResourcePack::getItemTexture(ItemType type) {
@@ -33,11 +33,16 @@ const gfx::Image& ResourcePack::getBackground() {
     return background;
 }
 
+const gfx::RectShape& ResourcePack::getTextureRectangle(BlockType type) {
+    return texture_rectangles[(int)type];
+}
+
 void ResourcePack::load(std::string path) {
+    gfx::Image block_textures[(int)BlockType::NUM_BLOCKS];
     breaking_texture.loadFromFile(path + "/misc/breaking.png");
     player_texture.loadFromFile(path + "/misc/player.png");
     background.loadFromFile(path + "/misc/background.png");
-    
+
     for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++)
         block_textures[i].loadFromFile(path + "/blocks/" + getBlockInfo((BlockType)i).name + ".png");
     
@@ -48,4 +53,23 @@ void ResourcePack::load(std::string path) {
     
     for(int i = 0; i < (int)LiquidType::NUM_LIQUIDS; i++)
         liquid_textures[i].loadFromFile(path + "/liquids/" + getLiquidInfo((LiquidType)i).name + ".png");
+
+    unsigned short max_y_size = 8;
+    int texture_atlas_height = 0;
+    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++){
+        if(block_textures[i].getTextureWidth() > max_y_size)
+            max_y_size = block_textures[i].getTextureWidth();
+        texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, block_textures[i].getTextureWidth(), block_textures[i].getTextureHeight());
+        texture_atlas_height += block_textures[i].getTextureHeight();
+    }
+
+    texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
+    gfx::setRenderTarget(texture_atlas);
+    texture_atlas_height = 0;
+    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++){
+        block_textures[i].render(1, 0, texture_atlas_height);
+        texture_atlas_height += block_textures[i].getTextureHeight();
+    }
+    gfx::resetRenderTarget();
+
 }
