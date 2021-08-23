@@ -138,7 +138,7 @@ void ClientPlayers::update() {
         int x_factor = move_x > 0 ? 1 : -1;
         for(int i = 0; i < abs(move_x); i++) {
             main_player.x += x_factor;
-            if(isPlayerColliding() || (main_player.moving_type == MovingType::SNEAKING && !isPlayerTouchingGround() && main_player.velocity_y == 0)) {
+            if(isPlayerColliding() || (main_player.moving_type == MovingType::SNEAKING && !isPlayerTouchingGround() && !main_player.velocity_y)) {
                 main_player.x -= x_factor;
                 break;
             }
@@ -187,7 +187,7 @@ void ClientPlayers::update() {
         main_player.texture_frame = 0;
         
         if(main_player.started_walking)
-            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 50 % 13 + 3;
+            main_player.texture_frame = std::abs(int(gfx::getTicks() - main_player.started_walking) / 50 % 9 - 4) + 3;
         
         if(main_player.has_jumped)
             main_player.texture_frame = 1;
