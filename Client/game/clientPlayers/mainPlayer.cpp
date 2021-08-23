@@ -187,7 +187,7 @@ void ClientPlayers::update() {
         main_player.texture_frame = 0;
         
         if(main_player.started_walking)
-            main_player.texture_frame = std::abs(int(gfx::getTicks() - main_player.started_walking) / 50 % 9 - 4) + 3;
+            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 50 % 8 + 3;
         
         if(main_player.has_jumped)
             main_player.texture_frame = 1;
