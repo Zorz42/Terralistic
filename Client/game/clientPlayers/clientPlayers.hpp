@@ -7,7 +7,7 @@
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 
-enum class MovingType { STANDING, WALKING, SNEAKING };
+enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING};
 
 class ClientPlayer {
 public:
