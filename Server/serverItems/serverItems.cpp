@@ -101,11 +101,11 @@ void ServerItem::update(float frame_length) {
 
 bool ServerItem::collidingWithBlocks() const {
     int height_x = 1, height_y = 1;
-    if(x / 100 % BLOCK_WIDTH)
+    if(x / 100 % (BLOCK_WIDTH * 2))
         height_x++;
-    if(y / 100 % BLOCK_WIDTH)
+    if(y / 100 % (BLOCK_WIDTH * 2))
         height_y++;
-    int block_x = x / 100 / BLOCK_WIDTH, block_y = y / 100 / BLOCK_WIDTH;
+    int block_x = x / 100 / (BLOCK_WIDTH * 2), block_y = y / 100 / (BLOCK_WIDTH * 2);
     for(int x_ = 0; x_ < height_x; x_++)
         for(int y_ = 0; y_ < height_y; y_++)
             if(!parent_blocks->getBlock((unsigned short)(block_x + x_), (unsigned short)(block_y + y_)).getUniqueBlock().transparent)
@@ -135,5 +135,5 @@ void ServerItems::removeItem(const ServerItem& item_to_remove) {
 
 void ServerItems::onEvent(ServerBlockBreakEvent& event) {
     if(event.block.getUniqueBlock().drop != ItemType::NOTHING)
-        spawnItem(event.block.getUniqueBlock().drop, event.block.getX() * BLOCK_WIDTH, event.block.getY() * BLOCK_WIDTH);
+        spawnItem(event.block.getUniqueBlock().drop, event.block.getX() * BLOCK_WIDTH * 2, event.block.getY() * BLOCK_WIDTH * 2);
 }

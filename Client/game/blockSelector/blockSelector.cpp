@@ -28,20 +28,20 @@ void BlockSelector::render() {
             prev_selected_y = selected_block_y;
         }
         
-        selected_block_x = (unsigned short)((gfx::getMouseX() + blocks->view_x - gfx::getWindowWidth() / 2) / BLOCK_WIDTH);
-        selected_block_y = (unsigned short)((gfx::getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / BLOCK_WIDTH);
-        select_rect.setX(-blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH);
-        select_rect.setY(-blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH);
+        selected_block_x = (unsigned short)((gfx::getMouseX() + blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
+        selected_block_y = (unsigned short)((gfx::getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
+        select_rect.setX(-blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2);
+        select_rect.setY(-blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2);
         select_rect.render(false);
     }
 }
 
 void BlockSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_RIGHT && !inventory_handler->isHovered()) {
-        unsigned short starting_x = (player_handler->getMainPlayer().x - player_handler->getPlayerWidth() / 2) / BLOCK_WIDTH;
-        unsigned short starting_y = (player_handler->getMainPlayer().y - player_handler->getPlayerHeight() / 2) / BLOCK_WIDTH;
-        unsigned short ending_x = (player_handler->getMainPlayer().x + player_handler->getPlayerWidth() / 2 - 1) / BLOCK_WIDTH;
-        unsigned short ending_y = (player_handler->getMainPlayer().y + player_handler->getPlayerHeight() / 2 - 1) / BLOCK_WIDTH;
+        unsigned short starting_x = (player_handler->getMainPlayer().x) / (BLOCK_WIDTH * 2);
+        unsigned short starting_y = (player_handler->getMainPlayer().y) / (BLOCK_WIDTH * 2);
+        unsigned short ending_x = (player_handler->getMainPlayer().x + player_handler->getPlayerWidth() * 2 - 1) / (BLOCK_WIDTH * 2);
+        unsigned short ending_y = (player_handler->getMainPlayer().y + player_handler->getPlayerHeight() * 2 - 1) / (BLOCK_WIDTH * 2);
 
         if(selected_block_x < starting_x || selected_block_x > ending_x || selected_block_y < starting_y || selected_block_y > ending_y) {
             sf::Packet packet;

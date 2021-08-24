@@ -7,7 +7,7 @@
 #include "properties.hpp"
 #include "resourcePack.hpp"
 
-#define BLOCK_WIDTH 16
+#define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
 enum class ChunkState {unloaded, pending_load, loaded};

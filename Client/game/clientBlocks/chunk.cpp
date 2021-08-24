@@ -30,16 +30,16 @@ void ClientChunk::updateTexture() {
 }
 
 void ClientChunk::drawBack() {
-    chunk_data->back_texture.render(1, (x << 4) * BLOCK_WIDTH - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - parent_map->view_y + (gfx::getWindowHeight() >> 1));
+    chunk_data->back_texture.render(1, (x * 16) * BLOCK_WIDTH * 2 - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH * 2 - parent_map->view_y + (gfx::getWindowHeight() >> 1));
 }
 
 void ClientChunk::drawFront() {
-    chunk_data->front_texture.render(1, (x << 4) * BLOCK_WIDTH - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH - parent_map->view_y + (gfx::getWindowHeight() >> 1));
+    chunk_data->front_texture.render(1, (x * 16) * BLOCK_WIDTH * 2 - parent_map->view_x + (gfx::getWindowWidth() >> 1), (y << 4) * BLOCK_WIDTH * 2 - parent_map->view_y + (gfx::getWindowHeight() >> 1));
 }
 
 void ClientChunk::createTexture() {
-    chunk_data->back_texture.createBlankImage(BLOCK_WIDTH * 16, BLOCK_WIDTH * 16);
-    chunk_data->front_texture.createBlankImage(BLOCK_WIDTH * 16, BLOCK_WIDTH * 16);
+    chunk_data->back_texture.createBlankImage(BLOCK_WIDTH * 32, BLOCK_WIDTH * 32);
+    chunk_data->front_texture.createBlankImage(BLOCK_WIDTH * 32, BLOCK_WIDTH * 32);
 }
 
 ClientChunk ClientBlocks::getChunk(unsigned short x, unsigned short y) {

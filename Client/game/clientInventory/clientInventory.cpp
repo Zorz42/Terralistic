@@ -8,7 +8,7 @@ ClientInventory::ClientInventory(networkingManager* manager, ResourcePack* resou
 
 void ClientInventory::init() {
     behind_inventory_rect.orientation = gfx::TOP;
-    behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
+    behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
     behind_inventory_rect.setY(INVENTORY_UI_SPACING / 2);
     behind_inventory_rect.blur_intensity = BLUR - 2;
     behind_inventory_rect.c.a = TRANSPARENCY;
@@ -20,9 +20,9 @@ void ClientInventory::init() {
     select_rect.c = GREY;
     select_rect.c.a = TRANSPARENCY;
     select_rect.setY(INVENTORY_UI_SPACING / 2);
-    select_rect.setHeight(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
-    select_rect.setWidth(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
-    select_rect.setX(-9 * (BLOCK_WIDTH + INVENTORY_UI_SPACING));
+    select_rect.setHeight(BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING);
+    select_rect.setWidth(BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING);
+    select_rect.setX(-9 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING));
     select_rect.smooth_factor = 2;
     
     behind_crafting_rect.setX(INVENTORY_UI_SPACING / 2);
@@ -37,10 +37,10 @@ void ClientInventory::init() {
 }
 
 void ClientInventory::render() {
-    behind_inventory_rect.setHeight(open ? 4 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
+    behind_inventory_rect.setHeight(open ? 8 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 4 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
     behind_inventory_rect.render();
     
-    select_rect.setX((2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING));
+    select_rect.setX((2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING));
     select_rect.render();
     
     const gfx::Image* text_texture = nullptr;
@@ -61,8 +61,8 @@ void ClientInventory::render() {
                 }
             }
         }
-        inventory[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH + INVENTORY_UI_SPACING) + gfx::getWindowWidth() / 2 - INVENTORY_ITEM_BACK_RECT_WIDTH / 2;
-        inventory[i].y = 1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH);
+        inventory[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING) + gfx::getWindowWidth() / 2 - INVENTORY_ITEM_BACK_RECT_WIDTH / 2;
+        inventory[i].y = 1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH * 2);
         inventory[i].renderWithBack();
     }
     

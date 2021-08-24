@@ -21,11 +21,11 @@ void ClientBlock::setLightLevel(unsigned char level) {
 
 
 void ClientBlocks::renderBackBlocks() {
-    short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
-    short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
+    short begin_x = view_x / (BLOCK_WIDTH * 32) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 32) - 1;
+    short end_x = view_x / (BLOCK_WIDTH * 32) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 32) + 2;
 
-    short begin_y = view_y / (BLOCK_WIDTH << 4) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) - 1;
-    short end_y = view_y / (BLOCK_WIDTH << 4) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) + 2;
+    short begin_y = view_y / (BLOCK_WIDTH * 32) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 324) - 1;
+    short end_y = view_y / (BLOCK_WIDTH * 32) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 32) + 2;
 
     if(begin_x < 0)
         begin_x = 0;
@@ -54,11 +54,11 @@ void ClientBlocks::renderBackBlocks() {
 
 void ClientBlocks::renderFrontBlocks() {
     // figure out, what the window is covering and only render that
-    short begin_x = view_x / (BLOCK_WIDTH << 4) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) - 1;
-    short end_x = view_x / (BLOCK_WIDTH << 4) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH << 4) + 2;
+    short begin_x = view_x / (BLOCK_WIDTH * 32) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 32) - 1;
+    short end_x = view_x / (BLOCK_WIDTH * 32) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 32) + 2;
 
-    short begin_y = view_y / (BLOCK_WIDTH << 4) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) - 1;
-    short end_y = view_y / (BLOCK_WIDTH << 4) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH << 4) + 2;
+    short begin_y = view_y / (BLOCK_WIDTH * 32) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 32) - 1;
+    short end_y = view_y / (BLOCK_WIDTH * 32) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 32) + 2;
 
     if(begin_x < 0)
         begin_x = 0;
@@ -98,21 +98,21 @@ void ClientBlock::updateTexture() {
 }
 
 void ClientBlock::drawBack() {
-    int block_x = (x & 15) * BLOCK_WIDTH, block_y = (y & 15) * BLOCK_WIDTH;
+    int block_x = (x & 15) * BLOCK_WIDTH * 2, block_y = (y & 15) * BLOCK_WIDTH * 2;
     
     if(getLightLevel())
-        parent_map->getResourcePack()->getBlockTexture(getBlockType()).render(2, block_x, block_y, gfx::RectShape(0, short((BLOCK_WIDTH >> 1) * block_data->orientation), BLOCK_WIDTH >> 1, BLOCK_WIDTH >> 1));
+        parent_map->getResourcePack()->getBlockTexture(getBlockType()).render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * block_data->orientation), BLOCK_WIDTH, BLOCK_WIDTH));
 
     if(getBreakStage())
-        parent_map->getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH / 2 * (getBreakStage() - 1)), BLOCK_WIDTH / 2, BLOCK_WIDTH / 2));
+        parent_map->getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (getBreakStage() - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
 }
 
 void ClientBlock::drawFront() {
-    gfx::Rect rect((x & 15) * BLOCK_WIDTH, (y & 15) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
+    gfx::Rect rect(x % 16 * BLOCK_WIDTH * 2, y % 16 * BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
 
     if(getLiquidType() != LiquidType::EMPTY) {
         int level = ((int)getLiquidLevel() + 1) / 16;
-        parent_map->getResourcePack()->getLiquidTexture(getLiquidType()).render(2, rect.getX(), rect.getY() + BLOCK_WIDTH - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH / 2, level));
+        parent_map->getResourcePack()->getLiquidTexture(getLiquidType()).render(2, rect.getX(), rect.getY() + BLOCK_WIDTH * 2 - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH, level));
     }
     
     if(getLightLevel() != MAX_LIGHT)

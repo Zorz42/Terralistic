@@ -29,7 +29,7 @@ void ClientInventoryItem::render() const {
     texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2);
     
     if(stack > 1)
-        stack_texture.render(1, x + BLOCK_WIDTH * 2 - stack_texture.getTextureWidth() + INVENTORY_UI_SPACING / 2, y + BLOCK_WIDTH * 2 - stack_texture.getTextureHeight() + INVENTORY_UI_SPACING / 2);
+        stack_texture.render(1, x + BLOCK_WIDTH * 4 - stack_texture.getTextureWidth() + INVENTORY_UI_SPACING / 2, y + BLOCK_WIDTH * 4 - stack_texture.getTextureHeight() + INVENTORY_UI_SPACING / 2);
 }
 
 void ClientInventoryItem::renderWithBack() const {
