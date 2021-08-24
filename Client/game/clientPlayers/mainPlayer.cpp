@@ -15,7 +15,7 @@ void ClientPlayers::init() {
 }
 
 #define WALK_SPEED 10
-#define SNEAK_SPEED 5
+#define SNEAK_SPEED 4
 #define JUMP_VELOCITY 70
 
 bool ClientPlayers::isPlayerColliding() {
@@ -204,7 +204,7 @@ void ClientPlayers::update() {
         else if(main_player.moving_type == MovingType::WALKING)
             main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 70 % 9 + 1;
         else if(main_player.moving_type == MovingType::SNEAK_WALKING)
-            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 100 % 9 + 10;
+            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 100 % 6 + 10;
         else
             main_player.texture_frame = 1;
     }
