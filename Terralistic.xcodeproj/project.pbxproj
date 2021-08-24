@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		166397B426D4FF8E00E24B0F /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 3657217C26D0710F005AB3CC /* Structures.asset */; };
 		166D85D326AA0B9E00DB87B1 /* ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C426AA0B9E00DB87B1 /* ui.cpp */; };
 		166D85D426AA0B9E00DB87B1 /* ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C426AA0B9E00DB87B1 /* ui.cpp */; };
 		166D85D526AA0B9E00DB87B1 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C826AA0B9E00DB87B1 /* rect.cpp */; };
@@ -1022,6 +1023,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				166397B426D4FF8E00E24B0F /* Structures.asset in Resources */,
 				3657219A26D0710F005AB3CC /* pixel_font.ttf in Resources */,
 				3657219C26D0710F005AB3CC /* background.png in Resources */,
 				365721CA26D0710F005AB3CC /* x-button.png in Resources */,

@@ -12,7 +12,7 @@ enum class MovingType { STANDING, WALKING, SNEAKING };
 class ClientPlayer {
 public:
     ClientPlayer(std::string name, int x, int y) : name(std::move(name)), x(x), y(y) {}
-    int x, y;
+    float x, y;
     bool flipped = false;
     unsigned char texture_frame = 0;
     const std::string name;

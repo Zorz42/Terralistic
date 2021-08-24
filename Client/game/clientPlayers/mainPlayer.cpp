@@ -1,3 +1,4 @@
+#include <cmath>
 #include "clientPlayers.hpp"
 
 void ClientPlayers::init() {
@@ -13,8 +14,8 @@ void ClientPlayers::init() {
     manager->sendPacket(packet);
 }
 
-#define WALK_SPEED 15
-#define SNEAK_SPEED 7
+#define WALK_SPEED 10
+#define SNEAK_SPEED 5
 #define JUMP_VELOCITY 70
 
 bool ClientPlayers::isPlayerColliding() {
@@ -134,18 +135,23 @@ void ClientPlayers::update() {
         if(isPlayerTouchingGround() && main_player.velocity_y >= 0)
             main_player.velocity_y = 0;
         
-        int move_x = float(main_player.velocity_x * gfx::getDeltaTime() / 100) * speed_multiplier;
+        float x_to_be = main_player.x + float(main_player.velocity_x * gfx::getDeltaTime()) / 100 * speed_multiplier;
+        float move_x = x_to_be - main_player.x;
         int x_factor = move_x > 0 ? 1 : -1;
+        bool has_collided_x = false;
         for(int i = 0; i < abs(move_x); i++) {
             main_player.x += x_factor;
             if(isPlayerColliding() || (main_player.moving_type == MovingType::SNEAKING && !isPlayerTouchingGround() && !main_player.velocity_y)) {
                 main_player.x -= x_factor;
+                has_collided_x = true;
                 break;
             }
         }
+        if(!has_collided_x)
+            main_player.x = x_to_be;
         
         
-        int move_y = float(main_player.velocity_y * gfx::getDeltaTime() / 100) * speed_multiplier;
+        int move_y = float(main_player.velocity_y * gfx::getDeltaTime()) / 100 * speed_multiplier;
         int y_factor = move_y > 0 ? 1 : -1;
         for(int i = 0; i < abs(move_y); i++) {
             main_player.y += y_factor;
@@ -168,7 +174,7 @@ void ClientPlayers::update() {
         
         if(prev_x != main_player.x || prev_y != main_player.y) {
             sf::Packet packet;
-            packet << PacketType::PLAYER_MOVEMENT << main_player.x << main_player.y << main_player.flipped;
+            packet << PacketType::PLAYER_MOVEMENT << (int)main_player.x << (int)main_player.y << main_player.flipped;
             manager->sendPacket(packet);
         }
         
@@ -184,15 +190,13 @@ void ClientPlayers::update() {
         if(main_player.moving_type == MovingType::STANDING)
             main_player.started_walking = 0;
         
-        main_player.texture_frame = 0;
-        
-        if(main_player.started_walking)
-            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 60 % 9 + 3;
-        
-        if(main_player.has_jumped)
-            main_player.texture_frame = 1;
-        
         if(main_player.moving_type == MovingType::SNEAKING)
-            main_player.texture_frame = 2;
+            main_player.texture_frame = 10;
+        else if(main_player.has_jumped)
+            main_player.texture_frame = 0;
+        else if(main_player.started_walking)
+            main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 100 % 9 + 1;
+        else
+            main_player.texture_frame = 1;
     }
 }

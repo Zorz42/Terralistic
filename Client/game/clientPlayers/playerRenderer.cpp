@@ -6,7 +6,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     resource_pack->getPlayerTexture().render(2,
                                              gfx::getWindowWidth() / 2 - getPlayerWidth() / 2 + player_to_draw.x - blocks->view_x,
                                              gfx::getWindowHeight() / 2 - getPlayerHeight() / 2 + player_to_draw.y - blocks->view_y,
-                                             {(short)(player_to_draw.texture_frame * 14), 0, (unsigned short)(getPlayerWidth() / 2), (unsigned short)(getPlayerHeight() / 2)},
+                                             {(short)(player_to_draw.texture_frame * getPlayerWidth() / 2), 0, (unsigned short)(getPlayerWidth() / 2), (unsigned short)(getPlayerHeight() / 2)},
                                              player_to_draw.flipped);
 }
 
@@ -16,7 +16,7 @@ void ClientPlayers::render(OtherPlayer& player_to_draw) {
 }
 
 unsigned short ClientPlayers::getPlayerWidth() {
-    return resource_pack->getPlayerTexture().getTextureWidth() * 2 / 16;
+    return resource_pack->getPlayerTexture().getTextureWidth() * 2 / 28;
 }
 
 unsigned short ClientPlayers::getPlayerHeight() {
