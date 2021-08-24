@@ -10,10 +10,10 @@ class networkingManager {
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();
-    
     void checkForPackets();
-    
     void sendPacket(sf::Packet& packet);
+    void disableBlocking();
+    sf::Packet getPacket();
 };
 
 class ClientPacketEvent : public Event<ClientPacketEvent> {

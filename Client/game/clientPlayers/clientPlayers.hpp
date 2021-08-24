@@ -20,7 +20,7 @@ public:
 
 class MainPlayer : public ClientPlayer {
 public:
-    explicit MainPlayer(std::string name) : ClientPlayer(std::move(name), 0, 0) {}
+    explicit MainPlayer(int x, int y, std::string name) : ClientPlayer(std::move(name), x, y) {}
     short velocity_x = 0, velocity_y = 0;
     unsigned int started_walking = 0;
     bool has_jumped = false;
@@ -37,17 +37,14 @@ public:
 class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false;
     
-    MainPlayer main_player;
-    std::vector<OtherPlayer*> other_players;
-    OtherPlayer* getPlayerById(unsigned short id);
-    
     void render(ClientPlayer& player_to_draw);
     void render(OtherPlayer& player_to_draw);
 
+    MainPlayer main_player;
+    std::vector<OtherPlayer*> other_players;
+    OtherPlayer* getPlayerById(unsigned short id);
     bool isPlayerColliding();
     bool isPlayerTouchingGround();
-
-    bool received_spawn_coords = false;
     
     void init() override;
     void update() override;
@@ -57,7 +54,7 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     networkingManager* manager;
     ResourcePack* resource_pack;
 public:
-    ClientPlayers(networkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, std::string username) : manager(manager), blocks(world_map), resource_pack(resource_pack), main_player(std::move(username)) {}
+    ClientPlayers(networkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, int x, int y, std::string username);
     
     unsigned short getPlayerWidth();
     unsigned short getPlayerHeight();

@@ -40,10 +40,8 @@ void ServerStart::init() {
 void ServerStart::render() {
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
-        if(server->state == ServerState::RUNNING || server->state == ServerState::STOPPED) {
+        if(server->state == ServerState::RUNNING || server->state == ServerState::STOPPED)
             gfx::returnFromScene();
-            return;
-        }
         switch(server->state) {
             case ServerState::STARTING:
                 text.renderText("Starting server");
@@ -97,7 +95,23 @@ void game::init() {
     blocks = new ClientBlocks(&networking_manager, &resource_pack);
     blocks->createWorld(4400, 1200);
     
-    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, username);
+    if(!networking_manager.establishConnection(ip_address, port)) {
+        ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
+        gfx::returnFromScene();
+    }
+    
+    sf::Packet join_packet;
+    join_packet << username;
+    networking_manager.sendPacket(join_packet);
+    
+    sf::Packet packet = networking_manager.getPacket();
+    
+    int x, y;
+    packet >> x >> y;
+    
+    networking_manager.disableBlocking();
+    
+    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, x, y, username);
     ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
     items = new ClientItems(&resource_pack, blocks);
     
@@ -113,12 +127,6 @@ void game::init() {
         new Chat(&networking_manager),
         new PauseScreen(),
     };
-
-    //renderTextScreen("Connecting to server");
-    if(!networking_manager.establishConnection(ip_address, port)) {
-        ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
-        gfx::returnFromScene();
-    }
 }
 
 void game::onEvent(ClientPacketEvent& event) {

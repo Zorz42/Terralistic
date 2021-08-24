@@ -1,5 +1,11 @@
 #include "clientPlayers.hpp"
 
+ClientPlayers::ClientPlayers(networkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, int x, int y, std::string username) :
+manager(manager), blocks(world_map), resource_pack(resource_pack), main_player(x, y, std::move(username)) {
+    world_map->view_x = x + getPlayerWidth();
+    world_map->view_y = y + getPlayerHeight();
+}
+
 void ClientPlayers::renderPlayers() {
     for(OtherPlayer* i : other_players)
         render(*i);
@@ -47,16 +53,6 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             curr_player->flipped = flipped;
             curr_player->x = x;
             curr_player->y = y;
-            break;
-        }
-        case PacketType::SPAWN_POS: {
-            int x, y;
-            event.packet >> x >> y;
-            main_player.x = x;
-            main_player.y = y;
-            blocks->view_x = x;
-            blocks->view_y = y;
-            received_spawn_coords = true;
             break;
         }
         default:;

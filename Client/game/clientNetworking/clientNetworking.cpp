@@ -21,10 +21,20 @@ void networkingManager::checkForPackets() {
 bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
     if(socket.connect(ip, port) != sf::Socket::Done)
         return false;
-    socket.setBlocking(false);
+    
     return true;
+}
+
+void networkingManager::disableBlocking() {
+    socket.setBlocking(false);
 }
 
 void networkingManager::closeConnection() {
     socket.disconnect();
+}
+
+sf::Packet networkingManager::getPacket() {
+    sf::Packet packet;
+    socket.receive(packet);
+    return packet;
 }
