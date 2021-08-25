@@ -7,7 +7,7 @@ void ClientPlayers::init() {
     manager->sendPacket(packet);
 }
 
-#define RUN_SPEED 17
+#define RUN_SPEED 18
 #define WALK_SPEED 10
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 70
@@ -44,7 +44,9 @@ void ClientPlayers::update() {
             main_player.moving_type = MovingType::SNEAK_WALKING;
         else
             main_player.moving_type = MovingType::SNEAKING;
-    } else if(getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D))
+    } else if(getKeyState(gfx::Key::CTRL) && (getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D)))
+        main_player.moving_type = MovingType::RUNNING;
+    else if(getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D))
         main_player.moving_type = MovingType::WALKING;
     else
         main_player.moving_type = MovingType::STANDING;
@@ -54,8 +56,8 @@ void ClientPlayers::update() {
         walking_right = getKeyState(gfx::Key::D) && main_player.moving_type == MovingType::WALKING;
         if(walking_right) {
             main_player.velocity_x += WALK_SPEED;
-            if(!main_player.started_walking)
-                main_player.started_walking = gfx::getTicks();
+            if(!main_player.started_moving)
+                main_player.started_moving = gfx::getTicks();
         } else
             main_player.velocity_x -= WALK_SPEED;
     }
@@ -64,8 +66,8 @@ void ClientPlayers::update() {
         walking_left = getKeyState(gfx::Key::A) && main_player.moving_type == MovingType::WALKING;
         if(walking_left) {
             main_player.velocity_x -= WALK_SPEED;
-            if(!main_player.started_walking)
-                main_player.started_walking = gfx::getTicks();
+            if(!main_player.started_moving)
+                main_player.started_moving = gfx::getTicks();
         } else
             main_player.velocity_x += WALK_SPEED;
     }
@@ -74,8 +76,8 @@ void ClientPlayers::update() {
         sneaking_right = getKeyState(gfx::Key::D) && main_player.moving_type == MovingType::SNEAK_WALKING;
         if(sneaking_right) {
             main_player.velocity_x += SNEAK_SPEED;
-            if(!main_player.started_walking)
-                main_player.started_walking = gfx::getTicks();
+            if(!main_player.started_moving)
+                main_player.started_moving = gfx::getTicks();
         } else
             main_player.velocity_x -= SNEAK_SPEED;
     }
@@ -84,10 +86,30 @@ void ClientPlayers::update() {
         sneaking_left = getKeyState(gfx::Key::A) && main_player.moving_type == MovingType::SNEAK_WALKING;
         if(sneaking_left) {
             main_player.velocity_x -= SNEAK_SPEED;
-            if(!main_player.started_walking)
-                main_player.started_walking = gfx::getTicks();
+            if(!main_player.started_moving)
+                main_player.started_moving = gfx::getTicks();
         } else
             main_player.velocity_x += SNEAK_SPEED;
+    }
+    
+    if((getKeyState(gfx::Key::D) && main_player.moving_type == MovingType::RUNNING) != running_right) {
+        running_right = getKeyState(gfx::Key::D) && main_player.moving_type == MovingType::RUNNING;
+        if(running_right) {
+            main_player.velocity_x += RUN_SPEED;
+            if(!main_player.started_moving)
+                main_player.started_moving = gfx::getTicks();
+        } else
+            main_player.velocity_x -= RUN_SPEED;
+    }
+    
+    if((getKeyState(gfx::Key::A) && main_player.moving_type == MovingType::RUNNING) != running_left) {
+        running_left = getKeyState(gfx::Key::A) && main_player.moving_type == MovingType::RUNNING;
+        if(running_left) {
+            main_player.velocity_x -= RUN_SPEED;
+            if(!main_player.started_moving)
+                main_player.started_moving = gfx::getTicks();
+        } else
+            main_player.velocity_x += RUN_SPEED;
     }
     
     
@@ -144,6 +166,7 @@ void ClientPlayers::update() {
     float move_x = x_to_be - main_player.x;
     int x_factor = move_x > 0 ? 1 : -1;
     bool has_collided_x = false;
+    bool has_moved_x = false;
     for(int i = 0; i < abs(move_x); i++) {
         main_player.x += x_factor;
         if(isPlayerColliding() || (main_player.moving_type == MovingType::SNEAK_WALKING && !isPlayerTouchingGround() && !main_player.velocity_y)) {
@@ -151,6 +174,7 @@ void ClientPlayers::update() {
             has_collided_x = true;
             break;
         }
+        has_moved_x = true;
     }
     if(!has_collided_x)
         main_player.x = x_to_be;
@@ -182,16 +206,18 @@ void ClientPlayers::update() {
         main_player.has_jumped = false;
     
     if(main_player.moving_type == MovingType::STANDING)
-        main_player.started_walking = 0;
+        main_player.started_moving = 0;
     
     if(main_player.moving_type == MovingType::SNEAKING)
         main_player.texture_frame = 10;
     else if(main_player.has_jumped)
         main_player.texture_frame = 0;
-    else if(main_player.moving_type == MovingType::WALKING && main_player.velocity_x)
-        main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 70 % 9 + 1;
-    else if(main_player.moving_type == MovingType::SNEAK_WALKING && main_player.velocity_x)
-        main_player.texture_frame = (gfx::getTicks() - main_player.started_walking) / 150 % 6 + 10;
+    else if(main_player.moving_type == MovingType::WALKING && has_moved_x)
+        main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 70 % 9 + 1;
+    else if(main_player.moving_type == MovingType::SNEAK_WALKING && has_moved_x)
+        main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 150 % 6 + 10;
+    else if(main_player.moving_type == MovingType::RUNNING && has_moved_x)
+        main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 40 % 9 + 16;
     else
         main_player.texture_frame = 1;
 }

@@ -7,7 +7,7 @@
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 
-enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING};
+enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 
 class ClientPlayer {
 public:
@@ -22,7 +22,7 @@ class MainPlayer : public ClientPlayer {
 public:
     explicit MainPlayer(int x, int y, std::string name) : ClientPlayer(std::move(name), x, y) {}
     short velocity_x = 0, velocity_y = 0;
-    unsigned int started_walking = 0;
+    unsigned int started_moving = 0;
     bool has_jumped = false;
     MovingType moving_type = MovingType::STANDING;
 };
@@ -35,7 +35,7 @@ public:
 };
 
 class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
-    bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false;
+    bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false, running_left = false, running_right = false;
     
     void render(ClientPlayer& player_to_draw);
     void render(OtherPlayer& player_to_draw);

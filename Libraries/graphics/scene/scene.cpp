@@ -73,6 +73,7 @@ gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
         case sf::Keyboard::Key::LShift:
         case sf::Keyboard::Key::RShift: return gfx::Key::SHIFT;
         case sf::Keyboard::Key::Backspace: return gfx::Key::BACKSPACE;
+        case sf::Keyboard::Key::LControl: case sf::Keyboard::Key::RControl: return gfx::Key::CTRL;
         default: return gfx::Key::UNKNOWN;
     }
 }
