@@ -31,12 +31,15 @@ class ClientBlock {
 
 public:
     ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    void drawBackInChunk();
+    void drawFrontInChunk();
     void drawBack();
     void drawFront();
     void updateTexture();
     void scheduleTextureUpdate();
     void scheduleTextureUpdateForNeighbors();
     bool hasToUpdateTexture() { return block_data->update; }
+    unsigned char getOrientation() { return block_data->orientation; }
     
     void setType(BlockType block_id, LiquidType liquid_id);
     const BlockInfo& getBlockInfo() { return ::getBlockInfo(getBlockType()); }
@@ -99,6 +102,9 @@ public:
     ClientChunk getChunk(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
 
+    void renderBackChunks();
+    void renderFrontChunks();
+    void updateChunks();
     void renderBackBlocks();
     void renderFrontBlocks();
     

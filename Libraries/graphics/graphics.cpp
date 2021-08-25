@@ -169,3 +169,13 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width / global_scale, height / global_scale);
 }
+
+void gfx::drawVertices(const sf::VertexArray& array, const sf::Texture& texture) {
+    sf::RenderStates states;
+    states.texture = &texture;
+    render_target->draw(array, states);
+}
+
+void gfx::drawVertices(const sf::VertexArray& array) {
+    render_target->draw(array);
+}

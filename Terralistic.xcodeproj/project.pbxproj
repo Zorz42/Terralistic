@@ -844,9 +844,9 @@
 			isa = PBXGroup;
 			children = (
 				365721F026D07180005AB3CC /* clientBlocks.hpp */,
+				365721F326D07180005AB3CC /* clientBlocks.cpp */,
 				365721F126D07180005AB3CC /* block.cpp */,
 				365721F226D07180005AB3CC /* chunk.cpp */,
-				365721F326D07180005AB3CC /* clientBlocks.cpp */,
 			);
 			path = clientBlocks;
 			sourceTree = "<group>";

@@ -26,7 +26,7 @@ public:
     void renderText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
     void loadFromFile(const std::string& path);
     void setColor(Color color_);
-    sf::RenderTexture* getSfmlTexture() { return sfml_render_texture; }
+    sf::RenderTexture* getSfmlTexture() const { return sfml_render_texture; }
 };
 
 
