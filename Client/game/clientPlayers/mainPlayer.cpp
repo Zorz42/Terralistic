@@ -149,13 +149,11 @@ void ClientPlayers::update() {
     float y_to_be = main_player.y + float(main_player.velocity_y * gfx::getDeltaTime()) / 100 * speed_multiplier;
     float move_y = y_to_be - main_player.y;
     int y_factor = move_y > 0 ? 1 : -1;
-    bool has_collided_y = false;
-    for(int i = 0; i < abs(move_y); i++) {
+    for(int i = 0; i < std::abs(move_y); i++) {
         main_player.y += y_factor;
         if(isPlayerColliding()) {
             main_player.y -= y_factor;
             main_player.velocity_y = 0;
-            has_collided_y = true;
             break;
         }
     }
@@ -167,7 +165,7 @@ void ClientPlayers::update() {
     int x_factor = move_x > 0 ? 1 : -1;
     bool has_collided_x = false;
     bool has_moved_x = false;
-    for(int i = 0; i < abs(move_x); i++) {
+    for(int i = 0; i < std::abs(move_x); i++) {
         main_player.x += x_factor;
         if(isPlayerColliding() || (main_player.moving_type == MovingType::SNEAK_WALKING && !isPlayerTouchingGround() && !main_player.velocity_y)) {
             main_player.x -= x_factor;
