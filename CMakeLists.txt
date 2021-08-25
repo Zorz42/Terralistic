@@ -95,5 +95,5 @@ else()
     target_link_libraries(Terralistic-server z sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
 endif()
 
-file(COPY Client/Resources DESTINATION .)
-file(COPY Client/Resources/Structures.asset DESTINATION .)
+file(COPY Resources DESTINATION .)
+file(COPY Resources/Structures.asset DESTINATION .)
