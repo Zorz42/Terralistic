@@ -49,13 +49,9 @@ public:
     void setBreakStage(unsigned char stage);
 };
 
-struct ClientMapChunk {
-    ChunkState state = ChunkState::unloaded;
-};
-
 class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     unsigned short width{}, height{};
-    ClientMapChunk *chunks = nullptr;
+    ChunkState *chunk_states = nullptr;
     ClientMapBlock *blocks = nullptr;
 
     networkingManager* networking_manager;
@@ -70,7 +66,7 @@ public:
 
     ResourcePack* getResourcePack() { return resource_pack; }
     
-    ClientMapChunk& getChunk(unsigned short x, unsigned short y);
+    ChunkState& getChunkState(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
 
     void renderBackChunks();

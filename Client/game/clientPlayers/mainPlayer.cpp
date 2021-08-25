@@ -25,7 +25,7 @@ bool ClientPlayers::isPlayerColliding() {
     
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
-            if(blocks->getChunk(x >> 4, y >> 4).state != ChunkState::loaded || !blocks->getBlock(x, y).getBlockInfo().ghost)
+            if(blocks->getChunkState(x / 16, y / 16) != ChunkState::loaded || !blocks->getBlock(x, y).getBlockInfo().ghost)
                 return true;
     
     return false;

@@ -20,16 +20,16 @@ void ClientBlocks::updateChunks() {
 
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
-            if(getChunk(x, y).state == ChunkState::unloaded) {
+            if(getChunkState(x, y) == ChunkState::unloaded) {
                 sf::Packet packet;
                 packet << PacketType::CHUNK << x << y;
                 networking_manager->sendPacket(packet);
-                getChunk(x, y).state = ChunkState::pending_load;
+                getChunkState(x, y) = ChunkState::pending_load;
             }
         }
 }
 
-ClientMapChunk& ClientBlocks::getChunk(unsigned short x, unsigned short y) {
+ChunkState& ClientBlocks::getChunkState(unsigned short x, unsigned short y) {
     assert(y >= 0 && y < (getWorldHeight() >> 4) && x >= 0 && x < (getWorldWidth() >> 4));
-    return chunks[y * (getWorldWidth() >> 4) + x];
+    return chunk_states[y * (getWorldWidth() >> 4) + x];
 }

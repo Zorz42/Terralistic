@@ -6,8 +6,10 @@ void ClientBlocks::createWorld(unsigned short map_width, unsigned short map_heig
     assert(map_width % 16 == 0 && map_height % 16 == 0);
     width = map_width;
     height = map_height;
-    chunks = new ClientMapChunk[(width >> 4) * (height >> 4)];
     blocks = new ClientMapBlock[width * height];
+    chunk_states = new ChunkState[(width / 16) * (height / 16)];
+    for(int i = 0; i < (width / 16) * (height / 16); i++)
+        chunk_states[i] = ChunkState::unloaded;
 }
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
@@ -54,7 +56,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
                     block.setLiquidLevel(liquid_level);
                 }
             
-            getChunk(x, y).state = ChunkState::loaded;
+            getChunkState(x, y) = ChunkState::loaded;
             break;
         }
         case PacketType::BLOCK_PROGRESS_CHANGE: {
@@ -69,6 +71,6 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 }
 
 ClientBlocks::~ClientBlocks() {
-    delete[] chunks;
+    delete[] chunk_states;
     delete[] blocks;
 }
