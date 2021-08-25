@@ -7,7 +7,7 @@ void ClientPlayers::init() {
     manager->sendPacket(packet);
 }
 
-#define RUN_SPEED 18
+#define RUN_SPEED 180
 #define WALK_SPEED 10
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 70

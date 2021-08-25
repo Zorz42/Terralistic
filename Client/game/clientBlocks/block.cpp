@@ -114,6 +114,7 @@ void ClientBlocks::renderBackBlocks() {
 void ClientBlocks::renderFrontBlocks() {
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
+            int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
             int index = ((x - getViewBeginX()) * (getViewEndY() - getViewBeginY()) + (y - getViewBeginY())) * 4;
             sf::Color light_color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, y).getLightLevel()) };
             
@@ -121,6 +122,11 @@ void ClientBlocks::renderFrontBlocks() {
             vertex_array[index + 1].color = light_color;
             vertex_array[index + 2].color = light_color;
             vertex_array[index + 3].color = light_color;
+            
+            if(getBlock(x, y).getLiquidType() != LiquidType::EMPTY) {
+                int level = ((int)getBlock(x, y).getLiquidLevel() + 1) / 16;
+                resource_pack->getLiquidTexture(getBlock(x, y).getLiquidType()).render(2, block_x, block_y, gfx::RectShape(0, 0, BLOCK_WIDTH, level));
+            }
         }
     
     gfx::drawVertices(vertex_array);
