@@ -214,10 +214,13 @@ void ClientPlayers::update() {
         main_player.texture_frame = 0;
     else if(main_player.moving_type == MovingType::WALKING && has_moved_x)
         main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 70 % 9 + 1;
-    else if(main_player.moving_type == MovingType::SNEAK_WALKING && has_moved_x)
-        main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 150 % 6 + 10;
-    else if(main_player.moving_type == MovingType::RUNNING && has_moved_x)
-        main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 40 % 9 + 16;
+    else if(main_player.moving_type == MovingType::SNEAK_WALKING) {
+        if(has_moved_x)
+            main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 150 % 6 + 10;
+        else
+            main_player.texture_frame = 10;
+    } else if(main_player.moving_type == MovingType::RUNNING && has_moved_x)
+        main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 80 % 8 + 16;
     else
         main_player.texture_frame = 1;
 }
