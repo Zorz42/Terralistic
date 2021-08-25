@@ -12,16 +12,22 @@ ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
 void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
     block_data->block_id = block_id;
     block_data->liquid_id = liquid_id;
-    scheduleTextureUpdate();
-    scheduleTextureUpdateForNeighbors();
+    updateOrientation();
+    if(x != 0)
+        parent_map->getBlock(x - 1, y).updateOrientation();
+    if(x != parent_map->getWorldWidth() - 1)
+        parent_map->getBlock(x + 1, y).updateOrientation();
+    if(y != 0)
+        parent_map->getBlock(x, y - 1).updateOrientation();
+    if(y != parent_map->getWorldHeight() - 1)
+        parent_map->getBlock(x, y + 1).updateOrientation();
 }
 
 void ClientBlock::setLightLevel(unsigned char level) {
     block_data->light_level = level;
-    scheduleTextureUpdate();
 }
 
-void ClientBlock::updateTexture() {
+void ClientBlock::updateOrientation() {
     if(parent_map->getResourcePack()->getTextureRectangle(getBlockType()).h != 8) {
         block_data->orientation = 0;
         char x_[] = {0, 1, 0, -1};
@@ -39,73 +45,10 @@ void ClientBlock::updateTexture() {
     }
     else
         block_data->orientation = 0;
-    block_data->update = false;
-}
-
-void ClientBlock::drawBackInChunk() {
-    int block_x = (x & 15) * BLOCK_WIDTH * 2, block_y = (y & 15) * BLOCK_WIDTH * 2;
-
-    if(getLightLevel())
-        parent_map->getResourcePack()->getBlockTexture().render(2, block_x, block_y, gfx::RectShape(0, short(parent_map->getResourcePack()->getTextureRectangle(getBlockType()).y + BLOCK_WIDTH * block_data->orientation), BLOCK_WIDTH, BLOCK_WIDTH));
-
-    if(getBreakStage())
-        parent_map->getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (getBreakStage() - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
-}
-
-void ClientBlock::drawFrontInChunk() {
-    gfx::Rect rect(x % 16 * BLOCK_WIDTH * 2, y % 16 * BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
-
-    if(getLiquidType() != LiquidType::EMPTY) {
-        int level = ((int)getLiquidLevel() + 1) / 16;
-        parent_map->getResourcePack()->getLiquidTexture(getLiquidType()).render(2, rect.getX(), rect.getY() + BLOCK_WIDTH * 2 - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH, level));
-    }
-    
-    if(getLightLevel() != MAX_LIGHT)
-        rect.render();
-}
-
-void ClientBlock::drawBack() {
-    
-    //if(getLightLevel())
-        //parent_map->getResourcePack()->getBlockTexture().render(2, block_x, block_y, gfx::RectShape(0, short(parent_map->getResourcePack()->getTextureRectangle(getBlockType()).y + BLOCK_WIDTH * block_data->orientation), BLOCK_WIDTH, BLOCK_WIDTH));
-    
-    if(getBreakStage()) {
-        int block_x = x * BLOCK_WIDTH * 2 - parent_map->view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - parent_map->view_y + gfx::getWindowHeight() / 2;
-        parent_map->getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (getBreakStage() - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
-    }
-}
-
-void ClientBlock::drawFront() {
-    //gfx::Rect rect(x * BLOCK_WIDTH * 2 - parent_map->view_x + gfx::getWindowWidth() / 2, y * BLOCK_WIDTH * 2 - parent_map->view_y + gfx::getWindowHeight() / 2, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel()) });
-
-    //if(getLiquidType() != LiquidType::EMPTY) {
-        //int level = ((int)getLiquidLevel() + 1) / 16;
-        //parent_map->getResourcePack()->getLiquidTexture(getLiquidType()).render(2, rect.getX(), rect.getY() + BLOCK_WIDTH * 2 - level * 2, gfx::RectShape(0, 0, BLOCK_WIDTH, level));
-    //}
-    
-    //if(getLightLevel() != MAX_LIGHT)
-        //rect.render();
-}
-
-void ClientBlock::scheduleTextureUpdate() {
-    block_data->update = true;
-    parent_map->getChunk(x >> 4, y >> 4).scheduleUpdate();
-}
-
-void ClientBlock::scheduleTextureUpdateForNeighbors() {
-    if(x != 0)
-        parent_map->getBlock(x - 1, y).scheduleTextureUpdate();
-    if(x != parent_map->getWorldWidth() - 1)
-        parent_map->getBlock(x + 1, y).scheduleTextureUpdate();
-    if(y != 0)
-        parent_map->getBlock(x, y - 1).scheduleTextureUpdate();
-    if(y != parent_map->getWorldHeight() - 1)
-        parent_map->getBlock(x, y + 1).scheduleTextureUpdate();
 }
 
 void ClientBlock::setBreakStage(unsigned char stage) {
     block_data->break_stage = stage;
-    scheduleTextureUpdate();
 }
 
 void ClientBlocks::renderBackBlocks() {
@@ -128,10 +71,6 @@ void ClientBlocks::renderBackBlocks() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
-            if(getBlock(x, y).hasToUpdateTexture())
-                getBlock(x, y).updateTexture();
-            getBlock(x, y).drawBack();
-            
             int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
             int index = ((x - begin_x) * (end_y - begin_y) + (y - begin_y)) * 4;
             
@@ -149,6 +88,13 @@ void ClientBlocks::renderBackBlocks() {
         }
     
     gfx::drawVertices(vertex_array, resource_pack->getBlockTexture().getSfmlTexture()->getTexture());
+    
+    for(unsigned short x = begin_x; x < end_x; x++)
+        for(unsigned short y = begin_y; y < end_y; y++)
+            if(getBlock(x, y).getBreakStage()) {
+                int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
+                getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (getBlock(x, y).getBreakStage() - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
+            }
 }
 
 void ClientBlocks::renderFrontBlocks() {
@@ -172,8 +118,6 @@ void ClientBlocks::renderFrontBlocks() {
     
     for(unsigned short x = begin_x; x < end_x; x++)
         for(unsigned short y = begin_y; y < end_y; y++) {
-            //getBlock(x, y).drawFront();
-            
             int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
             int index = ((x - begin_x) * (end_y - begin_y) + (y - begin_y)) * 4;
             

@@ -21,7 +21,6 @@ public:
     BlockType block_id:8;
     LiquidType liquid_id:8;
     unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
-    bool update = true;
 };
 
 class ClientBlock {
@@ -31,55 +30,27 @@ class ClientBlock {
 
 public:
     ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
-    void drawBackInChunk();
-    void drawFrontInChunk();
-    void drawBack();
-    void drawFront();
-    void updateTexture();
-    void scheduleTextureUpdate();
-    void scheduleTextureUpdateForNeighbors();
-    bool hasToUpdateTexture() { return block_data->update; }
+    
+    void updateOrientation();
     unsigned char getOrientation() { return block_data->orientation; }
     
     void setType(BlockType block_id, LiquidType liquid_id);
     const BlockInfo& getBlockInfo() { return ::getBlockInfo(getBlockType()); }
-    const LiquidInfo& getLiquidInfo() { return ::getLiquidInfo(getLiquidType()); }
     BlockType getBlockType() { return block_data->block_id; }
+    
+    const LiquidInfo& getLiquidInfo() { return ::getLiquidInfo(getLiquidType()); }
     LiquidType getLiquidType() { return block_data->liquid_id; }
     void setLiquidLevel(unsigned char level) { block_data->liquid_level = level; }
     unsigned char getLiquidLevel() { return block_data->liquid_level; }
     
-
     unsigned char getLightLevel() { return block_data->light_level; }
     void setLightLevel(unsigned char level);
     unsigned char getBreakStage() { return block_data->break_stage; }
     void setBreakStage(unsigned char stage);
 };
 
-class ClientMapChunk {
-public:
+struct ClientMapChunk {
     ChunkState state = ChunkState::unloaded;
-    bool update = true;
-    gfx::Image back_texture, front_texture;
-};
-
-class ClientChunk {
-    ClientMapChunk* chunk_data;
-    unsigned short x, y;
-    ClientBlocks* parent_map;
-
-public:
-    ClientChunk(unsigned short x, unsigned short y, ClientMapChunk* chunk_data, ClientBlocks* parent_map) : x(x), y(y), chunk_data(chunk_data), parent_map(parent_map) {}
-
-    ChunkState getState() { return chunk_data->state; };
-    void setState(ChunkState state) { chunk_data->state = state; }
-    bool hasToUpdate() { return chunk_data->update; }
-    void scheduleUpdate() { chunk_data->update = true; }
-
-    void createTexture();
-    void updateTexture();
-    void drawBack();
-    void drawFront();
 };
 
 class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
@@ -99,7 +70,7 @@ public:
 
     ResourcePack* getResourcePack() { return resource_pack; }
     
-    ClientChunk getChunk(unsigned short x, unsigned short y);
+    ClientMapChunk& getChunk(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
 
     void renderBackChunks();

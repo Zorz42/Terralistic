@@ -52,12 +52,9 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
                     block.setType((BlockType)block_type, (LiquidType)liquid_type);
                     block.setLightLevel(light_level);
                     block.setLiquidLevel(liquid_level);
-                    block.scheduleTextureUpdate();
-                    block.scheduleTextureUpdateForNeighbors();
                 }
             
-            getChunk(x, y).setState(ChunkState::loaded);
-            getChunk(x, y).createTexture();
+            getChunk(x, y).state = ChunkState::loaded;
             break;
         }
         case PacketType::BLOCK_PROGRESS_CHANGE: {
