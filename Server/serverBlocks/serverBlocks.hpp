@@ -6,7 +6,7 @@
 #include "events.hpp"
 #include "biomes.hpp"
 
-#define BLOCK_WIDTH 16
+#define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
 enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};

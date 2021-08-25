@@ -75,7 +75,7 @@ ServerPlayer* Players::addPlayer(const std::string& name) {
         player = new ServerPlayer(name);
         all_players.emplace_back(player);
         player->x = blocks->getSpawnX();
-        player->y = blocks->getSpawnY() - BLOCK_WIDTH * 2;
+        player->y = blocks->getSpawnY() - BLOCK_WIDTH * 4;
         player->sight_x = player->x;
         player->sight_y = player->y;
     }
@@ -101,7 +101,7 @@ void Players::updatePlayersBreaking(unsigned short tick_length) {
 void Players::lookForItemsThatCanBePickedUp() {
     for(int i = 0; i < items->getItems().size(); i++)
         for(ServerPlayer* player : online_players)
-            if(abs(items->getItems()[i].getX() / 100 + BLOCK_WIDTH / 2  - player->x - 14) < 50 && abs(items->getItems()[i].getY() / 100 + BLOCK_WIDTH / 2 - player->y - 25) < 50)
+            if(abs(items->getItems()[i].getX() / 100 + BLOCK_WIDTH  - player->x - 14) < 50 && abs(items->getItems()[i].getY() / 100 + BLOCK_WIDTH - player->y - 25) < 50)
                 if(player->inventory.addItem(items->getItems()[i].getType(), 1) != -1)
                     items->removeItem(items->getItems()[i]);
 }
@@ -193,17 +193,17 @@ void Players::onEvent(ServerBlockUpdateEvent& event) {
 }
 
 unsigned short ServerPlayer::getSightBeginX() const {
-    return sight_x / BLOCK_WIDTH - sight_width / 2;
+    return sight_x / (BLOCK_WIDTH * 2) - sight_width / 2;
 }
 
 unsigned short ServerPlayer::getSightEndX() const {
-    return sight_x / BLOCK_WIDTH + sight_width / 2;
+    return sight_x / (BLOCK_WIDTH * 2) + sight_width / 2;
 }
 
 unsigned short ServerPlayer::getSightBeginY() const {
-    return sight_y / BLOCK_WIDTH - sight_height / 2;
+    return sight_y / (BLOCK_WIDTH * 2) - sight_height / 2;
 }
 
 unsigned short ServerPlayer::getSightEndY() const {
-    return sight_y / BLOCK_WIDTH + sight_height / 2;
+    return sight_y / (BLOCK_WIDTH * 2) + sight_height / 2;
 }

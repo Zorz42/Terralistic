@@ -15,7 +15,7 @@ void ServerBlocks::createWorld(unsigned short world_width, unsigned short world_
 }
 
 int ServerBlocks::getSpawnX() const {
-    return width / 2 * BLOCK_WIDTH;
+    return width / 2 * BLOCK_WIDTH * 2;
 }
 
 int ServerBlocks::getSpawnY() {
@@ -23,7 +23,7 @@ int ServerBlocks::getSpawnY() {
     for(unsigned short y = 0; y < height; y++) {
         if(!getBlock(width / 2 - 1, y).getUniqueBlock().transparent || !getBlock(width / 2, y).getUniqueBlock().transparent)
             break;
-        spawn_y += BLOCK_WIDTH;
+        spawn_y += BLOCK_WIDTH * 2;
     }
     return spawn_y;
 }
