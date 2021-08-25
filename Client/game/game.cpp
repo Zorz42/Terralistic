@@ -153,11 +153,10 @@ void game::render() {
     int position_x = -(blocks->view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
-    //blocks->renderBackChunks();
+    blocks->updateVertexArray();
     blocks->renderBackBlocks();
     player_handler->renderPlayers();
     items->renderItems();
-    //blocks->renderFrontChunks();
     blocks->renderFrontBlocks();
 }
 

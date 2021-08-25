@@ -10,6 +10,7 @@ void ClientBlocks::createWorld(unsigned short map_width, unsigned short map_heig
     chunk_states = new ChunkState[(width / 16) * (height / 16)];
     for(int i = 0; i < (width / 16) * (height / 16); i++)
         chunk_states[i] = ChunkState::unloaded;
+    vertex_array.setPrimitiveType(sf::Quads);
 }
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {

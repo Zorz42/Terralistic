@@ -59,9 +59,15 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     void onEvent(ClientPacketEvent& event) override;
     
     ResourcePack* resource_pack;
+    sf::VertexArray vertex_array;
+    
+    short getViewBeginX();
+    short getViewEndX();
+    short getViewBeginY();
+    short getViewEndY();
     
 public:
-    explicit ClientBlocks(networkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
+    ClientBlocks(networkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
     int view_x{}, view_y{};
 
     ResourcePack* getResourcePack() { return resource_pack; }
@@ -69,8 +75,6 @@ public:
     ChunkState& getChunkState(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
 
-    void renderBackChunks();
-    void renderFrontChunks();
     void updateChunks();
     void renderBackBlocks();
     void renderFrontBlocks();
@@ -79,6 +83,8 @@ public:
     unsigned short getWorldHeight() const { return height; }
 
     void createWorld(unsigned short map_width, unsigned short map_height);
+    
+    void updateVertexArray();
 
     ~ClientBlocks() override;
 };
