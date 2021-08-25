@@ -16,7 +16,7 @@ void ClientPlayers::render(OtherPlayer& player_to_draw) {
 }
 
 unsigned short ClientPlayers::getPlayerWidth() {
-    return resource_pack->getPlayerTexture().getTextureWidth() / 28;
+    return 14;
 }
 
 unsigned short ClientPlayers::getPlayerHeight() {
