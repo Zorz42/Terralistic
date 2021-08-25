@@ -65,11 +65,11 @@ void gfx::Image::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
 void gfx::Image::render(float scale, short x, short y, RectShape src_rect, bool flipped) const {
-    sfml_render_texture->display();
+    //sfml_render_texture->display();
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());
     sprite.setTextureRect(sf::IntRect(src_rect.x, src_rect.y, src_rect.w, src_rect.h));
-    int x_offset = flipped ? getTextureWidth() : 0;
+    int x_offset = flipped ? src_rect.w : 0;
     sprite.setPosition(x + x_offset * scale, y);
     int flip_factor = flipped ? -1 : 1;
     sprite.setScale(flip_factor * scale, scale);

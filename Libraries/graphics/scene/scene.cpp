@@ -1,22 +1,18 @@
 #include "graphics-internal.hpp"
 
 static bool running_scene = true, disable_events_gl;
+bool key_states[(int)gfx::Key::UNKNOWN];
 
 void gfx::Scene::onKeyDownCallback(Key key_) {
-    if(!disable_events_gl || disable_events)
-        onKeyDown(key_);
-    for(GraphicalModule* module : modules)
-        if(!disable_events_gl || module->disable_events)
-            module->onKeyDown(key_);
+    if(!key_states[(int)key_]) {
+        key_states[(int)key_] = true;
+        if(!disable_events_gl || disable_events)
+            onKeyDown(key_);
+        for(GraphicalModule* module : modules)
+            if(!disable_events_gl || module->disable_events)
+                module->onKeyDown(key_);
+    }
 }
-
-void gfx::Scene::onKeyUpCallback(Key key_) {
-    if (!disable_events_gl || disable_events)
-        onKeyUp(key_);
-    for (GraphicalModule* module : modules)
-        if (!disable_events_gl || module->disable_events)
-            module->onKeyUp(key_);
- }
 
 gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
     switch(sfml_button) {
@@ -25,6 +21,12 @@ gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
         case sf::Mouse::Right: return gfx::Key::MOUSE_RIGHT;
         default: return gfx::Key::UNKNOWN;
     }
+}
+
+bool gfx::GraphicalModule::getKeyState(Key key_) {
+    if(disable_events_gl && !disable_events)
+        return false;
+    return key_states[(int)key_];
 }
 
 gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
@@ -71,6 +73,7 @@ gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
         case sf::Keyboard::Key::LShift:
         case sf::Keyboard::Key::RShift: return gfx::Key::SHIFT;
         case sf::Keyboard::Key::Backspace: return gfx::Key::BACKSPACE;
+        case sf::Keyboard::Key::LControl: case sf::Keyboard::Key::RControl: return gfx::Key::CTRL;
         default: return gfx::Key::UNKNOWN;
     }
 }
@@ -111,7 +114,7 @@ void gfx::Scene::operateEvent(sf::Event event) {
     else if (type == sf::Event::MouseButtonReleased) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         if (key != Key::UNKNOWN)
-            onKeyUpCallback(key);
+            key_states[(int)key] = false;
     }
     else if (type == sf::Event::KeyPressed) {
         gfx::Key key = translateKeyboardKey(event.key.code);
@@ -136,7 +139,7 @@ void gfx::Scene::operateEvent(sf::Event event) {
     else if (type == sf::Event::KeyReleased) {
         gfx::Key key = translateKeyboardKey(event.key.code);
         if (key != Key::UNKNOWN)
-            onKeyUpCallback(key);
+            key_states[(int)key] = false;
     }
     else if (type == sf::Event::TextEntered) {
         char c = event.text.unicode;

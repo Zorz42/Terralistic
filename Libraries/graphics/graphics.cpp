@@ -40,7 +40,7 @@ static sf::RenderTexture window_texture;
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     window->setVerticalSyncEnabled(true);
-    window->setFramerateLimit(360);
+    window->setFramerateLimit(120);
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 

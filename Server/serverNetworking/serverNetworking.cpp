@@ -81,7 +81,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             connections[i].player = player;
             
             sf::Packet spawn_packet;
-            spawn_packet << PacketType::SPAWN_POS << player->x << player->y;
+            spawn_packet << player->x << player->y;
             connections[i].send(spawn_packet);
 
             for(ServerPlayer* curr_player : players->getOnlinePlayers())
