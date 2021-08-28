@@ -6,7 +6,7 @@
 #include "events.hpp"
 #include "biomes.hpp"
 
-#define BLOCK_WIDTH 16
+#define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
 enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
@@ -40,43 +40,43 @@ public:
     ServerBlock() = default;
 
     void update();
-    inline bool refersToABlock() { return block_data != nullptr; }
-    inline unsigned short getX() const { return x; }
-    inline unsigned short getY() const { return y; }
+    bool refersToABlock() { return block_data != nullptr; }
+    unsigned short getX() const { return x; }
+    unsigned short getY() const { return y; }
     void breakBlock();
     
     void setTypeWithoutProcessing(BlockType block_type);
     void setType(BlockType block_type);
     void setBreakProgress(unsigned short ms);
-    inline unsigned short getBreakProgress() { return block_data->break_progress; }
-    inline unsigned char getBreakStage() { return block_data->break_stage; }
-    inline BlockType getBlockType() { return block_data->block_type; }
+    unsigned short getBreakProgress() { return block_data->break_progress; }
+    unsigned char getBreakStage() { return block_data->break_stage; }
+    BlockType getBlockType() { return block_data->block_type; }
     const BlockInfo& getUniqueBlock();
     
     void setTypeWithoutProcessing(LiquidType liquid_type);
     void setType(LiquidType liquid_type);
     
     void liquidUpdate();
-    inline LiquidType getLiquidType() { return block_data->liquid_type; }
+    LiquidType getLiquidType() { return block_data->liquid_type; }
     bool canUpdateLiquid();
     void setLiquidLevel(unsigned char level);
     void setLiquidLevelWithoutProcessing(unsigned char level);
-    inline unsigned char getLiquidLevel() { return block_data->liquid_level; }
-    inline FlowDirection getFlowDirection() { return block_data->flow_direction; }
-    inline void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
+    unsigned char getLiquidLevel() { return block_data->liquid_level; }
+    FlowDirection getFlowDirection() { return block_data->flow_direction; }
+    void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
     const LiquidInfo& getUniqueLiquid();
     void scheduleLiquidUpdate();
     
     void lightUpdate();
     void setLightSource(unsigned char power);
-    inline bool isLightSource() { return block_data->light_source; }
+    bool isLightSource() { return block_data->light_source; }
     void removeLightSource();
     void setLightLevel(unsigned char light_level);
-    inline unsigned char getLightLevel() { return block_data->light_level; }
-    inline void scheduleLightUpdate() { block_data->update_light = true; }
-    inline bool hasScheduledLightUpdate() { return block_data->update_light; }
-    inline bool hasLightChanged() { return block_data->has_changed_light; }
-    inline void markLightUnchanged() { block_data->has_changed_light = false; }
+    unsigned char getLightLevel() { return block_data->light_level; }
+    void scheduleLightUpdate() { block_data->update_light = true; }
+    bool hasScheduledLightUpdate() { return block_data->update_light; }
+    bool hasLightChanged() { return block_data->has_changed_light; }
+    void markLightUnchanged() { block_data->has_changed_light = false; }
 };
 
 class ServerBlocks {
@@ -97,13 +97,16 @@ public:
     int getSpawnX() const;
     int getSpawnY();
     
+    void serialize(std::vector<char>& serial);
+    char* loadFromSerial(char* iter);
+    
     void saveTo(const std::string& path);
     void loadFrom(const std::string& path);
     
-    inline unsigned short getHeight() const { return height; }
-    inline unsigned short getWidth() const { return width; }
+    unsigned short getHeight() const { return height; }
+    unsigned short getWidth() const { return width; }
     
-    inline bool isLightSet(unsigned short x) const { return is_light_set[x]; }
+    bool isLightSet(unsigned short x) const { return is_light_set[x]; }
     
     ~ServerBlocks();
 };

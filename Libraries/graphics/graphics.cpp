@@ -40,7 +40,7 @@ static sf::RenderTexture window_texture;
 void gfx::init(unsigned short window_width, unsigned short window_height) {
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     window->setVerticalSyncEnabled(true);
-    window->setFramerateLimit(360);
+    window->setFramerateLimit(120);
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 
@@ -168,4 +168,14 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width / global_scale, height / global_scale);
+}
+
+void gfx::drawVertices(const sf::VertexArray& array, const sf::Texture& texture) {
+    sf::RenderStates states;
+    states.texture = &texture;
+    render_target->draw(array, states);
+}
+
+void gfx::drawVertices(const sf::VertexArray& array) {
+    render_target->draw(array);
 }

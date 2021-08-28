@@ -81,7 +81,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             connections[i].player = player;
             
             sf::Packet spawn_packet;
-            spawn_packet << PacketType::SPAWN_POS << player->x << player->y;
+            spawn_packet << player->x << player->y;
             connections[i].send(spawn_packet);
 
             for(ServerPlayer* curr_player : players->getOnlinePlayers())
@@ -100,6 +100,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             for(InventoryItem& curr_item : player->inventory.inventory_arr)
                 if(curr_item.getType() != ItemType::NOTHING)
                     sendInventoryItemPacket(connections[i], curr_item, curr_item.getType(), curr_item.getStack());
+            player->inventory.updateAvailableRecipes();
             
             sf::Packet join_packet;
             join_packet << PacketType::PLAYER_JOIN << player->x << player->y << player->id << player->name;

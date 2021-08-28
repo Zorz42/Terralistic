@@ -86,6 +86,15 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             packet >> curr_player->sight_x >> curr_player->sight_y;
             break;
         }
+            
+        case PacketType::CRAFT: {
+            unsigned char craft_index;
+            packet >> craft_index;
+            const Recipe* recipe_crafted = curr_player->inventory.getAvailableRecipes()[(int)craft_index];
+            curr_player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+            for(const ItemStack& ingredient : recipe_crafted->ingredients)
+                curr_player->inventory.removeItem(ingredient.type, ingredient.stack);
+        }
 
         default:;
     }
@@ -145,6 +154,18 @@ void ServerNetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event)
     for(Connection& connection : connections)
         if(connection.player && &connection.player->inventory == event.item.getInventory()) {
             sendInventoryItemPacket(connection, event.item, event.type, event.item.getStack());
+            break;
+        }
+}
+
+void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
+    for(Connection& connection : connections)
+        if(connection.player && &connection.player->inventory == event.inventory) {
+            sf::Packet packet;
+            packet << PacketType::RECIPE_AVAILABILTY_CHANGE;
+            for(const Recipe* recipe : event.inventory->getAvailableRecipes())
+                packet << getRecipeIndex(recipe);
+            connection.send(packet);
             break;
         }
 }

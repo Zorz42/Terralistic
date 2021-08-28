@@ -9,6 +9,11 @@
 namespace gfx {
 
 class Image {
+protected:
+    Image& operator=(const Image&);
+    void freeTexture();
+    sf::RenderTexture *sfml_render_texture = nullptr;
+    Color color{255, 255, 255};
 public:
     void render(float scale, short x, short y, bool flipped=false) const;
     void render(float scale, short x, short y, RectShape src_rect, bool flipped=false) const;
@@ -21,11 +26,7 @@ public:
     void renderText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
     void loadFromFile(const std::string& path);
     void setColor(Color color_);
-    inline sf::RenderTexture* getSfmlTexture() { return sfml_render_texture; }
-protected:
-    void freeTexture();
-    sf::RenderTexture *sfml_render_texture = nullptr;
-    Color color{255, 255, 255};
+    sf::RenderTexture* getSfmlTexture() const { return sfml_render_texture; }
 };
 
 
@@ -33,8 +34,8 @@ class Sprite : public _CenteredObject, public Image {
 public:
     bool flipped = false;
     float scale = 1;
-    inline unsigned short getWidth() const override { return getTextureWidth() * scale; }
-    inline unsigned short getHeight() const override { return getTextureHeight() * scale; }
+    unsigned short getWidth() const override { return getTextureWidth() * scale; }
+    unsigned short getHeight() const override { return getTextureHeight() * scale; }
     Sprite();
     void render() const;
 
@@ -61,7 +62,7 @@ public:
     void render();
     TextInput();
 
-    inline std::string getText() const { return text; }
+    std::string getText() const { return text; }
     unsigned short getWidth() const override;
     void setText(const std::string& text);
 

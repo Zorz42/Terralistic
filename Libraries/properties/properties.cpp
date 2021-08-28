@@ -4,6 +4,7 @@
 
 static ItemInfo item_infos[(int)ItemType::NUM_ITEMS];
 static LiquidInfo liquid_infos[(int)LiquidType::NUM_LIQUIDS];
+static std::vector<Recipe> recipes;
 
 BlockInfo::BlockInfo(std::string name, bool ghost, bool transparent, bool only_on_floor, short break_time, ItemType drop, std::vector<BlockType> connects_to) : ghost(ghost), transparent(transparent), only_on_floor(only_on_floor), name(std::move(name)), break_time(break_time), drop(drop), connects_to(std::move(connects_to)) {}
 
@@ -22,6 +23,14 @@ const ItemInfo& getItemInfo(ItemType type) {
 
 const LiquidInfo& getLiquidInfo(LiquidType type) {
     return liquid_infos[(int)type];
+}
+
+const std::vector<Recipe>& getRecipes() {
+    return recipes;
+}
+
+unsigned short getRecipeIndex(const Recipe* recipe) {
+    return recipe - &recipes[0];
 }
 
 void initProperties() {
@@ -59,4 +68,11 @@ void initProperties() {
     // unqiue_liquids
     liquid_infos[(int)LiquidType::EMPTY] = LiquidInfo(/*name*/"empty", /*flow_time*/0,   /*speed_multiplier*/1  );
     liquid_infos[(int)LiquidType::WATER] = LiquidInfo(/*name*/"water", /*flow_time*/100, /*speed_multiplier*/0.5);
+    
+    // recipes
+    recipes = {
+        Recipe({{ItemType::STONE_BLOCK, 1}},                {ItemType::DIRT, 2}),
+        Recipe({{ItemType::WOOD_PLANKS, 4}},                {ItemType::DIRT, 1}),
+        Recipe({{ItemType::STONE, 2}, {ItemType::DIRT, 2}}, {ItemType::STONE_BLOCK, 1}),
+    };
 }

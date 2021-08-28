@@ -38,7 +38,7 @@ public:
     void updateItems(float frame_length);
     void removeItem(const ServerItem& item_to_destroy);
     
-    inline const std::vector<ServerItem>& getItems() { return item_arr; }
+    const std::vector<ServerItem>& getItems() { return item_arr; }
 };
 
 
