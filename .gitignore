@@ -10,3 +10,4 @@ Output/
 cmake-build-debug/
 venv/
 .idea/workspace.xml
+.idea/discord.xml
