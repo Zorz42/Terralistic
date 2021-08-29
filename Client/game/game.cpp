@@ -103,8 +103,6 @@ void game::init() {
         gfx::returnFromScene();
     }
     
-    int start = gfx::getTicks();
-    
     sf::Packet join_packet;
     join_packet << username;
     networking_manager.sendPacket(join_packet);
@@ -115,29 +113,20 @@ void game::init() {
     packet >> player_x >> player_y;
     unsigned short world_width, world_height;
     packet >> world_width >> world_height;
-    blocks = new ClientBlocks(&networking_manager, &resource_pack);
-    blocks->createWorld(world_width, world_height);
     
     unsigned int size;
     packet >> size;
     
     std::vector<char> map_data = networking_manager.getData(size);
     
+    int start2 = gfx::getTicks();
     map_data = decompress(map_data);
+    std::cout << "decompressing data on client: " << gfx::getTicks() - start2 << "ms" << std::endl;
     
-    int* map_data_iter = (int*)&map_data[0];
+    int start3 = gfx::getTicks();
+    blocks = new ClientBlocks(&networking_manager, &resource_pack, world_width, world_height, map_data);
+    std::cout << "applying data on client: " << gfx::getTicks() - start3 << "ms" << std::endl;
     
-    for(int x = 0; x < blocks->getWorldWidth(); x++)
-        for(int y = 0; y < blocks->getWorldHeight(); y++) {
-            int data = *map_data_iter++;
-            
-            ClientBlock block = blocks->getBlock(x, y);
-            block.setType((BlockType)(data & 0xff), (LiquidType)(data >> 8 & 0xff));
-            block.setLiquidLevel(data >> 16 & 0xff);
-            block.setLightLevel(data >> 24 & 0xff);
-        }
-    
-    std::cout << gfx::getTicks() - start << std::endl;
     
     networking_manager.disableBlocking();
     

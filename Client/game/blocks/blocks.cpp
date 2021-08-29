@@ -2,12 +2,22 @@
 #include "clientBlocks.hpp"
 #include "fileManager.hpp"
 
-void ClientBlocks::createWorld(unsigned short map_width, unsigned short map_height) {
+ClientBlocks::ClientBlocks(networkingManager* manager, ResourcePack* resource_pack, unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data) : networking_manager(manager), resource_pack(resource_pack) {
     assert(map_width % 16 == 0 && map_height % 16 == 0);
     width = map_width;
     height = map_height;
     blocks = new ClientMapBlock[width * height];
     vertex_array.setPrimitiveType(sf::Quads);
+    
+    int* map_data_iter = (int*)&map_data[0];
+    ClientMapBlock* map_iter = blocks;
+    
+    for(int y = 0; y < height; y++)
+        for(int x = 0; x < width; x++) {
+            int data = *map_data_iter++;
+            
+            *map_iter++ = ClientMapBlock((BlockType)(data & 0xff), (LiquidType)(data >> 8 & 0xff), data >> 16 & 0xff, data >> 24 & 0xff);
+        }
 }
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {

@@ -14,11 +14,11 @@ class ClientBlocks;
 
 class ClientMapBlock {
 public:
-    explicit ClientMapBlock(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY) : block_id(block_id), liquid_id(liquid_id) {}
+    explicit ClientMapBlock(BlockType block_id=BlockType::AIR, LiquidType liquid_id=LiquidType::EMPTY, unsigned char liquid_level=0, unsigned char light_level=0) : block_id(block_id), liquid_id(liquid_id), liquid_level(liquid_level), light_level(light_level) {}
 
     BlockType block_id:8;
     LiquidType liquid_id:8;
-    unsigned char light_level = 0, break_stage = 0, orientation = 0, liquid_level = 0;
+    unsigned char light_level, break_stage = 0, orientation = 16, liquid_level;
 };
 
 class ClientBlock {
@@ -64,7 +64,7 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     short getViewEndY();
     
 public:
-    ClientBlocks(networkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
+    ClientBlocks(networkingManager* manager, ResourcePack* resource_pack, unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
     int view_x{}, view_y{};
 
     ResourcePack* getResourcePack() { return resource_pack; }
@@ -76,8 +76,6 @@ public:
     
     unsigned short getWorldWidth() const { return width; }
     unsigned short getWorldHeight() const { return height; }
-
-    void createWorld(unsigned short map_width, unsigned short map_height);
     
     void updateVertexArray();
 

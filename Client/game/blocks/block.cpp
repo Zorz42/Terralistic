@@ -92,6 +92,9 @@ void ClientBlocks::renderBackBlocks() {
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
             int index = ((x - getViewBeginX()) * (getViewEndY() - getViewBeginY()) + (y - getViewBeginY())) * 4;
             
+            if(getBlock(x, y).getOrientation() == 16)
+                getBlock(x, y).updateOrientation();
+            
             float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).y + BLOCK_WIDTH * getBlock(x, y).getOrientation();
             
             vertex_array[index].texCoords = {0.f, texture_y};
@@ -103,11 +106,12 @@ void ClientBlocks::renderBackBlocks() {
     gfx::drawVertices(vertex_array, resource_pack->getBlockTexture().getSfmlTexture()->getTexture());
     
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
-        for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++)
+        for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
             if(getBlock(x, y).getBreakStage()) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
                 getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (getBlock(x, y).getBreakStage() - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
             }
+        }
     
 }
 
