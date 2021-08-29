@@ -6,6 +6,13 @@ void Connection::send(sf::Packet& packet) {
     socket->send(packet);
 }
 
+void Connection::send(std::vector<char>& data) {
+    size_t sent;
+    socket->send(&data[0], data.size(), sent);
+    if(data.size() != sent)
+        print::error("data was not sent properly");
+}
+
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
     return socket->receive(packet);
 }
@@ -81,17 +88,26 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             ServerPlayer* player = players->addPlayer(player_name);
             connections[i].player = player;
             
-            sf::Packet map_packet;
-            map_packet << player->x << player->y;
-            map_packet << blocks->getWidth() << blocks->getHeight();
+            sf::Packet welcome_packet;
+            welcome_packet << player->x << player->y;
+            welcome_packet << blocks->getWidth() << blocks->getHeight();
+            
+            std::vector<char> map_data;
             
             for(int x = 0; x < blocks->getWidth(); x++)
                 for(int y = 0; y < blocks->getHeight(); y++) {
                     ServerBlock block = blocks->getBlock(x, y);
-                    map_packet << (sf::Int8)block.getBlockType() << (sf::Int8)block.getLiquidType() << (sf::Int8)block.getLiquidLevel() << (sf::Int8)block.getLightLevel();
+                    map_data.push_back((char)block.getBlockType());
+                    map_data.push_back((char)block.getLiquidType());
+                    map_data.push_back((char)block.getLiquidLevel());
+                    map_data.push_back((char)block.getLightLevel());
                 }
             
-            connections[i].send(map_packet);
+            map_data = compress(map_data);
+            
+            welcome_packet << (unsigned int)map_data.size();
+            connections[i].send(welcome_packet);
+            connections[i].send(map_data);
 
             for(ServerPlayer* curr_player : players->getOnlinePlayers())
                 if(curr_player != player) {

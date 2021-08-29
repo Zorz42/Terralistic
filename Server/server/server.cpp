@@ -26,13 +26,13 @@ void Server::loadWorld() {
     std::ifstream world_file(world_path, std::ios::binary);
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
     
-    std::vector<char> world_file_serial_uncompressed = decompress(world_file_serial);
+    world_file_serial = decompress(world_file_serial);
     
     world_file.close();
-    char* iter = &world_file_serial_uncompressed[0];
+    char* iter = &world_file_serial[0];
     iter = blocks.loadFromSerial(iter);
     
-    while(iter < &world_file_serial_uncompressed[0] + world_file_serial_uncompressed.size() + 7)
+    while(iter < &world_file_serial[0] + world_file_serial.size() + 7)
         iter = players.addPlayerFromSerial(iter);
 }
 
@@ -43,10 +43,10 @@ void Server::saveWorld() {
     for(const ServerPlayer* player : players.getAllPlayers())
         player->serialize(world_file_serial);
     
-    std::vector<char> world_file_serial_compressed = compress(world_file_serial);
+    world_file_serial = compress(world_file_serial);
     
     std::ofstream world_file(world_path, std::ios::trunc | std::ios::binary);
-    world_file.write(&world_file_serial_compressed[0], world_file_serial_compressed.size());
+    world_file.write(&world_file_serial[0], world_file_serial.size());
     world_file.close();
 }
 
@@ -69,6 +69,9 @@ void Server::start(unsigned short port) {
           generator.generateWorld(4400, 1200, (unsigned int)std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     }
 
+    for(int x = 0; x < blocks.getWidth(); x++)
+        blocks.setNaturalLight(x);
+    
     print::info("Starting server...");
     state = ServerState::STARTING;
 

@@ -37,13 +37,11 @@ void ServerBlock::removeLightSource() {
 }
 
 void ServerBlocks::setNaturalLight(unsigned short x) {
-    is_light_set[x] = true;
     for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
 void ServerBlocks::removeNaturalLight(unsigned short x) {
-    is_light_set[x] = false;
     for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).removeLightSource();
 }

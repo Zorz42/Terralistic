@@ -14,6 +14,7 @@ public:
     void sendPacket(sf::Packet& packet);
     void disableBlocking();
     sf::Packet getPacket();
+    std::vector<char> getData(unsigned int size);
 };
 
 class ClientPacketEvent : public Event<ClientPacketEvent> {

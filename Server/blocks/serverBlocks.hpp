@@ -80,7 +80,6 @@ public:
 class ServerBlocks {
     ServerMapBlock *blocks = nullptr;
     unsigned short width = 0, height = 0;
-    bool* is_light_set;
     
 public:
     ServerBlock getBlock(unsigned short x, unsigned short y);
@@ -103,8 +102,6 @@ public:
     
     unsigned short getHeight() const { return height; }
     unsigned short getWidth() const { return width; }
-    
-    bool isLightSet(unsigned short x) const { return is_light_set[x]; }
     
     ~ServerBlocks();
 };

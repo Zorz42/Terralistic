@@ -38,3 +38,10 @@ sf::Packet networkingManager::getPacket() {
     socket.receive(packet);
     return packet;
 }
+
+std::vector<char> networkingManager::getData(unsigned int size) {
+    std::vector<char> data(size);
+    size_t received;
+    socket.receive(&data[0], size, received);
+    return data;
+}

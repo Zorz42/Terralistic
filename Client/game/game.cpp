@@ -1,6 +1,7 @@
 #include <thread>
 #include <cassert>
 #include <filesystem>
+
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "fileManager.hpp"
@@ -9,6 +10,7 @@
 #include "chat.hpp"
 #include "server.hpp"
 #include "blockSelector.hpp"
+#include "compress.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535
@@ -112,10 +114,17 @@ void game::init() {
     blocks = new ClientBlocks(&networking_manager, &resource_pack);
     blocks->createWorld(world_width, world_height);
     
+    unsigned int size;
+    packet >> size;
+    
+    std::vector<char> map_data = networking_manager.getData(size);
+    
+    map_data = decompress(map_data);
+    
     for(int x = 0; x < blocks->getWorldWidth(); x++)
         for(int y = 0; y < blocks->getWorldHeight(); y++) {
-            sf::Int8 block_type, liquid_type, liquid_level, light_level;
-            packet >> block_type >> liquid_type >> liquid_level >> light_level;
+            int index = (x * blocks->getWorldHeight() + y) * 4;
+            char block_type = map_data[index], liquid_type = map_data[index + 1], liquid_level = map_data[index + 2], light_level = map_data[index + 3];
             
             ClientBlock block = blocks->getBlock(x, y);
             block.setType((BlockType)block_type, (LiquidType)liquid_type);

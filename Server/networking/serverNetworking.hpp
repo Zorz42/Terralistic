@@ -12,6 +12,7 @@ public:
     explicit Connection(sf::TcpSocket* socket) : socket(socket) {}
     ServerPlayer* player = nullptr;
     void send(sf::Packet& packet);
+    void send(std::vector<char>& data);
     sf::Socket::Status receive(sf::Packet& packet);
     std::string getIpAddress();
     void freeSocket();
