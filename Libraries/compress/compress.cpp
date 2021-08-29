@@ -1,7 +1,7 @@
 #include <zlib.h>
 #include "compress.hpp"
 
-std::vector<char> compress(std::vector<char> decompressed_data) {
+std::vector<char> compress(std::vector<char>& decompressed_data) {
     unsigned long compressed_size = decompressed_data.size() * 1.1 + 12;
     std::vector<char> compressed_data(compressed_size);
     
@@ -13,7 +13,7 @@ std::vector<char> compress(std::vector<char> decompressed_data) {
     return compressed_data;
 }
 
-std::vector<char> decompress(std::vector<char> compressed_data) {
+std::vector<char> decompress(std::vector<char>& compressed_data) {
     unsigned long uncompressed_size = *(unsigned long*)&compressed_data[compressed_data.size() - 8];
     std::vector<char> decompressed_data(uncompressed_size);
     

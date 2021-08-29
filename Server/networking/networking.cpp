@@ -92,15 +92,14 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             welcome_packet << player->x << player->y;
             welcome_packet << blocks->getWidth() << blocks->getHeight();
             
-            std::vector<char> map_data;
+            std::vector<char> map_data(blocks->getWidth() * blocks->getHeight() * 4);
             
+            int* map_data_iter = (int*)&map_data[0];
             for(int x = 0; x < blocks->getWidth(); x++)
                 for(int y = 0; y < blocks->getHeight(); y++) {
                     ServerBlock block = blocks->getBlock(x, y);
-                    map_data.push_back((char)block.getBlockType());
-                    map_data.push_back((char)block.getLiquidType());
-                    map_data.push_back((char)block.getLiquidLevel());
-                    map_data.push_back((char)block.getLightLevel());
+                    
+                    *map_data_iter++ = (int)block.getBlockType() | (int)block.getLiquidType() << 8 | (int)block.getLiquidLevel() << 16 | (int)block.getLightLevel() << 24;
                 }
             
             map_data = compress(map_data);

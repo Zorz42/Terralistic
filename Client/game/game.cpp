@@ -93,6 +93,8 @@ void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
     server_thread.join();
 }
 
+#include <iostream>
+
 void game::init() {
     resource_pack.load("resourcePack");
     
@@ -100,6 +102,8 @@ void game::init() {
         ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
     }
+    
+    int start = gfx::getTicks();
     
     sf::Packet join_packet;
     join_packet << username;
@@ -121,16 +125,19 @@ void game::init() {
     
     map_data = decompress(map_data);
     
+    int* map_data_iter = (int*)&map_data[0];
+    
     for(int x = 0; x < blocks->getWorldWidth(); x++)
         for(int y = 0; y < blocks->getWorldHeight(); y++) {
-            int index = (x * blocks->getWorldHeight() + y) * 4;
-            char block_type = map_data[index], liquid_type = map_data[index + 1], liquid_level = map_data[index + 2], light_level = map_data[index + 3];
+            int data = *map_data_iter++;
             
             ClientBlock block = blocks->getBlock(x, y);
-            block.setType((BlockType)block_type, (LiquidType)liquid_type);
-            block.setLightLevel(light_level);
-            block.setLiquidLevel(liquid_level);
+            block.setType((BlockType)(data & 0xff), (LiquidType)(data >> 8 & 0xff));
+            block.setLiquidLevel(data >> 16 & 0xff);
+            block.setLightLevel(data >> 24 & 0xff);
         }
+    
+    std::cout << gfx::getTicks() - start << std::endl;
     
     networking_manager.disableBlocking();
     
