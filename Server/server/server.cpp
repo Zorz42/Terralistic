@@ -109,7 +109,6 @@ void Server::start(unsigned short port) {
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
         players.updateBlocksInVisibleAreas();
-        networking_manager.syncLightWithPlayers();
     }
     
     state = ServerState::STOPPING;

@@ -10,8 +10,6 @@
 #define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
-enum class ChunkState {unloaded, pending_load, loaded};
-
 class ClientBlocks;
 
 class ClientMapBlock {
@@ -51,7 +49,6 @@ public:
 
 class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     unsigned short width{}, height{};
-    ChunkState *chunk_states = nullptr;
     ClientMapBlock *blocks = nullptr;
 
     networkingManager* networking_manager;
@@ -72,10 +69,8 @@ public:
 
     ResourcePack* getResourcePack() { return resource_pack; }
     
-    ChunkState& getChunkState(unsigned short x, unsigned short y);
     ClientBlock getBlock(unsigned short x, unsigned short y);
 
-    void updateChunks();
     void renderBackBlocks();
     void renderFrontBlocks();
     

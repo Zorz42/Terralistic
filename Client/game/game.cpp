@@ -94,9 +94,6 @@ void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
 void game::init() {
     resource_pack.load("resourcePack");
     
-    blocks = new ClientBlocks(&networking_manager, &resource_pack);
-    blocks->createWorld(4400, 1200);
-    
     if(!networking_manager.establishConnection(ip_address, port)) {
         ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
@@ -108,12 +105,27 @@ void game::init() {
     
     sf::Packet packet = networking_manager.getPacket();
     
-    int x, y;
-    packet >> x >> y;
+    int player_x, player_y;
+    packet >> player_x >> player_y;
+    unsigned short world_width, world_height;
+    packet >> world_width >> world_height;
+    blocks = new ClientBlocks(&networking_manager, &resource_pack);
+    blocks->createWorld(world_width, world_height);
+    
+    for(int x = 0; x < blocks->getWorldWidth(); x++)
+        for(int y = 0; y < blocks->getWorldHeight(); y++) {
+            unsigned char block_type, liquid_type, liquid_level, light_level;
+            packet >> block_type >> liquid_type >> liquid_level >> light_level;
+            
+            ClientBlock block = blocks->getBlock(x, y);
+            block.setType((BlockType)block_type, (LiquidType)liquid_type);
+            block.setLightLevel(light_level);
+            block.setLiquidLevel(liquid_level);
+        }
     
     networking_manager.disableBlocking();
     
-    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, x, y, username);
+    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, player_x, player_y, username);
     ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
     items = new ClientItems(&resource_pack, blocks);
     
@@ -145,7 +157,6 @@ void game::onEvent(ClientPacketEvent& event) {
 
 void game::update() {
     networking_manager.checkForPackets();
-    blocks->updateChunks();
 }
 
 void game::render() {

@@ -18,7 +18,7 @@ public:
     
 };
 
-class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent> {
+class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerLightChangeEvent> {
     std::vector<Connection> connections;
     sf::TcpListener listener;
     
@@ -35,6 +35,7 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
     void onEvent(RecipeAvailabilityChangeEvent& event) override;
+    void onEvent(ServerLightChangeEvent& event) override;
     
     void onPacket(sf::Packet& packet, PacketType packet_type, Connection& conn);
     
@@ -49,8 +50,6 @@ public:
     
     void checkForNewConnections();
     void getPacketsFromPlayers();
-    
-    void syncLightWithPlayers();
     
     bool accept_itself = false;
 };

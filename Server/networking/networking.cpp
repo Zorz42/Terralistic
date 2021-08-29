@@ -80,9 +80,17 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             ServerPlayer* player = players->addPlayer(player_name);
             connections[i].player = player;
             
-            sf::Packet spawn_packet;
-            spawn_packet << player->x << player->y;
-            connections[i].send(spawn_packet);
+            sf::Packet map_packet;
+            map_packet << player->x << player->y;
+            map_packet << blocks->getWidth() << blocks->getHeight();
+            
+            for(int x = 0; x < blocks->getWidth(); x++)
+                for(int y = 0; y < blocks->getHeight(); y++) {
+                    ServerBlock block = blocks->getBlock(x, y);
+                    map_packet << (unsigned char)block.getBlockType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
+                }
+            
+            connections[i].send(map_packet);
 
             for(ServerPlayer* curr_player : players->getOnlinePlayers())
                 if(curr_player != player) {

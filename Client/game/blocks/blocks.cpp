@@ -7,9 +7,6 @@ void ClientBlocks::createWorld(unsigned short map_width, unsigned short map_heig
     width = map_width;
     height = map_height;
     blocks = new ClientMapBlock[width * height];
-    chunk_states = new ChunkState[(width / 16) * (height / 16)];
-    for(int i = 0; i < (width / 16) * (height / 16); i++)
-        chunk_states[i] = ChunkState::unloaded;
     vertex_array.setPrimitiveType(sf::Quads);
 }
 
@@ -42,24 +39,6 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             curr_block.setLiquidLevel(liquid_level);
             break;
         }
-        case PacketType::CHUNK: {
-            unsigned short x, y;
-            event.packet >> x >> y;
-            
-            for(unsigned short chunk_x = 0; chunk_x < 16; chunk_x++)
-                for(unsigned short chunk_y = 0; chunk_y < 16; chunk_y++) {
-                    unsigned char block_type, liquid_type, liquid_level, light_level;
-                    event.packet >> block_type >> liquid_type >> liquid_level >> light_level;
-                    
-                    ClientBlock block = getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
-                    block.setType((BlockType)block_type, (LiquidType)liquid_type);
-                    block.setLightLevel(light_level);
-                    block.setLiquidLevel(liquid_level);
-                }
-            
-            getChunkState(x, y) = ChunkState::loaded;
-            break;
-        }
         case PacketType::BLOCK_PROGRESS_CHANGE: {
             unsigned char stage;
             unsigned short x, y;
@@ -72,6 +51,5 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 }
 
 ClientBlocks::~ClientBlocks() {
-    delete[] chunk_states;
     delete[] blocks;
 }
