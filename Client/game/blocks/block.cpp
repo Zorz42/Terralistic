@@ -115,17 +115,28 @@ void ClientBlocks::renderBackBlocks() {
     
 }
 
+unsigned char getAverageLightFromRect(ClientBlocks* blocks, unsigned short x, unsigned short y) {
+    int average_light = 0;
+    unsigned short low_x = x + 1 == blocks->getWidth() ? x : x + 1, low_y = y + 1 == blocks->getHeight() ? y : y + 1;
+    
+    average_light += blocks->getBlock(x, y).getLightLevel();
+    average_light += blocks->getBlock(low_x, y).getLightLevel();
+    average_light += blocks->getBlock(x, low_y).getLightLevel();
+    average_light += blocks->getBlock(low_x, low_y).getLightLevel();
+    return average_light / 4;
+}
+
 void ClientBlocks::renderFrontBlocks() {
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
             int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
             int index = ((x - getViewBeginX()) * (getViewEndY() - getViewBeginY()) + (y - getViewBeginY())) * 4;
             sf::Color light_color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, y).getLightLevel()) };
-
-            vertex_array[index].color = light_color;
-            vertex_array[index + 1].color = light_color;
-            vertex_array[index + 2].color = light_color;
-            vertex_array[index + 3].color = light_color;
+            
+            vertex_array[index].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getAverageLightFromRect(this, x - 1, y - 1)) };
+            vertex_array[index + 1].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getAverageLightFromRect(this, x, y - 1)) };;
+            vertex_array[index + 2].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getAverageLightFromRect(this, x, y)) };;
+            vertex_array[index + 3].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getAverageLightFromRect(this, x - 1, y)) };;
 
             if(getBlock(x, y).getLiquidType() != LiquidType::EMPTY) {
                 int level = ((int)getBlock(x, y).getLiquidLevel() + 1) / 16;
