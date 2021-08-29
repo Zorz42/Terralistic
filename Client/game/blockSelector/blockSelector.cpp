@@ -9,8 +9,8 @@ void BlockSelector::render() {
     if(getKeyState(gfx::Key::MOUSE_LEFT) != is_left_button_pressed) {
         is_left_button_pressed = getKeyState(gfx::Key::MOUSE_LEFT);
         if(is_left_button_pressed) {
-            prev_selected_x = blocks->getWorldWidth();
-            prev_selected_y = blocks->getWorldHeight();
+            prev_selected_x = blocks->getWidth();
+            prev_selected_y = blocks->getHeight();
         } else {
             sf::Packet packet;
             packet << PacketType::STOPPED_BREAKING;

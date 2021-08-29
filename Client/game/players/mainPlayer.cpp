@@ -14,8 +14,8 @@ void ClientPlayers::init() {
 
 bool ClientPlayers::isPlayerColliding() {
     if(main_player.x < 0 || main_player.y < 0 ||
-       main_player.y >= blocks->getWorldHeight() * BLOCK_WIDTH * 2 - getPlayerHeight() * 2 ||
-       main_player.x >= blocks->getWorldWidth() * BLOCK_WIDTH * 2 - getPlayerWidth() * 2)
+       main_player.y >= blocks->getHeight() * BLOCK_WIDTH * 2 - getPlayerHeight() * 2 ||
+       main_player.x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getPlayerWidth() * 2)
         return true;
 
     unsigned short starting_x = (main_player.x) / (BLOCK_WIDTH * 2);
@@ -183,10 +183,10 @@ void ClientPlayers::update() {
         blocks->view_x = gfx::getWindowWidth() / 2;
     if(blocks->view_y < gfx::getWindowHeight() / 2)
         blocks->view_y = gfx::getWindowHeight() / 2;
-    if(blocks->view_x >= blocks->getWorldWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2)
-        blocks->view_x = blocks->getWorldWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2;
-    if(blocks->view_y >= blocks->getWorldHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2)
-        blocks->view_y = blocks->getWorldHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
+    if(blocks->view_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2)
+        blocks->view_x = blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2;
+    if(blocks->view_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2)
+        blocks->view_y = blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
     
     if(prev_x != main_player.x || prev_y != main_player.y) {
         sf::Packet packet;

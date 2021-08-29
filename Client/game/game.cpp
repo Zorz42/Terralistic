@@ -1,6 +1,7 @@
 #include <thread>
 #include <cassert>
 #include <filesystem>
+#include <iostream>
 
 #include "game.hpp"
 #include "pauseScreen.hpp"
@@ -21,7 +22,7 @@ static std::thread server_thread;
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
-class ServerStart : public gfx::Scene {
+class WorldStartingScreen : public gfx::Scene {
     MenuBack* menu_back;
     gfx::Sprite text;
     void init() override;
@@ -29,21 +30,19 @@ class ServerStart : public gfx::Scene {
     Server* server;
     ServerState prev_server_state = ServerState::NEUTRAL;
 public:
-    ServerStart(MenuBack* menu_back, Server* server) : menu_back(menu_back), server(server) {}
+    WorldStartingScreen(MenuBack* menu_back, Server* server) : menu_back(menu_back), server(server) {}
 };
 
-void ServerStart::init() {
+void WorldStartingScreen::init() {
     text.scale = 3;
     text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     text.createBlankImage(1, 1);
     text.orientation = gfx::CENTER;
 }
 
-void ServerStart::render() {
+void WorldStartingScreen::render() {
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
-        if(server->state == ServerState::RUNNING || server->state == ServerState::STOPPED)
-            gfx::returnFromScene();
         switch(server->state) {
             case ServerState::STARTING:
                 text.renderText("Starting server");
@@ -64,6 +63,10 @@ void ServerStart::render() {
             case ServerState::STOPPING:
                 text.renderText("Saving world");
                 break;
+            case ServerState::RUNNING:
+            case ServerState::STOPPED:
+                gfx::returnFromScene();
+                break;
             default:;
         }
         menu_back->setWidth(text.getWidth() + 300);
@@ -73,14 +76,13 @@ void ServerStart::render() {
 }
 
 void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
-  
     Server private_server(fileManager::getWorldsPath(), gfx::resource_path, fileManager::getWorldsPath() + world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
   
     private_server.setPrivate(true);
     server_thread = std::thread(&Server::start, &private_server, port);
     
-    ServerStart(menu_back, &private_server).run();
+    WorldStartingScreen(menu_back, &private_server).run();
 
     game(menu_back, "_", "127.0.0.1", port).run();
     private_server.stop();
@@ -88,12 +90,10 @@ void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    ServerStart(menu_back, &private_server).run();
+    WorldStartingScreen(menu_back, &private_server).run();
     
     server_thread.join();
 }
-
-#include <iostream>
 
 void game::init() {
     resource_pack.load("resourcePack");
@@ -103,6 +103,44 @@ void game::init() {
         gfx::returnFromScene();
     }
     
+    std::thread handshake_thread(&game::handshakeWithServer, this);
+    
+    gfx::Sprite text;
+    text.scale = 3;
+    text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
+    text.orientation = gfx::CENTER;
+    text.renderText("Getting terrain");
+    menu_back->setWidth(text.getWidth() + 300);
+    
+    while(!handshake_done) {
+        gfx::clearWindow();
+        
+        menu_back->render();
+        text.render();
+        
+        gfx::updateWindow();
+    }
+    
+    handshake_thread.join();
+    
+    ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
+    items = new ClientItems(&resource_pack, blocks);
+    
+    modules = {
+        blocks,
+        player_handler,
+        items,
+        new BlockSelector(&networking_manager, blocks, inventory_handler, player_handler),
+        inventory_handler,
+#ifdef DEVELOPER_MODE
+        new DebugMenu(player_handler, blocks),
+#endif
+        new Chat(&networking_manager),
+        new PauseScreen(),
+    };
+}
+
+void game::handshakeWithServer() {
     sf::Packet join_packet;
     join_packet << username;
     networking_manager.sendPacket(join_packet);
@@ -127,25 +165,11 @@ void game::init() {
     blocks = new ClientBlocks(&networking_manager, &resource_pack, world_width, world_height, map_data);
     std::cout << "applying data on client: " << gfx::getTicks() - start3 << "ms" << std::endl;
     
-    
     networking_manager.disableBlocking();
     
     player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, player_x, player_y, username);
-    ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
-    items = new ClientItems(&resource_pack, blocks);
     
-    modules = {
-        blocks,
-        player_handler,
-        items,
-        new BlockSelector(&networking_manager, blocks, inventory_handler, player_handler),
-        inventory_handler,
-#ifdef DEVELOPER_MODE
-        new DebugMenu(player_handler, blocks),
-#endif
-        new Chat(&networking_manager),
-        new PauseScreen(),
-    };
+    handshake_done = true;
 }
 
 void game::onEvent(ClientPacketEvent& event) {

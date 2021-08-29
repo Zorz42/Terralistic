@@ -74,8 +74,8 @@ public:
     void renderBackBlocks();
     void renderFrontBlocks();
     
-    unsigned short getWorldWidth() const { return width; }
-    unsigned short getWorldHeight() const { return height; }
+    unsigned short getWidth() const { return width; }
+    unsigned short getHeight() const { return height; }
     
     void updateVertexArray();
 

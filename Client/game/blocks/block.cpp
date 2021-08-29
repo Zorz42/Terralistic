@@ -5,8 +5,8 @@
 #include "resourcePack.hpp"
 
 ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
-    assert(y >= 0 && y < getWorldHeight() && x >= 0 && x < getWorldWidth());
-    return {x, y, &blocks[y * getWorldWidth() + x], this};
+    assert(y >= 0 && y < getHeight() && x >= 0 && x < getWidth());
+    return {x, y, &blocks[y * getWidth() + x], this};
 }
 
 void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
@@ -15,11 +15,11 @@ void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
     updateOrientation();
     if(x != 0)
         parent_map->getBlock(x - 1, y).updateOrientation();
-    if(x != parent_map->getWorldWidth() - 1)
+    if(x != parent_map->getWidth() - 1)
         parent_map->getBlock(x + 1, y).updateOrientation();
     if(y != 0)
         parent_map->getBlock(x, y - 1).updateOrientation();
-    if(y != parent_map->getWorldHeight() - 1)
+    if(y != parent_map->getHeight() - 1)
         parent_map->getBlock(x, y + 1).updateOrientation();
 }
 
@@ -35,7 +35,7 @@ void ClientBlock::updateOrientation() {
         unsigned char c = 1;
         for(int i = 0; i < 4; i++) {
             if(
-                    x + x_[i] >= parent_map->getWorldWidth() || x + x_[i] < 0 || y + y_[i] >= parent_map->getWorldHeight() || y + y_[i] < 0 ||
+                    x + x_[i] >= parent_map->getWidth() || x + x_[i] < 0 || y + y_[i] >= parent_map->getHeight() || y + y_[i] < 0 ||
                     parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
                     std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType())
                     )
@@ -56,7 +56,7 @@ short ClientBlocks::getViewBeginX() {
 }
 
 short ClientBlocks::getViewEndX() {
-    return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWorldWidth());
+    return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWidth());
 }
 
 short ClientBlocks::getViewBeginY() {
@@ -64,7 +64,7 @@ short ClientBlocks::getViewBeginY() {
 }
 
 short ClientBlocks::getViewEndY() {
-    return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWorldHeight());
+    return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getHeight());
 }
 
 void ClientBlocks::updateVertexArray() {
