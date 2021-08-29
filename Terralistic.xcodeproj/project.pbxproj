@@ -130,6 +130,8 @@
 		3657222226D07181005AB3CC /* mainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220526D07181005AB3CC /* mainMenu.cpp */; };
 		3657222326D07181005AB3CC /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220826D07181005AB3CC /* worldSelector.cpp */; };
 		3657222426D07181005AB3CC /* menuBack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220B26D07181005AB3CC /* menuBack.cpp */; };
+		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
+		36D31CDA26DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8A82689F725002337F3 /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D312682067D00A4B03A /* blocks.cpp */; };
@@ -353,6 +355,8 @@
 		3657220926D07181005AB3CC /* worldSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSelector.hpp; sourceTree = "<group>"; };
 		3657220B26D07181005AB3CC /* menuBack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = menuBack.cpp; sourceTree = "<group>"; };
 		3657220C26D07181005AB3CC /* menuBack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = menuBack.hpp; sourceTree = "<group>"; };
+		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
+		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
 		36DDF87C2689EAF9002337F3 /* properties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = properties.cpp; sourceTree = "<group>"; };
 		36DDF87D2689EAF9002337F3 /* properties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = properties.hpp; sourceTree = "<group>"; };
 		36EBE54226B1AC81005D2115 /* theme.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = theme.hpp; sourceTree = "<group>"; };
@@ -709,6 +713,7 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				36D31CD626DBE31D006F89B3 /* compress */,
 				166D85C226AA0B9E00DB87B1 /* graphics */,
 				166D85D026AA0B9E00DB87B1 /* simplexNoise */,
 				1682944126A16D5C0017E2FD /* packetType */,
@@ -932,6 +937,15 @@
 			path = menuBack;
 			sourceTree = "<group>";
 		};
+		36D31CD626DBE31D006F89B3 /* compress */ = {
+			isa = PBXGroup;
+			children = (
+				36D31CD826DBE330006F89B3 /* compress.hpp */,
+				36D31CD726DBE330006F89B3 /* compress.cpp */,
+			);
+			path = compress;
+			sourceTree = "<group>";
+		};
 		36DDF87A2689EAC5002337F3 /* properties */ = {
 			isa = PBXGroup;
 			children = (
@@ -1086,6 +1100,7 @@
 				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				166D85D726AA0B9E00DB87B1 /* graphics.cpp in Sources */,
 				3657222326D07181005AB3CC /* worldSelector.cpp in Sources */,
+				36D31CD926DBE330006F89B3 /* compress.cpp in Sources */,
 				36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */,
 				166D85E026AAB7EC00DB87B1 /* packetHandling.cpp in Sources */,
 				167513C426A498DA00E21C68 /* biomes.cpp in Sources */,
@@ -1114,6 +1129,7 @@
 				166D85DC26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				166D85E126AAB7EC00DB87B1 /* packetHandling.cpp in Sources */,
 				16BF692D269D6D7300CFE175 /* blocks.cpp in Sources */,
+				36D31CDA26DBE330006F89B3 /* compress.cpp in Sources */,
 				16BF692E269D6D7300CFE175 /* block.cpp in Sources */,
 				16BF692F269D6D7300CFE175 /* light.cpp in Sources */,
 				16BF6930269D6D7300CFE175 /* liquid.cpp in Sources */,

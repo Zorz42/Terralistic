@@ -1,5 +1,6 @@
 #include "serverNetworking.hpp"
 #include "print.hpp"
+#include "compress.hpp"
 
 void Connection::send(sf::Packet& packet) {
     socket->send(packet);
@@ -87,7 +88,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             for(int x = 0; x < blocks->getWidth(); x++)
                 for(int y = 0; y < blocks->getHeight(); y++) {
                     ServerBlock block = blocks->getBlock(x, y);
-                    map_packet << (unsigned char)block.getBlockType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
+                    map_packet << (sf::Int8)block.getBlockType() << (sf::Int8)block.getLiquidType() << (sf::Int8)block.getLiquidLevel() << (sf::Int8)block.getLightLevel();
                 }
             
             connections[i].send(map_packet);

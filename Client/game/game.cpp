@@ -114,7 +114,7 @@ void game::init() {
     
     for(int x = 0; x < blocks->getWorldWidth(); x++)
         for(int y = 0; y < blocks->getWorldHeight(); y++) {
-            unsigned char block_type, liquid_type, liquid_level, light_level;
+            sf::Int8 block_type, liquid_type, liquid_level, light_level;
             packet >> block_type >> liquid_type >> liquid_level >> light_level;
             
             ClientBlock block = blocks->getBlock(x, y);
