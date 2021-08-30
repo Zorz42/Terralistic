@@ -1,5 +1,5 @@
+#include <cmath>
 #include "graphics-internal.hpp"
-
 
 gfx::Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : r(r), g(g), b(b), a(a) {}
 
@@ -111,22 +111,22 @@ void gfx::Rect::render(bool fill) {
         sf::Sprite shadow_sprite(gfx::shadow_texture.getTexture());
         shadow_sprite.setColor({255, 255, 255, shadow_intensity});
         
-        unsigned short temp_width = std::min(200 + width / 2, 350), temp_height = std::min(200 + height / 2, 350);
+        float temp_width = std::min(200.f + (float)width / 2, 350.f), temp_height = std::min(200.f + (float)height / 2, 350.f);
         
-        shadow_sprite.setTextureRect({0, 0, temp_width, temp_height});
+        shadow_sprite.setTextureRect({0, 0, (int)std::floor(temp_width), (int)std::ceil(temp_height)});
         shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() - 200);
         render_target->draw(shadow_sprite);
         
-        shadow_sprite.setTextureRect({700 - temp_width, 0, temp_width, temp_height});
-        shadow_sprite.setPosition(getTranslatedX() + width - temp_width + 200, getTranslatedY() - 200);
+        shadow_sprite.setTextureRect({700 - (int)std::ceil(temp_width), 0, (int)std::ceil(temp_width), (int)std::ceil(temp_height)});
+        shadow_sprite.setPosition(getTranslatedX() + width - std::ceil(temp_width) + 200, getTranslatedY() - 200);
         render_target->draw(shadow_sprite);
         
-        shadow_sprite.setTextureRect({0, 700 - temp_height, temp_width, temp_height});
-        shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() + height - temp_height + 200);
+        shadow_sprite.setTextureRect({0, 700 - (int)std::floor(temp_height), (int)std::floor(temp_width), (int)std::floor(temp_height)});
+        shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() + height - std::floor(temp_height) + 200);
         render_target->draw(shadow_sprite);
         
-        shadow_sprite.setTextureRect({700 - temp_width, 700 - temp_height, temp_width, temp_height});
-        shadow_sprite.setPosition(getTranslatedX() + width - temp_width + 200, getTranslatedY() + height - temp_height + 200);
+        shadow_sprite.setTextureRect({700 - (int)std::ceil(temp_width), 700 - (int)std::floor(temp_height), (int)std::ceil(temp_width), (int)std::floor(temp_height)});
+        shadow_sprite.setPosition(getTranslatedX() + width - std::ceil(temp_width) + 200, getTranslatedY() + height - std::floor(temp_height) + 200);
         render_target->draw(shadow_sprite);
         
         if(temp_height == 350) {
