@@ -46,6 +46,48 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
 
     bool result = blur_shader.loadFromMemory(blur_shader_code,  sf::Shader::Type::Fragment);
     assert(result);
+    
+    shadow_texture.create(700, 700);
+    shadow_texture.clear({0, 0, 0, 0});
+    sf::RectangleShape rect;
+    rect.setPosition(200, 200);
+    rect.setSize(sf::Vector2f(300, 300));
+    rect.setFillColor({0, 0, 0});
+    shadow_texture.draw(rect);
+    blurTexture(shadow_texture, SHADOW_BLUR);
+    rect.setFillColor({0, 0, 0, 0});
+    shadow_texture.draw(rect, sf::BlendNone);
+    shadow_texture.display();
+    
+    sf::Sprite part_sprite(shadow_texture.getTexture());
+    
+    shadow_part_left.create(200, 1);
+    shadow_part_left.setRepeated(true);
+    shadow_part_left.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({0, 350, 200, 1});
+    shadow_part_left.draw(part_sprite);
+    shadow_part_left.display();
+    
+    shadow_part_right.create(200, 1);
+    shadow_part_right.setRepeated(true);
+    shadow_part_right.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({500, 350, 200, 1});
+    shadow_part_right.draw(part_sprite);
+    shadow_part_right.display();
+    
+    shadow_part_up.create(1, 200);
+    shadow_part_up.setRepeated(true);
+    shadow_part_up.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({350, 0, 1, 200});
+    shadow_part_up.draw(part_sprite);
+    shadow_part_up.display();
+    
+    shadow_part_down.create(1, 200);
+    shadow_part_down.setRepeated(true);
+    shadow_part_down.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({350, 500, 1, 200});
+    shadow_part_down.draw(part_sprite);
+    shadow_part_down.display();
 }
 
 void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {

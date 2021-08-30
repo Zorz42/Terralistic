@@ -119,7 +119,57 @@ void gfx::Rect::render(bool fill) {
         if(changed)
             updateShadowTexture();
         
-        render_target->draw(sf::Sprite(shadow_texture->getTexture()));
+        //render_target->draw(sf::Sprite(shadow_texture->getTexture()));
+        
+        sf::Sprite shadow_sprite(gfx::shadow_texture.getTexture());
+        unsigned short temp_width, temp_height;
+        
+        temp_width = std::min(200 + width / 2, 350);
+        temp_height = std::min(200 + height / 2, 350);
+        
+        shadow_sprite.setTextureRect({0, 0, temp_width, temp_height});
+        shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() - 200);
+        render_target->draw(shadow_sprite);
+        
+        shadow_sprite.setTextureRect({700 - temp_width, 0, temp_width, temp_height});
+        shadow_sprite.setPosition(getTranslatedX() + width - temp_width + 200, getTranslatedY() - 200);
+        render_target->draw(shadow_sprite);
+        
+        shadow_sprite.setTextureRect({0, 700 - temp_height, temp_width, temp_height});
+        shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() + height - temp_height + 200);
+        render_target->draw(shadow_sprite);
+        
+        shadow_sprite.setTextureRect({700 - temp_width, 700 - temp_height, temp_width, temp_height});
+        shadow_sprite.setPosition(getTranslatedX() + width - temp_width + 200, getTranslatedY() + height - temp_height + 200);
+        render_target->draw(shadow_sprite);
+        
+        if(temp_height == 350) {
+            sf::Sprite shadow_part_sprite_left(shadow_part_left.getTexture());
+            shadow_part_sprite_left.setTextureRect({0, 0, 200, height - 300});
+            shadow_part_sprite_left.setPosition(getTranslatedX() - 200, getTranslatedY() + 150);
+            render_target->draw(shadow_part_sprite_left);
+            
+            sf::Sprite shadow_part_sprite_right(shadow_part_right.getTexture());
+            shadow_part_sprite_right.setTextureRect({0, 0, 200, height - 300});
+            shadow_part_sprite_right.setPosition(getTranslatedX() + width, getTranslatedY() + 150);
+            render_target->draw(shadow_part_sprite_right);
+        }
+        
+        if(temp_width == 350) {
+            sf::Sprite shadow_part_sprite_up(shadow_part_up.getTexture());
+            shadow_part_sprite_up.setTextureRect({0, 0, width - 300, 200});
+            shadow_part_sprite_up.setPosition(getTranslatedX() + 150, getTranslatedY() - 200);
+            render_target->draw(shadow_part_sprite_up);
+            
+            sf::Sprite shadow_part_sprite_down(shadow_part_down.getTexture());
+            shadow_part_sprite_down.setTextureRect({0, 0, width - 300, 200});
+            shadow_part_sprite_down.setPosition(getTranslatedX() + 150, getTranslatedY() + height);
+            render_target->draw(shadow_part_sprite_down);
+        }
+        
+        
+        //shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() + 200);
+        //render_target->draw(shadow_sprite);
     }
     rect.render(c, fill);
     rect.render(border_color, false);
