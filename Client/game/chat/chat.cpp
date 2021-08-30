@@ -33,6 +33,8 @@ void Chat::update() {
 }
 
 void Chat::render() {
+    chat_box.render();
+    
     for(ChatLine* i : chat_lines) {
         if(!i->text.empty()) {
             i->text_sprite.renderText(i->text);
@@ -57,8 +59,6 @@ void Chat::render() {
             i->text_sprite.render();
         }
     }
-            
-    chat_box.render();
 }
 
 void Chat::onKeyDown(gfx::Key key) {

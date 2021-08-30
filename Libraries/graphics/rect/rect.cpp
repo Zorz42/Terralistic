@@ -38,9 +38,9 @@ short gfx::_CenteredObject::getTranslatedY(unsigned short height) const {
 
 gfx::_CenteredObject::_CenteredObject(short x, short y, ObjectType orientation) : orientation(orientation), x(x), y(y) {}
 
-gfx::Rect::Rect(short x, short y, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(0, 0, orientation), c(c) {
-    setX(x);
-    setY(y);
+gfx::Rect::Rect(short x_, short y_, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(0, 0, orientation), c(c) {
+    x = x_;
+    y = y_;
     setWidth(w);
     setHeight(h);
 }
@@ -108,24 +108,10 @@ void gfx::Rect::render(bool fill) {
     }
     
     if(shadow_intensity) {
-        if(!shadow_texture) {
-            shadow_texture = new sf::RenderTexture;
-            updateShadowTexture();
-        }
-        
-        if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
-            updateShadowTexture();
-        
-        if(changed)
-            updateShadowTexture();
-        
-        //render_target->draw(sf::Sprite(shadow_texture->getTexture()));
-        
         sf::Sprite shadow_sprite(gfx::shadow_texture.getTexture());
-        unsigned short temp_width, temp_height;
+        shadow_sprite.setColor({255, 255, 255, shadow_intensity});
         
-        temp_width = std::min(200 + width / 2, 350);
-        temp_height = std::min(200 + height / 2, 350);
+        unsigned short temp_width = std::min(200 + width / 2, 350), temp_height = std::min(200 + height / 2, 350);
         
         shadow_sprite.setTextureRect({0, 0, temp_width, temp_height});
         shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() - 200);
@@ -147,11 +133,13 @@ void gfx::Rect::render(bool fill) {
             sf::Sprite shadow_part_sprite_left(shadow_part_left.getTexture());
             shadow_part_sprite_left.setTextureRect({0, 0, 200, height - 300});
             shadow_part_sprite_left.setPosition(getTranslatedX() - 200, getTranslatedY() + 150);
+            shadow_part_sprite_left.setColor({255, 255, 255, shadow_intensity});
             render_target->draw(shadow_part_sprite_left);
             
             sf::Sprite shadow_part_sprite_right(shadow_part_right.getTexture());
             shadow_part_sprite_right.setTextureRect({0, 0, 200, height - 300});
             shadow_part_sprite_right.setPosition(getTranslatedX() + width, getTranslatedY() + 150);
+            shadow_part_sprite_right.setColor({255, 255, 255, shadow_intensity});
             render_target->draw(shadow_part_sprite_right);
         }
         
@@ -159,47 +147,23 @@ void gfx::Rect::render(bool fill) {
             sf::Sprite shadow_part_sprite_up(shadow_part_up.getTexture());
             shadow_part_sprite_up.setTextureRect({0, 0, width - 300, 200});
             shadow_part_sprite_up.setPosition(getTranslatedX() + 150, getTranslatedY() - 200);
+            shadow_part_sprite_up.setColor({255, 255, 255, shadow_intensity});
             render_target->draw(shadow_part_sprite_up);
             
             sf::Sprite shadow_part_sprite_down(shadow_part_down.getTexture());
             shadow_part_sprite_down.setTextureRect({0, 0, width - 300, 200});
             shadow_part_sprite_down.setPosition(getTranslatedX() + 150, getTranslatedY() + height);
+            shadow_part_sprite_down.setColor({255, 255, 255, shadow_intensity});
             render_target->draw(shadow_part_sprite_down);
         }
-        
-        
-        //shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() + 200);
-        //render_target->draw(shadow_sprite);
+
     }
     rect.render(c, fill);
     rect.render(border_color, false);
 }
 
-void gfx::Rect::updateShadowTexture() {
-    if(!shadow_texture)
-        return;
-    if(getWindowWidth() != shadow_texture->getSize().x || getWindowHeight() != shadow_texture->getSize().y)
-        shadow_texture->create(getWindowWidth(), getWindowHeight());
-    
-    shadow_texture->clear({0, 0, 0, 0});
-    
-    sf::RectangleShape rect(sf::Vector2f(width, height));
-    rect.setPosition(getTranslatedX(), getTranslatedY());
-    rect.setFillColor({0, 0, 0, shadow_intensity});
-    shadow_texture->draw(rect);
-    
-    shadow_texture->display();
-    
-    blurTexture(*shadow_texture, shadow_blur, 2);
-    
-    rect.setFillColor({0, 0, 0, 0});
-    shadow_texture->draw(rect, sf::BlendNone);
-    
-    shadow_texture->display();
-}
-
 void gfx::Rect::updateBlurTextureSize() {
-    if(blur_texture)
+    if(blur_texture && target_width && target_height)
         blur_texture->create(target_width, target_height);
 }
 
@@ -211,7 +175,6 @@ void gfx::Rect::setWidth(unsigned short width_) {
     if(target_width != width_) {
         target_width = width_;
         updateBlurTextureSize();
-        updateShadowTexture();
     }
 }
 
@@ -223,7 +186,6 @@ void gfx::Rect::setHeight(unsigned short height_) {
     if(target_height != height_) {
         target_height = height_;
         updateBlurTextureSize();
-        updateShadowTexture();
     }
 }
 
@@ -232,10 +194,7 @@ short gfx::Rect::getX() const {
 }
 
 void gfx::Rect::setX(short x_) {
-    if(target_x != x_) {
-        target_x = x_;
-        updateShadowTexture();
-    }
+    target_x = x_;
 }
 
 short gfx::Rect::getY() const {
@@ -243,13 +202,9 @@ short gfx::Rect::getY() const {
 }
 
 void gfx::Rect::setY(short y_) {
-    if(target_y != y_) {
-        target_y = y_;
-        updateShadowTexture();
-    }
+    target_y = y_;
 }
 
 gfx::Rect::~Rect() {
-    delete shadow_texture;
     delete blur_texture;
 }

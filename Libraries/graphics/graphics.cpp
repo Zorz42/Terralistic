@@ -54,7 +54,7 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     rect.setSize(sf::Vector2f(300, 300));
     rect.setFillColor({0, 0, 0});
     shadow_texture.draw(rect);
-    blurTexture(shadow_texture, SHADOW_BLUR);
+    blurTexture(shadow_texture, GFX_DEFAULT_SHADOW_BLUR);
     rect.setFillColor({0, 0, 0, 0});
     shadow_texture.draw(rect, sf::BlendNone);
     shadow_texture.display();

@@ -10,13 +10,13 @@ void PauseScreen::init() {
     quit_button.renderText("Leave Game");
     quit_button.y = short(resume_button.getHeight() + 2 * SPACING);
     
-    int x_to_be = -(quit_button.getWidth() + 2 * SPACING);
-    back_rect.setWidth(-x_to_be);
+    int width = quit_button.getWidth() + 2 * SPACING;
+    back_rect.setWidth(width);
     back_rect.c.a = TRANSPARENCY;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = BORDER_COLOR;
     back_rect.border_color.a = TRANSPARENCY;
-    back_rect.setX(x_to_be);
+    back_rect.setX(-width - 200);
     back_rect.smooth_factor = 3;
     back_rect.blur_intensity = BLUR;
 }
@@ -25,8 +25,8 @@ void PauseScreen::render() {
     back_rect.setHeight(gfx::getWindowHeight());
     fade_rect.setWidth(gfx::getWindowWidth());
     fade_rect.setHeight(gfx::getWindowHeight());
-    fade_rect.c.a = float(back_rect.getWidth() + back_rect.getX()) / (float)back_rect.getWidth() * 70;
-    fade_rect.blur_intensity = float(back_rect.getWidth() + back_rect.getX()) / (float)back_rect.getWidth() * BLUR / 2;
+    fade_rect.c.a = float(back_rect.getWidth() + back_rect.getX() + 200) / (float)(back_rect.getWidth() + 200) * 70;
+    fade_rect.blur_intensity = float(back_rect.getWidth() + back_rect.getX() + 200) / (float)(back_rect.getWidth() + 200) * BLUR / 2;
     if(fade_rect.blur_intensity < 0.5f)
         fade_rect.blur_intensity = 0;
     fade_rect.render();
@@ -38,20 +38,20 @@ void PauseScreen::render() {
 }
 
 void PauseScreen::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::ESCAPE) {
-        paused = !paused;
-        back_rect.setX(!paused * (-back_rect.getWidth()));
-        disable_events = paused;
-    }
+    if(key == gfx::Key::ESCAPE)
+        togglePause();
     else if(key == gfx::Key::MOUSE_LEFT) {
-        if(resume_button.isHovered()) {
-            paused = false;
-            back_rect.setX(!paused * (-back_rect.getWidth()));
-            disable_events = paused;
-        }
+        if(resume_button.isHovered())
+            togglePause();
         else if(quit_button.isHovered()) {
             paused = false;
             gfx::returnFromScene();
         }
     }
+}
+
+void PauseScreen::togglePause() {
+    paused = !paused;
+    disable_events = paused;
+    back_rect.setX(paused ? 0 : -back_rect.getWidth() - 200);
 }

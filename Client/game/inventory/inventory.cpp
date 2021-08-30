@@ -33,10 +33,15 @@ void ClientInventory::init() {
     behind_crafting_rect.shadow_intensity = SHADOW_INTENSITY;
     behind_crafting_rect.smooth_factor = 2;
     
+    under_text_rect.blur_intensity = BLUR - 2;
+    under_text_rect.c.a = TRANSPARENCY;
+    
     selectSlot(0);
 }
 
 void ClientInventory::render() {
+    bool tooltip_active = false;
+    
     behind_inventory_rect.setHeight(open ? 8 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 4 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
     behind_inventory_rect.render();
     
@@ -53,6 +58,7 @@ void ClientInventory::render() {
             if(open) {
                 hovered = &inventory[i];
                 if(inventory[i].type != ItemType::NOTHING) {
+                    tooltip_active = true;
                     text_texture = &resource_pack->getItemTextTexture(inventory[i].type);
                     under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
                     under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
@@ -84,9 +90,18 @@ void ClientInventory::render() {
         mouse_item.y = gfx::getMouseY();
         mouse_item.render();
         
-        if(crafting_hovered != -1)
+        if(crafting_hovered != -1) {
+            tooltip_active = true;
+            under_text_rect.setX(gfx::getMouseX());
+            under_text_rect.setY(gfx::getMouseY());
+            under_text_rect.setWidth(SPACING / 2 + available_recipes[crafting_hovered]->recipe->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
+            under_text_rect.setHeight(INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING);
+            under_text_rect.render();
             available_recipes[crafting_hovered]->renderIngredients(gfx::getMouseX(), gfx::getMouseY());
+        }
     }
+    
+    under_text_rect.shadow_intensity += ((tooltip_active ? SHADOW_INTENSITY / 2 : 0) - under_text_rect.shadow_intensity) / 3;
 }
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {

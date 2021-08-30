@@ -67,7 +67,6 @@ DisplayRecipe::DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, 
 }
 
 void DisplayRecipe::renderIngredients(int x, int y) {
-    gfx::RectShape(x, y, SPACING / 2 + ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2), INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING).render(BLACK);
     x += SPACING / 2;
     y += SPACING / 2;
     for(ClientInventoryItem& ingredient : ingredients) {

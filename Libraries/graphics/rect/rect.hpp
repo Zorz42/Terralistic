@@ -42,8 +42,6 @@ class Rect : public _CenteredObject {
     sf::RenderTexture* blur_texture = nullptr;
     unsigned short prev_w, prev_h;
     unsigned char prev_shadow_intensity = 0;
-    float prev_shadow_blur = GFX_DEFAULT_SHADOW_BLUR;
-    void updateShadowTexture();
     using _CenteredObject::x;
     using _CenteredObject::y;
     unsigned short width, height;
@@ -74,7 +72,6 @@ public:
     Color c;
     float blur_intensity = 0;
     unsigned char shadow_intensity = 0;
-    float shadow_blur = GFX_DEFAULT_SHADOW_BLUR;
     void render(bool fill=true);
     ~Rect();
     Color border_color = {0, 0, 0, 0};
