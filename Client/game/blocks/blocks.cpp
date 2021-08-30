@@ -7,7 +7,6 @@ ClientBlocks::ClientBlocks(networkingManager* manager, ResourcePack* resource_pa
     width = map_width;
     height = map_height;
     blocks = new ClientMapBlock[width * height];
-    vertex_array.setPrimitiveType(sf::Quads);
     
     int* map_data_iter = (int*)&map_data[0];
     ClientMapBlock* map_iter = blocks;

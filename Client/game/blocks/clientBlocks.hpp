@@ -56,7 +56,6 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     void onEvent(ClientPacketEvent& event) override;
     
     ResourcePack* resource_pack;
-    sf::VertexArray vertex_array;
     
     short getViewBeginX();
     short getViewEndX();
@@ -76,8 +75,6 @@ public:
     
     unsigned short getWidth() const { return width; }
     unsigned short getHeight() const { return height; }
-    
-    void updateVertexArray();
 
     ~ClientBlocks() override;
 };
