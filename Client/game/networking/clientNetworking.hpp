@@ -5,8 +5,9 @@
 #include "events.hpp"
 #include "packetType.hpp"
 
-class networkingManager {
+class NetworkingManager {
     sf::TcpSocket socket;
+    sf::Packet master_packet;
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();
@@ -14,6 +15,8 @@ public:
     void sendPacket(sf::Packet& packet);
     void disableBlocking();
     sf::Packet getPacket();
+    std::vector<char> getData(unsigned int size);
+    void flushPackets();
 };
 
 class ClientPacketEvent : public Event<ClientPacketEvent> {

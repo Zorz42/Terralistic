@@ -68,9 +68,9 @@ class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalM
     void onKeyDown(gfx::Key key) override;
     
     ResourcePack* resource_pack;
-    networkingManager* manager;
+    NetworkingManager* manager;
 public:
-    ClientInventory(networkingManager* manager, ResourcePack* resource_pack);
+    ClientInventory(NetworkingManager* manager, ResourcePack* resource_pack);
     bool isHovered() const { return inventory_hovered; }
 };
 

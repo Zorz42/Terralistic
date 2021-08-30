@@ -63,13 +63,12 @@ void ResourcePack::load(std::string path) {
 void ResourcePack::loadBlocks(std::string path) {
     gfx::Image block_textures[(int)BlockType::NUM_BLOCKS];
 
-
-    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++)
+    for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++)
         block_textures[i].loadFromFile(path + "/blocks/" + getBlockInfo((BlockType)i).name + ".png");
 
     unsigned short max_y_size = 0;
     int texture_atlas_height = 0;
-    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++){
+    for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++){
         if(block_textures[i].getTextureWidth() > max_y_size)
             max_y_size = block_textures[i].getTextureWidth();
         block_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, block_textures[i].getTextureWidth(), block_textures[i].getTextureHeight());
@@ -79,7 +78,7 @@ void ResourcePack::loadBlocks(std::string path) {
     block_texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
     gfx::setRenderTarget(block_texture_atlas);
     texture_atlas_height = 0;
-    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++){
+    for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++){
         block_textures[i].render(1, 0, texture_atlas_height);
         texture_atlas_height += block_textures[i].getTextureHeight();
     }
@@ -89,13 +88,12 @@ void ResourcePack::loadBlocks(std::string path) {
 void ResourcePack::loadLiquids(std::string path) {
     gfx::Image liquid_textures[(int)LiquidType::NUM_LIQUIDS];
 
-
-    for(int i = 0; i < (int)LiquidType::NUM_LIQUIDS; i++)
+    for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++)
         liquid_textures[i].loadFromFile(path + "/liquids/" + getLiquidInfo((LiquidType)i).name + ".png");
 
     unsigned short max_y_size = 0;
     int texture_atlas_height = 0;
-    for(int i = 0; i < (int)LiquidType::NUM_LIQUIDS; i++){
+    for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++){
         if(liquid_textures[i].getTextureWidth() > max_y_size)
             max_y_size = liquid_textures[i].getTextureWidth();
         liquid_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, liquid_textures[i].getTextureWidth(), liquid_textures[i].getTextureHeight());
@@ -105,7 +103,7 @@ void ResourcePack::loadLiquids(std::string path) {
     liquid_texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
     gfx::setRenderTarget(liquid_texture_atlas);
     texture_atlas_height = 0;
-    for(int i = 0; i < (int)LiquidType::NUM_LIQUIDS; i++){
+    for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++){
         liquid_textures[i].render(1, 0, texture_atlas_height);
         texture_atlas_height += liquid_textures[i].getTextureHeight();
     }

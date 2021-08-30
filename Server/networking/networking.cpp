@@ -1,8 +1,16 @@
 #include "serverNetworking.hpp"
 #include "print.hpp"
+#include "compress.hpp"
 
 void Connection::send(sf::Packet& packet) {
-    socket->send(packet);
+    master_packet.append(packet.getData(), packet.getDataSize());
+}
+
+void Connection::send(std::vector<char>& data) {
+    size_t sent;
+    socket->send(&data[0], data.size(), sent);
+    if(data.size() != sent)
+        print::error("data was not sent properly");
 }
 
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
@@ -15,6 +23,13 @@ std::string Connection::getIpAddress() {
 
 void Connection::freeSocket() {
     delete socket;
+}
+
+void Connection::flushPacket() {
+    if(master_packet.getDataSize()) {
+        socket->send(master_packet);
+        master_packet.clear();
+    }
 }
 
 void ServerNetworkingManager::openSocket(unsigned short port) {
@@ -69,9 +84,11 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     
                     break;
                 } else if(status == sf::Socket::Done) {
-                    unsigned char packet_type;
-                    packet >> packet_type;
-                    onPacket(packet, (PacketType)packet_type, connections[i]);
+                    while(!packet.endOfPacket()) {
+                        unsigned char packet_type;
+                        packet >> packet_type;
+                        onPacket(packet, (PacketType)packet_type, connections[i]);
+                    }
                 }
             }
         } else if(connections[i].receive(packet) != sf::Socket::NotReady) {
@@ -80,9 +97,26 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             ServerPlayer* player = players->addPlayer(player_name);
             connections[i].player = player;
             
-            sf::Packet spawn_packet;
-            spawn_packet << player->x << player->y;
-            connections[i].send(spawn_packet);
+            sf::Packet welcome_packet;
+            welcome_packet << player->x << player->y;
+            welcome_packet << blocks->getWidth() << blocks->getHeight();
+            
+            std::vector<char> map_data(blocks->getWidth() * blocks->getHeight() * 4);
+            
+            int* map_data_iter = (int*)&map_data[0];
+            for(int y = 0; y < blocks->getHeight(); y++)
+                for(int x = 0; x < blocks->getWidth(); x++) {
+                    ServerBlock block = blocks->getBlock(x, y);
+                    
+                    *map_data_iter++ = (int)block.getBlockType() | (int)block.getLiquidType() << 8 | (int)block.getLiquidLevel() << 16 | (int)block.getLightLevel() << 24;
+                }
+            
+            map_data = compress(map_data);
+            
+            welcome_packet << (unsigned int)map_data.size();
+            connections[i].send(welcome_packet);
+            connections[i].flushPacket();
+            connections[i].send(map_data);
 
             for(ServerPlayer* curr_player : players->getOnlinePlayers())
                 if(curr_player != player) {
@@ -109,4 +143,9 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
         }
     }
+}
+
+void ServerNetworkingManager::flushPackets() {
+    for(Connection& connection : connections)
+        connection.flushPacket();
 }

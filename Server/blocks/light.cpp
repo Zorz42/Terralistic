@@ -37,21 +37,20 @@ void ServerBlock::removeLightSource() {
 }
 
 void ServerBlocks::setNaturalLight(unsigned short x) {
-    is_light_set[x] = true;
     for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
 void ServerBlocks::removeNaturalLight(unsigned short x) {
-    is_light_set[x] = false;
     for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
         getBlock(x, y).removeLightSource();
 }
 
 void ServerBlock::setLightLevel(unsigned char light_level) {
     if(block_data->light_level != light_level) {
-        block_data->has_changed_light = true;
         block_data->light_level = light_level;
         updateNeighbors();
+        
+        ServerLightChangeEvent(*this).call();
     }
 }

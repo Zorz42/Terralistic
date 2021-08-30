@@ -20,7 +20,7 @@ struct ServerMapBlock {
     unsigned short break_progress = 0;
     unsigned break_stage:4;
     
-    bool light_source = false, update_light = true, has_changed_light = false;
+    bool light_source = false, update_light = true;
     unsigned char light_level = 0;
     
     LiquidType liquid_type:8;
@@ -75,14 +75,11 @@ public:
     unsigned char getLightLevel() { return block_data->light_level; }
     void scheduleLightUpdate() { block_data->update_light = true; }
     bool hasScheduledLightUpdate() { return block_data->update_light; }
-    bool hasLightChanged() { return block_data->has_changed_light; }
-    void markLightUnchanged() { block_data->has_changed_light = false; }
 };
 
 class ServerBlocks {
     ServerMapBlock *blocks = nullptr;
     unsigned short width = 0, height = 0;
-    bool* is_light_set;
     
 public:
     ServerBlock getBlock(unsigned short x, unsigned short y);
@@ -105,8 +102,6 @@ public:
     
     unsigned short getHeight() const { return height; }
     unsigned short getWidth() const { return width; }
-    
-    bool isLightSet(unsigned short x) const { return is_light_set[x]; }
     
     ~ServerBlocks();
 };
@@ -145,6 +140,12 @@ public:
     ServerBlock block;
     LiquidType liquid_type;
     unsigned char liquid_level;
+};
+
+class ServerLightChangeEvent : public Event<ServerLightChangeEvent> {
+public:
+    ServerLightChangeEvent(ServerBlock block) : block(block) {}
+    ServerBlock block;
 };
 
 #endif

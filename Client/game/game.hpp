@@ -17,12 +17,14 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent> {
     const std::string ip_address;
     const unsigned short port;
     std::string username;
-    networkingManager networking_manager;
+    NetworkingManager networking_manager;
     ResourcePack resource_pack;
     ClientBlocks *blocks;
     ClientPlayers* player_handler;
     ClientItems* items;
     MenuBack* menu_back;
+    bool handshake_done = false;
+    void handshakeWithServer();
     
 public:
     game(MenuBack* menu_back, std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port), username(username), menu_back(menu_back) {}

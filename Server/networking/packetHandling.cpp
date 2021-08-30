@@ -25,25 +25,6 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             break;
         }
 
-        case PacketType::CHUNK: {
-            unsigned short x, y;
-            packet >> x >> y;
-            
-            for(int chunk_x = 0; chunk_x < 16; chunk_x++)
-                if(!blocks->isLightSet((x << 4) + chunk_x))
-                    blocks->setNaturalLight((x << 4) + chunk_x);
-            
-            sf::Packet chunk_packet;
-            chunk_packet << PacketType::CHUNK << x << y;
-            for(int chunk_x = 0; chunk_x < 16; chunk_x++)
-                for(int chunk_y = 0; chunk_y < 16; chunk_y++) {
-                    ServerBlock block = blocks->getBlock((x << 4) + chunk_x, (y << 4) + chunk_y);
-                    chunk_packet << (unsigned char)block.getBlockType() << (unsigned char)block.getLiquidType() << (unsigned char)block.getLiquidLevel() << (unsigned char)block.getLightLevel();
-                }
-            conn.send(chunk_packet);
-            break;
-        }
-
         case PacketType::VIEW_SIZE_CHANGE: {
             packet >> curr_player->sight_width >> curr_player->sight_height;
             break;
@@ -162,7 +143,7 @@ void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
     for(Connection& connection : connections)
         if(connection.player && &connection.player->inventory == event.inventory) {
             sf::Packet packet;
-            packet << PacketType::RECIPE_AVAILABILTY_CHANGE;
+            packet << PacketType::RECIPE_AVAILABILTY_CHANGE << (unsigned short)event.inventory->getAvailableRecipes().size();
             for(const Recipe* recipe : event.inventory->getAvailableRecipes())
                 packet << getRecipeIndex(recipe);
             connection.send(packet);
@@ -170,28 +151,9 @@ void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
         }
 }
 
-void ServerNetworkingManager::syncLightWithPlayers() {
+void ServerNetworkingManager::onEvent(ServerLightChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << event.block.getLightLevel();
     for(Connection& connection : connections)
-        if(connection.player) {
-            int start_x = (int)connection.player->getSightBeginX() - 20, start_y = (int)connection.player->getSightBeginY() - 20, end_x = connection.player->getSightEndX() + 20, end_y = connection.player->getSightEndY() + 20;
-            if(start_x < 0)
-                start_x = 0;
-            if(start_y < 0)
-                start_y = 0;
-            if(end_x > blocks->getWidth())
-                end_x = blocks->getWidth();
-            if(end_y > blocks->getHeight())
-                end_y = blocks->getHeight();
-            
-            for(int y = start_y; y < end_y; y++)
-                for(int x = start_x; x < end_x; x++) {
-                    ServerBlock curr_block = blocks->getBlock(x, y);
-                    if(curr_block.hasLightChanged()) {
-                        curr_block.markLightUnchanged();
-                        sf::Packet packet;
-                        packet << PacketType::LIGHT_CHANGE << curr_block.getX() << curr_block.getY() << curr_block.getLightLevel();
-                        connection.send(packet);
-                    }
-                }
-        }
+        connection.send(packet);
 }

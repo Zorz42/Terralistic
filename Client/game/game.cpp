@@ -1,6 +1,7 @@
 #include <thread>
 #include <cassert>
 #include <filesystem>
+
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "fileManager.hpp"
@@ -9,6 +10,7 @@
 #include "chat.hpp"
 #include "server.hpp"
 #include "blockSelector.hpp"
+#include "compress.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535
@@ -19,7 +21,7 @@ static std::thread server_thread;
 #define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
-class ServerStart : public gfx::Scene {
+class WorldStartingScreen : public gfx::Scene {
     MenuBack* menu_back;
     gfx::Sprite text;
     void init() override;
@@ -27,21 +29,19 @@ class ServerStart : public gfx::Scene {
     Server* server;
     ServerState prev_server_state = ServerState::NEUTRAL;
 public:
-    ServerStart(MenuBack* menu_back, Server* server) : menu_back(menu_back), server(server) {}
+    WorldStartingScreen(MenuBack* menu_back, Server* server) : menu_back(menu_back), server(server) {}
 };
 
-void ServerStart::init() {
+void WorldStartingScreen::init() {
     text.scale = 3;
     text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     text.createBlankImage(1, 1);
     text.orientation = gfx::CENTER;
 }
 
-void ServerStart::render() {
+void WorldStartingScreen::render() {
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
-        if(server->state == ServerState::RUNNING || server->state == ServerState::STOPPED)
-            gfx::returnFromScene();
         switch(server->state) {
             case ServerState::STARTING:
                 text.renderText("Starting server");
@@ -62,6 +62,10 @@ void ServerStart::render() {
             case ServerState::STOPPING:
                 text.renderText("Saving world");
                 break;
+            case ServerState::RUNNING:
+            case ServerState::STOPPED:
+                gfx::returnFromScene();
+                break;
             default:;
         }
         menu_back->setWidth(text.getWidth() + 300);
@@ -71,14 +75,13 @@ void ServerStart::render() {
 }
 
 void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
-  
     Server private_server(fileManager::getWorldsPath(), gfx::resource_path, fileManager::getWorldsPath() + world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
   
     private_server.setPrivate(true);
     server_thread = std::thread(&Server::start, &private_server, port);
     
-    ServerStart(menu_back, &private_server).run();
+    WorldStartingScreen(menu_back, &private_server).run();
 
     game(menu_back, "_", "127.0.0.1", port).run();
     private_server.stop();
@@ -86,7 +89,7 @@ void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    ServerStart(menu_back, &private_server).run();
+    WorldStartingScreen(menu_back, &private_server).run();
     
     server_thread.join();
 }
@@ -94,26 +97,31 @@ void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
 void game::init() {
     resource_pack.load("resourcePack");
     
-    blocks = new ClientBlocks(&networking_manager, &resource_pack);
-    blocks->createWorld(4400, 1200);
-    
     if(!networking_manager.establishConnection(ip_address, port)) {
         ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
     }
     
-    sf::Packet join_packet;
-    join_packet << username;
-    networking_manager.sendPacket(join_packet);
+    std::thread handshake_thread(&game::handshakeWithServer, this);
     
-    sf::Packet packet = networking_manager.getPacket();
+    gfx::Sprite text;
+    text.scale = 3;
+    text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
+    text.orientation = gfx::CENTER;
+    text.renderText("Getting terrain");
+    menu_back->setWidth(text.getWidth() + 300);
     
-    int x, y;
-    packet >> x >> y;
+    while(!handshake_done) {
+        gfx::clearWindow();
+        
+        menu_back->render();
+        text.render();
+        
+        gfx::updateWindow();
+    }
     
-    networking_manager.disableBlocking();
+    handshake_thread.join();
     
-    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, x, y, username);
     ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
     items = new ClientItems(&resource_pack, blocks);
     
@@ -131,6 +139,35 @@ void game::init() {
     };
 }
 
+void game::handshakeWithServer() {
+    sf::Packet join_packet;
+    join_packet << username;
+    networking_manager.sendPacket(join_packet);
+    networking_manager.flushPackets();
+    
+    sf::Packet packet = networking_manager.getPacket();
+    
+    int player_x, player_y;
+    packet >> player_x >> player_y;
+    unsigned short world_width, world_height;
+    packet >> world_width >> world_height;
+    
+    unsigned int size;
+    packet >> size;
+    
+    std::vector<char> map_data = networking_manager.getData(size);
+    
+    map_data = decompress(map_data);
+    
+    blocks = new ClientBlocks(&networking_manager, &resource_pack, world_width, world_height, map_data);
+    
+    networking_manager.disableBlocking();
+    
+    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, player_x, player_y, username);
+    
+    handshake_done = true;
+}
+
 void game::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
         case PacketType::KICK: {
@@ -145,7 +182,7 @@ void game::onEvent(ClientPacketEvent& event) {
 
 void game::update() {
     networking_manager.checkForPackets();
-    blocks->updateChunks();
+    networking_manager.flushPackets();
 }
 
 void game::render() {
@@ -153,7 +190,6 @@ void game::render() {
     int position_x = -(blocks->view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
-    blocks->updateVertexArray();
     blocks->renderBackBlocks();
     player_handler->renderPlayers();
     items->renderItems();
