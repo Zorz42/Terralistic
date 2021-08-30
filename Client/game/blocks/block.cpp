@@ -52,7 +52,7 @@ void ClientBlock::setBreakStage(unsigned char stage) {
 }
 
 short ClientBlocks::getViewBeginX() {
-    return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 1, 0);
+    return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
 short ClientBlocks::getViewEndX() {
@@ -60,7 +60,7 @@ short ClientBlocks::getViewEndX() {
 }
 
 short ClientBlocks::getViewBeginY() {
-    return std::max(view_y / (BLOCK_WIDTH * 2) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) - 1, 0);
+    return std::max(view_y / (BLOCK_WIDTH * 2) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
 short ClientBlocks::getViewEndY() {

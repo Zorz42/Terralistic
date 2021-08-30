@@ -56,9 +56,6 @@ void ServerNetworkingManager::checkForNewConnections() {
     }
 }
 
-#include "graphics.hpp"
-#include <iostream>
-
 void ServerNetworkingManager::getPacketsFromPlayers() {
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
@@ -95,7 +92,6 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             welcome_packet << player->x << player->y;
             welcome_packet << blocks->getWidth() << blocks->getHeight();
             
-            int start1 = gfx::getTicks();
             std::vector<char> map_data(blocks->getWidth() * blocks->getHeight() * 4);
             
             int* map_data_iter = (int*)&map_data[0];
@@ -105,11 +101,8 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     
                     *map_data_iter++ = (int)block.getBlockType() | (int)block.getLiquidType() << 8 | (int)block.getLiquidLevel() << 16 | (int)block.getLightLevel() << 24;
                 }
-            std::cout << "setting data on server: " << gfx::getTicks() - start1 << "ms" << std::endl;
             
-            int start2 = gfx::getTicks();
             map_data = compress(map_data);
-            std::cout << "compressing data on server: " << gfx::getTicks() - start2 << "ms" << std::endl;
             
             welcome_packet << (unsigned int)map_data.size();
             connections[i].send(welcome_packet);

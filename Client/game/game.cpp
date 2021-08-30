@@ -1,7 +1,6 @@
 #include <thread>
 #include <cassert>
 #include <filesystem>
-#include <iostream>
 
 #include "game.hpp"
 #include "pauseScreen.hpp"
@@ -157,13 +156,9 @@ void game::handshakeWithServer() {
     
     std::vector<char> map_data = networking_manager.getData(size);
     
-    int start2 = gfx::getTicks();
     map_data = decompress(map_data);
-    std::cout << "decompressing data on client: " << gfx::getTicks() - start2 << "ms" << std::endl;
     
-    int start3 = gfx::getTicks();
     blocks = new ClientBlocks(&networking_manager, &resource_pack, world_width, world_height, map_data);
-    std::cout << "applying data on client: " << gfx::getTicks() - start3 << "ms" << std::endl;
     
     networking_manager.disableBlocking();
     
