@@ -6,7 +6,7 @@ const LiquidInfo& ServerBlock::getUniqueLiquid() {
     return ::getLiquidInfo(block_data->liquid_type);
 }
 
-void ServerBlock::setTypeWithoutProcessing(LiquidType liquid_type) {
+void ServerBlock::setTypeDirectly(LiquidType liquid_type) {
     assert((int)liquid_type >= 0 && liquid_type < LiquidType::NUM_LIQUIDS);
     block_data->liquid_type = liquid_type;
 }
@@ -23,7 +23,7 @@ void ServerBlock::setType(LiquidType liquid_type) {
         if(event.cancelled)
             return;
         
-        setTypeWithoutProcessing(liquid_type);
+        setTypeDirectly(liquid_type);
         
         if(liquid_type == LiquidType::EMPTY)
             setLiquidLevel(0);
@@ -33,7 +33,7 @@ void ServerBlock::setType(LiquidType liquid_type) {
     }
 }
 
-void ServerBlock::setLiquidLevelWithoutProcessing(unsigned char level) {
+void ServerBlock::setLiquidDirectly(unsigned char level) {
     block_data->liquid_level = level;
 }
 
@@ -45,7 +45,7 @@ void ServerBlock::setLiquidLevel(unsigned char level) {
         if(event.cancelled)
             return;
         
-        setLiquidLevelWithoutProcessing(level);
+        setLiquidDirectly(level);
         if(level == 0)
             setType(LiquidType::EMPTY);
         

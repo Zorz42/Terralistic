@@ -20,12 +20,12 @@ public:
     
     ItemType getType() const { return type; }
     void setType(ItemType type_);
-    void setTypeWithoutProcessing(ItemType type_);
+    void setTypeDirectly(ItemType type_);
     
     const ItemInfo& getUniqueItem() const;
     unsigned short getStack() const;
     void setStack(unsigned short stack_);
-    void setStackWithoutProcessing(unsigned short stack_);
+    void setStackDirectly(unsigned short stack_);
     
     unsigned short increaseStack(unsigned short stack_);
     unsigned short decreaseStack(unsigned short stack_);

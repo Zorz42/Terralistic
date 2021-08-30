@@ -31,7 +31,7 @@ void WorldSelector::init() {
     new_button.scale = 3;
     new_button.renderText("New");
     new_button.y = -SPACING / 2;
-    new_button.orientation = gfx::BOTTOM_RIGHT;
+    new_button.orientation = gfx::BOTTOM;
     
     top_rect.orientation = gfx::TOP;
     top_rect.setHeight(TOP_HEIGHT);
@@ -122,7 +122,7 @@ void WorldSelector::onMouseScroll(int distance) {
 }
 
 void WorldSelector::render() {
-    menu_back->setWidth(gfx::getWindowWidth() / 5 * 4);
+    menu_back->setWidth(800);
     menu_back->render();
     
     bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
@@ -155,6 +155,6 @@ void WorldSelector::render() {
     title.render();
     back_button.render();
     
-    new_button.x = -SPACING / 2 - gfx::getWindowWidth() / 10;
+    new_button.x = menu_back->getWidth() / 2 - SPACING / 2 - new_button.getWidth() / 2;
     new_button.render();
 }

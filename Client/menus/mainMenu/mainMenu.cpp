@@ -22,8 +22,6 @@ void MainMenu::init() {
     title.orientation = gfx::TOP;
     title.y = 40;
     
-    menu_back.setWidth(singleplayer_button.getWidth() + 100);
-    
 #ifdef DEVELOPER_MODE
     debug_title.renderText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
@@ -45,18 +43,15 @@ void MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(exit_button.isHovered())
             gfx::returnFromScene();
-        else if(singleplayer_button.isHovered()) {
+        else if(singleplayer_button.isHovered())
             WorldSelector(&menu_back).run();
-            menu_back.setWidth(singleplayer_button.getWidth() + 100);
-        }
-        else if(multiplayer_button.isHovered()) {
+        else if(multiplayer_button.isHovered())
             MultiplayerSelector(&menu_back).run();
-            menu_back.setWidth(singleplayer_button.getWidth() + 100);
-        }
     }
 }
 
 void MainMenu::render() {
+    menu_back.setWidth(singleplayer_button.getWidth() + 100);
     menu_back.render();
 
     title.render();

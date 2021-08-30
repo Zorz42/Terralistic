@@ -45,7 +45,7 @@ public:
     unsigned short getY() const { return y; }
     void breakBlock();
     
-    void setTypeWithoutProcessing(BlockType block_type);
+    void setTypeDirectly(BlockType block_type);
     void setType(BlockType block_type);
     void setBreakProgress(unsigned short ms);
     unsigned short getBreakProgress() { return block_data->break_progress; }
@@ -53,14 +53,14 @@ public:
     BlockType getBlockType() { return block_data->block_type; }
     const BlockInfo& getUniqueBlock();
     
-    void setTypeWithoutProcessing(LiquidType liquid_type);
+    void setTypeDirectly(LiquidType liquid_type);
     void setType(LiquidType liquid_type);
     
     void liquidUpdate();
     LiquidType getLiquidType() { return block_data->liquid_type; }
     bool canUpdateLiquid();
     void setLiquidLevel(unsigned char level);
-    void setLiquidLevelWithoutProcessing(unsigned char level);
+    void setLiquidDirectly(unsigned char level);
     unsigned char getLiquidLevel() { return block_data->liquid_level; }
     FlowDirection getFlowDirection() { return block_data->flow_direction; }
     void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }

@@ -1,7 +1,7 @@
 #include "serverPlayers.hpp"
 #include "properties.hpp"
 
-void InventoryItem::setTypeWithoutProcessing(ItemType type_) {
+void InventoryItem::setTypeDirectly(ItemType type_) {
     inventory->item_counts[(int)type] -= stack;
     inventory->item_counts[(int)type_] += stack;
     type = type_;
@@ -15,7 +15,7 @@ void InventoryItem::setType(ItemType type_) {
         if(event.cancelled)
             return;
         
-        setTypeWithoutProcessing(type_);
+        setTypeDirectly(type_);
         inventory->updateAvailableRecipes();
     }
 }
@@ -24,7 +24,7 @@ const ItemInfo& InventoryItem::getUniqueItem() const {
     return ::getItemInfo(type);
 }
 
-void InventoryItem::setStackWithoutProcessing(unsigned short stack_) {
+void InventoryItem::setStackDirectly(unsigned short stack_) {
     inventory->item_counts[(int)type] += (int)stack_ - stack;
     stack = stack_;
 }
@@ -37,7 +37,7 @@ void InventoryItem::setStack(unsigned short stack_) {
         if(event.cancelled)
             return;
         
-        setStackWithoutProcessing(stack_);
+        setStackDirectly(stack_);
         inventory->updateAvailableRecipes();
         if(!stack)
             setType(ItemType::NOTHING);
@@ -126,8 +126,8 @@ void ServerInventory::swapWithMouseItem(InventoryItem* item) {
 }
 
 char* InventoryItem::loadFromSerial(char* iter) {
-    setTypeWithoutProcessing((ItemType)*iter++);
-    setStackWithoutProcessing(*(short*)iter);
+    setTypeDirectly((ItemType)*iter++);
+    setStackDirectly(*(short*)iter);
     iter += 2;
     return iter;
 }

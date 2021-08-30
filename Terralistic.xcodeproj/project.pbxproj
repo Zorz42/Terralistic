@@ -886,8 +886,8 @@
 		365721FB26D07181005AB3CC /* multiplayerSelector */ = {
 			isa = PBXGroup;
 			children = (
-				365721FC26D07181005AB3CC /* multiplayerSelector.cpp */,
 				365721FD26D07181005AB3CC /* multiplayerSelector.hpp */,
+				365721FC26D07181005AB3CC /* multiplayerSelector.cpp */,
 			);
 			path = multiplayerSelector;
 			sourceTree = "<group>";
@@ -913,8 +913,8 @@
 		3657220426D07181005AB3CC /* mainMenu */ = {
 			isa = PBXGroup;
 			children = (
-				3657220526D07181005AB3CC /* mainMenu.cpp */,
 				3657220626D07181005AB3CC /* mainMenu.hpp */,
+				3657220526D07181005AB3CC /* mainMenu.cpp */,
 			);
 			path = mainMenu;
 			sourceTree = "<group>";

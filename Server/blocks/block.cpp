@@ -10,7 +10,7 @@ const BlockInfo& ServerBlock::getUniqueBlock() {
     return ::getBlockInfo(block_data->block_type);
 }
 
-void ServerBlock::setTypeWithoutProcessing(BlockType block_type) {
+void ServerBlock::setTypeDirectly(BlockType block_type) {
     assert((int)block_type >= 0 && block_type < BlockType::NUM_BLOCKS);
     block_data->block_type = block_type;
 }
@@ -24,7 +24,7 @@ void ServerBlock::setType(BlockType block_type) {
             return;
         
         parent_map->removeNaturalLight(x);
-        setTypeWithoutProcessing(block_type);
+        setTypeDirectly(block_type);
         parent_map->setNaturalLight(x);
         
         update();

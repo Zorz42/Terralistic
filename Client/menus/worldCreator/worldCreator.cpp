@@ -33,8 +33,6 @@ void WorldCreator::init() {
         return '\0';
     };
     
-    menu_back->setWidth(world_name.getWidth() + 100);
-    
     world_name.def_color.a = TRANSPARENCY;
     
     text_inputs = {&world_name};
@@ -50,6 +48,7 @@ void WorldCreator::onKeyDown(gfx::Key key) {
 }
 
 void WorldCreator::render() {
+    menu_back->setWidth(world_name.getWidth() + 100);
     menu_back->render();
     if(can_create != (!world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText()))) {
         can_create = !can_create;

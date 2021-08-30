@@ -30,8 +30,6 @@ void ChoiceScreen::init() {
         i.gfx_button.x = curr_x + i.gfx_button.getWidth() / 2;
         curr_x += i.gfx_button.getWidth();
     }
-    
-    menu_back->setWidth(question_sprite.getWidth() + 100);
 }
 
 void ChoiceScreen::onKeyDown(gfx::Key key) {
@@ -46,6 +44,7 @@ void ChoiceScreen::onKeyDown(gfx::Key key) {
 }
 
 void ChoiceScreen::render() {
+    menu_back->setWidth(question_sprite.getWidth() + 100);
     menu_back->render();
     for(ChoiceScreenButton& i : buttons)
         i.gfx_button.render();
