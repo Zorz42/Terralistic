@@ -2,27 +2,25 @@
 #include <fstream>
 
 void ServerBlocks::serialize(std::vector<char>& serial) {
-    unsigned long initial_pos = serial.size();
+    unsigned long initial_pos = serial.size(), iter = initial_pos;
     serial.resize(serial.size() + width * height * 3);
-    for(int y = 0; y < height; y++) {
-        for(int x = 0; x < width; x++) {
-            ServerBlock curr_block = getBlock(x, y);
-            unsigned long pos = initial_pos + (y * width + x) * 3;
-            serial[pos] = (char)curr_block.getBlockType();
-            serial[pos + 1] = (char)curr_block.getLiquidType();
-            serial[pos + 2] = (char)curr_block.getLiquidLevel();
-        }
+    ServerMapBlock* block_iter = blocks;
+    for(int i = 0; i < width * height; i++) {
+        serial[iter++] = (char)block_iter->block_type;
+        serial[iter++] = (char)block_iter->liquid_type;
+        serial[iter++] = (char)block_iter->liquid_level;
+        block_iter++;
     }
 }
 
 char* ServerBlocks::loadFromSerial(char* iter) {
-    for(int y = 0; y < height; y++) {
-        for(int x = 0; x < width; x++) {
-            ServerBlock curr_block = getBlock(x, y);
-            curr_block.setTypeWithoutProcessing((BlockType)*iter++);
-            curr_block.setTypeWithoutProcessing((LiquidType)*iter++);
-            curr_block.setLiquidLevel(*iter++);
-        }
+    ServerMapBlock* block_iter = blocks;
+    for(int i = 0; i < width * height; i++) {
+        block_iter->block_type = (BlockType)*iter++;
+        block_iter->liquid_type = (LiquidType)*iter++;
+        block_iter->liquid_level = *iter++;
+        
+        block_iter++;
     }
     return iter;
 }

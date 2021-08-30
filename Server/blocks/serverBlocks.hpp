@@ -97,6 +97,8 @@ public:
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
     
+    std::vector<char> toData();
+    
     void saveTo(const std::string& path);
     void loadFrom(const std::string& path);
     
