@@ -1,47 +1,56 @@
 #include "clientNetworking.hpp"
 
-void networkingManager::sendPacket(sf::Packet& packet) {
-    socket.send(packet);
+void NetworkingManager::sendPacket(sf::Packet& packet) {
+    master_packet.append(packet.getData(), packet.getDataSize());
 }
 
-void networkingManager::checkForPackets() {
+void NetworkingManager::checkForPackets() {
     sf::Packet packet;
     
     while(true) {
         sf::Socket::Status status = socket.receive(packet);
         if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
-            PacketType packet_type;
-            packet >> packet_type;
-            ClientPacketEvent(packet, packet_type).call();
+            while(!packet.endOfPacket()) {
+                PacketType packet_type;
+                packet >> packet_type;
+                ClientPacketEvent(packet, packet_type).call();
+            }
         } else
             break;
     }
 }
 
-bool networkingManager::establishConnection(const std::string &ip, unsigned short port) {
+bool NetworkingManager::establishConnection(const std::string &ip, unsigned short port) {
     if(socket.connect(ip, port) != sf::Socket::Done)
         return false;
     
     return true;
 }
 
-void networkingManager::disableBlocking() {
+void NetworkingManager::disableBlocking() {
     socket.setBlocking(false);
 }
 
-void networkingManager::closeConnection() {
+void NetworkingManager::closeConnection() {
     socket.disconnect();
 }
 
-sf::Packet networkingManager::getPacket() {
+sf::Packet NetworkingManager::getPacket() {
     sf::Packet packet;
     socket.receive(packet);
     return packet;
 }
 
-std::vector<char> networkingManager::getData(unsigned int size) {
+std::vector<char> NetworkingManager::getData(unsigned int size) {
     std::vector<char> data(size);
     size_t received;
     socket.receive(&data[0], size, received);
     return data;
+}
+
+void NetworkingManager::flushPackets() {
+    if(master_packet.getDataSize()) {
+        socket.send(master_packet);
+        master_packet.clear();
+    }
 }

@@ -3,7 +3,7 @@
 #include "compress.hpp"
 
 void Connection::send(sf::Packet& packet) {
-    socket->send(packet);
+    master_packet.append(packet.getData(), packet.getDataSize());
 }
 
 void Connection::send(std::vector<char>& data) {
@@ -23,6 +23,13 @@ std::string Connection::getIpAddress() {
 
 void Connection::freeSocket() {
     delete socket;
+}
+
+void Connection::flushPacket() {
+    if(master_packet.getDataSize()) {
+        socket->send(master_packet);
+        master_packet.clear();
+    }
 }
 
 void ServerNetworkingManager::openSocket(unsigned short port) {
@@ -77,9 +84,11 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     
                     break;
                 } else if(status == sf::Socket::Done) {
-                    unsigned char packet_type;
-                    packet >> packet_type;
-                    onPacket(packet, (PacketType)packet_type, connections[i]);
+                    while(!packet.endOfPacket()) {
+                        unsigned char packet_type;
+                        packet >> packet_type;
+                        onPacket(packet, (PacketType)packet_type, connections[i]);
+                    }
                 }
             }
         } else if(connections[i].receive(packet) != sf::Socket::NotReady) {
@@ -106,6 +115,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             
             welcome_packet << (unsigned int)map_data.size();
             connections[i].send(welcome_packet);
+            connections[i].flushPacket();
             connections[i].send(map_data);
 
             for(ServerPlayer* curr_player : players->getOnlinePlayers())
@@ -133,4 +143,9 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
         }
     }
+}
+
+void ServerNetworkingManager::flushPackets() {
+    for(Connection& connection : connections)
+        connection.flushPacket();
 }

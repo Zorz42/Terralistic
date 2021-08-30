@@ -1,7 +1,7 @@
 #include "clientInventory.hpp"
 #include "resourcePack.hpp"
 
-ClientInventory::ClientInventory(networkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack), mouse_item(resource_pack) {
+ClientInventory::ClientInventory(NetworkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack), mouse_item(resource_pack) {
     for(ClientInventoryItem& item : inventory)
         item = ClientInventoryItem(resource_pack);
 }
@@ -107,11 +107,14 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             for(DisplayRecipe* recipe : available_recipes)
                 delete recipe;
             available_recipes.clear();
-            int y;
-            for(y = 1.5 * INVENTORY_UI_SPACING; !event.packet.endOfPacket(); y += INVENTORY_ITEM_BACK_RECT_WIDTH + INVENTORY_UI_SPACING) {
+            unsigned short num_of_recipes;
+            event.packet >> num_of_recipes;
+            int y = 1.5 * INVENTORY_UI_SPACING;
+            for(int i = 0; i < num_of_recipes; i++) {
                 unsigned short index;
                 event.packet >> index;
                 available_recipes.emplace_back(new DisplayRecipe(&getRecipes()[index], resource_pack, 1.5 * INVENTORY_UI_SPACING, y));
+                y += INVENTORY_ITEM_BACK_RECT_WIDTH + INVENTORY_UI_SPACING;
             }
             if(available_recipes.empty())
                 behind_crafting_rect.setHeight(0);

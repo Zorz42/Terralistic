@@ -17,7 +17,7 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent> {
     const std::string ip_address;
     const unsigned short port;
     std::string username;
-    networkingManager networking_manager;
+    NetworkingManager networking_manager;
     ResourcePack resource_pack;
     ClientBlocks *blocks;
     ClientPlayers* player_handler;

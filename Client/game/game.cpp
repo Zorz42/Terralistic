@@ -143,6 +143,7 @@ void game::handshakeWithServer() {
     sf::Packet join_packet;
     join_packet << username;
     networking_manager.sendPacket(join_packet);
+    networking_manager.flushPackets();
     
     sf::Packet packet = networking_manager.getPacket();
     
@@ -181,6 +182,7 @@ void game::onEvent(ClientPacketEvent& event) {
 
 void game::update() {
     networking_manager.checkForPackets();
+    networking_manager.flushPackets();
 }
 
 void game::render() {

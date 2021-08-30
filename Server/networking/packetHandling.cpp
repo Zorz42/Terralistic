@@ -143,7 +143,7 @@ void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
     for(Connection& connection : connections)
         if(connection.player && &connection.player->inventory == event.inventory) {
             sf::Packet packet;
-            packet << PacketType::RECIPE_AVAILABILTY_CHANGE;
+            packet << PacketType::RECIPE_AVAILABILTY_CHANGE << (unsigned short)event.inventory->getAvailableRecipes().size();
             for(const Recipe* recipe : event.inventory->getAvailableRecipes())
                 packet << getRecipeIndex(recipe);
             connection.send(packet);

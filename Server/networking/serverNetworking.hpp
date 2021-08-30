@@ -8,6 +8,7 @@
 
 class Connection {
     sf::TcpSocket* socket;
+    sf::Packet master_packet;
 public:
     explicit Connection(sf::TcpSocket* socket) : socket(socket) {}
     ServerPlayer* player = nullptr;
@@ -16,7 +17,7 @@ public:
     sf::Socket::Status receive(sf::Packet& packet);
     std::string getIpAddress();
     void freeSocket();
-    
+    void flushPacket();
 };
 
 class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerLightChangeEvent> {
@@ -51,6 +52,7 @@ public:
     
     void checkForNewConnections();
     void getPacketsFromPlayers();
+    void flushPackets();
     
     bool accept_itself = false;
 };

@@ -51,7 +51,7 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     unsigned short width{}, height{};
     ClientMapBlock *blocks = nullptr;
 
-    networkingManager* networking_manager;
+    NetworkingManager* networking_manager;
     
     void onEvent(ClientPacketEvent& event) override;
     
@@ -63,7 +63,7 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     short getViewEndY();
     
 public:
-    ClientBlocks(networkingManager* manager, ResourcePack* resource_pack, unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
+    ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack, unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
     int view_x{}, view_y{};
 
     ResourcePack* getResourcePack() { return resource_pack; }

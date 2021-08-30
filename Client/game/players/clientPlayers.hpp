@@ -51,10 +51,10 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     void onEvent(ClientPacketEvent& event) override;
     
     ClientBlocks* blocks;
-    networkingManager* manager;
+    NetworkingManager* manager;
     ResourcePack* resource_pack;
 public:
-    ClientPlayers(networkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, int x, int y, std::string username);
+    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, int x, int y, std::string username);
     
     unsigned short getPlayerWidth();
     unsigned short getPlayerHeight();

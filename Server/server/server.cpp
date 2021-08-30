@@ -92,6 +92,7 @@ void Server::start(unsigned short port) {
             gfx::sleep(ms_per_tick - tick_length);
         b = a;
 
+        networking_manager.flushPackets();
         networking_manager.checkForNewConnections();
         networking_manager.getPacketsFromPlayers();
         items.updateItems(tick_length);

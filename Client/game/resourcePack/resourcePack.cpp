@@ -63,7 +63,7 @@ void ResourcePack::load(std::string path) {
 void ResourcePack::loadBlocks(std::string path) {
     gfx::Image block_textures[(int)BlockType::NUM_BLOCKS];
 
-    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++)
+    for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++)
         block_textures[i].loadFromFile(path + "/blocks/" + getBlockInfo((BlockType)i).name + ".png");
 
     unsigned short max_y_size = 0;
@@ -87,7 +87,6 @@ void ResourcePack::loadBlocks(std::string path) {
 
 void ResourcePack::loadLiquids(std::string path) {
     gfx::Image liquid_textures[(int)LiquidType::NUM_LIQUIDS];
-
 
     for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++)
         liquid_textures[i].loadFromFile(path + "/liquids/" + getLiquidInfo((LiquidType)i).name + ".png");
