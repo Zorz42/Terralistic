@@ -38,7 +38,7 @@ void ClientBlock::updateOrientation() {
                     x + x_[i] >= parent_map->getWidth() || x + x_[i] < 0 || y + y_[i] >= parent_map->getHeight() || y + y_[i] < 0 ||
                     parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
                     std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType())
-                    )
+                )
                 block_data->orientation += c;
             c += c;
         }
@@ -70,28 +70,33 @@ short ClientBlocks::getViewEndY() {
 void ClientBlocks::renderBackBlocks() {
     sf::VertexArray block_vertex_array(sf::Quads, (getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()) * 4);
     
+    int block_index = 0;
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
-            int index = ((x - getViewBeginX()) * (getViewEndY() - getViewBeginY()) + (y - getViewBeginY())) * 4;
-            int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
-            
             if(getBlock(x, y).getOrientation() == 16)
                 getBlock(x, y).updateOrientation();
             
-            float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).y + BLOCK_WIDTH * getBlock(x, y).getOrientation();
-            
-            block_vertex_array[index].texCoords = {0.f, texture_y};
-            block_vertex_array[index + 1].texCoords = {(float)BLOCK_WIDTH, texture_y};
-            block_vertex_array[index + 2].texCoords = {(float)BLOCK_WIDTH, texture_y + BLOCK_WIDTH};
-            block_vertex_array[index + 3].texCoords = {0.f, texture_y + BLOCK_WIDTH};
-            
-            block_vertex_array[index].position = {(float)block_x, (float)block_y};
-            block_vertex_array[index + 1].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y};
-            block_vertex_array[index + 2].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y + BLOCK_WIDTH * 2};
-            block_vertex_array[index + 3].position = {(float)block_x, (float)block_y + BLOCK_WIDTH * 2};
+            if(getBlock(x, y).getBlockType() != BlockType::AIR) {
+                int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
+                float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).y + BLOCK_WIDTH * getBlock(x, y).getOrientation();
+                
+                block_vertex_array[block_index].texCoords = {0.f, texture_y};
+                block_vertex_array[block_index + 1].texCoords = {(float)BLOCK_WIDTH, texture_y};
+                block_vertex_array[block_index + 2].texCoords = {(float)BLOCK_WIDTH, texture_y + BLOCK_WIDTH};
+                block_vertex_array[block_index + 3].texCoords = {0.f, texture_y + BLOCK_WIDTH};
+                
+                block_vertex_array[block_index].position = {(float)block_x, (float)block_y};
+                block_vertex_array[block_index + 1].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y};
+                block_vertex_array[block_index + 2].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y + BLOCK_WIDTH * 2};
+                block_vertex_array[block_index + 3].position = {(float)block_x, (float)block_y + BLOCK_WIDTH * 2};
+                
+                block_index += 4;
+            }
         }
     
-    gfx::drawVertices(block_vertex_array, resource_pack->getBlockTexture().getSfmlTexture()->getTexture());
+    block_vertex_array.resize(block_index);
+    if(block_index)
+        gfx::drawVertices(block_vertex_array, resource_pack->getBlockTexture().getSfmlTexture()->getTexture());
     
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
@@ -107,38 +112,51 @@ void ClientBlocks::renderFrontBlocks() {
     sf::VertexArray liquid_vertex_array(sf::Quads, (getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()) * 4);
     sf::VertexArray light_vertex_array(sf::Quads, (getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()) * 4);
     
+    int light_index = 0, liquid_index = 0;
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
             int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
-            int index = ((x - getViewBeginX()) * (getViewEndY() - getViewBeginY()) + (y - getViewBeginY())) * 4;
-            sf::Color light_color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, y).getLightLevel()) };
-            
-            light_vertex_array[index].position = {(float)block_x + BLOCK_WIDTH, (float)block_y + BLOCK_WIDTH};
-            light_vertex_array[index + 1].position = {(float)block_x + BLOCK_WIDTH * 3, (float)block_y + BLOCK_WIDTH};
-            light_vertex_array[index + 2].position = {(float)block_x + BLOCK_WIDTH * 3, (float)block_y + BLOCK_WIDTH * 3};
-            light_vertex_array[index + 3].position = {(float)block_x + BLOCK_WIDTH, (float)block_y + BLOCK_WIDTH * 3};
             
             unsigned short low_x = x + 1 == getWidth() ? x : x + 1, low_y = y + 1 == getHeight() ? y : y + 1;
-            light_vertex_array[index].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, y).getLightLevel()) };
-            light_vertex_array[index + 1].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(low_x, y).getLightLevel()) };
-            light_vertex_array[index + 2].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(low_x, low_y).getLightLevel()) };
-            light_vertex_array[index + 3].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, low_y).getLightLevel()) };
+            unsigned char light_levels[] = {getBlock(x, y).getLightLevel(), getBlock(low_x, y).getLightLevel(), getBlock(low_x, low_y).getLightLevel(), getBlock(x, low_y).getLightLevel()};
+            
+            if(light_levels[0] != MAX_LIGHT || light_levels[1] != MAX_LIGHT || light_levels[2] != MAX_LIGHT || light_levels[3] != MAX_LIGHT) {
+                light_vertex_array[light_index].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, y).getLightLevel()) };
+                light_vertex_array[light_index + 1].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(low_x, y).getLightLevel()) };
+                light_vertex_array[light_index + 2].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(low_x, low_y).getLightLevel()) };
+                light_vertex_array[light_index + 3].color = { 0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, low_y).getLightLevel()) };
+                
+                light_vertex_array[light_index].position = {(float)block_x + BLOCK_WIDTH, (float)block_y + BLOCK_WIDTH};
+                light_vertex_array[light_index + 1].position = {(float)block_x + BLOCK_WIDTH * 3, (float)block_y + BLOCK_WIDTH};
+                light_vertex_array[light_index + 2].position = {(float)block_x + BLOCK_WIDTH * 3, (float)block_y + BLOCK_WIDTH * 3};
+                light_vertex_array[light_index + 3].position = {(float)block_x + BLOCK_WIDTH, (float)block_y + BLOCK_WIDTH * 3};
+                
+                light_index += 4;
+            }
 
-            float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getLiquidType()).y * 2,
-            texture_height = getBlock(x, y).getLiquidLevel();
-            
-            liquid_vertex_array[index].texCoords = {0.f, texture_y};
-            liquid_vertex_array[index + 1].texCoords = {(float)BLOCK_WIDTH, texture_y};
-            liquid_vertex_array[index + 2].texCoords = {(float)BLOCK_WIDTH, texture_y + texture_height};
-            liquid_vertex_array[index + 3].texCoords = {0.f, texture_y + texture_height};
-            
-            int level = ((int)getBlock(x, y).getLiquidLevel() + 1) / 8;
-            liquid_vertex_array[index].position = {(float)block_x, (float)block_y + BLOCK_WIDTH * 2 - level};
-            liquid_vertex_array[index + 1].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y + BLOCK_WIDTH * 2 - level};
-            liquid_vertex_array[index + 2].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y + BLOCK_WIDTH * 2};
-            liquid_vertex_array[index + 3].position = {(float)block_x, (float)block_y + BLOCK_WIDTH * 2};
+            if(getBlock(x, y).getLiquidType() != LiquidType::EMPTY) {
+                float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getLiquidType()).y * 2,
+                texture_height = getBlock(x, y).getLiquidLevel();
+                
+                liquid_vertex_array[liquid_index].texCoords = {0.f, texture_y};
+                liquid_vertex_array[liquid_index + 1].texCoords = {(float)BLOCK_WIDTH, texture_y};
+                liquid_vertex_array[liquid_index + 2].texCoords = {(float)BLOCK_WIDTH, texture_y + texture_height};
+                liquid_vertex_array[liquid_index + 3].texCoords = {0.f, texture_y + texture_height};
+                
+                int level = ((int)getBlock(x, y).getLiquidLevel() + 1) / 8;
+                liquid_vertex_array[liquid_index].position = {(float)block_x, (float)block_y + BLOCK_WIDTH * 2 - level};
+                liquid_vertex_array[liquid_index + 1].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y + BLOCK_WIDTH * 2 - level};
+                liquid_vertex_array[liquid_index + 2].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y + BLOCK_WIDTH * 2};
+                liquid_vertex_array[liquid_index + 3].position = {(float)block_x, (float)block_y + BLOCK_WIDTH * 2};
+                liquid_index += 4;
+            }
         }
     
-    gfx::drawVertices(liquid_vertex_array, resource_pack->getLiquidTexture().getSfmlTexture()->getTexture());
-    gfx::drawVertices(light_vertex_array);
+    liquid_vertex_array.resize(liquid_index);
+    if(liquid_index)
+        gfx::drawVertices(liquid_vertex_array, resource_pack->getLiquidTexture().getSfmlTexture()->getTexture());
+    
+    light_vertex_array.resize(light_index);
+    if(light_index)
+        gfx::drawVertices(light_vertex_array);
 }
