@@ -15,13 +15,11 @@ void PauseScreen::init() {
     quit_button.renderText("Leave Game");
     quit_button.y = settings_button.y + settings_button.getHeight() + SPACING;
     
-    int width = quit_button.getWidth() + 2 * SPACING;
-    back_rect.setWidth(width);
     back_rect.c.a = TRANSPARENCY;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = BORDER_COLOR;
     back_rect.border_color.a = TRANSPARENCY;
-    back_rect.setX(-width - 200);
+    back_rect.setX(-(quit_button.getWidth() + 2 * SPACING) - 200);
     back_rect.smooth_factor = 3;
     back_rect.blur_intensity = BLUR;
 }
@@ -41,6 +39,8 @@ void PauseScreen::onKeyDown(gfx::Key key) {
 }
 
 void PauseScreen::render() {
+    if(!returning_to_game)
+        back_rect.setWidth(quit_button.getWidth() + 2 * SPACING);
     renderBackground();
     renderButtons();
 }
@@ -56,12 +56,6 @@ void PauseScreen::renderBackground() {
         fade_rect.blur_intensity = 0;
     fade_rect.render();
     back_rect.render();
-    
-    if(returning_to_game) {
-        if(back_rect.getX() == -back_rect.getWidth() - 200)
-            gfx::returnFromScene();
-    } else
-        back_rect.setX(0);
 }
 
 void PauseScreen::renderButtons() {
@@ -71,6 +65,12 @@ void PauseScreen::renderButtons() {
     resume_button.render(mouse_x, mouse_y);
     settings_button.render(mouse_x, mouse_y);
     quit_button.render(mouse_x, mouse_y);
+    
+    if(returning_to_game) {
+        if(back_rect.getX() == -back_rect.getWidth() - 200)
+            gfx::returnFromScene();
+    } else
+        back_rect.setX(0);
 }
 
 void PauseScreen::returnToGame() {
@@ -89,4 +89,13 @@ bool PauseScreen::hasExitedToMenu() {
 
 void PauseScreen::renderBack() {
     renderBackground();
+    back_rect.setX(gfx::getWindowWidth() / 2 - getBackWidth() / 2);
+}
+
+void PauseScreen::setBackWidth(unsigned short width) {
+    back_rect.setWidth(width);
+}
+
+unsigned short PauseScreen::getBackWidth() {
+    return back_rect.getWidth();
 }

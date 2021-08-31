@@ -23,8 +23,8 @@ public:
     bool hasExitedToMenu();
     
     void renderBack() override;
-    void setBackWidth(unsigned short width) override { }
-    unsigned short getBackWidth() override { return 0; }
+    void setBackWidth(unsigned short width) override;
+    unsigned short getBackWidth() override;
 };
 
 #endif
