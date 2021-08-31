@@ -48,8 +48,8 @@ void WorldCreator::onKeyDown(gfx::Key key) {
 }
 
 void WorldCreator::render() {
-    menu_back->setWidth(world_name.getWidth() + 100);
-    menu_back->render();
+    menu_back->setBackWidth(world_name.getWidth() + 100);
+    menu_back->renderBack();
     if(can_create != (!world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText()))) {
         can_create = !can_create;
         create_button.renderText("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)});

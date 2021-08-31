@@ -13,9 +13,9 @@ class MultiplayerSelector : public gfx::Scene {
     gfx::Sprite server_ip_title, username_title;
     gfx::TextInput server_ip, username;
     bool can_connect = true;
-    MenuBack* menu_back;
+    BackgroundRect* menu_back;
 public:
-    MultiplayerSelector(MenuBack* menu_back) : menu_back(menu_back) {}
+    MultiplayerSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
 };
 
 #endif

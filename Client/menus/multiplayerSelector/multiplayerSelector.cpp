@@ -70,8 +70,8 @@ void MultiplayerSelector::onKeyDown(gfx::Key key) {
 }
 
 void MultiplayerSelector::render() {
-    menu_back->setWidth(username.getWidth() + 100);
-    menu_back->render();
+    menu_back->setBackWidth(username.getWidth() + 100);
+    menu_back->renderBack();
     if(can_connect != (username.getText().size() >= 3 && !server_ip.getText().empty())) {
         can_connect = !can_connect;
         join_button.renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)});

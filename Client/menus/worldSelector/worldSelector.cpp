@@ -122,8 +122,8 @@ void WorldSelector::onMouseScroll(int distance) {
 }
 
 void WorldSelector::render() {
-    menu_back->setWidth(800);
-    menu_back->render();
+    menu_back->setBackWidth(800);
+    menu_back->renderBack();
     
     bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
@@ -135,7 +135,7 @@ void WorldSelector::render() {
     for(WorldToSelect& world : worlds)
         world.render(position);
 
-    top_rect.setWidth(menu_back->getWidth());
+    top_rect.setWidth(menu_back->getBackWidth());
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
     if(top_rect_visibility < 0.01f)
         top_rect_visibility = 0;
@@ -147,7 +147,7 @@ void WorldSelector::render() {
     if(top_rect_visibility)
         top_rect.render();
     
-    bottom_rect.setWidth(menu_back->getWidth());
+    bottom_rect.setWidth(menu_back->getBackWidth());
     int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
     if(scroll_limit_ > 0)
         bottom_rect.render();
@@ -155,6 +155,6 @@ void WorldSelector::render() {
     title.render();
     back_button.render();
     
-    new_button.x = menu_back->getWidth() / 2 - SPACING / 2 - new_button.getWidth() / 2;
+    new_button.x = menu_back->getBackWidth() / 2 - SPACING / 2 - new_button.getWidth() / 2;
     new_button.render();
 }

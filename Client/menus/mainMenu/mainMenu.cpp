@@ -51,8 +51,8 @@ void MainMenu::onKeyDown(gfx::Key key) {
 }
 
 void MainMenu::render() {
-    menu_back.setWidth(singleplayer_button.getWidth() + 100);
-    menu_back.render();
+    menu_back.setBackWidth(singleplayer_button.getWidth() + 100);
+    menu_back.renderBack();
 
     title.render();
 #ifdef DEVELOPER_MODE

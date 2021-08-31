@@ -2,7 +2,7 @@
 
 #include <utility>
 
-ChoiceScreen::ChoiceScreen(MenuBack* menu_back, std::string question, const std::vector<std::string>& options, std::string* result) : menu_back(menu_back), question(std::move(question)), result(result) {
+ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, const std::vector<std::string>& options, std::string* result) : menu_back(menu_back), question(std::move(question)), result(result) {
     for(const std::string& option : options) {
         buttons.emplace_back();
         buttons.back().option = option;
@@ -44,8 +44,8 @@ void ChoiceScreen::onKeyDown(gfx::Key key) {
 }
 
 void ChoiceScreen::render() {
-    menu_back->setWidth(question_sprite.getWidth() + 100);
-    menu_back->render();
+    menu_back->setBackWidth(question_sprite.getWidth() + 100);
+    menu_back->renderBack();
     for(ChoiceScreenButton& i : buttons)
         i.gfx_button.render();
     question_sprite.render();
