@@ -39,9 +39,9 @@ void WorldCreator::init() {
 }
 
 void WorldCreator::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(mouse_x, mouse_y))
         gfx::returnFromScene();
-    else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered()) || (key == gfx::Key::ENTER && can_create)) {
+    else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(mouse_x, mouse_y)) || (key == gfx::Key::ENTER && can_create)) {
         startPrivateWorld(world_name.getText(), menu_back);
         gfx::returnFromScene();
     }
@@ -55,8 +55,8 @@ void WorldCreator::render() {
         create_button.renderText("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)});
         create_button.disabled = !can_create;
     }
-    create_button.render();
-    back_button.render();
+    create_button.render(mouse_x, mouse_y);
+    back_button.render(mouse_x, mouse_y);
     new_world_title.render();
-    world_name.render();
+    world_name.render(mouse_x, mouse_y);
 }

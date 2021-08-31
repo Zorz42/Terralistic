@@ -759,7 +759,6 @@
 				365721D326D07180005AB3CC /* chat */,
 				365721D726D07180005AB3CC /* inventory */,
 				365721DB26D07180005AB3CC /* debugMenu */,
-				365721DE26D07180005AB3CC /* pauseScreen */,
 				365721E126D07180005AB3CC /* items */,
 				365721E426D07180005AB3CC /* resourcePack */,
 				365721E726D07180005AB3CC /* players */,
@@ -885,6 +884,7 @@
 		365721FA26D07181005AB3CC /* menus */ = {
 			isa = PBXGroup;
 			children = (
+				365721DE26D07180005AB3CC /* pauseScreen */,
 				16670CDD26DDFA990057AA41 /* settings */,
 				365721FB26D07181005AB3CC /* multiplayerSelector */,
 				365721FE26D07181005AB3CC /* choiceScreen */,
@@ -935,8 +935,8 @@
 		3657220726D07181005AB3CC /* worldSelector */ = {
 			isa = PBXGroup;
 			children = (
-				3657220826D07181005AB3CC /* worldSelector.cpp */,
 				3657220926D07181005AB3CC /* worldSelector.hpp */,
+				3657220826D07181005AB3CC /* worldSelector.cpp */,
 			);
 			path = worldSelector;
 			sourceTree = "<group>";
@@ -944,8 +944,8 @@
 		3657220A26D07181005AB3CC /* menuBack */ = {
 			isa = PBXGroup;
 			children = (
-				3657220B26D07181005AB3CC /* menuBack.cpp */,
 				3657220C26D07181005AB3CC /* menuBack.hpp */,
+				3657220B26D07181005AB3CC /* menuBack.cpp */,
 			);
 			path = menuBack;
 			sourceTree = "<group>";

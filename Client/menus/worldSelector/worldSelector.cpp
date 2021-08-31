@@ -10,11 +10,11 @@
 #define BOTTOM_HEIGHT (back_button.getHeight() + SPACING)
 #define LINE_THICKNESS 2
 
-void WorldToSelect::render(int position_) {
-    button.y = short(button_y - position_);
-    button.render();
-    delete_button.y = short(button_y - position_ + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
-    delete_button.render();
+void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short mouse_y) {
+    button.y = short(button_y - position);
+    button.render(mouse_x, mouse_y);
+    delete_button.y = short(button_y - position + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
+    delete_button.render(mouse_x, mouse_y);
 }
 
 void WorldSelector::init() {
@@ -83,19 +83,19 @@ void WorldSelector::refresh() {
 
 void WorldSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered())
+        if(back_button.isHovered(mouse_x, mouse_y))
             gfx::returnFromScene();
-        else if(new_button.isHovered()) {
+        else if(new_button.isHovered(mouse_x, mouse_y)) {
             WorldCreator(worlds_names, menu_back).run();
             refresh();
         }
         else
             for(int i = 0; i < worlds.size(); i++) {
-                if(worlds[i].button.isHovered()) {
+                if(worlds[i].button.isHovered(mouse_x, mouse_y)) {
                     startPrivateWorld(worlds[i].name, menu_back);
                     refresh();
                 }
-                else if(worlds[i].delete_button.isHovered()) {
+                else if(worlds[i].delete_button.isHovered(mouse_x, mouse_y)) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
@@ -125,7 +125,7 @@ void WorldSelector::render() {
     menu_back->setBackWidth(800);
     menu_back->renderBack();
     
-    bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
+    bool hoverable = mouse_y > TOP_HEIGHT && mouse_y < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
     for(WorldToSelect& world : worlds) {
         world.button.disabled = !hoverable;
@@ -133,7 +133,7 @@ void WorldSelector::render() {
     }
 
     for(WorldToSelect& world : worlds)
-        world.render(position);
+        world.render(position, mouse_x, mouse_y);
 
     top_rect.setWidth(menu_back->getBackWidth());
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
@@ -153,8 +153,8 @@ void WorldSelector::render() {
         bottom_rect.render();
 
     title.render();
-    back_button.render();
+    back_button.render(mouse_x, mouse_y);
     
     new_button.x = menu_back->getBackWidth() / 2 - SPACING / 2 - new_button.getWidth() / 2;
-    new_button.render();
+    new_button.render(mouse_x, mouse_y);
 }

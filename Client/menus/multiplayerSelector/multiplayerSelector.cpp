@@ -63,9 +63,9 @@ void MultiplayerSelector::init() {
 }
 
 void MultiplayerSelector::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(mouse_x, mouse_y))
         gfx::returnFromScene();
-    else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered()) || (key == gfx::Key::ENTER && can_connect))
+    else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(mouse_x, mouse_y)) || (key == gfx::Key::ENTER && can_connect))
         game(menu_back, username.getText(), server_ip.getText()).run();
 }
 
@@ -77,10 +77,10 @@ void MultiplayerSelector::render() {
         join_button.renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)});
         join_button.disabled = !can_connect;
     }
-    join_button.render();
-    back_button.render();
-    server_ip.render();
-    username.render();
+    join_button.render(mouse_x, mouse_y);
+    back_button.render(mouse_x, mouse_y);
+    server_ip.render(mouse_x, mouse_y);
+    username.render(mouse_x, mouse_y);
     server_ip_title.render();
     username_title.render();
 }

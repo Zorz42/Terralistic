@@ -49,17 +49,17 @@ public:
     unsigned short getHeight() const override;
 
     Color def_color = GFX_DEFAULT_BUTTON_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR;
-    bool isHovered() const;
+    bool isHovered(unsigned short mouse_x, unsigned short mouse_y) const;
     bool disabled = false;
     unsigned char hover_progress = 0;
-    void render();
+    void render(unsigned short mouse_x, unsigned short mouse_y);
 };
 
 class TextInput : public Button {
     std::string text;
     Rect back_rect;
 public:
-    void render();
+    void render(unsigned short mouse_x, unsigned short mouse_y);
     TextInput();
 
     std::string getText() const { return text; }

@@ -87,6 +87,10 @@ void gfx::Scene::operateEvent(sf::Event event) {
     if (type == sf::Event::MouseMoved) {
         mouse_x = event.mouseMove.x / global_scale;
         mouse_y = event.mouseMove.y / global_scale;
+        for(GraphicalModule* module : modules) {
+            module->mouse_x = mouse_x;
+            module->mouse_y = mouse_y;
+        }
     } else if (type == sf::Event::Resized)
         setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
     else if (type == sf::Event::MouseButtonPressed) {
@@ -95,7 +99,7 @@ void gfx::Scene::operateEvent(sf::Event event) {
         if (key == Key::MOUSE_LEFT) {
             if (!disable_events_gl || disable_events)
                 for (TextInput* i : text_inputs) {
-                    i->active = i->isHovered();
+                    i->active = i->isHovered(mouse_x, mouse_y);
                     if (i->active)
                         clicked_text_box = true;
                 }
@@ -103,7 +107,7 @@ void gfx::Scene::operateEvent(sf::Event event) {
             for (GraphicalModule* module : modules)
                 if (!disable_events_gl || module->disable_events)
                     for (TextInput* i : module->text_inputs) {
-                        i->active = i->isHovered();
+                        i->active = i->isHovered(mouse_x, mouse_y);
                         if (i->active)
                             clicked_text_box = true;
                     }

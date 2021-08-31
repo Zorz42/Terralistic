@@ -14,7 +14,6 @@ namespace gfx {
 inline sf::RenderWindow *window = nullptr;
 inline sf::Font font;
 
-inline unsigned short mouse_x, mouse_y;
 inline float frame_length;
 
 inline unsigned short font_size;

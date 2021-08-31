@@ -33,7 +33,7 @@ void Chat::update() {
 }
 
 void Chat::render() {
-    chat_box.render();
+    chat_box.render(mouse_x, mouse_y);
     
     for(ChatLine* i : chat_lines) {
         if(!i->text.empty()) {

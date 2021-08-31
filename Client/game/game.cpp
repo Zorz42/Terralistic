@@ -135,7 +135,6 @@ void game::init() {
         new DebugMenu(player_handler, blocks),
 #endif
         new Chat(&networking_manager),
-        new PauseScreen(),
     };
 }
 
@@ -198,4 +197,22 @@ void game::render() {
 
 void game::stop() {
     networking_manager.closeConnection();
+}
+
+void game::renderBack() {
+    update();
+    for(GraphicalModule* module : modules)
+        module->update();
+    render();
+    for(GraphicalModule* module : modules)
+        module->render();
+}
+
+void game::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::ESCAPE) {
+        PauseScreen pause_screen(this);
+        pause_screen.run();
+        if(pause_screen.hasExitedToMenu())
+            gfx::returnFromScene();
+    }
 }

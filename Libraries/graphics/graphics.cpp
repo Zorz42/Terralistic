@@ -112,14 +112,6 @@ unsigned short gfx::getWindowHeight() {
     return window->getSize().y / global_scale;
 }
 
-unsigned short gfx::getMouseX() {
-    return mouse_x;
-}
-
-unsigned short gfx::getMouseY() {
-    return mouse_y;
-}
-
 void gfx::setRenderTarget(Image& tex) {
     render_target = tex.getSfmlTexture();
 }

@@ -95,14 +95,14 @@ unsigned short gfx::Button::getHeight() const {
     return (getTextureHeight() + (margin << 1)) * scale;
 }
 
-bool gfx::Button::isHovered() const {
+bool gfx::Button::isHovered(unsigned short mouse_x, unsigned short mouse_y) const {
     RectShape rect = getTranslatedRect();
     return !disabled && mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
 
-void gfx::Button::render() {
+void gfx::Button::render(unsigned short mouse_x, unsigned short mouse_y) {
     RectShape rect = getTranslatedRect();
-    int hover_progress_target = isHovered() ? 255 : 0;
+    int hover_progress_target = isHovered(mouse_x, mouse_y) ? 255 : 0;
     hover_progress += (hover_progress_target - (int)hover_progress) / 2;
     Color button_color{
         (unsigned char)((int)hover_color.r * (int)hover_progress / 255 + (int)def_color.r * (int)(255 - hover_progress) / 255),
@@ -136,13 +136,13 @@ void gfx::TextInput::setBlurIntensity(float blur_intensity) {
     back_rect.blur_intensity = blur_intensity;
 }
 
-void gfx::TextInput::render() {
+void gfx::TextInput::render(unsigned short mouse_x, unsigned short mouse_y) {
     RectShape rect = getTranslatedRect();
     back_rect.setX(rect.x);
     back_rect.setY(rect.y);
     back_rect.setWidth(rect.w);
     back_rect.setHeight(rect.h);
-    back_rect.c = isHovered() ? hover_color : def_color;
+    back_rect.c = isHovered(mouse_x, mouse_y) ? hover_color : def_color;
     back_rect.render();
     
     rect.x += margin * scale;

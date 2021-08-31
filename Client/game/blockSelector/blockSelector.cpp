@@ -28,8 +28,8 @@ void BlockSelector::render() {
             prev_selected_y = selected_block_y;
         }
         
-        selected_block_x = (unsigned short)((gfx::getMouseX() + blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
-        selected_block_y = (unsigned short)((gfx::getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
+        selected_block_x = (unsigned short)((mouse_x + blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
+        selected_block_y = (unsigned short)((mouse_y + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
         select_rect.setX(-blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2);
         select_rect.setY(-blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2);
         select_rect.render(false);

@@ -8,7 +8,7 @@ struct WorldToSelect {
     std::string name;
     explicit WorldToSelect(std::string name) : name(std::move(name)) {}
     gfx::Button button, delete_button;
-    void render(int position);
+    void render(int position, unsigned short mouse_x, unsigned short mouse_y);
     int button_y{};
 };
 

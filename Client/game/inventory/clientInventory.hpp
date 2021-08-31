@@ -30,9 +30,9 @@ public:
     const gfx::Image& getStackTexture() const { return stack_texture; }
     int x, y;
     void render() const;
-    void renderWithBack() const;
+    void renderWithBack(unsigned short mouse_x, unsigned short mouse_y) const;
     
-    bool isHovered() const;
+    bool isHovered(unsigned short mouse_x, unsigned short mouse_y) const;
 };
 
 class DisplayRecipe {
@@ -40,9 +40,9 @@ class DisplayRecipe {
     std::vector<ClientInventoryItem> ingredients;
 public:
     DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y);
-    void render();
-    void renderIngredients(int x, int y);
-    bool isHovered() { return result_display.isHovered(); }
+    void render(unsigned short mouse_x, unsigned short mouse_y);
+    void renderIngredients(int x, int y, unsigned short mouse_x, unsigned short mouse_y);
+    bool isHovered(unsigned short mouse_x, unsigned short mouse_y) { return result_display.isHovered(mouse_x, mouse_y); }
     const Recipe* recipe;
 };
 

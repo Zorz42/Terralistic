@@ -1,6 +1,7 @@
 #include "mainMenu.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
+#include "settings.hpp"
 
 #define BUTTON_SPACING 1
 
@@ -45,12 +46,14 @@ void MainMenu::init() {
 
 void MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(exit_button.isHovered())
-            gfx::returnFromScene();
-        else if(singleplayer_button.isHovered())
+        if(singleplayer_button.isHovered(mouse_x, mouse_y))
             WorldSelector(&menu_back).run();
-        else if(multiplayer_button.isHovered())
+        else if(multiplayer_button.isHovered(mouse_x, mouse_y))
             MultiplayerSelector(&menu_back).run();
+        else if(settings_button.isHovered(mouse_x, mouse_y))
+            Settings(&menu_back).run();
+        else if(exit_button.isHovered(mouse_x, mouse_y))
+            gfx::returnFromScene();
     }
 }
 
@@ -70,8 +73,8 @@ void MainMenu::render() {
     debug_title.render();
 #endif
     version.render();
-    singleplayer_button.render();
-    multiplayer_button.render();
-    settings_button.render();
-    exit_button.render();
+    singleplayer_button.render(mouse_x, mouse_y);
+    multiplayer_button.render(mouse_x, mouse_y);
+    settings_button.render(mouse_x, mouse_y);
+    exit_button.render(mouse_x, mouse_y);
 }

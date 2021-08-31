@@ -22,9 +22,11 @@ public:
 
     std::vector<TextInput*> text_inputs;
     bool disable_events = false;
+    unsigned short mouse_x, mouse_y;
 };
 
 class Scene : public GraphicalModule {
+    void operateEvent(sf::Event event);
 public:
     std::vector<GraphicalModule*> modules;
     
@@ -33,8 +35,8 @@ public:
     void run();
 
     void onKeyDownCallback(Key key_);
-private:
-    void operateEvent(sf::Event event);
+    
+    unsigned short mouse_x, mouse_y;
 };
 
 }

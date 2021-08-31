@@ -14,7 +14,6 @@ inline std::string resource_path;
 void setWindowMinimumSize(unsigned short width, unsigned short height);
 void loadFont(const std::string& path, unsigned char size);
 
-unsigned short getMouseX(), getMouseY();
 unsigned short getWindowWidth(), getWindowHeight();
 
 void setRenderTarget(Image& tex);
@@ -36,7 +35,7 @@ void setScale(float scale);
 void setWindowSize(unsigned short width, unsigned short height);
     
 void drawVertices(const sf::VertexArray& array, const sf::Texture& texture);
-    void drawVertices(const sf::VertexArray& array);
+void drawVertices(const sf::VertexArray& array);
 
 };
 
