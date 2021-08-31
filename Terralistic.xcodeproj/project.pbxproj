@@ -875,8 +875,8 @@
 		365721F726D07180005AB3CC /* fileManager */ = {
 			isa = PBXGroup;
 			children = (
-				365721F826D07180005AB3CC /* fileManager.cpp */,
 				365721F926D07180005AB3CC /* fileManager.hpp */,
+				365721F826D07180005AB3CC /* fileManager.cpp */,
 			);
 			path = fileManager;
 			sourceTree = "<group>";

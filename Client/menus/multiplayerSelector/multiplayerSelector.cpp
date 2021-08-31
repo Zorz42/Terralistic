@@ -4,7 +4,7 @@
 #include "fileManager.hpp"
 
 void MultiplayerSelector::init() {
-    ConfigFile config(fileManager::getConfigPath());
+    ConfigFile config(fileManager::getDataPath() + "servers.txt");
     config.setDefaultStr("username", "");
     config.setDefaultStr("server ip", "");
     
@@ -86,7 +86,7 @@ void MultiplayerSelector::render() {
 }
 
 void MultiplayerSelector::stop() {
-    ConfigFile config(fileManager::getConfigPath());
+    ConfigFile config(fileManager::getDataPath() + "servers.txt");
     config.setStr("username", username.getText());
     config.setStr("server ip", server_ip.getText());
 }

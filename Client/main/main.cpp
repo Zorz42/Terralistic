@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     
     fileManager::init();
     {
-        ConfigFile config(fileManager::getConfigPath());
+        ConfigFile config(fileManager::getDataPath() + "settings.txt");
         config.setDefaultInt("ui_scale", 100);
         gfx::setScale((float)config.getInt("ui_scale") / 100);
     }

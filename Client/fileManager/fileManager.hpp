@@ -5,10 +5,10 @@
 
 namespace fileManager {
 
-void init();
+    void init();
 
-std::string getWorldsPath();
-std::string getConfigPath();
+    std::string getWorldsPath();
+    std::string getDataPath();
 
 }
 
