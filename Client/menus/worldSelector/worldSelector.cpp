@@ -6,8 +6,8 @@
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
 
-#define TOP_HEIGHT (title.getHeight() + SPACING)
-#define BOTTOM_HEIGHT (back_button.getHeight() + SPACING)
+#define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
+#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 #define LINE_THICKNESS 2
 
 void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short mouse_y) {
@@ -20,17 +20,17 @@ void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short 
 void WorldSelector::init() {
     title.scale = 3;
     title.renderText("Select a world to play!");
-    title.y = SPACING / 2;
+    title.y = SPACING;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
     back_button.renderText("Back");
-    back_button.y = -SPACING / 2;
+    back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
     new_button.renderText("New");
-    new_button.y = -SPACING / 2;
+    new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
     
     top_rect.orientation = gfx::TOP;
@@ -75,7 +75,7 @@ void WorldSelector::refresh() {
         world.delete_button.scale = 3;
         world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + SPACING);
 
-        scroll_limit += world.button.getTranslatedRect().h + SPACING;
+        scroll_limit += world.button.getTranslatedRect().h + SPACING * 2;
 
         worlds_names.push_back(world.name);
     }
@@ -155,6 +155,6 @@ void WorldSelector::render() {
     title.render();
     back_button.render(mouse_x, mouse_y);
     
-    new_button.x = menu_back->getBackWidth() / 2 - SPACING / 2 - new_button.getWidth() / 2;
+    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
     new_button.render(mouse_x, mouse_y);
 }

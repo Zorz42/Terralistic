@@ -70,7 +70,6 @@ public:
     char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
     Color border_color = GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, text_color = GFX_DEFAULT_TEXT_COLOR;
-    unsigned char cut_length;
     void setBlurIntensity(float blur_intensity);
     void setBorderColor(Color color);
 };

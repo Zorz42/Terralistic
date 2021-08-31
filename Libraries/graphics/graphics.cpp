@@ -186,7 +186,7 @@ void gfx::sleep(unsigned short ms) {
 
 void gfx::setScale(float scale) {
     global_scale = scale;
-    setWindowSize(getWindowWidth() * global_scale, getWindowHeight() * global_scale);
+    setWindowSize(getWindowWidth(), getWindowHeight());
 }
 
 void gfx::setWindowSize(unsigned short width, unsigned short height) {

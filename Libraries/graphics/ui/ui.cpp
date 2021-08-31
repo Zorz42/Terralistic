@@ -11,15 +11,20 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
 void gfx::Image::renderText(const std::string& text, Color text_color) {
     sf::Text sf_text;
     sf_text.setFont(font);
-    sf_text.setString(text);
+    sf_text.setString("|g");
     sf_text.setFillColor((sf::Color)text_color);
     sf_text.setCharacterSize(font_size);
+    int width_to_cut = sf_text.getLocalBounds().width;
+    sf_text.setString(std::string("|g") + text);
     
     sf::Rect text_rect = sf_text.getLocalBounds();
     sf_text.setOrigin(text_rect.left + text_rect.width / 2, text_rect.top  + text_rect.height / 2);
-    sf_text.setPosition(sf::Vector2f(sf_text.getLocalBounds().width / 2, sf_text.getLocalBounds().height / 2));
+    sf_text.setPosition(sf::Vector2f(sf_text.getLocalBounds().width / 2 - width_to_cut, sf_text.getLocalBounds().height / 2));
     
-    createBlankImage(sf_text.getLocalBounds().width, sf_text.getLocalBounds().height);
+    int width = sf_text.getLocalBounds().width - width_to_cut;
+    if(!width)
+        width = 1;
+    createBlankImage(width, sf_text.getLocalBounds().height);
     sfml_render_texture->draw(sf_text);
     sfml_render_texture->display();
 }
@@ -65,7 +70,6 @@ void gfx::Image::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
 void gfx::Image::render(float scale, short x, short y, RectShape src_rect, bool flipped) const {
-    //sfml_render_texture->display();
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());
     sprite.setTextureRect({src_rect.x, src_rect.y, src_rect.w, src_rect.h});
@@ -88,11 +92,11 @@ void gfx::Sprite::render() const {
 }
 
 unsigned short gfx::Button::getWidth() const {
-    return (getTextureWidth() + (margin << 1)) * scale;
+    return (getTextureWidth() + margin * 2) * scale;
 }
 
 unsigned short gfx::Button::getHeight() const {
-    return (getTextureHeight() + (margin << 1)) * scale;
+    return (getTextureHeight() + margin * 2) * scale;
 }
 
 bool gfx::Button::isHovered(unsigned short mouse_x, unsigned short mouse_y) const {
@@ -117,7 +121,7 @@ void gfx::Button::render(unsigned short mouse_x, unsigned short mouse_y) {
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
-    renderText((std::string)"|g" + text, text_color);
+    renderText(text, text_color);
 }
 
 unsigned short gfx::TextInput::getWidth() const {
@@ -126,10 +130,7 @@ unsigned short gfx::TextInput::getWidth() const {
 
 gfx::TextInput::TextInput() {
     margin = 3;
-    Image temp;
     back_rect.shadow_intensity = GFX_DEFAULT_TEXT_BOX_SHADOW_INTENSITY;
-    temp.renderText("|g", { 0, 0, 0 });
-    cut_length = temp.getTextureWidth() - 1;
 }
 
 void gfx::TextInput::setBlurIntensity(float blur_intensity) {
@@ -151,20 +152,18 @@ void gfx::TextInput::render(unsigned short mouse_x, unsigned short mouse_y) {
     rect.h -= margin * 2 * scale;
     short x;
     unsigned short w;
-    if (rect.w - cut_length > width * scale) {
+    if (rect.w > width * scale) {
         x = rect.w / scale - width;
         w = width;
     }
     else {
-        x = cut_length;
-        w = rect.w / scale - cut_length;
+        x = 0;
+        w = rect.w / scale;
     }
     
     Image::render(scale, rect.x, rect.y, {x, 0, w, (unsigned short)(rect.h / scale)});
-    if (active) {
-        Rect rec(rect.x + (rect.w > width * scale ? width * scale : rect.w - cut_length * scale), rect.y, scale, rect.h, text_color);
-        rec.render();
-    }
+    if (active)
+        RectShape(rect.x + (rect.w > width * scale ? width * scale : rect.w ), rect.y, scale, rect.h).render(text_color);
         
 }
 

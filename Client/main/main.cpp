@@ -4,6 +4,7 @@
 #include "resourcePack.hpp"
 #include "resourcePath.hpp"
 #include "serverPlayers.hpp"
+#include "settings.hpp"
 
 int main(int argc, char **argv) {
     gfx::init(1130, 700);
@@ -12,11 +13,7 @@ int main(int argc, char **argv) {
     gfx::loadFont("pixel_font.ttf", 8);
     
     fileManager::init();
-    {
-        ConfigFile config(fileManager::getDataPath() + "settings.txt");
-        config.setDefaultInt("ui_scale", 100);
-        gfx::setScale((float)config.getInt("ui_scale") / 100);
-    }
+    loadSettings();
     initProperties();
     
     MainMenu().run();
