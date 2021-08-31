@@ -43,7 +43,7 @@ public:
 
 class Button : public Sprite {
 public:
-    unsigned short margin = 10;
+    unsigned short margin = GFX_DEFAULT_BUTTON_MARGIN;
 
     unsigned short getWidth() const override;
     unsigned short getHeight() const override;

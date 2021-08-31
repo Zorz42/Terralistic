@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		166397B426D4FF8E00E24B0F /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 3657217C26D0710F005AB3CC /* Structures.asset */; };
+		16670CE026DDFAA90057AA41 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16670CDE26DDFAA90057AA41 /* settings.cpp */; };
 		166D85D326AA0B9E00DB87B1 /* ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C426AA0B9E00DB87B1 /* ui.cpp */; };
 		166D85D426AA0B9E00DB87B1 /* ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C426AA0B9E00DB87B1 /* ui.cpp */; };
 		166D85D526AA0B9E00DB87B1 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C826AA0B9E00DB87B1 /* rect.cpp */; };
@@ -213,6 +214,8 @@
 		16644E55267CB1640015C23D /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = Dependencies/MacOS/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 		16644E56267CB1640015C23D /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = Dependencies/MacOS/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
 		16644E57267CB1640015C23D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Dependencies/MacOS/Frameworks/SDL2.framework; sourceTree = "<group>"; };
+		16670CDE26DDFAA90057AA41 /* settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settings.cpp; sourceTree = "<group>"; };
+		16670CDF26DDFAA90057AA41 /* settings.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = settings.hpp; sourceTree = "<group>"; };
 		166D85C426AA0B9E00DB87B1 /* ui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ui.cpp; sourceTree = "<group>"; };
 		166D85C526AA0B9E00DB87B1 /* ui.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ui.hpp; sourceTree = "<group>"; };
 		166D85C726AA0B9E00DB87B1 /* rect.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = rect.hpp; sourceTree = "<group>"; };
@@ -497,6 +500,15 @@
 				16BF6914269D6CCA00CFE175 /* Terralistic-server.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		16670CDD26DDFA990057AA41 /* settings */ = {
+			isa = PBXGroup;
+			children = (
+				16670CDF26DDFAA90057AA41 /* settings.hpp */,
+				16670CDE26DDFAA90057AA41 /* settings.cpp */,
+			);
+			path = settings;
 			sourceTree = "<group>";
 		};
 		166D85C226AA0B9E00DB87B1 /* graphics */ = {
@@ -873,6 +885,7 @@
 		365721FA26D07181005AB3CC /* menus */ = {
 			isa = PBXGroup;
 			children = (
+				16670CDD26DDFA990057AA41 /* settings */,
 				365721FB26D07181005AB3CC /* multiplayerSelector */,
 				365721FE26D07181005AB3CC /* choiceScreen */,
 				3657220126D07181005AB3CC /* worldCreator */,
@@ -1092,6 +1105,7 @@
 				3657221B26D07181005AB3CC /* blocks.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				3657221F26D07181005AB3CC /* multiplayerSelector.cpp in Sources */,
+				16670CE026DDFAA90057AA41 /* settings.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */,

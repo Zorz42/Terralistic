@@ -2,32 +2,36 @@
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
 
+#define BUTTON_SPACING 1
+
 void MainMenu::init() {
     singleplayer_button.scale = 3;
     singleplayer_button.renderText("Singleplayer");
-    singleplayer_button.y = short(-singleplayer_button.getTranslatedRect().h - 5);
-    singleplayer_button.orientation = gfx::CENTER;
-
+    singleplayer_button.orientation = gfx::TOP;
+    
     multiplayer_button.scale = 3;
     multiplayer_button.renderText("Multiplayer");
-    multiplayer_button.orientation = gfx::CENTER;
+    multiplayer_button.orientation = gfx::TOP;
+    
+    settings_button.scale = 3;
+    settings_button.renderText("Settings");
+    settings_button.orientation = gfx::TOP;
 
     exit_button.scale = 3;
     exit_button.renderText("Exit");
-    exit_button.y = short(exit_button.getTranslatedRect().h + 5);
-    exit_button.orientation = gfx::CENTER;
-    
-    title.renderText("Terralistic");
-    title.scale = 4;
-    title.orientation = gfx::TOP;
-    title.y = 40;
+    exit_button.orientation = gfx::TOP;
     
 #ifdef DEVELOPER_MODE
     debug_title.renderText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2;
-    debug_title.y = 10;
+    debug_title.y = SPACING / 4;
 #endif
+    
+    title.renderText("Terralistic");
+    title.scale = 4;
+    title.orientation = gfx::TOP;
+    title.y = debug_title.y + debug_title.getHeight() + SPACING / 2;
     
     version.renderText(
 #include "version.hpp"
@@ -51,6 +55,13 @@ void MainMenu::onKeyDown(gfx::Key key) {
 }
 
 void MainMenu::render() {
+    int height = singleplayer_button.getHeight() + multiplayer_button.getHeight() + settings_button.getHeight() + exit_button.getHeight() + 3 * BUTTON_SPACING;
+    
+    singleplayer_button.y = gfx::getWindowHeight() / 2 - height / 2;
+    multiplayer_button.y = singleplayer_button.y + singleplayer_button.getHeight() + BUTTON_SPACING;
+    settings_button.y = multiplayer_button.y + multiplayer_button.getHeight() + BUTTON_SPACING;
+    exit_button.y = settings_button.y + settings_button.getHeight() + BUTTON_SPACING;
+    
     menu_back.setBackWidth(singleplayer_button.getWidth() + 100);
     menu_back.renderBack();
 
@@ -61,5 +72,6 @@ void MainMenu::render() {
     version.render();
     singleplayer_button.render();
     multiplayer_button.render();
+    settings_button.render();
     exit_button.render();
 }
