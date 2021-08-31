@@ -43,23 +43,23 @@ public:
 
 class Button : public Sprite {
 public:
-    unsigned short margin = 10;
+    unsigned short margin = GFX_DEFAULT_BUTTON_MARGIN;
 
     unsigned short getWidth() const override;
     unsigned short getHeight() const override;
 
     Color def_color = GFX_DEFAULT_BUTTON_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR;
-    bool isHovered() const;
+    bool isHovered(unsigned short mouse_x, unsigned short mouse_y) const;
     bool disabled = false;
     unsigned char hover_progress = 0;
-    void render();
+    void render(unsigned short mouse_x, unsigned short mouse_y);
 };
 
 class TextInput : public Button {
     std::string text;
     Rect back_rect;
 public:
-    void render();
+    void render(unsigned short mouse_x, unsigned short mouse_y);
     TextInput();
 
     std::string getText() const { return text; }
@@ -70,7 +70,6 @@ public:
     char (*textProcessing)(char c, int length) = nullptr;
     unsigned short width = 200;
     Color border_color = GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, text_color = GFX_DEFAULT_TEXT_COLOR;
-    unsigned char cut_length;
     void setBlurIntensity(float blur_intensity);
     void setBorderColor(Color color);
 };

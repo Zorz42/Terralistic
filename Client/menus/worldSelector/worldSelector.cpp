@@ -6,31 +6,31 @@
 #include "fileManager.hpp"
 #include "choiceScreen.hpp"
 
-#define TOP_HEIGHT (title.getHeight() + SPACING)
-#define BOTTOM_HEIGHT (back_button.getHeight() + SPACING)
+#define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
+#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 #define LINE_THICKNESS 2
 
-void WorldToSelect::render(int position_) {
-    button.y = short(button_y - position_);
-    button.render();
-    delete_button.y = short(button_y - position_ + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
-    delete_button.render();
+void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short mouse_y) {
+    button.y = short(button_y - position);
+    button.render(mouse_x, mouse_y);
+    delete_button.y = short(button_y - position + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
+    delete_button.render(mouse_x, mouse_y);
 }
 
 void WorldSelector::init() {
     title.scale = 3;
     title.renderText("Select a world to play!");
-    title.y = SPACING / 2;
+    title.y = SPACING;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
     back_button.renderText("Back");
-    back_button.y = -SPACING / 2;
+    back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
     new_button.renderText("New");
-    new_button.y = -SPACING / 2;
+    new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
     
     top_rect.orientation = gfx::TOP;
@@ -75,7 +75,7 @@ void WorldSelector::refresh() {
         world.delete_button.scale = 3;
         world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + SPACING);
 
-        scroll_limit += world.button.getTranslatedRect().h + SPACING;
+        scroll_limit += world.button.getTranslatedRect().h + SPACING * 2;
 
         worlds_names.push_back(world.name);
     }
@@ -83,19 +83,19 @@ void WorldSelector::refresh() {
 
 void WorldSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered())
+        if(back_button.isHovered(mouse_x, mouse_y))
             gfx::returnFromScene();
-        else if(new_button.isHovered()) {
+        else if(new_button.isHovered(mouse_x, mouse_y)) {
             WorldCreator(worlds_names, menu_back).run();
             refresh();
         }
         else
             for(int i = 0; i < worlds.size(); i++) {
-                if(worlds[i].button.isHovered()) {
+                if(worlds[i].button.isHovered(mouse_x, mouse_y)) {
                     startPrivateWorld(worlds[i].name, menu_back);
                     refresh();
                 }
-                else if(worlds[i].delete_button.isHovered()) {
+                else if(worlds[i].delete_button.isHovered(mouse_x, mouse_y)) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
@@ -122,10 +122,10 @@ void WorldSelector::onMouseScroll(int distance) {
 }
 
 void WorldSelector::render() {
-    menu_back->setWidth(800);
-    menu_back->render();
+    menu_back->setBackWidth(800);
+    menu_back->renderBack();
     
-    bool hoverable = gfx::getMouseY() > TOP_HEIGHT && gfx::getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
+    bool hoverable = mouse_y > TOP_HEIGHT && mouse_y < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
     for(WorldToSelect& world : worlds) {
         world.button.disabled = !hoverable;
@@ -133,9 +133,9 @@ void WorldSelector::render() {
     }
 
     for(WorldToSelect& world : worlds)
-        world.render(position);
+        world.render(position, mouse_x, mouse_y);
 
-    top_rect.setWidth(menu_back->getWidth());
+    top_rect.setWidth(menu_back->getBackWidth());
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
     if(top_rect_visibility < 0.01f)
         top_rect_visibility = 0;
@@ -147,14 +147,14 @@ void WorldSelector::render() {
     if(top_rect_visibility)
         top_rect.render();
     
-    bottom_rect.setWidth(menu_back->getWidth());
+    bottom_rect.setWidth(menu_back->getBackWidth());
     int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
     if(scroll_limit_ > 0)
         bottom_rect.render();
 
     title.render();
-    back_button.render();
+    back_button.render(mouse_x, mouse_y);
     
-    new_button.x = menu_back->getWidth() / 2 - SPACING / 2 - new_button.getWidth() / 2;
-    new_button.render();
+    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
+    new_button.render(mouse_x, mouse_y);
 }

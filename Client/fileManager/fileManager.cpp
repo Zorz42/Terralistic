@@ -19,6 +19,6 @@ std::string fileManager::getWorldsPath() {
     return data_path + "worlds/";
 }
 
-std::string fileManager::getConfigPath() {
-    return data_path + "config.txt";
+std::string fileManager::getDataPath() {
+    return data_path;
 }

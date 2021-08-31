@@ -22,14 +22,14 @@ static std::thread server_thread;
 #define LOADING_RECT_ELEVATION 50
 
 class WorldStartingScreen : public gfx::Scene {
-    MenuBack* menu_back;
+    BackgroundRect* menu_back;
     gfx::Sprite text;
     void init() override;
     void render() override;
     Server* server;
     ServerState prev_server_state = ServerState::NEUTRAL;
 public:
-    WorldStartingScreen(MenuBack* menu_back, Server* server) : menu_back(menu_back), server(server) {}
+    WorldStartingScreen(BackgroundRect* menu_back, Server* server) : menu_back(menu_back), server(server) {}
 };
 
 void WorldStartingScreen::init() {
@@ -68,13 +68,13 @@ void WorldStartingScreen::render() {
                 break;
             default:;
         }
-        menu_back->setWidth(text.getWidth() + 300);
+        menu_back->setBackWidth(text.getWidth() + 300);
     }
-    menu_back->render();
+    menu_back->renderBack();
     text.render();
 }
 
-void startPrivateWorld(const std::string& world_name, MenuBack* menu_back) {
+void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back) {
     Server private_server(fileManager::getWorldsPath(), gfx::resource_path, fileManager::getWorldsPath() + world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
   
@@ -109,12 +109,12 @@ void game::init() {
     text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     text.orientation = gfx::CENTER;
     text.renderText("Getting terrain");
-    menu_back->setWidth(text.getWidth() + 300);
+    menu_back->setBackWidth(text.getWidth() + 300);
     
     while(!handshake_done) {
         gfx::clearWindow();
         
-        menu_back->render();
+        menu_back->renderBack();
         text.render();
         
         gfx::updateWindow();
@@ -135,7 +135,6 @@ void game::init() {
         new DebugMenu(player_handler, blocks),
 #endif
         new Chat(&networking_manager),
-        new PauseScreen(),
     };
 }
 
@@ -198,4 +197,22 @@ void game::render() {
 
 void game::stop() {
     networking_manager.closeConnection();
+}
+
+void game::renderBack() {
+    update();
+    for(GraphicalModule* module : modules)
+        module->update();
+    render();
+    for(GraphicalModule* module : modules)
+        module->render();
+}
+
+void game::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::ESCAPE) {
+        PauseScreen pause_screen(this);
+        pause_screen.run();
+        if(pause_screen.hasExitedToMenu())
+            gfx::returnFromScene();
+    }
 }

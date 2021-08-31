@@ -32,10 +32,10 @@ void ClientInventoryItem::render() const {
         stack_texture.render(1, x + BLOCK_WIDTH * 4 - stack_texture.getTextureWidth() + INVENTORY_UI_SPACING / 2, y + BLOCK_WIDTH * 4 - stack_texture.getTextureHeight() + INVENTORY_UI_SPACING / 2);
 }
 
-void ClientInventoryItem::renderWithBack() const {
+void ClientInventoryItem::renderWithBack(unsigned short mouse_x, unsigned short mouse_y) const {
     gfx::Color color = GREY;
     color.a = TRANSPARENCY;
-    gfx::RectShape(x, y, INVENTORY_ITEM_BACK_RECT_WIDTH, INVENTORY_ITEM_BACK_RECT_WIDTH).render(isHovered() ? GREY : color);
+    gfx::RectShape(x, y, INVENTORY_ITEM_BACK_RECT_WIDTH, INVENTORY_ITEM_BACK_RECT_WIDTH).render(isHovered(mouse_x, mouse_y) ? GREY : color);
     render();
 }
 
@@ -46,12 +46,12 @@ ClientInventoryItem& ClientInventoryItem::operator=(const ClientInventoryItem& i
     return *this;
 }
 
-bool ClientInventoryItem::isHovered() const {
-    return gfx::getMouseX() > x && gfx::getMouseY() > y && gfx::getMouseX() < x + INVENTORY_ITEM_BACK_RECT_WIDTH && gfx::getMouseY() < y + INVENTORY_ITEM_BACK_RECT_WIDTH;
+bool ClientInventoryItem::isHovered(unsigned short mouse_x, unsigned short mouse_y) const {
+    return mouse_x > x && mouse_y > y && mouse_x < x + INVENTORY_ITEM_BACK_RECT_WIDTH && mouse_y < y + INVENTORY_ITEM_BACK_RECT_WIDTH;
 }
 
-void DisplayRecipe::render() {
-    result_display.renderWithBack();
+void DisplayRecipe::render(unsigned short mouse_x, unsigned short mouse_y) {
+    result_display.renderWithBack(mouse_x, mouse_y);
 }
 
 DisplayRecipe::DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y) : recipe(recipe), result_display(resource_pack) {
@@ -66,13 +66,13 @@ DisplayRecipe::DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, 
     }
 }
 
-void DisplayRecipe::renderIngredients(int x, int y) {
+void DisplayRecipe::renderIngredients(int x, int y, unsigned short mouse_x, unsigned short mouse_y) {
     x += SPACING / 2;
     y += SPACING / 2;
     for(ClientInventoryItem& ingredient : ingredients) {
         ingredient.x = x;
         x += INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2;
         ingredient.y = y;
-        ingredient.renderWithBack();
+        ingredient.renderWithBack(mouse_x, mouse_y);
     }
 }

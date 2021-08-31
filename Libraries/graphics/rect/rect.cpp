@@ -60,27 +60,10 @@ void gfx::Rect::render(bool fill) {
         height = target_height;
     }
     
-    bool changed = false;
-    
-    short prev_x = x;
     x = approach(x, target_x, smooth_factor);
-    if(prev_x != x)
-        changed = true;
-    
-    short prev_y = y;
     y = approach(y, target_y, smooth_factor);
-    if(prev_y != y)
-        changed = true;
-    
-    unsigned short prev_width = width;
     width = approach(width, target_width, smooth_factor);
-    if(prev_width != width)
-        changed = true;
-    
-    unsigned short prev_height = height;
     height = approach(height, target_height, smooth_factor);
-    if(prev_height != height)
-        changed = true;
     
     RectShape rect = getTranslatedRect();
 

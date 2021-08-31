@@ -4,19 +4,16 @@
 #include "resourcePack.hpp"
 #include "resourcePath.hpp"
 #include "serverPlayers.hpp"
+#include "settings.hpp"
 
 int main(int argc, char **argv) {
-    gfx::init(1000, 600);
+    gfx::init(1130, 700);
     gfx::resource_path = getResourcePath(argv[0]);
     gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     gfx::loadFont("pixel_font.ttf", 8);
     
     fileManager::init();
-    {
-        ConfigFile config(fileManager::getConfigPath());
-        config.setDefaultInt("ui_scale", 100);
-        gfx::setScale((float)config.getInt("ui_scale") / 100);
-    }
+    loadSettings();
     initProperties();
     
     MainMenu().run();

@@ -53,7 +53,7 @@ void ClientInventory::render() {
     inventory_hovered = false;
     
     for(int i = 0; i < (open ? 20 : 10); i++) {
-        if(inventory[i].isHovered()) {
+        if(inventory[i].isHovered(mouse_x, mouse_y)) {
             inventory_hovered = true;
             if(open) {
                 hovered = &inventory[i];
@@ -62,42 +62,42 @@ void ClientInventory::render() {
                     text_texture = &resource_pack->getItemTextTexture(inventory[i].type);
                     under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
                     under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
-                    under_text_rect.setX(gfx::getMouseX() + 20 - INVENTORY_UI_SPACING);
-                    under_text_rect.setY(gfx::getMouseY() + 20 - INVENTORY_UI_SPACING);
+                    under_text_rect.setX(mouse_x + 20 - INVENTORY_UI_SPACING);
+                    under_text_rect.setY(mouse_y + 20 - INVENTORY_UI_SPACING);
                 }
             }
         }
         inventory[i].x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING) + gfx::getWindowWidth() / 2 - INVENTORY_ITEM_BACK_RECT_WIDTH / 2;
         inventory[i].y = 1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH * 2);
-        inventory[i].renderWithBack();
+        inventory[i].renderWithBack(mouse_x, mouse_y);
     }
     
     if(text_texture) {
         under_text_rect.render();
-        text_texture->render(2, gfx::getMouseX() + 20, gfx::getMouseY() + 20);
+        text_texture->render(2, mouse_x + 20, mouse_y + 20);
     }
     
     if(open) {
         crafting_hovered = -1;
         behind_crafting_rect.render();
         for(int i = 0; i < available_recipes.size(); i++) {
-            available_recipes[i]->render();
-            if(available_recipes[i]->isHovered())
+            available_recipes[i]->render(mouse_x, mouse_y);
+            if(available_recipes[i]->isHovered(mouse_x, mouse_y))
                 crafting_hovered = i;
         }
     
-        mouse_item.x = gfx::getMouseX();
-        mouse_item.y = gfx::getMouseY();
+        mouse_item.x = mouse_x;
+        mouse_item.y = mouse_y;
         mouse_item.render();
         
         if(crafting_hovered != -1) {
             tooltip_active = true;
-            under_text_rect.setX(gfx::getMouseX());
-            under_text_rect.setY(gfx::getMouseY());
+            under_text_rect.setX(mouse_x);
+            under_text_rect.setY(mouse_y);
             under_text_rect.setWidth(SPACING / 2 + available_recipes[crafting_hovered]->recipe->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
             under_text_rect.setHeight(INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING);
             under_text_rect.render();
-            available_recipes[crafting_hovered]->renderIngredients(gfx::getMouseX(), gfx::getMouseY());
+            available_recipes[crafting_hovered]->renderIngredients(mouse_x, mouse_y, mouse_x, mouse_y);
         }
     }
     
