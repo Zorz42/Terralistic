@@ -20,6 +20,16 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
+Server::Server(std::string resource_path, std::string world_path) :
+    blocks(),
+    items(&blocks),
+    players(&blocks, &items),
+    networking_manager(&blocks, &items, &players),
+    generator(&blocks, std::move(resource_path)),
+    world_path(world_path + ".world"),
+    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+{}
+
 void Server::loadWorld() {
     blocks.createWorld(4400, 1200);
     
@@ -53,9 +63,6 @@ void Server::saveWorld() {
 void Server::start(unsigned short port) {
     curr_server = this;
 
-    if(working_dir.back() != '/')
-        working_dir.push_back('/');
-
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
@@ -63,10 +70,7 @@ void Server::start(unsigned short port) {
     } else {
         state = ServerState::GENERATING_WORLD;
         print::info("Generating world...");
-        if(working_dir.size() >= 16 && working_dir.substr(working_dir.length() - 16, 16) == "/StructureWorld/")
-          generator.generateWorld(4400, 1200, 1000);
-        else
-          generator.generateWorld(4400, 1200, (unsigned int)std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+        generator.generateWorld(4400, 1200, seed);
     }
 
     for(int x = 0; x < blocks.getWidth(); x++)

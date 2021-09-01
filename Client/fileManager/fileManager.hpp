@@ -8,6 +8,7 @@ namespace fileManager {
     void init();
 
     std::string getWorldsPath();
+    std::string getModsPath();
     std::string getDataPath();
 
 }

@@ -7,10 +7,10 @@ void ClientPlayers::init() {
     manager->sendPacket(packet);
 }
 
-#define RUN_SPEED 1800//180
+#define RUN_SPEED 18
 #define WALK_SPEED 10
 #define SNEAK_SPEED 4
-#define JUMP_VELOCITY 200//70
+#define JUMP_VELOCITY 70
 
 bool ClientPlayers::isPlayerColliding() {
     if(main_player.x < 0 || main_player.y < 0 ||

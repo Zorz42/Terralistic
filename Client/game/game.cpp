@@ -75,8 +75,10 @@ void WorldStartingScreen::render() {
 }
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back) {
-    Server private_server(fileManager::getWorldsPath(), gfx::resource_path, fileManager::getWorldsPath() + world_name);
+    Server private_server(gfx::resource_path, fileManager::getWorldsPath() + world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
+    if(world_name == "StructureWorld")
+        private_server.seed = 1000;
   
     private_server.setPrivate(true);
     server_thread = std::thread(&Server::start, &private_server, port);
