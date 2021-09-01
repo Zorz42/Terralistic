@@ -210,6 +210,7 @@ void game::renderBack() {
 
 void game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
+        enableAllEvents(false);
         PauseScreen pause_screen(this);
         pause_screen.run();
         if(pause_screen.hasExitedToMenu())

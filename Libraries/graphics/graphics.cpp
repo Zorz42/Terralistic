@@ -90,7 +90,7 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     shadow_part_down.display();
 }
 
-void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
+void gfx::setMinimumWindowSize(unsigned short width, unsigned short height) {
     min_window_width = width;
     min_window_height = height;
 }
@@ -119,10 +119,6 @@ void gfx::setRenderTarget(Image& tex) {
 void gfx::resetRenderTarget() {
     render_target->display();
     render_target = &window_texture;
-}
-
-bool gfx::colliding(RectShape a, RectShape b) {
-    return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
 }
 
 unsigned int gfx::getTicks() {

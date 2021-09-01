@@ -6,10 +6,10 @@ bool key_states[(int)gfx::Key::UNKNOWN];
 void gfx::Scene::onKeyDownCallback(Key key_) {
     if(!key_states[(int)key_]) {
         key_states[(int)key_] = true;
-        if(!disable_events_gl || disable_events)
+        if(_can_receive_events)
             onKeyDown(key_);
         for(GraphicalModule* module : modules)
-            if(!disable_events_gl || module->disable_events)
+            if(module->_can_receive_events)
                 module->onKeyDown(key_);
     }
 }
@@ -23,10 +23,14 @@ gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
     }
 }
 
+void gfx::Scene::enableAllEvents(bool enable) {
+    _can_receive_events = enable;
+    for(GraphicalModule* module : modules)
+        module->_can_receive_events = enable;
+}
+
 bool gfx::GraphicalModule::getKeyState(Key key_) {
-    if(disable_events_gl && !disable_events)
-        return false;
-    return key_states[(int)key_];
+    return _can_receive_events && key_states[(int)key_];
 }
 
 gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
@@ -82,7 +86,7 @@ void gfx::returnFromScene() {
     running_scene = false;
 }
 
-void gfx::Scene::operateEvent(sf::Event event) {
+void gfx::Scene::_operateEvent(sf::Event event) {
     sf::Event::EventType type = event.type;
     if (type == sf::Event::MouseMoved) {
         mouse_x = event.mouseMove.x / global_scale;
@@ -182,9 +186,8 @@ void gfx::Scene::operateEvent(sf::Event event) {
 
 void gfx::Scene::run() {
     init();
-    for (GraphicalModule* module : modules) {
+    for (GraphicalModule* module : modules)
         module->init();
-    }
     
     while(running_scene && window->isOpen()) {
         unsigned int start = getTicks();
@@ -196,9 +199,13 @@ void gfx::Scene::run() {
             disable_events_gl = module->disable_events;
         }
         
+        _can_receive_events = !disable_events_gl || disable_events;
+        for(GraphicalModule* module : modules)
+            module->_can_receive_events = !disable_events_gl || module->disable_events;
+        
         sf::Event event;
         while(window->pollEvent(event))
-            operateEvent(event);
+            _operateEvent(event);
         
         update();
         for(GraphicalModule* module : modules)

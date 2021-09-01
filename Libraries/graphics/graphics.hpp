@@ -10,16 +10,16 @@
 namespace gfx {
 
 void init(unsigned short window_width_, unsigned short window_height_), quit();
-inline std::string resource_path;
-void setWindowMinimumSize(unsigned short width, unsigned short height);
 void loadFont(const std::string& path, unsigned char size);
 
-unsigned short getWindowWidth(), getWindowHeight();
+inline std::string resource_path;
+
+void setMinimumWindowSize(unsigned short width, unsigned short height);
+unsigned short getWindowWidth();
+unsigned short getWindowHeight();
 
 void setRenderTarget(Image& tex);
 void resetRenderTarget();
-
-bool colliding(RectShape a, RectShape b);
 
 unsigned int getTicks();
 void sleep(unsigned short ms);

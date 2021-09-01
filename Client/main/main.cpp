@@ -9,7 +9,7 @@
 int main(int argc, char **argv) {
     gfx::init(1130, 700);
     gfx::resource_path = getResourcePath(argv[0]);
-    gfx::setWindowMinimumSize(gfx::getWindowWidth(), gfx::getWindowHeight());
+    gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     gfx::loadFont("pixel_font.ttf", 8);
     
     fileManager::init();

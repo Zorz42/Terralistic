@@ -10,6 +10,8 @@ enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I
 
 class GraphicalModule {
 public:
+    bool _can_receive_events;
+    
     virtual void init() {}
     virtual void update() {}
     virtual void render() {}
@@ -26,8 +28,10 @@ public:
 };
 
 class Scene : public GraphicalModule {
-    void operateEvent(sf::Event event);
+    void _operateEvent(sf::Event event);
 public:
+    void enableAllEvents(bool enable);
+    
     std::vector<GraphicalModule*> modules;
     
     virtual void onMouseScroll(int distance) {}
