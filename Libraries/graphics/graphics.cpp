@@ -44,23 +44,30 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 
-    bool result = blur_shader.loadFromMemory(blur_shader_code,  sf::Shader::Type::Fragment);
+    bool result = blur_shader.loadFromMemory(blur_shader_code, sf::Shader::Type::Fragment);
     assert(result);
-    
+
     shadow_texture.create(700, 700);
-    shadow_texture.clear({0, 0, 0, 0});
-    sf::RectangleShape rect;
-    rect.setPosition(200, 200);
-    rect.setSize(sf::Vector2f(300, 300));
-    rect.setFillColor({0, 0, 0});
-    shadow_texture.draw(rect);
-    blurTexture(shadow_texture, GFX_DEFAULT_SHADOW_BLUR);
-    rect.setFillColor({0, 0, 0, 0});
-    shadow_texture.draw(rect, sf::BlendNone);
-    shadow_texture.display();
-    
+
+    for (int i = 0; i < 2; i++) { // this is ugly but its the way i found working on linux
+        sf::RenderTexture dummy;
+        dummy.create(1, 1);
+
+        shadow_texture.clear({0, 0, 0, 0});
+        sf::RectangleShape rect2;
+        rect2.setPosition(200, 200);
+        rect2.setSize(sf::Vector2f(300, 300));
+        rect2.setFillColor({0, 0, 0});
+        shadow_texture.draw(rect2);
+        shadow_texture.display();
+        blurTexture(shadow_texture, GFX_DEFAULT_SHADOW_BLUR);
+        rect2.setFillColor({0, 0, 0, 0});
+        shadow_texture.draw(rect2, sf::BlendNone);
+        shadow_texture.display();
+    }
+
     sf::Sprite part_sprite(shadow_texture.getTexture());
-    
+
     shadow_part_left.create(200, 1);
     shadow_part_left.setRepeated(true);
     shadow_part_left.clear({0, 0, 0, 0});
@@ -81,7 +88,7 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     part_sprite.setTextureRect({350, 0, 1, 200});
     shadow_part_up.draw(part_sprite);
     shadow_part_up.display();
-    
+
     shadow_part_down.create(1, 200);
     shadow_part_down.setRepeated(true);
     shadow_part_down.clear({0, 0, 0, 0});

@@ -87,17 +87,16 @@ void gfx::returnFromScene() {
 }
 
 void gfx::Scene::_operateEvent(sf::Event event) {
-    sf::Event::EventType type = event.type;
-    if (type == sf::Event::MouseMoved) {
+    if (event.type == sf::Event::MouseMoved) {
         mouse_x = event.mouseMove.x / global_scale;
         mouse_y = event.mouseMove.y / global_scale;
         for(GraphicalModule* module : modules) {
             module->mouse_x = mouse_x;
             module->mouse_y = mouse_y;
         }
-    } else if (type == sf::Event::Resized)
+    } else if (event.type == sf::Event::Resized)
         setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
-    else if (type == sf::Event::MouseButtonPressed) {
+    else if (event.type == sf::Event::MouseButtonPressed) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         bool clicked_text_box = false;
         if (key == Key::MOUSE_LEFT) {
@@ -119,12 +118,12 @@ void gfx::Scene::_operateEvent(sf::Event event) {
         if (key != Key::UNKNOWN && !clicked_text_box)
             onKeyDownCallback(key);
     }
-    else if (type == sf::Event::MouseButtonReleased) {
+    else if (event.type == sf::Event::MouseButtonReleased) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         if (key != Key::UNKNOWN)
             key_states[(int)key] = false;
     }
-    else if (type == sf::Event::KeyPressed) {
+    else if (event.type == sf::Event::KeyPressed) {
         gfx::Key key = translateKeyboardKey(event.key.code);
         if (key == Key::BACKSPACE) {
             for (TextInput* i : text_inputs)
@@ -144,12 +143,12 @@ void gfx::Scene::_operateEvent(sf::Event event) {
         if (key != Key::UNKNOWN)
             onKeyDownCallback(key);
     }
-    else if (type == sf::Event::KeyReleased) {
+    else if (event.type == sf::Event::KeyReleased) {
         gfx::Key key = translateKeyboardKey(event.key.code);
         if (key != Key::UNKNOWN)
             key_states[(int)key] = false;
     }
-    else if (type == sf::Event::TextEntered) {
+    else if (event.type == sf::Event::TextEntered) {
         char c = event.text.unicode;
         if(c == '\b')
             return;
@@ -178,9 +177,9 @@ void gfx::Scene::_operateEvent(sf::Event event) {
                     i->ignore_one_input = false;
                 }
     }
-    else if (type == sf::Event::MouseWheelScrolled)
+    else if (event.type == sf::Event::MouseWheelScrolled)
         onMouseScroll(event.mouseWheelScroll.delta);
-    else if (type == sf::Event::Closed)
+    else if (event.type == sf::Event::Closed)
         window->close();
 }
 
