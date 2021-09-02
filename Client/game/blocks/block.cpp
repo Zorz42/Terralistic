@@ -106,7 +106,6 @@ void ClientBlocks::renderBackBlocks() {
                 getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (getBlock(x, y).getBreakStage() - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
             }
         }
-    
 }
 
 void ClientBlocks::renderFrontBlocks() {
