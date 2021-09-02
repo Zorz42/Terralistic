@@ -79,11 +79,12 @@ void ClientBlocks::renderBackBlocks() {
             if(getBlock(x, y).getBlockType() != BlockType::AIR) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
                 float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).y + BLOCK_WIDTH * getBlock(x, y).getOrientation();
+                float texture_x = (getBlock(x, y).getVariation()) % (resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).w / BLOCK_WIDTH) * BLOCK_WIDTH;
                 
-                block_vertex_array[block_index].texCoords = {0.f, texture_y};
-                block_vertex_array[block_index + 1].texCoords = {(float)BLOCK_WIDTH, texture_y};
-                block_vertex_array[block_index + 2].texCoords = {(float)BLOCK_WIDTH, texture_y + BLOCK_WIDTH};
-                block_vertex_array[block_index + 3].texCoords = {0.f, texture_y + BLOCK_WIDTH};
+                block_vertex_array[block_index].texCoords = {texture_x, texture_y};
+                block_vertex_array[block_index + 1].texCoords = {texture_x + (float)BLOCK_WIDTH, texture_y};
+                block_vertex_array[block_index + 2].texCoords = {texture_x + (float)BLOCK_WIDTH, texture_y + BLOCK_WIDTH};
+                block_vertex_array[block_index + 3].texCoords = {texture_x, texture_y + BLOCK_WIDTH};
                 
                 block_vertex_array[block_index].position = {(float)block_x, (float)block_y};
                 block_vertex_array[block_index + 1].position = {(float)block_x + BLOCK_WIDTH * 2, (float)block_y};

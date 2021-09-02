@@ -44,7 +44,7 @@ const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType type) {
     return block_texture_rectangles[(int)type];
 }
 
-void ResourcePack::load(std::string path) {
+void ResourcePack::load(const std::string& path) {
     breaking_texture.loadFromFile(path + "/misc/breaking.png");
     player_texture.loadFromFile(path + "/misc/player.png");
     background.loadFromFile(path + "/misc/background.png");
@@ -60,7 +60,7 @@ void ResourcePack::load(std::string path) {
 
 }
 
-void ResourcePack::loadBlocks(std::string path) {
+void ResourcePack::loadBlocks(const std::string& path) {
     gfx::Image block_textures[(int)BlockType::NUM_BLOCKS];
 
     for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++)
@@ -85,7 +85,7 @@ void ResourcePack::loadBlocks(std::string path) {
     gfx::resetRenderTarget();
 }
 
-void ResourcePack::loadLiquids(std::string path) {
+void ResourcePack::loadLiquids(const std::string& path) {
     gfx::Image liquid_textures[(int)LiquidType::NUM_LIQUIDS];
 
     for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++)

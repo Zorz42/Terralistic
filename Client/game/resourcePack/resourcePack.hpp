@@ -10,9 +10,9 @@ class ResourcePack {
     gfx::RectShape liquid_texture_rectangles[(int)LiquidType::NUM_LIQUIDS];
     //gfx::RectShape item_texture_rectangles[(int)BlockType::NUM_BLOCKS];
 public:
-    void load(std::string path);
-    void loadBlocks(std::string path);
-    void loadLiquids(std::string path);
+    void load(const std::string& path);
+    void loadBlocks(const std::string& path);
+    void loadLiquids(const std::string& path);
     //void loadItems(std::string path);
 
     const gfx::Image& getBlockTexture();

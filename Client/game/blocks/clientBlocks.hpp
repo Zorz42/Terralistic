@@ -18,7 +18,7 @@ public:
 
     BlockType block_id:8;
     LiquidType liquid_id:8;
-    unsigned char light_level, break_stage = 0, orientation = 16, liquid_level;
+    unsigned char light_level, break_stage = 0, orientation = 16, liquid_level, variation = rand();
 };
 
 class ClientBlock {
@@ -45,6 +45,7 @@ public:
     void setLightLevel(unsigned char level);
     unsigned char getBreakStage() { return block_data->break_stage; }
     void setBreakStage(unsigned char stage);
+    unsigned  char getVariation() {return block_data->variation; }
 };
 
 class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
