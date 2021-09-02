@@ -1,10 +1,10 @@
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
 #include "configManager.hpp"
-#include "fileManager.hpp"
+#include "platform_folders.h"
 
 void MultiplayerSelector::init() {
-    ConfigFile config(fileManager::getDataPath() + "servers.txt");
+    ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     config.setDefaultStr("username", "");
     config.setDefaultStr("server ip", "");
     
@@ -86,7 +86,7 @@ void MultiplayerSelector::render() {
 }
 
 void MultiplayerSelector::stop() {
-    ConfigFile config(fileManager::getDataPath() + "servers.txt");
+    ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     config.setStr("username", username.getText());
     config.setStr("server ip", server_ip.getText());
 }

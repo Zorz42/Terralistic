@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "worldCreator.hpp"
 #include "game.hpp"
+#include "platform_folders.h"
 
 void WorldCreator::init() {
     back_button.scale = 3;
@@ -42,7 +43,7 @@ void WorldCreator::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(mouse_x, mouse_y))
         gfx::returnFromScene();
     else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(mouse_x, mouse_y)) || (key == gfx::Key::ENTER && can_create)) {
-        startPrivateWorld(world_name.getText(), menu_back);
+        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, world_name.getText() == "StructureWorld");
         gfx::returnFromScene();
     }
 }

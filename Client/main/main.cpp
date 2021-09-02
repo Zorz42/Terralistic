@@ -1,5 +1,6 @@
+#include <filesystem>
 #include "mainMenu.hpp"
-#include "fileManager.hpp"
+#include "platform_folders.h"
 #include "configManager.hpp"
 #include "resourcePack.hpp"
 #include "resourcePath.hpp"
@@ -12,7 +13,8 @@ int main(int argc, char **argv) {
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     gfx::loadFont("pixel_font.ttf", 8);
     
-    fileManager::init();
+    std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
+    
     loadSettings();
     initProperties();
     

@@ -3,7 +3,7 @@
 #include "worldSelector.hpp"
 #include "game.hpp"
 #include "worldCreator.hpp"
-#include "fileManager.hpp"
+#include "platform_folders.h"
 #include "choiceScreen.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
@@ -18,6 +18,8 @@ void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short 
 }
 
 void WorldSelector::init() {
+    std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Worlds/");
+    
     title.scale = 3;
     title.renderText("Select a world to play!");
     title.y = SPACING;
@@ -55,7 +57,7 @@ void WorldSelector::refresh() {
     worlds.clear();
     worlds_names.clear();
 
-    for(auto& p: std::filesystem::directory_iterator(fileManager::getWorldsPath().c_str())) {
+    for(auto& p: std::filesystem::directory_iterator((sago::getDataHome() + "/Terralistic/Worlds/").c_str())) {
         std::string file_name = p.path().filename().string();
         std::string ending = ".world";
         if(file_name.size() > ending.size() && std::equal(ending.rbegin(), ending.rend(), file_name.rbegin())) {
@@ -92,7 +94,7 @@ void WorldSelector::onKeyDown(gfx::Key key) {
         else
             for(int i = 0; i < worlds.size(); i++) {
                 if(worlds[i].button.isHovered(mouse_x, mouse_y)) {
-                    startPrivateWorld(worlds[i].name, menu_back);
+                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i].name + ".world", menu_back, false);
                     refresh();
                 }
                 else if(worlds[i].delete_button.isHovered(mouse_x, mouse_y)) {
@@ -103,7 +105,7 @@ void WorldSelector::onKeyDown(gfx::Key key) {
                         ChoiceScreen(menu_back, std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result).run();
 
                     if(result == "Yes") {
-                        std::filesystem::remove(fileManager::getWorldsPath() + worlds[i].name + ".world");
+                        std::filesystem::remove(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i].name + ".world");
                         refresh();
                     }
                     break;

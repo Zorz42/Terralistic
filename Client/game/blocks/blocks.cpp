@@ -1,6 +1,6 @@
 #include <cassert>
 #include "clientBlocks.hpp"
-#include "fileManager.hpp"
+#include "platform_folders.h"
 
 ClientBlocks::ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack, unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data) : networking_manager(manager), resource_pack(resource_pack) {
     assert(map_width % 16 == 0 && map_height % 16 == 0);

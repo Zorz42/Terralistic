@@ -1,6 +1,6 @@
 #include "settings.hpp"
 #include "configManager.hpp"
-#include "fileManager.hpp"
+#include "platform_folders.h"
 
 #define MENU_WIDTH 450
 
@@ -65,7 +65,7 @@ void Settings::onKeyDown(gfx::Key key) {
             new_scale = 50;
         if(new_scale) {
             {
-                ConfigFile config(fileManager::getDataPath() + "settings.txt");
+                ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
                 config.setInt("ui_scale", new_scale);
             }
             reloadSettings();
@@ -93,7 +93,7 @@ void Settings::reloadSettings() {
 }
 
 void Settings::updateScaleRect() {
-    ConfigFile config(fileManager::getDataPath() + "settings.txt");
+    ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
     int curr_scale = config.getInt("ui_scale");
     
     gfx::Button* initially_hovered_button = nullptr;
@@ -110,7 +110,7 @@ void Settings::updateScaleRect() {
 }
 
 void loadSettings() {
-    ConfigFile config(fileManager::getDataPath() + "settings.txt");
+    ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
     
     config.setDefaultInt("ui_scale", 100);
     

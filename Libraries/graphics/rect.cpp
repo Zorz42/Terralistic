@@ -1,43 +1,6 @@
 #include <cmath>
 #include "graphics-internal.hpp"
 
-gfx::Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : r(r), g(g), b(b), a(a) {}
-
-gfx::RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
-
-void gfx::RectShape::render(Color c, bool fill) const {
-    sf::RectangleShape rect(sf::Vector2f(w, h));
-    rect.setPosition(x, y);
-    if (fill) {
-        rect.setOutlineColor(sf::Color::Transparent);
-        rect.setFillColor((const sf::Color)c);
-        render_target->draw(rect);
-    } else {
-        rect.setFillColor(sf::Color::Transparent);
-        rect.setOutlineColor((const sf::Color)c);
-        rect.setOutlineThickness(1);
-        render_target->draw(rect);
-    }
-}
-
-
-gfx::RectShape gfx::_CenteredObject::getTranslatedRect() const {
-    return {getTranslatedX(), getTranslatedY(), getWidth(), getHeight()};
-}  
-short gfx::_CenteredObject::getTranslatedX(unsigned short width) const {
-    if(!width)
-        width = getWidth();
-    return (orientation % 3 == 1 ? (getWindowWidth() >> 1) - (width >> 1) : (orientation % 3 == 2 ? getWindowWidth() - width : 0)) + x;
-}
-
-short gfx::_CenteredObject::getTranslatedY(unsigned short height) const {
-    if(!height)
-        height = getHeight();
-    return (orientation / 3 == 1 ? (getWindowHeight() >> 1) - (height >> 1) : (orientation / 3 == 2 ? getWindowHeight() - height : 0)) + y;
-}
-
-gfx::_CenteredObject::_CenteredObject(short x, short y, ObjectType orientation) : orientation(orientation), x(x), y(y) {}
-
 gfx::Rect::Rect(short x_, short y_, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(0, 0, orientation), c(c) {
     x = x_;
     y = y_;

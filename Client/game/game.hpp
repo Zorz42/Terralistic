@@ -7,7 +7,7 @@
 #include "menuBack.hpp"
 #include "menuBack.hpp"
 
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back);
+void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
 class game : public gfx::Scene, EventListener<ClientPacketEvent>, public BackgroundRect {
     void onEvent(ClientPacketEvent& event) override;
