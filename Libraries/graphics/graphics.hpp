@@ -52,18 +52,17 @@ namespace gfx {
         short x, y;
         unsigned short w, h;
         RectShape(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0);
-        void render(Color c, bool fill=true) const;
+        void render(Color c) const;
+        void renderOutline(Color c) const;
     };
 
     class _CenteredObject {
     public:
-        _CenteredObject(short x, short y, ObjectType orientation = TOP_LEFT);
+        _CenteredObject(short x = 0, short y = 0, ObjectType orientation = TOP_LEFT);
         ObjectType orientation;
         RectShape getTranslatedRect() const;
         virtual unsigned short getWidth() const { return 0; };
         virtual unsigned short getHeight() const { return 0; };
-        short getTranslatedX(unsigned short width) const;
-        short getTranslatedY(unsigned short height) const;
         short getTranslatedX() const;
         short getTranslatedY() const;
 
@@ -87,8 +86,6 @@ namespace gfx {
         void updateBlurTextureSize();
         
     public:
-        explicit Rect(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0, Color c = GFX_DEFAULT_RECT_COLOR, ObjectType orientation = TOP_LEFT);
-        
         unsigned short getWidth() const override;
         void setWidth(unsigned short width_);
         
@@ -102,12 +99,12 @@ namespace gfx {
         void setY(short y_);
         
         unsigned short smooth_factor = 1;
-        Color c;
         float blur_intensity = 0;
         unsigned char shadow_intensity = 0;
-        void render(bool fill=true);
-        ~Rect();
+        Color fill_color = {0, 0, 0, 0};
         Color border_color = {0, 0, 0, 0};
+        void render();
+        ~Rect();
     };
     
     class Image {
@@ -119,8 +116,6 @@ namespace gfx {
     public:
         void render(float scale, short x, short y, bool flipped=false) const;
         void render(float scale, short x, short y, RectShape src_rect, bool flipped=false) const;
-        ~Image();
-        bool free_texture = true;
         unsigned short getTextureWidth() const;
         unsigned short getTextureHeight() const;
         void clear();
@@ -129,6 +124,8 @@ namespace gfx {
         void loadFromFile(const std::string& path);
         void setColor(Color color_);
         sf::RenderTexture* getSfmlTexture() const { return sfml_render_texture; }
+        
+        ~Image();
     };
 
 

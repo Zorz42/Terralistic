@@ -34,7 +34,7 @@ void Settings::init() {
     small_scale_button.x = normal_scale_button.x - normal_scale_button.getWidth() / 2 - small_scale_button.getWidth() / 2 - SPACING / 2;
     
     scale_select_rect.orientation = gfx::TOP;
-    scale_select_rect.c = GREY;
+    scale_select_rect.fill_color = GREY;
     scale_select_rect.smooth_factor = 2;
     updateScaleRect();
     
@@ -42,8 +42,8 @@ void Settings::init() {
     scale_back_rect.setY(SPACING);
     scale_back_rect.setWidth(MENU_WIDTH);
     scale_back_rect.setHeight(scale_text.getHeight() + 2 * SPACING);
-    scale_back_rect.c = BLACK;
-    scale_back_rect.c.a = TRANSPARENCY;
+    scale_back_rect.fill_color = BLACK;
+    scale_back_rect.fill_color.a = TRANSPARENCY;
     scale_back_rect.shadow_intensity = SHADOW_INTENSITY;
     
     back_button.renderText("Back");

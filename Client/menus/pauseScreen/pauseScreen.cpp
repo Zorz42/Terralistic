@@ -15,7 +15,7 @@ void PauseScreen::init() {
     quit_button.renderText("Leave Game");
     quit_button.y = settings_button.y + settings_button.getHeight() + SPACING;
     
-    back_rect.c.a = TRANSPARENCY;
+    back_rect.fill_color.a = TRANSPARENCY;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = BORDER_COLOR;
     back_rect.border_color.a = TRANSPARENCY;
@@ -50,7 +50,7 @@ void PauseScreen::renderBackground() {
     back_rect.setHeight(gfx::getWindowHeight());
     fade_rect.setWidth(gfx::getWindowWidth());
     fade_rect.setHeight(gfx::getWindowHeight());
-    fade_rect.c.a = float(back_rect.getWidth() + back_rect.getX() + 200) / (float)(back_rect.getWidth() + 200) * 70;
+    fade_rect.fill_color.a = float(back_rect.getWidth() + back_rect.getX() + 200) / (float)(back_rect.getWidth() + 200) * 70;
     fade_rect.blur_intensity = float(back_rect.getWidth() + back_rect.getX() + 200) / (float)(back_rect.getWidth() + 200) * BLUR / 2;
     if(fade_rect.blur_intensity < 0.5f)
         fade_rect.blur_intensity = 0;

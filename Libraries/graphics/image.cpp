@@ -48,10 +48,8 @@ gfx::Image::~Image() {
 }
 
 void gfx::Image::freeTexture() {
-    if(free_texture) {
-        delete sfml_render_texture;
-        sfml_render_texture = nullptr;
-    }
+    delete sfml_render_texture;
+    sfml_render_texture = nullptr;
 }
 
 void gfx::Image::setColor(Color color_) {

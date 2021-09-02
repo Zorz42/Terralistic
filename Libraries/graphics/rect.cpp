@@ -1,20 +1,13 @@
 #include <cmath>
 #include "graphics-internal.hpp"
 
-gfx::Rect::Rect(short x_, short y_, unsigned short w, unsigned short h, Color c, ObjectType orientation) : _CenteredObject(0, 0, orientation), c(c) {
-    x = x_;
-    y = y_;
-    setWidth(w);
-    setHeight(h);
-}
-
 int approach(int object, int target, int smooth_factor) {
     if(std::abs(target - object) < smooth_factor)
         return target;
     return object + (target - object) / smooth_factor;
 }
 
-void gfx::Rect::render(bool fill) {
+void gfx::Rect::render() {
     if(first_time) {
         first_time = false;
         x = target_x;
@@ -104,8 +97,8 @@ void gfx::Rect::render(bool fill) {
         }
 
     }
-    rect.render(c, fill);
-    rect.render(border_color, false);
+    rect.render(fill_color);
+    rect.renderOutline(border_color);
 }
 
 void gfx::Rect::updateBlurTextureSize() {

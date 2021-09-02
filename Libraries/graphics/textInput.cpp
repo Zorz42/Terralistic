@@ -23,7 +23,7 @@ void gfx::TextInput::render(unsigned short mouse_x, unsigned short mouse_y) {
     back_rect.setY(rect.y);
     back_rect.setWidth(rect.w);
     back_rect.setHeight(rect.h);
-    back_rect.c = isHovered(mouse_x, mouse_y) ? hover_color : def_color;
+    back_rect.fill_color = isHovered(mouse_x, mouse_y) ? hover_color : def_color;
     back_rect.render();
     
     rect.x += margin * scale;

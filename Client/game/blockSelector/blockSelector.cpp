@@ -2,6 +2,9 @@
 #include "packetType.hpp"
 
 void BlockSelector::init() {
+    select_rect.setWidth(2 * BLOCK_WIDTH);
+    select_rect.setHeight(2 * BLOCK_WIDTH);
+    select_rect.border_color = {255, 0, 0};
     select_rect.smooth_factor = 2;
 }
 
@@ -32,7 +35,7 @@ void BlockSelector::render() {
         selected_block_y = (unsigned short)((mouse_y + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
         select_rect.setX(-blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2);
         select_rect.setY(-blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2);
-        select_rect.render(false);
+        select_rect.render();
     }
 }
 

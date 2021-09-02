@@ -746,8 +746,8 @@
 		365721EC26D07180005AB3CC /* blockSelector */ = {
 			isa = PBXGroup;
 			children = (
-				365721ED26D07180005AB3CC /* blockSelector.cpp */,
 				365721EE26D07180005AB3CC /* blockSelector.hpp */,
+				365721ED26D07180005AB3CC /* blockSelector.cpp */,
 			);
 			path = blockSelector;
 			sourceTree = "<group>";
