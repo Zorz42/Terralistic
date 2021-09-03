@@ -1,3 +1,4 @@
+#include <cassert>
 #include "graphics.hpp"
 #include "serverBlocks.hpp"
 #include "properties.hpp"

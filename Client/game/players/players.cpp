@@ -1,3 +1,4 @@
+#include <cassert>
 #include "clientPlayers.hpp"
 
 ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, int x, int y, std::string username) :
