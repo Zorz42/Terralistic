@@ -5,7 +5,6 @@ void ServerBlocks::createWorld(unsigned short world_width, unsigned short world_
     width = world_width;
     height = world_height;
     
-    assert(width % 16 == 0 && height % 16 == 0);
     blocks = new ServerMapBlock[width * height];
     biomes = new Biome[width];
 }
