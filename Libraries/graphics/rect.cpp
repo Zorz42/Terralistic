@@ -8,13 +8,7 @@ int approach(int object, int target, int smooth_factor) {
 }
 
 void gfx::Rect::render() {
-    if(first_time) {
-        first_time = false;
-        x = target_x;
-        y = target_y;
-        width = target_width;
-        height = target_height;
-    }
+    first_time = false;
     
     x = approach(x, target_x, smooth_factor);
     y = approach(y, target_y, smooth_factor);
@@ -115,6 +109,8 @@ void gfx::Rect::setWidth(unsigned short width_) {
         target_width = width_;
         updateBlurTextureSize();
     }
+    if(first_time)
+        width = width_;
 }
 
 unsigned short gfx::Rect::getHeight() const {
@@ -126,6 +122,8 @@ void gfx::Rect::setHeight(unsigned short height_) {
         target_height = height_;
         updateBlurTextureSize();
     }
+    if(first_time)
+        height = height_;
 }
 
 short gfx::Rect::getX() const {
@@ -134,6 +132,8 @@ short gfx::Rect::getX() const {
 
 void gfx::Rect::setX(short x_) {
     target_x = x_;
+    if(first_time)
+        x = x_;
 }
 
 short gfx::Rect::getY() const {
@@ -142,6 +142,8 @@ short gfx::Rect::getY() const {
 
 void gfx::Rect::setY(short y_) {
     target_y = y_;
+    if(first_time)
+        y = y_;
 }
 
 gfx::Rect::~Rect() {

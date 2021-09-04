@@ -1,6 +1,7 @@
 #include "settings.hpp"
 #include "configManager.hpp"
 #include "platform_folders.h"
+#include "modManager.hpp"
 
 #define MENU_WIDTH 450
 
@@ -46,6 +47,11 @@ void Settings::init() {
     scale_back_rect.fill_color.a = TRANSPARENCY;
     scale_back_rect.shadow_intensity = SHADOW_INTENSITY;
     
+    mods_button.orientation = gfx::TOP;
+    mods_button.renderText("Mods");
+    mods_button.y = scale_back_rect.getY() + scale_back_rect.getHeight() + SPACING;
+    mods_button.scale = 3;
+    
     back_button.renderText("Back");
     back_button.scale = 3;
     back_button.orientation = gfx::BOTTOM;
@@ -63,6 +69,8 @@ void Settings::onKeyDown(gfx::Key key) {
             new_scale = 100;
         else if(small_scale_button.isHovered(mouse_x, mouse_y))
             new_scale = 50;
+        else if(mods_button.isHovered(mouse_x, mouse_y))
+            ModManager(background).run();
         if(new_scale) {
             {
                 ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
@@ -83,6 +91,8 @@ void Settings::render() {
     large_scale_button.render(mouse_x, mouse_y);
     normal_scale_button.render(mouse_x, mouse_y);
     small_scale_button.render(mouse_x, mouse_y);
+    
+    mods_button.render(mouse_x, mouse_y);
     
     back_button.render(mouse_x, mouse_y);
 }

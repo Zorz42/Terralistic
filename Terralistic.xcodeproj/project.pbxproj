@@ -45,6 +45,7 @@
 		1690D7DA26BA88640007755C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		1690D7DB26BA88710007755C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
+		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16BF6928269D6D7300CFE175 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		16BF6929269D6D7300CFE175 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		16BF692C269D6D7300CFE175 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
@@ -249,6 +250,8 @@
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1695428D2680B5B400F1F4FE /* version.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = version.hpp; sourceTree = "<group>"; };
 		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
+		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
+		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
 		16B36D2C2682000F00A4B03A /* items.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = items.cpp; sourceTree = "<group>"; };
 		16B36D2D2682000F00A4B03A /* serverItems.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverItems.hpp; sourceTree = "<group>"; };
 		16B36D312682067D00A4B03A /* blocks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blocks.cpp; sourceTree = "<group>"; };
@@ -586,6 +589,15 @@
 			path = Client;
 			sourceTree = "<group>";
 		};
+		169DE4E826E3E1F0008DB021 /* modManager */ = {
+			isa = PBXGroup;
+			children = (
+				169DE4EA26E3E201008DB021 /* modManager.hpp */,
+				169DE4E926E3E201008DB021 /* modManager.cpp */,
+			);
+			path = modManager;
+			sourceTree = "<group>";
+		};
 		16B36D2A2681FF0400A4B03A /* items */ = {
 			isa = PBXGroup;
 			children = (
@@ -775,6 +787,7 @@
 			children = (
 				365721DE26D07180005AB3CC /* pauseScreen */,
 				16670CDD26DDFA990057AA41 /* settings */,
+				169DE4E826E3E1F0008DB021 /* modManager */,
 				365721FB26D07181005AB3CC /* multiplayerSelector */,
 				365721FE26D07181005AB3CC /* choiceScreen */,
 				3657220126D07181005AB3CC /* worldCreator */,
@@ -991,6 +1004,7 @@
 				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
 				1673274C26A80EF40063281A /* networking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
+				169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */,
 				3657221726D07181005AB3CC /* playerRenderer.cpp in Sources */,
 				167C03B526E141D10045FEA9 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
