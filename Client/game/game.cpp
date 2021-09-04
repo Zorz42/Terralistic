@@ -1,6 +1,7 @@
 #include <thread>
 #include <cassert>
 #include <filesystem>
+#include <fstream>
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "platform_folders.h"
@@ -96,7 +97,14 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
 }
 
 void game::init() {
-    resource_pack.load({/*sago::getDataHome() + "/Terralistic/Mods/customResourcePack",*/ gfx::resource_path + "resourcePack"});
+    std::vector<std::string> active_resource_packs = {gfx::resource_path + "resourcePack"};
+    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
+        std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
+        std::string line;
+        while(std::getline(active_mods_file, line))
+            active_resource_packs.insert(active_resource_packs.begin(), sago::getDataHome() + "/Terralistic/Mods/" + line);
+    }
+    resource_pack.load(active_resource_packs);
     
     if(!networking_manager.establishConnection(ip_address, port)) {
         ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
