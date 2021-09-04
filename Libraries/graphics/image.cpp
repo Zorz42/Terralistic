@@ -30,9 +30,13 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
     sfml_render_texture->display();
 }
 
+void gfx::Image::loadFromResources(const std::string& path) {
+    loadFromFile(resource_path + path);
+}
+
 void gfx::Image::loadFromFile(const std::string& path) {
     sf::Texture image_texture;
-    bool result = image_texture.loadFromFile(resource_path + path);
+    bool result = image_texture.loadFromFile(path);
     assert(result);
     sf::RectangleShape sfml_rect;
     sf::Vector2u size = image_texture.getSize();

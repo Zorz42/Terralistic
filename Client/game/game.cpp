@@ -96,7 +96,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
 }
 
 void game::init() {
-    resource_pack.load("resourcePack");
+    resource_pack.load({/*sago::getDataHome() + "/Terralistic/Mods/customResourcePack",*/ gfx::resource_path + "resourcePack"});
     
     if(!networking_manager.establishConnection(ip_address, port)) {
         ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();

@@ -1,6 +1,8 @@
 #include <cassert>
+#include <filesystem>
 #include "print.hpp"
 #include "resourcePack.hpp"
+#include "platform_folders.h"
 
 const gfx::Image& ResourcePack::getBlockTexture(){
     return block_texture_atlas;
@@ -44,27 +46,41 @@ const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType type) {
     return block_texture_rectangles[(int)type];
 }
 
-void ResourcePack::load(const std::string& path) {
-    breaking_texture.loadFromFile(path + "/misc/breaking.png");
-    player_texture.loadFromFile(path + "/misc/player.png");
-    background.loadFromFile(path + "/misc/background.png");
+std::string ResourcePack::getFile(std::string file_name) {
+    std::string file;
+    for(const std::string& path : paths) {
+        file = path + file_name;
+        if(std::filesystem::exists(file))
+            return file;
+    }
+    assert(false);
+}
+
+void ResourcePack::load(const std::vector<std::string>& paths_) {
+    paths = paths_;
+    std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
+    
+    breaking_texture.loadFromFile(getFile("/misc/breaking.png"));
+    player_texture.loadFromFile(getFile("/misc/player.png"));
+    background.loadFromFile(getFile("/misc/background.png"));
 
     
     for(int i = 0; i < (int)ItemType::NUM_ITEMS; i++) {
-        item_textures[i].loadFromFile(path + "/items/" + getItemInfo((ItemType) i).name + ".png");
-        item_text_textures[i].renderText(getItemInfo((ItemType) i).name);
+        std::string item_name = getItemInfo((ItemType) i).name;
+        item_textures[i].loadFromFile(getFile("/items/" + item_name + ".png"));
+        item_text_textures[i].renderText(item_name);
     }
 
-    loadBlocks(path);
-    loadLiquids(path);
+    loadBlocks();
+    loadLiquids();
 
 }
 
-void ResourcePack::loadBlocks(const std::string& path) {
+void ResourcePack::loadBlocks() {
     gfx::Image block_textures[(int)BlockType::NUM_BLOCKS];
 
     for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++)
-        block_textures[i].loadFromFile(path + "/blocks/" + getBlockInfo((BlockType)i).name + ".png");
+        block_textures[i].loadFromFile(getFile("/blocks/" + getBlockInfo((BlockType)i).name + ".png"));
 
     unsigned short max_y_size = 0;
     int texture_atlas_height = 0;
@@ -85,11 +101,11 @@ void ResourcePack::loadBlocks(const std::string& path) {
     gfx::resetRenderTarget();
 }
 
-void ResourcePack::loadLiquids(const std::string& path) {
+void ResourcePack::loadLiquids() {
     gfx::Image liquid_textures[(int)LiquidType::NUM_LIQUIDS];
 
     for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++)
-        liquid_textures[i].loadFromFile(path + "/liquids/" + getLiquidInfo((LiquidType)i).name + ".png");
+        liquid_textures[i].loadFromFile(getFile("/liquids/" + getLiquidInfo((LiquidType)i).name + ".png"));
 
     unsigned short max_y_size = 0;
     int texture_atlas_height = 0;

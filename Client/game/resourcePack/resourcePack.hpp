@@ -8,11 +8,14 @@ class ResourcePack {
     gfx::Image item_textures[(int)ItemType::NUM_ITEMS], item_text_textures[(int)ItemType::NUM_ITEMS], breaking_texture, player_texture, background, block_texture_atlas, liquid_texture_atlas, item_texture_atlas;
     gfx::RectShape block_texture_rectangles[(int)BlockType::NUM_BLOCKS];
     gfx::RectShape liquid_texture_rectangles[(int)LiquidType::NUM_LIQUIDS];
+    std::string getFile(std::string file_name);
+    std::vector<std::string> paths;
+    
     //gfx::RectShape item_texture_rectangles[(int)BlockType::NUM_BLOCKS];
 public:
-    void load(const std::string& path);
-    void loadBlocks(const std::string& path);
-    void loadLiquids(const std::string& path);
+    void load(const std::vector<std::string>& paths_);
+    void loadBlocks();
+    void loadLiquids();
     //void loadItems(std::string path);
 
     const gfx::Image& getBlockTexture();

@@ -1,7 +1,7 @@
 #include "menuBack.hpp"
 
 void MenuBack::init() {
-    background.loadFromFile("background.png");
+    background.loadFromResources("background.png");
     
     back_rect.orientation = gfx::CENTER;
     back_rect.fill_color.a = TRANSPARENCY;

@@ -14,15 +14,6 @@ void gfx::Scene::onKeyDownCallback(Key key_) {
     }
 }
 
-gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
-    switch(sfml_button) {
-        case sf::Mouse::Left: return gfx::Key::MOUSE_LEFT;
-        case sf::Mouse::Middle: return gfx::Key::MOUSE_MIDDLE;
-        case sf::Mouse::Right: return gfx::Key::MOUSE_RIGHT;
-        default: return gfx::Key::UNKNOWN;
-    }
-}
-
 void gfx::Scene::enableAllEvents(bool enable) {
     _can_receive_events = enable;
     for(GraphicalModule* module : modules)
@@ -31,6 +22,15 @@ void gfx::Scene::enableAllEvents(bool enable) {
 
 bool gfx::GraphicalModule::getKeyState(Key key_) {
     return _can_receive_events && key_states[(int)key_];
+}
+
+gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
+    switch(sfml_button) {
+        case sf::Mouse::Left: return gfx::Key::MOUSE_LEFT;
+        case sf::Mouse::Middle: return gfx::Key::MOUSE_MIDDLE;
+        case sf::Mouse::Right: return gfx::Key::MOUSE_RIGHT;
+        default: return gfx::Key::UNKNOWN;
+    }
 }
 
 gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
@@ -87,14 +87,7 @@ void gfx::returnFromScene() {
 }
 
 void gfx::Scene::_operateEvent(sf::Event event) {
-    if (event.type == sf::Event::MouseMoved) {
-        mouse_x = event.mouseMove.x / global_scale;
-        mouse_y = event.mouseMove.y / global_scale;
-        for(GraphicalModule* module : modules) {
-            module->mouse_x = mouse_x;
-            module->mouse_y = mouse_y;
-        }
-    } else if (event.type == sf::Event::Resized)
+    if (event.type == sf::Event::Resized)
         setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
     else if (event.type == sf::Event::MouseButtonPressed) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
@@ -201,6 +194,13 @@ void gfx::Scene::run() {
         _can_receive_events = !disable_events_gl || disable_events;
         for(GraphicalModule* module : modules)
             module->_can_receive_events = !disable_events_gl || module->disable_events;
+        
+        mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
+        mouse_y = sf::Mouse::getPosition(*window).y / global_scale;
+        for(GraphicalModule* module : modules) {
+            module->mouse_x = mouse_x;
+            module->mouse_y = mouse_y;
+        }
         
         sf::Event event;
         while(window->pollEvent(event))
