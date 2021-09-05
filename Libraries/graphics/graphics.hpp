@@ -208,7 +208,7 @@ namespace gfx {
 
         void onKeyDownCallback(Key key_);
         
-        unsigned short mouse_x, mouse_y;
+        short mouse_x, mouse_y;
     };
     
 };
