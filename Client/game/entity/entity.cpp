@@ -1,11 +1,11 @@
-#include "entity.hpp"
+#include "clientEntity.hpp"
 
-void EntityManager::updateAllEntities() {
-    for(Entity* entity : entities) {
+void ClientEntityManager::updateAllEntities() {
+    for(ClientEntity* entity : entities) {
         
     }
 }
 
-void EntityManager::addEntity(Entity* entity) {
+void ClientEntityManager::addEntity(ClientEntity* entity) {
     entities.push_back(entity);
 }

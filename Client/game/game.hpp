@@ -6,7 +6,7 @@
 #include "clientItems.hpp"
 #include "menuBack.hpp"
 #include "menuBack.hpp"
-#include "entity.hpp"
+#include "clientEntity.hpp"
 #include "clientInventory.hpp"
 #include "blockSelector.hpp"
 #include "debugMenu.hpp"
@@ -26,7 +26,7 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     std::string username;
     NetworkingManager networking_manager;
     ResourcePack resource_pack;
-    EntityManager entity_manager;
+    ClientEntityManager entity_manager;
     ClientBlocks blocks;
     ClientPlayers player_handler;
     ClientItems items;

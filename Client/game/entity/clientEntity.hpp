@@ -1,12 +1,12 @@
-#ifndef entity_hpp
-#define entity_hpp
+#ifndef clientEntity_hpp
+#define clientEntity_hpp
 
 #include <vector>
 #include "clientBlocks.hpp"
 
-class Entity {
+class ClientEntity {
 public:
-    Entity(unsigned short id) : id(id) {}
+    ClientEntity(unsigned short id) : id(id) {}
     float x, y, velocity_x, velocity_y;
     virtual unsigned short getWidth();
     virtual unsigned short getHeight();
@@ -14,13 +14,13 @@ public:
     const unsigned short id;
 };
 
-class EntityManager {
-    std::vector<Entity*> entities;
+class ClientEntityManager {
+    std::vector<ClientEntity*> entities;
     ClientBlocks* blocks;
 public:
-    EntityManager(ClientBlocks* blocks) : blocks(blocks) {}
+    ClientEntityManager(ClientBlocks* blocks) : blocks(blocks) {}
     void updateAllEntities();
-    void addEntity(Entity* entity);
+    void addEntity(ClientEntity* entity);
 };
 
 #endif
