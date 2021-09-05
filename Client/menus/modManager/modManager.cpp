@@ -173,9 +173,8 @@ void ModManager::render() {
 void ModManager::stop() {
     std::ofstream mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt", std::ios::trunc);
     for(GuiMod* mod : mods) {
-        if(mod->enabled) {
+        if(mod->enabled)
             mods_file << mod->getName() << std::endl;
-        }
         delete mod;
     }
 }
