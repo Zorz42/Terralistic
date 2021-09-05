@@ -5,21 +5,21 @@
 #include "graphics.hpp"
 
 class ResourcePack {
-    gfx::Image item_textures[(int)ItemType::NUM_ITEMS], item_text_textures[(int)ItemType::NUM_ITEMS], breaking_texture, player_texture, background, block_texture_atlas, liquid_texture_atlas, item_texture_atlas;
+    gfx::Image item_text_textures[(int)ItemType::NUM_ITEMS], breaking_texture, player_texture, background, block_texture_atlas, liquid_texture_atlas, item_texture_atlas;
     gfx::RectShape block_texture_rectangles[(int)BlockType::NUM_BLOCKS];
     gfx::RectShape liquid_texture_rectangles[(int)LiquidType::NUM_LIQUIDS];
-    std::string getFile(std::string file_name);
+    std::string getFile(const std::string& file_name);
     std::vector<std::string> paths;
     
-    //gfx::RectShape item_texture_rectangles[(int)BlockType::NUM_BLOCKS];
+    gfx::RectShape item_texture_rectangles[(int)BlockType::NUM_BLOCKS];
 public:
     void load(const std::vector<std::string>& paths_);
     void loadBlocks();
     void loadLiquids();
-    //void loadItems(std::string path);
+    void loadItems();
 
     const gfx::Image& getBlockTexture();
-    const gfx::Image& getItemTexture(ItemType type);
+    const gfx::Image& getItemTexture();
     const gfx::Image& getItemTextTexture(ItemType type);
     const gfx::Image& getLiquidTexture();
     const gfx::Image& getBreakingTexture();

@@ -8,9 +8,8 @@ const gfx::Image& ResourcePack::getBlockTexture(){
     return block_texture_atlas;
 }
 
-const gfx::Image& ResourcePack::getItemTexture(ItemType type) {
-    assert((int)type >= 0 && type < ItemType::NUM_ITEMS);
-    return item_textures[(int)type];
+const gfx::Image& ResourcePack::getItemTexture(){
+    return item_texture_atlas;
 }
 
 const gfx::Image& ResourcePack::getItemTextTexture(ItemType type) {
@@ -39,14 +38,14 @@ const gfx::RectShape& ResourcePack::getTextureRectangle(BlockType type) {
 }
 
 const gfx::RectShape& ResourcePack::getTextureRectangle(LiquidType type) {
-    return block_texture_rectangles[(int)type];
+    return liquid_texture_rectangles[(int)type];
 }
 
 const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType type) {
-    return block_texture_rectangles[(int)type];
+    return item_texture_rectangles[(int)type];
 }
 
-std::string ResourcePack::getFile(std::string file_name) {
+std::string ResourcePack::getFile(const std::string& file_name) {
     std::string file;
     for(const std::string& path : paths) {
         file = path + file_name;
@@ -59,20 +58,14 @@ std::string ResourcePack::getFile(std::string file_name) {
 void ResourcePack::load(const std::vector<std::string>& paths_) {
     paths = paths_;
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
-    
+
     breaking_texture.loadFromFile(getFile("/misc/breaking.png"));
     player_texture.loadFromFile(getFile("/misc/player.png"));
     background.loadFromFile(getFile("/misc/background.png"));
 
-    
-    for(int i = 0; i < (int)ItemType::NUM_ITEMS; i++) {
-        std::string item_name = getItemInfo((ItemType) i).name;
-        item_textures[i].loadFromFile(getFile("/items/" + item_name + ".png"));
-        item_text_textures[i].renderText(item_name);
-    }
-
     loadBlocks();
     loadLiquids();
+    loadItems();
 
 }
 
@@ -126,28 +119,27 @@ void ResourcePack::loadLiquids() {
     gfx::resetRenderTarget();
 }
 
-/*void ResourcePack::loadItems(std::string path) {
-    gfx::Image block_textures[(int)BlockType::NUM_BLOCKS];
+void ResourcePack::loadItems() {
+    gfx::Image item_textures[(int)ItemType::NUM_ITEMS];
 
+    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++)
+        item_textures[i].loadFromFile(getFile("/items/" + getItemInfo((ItemType)i).name + ".png"));
 
-    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++)
-        block_textures[i].loadFromFile(path + "/blocks/" + getBlockInfo((BlockType)i).name + ".png");
-
-    unsigned short max_y_size = 0;
+    unsigned short max_x_size = 0;
     int texture_atlas_height = 0;
-    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++){
-        if(block_textures[i].getTextureWidth() > max_y_size)
-            max_y_size = block_textures[i].getTextureWidth();
-        block_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, block_textures[i].getTextureWidth(), block_textures[i].getTextureHeight());
-        texture_atlas_height += block_textures[i].getTextureHeight();
+    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++){
+        if(item_textures[i].getTextureWidth() > max_x_size)
+            max_x_size = item_textures[i].getTextureWidth();
+        item_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, item_textures[i].getTextureWidth(), item_textures[i].getTextureHeight());
+        texture_atlas_height += item_textures[i].getTextureHeight();
     }
 
-    block_texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
-    gfx::setRenderTarget(block_texture_atlas);
+    item_texture_atlas.createBlankImage(max_x_size, texture_atlas_height);
+    gfx::setRenderTarget(item_texture_atlas);
     texture_atlas_height = 0;
-    for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++){
-        block_textures[i].render(1, 0, texture_atlas_height);
-        texture_atlas_height += block_textures[i].getTextureHeight();
+    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++){
+        item_textures[i].render(1, 0, texture_atlas_height);
+        texture_atlas_height += item_textures[i].getTextureHeight();
     }
     gfx::resetRenderTarget();
-}*/
+}
