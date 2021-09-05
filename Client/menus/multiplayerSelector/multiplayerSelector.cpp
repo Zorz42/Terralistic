@@ -1,10 +1,10 @@
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
 #include "configManager.hpp"
-#include "fileManager.hpp"
+#include "platform_folders.h"
 
 void MultiplayerSelector::init() {
-    ConfigFile config(fileManager::getConfigPath());
+    ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     config.setDefaultStr("username", "");
     config.setDefaultStr("server ip", "");
     
@@ -56,8 +56,6 @@ void MultiplayerSelector::init() {
     username_title.y = username.y - username.Sprite::getHeight() - SPACING;
     username_title.orientation = gfx::CENTER;
     
-    menu_back->setWidth(username.getWidth() + 100);
-    
     server_ip.def_color.a = TRANSPARENCY;
     username.def_color.a = TRANSPARENCY;
     
@@ -65,31 +63,30 @@ void MultiplayerSelector::init() {
 }
 
 void MultiplayerSelector::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(mouse_x, mouse_y))
         gfx::returnFromScene();
-    else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered()) || (key == gfx::Key::ENTER && can_connect)) {
+    else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(mouse_x, mouse_y)) || (key == gfx::Key::ENTER && can_connect))
         game(menu_back, username.getText(), server_ip.getText()).run();
-        menu_back->setWidth(username.getWidth() + 100);
-    }
 }
 
 void MultiplayerSelector::render() {
-    menu_back->render();
+    menu_back->setBackWidth(username.getWidth() + 100);
+    menu_back->renderBack();
     if(can_connect != (username.getText().size() >= 3 && !server_ip.getText().empty())) {
         can_connect = !can_connect;
         join_button.renderText("Join Server", {(unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100), (unsigned char)(can_connect ? 255 : 100)});
         join_button.disabled = !can_connect;
     }
-    join_button.render();
-    back_button.render();
-    server_ip.render();
-    username.render();
+    join_button.render(mouse_x, mouse_y);
+    back_button.render(mouse_x, mouse_y);
+    server_ip.render(mouse_x, mouse_y);
+    username.render(mouse_x, mouse_y);
     server_ip_title.render();
     username_title.render();
 }
 
 void MultiplayerSelector::stop() {
-    ConfigFile config(fileManager::getConfigPath());
+    ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     config.setStr("username", username.getText());
     config.setStr("server ip", server_ip.getText());
 }

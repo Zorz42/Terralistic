@@ -2,6 +2,9 @@
 #include "packetType.hpp"
 
 void BlockSelector::init() {
+    select_rect.setWidth(2 * BLOCK_WIDTH);
+    select_rect.setHeight(2 * BLOCK_WIDTH);
+    select_rect.border_color = {255, 0, 0};
     select_rect.smooth_factor = 2;
 }
 
@@ -9,8 +12,8 @@ void BlockSelector::render() {
     if(getKeyState(gfx::Key::MOUSE_LEFT) != is_left_button_pressed) {
         is_left_button_pressed = getKeyState(gfx::Key::MOUSE_LEFT);
         if(is_left_button_pressed) {
-            prev_selected_x = blocks->getWorldWidth();
-            prev_selected_y = blocks->getWorldHeight();
+            prev_selected_x = blocks->getWidth();
+            prev_selected_y = blocks->getHeight();
         } else {
             sf::Packet packet;
             packet << PacketType::STOPPED_BREAKING;
@@ -28,11 +31,11 @@ void BlockSelector::render() {
             prev_selected_y = selected_block_y;
         }
         
-        selected_block_x = (unsigned short)((gfx::getMouseX() + blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
-        selected_block_y = (unsigned short)((gfx::getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
+        selected_block_x = (unsigned short)((mouse_x + blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
+        selected_block_y = (unsigned short)((mouse_y + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
         select_rect.setX(-blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2);
         select_rect.setY(-blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2);
-        select_rect.render(false);
+        select_rect.render();
     }
 }
 
@@ -40,8 +43,8 @@ void BlockSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_RIGHT && !inventory_handler->isHovered()) {
         unsigned short starting_x = (player_handler->getMainPlayer().x) / (BLOCK_WIDTH * 2);
         unsigned short starting_y = (player_handler->getMainPlayer().y) / (BLOCK_WIDTH * 2);
-        unsigned short ending_x = (player_handler->getMainPlayer().x + player_handler->getPlayerWidth() * 2 - 1) / (BLOCK_WIDTH * 2);
-        unsigned short ending_y = (player_handler->getMainPlayer().y + player_handler->getPlayerHeight() * 2 - 1) / (BLOCK_WIDTH * 2);
+        unsigned short ending_x = (player_handler->getMainPlayer().x + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
+        unsigned short ending_y = (player_handler->getMainPlayer().y + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
 
         if(selected_block_x < starting_x || selected_block_x > ending_x || selected_block_y < starting_y || selected_block_y > ending_y) {
             sf::Packet packet;

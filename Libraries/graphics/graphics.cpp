@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cassert>
 #include "graphics-internal.hpp"
 
 static unsigned short min_window_width, min_window_height;
@@ -44,11 +45,60 @@ void gfx::init(unsigned short window_width, unsigned short window_height) {
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 
-    bool result = blur_shader.loadFromMemory(blur_shader_code,  sf::Shader::Type::Fragment);
+    bool result = blur_shader.loadFromMemory(blur_shader_code, sf::Shader::Type::Fragment);
     assert(result);
+
+    shadow_texture.create(700, 700);
+
+    for (int i = 0; i < 2; i++) { // this is ugly but its the way i found working on linux
+        sf::RenderTexture dummy;
+        dummy.create(1, 1);
+
+        shadow_texture.clear({0, 0, 0, 0});
+        sf::RectangleShape rect2;
+        rect2.setPosition(200, 200);
+        rect2.setSize(sf::Vector2f(300, 300));
+        rect2.setFillColor({0, 0, 0});
+        shadow_texture.draw(rect2);
+        shadow_texture.display();
+        blurTexture(shadow_texture, GFX_DEFAULT_SHADOW_BLUR);
+        rect2.setFillColor({0, 0, 0, 0});
+        shadow_texture.draw(rect2, sf::BlendNone);
+        shadow_texture.display();
+    }
+
+    sf::Sprite part_sprite(shadow_texture.getTexture());
+
+    shadow_part_left.create(200, 1);
+    shadow_part_left.setRepeated(true);
+    shadow_part_left.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({0, 350, 200, 1});
+    shadow_part_left.draw(part_sprite);
+    shadow_part_left.display();
+    
+    shadow_part_right.create(200, 1);
+    shadow_part_right.setRepeated(true);
+    shadow_part_right.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({500, 350, 200, 1});
+    shadow_part_right.draw(part_sprite);
+    shadow_part_right.display();
+    
+    shadow_part_up.create(1, 200);
+    shadow_part_up.setRepeated(true);
+    shadow_part_up.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({350, 0, 1, 200});
+    shadow_part_up.draw(part_sprite);
+    shadow_part_up.display();
+
+    shadow_part_down.create(1, 200);
+    shadow_part_down.setRepeated(true);
+    shadow_part_down.clear({0, 0, 0, 0});
+    part_sprite.setTextureRect({350, 500, 1, 200});
+    shadow_part_down.draw(part_sprite);
+    shadow_part_down.display();
 }
 
-void gfx::setWindowMinimumSize(unsigned short width, unsigned short height) {
+void gfx::setMinimumWindowSize(unsigned short width, unsigned short height) {
     min_window_width = width;
     min_window_height = height;
 }
@@ -70,14 +120,6 @@ unsigned short gfx::getWindowHeight() {
     return window->getSize().y / global_scale;
 }
 
-unsigned short gfx::getMouseX() {
-    return mouse_x;
-}
-
-unsigned short gfx::getMouseY() {
-    return mouse_y;
-}
-
 void gfx::setRenderTarget(Image& tex) {
     render_target = tex.getSfmlTexture();
 }
@@ -85,10 +127,6 @@ void gfx::setRenderTarget(Image& tex) {
 void gfx::resetRenderTarget() {
     render_target->display();
     render_target = &window_texture;
-}
-
-bool gfx::colliding(RectShape a, RectShape b) {
-    return a.y + a.h > b.y && a.y < b.y + b.h && a.x + a.w > b.x && a.x < b.x + b.w;
 }
 
 unsigned int gfx::getTicks() {
@@ -152,7 +190,7 @@ void gfx::sleep(unsigned short ms) {
 
 void gfx::setScale(float scale) {
     global_scale = scale;
-    setWindowSize(getWindowWidth() * global_scale, getWindowHeight() * global_scale);
+    setWindowSize(getWindowWidth(), getWindowHeight());
 }
 
 void gfx::setWindowSize(unsigned short width, unsigned short height) {
@@ -168,4 +206,14 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width / global_scale, height / global_scale);
+}
+
+void gfx::drawVertices(const sf::VertexArray& array, const sf::Texture& texture) {
+    sf::RenderStates states;
+    states.texture = &texture;
+    render_target->draw(array, states);
+}
+
+void gfx::drawVertices(const sf::VertexArray& array) {
+    render_target->draw(array);
 }

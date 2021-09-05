@@ -3,14 +3,21 @@
 
 #include "graphics.hpp"
 
-class MenuBack {
+class BackgroundRect {
+public:
+    virtual void renderBack() = 0;
+    virtual void setBackWidth(unsigned short width) = 0;
+    virtual unsigned short getBackWidth() = 0;
+};
+
+class MenuBack : public BackgroundRect {
     gfx::Image background;
     gfx::Rect back_rect;
 public:
     void init();
-    void render();
-    void setWidth(unsigned short width) { back_rect.setWidth(width); }
-    unsigned short getWidth() { return back_rect.getWidth(); }
+    void renderBack() override;
+    void setBackWidth(unsigned short width) override { back_rect.setWidth(width); }
+    unsigned short getBackWidth() override { return back_rect.getWidth(); }
 };
 
 #endif

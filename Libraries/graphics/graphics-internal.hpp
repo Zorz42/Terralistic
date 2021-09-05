@@ -11,21 +11,22 @@
 
 namespace gfx {
 
-inline sf::RenderWindow *window = nullptr;
-inline sf::Font font;
+    inline sf::RenderWindow *window = nullptr;
+    inline sf::Font font;
 
-inline unsigned short mouse_x, mouse_y;
-inline float frame_length;
+    inline float frame_length;
 
-inline unsigned short font_size;
-inline sf::RenderTexture *render_target = nullptr;
+    inline unsigned short font_size;
+    inline sf::RenderTexture *render_target = nullptr;
 
-inline float global_scale = 1;
+    inline float global_scale = 1;
 
-inline sf::Shader blur_shader;
+    inline sf::Shader blur_shader;
 
-void blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality=BLUR_QUALITY);
+    void blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality=BLUR_QUALITY);
 
+    inline sf::RenderTexture shadow_texture, shadow_part_left, shadow_part_right, shadow_part_up, shadow_part_down;
+        
 }
 
 #endif

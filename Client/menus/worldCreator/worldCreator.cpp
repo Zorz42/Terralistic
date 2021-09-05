@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "worldCreator.hpp"
 #include "game.hpp"
+#include "platform_folders.h"
 
 void WorldCreator::init() {
     back_button.scale = 3;
@@ -33,31 +34,30 @@ void WorldCreator::init() {
         return '\0';
     };
     
-    menu_back->setWidth(world_name.getWidth() + 100);
-    
     world_name.def_color.a = TRANSPARENCY;
     
     text_inputs = {&world_name};
 }
 
 void WorldCreator::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered())
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(mouse_x, mouse_y))
         gfx::returnFromScene();
-    else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered()) || (key == gfx::Key::ENTER && can_create)) {
-        startPrivateWorld(world_name.getText(), menu_back);
+    else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(mouse_x, mouse_y)) || (key == gfx::Key::ENTER && can_create)) {
+        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, world_name.getText() == "StructureWorld");
         gfx::returnFromScene();
     }
 }
 
 void WorldCreator::render() {
-    menu_back->render();
+    menu_back->setBackWidth(world_name.getWidth() + 100);
+    menu_back->renderBack();
     if(can_create != (!world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText()))) {
         can_create = !can_create;
         create_button.renderText("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)});
         create_button.disabled = !can_create;
     }
-    create_button.render();
-    back_button.render();
+    create_button.render(mouse_x, mouse_y);
+    back_button.render(mouse_x, mouse_y);
     new_world_title.render();
-    world_name.render();
+    world_name.render(mouse_x, mouse_y);
 }

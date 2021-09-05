@@ -12,17 +12,17 @@ class BlockSelector : public gfx::GraphicalModule {
 
     void onKeyDown(gfx::Key key) override;
     
-    unsigned short prev_selected_x{}, prev_selected_y{}, selected_block_x{}, selected_block_y{};
-    gfx::Rect select_rect{0, 0, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, {255, 0, 0}};
+    unsigned short prev_selected_x, prev_selected_y, selected_block_x, selected_block_y;
+    gfx::Rect select_rect;
     
     bool is_left_button_pressed = false;
     
-    networkingManager* manager;
+    NetworkingManager* manager;
     ClientBlocks* blocks;
     ClientInventory* inventory_handler;
     ClientPlayers* player_handler;
 public:
-    BlockSelector(networkingManager* manager, ClientBlocks* world_map, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(NetworkingManager* manager, ClientBlocks* world_map, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
 #endif

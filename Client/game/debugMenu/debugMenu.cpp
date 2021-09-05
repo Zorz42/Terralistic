@@ -54,5 +54,5 @@ void DebugMenu::updateFpsText() {
 }
 
 void DebugMenu::updateCoordsText() {
-    coords_text.renderText(std::string("X: ") + std::to_string(player_handler->getMainPlayer().x / (BLOCK_WIDTH * 2)) + ", Y: " + std::to_string(blocks->getWorldHeight() - player_handler->getMainPlayer().y / (BLOCK_WIDTH * 2)), BLACK);
+    coords_text.renderText(std::string("X: ") + std::to_string(int(player_handler->getMainPlayer().x / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - player_handler->getMainPlayer().y / (BLOCK_WIDTH * 2))), BLACK);
 }
