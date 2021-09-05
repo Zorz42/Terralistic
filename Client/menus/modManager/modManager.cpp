@@ -34,14 +34,16 @@ void ModManager::init() {
     }
     
     std::set<std::string> ignored_files = {".", "..", ".DS_Store"};
-    for(const auto & mod : std::filesystem::directory_iterator(sago::getDataHome() + "/Terralistic/Mods")) {
-        std::string mod_name = mod.path().filename();
-        if(ignored_files.count(mod_name))
-            continue;
-        
-        GuiMod* new_mod = new GuiMod(mod_name);
-        new_mod->enabled = active_mods_in_file.count(mod_name);
-        mods.push_back(new_mod);
+    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/Mods")) {
+        for(const auto & mod : std::filesystem::directory_iterator(sago::getDataHome() + "/Terralistic/Mods")) {
+            std::string mod_name = mod.path().filename();
+            if(ignored_files.count(mod_name))
+                continue;
+            
+            GuiMod* new_mod = new GuiMod(mod_name);
+            new_mod->enabled = active_mods_in_file.count(mod_name);
+            mods.push_back(new_mod);
+        }
     }
     
     placeholder.fill_color = LIGHT_GREY;

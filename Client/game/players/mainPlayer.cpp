@@ -12,16 +12,21 @@ void ClientPlayers::init() {
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 70
 
+void ClientPlayers::setMainPlayerPosition(int x, int y) {
+    main_player.x = x;
+    main_player.y = y;
+}
+
 bool ClientPlayers::isPlayerColliding() {
     if(main_player.x < 0 || main_player.y < 0 ||
-       main_player.y >= blocks->getHeight() * BLOCK_WIDTH * 2 - getPlayerHeight() * 2 ||
-       main_player.x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getPlayerWidth() * 2)
+       main_player.y >= blocks->getHeight() * BLOCK_WIDTH * 2 - PLAYER_HEIGHT * 2 ||
+       main_player.x >= blocks->getWidth() * BLOCK_WIDTH * 2 - PLAYER_WIDTH * 2)
         return true;
 
     unsigned short starting_x = (main_player.x) / (BLOCK_WIDTH * 2);
     unsigned short starting_y = (main_player.y) / (BLOCK_WIDTH * 2);
-    unsigned short ending_x = (main_player.x + getPlayerWidth() * 2 - 1) / (BLOCK_WIDTH * 2);
-    unsigned short ending_y = (main_player.y + getPlayerHeight() * 2 - 1) / (BLOCK_WIDTH * 2);
+    unsigned short ending_x = (main_player.x + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
+    unsigned short ending_y = (main_player.y + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
     
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
@@ -137,8 +142,8 @@ void ClientPlayers::update() {
     
     unsigned short starting_x = (main_player.x) / (BLOCK_WIDTH * 2);
     unsigned short starting_y = (main_player.y) / (BLOCK_WIDTH * 2);
-    unsigned short ending_x = (main_player.x + getPlayerWidth() * 2 - 1) / (BLOCK_WIDTH * 2);
-    unsigned short ending_y = (main_player.y + getPlayerHeight() * 2 - 1) / (BLOCK_WIDTH * 2);
+    unsigned short ending_x = (main_player.x + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
+    unsigned short ending_y = (main_player.y + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
     
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
@@ -177,8 +182,8 @@ void ClientPlayers::update() {
     if(!has_collided_x)
         main_player.x = x_to_be;
     
-    blocks->view_x += (main_player.x - blocks->view_x + getPlayerWidth()) / 8;
-    blocks->view_y += (main_player.y - blocks->view_y + getPlayerHeight()) / 8;
+    blocks->view_x += (main_player.x - blocks->view_x + PLAYER_WIDTH) / 8;
+    blocks->view_y += (main_player.y - blocks->view_y + PLAYER_HEIGHT) / 8;
     if(blocks->view_x < gfx::getWindowWidth() / 2)
         blocks->view_x = gfx::getWindowWidth() / 2;
     if(blocks->view_y < gfx::getWindowHeight() / 2)

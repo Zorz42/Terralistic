@@ -64,7 +64,9 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     short getViewEndY();
     
 public:
-    ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack, unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
+    ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack);
+    void create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
+    
     int view_x{}, view_y{};
 
     ResourcePack* getResourcePack() { return resource_pack; }

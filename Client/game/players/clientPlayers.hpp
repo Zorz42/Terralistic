@@ -9,10 +9,13 @@
 
 enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 
+#define PLAYER_WIDTH 14
+#define PLAYER_HEIGHT 24
+
 class ClientPlayer {
 public:
-    ClientPlayer(std::string name, int x, int y) : name(std::move(name)), x(x), y(y) {}
-    float x, y;
+    ClientPlayer(std::string name) : name(std::move(name)) {}
+    float x = 0, y = 0;
     bool flipped = false;
     unsigned char texture_frame = 0;
     const std::string name;
@@ -20,7 +23,7 @@ public:
 
 class MainPlayer : public ClientPlayer {
 public:
-    explicit MainPlayer(int x, int y, std::string name) : ClientPlayer(std::move(name), x, y) {}
+    explicit MainPlayer(std::string name) : ClientPlayer(std::move(name)) {}
     short velocity_x = 0, velocity_y = 0;
     unsigned int started_moving = 0;
     bool has_jumped = false;
@@ -29,7 +32,7 @@ public:
 
 class OtherPlayer : public ClientPlayer {
 public:
-    explicit OtherPlayer(std::string name, int x, int y, unsigned short id) : ClientPlayer(std::move(name), x, y), id(id) {}
+    explicit OtherPlayer(std::string name, int x_, int y_, unsigned short id) : ClientPlayer(std::move(name)), id(id) { x = x_; y = y_; }
     const unsigned short id;
     gfx::Image name_text;
 };
@@ -54,14 +57,12 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     NetworkingManager* manager;
     ResourcePack* resource_pack;
 public:
-    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, int x, int y, std::string username);
-    
-    unsigned short getPlayerWidth();
-    unsigned short getPlayerHeight();
+    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, std::string username);
     
     void renderPlayers();
     
     const MainPlayer& getMainPlayer() { return main_player; }
+    void setMainPlayerPosition(int x, int y);
 };
 
 #endif

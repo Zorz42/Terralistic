@@ -5,6 +5,7 @@
 #include <utility>
 #include "serverNetworking.hpp"
 #include "worldGenerator.hpp"
+#include "serverEntity.hpp"
 
 enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
 
@@ -14,6 +15,7 @@ class Server {
     ServerItems items;
     Players players;
     ServerNetworkingManager networking_manager;
+    ServerEntityManager entity_manager;
     
     worldGenerator generator;
 

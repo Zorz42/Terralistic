@@ -96,6 +96,20 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     server_thread.join();
 }
 
+game::game(BackgroundRect* menu_back, std::string username, std::string ip_address, unsigned short port) : ip_address(std::move(ip_address)),
+    port(port),
+    username(username),
+    menu_back(menu_back),
+    blocks(&networking_manager, &resource_pack),
+    player_handler(&networking_manager, &blocks, &resource_pack, username),
+    items(&resource_pack, &blocks),
+    entity_manager(&blocks),
+    block_selector(&networking_manager, &blocks, &inventory_handler, &player_handler),
+    inventory_handler(&networking_manager, &resource_pack),
+    debug_menu(&player_handler, &blocks),
+    chat(&networking_manager)
+{}
+
 void game::init() {
     std::vector<std::string> active_resource_packs = {gfx::resource_path + "resourcePack"};
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
@@ -131,19 +145,16 @@ void game::init() {
     
     handshake_thread.join();
     
-    ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
-    items = new ClientItems(&resource_pack, blocks);
-    
     modules = {
-        blocks,
-        player_handler,
-        items,
-        new BlockSelector(&networking_manager, blocks, inventory_handler, player_handler),
-        inventory_handler,
+        &blocks,
+        &player_handler,
+        &items,
+        &block_selector,
+        &inventory_handler,
 #ifdef DEVELOPER_MODE
-        new DebugMenu(player_handler, blocks),
+        &debug_menu,
 #endif
-        new Chat(&networking_manager),
+        &chat,
     };
 }
 
@@ -167,11 +178,11 @@ void game::handshakeWithServer() {
     
     map_data = decompress(map_data);
     
-    blocks = new ClientBlocks(&networking_manager, &resource_pack, world_width, world_height, map_data);
+    blocks.create(world_width, world_height, map_data);
     
     networking_manager.disableBlocking();
     
-    player_handler = new ClientPlayers(&networking_manager, blocks, &resource_pack, player_x, player_y, username);
+    player_handler.setMainPlayerPosition(player_x, player_y);
     
     handshake_done = true;
 }
@@ -195,13 +206,13 @@ void game::update() {
 
 void game::render() {
     float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
-    int position_x = -(blocks->view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
+    int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
-    blocks->renderBackBlocks();
-    player_handler->renderPlayers();
-    items->renderItems();
-    blocks->renderFrontBlocks();
+    blocks.renderBackBlocks();
+    player_handler.renderPlayers();
+    items.renderItems();
+    blocks.renderFrontBlocks();
 }
 
 void game::stop() {

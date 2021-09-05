@@ -187,8 +187,6 @@ namespace gfx {
         virtual void onKeyDown(Key key_) {}
         
         bool getKeyState(Key key_);
-        
-        virtual ~GraphicalModule() = default;
 
         std::vector<TextInput*> text_inputs;
         bool disable_events = false;

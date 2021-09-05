@@ -27,7 +27,8 @@ Server::Server(std::string resource_path, std::string world_path) :
     networking_manager(&blocks, &items, &players),
     generator(&blocks, std::move(resource_path)),
     world_path(world_path),
-    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
+    entity_manager(&blocks)
 {}
 
 void Server::loadWorld() {
@@ -96,13 +97,14 @@ void Server::start(unsigned short port) {
             gfx::sleep(ms_per_tick - tick_length);
         b = a;
 
-        networking_manager.flushPackets();
         networking_manager.checkForNewConnections();
         networking_manager.getPacketsFromPlayers();
+        entity_manager.updateAllEntities();
         items.updateItems(tick_length);
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
         players.updateBlocksInVisibleAreas();
+        networking_manager.flushPackets();
     }
     
     state = ServerState::STOPPING;
