@@ -224,8 +224,6 @@ void gfx::Scene::run() {
     running_scene = true;
     
     stop();
-    for(GraphicalModule* module : modules) {
+    for(GraphicalModule* module : modules)
         module->stop();
-        delete module;
-    }
 }

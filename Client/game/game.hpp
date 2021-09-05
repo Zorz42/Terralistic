@@ -6,6 +6,7 @@
 #include "clientItems.hpp"
 #include "menuBack.hpp"
 #include "menuBack.hpp"
+#include "entity.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
@@ -21,15 +22,16 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     std::string username;
     NetworkingManager networking_manager;
     ResourcePack resource_pack;
-    ClientBlocks *blocks;
-    ClientPlayers* player_handler;
-    ClientItems* items;
+    EntityManager entity_manager;
+    ClientBlocks blocks;
+    ClientPlayers player_handler;
+    ClientItems items;
     BackgroundRect* menu_back;
     bool handshake_done = false;
     void handshakeWithServer();
     
 public:
-    game(BackgroundRect* menu_back, std::string username, std::string ip_address, unsigned short port=33770) : ip_address(std::move(ip_address)), port(port), username(username), menu_back(menu_back) {}
+    game(BackgroundRect* menu_back, std::string username, std::string ip_address, unsigned short port=33770);
     
     void renderBack() override;
     void setBackWidth(unsigned short width) override { }

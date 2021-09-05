@@ -141,6 +141,7 @@
 		3657222226D07181005AB3CC /* mainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220526D07181005AB3CC /* mainMenu.cpp */; };
 		3657222326D07181005AB3CC /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220826D07181005AB3CC /* worldSelector.cpp */; };
 		3657222426D07181005AB3CC /* menuBack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220B26D07181005AB3CC /* menuBack.cpp */; };
+		3692C14F26E509F100F9DD71 /* entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entity.cpp */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36D31CDA26DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
@@ -318,6 +319,8 @@
 		3657220926D07181005AB3CC /* worldSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSelector.hpp; sourceTree = "<group>"; };
 		3657220B26D07181005AB3CC /* menuBack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = menuBack.cpp; sourceTree = "<group>"; };
 		3657220C26D07181005AB3CC /* menuBack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = menuBack.hpp; sourceTree = "<group>"; };
+		3692C14D26E509F100F9DD71 /* entity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = entity.cpp; sourceTree = "<group>"; };
+		3692C14E26E509F100F9DD71 /* entity.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entity.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
 		36DDF87C2689EAF9002337F3 /* properties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = properties.cpp; sourceTree = "<group>"; };
@@ -665,6 +668,7 @@
 		365721CF26D07180005AB3CC /* game */ = {
 			isa = PBXGroup;
 			children = (
+				3692C14C26E506A100F9DD71 /* entity */,
 				365721D026D07180005AB3CC /* networking */,
 				365721D326D07180005AB3CC /* chat */,
 				365721D726D07180005AB3CC /* inventory */,
@@ -852,6 +856,15 @@
 			path = menuBack;
 			sourceTree = "<group>";
 		};
+		3692C14C26E506A100F9DD71 /* entity */ = {
+			isa = PBXGroup;
+			children = (
+				3692C14E26E509F100F9DD71 /* entity.hpp */,
+				3692C14D26E509F100F9DD71 /* entity.cpp */,
+			);
+			path = entity;
+			sourceTree = "<group>";
+		};
 		36D31CD626DBE31D006F89B3 /* compress */ = {
 			isa = PBXGroup;
 			children = (
@@ -1009,6 +1022,7 @@
 				167C03B526E141D10045FEA9 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
 				3657221B26D07181005AB3CC /* blocks.cpp in Sources */,
+				3692C14F26E509F100F9DD71 /* entity.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				3657221F26D07181005AB3CC /* multiplayerSelector.cpp in Sources */,
 				16670CE026DDFAA90057AA41 /* settings.cpp in Sources */,

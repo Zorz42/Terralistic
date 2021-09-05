@@ -1,11 +1,8 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, int x, int y, std::string username) :
-manager(manager), blocks(world_map), resource_pack(resource_pack), main_player(x, y, std::move(username)) {
-    world_map->view_x = x + getPlayerWidth();
-    world_map->view_y = y + getPlayerHeight();
-}
+ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, std::string username) :
+manager(manager), blocks(world_map), resource_pack(resource_pack), main_player(std::move(username)) {}
 
 void ClientPlayers::renderPlayers() {
     for(OtherPlayer* i : other_players)

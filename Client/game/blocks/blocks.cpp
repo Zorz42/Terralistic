@@ -2,7 +2,9 @@
 #include "clientBlocks.hpp"
 #include "platform_folders.h"
 
-ClientBlocks::ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack, unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data) : networking_manager(manager), resource_pack(resource_pack) {
+ClientBlocks::ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {}
+
+void ClientBlocks::create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data) {
     width = map_width;
     height = map_height;
     blocks = new ClientMapBlock[width * height];
