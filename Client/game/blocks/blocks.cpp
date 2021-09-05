@@ -18,6 +18,8 @@ void ClientBlocks::create(unsigned short map_width, unsigned short map_height, c
             
             *map_iter++ = ClientMapBlock((BlockType)(data & 0xff), (LiquidType)(data >> 8 & 0xff), data >> 16 & 0xff, data >> 24 & 0xff);
         }
+    
+    view_x = map_width * BLOCK_WIDTH;
 }
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {

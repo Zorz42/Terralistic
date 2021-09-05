@@ -103,7 +103,11 @@ game::game(BackgroundRect* menu_back, std::string username, std::string ip_addre
     blocks(&networking_manager, &resource_pack),
     player_handler(&networking_manager, &blocks, &resource_pack, username),
     items(&resource_pack, &blocks),
-    entity_manager(&blocks)
+    entity_manager(&blocks),
+    block_selector(&networking_manager, &blocks, &inventory_handler, &player_handler),
+    inventory_handler(&networking_manager, &resource_pack),
+    debug_menu(&player_handler, &blocks),
+    chat(&networking_manager)
 {}
 
 void game::init() {
@@ -141,18 +145,16 @@ void game::init() {
     
     handshake_thread.join();
     
-    ClientInventory* inventory_handler = new ClientInventory(&networking_manager, &resource_pack);
-    
     modules = {
         &blocks,
         &player_handler,
         &items,
-        new BlockSelector(&networking_manager, &blocks, inventory_handler, &player_handler),
-        inventory_handler,
+        &block_selector,
+        &inventory_handler,
 #ifdef DEVELOPER_MODE
-        new DebugMenu(&player_handler, &blocks),
+        &debug_menu,
 #endif
-        new Chat(&networking_manager),
+        &chat,
     };
 }
 

@@ -7,6 +7,10 @@
 #include "menuBack.hpp"
 #include "menuBack.hpp"
 #include "entity.hpp"
+#include "clientInventory.hpp"
+#include "blockSelector.hpp"
+#include "debugMenu.hpp"
+#include "chat.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
@@ -26,6 +30,10 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     ClientBlocks blocks;
     ClientPlayers player_handler;
     ClientItems items;
+    ClientInventory inventory_handler;
+    BlockSelector block_selector;
+    DebugMenu debug_menu;
+    Chat chat;
     BackgroundRect* menu_back;
     bool handshake_done = false;
     void handshakeWithServer();

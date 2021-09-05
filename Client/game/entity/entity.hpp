@@ -6,12 +6,12 @@
 
 class Entity {
 public:
-    int x, y;
-    float velocity_x, velocity_y;
+    Entity(unsigned short id) : id(id) {}
+    float x, y, velocity_x, velocity_y;
     virtual unsigned short getWidth();
     virtual unsigned short getHeight();
     bool gravity = false;
-    unsigned short id;
+    const unsigned short id;
 };
 
 class EntityManager {
@@ -20,6 +20,7 @@ class EntityManager {
 public:
     EntityManager(ClientBlocks* blocks) : blocks(blocks) {}
     void updateAllEntities();
+    void addEntity(Entity* entity);
 };
 
 #endif
