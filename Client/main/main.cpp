@@ -8,6 +8,7 @@
 #include "settings.hpp"
 
 int main(int argc, char **argv) {
+    srand(time(NULL));
     gfx::init(1130, 700);
     gfx::resource_path = getResourcePath(argv[0]);
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
