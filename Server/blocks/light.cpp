@@ -17,7 +17,7 @@ void ServerBlock::lightUpdate() {
         unsigned char level_to_be = 0;
         for(auto & neighbor : neighbors)
             if(neighbor.refersToABlock()) {
-                unsigned char light_step = neighbor.getUniqueBlock().transparent ? 3 : 15;
+                unsigned char light_step = neighbor.getBlockInfo().transparent ? 3 : 15;
                 unsigned char light = light_step > neighbor.getLightLevel() ? 0 : neighbor.getLightLevel() - light_step;
                 if(light > level_to_be)
                     level_to_be = light;
@@ -37,12 +37,12 @@ void ServerBlock::removeLightSource() {
 }
 
 void ServerBlocks::setNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
+    for(unsigned short y = 0; y < height && getBlock(x, y).getBlockInfo().transparent; y++)
         getBlock(x, y).setLightSource(MAX_LIGHT);
 }
 
 void ServerBlocks::removeNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < height && getBlock(x, y).getUniqueBlock().transparent; y++)
+    for(unsigned short y = 0; y < height && getBlock(x, y).getBlockInfo().transparent; y++)
         getBlock(x, y).removeLightSource();
 }
 

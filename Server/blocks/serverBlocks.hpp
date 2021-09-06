@@ -51,7 +51,7 @@ public:
     unsigned short getBreakProgress() { return block_data->break_progress; }
     unsigned char getBreakStage() { return block_data->break_stage; }
     BlockType getBlockType() { return block_data->block_type; }
-    const BlockInfo& getUniqueBlock();
+    const BlockInfo& getBlockInfo();
     
     void setTypeDirectly(LiquidType liquid_type);
     void setType(LiquidType liquid_type);

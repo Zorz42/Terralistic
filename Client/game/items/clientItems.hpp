@@ -12,7 +12,7 @@ class ClientItem {
     unsigned short id;
     ItemType item_type;
 public:
-    ClientItem(ItemType item_type, int x, int y, unsigned short id) : x(x * 100), y(y * 100), id(id), item_type(item_type) {}
+    ClientItem(ItemType item_type, int x, int y, unsigned short id) : x(x), y(y), id(id), item_type(item_type) {}
     int x, y;
     unsigned short getId() const { return id; }
     ItemType getType() const { return item_type; }

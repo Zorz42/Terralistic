@@ -6,10 +6,13 @@
 
 class ServerEntity {
 public:
-    ServerEntity(unsigned short id) : id(id) {}
+    inline static unsigned short _curr_id = 0;
+    ServerEntity() : id(_curr_id++) {}
     float x, y, velocity_x, velocity_y;
-    virtual unsigned short getWidth();
-    virtual unsigned short getHeight();
+    virtual unsigned short getWidth() = 0;
+    virtual unsigned short getHeight() = 0;
+    bool isColliding(ServerBlocks* blocks);
+    void updateEntity(ServerBlocks* blocks);
     bool gravity = false;
     const unsigned short id;
 };

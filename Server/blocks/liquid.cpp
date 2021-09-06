@@ -56,7 +56,7 @@ void ServerBlock::setLiquidLevel(unsigned char level) {
 }
 
 static bool isFlowable(ServerBlock &block) {
-    return block.getUniqueBlock().ghost && block.getLiquidType() == LiquidType::EMPTY;
+    return block.getBlockInfo().ghost && block.getLiquidType() == LiquidType::EMPTY;
 }
 
 void ServerBlock::scheduleLiquidUpdate() {
@@ -66,7 +66,7 @@ void ServerBlock::scheduleLiquidUpdate() {
 void ServerBlock::liquidUpdate() {
     block_data->when_to_update_liquid = 0;
     
-    if(!getUniqueBlock().ghost)
+    if(!getBlockInfo().ghost)
         setType(LiquidType::EMPTY);
     
     if(getLiquidLevel() == 0)

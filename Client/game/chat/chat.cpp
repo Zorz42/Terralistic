@@ -55,7 +55,7 @@ void Chat::render() {
             int alpha = i->time_created + 10500 - gfx::getTicks();
             if(alpha < 0 || alpha >= 500)
                 alpha = 500;
-            i->text_sprite.setColor({255, 255, 255, (unsigned char)((float)alpha / 500.0f * 255)});
+            i->text_sprite.setColor({255, 255, 255, (unsigned char)((float)alpha / 500.f * 255)});
             i->text_sprite.render();
         }
     }

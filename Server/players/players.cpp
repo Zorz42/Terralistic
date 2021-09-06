@@ -101,9 +101,9 @@ void Players::updatePlayersBreaking(unsigned short tick_length) {
 void Players::lookForItemsThatCanBePickedUp() {
     for(int i = 0; i < items->getItems().size(); i++)
         for(ServerPlayer* player : online_players)
-            if(abs(items->getItems()[i].getX() / 100 + BLOCK_WIDTH  - player->x - 14) < 50 && abs(items->getItems()[i].getY() / 100 + BLOCK_WIDTH - player->y - 25) < 50)
-                if(player->inventory.addItem(items->getItems()[i].getType(), 1) != -1)
-                    items->removeItem(items->getItems()[i]);
+            if(abs(items->getItems()[i]->getX() + BLOCK_WIDTH  - player->x - 14) < 50 && abs(items->getItems()[i]->getY() + BLOCK_WIDTH - player->y - 25) < 50)
+                if(player->inventory.addItem(items->getItems()[i]->getType(), 1) != -1)
+                    items->removeItem(*items->getItems()[i]);
 }
 
 void Players::updateBlocksInVisibleAreas() {
@@ -140,9 +140,9 @@ void Players::updateBlocksInVisibleAreas() {
 void Players::leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length) {
     if(custom_block_events[(int)this_block.getBlockType()].onLeftClick)
         custom_block_events[(int)this_block.getBlockType()].onLeftClick(&this_block, peer);
-    else if(this_block.getUniqueBlock().break_time != UNBREAKABLE) {
+    else if(this_block.getBlockInfo().break_time != UNBREAKABLE) {
         this_block.setBreakProgress(this_block.getBreakProgress() + tick_length);
-        if(this_block.getBreakProgress() >= this_block.getUniqueBlock().break_time)
+        if(this_block.getBreakProgress() >= this_block.getBlockInfo().break_time)
             this_block.breakBlock();
     }
 }

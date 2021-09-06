@@ -117,9 +117,9 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     connections[i].send(join_packet);
                 }
 
-            for(const ServerItem& curr_item : items->getItems()) {
+            for(const ServerItem* curr_item : items->getItems()) {
                 sf::Packet item_packet;
-                item_packet << PacketType::ITEM_CREATION << curr_item.getX() << curr_item.getY() << curr_item.getId() << (unsigned char)curr_item.getType();
+                item_packet << PacketType::ITEM_CREATION << curr_item->getX() << curr_item->getY() << curr_item->getId() << (unsigned char)curr_item->getType();
                 connections[i].send(item_packet);
             }
 

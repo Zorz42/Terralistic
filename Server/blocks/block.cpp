@@ -6,7 +6,7 @@ ServerBlock ServerBlocks::getBlock(unsigned short x, unsigned short y) {
     return {x, y, &blocks[y * width + x], this};
 }
 
-const BlockInfo& ServerBlock::getUniqueBlock() {
+const BlockInfo& ServerBlock::getBlockInfo() {
     return ::getBlockInfo(block_data->block_type);
 }
 
@@ -45,7 +45,7 @@ void ServerBlock::updateNeighbors() {
 
 void ServerBlock::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
-    unsigned char stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
+    unsigned char stage = (unsigned char)((float)getBreakProgress() / (float)getBlockInfo().break_time * 9.f);
     if(stage != getBreakStage()) {
         ServerBlockBreakStageChangeEvent event(*this, stage);
         event.call();
@@ -64,7 +64,7 @@ void ServerBlock::update() {
     if(event.cancelled)
         return;
     
-    if(getUniqueBlock().only_on_floor && parent_map->getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
+    if(getBlockInfo().only_on_floor && parent_map->getBlock(x, (unsigned short)(y + 1)).getBlockInfo().transparent)
         breakBlock();
     scheduleLightUpdate();
     scheduleLiquidUpdate();

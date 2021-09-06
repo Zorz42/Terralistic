@@ -25,13 +25,13 @@ void ClientItems::renderItems() {
         item_vertex_array[item_index + 2].texCoords = {(float)rect.w, (float)rect.y + (float)rect.h};
         item_vertex_array[item_index + 3].texCoords = {0, (float)rect.y + (float)rect.h};
 
-        float item_x = (float)item.x / 100 - blocks->view_x + (float)gfx::getWindowWidth() / 2;
-        float item_y = (float)item.y / 100 - blocks->view_y + (float)gfx::getWindowHeight() / 2;
+        float item_x = item.x - blocks->view_x + (float)gfx::getWindowWidth() / 2;
+        float item_y = item.y - blocks->view_y + (float)gfx::getWindowHeight() / 2;
         item_vertex_array[item_index    ].position = {item_x, item_y};
         item_vertex_array[item_index + 1].position = {item_x + (float)rect.w * 2, item_y};
         item_vertex_array[item_index + 2].position = {item_x + (float)rect.w * 2, item_y + (float)rect.h * 2};
         item_vertex_array[item_index + 3].position = {item_x, item_y + (float)rect.h * 2};
-        //texture.render(2, item.x / 100 - blocks->view_x + gfx::getWindowWidth() / 2, item.y / 100 - blocks->view_y + gfx::getWindowHeight() / 2);
+        //texture.render(2, item.x - blocks->view_x + gfx::getWindowWidth() / 2, item.y - blocks->view_y + gfx::getWindowHeight() / 2);
         item_index += 4;
     }
     if(item_index)
