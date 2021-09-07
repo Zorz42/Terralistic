@@ -24,10 +24,10 @@ public:
 class ClientBlock {
     ClientMapBlock* block_data;
     unsigned short x, y;
-    ClientBlocks* parent_map;
+    ClientBlocks* blocks;
 
 public:
-    ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* blocks) : x(x), y(y), block_data(block_data), blocks(blocks) {}
     
     void updateOrientation();
     unsigned char getOrientation() { return block_data->orientation; }

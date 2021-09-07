@@ -3,42 +3,31 @@
 
 #include <vector>
 #include "serverBlocks.hpp"
-#include "serverEntity.hpp"
+#include "serverEntities.hpp"
 
 #define ITEM_WIDTH 8
 
-class ServerItem : ServerEntity {
+class ServerItem : public ServerEntity {
     ItemType type;
-    ServerBlocks* parent_blocks;
     
-    bool grounded();
+    void onSpawn() override;
+    void onDestroy() override;
 public:
-    ServerItem(ServerBlocks* parent_blocks, ItemType type, int x_, int y_) : parent_blocks(parent_blocks), type(type) { x = x_; y = y_; }
-    void update(float frame_length);
+    ServerItem(ItemType type, int x, int y) : type(type), ServerEntity(EntityType::ITEM, x, y) {}
+    void update() override;
     const ItemInfo& getItemInfo() const;
     unsigned short getId() const;
     ItemType getType() const;
-    int getX() const;
-    int getY() const;
-    void addVelocityX(float vel_x);
-    void addVelocityY(float vel_y);
     
     unsigned short getWidth() override { return ITEM_WIDTH * 2; }
     unsigned short getHeight() override { return ITEM_WIDTH * 2; }
 };
 
 class ServerItems : EventListener<ServerBlockBreakEvent> {
-    ServerBlocks* parent_blocks;
-    std::vector<ServerItem*> item_arr;
     void onEvent(ServerBlockBreakEvent& event) override;
+    ServerEntityManager* entity_manager;
 public:
-    explicit ServerItems(ServerBlocks* parent_blocks) : parent_blocks(parent_blocks) {}
-    
-    void spawnItem(ItemType item_id, int x, int y);
-    void updateItems(float frame_length);
-    void removeItem(const ServerItem& item_to_destroy);
-    
-    const std::vector<ServerItem*>& getItems() { return item_arr; }
+    explicit ServerItems(ServerEntityManager* entity_manager) : entity_manager(entity_manager) {}
 };
 
 
@@ -59,8 +48,8 @@ public:
 
 class ServerItemDeletionEvent : public Event<ServerItemDeletionEvent> {
 public:
-    explicit ServerItemDeletionEvent(ServerItem& item_to_delete) : item_to_delete(item_to_delete) {}
-    ServerItem& item_to_delete;
+    explicit ServerItemDeletionEvent(const ServerItem& item_to_delete) : item_to_delete(item_to_delete) {}
+    const ServerItem& item_to_delete;
 };
 
 #endif

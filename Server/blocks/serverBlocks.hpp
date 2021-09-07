@@ -32,11 +32,11 @@ struct ServerMapBlock {
 class ServerBlock {
     ServerMapBlock* block_data = nullptr;
     unsigned short x = 0, y = 0;
-    ServerBlocks* parent_map{};
+    ServerBlocks* blocks;
 
     void updateNeighbors();
 public:
-    ServerBlock(unsigned short x, unsigned short y, ServerMapBlock* block_data, ServerBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    ServerBlock(unsigned short x, unsigned short y, ServerMapBlock* block_data, ServerBlocks* blocks) : x(x), y(y), block_data(block_data), blocks(blocks) {}
     ServerBlock() = default;
 
     void update();

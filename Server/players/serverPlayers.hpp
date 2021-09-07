@@ -84,7 +84,7 @@ struct blockEvents {
 };
 
 class Players : EventListener<ServerBlockUpdateEvent> {
-    ServerItems* items;
+    ServerEntityManager* entity_manager;
     ServerBlocks* blocks;
     
     std::vector<ServerPlayer*> all_players;
@@ -96,7 +96,7 @@ class Players : EventListener<ServerBlockUpdateEvent> {
     
     void leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length);
 public:
-    Players(ServerBlocks* parent_blocks, ServerItems* parent_items);
+    Players(ServerBlocks* blocks, ServerEntityManager* entity_manager);
     
     void rightClickEvent(ServerBlock this_block, ServerPlayer* peer);
     

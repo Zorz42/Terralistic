@@ -22,9 +22,9 @@ void onInterrupt(int signum) {
 
 Server::Server(std::string resource_path, std::string world_path) :
     blocks(),
-    items(&blocks),
-    players(&blocks, &items),
-    networking_manager(&blocks, &items, &players),
+    items(&entity_manager),
+    players(&blocks, &entity_manager),
+    networking_manager(&blocks, &entity_manager, &players),
     generator(&blocks, std::move(resource_path)),
     world_path(world_path),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
@@ -99,8 +99,7 @@ void Server::start(unsigned short port) {
 
         networking_manager.checkForNewConnections();
         networking_manager.getPacketsFromPlayers();
-        entity_manager.updateAllEntities();
-        items.updateItems(tick_length);
+        entity_manager.updateAllEntities(tick_length);
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
         players.updateBlocksInVisibleAreas();

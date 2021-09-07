@@ -25,7 +25,7 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     sf::TcpListener listener;
     
     ServerBlocks* blocks;
-    ServerItems* items;
+    ServerEntityManager* entity_manager;
     Players* players;
     
     void onEvent(ServerBlockChangeEvent& event) override;
@@ -43,7 +43,7 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     
     void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
-    ServerNetworkingManager(ServerBlocks* blocks, ServerItems* items, Players* players) : blocks(blocks), items(items), players(players) {}
+    ServerNetworkingManager(ServerBlocks* blocks, ServerEntityManager* entity_manager, Players* players) : blocks(blocks), entity_manager(entity_manager), players(players) {}
     
     void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
     

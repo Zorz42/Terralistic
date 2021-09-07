@@ -16,7 +16,7 @@ static bool isBlockLeaves(ServerBlock block) {
     return block.refersToABlock() && block.getBlockType() == BlockType::LEAVES;
 }
 
-Players::Players(ServerBlocks* parent_blocks, ServerItems* parent_items) : blocks(parent_blocks), items(parent_items) {
+Players::Players(ServerBlocks* blocks, ServerEntityManager* entity_manager) : blocks(blocks), entity_manager(entity_manager) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = [](ServerBlocks* server_blocks, ServerBlock* this_block) {
         ServerBlock upper, lower, left, right;
         if(this_block->getY() != 0)
@@ -99,11 +99,13 @@ void Players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void Players::lookForItemsThatCanBePickedUp() {
-    for(int i = 0; i < items->getItems().size(); i++)
+    for(int i = 0; i < entity_manager->getEntities().size(); i++)
         for(ServerPlayer* player : online_players)
-            if(abs(items->getItems()[i]->getX() + BLOCK_WIDTH  - player->x - 14) < 50 && abs(items->getItems()[i]->getY() + BLOCK_WIDTH - player->y - 25) < 50)
-                if(player->inventory.addItem(items->getItems()[i]->getType(), 1) != -1)
-                    items->removeItem(*items->getItems()[i]);
+            if(entity_manager->getEntities()[i]->type == EntityType::ITEM &&
+               abs(entity_manager->getEntities()[i]->getX() + BLOCK_WIDTH - player->x - 14) < 50 && abs(entity_manager->getEntities()[i]->getY() + BLOCK_WIDTH - player->y - 25) < 50 &&
+               player->inventory.addItem(((ServerItem*)entity_manager->getEntities()[i])->getType(), 1) != -1
+               )
+                entity_manager->removeEntity(entity_manager->getEntities()[i]);
 }
 
 void Players::updateBlocksInVisibleAreas() {

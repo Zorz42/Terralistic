@@ -5,13 +5,13 @@ void ServerBlock::lightUpdate() {
     
     ServerBlock neighbors[4];
     if(x != 0)
-        neighbors[0] = parent_map->getBlock(x - 1, y);
-    if(x != parent_map->getWidth() - 1)
-        neighbors[1] = parent_map->getBlock(x + 1, y);
+        neighbors[0] = blocks->getBlock(x - 1, y);
+    if(x != blocks->getWidth() - 1)
+        neighbors[1] = blocks->getBlock(x + 1, y);
     if(y != 0)
-        neighbors[2] = parent_map->getBlock(x, y - 1);
-    if(y != parent_map->getHeight() - 1)
-        neighbors[3] = parent_map->getBlock(x, y + 1);
+        neighbors[2] = blocks->getBlock(x, y - 1);
+    if(y != blocks->getHeight() - 1)
+        neighbors[3] = blocks->getBlock(x, y + 1);
     
     if(!block_data->light_source) {
         unsigned char level_to_be = 0;

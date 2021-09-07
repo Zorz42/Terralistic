@@ -14,13 +14,13 @@ void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
     block_data->liquid_id = liquid_id;
     updateOrientation();
     if(x != 0)
-        parent_map->getBlock(x - 1, y).updateOrientation();
-    if(x != parent_map->getWidth() - 1)
-        parent_map->getBlock(x + 1, y).updateOrientation();
+        blocks->getBlock(x - 1, y).updateOrientation();
+    if(x != blocks->getWidth() - 1)
+        blocks->getBlock(x + 1, y).updateOrientation();
     if(y != 0)
-        parent_map->getBlock(x, y - 1).updateOrientation();
-    if(y != parent_map->getHeight() - 1)
-        parent_map->getBlock(x, y + 1).updateOrientation();
+        blocks->getBlock(x, y - 1).updateOrientation();
+    if(y != blocks->getHeight() - 1)
+        blocks->getBlock(x, y + 1).updateOrientation();
 }
 
 void ClientBlock::setLightLevel(unsigned char level) {
@@ -28,16 +28,16 @@ void ClientBlock::setLightLevel(unsigned char level) {
 }
 
 void ClientBlock::updateOrientation() {
-    if(parent_map->getResourcePack()->getTextureRectangle(getBlockType()).h != 8) {
+    if(blocks->getResourcePack()->getTextureRectangle(getBlockType()).h != 8) {
         block_data->orientation = 0;
         char x_[] = {0, 1, 0, -1};
         char y_[] = {-1, 0, 1, 0};
         unsigned char c = 1;
         for(int i = 0; i < 4; i++) {
             if(
-                    x + x_[i] >= parent_map->getWidth() || x + x_[i] < 0 || y + y_[i] >= parent_map->getHeight() || y + y_[i] < 0 ||
-                    parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
-                    std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), parent_map->getBlock(x + x_[i], y + y_[i]).getBlockType())
+                    x + x_[i] >= blocks->getWidth() || x + x_[i] < 0 || y + y_[i] >= blocks->getHeight() || y + y_[i] < 0 ||
+                    blocks->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
+                    std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), blocks->getBlock(x + x_[i], y + y_[i]).getBlockType())
                 )
                 block_data->orientation += c;
             c += c;

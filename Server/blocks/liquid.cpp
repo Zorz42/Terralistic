@@ -74,20 +74,20 @@ void ServerBlock::liquidUpdate() {
     
     ServerBlock under, left, right;
     
-    if(y != parent_map->getHeight() - 1) {
-        ServerBlock block_under = parent_map->getBlock(x, y + 1);
+    if(y != blocks->getHeight() - 1) {
+        ServerBlock block_under = blocks->getBlock(x, y + 1);
         if(isFlowable(block_under) || (block_under.getLiquidType() == getLiquidType() && block_under.getLiquidLevel() != 127))
             under = block_under;
     }
     
     if(x != 0) {
-        ServerBlock block_left = parent_map->getBlock(x - 1, y);
+        ServerBlock block_left = blocks->getBlock(x - 1, y);
         if(isFlowable(block_left) || (block_left.getLiquidType() == getLiquidType() && block_left.getLiquidLevel() < getLiquidLevel()))
             left = block_left;
     }
     
-    if(x != parent_map->getWidth() - 1) {
-        ServerBlock block_right = parent_map->getBlock(x + 1, y);
+    if(x != blocks->getWidth() - 1) {
+        ServerBlock block_right = blocks->getBlock(x + 1, y);
         if(isFlowable(block_right) || (block_right.getLiquidType() == getLiquidType() && block_right.getLiquidLevel() < getLiquidLevel()))
             right = block_right;
     }
