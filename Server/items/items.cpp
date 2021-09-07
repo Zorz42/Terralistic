@@ -18,8 +18,8 @@ void ServerItems::spawnItem(ItemType type, int x, int y) {
     if(event.cancelled)
         return;
     
-    //item->addVelocityX(engine() % 100 / 100.f);
-    //item->addVelocityY(-((engine() % 100) - 50) / 100.f);
+    item->addVelocityX(int(engine() % 20) - 10);
+    item->addVelocityY(-int(engine() % 10) - 10);
     
     item_arr.emplace_back(item);
 }
@@ -55,38 +55,43 @@ ItemType ServerItem::getType() const {
 void ServerItem::update(float frame_length) {
     int prev_x = x, prev_y = y;
 
-    velocity_y += frame_length / 1000.f;
+    velocity_y += frame_length / 20.f;
     
-    int x_to_go = x + frame_length / 16.f * velocity_x;
-    while(x_to_go != x) {
-        x += x_to_go > x ? 1 : -1;
+    float y_to_be = y + float(velocity_y * frame_length) / 100;
+    float move_y = y_to_be - y;
+    int y_factor = move_y > 0 ? 1 : -1;
+    for(int i = 0; i < std::abs(move_y); i++) {
+        y += y_factor;
         if(isColliding(parent_blocks)) {
-            x -= x_to_go > x ? 1 : -1;
+            y -= y_factor;
+            velocity_y = 0;
             break;
         }
     }
+    if(velocity_y)
+        y = y_to_be;
     
-    int y_to_go = y + frame_length / 16.f * velocity_y;
-    while(y_to_go != y) {
-        y += y_to_go > y ? 1 : -1;
+    float x_to_be = x + float(velocity_x * frame_length) / 100;
+    float move_x = x_to_be - x;
+    int x_factor = move_x > 0 ? 1 : -1;
+    bool has_collided_x = false;
+    bool has_moved_x = false;
+    for(int i = 0; i < std::abs(move_x); i++) {
+        x += x_factor;
         if(isColliding(parent_blocks)) {
-            y -= y_to_go > y ? 1 : -1;
+            x -= x_factor;
+            has_collided_x = true;
             break;
         }
+        has_moved_x = true;
     }
+    if(!has_collided_x)
+        x = x_to_be;
     
-    if(velocity_x > 0) {
-        velocity_x -= frame_length / 8;
-        if(velocity_x < 0)
-            velocity_x = 0;
-    }
-    else if(velocity_x < 0) {
-        velocity_x += frame_length / 8;
-        if(velocity_x > 0)
-            velocity_x = 0;
-    }
+    velocity_y *= 0.99f;
+    velocity_x *= grounded() ? 0.9f : 0.99f;
     
-    if(prev_x != x || prev_y != y) {
+    if(prev_x != int(x) || prev_y != int(y)) {
         ServerItemMovementEvent event(*this);
         event.call();
         

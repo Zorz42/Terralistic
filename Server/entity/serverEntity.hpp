@@ -8,7 +8,7 @@ class ServerEntity {
 public:
     inline static unsigned short _curr_id = 0;
     ServerEntity() : id(_curr_id++) {}
-    float x, y, velocity_x, velocity_y;
+    float x, y, velocity_x = 0, velocity_y = 0;
     virtual unsigned short getWidth() = 0;
     virtual unsigned short getHeight() = 0;
     bool isColliding(ServerBlocks* blocks);
