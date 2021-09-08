@@ -121,7 +121,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 if(entity->type == EntityType::ITEM) {
                     ServerItem* item = (ServerItem*)entity;
                     sf::Packet item_packet;
-                    item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->getId() << (unsigned char)item->getType();
+                    item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
                     connections[i].send(item_packet);
                 }
             }

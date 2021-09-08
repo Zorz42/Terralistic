@@ -16,7 +16,6 @@ public:
     ServerItem(ItemType type, int x, int y) : type(type), ServerEntity(EntityType::ITEM, x, y) {}
     void update() override;
     const ItemInfo& getItemInfo() const;
-    unsigned short getId() const;
     ItemType getType() const;
     
     unsigned short getWidth() override { return ITEM_WIDTH * 2; }
@@ -38,18 +37,6 @@ public:
     ItemType item_id;
     int x, y;
     short id;
-};
-
-class ServerItemMovementEvent : public Event<ServerItemMovementEvent> {
-public:
-    explicit ServerItemMovementEvent(ServerItem& moved_item) : moved_item(moved_item) {}
-    ServerItem& moved_item;
-};
-
-class ServerItemDeletionEvent : public Event<ServerItemDeletionEvent> {
-public:
-    explicit ServerItemDeletionEvent(const ServerItem& item_to_delete) : item_to_delete(item_to_delete) {}
-    const ServerItem& item_to_delete;
 };
 
 #endif

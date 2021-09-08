@@ -15,6 +15,9 @@ public:
     bool gravity = false;
     const unsigned short id;
     const EntityType type;
+    bool isColliding(ClientBlocks* blocks);
+    void updateEntity(ClientBlocks* blocks, float frame_length);
+    bool isTouchingGround(ClientBlocks* blocks);
     virtual ~ClientEntity() {}
 };
 
@@ -25,7 +28,7 @@ class ClientEntities : EventListener<ClientPacketEvent> {
     void onEvent(ClientPacketEvent& event) override;
 public:
     ClientEntities(ClientBlocks* blocks) : blocks(blocks) {}
-    void updateAllEntities();
+    void updateAllEntities(float frame_length);
     void addEntity(ClientEntity* entity);
     ClientEntity* getEntityById(unsigned short id);
     const std::vector<ClientEntity*>& getEntities();

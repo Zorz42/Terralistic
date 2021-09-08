@@ -105,15 +105,15 @@ void ServerNetworkingManager::onEvent(ServerItemCreationEvent& event) {
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerItemDeletionEvent& event) {
+void ServerNetworkingManager::onEvent(ServerEntityDeletionEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ENTITY_DELETION << (short)event.item_to_delete.getId();
+    packet << PacketType::ENTITY_DELETION << (short)event.entity.id;
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerItemMovementEvent& event) {
+void ServerNetworkingManager::onEvent(ServerEntityVelocityChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ENTITY_MOVEMENT << event.moved_item.getX() <<  event.moved_item.getY() << event.moved_item.getId();
+    packet << PacketType::ENTITY_VELOCITY << event.entity.getVelocityX() <<  event.entity.getVelocityY() << event.entity.id;
     sendToEveryone(packet);
 }
 

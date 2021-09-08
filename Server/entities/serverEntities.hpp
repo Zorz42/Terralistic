@@ -7,7 +7,6 @@
 
 class ServerEntity {
     float x, y, velocity_x = 0, velocity_y = 0;
-    bool has_moved;
 public:
     inline static unsigned short _curr_id = 0;
     ServerEntity(EntityType type, int x, int y) : id(_curr_id++), type(type), x(x), y(y) {}
@@ -20,12 +19,13 @@ public:
     
     int getX() const { return x; }
     int getY() const { return y; }
-    bool hasMoved() const { return has_moved; }
     bool isColliding(ServerBlocks* blocks);
     void updateEntity(ServerBlocks* blocks, float frame_length);
     bool isTouchingGround(ServerBlocks* blocks);
-    void addVelocityX(float vel_x) { velocity_x += vel_x; }
-    void addVelocityY(float vel_y) { velocity_y += vel_y; }
+    void addVelocityX(float vel_x);
+    void addVelocityY(float vel_y);
+    float getVelocityX() { return velocity_x; }
+    float getVelocityY() { return velocity_y; }
     
     virtual void onSpawn() {}
     virtual void update() {}
@@ -44,5 +44,20 @@ public:
     void removeEntity(ServerEntity* entity);
     const std::vector<ServerEntity*>& getEntities() { return entities; }
 };
+
+
+
+class ServerEntityVelocityChangeEvent : public Event<ServerEntityVelocityChangeEvent> {
+public:
+    explicit ServerEntityVelocityChangeEvent(ServerEntity& entity) : entity(entity) {}
+    ServerEntity& entity;
+};
+
+class ServerEntityDeletionEvent : public Event<ServerEntityDeletionEvent> {
+public:
+    explicit ServerEntityDeletionEvent(const ServerEntity& entity) : entity(entity) {}
+    const ServerEntity& entity;
+};
+
 
 #endif

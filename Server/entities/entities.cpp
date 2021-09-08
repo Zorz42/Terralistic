@@ -12,13 +12,13 @@ void ServerEntities::addEntity(ServerEntity* entity) {
 
 void ServerEntities::removeEntity(ServerEntity *entity) {
     entity->onDestroy();
+    ServerEntityDeletionEvent event(*entity);
+    event.call();
     entities.erase(std::find(entities.begin(), entities.end(), entity));
     delete entity;
 }
 
 void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
-    int prev_x = x, prev_y = y;
-    
     velocity_y += frame_length / 20.f;
     
     velocity_y *= 0.99f;
@@ -53,8 +53,6 @@ void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
     if(!has_collided_x)
         x = x_to_be;
     
-    has_moved = int(x) != prev_x || int(y) != prev_y;
-    
     update();
 }
 
@@ -82,4 +80,16 @@ bool ServerEntity::isColliding(ServerBlocks* blocks) {
                 return true;
     
     return false;
+}
+
+void ServerEntity::addVelocityX(float vel_x) {
+    velocity_x += vel_x;
+    ServerEntityVelocityChangeEvent event(*this);
+    event.call();
+}
+
+void ServerEntity::addVelocityY(float vel_y) {
+    velocity_y += vel_y;
+    ServerEntityVelocityChangeEvent event(*this);
+    event.call();
 }

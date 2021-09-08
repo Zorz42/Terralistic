@@ -202,7 +202,7 @@ void game::onEvent(ClientPacketEvent& event) {
 void game::update() {
     networking_manager.checkForPackets();
     networking_manager.flushPackets();
-    entities.updateAllEntities();
+    entities.updateAllEntities(gfx::getDeltaTime());
 }
 
 void game::render() {

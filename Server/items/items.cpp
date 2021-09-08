@@ -6,29 +6,21 @@ const ItemInfo& ServerItem::getItemInfo() const {
     return ::getItemInfo(type);
 }
 
-unsigned short ServerItem::getId() const {
-    return id;
-}
-
 ItemType ServerItem::getType() const {
     return type;
 }
 
 void ServerItem::update() {    
-    if(hasMoved()) {
-        ServerItemMovementEvent event(*this);
-        event.call();
-    }
+    
 }
 
 void ServerItem::onSpawn() {
-    ServerItemCreationEvent event(type, getX(), getY(), getId());
+    ServerItemCreationEvent event(type, getX(), getY(), id);
     event.call();
 }
 
 void ServerItem::onDestroy() {
-    ServerItemDeletionEvent event(*this);
-    event.call();
+    
 }
 
 void ServerItems::onEvent(ServerBlockBreakEvent& event) {
@@ -36,8 +28,8 @@ void ServerItems::onEvent(ServerBlockBreakEvent& event) {
     static std::mt19937 engine(device());
     if(event.block.getBlockInfo().drop != ItemType::NOTHING) {
         ServerItem* item = new ServerItem(event.block.getBlockInfo().drop, event.block.getX() * BLOCK_WIDTH * 2, event.block.getY() * BLOCK_WIDTH * 2);
+        entities->addEntity(item);
         item->addVelocityX(int(engine() % 20) - 10);
         item->addVelocityY(-int(engine() % 10) - 10);
-        entities->addEntity(item);
     }
 }
