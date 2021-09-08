@@ -42,7 +42,6 @@ void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
     float move_x = x_to_be - x;
     int x_factor = move_x > 0 ? 1 : -1;
     bool has_collided_x = false;
-    bool has_moved_x = false;
     for(int i = 0; i < std::abs(move_x); i++) {
         x += x_factor;
         if(isColliding(blocks)) {
@@ -50,7 +49,6 @@ void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
             has_collided_x = true;
             break;
         }
-        has_moved_x = true;
     }
     if(!has_collided_x)
         x = x_to_be;

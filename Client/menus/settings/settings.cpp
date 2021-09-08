@@ -106,13 +106,14 @@ void Settings::updateScaleRect() {
     ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
     int curr_scale = config.getInt("ui_scale");
     
-    gfx::Button* initially_hovered_button = nullptr;
+    gfx::Button* initially_hovered_button = &normal_scale_button;
     if(curr_scale == 50)
         initially_hovered_button = &small_scale_button;
     else if(curr_scale == 100)
         initially_hovered_button = &normal_scale_button;
     else if(curr_scale == 200)
         initially_hovered_button = &large_scale_button;
+    
     scale_select_rect.setX(initially_hovered_button->x);
     scale_select_rect.setY(initially_hovered_button->y);
     scale_select_rect.setWidth(initially_hovered_button->getWidth());

@@ -53,6 +53,7 @@ std::string ResourcePack::getFile(const std::string& file_name) {
             return file;
     }
     assert(false);
+    return "";
 }
 
 void ResourcePack::load(const std::vector<std::string>& paths_) {
