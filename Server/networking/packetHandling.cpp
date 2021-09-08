@@ -107,13 +107,13 @@ void ServerNetworkingManager::onEvent(ServerItemCreationEvent& event) {
 
 void ServerNetworkingManager::onEvent(ServerItemDeletionEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ITEM_DELETION << (short)event.item_to_delete.getId();
+    packet << PacketType::ENTITY_DELETION << (short)event.item_to_delete.getId();
     sendToEveryone(packet);
 }
 
 void ServerNetworkingManager::onEvent(ServerItemMovementEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ITEM_MOVEMENT << event.moved_item.getX() <<  event.moved_item.getY() << event.moved_item.getId();
+    packet << PacketType::ENTITY_MOVEMENT << event.moved_item.getX() <<  event.moved_item.getY() << event.moved_item.getId();
     sendToEveryone(packet);
 }
 

@@ -117,7 +117,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     connections[i].send(join_packet);
                 }
 
-            for(const ServerEntity* entity : entity_manager->getEntities()) {
+            for(const ServerEntity* entity : entities->getEntities()) {
                 if(entity->type == EntityType::ITEM) {
                     ServerItem* item = (ServerItem*)entity;
                     sf::Packet item_packet;

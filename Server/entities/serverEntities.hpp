@@ -3,8 +3,7 @@
 
 #include <vector>
 #include "serverBlocks.hpp"
-
-enum class EntityType { ITEM, PLAYER };
+#include "entityType.hpp"
 
 class ServerEntity {
     float x, y, velocity_x = 0, velocity_y = 0;
@@ -35,11 +34,11 @@ public:
     virtual ~ServerEntity() {}
 };
 
-class ServerEntityManager {
+class ServerEntities {
     std::vector<ServerEntity*> entities;
     ServerBlocks* blocks;
 public:
-    ServerEntityManager(ServerBlocks* blocks) : blocks(blocks) {}
+    ServerEntities(ServerBlocks* blocks) : blocks(blocks) {}
     void updateAllEntities(float frame_length);
     void addEntity(ServerEntity* entity);
     void removeEntity(ServerEntity* entity);

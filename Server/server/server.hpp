@@ -15,7 +15,7 @@ class Server {
     ServerItems items;
     Players players;
     ServerNetworkingManager networking_manager;
-    ServerEntityManager entity_manager;
+    ServerEntities entities;
     
     worldGenerator generator;
 

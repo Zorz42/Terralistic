@@ -26,7 +26,7 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     std::string username;
     NetworkingManager networking_manager;
     ResourcePack resource_pack;
-    ClientEntityManager entity_manager;
+    ClientEntities entities;
     ClientBlocks blocks;
     ClientPlayers player_handler;
     ClientItems items;

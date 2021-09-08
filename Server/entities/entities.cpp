@@ -1,16 +1,16 @@
 #include "serverEntities.hpp"
 
-void ServerEntityManager::updateAllEntities(float frame_length) {
+void ServerEntities::updateAllEntities(float frame_length) {
     for(ServerEntity* entity : entities)
         entity->updateEntity(blocks, frame_length);
 }
 
-void ServerEntityManager::addEntity(ServerEntity* entity) {
+void ServerEntities::addEntity(ServerEntity* entity) {
     entity->onSpawn();
     entities.push_back(entity);
 }
 
-void ServerEntityManager::removeEntity(ServerEntity *entity) {
+void ServerEntities::removeEntity(ServerEntity *entity) {
     entity->onDestroy();
     entities.erase(std::find(entities.begin(), entities.end(), entity));
     delete entity;

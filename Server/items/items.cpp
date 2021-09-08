@@ -38,6 +38,6 @@ void ServerItems::onEvent(ServerBlockBreakEvent& event) {
         ServerItem* item = new ServerItem(event.block.getBlockInfo().drop, event.block.getX() * BLOCK_WIDTH * 2, event.block.getY() * BLOCK_WIDTH * 2);
         item->addVelocityX(int(engine() % 20) - 10);
         item->addVelocityY(-int(engine() % 10) - 10);
-        entity_manager->addEntity(item);
+        entities->addEntity(item);
     }
 }

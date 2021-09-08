@@ -25,9 +25,9 @@ public:
 
 class ServerItems : EventListener<ServerBlockBreakEvent> {
     void onEvent(ServerBlockBreakEvent& event) override;
-    ServerEntityManager* entity_manager;
+    ServerEntities* entities;
 public:
-    explicit ServerItems(ServerEntityManager* entity_manager) : entity_manager(entity_manager) {}
+    explicit ServerItems(ServerEntities* entities) : entities(entities) {}
 };
 
 

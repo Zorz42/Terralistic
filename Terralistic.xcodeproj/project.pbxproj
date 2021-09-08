@@ -277,6 +277,7 @@
 		16BF6974269D853A00CFE175 /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/vorbis.framework"; sourceTree = "<group>"; };
 		16BF6975269D853A00CFE175 /* FLAC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FLAC.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/FLAC.framework"; sourceTree = "<group>"; };
 		16BF6976269D853A00CFE175 /* vorbisfile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbisfile.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/vorbisfile.framework"; sourceTree = "<group>"; };
+		3605DAC126E8FC0C00A5F641 /* entityType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entityType.hpp; sourceTree = "<group>"; };
 		3657217626D0710E005AB3CC /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		3657217726D0710F005AB3CC /* pixel_font.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = pixel_font.ttf; sourceTree = "<group>"; };
 		3657217826D0710F005AB3CC /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
@@ -541,6 +542,7 @@
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
 				1682944126A16D5C0017E2FD /* packetType */,
 				1695428D2680B5B400F1F4FE /* version.hpp */,
+				3605DAC126E8FC0C00A5F641 /* entityType.hpp */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -673,7 +675,7 @@
 		365721CF26D07180005AB3CC /* game */ = {
 			isa = PBXGroup;
 			children = (
-				3692C14C26E506A100F9DD71 /* entity */,
+				3692C14C26E506A100F9DD71 /* entities */,
 				365721D026D07180005AB3CC /* networking */,
 				365721D326D07180005AB3CC /* chat */,
 				365721D726D07180005AB3CC /* inventory */,
@@ -861,13 +863,13 @@
 			path = menuBack;
 			sourceTree = "<group>";
 		};
-		3692C14C26E506A100F9DD71 /* entity */ = {
+		3692C14C26E506A100F9DD71 /* entities */ = {
 			isa = PBXGroup;
 			children = (
 				3692C14E26E509F100F9DD71 /* clientEntity.hpp */,
 				3692C14D26E509F100F9DD71 /* entity.cpp */,
 			);
-			path = entity;
+			path = entities;
 			sourceTree = "<group>";
 		};
 		3692C15026E5236B00F9DD71 /* entities */ = {

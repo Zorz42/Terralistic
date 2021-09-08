@@ -102,8 +102,8 @@ game::game(BackgroundRect* menu_back, std::string username, std::string ip_addre
     menu_back(menu_back),
     blocks(&networking_manager, &resource_pack),
     player_handler(&networking_manager, &blocks, &resource_pack, username),
-    items(&resource_pack, &blocks),
-    entity_manager(&blocks),
+    items(&resource_pack, &blocks, &entities),
+    entities(&blocks),
     block_selector(&networking_manager, &blocks, &inventory_handler, &player_handler),
     inventory_handler(&networking_manager, &resource_pack),
     debug_menu(&player_handler, &blocks),
@@ -202,6 +202,7 @@ void game::onEvent(ClientPacketEvent& event) {
 void game::update() {
     networking_manager.checkForPackets();
     networking_manager.flushPackets();
+    entities.updateAllEntities();
 }
 
 void game::render() {

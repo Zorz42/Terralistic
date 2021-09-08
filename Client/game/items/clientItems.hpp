@@ -6,26 +6,27 @@
 #include "events.hpp"
 #include "clientNetworking.hpp"
 #include "clientBlocks.hpp"
+#include "clientEntity.hpp"
 
-class ClientItem {
+#define ITEM_WIDTH 8
+
+class ClientItem : public ClientEntity {
     const ItemInfo& getUniqueItem() const;
-    unsigned short id;
     ItemType item_type;
 public:
-    ClientItem(ItemType item_type, int x, int y, unsigned short id) : x(x), y(y), id(id), item_type(item_type) {}
-    int x, y;
-    unsigned short getId() const { return id; }
+    ClientItem(ItemType item_type, int x, int y, unsigned short id) : item_type(item_type), ClientEntity(id, EntityType::ITEM, x, y) {}
     ItemType getType() const { return item_type; }
+    unsigned short getWidth() override { return ITEM_WIDTH * 2; }
+    unsigned short getHeight() override { return ITEM_WIDTH * 2; }
 };
 
 class ClientItems : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
-    std::vector<ClientItem> items;
     ResourcePack* resource_pack;
     void onEvent(ClientPacketEvent& event) override;
     ClientBlocks* blocks;
+    ClientEntities* entities;
 public:
-    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks) : resource_pack(resource_pack), blocks(blocks) {}
-    ClientItem* getItemById(unsigned short id);
+    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, ClientEntities* entities) : resource_pack(resource_pack), blocks(blocks), entities(entities) {}
     void renderItems();
 };
 
