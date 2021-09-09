@@ -29,7 +29,7 @@ void ServerItems::onEvent(ServerBlockBreakEvent& event) {
     if(event.block.getBlockInfo().drop != ItemType::NOTHING) {
         ServerItem* item = new ServerItem(event.block.getBlockInfo().drop, event.block.getX() * BLOCK_WIDTH * 2, event.block.getY() * BLOCK_WIDTH * 2);
         entities->addEntity(item);
-        item->addVelocityX(int(engine() % 20) - 10);
-        item->addVelocityY(-int(engine() % 10) - 10);
+        item->addVelocityX(int(engine() % 40) - 20);
+        item->addVelocityY(-int(engine() % 20) - 20);
     }
 }

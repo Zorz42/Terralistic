@@ -101,7 +101,7 @@ game::game(BackgroundRect* background_rect, const std::string& username, std::st
     username(username),
     background_rect(background_rect),
     blocks(&networking_manager, &resource_pack),
-    players(&networking_manager, &blocks, &resource_pack, username),
+    players(&networking_manager, &blocks, &resource_pack, &entities, username),
     items(&resource_pack, &blocks, &entities),
     entities(&blocks),
     block_selector(&networking_manager, &blocks, &inventory, &players),

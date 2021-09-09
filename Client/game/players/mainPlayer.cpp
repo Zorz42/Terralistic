@@ -10,7 +10,7 @@ void ClientPlayers::init() {
 #define RUN_SPEED 18
 #define WALK_SPEED 10
 #define SNEAK_SPEED 4
-#define JUMP_VELOCITY 70
+#define JUMP_VELOCITY 50
 
 void ClientPlayers::setMainPlayerPosition(int x, int y) {
     main_player.x = x;
@@ -44,6 +44,10 @@ bool ClientPlayers::isPlayerTouchingGround() {
 }
 
 void ClientPlayers::update() {
+    int prev_x = main_player.x, prev_y = main_player.y, prev_view_x = blocks->view_x, prev_view_y = blocks->view_y;
+    
+    main_player.updateEntity(blocks, gfx::getDeltaTime());
+    
     if(getKeyState(gfx::Key::SHIFT)) {
         if(getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D))
             main_player.moving_type = MovingType::SNEAK_WALKING;
@@ -138,8 +142,6 @@ void ClientPlayers::update() {
     
     float speed_multiplier = 1;
     
-    int prev_x = main_player.x, prev_y = main_player.y, prev_view_x = blocks->view_x, prev_view_y = blocks->view_y;
-    
     unsigned short starting_x = (main_player.x) / (BLOCK_WIDTH * 2);
     unsigned short starting_y = (main_player.y) / (BLOCK_WIDTH * 2);
     unsigned short ending_x = (main_player.x + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
@@ -148,39 +150,6 @@ void ClientPlayers::update() {
     for(unsigned short x = starting_x; x <= ending_x; x++)
         for(unsigned short y = starting_y; y <= ending_y; y++)
             speed_multiplier = std::min(speed_multiplier, blocks->getBlock(x, y).getLiquidInfo().speed_multiplier);
-    
-    main_player.velocity_y += gfx::getDeltaTime() / 4 * speed_multiplier;
-    
-    float y_to_be = main_player.y + float(main_player.velocity_y * gfx::getDeltaTime()) / 100 * speed_multiplier;
-    float move_y = y_to_be - main_player.y;
-    int y_factor = move_y > 0 ? 1 : -1;
-    for(int i = 0; i < std::abs(move_y); i++) {
-        main_player.y += y_factor;
-        if(isPlayerColliding()) {
-            main_player.y -= y_factor;
-            main_player.velocity_y = 0;
-            break;
-        }
-    }
-    if(main_player.velocity_y)
-        main_player.y = y_to_be;
-    
-    float x_to_be = main_player.x + float(main_player.velocity_x * gfx::getDeltaTime()) / 100 * speed_multiplier;
-    float move_x = x_to_be - main_player.x;
-    int x_factor = move_x > 0 ? 1 : -1;
-    bool has_collided_x = false;
-    bool has_moved_x = false;
-    for(int i = 0; i < std::abs(move_x); i++) {
-        main_player.x += x_factor;
-        if(isPlayerColliding() || (main_player.moving_type == MovingType::SNEAK_WALKING && !isPlayerTouchingGround() && !main_player.velocity_y)) {
-            main_player.x -= x_factor;
-            has_collided_x = true;
-            break;
-        }
-        has_moved_x = true;
-    }
-    if(!has_collided_x)
-        main_player.x = x_to_be;
     
     blocks->view_x += (main_player.x - blocks->view_x + PLAYER_WIDTH) / 8;
     blocks->view_y += (main_player.y - blocks->view_y + PLAYER_HEIGHT) / 8;
@@ -204,6 +173,8 @@ void ClientPlayers::update() {
         packet << PacketType::VIEW_POS_CHANGE << blocks->view_x << blocks->view_y;
         manager->sendPacket(packet);
     }
+    
+    bool has_moved_x = prev_x != int(main_player.x);
     
     if(isPlayerTouchingGround() && main_player.velocity_y == 0)
         main_player.has_jumped = false;

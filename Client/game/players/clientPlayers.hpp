@@ -6,27 +6,27 @@
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
+#include "clientEntity.hpp"
 
 enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 
 #define PLAYER_WIDTH 14
 #define PLAYER_HEIGHT 24
 
-class ClientPlayer {
+class ClientPlayer : public ClientEntity {
 public:
     ClientPlayer(const std::string& name, int x, int y, unsigned short id);
-    float x = 0, y = 0;
     bool flipped = false;
     unsigned char texture_frame = 0;
     const std::string name;
-    const unsigned short id;
     gfx::Image name_text;
+    unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
+    unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
 };
 
 class MainPlayer : public ClientPlayer {
 public:
     explicit MainPlayer(const std::string& name) : ClientPlayer(name, 0, 0, 0) {}
-    short velocity_x = 0, velocity_y = 0;
     unsigned int started_moving = 0;
     bool has_jumped = false;
     MovingType moving_type = MovingType::STANDING;
@@ -50,8 +50,9 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     ClientBlocks* blocks;
     NetworkingManager* manager;
     ResourcePack* resource_pack;
+    ClientEntities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, std::string username);
+    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, std::string username);
     
     void renderPlayers();
     

@@ -129,7 +129,6 @@
 		3657221426D07181005AB3CC /* resourcePack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E526D07180005AB3CC /* resourcePack.cpp */; };
 		3657221526D07181005AB3CC /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E826D07180005AB3CC /* players.cpp */; };
 		3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721EA26D07180005AB3CC /* mainPlayer.cpp */; };
-		3657221726D07181005AB3CC /* playerRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721EB26D07180005AB3CC /* playerRenderer.cpp */; };
 		3657221826D07181005AB3CC /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721ED26D07180005AB3CC /* blockSelector.cpp */; };
 		3657221926D07181005AB3CC /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721F126D07180005AB3CC /* block.cpp */; };
 		3657221B26D07181005AB3CC /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721F326D07180005AB3CC /* blocks.cpp */; };
@@ -302,7 +301,6 @@
 		365721E826D07180005AB3CC /* players.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = players.cpp; sourceTree = "<group>"; };
 		365721E926D07180005AB3CC /* clientPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientPlayers.hpp; sourceTree = "<group>"; };
 		365721EA26D07180005AB3CC /* mainPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainPlayer.cpp; sourceTree = "<group>"; };
-		365721EB26D07180005AB3CC /* playerRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playerRenderer.cpp; sourceTree = "<group>"; };
 		365721ED26D07180005AB3CC /* blockSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockSelector.cpp; sourceTree = "<group>"; };
 		365721EE26D07180005AB3CC /* blockSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockSelector.hpp; sourceTree = "<group>"; };
 		365721F026D07180005AB3CC /* clientBlocks.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientBlocks.hpp; sourceTree = "<group>"; };
@@ -761,7 +759,6 @@
 				365721E926D07180005AB3CC /* clientPlayers.hpp */,
 				365721E826D07180005AB3CC /* players.cpp */,
 				365721EA26D07180005AB3CC /* mainPlayer.cpp */,
-				365721EB26D07180005AB3CC /* playerRenderer.cpp */,
 			);
 			path = players;
 			sourceTree = "<group>";
@@ -1035,7 +1032,6 @@
 				1673274C26A80EF40063281A /* networking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */,
-				3657221726D07181005AB3CC /* playerRenderer.cpp in Sources */,
 				167C03B526E141D10045FEA9 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
 				3657221B26D07181005AB3CC /* blocks.cpp in Sources */,

@@ -22,10 +22,13 @@ ClientEntity* ClientEntities::getEntityById(unsigned short id) {
 }
 
 void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
-    velocity_y += frame_length / 20.f;
+    if(gravity)
+        velocity_y += frame_length / 5.f;
     
-    velocity_y *= 0.99f;
-    velocity_x *= isTouchingGround(blocks) ? 0.9f : 0.99f;
+    if(friction) {
+        velocity_y *= 0.99f;
+        velocity_x *= isTouchingGround(blocks) ? 0.9f : 0.99f;
+    }
     
     float y_to_be = y + float(velocity_y * frame_length) / 100;
     float move_y = y_to_be - y;

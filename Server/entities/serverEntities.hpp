@@ -11,7 +11,7 @@ public:
     inline static unsigned short _curr_id = 0;
     ServerEntity(EntityType type, int x, int y) : id(_curr_id++), type(type), x(x), y(y) {}
     const EntityType type;
-    bool gravity = false;
+    bool gravity = true, friction = true;
     const unsigned short id;
     
     virtual unsigned short getWidth() = 0;
