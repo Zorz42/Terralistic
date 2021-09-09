@@ -29,7 +29,6 @@ void ClientItems::renderItems() {
             item_vertex_array[item_index + 1].position = {item_x + (float)rect.w * 2, item_y};
             item_vertex_array[item_index + 2].position = {item_x + (float)rect.w * 2, item_y + (float)rect.h * 2};
             item_vertex_array[item_index + 3].position = {item_x, item_y + (float)rect.h * 2};
-            //texture.render(2, item.x - blocks->view_x + gfx::getWindowWidth() / 2, item.y - blocks->view_y + gfx::getWindowHeight() / 2);
             item_index += 4;
         }
     }
