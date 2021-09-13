@@ -123,8 +123,10 @@ void ResourcePack::loadLiquids() {
 void ResourcePack::loadItems() {
     gfx::Image item_textures[(int)ItemType::NUM_ITEMS];
 
-    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++)
+    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++) {
         item_textures[i].loadFromFile(getFile("/items/" + getItemInfo((ItemType)i).name + ".png"));
+        item_text_textures[i].renderText(getItemInfo((ItemType)i).name);
+    }
 
     unsigned short max_x_size = 0;
     int texture_atlas_height = 0;
