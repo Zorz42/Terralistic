@@ -7,7 +7,7 @@
 #include "menuBack.hpp"
 
 class WorldCreator : public gfx::Scene {
-    WorldCreator(BackgroundRect* menu_back) : menu_back(menu_back) {}
+    explicit WorldCreator(BackgroundRect* menu_back) : menu_back(menu_back) {}
     std::vector<std::string> worlds;
     gfx::Button back_button, create_button;
     gfx::Sprite new_world_title;

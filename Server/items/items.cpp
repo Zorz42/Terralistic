@@ -2,10 +2,6 @@
 #include <random>
 #include "properties.hpp"
 
-const ItemInfo& ServerItem::getItemInfo() const {
-    return ::getItemInfo(type);
-}
-
 ItemType ServerItem::getType() const {
     return type;
 }

@@ -19,8 +19,8 @@ class PauseScreen : public gfx::Scene, public BackgroundRect {
     void render() override;
     BackgroundRect* background;
 public:
-    PauseScreen(BackgroundRect* background) : background(background) {}
-    bool hasExitedToMenu();
+    explicit PauseScreen(BackgroundRect* background) : background(background) {}
+    bool hasExitedToMenu() const;
     
     void renderBack() override;
     void setBackWidth(unsigned short width) override;

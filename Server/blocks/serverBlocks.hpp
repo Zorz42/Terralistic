@@ -9,7 +9,7 @@
 #define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
-enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
+enum class FlowDirection {NONE, LEFT, RIGHT};
 
 class ServerBlocks;
 
@@ -32,7 +32,7 @@ struct ServerMapBlock {
 class ServerBlock {
     ServerMapBlock* block_data = nullptr;
     unsigned short x = 0, y = 0;
-    ServerBlocks* blocks;
+    ServerBlocks* blocks = nullptr;
 
     void updateNeighbors();
 public:
@@ -69,7 +69,6 @@ public:
     
     void lightUpdate();
     void setLightSource(unsigned char power);
-    bool isLightSource() { return block_data->light_source; }
     void removeLightSource();
     void setLightLevel(unsigned char light_level);
     unsigned char getLightLevel() { return block_data->light_level; }
@@ -98,9 +97,6 @@ public:
     char* loadFromSerial(char* iter);
     
     std::vector<char> toData();
-    
-    void saveTo(const std::string& path);
-    void loadFrom(const std::string& path);
     
     unsigned short getHeight() const { return height; }
     unsigned short getWidth() const { return width; }

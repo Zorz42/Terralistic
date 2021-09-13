@@ -1,3 +1,4 @@
+#include <cassert>
 #include "clientEntity.hpp"
 
 void ClientEntities::updateAllEntities(float frame_length) {

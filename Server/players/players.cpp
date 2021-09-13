@@ -99,13 +99,13 @@ void Players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void Players::lookForItemsThatCanBePickedUp() {
-    for(int i = 0; i < entities->getEntities().size(); i++)
+    for(auto i : entities->getEntities())
         for(ServerPlayer* player : online_players)
-            if(entities->getEntities()[i]->type == EntityType::ITEM &&
-               abs(entities->getEntities()[i]->getX() + BLOCK_WIDTH - player->x - 14) < 50 && abs(entities->getEntities()[i]->getY() + BLOCK_WIDTH - player->y - 25) < 50 &&
-               player->inventory.addItem(((ServerItem*)entities->getEntities()[i])->getType(), 1) != -1
+            if(i->type == EntityType::ITEM &&
+               abs(i->getX() + BLOCK_WIDTH - player->x - 14) < 50 && abs(i->getY() + BLOCK_WIDTH - player->y - 25) < 50 &&
+               player->inventory.addItem(((ServerItem*)i)->getType(), 1) != -1
                )
-                entities->removeEntity(entities->getEntities()[i]);
+                entities->removeEntity(i);
 }
 
 void Players::updateBlocksInVisibleAreas() {

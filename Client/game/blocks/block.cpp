@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cassert>
 #include "clientBlocks.hpp"
-#include "print.hpp"
 #include "resourcePack.hpp"
 
 ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
@@ -51,19 +50,19 @@ void ClientBlock::setBreakStage(unsigned char stage) {
     block_data->break_stage = stage;
 }
 
-short ClientBlocks::getViewBeginX() {
+short ClientBlocks::getViewBeginX() const {
     return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndX() {
+short ClientBlocks::getViewEndX() const {
     return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWidth());
 }
 
-short ClientBlocks::getViewBeginY() {
+short ClientBlocks::getViewBeginY() const {
     return std::max(view_y / (BLOCK_WIDTH * 2) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndY() {
+short ClientBlocks::getViewEndY() const {
     return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getHeight());
 }
 

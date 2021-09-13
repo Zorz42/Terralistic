@@ -1,11 +1,6 @@
-#include <cassert>
 #include "clientItems.hpp"
 #include "properties.hpp"
 #include "resourcePack.hpp"
-
-const ItemInfo& ClientItem::getUniqueItem() const {
-    return ::getItemInfo(item_type);
-}
 
 void ClientItems::renderItems() {
     int item_count = 0;

@@ -5,8 +5,6 @@
 #include <string>
 #include "biomes.hpp"
 
-#include <iostream>
-
 int worldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
     //std::mt19937 engine(seed);
     SimplexNoise noise(seed);
@@ -14,9 +12,9 @@ int worldGenerator::generateWorld(unsigned short world_width, unsigned short wor
     server_blocks->createWorld(world_width, world_height);
 
     loadAssets();
-    if(seed == 1000){//structure generation
+    if(seed == 1000){
         generateStructureWorld();
-    }else{//deafult generation
+    }else{
         loadBiomes();
         generateDeafultWorld(noise);
     }
@@ -264,13 +262,13 @@ void worldGenerator::loadBiomes() {
                                   {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
                                    layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
                                    layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
-                                  {structureChance("tree_", 5, 20, -1000, 2)
+                                  {structureChance("tree_", 5, 20, 2)
                                   }));
     loaded_biomes.push_back(biome(Biome::FOREST, server_blocks -> getHeight() / 3 * 2 + 26, 10,
                                   {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
                                    layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
                                    layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
-                                  {structureChance("tree_", 3, 6, -1000, 2)}));
+                                  {structureChance("tree_", 3, 6, 2)}));
     loaded_biomes.push_back(biome(Biome::MOUNTAINS, server_blocks -> getHeight() / 3 * 2 + 70, 33,
                                   {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, server_blocks->getHeight(), 0)},
                                   {}));

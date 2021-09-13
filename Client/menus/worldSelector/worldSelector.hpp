@@ -17,11 +17,10 @@ class WorldSelector : public gfx::Scene {
     gfx::Button back_button, new_button;
     std::vector<std::string> worlds_names;
     std::vector<WorldToSelect> worlds;
-    int scroll_limit, position;
+    int scroll_limit = 0, position = 0;
     BackgroundRect* menu_back;
     gfx::Rect top_rect, bottom_rect;
     float top_rect_visibility = 0;
-    float bottom_rect_visibility = 0;
     
     void init() override;
     void onKeyDown(gfx::Key key) override;
@@ -29,7 +28,7 @@ class WorldSelector : public gfx::Scene {
     void onMouseScroll(int distance) override;
     void refresh();
 public:
-    WorldSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
+    explicit WorldSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
 };
 
 #endif

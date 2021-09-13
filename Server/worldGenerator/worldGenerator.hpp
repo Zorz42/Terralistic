@@ -37,7 +37,7 @@ class worldGenerator {
     void updateBlocks();
     void generateDeafultWorld(SimplexNoise& noise);
     int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
-    int heatGeneratorInt(unsigned int x, SimplexNoise& noise);
+    static int heatGeneratorInt(unsigned int x, SimplexNoise& noise);
     void loadBiomes();
 
     //void generateOakTree(int x, int y);

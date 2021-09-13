@@ -15,7 +15,6 @@ class ServerItem : public ServerEntity {
 public:
     ServerItem(ItemType type, int x, int y) : type(type), ServerEntity(EntityType::ITEM, x, y) {}
     void update() override;
-    const ItemInfo& getItemInfo() const;
     ItemType getType() const;
     
     unsigned short getWidth() override { return ITEM_WIDTH * 2; }

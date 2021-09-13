@@ -15,7 +15,7 @@ class ClientInventoryItem : ItemStack {
     gfx::Image stack_texture;
     ResourcePack* resource_pack = nullptr;
 public:
-    ClientInventoryItem(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
+    explicit ClientInventoryItem(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
     ClientInventoryItem() = default;
     
     ClientInventoryItem& operator=(const ClientInventoryItem& item);
@@ -28,7 +28,7 @@ public:
     unsigned short increaseStack(unsigned short stack_);
     
     const gfx::Image& getStackTexture() const { return stack_texture; }
-    int x, y;
+    int x = 0, y = 0;
     void render() const;
     void renderWithBack(unsigned short mouse_x, unsigned short mouse_y) const;
     

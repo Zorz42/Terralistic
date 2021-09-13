@@ -9,7 +9,7 @@
 class ClientEntity {
 public:
     ClientEntity(unsigned short id, EntityType type, int x, int y) : id(id), type(type), x(x), y(y) {}
-    float x, y, velocity_x, velocity_y;
+    float x, y, velocity_x = 0, velocity_y = 0;
     virtual unsigned short getWidth() = 0;
     virtual unsigned short getHeight() = 0;
     bool gravity = true, friction = true;
@@ -18,7 +18,7 @@ public:
     bool isColliding(ClientBlocks* blocks);
     void updateEntity(ClientBlocks* blocks, float frame_length);
     bool isTouchingGround(ClientBlocks* blocks);
-    virtual ~ClientEntity() {}
+    virtual ~ClientEntity() = default;
 };
 
 class ClientEntities : EventListener<ClientPacketEvent> {
@@ -27,7 +27,7 @@ class ClientEntities : EventListener<ClientPacketEvent> {
     
     void onEvent(ClientPacketEvent& event) override;
 public:
-    ClientEntities(ClientBlocks* blocks) : blocks(blocks) {}
+    explicit ClientEntities(ClientBlocks* blocks) : blocks(blocks) {}
     void updateAllEntities(float frame_length);
     void addEntity(ClientEntity* entity);
     ClientEntity* getEntityById(unsigned short id);

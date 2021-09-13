@@ -1,4 +1,3 @@
-#include <cmath>
 #include "clientPlayers.hpp"
 
 void ClientPlayers::init() {

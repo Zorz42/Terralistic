@@ -18,7 +18,7 @@
 static std::thread server_thread;
 
 #define LOADING_RECT_HEIGHT 20
-#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
+//#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
 class WorldStartingScreen : public gfx::Scene {
@@ -100,7 +100,7 @@ game::game(BackgroundRect* background_rect, const std::string& username, std::st
     port(port),
     username(username),
     background_rect(background_rect),
-    blocks(&networking_manager, &resource_pack),
+    blocks(&resource_pack),
     players(&networking_manager, &blocks, &resource_pack, &entities, username),
     items(&resource_pack, &blocks, &entities),
     entities(&blocks),

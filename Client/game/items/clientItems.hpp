@@ -11,7 +11,6 @@
 #define ITEM_WIDTH 8
 
 class ClientItem : public ClientEntity {
-    const ItemInfo& getUniqueItem() const;
     ItemType item_type;
 public:
     ClientItem(ItemType item_type, int x, int y, unsigned short id) : item_type(item_type), ClientEntity(id, EntityType::ITEM, x, y) {}

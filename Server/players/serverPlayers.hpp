@@ -56,7 +56,7 @@ class ServerPlayer {
     static inline unsigned int curr_id = 0;
 public:
     explicit ServerPlayer(std::string name) : id(curr_id++), name(std::move(name)) {}
-    ServerPlayer(char*& iter);
+    explicit ServerPlayer(char*& iter);
     std::string name;
     const unsigned short id;
     
@@ -133,7 +133,7 @@ public:
 
 class RecipeAvailabilityChangeEvent : public Event<RecipeAvailabilityChangeEvent> {
 public:
-    RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
+    explicit RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
     ServerInventory* inventory;
 };
 

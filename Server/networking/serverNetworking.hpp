@@ -41,7 +41,7 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     
     void onPacket(sf::Packet& packet, PacketType packet_type, Connection& conn);
     
-    void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
+    static void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
     ServerNetworkingManager(ServerBlocks* blocks, ServerEntities* entities, Players* players) : blocks(blocks), entities(entities), players(players) {}
     

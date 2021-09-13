@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <chrono>
 #include <fstream>
+#include <utility>
 
 #include "print.hpp"
 #include "serverPlayers.hpp"
@@ -26,7 +27,7 @@ Server::Server(std::string resource_path, std::string world_path) :
     players(&blocks, &entities),
     networking_manager(&blocks, &entities, &players),
     generator(&blocks, std::move(resource_path)),
-    world_path(world_path),
+    world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     entities(&blocks)
 {}

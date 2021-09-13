@@ -24,21 +24,21 @@ public:
     bool isTouchingGround(ServerBlocks* blocks);
     void addVelocityX(float vel_x);
     void addVelocityY(float vel_y);
-    float getVelocityX() { return velocity_x; }
-    float getVelocityY() { return velocity_y; }
+    float getVelocityX() const { return velocity_x; }
+    float getVelocityY() const { return velocity_y; }
     
     virtual void onSpawn() {}
     virtual void update() {}
     virtual void onDestroy() {}
     
-    virtual ~ServerEntity() {}
+    virtual ~ServerEntity() = default;
 };
 
 class ServerEntities {
     std::vector<ServerEntity*> entities;
     ServerBlocks* blocks;
 public:
-    ServerEntities(ServerBlocks* blocks) : blocks(blocks) {}
+    explicit ServerEntities(ServerBlocks* blocks) : blocks(blocks) {}
     void updateAllEntities(float frame_length);
     void addEntity(ServerEntity* entity);
     void removeEntity(ServerEntity* entity);

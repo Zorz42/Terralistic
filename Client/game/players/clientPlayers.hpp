@@ -46,7 +46,7 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     ResourcePack* resource_pack;
     ClientEntities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, std::string username);
+    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
     
     void renderPlayers();
     

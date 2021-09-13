@@ -1,4 +1,3 @@
-#include <cassert>
 #include "serverBlocks.hpp"
 
 void ServerBlocks::createWorld(unsigned short world_width, unsigned short world_height) {
