@@ -46,8 +46,6 @@ bool ClientPlayers::isPlayerTouchingGround() {
 void ClientPlayers::update() {
     int prev_x = main_player.x, prev_y = main_player.y, prev_view_x = blocks->view_x, prev_view_y = blocks->view_y;
     
-    main_player.updateEntity(blocks, gfx::getDeltaTime());
-    
     if(getKeyState(gfx::Key::SHIFT)) {
         if(getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D))
             main_player.moving_type = MovingType::SNEAK_WALKING;

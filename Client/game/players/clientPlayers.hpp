@@ -20,16 +20,11 @@ public:
     unsigned char texture_frame = 0;
     const std::string name;
     gfx::Image name_text;
-    unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
-    unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
-};
-
-class MainPlayer : public ClientPlayer {
-public:
-    explicit MainPlayer(const std::string& name) : ClientPlayer(name, 0, 0, 0) {}
+    MovingType moving_type = MovingType::STANDING;
     unsigned int started_moving = 0;
     bool has_jumped = false;
-    MovingType moving_type = MovingType::STANDING;
+    unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
+    unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
 };
 
 class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
@@ -37,8 +32,7 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     
     void render(ClientPlayer& player_to_draw);
 
-    MainPlayer main_player;
-    std::vector<ClientPlayer*> other_players;
+    ClientPlayer main_player;
     ClientPlayer* getPlayerById(unsigned short id);
     bool isPlayerColliding();
     bool isPlayerTouchingGround();
@@ -56,7 +50,7 @@ public:
     
     void renderPlayers();
     
-    const MainPlayer& getMainPlayer() { return main_player; }
+    const ClientPlayer& getMainPlayer() { return main_player; }
     void setMainPlayerPosition(int x, int y);
 };
 

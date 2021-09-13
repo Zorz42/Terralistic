@@ -2,8 +2,8 @@
 #include "clientPlayers.hpp"
 
 ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, std::string username) :
-manager(manager), blocks(world_map), resource_pack(resource_pack), entities(entities), main_player(std::move(username)) {
-    other_players.push_back(&main_player);
+manager(manager), blocks(world_map), resource_pack(resource_pack), entities(entities), main_player(std::move(username), 0, 0, 100) {
+    entities->addEntity(&main_player);
 }
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), ClientEntity(id, EntityType::PLAYER, x, y) {
@@ -12,8 +12,9 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short
 }
 
 void ClientPlayers::renderPlayers() {
-    for(ClientPlayer* i : other_players)
-        render(*i);
+    for(ClientEntity* entity : entities->getEntities())
+        if(entity->type == EntityType::PLAYER)
+            render(*(ClientPlayer*)entity);
 }
 
 #define HEADER_MARGIN 4
@@ -34,9 +35,9 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
 }
 
 ClientPlayer* ClientPlayers::getPlayerById(unsigned short id) {
-    for(ClientPlayer* i : other_players)
-        if(i->id == id)
-            return i;
+    for(ClientEntity* entity : entities->getEntities())
+        if(entity->type == EntityType::PLAYER && entity->id == id)
+            return (ClientPlayer*)entity;
     assert(false);
     return nullptr;
 }
@@ -48,18 +49,13 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             unsigned short id;
             std::string name;
             event.packet >> x >> y >> id >> name;
-            ClientPlayer* new_player = new ClientPlayer(name, x, y, id);
-            other_players.push_back(new_player);
+            entities->addEntity(new ClientPlayer(name, x, y, id));
             break;
         }
         case PacketType::PLAYER_QUIT: {
             unsigned id;
             event.packet >> id;
-            for(auto i = other_players.begin(); i != other_players.end(); i++)
-                if((*i)->id == id) {
-                    other_players.erase(i);
-                    break;
-                }
+            
             break;
         }
         case PacketType::PLAYER_MOVEMENT: {
