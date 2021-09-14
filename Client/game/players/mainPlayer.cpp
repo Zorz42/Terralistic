@@ -43,7 +43,7 @@ bool ClientPlayers::isPlayerTouchingGround() {
 }
 
 void ClientPlayers::update() {
-    int prev_x = main_player.x, prev_y = main_player.y, prev_view_x = blocks->view_x, prev_view_y = blocks->view_y;
+    static int prev_x, prev_y, prev_view_x, prev_view_y;
     
     if(getKeyState(gfx::Key::SHIFT)) {
         if(getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D))
@@ -194,4 +194,9 @@ void ClientPlayers::update() {
         main_player.texture_frame = (gfx::getTicks() - main_player.started_moving) / 80 % 8 + 16;
     else
         main_player.texture_frame = 1;
+    
+    prev_x = main_player.x;
+    prev_y = main_player.y;
+    prev_view_x = blocks->view_x;
+    prev_view_y = blocks->view_y;
 }
