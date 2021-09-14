@@ -32,7 +32,8 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     
     void render(ClientPlayer& player_to_draw);
 
-    ClientPlayer main_player;
+    std::string username;
+    ClientPlayer* main_player = nullptr;
     ClientPlayer* getPlayerById(unsigned short id);
     bool isPlayerColliding();
     bool isPlayerTouchingGround();
@@ -50,8 +51,7 @@ public:
     
     void renderPlayers();
     
-    const ClientPlayer& getMainPlayer() { return main_player; }
-    void setMainPlayerPosition(int x, int y);
+    const ClientPlayer* getMainPlayer() { return main_player; }
 };
 
 #endif

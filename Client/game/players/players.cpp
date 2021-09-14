@@ -2,8 +2,8 @@
 #include "clientPlayers.hpp"
 
 ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
-manager(manager), blocks(world_map), resource_pack(resource_pack), entities(entities), main_player(username, 0, 0, 100) {
-    entities->addEntity(&main_player);
+manager(manager), blocks(world_map), resource_pack(resource_pack), entities(entities), username(username) {
+    
 }
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), ClientEntity(id, EntityType::PLAYER, x, y) {
@@ -49,25 +49,10 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             unsigned short id;
             std::string name;
             event.packet >> x >> y >> id >> name;
-            entities->addEntity(new ClientPlayer(name, x, y, id));
-            break;
-        }
-        case PacketType::PLAYER_QUIT: {
-            unsigned id;
-            event.packet >> id;
-            
-            break;
-        }
-        case PacketType::PLAYER_MOVEMENT: {
-            int x, y;
-            unsigned short id;
-            bool flipped;
-            event.packet >> x >> y >> flipped >> id;
-            
-            ClientPlayer* curr_player = getPlayerById(id);
-            curr_player->flipped = flipped;
-            curr_player->x = x;
-            curr_player->y = y;
+            ClientPlayer* new_player = new ClientPlayer(name, x, y, id);
+            entities->addEntity(new_player);
+            if(name == username)
+                main_player = new_player;
             break;
         }
         default:;

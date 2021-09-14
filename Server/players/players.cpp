@@ -72,12 +72,10 @@ ServerPlayer* Players::addPlayer(const std::string& name) {
     ServerPlayer* player = getPlayerByName(name);
     
     if(!player) {
-        player = new ServerPlayer(name);
+        player = new ServerPlayer(blocks->getSpawnX(), blocks->getSpawnY() - BLOCK_WIDTH * 4, name);
         all_players.emplace_back(player);
-        player->x = blocks->getSpawnX();
-        player->y = blocks->getSpawnY() - BLOCK_WIDTH * 4;
-        player->sight_x = player->x;
-        player->sight_y = player->y;
+        player->sight_x = player->getX();
+        player->sight_y = player->getY();
     }
     
     online_players.push_back(player);
@@ -102,7 +100,7 @@ void Players::lookForItemsThatCanBePickedUp() {
     for(auto i : entities->getEntities())
         for(ServerPlayer* player : online_players)
             if(i->type == EntityType::ITEM &&
-               abs(i->getX() + BLOCK_WIDTH - player->x - 14) < 50 && abs(i->getY() + BLOCK_WIDTH - player->y - 25) < 50 &&
+               abs(i->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(i->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
                player->inventory.addItem(((ServerItem*)i)->getType(), 1) != -1
                )
                 entities->removeEntity(i);
@@ -159,32 +157,29 @@ char* Players::addPlayerFromSerial(char* iter) {
     return iter;
 }
 
-ServerPlayer::ServerPlayer(char*& iter) : id(curr_id++) {
+ServerPlayer::ServerPlayer(char*& iter) : ServerEntity(EntityType::PLAYER, *(int*)iter, *(int*)(iter + 4)) {
+    iter += 8;
+    
     for(InventoryItem& i : inventory.inventory_arr)
         iter = i.loadFromSerial(iter);
-    
-    x = *(int*)iter;
-    iter += 4;
-    y = *(int*)iter;
-    iter += 4;
     
     do
         name.push_back(*iter++);
     while(*iter);
     
-    sight_x = x;
-    sight_y = y;
+    sight_x = getX();
+    sight_y = getY();
 }
 
 void ServerPlayer::serialize(std::vector<char>& serial) const {
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    *(int*)&serial[serial.size() - 4] = getX();
+    
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    *(int*)&serial[serial.size() - 4] = getY();
+    
     for(const InventoryItem& i : inventory.inventory_arr)
         i.serialize(serial);
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    *(int*)&serial[serial.size() - 4] = x;
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    *(int*)&serial[serial.size() - 4] = y;
     
     serial.insert(serial.end(), name.begin(), name.end() + 1);
 }

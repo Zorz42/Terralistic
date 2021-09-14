@@ -182,8 +182,6 @@ void game::handshakeWithServer() {
     
     networking_manager.disableBlocking();
     
-    players.setMainPlayerPosition(player_x, player_y);
-    
     handshake_done = true;
 }
 

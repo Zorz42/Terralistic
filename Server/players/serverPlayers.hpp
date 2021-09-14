@@ -4,8 +4,8 @@
 #define INVENTORY_SIZE 20
 
 #include <utility>
-
 #include "serverItems.hpp"
+#include "serverEntities.hpp"
 
 class ServerInventory;
 
@@ -52,16 +52,12 @@ public:
     void swapWithMouseItem(InventoryItem* item);
 };
 
-class ServerPlayer {
-    static inline unsigned int curr_id = 0;
+class ServerPlayer : public ServerEntity {
 public:
-    explicit ServerPlayer(std::string name) : id(curr_id++), name(std::move(name)) {}
+    explicit ServerPlayer(int x, int y, std::string name) : ServerEntity(EntityType::PLAYER, x, y), name(std::move(name)) {}
     explicit ServerPlayer(char*& iter);
     std::string name;
-    const unsigned short id;
     
-    bool flipped = false;
-    int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
     int sight_x = 0, sight_y = 0;
     unsigned short getSightBeginX() const;
@@ -75,6 +71,9 @@ public:
     unsigned short breaking_x = 0, breaking_y = 0;
     
     void serialize(std::vector<char>& serial) const;
+    
+    unsigned short getWidth() override { return 14; }
+    unsigned short getHeight() override { return 24; }
 };
 
 struct blockEvents {

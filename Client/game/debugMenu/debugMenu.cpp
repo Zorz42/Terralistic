@@ -25,7 +25,7 @@ void DebugMenu::update() {
     
     if(debug_menu_open) {
         static unsigned int prev_x = 0, prev_y = 0;
-        unsigned int curr_x = player_handler->getMainPlayer().x / (BLOCK_WIDTH * 2), curr_y = player_handler->getMainPlayer().y / (BLOCK_WIDTH * 2);
+        unsigned int curr_x = player_handler->getMainPlayer()->x / (BLOCK_WIDTH * 2), curr_y = player_handler->getMainPlayer()->y / (BLOCK_WIDTH * 2);
         if(curr_x != prev_x || curr_y != prev_y) {
             prev_x = curr_x;
             prev_y = curr_y;
@@ -54,5 +54,5 @@ void DebugMenu::updateFpsText() {
 }
 
 void DebugMenu::updateCoordsText() {
-    coords_text.renderText(std::string("X: ") + std::to_string(int(player_handler->getMainPlayer().x / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - player_handler->getMainPlayer().y / (BLOCK_WIDTH * 2))), BLACK);
+    coords_text.renderText(std::string("X: ") + std::to_string(int(player_handler->getMainPlayer()->x / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - player_handler->getMainPlayer()->y / (BLOCK_WIDTH * 2))), BLACK);
 }

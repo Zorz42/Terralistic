@@ -2,59 +2,57 @@
 #include "print.hpp"
 
 void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Connection &conn) {
-    ServerPlayer* curr_player = conn.player;
     switch (packet_type) {
         case PacketType::STARTED_BREAKING: {
             unsigned short x, y;
             packet >> x >> y;
-            curr_player->breaking_x = x;
-            curr_player->breaking_y = y;
-            curr_player->breaking = true;
+            conn.player->breaking_x = x;
+            conn.player->breaking_y = y;
+            conn.player->breaking = true;
             break;
         }
 
         case PacketType::STOPPED_BREAKING: {
-            curr_player->breaking = false;
+            conn.player->breaking = false;
             break;
         }
 
         case PacketType::RIGHT_CLICK: {
             unsigned short x, y;
             packet >> x >> y;
-            players->rightClickEvent(blocks->getBlock(x, y), curr_player);
+            players->rightClickEvent(blocks->getBlock(x, y), conn.player);
             break;
         }
 
         case PacketType::VIEW_SIZE_CHANGE: {
-            packet >> curr_player->sight_width >> curr_player->sight_height;
+            packet >> conn.player->sight_width >> conn.player->sight_height;
             break;
         }
 
-        case PacketType::PLAYER_MOVEMENT: {
-            packet >> curr_player->x >> curr_player->y >> curr_player->flipped;
-            
-            sf::Packet movement_packet;
-            movement_packet << PacketType::PLAYER_MOVEMENT << curr_player->x << curr_player->y << curr_player->flipped << curr_player->id;
-            sendToEveryone(movement_packet, &conn);
+        case PacketType::PLAYER_VELOCITY_CHANGE: {
+            float velocity_x, velocity_y;
+            packet >> velocity_x >> velocity_y;
+            conn.player->setVelocityX(velocity_x);
+            conn.player->setVelocityY(velocity_y);
             break;
         }
 
         case PacketType::INVENTORY_SWAP: {
             unsigned char pos;
             packet >> pos;
-            curr_player->inventory.swapWithMouseItem(&curr_player->inventory.inventory_arr[pos]);
+            conn.player->inventory.swapWithMouseItem(&conn.player->inventory.inventory_arr[pos]);
             break;
         }
 
         case PacketType::HOTBAR_SELECTION: {
-            packet >> curr_player->inventory.selected_slot;
+            packet >> conn.player->inventory.selected_slot;
             break;
         }
 
         case PacketType::CHAT: {
             std::string message;
             packet >> message;
-            std::string chat_format = (curr_player->name == "_" ? "Protagonist" : curr_player->name) + ": " + message;
+            std::string chat_format = (conn.player->name == "_" ? "Protagonist" : conn.player->name) + ": " + message;
             print::info(chat_format);
             
             sf::Packet chat_packet;
@@ -64,17 +62,17 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
         }
             
         case PacketType::VIEW_POS_CHANGE: {
-            packet >> curr_player->sight_x >> curr_player->sight_y;
+            packet >> conn.player->sight_x >> conn.player->sight_y;
             break;
         }
             
         case PacketType::CRAFT: {
             unsigned char craft_index;
             packet >> craft_index;
-            const Recipe* recipe_crafted = curr_player->inventory.getAvailableRecipes()[(int)craft_index];
-            curr_player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+            const Recipe* recipe_crafted = conn.player->inventory.getAvailableRecipes()[(int)craft_index];
+            conn.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
             for(const ItemStack& ingredient : recipe_crafted->ingredients)
-                curr_player->inventory.removeItem(ingredient.type, ingredient.stack);
+                conn.player->inventory.removeItem(ingredient.type, ingredient.stack);
         }
 
         default:;
@@ -112,9 +110,17 @@ void ServerNetworkingManager::onEvent(ServerEntityDeletionEvent& event) {
 }
 
 void ServerNetworkingManager::onEvent(ServerEntityVelocityChangeEvent& event) {
+    Connection* exclusion = nullptr;
+    if(event.entity.type == EntityType::PLAYER)
+        for(Connection& conn : connections)
+            if(conn.player->id == event.entity.id) {
+                exclusion = &conn;
+                break;
+            }
+    
     sf::Packet packet;
     packet << PacketType::ENTITY_VELOCITY << event.entity.getVelocityX() <<  event.entity.getVelocityY() << event.entity.id;
-    sendToEveryone(packet);
+    sendToEveryone(packet, exclusion);
 }
 
 void ServerNetworkingManager::sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack) {
