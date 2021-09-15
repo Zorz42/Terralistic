@@ -24,7 +24,7 @@ void onInterrupt(int signum) {
 Server::Server(std::string resource_path, std::string world_path) :
     blocks(),
     items(&entities),
-    players(&blocks, &entities),
+    players(&blocks, &entities, &items),
     networking_manager(&blocks, &entities, &players),
     generator(&blocks, std::move(resource_path)),
     world_path(std::move(world_path)),

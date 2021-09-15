@@ -28,12 +28,6 @@ public:
     void setVelocityY(float vel_y);
     float getVelocityX() const { return velocity_x; }
     float getVelocityY() const { return velocity_y; }
-    
-    virtual void onSpawn() {}
-    virtual void update() {}
-    virtual void onDestroy() {}
-    
-    virtual ~ServerEntity() = default;
 };
 
 class ServerEntities {

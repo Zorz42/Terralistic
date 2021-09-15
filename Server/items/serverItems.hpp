@@ -9,12 +9,8 @@
 
 class ServerItem : public ServerEntity {
     ItemType type;
-    
-    void onSpawn() override;
-    void onDestroy() override;
 public:
-    ServerItem(ItemType type, int x, int y) : type(type), ServerEntity(EntityType::ITEM, x, y) {}
-    void update() override;
+    ServerItem(ItemType type, int x, int y);
     ItemType getType() const;
     
     unsigned short getWidth() override { return ITEM_WIDTH * 2; }
@@ -24,8 +20,12 @@ public:
 class ServerItems : EventListener<ServerBlockBreakEvent> {
     void onEvent(ServerBlockBreakEvent& event) override;
     ServerEntities* entities;
+    std::vector<ServerItem*> items;
 public:
     explicit ServerItems(ServerEntities* entities) : entities(entities) {}
+    const std::vector<ServerItem*>& getItems() { return items; }
+    ServerItem* spawnItem(ItemType type, int x, int y);
+    void removeItem(ServerItem* item);
 };
 
 

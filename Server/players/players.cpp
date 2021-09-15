@@ -16,7 +16,7 @@ static bool isBlockLeaves(ServerBlock block) {
     return block.refersToABlock() && block.getBlockType() == BlockType::LEAVES;
 }
 
-Players::Players(ServerBlocks* blocks, ServerEntities* entities) : blocks(blocks), entities(entities) {
+Players::Players(ServerBlocks* blocks, ServerEntities* entities, ServerItems* items) : blocks(blocks), entities(entities), items(items) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = [](ServerBlocks* server_blocks, ServerBlock* this_block) {
         ServerBlock upper, lower, left, right;
         if(this_block->getY() != 0)
@@ -79,15 +79,13 @@ ServerPlayer* Players::addPlayer(const std::string& name) {
     }
     
     online_players.push_back(player);
+    entities->registerEntity(player);
     return player;
 }
 
 void Players::removePlayer(ServerPlayer* player) {
-    for(int i = 0; i < online_players.size(); i++)
-        if(player == online_players[i]) {
-            online_players.erase(online_players.begin() + i);
-            break;
-        }
+    online_players.erase(std::find(online_players.begin(), online_players.end(), player));
+    entities->removeEntity(player);
 }
 
 void Players::updatePlayersBreaking(unsigned short tick_length) {
@@ -97,14 +95,12 @@ void Players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void Players::lookForItemsThatCanBePickedUp() {
-    for(auto i : entities->getEntities())
+    for(ServerItem* item : items->getItems())
         for(ServerPlayer* player : online_players)
-            if(i->type == EntityType::ITEM &&
-               abs(i->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(i->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
-               player->inventory.addItem(((ServerItem*)i)->getType(), 1) != -1
+            if(abs(item->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(item->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
+               player->inventory.addItem(item->getType(), 1) != -1
                ) {
-                entities->removeEntity(i);
-                delete i;
+                items->removeItem(item);
             }
 }
 

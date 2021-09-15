@@ -6,12 +6,10 @@ void ServerEntities::updateAllEntities(float frame_length) {
 }
 
 void ServerEntities::registerEntity(ServerEntity* entity) {
-    entity->onSpawn();
     entities.push_back(entity);
 }
 
 void ServerEntities::removeEntity(ServerEntity *entity) {
-    entity->onDestroy();
     ServerEntityDeletionEvent event(*entity);
     event.call();
     entities.erase(std::find(entities.begin(), entities.end(), entity));
@@ -54,8 +52,6 @@ void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
     }
     if(!has_collided_x)
         x = x_to_be;
-    
-    update();
 }
 
 bool ServerEntity::isTouchingGround(ServerBlocks* blocks) {
