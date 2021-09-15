@@ -15,11 +15,11 @@ int ServerBlocks::getSpawnX() const {
 int ServerBlocks::getSpawnY() {
     int spawn_y = 0;
     for(unsigned short y = 0; y < height; y++) {
-        if(!getBlock(width / 2 - 1, y).getBlockInfo().transparent || !getBlock(width / 2, y).getBlockInfo().transparent)
+        if(!getBlock(width / 2, y).getBlockInfo().transparent || !getBlock(width / 2 + 1, y).getBlockInfo().transparent)
             break;
         spawn_y += BLOCK_WIDTH * 2;
     }
-    return spawn_y;
+    return spawn_y - BLOCK_WIDTH * 2;
 }
 
 ServerBlocks::~ServerBlocks() {

@@ -102,8 +102,10 @@ void Players::lookForItemsThatCanBePickedUp() {
             if(i->type == EntityType::ITEM &&
                abs(i->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(i->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
                player->inventory.addItem(((ServerItem*)i)->getType(), 1) != -1
-               )
+               ) {
                 entities->removeEntity(i);
+                delete i;
+            }
 }
 
 void Players::updateBlocksInVisibleAreas() {

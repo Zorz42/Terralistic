@@ -3,6 +3,9 @@
 
 #define INVENTORY_SIZE 20
 
+#define PLAYER_HEIGHT 24
+#define PLAYER_WIDTH 14
+
 #include <utility>
 #include "serverItems.hpp"
 #include "serverEntities.hpp"
@@ -72,8 +75,8 @@ public:
     
     void serialize(std::vector<char>& serial) const;
     
-    unsigned short getWidth() override { return 14; }
-    unsigned short getHeight() override { return 24; }
+    unsigned short getWidth() override { return PLAYER_WIDTH; }
+    unsigned short getHeight() override { return PLAYER_HEIGHT; }
 };
 
 struct blockEvents {

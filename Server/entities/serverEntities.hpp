@@ -42,7 +42,7 @@ class ServerEntities {
 public:
     explicit ServerEntities(ServerBlocks* blocks) : blocks(blocks) {}
     void updateAllEntities(float frame_length);
-    void addEntity(ServerEntity* entity);
+    void registerEntity(ServerEntity* entity);
     void removeEntity(ServerEntity* entity);
     const std::vector<ServerEntity*>& getEntities() { return entities; }
 };

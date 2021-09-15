@@ -5,7 +5,7 @@ void ServerEntities::updateAllEntities(float frame_length) {
         entity->updateEntity(blocks, frame_length);
 }
 
-void ServerEntities::addEntity(ServerEntity* entity) {
+void ServerEntities::registerEntity(ServerEntity* entity) {
     entity->onSpawn();
     entities.push_back(entity);
 }
@@ -15,7 +15,6 @@ void ServerEntities::removeEntity(ServerEntity *entity) {
     ServerEntityDeletionEvent event(*entity);
     event.call();
     entities.erase(std::find(entities.begin(), entities.end(), entity));
-    delete entity;
 }
 
 void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
