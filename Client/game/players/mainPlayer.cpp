@@ -39,7 +39,7 @@ bool ClientPlayers::isPlayerTouchingGround() {
 
 void ClientPlayers::update() {
     static int prev_x, prev_y, prev_view_x, prev_view_y;
-    static float prev_vel_x, prev_vel_y;
+    float vel_x_change = 0, vel_y_change = 0;
     
     if(getKeyState(gfx::Key::SHIFT)) {
         if(getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D))
@@ -57,66 +57,66 @@ void ClientPlayers::update() {
     if((getKeyState(gfx::Key::D) && main_player->moving_type == MovingType::WALKING) != walking_right) {
         walking_right = getKeyState(gfx::Key::D) && main_player->moving_type == MovingType::WALKING;
         if(walking_right) {
-            main_player->velocity_x += WALK_SPEED;
+            vel_x_change += WALK_SPEED;
             if(!main_player->started_moving)
                 main_player->started_moving = gfx::getTicks();
         } else
-            main_player->velocity_x -= WALK_SPEED;
+            vel_x_change -= WALK_SPEED;
     }
     
     if((getKeyState(gfx::Key::A) && main_player->moving_type == MovingType::WALKING) != walking_left) {
         walking_left = getKeyState(gfx::Key::A) && main_player->moving_type == MovingType::WALKING;
         if(walking_left) {
-            main_player->velocity_x -= WALK_SPEED;
+            vel_x_change -= WALK_SPEED;
             if(!main_player->started_moving)
                 main_player->started_moving = gfx::getTicks();
         } else
-            main_player->velocity_x += WALK_SPEED;
+            vel_x_change += WALK_SPEED;
     }
     
     if((getKeyState(gfx::Key::D) && main_player->moving_type == MovingType::SNEAK_WALKING) != sneaking_right) {
         sneaking_right = getKeyState(gfx::Key::D) && main_player->moving_type == MovingType::SNEAK_WALKING;
         if(sneaking_right) {
-            main_player->velocity_x += SNEAK_SPEED;
+            vel_x_change += SNEAK_SPEED;
             if(!main_player->started_moving)
                 main_player->started_moving = gfx::getTicks();
         } else
-            main_player->velocity_x -= SNEAK_SPEED;
+            vel_x_change -= SNEAK_SPEED;
     }
     
     if((getKeyState(gfx::Key::A) && main_player->moving_type == MovingType::SNEAK_WALKING) != sneaking_left) {
         sneaking_left = getKeyState(gfx::Key::A) && main_player->moving_type == MovingType::SNEAK_WALKING;
         if(sneaking_left) {
-            main_player->velocity_x -= SNEAK_SPEED;
+            vel_x_change -= SNEAK_SPEED;
             if(!main_player->started_moving)
                 main_player->started_moving = gfx::getTicks();
         } else
-            main_player->velocity_x += SNEAK_SPEED;
+            vel_x_change += SNEAK_SPEED;
     }
     
     if((getKeyState(gfx::Key::D) && main_player->moving_type == MovingType::RUNNING) != running_right) {
         running_right = getKeyState(gfx::Key::D) && main_player->moving_type == MovingType::RUNNING;
         if(running_right) {
-            main_player->velocity_x += RUN_SPEED;
+            vel_x_change += RUN_SPEED;
             if(!main_player->started_moving)
                 main_player->started_moving = gfx::getTicks();
         } else
-            main_player->velocity_x -= RUN_SPEED;
+            vel_x_change -= RUN_SPEED;
     }
     
     if((getKeyState(gfx::Key::A) && main_player->moving_type == MovingType::RUNNING) != running_left) {
         running_left = getKeyState(gfx::Key::A) && main_player->moving_type == MovingType::RUNNING;
         if(running_left) {
-            main_player->velocity_x -= RUN_SPEED;
+            vel_x_change -= RUN_SPEED;
             if(!main_player->started_moving)
                 main_player->started_moving = gfx::getTicks();
         } else
-            main_player->velocity_x += RUN_SPEED;
+            vel_x_change += RUN_SPEED;
     }
     
     
     if(getKeyState(gfx::Key::SPACE) && isPlayerTouchingGround()) {
-        main_player->velocity_y = -JUMP_VELOCITY;
+        vel_y_change -= JUMP_VELOCITY;
         main_player->has_jumped = true;
     }
         
@@ -155,10 +155,13 @@ void ClientPlayers::update() {
     if(blocks->view_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2)
         blocks->view_y = blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
     
-    if(prev_vel_x != main_player->velocity_x || prev_vel_y != main_player->velocity_y) {
+    if(vel_x_change || vel_y_change) {
         sf::Packet packet;
-        packet << PacketType::PLAYER_VELOCITY_CHANGE << main_player->velocity_x << main_player->velocity_y;
+        packet << PacketType::PLAYER_VELOCITY_CHANGE << vel_x_change << vel_y_change;
         manager->sendPacket(packet);
+        
+        main_player->velocity_x += vel_x_change;
+        main_player->velocity_y += vel_y_change;
     }
     
     if(prev_view_x != blocks->view_x || prev_view_y != blocks->view_y) {
@@ -195,6 +198,4 @@ void ClientPlayers::update() {
     prev_y = main_player->y;
     prev_view_x = blocks->view_x;
     prev_view_y = blocks->view_y;
-    prev_vel_x = main_player->velocity_x;
-    prev_vel_y = main_player->velocity_y;
 }

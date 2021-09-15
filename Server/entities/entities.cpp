@@ -91,15 +91,3 @@ void ServerEntity::addVelocityY(float vel_y) {
     ServerEntityVelocityChangeEvent event(*this);
     event.call();
 }
-
-void ServerEntity::setVelocityX(float vel_x) {
-    velocity_x = vel_x;
-    ServerEntityVelocityChangeEvent event(*this);
-    event.call();
-}
-
-void ServerEntity::setVelocityY(float vel_y) {
-    velocity_y = vel_y;
-    ServerEntityVelocityChangeEvent event(*this);
-    event.call();
-}

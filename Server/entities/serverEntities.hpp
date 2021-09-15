@@ -9,8 +9,7 @@ class ServerEntity {
     float x, y, velocity_x = 0, velocity_y = 0;
 public:
     inline static unsigned short _curr_id = 0;
-    ServerEntity(EntityType type, int x, int y) : id(_curr_id++), type(type), x(x), y(y) {}
-    const EntityType type;
+    ServerEntity(int x, int y) : id(_curr_id++), x(x), y(y) {}
     bool gravity = true, friction = true;
     const unsigned short id;
     
@@ -24,8 +23,6 @@ public:
     bool isTouchingGround(ServerBlocks* blocks);
     void addVelocityX(float vel_x);
     void addVelocityY(float vel_y);
-    void setVelocityX(float vel_x);
-    void setVelocityY(float vel_y);
     float getVelocityX() const { return velocity_x; }
     float getVelocityY() const { return velocity_y; }
 };

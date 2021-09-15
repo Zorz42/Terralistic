@@ -32,8 +32,8 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
         case PacketType::PLAYER_VELOCITY_CHANGE: {
             float velocity_x, velocity_y;
             packet >> velocity_x >> velocity_y;
-            conn.player->setVelocityX(velocity_x);
-            conn.player->setVelocityY(velocity_y);
+            conn.player->addVelocityX(velocity_x);
+            conn.player->addVelocityY(velocity_y);
             break;
         }
 
@@ -111,12 +111,11 @@ void ServerNetworkingManager::onEvent(ServerEntityDeletionEvent& event) {
 
 void ServerNetworkingManager::onEvent(ServerEntityVelocityChangeEvent& event) {
     Connection* exclusion = nullptr;
-    if(event.entity.type == EntityType::PLAYER)
-        for(Connection& conn : connections)
-            if(conn.player->id == event.entity.id) {
-                exclusion = &conn;
-                break;
-            }
+    for(Connection& conn : connections)
+        if(conn.player->id == event.entity.id) {
+            exclusion = &conn;
+            break;
+        }
     
     sf::Packet packet;
     packet << PacketType::ENTITY_VELOCITY << event.entity.getVelocityX() <<  event.entity.getVelocityY() << event.entity.id;

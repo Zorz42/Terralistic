@@ -155,7 +155,7 @@ char* Players::addPlayerFromSerial(char* iter) {
     return iter;
 }
 
-ServerPlayer::ServerPlayer(char*& iter) : ServerEntity(EntityType::PLAYER, *(int*)iter, *(int*)(iter + 4)) {
+ServerPlayer::ServerPlayer(char*& iter) : ServerEntity(*(int*)iter, *(int*)(iter + 4)) {
     iter += 8;
     
     for(InventoryItem& i : inventory.inventory_arr)

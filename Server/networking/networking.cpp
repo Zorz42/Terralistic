@@ -112,13 +112,10 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 connections[i].send(join_packet);
             }
 
-            for(const ServerEntity* entity : entities->getEntities()) {
-                if(entity->type == EntityType::ITEM) {
-                    ServerItem* item = (ServerItem*)entity;
-                    sf::Packet item_packet;
-                    item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
-                    connections[i].send(item_packet);
-                }
+            for(const ServerItem* item : items->getItems()) {
+                sf::Packet item_packet;
+                item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
+                connections[i].send(item_packet);
             }
 
             for(InventoryItem& curr_item : player->inventory.inventory_arr)

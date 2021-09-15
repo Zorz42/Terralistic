@@ -25,7 +25,7 @@ Server::Server(std::string resource_path, std::string world_path) :
     blocks(),
     items(&entities),
     players(&blocks, &entities, &items),
-    networking_manager(&blocks, &entities, &players),
+    networking_manager(&blocks, &players, &items),
     generator(&blocks, std::move(resource_path)),
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),

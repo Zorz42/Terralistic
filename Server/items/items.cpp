@@ -6,7 +6,7 @@ ItemType ServerItem::getType() const {
     return type;
 }
 
-ServerItem::ServerItem(ItemType type, int x, int y) : type(type), ServerEntity(EntityType::ITEM, x, y) {
+ServerItem::ServerItem(ItemType type, int x, int y) : type(type), ServerEntity(x, y) {
     ServerItemCreationEvent event(type, getX(), getY(), id);
     event.call();
 }
