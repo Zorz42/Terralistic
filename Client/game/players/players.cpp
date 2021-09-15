@@ -50,7 +50,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             std::string name;
             event.packet >> x >> y >> id >> name;
             ClientPlayer* new_player = new ClientPlayer(name, x, y, id);
-            entities->addEntity(new_player);
+            entities->registerEntity(new_player);
             if(name == username)
                 main_player = new_player;
             break;

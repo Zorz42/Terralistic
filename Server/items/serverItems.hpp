@@ -38,4 +38,10 @@ public:
     short id;
 };
 
+class ServerItemDeletionEvent : public Event<ServerItemDeletionEvent> {
+public:
+    explicit ServerItemDeletionEvent(const ServerItem& item) : item(item) {}
+    const ServerItem& item;
+};
+
 #endif

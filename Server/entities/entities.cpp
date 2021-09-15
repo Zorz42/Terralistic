@@ -10,8 +10,6 @@ void ServerEntities::registerEntity(ServerEntity* entity) {
 }
 
 void ServerEntities::removeEntity(ServerEntity *entity) {
-    ServerEntityDeletionEvent event(*entity);
-    event.call();
     entities.erase(std::find(entities.begin(), entities.end(), entity));
 }
 

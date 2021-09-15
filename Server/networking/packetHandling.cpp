@@ -103,9 +103,9 @@ void ServerNetworkingManager::onEvent(ServerItemCreationEvent& event) {
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerEntityDeletionEvent& event) {
+void ServerNetworkingManager::onEvent(ServerItemDeletionEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ENTITY_DELETION << (short)event.entity.id;
+    packet << PacketType::ITEM_DELETION << (unsigned short)event.item.id;
     sendToEveryone(packet);
 }
 

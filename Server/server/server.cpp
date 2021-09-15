@@ -44,7 +44,7 @@ void Server::loadWorld() {
     char* iter = &world_file_serial[0];
     iter = blocks.loadFromSerial(iter);
     
-    while(iter < &world_file_serial[0] + world_file_serial.size() + 7)
+    while(iter < &world_file_serial[0] + world_file_serial.size())
         iter = players.addPlayerFromSerial(iter);
 }
 

@@ -46,11 +46,5 @@ public:
     ServerEntity& entity;
 };
 
-class ServerEntityDeletionEvent : public Event<ServerEntityDeletionEvent> {
-public:
-    explicit ServerEntityDeletionEvent(const ServerEntity& entity) : entity(entity) {}
-    const ServerEntity& entity;
-};
-
 
 #endif

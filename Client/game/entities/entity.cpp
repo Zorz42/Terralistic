@@ -10,8 +10,12 @@ const std::vector<ClientEntity*>& ClientEntities::getEntities() {
     return entities;
 }
 
-void ClientEntities::addEntity(ClientEntity* entity) {
+void ClientEntities::registerEntity(ClientEntity* entity) {
     entities.push_back(entity);
+}
+
+void ClientEntities::removeEntity(ClientEntity* entity) {
+    entities.erase(std::find(entities.begin(), entities.end(), entity));
 }
 
 ClientEntity* ClientEntities::getEntityById(unsigned short id) {
@@ -97,17 +101,6 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             ClientEntity* entity = getEntityById(id);
             entity->velocity_x = vel_x;
             entity->velocity_y = vel_y;
-            break;
-        }
-        case PacketType::ENTITY_DELETION: {
-            unsigned short id;
-            event.packet >> id;
-            for(auto i = entities.begin(); i != entities.end(); i++)
-                if((*i)->id == id) {
-                    entities.erase(i);
-                    delete *i;
-                    break;
-                }
             break;
         }
         default:;

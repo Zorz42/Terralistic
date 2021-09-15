@@ -29,7 +29,8 @@ class ClientEntities : EventListener<ClientPacketEvent> {
 public:
     explicit ClientEntities(ClientBlocks* blocks) : blocks(blocks) {}
     void updateAllEntities(float frame_length);
-    void addEntity(ClientEntity* entity);
+    void registerEntity(ClientEntity* entity);
+    void removeEntity(ClientEntity* entity);
     ClientEntity* getEntityById(unsigned short id);
     const std::vector<ClientEntity*>& getEntities();
 };

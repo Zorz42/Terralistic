@@ -20,7 +20,7 @@ public:
     void flushPacket();
 };
 
-class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerEntityDeletionEvent>, EventListener<ServerEntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerLightChangeEvent> {
+class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerEntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerLightChangeEvent> {
     std::vector<Connection> connections;
     sf::TcpListener listener;
     
@@ -32,7 +32,7 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     void onEvent(ServerBlockBreakStageChangeEvent& event) override;
     void onEvent(ServerLiquidChangeEvent& event) override;
     void onEvent(ServerItemCreationEvent& event) override;
-    void onEvent(ServerEntityDeletionEvent& event) override;
+    void onEvent(ServerItemDeletionEvent& event) override;
     void onEvent(ServerEntityVelocityChangeEvent& event) override;
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;

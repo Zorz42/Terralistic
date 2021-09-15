@@ -151,7 +151,7 @@ void Players::rightClickEvent(ServerBlock this_block, ServerPlayer* peer) {
 }
 
 char* Players::addPlayerFromSerial(char* iter) {
-    all_players.push_back(new ServerPlayer(iter));
+    all_players.emplace_back(new ServerPlayer(iter));
     return iter;
 }
 
@@ -161,9 +161,9 @@ ServerPlayer::ServerPlayer(char*& iter) : ServerEntity(*(int*)iter, *(int*)(iter
     for(InventoryItem& i : inventory.inventory_arr)
         iter = i.loadFromSerial(iter);
     
-    do
+    while(*iter)
         name.push_back(*iter++);
-    while(*iter);
+    iter++;
     
     sight_x = getX();
     sight_y = getY();
