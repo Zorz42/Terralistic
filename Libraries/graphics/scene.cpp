@@ -20,7 +20,7 @@ void gfx::Scene::enableAllEvents(bool enable) {
         module->_can_receive_events = enable;
 }
 
-bool gfx::GraphicalModule::getKeyState(Key key_) {
+bool gfx::GraphicalModule::getKeyState(Key key_) const {
     return _can_receive_events && key_states[(int)key_];
 }
 

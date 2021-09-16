@@ -18,7 +18,7 @@ void gfx::Rect::render() {
     RectShape rect = getTranslatedRect();
 
     if(blur_intensity) {
-        if(blur_intensity && !blur_texture) {
+        if(!blur_texture) {
             blur_texture = new sf::RenderTexture;
             updateBlurTextureSize();
         }

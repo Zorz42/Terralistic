@@ -15,7 +15,7 @@ GuiMod::GuiMod(const std::string& name) : name(name) {
     smooth_factor = 3;
 }
 
-void GuiMod::render() {
+void GuiMod::renderTile() {
     Rect::render();
     text.render(2, getTranslatedX() + getWidth() / 2 - text.getTextureWidth(), getTranslatedY() + SPACING / 2);
 }
@@ -36,7 +36,7 @@ void ModManager::init() {
     std::set<std::string> ignored_files = {".", "..", ".DS_Store"};
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/Mods")) {
         for(const auto & mod : std::filesystem::directory_iterator(sago::getDataHome() + "/Terralistic/Mods")) {
-            std::string mod_name = mod.path().filename();
+            std::string mod_name = mod.path().filename().string();
             if(ignored_files.count(mod_name))
                 continue;
             
@@ -122,11 +122,11 @@ void ModManager::render() {
     
     for(GuiMod* mod : mods)
         if(mod != holding)
-            mod->render();
+            mod->renderTile();
     
     if(holding) {
         placeholder.render();
-        holding->render();
+        holding->renderTile();
     }
     
     if(holding) {

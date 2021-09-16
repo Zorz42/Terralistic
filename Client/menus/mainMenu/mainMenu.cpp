@@ -22,12 +22,10 @@ void MainMenu::init() {
     exit_button.renderText("Exit");
     exit_button.orientation = gfx::TOP;
     
-#ifdef DEVELOPER_MODE
     debug_title.renderText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2;
     debug_title.y = SPACING / 4;
-#endif
     
     title.renderText("Terralistic");
     title.scale = 4;

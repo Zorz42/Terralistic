@@ -26,20 +26,20 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     std::string username;
     NetworkingManager networking_manager;
     ResourcePack resource_pack;
-    ClientEntityManager entity_manager;
+    ClientEntities entities;
     ClientBlocks blocks;
-    ClientPlayers player_handler;
+    ClientPlayers players;
     ClientItems items;
-    ClientInventory inventory_handler;
+    ClientInventory inventory;
     BlockSelector block_selector;
     DebugMenu debug_menu;
     Chat chat;
-    BackgroundRect* menu_back;
+    BackgroundRect* background_rect;
     bool handshake_done = false;
     void handshakeWithServer();
     
 public:
-    game(BackgroundRect* menu_back, std::string username, std::string ip_address, unsigned short port=33770);
+    game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port=33770);
     
     void renderBack() override;
     void setBackWidth(unsigned short width) override { }

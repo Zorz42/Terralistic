@@ -6,7 +6,7 @@ ServerBlock ServerBlocks::getBlock(unsigned short x, unsigned short y) {
     return {x, y, &blocks[y * width + x], this};
 }
 
-const BlockInfo& ServerBlock::getUniqueBlock() {
+const BlockInfo& ServerBlock::getBlockInfo() {
     return ::getBlockInfo(block_data->block_type);
 }
 
@@ -23,9 +23,9 @@ void ServerBlock::setType(BlockType block_type) {
         if(event.cancelled)
             return;
         
-        parent_map->removeNaturalLight(x);
+        blocks->removeNaturalLight(x);
         setTypeDirectly(block_type);
-        parent_map->setNaturalLight(x);
+        blocks->setNaturalLight(x);
         
         update();
         updateNeighbors();
@@ -34,18 +34,18 @@ void ServerBlock::setType(BlockType block_type) {
 
 void ServerBlock::updateNeighbors() {
     if(x != 0)
-        parent_map->getBlock(x - 1, y).update();
-    if(x != parent_map->getWidth() - 1)
-        parent_map->getBlock(x + 1, y).update();
+        blocks->getBlock(x - 1, y).update();
+    if(x != blocks->getWidth() - 1)
+        blocks->getBlock(x + 1, y).update();
     if(y != 0)
-        parent_map->getBlock(x, y - 1).update();
-    if(y != parent_map->getHeight() - 1)
-        parent_map->getBlock(x, y + 1).update();
+        blocks->getBlock(x, y - 1).update();
+    if(y != blocks->getHeight() - 1)
+        blocks->getBlock(x, y + 1).update();
 }
 
 void ServerBlock::setBreakProgress(unsigned short ms) {
     block_data->break_progress = ms;
-    unsigned char stage = (unsigned char)((float)getBreakProgress() / (float)getUniqueBlock().break_time * 9.0f);
+    unsigned char stage = (unsigned char)((float)getBreakProgress() / (float)getBlockInfo().break_time * 9.f);
     if(stage != getBreakStage()) {
         ServerBlockBreakStageChangeEvent event(*this, stage);
         event.call();
@@ -64,7 +64,7 @@ void ServerBlock::update() {
     if(event.cancelled)
         return;
     
-    if(getUniqueBlock().only_on_floor && parent_map->getBlock(x, (unsigned short)(y + 1)).getUniqueBlock().transparent)
+    if(getBlockInfo().only_on_floor && blocks->getBlock(x, (unsigned short)(y + 1)).getBlockInfo().transparent)
         breakBlock();
     scheduleLightUpdate();
     scheduleLiquidUpdate();

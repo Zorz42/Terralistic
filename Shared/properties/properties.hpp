@@ -4,6 +4,7 @@
 #define UNBREAKABLE -1
 
 #include <string>
+#include <utility>
 #include <vector>
 
 enum class BlockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE , NUM_BLOCKS};
@@ -51,7 +52,7 @@ struct ItemStack {
 };
 
 struct Recipe {
-    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(ingredients), result(result) {}
+    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(std::move(ingredients)), result(result) {}
     std::vector<ItemStack> ingredients;
     ItemStack result;
 };

@@ -24,11 +24,11 @@ public:
 class ClientBlock {
     ClientMapBlock* block_data;
     unsigned short x, y;
-    ClientBlocks* parent_map;
+    ClientBlocks* blocks;
 
 public:
-    ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
-    
+    ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* blocks) : x(x), y(y), block_data(block_data), blocks(blocks) {}
+
     void updateOrientation();
     unsigned char getOrientation() { return block_data->orientation; }
     
@@ -51,20 +51,18 @@ public:
 class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     unsigned short width{}, height{};
     ClientMapBlock *blocks = nullptr;
-
-    NetworkingManager* networking_manager;
     
     void onEvent(ClientPacketEvent& event) override;
     
     ResourcePack* resource_pack;
     
-    short getViewBeginX();
-    short getViewEndX();
-    short getViewBeginY();
-    short getViewEndY();
+    short getViewBeginX() const;
+    short getViewEndX() const;
+    short getViewBeginY() const;
+    short getViewEndY() const;
     
 public:
-    ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack);
+    explicit ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
     void create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
     
     int view_x{}, view_y{};

@@ -138,7 +138,7 @@ float gfx::getDeltaTime() {
 }
 
 void gfx::clearWindow() {
-    window_texture.clear(GFX_BACKGROUND_COLOR);
+    window_texture.clear(sf::Color(GFX_BACKGROUND_COLOR));
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {

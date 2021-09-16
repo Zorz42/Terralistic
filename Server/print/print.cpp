@@ -5,7 +5,7 @@
 
 static void printText(const std::string& text) {
     auto t = std::time(nullptr);
-    auto tm = *std::localtime(&t);
+    auto tm = *localtime(&t);
     std::cout << std::put_time(&tm, "[%d.%m.%Y %H:%M:%S] ") << text << std::endl;
 }
 

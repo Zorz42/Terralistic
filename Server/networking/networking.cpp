@@ -75,10 +75,6 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     print::info(connections[i].player->name + " (" + connections[i].getIpAddress() + ") disconnected (" + std::to_string(players->getOnlinePlayers().size() - 1) + " players online)");
                     players->removePlayer(connections[i].player);
                     
-                    sf::Packet quit_packet;
-                    quit_packet << PacketType::PLAYER_QUIT << connections[i].player->id;
-                    sendToEveryone(quit_packet);
-                    
                     connections[i].freeSocket();
                     connections.erase(connections.begin() + i);
                     
@@ -98,7 +94,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             connections[i].player = player;
             
             sf::Packet welcome_packet;
-            welcome_packet << player->x << player->y;
+            welcome_packet << player->getX() << player->getY();
             welcome_packet << blocks->getWidth() << blocks->getHeight();
             
             std::vector<char> map_data = blocks->toData();
@@ -110,16 +106,15 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             connections[i].flushPacket();
             connections[i].send(map_data);
 
-            for(ServerPlayer* curr_player : players->getOnlinePlayers())
-                if(curr_player != player) {
-                    sf::Packet join_packet;
-                    join_packet << PacketType::PLAYER_JOIN << curr_player->x << curr_player->y << curr_player->id << curr_player->name;
-                    connections[i].send(join_packet);
-                }
+            for(ServerPlayer* curr_player : players->getOnlinePlayers()) {
+                sf::Packet join_packet;
+                join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name;
+                connections[i].send(join_packet);
+            }
 
-            for(const ServerItem& curr_item : items->getItems()) {
+            for(const ServerItem* item : items->getItems()) {
                 sf::Packet item_packet;
-                item_packet << PacketType::ITEM_CREATION << curr_item.getX() << curr_item.getY() << curr_item.getId() << (unsigned char)curr_item.getType();
+                item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
                 connections[i].send(item_packet);
             }
 
@@ -129,7 +124,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             player->inventory.updateAvailableRecipes();
             
             sf::Packet join_packet;
-            join_packet << PacketType::PLAYER_JOIN << player->x << player->y << player->id << player->name;
+            join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name;
             sendToEveryone(join_packet, &connections[i]);
 
             print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
