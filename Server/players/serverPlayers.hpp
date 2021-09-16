@@ -57,7 +57,7 @@ public:
 
 class ServerPlayer : public ServerEntity {
 public:
-    explicit ServerPlayer(int x, int y, std::string name) : ServerEntity(x, y), name(std::move(name)) {}
+    explicit ServerPlayer(int x, int y, std::string name) : ServerEntity(x, y), name(std::move(name)) { friction = false; }
     explicit ServerPlayer(char*& iter);
     std::string name;
     
