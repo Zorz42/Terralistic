@@ -250,7 +250,7 @@
 		1690693A26D1A1C80057345A /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game.hpp; sourceTree = "<group>"; };
 		1690D7D626BA869F0007755C /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		1695428D2680B5B400F1F4FE /* version.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = version.hpp; sourceTree = "<group>"; };
+		1695428D2680B5B400F1F4FE /* versions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = versions.hpp; sourceTree = "<group>"; };
 		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
 		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
 		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
@@ -539,7 +539,7 @@
 				36DDF87A2689EAC5002337F3 /* properties */,
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
 				1682944126A16D5C0017E2FD /* packetType */,
-				1695428D2680B5B400F1F4FE /* version.hpp */,
+				1695428D2680B5B400F1F4FE /* versions.hpp */,
 				3605DAC126E8FC0C00A5F641 /* entityType.hpp */,
 			);
 			path = Shared;

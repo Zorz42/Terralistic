@@ -2,6 +2,7 @@
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
 #include "settings.hpp"
+#include "versions.hpp"
 
 #define BUTTON_SPACING 1
 
@@ -32,9 +33,7 @@ void MainMenu::init() {
     title.orientation = gfx::TOP;
     title.y = debug_title.y + debug_title.getHeight() + SPACING / 2;
     
-    version.renderText(
-#include "version.hpp"
-                                       , GREY);
+    version.renderText(CURR_VERSION_STR, GREY);
     version.orientation = gfx::BOTTOM;
     version.scale = 2;
     version.y = -5;
