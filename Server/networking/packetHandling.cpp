@@ -99,7 +99,7 @@ void ServerNetworkingManager::onEvent(ServerLiquidChangeEvent& event) {
 
 void ServerNetworkingManager::onEvent(ServerItemCreationEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ITEM_CREATION << event.x << event.y << event.id << (unsigned char)event.item_id;
+    packet << PacketType::ITEM_CREATION << (int)event.item.getX() << (int)event.item.getY() << event.item.id << (unsigned char)event.item.getType();
     sendToEveryone(packet);
 }
 
@@ -161,4 +161,12 @@ void ServerNetworkingManager::onEvent(ServerLightChangeEvent& event) {
     packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << event.block.getLightLevel();
     for(Connection& connection : connections)
         connection.send(packet);
+}
+
+void ServerNetworkingManager::syncEntityPositions() {
+    for(ServerEntity* entity : entities->getEntities()) {
+        sf::Packet packet;
+        packet << PacketType::ENTITY_POSITION << entity->getX() << entity->getY() << entity->id;
+        sendToEveryone(packet);
+    }
 }

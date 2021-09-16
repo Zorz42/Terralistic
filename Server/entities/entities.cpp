@@ -1,4 +1,5 @@
 #include "serverEntities.hpp"
+#include "graphics.hpp"
 
 void ServerEntities::updateAllEntities(float frame_length) {
     for(ServerEntity* entity : entities)

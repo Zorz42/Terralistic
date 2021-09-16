@@ -32,10 +32,8 @@ public:
 
 class ServerItemCreationEvent : public Event<ServerItemCreationEvent> {
 public:
-    ServerItemCreationEvent(ItemType item_id, int x, int y, short id) : item_id(item_id), x(x), y(y), id(id) {}
-    ItemType item_id;
-    int x, y;
-    short id;
+    ServerItemCreationEvent(const ServerItem& item) : item(item) {}
+    const ServerItem& item;
 };
 
 class ServerItemDeletionEvent : public Event<ServerItemDeletionEvent> {

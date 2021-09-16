@@ -8,7 +8,7 @@ enum class PacketType {
     BLOCK_CHANGE, LIGHT_CHANGE, LIQUID_CHANGE,
     
     // entities
-    ENTITY_VELOCITY,
+    ENTITY_VELOCITY, ENTITY_POSITION,
     
     // players
     PLAYER_JOIN, PLAYER_LEAVE, PLAYER_VELOCITY_CHANGE,

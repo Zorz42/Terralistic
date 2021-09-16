@@ -103,6 +103,16 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             entity->velocity_y = vel_y;
             break;
         }
+        case PacketType::ENTITY_POSITION: {
+            unsigned short id;
+            int x, y;
+            event.packet >> x >> y >> id;
+            
+            ClientEntity* entity = getEntityById(id);
+            entity->x = x;
+            entity->y = y;
+            break;
+        }
         default:;
     }
 }

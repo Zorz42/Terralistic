@@ -25,7 +25,7 @@ Server::Server(std::string resource_path, std::string world_path) :
     blocks(),
     items(&entities),
     players(&blocks, &entities, &items),
-    networking_manager(&blocks, &players, &items),
+    networking_manager(&blocks, &players, &items, &entities),
     generator(&blocks, std::move(resource_path)),
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
@@ -86,7 +86,7 @@ void Server::start(unsigned short port) {
 
     state = ServerState::RUNNING;
     print::info("Server has started!");
-    unsigned int a, b = gfx::getTicks();
+    unsigned int a, b = gfx::getTicks(), seconds = 0;
     unsigned short tick_length;
     
     int ms_per_tick = 1000 / TPS_LIMIT;
@@ -105,6 +105,10 @@ void Server::start(unsigned short port) {
         players.updatePlayersBreaking(tick_length);
         players.updateBlocksInVisibleAreas();
         networking_manager.flushPackets();
+        if(gfx::getTicks() / 1000 > seconds) {
+            seconds = gfx::getTicks() / 1000;
+            networking_manager.syncEntityPositions();
+        }
     }
     
     state = ServerState::STOPPING;
