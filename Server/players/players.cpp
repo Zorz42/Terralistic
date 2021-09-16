@@ -156,6 +156,7 @@ char* Players::addPlayerFromSerial(char* iter) {
 }
 
 ServerPlayer::ServerPlayer(char*& iter) : ServerEntity(*(int*)iter, *(int*)(iter + 4)) {
+    friction = false;
     iter += 8;
     
     for(InventoryItem& i : inventory.inventory_arr)

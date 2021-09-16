@@ -53,6 +53,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             entities->registerEntity(new_player);
             if(name == username)
                 main_player = new_player;
+            
             break;
         }
         default:;

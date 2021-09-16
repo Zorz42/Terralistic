@@ -75,8 +75,8 @@ public:
     
     void serialize(std::vector<char>& serial) const;
     
-    unsigned short getWidth() override { return PLAYER_WIDTH; }
-    unsigned short getHeight() override { return PLAYER_HEIGHT; }
+    unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
+    unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
 };
 
 struct blockEvents {
