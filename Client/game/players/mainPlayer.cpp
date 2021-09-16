@@ -156,12 +156,12 @@ void ClientPlayers::update() {
         blocks->view_y = blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
     
     if(vel_x_change || vel_y_change) {
-        sf::Packet packet;
-        packet << PacketType::PLAYER_VELOCITY_CHANGE << vel_x_change << vel_y_change;
-        manager->sendPacket(packet);
-        
         main_player->velocity_x += vel_x_change;
         main_player->velocity_y += vel_y_change;
+        
+        sf::Packet packet;
+        packet << PacketType::PLAYER_VELOCITY_CHANGE << main_player->velocity_x << main_player->velocity_y;
+        manager->sendPacket(packet);
     }
     
     if(prev_view_x != blocks->view_x || prev_view_y != blocks->view_y) {

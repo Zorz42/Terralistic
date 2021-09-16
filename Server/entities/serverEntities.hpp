@@ -23,6 +23,8 @@ public:
     bool isTouchingGround(ServerBlocks* blocks);
     void addVelocityX(float vel_x);
     void addVelocityY(float vel_y);
+    void setVelocityX(float vel_x);
+    void setVelocityY(float vel_y);
     float getVelocityX() const { return velocity_x; }
     float getVelocityY() const { return velocity_y; }
 };

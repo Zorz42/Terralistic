@@ -32,8 +32,8 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
         case PacketType::PLAYER_VELOCITY_CHANGE: {
             float velocity_x, velocity_y;
             packet >> velocity_x >> velocity_y;
-            conn.player->addVelocityX(velocity_x);
-            conn.player->addVelocityY(velocity_y);
+            conn.player->setVelocityX(velocity_x);
+            conn.player->setVelocityY(velocity_y);
             break;
         }
 
