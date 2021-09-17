@@ -57,7 +57,7 @@ bool ServerEntity::isTouchingGround(ServerBlocks* blocks) {
     y++;
     bool is_touching_ground = isColliding(blocks);
     y--;
-    return is_touching_ground;
+    return is_touching_ground && velocity_y == 0;
 }
 
 bool ServerEntity::isColliding(ServerBlocks* blocks) {

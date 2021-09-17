@@ -69,7 +69,7 @@ bool ClientEntity::isTouchingGround(ClientBlocks* blocks) {
     y++;
     bool is_touching_ground = isColliding(blocks);
     y--;
-    return is_touching_ground;
+    return is_touching_ground && velocity_y == 0;
 }
 
 bool ClientEntity::isColliding(ClientBlocks* blocks) {
