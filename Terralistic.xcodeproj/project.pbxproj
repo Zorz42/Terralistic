@@ -46,6 +46,7 @@
 		1690D7DB26BA88710007755C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
+		16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B77FE826F5102700FE3FE9 /* updater.cpp */; };
 		16BF6928269D6D7300CFE175 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		16BF6929269D6D7300CFE175 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		16BF692C269D6D7300CFE175 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
@@ -260,6 +261,8 @@
 		16B36D322682067D00A4B03A /* serverBlocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverBlocks.hpp; sourceTree = "<group>"; };
 		16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = worldGenerator.cpp; sourceTree = "<group>"; };
 		16B36D3B26820ADD00A4B03A /* worldGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = worldGenerator.hpp; sourceTree = "<group>"; };
+		16B77FE826F5102700FE3FE9 /* updater.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = updater.cpp; sourceTree = "<group>"; };
+		16B77FE926F5102700FE3FE9 /* updater.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = updater.hpp; sourceTree = "<group>"; };
 		16BF6914269D6CCA00CFE175 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		16BF6959269D7F4D00CFE175 /* resourcePath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = resourcePath.cpp; sourceTree = "<group>"; };
 		16BF695A269D7F4D00CFE175 /* resourcePath.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = resourcePath.hpp; sourceTree = "<group>"; };
@@ -590,6 +593,7 @@
 		1689699C25E9653E00D26060 /* Client */ = {
 			isa = PBXGroup;
 			children = (
+				16B77FE726F5101000FE3FE9 /* updater */,
 				365721CF26D07180005AB3CC /* game */,
 				365721FA26D07181005AB3CC /* menus */,
 				365721F526D07180005AB3CC /* main */,
@@ -635,6 +639,15 @@
 				16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */,
 			);
 			path = worldGenerator;
+			sourceTree = "<group>";
+		};
+		16B77FE726F5101000FE3FE9 /* updater */ = {
+			isa = PBXGroup;
+			children = (
+				16B77FE926F5102700FE3FE9 /* updater.hpp */,
+				16B77FE826F5102700FE3FE9 /* updater.cpp */,
+			);
+			path = updater;
 			sourceTree = "<group>";
 		};
 		16BF6958269D7F3E00CFE175 /* resourcePath */ = {
@@ -1017,6 +1030,7 @@
 				3657221426D07181005AB3CC /* resourcePack.cpp in Sources */,
 				3657221826D07181005AB3CC /* blockSelector.cpp in Sources */,
 				3657220F26D07181005AB3CC /* inventory.cpp in Sources */,
+				16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */,
 				3657221D26D07181005AB3CC /* main.cpp in Sources */,
 				3657221026D07181005AB3CC /* inventoryItem.cpp in Sources */,
 				3657220D26D07181005AB3CC /* networking.cpp in Sources */,
