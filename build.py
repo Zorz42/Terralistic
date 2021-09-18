@@ -29,19 +29,19 @@ if sys.platform == "darwin":
             sfml_tar.extractall(project_path + "Dependencies/")
 
         os.remove(sfml_file)
-
-    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic BUILD_DIR={project_path}Temp")
-    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server BUILD_DIR={project_path}Temp")
+    
+    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic -configuration release -jobs $(sysctl -n hw.ncpu) BUILD_DIR={project_path}")
+    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server -configuration release -jobs $(sysctl -n hw.ncpu) BUILD_DIR={project_path}")
 
     createDir("Output/MacOS/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
-    shutil.move(project_path + "Temp/Release/Terralistic.app/", project_path + "Output/MacOS/")
+    shutil.move(project_path + "Release/Terralistic.app/", project_path + "Output/MacOS/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic-server.app/", ignore_errors=True)
-    shutil.move(project_path + "Temp/Release/Terralistic-server.app/", project_path + "Output/MacOS/")
+    shutil.move(project_path + "Release/Terralistic-server.app/", project_path + "Output/MacOS/")
 
-    shutil.rmtree(project_path + "Temp/")
+    shutil.rmtree(project_path + "Release/")
 
 
 elif sys.platform == "linux":
