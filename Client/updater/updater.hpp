@@ -1,6 +1,6 @@
 #ifndef updater_hpp
 #define updater_hpp
 
-void checkForUpdates();
+bool checkForUpdates(const std::string& exec_path);
 
 #endif

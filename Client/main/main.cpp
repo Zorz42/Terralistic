@@ -10,9 +10,14 @@
 #include "updater.hpp"
 #include "versions.hpp"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) {    
     if(argc == 2 && (std::string)argv[1] == "version") {
         std::cout << CURR_VERSION_STR << std::endl;
+        return 0;
+    }
+    
+    if(checkForUpdates(argv[0])) {
+        system(argv[0]);
         return 0;
     }
     
@@ -25,8 +30,6 @@ int main(int argc, char **argv) {
     
     loadSettings();
     initProperties();
-    
-    checkForUpdates();
     
     MainMenu().run();
 

@@ -21,10 +21,7 @@ void NetworkingManager::checkForPackets() {
 }
 
 bool NetworkingManager::establishConnection(const std::string &ip, unsigned short port) {
-    if(socket.connect(ip, port) != sf::Socket::Done)
-        return false;
-    
-    return true;
+    return socket.connect(ip, port) == sf::Socket::Done;
 }
 
 void NetworkingManager::disableBlocking() {
