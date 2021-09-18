@@ -20,7 +20,7 @@ void checkForUpdates() {
 }
 
 void checkForUpdatesMacOS() {
-    
+     
 }
 
 void checkForUpdatesWindows() {
