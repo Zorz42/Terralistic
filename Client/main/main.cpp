@@ -6,6 +6,7 @@
 #include "resourcePath.hpp"
 #include "serverPlayers.hpp"
 #include "settings.hpp"
+#include "updater.hpp"
 
 int main(int argc, char **argv) {
     gfx::init(1130, 700);
@@ -17,6 +18,8 @@ int main(int argc, char **argv) {
     
     loadSettings();
     initProperties();
+    
+    checkForUpdates();
     
     MainMenu().run();
 
