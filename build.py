@@ -66,15 +66,14 @@ elif sys.platform == "linux":
     os.system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
 
     createDir("Output/Linux/Terralistic")
+    if os.path.exists(project_path + "Output/Linux/Terralistic/"):
+        shutil.rmtree(project_path + "Output/Linux/Terralistic/")
+    shutil.copytree(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic/Resources/")
+    shutil.copy(project_path + "Build/Terralistic", project_path + "Output/Linux/Terralistic/Terralistic")
 
-    if os.path.exists(project_path + "Output/Linux/Terralistic/Terralistic"):
-        os.remove(project_path + "Output/Linux/Terralistic/Terralistic")
-    shutil.move(project_path + "Build/Terralistic", project_path + "Output/Linux/Terralistic/")
-    shutil.rmtree(project_path + "Output/Linux/Terralistic/Resources/", ignore_errors=True)
-    shutil.move(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic/")
-
-    shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic/")
-    shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic/")
+    createDir("Output/Linux/Terralistic-server")
+    shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic-server/Terralistic-server")
+    shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic-server/Structures.asset")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
         os.system(project_path + "Output/Linux/Terralistic/Terralistic")
