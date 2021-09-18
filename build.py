@@ -84,7 +84,7 @@ elif sys.platform == "win32":
     if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
         print("Downloading SFML libraries")
 
-        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-64-bit.zip"
+        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip"
         sfml_file = project_path + "sfml.zip"
 
         with urllib.request.urlopen(sfml_url) as sfml_request:
@@ -136,19 +136,19 @@ elif sys.platform == "win32":
 
     os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build .\"")
 
-    if os.path.exists(project_path + "Output/Windows/Terralistic/"):
-        shutil.rmtree(project_path + "Output/Windows/Terralistic/")
-
     createDir("Output/Windows/Terralistic/")
-    shutil.move(project_path + "Build/Terralistic.exe", project_path + "Output/Windows/Terralistic/")
-    shutil.move(project_path + "Build/Terralistic-server.exe", project_path + "Output/Windows/Terralistic/")
+    shutil.copy(project_path + "Build/Terralistic.exe", project_path + "Output/Windows/Terralistic/Terralistic.exe")
+
+    createDir("Output/Windows/Terralistic-server/")
+    shutil.copy(project_path + "Build/Terralistic-server.exe", project_path + "Output/Windows/Terralistic-server/Terralistic-server.exe")
 
     for file in os.listdir(project_path + "Build/"):
         if file.endswith(".dll"):
-            shutil.move(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic/")
+            shutil.copy(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic/")
+            shutil.copy(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic-server/")
 
     shutil.move(project_path + "Build/Resources/", project_path + "Output/Windows/Terralistic/Resources/")
-    shutil.move(project_path + "Build/Structures.asset", project_path + "Output/Windows/Terralistic/")
+    shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Windows/Terralistic-server/Structures.asset")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
         os.system(project_path + "Output/Windows/Terralistic/Terralistic.exe")
