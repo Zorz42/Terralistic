@@ -9,7 +9,7 @@
 #define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
-enum class FlowDirection {NONE, LEFT, RIGHT, BOTH = LEFT | RIGHT};
+enum class FlowDirection {NONE, LEFT, RIGHT};
 
 class ServerBlocks;
 
@@ -32,11 +32,11 @@ struct ServerMapBlock {
 class ServerBlock {
     ServerMapBlock* block_data = nullptr;
     unsigned short x = 0, y = 0;
-    ServerBlocks* parent_map{};
+    ServerBlocks* blocks = nullptr;
 
     void updateNeighbors();
 public:
-    ServerBlock(unsigned short x, unsigned short y, ServerMapBlock* block_data, ServerBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    ServerBlock(unsigned short x, unsigned short y, ServerMapBlock* block_data, ServerBlocks* blocks) : x(x), y(y), block_data(block_data), blocks(blocks) {}
     ServerBlock() = default;
 
     void update();
@@ -51,7 +51,7 @@ public:
     unsigned short getBreakProgress() { return block_data->break_progress; }
     unsigned char getBreakStage() { return block_data->break_stage; }
     BlockType getBlockType() { return block_data->block_type; }
-    const BlockInfo& getUniqueBlock();
+    const BlockInfo& getBlockInfo();
     
     void setTypeDirectly(LiquidType liquid_type);
     void setType(LiquidType liquid_type);
@@ -69,7 +69,6 @@ public:
     
     void lightUpdate();
     void setLightSource(unsigned char power);
-    bool isLightSource() { return block_data->light_source; }
     void removeLightSource();
     void setLightLevel(unsigned char light_level);
     unsigned char getLightLevel() { return block_data->light_level; }
@@ -98,9 +97,6 @@ public:
     char* loadFromSerial(char* iter);
     
     std::vector<char> toData();
-    
-    void saveTo(const std::string& path);
-    void loadFrom(const std::string& path);
     
     unsigned short getHeight() const { return height; }
     unsigned short getWidth() const { return width; }

@@ -17,7 +17,7 @@ class Settings : public gfx::Scene {
     void reloadSettings();
     void updateScaleRect();
 public:
-    Settings(BackgroundRect* background) : background(background) {}
+    explicit Settings(BackgroundRect* background) : background(background) {}
 };
 
 void loadSettings();

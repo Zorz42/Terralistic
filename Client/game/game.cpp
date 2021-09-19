@@ -18,7 +18,7 @@
 static std::thread server_thread;
 
 #define LOADING_RECT_HEIGHT 20
-#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
+//#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
 #define LOADING_RECT_ELEVATION 50
 
 class WorldStartingScreen : public gfx::Scene {
@@ -96,17 +96,17 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     server_thread.join();
 }
 
-game::game(BackgroundRect* menu_back, std::string username, std::string ip_address, unsigned short port) : ip_address(std::move(ip_address)),
+game::game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port) : ip_address(std::move(ip_address)),
     port(port),
     username(username),
-    menu_back(menu_back),
-    blocks(&networking_manager, &resource_pack),
-    player_handler(&networking_manager, &blocks, &resource_pack, username),
-    items(&resource_pack, &blocks),
-    entity_manager(&blocks),
-    block_selector(&networking_manager, &blocks, &inventory_handler, &player_handler),
-    inventory_handler(&networking_manager, &resource_pack),
-    debug_menu(&player_handler, &blocks),
+    background_rect(background_rect),
+    blocks(&resource_pack),
+    players(&networking_manager, &blocks, &resource_pack, &entities, username),
+    items(&resource_pack, &blocks, &entities),
+    entities(&blocks),
+    block_selector(&networking_manager, &blocks, &inventory, &players),
+    inventory(&networking_manager, &resource_pack),
+    debug_menu(&players, &blocks),
     chat(&networking_manager)
 {}
 
@@ -121,7 +121,7 @@ void game::init() {
     resource_pack.load(active_resource_packs);
     
     if(!networking_manager.establishConnection(ip_address, port)) {
-        ChoiceScreen(menu_back, "Could not connect to the server!", {"Close"}).run();
+        ChoiceScreen(background_rect, "Could not connect to the server!", {"Close"}).run();
         gfx::returnFromScene();
     }
     
@@ -132,12 +132,12 @@ void game::init() {
     text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     text.orientation = gfx::CENTER;
     text.renderText("Getting terrain");
-    menu_back->setBackWidth(text.getWidth() + 300);
+    background_rect->setBackWidth(text.getWidth() + 300);
     
     while(!handshake_done) {
         gfx::clearWindow();
         
-        menu_back->renderBack();
+        background_rect->renderBack();
         text.render();
         
         gfx::updateWindow();
@@ -147,10 +147,10 @@ void game::init() {
     
     modules = {
         &blocks,
-        &player_handler,
+        &players,
         &items,
         &block_selector,
-        &inventory_handler,
+        &inventory,
 #ifdef DEVELOPER_MODE
         &debug_menu,
 #endif
@@ -182,8 +182,6 @@ void game::handshakeWithServer() {
     
     networking_manager.disableBlocking();
     
-    player_handler.setMainPlayerPosition(player_x, player_y);
-    
     handshake_done = true;
 }
 
@@ -192,7 +190,7 @@ void game::onEvent(ClientPacketEvent& event) {
         case PacketType::KICK: {
             std::string kick_message;
             event.packet >> kick_message;
-            ChoiceScreen(menu_back, kick_message, {"Close"}).run();
+            ChoiceScreen(background_rect, kick_message, {"Close"}).run();
             gfx::returnFromScene();
         }
         default:;
@@ -202,6 +200,7 @@ void game::onEvent(ClientPacketEvent& event) {
 void game::update() {
     networking_manager.checkForPackets();
     networking_manager.flushPackets();
+    entities.updateAllEntities(gfx::getDeltaTime());
 }
 
 void game::render() {
@@ -210,7 +209,7 @@ void game::render() {
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
     blocks.renderBackBlocks();
-    player_handler.renderPlayers();
+    players.renderPlayers();
     items.renderItems();
     blocks.renderFrontBlocks();
 }

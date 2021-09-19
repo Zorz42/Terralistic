@@ -8,11 +8,11 @@ class GuiMod : private gfx::Rect {
     std::string name;
     gfx::Image text;
 public:
-    GuiMod(const std::string& name);
-    void render();
+    explicit GuiMod(const std::string& name);
+    void renderTile();
     const std::string& getName() { return name; }
     bool hoversPoint(unsigned short x, unsigned short y);
-    bool enabled;
+    bool enabled = true;
     
     using gfx::Rect::getWidth;
     using gfx::Rect::getHeight;
@@ -29,7 +29,7 @@ public:
 class ModManager : public gfx::Scene {
     GuiMod* holding = nullptr;
     std::vector<GuiMod*> mods;
-    unsigned short hold_x, hold_y;
+    unsigned short hold_x = 0, hold_y = 0;
     short holding_x = 0, holding_y = 0, holding_vel_x = 0, holding_vel_y = 0;
     gfx::Rect placeholder;
     gfx::Sprite enabled_text, disabled_text;
@@ -41,7 +41,7 @@ class ModManager : public gfx::Scene {
     void stop() override;
     BackgroundRect* background;
 public:
-    ModManager(BackgroundRect* background) : background(background) {}
+    explicit ModManager(BackgroundRect* background) : background(background) {}
 };
 
 #endif

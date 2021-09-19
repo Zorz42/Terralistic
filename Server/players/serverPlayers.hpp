@@ -3,9 +3,12 @@
 
 #define INVENTORY_SIZE 20
 
-#include <utility>
+#define PLAYER_HEIGHT 24
+#define PLAYER_WIDTH 14
 
+#include <utility>
 #include "serverItems.hpp"
+#include "serverEntities.hpp"
 
 class ServerInventory;
 
@@ -52,16 +55,12 @@ public:
     void swapWithMouseItem(InventoryItem* item);
 };
 
-class ServerPlayer {
-    static inline unsigned int curr_id = 0;
+class ServerPlayer : public ServerEntity {
 public:
-    explicit ServerPlayer(std::string name) : id(curr_id++), name(std::move(name)) {}
-    ServerPlayer(char*& iter);
+    explicit ServerPlayer(int x, int y, std::string name) : ServerEntity(x, y), name(std::move(name)) { friction = false; }
+    explicit ServerPlayer(char*& iter);
     std::string name;
-    const unsigned short id;
     
-    bool flipped = false;
-    int x = 0, y = 0;
     unsigned short sight_width = 0, sight_height = 0;
     int sight_x = 0, sight_y = 0;
     unsigned short getSightBeginX() const;
@@ -75,6 +74,9 @@ public:
     unsigned short breaking_x = 0, breaking_y = 0;
     
     void serialize(std::vector<char>& serial) const;
+    
+    unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
+    unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
 };
 
 struct blockEvents {
@@ -84,8 +86,9 @@ struct blockEvents {
 };
 
 class Players : EventListener<ServerBlockUpdateEvent> {
-    ServerItems* items;
+    ServerEntities* entities;
     ServerBlocks* blocks;
+    ServerItems* items;
     
     std::vector<ServerPlayer*> all_players;
     std::vector<ServerPlayer*> online_players;
@@ -96,7 +99,7 @@ class Players : EventListener<ServerBlockUpdateEvent> {
     
     void leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length);
 public:
-    Players(ServerBlocks* parent_blocks, ServerItems* parent_items);
+    Players(ServerBlocks* blocks, ServerEntities* entities, ServerItems* items);
     
     void rightClickEvent(ServerBlock this_block, ServerPlayer* peer);
     
@@ -133,7 +136,7 @@ public:
 
 class RecipeAvailabilityChangeEvent : public Event<RecipeAvailabilityChangeEvent> {
 public:
-    RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
+    explicit RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
     ServerInventory* inventory;
 };
 

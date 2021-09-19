@@ -1,4 +1,3 @@
-#include <cassert>
 #include "clientBlocks.hpp"
 #include "platform_folders.h"
 
@@ -14,7 +13,6 @@ ClientBlocks::ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pa
     stateFunctions[(int)BlockType::ICE] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
 
 }
-
 void ClientBlocks::create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data) {
     width = map_width;
     height = map_height;

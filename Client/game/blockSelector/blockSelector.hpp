@@ -12,7 +12,7 @@ class BlockSelector : public gfx::GraphicalModule {
 
     void onKeyDown(gfx::Key key) override;
     
-    unsigned short prev_selected_x, prev_selected_y, selected_block_x, selected_block_y;
+    unsigned short prev_selected_x = 0, prev_selected_y = 0, selected_block_x = 0, selected_block_y = 0;
     gfx::Rect select_rect;
     
     bool is_left_button_pressed = false;

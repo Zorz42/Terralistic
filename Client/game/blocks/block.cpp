@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cassert>
 #include "clientBlocks.hpp"
-#include "print.hpp"
 #include "resourcePack.hpp"
 
 ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
@@ -14,13 +13,13 @@ void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
     block_data->liquid_id = liquid_id;
     updateState();
     if(x != 0)
-        parent_map->getBlock(x - 1, y).updateState();
-    if(x != parent_map->getWidth() - 1)
-        parent_map->getBlock(x + 1, y).updateState();
+        blocks->getBlock(x - 1, y).updateState();
+    if(x != blocks->getWidth() - 1)
+        blocks->getBlock(x + 1, y).updateState();
     if(y != 0)
-        parent_map->getBlock(x, y - 1).updateState();
-    if(y != parent_map->getHeight() - 1)
-        parent_map->getBlock(x, y + 1).updateState();
+        blocks->getBlock(x, y - 1).updateState();
+    if(y != blocks->getHeight() - 1)
+        blocks->getBlock(x, y + 1).updateState();
 }
 
 void ClientBlock::setLightLevel(unsigned char level) {
@@ -29,8 +28,8 @@ void ClientBlock::setLightLevel(unsigned char level) {
 
 void ClientBlock::updateState() {
     block_data->state = 0;
-    for(auto & stateFunction : parent_map->stateFunctions[(int)getBlockType()])
-        std::invoke(stateFunction, parent_map, x, y);
+    for(auto & stateFunction : blocks->stateFunctions[(int)getBlockType()])
+        std::invoke(stateFunction, blocks, x, y);
 }
 
 
@@ -42,19 +41,19 @@ void ClientBlock::setState(unsigned char state) {
     block_data->state = state;
 }
 
-short ClientBlocks::getViewBeginX() {
+short ClientBlocks::getViewBeginX() const {
     return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndX() {
+short ClientBlocks::getViewEndX() const {
     return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWidth());
 }
 
-short ClientBlocks::getViewBeginY() {
+short ClientBlocks::getViewBeginY() const {
     return std::max(view_y / (BLOCK_WIDTH * 2) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndY() {
+short ClientBlocks::getViewEndY() const {
     return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getHeight());
 }
 

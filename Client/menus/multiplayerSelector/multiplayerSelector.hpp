@@ -15,7 +15,7 @@ class MultiplayerSelector : public gfx::Scene {
     bool can_connect = true;
     BackgroundRect* menu_back;
 public:
-    MultiplayerSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
+    explicit MultiplayerSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
 };
 
 #endif

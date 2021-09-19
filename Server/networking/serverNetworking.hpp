@@ -20,20 +20,21 @@ public:
     void flushPacket();
 };
 
-class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerItemMovementEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerLightChangeEvent> {
+class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerEntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerLightChangeEvent> {
     std::vector<Connection> connections;
     sf::TcpListener listener;
     
     ServerBlocks* blocks;
-    ServerItems* items;
     Players* players;
+    ServerItems* items;
+    ServerEntities* entities;
     
     void onEvent(ServerBlockChangeEvent& event) override;
     void onEvent(ServerBlockBreakStageChangeEvent& event) override;
     void onEvent(ServerLiquidChangeEvent& event) override;
     void onEvent(ServerItemCreationEvent& event) override;
     void onEvent(ServerItemDeletionEvent& event) override;
-    void onEvent(ServerItemMovementEvent& event) override;
+    void onEvent(ServerEntityVelocityChangeEvent& event) override;
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
     void onEvent(RecipeAvailabilityChangeEvent& event) override;
@@ -41,9 +42,9 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     
     void onPacket(sf::Packet& packet, PacketType packet_type, Connection& conn);
     
-    void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
+    static void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
-    ServerNetworkingManager(ServerBlocks* blocks, ServerItems* items, Players* players) : blocks(blocks), items(items), players(players) {}
+    ServerNetworkingManager(ServerBlocks* blocks, Players* players, ServerItems* items, ServerEntities* entities) : blocks(blocks), players(players), items(items), entities(entities) {}
     
     void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
     
@@ -53,6 +54,7 @@ public:
     void checkForNewConnections();
     void getPacketsFromPlayers();
     void flushPackets();
+    void syncEntityPositions();
     
     bool accept_itself = false;
 };

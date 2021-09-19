@@ -24,10 +24,10 @@ public:
 class ClientBlock {
     ClientMapBlock* block_data;
     unsigned short x, y;
-    ClientBlocks* parent_map;
+    ClientBlocks* blocks;
 
 public:
-    ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* parent_map) : x(x), y(y), block_data(block_data), parent_map(parent_map) {}
+    ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* blocks) : x(x), y(y), block_data(block_data), blocks(blocks) {}
     
     void updateState();
 
@@ -53,17 +53,16 @@ public:
 class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
     unsigned short width{}, height{};
     ClientMapBlock *blocks = nullptr;
-
-    NetworkingManager* networking_manager;
     
     void onEvent(ClientPacketEvent& event) override;
     
     ResourcePack* resource_pack;
     
-    short getViewBeginX();
-    short getViewEndX();
-    short getViewBeginY();
-    short getViewEndY();
+
+    short getViewBeginX() const;
+    short getViewEndX() const;
+    short getViewBeginY() const;
+    short getViewEndY() const;
 
     bool updateOrientationSide(unsigned short x, unsigned short y, char side_x, char side_y);
     void updateOrientationDown(unsigned short x, unsigned short y);
@@ -71,8 +70,13 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     void updateOrientationLeft(unsigned short x, unsigned short y);
     void updateOrientationRight(unsigned short x, unsigned short y);
 
+    short getViewBeginX() const;
+    short getViewEndX() const;
+    short getViewBeginY() const;
+    short getViewEndY() const;
+
 public:
-    ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack);
+    explicit ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
     void create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
     std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)> stateFunctions[(int)BlockType::NUM_BLOCKS];
     int view_x{}, view_y{};

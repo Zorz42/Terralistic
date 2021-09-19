@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <chrono>
 #include <fstream>
+#include <utility>
 
 #include "print.hpp"
 #include "serverPlayers.hpp"
@@ -22,13 +23,13 @@ void onInterrupt(int signum) {
 
 Server::Server(std::string resource_path, std::string world_path) :
     blocks(),
-    items(&blocks),
-    players(&blocks, &items),
-    networking_manager(&blocks, &items, &players),
+    items(&entities),
+    players(&blocks, &entities, &items),
+    networking_manager(&blocks, &players, &items, &entities),
     generator(&blocks, std::move(resource_path)),
-    world_path(world_path),
+    world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
-    entity_manager(&blocks)
+    entities(&blocks)
 {}
 
 void Server::loadWorld() {
@@ -43,7 +44,7 @@ void Server::loadWorld() {
     char* iter = &world_file_serial[0];
     iter = blocks.loadFromSerial(iter);
     
-    while(iter < &world_file_serial[0] + world_file_serial.size() + 7)
+    while(iter < &world_file_serial[0] + world_file_serial.size())
         iter = players.addPlayerFromSerial(iter);
 }
 
@@ -85,7 +86,7 @@ void Server::start(unsigned short port) {
 
     state = ServerState::RUNNING;
     print::info("Server has started!");
-    unsigned int a, b = gfx::getTicks();
+    unsigned int a, b = gfx::getTicks(), seconds = 0;
     unsigned short tick_length;
     
     int ms_per_tick = 1000 / TPS_LIMIT;
@@ -99,12 +100,15 @@ void Server::start(unsigned short port) {
 
         networking_manager.checkForNewConnections();
         networking_manager.getPacketsFromPlayers();
-        entity_manager.updateAllEntities();
-        items.updateItems(tick_length);
+        entities.updateAllEntities(tick_length);
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
         players.updateBlocksInVisibleAreas();
         networking_manager.flushPackets();
+        if(gfx::getTicks() / 1000 > seconds) {
+            seconds = gfx::getTicks() / 1000;
+            networking_manager.syncEntityPositions();
+        }
     }
     
     state = ServerState::STOPPING;

@@ -43,7 +43,7 @@ namespace gfx {
     class Color {
     public:
         Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255) : r(r), g(g), b(b), a(a) {}\
-        operator sf::Color() const { return {r, g, b, a}; }
+        explicit operator sf::Color() const { return {r, g, b, a}; }
         unsigned char r, g, b, a;
     };
 
@@ -58,7 +58,7 @@ namespace gfx {
 
     class _CenteredObject {
     public:
-        _CenteredObject(short x = 0, short y = 0, ObjectType orientation = TOP_LEFT);
+        explicit _CenteredObject(short x = 0, short y = 0, ObjectType orientation = TOP_LEFT);
         ObjectType orientation;
         RectShape getTranslatedRect() const;
         virtual unsigned short getWidth() const { return 0; };
@@ -70,10 +70,7 @@ namespace gfx {
     };
 
     class Rect : public _CenteredObject {
-        sf::RenderTexture* shadow_texture = nullptr;
         sf::RenderTexture* blur_texture = nullptr;
-        unsigned short prev_w, prev_h;
-        unsigned char prev_shadow_intensity = 0;
         using _CenteredObject::x;
         using _CenteredObject::y;
         unsigned short width, height;
@@ -82,7 +79,7 @@ namespace gfx {
         unsigned short target_width = 0, target_height = 0;
         
         bool first_time = true;
-        
+
         void updateBlurTextureSize();
         
     public:
@@ -109,7 +106,6 @@ namespace gfx {
     
     class Image {
     protected:
-        Image& operator=(const Image&);
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;
         Color color{255, 255, 255};
@@ -169,7 +165,7 @@ namespace gfx {
         bool active = false, ignore_one_input = false;
         char (*textProcessing)(char c, int length) = nullptr;
         unsigned short width = 200;
-        Color border_color = GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, text_color = GFX_DEFAULT_TEXT_COLOR;
+        Color text_color = GFX_DEFAULT_TEXT_COLOR;
         void setBlurIntensity(float blur_intensity);
         void setBorderColor(Color color);
     };
@@ -186,7 +182,7 @@ namespace gfx {
         virtual void stop() {}
         virtual void onKeyDown(Key key_) {}
         
-        bool getKeyState(Key key_);
+        bool getKeyState(Key key_) const;
 
         std::vector<TextInput*> text_inputs;
         bool disable_events = false;

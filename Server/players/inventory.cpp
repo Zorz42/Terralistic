@@ -139,10 +139,7 @@ void InventoryItem::serialize(std::vector<char>& serial) const {
 }
 
 bool ServerInventory::hasIngredientsForRecipe(const Recipe& recipe) {
-    for(const ItemStack& ingredient : recipe.ingredients)
-       if(item_counts[(int)ingredient.type] < ingredient.stack)
-           return false;
-    return true;
+    return std::all_of(recipe.ingredients.begin(), recipe.ingredients.end(), [this](const ItemStack& ingredient){ return item_counts[(int)ingredient.type] >= ingredient.stack; });
 }
 
 const std::vector<const Recipe*>& ServerInventory::getAvailableRecipes() {

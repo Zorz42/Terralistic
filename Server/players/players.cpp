@@ -16,7 +16,7 @@ static bool isBlockLeaves(ServerBlock block) {
     return block.refersToABlock() && block.getBlockType() == BlockType::LEAVES;
 }
 
-Players::Players(ServerBlocks* parent_blocks, ServerItems* parent_items) : blocks(parent_blocks), items(parent_items) {
+Players::Players(ServerBlocks* blocks, ServerEntities* entities, ServerItems* items) : blocks(blocks), entities(entities), items(items) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = [](ServerBlocks* server_blocks, ServerBlock* this_block) {
         ServerBlock upper, lower, left, right;
         if(this_block->getY() != 0)
@@ -72,24 +72,20 @@ ServerPlayer* Players::addPlayer(const std::string& name) {
     ServerPlayer* player = getPlayerByName(name);
     
     if(!player) {
-        player = new ServerPlayer(name);
+        player = new ServerPlayer(blocks->getSpawnX(), blocks->getSpawnY() - BLOCK_WIDTH * 4, name);
         all_players.emplace_back(player);
-        player->x = blocks->getSpawnX();
-        player->y = blocks->getSpawnY() - BLOCK_WIDTH * 4;
-        player->sight_x = player->x;
-        player->sight_y = player->y;
+        player->sight_x = player->getX();
+        player->sight_y = player->getY();
     }
     
     online_players.push_back(player);
+    entities->registerEntity(player);
     return player;
 }
 
 void Players::removePlayer(ServerPlayer* player) {
-    for(int i = 0; i < online_players.size(); i++)
-        if(player == online_players[i]) {
-            online_players.erase(online_players.begin() + i);
-            break;
-        }
+    online_players.erase(std::find(online_players.begin(), online_players.end(), player));
+    entities->removeEntity(player);
 }
 
 void Players::updatePlayersBreaking(unsigned short tick_length) {
@@ -99,11 +95,13 @@ void Players::updatePlayersBreaking(unsigned short tick_length) {
 }
 
 void Players::lookForItemsThatCanBePickedUp() {
-    for(int i = 0; i < items->getItems().size(); i++)
+    for(ServerItem* item : items->getItems())
         for(ServerPlayer* player : online_players)
-            if(abs(items->getItems()[i].getX() / 100 + BLOCK_WIDTH  - player->x - 14) < 50 && abs(items->getItems()[i].getY() / 100 + BLOCK_WIDTH - player->y - 25) < 50)
-                if(player->inventory.addItem(items->getItems()[i].getType(), 1) != -1)
-                    items->removeItem(items->getItems()[i]);
+            if(abs(item->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(item->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
+               player->inventory.addItem(item->getType(), 1) != -1
+               ) {
+                items->removeItem(item);
+            }
 }
 
 void Players::updateBlocksInVisibleAreas() {
@@ -140,9 +138,9 @@ void Players::updateBlocksInVisibleAreas() {
 void Players::leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length) {
     if(custom_block_events[(int)this_block.getBlockType()].onLeftClick)
         custom_block_events[(int)this_block.getBlockType()].onLeftClick(&this_block, peer);
-    else if(this_block.getUniqueBlock().break_time != UNBREAKABLE) {
+    else if(this_block.getBlockInfo().break_time != UNBREAKABLE) {
         this_block.setBreakProgress(this_block.getBreakProgress() + tick_length);
-        if(this_block.getBreakProgress() >= this_block.getUniqueBlock().break_time)
+        if(this_block.getBreakProgress() >= this_block.getBlockInfo().break_time)
             this_block.breakBlock();
     }
 }
@@ -153,36 +151,34 @@ void Players::rightClickEvent(ServerBlock this_block, ServerPlayer* peer) {
 }
 
 char* Players::addPlayerFromSerial(char* iter) {
-    all_players.push_back(new ServerPlayer(iter));
+    all_players.emplace_back(new ServerPlayer(iter));
     return iter;
 }
 
-ServerPlayer::ServerPlayer(char*& iter) : id(curr_id++) {
+ServerPlayer::ServerPlayer(char*& iter) : ServerEntity(*(int*)iter, *(int*)(iter + 4)) {
+    friction = false;
+    iter += 8;
+    
     for(InventoryItem& i : inventory.inventory_arr)
         iter = i.loadFromSerial(iter);
     
-    x = *(int*)iter;
-    iter += 4;
-    y = *(int*)iter;
-    iter += 4;
-    
-    do
+    while(*iter)
         name.push_back(*iter++);
-    while(*iter);
+    iter++;
     
-    sight_x = x;
-    sight_y = y;
+    sight_x = getX();
+    sight_y = getY();
 }
 
 void ServerPlayer::serialize(std::vector<char>& serial) const {
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    *(int*)&serial[serial.size() - 4] = getX();
+    
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    *(int*)&serial[serial.size() - 4] = getY();
+    
     for(const InventoryItem& i : inventory.inventory_arr)
         i.serialize(serial);
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    *(int*)&serial[serial.size() - 4] = x;
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    *(int*)&serial[serial.size() - 4] = y;
     
     serial.insert(serial.end(), name.begin(), name.end() + 1);
 }

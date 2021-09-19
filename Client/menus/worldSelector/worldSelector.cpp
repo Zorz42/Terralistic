@@ -8,7 +8,6 @@
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
-#define LINE_THICKNESS 2
 
 void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short mouse_y) {
     button.y = short(button_y - position);
@@ -92,20 +91,20 @@ void WorldSelector::onKeyDown(gfx::Key key) {
             refresh();
         }
         else
-            for(int i = 0; i < worlds.size(); i++) {
-                if(worlds[i].button.isHovered(mouse_x, mouse_y)) {
-                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i].name + ".world", menu_back, false);
+            for(auto & world : worlds) {
+                if(world.button.isHovered(mouse_x, mouse_y)) {
+                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world", menu_back, false);
                     refresh();
                 }
-                else if(worlds[i].delete_button.isHovered(mouse_x, mouse_y)) {
+                else if(world.delete_button.isHovered(mouse_x, mouse_y)) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
                     else
-                        ChoiceScreen(menu_back, std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result).run();
+                        ChoiceScreen(menu_back, std::string("Do you want to delete ") + world.name + "?", {"Yes", "No"}, &result).run();
 
                     if(result == "Yes") {
-                        std::filesystem::remove(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i].name + ".world");
+                        std::filesystem::remove(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world");
                         refresh();
                     }
                     break;

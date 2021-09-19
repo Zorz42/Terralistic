@@ -1,4 +1,3 @@
-#include <cmath>
 #include "pauseScreen.hpp"
 #include "settings.hpp"
 
@@ -83,7 +82,7 @@ void PauseScreen::exitToMenu() {
     gfx::returnFromScene();
 }
 
-bool PauseScreen::hasExitedToMenu() {
+bool PauseScreen::hasExitedToMenu() const {
     return exited_to_menu;
 }
 
