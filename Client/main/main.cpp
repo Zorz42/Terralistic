@@ -16,10 +16,12 @@ int main(int argc, char **argv) {
         return 0;
     }
     
+#ifndef DEVELOPER_MODE
     if(checkForUpdates(argv[0])) {
         system(argv[0]);
         return 0;
     }
+#endif
     
     gfx::init(1130, 700);
     gfx::resource_path = getResourcePath(argv[0]);
