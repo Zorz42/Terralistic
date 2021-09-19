@@ -1,7 +1,10 @@
 #include <SFML/Network.hpp>
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 #include "updater.hpp"
 #include "versions.hpp"
+#include "platform_folders.h"
 
 bool checkForUpdatesMacOS(std::string exec_path);
 bool checkForUpdatesWindows(std::string exec_path);
@@ -41,9 +44,16 @@ bool checkForUpdatesMacOS(std::string exec_path) {
         exec_path.pop_back();
     
     if(!buffer.empty()) {
-        std::system(((std::string)"cd " + exec_path + "../.. && echo " + buffer + " | patch -t -p3").c_str());
+        std::ofstream patch_file(sago::getDataHome() + "/Terralistic/update.patch", std::ios::binary);
+        patch_file.write(&buffer[0], buffer.size());
+    }
+    
+    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
+        std::system(((std::string)"cd " + exec_path + "../.. && patch -t -p3 < " + sago::getDataHome() + "/Terralistic/update.patch").c_str());
+        std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
         return true;
     }
+    
     return false;
 }
 
