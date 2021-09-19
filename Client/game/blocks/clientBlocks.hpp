@@ -70,13 +70,8 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     void updateOrientationLeft(unsigned short x, unsigned short y);
     void updateOrientationRight(unsigned short x, unsigned short y);
 
-    short getViewBeginX() const;
-    short getViewEndX() const;
-    short getViewBeginY() const;
-    short getViewEndY() const;
-
 public:
-    explicit ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
+    explicit ClientBlocks(ResourcePack* resource_pack);
     void create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
     std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)> stateFunctions[(int)BlockType::NUM_BLOCKS];
     int view_x{}, view_y{};

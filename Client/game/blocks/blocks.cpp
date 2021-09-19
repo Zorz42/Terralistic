@@ -1,7 +1,7 @@
 #include "clientBlocks.hpp"
 #include "platform_folders.h"
 
-ClientBlocks::ClientBlocks(NetworkingManager* manager, ResourcePack* resource_pack) : networking_manager(manager), resource_pack(resource_pack) {
+ClientBlocks::ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource_pack) {
     stateFunctions[(int)BlockType::DIRT] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
     stateFunctions[(int)BlockType::STONE_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
     stateFunctions[(int)BlockType::GRASS_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
