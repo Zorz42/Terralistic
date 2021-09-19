@@ -50,7 +50,7 @@ bool checkForUpdatesMacOS(std::string exec_path) {
     
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
         std::system(((std::string)"cd " + exec_path + "../.. && patch -t -p3 < " + sago::getDataHome() + "/Terralistic/update.patch > " + sago::getDataHome() + "/Terralistic/update.log").c_str());
-        std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
+        //std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
         return true;
     }
     
