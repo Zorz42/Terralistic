@@ -11,43 +11,34 @@ ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
 void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
     block_data->block_id = block_id;
     block_data->liquid_id = liquid_id;
-    updateOrientation();
+    updateState();
     if(x != 0)
-        blocks->getBlock(x - 1, y).updateOrientation();
+        blocks->getBlock(x - 1, y).updateState();
     if(x != blocks->getWidth() - 1)
-        blocks->getBlock(x + 1, y).updateOrientation();
+        blocks->getBlock(x + 1, y).updateState();
     if(y != 0)
-        blocks->getBlock(x, y - 1).updateOrientation();
+        blocks->getBlock(x, y - 1).updateState();
     if(y != blocks->getHeight() - 1)
-        blocks->getBlock(x, y + 1).updateOrientation();
+        blocks->getBlock(x, y + 1).updateState();
 }
 
 void ClientBlock::setLightLevel(unsigned char level) {
     block_data->light_level = level;
 }
 
-void ClientBlock::updateOrientation() {
-    if(blocks->getResourcePack()->getTextureRectangle(getBlockType()).h != 8) {
-        block_data->orientation = 0;
-        char x_[] = {0, 1, 0, -1};
-        char y_[] = {-1, 0, 1, 0};
-        unsigned char c = 1;
-        for(int i = 0; i < 4; i++) {
-            if(
-                    x + x_[i] >= blocks->getWidth() || x + x_[i] < 0 || y + y_[i] >= blocks->getHeight() || y + y_[i] < 0 ||
-                    blocks->getBlock(x + x_[i], y + y_[i]).getBlockType() == getBlockType() ||
-                    std::count(getBlockInfo().connects_to.begin(), getBlockInfo().connects_to.end(), blocks->getBlock(x + x_[i], y + y_[i]).getBlockType())
-                )
-                block_data->orientation += c;
-            c += c;
-        }
-    }
-    else
-        block_data->orientation = 0;
+void ClientBlock::updateState() {
+    block_data->state = 0;
+    for(auto & stateFunction : blocks->stateFunctions[(int)getBlockType()])
+        std::invoke(stateFunction, blocks, x, y);
 }
+
 
 void ClientBlock::setBreakStage(unsigned char stage) {
     block_data->break_stage = stage;
+}
+
+void ClientBlock::setState(unsigned char state) {
+    block_data->state = state;
 }
 
 short ClientBlocks::getViewBeginX() const {
@@ -72,12 +63,12 @@ void ClientBlocks::renderBackBlocks() {
     int block_index = 0;
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
-            if(getBlock(x, y).getOrientation() == 16)
-                getBlock(x, y).updateOrientation();
+            if(getBlock(x, y).getState() == 16)
+                getBlock(x, y).updateState();
             
             if(getBlock(x, y).getBlockType() != BlockType::AIR) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
-                float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).y + BLOCK_WIDTH * getBlock(x, y).getOrientation();
+                float texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).y + BLOCK_WIDTH * getBlock(x, y).getState();
                 float texture_x = (getBlock(x, y).getVariation()) % (resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).w / BLOCK_WIDTH) * BLOCK_WIDTH;
                 
                 block_vertex_array[block_index].texCoords = {texture_x, texture_y};

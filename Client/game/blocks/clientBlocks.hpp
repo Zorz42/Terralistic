@@ -18,7 +18,7 @@ public:
 
     BlockType block_id:8;
     LiquidType liquid_id:8;
-    unsigned char light_level, break_stage = 0, orientation = 16, liquid_level, variation = rand();
+    unsigned char light_level, break_stage = 0, liquid_level, variation = rand(), state = 16;
 };
 
 class ClientBlock {
@@ -28,9 +28,11 @@ class ClientBlock {
 
 public:
     ClientBlock(unsigned short x, unsigned short y, ClientMapBlock* block_data, ClientBlocks* blocks) : x(x), y(y), block_data(block_data), blocks(blocks) {}
+    
+    void updateState();
 
-    void updateOrientation();
-    unsigned char getOrientation() { return block_data->orientation; }
+    unsigned char getState() {return block_data->state;}
+    void setState(unsigned char state);
     
     void setType(BlockType block_id, LiquidType liquid_id);
     const BlockInfo& getBlockInfo() { return ::getBlockInfo(getBlockType()); }
@@ -56,15 +58,22 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     
     ResourcePack* resource_pack;
     
+
     short getViewBeginX() const;
     short getViewEndX() const;
     short getViewBeginY() const;
     short getViewEndY() const;
-    
+
+    bool updateOrientationSide(unsigned short x, unsigned short y, char side_x, char side_y);
+    void updateOrientationDown(unsigned short x, unsigned short y);
+    void updateOrientationUp(unsigned short x, unsigned short y);
+    void updateOrientationLeft(unsigned short x, unsigned short y);
+    void updateOrientationRight(unsigned short x, unsigned short y);
+
 public:
-    explicit ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
+    explicit ClientBlocks(ResourcePack* resource_pack);
     void create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
-    
+    std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)> stateFunctions[(int)BlockType::NUM_BLOCKS];
     int view_x{}, view_y{};
 
     ResourcePack* getResourcePack() { return resource_pack; }

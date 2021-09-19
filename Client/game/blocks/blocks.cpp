@@ -1,6 +1,18 @@
 #include "clientBlocks.hpp"
 #include "platform_folders.h"
 
+ClientBlocks::ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource_pack) {
+    stateFunctions[(int)BlockType::DIRT] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::STONE_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::GRASS_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::WOOD] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::LEAVES] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::SAND] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::SNOWY_GRASS_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::SNOW_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+    stateFunctions[(int)BlockType::ICE] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
+
+}
 void ClientBlocks::create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data) {
     width = map_width;
     height = map_height;
@@ -15,7 +27,7 @@ void ClientBlocks::create(unsigned short map_width, unsigned short map_height, c
             
             *map_iter++ = ClientMapBlock((BlockType)(data & 0xff), (LiquidType)(data >> 8 & 0xff), data >> 16 & 0xff, data >> 24 & 0xff);
         }
-    
+
     view_x = map_width * BLOCK_WIDTH;
 }
 
@@ -61,4 +73,39 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 
 ClientBlocks::~ClientBlocks() {
     delete[] blocks;
+}
+
+void ClientBlocks::updateOrientationDown(unsigned short x, unsigned short y) {
+    getBlock(x, y).setState(getBlock(x, y).getState() * 2);
+    if(updateOrientationSide(x, y, 0, 1))
+        getBlock(x, y).setState(getBlock(x, y).getState() + 1);
+}
+
+void ClientBlocks::updateOrientationUp(unsigned short x, unsigned short y) {
+    getBlock(x, y).setState(getBlock(x, y).getState() * 2);
+    if(updateOrientationSide(x, y, 0, -1))
+        getBlock(x, y).setState(getBlock(x, y).getState() + 1);
+}
+
+void ClientBlocks::updateOrientationLeft(unsigned short x, unsigned short y) {
+    getBlock(x, y).setState(getBlock(x, y).getState() * 2);
+    if(updateOrientationSide(x, y, -1, 0))
+        getBlock(x, y).setState(getBlock(x, y).getState() + 1);
+}
+
+void ClientBlocks::updateOrientationRight(unsigned short x, unsigned short y) {
+    getBlock(x, y).setState(getBlock(x, y).getState() * 2);
+    if(updateOrientationSide(x, y, 1, 0))
+        getBlock(x, y).setState(getBlock(x, y).getState() + 1);
+}
+
+bool ClientBlocks::updateOrientationSide(unsigned short x, unsigned short y, char side_x, char side_y) {
+    if(
+            x + side_x >= width || x + side_x < 0 || y + side_y >= height || y + side_y < 0 ||
+            getBlock(x + side_x, y + side_y).getBlockType() == getBlock(x, y).getBlockType() ||
+            std::count(getBlock(x, y).getBlockInfo().connects_to.begin(), getBlock(x, y).getBlockInfo().connects_to.end(), getBlock(x + side_x, y + side_y).getBlockType())
+            )
+        return true;
+    else
+        return false;
 }
