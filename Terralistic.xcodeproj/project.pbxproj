@@ -284,7 +284,6 @@
 		16BF6976269D853A00CFE175 /* vorbisfile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbisfile.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/vorbisfile.framework"; sourceTree = "<group>"; };
 		3605DAC126E8FC0C00A5F641 /* entityType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entityType.hpp; sourceTree = "<group>"; };
 		361DD1EB26F7478900129191 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		361DD1EC26F7478900129191 /* Terralistic copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Terralistic copy-Info.plist"; path = "/Users/jakob/Terralistic/Terralistic copy-Info.plist"; sourceTree = "<absolute>"; };
 		3657217626D0710E005AB3CC /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		3657217726D0710F005AB3CC /* pixel_font.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = pixel_font.ttf; sourceTree = "<group>"; };
 		3657217826D0710F005AB3CC /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
@@ -583,7 +582,6 @@
 				167B38752642F73900E3C718 /* Server */,
 				1661654A25EA2CC8002A3815 /* Frameworks */,
 				1661662B25EA3873002A3815 /* Products */,
-				361DD1EC26F7478900129191 /* Terralistic copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
