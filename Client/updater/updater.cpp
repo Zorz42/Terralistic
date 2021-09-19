@@ -41,7 +41,7 @@ bool checkForUpdatesMacOS(std::string exec_path) {
         exec_path.pop_back();
     
     if(!buffer.empty()) {
-        std::system(((std::string)"cd " + exec_path + "../.. && patch -t -N -p3").c_str());
+        std::system(((std::string)"cd " + exec_path + "../.. && echo " + buffer + " | patch -t -p3").c_str());
         return true;
     }
     return false;
