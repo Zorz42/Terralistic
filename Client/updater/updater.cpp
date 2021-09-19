@@ -44,12 +44,12 @@ bool checkForUpdatesMacOS(std::string exec_path) {
         exec_path.pop_back();
     
     if(!buffer.empty()) {
-        std::ofstream patch_file(sago::getDataHome() + "/Terralistic/update.patch", std::ios::binary);
+        std::ofstream patch_file(sago::getDataHome() + "/Terralistic/update.patch", std::ios::binary | std::ios::trunc);
         patch_file.write(&buffer[0], buffer.size());
     }
     
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
-        std::system(((std::string)"cd " + exec_path + "../.. && patch -t -p3 < " + sago::getDataHome() + "/Terralistic/update.patch").c_str());
+        std::system(((std::string)"cd " + exec_path + "../.. && patch -t -p3 < " + sago::getDataHome() + "/Terralistic/update.patch > " + sago::getDataHome() + "/Terralistic/update.log").c_str());
         std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
         return true;
     }
