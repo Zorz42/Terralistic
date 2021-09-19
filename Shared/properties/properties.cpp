@@ -36,7 +36,7 @@ unsigned short getRecipeIndex(const Recipe* recipe) {
 void initProperties() {
     // unique_blocks
     block_infos[(int)BlockType::AIR] =
-    BlockInfo("air",               /*ghost*/true,  /*transparent*/true,  /*only_on_floor*/false, /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/ {                                                               });
+    BlockInfo("air",               /*ghost*/true,  /*transparent*/true,  /*only_on_floor*/false, /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/ {                                                              });
     block_infos[(int)BlockType::DIRT] =
     BlockInfo("dirt",              /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/1000,        /*drops*/ItemType::DIRT,        /*connects_to*/{BlockType::GRASS_BLOCK, BlockType::SNOWY_GRASS_BLOCK           });
     block_infos[(int)BlockType::STONE_BLOCK] =

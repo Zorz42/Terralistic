@@ -63,4 +63,5 @@ const LiquidInfo& getLiquidInfo(LiquidType type);
 const std::vector<Recipe>& getRecipes();
 unsigned short getRecipeIndex(const Recipe* recipe);
 
+
 #endif
