@@ -54,10 +54,11 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             packet >> message;
             std::string chat_format = (conn.player->name == "_" ? "Protagonist" : conn.player->name) + ": " + message;
             print::info(chat_format);
-            
-            sf::Packet chat_packet;
-            chat_packet << PacketType::CHAT << chat_format;
-            sendToEveryone(chat_packet);
+            if(message.at(0) != '/') {
+                sf::Packet chat_packet;
+                chat_packet << PacketType::CHAT << chat_format;
+                sendToEveryone(chat_packet);
+            }
             break;
         }
             

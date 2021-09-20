@@ -85,7 +85,7 @@ void Chat::onEvent(ClientPacketEvent &event) {
             ChatLine* new_line = new ChatLine;
             event.packet >> new_line->text;
             new_line->time_created = gfx::getTicks();
-            chat_lines.push_back(new_line);
+                chat_lines.push_back(new_line);
             break;
         }
         default:;
