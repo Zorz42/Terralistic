@@ -62,7 +62,7 @@ bool checkForUpdatesMacOS(std::string exec_path) {
 bool checkForUpdatesWindows(std::string exec_path) {
     getPatchFromServer((std::string)"Linux-" + CURR_VERSION_STR);
 
-    while(exec_path.back() != '/')
+    while(exec_path.back() != '\\' && exec_path.back() != '/')
         exec_path.pop_back();
 
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
