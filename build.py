@@ -124,6 +124,18 @@ elif sys.platform == "win32":
             sfml_zip.extractall(project_path + "Dependencies/zlib/")
 
         os.remove(zlib_file)
+        
+        zlib_url = "https://netix.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip"
+        zlib_file = project_path + "zlib.zip"
+
+        with urllib.request.urlopen(zlib_url) as sfml_request:
+            with open(zlib_file, 'wb') as sfml_download:
+                sfml_download.write(sfml_request.read())
+
+        with zipfile.ZipFile(zlib_file, "r") as sfml_zip:
+            sfml_zip.extractall(project_path + "Dependencies/zlib/")
+
+        os.remove(zlib_file)
 
         lines = []
         with open(project_path + "Dependencies/zlib/include/zconf.h", "r") as header:
