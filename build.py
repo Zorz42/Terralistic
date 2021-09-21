@@ -119,23 +119,6 @@ elif sys.platform == "win32":
         with open(project_path + "Dependencies/zlib/include/zconf.h", "w") as header:
             header.writelines(lines)
 
-    if not os.path.exists(project_path + "Dependencies/patch/"):
-        print("Downloading patch library")
-
-        os.mkdir(project_path + "Dependencies/patch/")
-
-        patch_url = "https://netix.dl.sourceforge.net/project/gnuwin32/patch/2.5.9-7/patch-2.5.9-7-bin.zip"
-        patch_file = project_path + "patch.zip"
-
-        with urllib.request.urlopen(patch_url) as patch_request:
-            with open(patch_file, 'wb') as patch_download:
-                patch_download.write(patch_request.read())
-
-        with zipfile.ZipFile(patch_file, "r") as patch_zip:
-            patch_zip.extractall(f"{project_path}Dependencies/patch/")
-
-        os.remove(patch_file)
-
     createDir("Build/")
 
     os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build .\"")
@@ -151,7 +134,8 @@ elif sys.platform == "win32":
             shutil.copy(f"{project_path}Build/{file}", f"{project_path}Output/Windows/Terralistic/")
             shutil.copy(f"{project_path}Build/{file}", f"{project_path}Output/Windows/Terralistic-server/")
 
-    shutil.copy("Dependencies/patch/bin/patch.exe", "Output/Windows/Terralistic/patch.exe")
+    shutil.copy("C:/Program Files/Git/usr/bin/patch.exe", f"{project_path}Output/Windows/Terralistic/patch.exe")
+    shutil.copy("C:/Program Files/Git/usr/bin/msys-2.0.dll", f"{project_path}Output/Windows/Terralistic/msys-2.0.dll")
 
     if os.path.exists(f"{project_path}Output/Windows/Terralistic/Resources/"):
         shutil.rmtree(f"{project_path}Output/Windows/Terralistic/Resources/")
