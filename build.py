@@ -113,7 +113,7 @@ elif sys.platform == "win32":
 
         os.remove(zlib_file)
         
-        zlib_url = "hhttps://netix.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip"
+        zlib_url = "https://netix.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip"
         zlib_file = project_path + "zlib.zip"
 
         with urllib.request.urlopen(zlib_url) as zlib_request:
