@@ -66,7 +66,7 @@ bool checkForUpdatesWindows(std::string exec_path) {
         exec_path.pop_back();
 
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
-        std::system(((std::string)"cd \"" + exec_path + "\" && patch -t -p3 < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
+        std::system(((std::string)"cd \"" + exec_path + "\" && patch -t -p3 --binary < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
         std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
         return true;
     }
