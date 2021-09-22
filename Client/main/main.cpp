@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     
 #ifndef DEVELOPER_MODE
     if(checkForUpdates(argv[0])) {
-        system(((std::string)argv[0] + "&").c_str());
+        system(((std::string)"\"" + argv[0] + "\"&").c_str());
         return 0;
     }
 #endif
