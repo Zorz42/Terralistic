@@ -2,17 +2,11 @@
 #include "serverBlocks.hpp"
 
 ServerBlock ServerBlocks::getBlock(unsigned short x, unsigned short y) {
-    assert(y >= 0 && y < height && x >= 0 && x < width);
-    return {x, y, &blocks[y * width + x], this};
+    return {x, y, getMapBlock(x, y), this};
 }
 
 const BlockInfo& ServerBlock::getBlockInfo() {
     return ::getBlockInfo(block_data->block_type);
-}
-
-void ServerBlock::setTypeDirectly(BlockType block_type) {
-    assert((int)block_type >= 0 && block_type < BlockType::NUM_BLOCKS);
-    block_data->block_type = block_type;
 }
 
 void ServerBlock::setType(BlockType block_type) {
@@ -24,7 +18,8 @@ void ServerBlock::setType(BlockType block_type) {
             return;
         
         blocks->removeNaturalLight(x);
-        setTypeDirectly(block_type);
+        assert((int)block_type >= 0 && block_type < BlockType::NUM_BLOCKS);
+        block_data->block_type = block_type;
         blocks->setNaturalLight(x);
         
         update();
@@ -79,4 +74,33 @@ void ServerBlock::breakBlock() {
     
     setType(BlockType::AIR);
     setBreakProgress(0);
+}
+
+ServerMapBlock* ServerBlocks::getMapBlock(unsigned short x, unsigned short y) {
+    assert(y >= 0 && y < height && x >= 0 && x < width);
+    return &blocks[y * width + x];
+}
+
+BlockType ServerBlocks::getTypeDirectly(unsigned short x, unsigned short y) {
+    return getMapBlock(x, y)->block_type;
+}
+
+unsigned char ServerBlocks::getLiquidLevelDirectly(unsigned short x, unsigned short y) {
+    return getMapBlock(x, y)->liquid_level;
+}
+
+LiquidType ServerBlocks::getLiquidTypeDirectly(unsigned short x, unsigned short y) {
+    return getMapBlock(x, y)->liquid_type;
+}
+
+void ServerBlocks::setTypeDirectly(unsigned short x, unsigned short y, BlockType type) {
+    getMapBlock(x, y)->block_type = type;
+}
+
+void ServerBlocks::setTypeDirectly(unsigned short x, unsigned short y, LiquidType type) {
+    getMapBlock(x, y)->liquid_type = type;
+}
+
+void ServerBlocks::setLiquidLevelDirectly(unsigned short x, unsigned short y, unsigned char level) {
+    getMapBlock(x, y)->liquid_level = level;
 }

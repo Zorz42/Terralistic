@@ -45,7 +45,6 @@ public:
     unsigned short getY() const { return y; }
     void breakBlock();
     
-    void setTypeDirectly(BlockType block_type);
     void setType(BlockType block_type);
     void setBreakProgress(unsigned short ms);
     unsigned short getBreakProgress() { return block_data->break_progress; }
@@ -53,14 +52,12 @@ public:
     BlockType getBlockType() { return block_data->block_type; }
     const BlockInfo& getBlockInfo();
     
-    void setTypeDirectly(LiquidType liquid_type);
     void setType(LiquidType liquid_type);
     
     void liquidUpdate();
     LiquidType getLiquidType() { return block_data->liquid_type; }
     bool canUpdateLiquid();
     void setLiquidLevel(unsigned char level);
-    void setLiquidDirectly(unsigned char level);
     unsigned char getLiquidLevel() { return block_data->liquid_level; }
     FlowDirection getFlowDirection() { return block_data->flow_direction; }
     void setFlowDirection(FlowDirection flow_direction) { block_data->flow_direction = flow_direction; }
@@ -79,6 +76,7 @@ public:
 class ServerBlocks {
     ServerMapBlock *blocks = nullptr;
     unsigned short width = 0, height = 0;
+    ServerMapBlock* getMapBlock(unsigned short x, unsigned short y);
     
 public:
     ServerBlock getBlock(unsigned short x, unsigned short y);
@@ -100,6 +98,14 @@ public:
     
     unsigned short getHeight() const { return height; }
     unsigned short getWidth() const { return width; }
+    
+    BlockType getTypeDirectly(unsigned short x, unsigned short y);
+    unsigned char getLiquidLevelDirectly(unsigned short x, unsigned short y);
+    LiquidType getLiquidTypeDirectly(unsigned short x, unsigned short y);
+    
+    void setTypeDirectly(unsigned short x, unsigned short y, BlockType type);
+    void setTypeDirectly(unsigned short x, unsigned short y, LiquidType type);
+    void setLiquidLevelDirectly(unsigned short x, unsigned short y, unsigned char level);
     
     ~ServerBlocks();
 };
