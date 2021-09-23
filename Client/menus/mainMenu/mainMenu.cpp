@@ -37,16 +37,18 @@ void MainMenu::init() {
     version.orientation = gfx::BOTTOM;
     version.scale = 2;
     version.y = -5;
+    
+    menu_back.init();
 }
 
 void MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(singleplayer_button.isHovered(mouse_x, mouse_y))
-            WorldSelector(menu_back).run();
+            WorldSelector(&menu_back).run();
         else if(multiplayer_button.isHovered(mouse_x, mouse_y))
-            MultiplayerSelector(menu_back).run();
+            MultiplayerSelector(&menu_back).run();
         else if(settings_button.isHovered(mouse_x, mouse_y))
-            Settings(menu_back).run();
+            Settings(&menu_back).run();
         else if(exit_button.isHovered(mouse_x, mouse_y))
             gfx::returnFromScene();
     }
@@ -60,8 +62,8 @@ void MainMenu::render() {
     settings_button.y = multiplayer_button.y + multiplayer_button.getHeight() + BUTTON_SPACING;
     exit_button.y = settings_button.y + settings_button.getHeight() + BUTTON_SPACING;
     
-    menu_back->setBackWidth(singleplayer_button.getWidth() + 100);
-    menu_back->renderBack();
+    menu_back.setBackWidth(singleplayer_button.getWidth() + 100);
+    menu_back.renderBack();
 
     title.render();
 #ifdef DEVELOPER_MODE

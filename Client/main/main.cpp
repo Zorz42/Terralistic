@@ -12,12 +12,18 @@
 
 
 int main(int argc, char **argv) {    
-    srand((unsigned int)time(0));
+    srand(time(NULL));
     if(argc == 2 && (std::string)argv[1] == "version") {
         std::cout << CURR_VERSION_STR << std::endl;
         return 0;
     }
     
+#ifndef DEVELOPER_MODE
+    if(checkForUpdates(argv[0])) {
+        system(((std::string)"\"" + argv[0] + "\"&").c_str());
+        return 0;
+    }
+#endif
     gfx::init(1130, 700);
     gfx::resource_path = getResourcePath(argv[0]);
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
@@ -28,19 +34,7 @@ int main(int argc, char **argv) {
     loadSettings();
     initProperties();
     
-    MenuBack menu_back;
-    menu_back.init();
-    
-#ifndef DEVELOPER_MODE
-    UpdateChecker update_checker(&menu_back, argv[0]);
-    update_checker.run();
-    if(update_checker.hasUpdated()) {
-        system(((std::string)"\"" + argv[0] + "\"&").c_str());
-        gfx::quit();
-        return 0;
-    }
-#endif
-    MainMenu(&menu_back).run();
+    MainMenu().run();
 
     gfx::quit();
 
