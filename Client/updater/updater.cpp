@@ -6,85 +6,93 @@
 #include "versions.hpp"
 #include "platform_folders.h"
 
-bool checkForUpdatesMacOS(std::string exec_path);
-bool checkForUpdatesWindows(std::string exec_path);
-bool checkForUpdatesLinux(std::string exec_path);
-
-bool checkForUpdates(const std::string& exec_path) {
-#ifdef _WIN32
-    return checkForUpdatesWindows(exec_path);
-#endif
-    
 #ifdef __APPLE__
-    return checkForUpdatesMacOS(exec_path);
+#define PATCH_REQEUST_VERSION (std::string("MacOS-") + CURR_VERSION_STR)
 #endif
-    
+
+#ifdef _WIN32
+#define PATCH_REQEUST_VERSION (std::string("Windows-") + CURR_VERSION_STR)
+#endif
+
 #ifdef __linux__
-    return checkForUpdatesLinux(exec_path);
+#define PATCH_REQEUST_VERSION (std::string("Linux-") + CURR_VERSION_STR)
 #endif
-}
 
-void getPatchFromServer(const std::string& version) {
+void UpdateChecker::checkForUpdates() {
+    update_state = UpdateState::CHECKING;
     sf::TcpSocket server_socket;
-    if(server_socket.connect("jakob.zorz.si", 65431) != sf::Socket::Done)
-        return;
+    if(server_socket.connect("jakob.zorz.si", 65431) == sf::Socket::Done) {
+        server_socket.send(PATCH_REQEUST_VERSION.c_str(), PATCH_REQEUST_VERSION.size());
 
-    server_socket.send(version.c_str(), version.size());
-
-    std::string buffer;
-    char temp_buffer[1024];
-    std::size_t received;
-    while(server_socket.receive(temp_buffer, 1024, received) == sf::Socket::Done) {
-        buffer.insert(buffer.end(), &temp_buffer[0], &temp_buffer[0] + received);
-    }
-
-    if(!buffer.empty()) {
-        std::ofstream patch_file(sago::getDataHome() + "/Terralistic/update.patch", std::ios::binary | std::ios::trunc);
-        patch_file.write(&buffer[0], buffer.size());
-    }
-}
-
-bool checkForUpdatesMacOS(std::string exec_path) {
-    getPatchFromServer((std::string)"MacOS-" + CURR_VERSION_STR);
-
-    while(exec_path.back() != '/')
-        exec_path.pop_back();
-    
-    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
-        std::system(((std::string)"cd \"" + exec_path + "../..\" && patch -t -p3 < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
-        std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
-        return true;
+        std::string buffer;
+        char temp_buffer[1024];
+        std::size_t received;
+        while(server_socket.receive(temp_buffer, 1024, received) == sf::Socket::Done) {
+            update_state = UpdateState::DOWNLOADING;
+            buffer.insert(buffer.end(), &temp_buffer[0], &temp_buffer[0] + received);
+        }
+        
+        if(!buffer.empty()) {
+            std::ofstream patch_file(sago::getDataHome() + "/Terralistic/update.patch", std::ios::binary | std::ios::trunc);
+            patch_file.write(&buffer[0], buffer.size());
+        }
     }
     
-    return false;
-}
-
-bool checkForUpdatesWindows(std::string exec_path) {
-    getPatchFromServer((std::string)"Windows-" + CURR_VERSION_STR);
-
     while(exec_path.back() != '\\' && exec_path.back() != '/')
         exec_path.pop_back();
-
+    
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
-        std::system(((std::string)"cd \"" + exec_path + "\" && patch -t -p3 --binary < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
-        std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
-        return true;
-    }
+        update_state = UpdateState::APPLYING;
+#ifdef __APPLE__
+        std::system(((std::string)"cd \"" + exec_path + "../..\" && patch -t -p3 < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
+#endif
 
-    return false;
+#ifdef _WIN32
+        std::system(((std::string)"cd \"" + exec_path + "\" && patch -t -p3 --binary < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
+#endif
+
+#ifdef __linux__
+        std::system(((std::string)"cd \"" + exec_path + "\" && patch -t -p3 < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
+#endif
+        std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
+        has_updated = true;
+    }
+    update_state = UpdateState::FINISHED;
 }
 
-bool checkForUpdatesLinux(std::string exec_path) {
-    getPatchFromServer((std::string)"Linux-" + CURR_VERSION_STR);
+void UpdateChecker::init() {
+    update_thread = std::thread(&UpdateChecker::checkForUpdates, this);
+    
+    text.scale = 3;
+    text.orientation = gfx::CENTER;
+    text.renderText("Checking for updates");
+}
 
-    while(exec_path.back() != '/')
-        exec_path.pop_back();
-
-    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/update.patch")) {
-        std::system(((std::string)"cd \"" + exec_path + "\" && patch -t -p3 < \"" + sago::getDataHome() + "/Terralistic/update.patch\"").c_str());
-        std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
-        return true;
+void UpdateChecker::render() {
+    static UpdateState prev_update_state = UpdateState::NEUTRAL;
+    menu_back->setBackWidth(text.getWidth() + 100);
+    menu_back->renderBack();
+    
+    if(update_state != prev_update_state) {
+        prev_update_state = update_state;
+        switch (update_state) {
+            case UpdateState::NEUTRAL:
+                break;
+            case UpdateState::CHECKING:
+                text.renderText("Checking for updates");
+                break;
+            case UpdateState::DOWNLOADING:
+                text.renderText("Downloading updates");
+                break;
+            case UpdateState::APPLYING:
+                text.renderText("Applying updates");
+                break;
+            case UpdateState::FINISHED:
+                update_thread.join();
+                gfx::returnFromScene();
+                break;
+        }
     }
-
-    return false;
+    
+    text.render();
 }
