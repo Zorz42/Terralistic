@@ -17,13 +17,10 @@
 
 static std::thread server_thread;
 
-#define LOADING_RECT_HEIGHT 20
-//#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
-#define LOADING_RECT_ELEVATION 50
-
 class WorldStartingScreen : public gfx::Scene {
     BackgroundRect* menu_back;
     gfx::Sprite text;
+    gfx::Rect loading_bar, loading_bar_back;
     void init() override;
     void render() override;
     Server* server;
@@ -34,12 +31,21 @@ public:
 
 void WorldStartingScreen::init() {
     text.scale = 3;
-    text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     text.createBlankImage(1, 1);
     text.orientation = gfx::CENTER;
+    
+    loading_bar_back.orientation = gfx::CENTER;
+    loading_bar_back.fill_color.a = TRANSPARENCY;
+    loading_bar_back.setHeight(50);
+    loading_bar_back.setY(100);
+    
+    loading_bar.fill_color = WHITE;
+    loading_bar.fill_color.a = TRANSPARENCY;
+    loading_bar.setHeight(50);
 }
 
 void WorldStartingScreen::render() {
+    menu_back->renderBack();
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
         switch(server->state) {
@@ -51,13 +57,6 @@ void WorldStartingScreen::render() {
                 break;
             case ServerState::GENERATING_WORLD:
                 text.renderText("Generating world");
-                /*loading_bar.w += (private_server.getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server.getGeneratingTotal() - loading_bar.w) / 3;
-                loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
-                gfx::clearWindow();
-                generating_text.render();
-                loading_bar_back.render();
-                loading_bar.render();
-                gfx::updateWindow();*/
                 break;
             case ServerState::STOPPING:
                 text.renderText("Saving world");
@@ -70,7 +69,14 @@ void WorldStartingScreen::render() {
         }
         menu_back->setBackWidth(text.getWidth() + 300);
     }
-    menu_back->renderBack();
+    if(server->state == ServerState::GENERATING_WORLD) {
+        loading_bar_back.setWidth(text.getWidth() + 200);
+        loading_bar.setX(loading_bar_back.getTranslatedX());
+        loading_bar.setY(loading_bar_back.getTranslatedY());
+        loading_bar.setWidth(server->getGeneratingCurrent() * (text.getWidth() + 200) / server->getGeneratingTotal());
+        loading_bar_back.render();
+        loading_bar.render();
+    }
     text.render();
 }
 
@@ -130,7 +136,6 @@ void game::init() {
     
     gfx::Sprite text;
     text.scale = 3;
-    text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     text.orientation = gfx::CENTER;
     text.renderText("Getting terrain");
     background_rect->setBackWidth(text.getWidth() + 300);
