@@ -9,7 +9,6 @@ class ConfigFile {
     std::map<std::string, std::string> values;
     
     void loadConfig();
-    void saveConfig();
 public:
     explicit ConfigFile(std::string path);
     ConfigFile() = default;
@@ -24,6 +23,8 @@ public:
     void setDefaultInt(const std::string& key, int value);
     
     bool keyExists(const std::string& key) const;
+    
+    void saveConfig();
 };
 
 #endif

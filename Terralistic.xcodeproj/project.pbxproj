@@ -29,6 +29,8 @@
 		16999A8C26FE3FBF0090224A /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		16999A8D26FE3FDF0090224A /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; settings = {ATTRIBUTES = (Required, ); }; };
 		16999A8F26FE40110090224A /* TestCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16999A8E26FE40110090224A /* TestCompress.mm */; };
+		16999A9126FE52B70090224A /* TestConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16999A9026FE52B70090224A /* TestConfigManager.mm */; };
+		16999A9226FE545C0090224A /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A0E8AC26FDBE630069211C /* minimap.cpp */; };
 		16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B77FE826F5102700FE3FE9 /* updater.cpp */; };
@@ -273,6 +275,7 @@
 		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
 		16999A4426FE38BF0090224A /* TerralisticTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TerralisticTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16999A8E26FE40110090224A /* TestCompress.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestCompress.mm; sourceTree = "<group>"; };
+		16999A9026FE52B70090224A /* TestConfigManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestConfigManager.mm; sourceTree = "<group>"; };
 		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
 		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
 		16A0E8AC26FDBE630069211C /* minimap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = minimap.cpp; sourceTree = "<group>"; };
@@ -641,6 +644,7 @@
 			isa = PBXGroup;
 			children = (
 				16999A8E26FE40110090224A /* TestCompress.mm */,
+				16999A9026FE52B70090224A /* TestConfigManager.mm */,
 			);
 			path = TerralisticTests;
 			sourceTree = "<group>";
@@ -1161,8 +1165,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16999A9226FE545C0090224A /* configManager.cpp in Sources */,
 				16999A8C26FE3FBF0090224A /* compress.cpp in Sources */,
 				16999A8F26FE40110090224A /* TestCompress.mm in Sources */,
+				16999A9126FE52B70090224A /* TestConfigManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
