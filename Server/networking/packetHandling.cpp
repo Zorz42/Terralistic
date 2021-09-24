@@ -59,7 +59,7 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
                 chat_packet << PacketType::CHAT << chat_format;
                 sendToEveryone(chat_packet);
             }else{
-                commands.StartCommand(message, conn.player->name);
+                commands.startCommand(message, conn.player->name);
             }
             break;
         }

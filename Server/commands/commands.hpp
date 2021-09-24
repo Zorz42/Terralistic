@@ -10,9 +10,9 @@ class Commands {
     Players* players;
     ServerItems* items;
     ServerEntities* entities;
-    std::string name;
 public:
     Commands(ServerBlocks* blocks, Players* players, ServerItems* items, ServerEntities* entities) : blocks(blocks), players(players), items(items), entities(entities){}
-    void StartCommand(std::string, std::string);
-    void changeBlock(std::string, std::string, BlockType);
+    void startCommand(std::string message, std::string player);
+    void changeBlock(int x, int y, std::string type);
+    void format(std::vector<std::string>& message, const std::string& player);
 };

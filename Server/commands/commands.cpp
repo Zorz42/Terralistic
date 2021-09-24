@@ -2,8 +2,9 @@
 #include "print.hpp"
 #include "vector"
 
-void Commands::StartCommand(std::string message, std::string player) {
+void Commands::startCommand(std::string message, std::string player) {
     std::vector<std::string> seperated;
+
     {
         size_t pos = message.find(' ');
         while (pos != std::string::npos) {
@@ -12,33 +13,37 @@ void Commands::StartCommand(std::string message, std::string player) {
             pos = message.find(' ');
         }
         seperated.push_back(message.substr(0, pos));
-        for(const std::string& part : seperated)
-            print::info(part + "\n");
     }
-    name = player;
+
+    format(seperated, player);
 
     if(seperated[0] == "/setBlock")
-        changeBlock(seperated[1], seperated[2], (BlockType)std::stoi(seperated[3]));
+        changeBlock(std::stoi(seperated[1]),std::stoi(seperated[2]), seperated[3]);
 }
 
-void Commands::changeBlock(std::string x, std::string y, BlockType type) {
-    unsigned int block_x, block_y;
-    if(x.at(0) == '~') {
-        block_x = players->getPlayerByName(name)->getX() / 16;
-        if(x.size() > 1) {
-            x.erase(0);
-            block_x += std::stoi(x);
-        }
-    }else
-        block_x = std::stoi(x);
+void Commands::changeBlock(int x, int y, std::string type) {
+    BlockType block;
+    //if(type.at(0) >= 0 && type.at(0) <= 9)
+        block = (BlockType) std::stoi(type);
+    //else
+        //block = blocks->
 
-    /*if(y.at(0) == '~') {
-        block_y = players->getPlayerByName(name)->getY();
-        if(y.size() > 1)
-            block_y += std::stoi(y.substr(1, y.size() - 1));
-    }else*/
-        block_y = std::stoi(y);
+    blocks->getBlock(x, blocks->getHeight() - y).setType(block);
+    blocks->getBlock(x, blocks->getHeight() - y).update();
+}
 
-    blocks->getBlock(block_x, blocks->getHeight() - block_y).setType(type);
-    blocks->getBlock(block_x, blocks->getHeight() - block_y).update();
+void Commands::format(std::vector<std::string>& message, const std::string& player) {
+    for(int i = 1; i < message.size(); i++){
+        int block_x;
+        if(message[i].at(0) == '~') {
+            block_x = players->getPlayerByName(player)->getX() / 16;
+            if(message[i].size() > 1) {
+                message[i].erase(0);
+                block_x += std::stoi(message[i]);
+            }
+        }else
+            block_x = std::stoi(message[i]);
+        print::info(std::to_string(block_x));
+        message[i] = std::to_string(block_x);
+    }
 }
