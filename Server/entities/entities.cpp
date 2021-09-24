@@ -103,3 +103,9 @@ void ServerEntity::setVelocityY(float vel_y) {
     event.call();
 }
 
+void ServerEntity::setPosition(int x_, int y_) {
+    x = x_;
+    y = y_;
+    ServerEntityPositionChangeEvent(*this).call();
+}
+

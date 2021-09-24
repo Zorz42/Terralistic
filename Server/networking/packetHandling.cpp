@@ -173,3 +173,9 @@ void ServerNetworkingManager::syncEntityPositions() {
         sendToEveryone(packet);
     }
 }
+
+void ServerNetworkingManager::onEvent(ServerEntityPositionChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ENTITY_POSITION << event.entity.getX() << event.entity.getY() << event.entity.id;
+    sendToEveryone(packet);
+}
