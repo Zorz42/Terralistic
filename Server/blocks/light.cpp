@@ -37,13 +37,17 @@ void ServerBlock::removeLightSource() {
 }
 
 void ServerBlocks::setNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < height && getBlock(x, y).getBlockInfo().transparent; y++)
-        getBlock(x, y).setLightSource(MAX_LIGHT);
+    for(unsigned short y = 0; y < height && getBlock(x, y).getBlockInfo().transparent; y++) {
+        setLightLevelDirectly(x, y, MAX_LIGHT);
+        setLightSourceDirectly(x, y, true);
+    }
 }
 
 void ServerBlocks::removeNaturalLight(unsigned short x) {
-    for(unsigned short y = 0; y < height && getBlock(x, y).getBlockInfo().transparent; y++)
-        getBlock(x, y).removeLightSource();
+    for(unsigned short y = 0; y < height && getBlock(x, y).getBlockInfo().transparent; y++) {
+        setLightSourceDirectly(x, y, false);
+        setLightLevelDirectly(x, y, 0);
+    }
 }
 
 void ServerBlock::setLightLevel(unsigned char light_level) {
@@ -53,4 +57,12 @@ void ServerBlock::setLightLevel(unsigned char light_level) {
         
         ServerLightChangeEvent(*this).call();
     }
+}
+
+void ServerBlocks::setLightLevelDirectly(unsigned short x, unsigned short y, unsigned char level) {
+    getMapBlock(x, y)->light_level = level;
+}
+
+void ServerBlocks::setLightSourceDirectly(unsigned short x, unsigned short y, bool source) {
+    getMapBlock(x, y)->light_source = source;
 }

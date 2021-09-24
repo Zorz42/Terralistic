@@ -172,13 +172,10 @@ void game::handshakeWithServer() {
     packet >> player_x >> player_y;
     unsigned short world_width, world_height;
     packet >> world_width >> world_height;
-    
     unsigned int size;
     packet >> size;
     
     std::vector<char> map_data = networking_manager.getData(size);
-    
-    map_data = decompress(map_data);
     
     blocks.create(world_width, world_height, map_data);
     
