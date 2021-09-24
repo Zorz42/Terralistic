@@ -107,7 +107,8 @@ game::game(BackgroundRect* background_rect, const std::string& username, std::st
     block_selector(&networking_manager, &blocks, &inventory, &players),
     inventory(&networking_manager, &resource_pack),
     debug_menu(&players, &blocks),
-    chat(&networking_manager)
+    chat(&networking_manager),
+    minimap(&blocks)
 {}
 
 void game::init() {
@@ -155,6 +156,7 @@ void game::init() {
         &debug_menu,
 #endif
         &chat,
+        &minimap,
     };
 }
 

@@ -22,7 +22,7 @@ class BlockSelector : public gfx::GraphicalModule {
     ClientInventory* inventory_handler;
     ClientPlayers* player_handler;
 public:
-    BlockSelector(NetworkingManager* manager, ClientBlocks* world_map, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(world_map), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(NetworkingManager* manager, ClientBlocks* blocks, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(blocks), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
 #endif

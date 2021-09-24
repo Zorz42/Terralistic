@@ -1,8 +1,8 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
-manager(manager), blocks(world_map), resource_pack(resource_pack), entities(entities), username(username) {
+ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
+manager(manager), blocks(blocks), resource_pack(resource_pack), entities(entities), username(username) {
     
 }
 
