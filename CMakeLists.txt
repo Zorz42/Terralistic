@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
-project(Terralistic CXX)
 project(Terralistic-server CXX)
+project(Terralistic CXX)
+
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(IS_DEBUG TRUE)
