@@ -106,6 +106,8 @@ public:
     void setTypeDirectly(unsigned short x, unsigned short y, BlockType type);
     void setTypeDirectly(unsigned short x, unsigned short y, LiquidType type);
     void setLiquidLevelDirectly(unsigned short x, unsigned short y, unsigned char level);
+    void setLightLevelDirectly(unsigned short x, unsigned short y, unsigned char level);
+    void setLightSourceDirectly(unsigned short x, unsigned short y, bool source);
     
     ~ServerBlocks();
 };

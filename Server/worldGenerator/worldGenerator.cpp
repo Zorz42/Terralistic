@@ -6,15 +6,14 @@
 #include "biomes.hpp"
 
 int worldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
-    //std::mt19937 engine(seed);
     SimplexNoise noise(seed);
-    generating_current = 0;
     server_blocks->createWorld(world_width, world_height);
-
+    
     loadAssets();
-    if(seed == 1000){
+    if(seed == 1000) {
         generateStructureWorld();
-    }else{
+    } else {
+        generating_total = server_blocks->getWidth();
         loadBiomes();
         generateDeafultWorld(noise);
     }
@@ -225,7 +224,7 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
     }
     for (int x = 0; x < server_blocks->getWidth(); x++) {
         terrainGenerator(x, noise);
-        //generating_current++;
+        generating_current++;
     }
     for (const structurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
