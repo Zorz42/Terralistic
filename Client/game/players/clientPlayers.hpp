@@ -6,7 +6,7 @@
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
-#include "clientEntity.hpp"
+#include "clientEntities.hpp"
 
 enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 

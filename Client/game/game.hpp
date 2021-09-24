@@ -6,7 +6,7 @@
 #include "clientItems.hpp"
 #include "menuBack.hpp"
 #include "menuBack.hpp"
-#include "clientEntity.hpp"
+#include "clientEntities.hpp"
 #include "clientInventory.hpp"
 #include "blockSelector.hpp"
 #include "debugMenu.hpp"
