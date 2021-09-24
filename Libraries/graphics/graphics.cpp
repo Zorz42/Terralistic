@@ -217,3 +217,7 @@ void gfx::drawVertices(const sf::VertexArray& array, const sf::Texture& texture)
 void gfx::drawVertices(const sf::VertexArray& array) {
     render_target->draw(array);
 }
+
+void gfx::drawSFMLSprite(const sf::Sprite& sprite) {
+    render_target->draw(sprite);
+}

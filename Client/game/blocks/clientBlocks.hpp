@@ -57,12 +57,6 @@ class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEven
     void onEvent(ClientPacketEvent& event) override;
     
     ResourcePack* resource_pack;
-    
-
-    short getViewBeginX() const;
-    short getViewEndX() const;
-    short getViewBeginY() const;
-    short getViewEndY() const;
 
     bool updateOrientationSide(unsigned short x, unsigned short y, char side_x, char side_y);
     void updateOrientationDown(unsigned short x, unsigned short y);
@@ -85,6 +79,11 @@ public:
     
     unsigned short getWidth() const { return width; }
     unsigned short getHeight() const { return height; }
+    
+    short getViewBeginX() const;
+    short getViewEndX() const;
+    short getViewBeginY() const;
+    short getViewEndY() const;
 
     ~ClientBlocks() override;
 };

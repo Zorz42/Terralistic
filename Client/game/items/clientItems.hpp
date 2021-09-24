@@ -6,7 +6,7 @@
 #include "events.hpp"
 #include "clientNetworking.hpp"
 #include "clientBlocks.hpp"
-#include "clientEntity.hpp"
+#include "clientEntities.hpp"
 
 #define ITEM_WIDTH 8
 

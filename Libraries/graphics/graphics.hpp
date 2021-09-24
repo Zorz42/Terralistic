@@ -37,12 +37,13 @@ namespace gfx {
         
     void drawVertices(const sf::VertexArray& array, const sf::Texture& texture);
     void drawVertices(const sf::VertexArray& array);
+    void drawSFMLSprite(const sf::Sprite& sprite);
 
     enum ObjectType {TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
 
     class Color {
     public:
-        Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255) : r(r), g(g), b(b), a(a) {}\
+        Color(unsigned char r=0, unsigned char g=0, unsigned char b=0, unsigned char a=255) : r(r), g(g), b(b), a(a) {}\
         explicit operator sf::Color() const { return {r, g, b, a}; }
         unsigned char r, g, b, a;
     };

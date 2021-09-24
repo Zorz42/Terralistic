@@ -6,7 +6,7 @@
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
-#include "clientEntity.hpp"
+#include "clientEntities.hpp"
 
 enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 
@@ -47,7 +47,7 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     ResourcePack* resource_pack;
     ClientEntities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
+    ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
     
     void renderPlayers();
     

@@ -6,11 +6,12 @@
 #include "clientItems.hpp"
 #include "menuBack.hpp"
 #include "menuBack.hpp"
-#include "clientEntity.hpp"
+#include "clientEntities.hpp"
 #include "clientInventory.hpp"
 #include "blockSelector.hpp"
 #include "debugMenu.hpp"
 #include "chat.hpp"
+#include "Minimap.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
@@ -34,6 +35,7 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     BlockSelector block_selector;
     DebugMenu debug_menu;
     Chat chat;
+    Minimap minimap;
     BackgroundRect* background_rect;
     bool handshake_done = false;
     void handshakeWithServer();

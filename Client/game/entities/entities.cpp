@@ -1,5 +1,6 @@
 #include <cassert>
-#include "clientEntity.hpp"
+#include <cmath>
+#include "clientEntities.hpp"
 
 void ClientEntities::updateAllEntities(float frame_length) {
     for(ClientEntity* entity : entities)
@@ -27,13 +28,13 @@ ClientEntity* ClientEntities::getEntityById(unsigned short id) {
 }
 
 void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
+    if(friction) {
+        velocity_y *= std::pow(0.995f, frame_length);
+        velocity_x *= std::pow(isTouchingGround(blocks) ? 0.99f : 0.9995f, frame_length);
+    }
+    
     if(gravity)
         velocity_y += frame_length / 5.f;
-    
-    if(friction) {
-        velocity_y *= 0.99f;
-        velocity_x *= isTouchingGround(blocks) ? 0.9f : 0.99f;
-    }
     
     float y_to_be = y + float(velocity_y * frame_length) / 100;
     float move_y = y_to_be - y;
