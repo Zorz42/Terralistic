@@ -31,6 +31,16 @@
       systemAttachmentLifetime = "keepNever"
       userAttachmentLifetime = "keepAlways">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "16999A4326FE38BF0090224A"
+               BuildableName = "TerralisticTests.xctest"
+               BlueprintName = "TerralisticTests"
+               ReferencedContainer = "container:Terralistic.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
