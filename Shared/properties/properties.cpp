@@ -83,3 +83,10 @@ BlockType getBlockTypeByName(const std::string& name) {
             return (BlockType)i;
     return BlockType::NOTHING;
 }
+
+ItemType getItemTypeByName(const std::string& name){
+    for(int i = 0; i < (int)ItemType::NUM_ITEMS; i++)
+        if(getItemInfo((ItemType)i).name == name)
+            return (ItemType)i;
+    return ItemType::NOTHING;
+}
