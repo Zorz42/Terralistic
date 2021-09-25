@@ -41,14 +41,17 @@ void MainMenu::init() {
 
 void MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(singleplayer_button.isHovered(getMouseX(), getMouseY()))
-            WorldSelector(menu_back).run();
-        else if(multiplayer_button.isHovered(getMouseX(), getMouseY()))
-            MultiplayerSelector(menu_back).run();
-        else if(settings_button.isHovered(getMouseX(), getMouseY()))
-            Settings(menu_back).run();
-        else if(exit_button.isHovered(getMouseX(), getMouseY()))
-            gfx::returnFromScene();
+        if(singleplayer_button.isHovered(getMouseX(), getMouseY())) {
+            WorldSelector world_selector(menu_back);
+            switchToScene(world_selector);
+        } else if(multiplayer_button.isHovered(getMouseX(), getMouseY())) {
+            MultiplayerSelector multiplayer_selector(menu_back);
+            switchToScene(multiplayer_selector);
+        } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
+            Settings settings(menu_back);
+            switchToScene(settings);
+        } else if(exit_button.isHovered(getMouseX(), getMouseY()))
+            returnFromScene();
     }
 }
 

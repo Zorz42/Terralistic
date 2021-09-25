@@ -120,9 +120,9 @@ unsigned short gfx::getWindowHeight() {
     return window->getSize().y / global_scale;
 }
 
-void gfx::setRenderTarget(Texture& tex) {
+void gfx::setRenderTarget(Texture& texture) {
     render_target->display();
-    render_target = tex.getSfmlTexture();
+    render_target = texture.sfml_render_texture;
 }
 
 void gfx::resetRenderTarget() {
@@ -192,4 +192,8 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
 
 std::string gfx::getResourcePath() {
     return resource_path;
+}
+
+void gfx::runScene(Scene& scene) {
+    scene.run();
 }

@@ -40,7 +40,8 @@ int main(int argc, char **argv) {
         return 0;
     }
 #endif
-    MainMenu(&menu_back).run();
+    MainMenu main_menu(&menu_back);
+    gfx::runScene(main_menu);
 
     gfx::quit();
 

@@ -62,20 +62,20 @@ void Settings::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         int new_scale = 0;
         if(back_button.isHovered(getMouseX(), getMouseY()))
-            gfx::returnFromScene();
+            returnFromScene();
         else if(large_scale_button.isHovered(getMouseX(), getMouseY()))
             new_scale = 200;
         else if(normal_scale_button.isHovered(getMouseX(), getMouseY()))
             new_scale = 100;
         else if(small_scale_button.isHovered(getMouseX(), getMouseY()))
             new_scale = 50;
-        else if(mods_button.isHovered(getMouseX(), getMouseY()))
-            ModManager(background).run();
-        if(new_scale) {
-            {
-                ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
-                config.setInt("ui_scale", new_scale);
-            }
+        else if(mods_button.isHovered(getMouseX(), getMouseY())) {
+            ModManager mod_manager(background);
+            switchToScene(mod_manager);
+        } if(new_scale) {
+            ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
+            config.setInt("ui_scale", new_scale);
+            config.saveConfig();
             reloadSettings();
         }
     }

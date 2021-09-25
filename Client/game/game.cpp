@@ -63,7 +63,7 @@ void WorldStartingScreen::render() {
                 break;
             case ServerState::RUNNING:
             case ServerState::STOPPED:
-                gfx::returnFromScene();
+                returnFromScene();
                 break;
             default:;
         }
@@ -102,7 +102,7 @@ void HandshakeScreen::init() {
 void HandshakeScreen::render() {
     if(game->isHandshakeDone()) {
         handshake_thread.join();
-        gfx::returnFromScene();
+        returnFromScene();
     }
     background_rect->renderBack();
     text.render();
@@ -117,15 +117,17 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     private_server.setPrivate(true);
     server_thread = std::thread(&Server::start, &private_server, port);
     
-    WorldStartingScreen(menu_back, &private_server).run();
+    WorldStartingScreen world_starting_screen(menu_back, &private_server);
+    gfx::runScene(world_starting_screen);
 
-    Game(menu_back, "_", "127.0.0.1", port).run();
+    Game game(menu_back, "_", "127.0.0.1", port);
+    gfx::runScene(game);
     private_server.stop();
     
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    WorldStartingScreen(menu_back, &private_server).run();
+    gfx::runScene(world_starting_screen);
     
     server_thread.join();
 }
@@ -156,11 +158,13 @@ void Game::init() {
     resource_pack.load(active_resource_packs);
     
     if(!networking_manager.establishConnection(ip_address, port)) {
-        ChoiceScreen(background_rect, "Could not connect to the server!", {"Close"}).run();
-        gfx::returnFromScene();
+        ChoiceScreen choice_screen(background_rect, "Could not connect to the server!", {"Close"});
+        switchToScene(choice_screen);
+        returnFromScene();
     }
     
-    HandshakeScreen(background_rect, this).run();
+    HandshakeScreen handshake_screen(background_rect, this);
+    switchToScene(handshake_screen);
     
     registerAModule(&players);
     registerAModule(&block_selector);
@@ -201,8 +205,9 @@ void Game::onEvent(ClientPacketEvent& event) {
         case PacketType::KICK: {
             std::string kick_message;
             event.packet >> kick_message;
-            ChoiceScreen(background_rect, kick_message, {"Close"}).run();
-            gfx::returnFromScene();
+            ChoiceScreen choice_screen(background_rect, kick_message, {"Close"});
+            switchToScene(choice_screen);
+            returnFromScene();
         }
         default:;
     }
@@ -239,9 +244,9 @@ void Game::renderBack() {
 void Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
         PauseScreen pause_screen(this);
-        pause_screen.run();
+        switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
-            gfx::returnFromScene();
+            returnFromScene();
     }
 }
 

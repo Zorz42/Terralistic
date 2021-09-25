@@ -71,7 +71,7 @@ void Chat::onKeyDown(gfx::Key key) {
         chat_box.active = false;
     } else if(key == gfx::Key::T && !chat_box.active) {
         chat_box.active = true;
-        chat_box.ignore_one_input = true;
+        chat_box.ignore_next_input = true;
     } else if(key == gfx::Key::ESCAPE && chat_box.active) {
         chat_box.setText("");
         chat_box.active = false;

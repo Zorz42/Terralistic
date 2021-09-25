@@ -72,7 +72,7 @@ void ModManager::init() {
 void ModManager::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
-            gfx::returnFromScene();
+            returnFromScene();
         
         for(GuiMod* mod : mods)
             if(mod->hoversPoint(getMouseX(), getMouseY())) {

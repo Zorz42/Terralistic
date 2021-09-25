@@ -93,8 +93,25 @@ namespace gfx {
         ~Rect();
     };
     
+    class Texture;
+    
+    class RectArray {
+        sf::VertexArray vertex_array;
+        const Texture* image = nullptr;
+    public:
+        RectArray(unsigned short size) : vertex_array(sf::Quads, size * 4) {}
+        void setRect(unsigned short index, RectShape rect);
+        void setColor(unsigned short index, Color color);
+        void setTextureCoords(unsigned short index, RectShape texture_coordinates);
+        void setImage(const Texture* image);
+        void render();
+        void resize(unsigned short size);
+    };
+    
     class Texture {
     protected:
+        friend void RectArray::render();
+        friend void setRenderTarget(Texture& texture);
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;
         Color color{255, 255, 255};
@@ -110,7 +127,6 @@ namespace gfx {
         void loadFromFile(const std::string& path);
         void loadFromPixelGrid(const PixelGrid& pixel_grid);
         void setColor(Color color_);
-        sf::RenderTexture* getSfmlTexture() const { return sfml_render_texture; }
         
         ~Texture();
     };
@@ -151,30 +167,21 @@ namespace gfx {
         unsigned short getWidth() const override;
         void setText(const std::string& text);
 
-        bool active = false, ignore_one_input = false;
+        bool active = false, ignore_next_input = false;
         char (*textProcessing)(char c, int length) = nullptr;
-        unsigned short width = 200;
+        unsigned short width = GFX_DEFAULT_TEXT_INPUT_WIDTH;
         Color text_color = GFX_DEFAULT_TEXT_COLOR;
         void setBlurIntensity(float blur_intensity);
         void setBorderColor(Color color);
     };
     
-    class RectArray {
-        sf::VertexArray vertex_array;
-        const Texture* image = nullptr;
-    public:
-        RectArray(unsigned short size) : vertex_array(sf::Quads, size * 4) {}
-        void setRect(unsigned short index, RectShape rect);
-        void setColor(unsigned short index, Color color);
-        void setTextureCoords(unsigned short index, RectShape texture_coordinates);
-        void setImage(const Texture* image);
-        void render();
-        void resize(unsigned short size);
-    };
-    
     enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, CTRL, UNKNOWN};
 
+    class Scene;
+    
     class SceneModule {
+        friend Scene;
+        bool enable_key_states = true;
     public:
         virtual void init() {}
         virtual void update() {}
@@ -186,17 +193,23 @@ namespace gfx {
         std::vector<TextInput*> text_inputs;
         unsigned short mouse_x, mouse_y;
     };
+    
+    void runScene(Scene& scene);
 
     class Scene : public SceneModule {
+        friend void runScene(Scene& scene);
         void onEvent(sf::Event event);
         float frame_length;
         std::vector<SceneModule*> modules;
         short mouse_x, mouse_y;
+        bool running = true;
+        void run();
     public:
         void registerAModule(SceneModule* module);
         float getFrameLength() { return frame_length; }
         virtual void onMouseScroll(int distance) {}
-        void run();
+        void switchToScene(Scene& scene);
+        void returnFromScene();
         void onKeyDownCallback(Key key_);
         short getMouseX();
         short getMouseY();
@@ -218,9 +231,7 @@ namespace gfx {
 
     unsigned int getTicks();
     void sleep(unsigned short ms);
-
-    void returnFromScene();
-
+    
     void setGlobalScale(float scale);
 
     void setWindowSize(unsigned short width, unsigned short height);

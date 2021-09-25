@@ -25,7 +25,7 @@ void gfx::RectArray::setImage(const Texture* image_) {
 void gfx::RectArray::render() {
     const sf::Texture* texture = nullptr;
     if(image)
-        texture = &image->getSfmlTexture()->getTexture();
+        texture = &image->sfml_render_texture->getTexture();
     
     sf::RenderStates states;
     states.texture = texture;

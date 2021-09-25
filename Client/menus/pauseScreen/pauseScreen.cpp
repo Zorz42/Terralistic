@@ -30,7 +30,8 @@ void PauseScreen::onKeyDown(gfx::Key key) {
         if(resume_button.isHovered(getMouseX(), getMouseY()))
             returnToGame();
         else if(settings_button.isHovered(getMouseX(), getMouseY())) {
-            Settings(this).run();
+            Settings settings(this);
+            switchToScene(settings);
         } else if(quit_button.isHovered(getMouseX(), getMouseY())) {
             exitToMenu();
         }
@@ -67,7 +68,7 @@ void PauseScreen::renderButtons() {
     
     if(returning_to_game) {
         if(back_rect.getX() == -back_rect.getWidth() - 200)
-            gfx::returnFromScene();
+            returnFromScene();
     } else
         back_rect.setX(0);
 }
@@ -79,7 +80,7 @@ void PauseScreen::returnToGame() {
 
 void PauseScreen::exitToMenu() {
     exited_to_menu = true;
-    gfx::returnFromScene();
+    returnFromScene();
 }
 
 bool PauseScreen::hasExitedToMenu() const {

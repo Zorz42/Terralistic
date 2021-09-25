@@ -1,6 +1,5 @@
 #include "graphics-internal.hpp"
 
-static bool running_scene = true;
 bool key_states[(int)gfx::Key::UNKNOWN];
 
 void gfx::Scene::registerAModule(SceneModule* module) {
@@ -29,7 +28,7 @@ void gfx::Scene::onKeyDownCallback(Key key_) {
 }
 
 bool gfx::SceneModule::getKeyState(Key key_) const {
-    return key_states[(int)key_];
+    return enable_key_states && key_states[(int)key_];
 }
 
 gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
@@ -39,6 +38,18 @@ gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
         case sf::Mouse::Right: return gfx::Key::MOUSE_RIGHT;
         default: return gfx::Key::UNKNOWN;
     }
+}
+
+void gfx::Scene::switchToScene(Scene& scene) {
+    for(SceneModule* module : modules)
+        module->enable_key_states = false;
+    scene.run();
+    for(SceneModule* module : modules)
+        module->enable_key_states = true;
+}
+
+void gfx::Scene::returnFromScene() {
+    running = false;
 }
 
 gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
@@ -88,10 +99,6 @@ gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
         case sf::Keyboard::Key::LControl: case sf::Keyboard::Key::RControl: return gfx::Key::CTRL;
         default: return gfx::Key::UNKNOWN;
     }
-}
-
-void gfx::returnFromScene() {
-    running_scene = false;
 }
 
 void gfx::Scene::onEvent(sf::Event event) {
@@ -155,13 +162,13 @@ void gfx::Scene::onEvent(sf::Event event) {
             for (TextInput* i : module->text_inputs)
                 if (i->active) {
                     char result = c;
-                    if (!i->ignore_one_input) {
+                    if (!i->ignore_next_input) {
                         if (i->textProcessing)
                             result = i->textProcessing(result, (int)i->getText().size());
                         if (result)
                             i->setText(i->getText() + result);
                     }
-                    i->ignore_one_input = false;
+                    i->ignore_next_input = false;
                 }
     }
     
@@ -176,7 +183,7 @@ void gfx::Scene::run() {
     modules.push_back(this);
     init();
     
-    while(running_scene && window->isOpen()) {
+    while(running && window->isOpen()) {
         unsigned int start = getTicks();
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
@@ -202,8 +209,6 @@ void gfx::Scene::run() {
         
         frame_length = getTicks() - start;
     }
-    
-    running_scene = true;
     
     for(SceneModule* module : modules)
         module->stop();

@@ -85,9 +85,10 @@ void WorldSelector::refresh() {
 void WorldSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
-            gfx::returnFromScene();
+            returnFromScene();
         else if(new_button.isHovered(getMouseX(), getMouseY())) {
-            WorldCreator(worlds_names, menu_back).run();
+            WorldCreator world_creator(worlds_names, menu_back);
+            switchToScene(world_creator);
             refresh();
         }
         else
@@ -100,8 +101,10 @@ void WorldSelector::onKeyDown(gfx::Key key) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
-                    else
-                        ChoiceScreen(menu_back, std::string("Do you want to delete ") + world.name + "?", {"Yes", "No"}, &result).run();
+                    else {
+                        ChoiceScreen choice_screen(menu_back, std::string("Do you want to delete ") + world.name + "?", {"Yes", "No"}, &result);
+                        switchToScene(choice_screen);
+                    }
 
                     if(result == "Yes") {
                         std::filesystem::remove(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world");

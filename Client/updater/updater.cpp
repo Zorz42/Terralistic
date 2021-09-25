@@ -89,7 +89,7 @@ void UpdateChecker::render() {
                 break;
             case UpdateState::FINISHED:
                 update_thread.join();
-                gfx::returnFromScene();
+                returnFromScene();
                 break;
         }
     }

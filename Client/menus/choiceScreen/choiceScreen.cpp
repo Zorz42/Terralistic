@@ -38,7 +38,7 @@ void ChoiceScreen::onKeyDown(gfx::Key key) {
             if(i.gfx_button.isHovered(getMouseX(), getMouseY())) {
                 if(result)
                     *result = i.option;
-                gfx::returnFromScene();
+                returnFromScene();
                 break;
             }
 }

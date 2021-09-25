@@ -487,11 +487,11 @@
 				16A3BFEE26FF85F6001B9E4E /* pixelGrid.cpp */,
 				167C03AB26E13FB50045FEA9 /* centeredObject.cpp */,
 				166D85C826AA0B9E00DB87B1 /* rect.cpp */,
+				16A3BFED26FF85F6001B9E4E /* rectArray.cpp */,
 				16A3BFEF26FF85F6001B9E4E /* texture.cpp */,
 				167C03B426E141D10045FEA9 /* sprite.cpp */,
 				167C03B726E141FC0045FEA9 /* button.cpp */,
 				166D85C426AA0B9E00DB87B1 /* textInput.cpp */,
-				16A3BFED26FF85F6001B9E4E /* rectArray.cpp */,
 				166D85CE26AA0B9E00DB87B1 /* scene.cpp */,
 			);
 			path = graphics;
