@@ -215,7 +215,7 @@ void Game::onEvent(ClientPacketEvent& event) {
 void Game::update() {
     networking_manager.checkForPackets();
     networking_manager.flushPackets();
-    entities.updateAllEntities(gfx::getFrameLength());
+    entities.updateAllEntities(getFrameLength());
 }
 
 void Game::render() {

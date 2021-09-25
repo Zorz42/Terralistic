@@ -193,7 +193,9 @@ namespace gfx {
 
     class Scene : public SceneModule {
         void _operateEvent(sf::Event event);
+        float frame_length;
     public:
+        float getFrameLength() { return frame_length; }
         std::vector<SceneModule*> modules;
         void enableAllEvents(bool enable);
         virtual void onMouseScroll(int distance) {}
@@ -217,7 +219,6 @@ namespace gfx {
 
     unsigned int getTicks();
     void sleep(unsigned short ms);
-    float getFrameLength();
 
     void returnFromScene();
 
