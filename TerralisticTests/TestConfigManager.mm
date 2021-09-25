@@ -28,7 +28,7 @@
 
 - (void)testDefaultValue {
     ConfigFile config1;
-    config1.setInt("testKey", 101);
+    config1.setDefaultInt("testKey", 101);
     XCTAssertEqual(config1.getInt("testKey"), 101);
     
     ConfigFile config2;
