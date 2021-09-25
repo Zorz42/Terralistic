@@ -71,14 +71,14 @@ void ModManager::init() {
 
 void ModManager::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered(mouse_x, mouse_y))
+        if(back_button.isHovered(getMouseX(), getMouseY()))
             gfx::returnFromScene();
         
         for(GuiMod* mod : mods)
-            if(mod->hoversPoint(mouse_x, mouse_y)) {
+            if(mod->hoversPoint(getMouseX(), getMouseY())) {
                 holding = mod;
-                hold_x = mouse_x - holding->getTranslatedX();
-                hold_y = mouse_y - holding->getTranslatedY();
+                hold_x = getMouseX() - holding->getTranslatedX();
+                hold_y = getMouseY() - holding->getTranslatedY();
                 holding_x = holding->getX();
                 holding_y = holding->getY();
                 holding->smooth_factor = 1;
@@ -118,7 +118,7 @@ void ModManager::render() {
     
     enabled_text.render();
     disabled_text.render();
-    back_button.render(mouse_x, mouse_y);
+    back_button.render(getMouseX(), getMouseY());
     
     for(GuiMod* mod : mods)
         if(mod != holding)
@@ -130,7 +130,7 @@ void ModManager::render() {
     }
     
     if(holding) {
-        short holding_x_should_be = mouse_x - gfx::getWindowWidth() / 2 + holding->getWidth() / 2 - hold_x, holding_y_should_be = mouse_y - hold_y;
+        short holding_x_should_be = getMouseX() - gfx::getWindowWidth() / 2 + holding->getWidth() / 2 - hold_x, holding_y_should_be = getMouseY() - hold_y;
         
         holding_vel_y += (holding_y_should_be - holding_y) / 3;
         holding_vel_y /= 1.4;

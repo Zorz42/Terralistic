@@ -19,7 +19,7 @@ public:
     bool flipped = false;
     unsigned char texture_frame = 0;
     const std::string name;
-    gfx::Image name_text;
+    gfx::Texture name_text;
     MovingType moving_type = MovingType::STANDING;
     unsigned int started_moving = 0;
     bool has_jumped = false;

@@ -48,7 +48,7 @@ void ClientInventory::render() {
     select_rect.setX((2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING));
     select_rect.render();
     
-    const gfx::Image* text_texture = nullptr;
+    const gfx::Texture* text_texture = nullptr;
     hovered = nullptr;
     inventory_hovered = false;
     

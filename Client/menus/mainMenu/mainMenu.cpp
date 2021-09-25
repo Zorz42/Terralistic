@@ -41,13 +41,13 @@ void MainMenu::init() {
 
 void MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(singleplayer_button.isHovered(mouse_x, mouse_y))
+        if(singleplayer_button.isHovered(getMouseX(), getMouseY()))
             WorldSelector(menu_back).run();
-        else if(multiplayer_button.isHovered(mouse_x, mouse_y))
+        else if(multiplayer_button.isHovered(getMouseX(), getMouseY()))
             MultiplayerSelector(menu_back).run();
-        else if(settings_button.isHovered(mouse_x, mouse_y))
+        else if(settings_button.isHovered(getMouseX(), getMouseY()))
             Settings(menu_back).run();
-        else if(exit_button.isHovered(mouse_x, mouse_y))
+        else if(exit_button.isHovered(getMouseX(), getMouseY()))
             gfx::returnFromScene();
     }
 }
@@ -68,8 +68,8 @@ void MainMenu::render() {
     debug_title.render();
 #endif
     version.render();
-    singleplayer_button.render(mouse_x, mouse_y);
-    multiplayer_button.render(mouse_x, mouse_y);
-    settings_button.render(mouse_x, mouse_y);
-    exit_button.render(mouse_x, mouse_y);
+    singleplayer_button.render(getMouseX(), getMouseY());
+    multiplayer_button.render(getMouseX(), getMouseY());
+    settings_button.render(getMouseX(), getMouseY());
+    exit_button.render(getMouseX(), getMouseY());
 }

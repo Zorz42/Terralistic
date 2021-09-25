@@ -40,9 +40,9 @@ void WorldCreator::init() {
 }
 
 void WorldCreator::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(mouse_x, mouse_y))
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY()))
         gfx::returnFromScene();
-    else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(mouse_x, mouse_y)) || (key == gfx::Key::ENTER && can_create)) {
+    else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
         startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, world_name.getText() == "StructureWorld");
         gfx::returnFromScene();
     }
@@ -56,8 +56,8 @@ void WorldCreator::render() {
         create_button.loadFromText("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)});
         create_button.disabled = !can_create;
     }
-    create_button.render(mouse_x, mouse_y);
-    back_button.render(mouse_x, mouse_y);
+    create_button.render(getMouseX(), getMouseY());
+    back_button.render(getMouseX(), getMouseY());
     new_world_title.render();
-    world_name.render(mouse_x, mouse_y);
+    world_name.render(getMouseX(), getMouseY());
 }

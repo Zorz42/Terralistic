@@ -18,7 +18,7 @@ void gfx::RectArray::setTextureCoords(unsigned short index, RectShape texture_co
     vertex_array[index * 4 + 3].texCoords = sf::Vector2f(texture_coordinates.x, texture_coordinates.y + texture_coordinates.h);
 }
 
-void gfx::RectArray::setImage(const Image* image_) {
+void gfx::RectArray::setImage(const Texture* image_) {
     image = image_;
 }
 

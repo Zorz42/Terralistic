@@ -162,16 +162,14 @@ void Game::init() {
     
     HandshakeScreen(background_rect, this).run();
     
-    modules = {
-        &players,
-        &block_selector,
-        &inventory,
+    registerAModule(&players);
+    registerAModule(&block_selector);
+    registerAModule(&inventory);
 #ifdef DEVELOPER_MODE
-        &debug_menu,
+    registerAModule(&debug_menu);
 #endif
-        &chat,
-        &minimap,
-    };
+    registerAModule(&chat);
+    registerAModule(&minimap);
 }
 
 void Game::handshakeWithServer() {
@@ -232,11 +230,9 @@ void Game::stop() {
 }
 
 void Game::renderBack() {
-    update();
-    for(SceneModule* module : modules)
+    for(SceneModule* module : getModules())
         module->update();
-    render();
-    for(SceneModule* module : modules)
+    for(SceneModule* module : getModules())
         module->render();
 }
 

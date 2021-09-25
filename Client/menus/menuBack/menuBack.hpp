@@ -11,7 +11,7 @@ public:
 };
 
 class MenuBack : public BackgroundRect {
-    gfx::Image background;
+    gfx::Texture background;
     gfx::Rect back_rect;
 public:
     void init();

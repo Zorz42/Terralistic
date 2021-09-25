@@ -61,15 +61,15 @@ void Settings::init() {
 void Settings::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         int new_scale = 0;
-        if(back_button.isHovered(mouse_x, mouse_y))
+        if(back_button.isHovered(getMouseX(), getMouseY()))
             gfx::returnFromScene();
-        else if(large_scale_button.isHovered(mouse_x, mouse_y))
+        else if(large_scale_button.isHovered(getMouseX(), getMouseY()))
             new_scale = 200;
-        else if(normal_scale_button.isHovered(mouse_x, mouse_y))
+        else if(normal_scale_button.isHovered(getMouseX(), getMouseY()))
             new_scale = 100;
-        else if(small_scale_button.isHovered(mouse_x, mouse_y))
+        else if(small_scale_button.isHovered(getMouseX(), getMouseY()))
             new_scale = 50;
-        else if(mods_button.isHovered(mouse_x, mouse_y))
+        else if(mods_button.isHovered(getMouseX(), getMouseY()))
             ModManager(background).run();
         if(new_scale) {
             {
@@ -88,13 +88,13 @@ void Settings::render() {
     scale_back_rect.render();
     scale_text.render();
     scale_select_rect.render();
-    large_scale_button.render(mouse_x, mouse_y);
-    normal_scale_button.render(mouse_x, mouse_y);
-    small_scale_button.render(mouse_x, mouse_y);
+    large_scale_button.render(getMouseX(), getMouseY());
+    normal_scale_button.render(getMouseX(), getMouseY());
+    small_scale_button.render(getMouseX(), getMouseY());
     
-    mods_button.render(mouse_x, mouse_y);
+    mods_button.render(getMouseX(), getMouseY());
     
-    back_button.render(mouse_x, mouse_y);
+    back_button.render(getMouseX(), getMouseY());
 }
 
 void Settings::reloadSettings() {

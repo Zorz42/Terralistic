@@ -1,7 +1,7 @@
 #include "graphics-internal.hpp"
 #include <cassert>
 
-void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
+void gfx::Texture::createBlankImage(unsigned short width, unsigned short height) {
     freeTexture();
     sfml_render_texture = new sf::RenderTexture;
     bool result = sfml_render_texture->create(width, height);
@@ -9,7 +9,7 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     clear();
 }
 
-void gfx::Image::loadFromText(const std::string& text, Color text_color) {
+void gfx::Texture::loadFromText(const std::string& text, Color text_color) {
     sf::Text sf_text;
     sf_text.setFont(font);
     sf_text.setString("|g");
@@ -30,11 +30,11 @@ void gfx::Image::loadFromText(const std::string& text, Color text_color) {
     sfml_render_texture->display();
 }
 
-void gfx::Image::loadFromResources(const std::string& path) {
+void gfx::Texture::loadFromResources(const std::string& path) {
     loadFromFile(resource_path + path);
 }
 
-void gfx::Image::loadFromFile(const std::string& path) {
+void gfx::Texture::loadFromFile(const std::string& path) {
     sf::Texture image_texture;
     bool result = image_texture.loadFromFile(path);
     assert(result);
@@ -48,31 +48,31 @@ void gfx::Image::loadFromFile(const std::string& path) {
     sfml_render_texture->display();
 }
 
-gfx::Image::~Image() {
+gfx::Texture::~Texture() {
     freeTexture();
 }
 
-void gfx::Image::freeTexture() {
+void gfx::Texture::freeTexture() {
     delete sfml_render_texture;
     sfml_render_texture = nullptr;
 }
 
-void gfx::Image::setColor(Color color_) {
+void gfx::Texture::setColor(Color color_) {
     color = color_;
 }
 
-unsigned short gfx::Image::getTextureWidth() const {
+unsigned short gfx::Texture::getTextureWidth() const {
     return sfml_render_texture->getSize().x;
 }
 
-unsigned short gfx::Image::getTextureHeight() const {
+unsigned short gfx::Texture::getTextureHeight() const {
     return sfml_render_texture->getSize().y;
 }
 
-void gfx::Image::clear() {
+void gfx::Texture::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
-void gfx::Image::render(float scale, short x, short y, RectShape src_rect, bool flipped) const {
+void gfx::Texture::render(float scale, short x, short y, RectShape src_rect, bool flipped) const {
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());
     sprite.setTextureRect({src_rect.x, src_rect.y, src_rect.w, src_rect.h});
@@ -84,11 +84,11 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect, bool 
     render_target->draw(sprite);
 }
 
-void gfx::Image::render(float scale, short x, short y, bool flipped) const {
+void gfx::Texture::render(float scale, short x, short y, bool flipped) const {
     render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped);
 }
 
-void gfx::Image::loadFromPixelGrid(const PixelGrid& pixel_grid) {
+void gfx::Texture::loadFromPixelGrid(const PixelGrid& pixel_grid) {
     sf::Texture texture;
     texture.create(pixel_grid.getWidth(), pixel_grid.getHeight());
     texture.update(pixel_grid.getArray());

@@ -41,7 +41,7 @@ void gfx::TextInput::render(unsigned short mouse_x, unsigned short mouse_y) {
         w = rect.w / scale;
     }
     
-    Image::render(scale, rect.x, rect.y, {x, 0, w, (unsigned short)(rect.h / scale)});
+    Texture::render(scale, rect.x, rect.y, {x, 0, w, (unsigned short)(rect.h / scale)});
     if (active)
         RectShape(rect.x + (rect.w > width * scale ? width * scale : rect.w ), rect.y, scale, rect.h).render(text_color);
         

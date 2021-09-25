@@ -93,7 +93,7 @@ namespace gfx {
         ~Rect();
     };
     
-    class Image {
+    class Texture {
     protected:
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;
@@ -112,10 +112,10 @@ namespace gfx {
         void setColor(Color color_);
         sf::RenderTexture* getSfmlTexture() const { return sfml_render_texture; }
         
-        ~Image();
+        ~Texture();
     };
 
-    class Sprite : public _CenteredObject, public Image {
+    class Sprite : public _CenteredObject, public Texture {
     public:
         bool flipped = false;
         float scale = 1;
@@ -161,13 +161,13 @@ namespace gfx {
     
     class RectArray {
         sf::VertexArray vertex_array;
-        const Image* image = nullptr;
+        const Texture* image = nullptr;
     public:
         RectArray(unsigned short size) : vertex_array(sf::Quads, size * 4) {}
         void setRect(unsigned short index, RectShape rect);
         void setColor(unsigned short index, Color color);
         void setTextureCoords(unsigned short index, RectShape texture_coordinates);
-        void setImage(const Image* image);
+        void setImage(const Texture* image);
         void render();
         void resize(unsigned short size);
     };
@@ -188,15 +188,19 @@ namespace gfx {
     };
 
     class Scene : public SceneModule {
-        void operateEvent(sf::Event event);
+        void onEvent(sf::Event event);
         float frame_length;
-    public:
-        float getFrameLength() { return frame_length; }
         std::vector<SceneModule*> modules;
+        short mouse_x, mouse_y;
+    public:
+        void registerAModule(SceneModule* module);
+        float getFrameLength() { return frame_length; }
         virtual void onMouseScroll(int distance) {}
         void run();
         void onKeyDownCallback(Key key_);
-        short mouse_x, mouse_y;
+        short getMouseX();
+        short getMouseY();
+        const std::vector<SceneModule*>& getModules();
     };
     
     void init(const std::string& resource_path_, unsigned short window_width_, unsigned short window_height_);
@@ -209,7 +213,7 @@ namespace gfx {
     unsigned short getWindowWidth();
     unsigned short getWindowHeight();
 
-    void setRenderTarget(Image& tex);
+    void setRenderTarget(Texture& tex);
     void resetRenderTarget();
 
     unsigned int getTicks();

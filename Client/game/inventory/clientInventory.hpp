@@ -12,7 +12,7 @@
 #define INVENTORY_ITEM_BACK_RECT_WIDTH (4 * 8 + INVENTORY_UI_SPACING)
 
 class ClientInventoryItem : ItemStack {
-    gfx::Image stack_texture;
+    gfx::Texture stack_texture;
     ResourcePack* resource_pack = nullptr;
 public:
     explicit ClientInventoryItem(ResourcePack* resource_pack) : resource_pack(resource_pack) {}
@@ -27,7 +27,7 @@ public:
     unsigned short getStack() const;
     unsigned short increaseStack(unsigned short stack_);
     
-    const gfx::Image& getStackTexture() const { return stack_texture; }
+    const gfx::Texture& getStackTexture() const { return stack_texture; }
     int x = 0, y = 0;
     void render() const;
     void renderWithBack(unsigned short mouse_x, unsigned short mouse_y) const;

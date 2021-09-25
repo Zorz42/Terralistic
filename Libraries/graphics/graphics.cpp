@@ -61,7 +61,7 @@ void gfx::init(const std::string& resource_path_, unsigned short window_width, u
         rect2.setFillColor({0, 0, 0});
         shadow_texture.draw(rect2);
         shadow_texture.display();
-        blurTexture(shadow_texture, GFX_DEFAULT_SHADOW_BLUR);
+        blurTexture(shadow_texture, GFX_SHADOW_BLUR);
         rect2.setFillColor({0, 0, 0, 0});
         shadow_texture.draw(rect2, sf::BlendNone);
         shadow_texture.display();
@@ -120,7 +120,7 @@ unsigned short gfx::getWindowHeight() {
     return window->getSize().y / global_scale;
 }
 
-void gfx::setRenderTarget(Image& tex) {
+void gfx::setRenderTarget(Texture& tex) {
     render_target->display();
     render_target = tex.getSfmlTexture();
 }

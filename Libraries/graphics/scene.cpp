@@ -3,10 +3,26 @@
 static bool running_scene = true;
 bool key_states[(int)gfx::Key::UNKNOWN];
 
+void gfx::Scene::registerAModule(SceneModule* module) {
+    modules.push_back(module);
+    module->init();
+}
+
+const std::vector<gfx::SceneModule*>& gfx::Scene::getModules() {
+    return modules;
+}
+
+short gfx::Scene::getMouseX() {
+    return mouse_x;
+}
+
+short gfx::Scene::getMouseY() {
+    return mouse_y;
+}
+
 void gfx::Scene::onKeyDownCallback(Key key_) {
     if(!key_states[(int)key_]) {
         key_states[(int)key_] = true;
-        onKeyDown(key_);
         for(SceneModule* module : modules)
             module->onKeyDown(key_);
     }
@@ -78,22 +94,17 @@ void gfx::returnFromScene() {
     running_scene = false;
 }
 
-void gfx::Scene::operateEvent(sf::Event event) {
+void gfx::Scene::onEvent(sf::Event event) {
     if (event.type == sf::Event::Resized)
         setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
+    
     else if (event.type == sf::Event::MouseButtonPressed) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         bool clicked_text_box = false;
         if (key == Key::MOUSE_LEFT) {
-            for (TextInput* i : text_inputs) {
-                i->active = i->isHovered(mouse_x, mouse_y);
-                if (i->active)
-                    clicked_text_box = true;
-            }
-    
             for (SceneModule* module : modules)
                 for (TextInput* i : module->text_inputs) {
-                    i->active = i->isHovered(mouse_x, mouse_y);
+                    i->active = i->isHovered(getMouseX(), getMouseY());
                     if (i->active)
                         clicked_text_box = true;
                 }
@@ -101,20 +112,16 @@ void gfx::Scene::operateEvent(sf::Event event) {
         if (key != Key::UNKNOWN && !clicked_text_box)
             onKeyDownCallback(key);
     }
+    
     else if (event.type == sf::Event::MouseButtonReleased) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         if (key != Key::UNKNOWN)
             key_states[(int)key] = false;
     }
+    
     else if (event.type == sf::Event::KeyPressed) {
         gfx::Key key = translateKeyboardKey(event.key.code);
         if (key == Key::BACKSPACE) {
-            for (TextInput* i : text_inputs)
-                if (i->active && !i->getText().empty()) {
-                    std::string str = i->getText();
-                    str.pop_back();
-                    i->setText(str);
-                }
             for (SceneModule* module : modules)
                 for (TextInput* i : module->text_inputs)
                     if (i->active && !i->getText().empty()) {
@@ -123,30 +130,27 @@ void gfx::Scene::operateEvent(sf::Event event) {
                         i->setText(str);
                     }
         }
-        if (key != Key::UNKNOWN)
+        bool is_textbox_active = false;
+        for(SceneModule* module : modules)
+            for(TextInput* i : module->text_inputs)
+                if(i->active)
+                    is_textbox_active = true;
+        
+        if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
             onKeyDownCallback(key);
     }
+    
     else if (event.type == sf::Event::KeyReleased) {
         gfx::Key key = translateKeyboardKey(event.key.code);
         if (key != Key::UNKNOWN)
             key_states[(int)key] = false;
     }
+    
     else if (event.type == sf::Event::TextEntered) {
         char c = event.text.unicode;
         if(c == '\b')
             return;
     
-        for (TextInput* i : text_inputs)
-            if (i->active) {
-                char result = c;
-                if (!i->ignore_one_input) {
-                    if (i->textProcessing)
-                        result = i->textProcessing(result, (int)i->getText().size());
-                    if (result)
-                        i->setText(i->getText() + result);
-                }
-                i->ignore_one_input = false;
-            }
         for (SceneModule* module : modules)
             for (TextInput* i : module->text_inputs)
                 if (i->active) {
@@ -160,16 +164,17 @@ void gfx::Scene::operateEvent(sf::Event event) {
                     i->ignore_one_input = false;
                 }
     }
+    
     else if (event.type == sf::Event::MouseWheelScrolled)
         onMouseScroll(event.mouseWheelScroll.delta);
+    
     else if (event.type == sf::Event::Closed)
         window->close();
 }
 
 void gfx::Scene::run() {
+    modules.push_back(this);
     init();
-    for (SceneModule* module : modules)
-        module->init();
     
     while(running_scene && window->isOpen()) {
         unsigned int start = getTicks();
@@ -183,13 +188,11 @@ void gfx::Scene::run() {
         
         sf::Event event;
         while(window->pollEvent(event))
-            operateEvent(event);
+            onEvent(event);
         
-        update();
         for(SceneModule* module : modules)
             module->update();
         
-        render();
         for(SceneModule* module : modules)
             module->render();
         
@@ -202,7 +205,6 @@ void gfx::Scene::run() {
     
     running_scene = true;
     
-    stop();
     for(SceneModule* module : modules)
         module->stop();
 }

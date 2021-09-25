@@ -25,7 +25,7 @@ unsigned short ClientInventoryItem::increaseStack(unsigned short stack_) {
 }
 
 void ClientInventoryItem::render() const {
-    const gfx::Image& texture = resource_pack->getItemTexture();
+    const gfx::Texture& texture = resource_pack->getItemTexture();
     texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, resource_pack->getTextureRectangle(type));
     
     if(stack > 1)

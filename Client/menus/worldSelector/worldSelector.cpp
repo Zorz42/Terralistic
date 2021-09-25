@@ -84,19 +84,19 @@ void WorldSelector::refresh() {
 
 void WorldSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered(mouse_x, mouse_y))
+        if(back_button.isHovered(getMouseX(), getMouseY()))
             gfx::returnFromScene();
-        else if(new_button.isHovered(mouse_x, mouse_y)) {
+        else if(new_button.isHovered(getMouseX(), getMouseY())) {
             WorldCreator(worlds_names, menu_back).run();
             refresh();
         }
         else
             for(auto & world : worlds) {
-                if(world.button.isHovered(mouse_x, mouse_y)) {
+                if(world.button.isHovered(getMouseX(), getMouseY())) {
                     startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world", menu_back, false);
                     refresh();
                 }
-                else if(world.delete_button.isHovered(mouse_x, mouse_y)) {
+                else if(world.delete_button.isHovered(getMouseX(), getMouseY())) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
@@ -126,7 +126,7 @@ void WorldSelector::render() {
     menu_back->setBackWidth(800);
     menu_back->renderBack();
     
-    bool hoverable = mouse_y > TOP_HEIGHT && mouse_y < gfx::getWindowHeight() - BOTTOM_HEIGHT;
+    bool hoverable = getMouseY() > TOP_HEIGHT && getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
     for(WorldToSelect& world : worlds) {
         world.button.disabled = !hoverable;
@@ -134,7 +134,7 @@ void WorldSelector::render() {
     }
 
     for(WorldToSelect& world : worlds)
-        world.render(position, mouse_x, mouse_y);
+        world.render(position, getMouseX(), getMouseY());
 
     top_rect.setWidth(menu_back->getBackWidth());
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
@@ -154,8 +154,8 @@ void WorldSelector::render() {
         bottom_rect.render();
 
     title.render();
-    back_button.render(mouse_x, mouse_y);
+    back_button.render(getMouseX(), getMouseY());
     
     new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
-    new_button.render(mouse_x, mouse_y);
+    new_button.render(getMouseX(), getMouseY());
 }

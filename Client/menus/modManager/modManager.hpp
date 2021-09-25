@@ -6,7 +6,7 @@
 
 class GuiMod : private gfx::Rect {
     std::string name;
-    gfx::Image text;
+    gfx::Texture text;
 public:
     explicit GuiMod(const std::string& name);
     void renderTile();

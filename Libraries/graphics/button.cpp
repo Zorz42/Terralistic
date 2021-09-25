@@ -25,5 +25,5 @@ void gfx::Button::render(unsigned short mouse_x, unsigned short mouse_y) {
     };
     rect.render(button_color);
     float ms = margin * scale;
-    Image::render(scale, rect.x + ms, rect.y + ms);
+    Texture::render(scale, rect.x + ms, rect.y + ms);
 }
