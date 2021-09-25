@@ -7,7 +7,7 @@ manager(manager), blocks(blocks), resource_pack(resource_pack), entities(entitie
 }
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), ClientEntity(id, EntityType::PLAYER, x, y) {
-    name_text.renderText(name, WHITE);
+    name_text.loadFromText(name, WHITE);
     friction = false;
 }
 

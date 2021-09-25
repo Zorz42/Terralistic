@@ -8,32 +8,32 @@
 
 void MainMenu::init() {
     singleplayer_button.scale = 3;
-    singleplayer_button.renderText("Singleplayer");
+    singleplayer_button.loadFromText("Singleplayer");
     singleplayer_button.orientation = gfx::TOP;
     
     multiplayer_button.scale = 3;
-    multiplayer_button.renderText("Multiplayer");
+    multiplayer_button.loadFromText("Multiplayer");
     multiplayer_button.orientation = gfx::TOP;
     
     settings_button.scale = 3;
-    settings_button.renderText("Settings");
+    settings_button.loadFromText("Settings");
     settings_button.orientation = gfx::TOP;
 
     exit_button.scale = 3;
-    exit_button.renderText("Exit");
+    exit_button.loadFromText("Exit");
     exit_button.orientation = gfx::TOP;
     
-    debug_title.renderText("DEBUG MODE", GREY);
+    debug_title.loadFromText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2;
     debug_title.y = SPACING / 4;
     
-    title.renderText("Terralistic");
+    title.loadFromText("Terralistic");
     title.scale = 4;
     title.orientation = gfx::TOP;
     title.y = debug_title.y + debug_title.getHeight() + SPACING / 2;
     
-    version.renderText(CURR_VERSION_STR, GREY);
+    version.loadFromText(CURR_VERSION_STR, GREY);
     version.orientation = gfx::BOTTOM;
     version.scale = 2;
     version.y = -5;

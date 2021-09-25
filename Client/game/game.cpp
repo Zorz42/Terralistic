@@ -50,16 +50,16 @@ void WorldStartingScreen::render() {
         prev_server_state = server->state;
         switch(server->state) {
             case ServerState::STARTING:
-                text.renderText("Starting server");
+                text.loadFromText("Starting server");
                 break;
             case ServerState::LOADING_WORLD:
-                text.renderText("Loading world");
+                text.loadFromText("Loading world");
                 break;
             case ServerState::GENERATING_WORLD:
-                text.renderText("Generating world");
+                text.loadFromText("Generating world");
                 break;
             case ServerState::STOPPING:
-                text.renderText("Saving world");
+                text.loadFromText("Saving world");
                 break;
             case ServerState::RUNNING:
             case ServerState::STOPPED:
@@ -95,7 +95,7 @@ void HandshakeScreen::init() {
     handshake_thread = std::thread(&Game::handshakeWithServer, game);
     text.scale = 3;
     text.orientation = gfx::CENTER;
-    text.renderText("Getting terrain");
+    text.loadFromText("Getting terrain");
     background_rect->setBackWidth(text.getWidth() + 300);
 }
 
@@ -163,9 +163,7 @@ void Game::init() {
     HandshakeScreen(background_rect, this).run();
     
     modules = {
-        &blocks,
         &players,
-        &items,
         &block_selector,
         &inventory,
 #ifdef DEVELOPER_MODE
@@ -244,7 +242,6 @@ void Game::renderBack() {
 
 void Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
-        enableAllEvents(false);
         PauseScreen pause_screen(this);
         pause_screen.run();
         if(pause_screen.hasExitedToMenu())

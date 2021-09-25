@@ -6,28 +6,28 @@
 #define MENU_WIDTH 450
 
 void Settings::init() {
-    scale_text.renderText("Scale:");
+    scale_text.loadFromText("Scale:");
     scale_text.scale = 3;
     scale_text.setColor(WHITE);
     scale_text.orientation = gfx::TOP;
     scale_text.y = 2 * SPACING;
     scale_text.x = -MENU_WIDTH / 2 + scale_text.getWidth() / 2 + SPACING;
     
-    large_scale_button.renderText("Large");
+    large_scale_button.loadFromText("Large");
     large_scale_button.scale = 2;
     large_scale_button.orientation = gfx::TOP;
     large_scale_button.margin = 7;
     large_scale_button.y = scale_text.getHeight() / 2 + 2 * SPACING - large_scale_button.getHeight() / 2;
     large_scale_button.x = MENU_WIDTH / 2 - scale_text.getWidth() / 2 - SPACING / 2;
     
-    normal_scale_button.renderText("Normal");
+    normal_scale_button.loadFromText("Normal");
     normal_scale_button.scale = 2;
     normal_scale_button.orientation = gfx::TOP;
     normal_scale_button.margin = 7;
     normal_scale_button.y = scale_text.getHeight() / 2 + 2 * SPACING - normal_scale_button.getHeight() / 2;
     normal_scale_button.x = large_scale_button.x - large_scale_button.getWidth() / 2 - normal_scale_button.getWidth() / 2 - SPACING / 2;
     
-    small_scale_button.renderText("Small");
+    small_scale_button.loadFromText("Small");
     small_scale_button.scale = 2;
     small_scale_button.orientation = gfx::TOP;
     small_scale_button.margin = 7;
@@ -48,11 +48,11 @@ void Settings::init() {
     scale_back_rect.shadow_intensity = SHADOW_INTENSITY;
     
     mods_button.orientation = gfx::TOP;
-    mods_button.renderText("Mods");
+    mods_button.loadFromText("Mods");
     mods_button.y = scale_back_rect.getY() + scale_back_rect.getHeight() + SPACING;
     mods_button.scale = 3;
     
-    back_button.renderText("Back");
+    back_button.loadFromText("Back");
     back_button.scale = 3;
     back_button.orientation = gfx::BOTTOM;
     back_button.y = -SPACING;

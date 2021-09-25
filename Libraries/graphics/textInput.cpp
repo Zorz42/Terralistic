@@ -1,7 +1,7 @@
 #include "graphics-internal.hpp"
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
-    renderText(text, text_color);
+    loadFromText(text, text_color);
 }
 
 unsigned short gfx::TextInput::getWidth() const {

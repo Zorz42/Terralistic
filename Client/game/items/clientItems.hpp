@@ -19,7 +19,7 @@ public:
     unsigned short getHeight() override { return ITEM_WIDTH * 2; }
 };
 
-class ClientItems : public gfx::SceneModule, EventListener<ClientPacketEvent> {
+class ClientItems : EventListener<ClientPacketEvent> {
     ResourcePack* resource_pack;
     void onEvent(ClientPacketEvent& event) override;
     ClientBlocks* blocks;

@@ -105,7 +105,7 @@ namespace gfx {
         unsigned short getTextureHeight() const;
         void clear();
         void createBlankImage(unsigned short width, unsigned short height);
-        void renderText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
+        void loadFromText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
         void loadFromResources(const std::string& path);
         void loadFromFile(const std::string& path);
         void loadFromPixelGrid(const PixelGrid& pixel_grid);
@@ -176,28 +176,23 @@ namespace gfx {
 
     class SceneModule {
     public:
-        bool _can_receive_events;
-        
         virtual void init() {}
         virtual void update() {}
         virtual void render() {}
         virtual void stop() {}
         virtual void onKeyDown(Key key_) {}
-        
         bool getKeyState(Key key_) const;
 
         std::vector<TextInput*> text_inputs;
-        bool disable_events = false;
         unsigned short mouse_x, mouse_y;
     };
 
     class Scene : public SceneModule {
-        void _operateEvent(sf::Event event);
+        void operateEvent(sf::Event event);
         float frame_length;
     public:
         float getFrameLength() { return frame_length; }
         std::vector<SceneModule*> modules;
-        void enableAllEvents(bool enable);
         virtual void onMouseScroll(int distance) {}
         void run();
         void onKeyDownCallback(Key key_);

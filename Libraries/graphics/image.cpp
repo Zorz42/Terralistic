@@ -9,7 +9,7 @@ void gfx::Image::createBlankImage(unsigned short width, unsigned short height) {
     clear();
 }
 
-void gfx::Image::renderText(const std::string& text, Color text_color) {
+void gfx::Image::loadFromText(const std::string& text, Color text_color) {
     sf::Text sf_text;
     sf_text.setFont(font);
     sf_text.setString("|g");
