@@ -212,9 +212,6 @@ namespace gfx {
     void sleep(unsigned short ms);
     float getFrameLength();
 
-    void clearWindow();
-    void updateWindow();
-
     void returnFromScene();
 
     void setScale(float scale);

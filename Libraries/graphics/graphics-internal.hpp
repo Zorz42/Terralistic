@@ -12,6 +12,7 @@
 namespace gfx {
 
     inline sf::RenderWindow *window = nullptr;
+    inline sf::RenderTexture window_texture;
     inline sf::Font font;
 
     inline float frame_length;

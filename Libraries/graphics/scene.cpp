@@ -210,13 +210,13 @@ void gfx::Scene::run() {
         for(GraphicalModule* module : modules)
             module->update();
         
-        clearWindow();
-        
         render();
         for(GraphicalModule* module : modules)
             module->render();
         
-        updateWindow();
+        window_texture.display();
+        window->draw(sf::Sprite(window_texture.getTexture()));
+        window->display();
         
         frame_length = getTicks() - start;
     }

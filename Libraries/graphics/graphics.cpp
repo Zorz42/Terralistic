@@ -36,8 +36,6 @@ static const char* blur_shader_code =
 "    gl_FragColor = color;"
 "}";
 
-static sf::RenderTexture window_texture;
-
 void gfx::init(const std::string& resource_path_, unsigned short window_width, unsigned short window_height) {
     resource_path = resource_path_;
     
@@ -140,10 +138,6 @@ float gfx::getFrameLength() {
     return frame_length;
 }
 
-void gfx::clearWindow() {
-    window_texture.clear({GFX_BACKGROUND_COLOR.r, GFX_BACKGROUND_COLOR.g, GFX_BACKGROUND_COLOR.b, GFX_BACKGROUND_COLOR.a});
-}
-
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     output.generateMipmap(); // without that it doesnt work on smaller textures
     sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
@@ -179,12 +173,6 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity, int qual
         else
             blur_intensity /= quality;
     }
-}
-
-void gfx::updateWindow() {
-    window_texture.display();
-    window->draw(sf::Sprite(window_texture.getTexture()));
-    window->display();
 }
 
 void gfx::sleep(unsigned short ms) {

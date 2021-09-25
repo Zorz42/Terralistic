@@ -15,7 +15,7 @@
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
-class game : public gfx::Scene, EventListener<ClientPacketEvent>, public BackgroundRect {
+class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public BackgroundRect {
     void onEvent(ClientPacketEvent& event) override;
     void init() override;
     void update() override;
@@ -38,14 +38,15 @@ class game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     Minimap minimap;
     BackgroundRect* background_rect;
     bool handshake_done = false;
-    void handshakeWithServer();
     
 public:
-    game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port=33770);
+    Game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port=33770);
     
     void renderBack() override;
     void setBackWidth(unsigned short width) override { }
     unsigned short getBackWidth() override { return 0; }
+    bool isHandshakeDone();
+    void handshakeWithServer();
 };
 
 #endif
