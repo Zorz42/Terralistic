@@ -48,7 +48,7 @@ class worldGenerator {
 
     std::string resource_path;
 
-    unsigned int generating_current = 0, generating_total = 6;
+    unsigned int generating_current = 0, generating_total = 1;
 
 public:
     worldGenerator(ServerBlocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(std::move(resource_path)) {}

@@ -17,7 +17,7 @@
 		<key>Terralistic-server.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>1</integer>
 		</dict>
 		<key>Terralistic.xcscheme_^#shared#^_</key>
 		<dict>
@@ -63,6 +63,11 @@
 			<true/>
 		</dict>
 		<key>169124BE25F6B89700F7EB4F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>16999A4326FE38BF0090224A</key>
 		<dict>
 			<key>primary</key>
 			<true/>

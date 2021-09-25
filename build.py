@@ -16,7 +16,7 @@ if sys.platform == "darwin":
     createDir(project_path + "Dependencies/")
 
     if not os.path.exists(project_path + "Dependencies/SFML-2.5.1-macos-clang/"):
-        print("Downloading SFML libraries")
+        print("Downloading SFML library")
 
         sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-macOS-clang.tar.gz"
         sfml_file = project_path + "sfml.tar.gz"
@@ -48,7 +48,7 @@ elif sys.platform == "linux":
     createDir("Dependencies/")
 
     if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
-        print("Downloading SFML libraries")
+        print("Downloading SFML library")
 
         sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz"
         sfml_file = project_path + "sfml.tar.gz"
@@ -82,7 +82,7 @@ elif sys.platform == "win32":
     createDir("Dependencies/")
 
     if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
-        print("Downloading SFML libraries")
+        print("Downloading SFML library")
 
         sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip"
         sfml_file = project_path + "sfml.zip"
@@ -92,40 +92,39 @@ elif sys.platform == "win32":
                 sfml_download.write(sfml_request.read())
 
         with zipfile.ZipFile(sfml_file, "r") as sfml_zip:
-            sfml_zip.extractall(project_path + "Dependencies/")
+            sfml_zip.extractall(f"{project_path}Dependencies/")
 
         os.remove(sfml_file)
 
     if not os.path.exists(project_path + "Dependencies/zlib/"):
-        print("Downloading zlib libraries")
+        print("Downloading zlib library")
 
         os.mkdir(project_path + "Dependencies/zlib/")
 
         zlib_url = "https://deac-riga.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip"
         zlib_file = project_path + "zlib.zip"
 
-        with urllib.request.urlopen(zlib_url) as sfml_request:
-            with open(zlib_file, 'wb') as sfml_download:
-                sfml_download.write(sfml_request.read())
+        with urllib.request.urlopen(zlib_url) as zlib_request:
+            with open(zlib_file, 'wb') as zlib_download:
+                zlib_download.write(zlib_request.read())
 
-        with zipfile.ZipFile(zlib_file, "r") as sfml_zip:
-            sfml_zip.extractall(project_path + "Dependencies/zlib/")
+        with zipfile.ZipFile(zlib_file, "r") as zlib_zip:
+            zlib_zip.extractall(f"{project_path}Dependencies/zlib/")
 
         os.remove(zlib_file)
-
-        zlib_url = "https://deac-fra.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip"
+        
+        zlib_url = "https://netix.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip"
         zlib_file = project_path + "zlib.zip"
 
-        with urllib.request.urlopen(zlib_url) as sfml_request:
-            with open(zlib_file, 'wb') as sfml_download:
-                sfml_download.write(sfml_request.read())
+        with urllib.request.urlopen(zlib_url) as zlib_request:
+            with open(zlib_file, 'wb') as zlib_download:
+                zlib_download.write(zlib_request.read())
 
-        with zipfile.ZipFile(zlib_file, "r") as sfml_zip:
-            sfml_zip.extractall(project_path + "Dependencies/zlib/")
+        with zipfile.ZipFile(zlib_file, "r") as zlib_zip:
+            zlib_zip.extractall(f"{project_path}Dependencies/zlib/")
 
         os.remove(zlib_file)
-
-        lines = []
+        
         with open(project_path + "Dependencies/zlib/include/zconf.h", "r") as header:
             lines = header.readlines()
         lines[286] = "#if 0\n"
@@ -137,20 +136,25 @@ elif sys.platform == "win32":
     os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build .\"")
 
     createDir("Output/Windows/Terralistic/")
-    shutil.copy(project_path + "Build/Terralistic.exe", project_path + "Output/Windows/Terralistic/Terralistic.exe")
+    shutil.copy(f"{project_path}Build/Terralistic.exe", f"{project_path}Output/Windows/Terralistic/Terralistic.exe")
 
     createDir("Output/Windows/Terralistic-server/")
-    shutil.copy(project_path + "Build/Terralistic-server.exe", project_path + "Output/Windows/Terralistic-server/Terralistic-server.exe")
+    shutil.copy(f"{project_path}Build/Terralistic-server.exe", f"{project_path}Output/Windows/Terralistic-server/Terralistic-server.exe")
 
     for file in os.listdir(project_path + "Build/"):
         if file.endswith(".dll"):
-            shutil.copy(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic/")
-            shutil.copy(project_path + "Build/" + file, project_path + "Output/Windows/Terralistic-server/")
+            shutil.copy(f"{project_path}Build/{file}", f"{project_path}Output/Windows/Terralistic/")
+            shutil.copy(f"{project_path}Build/{file}", f"{project_path}Output/Windows/Terralistic-server/")
 
-    shutil.move(project_path + "Build/Resources/", project_path + "Output/Windows/Terralistic/Resources/")
-    shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Windows/Terralistic-server/Structures.asset")
+    shutil.copy("C:/Program Files/Git/usr/bin/patch.exe", f"{project_path}Output/Windows/Terralistic/patch.exe")
+    shutil.copy("C:/Program Files/Git/usr/bin/msys-2.0.dll", f"{project_path}Output/Windows/Terralistic/msys-2.0.dll")
+
+    if os.path.exists(f"{project_path}Output/Windows/Terralistic/Resources/"):
+        shutil.rmtree(f"{project_path}Output/Windows/Terralistic/Resources/")
+    shutil.move(f"{project_path}Build/Resources/", f"{project_path}Output/Windows/Terralistic/Resources/")
+    shutil.copy(f"{project_path}Build/Structures.asset", f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
-        os.system(project_path + "Output/Windows/Terralistic/Terralistic.exe")
+        os.system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")
 else:
     print("Your current platform is not yet supported by this build script!")

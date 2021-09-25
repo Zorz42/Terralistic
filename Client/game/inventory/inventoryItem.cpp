@@ -7,7 +7,7 @@ const ItemInfo& ClientInventoryItem::getUniqueItem() const {
 void ClientInventoryItem::setStack(unsigned short stack_) {
     if(stack != stack_) {
         stack = stack_;
-        stack_texture.renderText(std::to_string(stack));
+        stack_texture.loadFromText(std::to_string(stack));
     }
 }
 

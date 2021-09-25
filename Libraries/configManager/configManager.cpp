@@ -1,6 +1,5 @@
 #include <utility>
 #include <fstream>
-#include <iostream>
 #include "configManager.hpp"
 
 ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
@@ -14,13 +13,13 @@ void ConfigFile::loadConfig() {
         unsigned long separator_index = line.find(':');
         if(separator_index < line.length())
             values[line.substr(0, separator_index)] = line.substr(separator_index + 1, line.size());
-        else
-            std::cout << "File incorrectly formatted: ignoring line: " << line << std::endl;
     }
     file.close();
 }
 
 std::string ConfigFile::getStr(const std::string& key) {
+    if(!keyExists(key))
+        throw ConfigKeyException(key);
     return values[key];
 }
 

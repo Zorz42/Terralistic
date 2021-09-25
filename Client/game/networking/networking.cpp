@@ -40,8 +40,12 @@ sf::Packet NetworkingManager::getPacket() {
 
 std::vector<char> NetworkingManager::getData(unsigned int size) {
     std::vector<char> data(size);
+    int bytes_received = 0;
     size_t received;
-    socket.receive(&data[0], size, received);
+    while(bytes_received < size) {
+        socket.receive(&data[bytes_received], size, received);
+        bytes_received += received;
+    }
     return data;
 }
 

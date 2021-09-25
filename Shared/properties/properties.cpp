@@ -76,7 +76,6 @@ void initProperties() {
         Recipe({{ItemType::STONE, 2}, {ItemType::DIRT, 2}}, {ItemType::STONE_BLOCK, 1}),
     };
 }
-
 BlockType getBlockTypeByName(const std::string& name) {
     for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++)
         if(getBlockInfo((BlockType)i).name == name)

@@ -11,14 +11,14 @@ ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, cons
 
 void ChoiceScreen::init() {
     question_sprite.scale = 3;
-    question_sprite.renderText(question);
+    question_sprite.loadFromText(question);
     question_sprite.orientation = gfx::CENTER;
     
     int combined_width = 0;
     
     for(ChoiceScreenButton& i : buttons) {
         i.gfx_button.scale = 3;
-        i.gfx_button.renderText(i.option);
+        i.gfx_button.loadFromText(i.option);
         i.gfx_button.orientation = gfx::BOTTOM;
         i.gfx_button.y = -20;
         combined_width += i.gfx_button.getWidth();

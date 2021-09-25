@@ -9,7 +9,7 @@ GuiMod::GuiMod(const std::string& name) : name(name) {
     fill_color.a = TRANSPARENCY;
     blur_intensity = BLUR;
     shadow_intensity = SHADOW_INTENSITY;
-    text.renderText(name);
+    text.loadFromText(name);
     setWidth(300);
     setHeight(text.getTextureHeight() * 2 + SPACING);
     smooth_factor = 3;
@@ -51,19 +51,19 @@ void ModManager::init() {
     placeholder.orientation = gfx::TOP;
     placeholder.smooth_factor = 3;
     
-    enabled_text.renderText("Enabled");
+    enabled_text.loadFromText("Enabled");
     enabled_text.scale = 3;
     enabled_text.orientation = gfx::TOP;
     enabled_text.x = 200;
     enabled_text.y = SPACING;
     
-    disabled_text.renderText("Disabled");
+    disabled_text.loadFromText("Disabled");
     disabled_text.scale = 3;
     disabled_text.orientation = gfx::TOP;
     disabled_text.x = -200;
     disabled_text.y = SPACING;
     
-    back_button.renderText("Back");
+    back_button.loadFromText("Back");
     back_button.orientation = gfx::BOTTOM;
     back_button.scale = 3;
     back_button.y = -SPACING;

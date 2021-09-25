@@ -26,7 +26,6 @@ void Chat::init() {
 void Chat::update() {
     int target_width = chat_box.active ? 300 : 100;
     chat_box.width += (target_width - (int)chat_box.width) / 3;
-    disable_events = chat_box.active;
     
     for(ChatLine* i : chat_lines)
         i->text_sprite.y += (i->y_to_be - i->text_sprite.y) / 2;
@@ -37,7 +36,7 @@ void Chat::render() {
     
     for(ChatLine* i : chat_lines) {
         if(!i->text.empty()) {
-            i->text_sprite.renderText(i->text);
+            i->text_sprite.loadFromText(i->text);
             i->text_sprite.scale = 2;
             i->text_sprite.y = chat_box.y;
             i->text_sprite.x = SPACING / 2;

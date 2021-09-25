@@ -5,7 +5,6 @@ void BlockSelector::init() {
     select_rect.setWidth(2 * BLOCK_WIDTH);
     select_rect.setHeight(2 * BLOCK_WIDTH);
     select_rect.border_color = {255, 0, 0};
-    select_rect.smooth_factor = 2;
 }
 
 void BlockSelector::render() {
