@@ -6,7 +6,7 @@
 #include "events.hpp"
 #include "clientNetworking.hpp"
 #include "clientBlocks.hpp"
-#include "clientEntity.hpp"
+#include "clientEntities.hpp"
 
 #define ITEM_WIDTH 8
 
@@ -19,7 +19,7 @@ public:
     unsigned short getHeight() override { return ITEM_WIDTH * 2; }
 };
 
-class ClientItems : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
+class ClientItems : EventListener<ClientPacketEvent> {
     ResourcePack* resource_pack;
     void onEvent(ClientPacketEvent& event) override;
     ClientBlocks* blocks;

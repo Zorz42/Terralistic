@@ -7,28 +7,23 @@ void ClientItems::renderItems() {
     for(ClientEntity* entity : entities->getEntities())
         if(entity->type == EntityType::ITEM)
             item_count++;
-    sf::VertexArray item_vertex_array(sf::Quads, item_count * 4);
+    gfx::RectArray item_rects(item_count);
     int item_index = 0;
     for(ClientEntity* entity : entities->getEntities()) {
         if(entity->type == EntityType::ITEM) {
             ClientItem* item = (ClientItem*)entity;
             gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());
-            item_vertex_array[item_index    ].texCoords = {0, (float)rect.y};
-            item_vertex_array[item_index + 1].texCoords = {(float)rect.w, (float)rect.y};
-            item_vertex_array[item_index + 2].texCoords = {(float)rect.w, (float)rect.y + (float)rect.h};
-            item_vertex_array[item_index + 3].texCoords = {0, (float)rect.y + (float)rect.h};
+            item_rects.setTextureCoords(item_index, rect);
 
-            float item_x = item->x - blocks->view_x + (float)gfx::getWindowWidth() / 2;
-            float item_y = item->y - blocks->view_y + (float)gfx::getWindowHeight() / 2;
-            item_vertex_array[item_index    ].position = {item_x, item_y};
-            item_vertex_array[item_index + 1].position = {item_x + (float)rect.w * 2, item_y};
-            item_vertex_array[item_index + 2].position = {item_x + (float)rect.w * 2, item_y + (float)rect.h * 2};
-            item_vertex_array[item_index + 3].position = {item_x, item_y + (float)rect.h * 2};
-            item_index += 4;
+            short item_x = item->x - blocks->view_x + gfx::getWindowWidth() / 2;
+            short item_y = item->y - blocks->view_y + gfx::getWindowHeight() / 2;
+            item_rects.setRect(item_index, {item_x, item_y, (unsigned short)(rect.h * 2), (unsigned short)(rect.w * 2)});
+            item_index++;
         }
     }
+    item_rects.setImage(&resource_pack->getItemTexture());
     if(item_index)
-        gfx::drawVertices(item_vertex_array, resource_pack->getItemTexture().getSfmlTexture()->getTexture());
+        item_rects.render();
 }
 
 void ClientItems::onEvent(ClientPacketEvent& event) {

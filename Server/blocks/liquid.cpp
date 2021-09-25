@@ -7,11 +7,6 @@ const LiquidInfo& ServerBlock::getUniqueLiquid() {
     return ::getLiquidInfo(block_data->liquid_type);
 }
 
-void ServerBlock::setTypeDirectly(LiquidType liquid_type) {
-    assert((int)liquid_type >= 0 && liquid_type < LiquidType::NUM_LIQUIDS);
-    block_data->liquid_type = liquid_type;
-}
-
 bool ServerBlock::canUpdateLiquid() {
     return block_data->when_to_update_liquid != 0 && gfx::getTicks() > block_data->when_to_update_liquid;
 }
@@ -24,7 +19,8 @@ void ServerBlock::setType(LiquidType liquid_type) {
         if(event.cancelled)
             return;
         
-        setTypeDirectly(liquid_type);
+        assert((int)liquid_type >= 0 && liquid_type < LiquidType::NUM_LIQUIDS);
+        block_data->liquid_type = liquid_type;
         
         if(liquid_type == LiquidType::EMPTY)
             setLiquidLevel(0);
@@ -32,10 +28,6 @@ void ServerBlock::setType(LiquidType liquid_type) {
         update();
         updateNeighbors();
     }
-}
-
-void ServerBlock::setLiquidDirectly(unsigned char level) {
-    block_data->liquid_level = level;
 }
 
 void ServerBlock::setLiquidLevel(unsigned char level) {
@@ -46,7 +38,7 @@ void ServerBlock::setLiquidLevel(unsigned char level) {
         if(event.cancelled)
             return;
         
-        setLiquidDirectly(level);
+        block_data->light_level = level;
         if(level == 0)
             setType(LiquidType::EMPTY);
         

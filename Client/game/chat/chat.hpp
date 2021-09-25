@@ -11,7 +11,7 @@ struct ChatLine {
     unsigned int time_created{};
 };
 
-class Chat : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
+class Chat : public gfx::SceneModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
     NetworkingManager* manager;
     std::vector<ChatLine*> chat_lines;

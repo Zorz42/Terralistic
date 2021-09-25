@@ -3,15 +3,15 @@
 
 void PauseScreen::init() {
     resume_button.scale = 3;
-    resume_button.renderText("Resume");
+    resume_button.loadFromText("Resume");
     resume_button.y = SPACING;
 
     settings_button.scale = 3;
-    settings_button.renderText("Settings");
+    settings_button.loadFromText("Settings");
     settings_button.y = resume_button.y + resume_button.getHeight() + SPACING;
     
     quit_button.scale = 3;
-    quit_button.renderText("Leave Game");
+    quit_button.loadFromText("Leave Game");
     quit_button.y = settings_button.y + settings_button.getHeight() + SPACING;
     
     back_rect.fill_color.a = TRANSPARENCY;

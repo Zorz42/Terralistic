@@ -1,27 +1,19 @@
 #include "graphics-internal.hpp"
 
-static bool running_scene = true, disable_events_gl;
+static bool running_scene = true;
 bool key_states[(int)gfx::Key::UNKNOWN];
 
 void gfx::Scene::onKeyDownCallback(Key key_) {
     if(!key_states[(int)key_]) {
         key_states[(int)key_] = true;
-        if(_can_receive_events)
-            onKeyDown(key_);
-        for(GraphicalModule* module : modules)
-            if(module->_can_receive_events)
-                module->onKeyDown(key_);
+        onKeyDown(key_);
+        for(SceneModule* module : modules)
+            module->onKeyDown(key_);
     }
 }
 
-void gfx::Scene::enableAllEvents(bool enable) {
-    _can_receive_events = enable;
-    for(GraphicalModule* module : modules)
-        module->_can_receive_events = enable;
-}
-
-bool gfx::GraphicalModule::getKeyState(Key key_) const {
-    return _can_receive_events && key_states[(int)key_];
+bool gfx::SceneModule::getKeyState(Key key_) const {
+    return key_states[(int)key_];
 }
 
 gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
@@ -86,27 +78,25 @@ void gfx::returnFromScene() {
     running_scene = false;
 }
 
-void gfx::Scene::_operateEvent(sf::Event event) {
+void gfx::Scene::operateEvent(sf::Event event) {
     if (event.type == sf::Event::Resized)
         setWindowSize(event.size.width / global_scale, event.size.height / global_scale);
     else if (event.type == sf::Event::MouseButtonPressed) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         bool clicked_text_box = false;
         if (key == Key::MOUSE_LEFT) {
-            if (!disable_events_gl || disable_events)
-                for (TextInput* i : text_inputs) {
+            for (TextInput* i : text_inputs) {
+                i->active = i->isHovered(mouse_x, mouse_y);
+                if (i->active)
+                    clicked_text_box = true;
+            }
+    
+            for (SceneModule* module : modules)
+                for (TextInput* i : module->text_inputs) {
                     i->active = i->isHovered(mouse_x, mouse_y);
                     if (i->active)
                         clicked_text_box = true;
                 }
-    
-            for (GraphicalModule* module : modules)
-                if (!disable_events_gl || module->disable_events)
-                    for (TextInput* i : module->text_inputs) {
-                        i->active = i->isHovered(mouse_x, mouse_y);
-                        if (i->active)
-                            clicked_text_box = true;
-                    }
         }
         if (key != Key::UNKNOWN && !clicked_text_box)
             onKeyDownCallback(key);
@@ -125,7 +115,7 @@ void gfx::Scene::_operateEvent(sf::Event event) {
                     str.pop_back();
                     i->setText(str);
                 }
-            for (GraphicalModule* module : modules)
+            for (SceneModule* module : modules)
                 for (TextInput* i : module->text_inputs)
                     if (i->active && !i->getText().empty()) {
                         std::string str = i->getText();
@@ -157,7 +147,7 @@ void gfx::Scene::_operateEvent(sf::Event event) {
                 }
                 i->ignore_one_input = false;
             }
-        for (GraphicalModule* module : modules)
+        for (SceneModule* module : modules)
             for (TextInput* i : module->text_inputs)
                 if (i->active) {
                     char result = c;
@@ -178,45 +168,34 @@ void gfx::Scene::_operateEvent(sf::Event event) {
 
 void gfx::Scene::run() {
     init();
-    for (GraphicalModule* module : modules)
+    for (SceneModule* module : modules)
         module->init();
     
     while(running_scene && window->isOpen()) {
         unsigned int start = getTicks();
         
-        disable_events_gl = disable_events;
-        for(GraphicalModule* module : modules) {
-            if(disable_events_gl)
-                break;
-            disable_events_gl = module->disable_events;
-        }
-        
-        _can_receive_events = !disable_events_gl || disable_events;
-        for(GraphicalModule* module : modules)
-            module->_can_receive_events = !disable_events_gl || module->disable_events;
-        
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
         mouse_y = sf::Mouse::getPosition(*window).y / global_scale;
-        for(GraphicalModule* module : modules) {
+        for(SceneModule* module : modules) {
             module->mouse_x = mouse_x;
             module->mouse_y = mouse_y;
         }
         
         sf::Event event;
         while(window->pollEvent(event))
-            _operateEvent(event);
+            operateEvent(event);
         
         update();
-        for(GraphicalModule* module : modules)
+        for(SceneModule* module : modules)
             module->update();
         
-        clearWindow();
-        
         render();
-        for(GraphicalModule* module : modules)
+        for(SceneModule* module : modules)
             module->render();
         
-        updateWindow();
+        window_texture.display();
+        window->draw(sf::Sprite(window_texture.getTexture()));
+        window->display();
         
         frame_length = getTicks() - start;
     }
@@ -224,6 +203,6 @@ void gfx::Scene::run() {
     running_scene = true;
     
     stop();
-    for(GraphicalModule* module : modules)
+    for(SceneModule* module : modules)
         module->stop();
 }

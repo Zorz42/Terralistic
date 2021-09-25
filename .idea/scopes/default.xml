@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="default" pattern="!file[Terralistic]:.idea//*&amp;&amp;!file[Terralistic]:.vs//*&amp;&amp;!file[Terralistic]:.vscode//*&amp;&amp;!file[Terralistic]:Build//*&amp;&amp;!file[Terralistic]:Dependencies//*&amp;&amp;!file:README.md&amp;&amp;!file[Terralistic]:Terralistic.xcodeproj//*&amp;&amp;!file:Server/Info.plist&amp;&amp;!file:Server/Terralistic-server.entitlements&amp;&amp;!file:Client/Info.plist&amp;&amp;!file:Client/Terralistic.entitlements&amp;&amp;!file[Terralistic]:Output//*" />
+</component>

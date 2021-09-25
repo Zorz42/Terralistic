@@ -20,17 +20,17 @@ void WorldSelector::init() {
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Worlds/");
     
     title.scale = 3;
-    title.renderText("Select a world to play!");
+    title.loadFromText("Select a world to play!");
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
-    back_button.renderText("Back");
+    back_button.loadFromText("Back");
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
-    new_button.renderText("New");
+    new_button.loadFromText("New");
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
     
@@ -68,7 +68,7 @@ void WorldSelector::refresh() {
     for(auto& world : worlds) {
         world.button.orientation = gfx::TOP;
         world.button.scale = 3;
-        world.button.renderText(world.name);
+        world.button.loadFromText(world.name);
         world.button_y = scroll_limit + TOP_HEIGHT;
 
         world.delete_button.orientation = gfx::TOP;

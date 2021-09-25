@@ -1,16 +1,22 @@
+#include <iostream>
 #include "serverNetworking.hpp"
 #include "print.hpp"
 #include "compress.hpp"
+#include "graphics.hpp"
+
+#define TRANSFER_BUFFER_SIZE 16384 // 2^14
 
 void Connection::send(sf::Packet& packet) {
     master_packet.append(packet.getData(), packet.getDataSize());
 }
 
 void Connection::send(std::vector<char>& data) {
-    size_t sent;
-    socket->send(&data[0], data.size(), sent);
-    if(data.size() != sent)
-        print::error("data was not sent properly");
+    int bytes_sent = 0;
+    while(bytes_sent < data.size()) {
+        size_t sent;
+        socket->send(&data[bytes_sent], (int)data.size() - bytes_sent, sent);
+        bytes_sent += sent;
+    }
 }
 
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
@@ -93,13 +99,10 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             ServerPlayer* player = players->addPlayer(player_name);
             connections[i].player = player;
             
-            sf::Packet welcome_packet;
-            welcome_packet << player->getX() << player->getY();
-            welcome_packet << blocks->getWidth() << blocks->getHeight();
-            
             std::vector<char> map_data = blocks->toData();
             
-            map_data = compress(map_data);
+            sf::Packet welcome_packet;
+            welcome_packet << player->getX() << player->getY() << blocks->getWidth() << blocks->getHeight();
             
             welcome_packet << (unsigned int)map_data.size();
             connections[i].send(welcome_packet);

@@ -125,7 +125,7 @@ void ResourcePack::loadItems() {
 
     for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++) {
         item_textures[i].loadFromFile(getFile("/items/" + getItemInfo((ItemType)i).name + ".png"));
-        item_text_textures[i].renderText(getItemInfo((ItemType)i).name);
+        item_text_textures[i].loadFromText(getItemInfo((ItemType)i).name);
     }
 
     unsigned short max_x_size = 0;

@@ -17,13 +17,10 @@
 
 static std::thread server_thread;
 
-#define LOADING_RECT_HEIGHT 20
-//#define LOADING_RECT_WIDTH (gfx::getWindowWidth() / 5 * 4)
-#define LOADING_RECT_ELEVATION 50
-
 class WorldStartingScreen : public gfx::Scene {
     BackgroundRect* menu_back;
     gfx::Sprite text;
+    gfx::Rect loading_bar, loading_bar_back;
     void init() override;
     void render() override;
     Server* server;
@@ -34,33 +31,35 @@ public:
 
 void WorldStartingScreen::init() {
     text.scale = 3;
-    text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
     text.createBlankImage(1, 1);
     text.orientation = gfx::CENTER;
+    
+    loading_bar_back.orientation = gfx::CENTER;
+    loading_bar_back.fill_color.a = TRANSPARENCY;
+    loading_bar_back.setHeight(50);
+    loading_bar_back.setY(100);
+    
+    loading_bar.fill_color = WHITE;
+    loading_bar.fill_color.a = TRANSPARENCY;
+    loading_bar.setHeight(50);
 }
 
 void WorldStartingScreen::render() {
+    menu_back->renderBack();
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
         switch(server->state) {
             case ServerState::STARTING:
-                text.renderText("Starting server");
+                text.loadFromText("Starting server");
                 break;
             case ServerState::LOADING_WORLD:
-                text.renderText("Loading world");
+                text.loadFromText("Loading world");
                 break;
             case ServerState::GENERATING_WORLD:
-                text.renderText("Generating world");
-                /*loading_bar.w += (private_server.getGeneratingCurrent() * LOADING_RECT_WIDTH / private_server.getGeneratingTotal() - loading_bar.w) / 3;
-                loading_bar.x = -short(loading_bar_back.w - loading_bar.w) / 2;
-                gfx::clearWindow();
-                generating_text.render();
-                loading_bar_back.render();
-                loading_bar.render();
-                gfx::updateWindow();*/
+                text.loadFromText("Generating world");
                 break;
             case ServerState::STOPPING:
-                text.renderText("Saving world");
+                text.loadFromText("Saving world");
                 break;
             case ServerState::RUNNING:
             case ServerState::STOPPED:
@@ -70,12 +69,47 @@ void WorldStartingScreen::render() {
         }
         menu_back->setBackWidth(text.getWidth() + 300);
     }
-    menu_back->renderBack();
+    if(server->state == ServerState::GENERATING_WORLD) {
+        loading_bar_back.setWidth(text.getWidth() + 200);
+        loading_bar.setX(loading_bar_back.getTranslatedX());
+        loading_bar.setY(loading_bar_back.getTranslatedY());
+        loading_bar.setWidth(server->getGeneratingCurrent() * (text.getWidth() + 200) / server->getGeneratingTotal());
+        loading_bar_back.render();
+        loading_bar.render();
+    }
+    text.render();
+}
+
+class HandshakeScreen : public gfx::Scene {
+    gfx::Sprite text;
+    std::thread handshake_thread;
+    void init() override;
+    void render() override;
+    BackgroundRect* background_rect;
+    Game* game;
+public:
+    HandshakeScreen(BackgroundRect* background_rect, Game* game) : background_rect(background_rect), game(game) {}
+};
+
+void HandshakeScreen::init() {
+    handshake_thread = std::thread(&Game::handshakeWithServer, game);
+    text.scale = 3;
+    text.orientation = gfx::CENTER;
+    text.loadFromText("Getting terrain");
+    background_rect->setBackWidth(text.getWidth() + 300);
+}
+
+void HandshakeScreen::render() {
+    if(game->isHandshakeDone()) {
+        handshake_thread.join();
+        gfx::returnFromScene();
+    }
+    background_rect->renderBack();
     text.render();
 }
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world) {
-    Server private_server(gfx::resource_path, world_name);
+    Server private_server(gfx::getResourcePath(), world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     if(structure_world)
         private_server.seed = 1000;
@@ -85,7 +119,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     
     WorldStartingScreen(menu_back, &private_server).run();
 
-    game(menu_back, "_", "127.0.0.1", port).run();
+    Game(menu_back, "_", "127.0.0.1", port).run();
     private_server.stop();
     
     while(private_server.state == ServerState::RUNNING)
@@ -96,7 +130,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     server_thread.join();
 }
 
-game::game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port) : ip_address(std::move(ip_address)),
+Game::Game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port) : ip_address(std::move(ip_address)),
     port(port),
     username(username),
     background_rect(background_rect),
@@ -107,11 +141,12 @@ game::game(BackgroundRect* background_rect, const std::string& username, std::st
     block_selector(&networking_manager, &blocks, &inventory, &players),
     inventory(&networking_manager, &resource_pack),
     debug_menu(&players, &blocks),
-    chat(&networking_manager)
+    chat(&networking_manager),
+    minimap(&blocks)
 {}
 
-void game::init() {
-    std::vector<std::string> active_resource_packs = {gfx::resource_path + "resourcePack"};
+void Game::init() {
+    std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
         std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
         std::string line;
@@ -125,40 +160,21 @@ void game::init() {
         gfx::returnFromScene();
     }
     
-    std::thread handshake_thread(&game::handshakeWithServer, this);
-    
-    gfx::Sprite text;
-    text.scale = 3;
-    text.y = (LOADING_RECT_HEIGHT - LOADING_RECT_ELEVATION) / 2;
-    text.orientation = gfx::CENTER;
-    text.renderText("Getting terrain");
-    background_rect->setBackWidth(text.getWidth() + 300);
-    
-    while(!handshake_done) {
-        gfx::clearWindow();
-        
-        background_rect->renderBack();
-        text.render();
-        
-        gfx::updateWindow();
-    }
-    
-    handshake_thread.join();
+    HandshakeScreen(background_rect, this).run();
     
     modules = {
-        &blocks,
         &players,
-        &items,
         &block_selector,
         &inventory,
 #ifdef DEVELOPER_MODE
         &debug_menu,
 #endif
         &chat,
+        &minimap,
     };
 }
 
-void game::handshakeWithServer() {
+void Game::handshakeWithServer() {
     sf::Packet join_packet;
     join_packet << username;
     networking_manager.sendPacket(join_packet);
@@ -170,13 +186,10 @@ void game::handshakeWithServer() {
     packet >> player_x >> player_y;
     unsigned short world_width, world_height;
     packet >> world_width >> world_height;
-    
     unsigned int size;
     packet >> size;
     
     std::vector<char> map_data = networking_manager.getData(size);
-    
-    map_data = decompress(map_data);
     
     blocks.create(world_width, world_height, map_data);
     
@@ -185,7 +198,7 @@ void game::handshakeWithServer() {
     handshake_done = true;
 }
 
-void game::onEvent(ClientPacketEvent& event) {
+void Game::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
         case PacketType::KICK: {
             std::string kick_message;
@@ -197,13 +210,13 @@ void game::onEvent(ClientPacketEvent& event) {
     }
 }
 
-void game::update() {
+void Game::update() {
     networking_manager.checkForPackets();
     networking_manager.flushPackets();
-    entities.updateAllEntities(gfx::getDeltaTime());
+    entities.updateAllEntities(getFrameLength());
 }
 
-void game::render() {
+void Game::render() {
     float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
     int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
@@ -214,25 +227,28 @@ void game::render() {
     blocks.renderFrontBlocks();
 }
 
-void game::stop() {
+void Game::stop() {
     networking_manager.closeConnection();
 }
 
-void game::renderBack() {
+void Game::renderBack() {
     update();
-    for(GraphicalModule* module : modules)
+    for(SceneModule* module : modules)
         module->update();
     render();
-    for(GraphicalModule* module : modules)
+    for(SceneModule* module : modules)
         module->render();
 }
 
-void game::onKeyDown(gfx::Key key) {
+void Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
-        enableAllEvents(false);
         PauseScreen pause_screen(this);
         pause_screen.run();
         if(pause_screen.hasExitedToMenu())
             gfx::returnFromScene();
     }
+}
+
+bool Game::isHandshakeDone() {
+    return handshake_done;
 }

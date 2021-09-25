@@ -6,7 +6,7 @@
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
-#include "clientEntity.hpp"
+#include "clientEntities.hpp"
 
 enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 
@@ -27,7 +27,7 @@ public:
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
 };
 
-class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
+class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> {
     bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false, running_left = false, running_right = false;
     
     void render(ClientPlayer& player_to_draw);
@@ -47,7 +47,7 @@ class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEve
     ResourcePack* resource_pack;
     ClientEntities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, ClientBlocks* world_map, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
+    ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
     
     void renderPlayers();
     

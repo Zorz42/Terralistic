@@ -36,9 +36,9 @@ static const char* blur_shader_code =
 "    gl_FragColor = color;"
 "}";
 
-static sf::RenderTexture window_texture;
-
-void gfx::init(unsigned short window_width, unsigned short window_height) {
+void gfx::init(const std::string& resource_path_, unsigned short window_width, unsigned short window_height) {
+    resource_path = resource_path_;
+    
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     window->setVerticalSyncEnabled(true);
     window->setFramerateLimit(120);
@@ -121,6 +121,7 @@ unsigned short gfx::getWindowHeight() {
 }
 
 void gfx::setRenderTarget(Image& tex) {
+    render_target->display();
     render_target = tex.getSfmlTexture();
 }
 
@@ -131,14 +132,6 @@ void gfx::resetRenderTarget() {
 
 unsigned int gfx::getTicks() {
     return global_clock.getElapsedTime().asMilliseconds();
-}
-
-float gfx::getDeltaTime() {
-    return frame_length;
-}
-
-void gfx::clearWindow() {
-    window_texture.clear(sf::Color(GFX_BACKGROUND_COLOR));
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
@@ -158,10 +151,8 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     output.draw(vertices, states);
 }
 
-void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity, int quality) {
+void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
     blur_intensity = std::pow(2, blur_intensity);
-    quality = 2 << quality;
-    
     blur_shader.setUniform("source", texture.getTexture());
     
     while(blur_intensity >= 1.f) {
@@ -171,24 +162,15 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity, int qual
         blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / texture.getSize().y));
         applyShader(blur_shader, texture);
         
-        if(blur_intensity < quality && blur_intensity != 1)
-            blur_intensity = 1;
-        else
-            blur_intensity /= quality;
+        blur_intensity /= 2;
     }
-}
-
-void gfx::updateWindow() {
-    window_texture.display();
-    window->draw(sf::Sprite(window_texture.getTexture()));
-    window->display();
 }
 
 void gfx::sleep(unsigned short ms) {
     sf::sleep(sf::milliseconds(ms));
 }
 
-void gfx::setScale(float scale) {
+void gfx::setGlobalScale(float scale) {
     global_scale = scale;
     setWindowSize(getWindowWidth(), getWindowHeight());
 }
@@ -208,12 +190,6 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     window_texture.create(width / global_scale, height / global_scale);
 }
 
-void gfx::drawVertices(const sf::VertexArray& array, const sf::Texture& texture) {
-    sf::RenderStates states;
-    states.texture = &texture;
-    render_target->draw(array, states);
-}
-
-void gfx::drawVertices(const sf::VertexArray& array) {
-    render_target->draw(array);
+std::string gfx::getResourcePath() {
+    return resource_path;
 }
