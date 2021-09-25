@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
-project(Terralistic CXX)
 project(Terralistic-server CXX)
+project(Terralistic CXX)
+
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(IS_DEBUG TRUE)
@@ -28,8 +29,8 @@ file(GLOB_RECURSE SRC_CLIENT CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Clien
 file(GLOB_RECURSE SRC_SERVER CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Server/*.cpp)
 list(REMOVE_ITEM SRC_SERVER ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
 
-add_executable(Terralistic WIN32 ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER})
-add_executable(Terralistic-server ${SRC_LIBRARIES} ${SRC_SERVER} ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
+add_executable(Terralistic WIN32 ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER} Server/commands/commands.cpp Server/commands/commands.hpp)
+add_executable(Terralistic-server ${SRC_LIBRARIES} ${SRC_SERVER} ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp Server/commands/commands.cpp Server/commands/commands.hpp)
 
 
 FILE(GLOB_RECURSE HEADER_LIST Client/*.hpp Libraries/*.hpp "External Libraries/*.hpp" "External Libraries/*.h" Server/*.hpp Shared/*.hpp)

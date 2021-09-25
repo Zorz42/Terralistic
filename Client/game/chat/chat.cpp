@@ -1,7 +1,7 @@
 #include <set>
 #include "chat.hpp"
 
-static const std::set<char> allowed_chars = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`'};
+static const std::set<char> allowed_chars = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
 void Chat::init() {
     chat_box.scale = 2;
@@ -84,7 +84,7 @@ void Chat::onEvent(ClientPacketEvent &event) {
             ChatLine* new_line = new ChatLine;
             event.packet >> new_line->text;
             new_line->time_created = gfx::getTicks();
-            chat_lines.push_back(new_line);
+                chat_lines.push_back(new_line);
             break;
         }
         default:;

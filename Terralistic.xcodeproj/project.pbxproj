@@ -26,11 +26,12 @@
 		167C03B826E141FC0045FEA9 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03B726E141FC0045FEA9 /* button.cpp */; };
 		1682944326A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
+		16999A9626FE65C60090224A /* commands.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16999A9426FE65C60090224A /* commands.cpp */; };
 		16999A8C26FE3FBF0090224A /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		16999A8D26FE3FDF0090224A /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; settings = {ATTRIBUTES = (Required, ); }; };
 		16999A8F26FE40110090224A /* TestCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16999A8E26FE40110090224A /* TestCompress.mm */; };
 		16999A9126FE52B70090224A /* TestConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16999A9026FE52B70090224A /* TestConfigManager.mm */; };
-		16999A9226FE545C0090224A /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
+
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A0E8AC26FDBE630069211C /* minimap.cpp */; };
 		16A3BFEA26FF1C5C001B9E4E /* pixelGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFE926FF1C5C001B9E4E /* pixelGrid.cpp */; };
@@ -275,6 +276,8 @@
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1695428D2680B5B400F1F4FE /* versions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = versions.hpp; sourceTree = "<group>"; };
 		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
+		16999A9426FE65C60090224A /* commands.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = commands.cpp; sourceTree = "<group>"; };
+		16999A9526FE65C60090224A /* commands.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = commands.hpp; sourceTree = "<group>"; };
 		16999A4426FE38BF0090224A /* TerralisticTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TerralisticTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16999A8E26FE40110090224A /* TestCompress.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestCompress.mm; sourceTree = "<group>"; };
 		16999A9026FE52B70090224A /* TestConfigManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestConfigManager.mm; sourceTree = "<group>"; };
@@ -539,6 +542,7 @@
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
+				16999A9326FE65C60090224A /* commands */,
 				167B387D2642F73900E3C718 /* print */,
 				16B36D302682066B00A4B03A /* blocks */,
 				167513C126A498DA00E21C68 /* biomes */,
@@ -646,6 +650,13 @@
 			path = Client;
 			sourceTree = "<group>";
 		};
+		16999A9326FE65C60090224A /* commands */ = {
+			isa = PBXGroup;
+			children = (
+				16999A9426FE65C60090224A /* commands.cpp */,
+				16999A9526FE65C60090224A /* commands.hpp */,
+			);
+			path = commands;
 		16999A4526FE38BF0090224A /* TerralisticTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -1120,6 +1131,7 @@
 				3657221926D07181005AB3CC /* block.cpp in Sources */,
 				3657221526D07181005AB3CC /* players.cpp in Sources */,
 				167C03B226E141AB0045FEA9 /* image.cpp in Sources */,
+				16999A9626FE65C60090224A /* commands.cpp in Sources */,
 				3657220E26D07181005AB3CC /* chat.cpp in Sources */,
 				3657221426D07181005AB3CC /* resourcePack.cpp in Sources */,
 				3657221826D07181005AB3CC /* blockSelector.cpp in Sources */,

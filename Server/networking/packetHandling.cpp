@@ -54,10 +54,13 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             packet >> message;
             std::string chat_format = (conn.player->name == "_" ? "Protagonist" : conn.player->name) + ": " + message;
             print::info(chat_format);
-            
-            sf::Packet chat_packet;
-            chat_packet << PacketType::CHAT << chat_format;
-            sendToEveryone(chat_packet);
+            if(message.at(0) != '/') {
+                sf::Packet chat_packet;
+                chat_packet << PacketType::CHAT << chat_format;
+                sendToEveryone(chat_packet);
+            }else{
+                commands.startCommand(message, conn.player->name);
+            }
             break;
         }
             
@@ -169,4 +172,10 @@ void ServerNetworkingManager::syncEntityPositions() {
         packet << PacketType::ENTITY_POSITION << entity->getX() << entity->getY() << entity->id;
         sendToEveryone(packet);
     }
+}
+
+void ServerNetworkingManager::onEvent(ServerEntityPositionChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::ENTITY_POSITION << event.entity.getX() << event.entity.getY() << event.entity.id;
+    sendToEveryone(packet);
 }

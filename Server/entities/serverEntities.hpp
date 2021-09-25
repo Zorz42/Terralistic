@@ -27,6 +27,7 @@ public:
     void setVelocityY(float vel_y);
     float getVelocityX() const { return velocity_x; }
     float getVelocityY() const { return velocity_y; }
+    void setPosition(int x, int y);
 };
 
 class ServerEntities {
@@ -45,6 +46,12 @@ public:
 class ServerEntityVelocityChangeEvent : public Event<ServerEntityVelocityChangeEvent> {
 public:
     explicit ServerEntityVelocityChangeEvent(ServerEntity& entity) : entity(entity) {}
+    ServerEntity& entity;
+};
+
+class ServerEntityPositionChangeEvent : public Event<ServerEntityPositionChangeEvent> {
+public:
+    explicit ServerEntityPositionChangeEvent(ServerEntity& entity) : entity(entity) {}
     ServerEntity& entity;
 };
 
