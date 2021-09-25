@@ -50,7 +50,7 @@ public:
     unsigned  char getVariation() {return block_data->variation; }
 };
 
-class ClientBlocks : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
+class ClientBlocks : public gfx::SceneModule, EventListener<ClientPacketEvent> {
     unsigned short width{}, height{};
     ClientMapBlock *blocks = nullptr;
     

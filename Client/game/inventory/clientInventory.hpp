@@ -46,7 +46,7 @@ public:
     const Recipe* recipe;
 };
 
-class ClientInventory : EventListener<ClientPacketEvent>, public gfx::GraphicalModule {
+class ClientInventory : EventListener<ClientPacketEvent>, public gfx::SceneModule {
     ClientInventoryItem mouse_item;
     ClientInventoryItem inventory[INVENTORY_SIZE];
     bool open = false;

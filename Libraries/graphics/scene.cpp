@@ -8,7 +8,7 @@ void gfx::Scene::onKeyDownCallback(Key key_) {
         key_states[(int)key_] = true;
         if(_can_receive_events)
             onKeyDown(key_);
-        for(GraphicalModule* module : modules)
+        for(SceneModule* module : modules)
             if(module->_can_receive_events)
                 module->onKeyDown(key_);
     }
@@ -16,11 +16,11 @@ void gfx::Scene::onKeyDownCallback(Key key_) {
 
 void gfx::Scene::enableAllEvents(bool enable) {
     _can_receive_events = enable;
-    for(GraphicalModule* module : modules)
+    for(SceneModule* module : modules)
         module->_can_receive_events = enable;
 }
 
-bool gfx::GraphicalModule::getKeyState(Key key_) const {
+bool gfx::SceneModule::getKeyState(Key key_) const {
     return _can_receive_events && key_states[(int)key_];
 }
 
@@ -100,7 +100,7 @@ void gfx::Scene::_operateEvent(sf::Event event) {
                         clicked_text_box = true;
                 }
     
-            for (GraphicalModule* module : modules)
+            for (SceneModule* module : modules)
                 if (!disable_events_gl || module->disable_events)
                     for (TextInput* i : module->text_inputs) {
                         i->active = i->isHovered(mouse_x, mouse_y);
@@ -125,7 +125,7 @@ void gfx::Scene::_operateEvent(sf::Event event) {
                     str.pop_back();
                     i->setText(str);
                 }
-            for (GraphicalModule* module : modules)
+            for (SceneModule* module : modules)
                 for (TextInput* i : module->text_inputs)
                     if (i->active && !i->getText().empty()) {
                         std::string str = i->getText();
@@ -157,7 +157,7 @@ void gfx::Scene::_operateEvent(sf::Event event) {
                 }
                 i->ignore_one_input = false;
             }
-        for (GraphicalModule* module : modules)
+        for (SceneModule* module : modules)
             for (TextInput* i : module->text_inputs)
                 if (i->active) {
                     char result = c;
@@ -178,26 +178,26 @@ void gfx::Scene::_operateEvent(sf::Event event) {
 
 void gfx::Scene::run() {
     init();
-    for (GraphicalModule* module : modules)
+    for (SceneModule* module : modules)
         module->init();
     
     while(running_scene && window->isOpen()) {
         unsigned int start = getTicks();
         
         disable_events_gl = disable_events;
-        for(GraphicalModule* module : modules) {
+        for(SceneModule* module : modules) {
             if(disable_events_gl)
                 break;
             disable_events_gl = module->disable_events;
         }
         
         _can_receive_events = !disable_events_gl || disable_events;
-        for(GraphicalModule* module : modules)
+        for(SceneModule* module : modules)
             module->_can_receive_events = !disable_events_gl || module->disable_events;
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
         mouse_y = sf::Mouse::getPosition(*window).y / global_scale;
-        for(GraphicalModule* module : modules) {
+        for(SceneModule* module : modules) {
             module->mouse_x = mouse_x;
             module->mouse_y = mouse_y;
         }
@@ -207,11 +207,11 @@ void gfx::Scene::run() {
             _operateEvent(event);
         
         update();
-        for(GraphicalModule* module : modules)
+        for(SceneModule* module : modules)
             module->update();
         
         render();
-        for(GraphicalModule* module : modules)
+        for(SceneModule* module : modules)
             module->render();
         
         window_texture.display();
@@ -224,6 +224,6 @@ void gfx::Scene::run() {
     running_scene = true;
     
     stop();
-    for(GraphicalModule* module : modules)
+    for(SceneModule* module : modules)
         module->stop();
 }

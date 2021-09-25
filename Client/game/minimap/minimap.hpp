@@ -4,7 +4,7 @@
 #include "graphics.hpp"
 #include "clientBlocks.hpp"
 
-class Minimap : public gfx::GraphicalModule {
+class Minimap : public gfx::SceneModule {
     gfx::Rect back_rect;
     ClientBlocks* blocks;
     gfx::Color block_colors[(int)BlockType::NUM_BLOCKS];

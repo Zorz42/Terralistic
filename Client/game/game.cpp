@@ -235,10 +235,10 @@ void Game::stop() {
 
 void Game::renderBack() {
     update();
-    for(GraphicalModule* module : modules)
+    for(SceneModule* module : modules)
         module->update();
     render();
-    for(GraphicalModule* module : modules)
+    for(SceneModule* module : modules)
         module->render();
 }
 

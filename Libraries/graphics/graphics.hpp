@@ -7,8 +7,6 @@
 #include "theme.hpp"
 
 namespace gfx {
-    enum ObjectType {TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
-
     struct Color {
         unsigned char r = 0, g = 0, b = 0, a = 255;
     };
@@ -33,10 +31,24 @@ namespace gfx {
         unsigned char* getArray() const;
     };
     
+    struct Orientation {
+        float x, y;
+    };
+    
+    inline const Orientation TOP_LEFT =     {0 , 0 };
+    inline const Orientation TOP =          {.5, 0 };
+    inline const Orientation TOP_RIGHT =    {1 , 0 };
+    inline const Orientation LEFT =         {0 , .5};
+    inline const Orientation CENTER =       {.5, .5};
+    inline const Orientation RIGHT =        {1 , .5};
+    inline const Orientation BOTTOM_LEFT =  {0 , 1 };
+    inline const Orientation BOTTOM =       {.5, 1 };
+    inline const Orientation BOTTOM_RIGHT = {1 , 1 };
+    
     class _CenteredObject {
     public:
-        explicit _CenteredObject(short x = 0, short y = 0, ObjectType orientation = TOP_LEFT);
-        ObjectType orientation;
+        explicit _CenteredObject(short x = 0, short y = 0, Orientation orientation = TOP_LEFT);
+        Orientation orientation;
         RectShape getTranslatedRect() const;
         virtual unsigned short getWidth() const { return 0; };
         virtual unsigned short getHeight() const { return 0; };
@@ -162,7 +174,7 @@ namespace gfx {
     
     enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, CTRL, UNKNOWN};
 
-    class GraphicalModule {
+    class SceneModule {
     public:
         bool _can_receive_events;
         
@@ -179,19 +191,14 @@ namespace gfx {
         unsigned short mouse_x, mouse_y;
     };
 
-    class Scene : public GraphicalModule {
+    class Scene : public SceneModule {
         void _operateEvent(sf::Event event);
     public:
+        std::vector<SceneModule*> modules;
         void enableAllEvents(bool enable);
-        
-        std::vector<GraphicalModule*> modules;
-        
         virtual void onMouseScroll(int distance) {}
-        
         void run();
-
         void onKeyDownCallback(Key key_);
-        
         short mouse_x, mouse_y;
     };
     
@@ -214,7 +221,7 @@ namespace gfx {
 
     void returnFromScene();
 
-    void setScale(float scale);
+    void setGlobalScale(float scale);
 
     void setWindowSize(unsigned short width, unsigned short height);
 };

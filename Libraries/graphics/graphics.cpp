@@ -179,7 +179,7 @@ void gfx::sleep(unsigned short ms) {
     sf::sleep(sf::milliseconds(ms));
 }
 
-void gfx::setScale(float scale) {
+void gfx::setGlobalScale(float scale) {
     global_scale = scale;
     setWindowSize(getWindowWidth(), getWindowHeight());
 }

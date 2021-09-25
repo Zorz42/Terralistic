@@ -27,7 +27,7 @@ public:
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
 };
 
-class ClientPlayers : public gfx::GraphicalModule, EventListener<ClientPacketEvent> {
+class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> {
     bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false, running_left = false, running_right = false;
     
     void render(ClientPlayer& player_to_draw);

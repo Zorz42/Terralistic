@@ -5,7 +5,7 @@
 #include "clientPlayers.hpp"
 #include "clientBlocks.hpp"
 
-class DebugMenu : public gfx::GraphicalModule {
+class DebugMenu : public gfx::SceneModule {
     bool debug_menu_open = false;
     gfx::Sprite fps_text, coords_text;
     ClientPlayers* player_handler;

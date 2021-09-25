@@ -6,7 +6,7 @@
 #include "clientInventory.hpp"
 #include "clientPlayers.hpp"
 
-class BlockSelector : public gfx::GraphicalModule {
+class BlockSelector : public gfx::SceneModule {
     void init() override;
     void render() override;
 

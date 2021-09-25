@@ -128,6 +128,6 @@ void loadSettings() {
     int scale = config.getInt("ui_scale");
     if(scale != 50 && scale != 100 && scale != 200)
         scale = 100;
-    gfx::setScale((float)scale / 100);
+    gfx::setGlobalScale((float)scale / 100);
     config.setInt("ui_scale", scale);
 }
