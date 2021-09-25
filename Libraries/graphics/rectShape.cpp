@@ -6,7 +6,7 @@ void gfx::RectShape::render(Color c) const {
     sf::RectangleShape rect;
     rect.setSize({(float)w, (float)h});
     rect.setPosition(x, y);
-    rect.setFillColor((const sf::Color)c);
+    rect.setFillColor({c.r, c.g, c.b, c.a});
     render_target->draw(rect);
 }
 
@@ -15,7 +15,7 @@ void gfx::RectShape::renderOutline(Color c) const {
     rect.setSize({(float)w, (float)h});
     rect.setPosition(x, y);
     rect.setFillColor(sf::Color::Transparent);
-    rect.setOutlineColor((const sf::Color)c);
+    rect.setOutlineColor({c.r, c.g, c.b, c.a});
     rect.setOutlineThickness(1);
     render_target->draw(rect);
 }

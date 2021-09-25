@@ -57,4 +57,17 @@
     XCTAssertEqual(config2.getInt("testInt"), 101);
 }
 
+- (void)testThrowsKeyException {
+    ConfigFile config;
+    bool threw = false;
+    try {
+        config.getStr("testKey");
+    } catch(ConfigKeyException e) {
+        threw = true;
+    }
+    XCTAssertTrue(threw);
+    config.setStr("testKey", "test value");
+    config.getStr("testKey");
+}
+
 @end

@@ -24,7 +24,7 @@ namespace gfx {
 
     unsigned int getTicks();
     void sleep(unsigned short ms);
-    float getDeltaTime();
+    float getFrameLength();
 
     void clearWindow();
     void updateWindow();
@@ -41,10 +41,8 @@ namespace gfx {
 
     enum ObjectType {TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
 
-    class Color {
-    public:
-        Color(unsigned char r=0, unsigned char g=0, unsigned char b=0, unsigned char a=255) : r(r), g(g), b(b), a(a) {}\
-        explicit operator sf::Color() const { return {r, g, b, a}; }
+    struct Color {
+        Color(unsigned char r=0, unsigned char g=0, unsigned char b=0, unsigned char a=255) : r(r), g(g), b(b), a(a) {}
         unsigned char r, g, b, a;
     };
 

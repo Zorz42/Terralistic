@@ -13,7 +13,7 @@ void gfx::Image::renderText(const std::string& text, Color text_color) {
     sf::Text sf_text;
     sf_text.setFont(font);
     sf_text.setString("|g");
-    sf_text.setFillColor((sf::Color)text_color);
+    sf_text.setFillColor({text_color.r, text_color.g, text_color.b, text_color.a});
     sf_text.setCharacterSize(font_size);
     int width_to_cut = sf_text.getLocalBounds().width;
     sf_text.setString(std::string("|g") + text);

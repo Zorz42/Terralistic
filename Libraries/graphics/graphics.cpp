@@ -133,12 +133,12 @@ unsigned int gfx::getTicks() {
     return global_clock.getElapsedTime().asMilliseconds();
 }
 
-float gfx::getDeltaTime() {
+float gfx::getFrameLength() {
     return frame_length;
 }
 
 void gfx::clearWindow() {
-    window_texture.clear(sf::Color(GFX_BACKGROUND_COLOR));
+    window_texture.clear({GFX_BACKGROUND_COLOR.r, GFX_BACKGROUND_COLOR.g, GFX_BACKGROUND_COLOR.b, GFX_BACKGROUND_COLOR.a});
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {

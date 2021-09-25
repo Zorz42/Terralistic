@@ -18,6 +18,8 @@ void ConfigFile::loadConfig() {
 }
 
 std::string ConfigFile::getStr(const std::string& key) {
+    if(!keyExists(key))
+        throw ConfigKeyException(key);
     return values[key];
 }
 

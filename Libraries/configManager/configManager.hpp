@@ -4,6 +4,17 @@
 #include <string>
 #include <map>
 
+class ConfigKeyException : public std::exception {
+    std::string key;
+public:
+    ConfigKeyException(std::string key) : key(std::move(key)) {}
+    
+    const char* what() const throw() {
+        return "Key does not exist in config!";
+    }
+};
+
+
 class ConfigFile {
     std::string path;
     std::map<std::string, std::string> values;
