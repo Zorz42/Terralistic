@@ -87,3 +87,13 @@ void gfx::Image::render(float scale, short x, short y, RectShape src_rect, bool 
 void gfx::Image::render(float scale, short x, short y, bool flipped) const {
     render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped);
 }
+
+void gfx::Image::loadFromPixelGrid(const PixelGrid& pixel_grid) {
+    sf::Texture texture;
+    texture.create(pixel_grid.getWidth(), pixel_grid.getHeight());
+    texture.update(pixel_grid.getArray());
+    
+    createBlankImage(pixel_grid.getWidth(), pixel_grid.getHeight());
+    sfml_render_texture->draw(sf::Sprite(texture));
+    sfml_render_texture->display();
+}

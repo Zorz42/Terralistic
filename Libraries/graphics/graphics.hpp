@@ -7,54 +7,32 @@
 #include "theme.hpp"
 
 namespace gfx {
-
-    class Image;
-    
-    void init(unsigned short window_width_, unsigned short window_height_), quit();
-    void loadFont(const std::string& path, unsigned char size);
-
-    inline std::string resource_path;
-
-    void setMinimumWindowSize(unsigned short width, unsigned short height);
-    unsigned short getWindowWidth();
-    unsigned short getWindowHeight();
-
-    void setRenderTarget(Image& tex);
-    void resetRenderTarget();
-
-    unsigned int getTicks();
-    void sleep(unsigned short ms);
-    float getFrameLength();
-
-    void clearWindow();
-    void updateWindow();
-
-    void returnFromScene();
-
-    void setScale(float scale);
-
-    void setWindowSize(unsigned short width, unsigned short height);
-        
-    void drawVertices(const sf::VertexArray& array, const sf::Texture& texture);
-    void drawVertices(const sf::VertexArray& array);
-    void drawSFMLSprite(const sf::Sprite& sprite);
-
     enum ObjectType {TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
 
     struct Color {
-        Color(unsigned char r=0, unsigned char g=0, unsigned char b=0, unsigned char a=255) : r(r), g(g), b(b), a(a) {}
-        unsigned char r, g, b, a;
+        unsigned char r = 0, g = 0, b = 0, a = 255;
     };
 
     class RectShape {
     public:
+        RectShape(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0);
         short x, y;
         unsigned short w, h;
-        RectShape(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0);
-        void render(Color c) const;
-        void renderOutline(Color c) const;
+        void render(Color color) const;
+        void renderOutline(Color color) const;
     };
-
+    
+    class PixelGrid {
+        unsigned char* array;
+        unsigned short width, height;
+    public:
+        PixelGrid(unsigned short width, unsigned short height);
+        unsigned short getWidth() const;
+        unsigned short getHeight() const;
+        void setPixel(unsigned short x, unsigned short y, Color color);
+        unsigned char* getArray() const;
+    };
+    
     class _CenteredObject {
     public:
         explicit _CenteredObject(short x = 0, short y = 0, ObjectType orientation = TOP_LEFT);
@@ -118,12 +96,12 @@ namespace gfx {
         void renderText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
         void loadFromResources(const std::string& path);
         void loadFromFile(const std::string& path);
+        void loadFromPixelGrid(const PixelGrid& pixel_grid);
         void setColor(Color color_);
         sf::RenderTexture* getSfmlTexture() const { return sfml_render_texture; }
         
         ~Image();
     };
-
 
     class Sprite : public _CenteredObject, public Image {
     public:
@@ -169,6 +147,19 @@ namespace gfx {
         void setBorderColor(Color color);
     };
     
+    class RectArray {
+        sf::VertexArray vertex_array;
+        const Image* image = nullptr;
+    public:
+        RectArray(unsigned short size) : vertex_array(sf::Quads, size * 4) {}
+        void setRect(unsigned short index, RectShape rect);
+        void setColor(unsigned short index, Color color);
+        void setTextureCoords(unsigned short index, RectShape texture_coordinates);
+        void setImage(const Image* image);
+        void render();
+        void resize(unsigned short size);
+    };
+    
     enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, CTRL, UNKNOWN};
 
     class GraphicalModule {
@@ -204,6 +195,34 @@ namespace gfx {
         short mouse_x, mouse_y;
     };
     
+    void init(const std::string& resource_path_, unsigned short window_width_, unsigned short window_height_);
+    void quit();
+    void loadFont(const std::string& path, unsigned char size);
+    
+    std::string getResourcePath();
+
+    void setMinimumWindowSize(unsigned short width, unsigned short height);
+    unsigned short getWindowWidth();
+    unsigned short getWindowHeight();
+
+    void setRenderTarget(Image& tex);
+    void resetRenderTarget();
+
+    unsigned int getTicks();
+    void sleep(unsigned short ms);
+    float getFrameLength();
+
+    void clearWindow();
+    void updateWindow();
+
+    void returnFromScene();
+
+    void setScale(float scale);
+
+    void setWindowSize(unsigned short width, unsigned short height);
+        
+    void drawVertices(const sf::VertexArray& array, const sf::Texture& texture);
+    void drawVertices(const sf::VertexArray& array);
 };
 
 #endif

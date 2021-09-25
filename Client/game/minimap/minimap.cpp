@@ -35,9 +35,8 @@ void Minimap::init() {
 void Minimap::render() {
     back_rect.render();
     
-    sf::Uint8 *block_pixels = new sf::Uint8[MINIMAP_SIZE * MINIMAP_SIZE * 4], *liquid_pixels = new sf::Uint8[MINIMAP_SIZE * MINIMAP_SIZE * 4], *light_pixels = new sf::Uint8[MINIMAP_SIZE * MINIMAP_SIZE * 4];
+    gfx::PixelGrid block_pixels(MINIMAP_SIZE, MINIMAP_SIZE), liquid_pixels(MINIMAP_SIZE, MINIMAP_SIZE), light_pixels(MINIMAP_SIZE, MINIMAP_SIZE);
     
-    int i = 0;
     for(int y = 0; y < MINIMAP_SIZE; y++)
         for(int x = 0; x < MINIMAP_SIZE; x++) {
             int block_x = blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x;
@@ -52,37 +51,25 @@ void Minimap::render() {
                 light_level = blocks->getBlock(block_x, block_y).getLightLevel();
             }
             
-            block_pixels[i] = block_color.r;
-            block_pixels[i + 1] = block_color.g;
-            block_pixels[i + 2] = block_color.b;
-            block_pixels[i + 3] = block_color.a;
-            
-            liquid_pixels[i] = liquid_color.r;
-            liquid_pixels[i + 1] = liquid_color.g;
-            liquid_pixels[i + 2] = liquid_color.b;
-            liquid_pixels[i + 3] = liquid_color.a;
-            
-            light_pixels[i] = 0;
-            light_pixels[i + 1] = 0;
-            light_pixels[i + 2] = 0;
-            light_pixels[i + 3] = (MAX_LIGHT - (int)light_level) * 255 / MAX_LIGHT;
-            i += 4;
+            block_pixels.setPixel(x, y, block_color);
+            liquid_pixels.setPixel(x, y, liquid_color);
+            light_pixels.setPixel(x, y, {0, 0, 0, (unsigned char)((MAX_LIGHT - (int)light_level) * 255 / MAX_LIGHT)});
         }
-    sf::Sprite sprite;
-    sprite.setPosition(back_rect.getTranslatedX(), back_rect.getTranslatedY());
-    sprite.scale(MINIMAP_SCALE, MINIMAP_SCALE);
     
-    minimap_texture.update(block_pixels);
-    sprite.setTexture(minimap_texture);
-    gfx::drawSFMLSprite(sprite);
+    gfx::Sprite minimap_sprite;
+    minimap_sprite.orientation = gfx::TOP_RIGHT;
+    minimap_sprite.x = -SPACING / 2;
+    minimap_sprite.y = SPACING / 2;
+    minimap_sprite.scale = MINIMAP_SCALE;
     
-    minimap_texture.update(liquid_pixels);
-    sprite.setTexture(minimap_texture);
-    gfx::drawSFMLSprite(sprite);
+    minimap_sprite.loadFromPixelGrid(block_pixels);
+    minimap_sprite.render();
     
-    minimap_texture.update(light_pixels);
-    sprite.setTexture(minimap_texture);
-    gfx::drawSFMLSprite(sprite);
+    minimap_sprite.loadFromPixelGrid(liquid_pixels);
+    minimap_sprite.render();
+    
+    minimap_sprite.loadFromPixelGrid(light_pixels);
+    minimap_sprite.render();
 }
 
 void Minimap::onKeyDown(gfx::Key key) {

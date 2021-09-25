@@ -2,20 +2,20 @@
 
 gfx::RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
 
-void gfx::RectShape::render(Color c) const {
+void gfx::RectShape::render(Color color) const {
     sf::RectangleShape rect;
     rect.setSize({(float)w, (float)h});
     rect.setPosition(x, y);
-    rect.setFillColor({c.r, c.g, c.b, c.a});
+    rect.setFillColor({color.r, color.g, color.b, color.a});
     render_target->draw(rect);
 }
 
-void gfx::RectShape::renderOutline(Color c) const {
+void gfx::RectShape::renderOutline(Color color) const {
     sf::RectangleShape rect;
     rect.setSize({(float)w, (float)h});
     rect.setPosition(x, y);
     rect.setFillColor(sf::Color::Transparent);
-    rect.setOutlineColor({c.r, c.g, c.b, c.a});
+    rect.setOutlineColor({color.r, color.g, color.b, color.a});
     rect.setOutlineThickness(1);
     render_target->draw(rect);
 }

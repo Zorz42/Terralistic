@@ -38,7 +38,9 @@ static const char* blur_shader_code =
 
 static sf::RenderTexture window_texture;
 
-void gfx::init(unsigned short window_width, unsigned short window_height) {
+void gfx::init(const std::string& resource_path_, unsigned short window_width, unsigned short window_height) {
+    resource_path = resource_path_;
+    
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     window->setVerticalSyncEnabled(true);
     window->setFramerateLimit(120);
@@ -121,6 +123,7 @@ unsigned short gfx::getWindowHeight() {
 }
 
 void gfx::setRenderTarget(Image& tex) {
+    render_target->display();
     render_target = tex.getSfmlTexture();
 }
 
@@ -218,6 +221,6 @@ void gfx::drawVertices(const sf::VertexArray& array) {
     render_target->draw(array);
 }
 
-void gfx::drawSFMLSprite(const sf::Sprite& sprite) {
-    render_target->draw(sprite);
+std::string gfx::getResourcePath() {
+    return resource_path;
 }

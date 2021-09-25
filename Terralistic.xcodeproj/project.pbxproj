@@ -33,6 +33,8 @@
 		16999A9226FE545C0090224A /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A0E8AC26FDBE630069211C /* minimap.cpp */; };
+		16A3BFEA26FF1C5C001B9E4E /* pixelGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFE926FF1C5C001B9E4E /* pixelGrid.cpp */; };
+		16A3BFEC26FF2D28001B9E4E /* rectArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFEB26FF2D28001B9E4E /* rectArray.cpp */; };
 		16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B77FE826F5102700FE3FE9 /* updater.cpp */; };
 		16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BF6959269D7F4D00CFE175 /* resourcePath.cpp */; };
 		16BF6985269D854F00CFE175 /* sfml-audio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; };
@@ -280,6 +282,8 @@
 		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
 		16A0E8AC26FDBE630069211C /* minimap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = minimap.cpp; sourceTree = "<group>"; };
 		16A0E8AD26FDBE630069211C /* minimap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = minimap.hpp; sourceTree = "<group>"; };
+		16A3BFE926FF1C5C001B9E4E /* pixelGrid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pixelGrid.cpp; sourceTree = "<group>"; };
+		16A3BFEB26FF2D28001B9E4E /* rectArray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rectArray.cpp; sourceTree = "<group>"; };
 		16B36D2C2682000F00A4B03A /* items.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = items.cpp; sourceTree = "<group>"; };
 		16B36D2D2682000F00A4B03A /* serverItems.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverItems.hpp; sourceTree = "<group>"; };
 		16B36D312682067D00A4B03A /* blocks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blocks.cpp; sourceTree = "<group>"; };
@@ -473,13 +477,15 @@
 				166D85C926AA0B9E00DB87B1 /* graphics.hpp */,
 				166D85CB26AA0B9E00DB87B1 /* graphics-internal.hpp */,
 				166D85CA26AA0B9E00DB87B1 /* graphics.cpp */,
-				167C03AB26E13FB50045FEA9 /* centeredObject.cpp */,
 				167C03AE26E1400D0045FEA9 /* rectShape.cpp */,
+				16A3BFE926FF1C5C001B9E4E /* pixelGrid.cpp */,
+				167C03AB26E13FB50045FEA9 /* centeredObject.cpp */,
 				166D85C826AA0B9E00DB87B1 /* rect.cpp */,
 				167C03B126E141AB0045FEA9 /* image.cpp */,
 				167C03B426E141D10045FEA9 /* sprite.cpp */,
 				167C03B726E141FC0045FEA9 /* button.cpp */,
 				166D85C426AA0B9E00DB87B1 /* textInput.cpp */,
+				16A3BFEB26FF2D28001B9E4E /* rectArray.cpp */,
 				166D85CE26AA0B9E00DB87B1 /* scene.cpp */,
 			);
 			path = graphics;
@@ -1125,6 +1131,7 @@
 				167C03B826E141FC0045FEA9 /* button.cpp in Sources */,
 				36DDF8AB2689F725002337F3 /* liquid.cpp in Sources */,
 				16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */,
+				16A3BFEC26FF2D28001B9E4E /* rectArray.cpp in Sources */,
 				36DDF8AC2689F725002337F3 /* items.cpp in Sources */,
 				167C03AC26E13FB50045FEA9 /* centeredObject.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* players.cpp in Sources */,
@@ -1141,6 +1148,7 @@
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				3657221F26D07181005AB3CC /* multiplayerSelector.cpp in Sources */,
 				16670CE026DDFAA90057AA41 /* settings.cpp in Sources */,
+				16A3BFEA26FF1C5C001B9E4E /* pixelGrid.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */,

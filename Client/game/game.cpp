@@ -81,7 +81,7 @@ void WorldStartingScreen::render() {
 }
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world) {
-    Server private_server(gfx::resource_path, world_name);
+    Server private_server(gfx::getResourcePath(), world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     if(structure_world)
         private_server.seed = 1000;
@@ -118,7 +118,7 @@ game::game(BackgroundRect* background_rect, const std::string& username, std::st
 {}
 
 void game::init() {
-    std::vector<std::string> active_resource_packs = {gfx::resource_path + "resourcePack"};
+    std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
         std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
         std::string line;
