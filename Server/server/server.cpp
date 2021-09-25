@@ -77,7 +77,10 @@ void Server::start(unsigned short port) {
     }
 
     for(int x = 0; x < blocks.getWidth(); x++)
-        blocks.setNaturalLight(x);
+        for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlock(x, y).getBlockInfo().transparent; y++) {
+            blocks.setLightLevelDirectly(x, y, MAX_LIGHT);
+            blocks.setLightSourceDirectly(x, y, true);
+        }
     
     print::info("Starting server...");
     state = ServerState::STARTING;
