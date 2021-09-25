@@ -220,9 +220,6 @@ namespace gfx {
     void setScale(float scale);
 
     void setWindowSize(unsigned short width, unsigned short height);
-        
-    void drawVertices(const sf::VertexArray& array, const sf::Texture& texture);
-    void drawVertices(const sf::VertexArray& array);
 };
 
 #endif
