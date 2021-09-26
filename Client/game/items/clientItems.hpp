@@ -24,11 +24,9 @@ class ClientItems : EventListener<ClientPacketEvent> {
     void onEvent(ClientPacketEvent& event) override;
     ClientBlocks* blocks;
     ClientEntities* entities;
-    std::vector<ClientItem*> items;
 public:
     ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, ClientEntities* entities) : resource_pack(resource_pack), blocks(blocks), entities(entities) {}
     void renderItems();
-    const std::vector<ClientItem*>& getItems() { return items; }
 };
 
 #endif

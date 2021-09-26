@@ -37,7 +37,6 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             
             ClientItem* item = new ClientItem(type, x, y, id);
             entities->registerEntity(item);
-            items.push_back(item);
             break;
         }
         case PacketType::ITEM_DELETION: {
@@ -45,7 +44,6 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             event.packet >> id;
             ClientItem* item = (ClientItem*)entities->getEntityById(id);
             entities->removeEntity(item);
-            items.erase(std::find(items.begin(), items.end(), item));
             delete item;
         }
         default:;

@@ -56,6 +56,13 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             
             break;
         }
+        case PacketType::PLAYER_LEAVE: {
+            unsigned short id;
+            event.packet >> id;
+            entities->removeEntity(getPlayerById(id));
+            
+            break;
+        }
         default:;
     }
 }

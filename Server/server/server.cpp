@@ -63,7 +63,6 @@ void Server::saveWorld() {
 }
 
 void Server::start(unsigned short port) {
-
     curr_server = this;
 
     if(std::filesystem::exists(world_path)) {

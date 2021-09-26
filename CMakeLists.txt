@@ -102,3 +102,4 @@ endif()
 
 file(COPY Resources DESTINATION .)
 file(COPY Resources/Structures.asset DESTINATION .)
+file(COPY Resources/pixel_font.ttf DESTINATION .)

@@ -84,6 +84,10 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     connections[i].freeSocket();
                     connections.erase(connections.begin() + i);
                     
+                    sf::Packet quit_packet;
+                    quit_packet << PacketType::PLAYER_LEAVE << connections[i].player->id;
+                    sendToEveryone(quit_packet);
+                    
                     break;
                 } else if(status == sf::Socket::Done) {
                     while(!packet.endOfPacket()) {
