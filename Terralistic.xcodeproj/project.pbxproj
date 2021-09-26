@@ -275,6 +275,7 @@
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1695428D2680B5B400F1F4FE /* versions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = versions.hpp; sourceTree = "<group>"; };
 		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
+		169990A527004E3F00224E11 /* movingType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = movingType.hpp; sourceTree = "<group>"; };
 		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
 		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
 		16A0E8AC26FDBE630069211C /* minimap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = minimap.cpp; sourceTree = "<group>"; };
@@ -592,6 +593,7 @@
 				1682944126A16D5C0017E2FD /* packetType */,
 				1695428D2680B5B400F1F4FE /* versions.hpp */,
 				3605DAC126E8FC0C00A5F641 /* entityType.hpp */,
+				169990A527004E3F00224E11 /* movingType.hpp */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -680,8 +682,8 @@
 		16A3C00E26FF871C001B9E4E /* commands */ = {
 			isa = PBXGroup;
 			children = (
-				16A3C00F26FF871C001B9E4E /* commands.cpp */,
 				16A3C01026FF871C001B9E4E /* commands.hpp */,
+				16A3C00F26FF871C001B9E4E /* commands.cpp */,
 			);
 			path = commands;
 			sourceTree = "<group>";

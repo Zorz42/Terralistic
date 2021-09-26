@@ -115,7 +115,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
 
             for(ServerPlayer* curr_player : players->getOnlinePlayers()) {
                 sf::Packet join_packet;
-                join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name;
+                join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
                 connections[i].send(join_packet);
             }
 
@@ -131,7 +131,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             player->inventory.updateAvailableRecipes();
             
             sf::Packet join_packet;
-            join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name;
+            join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
             sendToEveryone(join_packet, &connections[i]);
 
             print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");

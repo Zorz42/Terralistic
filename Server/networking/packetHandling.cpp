@@ -24,12 +24,12 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             break;
         }
 
-        case PacketType::VIEW_SIZE_CHANGE: {
+        case PacketType::VIEW_SIZE: {
             packet >> conn.player->sight_width >> conn.player->sight_height;
             break;
         }
 
-        case PacketType::PLAYER_VELOCITY_CHANGE: {
+        case PacketType::PLAYER_VELOCITY: {
             float velocity_x, velocity_y;
             packet >> velocity_x >> velocity_y;
             conn.player->setVelocityX(velocity_x);
@@ -64,7 +64,7 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             break;
         }
             
-        case PacketType::VIEW_POS_CHANGE: {
+        case PacketType::VIEW_POS: {
             packet >> conn.player->sight_x >> conn.player->sight_y;
             break;
         }
@@ -77,26 +77,41 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             for(const ItemStack& ingredient : recipe_crafted->ingredients)
                 conn.player->inventory.removeItem(ingredient.type, ingredient.stack);
         }
-
+            
+        case PacketType::PLAYER_MOVING_TYPE: {
+            unsigned char moving_type;
+            packet >> moving_type;
+            conn.player->moving_type = (MovingType)moving_type;
+            sf::Packet moving_packet;
+            moving_packet << PacketType::PLAYER_MOVING_TYPE << moving_type << conn.player->id;
+            sendToEveryone(moving_packet);
+        }
+        
+        case PacketType::PLAYER_JUMPED: {
+            sf::Packet jumped_packet;
+            jumped_packet << PacketType::PLAYER_JUMPED << conn.player->id;
+            sendToEveryone(jumped_packet);
+        }
+            
         default:;
     }
 }
 
 void ServerNetworkingManager::onEvent(ServerBlockChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::BLOCK_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.type;
+    packet << PacketType::BLOCK << event.block.getX() << event.block.getY() << (unsigned char)event.type;
     sendToEveryone(packet);
 }
 
 void ServerNetworkingManager::onEvent(ServerBlockBreakStageChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::BLOCK_PROGRESS_CHANGE << event.block.getX() << event.block.getY() << event.break_stage;
+    packet << PacketType::BLOCK_PROGRESS << event.block.getX() << event.block.getY() << event.break_stage;
     sendToEveryone(packet);
 }
 
 void ServerNetworkingManager::onEvent(ServerLiquidChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::LIQUID_CHANGE << event.block.getX() << event.block.getY() << (unsigned char)event.liquid_type << event.liquid_level;
+    packet << PacketType::LIQUID << event.block.getX() << event.block.getY() << (unsigned char)event.liquid_type << event.liquid_level;
     sendToEveryone(packet);
 }
 
@@ -127,7 +142,7 @@ void ServerNetworkingManager::onEvent(ServerEntityVelocityChangeEvent& event) {
 
 void ServerNetworkingManager::sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack) {
     sf::Packet packet;
-    packet << PacketType::INVENTORY_CHANGE << stack << (unsigned char)type << item.getPosInInventory();
+    packet << PacketType::INVENTORY << stack << (unsigned char)type << item.getPosInInventory();
     connection.send(packet);
 }
 
@@ -161,7 +176,7 @@ void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
 
 void ServerNetworkingManager::onEvent(ServerLightChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::LIGHT_CHANGE << event.block.getX() << event.block.getY() << event.block.getLightLevel();
+    packet << PacketType::LIGHT << event.block.getX() << event.block.getY() << event.block.getLightLevel();
     for(Connection& connection : connections)
         connection.send(packet);
 }

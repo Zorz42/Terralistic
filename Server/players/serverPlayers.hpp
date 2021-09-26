@@ -9,6 +9,7 @@
 #include <utility>
 #include "serverItems.hpp"
 #include "serverEntities.hpp"
+#include "movingType.hpp"
 
 class ServerInventory;
 
@@ -69,6 +70,7 @@ public:
     unsigned short getSightEndY() const;
     
     ServerInventory inventory;
+    MovingType moving_type = MovingType::STANDING;
     
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;

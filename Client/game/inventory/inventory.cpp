@@ -106,7 +106,7 @@ void ClientInventory::render() {
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::INVENTORY_CHANGE: {
+        case PacketType::INVENTORY: {
             unsigned short stack;
             unsigned char item_id;
             short pos;
