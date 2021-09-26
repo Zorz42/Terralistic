@@ -26,7 +26,7 @@ enum class PacketType {
     RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS,
     
     // miscellaneous
-    KICK, CHAT,
+    KICK, CHAT, WELCOME,
 };
 
 sf::Packet& operator<<(sf::Packet& packet, PacketType packet_type);

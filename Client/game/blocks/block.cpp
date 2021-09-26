@@ -130,7 +130,7 @@ void ClientBlocks::renderFrontBlocks() {
     liquid_rects.resize(liquid_index);
     liquid_rects.setImage(&resource_pack->getLiquidTexture());
     if(liquid_index)
-        light_rects.render();
+        liquid_rects.render();
     
     light_rects.resize(light_index);
     if(light_index)
