@@ -18,7 +18,9 @@ public:
     
     int getX() const { return x; }
     int getY() const { return y; }
-    bool isColliding(ServerBlocks* blocks);
+    virtual bool isColliding(ServerBlocks* blocks) { return isCollidingWithBlocks(blocks); }
+    bool isCollidingWithBlocks(ServerBlocks* blocks, float colliding_x, float colliding_y);
+    bool isCollidingWithBlocks(ServerBlocks* blocks);
     void updateEntity(ServerBlocks* blocks, float frame_length);
     bool isTouchingGround(ServerBlocks* blocks);
     void addVelocityX(float vel_x);

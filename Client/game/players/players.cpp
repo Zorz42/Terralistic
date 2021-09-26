@@ -17,6 +17,14 @@ void ClientPlayers::renderPlayers() {
             render(*(ClientPlayer*)entity);
 }
 
+bool ClientPlayer::isColliding(ClientBlocks* blocks) {
+    return isCollidingWithBlocks(blocks) ||
+    (
+     moving_type == MovingType::SNEAK_WALKING && isCollidingWithBlocks(blocks, x, y + 1) &&
+     (!isCollidingWithBlocks(blocks, x + 1, y + 1) || !isCollidingWithBlocks(blocks, x - 1, y + 1))
+     );
+}
+
 #define HEADER_MARGIN 4
 #define HEADER_PADDING 2
 

@@ -79,6 +79,8 @@ public:
     
     unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
+    
+    bool isColliding(ServerBlocks* blocks) override;
 };
 
 struct blockEvents {

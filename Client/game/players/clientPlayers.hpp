@@ -24,6 +24,7 @@ public:
     bool has_jumped = false;
     unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
+    bool isColliding(ClientBlocks* blocks) override;
 };
 
 class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> {

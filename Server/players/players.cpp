@@ -170,6 +170,14 @@ ServerPlayer::ServerPlayer(char*& iter) : ServerEntity(*(int*)iter, *(int*)(iter
     sight_y = getY();
 }
 
+bool ServerPlayer::isColliding(ServerBlocks* blocks) {
+    return isCollidingWithBlocks(blocks) ||
+    (
+     moving_type == MovingType::SNEAK_WALKING && isCollidingWithBlocks(blocks, getX(), getY() + 1) &&
+     (!isCollidingWithBlocks(blocks, getX() + 1, getY() + 1) || !isCollidingWithBlocks(blocks, getX() - 1, getY() + 1))
+     );
+}
+
 void ServerPlayer::serialize(std::vector<char>& serial) const {
     serial.insert(serial.end(), {0, 0, 0, 0});
     *(int*)&serial[serial.size() - 4] = getX();

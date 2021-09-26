@@ -69,22 +69,23 @@ void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
 }
 
 bool ClientEntity::isTouchingGround(ClientBlocks* blocks) {
-    y++;
-    bool is_touching_ground = isColliding(blocks);
-    y--;
-    return is_touching_ground && velocity_y == 0;
+    return isCollidingWithBlocks(blocks, x, y + 1) && velocity_y == 0;
 }
 
-bool ClientEntity::isColliding(ClientBlocks* blocks) {
-    if(x < 0 || y < 0 ||
-       y >= blocks->getHeight() * BLOCK_WIDTH * 2 - getHeight() ||
-       x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getWidth())
+bool ClientEntity::isCollidingWithBlocks(ClientBlocks* blocks) {
+    return isCollidingWithBlocks(blocks, x, y);
+}
+
+bool ClientEntity::isCollidingWithBlocks(ClientBlocks* blocks, float colliding_x, float colliding_y) {
+    if(colliding_x < 0 || colliding_y < 0 ||
+       colliding_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - getHeight() ||
+       colliding_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getWidth())
         return true;
 
-    unsigned short starting_x = x / (BLOCK_WIDTH * 2);
-    unsigned short starting_y = y / (BLOCK_WIDTH * 2);
-    unsigned short ending_x = (x + getWidth() - 1) / (BLOCK_WIDTH * 2);
-    unsigned short ending_y = (y + getHeight() - 1) / (BLOCK_WIDTH * 2);
+    unsigned short starting_x = colliding_x / (BLOCK_WIDTH * 2);
+    unsigned short starting_y = colliding_y / (BLOCK_WIDTH * 2);
+    unsigned short ending_x = (colliding_x + getWidth() - 1) / (BLOCK_WIDTH * 2);
+    unsigned short ending_y = (colliding_y + getHeight() - 1) / (BLOCK_WIDTH * 2);
     
     for(unsigned short x_ = starting_x; x_ <= ending_x; x_++)
         for(unsigned short y_ = starting_y; y_ <= ending_y; y_++)

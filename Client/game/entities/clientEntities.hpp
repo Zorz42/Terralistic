@@ -15,7 +15,9 @@ public:
     bool gravity = true, friction = true, has_moved_x;
     const unsigned short id;
     const EntityType type;
-    bool isColliding(ClientBlocks* blocks);
+    virtual bool isColliding(ClientBlocks* blocks) { return isCollidingWithBlocks(blocks); }
+    bool isCollidingWithBlocks(ClientBlocks* blocks, float colliding_x, float colliding_y);
+    bool isCollidingWithBlocks(ClientBlocks* blocks);
     void updateEntity(ClientBlocks* blocks, float frame_length);
     bool isTouchingGround(ClientBlocks* blocks);
     virtual ~ClientEntity() = default;
