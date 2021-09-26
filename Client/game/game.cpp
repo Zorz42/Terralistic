@@ -127,7 +127,8 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    gfx::runScene(world_starting_screen);
+    WorldStartingScreen world_starting_screen2(menu_back, &private_server);
+    gfx::runScene(world_starting_screen2);
     
     server_thread.join();
 }
