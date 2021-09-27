@@ -10,36 +10,38 @@
 class ServerItem : public ServerEntity {
     ItemType type;
 public:
-    ServerItem(ItemType type, int x, int y);
+    ServerItem(ServerEntities* entities, ItemType type, int x, int y);
     ItemType getType() const;
     
     unsigned short getWidth() override { return ITEM_WIDTH * 2; }
     unsigned short getHeight() override { return ITEM_WIDTH * 2; }
 };
 
-class ServerItems : EventListener<ServerBlockBreakEvent> {
-    void onEvent(ServerBlockBreakEvent& event) override;
-    ServerEntities* entities;
-    std::vector<ServerItem*> items;
-public:
-    explicit ServerItems(ServerEntities* entities) : entities(entities) {}
-    const std::vector<ServerItem*>& getItems() { return items; }
-    ServerItem* spawnItem(ItemType type, int x, int y);
-    void removeItem(ServerItem* item);
-};
-
-
-
-class ServerItemCreationEvent : public Event<ServerItemCreationEvent> {
+class ServerItemCreationEvent : public Event {
 public:
     ServerItemCreationEvent(const ServerItem& item) : item(item) {}
     const ServerItem& item;
 };
 
-class ServerItemDeletionEvent : public Event<ServerItemDeletionEvent> {
+class ServerItemDeletionEvent : public Event {
 public:
     explicit ServerItemDeletionEvent(const ServerItem& item) : item(item) {}
     const ServerItem& item;
+};
+
+class ServerItems : EventListener<ServerBlockBreakEvent> {
+    void onEvent(ServerBlockBreakEvent& event) override;
+    ServerEntities* entities;
+    ServerBlocks* blocks;
+    std::vector<ServerItem*> items;
+public:
+    explicit ServerItems(ServerEntities* entities, ServerBlocks* blocks) : entities(entities), blocks(blocks) {}
+    void init();
+    const std::vector<ServerItem*>& getItems() { return items; }
+    ServerItem* spawnItem(ItemType type, int x, int y);
+    void removeItem(ServerItem* item);
+    EventSender<ServerItemCreationEvent> item_creation_event;
+    EventSender<ServerItemDeletionEvent> item_deletion_event;
 };
 
 #endif

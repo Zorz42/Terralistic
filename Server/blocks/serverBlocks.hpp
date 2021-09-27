@@ -66,11 +66,50 @@ public:
     
     void lightUpdate();
     void setLightSource(unsigned char power);
-    void removeLightSource();
     void setLightLevel(unsigned char light_level);
     unsigned char getLightLevel() { return block_data->light_level; }
     void scheduleLightUpdate() { block_data->update_light = true; }
     bool hasScheduledLightUpdate() { return block_data->update_light; }
+};
+
+class ServerBlockChangeEvent : public Event {
+public:
+    ServerBlockChangeEvent(ServerBlock block, BlockType type) : block(block), type(type) {}
+    ServerBlock block;
+    BlockType type;
+};
+
+class ServerBlockBreakEvent : public Event {
+public:
+    explicit ServerBlockBreakEvent(ServerBlock block) : block(block) {}
+    ServerBlock block;
+};
+
+class ServerBlockUpdateEvent : public Event {
+public:
+    explicit ServerBlockUpdateEvent(ServerBlock block) : block(block) {}
+    ServerBlock block;
+};
+
+class ServerBlockBreakStageChangeEvent : public Event {
+public:
+    ServerBlockBreakStageChangeEvent(ServerBlock block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
+    ServerBlock block;
+    unsigned char break_stage;
+};
+
+class ServerLiquidChangeEvent : public Event {
+public:
+    ServerLiquidChangeEvent(ServerBlock block, LiquidType liquid_type, unsigned char liquid_level) : block(block), liquid_type(liquid_type), liquid_level(liquid_level) {}
+    ServerBlock block;
+    LiquidType liquid_type;
+    unsigned char liquid_level;
+};
+
+class ServerLightChangeEvent : public Event {
+public:
+    ServerLightChangeEvent(ServerBlock block) : block(block) {}
+    ServerBlock block;
 };
 
 class ServerBlocks {
@@ -82,9 +121,6 @@ public:
     ServerBlock getBlock(unsigned short x, unsigned short y);
     
     void createWorld(unsigned short width, unsigned short height);
-    
-    void removeNaturalLight(unsigned short x);
-    void setNaturalLight(unsigned short x);
     
     Biome *biomes = nullptr;
     
@@ -109,49 +145,15 @@ public:
     void setLightLevelDirectly(unsigned short x, unsigned short y, unsigned char level);
     void setLightSourceDirectly(unsigned short x, unsigned short y, bool source);
     
+    EventSender<ServerBlockChangeEvent> block_change_event;
+    EventSender<ServerBlockBreakEvent> block_break_event;
+    EventSender<ServerBlockUpdateEvent> block_update_event;
+    EventSender<ServerBlockBreakStageChangeEvent> block_break_stage_change_event;
+    EventSender<ServerLiquidChangeEvent> liquid_change_event;
+    EventSender<ServerLightChangeEvent> light_change_event;
+    
     ~ServerBlocks();
 };
 
-
-
-class ServerBlockChangeEvent : public Event<ServerBlockChangeEvent> {
-public:
-    ServerBlockChangeEvent(ServerBlock block, BlockType type) : block(block), type(type) {}
-    ServerBlock block;
-    BlockType type;
-};
-
-class ServerBlockBreakEvent : public Event<ServerBlockBreakEvent> {
-public:
-    explicit ServerBlockBreakEvent(ServerBlock block) : block(block) {}
-    ServerBlock block;
-};
-
-class ServerBlockUpdateEvent : public Event<ServerBlockUpdateEvent> {
-public:
-    explicit ServerBlockUpdateEvent(ServerBlock block) : block(block) {}
-    ServerBlock block;
-};
-
-class ServerBlockBreakStageChangeEvent : public Event<ServerBlockBreakStageChangeEvent> {
-public:
-    ServerBlockBreakStageChangeEvent(ServerBlock block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
-    ServerBlock block;
-    unsigned char break_stage;
-};
-
-class ServerLiquidChangeEvent : public Event<ServerLiquidChangeEvent> {
-public:
-    ServerLiquidChangeEvent(ServerBlock block, LiquidType liquid_type, unsigned char liquid_level) : block(block), liquid_type(liquid_type), liquid_level(liquid_level) {}
-    ServerBlock block;
-    LiquidType liquid_type;
-    unsigned char liquid_level;
-};
-
-class ServerLightChangeEvent : public Event<ServerLightChangeEvent> {
-public:
-    ServerLightChangeEvent(ServerBlock block) : block(block) {}
-    ServerBlock block;
-};
 
 #endif

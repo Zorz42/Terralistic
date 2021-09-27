@@ -6,7 +6,11 @@ ItemType ServerItem::getType() const {
     return type;
 }
 
-ServerItem::ServerItem(ItemType type, int x, int y) : type(type), ServerEntity(x, y) {}
+ServerItem::ServerItem(ServerEntities* entities, ItemType type, int x, int y) : type(type), ServerEntity(entities, x, y) {}
+
+void ServerItems::init() {
+    blocks->block_break_event.addListener(this);
+}
 
 void ServerItems::onEvent(ServerBlockBreakEvent& event) {
     static std::random_device device;
@@ -19,17 +23,17 @@ void ServerItems::onEvent(ServerBlockBreakEvent& event) {
 }
 
 ServerItem* ServerItems::spawnItem(ItemType type, int x, int y) {
-    ServerItem* item = new ServerItem(type, x, y);
+    ServerItem* item = new ServerItem(entities, type, x, y);
     items.push_back(item);
     entities->registerEntity(item);
     ServerItemCreationEvent event(*item);
-    event.call();
+    item_creation_event.call(event);
     return item;
 }
 
 void ServerItems::removeItem(ServerItem* item) {
     ServerItemDeletionEvent event(*item);
-    event.call();
+    item_deletion_event.call(event);
     items.erase(std::find(items.begin(), items.end(), item));
     entities->removeEntity(item);
     delete item;

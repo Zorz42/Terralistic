@@ -1,6 +1,8 @@
 #include "clientPlayers.hpp"
 
 void ClientPlayers::init() {
+    manager->packet_event.addListener(this);
+    
     sf::Packet packet;
     packet << PacketType::VIEW_SIZE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
     manager->sendPacket(packet);

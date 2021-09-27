@@ -38,12 +38,16 @@ public:
     ServerInventory* getInventory() { return inventory; }
 };
 
+class ServerPlayers;
+
 class ServerInventory {
     friend InventoryItem;
     InventoryItem mouse_item;
     unsigned int item_counts[(int)ItemType::NUM_ITEMS];
     std::vector<const Recipe*> available_recipes;
+    ServerPlayers* players;
 public:
+    ServerInventory(ServerPlayers* players) : players(players) {}
     bool hasIngredientsForRecipe(const Recipe& recipe);
     const std::vector<const Recipe*>& getAvailableRecipes();
     void updateAvailableRecipes();
@@ -54,12 +58,13 @@ public:
     unsigned char selected_slot = 0;
     InventoryItem* getSelectedSlot();
     void swapWithMouseItem(InventoryItem* item);
+    ServerPlayers* getPlayers() { return players; }
 };
 
 class ServerPlayer : public ServerEntity {
 public:
-    explicit ServerPlayer(int x, int y, std::string name) : ServerEntity(x, y), name(std::move(name)) { friction = false; }
-    explicit ServerPlayer(char*& iter);
+    explicit ServerPlayer(ServerEntities* entities, int x, int y, std::string name) : ServerEntity(entities, x, y), name(std::move(name)) { friction = false; }
+    explicit ServerPlayer(ServerEntities* entities, char*& iter);
     std::string name;
     
     unsigned short sight_width = 0, sight_height = 0;
@@ -89,7 +94,27 @@ struct blockEvents {
     void (*onLeftClick)(ServerBlock*, ServerPlayer*) = nullptr;
 };
 
-class Players : EventListener<ServerBlockUpdateEvent> {
+class ServerInventoryItemTypeChangeEvent : public Event {
+public:
+    ServerInventoryItemTypeChangeEvent(InventoryItem& item, ItemType type) : item(item), type(type) {}
+    InventoryItem& item;
+    ItemType type;
+};
+
+class ServerInventoryItemStackChangeEvent : public Event {
+public:
+    ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
+    InventoryItem& item;
+    unsigned short stack;
+};
+
+class RecipeAvailabilityChangeEvent : public Event {
+public:
+    explicit RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
+    ServerInventory* inventory;
+};
+
+class ServerPlayers : EventListener<ServerBlockUpdateEvent> {
     ServerEntities* entities;
     ServerBlocks* blocks;
     ServerItems* items;
@@ -103,8 +128,8 @@ class Players : EventListener<ServerBlockUpdateEvent> {
     
     void leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length);
 public:
-    Players(ServerBlocks* blocks, ServerEntities* entities, ServerItems* items);
-    
+    ServerPlayers(ServerBlocks* blocks, ServerEntities* entities, ServerItems* items);
+    void init();
     void rightClickEvent(ServerBlock this_block, ServerPlayer* peer);
     
     const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
@@ -119,29 +144,11 @@ public:
     void updateBlocksInVisibleAreas();
     void lookForItemsThatCanBePickedUp();
     
-    ~Players() override;
-};
-
-
-
-class ServerInventoryItemTypeChangeEvent : public Event<ServerInventoryItemTypeChangeEvent> {
-public:
-    ServerInventoryItemTypeChangeEvent(InventoryItem& item, ItemType type) : item(item), type(type) {}
-    InventoryItem& item;
-    ItemType type;
-};
-
-class ServerInventoryItemStackChangeEvent : public Event<ServerInventoryItemStackChangeEvent> {
-public:
-    ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
-    InventoryItem& item;
-    unsigned short stack;
-};
-
-class RecipeAvailabilityChangeEvent : public Event<RecipeAvailabilityChangeEvent> {
-public:
-    explicit RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
-    ServerInventory* inventory;
+    EventSender<ServerInventoryItemTypeChangeEvent> inventory_item_type_change_event;
+    EventSender<ServerInventoryItemStackChangeEvent> inventory_item_stack_change_event;
+    EventSender<RecipeAvailabilityChangeEvent> recipe_availability_change_event;
+    
+    ~ServerPlayers();
 };
 
 #endif

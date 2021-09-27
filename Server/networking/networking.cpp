@@ -69,6 +69,20 @@ void ServerNetworkingManager::checkForNewConnections() {
     }
 }
 
+void ServerNetworkingManager::init() {
+    blocks->block_change_event.addListener(this);
+    blocks->block_break_stage_change_event.addListener(this);
+    blocks->liquid_change_event.addListener(this);
+    items->item_creation_event.addListener(this);
+    items->item_deletion_event.addListener(this);
+    entities->entity_velocity_change_event.addListener(this);
+    players->inventory_item_stack_change_event.addListener(this);
+    players->inventory_item_type_change_event.addListener(this);
+    players->recipe_availability_change_event.addListener(this);
+    blocks->light_change_event.addListener(this);
+    entities->entity_position_change_event.addListener(this);
+}
+
 void ServerNetworkingManager::getPacketsFromPlayers() {
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {

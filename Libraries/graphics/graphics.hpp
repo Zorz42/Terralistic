@@ -29,6 +29,7 @@ namespace gfx {
         unsigned short getHeight() const;
         void setPixel(unsigned short x, unsigned short y, Color color);
         unsigned char* getArray() const;
+        ~PixelGrid();
     };
     
     struct Orientation {

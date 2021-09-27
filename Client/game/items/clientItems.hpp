@@ -24,8 +24,10 @@ class ClientItems : EventListener<ClientPacketEvent> {
     void onEvent(ClientPacketEvent& event) override;
     ClientBlocks* blocks;
     ClientEntities* entities;
+    NetworkingManager* manager;
 public:
-    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, ClientEntities* entities) : resource_pack(resource_pack), blocks(blocks), entities(entities) {}
+    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, ClientEntities* entities, NetworkingManager* manager) : resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager) {}
+    void init();
     void renderItems();
 };
 

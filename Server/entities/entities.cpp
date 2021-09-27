@@ -84,30 +84,31 @@ bool ServerEntity::isCollidingWithBlocks(ServerBlocks* blocks, float colliding_x
 void ServerEntity::addVelocityX(float vel_x) {
     velocity_x += vel_x;
     ServerEntityVelocityChangeEvent event(*this);
-    event.call();
+    entities->entity_velocity_change_event.call(event);
 }
 
 void ServerEntity::addVelocityY(float vel_y) {
     velocity_y += vel_y;
     ServerEntityVelocityChangeEvent event(*this);
-    event.call();
+    entities->entity_velocity_change_event.call(event);
 }
 
 void ServerEntity::setVelocityX(float vel_x) {
     velocity_x = vel_x;
     ServerEntityVelocityChangeEvent event(*this);
-    event.call();
+    entities->entity_velocity_change_event.call(event);
 }
 
 void ServerEntity::setVelocityY(float vel_y) {
     velocity_y = vel_y;
     ServerEntityVelocityChangeEvent event(*this);
-    event.call();
+    entities->entity_velocity_change_event.call(event);
 }
 
 void ServerEntity::setPosition(int x_, int y_) {
     x = x_;
     y = y_;
-    ServerEntityPositionChangeEvent(*this).call();
+    ServerEntityPositionChangeEvent event(*this);
+    entities->entity_position_change_event.call(event);
 }
 

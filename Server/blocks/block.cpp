@@ -12,15 +12,13 @@ const BlockInfo& ServerBlock::getBlockInfo() {
 void ServerBlock::setType(BlockType block_type) {
     if(block_type != block_data->block_type) {
         ServerBlockChangeEvent event(*this, block_type);
-        event.call();
+        blocks->block_change_event.call(event);
         
         if(event.cancelled)
             return;
         
-        blocks->removeNaturalLight(x);
         assert((int)block_type >= 0 && block_type < BlockType::NUM_BLOCKS);
         block_data->block_type = block_type;
-        blocks->setNaturalLight(x);
         
         update();
         updateNeighbors();
@@ -43,7 +41,7 @@ void ServerBlock::setBreakProgress(unsigned short ms) {
     unsigned char stage = (unsigned char)((float)getBreakProgress() / (float)getBlockInfo().break_time * 9.f);
     if(stage != getBreakStage()) {
         ServerBlockBreakStageChangeEvent event(*this, stage);
-        event.call();
+        blocks->block_break_stage_change_event.call(event);
         
         if(event.cancelled)
             return;
@@ -54,7 +52,7 @@ void ServerBlock::setBreakProgress(unsigned short ms) {
 
 void ServerBlock::update() {
     ServerBlockUpdateEvent event(*this);
-    event.call();
+    blocks->block_update_event.call(event);
     
     if(event.cancelled)
         return;
@@ -67,7 +65,7 @@ void ServerBlock::update() {
 
 void ServerBlock::breakBlock() {
     ServerBlockBreakEvent event(*this);
-    event.call();
+    blocks->block_break_event.call(event);
     
     if(event.cancelled)
         return;

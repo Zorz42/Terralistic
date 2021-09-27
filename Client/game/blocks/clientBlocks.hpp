@@ -53,6 +53,7 @@ public:
 class ClientBlocks : EventListener<ClientPacketEvent> {
     unsigned short width{}, height{};
     ClientMapBlock *blocks = nullptr;
+    NetworkingManager* manager;
     
     void onEvent(ClientPacketEvent& event) override;
     
@@ -65,11 +66,13 @@ class ClientBlocks : EventListener<ClientPacketEvent> {
     void updateOrientationRight(unsigned short x, unsigned short y);
 
 public:
-    explicit ClientBlocks(ResourcePack* resource_pack);
+    explicit ClientBlocks(ResourcePack* resource_pack, NetworkingManager* manager);
     void create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data);
     std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)> stateFunctions[(int)BlockType::NUM_BLOCKS];
     int view_x{}, view_y{};
 
+    void init();
+    
     ResourcePack* getResourcePack() { return resource_pack; }
     
     ClientBlock getBlock(unsigned short x, unsigned short y);
@@ -85,7 +88,7 @@ public:
     short getViewBeginY() const;
     short getViewEndY() const;
 
-    ~ClientBlocks() override;
+    ~ClientBlocks();
 };
 
 #endif

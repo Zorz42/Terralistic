@@ -2,6 +2,10 @@
 #include "properties.hpp"
 #include "resourcePack.hpp"
 
+void ClientItems::init() {
+    manager->packet_event.addListener(this);
+}
+
 void ClientItems::renderItems() {
     int item_count = 0;
     for(ClientEntity* entity : entities->getEntities())

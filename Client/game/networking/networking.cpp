@@ -13,7 +13,8 @@ void NetworkingManager::checkForPackets() {
             while(!packet.endOfPacket()) {
                 PacketType packet_type;
                 packet >> packet_type;
-                ClientPacketEvent(packet, packet_type).call();
+                ClientPacketEvent event(packet, packet_type);
+                packet_event.call(event);
             }
         } else
             break;

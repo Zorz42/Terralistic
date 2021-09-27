@@ -14,7 +14,7 @@ bool ServerBlock::canUpdateLiquid() {
 void ServerBlock::setType(LiquidType liquid_type) {
     if(liquid_type != block_data->liquid_type) {
         ServerLiquidChangeEvent event(*this, liquid_type, getLiquidLevel());
-        event.call();
+        blocks->liquid_change_event.call(event);
         
         if(event.cancelled)
             return;
@@ -33,7 +33,7 @@ void ServerBlock::setType(LiquidType liquid_type) {
 void ServerBlock::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         ServerLiquidChangeEvent event(*this, getLiquidType(), level);
-        event.call();
+        blocks->liquid_change_event.call(event);
         
         if(event.cancelled)
             return;

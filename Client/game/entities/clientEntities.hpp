@@ -26,10 +26,12 @@ public:
 class ClientEntities : EventListener<ClientPacketEvent> {
     std::vector<ClientEntity*> entities;
     ClientBlocks* blocks;
+    NetworkingManager* manager;
     
     void onEvent(ClientPacketEvent& event) override;
 public:
-    explicit ClientEntities(ClientBlocks* blocks) : blocks(blocks) {}
+    explicit ClientEntities(ClientBlocks* blocks, NetworkingManager* manager) : blocks(blocks), manager(manager) {}
+    void init();
     void updateAllEntities(float frame_length);
     void registerEntity(ClientEntity* entity);
     void removeEntity(ClientEntity* entity);

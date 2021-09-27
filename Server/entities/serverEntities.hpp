@@ -5,11 +5,14 @@
 #include "serverBlocks.hpp"
 #include "entityType.hpp"
 
+class ServerEntities;
+
 class ServerEntity {
     float x, y, velocity_x = 0, velocity_y = 0;
+    ServerEntities* entities;
 public:
     inline static unsigned short _curr_id = 0;
-    ServerEntity(int x, int y) : id(_curr_id++), x(x), y(y) {}
+    ServerEntity(ServerEntities* entities, int x, int y) : id(_curr_id++), x(x), y(y), entities(entities) {}
     bool gravity = true, friction = true;
     const unsigned short id;
     
@@ -32,6 +35,18 @@ public:
     void setPosition(int x, int y);
 };
 
+class ServerEntityVelocityChangeEvent : public Event {
+public:
+    explicit ServerEntityVelocityChangeEvent(ServerEntity& entity) : entity(entity) {}
+    ServerEntity& entity;
+};
+
+class ServerEntityPositionChangeEvent : public Event {
+public:
+    explicit ServerEntityPositionChangeEvent(ServerEntity& entity) : entity(entity) {}
+    ServerEntity& entity;
+};
+
 class ServerEntities {
     std::vector<ServerEntity*> entities;
     ServerBlocks* blocks;
@@ -41,20 +56,8 @@ public:
     void registerEntity(ServerEntity* entity);
     void removeEntity(ServerEntity* entity);
     const std::vector<ServerEntity*>& getEntities() { return entities; }
-};
-
-
-
-class ServerEntityVelocityChangeEvent : public Event<ServerEntityVelocityChangeEvent> {
-public:
-    explicit ServerEntityVelocityChangeEvent(ServerEntity& entity) : entity(entity) {}
-    ServerEntity& entity;
-};
-
-class ServerEntityPositionChangeEvent : public Event<ServerEntityPositionChangeEvent> {
-public:
-    explicit ServerEntityPositionChangeEvent(ServerEntity& entity) : entity(entity) {}
-    ServerEntity& entity;
+    EventSender<ServerEntityVelocityChangeEvent> entity_velocity_change_event;
+    EventSender<ServerEntityPositionChangeEvent> entity_position_change_event;
 };
 
 

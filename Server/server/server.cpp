@@ -23,13 +23,14 @@ void onInterrupt(int signum) {
 
 Server::Server(std::string resource_path, std::string world_path) :
     blocks(),
-    items(&entities),
+    items(&entities, &blocks),
     players(&blocks, &entities, &items),
     networking_manager(&blocks, &players, &items, &entities),
     generator(&blocks, std::move(resource_path)),
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
-    entities(&blocks)
+    entities(&blocks),
+    day_cycle(&blocks)
 {}
 
 void Server::loadWorld() {
@@ -74,12 +75,11 @@ void Server::start(unsigned short port) {
         print::info("Generating world...");
         generator.generateWorld(4400, 1200, seed);
     }
-
-    for(int x = 0; x < blocks.getWidth(); x++)
-        for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlock(x, y).getBlockInfo().transparent; y++) {
-            blocks.setLightLevelDirectly(x, y, MAX_LIGHT);
-            blocks.setLightSourceDirectly(x, y, true);
-        }
+    
+    day_cycle.init();
+    items.init();
+    players.init();
+    networking_manager.init();
     
     print::info("Starting server...");
     state = ServerState::STARTING;
@@ -107,6 +107,8 @@ void Server::start(unsigned short port) {
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
         players.updateBlocksInVisibleAreas();
+        day_cycle.update();
+        
         networking_manager.flushPackets();
         if(gfx::getTicks() / 1000 > seconds) {
             seconds = gfx::getTicks() / 1000;

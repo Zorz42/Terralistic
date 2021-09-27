@@ -27,6 +27,10 @@ ClientEntity* ClientEntities::getEntityById(unsigned short id) {
     return nullptr;
 }
 
+void ClientEntities::init() {
+    manager->packet_event.addListener(this);
+}
+
 void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
     if(friction) {
         velocity_y *= std::pow(0.995f, frame_length);

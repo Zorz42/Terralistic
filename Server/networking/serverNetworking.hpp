@@ -26,7 +26,7 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     sf::TcpListener listener;
     
     ServerBlocks* blocks;
-    Players* players;
+    ServerPlayers* players;
     ServerItems* items;
     ServerEntities* entities;
     Commands commands;
@@ -40,14 +40,16 @@ class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventList
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
     void onEvent(RecipeAvailabilityChangeEvent& event) override;
-    void onEvent(ServerLightChangeEvent& event) override;\
+    void onEvent(ServerLightChangeEvent& event) override;
     void onEvent(ServerEntityPositionChangeEvent& event) override;
     
     void onPacket(sf::Packet& packet, PacketType packet_type, Connection& conn);
     
     static void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
-    ServerNetworkingManager(ServerBlocks* blocks, Players* players, ServerItems* items, ServerEntities* entities) : blocks(blocks), players(players), items(items), entities(entities), commands(blocks, players, items, entities){}
+    ServerNetworkingManager(ServerBlocks* blocks, ServerPlayers* players, ServerItems* items, ServerEntities* entities) : blocks(blocks), players(players), items(items), entities(entities), commands(blocks, players, items, entities) {}
+
+    void init();
     
     void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
     

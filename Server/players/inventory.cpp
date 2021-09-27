@@ -10,7 +10,7 @@ void InventoryItem::setTypeDirectly(ItemType type_) {
 void InventoryItem::setType(ItemType type_) {
     if(type != type_) {
         ServerInventoryItemTypeChangeEvent event(*this, type_);
-        event.call();
+        inventory->getPlayers()->inventory_item_type_change_event.call(event);
         
         if(event.cancelled)
             return;
@@ -32,7 +32,7 @@ void InventoryItem::setStackDirectly(unsigned short stack_) {
 void InventoryItem::setStack(unsigned short stack_) {
     if(stack != stack_) {
         ServerInventoryItemStackChangeEvent event(*this, stack_);
-        event.call();
+        inventory->getPlayers()->inventory_item_stack_change_event.call(event);
         
         if(event.cancelled)
             return;
@@ -154,7 +154,8 @@ void ServerInventory::updateAvailableRecipes() {
     
     if(available_recipes != new_available_recipes) {
         available_recipes = new_available_recipes;
-        RecipeAvailabilityChangeEvent(this).call();
+        RecipeAvailabilityChangeEvent event(this);
+        getPlayers()->recipe_availability_change_event.call(event);
     }
 }
 

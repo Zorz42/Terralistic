@@ -5,6 +5,13 @@
 #include "events.hpp"
 #include "packetType.hpp"
 
+class ClientPacketEvent : public Event {
+public:
+    ClientPacketEvent(sf::Packet& packet, PacketType packet_type) : packet(packet), packet_type(packet_type) {}
+    sf::Packet& packet;
+    PacketType packet_type;
+};
+
 class NetworkingManager {
     sf::TcpSocket socket;
     sf::Packet master_packet;
@@ -17,13 +24,7 @@ public:
     sf::Packet getPacket();
     std::vector<char> getData(unsigned int size);
     void flushPackets();
-};
-
-class ClientPacketEvent : public Event<ClientPacketEvent> {
-public:
-    ClientPacketEvent(sf::Packet& packet, PacketType packet_type) : packet(packet), packet_type(packet_type) {}
-    sf::Packet& packet;
-    PacketType packet_type;
+    EventSender<ClientPacketEvent> packet_event;
 };
 
 #endif

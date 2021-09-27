@@ -7,6 +7,8 @@ ClientInventory::ClientInventory(NetworkingManager* manager, ResourcePack* resou
 }
 
 void ClientInventory::init() {
+    manager->packet_event.addListener(this);
+    
     behind_inventory_rect.orientation = gfx::TOP;
     behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
     behind_inventory_rect.setY(INVENTORY_UI_SPACING / 2);

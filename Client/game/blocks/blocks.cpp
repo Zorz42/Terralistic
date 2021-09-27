@@ -1,7 +1,7 @@
 #include "clientBlocks.hpp"
 #include "platform_folders.h"
 
-ClientBlocks::ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource_pack) {
+ClientBlocks::ClientBlocks(ResourcePack* resource_pack, NetworkingManager* manager) : resource_pack(resource_pack), manager(manager) {
     stateFunctions[(int)BlockType::DIRT] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
     stateFunctions[(int)BlockType::STONE_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
     stateFunctions[(int)BlockType::GRASS_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
@@ -11,8 +11,12 @@ ClientBlocks::ClientBlocks(ResourcePack* resource_pack) : resource_pack(resource
     stateFunctions[(int)BlockType::SNOWY_GRASS_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
     stateFunctions[(int)BlockType::SNOW_BLOCK] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
     stateFunctions[(int)BlockType::ICE] = std::vector<void (ClientBlocks::*)(unsigned short, unsigned short)>{&ClientBlocks::updateOrientationLeft, &ClientBlocks::updateOrientationDown, &ClientBlocks::updateOrientationRight, &ClientBlocks::updateOrientationUp};
-
 }
+
+void ClientBlocks::init() {
+    manager->packet_event.addListener(this);
+}
+
 void ClientBlocks::create(unsigned short map_width, unsigned short map_height, const std::vector<char>& map_data) {
     width = map_width;
     height = map_height;

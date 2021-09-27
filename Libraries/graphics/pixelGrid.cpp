@@ -23,3 +23,7 @@ void gfx::PixelGrid::setPixel(unsigned short x, unsigned short y, Color color) {
 unsigned char* gfx::PixelGrid::getArray() const {
     return array;
 }
+
+gfx::PixelGrid::~PixelGrid() {
+    delete[] array;
+}

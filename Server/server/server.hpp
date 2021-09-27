@@ -6,6 +6,7 @@
 #include "serverNetworking.hpp"
 #include "worldGenerator.hpp"
 #include "serverEntities.hpp"
+#include "dayCycle.hpp"
 
 enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
 
@@ -13,9 +14,10 @@ class Server {
     std::string world_path;
     ServerBlocks blocks;
     ServerItems items;
-    Players players;
+    ServerPlayers players;
     ServerNetworkingManager networking_manager;
     ServerEntities entities;
+    DayCycle day_cycle;
     
     worldGenerator generator;
 

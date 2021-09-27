@@ -137,16 +137,18 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, std::st
     port(port),
     username(username),
     background_rect(background_rect),
-    blocks(&resource_pack),
+    blocks(&resource_pack, &networking_manager),
     players(&networking_manager, &blocks, &resource_pack, &entities, username),
-    items(&resource_pack, &blocks, &entities),
-    entities(&blocks),
+    items(&resource_pack, &blocks, &entities, &networking_manager),
+    entities(&blocks, &networking_manager),
     block_selector(&networking_manager, &blocks, &inventory, &players),
     inventory(&networking_manager, &resource_pack),
     debug_menu(&players, &blocks),
     chat(&networking_manager),
     minimap(&blocks)
-{}
+{
+    networking_manager.packet_event.addListener(this);
+}
 
 void Game::init() {
     std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
@@ -181,6 +183,10 @@ void Game::init() {
 #endif
     registerAModule(&chat);
     registerAModule(&minimap);
+    
+    entities.init();
+    items.init();
+    blocks.init();
 }
 
 void Game::handshakeWithServer() {
