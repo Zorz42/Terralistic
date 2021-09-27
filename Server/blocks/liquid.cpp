@@ -16,9 +16,6 @@ void ServerBlock::setType(LiquidType liquid_type) {
         ServerLiquidChangeEvent event(*this, liquid_type, getLiquidLevel());
         blocks->liquid_change_event.call(event);
         
-        if(event.cancelled)
-            return;
-        
         assert((int)liquid_type >= 0 && liquid_type < LiquidType::NUM_LIQUIDS);
         block_data->liquid_type = liquid_type;
         
@@ -34,9 +31,6 @@ void ServerBlock::setLiquidLevel(unsigned char level) {
     if(level != getLiquidLevel()) {
         ServerLiquidChangeEvent event(*this, getLiquidType(), level);
         blocks->liquid_change_event.call(event);
-        
-        if(event.cancelled)
-            return;
         
         block_data->light_level = level;
         if(level == 0)

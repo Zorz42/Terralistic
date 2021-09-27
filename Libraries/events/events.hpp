@@ -3,11 +3,6 @@
 
 #include <vector>
 
-class Event {
-public:
-    bool cancelled = false;
-};
-
 template<class EventInstance>
 class EventListener {
 public:
@@ -27,11 +22,8 @@ public:
     }
     
     void call(EventInstance event) {
-        for(EventListener<EventInstance>* listener : listeners) {
-            if(event.cancelled)
-                break;
+        for(EventListener<EventInstance>* listener : listeners)
             listener->onEvent(event);
-        }
     }
 };
 

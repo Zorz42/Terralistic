@@ -5,7 +5,7 @@
 #include "events.hpp"
 #include "packetType.hpp"
 
-class ClientPacketEvent : public Event {
+class ClientPacketEvent {
 public:
     ClientPacketEvent(sf::Packet& packet, PacketType packet_type) : packet(packet), packet_type(packet_type) {}
     sf::Packet& packet;

@@ -17,13 +17,13 @@ public:
     unsigned short getHeight() override { return ITEM_WIDTH * 2; }
 };
 
-class ServerItemCreationEvent : public Event {
+class ServerItemCreationEvent {
 public:
     ServerItemCreationEvent(const ServerItem& item) : item(item) {}
     const ServerItem& item;
 };
 
-class ServerItemDeletionEvent : public Event {
+class ServerItemDeletionEvent {
 public:
     explicit ServerItemDeletionEvent(const ServerItem& item) : item(item) {}
     const ServerItem& item;

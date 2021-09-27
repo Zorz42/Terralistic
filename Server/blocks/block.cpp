@@ -14,9 +14,6 @@ void ServerBlock::setType(BlockType block_type) {
         ServerBlockChangeEvent event(*this, block_type);
         blocks->block_change_event.call(event);
         
-        if(event.cancelled)
-            return;
-        
         assert((int)block_type >= 0 && block_type < BlockType::NUM_BLOCKS);
         block_data->block_type = block_type;
         
@@ -42,10 +39,7 @@ void ServerBlock::setBreakProgress(unsigned short ms) {
     if(stage != getBreakStage()) {
         ServerBlockBreakStageChangeEvent event(*this, stage);
         blocks->block_break_stage_change_event.call(event);
-        
-        if(event.cancelled)
-            return;
-        
+
         block_data->break_stage = stage;
     }
 }
@@ -53,9 +47,6 @@ void ServerBlock::setBreakProgress(unsigned short ms) {
 void ServerBlock::update() {
     ServerBlockUpdateEvent event(*this);
     blocks->block_update_event.call(event);
-    
-    if(event.cancelled)
-        return;
     
     if(getBlockInfo().only_on_floor && blocks->getBlock(x, (unsigned short)(y + 1)).getBlockInfo().transparent)
         breakBlock();
@@ -66,9 +57,6 @@ void ServerBlock::update() {
 void ServerBlock::breakBlock() {
     ServerBlockBreakEvent event(*this);
     blocks->block_break_event.call(event);
-    
-    if(event.cancelled)
-        return;
     
     setType(BlockType::AIR);
     setBreakProgress(0);

@@ -35,13 +35,13 @@ public:
     void setPosition(int x, int y);
 };
 
-class ServerEntityVelocityChangeEvent : public Event {
+class ServerEntityVelocityChangeEvent {
 public:
     explicit ServerEntityVelocityChangeEvent(ServerEntity& entity) : entity(entity) {}
     ServerEntity& entity;
 };
 
-class ServerEntityPositionChangeEvent : public Event {
+class ServerEntityPositionChangeEvent {
 public:
     explicit ServerEntityPositionChangeEvent(ServerEntity& entity) : entity(entity) {}
     ServerEntity& entity;

@@ -27,6 +27,7 @@
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		169990A92700E25300224E11 /* dayCycle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* dayCycle.cpp */; };
 		169990AA2700E25300224E11 /* dayCycle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* dayCycle.cpp */; };
+		169AD3A327023B690096D80D /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169AD3A127023B690096D80D /* blocks.cpp */; };
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A0E8AC26FDBE630069211C /* minimap.cpp */; };
 		16A3BFF026FF85F6001B9E4E /* rectArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFED26FF85F6001B9E4E /* rectArray.cpp */; };
@@ -280,6 +281,8 @@
 		169990A527004E3F00224E11 /* movingType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = movingType.hpp; sourceTree = "<group>"; };
 		169990A72700E25300224E11 /* dayCycle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dayCycle.cpp; sourceTree = "<group>"; };
 		169990A82700E25300224E11 /* dayCycle.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dayCycle.hpp; sourceTree = "<group>"; };
+		169AD3A127023B690096D80D /* blocks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blocks.cpp; sourceTree = "<group>"; };
+		169AD3A227023B690096D80D /* blocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blocks.hpp; sourceTree = "<group>"; };
 		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
 		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
 		16A0E8AC26FDBE630069211C /* minimap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = minimap.cpp; sourceTree = "<group>"; };
@@ -599,6 +602,7 @@
 				1682944126A16D5C0017E2FD /* packetType */,
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
 				36DDF87A2689EAC5002337F3 /* properties */,
+				169AD3A027023B590096D80D /* blocks */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -664,6 +668,15 @@
 				169990A72700E25300224E11 /* dayCycle.cpp */,
 			);
 			path = dayCycle;
+			sourceTree = "<group>";
+		};
+		169AD3A027023B590096D80D /* blocks */ = {
+			isa = PBXGroup;
+			children = (
+				169AD3A127023B690096D80D /* blocks.cpp */,
+				169AD3A227023B690096D80D /* blocks.hpp */,
+			);
+			path = blocks;
 			sourceTree = "<group>";
 		};
 		169DE4E826E3E1F0008DB021 /* modManager */ = {
@@ -1176,6 +1189,7 @@
 				16A3BFF226FF85F6001B9E4E /* pixelGrid.cpp in Sources */,
 				16670CE026DDFAA90057AA41 /* settings.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
+				169AD3A327023B690096D80D /* blocks.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */,
 				16A3BFF026FF85F6001B9E4E /* rectArray.cpp in Sources */,

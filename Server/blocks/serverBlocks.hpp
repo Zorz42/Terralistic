@@ -72,33 +72,33 @@ public:
     bool hasScheduledLightUpdate() { return block_data->update_light; }
 };
 
-class ServerBlockChangeEvent : public Event {
+class ServerBlockChangeEvent {
 public:
     ServerBlockChangeEvent(ServerBlock block, BlockType type) : block(block), type(type) {}
     ServerBlock block;
     BlockType type;
 };
 
-class ServerBlockBreakEvent : public Event {
+class ServerBlockBreakEvent {
 public:
     explicit ServerBlockBreakEvent(ServerBlock block) : block(block) {}
     ServerBlock block;
 };
 
-class ServerBlockUpdateEvent : public Event {
+class ServerBlockUpdateEvent {
 public:
     explicit ServerBlockUpdateEvent(ServerBlock block) : block(block) {}
     ServerBlock block;
 };
 
-class ServerBlockBreakStageChangeEvent : public Event {
+class ServerBlockBreakStageChangeEvent {
 public:
     ServerBlockBreakStageChangeEvent(ServerBlock block, unsigned char break_stage) : block(block), break_stage(break_stage) {}
     ServerBlock block;
     unsigned char break_stage;
 };
 
-class ServerLiquidChangeEvent : public Event {
+class ServerLiquidChangeEvent {
 public:
     ServerLiquidChangeEvent(ServerBlock block, LiquidType liquid_type, unsigned char liquid_level) : block(block), liquid_type(liquid_type), liquid_level(liquid_level) {}
     ServerBlock block;
@@ -106,7 +106,7 @@ public:
     unsigned char liquid_level;
 };
 
-class ServerLightChangeEvent : public Event {
+class ServerLightChangeEvent {
 public:
     ServerLightChangeEvent(ServerBlock block) : block(block) {}
     ServerBlock block;

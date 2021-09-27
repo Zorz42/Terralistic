@@ -11,10 +11,7 @@ void InventoryItem::setType(ItemType type_) {
     if(type != type_) {
         ServerInventoryItemTypeChangeEvent event(*this, type_);
         inventory->getPlayers()->inventory_item_type_change_event.call(event);
-        
-        if(event.cancelled)
-            return;
-        
+
         setTypeDirectly(type_);
         inventory->updateAvailableRecipes();
     }
@@ -33,9 +30,6 @@ void InventoryItem::setStack(unsigned short stack_) {
     if(stack != stack_) {
         ServerInventoryItemStackChangeEvent event(*this, stack_);
         inventory->getPlayers()->inventory_item_stack_change_event.call(event);
-        
-        if(event.cancelled)
-            return;
         
         setStackDirectly(stack_);
         inventory->updateAvailableRecipes();

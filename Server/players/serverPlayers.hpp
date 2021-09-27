@@ -93,21 +93,21 @@ struct blockEvents {
     void (*onLeftClick)(ServerBlock*, ServerPlayer*) = nullptr;
 };
 
-class ServerInventoryItemTypeChangeEvent : public Event {
+class ServerInventoryItemTypeChangeEvent {
 public:
     ServerInventoryItemTypeChangeEvent(InventoryItem& item, ItemType type) : item(item), type(type) {}
     InventoryItem& item;
     ItemType type;
 };
 
-class ServerInventoryItemStackChangeEvent : public Event {
+class ServerInventoryItemStackChangeEvent {
 public:
     ServerInventoryItemStackChangeEvent(InventoryItem& item, unsigned short stack) : item(item), stack(stack) {}
     InventoryItem& item;
     unsigned short stack;
 };
 
-class RecipeAvailabilityChangeEvent : public Event {
+class RecipeAvailabilityChangeEvent {
 public:
     explicit RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
     ServerInventory* inventory;
