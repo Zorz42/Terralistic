@@ -76,7 +76,7 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     ServerPlayer* player = getPlayerByName(name);
     
     if(!player) {
-        player = new ServerPlayer(entities, blocks->getSpawnX(), blocks->getSpawnY() - BLOCK_WIDTH * 4, name);
+        player = new ServerPlayer(entities, this, blocks->getSpawnX(), blocks->getSpawnY() - BLOCK_WIDTH * 4, name);
         all_players.emplace_back(player);
         player->sight_x = player->getX();
         player->sight_y = player->getY();
@@ -155,11 +155,11 @@ void ServerPlayers::rightClickEvent(ServerBlock this_block, ServerPlayer* peer) 
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
-    all_players.emplace_back(new ServerPlayer(entities, iter));
+    all_players.emplace_back(new ServerPlayer(entities, this, iter));
     return iter;
 }
 
-ServerPlayer::ServerPlayer(ServerEntities* entities, char*& iter) : ServerEntity(entities, *(int*)iter, *(int*)(iter + 4)) {
+ServerPlayer::ServerPlayer(ServerEntities* entities, ServerPlayers* players, char*& iter) : ServerEntity(entities, *(int*)iter, *(int*)(iter + 4)), inventory(players) {
     friction = false;
     iter += 8;
     

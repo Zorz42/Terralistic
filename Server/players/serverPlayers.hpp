@@ -47,11 +47,10 @@ class ServerInventory {
     std::vector<const Recipe*> available_recipes;
     ServerPlayers* players;
 public:
-    ServerInventory(ServerPlayers* players) : players(players) {}
+    ServerInventory(ServerPlayers* players);
     bool hasIngredientsForRecipe(const Recipe& recipe);
     const std::vector<const Recipe*>& getAvailableRecipes();
     void updateAvailableRecipes();
-    ServerInventory();
     InventoryItem inventory_arr[INVENTORY_SIZE];
     char addItem(ItemType id, int quantity);
     char removeItem(ItemType id, int quantity);
@@ -63,8 +62,8 @@ public:
 
 class ServerPlayer : public ServerEntity {
 public:
-    explicit ServerPlayer(ServerEntities* entities, int x, int y, std::string name) : ServerEntity(entities, x, y), name(std::move(name)) { friction = false; }
-    explicit ServerPlayer(ServerEntities* entities, char*& iter);
+    explicit ServerPlayer(ServerEntities* entities, ServerPlayers* players, int x, int y, std::string name) : ServerEntity(entities, x, y), name(std::move(name)), inventory(players) { friction = false; }
+    explicit ServerPlayer(ServerEntities* entities, ServerPlayers* players, char*& iter);
     std::string name;
     
     unsigned short sight_width = 0, sight_height = 0;

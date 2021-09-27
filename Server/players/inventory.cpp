@@ -75,7 +75,7 @@ short InventoryItem::getPosInInventory() {
         return this - &inventory->inventory_arr[0];
 }
 
-ServerInventory::ServerInventory() {
+ServerInventory::ServerInventory(ServerPlayers* players) : players(players) {
     for(InventoryItem& i : inventory_arr)
         i = InventoryItem(this);
     
