@@ -53,7 +53,6 @@ public:
     const BlockInfo& getBlockInfo();
     
     void setType(LiquidType liquid_type);
-    
     void liquidUpdate();
     LiquidType getLiquidType() { return block_data->liquid_type; }
     bool canUpdateLiquid();

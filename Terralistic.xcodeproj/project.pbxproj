@@ -17,6 +17,8 @@
 		166D85E026AAB7EC00DB87B1 /* packetHandling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85DF26AAB7EC00DB87B1 /* packetHandling.cpp */; };
 		166ECC8126A1B8C800E36052 /* serializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166ECC8026A1B8C800E36052 /* serializer.cpp */; };
 		1673274C26A80EF40063281A /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* networking.cpp */; };
+		1674225F2702F48B00D6D8F2 /* liquids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1674225D2702F48B00D6D8F2 /* liquids.cpp */; };
+		167422602702F48B00D6D8F2 /* liquids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1674225D2702F48B00D6D8F2 /* liquids.cpp */; };
 		167513C426A498DA00E21C68 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		1675E71D26611B8000B620F4 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		167C03AC26E13FB50045FEA9 /* centeredObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03AB26E13FB50045FEA9 /* centeredObject.cpp */; };
@@ -253,6 +255,8 @@
 		166ECC8026A1B8C800E36052 /* serializer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serializer.cpp; sourceTree = "<group>"; };
 		1673274A26A80EF40063281A /* networking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = networking.cpp; sourceTree = "<group>"; };
 		1673274B26A80EF40063281A /* serverNetworking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverNetworking.hpp; sourceTree = "<group>"; };
+		1674225D2702F48B00D6D8F2 /* liquids.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liquids.cpp; sourceTree = "<group>"; };
+		1674225E2702F48B00D6D8F2 /* liquids.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = liquids.hpp; sourceTree = "<group>"; };
 		167513C226A498DA00E21C68 /* biomes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = biomes.cpp; sourceTree = "<group>"; };
 		167513C326A498DA00E21C68 /* biomes.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = biomes.hpp; sourceTree = "<group>"; };
 		1675E71B26611B8000B620F4 /* configManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = configManager.cpp; sourceTree = "<group>"; };
@@ -521,6 +525,15 @@
 			path = networking;
 			sourceTree = "<group>";
 		};
+		1674225C2702F35800D6D8F2 /* liquids */ = {
+			isa = PBXGroup;
+			children = (
+				1674225E2702F48B00D6D8F2 /* liquids.hpp */,
+				1674225D2702F48B00D6D8F2 /* liquids.cpp */,
+			);
+			path = liquids;
+			sourceTree = "<group>";
+		};
 		167513C126A498DA00E21C68 /* biomes */ = {
 			isa = PBXGroup;
 			children = (
@@ -603,6 +616,7 @@
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
 				36DDF87A2689EAC5002337F3 /* properties */,
 				169AD3A027023B590096D80D /* blocks */,
+				1674225C2702F35800D6D8F2 /* liquids */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -673,8 +687,8 @@
 		169AD3A027023B590096D80D /* blocks */ = {
 			isa = PBXGroup;
 			children = (
-				169AD3A127023B690096D80D /* blocks.cpp */,
 				169AD3A227023B690096D80D /* blocks.hpp */,
+				169AD3A127023B690096D80D /* blocks.cpp */,
 			);
 			path = blocks;
 			sourceTree = "<group>";
@@ -1154,6 +1168,7 @@
 				3657221C26D07181005AB3CC /* game.cpp in Sources */,
 				36DDF8A82689F725002337F3 /* blocks.cpp in Sources */,
 				3657221126D07181005AB3CC /* debugMenu.cpp in Sources */,
+				1674225F2702F48B00D6D8F2 /* liquids.cpp in Sources */,
 				36DDF8A92689F725002337F3 /* block.cpp in Sources */,
 				16A3BFF426FF85F6001B9E4E /* texture.cpp in Sources */,
 				36DDF8AA2689F725002337F3 /* light.cpp in Sources */,
@@ -1261,6 +1276,7 @@
 				361DD1BF26F7478900129191 /* packetHandling.cpp in Sources */,
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
 				361DD1C126F7478900129191 /* rect.cpp in Sources */,
+				167422602702F48B00D6D8F2 /* liquids.cpp in Sources */,
 				361DD1C226F7478900129191 /* configManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

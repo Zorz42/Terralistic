@@ -6,7 +6,7 @@ void Blocks::create(unsigned short width_, unsigned short height_) {
     blocks = new Block[width * height];
 }
 
-Block* Blocks::getBlock(unsigned short x, unsigned short y) {
+Blocks::Block* Blocks::getBlock(unsigned short x, unsigned short y) {
     if(x >= width || y >= height)
         throw BlockOutOfBoundsException();
     return &blocks[y * width + x];
@@ -30,6 +30,8 @@ void Blocks::setBlockType(unsigned short x, unsigned short y, BlockType type) {
 }
 
 void Blocks::setBlockTypeSilently(unsigned short x, unsigned short y, BlockType type) {
+    if((int)type < 0 || type >= BlockType::NUM_BLOCKS)
+        throw InvalidBlockTypeException();
     getBlock(x, y)->type = type;
 }
 
@@ -54,9 +56,17 @@ unsigned char Blocks::getBreakStage(unsigned short x, unsigned short y) {
 }
 
 void Blocks::breakBlock(unsigned short x, unsigned short y) {
-    BlockBreakEvent event(x, y);
-    block_break_event.call(event);
-    
     setBlockType(x, y, BlockType::AIR);
     setBreakProgress(x, y, 0);
+    
+    BlockBreakEvent event(x, y);
+    block_break_event.call(event);
+}
+
+unsigned short Blocks::getWidth() {
+    return width;
+}
+
+unsigned short Blocks::getHeight() {
+    return height;
 }

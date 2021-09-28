@@ -4,12 +4,6 @@
 #include "properties.hpp"
 #include "events.hpp"
 
-struct Block {
-    BlockType type:8;
-    unsigned char break_stage;
-    unsigned short break_progress = 0;
-};
-
 class BlockChangeEvent {
 public:
     BlockChangeEvent(unsigned short x, unsigned short y, BlockType type) : x(x), y(y) {}
@@ -29,7 +23,13 @@ public:
 };
 
 class Blocks {
-    Block *blocks;
+    struct Block {
+        BlockType type:8;
+        unsigned char break_stage;
+        unsigned short break_progress = 0;
+    };
+    
+    Block *blocks = nullptr;
     unsigned short width, height;
     
     Block* getBlock(unsigned short x, unsigned short y);
@@ -47,6 +47,8 @@ public:
     
     void breakBlock(unsigned short x, unsigned short y);
     
+    unsigned short getWidth(), getHeight();
+    
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;
     EventSender<BlockBreakStageChangeEvent> block_break_stage_change_event;
@@ -57,6 +59,13 @@ class BlockOutOfBoundsException : public std::exception {
 public:
     const char* what() const throw() {
         return "Block is accessed out of the bounds!";
+    }
+};
+
+class InvalidBlockTypeException : public std::exception {
+public:
+    const char* what() const throw() {
+        return "Block type does not exist!";
     }
 };
 
