@@ -6,7 +6,7 @@ static ItemInfo item_infos[(int)ItemType::NUM_ITEMS];
 static LiquidInfo liquid_infos[(int)LiquidType::NUM_LIQUIDS];
 static std::vector<Recipe> recipes;
 
-BlockInfo::BlockInfo(std::string name, bool ghost, bool transparent, bool only_on_floor, short break_time, ItemType drop, std::vector<BlockType> connects_to) : ghost(ghost), transparent(transparent), only_on_floor(only_on_floor), name(std::move(name)), break_time(break_time), drop(drop), connects_to(std::move(connects_to)) {}
+BlockInfo::BlockInfo(std::string name, bool ghost, bool transparent, short break_time, ItemType drop, std::vector<BlockType> connects_to) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), drop(drop), connects_to(std::move(connects_to)) {}
 
 ItemInfo::ItemInfo(std::string  name, unsigned short stack_size, BlockType places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
@@ -36,27 +36,27 @@ unsigned short getRecipeIndex(const Recipe* recipe) {
 void initProperties() {
     // unique_blocks
     block_infos[(int)BlockType::AIR] =
-    BlockInfo("air",               /*ghost*/true,  /*transparent*/true,  /*only_on_floor*/false, /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/ {                                                              });
+    BlockInfo("air",               /*ghost*/true,  /*transparent*/true,  /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/ {                                                              });
     block_infos[(int)BlockType::DIRT] =
-    BlockInfo("dirt",              /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/1000,        /*drops*/ItemType::DIRT,        /*connects_to*/{BlockType::GRASS_BLOCK, BlockType::SNOWY_GRASS_BLOCK           });
+    BlockInfo("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::DIRT,        /*connects_to*/{BlockType::GRASS_BLOCK, BlockType::SNOWY_GRASS_BLOCK           });
     block_infos[(int)BlockType::STONE_BLOCK] =
-    BlockInfo("stone_block",       /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/1000,        /*drops*/ItemType::STONE_BLOCK, /*connects_to*/{BlockType::SNOWY_GRASS_BLOCK                                   });
+    BlockInfo("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::STONE_BLOCK, /*connects_to*/{BlockType::SNOWY_GRASS_BLOCK                                   });
     block_infos[(int)BlockType::GRASS_BLOCK] =
-    BlockInfo("grass_block",       /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/1000,        /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::SNOWY_GRASS_BLOCK                  });
+    BlockInfo("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::SNOWY_GRASS_BLOCK                  });
     block_infos[(int)BlockType::STONE] =
-    BlockInfo("stone",             /*ghost*/true,  /*transparent*/true,  /*only_on_floor*/true,  /*break_time*/1500,        /*drops*/ItemType::STONE,       /*connects_to*/{                                                               });
+    BlockInfo("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500,        /*drops*/ItemType::STONE,       /*connects_to*/{                                                               });
     block_infos[(int)BlockType::WOOD] =
-    BlockInfo("wood",              /*ghost*/true,  /*transparent*/false, /*only_on_floor*/false, /*break_time*/1000,        /*drops*/ItemType::WOOD_PLANKS, /*connects_to*/{BlockType::GRASS_BLOCK, BlockType::LEAVES                      });
+    BlockInfo("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::WOOD_PLANKS, /*connects_to*/{BlockType::GRASS_BLOCK, BlockType::LEAVES                      });
     block_infos[(int)BlockType::LEAVES] =
-    BlockInfo("leaves",            /*ghost*/true,  /*transparent*/false, /*only_on_floor*/false, /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/{                                                               });
+    BlockInfo("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE, /*drops*/ItemType::NOTHING,     /*connects_to*/{                                                               });
     block_infos[(int)BlockType::SAND] =
-    BlockInfo("sand",              /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::GRASS_BLOCK, BlockType::STONE_BLOCK});
+    BlockInfo("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::GRASS_BLOCK, BlockType::STONE_BLOCK});
     block_infos[(int)BlockType::SNOWY_GRASS_BLOCK] =
-    BlockInfo("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/1000,        /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::GRASS_BLOCK, BlockType::STONE_BLOCK});
+    BlockInfo("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::DIRT, BlockType::GRASS_BLOCK, BlockType::STONE_BLOCK});
     block_infos[(int)BlockType::SNOW_BLOCK] =
-    BlockInfo("snow_block",        /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::SNOWY_GRASS_BLOCK, BlockType::ICE                   });
+    BlockInfo("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::SNOWY_GRASS_BLOCK, BlockType::ICE                   });
     block_infos[(int)BlockType::ICE] =
-    BlockInfo("ice_block",         /*ghost*/false, /*transparent*/false, /*only_on_floor*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::SNOW_BLOCK                                          });
+    BlockInfo("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::SNOW_BLOCK                                          });
     
     // unique_items
     item_infos[(int)ItemType::NOTHING] =     ItemInfo(/*name*/"nothing",     /*max_stack*/0,  /*places*/BlockType::AIR        );

@@ -43,6 +43,11 @@ ServerPlayers::ServerPlayers(Blocks* blocks, ServerEntities* entities, ServerIte
     };
 
     custom_block_events[(int)BlockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick;
+    
+    custom_block_events[(int)BlockType::STONE].onUpdate = [](Blocks* blocks, unsigned short x, unsigned short y) {
+        if(y < blocks->getHeight() - 1 && blocks->getBlockInfo(x, y + 1).transparent)
+            blocks->breakBlock(x, y);
+    };
 }
 
 ServerPlayers::~ServerPlayers() {

@@ -48,8 +48,8 @@ void ServerBlock::update() {
     ServerBlockUpdateEvent event(*this);
     blocks->block_update_event.call(event);
     
-    if(getBlockInfo().only_on_floor && blocks->getBlock(x, (unsigned short)(y + 1)).getBlockInfo().transparent)
-        breakBlock();
+    //if(getBlockInfo().only_on_floor && blocks->getBlock(x, (unsigned short)(y + 1)).getBlockInfo().transparent)
+        //breakBlock();
     scheduleLightUpdate();
     scheduleLiquidUpdate();
 }

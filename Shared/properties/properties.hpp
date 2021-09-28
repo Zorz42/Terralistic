@@ -16,9 +16,9 @@ enum class Biome {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNT
 
 struct BlockInfo {
     BlockInfo() = default;
-    BlockInfo(std::string name, bool ghost, bool transparent, bool only_on_floor, short break_time, ItemType drop, std::vector<BlockType> connects_to);
+    BlockInfo(std::string name, bool ghost, bool transparent, short break_time, ItemType drop, std::vector<BlockType> connects_to);
     
-    bool ghost, transparent, only_on_floor;
+    bool ghost, transparent;
     std::string name;
     std::vector<BlockType> connects_to;
     short break_time;
