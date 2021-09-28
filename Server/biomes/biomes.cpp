@@ -29,3 +29,7 @@ structureChance::structureChance(std::string name, float chance_on_block, int le
     unique_structures_of_type = unique_structures;
 
 }
+
+void Biomes::create(unsigned short width) {
+    biomes = new Biome[width];
+}

@@ -7,10 +7,6 @@
 struct layer;
 struct structureChance;
 enum class LayerHeightMode {PREVIOUS_LAYER, WORLD_HEIGHT};
-class biome;
-
-
-inline std::vector <biome> loaded_biomes;
 
 class biome {
 public:
@@ -20,6 +16,7 @@ public:
     std::vector <layer> ground_layers;
     std::vector <structureChance> structure_chances;
     biome(Biome name, int height, int height_variation, std::vector <layer> layers, std::vector <structureChance> structure_chance);
+    biome() = default;
 };
 
 struct layer{
@@ -38,4 +35,12 @@ struct structureChance{
     int unique_structures_of_type;
     structureChance(std::string name, float chance_on_block, int least_distance,
                     int unique_structures);
+};
+
+inline std::vector <biome> loaded_biomes;
+
+class Biomes {
+public:
+    void create(unsigned short width);
+    Biome* biomes;
 };

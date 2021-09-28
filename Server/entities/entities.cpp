@@ -15,7 +15,7 @@ void ServerEntities::removeEntity(ServerEntity *entity) {
     entities.erase(std::find(entities.begin(), entities.end(), entity));
 }
 
-void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
+void ServerEntity::updateEntity(Blocks* blocks, float frame_length) {
     if(friction) {
         velocity_y *= std::pow(0.995f, frame_length);
         velocity_x *= std::pow(isTouchingGround(blocks) ? 0.99f : 0.9995f, frame_length);
@@ -54,15 +54,15 @@ void ServerEntity::updateEntity(ServerBlocks* blocks, float frame_length) {
         x = x_to_be;
 }
 
-bool ServerEntity::isTouchingGround(ServerBlocks* blocks) {
+bool ServerEntity::isTouchingGround(Blocks* blocks) {
     return isCollidingWithBlocks(blocks, x, y + 1) && velocity_y == 0;
 }
 
-bool ServerEntity::isCollidingWithBlocks(ServerBlocks* blocks) {
+bool ServerEntity::isCollidingWithBlocks(Blocks* blocks) {
     return isCollidingWithBlocks(blocks, x, y);
 }
 
-bool ServerEntity::isCollidingWithBlocks(ServerBlocks* blocks, float colliding_x, float colliding_y) {
+bool ServerEntity::isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y) {
     if(colliding_x < 0 || colliding_y < 0 ||
        colliding_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - getHeight() ||
        colliding_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getWidth())
@@ -75,7 +75,7 @@ bool ServerEntity::isCollidingWithBlocks(ServerBlocks* blocks, float colliding_x
     
     for(unsigned short x_ = starting_x; x_ <= ending_x; x_++)
         for(unsigned short y_ = starting_y; y_ <= ending_y; y_++)
-            if(!blocks->getBlock(x_, y_).getBlockInfo().ghost)
+            if(!blocks->getBlockInfo(x_, y_).ghost)
                 return true;
     
     return false;

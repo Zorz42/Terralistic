@@ -25,16 +25,19 @@ Server::Server(std::string resource_path, std::string world_path) :
     blocks(),
     items(&entities, &blocks),
     players(&blocks, &entities, &items),
-    networking_manager(&blocks, &players, &items, &entities),
-    generator(&blocks, std::move(resource_path)),
+    networking_manager(&blocks, &liquids, &players, &items, &entities),
+    generator(&blocks, &liquids, &biomes, std::move(resource_path)),
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     entities(&blocks),
-    day_cycle(&blocks)
+    liquids(&blocks)
+    //day_cycle(&blocks)
 {}
 
 void Server::loadWorld() {
-    blocks.createWorld(4400, 1200);
+    blocks.create(4400, 1200);
+    liquids.create(4400, 1200);
+    biomes.create(4400);
     
     std::ifstream world_file(world_path, std::ios::binary);
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
@@ -43,7 +46,9 @@ void Server::loadWorld() {
     
     world_file.close();
     char* iter = &world_file_serial[0];
+    
     iter = blocks.loadFromSerial(iter);
+    iter = liquids.loadFromSerial(iter);
     
     while(iter < &world_file_serial[0] + world_file_serial.size())
         iter = players.addPlayerFromSerial(iter);
@@ -52,6 +57,7 @@ void Server::loadWorld() {
 void Server::saveWorld() {
     std::vector<char> world_file_serial;
     blocks.serialize(world_file_serial);
+    liquids.serialize(world_file_serial);
     
     for(const ServerPlayer* player : players.getAllPlayers())
         player->serialize(world_file_serial);
@@ -76,7 +82,7 @@ void Server::start(unsigned short port) {
         generator.generateWorld(4400, 1200, seed);
     }
     
-    day_cycle.init();
+    //day_cycle.init();
     items.init();
     players.init();
     networking_manager.init();
@@ -107,7 +113,7 @@ void Server::start(unsigned short port) {
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
         players.updateBlocksInVisibleAreas();
-        day_cycle.update();
+        //day_cycle.update();
         
         networking_manager.flushPackets();
         if(gfx::getTicks() / 1000 > seconds) {

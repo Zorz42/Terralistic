@@ -3,7 +3,7 @@
 
 #define DAY_STAGE_LENGTH 30000
 
-static std::vector<unsigned char> day_stages = {
+/*static std::vector<unsigned char> day_stages = {
     (unsigned char)(1 * MAX_LIGHT),
     (unsigned char)(1 * MAX_LIGHT),
     (unsigned char)(0.95 * MAX_LIGHT),
@@ -63,4 +63,4 @@ void DayCycle::setNaturalLight(unsigned short x, unsigned char power) {
     lights[x] = power;
     for(unsigned short y = 0; y < blocks->getHeight() && blocks->getBlock(x, y).getBlockInfo().transparent; y++)
         blocks->getBlock(x, y).setLightSource(power);
-}
+}*/

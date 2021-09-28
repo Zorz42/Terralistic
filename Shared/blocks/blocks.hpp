@@ -5,6 +5,9 @@
 #include "properties.hpp"
 #include "events.hpp"
 
+#define BLOCK_WIDTH 8
+#define MAX_LIGHT 100
+
 class BlockChangeEvent {
 public:
     BlockChangeEvent(unsigned short x, unsigned short y, BlockType type) : x(x), y(y) {}

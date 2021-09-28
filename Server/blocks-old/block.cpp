@@ -1,5 +1,5 @@
 #include <cassert>
-#include "serverBlocks.hpp"
+#include "serverBlocks-old.hpp"
 
 ServerBlock ServerBlocks::getBlock(unsigned short x, unsigned short y) {
     return {x, y, getMapBlock(x, y), this};

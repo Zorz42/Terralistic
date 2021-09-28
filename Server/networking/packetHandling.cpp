@@ -20,7 +20,7 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
         case PacketType::RIGHT_CLICK: {
             unsigned short x, y;
             packet >> x >> y;
-            players->rightClickEvent(blocks->getBlock(x, y), conn.player);
+            players->rightClickEvent(conn.player, x, y);
             break;
         }
 
@@ -97,21 +97,21 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
     }
 }
 
-void ServerNetworkingManager::onEvent(ServerBlockChangeEvent& event) {
+void ServerNetworkingManager::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::BLOCK << event.block.getX() << event.block.getY() << (unsigned char)event.type;
+    packet << PacketType::BLOCK << event.x << event.y << (unsigned char)blocks->getBlockType(event.x, event.y);
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerBlockBreakStageChangeEvent& event) {
+void ServerNetworkingManager::onEvent(BlockBreakStageChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::BLOCK_PROGRESS << event.block.getX() << event.block.getY() << event.break_stage;
+    packet << PacketType::BLOCK_PROGRESS << event.x << event.y << blocks->getBreakStage(event.x, event.y);
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerLiquidChangeEvent& event) {
+void ServerNetworkingManager::onEvent(LiquidChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::LIQUID << event.block.getX() << event.block.getY() << (unsigned char)event.liquid_type << event.liquid_level;
+    packet << PacketType::LIQUID << event.x << event.y << (unsigned char)liquids->getLiquidType(event.x, event.y) << liquids->getLiquidLevel(event.x, event.y);
     sendToEveryone(packet);
 }
 
@@ -174,12 +174,12 @@ void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
         }
 }
 
-void ServerNetworkingManager::onEvent(ServerLightChangeEvent& event) {
+/*void ServerNetworkingManager::onEvent(ServerLightChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::LIGHT << event.block.getX() << event.block.getY() << event.block.getLightLevel();
     for(Connection& connection : connections)
         connection.send(packet);
-}
+}*/
 
 void ServerNetworkingManager::syncEntityPositions() {
     for(ServerEntity* entity : entities->getEntities()) {

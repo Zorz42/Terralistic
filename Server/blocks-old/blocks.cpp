@@ -1,4 +1,4 @@
-#include "serverBlocks.hpp"
+#include "serverBlocks-old.hpp"
 
 void ServerBlocks::createWorld(unsigned short world_width, unsigned short world_height) {
     width = world_width;

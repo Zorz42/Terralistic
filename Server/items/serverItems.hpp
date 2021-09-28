@@ -2,7 +2,7 @@
 #define serverItems_hpp
 
 #include <vector>
-#include "serverBlocks.hpp"
+#include "blocks.hpp"
 #include "serverEntities.hpp"
 
 #define ITEM_WIDTH 8
@@ -29,13 +29,13 @@ public:
     const ServerItem& item;
 };
 
-class ServerItems : EventListener<ServerBlockBreakEvent> {
-    void onEvent(ServerBlockBreakEvent& event) override;
+class ServerItems : EventListener<BlockBreakEvent> {
+    void onEvent(BlockBreakEvent& event) override;
     ServerEntities* entities;
-    ServerBlocks* blocks;
+    Blocks* blocks;
     std::vector<ServerItem*> items;
 public:
-    explicit ServerItems(ServerEntities* entities, ServerBlocks* blocks) : entities(entities), blocks(blocks) {}
+    explicit ServerItems(ServerEntities* entities, Blocks* blocks) : entities(entities), blocks(blocks) {}
     void init();
     const std::vector<ServerItem*>& getItems() { return items; }
     ServerItem* spawnItem(ItemType type, int x, int y);

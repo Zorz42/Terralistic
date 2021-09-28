@@ -84,13 +84,13 @@ public:
     unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
     
-    bool isColliding(ServerBlocks* blocks) override;
+    bool isColliding(Blocks* blocks) override;
 };
 
 struct blockEvents {
-    void (*onUpdate)(ServerBlocks*, ServerBlock*) = nullptr;
-    void (*onRightClick)(ServerBlock*, ServerPlayer*) = nullptr;
-    void (*onLeftClick)(ServerBlock*, ServerPlayer*) = nullptr;
+    void (*onUpdate)(Blocks* blocks, unsigned short x, unsigned short y) = nullptr;
+    void (*onRightClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
+    void (*onLeftClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
 };
 
 class ServerInventoryItemTypeChangeEvent {
@@ -107,29 +107,29 @@ public:
     unsigned short stack;
 };
 
+
+
 class RecipeAvailabilityChangeEvent {
 public:
     explicit RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
     ServerInventory* inventory;
 };
 
-class ServerPlayers : EventListener<ServerBlockUpdateEvent> {
+class ServerPlayers {
     ServerEntities* entities;
-    ServerBlocks* blocks;
+    Blocks* blocks;
     ServerItems* items;
     
     std::vector<ServerPlayer*> all_players;
     std::vector<ServerPlayer*> online_players;
-    
-    void onEvent(ServerBlockUpdateEvent& event) override;
 
     blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
-    void leftClickEvent(ServerBlock this_block, ServerPlayer* peer, unsigned short tick_length);
+    void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
-    ServerPlayers(ServerBlocks* blocks, ServerEntities* entities, ServerItems* items);
+    ServerPlayers(Blocks* blocks, ServerEntities* entities, ServerItems* items);
     void init();
-    void rightClickEvent(ServerBlock this_block, ServerPlayer* peer);
+    void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
     const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
     const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }

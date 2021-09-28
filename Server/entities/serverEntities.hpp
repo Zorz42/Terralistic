@@ -2,7 +2,7 @@
 #define serverEntity_hpp
 
 #include <vector>
-#include "serverBlocks.hpp"
+#include "blocks.hpp"
 #include "entityType.hpp"
 
 class ServerEntities;
@@ -21,11 +21,11 @@ public:
     
     int getX() const { return x; }
     int getY() const { return y; }
-    virtual bool isColliding(ServerBlocks* blocks) { return isCollidingWithBlocks(blocks); }
-    bool isCollidingWithBlocks(ServerBlocks* blocks, float colliding_x, float colliding_y);
-    bool isCollidingWithBlocks(ServerBlocks* blocks);
-    void updateEntity(ServerBlocks* blocks, float frame_length);
-    bool isTouchingGround(ServerBlocks* blocks);
+    virtual bool isColliding(Blocks* blocks) { return isCollidingWithBlocks(blocks); }
+    bool isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y);
+    bool isCollidingWithBlocks(Blocks* blocks);
+    void updateEntity(Blocks* blocks, float frame_length);
+    bool isTouchingGround(Blocks* blocks);
     void addVelocityX(float vel_x);
     void addVelocityY(float vel_y);
     void setVelocityX(float vel_x);
@@ -49,9 +49,9 @@ public:
 
 class ServerEntities {
     std::vector<ServerEntity*> entities;
-    ServerBlocks* blocks;
+    Blocks* blocks;
 public:
-    explicit ServerEntities(ServerBlocks* blocks) : blocks(blocks) {}
+    explicit ServerEntities(Blocks* blocks) : blocks(blocks) {}
     void updateAllEntities(float frame_length);
     void registerEntity(ServerEntity* entity);
     void removeEntity(ServerEntity* entity);

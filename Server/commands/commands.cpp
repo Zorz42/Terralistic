@@ -36,9 +36,8 @@ void Commands::startCommand(std::string message, std::string player) {
 
 void Commands::changeBlock(std::vector<std::string>& message) {
     BlockType block = (BlockType)std::stoi(message[3]);
-
-    blocks->getBlock(std::stoi(message[1]), blocks->getHeight() - std::stoi(message[2])).setType(block);
-    blocks->getBlock(std::stoi(message[1]), blocks->getHeight() - std::stoi(message[2])).update();
+    
+    blocks->setBlockType(std::stoi(message[1]), blocks->getHeight() - std::stoi(message[2]), block);
 }
 
 void Commands::formatLocation(std::vector<std::string>& message, const std::string& player, unsigned char start_format) {

@@ -12,12 +12,14 @@ enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNN
 
 class Server {
     std::string world_path;
-    ServerBlocks blocks;
+    Blocks blocks;
+    Liquids liquids;
+    Biomes biomes;
     ServerItems items;
     ServerPlayers players;
     ServerNetworkingManager networking_manager;
     ServerEntities entities;
-    DayCycle day_cycle;
+    //DayCycle day_cycle;
     
     worldGenerator generator;
 

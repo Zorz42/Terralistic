@@ -1,4 +1,4 @@
-#include "serverBlocks.hpp"
+#include "serverBlocks-old.hpp"
 
 void ServerBlock::lightUpdate() {
     block_data->update_light = false;

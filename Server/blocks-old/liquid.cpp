@@ -1,6 +1,6 @@
 #include <cassert>
 #include "graphics.hpp"
-#include "serverBlocks.hpp"
+#include "serverBlocks-old.hpp"
 #include "properties.hpp"
 
 const LiquidInfo& ServerBlock::getUniqueLiquid() {

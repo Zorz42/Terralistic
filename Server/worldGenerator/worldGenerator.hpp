@@ -3,8 +3,10 @@
 
 #include <string>
 #include <utility>
-#include "serverBlocks.hpp"
+#include "blocks.hpp"
 #include "SimplexNoise.h"
+#include "biomes.hpp"
+#include "liquids.hpp"
 
 
 struct structure {
@@ -21,7 +23,9 @@ struct structurePosition {
 };
 
 class worldGenerator {
-    ServerBlocks* server_blocks;
+    Blocks* blocks;
+    Biomes* biomes;
+    Liquids* liquids;
 
     std::vector<structure> structures;
     std::vector<structurePosition> structurePositions;
@@ -51,7 +55,7 @@ class worldGenerator {
     unsigned int generating_current = 0, generating_total = 1;
 
 public:
-    worldGenerator(ServerBlocks* server_blocks, std::string resource_path) : server_blocks(server_blocks), resource_path(std::move(resource_path)) {}
+    worldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)) {}
 
     unsigned int getGeneratingCurrent() const { return generating_current; }
     unsigned int getGeneratingTotal() const { return generating_total; }
