@@ -302,7 +302,7 @@
 		16B36D2C2682000F00A4B03A /* items.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = items.cpp; sourceTree = "<group>"; };
 		16B36D2D2682000F00A4B03A /* serverItems.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverItems.hpp; sourceTree = "<group>"; };
 		16B36D312682067D00A4B03A /* blocks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blocks.cpp; sourceTree = "<group>"; };
-		16B36D322682067D00A4B03A /* serverBlocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverBlocks.hpp; sourceTree = "<group>"; };
+		16B36D322682067D00A4B03A /* serverBlocks-old.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "serverBlocks-old.hpp"; sourceTree = "<group>"; };
 		16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = worldGenerator.cpp; sourceTree = "<group>"; };
 		16B36D3B26820ADD00A4B03A /* worldGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = worldGenerator.hpp; sourceTree = "<group>"; };
 		16B77FE826F5102700FE3FE9 /* updater.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = updater.cpp; sourceTree = "<group>"; };
@@ -564,7 +564,7 @@
 			isa = PBXGroup;
 			children = (
 				167B387D2642F73900E3C718 /* print */,
-				16B36D302682066B00A4B03A /* blocks */,
+				16B36D302682066B00A4B03A /* blocks-old */,
 				169990A62700E20E00224E11 /* dayCycle */,
 				167513C126A498DA00E21C68 /* biomes */,
 				16B36D3926820AC700A4B03A /* worldGenerator */,
@@ -738,17 +738,17 @@
 			path = items;
 			sourceTree = "<group>";
 		};
-		16B36D302682066B00A4B03A /* blocks */ = {
+		16B36D302682066B00A4B03A /* blocks-old */ = {
 			isa = PBXGroup;
 			children = (
-				16B36D322682067D00A4B03A /* serverBlocks.hpp */,
+				16B36D322682067D00A4B03A /* serverBlocks-old.hpp */,
 				16B36D312682067D00A4B03A /* blocks.cpp */,
 				167F4D30268496B2004A8D11 /* block.cpp */,
 				167B38842642F73900E3C718 /* light.cpp */,
 				1664388626695A2F00587F5E /* liquid.cpp */,
 				166ECC8026A1B8C800E36052 /* serializer.cpp */,
 			);
-			path = blocks;
+			path = "blocks-old";
 			sourceTree = "<group>";
 		};
 		16B36D3926820AC700A4B03A /* worldGenerator */ = {

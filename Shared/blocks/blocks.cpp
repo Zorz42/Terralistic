@@ -70,3 +70,22 @@ unsigned short Blocks::getWidth() {
 unsigned short Blocks::getHeight() {
     return height;
 }
+
+void Blocks::serialize(std::vector<char>& serial) {
+    unsigned long iter = serial.size();
+    serial.resize(serial.size() + width * height * 3);
+    Block* block = blocks;
+    for(int i = 0; i < width * height; i++) {
+        serial[iter++] = (char)block->type;
+        block++;
+    }
+}
+
+char* Blocks::loadFromSerial(char* iter) {
+    Block* block = blocks;
+    for(int i = 0; i < width * height; i++) {
+        block->type = (BlockType)*iter++;
+        block++;
+    }
+    return iter;
+}

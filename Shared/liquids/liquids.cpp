@@ -152,3 +152,24 @@ void Liquids::setLiquidLevel(unsigned short x, unsigned short y, unsigned char l
 unsigned char Liquids::getLiquidLevel(unsigned short x, unsigned short y) {
     return getLiquid(x, y)->level;
 }
+
+void Liquids::serialize(std::vector<char>& serial) {
+    unsigned long iter = serial.size();
+    serial.resize(serial.size() + width * height * 3);
+    Liquid* liquid = liquids;
+    for(int i = 0; i < width * height; i++) {
+        serial[iter++] = (char)liquid->type;
+        serial[iter++] = (char)liquid->level;
+        liquid++;
+    }
+}
+
+char* Liquids::loadFromSerial(char* iter) {
+    Liquid* liquid = liquids;
+    for(int i = 0; i < width * height; i++) {
+        liquid->type = (LiquidType)*iter++;
+        liquid->level = *iter++;
+        liquid++;
+    }
+    return iter;
+}

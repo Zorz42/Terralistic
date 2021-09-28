@@ -1,6 +1,7 @@
 #ifndef blocks_hpp
 #define blocks_hpp
 
+#include <vector>
 #include "properties.hpp"
 #include "events.hpp"
 
@@ -49,10 +50,12 @@ public:
     
     unsigned short getWidth(), getHeight();
     
+    void serialize(std::vector<char>& serial);
+    char* loadFromSerial(char* iter);
+    
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;
     EventSender<BlockBreakStageChangeEvent> block_break_stage_change_event;
-    
 };
 
 class BlockOutOfBoundsException : public std::exception {

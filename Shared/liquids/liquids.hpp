@@ -2,8 +2,6 @@
 #define liquids_hpp
 
 #include "blocks.hpp"
-#include "properties.hpp"
-#include "events.hpp"
 
 enum class FlowDirection {NONE, LEFT, RIGHT};
 
@@ -44,6 +42,9 @@ public:
     unsigned char getLiquidLevel(unsigned short x, unsigned short y);
     void setLiquidLevel(unsigned short x, unsigned short y, unsigned char level);
     void setLiquidLevelSilently(unsigned short x, unsigned short y, unsigned char level);
+    
+    void serialize(std::vector<char>& serial);
+    char* loadFromSerial(char* iter);
     
     EventSender<LiquidChangeEvent> liquid_change_event;
 };
