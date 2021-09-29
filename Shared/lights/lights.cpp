@@ -13,7 +13,13 @@ Lights::Light* Lights::getLight(unsigned short x, unsigned short y) {
 void Lights::setLightLevel(unsigned short x, unsigned short y, unsigned char level) {
     if(level == 0)
         getLight(x, y)->light_source = false;
-    getLight(x, y)->light_level = level;
+    if(getLight(x, y)->light_level != level) {
+        getLight(x, y)->light_level = level;
+        scheduleLightUpdate(x + 1, y);
+        scheduleLightUpdate(x - 1, y);
+        scheduleLightUpdate(x, y + 1);
+        scheduleLightUpdate(x, y - 1);
+    }
 }
 
 void Lights::updateLight(unsigned short x, unsigned short y) {

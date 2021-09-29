@@ -215,16 +215,19 @@ void Game::handshakeWithServer() {
     unsigned int size;
     packet >> size;
     
-    std::vector<char> map_data = networking_manager.getData(size);
-    
     blocks.create(world_width, world_height);
     liquids.create();
     lights.create();
     client_blocks.create();
     
+    std::vector<char> map_data = networking_manager.getData(size);
     char* iter = &map_data[0];
     iter = blocks.loadFromSerial(iter);
     iter = liquids.loadFromSerial(iter);
+    
+    for(int x = 0; x < blocks.getWidth(); x++)
+        for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlockInfo(x, y).transparent; y++)
+            lights.setLightSource(x, y, MAX_LIGHT);
     
     networking_manager.disableBlocking();
     
@@ -250,6 +253,7 @@ void Game::update() {
     networking_manager.checkForPackets();
     networking_manager.flushPackets();
     entities.updateAllEntities(getFrameLength());
+    client_blocks.updateLights();
 }
 
 void Game::render() {

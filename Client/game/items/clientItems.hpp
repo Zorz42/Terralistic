@@ -5,7 +5,7 @@
 #include "resourcePack.hpp"
 #include "events.hpp"
 #include "clientNetworking.hpp"
-#include "clientBlocks.hpp"
+#include "blockRenderer.hpp"
 #include "clientEntities.hpp"
 
 #define ITEM_WIDTH 8
@@ -22,11 +22,11 @@ public:
 class ClientItems : EventListener<ClientPacketEvent> {
     ResourcePack* resource_pack;
     void onEvent(ClientPacketEvent& event) override;
-    ClientBlocks* blocks;
+    BlockRenderer* blocks;
     ClientEntities* entities;
     NetworkingManager* manager;
 public:
-    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, ClientEntities* entities, NetworkingManager* manager) : resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager) {}
+    ClientItems(ResourcePack* resource_pack, BlockRenderer* blocks, ClientEntities* entities, NetworkingManager* manager) : resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager) {}
     void init();
     void renderItems();
 };

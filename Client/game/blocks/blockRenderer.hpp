@@ -12,15 +12,15 @@
 #define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
-class ClientBlocks : EventListener<ClientPacketEvent> {
-    struct ClientBlock {
+class BlockRenderer : EventListener<ClientPacketEvent> {
+    struct RenderBlocks {
         unsigned char variation = rand(), state = 16;
     };
     
     void onEvent(ClientPacketEvent& event) override;
     
-    ClientBlock* client_blocks;
-    ClientBlock* getClientBlock(unsigned short x, unsigned short y);
+    RenderBlocks* client_blocks;
+    RenderBlocks* getClientBlock(unsigned short x, unsigned short y);
 
     ResourcePack* resource_pack;
     NetworkingManager* manager;
@@ -28,14 +28,16 @@ class ClientBlocks : EventListener<ClientPacketEvent> {
     Liquids* liquids;
     Lights* lights;
 public:
-    explicit ClientBlocks(ResourcePack* resource_pack, NetworkingManager* manager, Blocks* blocks, Liquids* liquids, Lights* lights);
+    explicit BlockRenderer(ResourcePack* resource_pack, NetworkingManager* manager, Blocks* blocks, Liquids* liquids, Lights* lights);
     
-    std::vector<void (*)(Blocks*, ClientBlocks*, unsigned short, unsigned short)> stateFunctions[(int)BlockType::NUM_BLOCKS];
+    std::vector<void (*)(Blocks*, BlockRenderer*, unsigned short, unsigned short)> stateFunctions[(int)BlockType::NUM_BLOCKS];
     int view_x, view_y;
 
     void init();
     
     void create();
+    
+    void updateLights();
     
     ResourcePack* getResourcePack() { return resource_pack; }
 
@@ -52,7 +54,7 @@ public:
     void setState(unsigned short x, unsigned short y, unsigned char state);
     unsigned char getState(unsigned short x, unsigned short y);
 
-    ~ClientBlocks();
+    ~BlockRenderer();
 };
 
 #endif

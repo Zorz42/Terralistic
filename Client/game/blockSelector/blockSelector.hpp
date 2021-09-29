@@ -2,7 +2,7 @@
 #define blockSelector_hpp
 
 #include "graphics.hpp"
-#include "clientBlocks.hpp"
+#include "blockRenderer.hpp"
 #include "clientInventory.hpp"
 #include "clientPlayers.hpp"
 
@@ -19,11 +19,11 @@ class BlockSelector : public gfx::SceneModule {
     
     NetworkingManager* manager;
     Blocks* blocks;
-    ClientBlocks* client_blocks;
+    BlockRenderer* client_blocks;
     ClientInventory* inventory_handler;
     ClientPlayers* player_handler;
 public:
-    BlockSelector(NetworkingManager* manager, Blocks* blocks, ClientBlocks* client_blocks, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(blocks), client_blocks(client_blocks), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(NetworkingManager* manager, Blocks* blocks, BlockRenderer* client_blocks, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(blocks), client_blocks(client_blocks), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
 #endif

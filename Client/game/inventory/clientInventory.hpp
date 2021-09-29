@@ -4,7 +4,7 @@
 #include "properties.hpp"
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
-#include "clientBlocks.hpp"
+#include "blockRenderer.hpp"
 #include "resourcePack.hpp"
 
 #define INVENTORY_SIZE 20

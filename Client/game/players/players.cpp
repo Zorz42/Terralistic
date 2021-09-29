@@ -1,7 +1,7 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, ClientBlocks* client_blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
+ClientPlayers::ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
 manager(manager), client_blocks(client_blocks), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), username(username) {}
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), ClientEntity(id, EntityType::PLAYER, x, y) {

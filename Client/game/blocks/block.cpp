@@ -1,39 +1,39 @@
 #include <algorithm>
 #include <cassert>
-#include "clientBlocks.hpp"
+#include "blockRenderer.hpp"
 #include "resourcePack.hpp"
 
-void ClientBlocks::updateState(unsigned short x, unsigned short y) {
+void BlockRenderer::updateState(unsigned short x, unsigned short y) {
     getClientBlock(x, y)->state = 0;
     for(auto& stateFunction : stateFunctions[(int)blocks->getBlockType(x, y)])
         stateFunction(blocks, this, x, y);
 }
 
-short ClientBlocks::getViewBeginX() const {
+short BlockRenderer::getViewBeginX() const {
     return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndX() const {
+short BlockRenderer::getViewEndX() const {
     return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)blocks->getWidth());
 }
 
-short ClientBlocks::getViewBeginY() const {
+short BlockRenderer::getViewBeginY() const {
     return std::max(view_y / (BLOCK_WIDTH * 2) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndY() const {
+short BlockRenderer::getViewEndY() const {
     return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)blocks->getHeight());
 }
 
-void ClientBlocks::setState(unsigned short x, unsigned short y, unsigned char state) {
+void BlockRenderer::setState(unsigned short x, unsigned short y, unsigned char state) {
     getClientBlock(x, y)->state = state;
 }
 
-unsigned char ClientBlocks::getState(unsigned short x, unsigned short y) {
+unsigned char BlockRenderer::getState(unsigned short x, unsigned short y) {
     return getClientBlock(x, y)->state;
 }
 
-void ClientBlocks::renderBackBlocks() {
+void BlockRenderer::renderBackBlocks() {
     gfx::RectArray block_rects((getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()));
     
     int block_index = 0;
@@ -69,7 +69,7 @@ void ClientBlocks::renderBackBlocks() {
         }
 }
 
-void ClientBlocks::renderFrontBlocks() {
+void BlockRenderer::renderFrontBlocks() {
     gfx::RectArray liquid_rects((getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()));
     gfx::RectArray light_rects((getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()));
     
@@ -109,6 +109,6 @@ void ClientBlocks::renderFrontBlocks() {
         liquid_rects.render();
     
     light_rects.resize(light_index);
-    //if(light_index)
-        //light_rects.render();
+    if(light_index)
+        light_rects.render();
 }

@@ -30,7 +30,7 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     NetworkingManager networking_manager;
     ResourcePack resource_pack;
     ClientEntities entities;
-    ClientBlocks client_blocks;
+    BlockRenderer client_blocks;
     ClientPlayers players;
     ClientItems items;
     ClientInventory inventory;

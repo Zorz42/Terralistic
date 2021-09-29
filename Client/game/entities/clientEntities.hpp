@@ -2,7 +2,7 @@
 #define clientEntity_hpp
 
 #include <vector>
-#include "clientBlocks.hpp"
+#include "blockRenderer.hpp"
 #include "clientNetworking.hpp"
 #include "entityType.hpp"
 

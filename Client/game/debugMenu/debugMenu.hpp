@@ -3,14 +3,14 @@
 
 #include "graphics.hpp"
 #include "clientPlayers.hpp"
-#include "clientBlocks.hpp"
+#include "blockRenderer.hpp"
 
 class DebugMenu : public gfx::SceneModule {
     bool debug_menu_open = false;
     gfx::Sprite fps_text, coords_text;
     ClientPlayers* player_handler;
     unsigned int fps_count = 0;
-    ClientBlocks* client_blocks;
+    BlockRenderer* client_blocks;
     Blocks* blocks;
     
     void updateFpsText();
@@ -21,7 +21,7 @@ class DebugMenu : public gfx::SceneModule {
     void render() override;
     void onKeyDown(gfx::Key key) override;
 public:
-    DebugMenu(ClientPlayers* player_handler, Blocks* blocks, ClientBlocks* client_blocks) : player_handler(player_handler), blocks(blocks), client_blocks(client_blocks) {}
+    DebugMenu(ClientPlayers* player_handler, Blocks* blocks, BlockRenderer* client_blocks) : player_handler(player_handler), blocks(blocks), client_blocks(client_blocks) {}
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 #include "graphics.hpp"
-#include "clientBlocks.hpp"
+#include "blockRenderer.hpp"
 #include "resourcePack.hpp"
 #include "clientEntities.hpp"
 #include "movingType.hpp"
@@ -40,14 +40,14 @@ class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> 
     void update() override;
     void onEvent(ClientPacketEvent& event) override;
     
-    ClientBlocks* client_blocks;
+    BlockRenderer* client_blocks;
     Blocks* blocks;
     Liquids* liquids;
     NetworkingManager* manager;
     ResourcePack* resource_pack;
     ClientEntities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, ClientBlocks* client_blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
+    ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
     
     void renderPlayers();
     
