@@ -137,15 +137,17 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, std::st
     port(port),
     username(username),
     background_rect(background_rect),
-    blocks(&resource_pack, &networking_manager),
-    players(&networking_manager, &blocks, &resource_pack, &entities, username),
-    items(&resource_pack, &blocks, &entities, &networking_manager),
+    client_blocks(&resource_pack, &networking_manager, &blocks, &liquids, &lights),
+    players(&networking_manager, &blocks, &liquids, &client_blocks, &resource_pack, &entities, username),
+    items(&resource_pack, &client_blocks, &entities, &networking_manager),
     entities(&blocks, &networking_manager),
-    block_selector(&networking_manager, &blocks, &inventory, &players),
+    block_selector(&networking_manager, &blocks, &client_blocks, &inventory, &players),
     inventory(&networking_manager, &resource_pack),
-    debug_menu(&players, &blocks),
+    debug_menu(&players, &blocks, &client_blocks),
     chat(&networking_manager),
-    minimap(&blocks)
+    minimap(&blocks, &liquids, &lights, &client_blocks),
+    liquids(&blocks),
+    lights(&blocks)
 {
     networking_manager.packet_event.addListener(this);
 }
@@ -186,7 +188,7 @@ void Game::init() {
     
     entities.init();
     items.init();
-    blocks.init();
+    client_blocks.init();
 }
 
 void Game::handshakeWithServer() {
@@ -215,7 +217,14 @@ void Game::handshakeWithServer() {
     
     std::vector<char> map_data = networking_manager.getData(size);
     
-    blocks.create(world_width, world_height, map_data);
+    blocks.create(world_width, world_height);
+    liquids.create();
+    lights.create();
+    client_blocks.create();
+    
+    char* iter = &map_data[0];
+    iter = blocks.loadFromSerial(iter);
+    iter = liquids.loadFromSerial(iter);
     
     networking_manager.disableBlocking();
     
@@ -245,13 +254,13 @@ void Game::update() {
 
 void Game::render() {
     float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
-    int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
+    int position_x = -(client_blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
-    blocks.renderBackBlocks();
+    client_blocks.renderBackBlocks();
     players.renderPlayers();
     items.renderItems();
-    blocks.renderFrontBlocks();
+    client_blocks.renderFrontBlocks();
 }
 
 void Game::stop() {

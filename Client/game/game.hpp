@@ -12,6 +12,8 @@
 #include "debugMenu.hpp"
 #include "chat.hpp"
 #include "Minimap.hpp"
+#include "lights.hpp"
+#include "liquids.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
@@ -28,7 +30,7 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     NetworkingManager networking_manager;
     ResourcePack resource_pack;
     ClientEntities entities;
-    ClientBlocks blocks;
+    ClientBlocks client_blocks;
     ClientPlayers players;
     ClientItems items;
     ClientInventory inventory;
@@ -36,6 +38,9 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     DebugMenu debug_menu;
     Chat chat;
     Minimap minimap;
+    Blocks blocks;
+    Liquids liquids;
+    Lights lights;
     BackgroundRect* background_rect;
     bool handshake_done = false, got_kicked = false;
     std::string kick_reason;

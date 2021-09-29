@@ -31,7 +31,7 @@ void ClientEntities::init() {
     manager->packet_event.addListener(this);
 }
 
-void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
+void ClientEntity::updateEntity(Blocks *blocks, float frame_length) {
     if(friction) {
         velocity_y *= std::pow(0.995f, frame_length);
         velocity_x *= std::pow(isTouchingGround(blocks) ? 0.99f : 0.9995f, frame_length);
@@ -72,15 +72,15 @@ void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
     has_moved_x = prev_x != x;
 }
 
-bool ClientEntity::isTouchingGround(ClientBlocks* blocks) {
+bool ClientEntity::isTouchingGround(Blocks* blocks) {
     return isCollidingWithBlocks(blocks, x, y + 1) && velocity_y == 0;
 }
 
-bool ClientEntity::isCollidingWithBlocks(ClientBlocks* blocks) {
+bool ClientEntity::isCollidingWithBlocks(Blocks* blocks) {
     return isCollidingWithBlocks(blocks, x, y);
 }
 
-bool ClientEntity::isCollidingWithBlocks(ClientBlocks* blocks, float colliding_x, float colliding_y) {
+bool ClientEntity::isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y) {
     if(colliding_x < 0 || colliding_y < 0 ||
        colliding_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - getHeight() ||
        colliding_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getWidth())
@@ -93,7 +93,7 @@ bool ClientEntity::isCollidingWithBlocks(ClientBlocks* blocks, float colliding_x
     
     for(unsigned short x_ = starting_x; x_ <= ending_x; x_++)
         for(unsigned short y_ = starting_y; y_ <= ending_y; y_++)
-            if(!blocks->getBlock(x_, y_).getBlockInfo().ghost)
+            if(!blocks->getBlockInfo(x_, y_).ghost)
                 return true;
     
     return false;

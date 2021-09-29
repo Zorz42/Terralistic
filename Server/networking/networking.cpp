@@ -128,13 +128,9 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 ServerPlayer* player = players->addPlayer(player_name);
                 connections[i].player = player;
                 
-                //std::vector<char> map_data = blocks->toData();
-                std::vector<char> map_data(blocks->getWidth() * blocks->getHeight() * 4);
-                
-                int* map_data_iter = (int*)&map_data[0];
-                for(int y = 0; y < blocks->getHeight(); y++)
-                    for(int x = 0; x < blocks->getWidth(); x++)
-                        *map_data_iter++ = (int)blocks->getBlockType(x, y) | (int)liquids->getLiquidType(x, y) << 8 | (int)liquids->getLiquidLevel(x, y) << 16 | (int)MAX_LIGHT << 24;
+                std::vector<char> map_data;
+                blocks->serialize(map_data);
+                liquids->serialize(map_data);
                 
                 sf::Packet welcome_packet;
                 welcome_packet << PacketType::WELCOME << player->getX() << player->getY() << blocks->getWidth() << blocks->getHeight();

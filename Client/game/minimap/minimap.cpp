@@ -39,16 +39,16 @@ void Minimap::render() {
     
     for(int y = 0; y < MINIMAP_SIZE; y++)
         for(int x = 0; x < MINIMAP_SIZE; x++) {
-            int block_x = blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x;
-            int block_y = blocks->view_y / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + y;
+            int block_x = client_blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x;
+            int block_y = client_blocks->view_y / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + y;
             
             gfx::Color block_color = TRANSPARENT, liquid_color = TRANSPARENT;
             unsigned char light_level = MAX_LIGHT;
             
             if(block_x >= 0 && block_y >= 0 && block_x < blocks->getWidth() && block_y < blocks->getHeight()) {
-                block_color = block_colors[(int)blocks->getBlock(block_x, block_y).getBlockType()];
-                liquid_color = liquid_colors[(int)blocks->getBlock(block_x, block_y).getLiquidType()];
-                light_level = blocks->getBlock(block_x, block_y).getLightLevel();
+                block_color = block_colors[(int)blocks->getBlockType(block_x, block_y)];
+                liquid_color = liquid_colors[(int)blocks->getBlockType(block_x, block_y)];
+                light_level = lights->getLightLevel(block_x, block_y);
             }
             
             block_pixels.setPixel(x, y, block_color);

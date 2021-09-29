@@ -10,7 +10,8 @@ class DebugMenu : public gfx::SceneModule {
     gfx::Sprite fps_text, coords_text;
     ClientPlayers* player_handler;
     unsigned int fps_count = 0;
-    ClientBlocks* blocks;
+    ClientBlocks* client_blocks;
+    Blocks* blocks;
     
     void updateFpsText();
     void updateCoordsText();
@@ -20,7 +21,7 @@ class DebugMenu : public gfx::SceneModule {
     void render() override;
     void onKeyDown(gfx::Key key) override;
 public:
-    DebugMenu(ClientPlayers* player_handler, ClientBlocks* blocks) : player_handler(player_handler), blocks(blocks) {}
+    DebugMenu(ClientPlayers* player_handler, Blocks* blocks, ClientBlocks* client_blocks) : player_handler(player_handler), blocks(blocks), client_blocks(client_blocks) {}
 };
 
 #endif

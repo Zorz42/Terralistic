@@ -18,11 +18,12 @@ class BlockSelector : public gfx::SceneModule {
     bool is_left_button_pressed = false;
     
     NetworkingManager* manager;
-    ClientBlocks* blocks;
+    Blocks* blocks;
+    ClientBlocks* client_blocks;
     ClientInventory* inventory_handler;
     ClientPlayers* player_handler;
 public:
-    BlockSelector(NetworkingManager* manager, ClientBlocks* blocks, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(blocks), inventory_handler(inventory_handler), player_handler(player_handler) {}
+    BlockSelector(NetworkingManager* manager, Blocks* blocks, ClientBlocks* client_blocks, ClientInventory* inventory_handler, ClientPlayers* player_handler) : manager(manager), blocks(blocks), client_blocks(client_blocks), inventory_handler(inventory_handler), player_handler(player_handler) {}
 };
 
 #endif

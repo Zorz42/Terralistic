@@ -105,7 +105,7 @@ void ServerNetworkingManager::onEvent(BlockChangeEvent& event) {
 
 void ServerNetworkingManager::onEvent(BlockBreakStageChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::BLOCK_PROGRESS << event.x << event.y << blocks->getBreakStage(event.x, event.y);
+    packet << PacketType::BLOCK_PROGRESS << event.x << event.y << blocks->getBreakProgress(event.x, event.y);
     sendToEveryone(packet);
 }
 

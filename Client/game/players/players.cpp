@@ -1,8 +1,8 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
-manager(manager), blocks(blocks), resource_pack(resource_pack), entities(entities), username(username) {}
+ClientPlayers::ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, ClientBlocks* client_blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
+manager(manager), client_blocks(client_blocks), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), username(username) {}
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), ClientEntity(id, EntityType::PLAYER, x, y) {
     name_text.loadFromText(name, WHITE);
@@ -15,7 +15,7 @@ void ClientPlayers::renderPlayers() {
             render(*(ClientPlayer*)entity);
 }
 
-bool ClientPlayer::isColliding(ClientBlocks* blocks) {
+bool ClientPlayer::isColliding(Blocks* blocks) {
     return isCollidingWithBlocks(blocks) ||
     (
      moving_type == MovingType::SNEAK_WALKING && isCollidingWithBlocks(blocks, x, y + 1) &&
@@ -52,12 +52,12 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     else
         player_to_draw.texture_frame = 1;
     
-    int player_x = gfx::getWindowWidth() / 2 + player_to_draw.x - blocks->view_x;
-    int player_y = gfx::getWindowHeight() / 2 + player_to_draw.y - blocks->view_y;
+    int player_x = gfx::getWindowWidth() / 2 + player_to_draw.x - client_blocks->view_x;
+    int player_y = gfx::getWindowHeight() / 2 + player_to_draw.y - client_blocks->view_y;
     resource_pack->getPlayerTexture().render(2, player_x, player_y, {(short)(player_to_draw.texture_frame * PLAYER_WIDTH), 0, (unsigned short)(PLAYER_WIDTH), (unsigned short)(PLAYER_HEIGHT)}, player_to_draw.flipped);
     if(player_to_draw.name != "_") {
-        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.x + PLAYER_WIDTH - blocks->view_x,
-        header_y = gfx::getWindowHeight() / 2 + player_to_draw.y - blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
+        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.x + PLAYER_WIDTH - client_blocks->view_x,
+        header_y = gfx::getWindowHeight() / 2 + player_to_draw.y - client_blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
         gfx::RectShape(header_x - HEADER_PADDING, header_y - HEADER_PADDING, player_to_draw.name_text.getTextureWidth() + 2 * HEADER_PADDING, player_to_draw.name_text.getTextureHeight() + 2 * HEADER_PADDING).render(BLACK);
         player_to_draw.name_text.render(1, header_x, header_y);
     }

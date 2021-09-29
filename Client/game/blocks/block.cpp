@@ -3,42 +3,10 @@
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 
-ClientBlock ClientBlocks::getBlock(unsigned short x, unsigned short y) {
-    assert(y >= 0 && y < getHeight() && x >= 0 && x < getWidth());
-    return {x, y, &blocks[y * getWidth() + x], this};
-}
-
-void ClientBlock::setType(BlockType block_id, LiquidType liquid_id) {
-    block_data->block_id = block_id;
-    block_data->liquid_id = liquid_id;
-    updateState();
-    if(x != 0)
-        blocks->getBlock(x - 1, y).updateState();
-    if(x != blocks->getWidth() - 1)
-        blocks->getBlock(x + 1, y).updateState();
-    if(y != 0)
-        blocks->getBlock(x, y - 1).updateState();
-    if(y != blocks->getHeight() - 1)
-        blocks->getBlock(x, y + 1).updateState();
-}
-
-void ClientBlock::setLightLevel(unsigned char level) {
-    block_data->light_level = level;
-}
-
-void ClientBlock::updateState() {
-    block_data->state = 0;
-    for(auto & stateFunction : blocks->stateFunctions[(int)getBlockType()])
-        std::invoke(stateFunction, blocks, x, y);
-}
-
-
-void ClientBlock::setBreakStage(unsigned char stage) {
-    block_data->break_stage = stage;
-}
-
-void ClientBlock::setState(unsigned char state) {
-    block_data->state = state;
+void ClientBlocks::updateState(unsigned short x, unsigned short y) {
+    getClientBlock(x, y)->state = 0;
+    for(auto& stateFunction : stateFunctions[(int)blocks->getBlockType(x, y)])
+        stateFunction(blocks, this, x, y);
 }
 
 short ClientBlocks::getViewBeginX() const {
@@ -46,7 +14,7 @@ short ClientBlocks::getViewBeginX() const {
 }
 
 short ClientBlocks::getViewEndX() const {
-    return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWidth());
+    return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)blocks->getWidth());
 }
 
 short ClientBlocks::getViewBeginY() const {
@@ -54,7 +22,15 @@ short ClientBlocks::getViewBeginY() const {
 }
 
 short ClientBlocks::getViewEndY() const {
-    return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getHeight());
+    return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)blocks->getHeight());
+}
+
+void ClientBlocks::setState(unsigned short x, unsigned short y, unsigned char state) {
+    getClientBlock(x, y)->state = state;
+}
+
+unsigned char ClientBlocks::getState(unsigned short x, unsigned short y) {
+    return getClientBlock(x, y)->state;
 }
 
 void ClientBlocks::renderBackBlocks() {
@@ -63,13 +39,13 @@ void ClientBlocks::renderBackBlocks() {
     int block_index = 0;
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
-            if(getBlock(x, y).getState() == 16)
-                getBlock(x, y).updateState();
+            if(getState(x, y) == 16)
+                updateState(x, y);
             
-            if(getBlock(x, y).getBlockType() != BlockType::AIR) {
+            if(blocks->getBlockType(x, y) != BlockType::AIR) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
-                int texture_x = (getBlock(x, y).getVariation()) % (resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).w / BLOCK_WIDTH) * BLOCK_WIDTH;
-                int texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getBlockType()).y + BLOCK_WIDTH * getBlock(x, y).getState();
+                int texture_x = (getClientBlock(x, y)->variation) % (resource_pack->getTextureRectangle(blocks->getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
+                int texture_y = resource_pack->getTextureRectangle(blocks->getBlockType(x, y)).y + BLOCK_WIDTH * getClientBlock(x, y)->state;
                 
                 block_rects.setTextureCoords(block_index, {(short)texture_x, (short)texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 block_rects.setRect(block_index, {(short)block_x, (short)block_y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
@@ -86,9 +62,9 @@ void ClientBlocks::renderBackBlocks() {
     
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
-            if(getBlock(x, y).getBreakStage()) {
+            if(blocks->getBreakStage(x, y)) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
-                getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (getBlock(x, y).getBreakStage() - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
+                getResourcePack()->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, short(BLOCK_WIDTH * (blocks->getBreakStage(x, y) - 1)), BLOCK_WIDTH, BLOCK_WIDTH));
             }
         }
 }
@@ -102,26 +78,26 @@ void ClientBlocks::renderFrontBlocks() {
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {
             int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
             
-            unsigned short low_x = x + 1 == getWidth() ? x : x + 1, low_y = y + 1 == getHeight() ? y : y + 1;
-            unsigned char light_levels[] = {getBlock(x, y).getLightLevel(), getBlock(low_x, y).getLightLevel(), getBlock(low_x, low_y).getLightLevel(), getBlock(x, low_y).getLightLevel()};
+            unsigned short low_x = x + 1 == blocks->getWidth() ? x : x + 1, low_y = y + 1 == blocks->getHeight() ? y : y + 1;
+            unsigned char light_levels[] = {lights->getLightLevel(x, y), lights->getLightLevel(low_x, y), lights->getLightLevel(low_x, low_y), lights->getLightLevel(x, low_y)};
             
             if(light_levels[0] != MAX_LIGHT || light_levels[1] != MAX_LIGHT || light_levels[2] != MAX_LIGHT || light_levels[3] != MAX_LIGHT) {
-                light_rects.setColor(light_index * 4, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, y).getLightLevel())});
-                light_rects.setColor(light_index * 4 + 1, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(low_x, y).getLightLevel())});
-                light_rects.setColor(light_index * 4 + 2, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(low_x, low_y).getLightLevel())});
-                light_rects.setColor(light_index * 4 + 3, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getBlock(x, low_y).getLightLevel())});
+                light_rects.setColor(light_index * 4, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(x, y))});
+                light_rects.setColor(light_index * 4 + 1, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(low_x, y))});
+                light_rects.setColor(light_index * 4 + 2, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(low_x, low_y))});
+                light_rects.setColor(light_index * 4 + 3, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(x, low_y))});
                 
                 light_rects.setRect(light_index, {short(block_x + BLOCK_WIDTH), short(block_y + BLOCK_WIDTH), (short)BLOCK_WIDTH * 2, (short)BLOCK_WIDTH * 2});
                 
                 light_index++;
             }
 
-            if(getBlock(x, y).getLiquidType() != LiquidType::EMPTY) {
-                int texture_y = resource_pack->getTextureRectangle(getBlock(x, y).getLiquidType()).y * 2;
+            if(liquids->getLiquidType(x, y) != LiquidType::EMPTY) {
+                int texture_y = resource_pack->getTextureRectangle(liquids->getLiquidType(x, y)).y * 2;
                 
                 liquid_rects.setTextureCoords(liquid_index, {0, (short)texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 
-                int level = ((int)getBlock(x, y).getLiquidLevel() + 1) / 8;
+                int level = ((int)liquids->getLiquidLevel(x, y) + 1) / 8;
                 liquid_rects.setRect(liquid_index, {(short)block_x, short(block_y + BLOCK_WIDTH * 2 - level), (short)BLOCK_WIDTH * 2, (unsigned short)level});
                 liquid_index++;
             }
@@ -133,6 +109,6 @@ void ClientBlocks::renderFrontBlocks() {
         liquid_rects.render();
     
     light_rects.resize(light_index);
-    if(light_index)
-        light_rects.render();
+    //if(light_index)
+        //light_rects.render();
 }

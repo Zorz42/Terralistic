@@ -15,22 +15,22 @@ public:
     bool gravity = true, friction = true, has_moved_x;
     const unsigned short id;
     const EntityType type;
-    virtual bool isColliding(ClientBlocks* blocks) { return isCollidingWithBlocks(blocks); }
-    bool isCollidingWithBlocks(ClientBlocks* blocks, float colliding_x, float colliding_y);
-    bool isCollidingWithBlocks(ClientBlocks* blocks);
-    void updateEntity(ClientBlocks* blocks, float frame_length);
-    bool isTouchingGround(ClientBlocks* blocks);
+    virtual bool isColliding(Blocks* blocks) { return isCollidingWithBlocks(blocks); }
+    bool isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y);
+    bool isCollidingWithBlocks(Blocks* blocks);
+    void updateEntity(Blocks* blocks, float frame_length);
+    bool isTouchingGround(Blocks* blocks);
     virtual ~ClientEntity() = default;
 };
 
 class ClientEntities : EventListener<ClientPacketEvent> {
     std::vector<ClientEntity*> entities;
-    ClientBlocks* blocks;
+    Blocks* blocks;
     NetworkingManager* manager;
     
     void onEvent(ClientPacketEvent& event) override;
 public:
-    explicit ClientEntities(ClientBlocks* blocks, NetworkingManager* manager) : blocks(blocks), manager(manager) {}
+    explicit ClientEntities(Blocks* blocks, NetworkingManager* manager) : blocks(blocks), manager(manager) {}
     void init();
     void updateAllEntities(float frame_length);
     void registerEntity(ClientEntity* entity);
