@@ -145,6 +145,12 @@ void gfx::Scene::onEvent(sf::Event event) {
         
         if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
             onKeyDownCallback(key);
+        
+        if(is_textbox_active && key == Key::ESCAPE) {
+            for(SceneModule* module : modules)
+                for(TextInput* i : module->text_inputs)
+                    i->active = false;
+        }
     }
     
     else if (event.type == sf::Event::KeyReleased) {

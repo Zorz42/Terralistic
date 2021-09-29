@@ -152,22 +152,29 @@ unsigned char Liquids::getLiquidLevel(unsigned short x, unsigned short y) {
 }
 
 void Liquids::serialize(std::vector<char>& serial) {
-    unsigned long iter = serial.size();
-    serial.resize(serial.size() + blocks->getWidth() * blocks->getHeight() * 2);
+    serial.reserve(serial.size() + blocks->getWidth() * blocks->getHeight() * 2);
     Liquid* liquid = liquids;
-    for(int i = 0; i < blocks->getWidth() * blocks->getHeight(); i++) {
-        serial[iter++] = (char)liquid->type;
-        serial[iter++] = (char)liquid->level;
-        liquid++;
-    }
+    for(int y = 0; y < blocks->getHeight(); y++)
+        for(int x = 0; x < blocks->getWidth(); x++) {
+            if(blocks->getBlockInfo(x, y).ghost) {
+                serial.push_back((char)liquid->type);
+                if(getLiquidType(x, y) != LiquidType::EMPTY)
+                    serial.push_back((char)liquid->level);
+            }
+            liquid++;
+        }
 }
 
 char* Liquids::loadFromSerial(char* iter) {
     Liquid* liquid = liquids;
-    for(int i = 0; i < blocks->getWidth() * blocks->getHeight(); i++) {
-        liquid->type = (LiquidType)*iter++;
-        liquid->level = *iter++;
-        liquid++;
-    }
+    for(int y = 0; y < blocks->getHeight(); y++)
+        for(int x = 0; x < blocks->getWidth(); x++) {
+            if(blocks->getBlockInfo(x, y).ghost) {
+                liquid->type = (LiquidType)*iter++;
+                if(liquid->type != LiquidType::EMPTY)
+                    liquid->level = *iter++;
+            }
+            liquid++;
+        }
     return iter;
 }

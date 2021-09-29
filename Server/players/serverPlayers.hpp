@@ -87,7 +87,7 @@ public:
     bool isColliding(Blocks* blocks) override;
 };
 
-struct blockEvents {
+struct BlockEvents {
     void (*onUpdate)(Blocks* blocks, unsigned short x, unsigned short y) = nullptr;
     void (*onRightClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
     void (*onLeftClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
@@ -115,7 +115,7 @@ public:
     ServerInventory* inventory;
 };
 
-class ServerPlayers {
+class ServerPlayers : EventListener<BlockChangeEvent> {
     ServerEntities* entities;
     Blocks* blocks;
     ServerItems* items;
@@ -123,7 +123,9 @@ class ServerPlayers {
     std::vector<ServerPlayer*> all_players;
     std::vector<ServerPlayer*> online_players;
 
-    blockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
+    BlockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
+    
+    void onEvent(BlockChangeEvent& event) override;
     
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:

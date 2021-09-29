@@ -20,6 +20,12 @@ BlockType Blocks::getBlockType(unsigned short x, unsigned short y) {
     return getBlock(x, y)->type;
 }
 
+void Blocks::setBlockTypeSilently(unsigned short x, unsigned short y, BlockType type) {
+    if((int)type < 0 || type >= BlockType::NUM_BLOCKS)
+        throw InvalidBlockTypeException();
+    getBlock(x, y)->type = type;
+}
+
 void Blocks::setBlockType(unsigned short x, unsigned short y, BlockType type) {
     if(type != getBlock(x, y)->type) {
         setBlockTypeSilently(x, y, type);
@@ -27,12 +33,6 @@ void Blocks::setBlockType(unsigned short x, unsigned short y, BlockType type) {
         BlockChangeEvent event(x, y);
         block_change_event.call(event);
     }
-}
-
-void Blocks::setBlockTypeSilently(unsigned short x, unsigned short y, BlockType type) {
-    if((int)type < 0 || type >= BlockType::NUM_BLOCKS)
-        throw InvalidBlockTypeException();
-    getBlock(x, y)->type = type;
 }
 
 unsigned short Blocks::getBreakProgress(unsigned short x, unsigned short y) {

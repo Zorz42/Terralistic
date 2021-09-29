@@ -16,20 +16,27 @@ static bool isBlockLeaves(Blocks* blocks, int x, int y) {
     return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == BlockType::LEAVES;
 }
 
-ServerPlayers::ServerPlayers(Blocks* blocks, ServerEntities* entities, ServerItems* items) : blocks(blocks), entities(entities), items(items) {
-    custom_block_events[(int)BlockType::WOOD].onUpdate = [](Blocks* blocks, unsigned short x, unsigned short y) {
-        if(
-           (!isBlockTree(blocks, x, y + 1) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y)) ||
-           (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y + 1)) ||
-           (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y) && !isBlockTree(blocks, x, y + 1)) ||
-           (isBlockLeaves(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y) && !isBlockTree(blocks, x, y - 1) && !isBlockTree(blocks, x, y + 1)) ||
-           (isBlockLeaves(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y - 1) && !isBlockTree(blocks, x, y + 1)) ||
-           (!isBlockTree(blocks, x, y + 1) && isBlockLeaves(blocks, x - 1, y) && isBlockLeaves(blocks, x + 1, y) && isBlockLeaves(blocks, x, y - 1))
-           )
-            blocks->breakBlock(x, y);
-    };
+static void stoneUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
+    if(y < blocks->getHeight() - 1 && blocks->getBlockInfo(x, y + 1).transparent)
+        blocks->breakBlock(x, y);
+}
 
-    custom_block_events[(int)BlockType::LEAVES].onUpdate = custom_block_events[(int)BlockType::WOOD].onUpdate;
+static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
+    if(
+       (!isBlockTree(blocks, x, y + 1) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y)) ||
+       (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y + 1)) ||
+       (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y) && !isBlockTree(blocks, x, y + 1)) ||
+       (isBlockLeaves(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y) && !isBlockTree(blocks, x, y - 1) && !isBlockTree(blocks, x, y + 1)) ||
+       (isBlockLeaves(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y - 1) && !isBlockTree(blocks, x, y + 1)) ||
+       (!isBlockTree(blocks, x, y + 1) && isBlockLeaves(blocks, x - 1, y) && isBlockLeaves(blocks, x + 1, y) && isBlockLeaves(blocks, x, y - 1))
+       )
+        blocks->breakBlock(x, y);
+}
+
+ServerPlayers::ServerPlayers(Blocks* blocks, ServerEntities* entities, ServerItems* items) : blocks(blocks), entities(entities), items(items) {
+    custom_block_events[(int)BlockType::WOOD].onUpdate = &treeUpdate;
+
+    custom_block_events[(int)BlockType::LEAVES].onUpdate = &treeUpdate;
 
     custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) {
         blocks->setBlockType(x, y, BlockType::DIRT);
@@ -44,10 +51,7 @@ ServerPlayers::ServerPlayers(Blocks* blocks, ServerEntities* entities, ServerIte
 
     custom_block_events[(int)BlockType::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick;
     
-    custom_block_events[(int)BlockType::STONE].onUpdate = [](Blocks* blocks, unsigned short x, unsigned short y) {
-        if(y < blocks->getHeight() - 1 && blocks->getBlockInfo(x, y + 1).transparent)
-            blocks->breakBlock(x, y);
-    };
+    custom_block_events[(int)BlockType::STONE].onUpdate = &stoneUpdate;
 }
 
 ServerPlayers::~ServerPlayers() {
@@ -56,7 +60,7 @@ ServerPlayers::~ServerPlayers() {
 }
 
 void ServerPlayers::init() {
-    //blocks->block_update_event.addListener(this);
+    blocks->block_change_event.addListener(this);
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
@@ -195,10 +199,30 @@ void ServerPlayer::serialize(std::vector<char>& serial) const {
     serial.insert(serial.end(), name.begin(), name.end() + 1);
 }
 
-/*void ServerPlayers::onEvent(ServerBlockUpdateEvent& event) {
-    if(custom_block_events[(int)event.block.getBlockType()].onUpdate)
-        custom_block_events[(int)event.block.getBlockType()].onUpdate(blocks, &event.block);
-}*/
+void ServerPlayers::onEvent(BlockChangeEvent& event) {
+    int neighbors[5][2] = {{event.x, event.y}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
+    
+    if(event.x != 0) {
+        neighbors[1][0] = event.x - 1;
+        neighbors[1][1] = event.y;
+    }
+    if(event.x != blocks->getWidth() - 1) {
+        neighbors[2][0] = event.x + 1;
+        neighbors[2][1] = event.y;
+    }
+    if(event.y != 0) {
+        neighbors[3][0] = event.x;
+        neighbors[3][1] = event.y - 1;
+    }
+    if(event.y != blocks->getHeight() - 1) {
+        neighbors[4][0] = event.x;
+        neighbors[4][1] = event.y + 1;
+    }
+    
+    for(auto neighbor : neighbors)
+        if(neighbor[0] != -1 && custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate)
+            custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate(blocks, neighbor[0], neighbor[1]);
+}
 
 unsigned short ServerPlayer::getSightBeginX() const {
     return sight_x / (BLOCK_WIDTH * 2) - sight_width / 2;
