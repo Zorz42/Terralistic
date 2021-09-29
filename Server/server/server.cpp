@@ -36,8 +36,8 @@ Server::Server(std::string resource_path, std::string world_path) :
 
 void Server::loadWorld() {
     blocks.create(4400, 1200);
-    liquids.create(4400, 1200);
-    biomes.create(4400);
+    liquids.create();
+    biomes.create(blocks.getWidth());
     
     std::ifstream world_file(world_path, std::ios::binary);
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());

@@ -8,8 +8,8 @@
 int worldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
     SimplexNoise noise(seed);
     blocks->create(world_width, world_height);
-    liquids->create(world_width, world_height);
-    biomes->create(world_width);
+    liquids->create();
+    biomes->create(blocks->getWidth());
     
     loadAssets();
     if(seed == 1000) {

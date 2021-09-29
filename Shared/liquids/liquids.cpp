@@ -1,16 +1,14 @@
 #include "liquids.hpp"
 #include "graphics.hpp"
 
-void Liquids::create(unsigned short width_, unsigned short height_) {
-    width = width_;
-    height = height_;
-    liquids = new Liquid[width * height];
+void Liquids::create() {
+    liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
 }
 
 Liquids::Liquid* Liquids::getLiquid(unsigned short x, unsigned short y) {
-    if(x >= width || y >= height)
-        throw BlockOutOfBoundsException();
-    return &liquids[y * width + x];
+    if(x >= blocks->getWidth() || y >= blocks->getHeight())
+        throw LiquidOutOfBoundsException();
+    return &liquids[y * blocks->getWidth() + x];
 }
 
 const LiquidInfo& Liquids::getLiquidInfo(unsigned short x, unsigned short y) {
@@ -155,9 +153,9 @@ unsigned char Liquids::getLiquidLevel(unsigned short x, unsigned short y) {
 
 void Liquids::serialize(std::vector<char>& serial) {
     unsigned long iter = serial.size();
-    serial.resize(serial.size() + width * height * 2);
+    serial.resize(serial.size() + blocks->getWidth() * blocks->getHeight() * 2);
     Liquid* liquid = liquids;
-    for(int i = 0; i < width * height; i++) {
+    for(int i = 0; i < blocks->getWidth() * blocks->getHeight(); i++) {
         serial[iter++] = (char)liquid->type;
         serial[iter++] = (char)liquid->level;
         liquid++;
@@ -166,7 +164,7 @@ void Liquids::serialize(std::vector<char>& serial) {
 
 char* Liquids::loadFromSerial(char* iter) {
     Liquid* liquid = liquids;
-    for(int i = 0; i < width * height; i++) {
+    for(int i = 0; i < blocks->getWidth() * blocks->getHeight(); i++) {
         liquid->type = (LiquidType)*iter++;
         liquid->level = *iter++;
         liquid++;

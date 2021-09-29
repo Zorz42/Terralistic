@@ -20,7 +20,6 @@ class Liquids {
     };
     
     Liquid* liquids = nullptr;
-    unsigned short width, height;
     Liquid* getLiquid(unsigned short x, unsigned short y);
     bool isFlowable(unsigned short x, unsigned short y);
     
@@ -28,7 +27,7 @@ class Liquids {
 public:
     Liquids(Blocks* blocks) : blocks(blocks) {}
     
-    void create(unsigned short width, unsigned short height);
+    void create();
     
     const LiquidInfo& getLiquidInfo(unsigned short x, unsigned short y);
     LiquidType getLiquidType(unsigned short x, unsigned short y);
