@@ -61,10 +61,10 @@ unsigned char Blocks::getBreakStage(unsigned short x, unsigned short y) {
 }
 
 void Blocks::breakBlock(unsigned short x, unsigned short y) {
-    setBlockType(x, y, BlockType::AIR);
-    
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
+    
+    setBlockType(x, y, BlockType::AIR);
 }
 
 unsigned short Blocks::getWidth() {
@@ -77,7 +77,7 @@ unsigned short Blocks::getHeight() {
 
 void Blocks::serialize(std::vector<char>& serial) {
     unsigned long iter = serial.size();
-    serial.resize(serial.size() + width * height * 3);
+    serial.resize(serial.size() + width * height);
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
         serial[iter++] = (char)block->type;
