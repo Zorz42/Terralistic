@@ -10,7 +10,7 @@
 
 class BlockChangeEvent {
 public:
-    BlockChangeEvent(unsigned short x, unsigned short y, BlockType type) : x(x), y(y) {}
+    BlockChangeEvent(unsigned short x, unsigned short y) : x(x), y(y) {}
     unsigned short x, y;
 };
 

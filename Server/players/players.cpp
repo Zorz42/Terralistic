@@ -145,11 +145,8 @@ void ServerPlayers::updateBlocksInVisibleAreas() {
 void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length) {
     if(custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick)
         custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick(blocks, x, y, player);
-    else if(blocks->getBlockInfo(x, y).break_time != UNBREAKABLE) {
+    else if(blocks->getBlockInfo(x, y).break_time != UNBREAKABLE)
         blocks->setBreakProgress(x, y, blocks->getBreakProgress(x, y) + tick_length);
-        if(blocks->getBreakProgress(x, y) >= blocks->getBlockInfo(x, y).break_time)
-            blocks->breakBlock(x, y);
-    }
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
