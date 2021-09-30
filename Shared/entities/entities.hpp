@@ -5,10 +5,13 @@
 #include "entityType.hpp"
 #include "blocks.hpp"
 
+class Entities;
+
 class Entity {
+    friend Entities;
+    float x, y, velocity_x = 0, velocity_y = 0;
 public:
     Entity(unsigned short id, EntityType type, int x, int y) : id(id), type(type), x(x), y(y) {}
-    float x, y, velocity_x = 0, velocity_y = 0;
     virtual unsigned short getWidth() = 0;
     virtual unsigned short getHeight() = 0;
     bool gravity = true, friction = true, has_moved_x;
@@ -19,7 +22,25 @@ public:
     bool isCollidingWithBlocks(Blocks* blocks);
     void updateEntity(Blocks* blocks, float frame_length);
     bool isTouchingGround(Blocks* blocks);
+    
+    float getVelocityX() const;
+    float getVelocityY() const;
+    int getX() const;
+    int getY() const;
+    
     virtual ~Entity() = default;
+};
+
+class EntityVelocityChangeEvent {
+public:
+    explicit EntityVelocityChangeEvent(Entity* entity) : entity(entity) {}
+    Entity* entity;
+};
+
+class EntityPositionChangeEvent {
+public:
+    explicit EntityPositionChangeEvent(Entity* entity) : entity(entity) {}
+    Entity* entity;
 };
 
 class Entities {
@@ -27,11 +48,21 @@ class Entities {
     Blocks* blocks;
 public:
     explicit Entities(Blocks* blocks) : blocks(blocks) {}
+    
     void updateAllEntities(float frame_length);
     void registerEntity(Entity* entity);
     void removeEntity(Entity* entity);
     Entity* getEntityById(unsigned short id);
     const std::vector<Entity*>& getEntities();
+    void setVelocityX(Entity* entity, float velocity_x);
+    void setVelocityY(Entity* entity, float velocity_y);
+    void addVelocityX(Entity* entity, float velocity_x);
+    void addVelocityY(Entity* entity, float velocity_y);
+    void setX(Entity* entity, float x);
+    void setY(Entity* entity, float y);
+    
+    EventSender<EntityPositionChangeEvent> entity_position_change_event;
+    EventSender<EntityVelocityChangeEvent> entity_velocity_change_event;
 };
 
 #endif

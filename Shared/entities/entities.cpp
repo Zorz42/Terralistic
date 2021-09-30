@@ -94,3 +94,59 @@ bool Entity::isCollidingWithBlocks(Blocks* blocks, float colliding_x, float coll
     
     return false;
 }
+
+float Entity::getVelocityX() const {
+    return velocity_x;
+}
+
+float Entity::getVelocityY() const {
+    return velocity_y;
+}
+
+int Entity::getX() const {
+    return x;
+}
+
+int Entity::getY() const {
+    return y;
+}
+
+void Entities::setVelocityX(Entity* entity, float velocity_x) {
+    if(entity->velocity_x != velocity_x) {
+        entity->velocity_x = velocity_x;
+        EntityVelocityChangeEvent event(entity);
+        entity_velocity_change_event.call(event);
+    }
+}
+
+void Entities::setVelocityY(Entity* entity, float velocity_y) {
+    if(entity->velocity_y != velocity_y) {
+        entity->velocity_y = velocity_y;
+        EntityVelocityChangeEvent event(entity);
+        entity_velocity_change_event.call(event);
+    }
+}
+
+void Entities::addVelocityX(Entity* entity, float velocity_x) {
+    setVelocityX(entity, entity->velocity_x + velocity_x);
+}
+
+void Entities::addVelocityY(Entity* entity, float velocity_y) {
+    setVelocityY(entity, entity->velocity_y + velocity_y);
+}
+
+void Entities::setX(Entity* entity, float x) {
+    if(entity->x != x) {
+        entity->x = x;
+        EntityPositionChangeEvent event(entity);
+        entity_position_change_event.call(event);
+    }
+}
+
+void Entities::setY(Entity* entity, float y) {
+    if(entity->y != y) {
+        entity->y = y;
+        EntityPositionChangeEvent event(entity);
+        entity_position_change_event.call(event);
+    }
+}

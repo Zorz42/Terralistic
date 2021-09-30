@@ -13,8 +13,8 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             event.packet >> vel_x >> vel_y >> id;
             
             Entity* entity = entities->getEntityById(id);
-            entity->velocity_x = vel_x;
-            entity->velocity_y = vel_y;
+            entities->setVelocityX(entity, vel_x);
+            entities->setVelocityY(entity, vel_y);
             break;
         }
         case PacketType::ENTITY_POSITION: {
@@ -23,8 +23,8 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             event.packet >> x >> y >> id;
             
             Entity* entity = entities->getEntityById(id);
-            entity->x = x;
-            entity->y = y;
+            entities->setX(entity, x);
+            entities->setY(entity, y);
             break;
         }
         default:;

@@ -40,10 +40,10 @@ void BlockSelector::render() {
 
 void BlockSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_RIGHT && !inventory_handler->isHovered()) {
-        unsigned short starting_x = (player_handler->getMainPlayer()->x) / (BLOCK_WIDTH * 2);
-        unsigned short starting_y = (player_handler->getMainPlayer()->y) / (BLOCK_WIDTH * 2);
-        unsigned short ending_x = (player_handler->getMainPlayer()->x + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
-        unsigned short ending_y = (player_handler->getMainPlayer()->y + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
+        unsigned short starting_x = (player_handler->getMainPlayer()->getX()) / (BLOCK_WIDTH * 2);
+        unsigned short starting_y = (player_handler->getMainPlayer()->getY()) / (BLOCK_WIDTH * 2);
+        unsigned short ending_x = (player_handler->getMainPlayer()->getX() + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
+        unsigned short ending_y = (player_handler->getMainPlayer()->getY() + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
 
         if(selected_block_x < starting_x || selected_block_x > ending_x || selected_block_y < starting_y || selected_block_y > ending_y) {
             sf::Packet packet;
