@@ -29,6 +29,9 @@ public:
     
     void create();
     
+    unsigned short getWidth();
+    unsigned short getHeight();
+    
     const LiquidInfo& getLiquidInfo(unsigned short x, unsigned short y);
     LiquidType getLiquidType(unsigned short x, unsigned short y);
     void setLiquidTypeSilently(unsigned short x, unsigned short y, LiquidType type);

@@ -51,7 +51,8 @@ public:
     
     void breakBlock(unsigned short x, unsigned short y);
     
-    unsigned short getWidth(), getHeight();
+    unsigned short getWidth();
+    unsigned short getHeight();
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);

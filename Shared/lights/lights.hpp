@@ -25,6 +25,9 @@ public:
     Lights(Blocks* blocks) : blocks(blocks) {}
     void create();
     
+    unsigned short getWidth();
+    unsigned short getHeight();
+    
     void updateLight(unsigned short x, unsigned short y);
     void setLightSource(unsigned short x, unsigned short y, unsigned char level);
     unsigned char getLightLevel(unsigned short x, unsigned short y);

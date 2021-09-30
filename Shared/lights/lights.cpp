@@ -73,3 +73,11 @@ void Lights::scheduleLightUpdate(unsigned short x, unsigned short y) {
 bool Lights::hadScheduledLightUpdate(unsigned short x, unsigned short y) {
     return getLight(x, y)->update_light;
 }
+
+unsigned short Lights::getWidth() {
+    return blocks->getWidth();
+}
+
+unsigned short Lights::getHeight() {
+    return blocks->getHeight();
+}

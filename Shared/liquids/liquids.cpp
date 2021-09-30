@@ -178,3 +178,11 @@ char* Liquids::loadFromSerial(char* iter) {
         }
     return iter;
 }
+
+unsigned short Liquids::getWidth() {
+    return blocks->getWidth();
+}
+
+unsigned short Liquids::getHeight() {
+    return blocks->getHeight();
+}
