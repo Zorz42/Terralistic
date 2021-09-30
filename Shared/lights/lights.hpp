@@ -9,7 +9,7 @@ public:
     unsigned short x, y;
 };
 
-class Lights {
+class Lights : EventListener<BlockChangeEvent> {
     struct Light {
         bool light_source = false, update_light = true;
         unsigned char light_level = 0;
@@ -19,6 +19,8 @@ class Lights {
     
     Light* getLight(unsigned short x, unsigned short y);
     void setLightLevel(unsigned short x, unsigned short y, unsigned char level);
+    
+    void onEvent(BlockChangeEvent& event) override;
     
     Blocks* blocks;
 public:

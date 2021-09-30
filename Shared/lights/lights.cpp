@@ -2,6 +2,8 @@
 
 void Lights::create() {
     lights = new Light[blocks->getWidth() * blocks->getHeight()];
+    
+    blocks->block_change_event.addListener(this);
 }
 
 Lights::Light* Lights::getLight(unsigned short x, unsigned short y) {
@@ -80,4 +82,8 @@ unsigned short Lights::getWidth() {
 
 unsigned short Lights::getHeight() {
     return blocks->getHeight();
+}
+
+void Lights::onEvent(BlockChangeEvent& event) {
+    scheduleLightUpdate(event.x, event.y);
 }
