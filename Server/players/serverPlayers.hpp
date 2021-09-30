@@ -8,7 +8,7 @@
 
 #include <utility>
 #include "serverItems.hpp"
-#include "serverEntities.hpp"
+#include "entities.hpp"
 #include "movingType.hpp"
 
 class ServerInventory;
@@ -60,10 +60,10 @@ public:
     ServerPlayers* getPlayers() { return players; }
 };
 
-class ServerPlayer : public ServerEntity {
+class ServerPlayer : public Entity {
 public:
-    explicit ServerPlayer(ServerEntities* entities, ServerPlayers* players, int x, int y, std::string name) : ServerEntity(entities, x, y), name(std::move(name)), inventory(players) { friction = false; }
-    explicit ServerPlayer(ServerEntities* entities, ServerPlayers* players, char*& iter);
+    explicit ServerPlayer(ServerPlayers* players, int x, int y, std::string name) : Entity(EntityType::PLAYER, x, y), name(std::move(name)), inventory(players) { friction = false; }
+    explicit ServerPlayer(ServerPlayers* players, char*& iter);
     std::string name;
     
     unsigned short sight_width = 0, sight_height = 0;
@@ -116,7 +116,7 @@ public:
 };
 
 class ServerPlayers : EventListener<BlockChangeEvent> {
-    ServerEntities* entities;
+    Entities* entities;
     Blocks* blocks;
     ServerItems* items;
     
@@ -129,7 +129,7 @@ class ServerPlayers : EventListener<BlockChangeEvent> {
     
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
-    ServerPlayers(Blocks* blocks, ServerEntities* entities, ServerItems* items);
+    ServerPlayers(Blocks* blocks, Entities* entities, ServerItems* items);
     void init();
     void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     

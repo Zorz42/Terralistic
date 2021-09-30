@@ -6,7 +6,7 @@ ItemType ServerItem::getType() const {
     return type;
 }
 
-ServerItem::ServerItem(ServerEntities* entities, ItemType type, int x, int y) : type(type), ServerEntity(entities, x, y) {}
+ServerItem::ServerItem(Entities* entities, ItemType type, int x, int y) : type(type), Entity(EntityType::ITEM, x, y) {}
 
 void ServerItems::init() {
     blocks->block_break_event.addListener(this);
@@ -17,8 +17,8 @@ void ServerItems::onEvent(BlockBreakEvent& event) {
     static std::mt19937 engine(device());
     if(blocks->getBlockInfo(event.x, event.y).drop != ItemType::NOTHING) {
         ServerItem* item = spawnItem(blocks->getBlockInfo(event.x, event.y).drop, event.x * BLOCK_WIDTH * 2, event.y * BLOCK_WIDTH * 2);
-        item->addVelocityX(int(engine() % 40) - 20);
-        item->addVelocityY(-int(engine() % 20) - 20);
+        entities->addVelocityX(item, int(engine() % 40) - 20);
+        entities->addVelocityY(item, -int(engine() % 20) - 20);
     }
 }
 

@@ -32,8 +32,8 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
         case PacketType::PLAYER_VELOCITY: {
             float velocity_x, velocity_y;
             packet >> velocity_x >> velocity_y;
-            conn.player->setVelocityX(velocity_x);
-            conn.player->setVelocityY(velocity_y);
+            entities->setVelocityX(conn.player, velocity_x);
+            entities->setVelocityY(conn.player, velocity_y);
             break;
         }
 
@@ -127,16 +127,16 @@ void ServerNetworkingManager::onEvent(ServerItemDeletionEvent& event) {
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerEntityVelocityChangeEvent& event) {
+void ServerNetworkingManager::onEvent(EntityVelocityChangeEvent& event) {
     Connection* exclusion = nullptr;
     for(Connection& conn : connections)
-        if(conn.player->id == event.entity.id) {
+        if(conn.player->id == event.entity->id) {
             exclusion = &conn;
             break;
         }
     
     sf::Packet packet;
-    packet << PacketType::ENTITY_VELOCITY << event.entity.getVelocityX() <<  event.entity.getVelocityY() << event.entity.id;
+    packet << PacketType::ENTITY_VELOCITY << event.entity->getVelocityX() <<  event.entity->getVelocityY() << event.entity->id;
     sendToEveryone(packet, exclusion);
 }
 
@@ -182,15 +182,15 @@ void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
 }*/
 
 void ServerNetworkingManager::syncEntityPositions() {
-    for(ServerEntity* entity : entities->getEntities()) {
+    for(Entity* entity : entities->getEntities()) {
         sf::Packet packet;
         packet << PacketType::ENTITY_POSITION << entity->getX() << entity->getY() << entity->id;
         sendToEveryone(packet);
     }
 }
 
-void ServerNetworkingManager::onEvent(ServerEntityPositionChangeEvent& event) {
+void ServerNetworkingManager::onEvent(EntityPositionChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ENTITY_POSITION << event.entity.getX() << event.entity.getY() << event.entity.id;
+    packet << PacketType::ENTITY_POSITION << event.entity->getX() << event.entity->getY() << event.entity->id;
     sendToEveryone(packet);
 }

@@ -13,7 +13,7 @@
 class ClientItem : public Entity {
     ItemType item_type;
 public:
-    ClientItem(ItemType item_type, int x, int y, unsigned short id) : item_type(item_type), Entity(id, EntityType::ITEM, x, y) {}
+    ClientItem(ItemType item_type, int x, int y, unsigned short id) : item_type(item_type), Entity(EntityType::ITEM, x, y, id) {}
     ItemType getType() const { return item_type; }
     unsigned short getWidth() override { return ITEM_WIDTH * 2; }
     unsigned short getHeight() override { return ITEM_WIDTH * 2; }

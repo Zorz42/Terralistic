@@ -33,7 +33,7 @@ static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
         blocks->breakBlock(x, y);
 }
 
-ServerPlayers::ServerPlayers(Blocks* blocks, ServerEntities* entities, ServerItems* items) : blocks(blocks), entities(entities), items(items) {
+ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, ServerItems* items) : blocks(blocks), entities(entities), items(items) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = &treeUpdate;
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = &treeUpdate;
@@ -83,7 +83,7 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
             spawn_y += BLOCK_WIDTH * 2;
         }
         
-        player = new ServerPlayer(entities, this, spawn_x, spawn_y - BLOCK_WIDTH * 6, name);
+        player = new ServerPlayer(this, spawn_x, spawn_y - BLOCK_WIDTH * 6, name);
         all_players.emplace_back(player);
         player->sight_x = player->getX();
         player->sight_y = player->getY();
@@ -159,11 +159,11 @@ void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsi
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
-    all_players.emplace_back(new ServerPlayer(entities, this, iter));
+    all_players.emplace_back(new ServerPlayer(this, iter));
     return iter;
 }
 
-ServerPlayer::ServerPlayer(ServerEntities* entities, ServerPlayers* players, char*& iter) : ServerEntity(entities, *(int*)iter, *(int*)(iter + 4)), inventory(players) {
+ServerPlayer::ServerPlayer(ServerPlayers* players, char*& iter) : Entity(EntityType::PLAYER, *(int*)iter, *(int*)(iter + 4)), inventory(players) {
     friction = false;
     iter += 8;
     

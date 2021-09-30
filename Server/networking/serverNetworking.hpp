@@ -21,7 +21,7 @@ public:
     void flushPacket();
 };
 
-class ServerNetworkingManager : EventListener<BlockChangeEvent>, EventListener<BlockBreakStageChangeEvent>, EventListener<LiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerEntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerEntityPositionChangeEvent> {
+class ServerNetworkingManager : EventListener<BlockChangeEvent>, EventListener<BlockBreakStageChangeEvent>, EventListener<LiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<EntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<EntityPositionChangeEvent> {
     std::vector<Connection> connections;
     sf::TcpListener listener;
     
@@ -29,7 +29,7 @@ class ServerNetworkingManager : EventListener<BlockChangeEvent>, EventListener<B
     Liquids* liquids;
     ServerPlayers* players;
     ServerItems* items;
-    ServerEntities* entities;
+    Entities* entities;
     Commands commands;
     
     void onEvent(BlockChangeEvent& event) override;
@@ -37,17 +37,17 @@ class ServerNetworkingManager : EventListener<BlockChangeEvent>, EventListener<B
     void onEvent(LiquidChangeEvent& event) override;
     void onEvent(ServerItemCreationEvent& event) override;
     void onEvent(ServerItemDeletionEvent& event) override;
-    void onEvent(ServerEntityVelocityChangeEvent& event) override;
+    void onEvent(EntityVelocityChangeEvent& event) override;
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
     void onEvent(RecipeAvailabilityChangeEvent& event) override;
-    void onEvent(ServerEntityPositionChangeEvent& event) override;
+    void onEvent(EntityPositionChangeEvent& event) override;
     
     void onPacket(sf::Packet& packet, PacketType packet_type, Connection& conn);
     
     static void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
-    ServerNetworkingManager(Blocks* blocks, Liquids* liquids, ServerPlayers* players, ServerItems* items, ServerEntities* entities) : blocks(blocks), liquids(liquids), players(players), items(items), entities(entities), commands(blocks, players, items, entities) {}
+    ServerNetworkingManager(Blocks* blocks, Liquids* liquids, ServerPlayers* players, ServerItems* items, Entities* entities) : blocks(blocks), liquids(liquids), players(players), items(items), entities(entities), commands(blocks, players, items, entities) {}
 
     void init();
     

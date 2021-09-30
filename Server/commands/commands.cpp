@@ -77,10 +77,12 @@ void Commands::formatItemType(std::string &type) {
         type = std::to_string((int)getItemTypeByName(type));
 }
 
-void Commands::teleport(const std::string& player, unsigned int x, unsigned int y) {
+void Commands::teleport(const std::string& player_name, unsigned int x, unsigned int y) {
     y *= -1;
     y += blocks->getHeight();
-    players->getPlayerByName(player)->setPosition(x * 16, y * 16);
+    ServerPlayer* player = players->getPlayerByName(player_name);
+    entities->setX(player, x * 16);
+    entities->setY(player, y * 16);
 }
 
 void Commands::giveItem(std::vector<std::string> &message, const std::string& player) {

@@ -3,15 +3,15 @@
 #include "serverPlayers.hpp"
 #include "string"
 #include "worldGenerator.hpp"
-#include "serverEntities.hpp"
+#include "entities.hpp"
 
 class Commands {
     Blocks* blocks;
     ServerPlayers* players;
     ServerItems* items;
-    ServerEntities* entities;
+    Entities* entities;
 public:
-    Commands(Blocks* blocks, ServerPlayers* players, ServerItems* items, ServerEntities* entities) : blocks(blocks), players(players), items(items), entities(entities){}
+    Commands(Blocks* blocks, ServerPlayers* players, ServerItems* items, Entities* entities) : blocks(blocks), players(players), items(items), entities(entities){}
     void startCommand(std::string message, std::string player);
     void changeBlock(std::vector<std::string>& message);
     void formatLocation(std::vector<std::string>& message, const std::string& player, unsigned char start_format);

@@ -3,14 +3,14 @@
 
 #include <vector>
 #include "blocks.hpp"
-#include "serverEntities.hpp"
+#include "entities.hpp"
 
 #define ITEM_WIDTH 8
 
-class ServerItem : public ServerEntity {
+class ServerItem : public Entity {
     ItemType type;
 public:
-    ServerItem(ServerEntities* entities, ItemType type, int x, int y);
+    ServerItem(Entities* entities, ItemType type, int x, int y);
     ItemType getType() const;
     
     unsigned short getWidth() override { return ITEM_WIDTH * 2; }
@@ -31,11 +31,11 @@ public:
 
 class ServerItems : EventListener<BlockBreakEvent> {
     void onEvent(BlockBreakEvent& event) override;
-    ServerEntities* entities;
+    Entities* entities;
     Blocks* blocks;
     std::vector<ServerItem*> items;
 public:
-    explicit ServerItems(ServerEntities* entities, Blocks* blocks) : entities(entities), blocks(blocks) {}
+    explicit ServerItems(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks) {}
     void init();
     const std::vector<ServerItem*>& getItems() { return items; }
     ServerItem* spawnItem(ItemType type, int x, int y);
