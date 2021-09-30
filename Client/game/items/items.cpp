@@ -8,12 +8,12 @@ void ClientItems::init() {
 
 void ClientItems::renderItems() {
     int item_count = 0;
-    for(ClientEntity* entity : entities->getEntities())
+    for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::ITEM)
             item_count++;
     gfx::RectArray item_rects(item_count);
     int item_index = 0;
-    for(ClientEntity* entity : entities->getEntities()) {
+    for(Entity* entity : entities->getEntities()) {
         if(entity->type == EntityType::ITEM) {
             ClientItem* item = (ClientItem*)entity;
             gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());

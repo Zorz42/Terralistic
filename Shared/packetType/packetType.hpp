@@ -5,7 +5,7 @@
 
 enum class PacketType {
     // blocks
-    BLOCK, LIGHT, LIQUID,
+    BLOCK, LIQUID,
     
     // entities
     ENTITY_VELOCITY, ENTITY_POSITION,

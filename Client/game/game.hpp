@@ -29,7 +29,7 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     std::string username;
     NetworkingManager networking_manager;
     ResourcePack resource_pack;
-    ClientEntities entities;
+    ClientEntities client_entities;
     BlockRenderer client_blocks;
     ClientPlayers players;
     ClientItems items;
@@ -42,6 +42,7 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     Liquids liquids;
     Lights lights;
     BackgroundRect* background_rect;
+    Entities entities;
     bool handshake_done = false, got_kicked = false;
     std::string kick_reason;
     

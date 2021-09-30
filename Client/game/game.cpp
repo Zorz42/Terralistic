@@ -140,7 +140,8 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, std::st
     client_blocks(&resource_pack, &networking_manager, &blocks, &liquids, &lights),
     players(&networking_manager, &blocks, &liquids, &client_blocks, &resource_pack, &entities, username),
     items(&resource_pack, &client_blocks, &entities, &networking_manager),
-    entities(&blocks, &networking_manager),
+    client_entities(&entities, &networking_manager),
+    entities(&blocks),
     block_selector(&networking_manager, &blocks, &client_blocks, &inventory, &players),
     inventory(&networking_manager, &resource_pack),
     debug_menu(&players, &blocks, &client_blocks),
@@ -186,7 +187,7 @@ void Game::init() {
     registerAModule(&chat);
     registerAModule(&minimap);
     
-    entities.init();
+    client_entities.init();
     items.init();
     client_blocks.init();
 }

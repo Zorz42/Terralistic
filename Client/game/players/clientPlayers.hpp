@@ -12,7 +12,7 @@
 #define PLAYER_WIDTH 14
 #define PLAYER_HEIGHT 24
 
-class ClientPlayer : public ClientEntity {
+class ClientPlayer : public Entity {
 public:
     ClientPlayer(const std::string& name, int x, int y, unsigned short id);
     bool flipped = false;
@@ -45,9 +45,9 @@ class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> 
     Liquids* liquids;
     NetworkingManager* manager;
     ResourcePack* resource_pack;
-    ClientEntities* entities;
+    Entities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
+    ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, Entities* entities, const std::string& username);
     
     void renderPlayers();
     

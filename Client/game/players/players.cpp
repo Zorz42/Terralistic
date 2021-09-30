@@ -1,16 +1,16 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
+ClientPlayers::ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, Entities* entities, const std::string& username) :
 manager(manager), client_blocks(client_blocks), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), username(username) {}
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), ClientEntity(id, EntityType::PLAYER, x, y) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), Entity(id, EntityType::PLAYER, x, y) {
     name_text.loadFromText(name, WHITE);
     friction = false;
 }
 
 void ClientPlayers::renderPlayers() {
-    for(ClientEntity* entity : entities->getEntities())
+    for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER)
             render(*(ClientPlayer*)entity);
 }
@@ -64,7 +64,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
 }
 
 ClientPlayer* ClientPlayers::getPlayerById(unsigned short id) {
-    for(ClientEntity* entity : entities->getEntities())
+    for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER && entity->id == id)
             return (ClientPlayer*)entity;
     assert(false);
