@@ -91,8 +91,13 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 if(status == sf::Socket::NotReady)
                     break;
                 else if(status == sf::Socket::Disconnected) {
-                    print::info(connections[i].player->name + " (" + connections[i].getIpAddress() + ") disconnected (" + std::to_string(players->getOnlinePlayers().size() - 1) + " players online)");
                     players->removePlayer(connections[i].player);
+                    
+                    int online_players_count = 0;
+                    for(Entity* entity : entities->getEntities())
+                        if(entity->type == EntityType::PLAYER)
+                            online_players_count++;
+                    print::info(connections[i].player->name + " (" + connections[i].getIpAddress() + ") disconnected (" + std::to_string(online_players_count) + " players online)");
                     
                     connections[i].freeSocket();
                     connections.erase(connections.begin() + i);
@@ -114,9 +119,12 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             std::string player_name;
             packet >> player_name;
             bool already_exists = false;
-            for(ServerPlayer* curr_player : players->getOnlinePlayers())
-                if(curr_player->name == player_name)
-                    already_exists = true;
+            for(Entity* entity : entities->getEntities())
+                if(entity->type == EntityType::PLAYER) {
+                    ServerPlayer* player = (ServerPlayer*)entity;
+                    if(player->name == player_name)
+                        already_exists = true;
+                }
             
             if(already_exists) {
                 sf::Packet kick_packet;
@@ -140,16 +148,21 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 connections[i].flushPacket();
                 connections[i].send(map_data);
                 
-                for(ServerPlayer* curr_player : players->getOnlinePlayers()) {
-                    sf::Packet join_packet;
-                    join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
-                    connections[i].send(join_packet);
-                }
-
-                for(const ServerItem* item : items->getItems()) {
-                    sf::Packet item_packet;
-                    item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
-                    connections[i].send(item_packet);
+                for(Entity* entity : entities->getEntities())
+                    if(entity->type == EntityType::PLAYER) {
+                        ServerPlayer* curr_player = (ServerPlayer*)entity;
+                        sf::Packet join_packet;
+                        join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
+                        connections[i].send(join_packet);
+                    }
+                
+                for(const Entity* entity : entities->getEntities()) {
+                    if(entity->type == EntityType::ITEM) {
+                        ServerItem* item = (ServerItem*)entity;
+                        sf::Packet item_packet;
+                        item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
+                        connections[i].send(item_packet);
+                    }
                 }
 
                 for(InventoryItem& curr_item : player->inventory.inventory_arr)
@@ -161,7 +174,11 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
                 sendToEveryone(join_packet, &connections[i]);
 
-                print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
+                int online_players_count = 0;
+                for(Entity* entity : entities->getEntities())
+                    if(entity->type == EntityType::PLAYER)
+                        online_players_count++;
+                print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(online_players_count) + " players online)");
             }
         }
     }

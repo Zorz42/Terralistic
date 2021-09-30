@@ -121,7 +121,6 @@ class ServerPlayers : EventListener<BlockChangeEvent> {
     ServerItems* items;
     
     std::vector<ServerPlayer*> all_players;
-    std::vector<ServerPlayer*> online_players;
 
     BlockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
@@ -134,7 +133,6 @@ public:
     void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
     const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
-    const std::vector<ServerPlayer*>& getOnlinePlayers() { return online_players; }
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
@@ -142,7 +140,6 @@ public:
     void removePlayer(ServerPlayer* player);
     
     void updatePlayersBreaking(unsigned short tick_length);
-    void updateBlocksInVisibleAreas();
     void lookForItemsThatCanBePickedUp();
     
     EventSender<ServerInventoryItemTypeChangeEvent> inventory_item_type_change_event;

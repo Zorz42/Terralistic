@@ -33,11 +33,9 @@ class ServerItems : EventListener<BlockBreakEvent> {
     void onEvent(BlockBreakEvent& event) override;
     Entities* entities;
     Blocks* blocks;
-    std::vector<ServerItem*> items;
 public:
     explicit ServerItems(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks) {}
     void init();
-    const std::vector<ServerItem*>& getItems() { return items; }
     ServerItem* spawnItem(ItemType type, int x, int y);
     void removeItem(ServerItem* item);
     EventSender<ServerItemCreationEvent> item_creation_event;

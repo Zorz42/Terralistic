@@ -24,7 +24,6 @@ void ServerItems::onEvent(BlockBreakEvent& event) {
 
 ServerItem* ServerItems::spawnItem(ItemType type, int x, int y) {
     ServerItem* item = new ServerItem(entities, type, x, y);
-    items.push_back(item);
     entities->registerEntity(item);
     ServerItemCreationEvent event(*item);
     item_creation_event.call(event);
@@ -34,7 +33,6 @@ ServerItem* ServerItems::spawnItem(ItemType type, int x, int y) {
 void ServerItems::removeItem(ServerItem* item) {
     ServerItemDeletionEvent event(*item);
     item_deletion_event.call(event);
-    items.erase(std::find(items.begin(), items.end(), item));
     entities->removeEntity(item);
     delete item;
 }

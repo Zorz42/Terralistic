@@ -89,61 +89,37 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
         player->sight_y = player->getY();
     }
     
-    online_players.push_back(player);
     entities->registerEntity(player);
     return player;
 }
 
 void ServerPlayers::removePlayer(ServerPlayer* player) {
-    online_players.erase(std::find(online_players.begin(), online_players.end(), player));
     entities->removeEntity(player);
 }
 
 void ServerPlayers::updatePlayersBreaking(unsigned short tick_length) {
-    for(ServerPlayer* player : online_players)
-        if(player->breaking)
-            leftClickEvent(player, player->breaking_x, player->breaking_y, tick_length);
+    for(Entity* entity : entities->getEntities())
+        if(entity->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entity;
+            if(player->breaking)
+                leftClickEvent(player, player->breaking_x, player->breaking_y, tick_length);
+        }
 }
 
 void ServerPlayers::lookForItemsThatCanBePickedUp() {
-    for(ServerItem* item : items->getItems())
-        for(ServerPlayer* player : online_players)
-            if(abs(item->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(item->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
-               player->inventory.addItem(item->getType(), 1) != -1
-               ) {
-                items->removeItem(item);
-            }
-}
-
-void ServerPlayers::updateBlocksInVisibleAreas() {
-    for(ServerPlayer* player : online_players) {
-        int start_x = (int)player->getSightBeginX() - 20, start_y = (int)player->getSightBeginY() - 20, end_x = player->getSightEndX() + 20, end_y = player->getSightEndY() + 20;
-        if(start_x < 0)
-            start_x = 0;
-        if(start_y < 0)
-            start_y = 0;
-        if(end_x > blocks->getWidth())
-            end_x = blocks->getWidth();
-        if(end_y > blocks->getHeight())
-            end_y = blocks->getHeight();
-        
-        bool finished = false;
-        while(!finished) {
-            finished = true;
-            for(int y = start_y; y < end_y; y++)
-                for(int x = start_x; x < end_x; x++) {
-                    //ServerBlock curr_block = blocks->getBlock(x, y);
-                    /*if(curr_block.hasScheduledLightUpdate()) {
-                        curr_block.lightUpdate();
-                        finished = false;
-                    }*/
-                    /*if(curr_block.getLiquidType() != LiquidType::EMPTY && curr_block.canUpdateLiquid()) {
-                        curr_block.liquidUpdate();
-                        finished = false;
-                    }*/
+    for(Entity* entity : entities->getEntities())
+        if(entity->type == EntityType::ITEM) {
+            ServerItem* item = (ServerItem*)entity;
+            for(Entity* entity2 : entities->getEntities())
+                if(entity2->type == EntityType::PLAYER) {
+                    ServerPlayer* player = (ServerPlayer*)entity2;
+                    if(abs(item->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(item->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
+                       player->inventory.addItem(item->getType(), 1) != -1
+                       ) {
+                        items->removeItem(item);
+                    }
                 }
         }
-    }
 }
 
 void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length) {

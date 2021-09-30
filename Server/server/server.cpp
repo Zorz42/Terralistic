@@ -112,7 +112,6 @@ void Server::start(unsigned short port) {
         entities.updateAllEntities(tick_length);
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
-        players.updateBlocksInVisibleAreas();
         //day_cycle.update();
         
         networking_manager.flushPackets();

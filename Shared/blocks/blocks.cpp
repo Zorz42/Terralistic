@@ -41,18 +41,18 @@ unsigned short Blocks::getBreakProgress(unsigned short x, unsigned short y) {
 
 void Blocks::setBreakProgress(unsigned short x, unsigned short y, unsigned short progress) {
     Block* block = getBlock(x, y);
-    block->break_progress = progress;
-    if(block->break_progress > getBlockInfo(x, y).break_time) {
-        breakBlock(x, y);
-        block->break_progress = 0;
-    }
-    
-    unsigned char stage = (unsigned char)((float)block->break_progress / (float)getBlockInfo(x, y).break_time * 9.f);
-    if(stage != block->break_stage) {
-        block->break_stage = stage;
+    if(block->break_progress != progress) {
+        block->break_progress = progress;
+        if(block->break_progress > getBlockInfo(x, y).break_time)
+            breakBlock(x, y);
         
-        BlockBreakStageChangeEvent event(x, y);
-        block_break_stage_change_event.call(event);
+        unsigned char stage = (unsigned char)((float)block->break_progress / (float)getBlockInfo(x, y).break_time * 9.f);
+        if(stage != block->break_stage) {
+            block->break_stage = stage;
+            
+            BlockBreakStageChangeEvent event(x, y);
+            block_break_stage_change_event.call(event);
+        }
     }
 }
 
@@ -61,6 +61,7 @@ unsigned char Blocks::getBreakStage(unsigned short x, unsigned short y) {
 }
 
 void Blocks::breakBlock(unsigned short x, unsigned short y) {
+    setBreakProgress(x, y, 0);
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
     
