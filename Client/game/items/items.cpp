@@ -43,13 +43,6 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             entities->registerEntity(item);
             break;
         }
-        case PacketType::ITEM_DELETION: {
-            unsigned short id;
-            event.packet >> id;
-            ClientItem* item = (ClientItem*)entities->getEntityById(id);
-            entities->removeEntity(item);
-            delete item;
-        }
         default:;
     }
 }

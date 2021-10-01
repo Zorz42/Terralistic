@@ -1,5 +1,4 @@
-#ifndef lights_hpp
-#define lights_hpp
+#pragma once
 
 #include "blocks.hpp"
 
@@ -43,5 +42,3 @@ public:
         return "Light is accessed out of the bounds!";
     }
 };
-
-#endif

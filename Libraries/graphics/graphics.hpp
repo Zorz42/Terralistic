@@ -1,5 +1,4 @@
-#ifndef graphics_hpp
-#define graphics_hpp
+#pragma once
 
 #include <string>
 #include <vector>
@@ -237,5 +236,3 @@ namespace gfx {
 
     void setWindowSize(unsigned short width, unsigned short height);
 };
-
-#endif

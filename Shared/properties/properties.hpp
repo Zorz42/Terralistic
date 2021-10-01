@@ -1,5 +1,4 @@
-#ifndef properties_hpp
-#define properties_hpp
+#pragma once
 
 #define UNBREAKABLE -1
 
@@ -66,5 +65,3 @@ const LiquidInfo& getLiquidInfo(LiquidType type);
 const std::vector<Recipe>& getRecipes();
 unsigned short getRecipeIndex(const Recipe* recipe);
 
-
-#endif

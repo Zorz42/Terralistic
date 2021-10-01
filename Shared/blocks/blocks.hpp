@@ -1,5 +1,4 @@
-#ifndef blocks_hpp
-#define blocks_hpp
+#pragma once
 
 #include <vector>
 #include "properties.hpp"
@@ -75,5 +74,3 @@ public:
         return "Block type does not exist!";
     }
 };
-
-#endif

@@ -7,7 +7,7 @@
 #define PLAYER_WIDTH 14
 
 #include <utility>
-#include "serverItems.hpp"
+#include "items.hpp"
 #include "entities.hpp"
 #include "movingType.hpp"
 
@@ -60,10 +60,21 @@ public:
     ServerPlayers* getPlayers() { return players; }
 };
 
+class ServerPlayerData {
+public:
+    ServerPlayerData(ServerPlayers* players, char*& iter);
+    ServerPlayerData(ServerPlayers* players) : inventory(players) {}
+    
+    void serialize(std::vector<char>& serial) const;
+    
+    std::string name;
+    int x, y;
+    ServerInventory inventory;
+};
+
 class ServerPlayer : public Entity {
 public:
-    explicit ServerPlayer(ServerPlayers* players, int x, int y, std::string name) : Entity(EntityType::PLAYER, x, y), name(std::move(name)), inventory(players) { friction = false; }
-    explicit ServerPlayer(ServerPlayers* players, char*& iter);
+    explicit ServerPlayer(ServerPlayers* players, const ServerPlayerData& data) : Entity(EntityType::PLAYER, data.x, data.y), name(std::move(data.name)), inventory(data.inventory) { friction = false; }
     std::string name;
     
     unsigned short sight_width = 0, sight_height = 0;
@@ -78,8 +89,6 @@ public:
     
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
-    
-    void serialize(std::vector<char>& serial) const;
     
     unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
@@ -107,8 +116,6 @@ public:
     unsigned short stack;
 };
 
-
-
 class RecipeAvailabilityChangeEvent {
 public:
     explicit RecipeAvailabilityChangeEvent(ServerInventory* inventory) : inventory(inventory) {}
@@ -118,9 +125,9 @@ public:
 class ServerPlayers : EventListener<BlockChangeEvent> {
     Entities* entities;
     Blocks* blocks;
-    ServerItems* items;
+    Items* items;
     
-    std::vector<ServerPlayer*> all_players;
+    std::vector<ServerPlayerData*> all_players;
 
     BlockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
@@ -128,16 +135,17 @@ class ServerPlayers : EventListener<BlockChangeEvent> {
     
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
-    ServerPlayers(Blocks* blocks, Entities* entities, ServerItems* items);
+    ServerPlayers(Blocks* blocks, Entities* entities, Items* items);
     void init();
     void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
-    const std::vector<ServerPlayer*>& getAllPlayers() { return all_players; }
+    const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
     char* addPlayerFromSerial(char* iter);
-    void removePlayer(ServerPlayer* player);
+    void savePlayer(ServerPlayer* player);
+    ServerPlayerData* getPlayerData(const std::string& name);
     
     void updatePlayersBreaking(unsigned short tick_length);
     void lookForItemsThatCanBePickedUp();

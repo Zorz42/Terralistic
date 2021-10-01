@@ -1,8 +1,5 @@
-#ifndef resourcePath_hpp
-#define resourcePath_hpp
+#pragma once
 
 #include <string>
 
 std::string getResourcePath(std::string executable_path);
-
-#endif

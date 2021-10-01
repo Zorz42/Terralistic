@@ -1,5 +1,4 @@
-#ifndef liquids_hpp
-#define liquids_hpp
+#pragma once
 
 #include "blocks.hpp"
 
@@ -64,5 +63,3 @@ public:
         return "Liquid type does not exist!";
     }
 };
-
-#endif

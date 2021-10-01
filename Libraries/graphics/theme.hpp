@@ -1,5 +1,4 @@
-#ifndef theme_hpp
-#define theme_hpp
+#pragma once
 
 #define WHITE gfx::Color({230, 230, 230})
 #define LIGHT_GREY gfx::Color({200, 200, 200})
@@ -21,5 +20,3 @@
 #define GFX_DEFAULT_TEXT_BOX_SHADOW_INTENSITY SHADOW_INTENSITY
 #define GFX_DEFAULT_BUTTON_MARGIN SPACING / 2
 #define GFX_DEFAULT_TEXT_INPUT_WIDTH TEXT_INPUT_WIDTH
-
-#endif

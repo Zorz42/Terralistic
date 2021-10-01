@@ -1,7 +1,7 @@
-#include "dayCycle.hpp"
-#include "graphics.hpp"
+//#include "dayCycle.hpp"
+//#include "graphics.hpp"
 
-#define DAY_STAGE_LENGTH 30000
+//#define DAY_STAGE_LENGTH 30000
 
 /*static std::vector<unsigned char> day_stages = {
     (unsigned char)(1 * MAX_LIGHT),

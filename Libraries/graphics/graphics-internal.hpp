@@ -1,5 +1,4 @@
-#ifndef graphics_internal_hpp
-#define graphics_internal_hpp
+#pragma once
 
 #include "graphics.hpp"
 
@@ -24,7 +23,4 @@ namespace gfx {
     inline sf::RenderTexture shadow_texture, shadow_part_left, shadow_part_right, shadow_part_up, shadow_part_down;
     
     inline std::string resource_path;
-        
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef configManager_hpp
-#define configManager_hpp
+#pragma once
 
 #include <string>
 #include <map>
@@ -37,5 +36,3 @@ public:
     
     void saveConfig();
 };
-
-#endif

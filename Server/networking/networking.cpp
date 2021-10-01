@@ -74,7 +74,7 @@ void ServerNetworkingManager::init() {
     blocks->block_break_stage_change_event.addListener(this);
     liquids->liquid_change_event.addListener(this);
     items->item_creation_event.addListener(this);
-    items->item_deletion_event.addListener(this);
+    entities->entity_deletion_event.addListener(this);
     entities->entity_velocity_change_event.addListener(this);
     players->inventory_item_stack_change_event.addListener(this);
     players->inventory_item_type_change_event.addListener(this);
@@ -91,7 +91,8 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 if(status == sf::Socket::NotReady)
                     break;
                 else if(status == sf::Socket::Disconnected) {
-                    players->removePlayer(connections[i].player);
+                    players->savePlayer(connections[i].player);
+                    entities->removeEntity(connections[i].player);
                     
                     int online_players_count = 0;
                     for(Entity* entity : entities->getEntities())
@@ -103,7 +104,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     connections.erase(connections.begin() + i);
                     
                     sf::Packet quit_packet;
-                    quit_packet << PacketType::PLAYER_LEAVE << connections[i].player->id;
+                    quit_packet << PacketType::ENTITY_DELETION << connections[i].player->id;
                     sendToEveryone(quit_packet);
                     
                     break;
@@ -158,13 +159,13 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 
                 for(const Entity* entity : entities->getEntities()) {
                     if(entity->type == EntityType::ITEM) {
-                        ServerItem* item = (ServerItem*)entity;
+                        Item* item = (Item*)entity;
                         sf::Packet item_packet;
                         item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
                         connections[i].send(item_packet);
                     }
                 }
-
+                
                 for(InventoryItem& curr_item : player->inventory.inventory_arr)
                     if(curr_item.getType() != ItemType::NOTHING)
                         sendInventoryItemPacket(connections[i], curr_item, curr_item.getType(), curr_item.getStack());

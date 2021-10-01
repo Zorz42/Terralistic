@@ -59,7 +59,7 @@ void Server::saveWorld() {
     blocks.serialize(world_file_serial);
     liquids.serialize(world_file_serial);
     
-    for(const ServerPlayer* player : players.getAllPlayers())
+    for(const ServerPlayerData* player : players.getAllPlayers())
         player->serialize(world_file_serial);
     
     world_file_serial = compress(world_file_serial);

@@ -1,5 +1,4 @@
-#ifndef events_hpp
-#define events_hpp
+#pragma once
 
 #include <vector>
 
@@ -26,6 +25,3 @@ public:
             listener->onEvent(event);
     }
 };
-
-
-#endif

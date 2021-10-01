@@ -115,15 +115,15 @@ void ServerNetworkingManager::onEvent(LiquidChangeEvent& event) {
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerItemCreationEvent& event) {
+void ServerNetworkingManager::onEvent(ItemCreationEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ITEM_CREATION << (int)event.item.getX() << (int)event.item.getY() << event.item.id << (unsigned char)event.item.getType();
+    packet << PacketType::ITEM_CREATION << (int)event.item->getX() << (int)event.item->getY() << event.item->id << (unsigned char)event.item->getType();
     sendToEveryone(packet);
 }
 
-void ServerNetworkingManager::onEvent(ServerItemDeletionEvent& event) {
+void ServerNetworkingManager::onEvent(EntityDeletionEvent& event) {
     sf::Packet packet;
-    packet << PacketType::ITEM_DELETION << (unsigned short)event.item.id;
+    packet << PacketType::ENTITY_DELETION << (unsigned short)event.entity->id;
     sendToEveryone(packet);
 }
 
@@ -173,13 +173,6 @@ void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
             break;
         }
 }
-
-/*void ServerNetworkingManager::onEvent(ServerLightChangeEvent& event) {
-    sf::Packet packet;
-    packet << PacketType::LIGHT << event.block.getX() << event.block.getY() << event.block.getLightLevel();
-    for(Connection& connection : connections)
-        connection.send(packet);
-}*/
 
 void ServerNetworkingManager::syncEntityPositions() {
     for(Entity* entity : entities->getEntities()) {

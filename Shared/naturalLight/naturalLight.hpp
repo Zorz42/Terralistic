@@ -1,5 +1,4 @@
-#ifndef dayCycle_hpp
-#define dayCycle_hpp
+#pragma once
 
 #include "blocks.hpp"
 #include "events.hpp"
@@ -17,5 +16,3 @@ public:
     
     void setNaturalLight(unsigned short x, unsigned char power);
 };*/
-
-#endif

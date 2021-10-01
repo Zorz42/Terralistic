@@ -21,22 +21,22 @@ public:
     void flushPacket();
 };
 
-class ServerNetworkingManager : EventListener<BlockChangeEvent>, EventListener<BlockBreakStageChangeEvent>, EventListener<LiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<EntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<EntityPositionChangeEvent> {
+class ServerNetworkingManager : EventListener<BlockChangeEvent>, EventListener<BlockBreakStageChangeEvent>, EventListener<LiquidChangeEvent>, EventListener<ItemCreationEvent>, EventListener<EntityDeletionEvent>, EventListener<EntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<EntityPositionChangeEvent> {
     std::vector<Connection> connections;
     sf::TcpListener listener;
     
     Blocks* blocks;
     Liquids* liquids;
     ServerPlayers* players;
-    ServerItems* items;
+    Items* items;
     Entities* entities;
     Commands commands;
     
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(BlockBreakStageChangeEvent& event) override;
     void onEvent(LiquidChangeEvent& event) override;
-    void onEvent(ServerItemCreationEvent& event) override;
-    void onEvent(ServerItemDeletionEvent& event) override;
+    void onEvent(ItemCreationEvent& event) override;
+    void onEvent(EntityDeletionEvent& event) override;
     void onEvent(EntityVelocityChangeEvent& event) override;
     void onEvent(ServerInventoryItemStackChangeEvent& event) override;
     void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
@@ -47,7 +47,7 @@ class ServerNetworkingManager : EventListener<BlockChangeEvent>, EventListener<B
     
     static void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
 public:
-    ServerNetworkingManager(Blocks* blocks, Liquids* liquids, ServerPlayers* players, ServerItems* items, Entities* entities) : blocks(blocks), liquids(liquids), players(players), items(items), entities(entities), commands(blocks, players, items, entities) {}
+    ServerNetworkingManager(Blocks* blocks, Liquids* liquids, ServerPlayers* players, Items* items, Entities* entities) : blocks(blocks), liquids(liquids), players(players), items(items), entities(entities), commands(blocks, players, items, entities) {}
 
     void init();
     

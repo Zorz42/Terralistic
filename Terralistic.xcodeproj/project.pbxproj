@@ -29,8 +29,8 @@
 		167C03B826E141FC0045FEA9 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03B726E141FC0045FEA9 /* button.cpp */; };
 		1682944326A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
-		169990A92700E25300224E11 /* dayCycle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* dayCycle.cpp */; };
-		169990AA2700E25300224E11 /* dayCycle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* dayCycle.cpp */; };
+		169990A92700E25300224E11 /* naturalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* naturalLight.cpp */; };
+		169990AA2700E25300224E11 /* naturalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* naturalLight.cpp */; };
 		169AD3A327023B690096D80D /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169AD3A127023B690096D80D /* blocks.cpp */; };
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A0E8AC26FDBE630069211C /* minimap.cpp */; };
@@ -273,8 +273,8 @@
 		1695428D2680B5B400F1F4FE /* versions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = versions.hpp; sourceTree = "<group>"; };
 		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
 		169990A527004E3F00224E11 /* movingType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = movingType.hpp; sourceTree = "<group>"; };
-		169990A72700E25300224E11 /* dayCycle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dayCycle.cpp; sourceTree = "<group>"; };
-		169990A82700E25300224E11 /* dayCycle.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dayCycle.hpp; sourceTree = "<group>"; };
+		169990A72700E25300224E11 /* naturalLight.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = naturalLight.cpp; sourceTree = "<group>"; };
+		169990A82700E25300224E11 /* naturalLight.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = naturalLight.hpp; sourceTree = "<group>"; };
 		169AD3A127023B690096D80D /* blocks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blocks.cpp; sourceTree = "<group>"; };
 		169AD3A227023B690096D80D /* blocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blocks.hpp; sourceTree = "<group>"; };
 		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
@@ -292,7 +292,7 @@
 		16A681DD2705A77A0084E9CE /* entities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = entities.cpp; sourceTree = "<group>"; };
 		16A681DE2705A77A0084E9CE /* clientEntities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientEntities.hpp; sourceTree = "<group>"; };
 		16B36D2C2682000F00A4B03A /* items.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = items.cpp; sourceTree = "<group>"; };
-		16B36D2D2682000F00A4B03A /* serverItems.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverItems.hpp; sourceTree = "<group>"; };
+		16B36D2D2682000F00A4B03A /* items.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = items.hpp; sourceTree = "<group>"; };
 		16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = worldGenerator.cpp; sourceTree = "<group>"; };
 		16B36D3B26820ADD00A4B03A /* worldGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = worldGenerator.hpp; sourceTree = "<group>"; };
 		16B77FE826F5102700FE3FE9 /* updater.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = updater.cpp; sourceTree = "<group>"; };
@@ -560,10 +560,8 @@
 			isa = PBXGroup;
 			children = (
 				167B387D2642F73900E3C718 /* print */,
-				169990A62700E20E00224E11 /* dayCycle */,
 				167513C126A498DA00E21C68 /* biomes */,
 				16B36D3926820AC700A4B03A /* worldGenerator */,
-				16B36D2A2681FF0400A4B03A /* items */,
 				168600D42681DB1600763775 /* players */,
 				16A3C00E26FF871C001B9E4E /* commands */,
 				1673274926A80E760063281A /* networking */,
@@ -611,7 +609,9 @@
 				169AD3A027023B590096D80D /* blocks */,
 				1674225C2702F35800D6D8F2 /* liquids */,
 				1676AF3327044CB300321C8B /* lights */,
+				169990A62700E20E00224E11 /* naturalLight */,
 				3692C14C26E506A100F9DD71 /* entities */,
+				16B36D2A2681FF0400A4B03A /* items */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -670,13 +670,13 @@
 			path = Client;
 			sourceTree = "<group>";
 		};
-		169990A62700E20E00224E11 /* dayCycle */ = {
+		169990A62700E20E00224E11 /* naturalLight */ = {
 			isa = PBXGroup;
 			children = (
-				169990A82700E25300224E11 /* dayCycle.hpp */,
-				169990A72700E25300224E11 /* dayCycle.cpp */,
+				169990A82700E25300224E11 /* naturalLight.hpp */,
+				169990A72700E25300224E11 /* naturalLight.cpp */,
 			);
-			path = dayCycle;
+			path = naturalLight;
 			sourceTree = "<group>";
 		};
 		169AD3A027023B590096D80D /* blocks */ = {
@@ -736,7 +736,7 @@
 		16B36D2A2681FF0400A4B03A /* items */ = {
 			isa = PBXGroup;
 			children = (
-				16B36D2D2682000F00A4B03A /* serverItems.hpp */,
+				16B36D2D2682000F00A4B03A /* items.hpp */,
 				16B36D2C2682000F00A4B03A /* items.cpp */,
 			);
 			path = items;
@@ -1195,7 +1195,7 @@
 				167C03AF26E1400D0045FEA9 /* rectShape.cpp in Sources */,
 				36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */,
 				166D85E026AAB7EC00DB87B1 /* packetHandling.cpp in Sources */,
-				169990A92700E25300224E11 /* dayCycle.cpp in Sources */,
+				169990A92700E25300224E11 /* naturalLight.cpp in Sources */,
 				167513C426A498DA00E21C68 /* biomes.cpp in Sources */,
 				166D85D526AA0B9E00DB87B1 /* rect.cpp in Sources */,
 				1675E71D26611B8000B620F4 /* configManager.cpp in Sources */,
@@ -1246,7 +1246,7 @@
 				361DD1BC26F7478900129191 /* compress.cpp in Sources */,
 				361DD1BD26F7478900129191 /* rectShape.cpp in Sources */,
 				361DD1BE26F7478900129191 /* properties.cpp in Sources */,
-				169990AA2700E25300224E11 /* dayCycle.cpp in Sources */,
+				169990AA2700E25300224E11 /* naturalLight.cpp in Sources */,
 				361DD1BF26F7478900129191 /* packetHandling.cpp in Sources */,
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
 				361DD1C126F7478900129191 /* rect.cpp in Sources */,

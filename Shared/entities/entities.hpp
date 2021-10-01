@@ -1,5 +1,4 @@
-#ifndef entities_hpp
-#define entities_hpp
+#pragma once
 
 #include <vector>
 #include "blocks.hpp"
@@ -45,6 +44,12 @@ public:
     Entity* entity;
 };
 
+class EntityDeletionEvent {
+public:
+    explicit EntityDeletionEvent(Entity* entity) : entity(entity) {}
+    Entity* entity;
+};
+
 class Entities {
     std::vector<Entity*> entities;
     Blocks* blocks;
@@ -65,6 +70,5 @@ public:
     
     EventSender<EntityPositionChangeEvent> entity_position_change_event;
     EventSender<EntityVelocityChangeEvent> entity_velocity_change_event;
+    EventSender<EntityDeletionEvent> entity_deletion_event;
 };
-
-#endif

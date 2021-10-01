@@ -27,6 +27,14 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             entities->setY(entity, y);
             break;
         }
+        case PacketType::ENTITY_DELETION: {
+            unsigned short id;
+            event.packet >> id;
+            
+            Entity* entity = entities->getEntityById(id);
+            entities->removeEntity(entity);
+            break;
+        }
         default:;
     }
 }

@@ -1,5 +1,4 @@
-#ifndef packetType_hpp
-#define packetType_hpp
+#pragma once
 
 #include <SFML/Network.hpp>
 
@@ -8,16 +7,16 @@ enum class PacketType {
     BLOCK, LIQUID,
     
     // entities
-    ENTITY_VELOCITY, ENTITY_POSITION,
+    ENTITY_VELOCITY, ENTITY_POSITION, ENTITY_DELETION,
     
     // players
-    PLAYER_JOIN, PLAYER_LEAVE, PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
+    PLAYER_JOIN, PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
     
     // view
     VIEW_SIZE, VIEW_POS,
     
     // items
-    ITEM_CREATION, ITEM_DELETION,
+    ITEM_CREATION,
     
     // inventory
     INVENTORY, INVENTORY_SWAP, HOTBAR_SELECTION, RECIPE_AVAILABILTY_CHANGE, CRAFT,
@@ -31,5 +30,3 @@ enum class PacketType {
 
 sf::Packet& operator<<(sf::Packet& packet, PacketType packet_type);
 sf::Packet& operator>>(sf::Packet& packet, PacketType& packet_type);
-
-#endif
