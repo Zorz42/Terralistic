@@ -2,10 +2,6 @@
 
 void ClientPlayers::init() {
     manager->packet_event.addListener(this);
-    
-    sf::Packet packet;
-    packet << PacketType::VIEW_SIZE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
-    manager->sendPacket(packet);
 }
 
 #define RUN_SPEED 18
@@ -15,7 +11,7 @@ void ClientPlayers::init() {
 
 void ClientPlayers::update() {
     if(main_player) {
-        static int prev_x, prev_y, prev_view_x, prev_view_y;
+        static int prev_x, prev_y;
         float vel_x_change = 0, vel_y_change = 0;
         
         MovingType prev_moving_type = main_player->moving_type;
@@ -102,16 +98,6 @@ void ClientPlayers::update() {
             manager->sendPacket(packet);
         }
         
-        static unsigned short prev_width = gfx::getWindowWidth(), prev_height = gfx::getWindowHeight();
-        if(prev_width != gfx::getWindowWidth() || prev_height != gfx::getWindowHeight()) {
-            sf::Packet packet;
-            packet << PacketType::VIEW_SIZE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
-            manager->sendPacket(packet);
-
-            prev_width = gfx::getWindowWidth();
-            prev_height = gfx::getWindowHeight();
-        }
-        
         float speed_multiplier = 1;
         
         unsigned short starting_x = (main_player->getX()) / (BLOCK_WIDTH * 2);
@@ -143,12 +129,6 @@ void ClientPlayers::update() {
             manager->sendPacket(packet);
         }
         
-        if(prev_view_x != client_blocks->view_x || prev_view_y != client_blocks->view_y) {
-            sf::Packet packet;
-            packet << PacketType::VIEW_POS << client_blocks->view_x << client_blocks->view_y;
-            manager->sendPacket(packet);
-        }
-        
         if(prev_moving_type != main_player->moving_type) {
             sf::Packet packet;
             packet << PacketType::PLAYER_MOVING_TYPE << (unsigned char)main_player->moving_type;
@@ -157,7 +137,5 @@ void ClientPlayers::update() {
         
         prev_x = main_player->getX();
         prev_y = main_player->getY();
-        prev_view_x = client_blocks->view_x;
-        prev_view_y = client_blocks->view_y;
     }
 }

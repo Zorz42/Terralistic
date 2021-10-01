@@ -212,19 +212,3 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
         if(neighbor[0] != -1 && custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate)
             custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate(blocks, neighbor[0], neighbor[1]);
 }
-
-unsigned short ServerPlayer::getSightBeginX() const {
-    return sight_x / (BLOCK_WIDTH * 2) - sight_width / 2;
-}
-
-unsigned short ServerPlayer::getSightEndX() const {
-    return sight_x / (BLOCK_WIDTH * 2) + sight_width / 2;
-}
-
-unsigned short ServerPlayer::getSightBeginY() const {
-    return sight_y / (BLOCK_WIDTH * 2) - sight_height / 2;
-}
-
-unsigned short ServerPlayer::getSightEndY() const {
-    return sight_y / (BLOCK_WIDTH * 2) + sight_height / 2;
-}

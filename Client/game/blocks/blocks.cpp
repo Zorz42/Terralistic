@@ -103,7 +103,7 @@ void BlockRenderer::updateLights() {
         finished = true;
         for(int y = getViewBeginY(); y < getViewEndY(); y++)
             for(int x = getViewBeginX(); x < getViewEndX(); x++)
-                if(lights->hadScheduledLightUpdate(x, y)) {
+                if(lights->hasScheduledLightUpdate(x, y)) {
                     lights->updateLight(x, y);
                     finished = true;
                 }

@@ -72,7 +72,7 @@ void Lights::scheduleLightUpdate(unsigned short x, unsigned short y) {
     getLight(x, y)->update_light = true;
 }
 
-bool Lights::hadScheduledLightUpdate(unsigned short x, unsigned short y) {
+bool Lights::hasScheduledLightUpdate(unsigned short x, unsigned short y) {
     return getLight(x, y)->update_light;
 }
 

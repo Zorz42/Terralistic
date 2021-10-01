@@ -1,8 +1,6 @@
 #ifndef serverPlayers_hpp
 #define serverPlayers_hpp
 
-#define INVENTORY_SIZE 20
-
 #define PLAYER_HEIGHT 24
 #define PLAYER_WIDTH 14
 
@@ -10,47 +8,7 @@
 #include "items.hpp"
 #include "entities.hpp"
 #include "movingType.hpp"
-
-class ServerInventoryItemChangeEvent {
-public:
-    ServerInventoryItemChangeEvent(char item_pos) : item_pos(item_pos) {}
-    char item_pos;
-};
-
-class RecipeAvailabilityChangeEvent {};
-
-
-class ServerInventory {
-    ItemStack mouse_item;
-    unsigned int item_counts[(int)ItemType::NUM_ITEMS];
-    std::vector<const Recipe*> available_recipes;
-    ItemStack inventory_arr[INVENTORY_SIZE];
-    bool hasIngredientsForRecipe(const Recipe& recipe);
-public:
-    ServerInventory(char*& iter);
-    ServerInventory();
-    
-    unsigned char selected_slot = 0;
-    
-    const std::vector<const Recipe*>& getAvailableRecipes();
-    void updateAvailableRecipes();
-    
-    char addItem(ItemType id, int quantity);
-    char removeItem(ItemType id, int quantity);
-    void setItem(char pos, ItemStack item);
-    ItemStack getItem(char pos);
-    
-    ItemStack getSelectedSlot();
-    void swapWithMouseItem(char pos);
-    
-    unsigned short increaseStack(char pos, unsigned short stack);
-    unsigned short decreaseStack(char pos, unsigned short stack);
-    
-    void serialize(std::vector<char>& serial) const;
-    
-    EventSender<ServerInventoryItemChangeEvent> item_change_event;
-    EventSender<RecipeAvailabilityChangeEvent> recipe_availability_change_event;
-};
+#include "inventory.hpp"
 
 class ServerPlayerData {
 public:
@@ -61,7 +19,7 @@ public:
     
     std::string name;
     int x, y;
-    ServerInventory inventory;
+    Inventory inventory;
 };
 
 class ServerPlayer : public Entity {
@@ -69,14 +27,7 @@ public:
     explicit ServerPlayer(const ServerPlayerData& data) : Entity(EntityType::PLAYER, data.x, data.y), name(std::move(data.name)), inventory(data.inventory) { friction = false; }
     std::string name;
     
-    unsigned short sight_width = 0, sight_height = 0;
-    int sight_x = 0, sight_y = 0;
-    unsigned short getSightBeginX() const;
-    unsigned short getSightEndX() const;
-    unsigned short getSightBeginY() const;
-    unsigned short getSightEndY() const;
-    
-    ServerInventory inventory;
+    Inventory inventory;
     MovingType moving_type = MovingType::STANDING;
     
     bool breaking = false;

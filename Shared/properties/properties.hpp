@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 enum class BlockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, NUM_BLOCKS};
 enum class ItemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, NUM_ITEMS};
@@ -41,17 +42,10 @@ struct LiquidInfo {
     float speed_multiplier;
 };
 
-struct ItemStack {
-    ItemStack(ItemType type, unsigned short stack) : type(type), stack(stack) {}
-    ItemStack() = default;
-    ItemType type = ItemType::NOTHING;
-    unsigned short stack = 0;
-};
-
 struct Recipe {
-    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(std::move(ingredients)), result(result) {}
-    std::vector<ItemStack> ingredients;
-    ItemStack result;
+    std::unordered_map<ItemType, unsigned short> ingredients;
+    unsigned short result_stack;
+    ItemType result_type;
 };
 
 void initProperties();

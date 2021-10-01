@@ -1,7 +1,7 @@
 #include "minimap.hpp"
 
-#define MINIMAP_SIZE 100
-#define MINIMAP_SCALE 2
+#define MINIMAP_SIZE 200
+#define MINIMAP_SCALE 1
 
 void Minimap::init() {
     back_rect.orientation = gfx::TOP_RIGHT;
@@ -49,6 +49,9 @@ void Minimap::render() {
                 block_color = block_colors[(int)blocks->getBlockType(block_x, block_y)];
                 liquid_color = liquid_colors[(int)blocks->getBlockType(block_x, block_y)];
                 light_level = lights->getLightLevel(block_x, block_y);
+                
+                if(lights->hasScheduledLightUpdate(block_x, block_y))
+                    lights->updateLight(block_x, block_y);
             }
             
             block_pixels.setPixel(x, y, block_color);

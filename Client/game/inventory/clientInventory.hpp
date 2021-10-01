@@ -6,6 +6,7 @@
 #include "clientNetworking.hpp"
 #include "blockRenderer.hpp"
 #include "resourcePack.hpp"
+#include "inventory.hpp"
 
 #define INVENTORY_SIZE 20
 #define INVENTORY_UI_SPACING 10

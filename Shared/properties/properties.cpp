@@ -70,12 +70,32 @@ void initProperties() {
     liquid_infos[(int)LiquidType::WATER] = LiquidInfo(/*name*/"water", /*flow_time*/100, /*speed_multiplier*/0.5);
     
     // recipes
-    recipes = {
-        Recipe({{ItemType::STONE_BLOCK, 1}},                {ItemType::DIRT, 2}),
-        Recipe({{ItemType::WOOD_PLANKS, 4}},                {ItemType::DIRT, 1}),
-        Recipe({{ItemType::STONE, 2}, {ItemType::DIRT, 2}}, {ItemType::STONE_BLOCK, 1}),
-    };
+    {
+        Recipe recipe;
+        recipe.result_type = ItemType::DIRT;
+        recipe.result_stack = 2;
+        recipe.ingredients[ItemType::STONE_BLOCK] = 1;
+        recipes.push_back(recipe);
+    }
+    
+    {
+        Recipe recipe;
+        recipe.result_type = ItemType::DIRT;
+        recipe.result_stack = 1;
+        recipe.ingredients[ItemType::WOOD_PLANKS] = 1;
+        recipes.push_back(recipe);
+    }
+    
+    {
+        Recipe recipe;
+        recipe.result_type = ItemType::STONE_BLOCK;
+        recipe.result_stack = 1;
+        recipe.ingredients[ItemType::STONE] = 2;
+        recipe.ingredients[ItemType::DIRT] = 2;
+        recipes.push_back(recipe);
+    }
 }
+
 BlockType getBlockTypeByName(const std::string& name) {
     for(int i = 0; i < (int)BlockType::NUM_BLOCKS; i++)
         if(getBlockInfo((BlockType)i).name == name)

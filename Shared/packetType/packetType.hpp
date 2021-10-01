@@ -12,9 +12,6 @@ enum class PacketType {
     // players
     PLAYER_JOIN, PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
     
-    // view
-    VIEW_SIZE, VIEW_POS,
-    
     // items
     ITEM_CREATION,
     

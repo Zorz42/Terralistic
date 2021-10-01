@@ -33,7 +33,7 @@ public:
     void setLightSource(unsigned short x, unsigned short y, unsigned char level);
     unsigned char getLightLevel(unsigned short x, unsigned short y);
     void scheduleLightUpdate(unsigned short x, unsigned short y);
-    bool hadScheduledLightUpdate(unsigned short x, unsigned short y);
+    bool hasScheduledLightUpdate(unsigned short x, unsigned short y);
 };
 
 class LightOutOfBoundsException : public std::exception {

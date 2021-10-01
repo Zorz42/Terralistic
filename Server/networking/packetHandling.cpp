@@ -24,11 +24,6 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             break;
         }
 
-        case PacketType::VIEW_SIZE: {
-            packet >> conn.player->sight_width >> conn.player->sight_height;
-            break;
-        }
-
         case PacketType::PLAYER_VELOCITY: {
             float velocity_x, velocity_y;
             packet >> velocity_x >> velocity_y;
@@ -64,18 +59,14 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             break;
         }
             
-        case PacketType::VIEW_POS: {
-            packet >> conn.player->sight_x >> conn.player->sight_y;
-            break;
-        }
-            
         case PacketType::CRAFT: {
             unsigned char craft_index;
             packet >> craft_index;
             const Recipe* recipe_crafted = conn.player->inventory.getAvailableRecipes()[(int)craft_index];
-            conn.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
-            for(const ItemStack& ingredient : recipe_crafted->ingredients)
-                conn.player->inventory.removeItem(ingredient.type, ingredient.stack);
+            conn.player->inventory.addItem(recipe_crafted->result_type, recipe_crafted->result_stack);
+            
+            for(auto ingredient : recipe_crafted->ingredients)
+                conn.player->inventory.removeItem(ingredient.first, ingredient.second);
         }
             
         case PacketType::PLAYER_MOVING_TYPE: {
@@ -154,7 +145,7 @@ void ServerNetworkingManager::onEvent(EntityPositionChangeEvent& event) {
     sendToEveryone(packet);
 }
 
-void Connection::onEvent(ServerInventoryItemChangeEvent& event) {
+void Connection::onEvent(InventoryItemChangeEvent& event) {
     ItemStack item = player->inventory.getItem(event.item_pos);
     sf::Packet packet;
     packet << PacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;

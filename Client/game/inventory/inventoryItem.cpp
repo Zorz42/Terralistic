@@ -57,12 +57,12 @@ void DisplayRecipe::render(unsigned short mouse_x, unsigned short mouse_y) {
 DisplayRecipe::DisplayRecipe(const Recipe* recipe, ResourcePack* resource_pack, int x, int y) : recipe(recipe), result_display(resource_pack) {
     result_display.x = x;
     result_display.y = y;
-    result_display.type = recipe->result.type;
-    result_display.setStack(recipe->result.stack);
-    for(const ItemStack& ingredient : recipe->ingredients) {
+    result_display.type = recipe->result_type;
+    result_display.setStack(recipe->result_stack);
+    for(auto ingredient : recipe->ingredients) {
         ingredients.emplace_back(resource_pack);
-        ingredients.back().type = ingredient.type;
-        ingredients.back().setStack(ingredient.stack);
+        ingredients.back().type = ingredient.first;
+        ingredients.back().setStack(ingredient.second);
     }
 }
 
