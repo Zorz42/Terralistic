@@ -6,7 +6,7 @@
 
 #include <utility>
 
-biome::biome(Biome name, int height, int height_variation, std::vector <layer> layers, std::vector <structureChance> structure_chance){
+Biome::Biome(BiomeType name, int height, int height_variation, std::vector <BiomeLayer> layers, std::vector <StructureChance> structure_chance) {
     biome_name = name;
     surface_height = height;
     surface_height_variation = height_variation;
@@ -14,14 +14,14 @@ biome::biome(Biome name, int height, int height_variation, std::vector <layer> l
     structure_chances = std::move(structure_chance);
 }
 
-layer::layer(BlockType cblock, LayerHeightMode height_mode, int cheight, int variation) {
+BiomeLayer::BiomeLayer(BlockType cblock, LayerHeightMode height_mode, int cheight, int variation) {
     block = cblock;
     layer_height_mode = height_mode;
     height = cheight;
     height_variation = variation;
 }
 
-structureChance::structureChance(std::string name, float chance_on_block, int least_distance, int unique_structures) {
+StructureChance::StructureChance(std::string name, float chance_on_block, int least_distance, int unique_structures) {
     structure_name = std::move(name);
     chance_on_each_block = chance_on_block;
     least_distance_between_instances =  least_distance;
@@ -31,5 +31,5 @@ structureChance::structureChance(std::string name, float chance_on_block, int le
 }
 
 void Biomes::create(unsigned short width) {
-    biomes = new Biome[width];
+    biomes = new BiomeType[width];
 }

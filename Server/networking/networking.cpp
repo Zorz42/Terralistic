@@ -76,9 +76,6 @@ void ServerNetworkingManager::init() {
     items->item_creation_event.addListener(this);
     entities->entity_deletion_event.addListener(this);
     entities->entity_velocity_change_event.addListener(this);
-    players->inventory_item_stack_change_event.addListener(this);
-    players->inventory_item_type_change_event.addListener(this);
-    players->recipe_availability_change_event.addListener(this);
     entities->entity_position_change_event.addListener(this);
 }
 
@@ -91,6 +88,9 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 if(status == sf::Socket::NotReady)
                     break;
                 else if(status == sf::Socket::Disconnected) {
+                    connections[i].player->inventory.item_change_event.removeListener(&connections[i]);
+                    connections[i].player->inventory.recipe_availability_change_event.removeListener(&connections[i]);
+                    
                     players->savePlayer(connections[i].player);
                     entities->removeEntity(connections[i].player);
                     
@@ -137,6 +137,9 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 ServerPlayer* player = players->addPlayer(player_name);
                 connections[i].player = player;
                 
+                player->inventory.item_change_event.addListener(&connections[i]);
+                player->inventory.recipe_availability_change_event.addListener(&connections[i]);
+                
                 std::vector<char> map_data;
                 blocks->serialize(map_data);
                 liquids->serialize(map_data);
@@ -166,9 +169,6 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     }
                 }
                 
-                for(InventoryItem& curr_item : player->inventory.inventory_arr)
-                    if(curr_item.getType() != ItemType::NOTHING)
-                        sendInventoryItemPacket(connections[i], curr_item, curr_item.getType(), curr_item.getStack());
                 player->inventory.updateAvailableRecipes();
                 
                 sf::Packet join_packet;

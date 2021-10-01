@@ -40,7 +40,7 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
         case PacketType::INVENTORY_SWAP: {
             unsigned char pos;
             packet >> pos;
-            conn.player->inventory.swapWithMouseItem(&conn.player->inventory.inventory_arr[pos]);
+            conn.player->inventory.swapWithMouseItem(pos);
             break;
         }
 
@@ -140,40 +140,6 @@ void ServerNetworkingManager::onEvent(EntityVelocityChangeEvent& event) {
     sendToEveryone(packet, exclusion);
 }
 
-void ServerNetworkingManager::sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack) {
-    sf::Packet packet;
-    packet << PacketType::INVENTORY << stack << (unsigned char)type << item.getPosInInventory();
-    connection.send(packet);
-}
-
-void ServerNetworkingManager::onEvent(ServerInventoryItemStackChangeEvent& event) {
-    for(Connection& connection : connections)
-        if(connection.player && &connection.player->inventory == event.item.getInventory()) {
-            sendInventoryItemPacket(connection, event.item, event.item.getType(), event.stack);
-            break;
-        }
-}
-
-void ServerNetworkingManager::onEvent(ServerInventoryItemTypeChangeEvent& event) {
-    for(Connection& connection : connections)
-        if(connection.player && &connection.player->inventory == event.item.getInventory()) {
-            sendInventoryItemPacket(connection, event.item, event.type, event.item.getStack());
-            break;
-        }
-}
-
-void ServerNetworkingManager::onEvent(RecipeAvailabilityChangeEvent& event) {
-    for(Connection& connection : connections)
-        if(connection.player && &connection.player->inventory == event.inventory) {
-            sf::Packet packet;
-            packet << PacketType::RECIPE_AVAILABILTY_CHANGE << (unsigned short)event.inventory->getAvailableRecipes().size();
-            for(const Recipe* recipe : event.inventory->getAvailableRecipes())
-                packet << getRecipeIndex(recipe);
-            connection.send(packet);
-            break;
-        }
-}
-
 void ServerNetworkingManager::syncEntityPositions() {
     for(Entity* entity : entities->getEntities()) {
         sf::Packet packet;
@@ -186,4 +152,19 @@ void ServerNetworkingManager::onEvent(EntityPositionChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::ENTITY_POSITION << event.entity->getX() << event.entity->getY() << event.entity->id;
     sendToEveryone(packet);
+}
+
+void Connection::onEvent(ServerInventoryItemChangeEvent& event) {
+    ItemStack item = player->inventory.getItem(event.item_pos);
+    sf::Packet packet;
+    packet << PacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
+    send(packet);
+}
+
+void Connection::onEvent(RecipeAvailabilityChangeEvent& event) {
+    sf::Packet packet;
+    packet << PacketType::RECIPE_AVAILABILTY_CHANGE << (unsigned short)player->inventory.getAvailableRecipes().size();
+    for(const Recipe* recipe : player->inventory.getAvailableRecipes())
+        packet << getRecipeIndex(recipe);
+    send(packet);
 }

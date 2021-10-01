@@ -1,93 +1,61 @@
 #include "serverPlayers.hpp"
 #include "properties.hpp"
 
-void InventoryItem::setTypeDirectly(ItemType type_) {
-    inventory->item_counts[(int)type] -= stack;
-    inventory->item_counts[(int)type_] += stack;
-    type = type_;
+void ServerInventory::setItem(char pos, ItemStack item) {
+    item_counts[(int)getItem(pos).type] -= getItem(pos).stack;
+    item_counts[(int)item.type] += item.stack;
+    ItemStack& item_stack = pos == -1 ? mouse_item : inventory_arr[pos];
+    item_stack = item;
+    updateAvailableRecipes();
+    
+    ServerInventoryItemChangeEvent event(pos);
+    item_change_event.call(event);
 }
 
-void InventoryItem::setType(ItemType type_) {
-    if(type != type_) {
-        ServerInventoryItemTypeChangeEvent event(*this, type_);
-        inventory->getPlayers()->inventory_item_type_change_event.call(event);
-
-        setTypeDirectly(type_);
-        inventory->updateAvailableRecipes();
-    }
-}
-
-const ItemInfo& InventoryItem::getUniqueItem() const {
-    return ::getItemInfo(type);
-}
-
-void InventoryItem::setStackDirectly(unsigned short stack_) {
-    inventory->item_counts[(int)type] += (int)stack_ - stack;
-    stack = stack_;
-}
-
-void InventoryItem::setStack(unsigned short stack_) {
-    if(stack != stack_) {
-        ServerInventoryItemStackChangeEvent event(*this, stack_);
-        inventory->getPlayers()->inventory_item_stack_change_event.call(event);
-        
-        setStackDirectly(stack_);
-        inventory->updateAvailableRecipes();
-        if(!stack)
-            setType(ItemType::NOTHING);
-    }
-}
-
-unsigned short InventoryItem::getStack() const {
-    return stack;
-}
-
-unsigned short InventoryItem::increaseStack(unsigned short stack_) {
-    int stack_to_be = stack + stack_, result;
-    if(stack_to_be > getUniqueItem().stack_size)
-        stack_to_be = getUniqueItem().stack_size;
-    result = stack_to_be - stack;
-    setStack((unsigned short)stack_to_be);
+unsigned short ServerInventory::increaseStack(char pos, unsigned short stack) {
+    int stack_to_be = getItem(pos).stack + stack, result;
+    if(stack_to_be > ::getItemInfo(getItem(pos).type).stack_size)
+        stack_to_be = ::getItemInfo(getItem(pos).type).stack_size;
+    result = stack_to_be - getItem(pos).stack;
+    setItem(pos, ItemStack(getItem(pos).type, stack_to_be));
     return (unsigned short)result;
 }
 
-unsigned short InventoryItem::decreaseStack(unsigned short stack_) {
-    if(stack_ > stack) {
-        unsigned short prev_stack = stack;
-        setStack(0);
+unsigned short ServerInventory::decreaseStack(char pos, unsigned short stack) {
+    if(stack >= getItem(pos).stack) {
+        unsigned short prev_stack = getItem(pos).stack;
+        setItem(pos, ItemStack(ItemType::NOTHING, 0));
         return prev_stack;
     } else {
-        setStack(stack - stack_);
-        return stack_;
+        setItem(pos, ItemStack(getItem(pos).type, getItem(pos).stack - stack));
+        return stack;
     }
 }
 
-short InventoryItem::getPosInInventory() {
-    if(this == &inventory->mouse_item)
-        return -1;
-    else
-        return this - &inventory->inventory_arr[0];
+ServerInventory::ServerInventory(char*& iter) {
+    for(ItemStack& item : inventory_arr) {
+        item.type = (ItemType)*iter++;
+        item.stack = *(short*)iter;
+        iter += 2;
+    }
 }
 
-ServerInventory::ServerInventory(ServerPlayers* players) : players(players) {
-    for(InventoryItem& i : inventory_arr)
-        i = InventoryItem(this);
-    
+ServerInventory::ServerInventory() {
     for(unsigned int& i : item_counts)
         i = 0;
 }
 
 char ServerInventory::addItem(ItemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].getType() == id) {
-            quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
+        if(getItem(i).type == id) {
+            quantity -= increaseStack(i, (unsigned short)quantity);
             if(!quantity)
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].getType() == ItemType::NOTHING) {
-            inventory_arr[i].setType(id);
-            quantity -= inventory_arr[i].increaseStack((unsigned short)quantity);
+        if(getItem(i).type == ItemType::NOTHING) {
+            setItem(i, ItemStack(id, getItem(i).stack));
+            quantity -= increaseStack(i, (unsigned short)quantity);
             if(!quantity)
                 return (char)i;
         }
@@ -96,40 +64,41 @@ char ServerInventory::addItem(ItemType id, int quantity) {
 
 char ServerInventory::removeItem(ItemType id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(inventory_arr[i].getType() == id) {
-            quantity -= inventory_arr[i].decreaseStack((unsigned short)quantity);
+        if(inventory_arr[i].type == id) {
+            quantity -= decreaseStack(i, (unsigned short)quantity);
             if(!quantity)
                 return (char)i;
         }
-    if(mouse_item.getType() == id) {
-        quantity -= mouse_item.decreaseStack((unsigned short)quantity);
+    if(mouse_item.type == id) {
+        quantity -= decreaseStack(-1, (unsigned short)quantity);
         if(!quantity)
             return (char)-1;
     }
     return -1;
 }
 
-InventoryItem* ServerInventory::getSelectedSlot() {
-    return &inventory_arr[(int)selected_slot];
+ItemStack ServerInventory::getItem(char pos) {
+    if(pos == -1)
+        return mouse_item;
+    return inventory_arr[pos];
 }
 
-void ServerInventory::swapWithMouseItem(InventoryItem* item) {
-    InventoryItem temp = mouse_item;
-    mouse_item = *item;
-    *item = temp;
+ItemStack ServerInventory::getSelectedSlot() {
+    return getItem(selected_slot);
 }
 
-char* InventoryItem::loadFromSerial(char* iter) {
-    setTypeDirectly((ItemType)*iter++);
-    setStackDirectly(*(short*)iter);
-    iter += 2;
-    return iter;
+void ServerInventory::swapWithMouseItem(char pos) {
+    ItemStack temp = mouse_item;
+    mouse_item = inventory_arr[pos];
+    inventory_arr[pos] = temp;
 }
 
-void InventoryItem::serialize(std::vector<char>& serial) const {
-    serial.push_back((char)getType());
-    serial.insert(serial.end(), {0, 0});
-    *(short*)&serial[serial.size() - 2] = getStack();
+void ServerInventory::serialize(std::vector<char> &serial) const {
+    for(ItemStack item : inventory_arr) {
+        serial.push_back((char)item.type);
+        serial.insert(serial.end(), {0, 0});
+        *(short*)&serial[serial.size() - 2] = item.stack;
+    }
 }
 
 bool ServerInventory::hasIngredientsForRecipe(const Recipe& recipe) {
@@ -148,8 +117,8 @@ void ServerInventory::updateAvailableRecipes() {
     
     if(available_recipes != new_available_recipes) {
         available_recipes = new_available_recipes;
-        RecipeAvailabilityChangeEvent event(this);
-        getPlayers()->recipe_availability_change_event.call(event);
+        RecipeAvailabilityChangeEvent event;
+        recipe_availability_change_event.call(event);
     }
 }
 

@@ -43,8 +43,8 @@ ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items) :
     };
 
     custom_block_events[(int)BlockType::AIR].onRightClick = [](Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) {
-        BlockType type = player->inventory.getSelectedSlot()->getUniqueItem().places;
-        if(type != BlockType::AIR && player->inventory.inventory_arr[player->inventory.selected_slot].decreaseStack(1)) {
+        BlockType type = ::getItemInfo(player->inventory.getSelectedSlot().type).places;
+        if(type != BlockType::AIR && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
             blocks->setBlockType(x, y, type);
         }
     };
@@ -87,14 +87,14 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
         }
         spawn_y -= PLAYER_HEIGHT * 2;
         
-        player_data = new ServerPlayerData(this);
+        player_data = new ServerPlayerData();
         player_data->name = name;
         player_data->x = spawn_x;
         player_data->y = spawn_y;
         all_players.emplace_back(player_data);
     }
     
-    ServerPlayer* player = new ServerPlayer(this, *player_data);
+    ServerPlayer* player = new ServerPlayer(*player_data);
     entities->registerEntity(player);
     return player;
 }
@@ -153,18 +153,15 @@ void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsi
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
-    all_players.emplace_back(new ServerPlayerData(this, iter));
+    all_players.emplace_back(new ServerPlayerData(iter));
     return iter;
 }
 
-ServerPlayerData::ServerPlayerData(ServerPlayers* players, char*& iter) : inventory(players) {
+ServerPlayerData::ServerPlayerData(char*& iter) : inventory(iter) {
     x = *(int*)iter;
     iter += 4;
     y = *(int*)iter;
     iter += 4;
-     
-    for(InventoryItem& i : inventory.inventory_arr)
-        iter = i.loadFromSerial(iter);
     
     while(*iter)
         name.push_back(*iter++);
@@ -180,14 +177,13 @@ bool ServerPlayer::isColliding(Blocks* blocks) {
 }
 
 void ServerPlayerData::serialize(std::vector<char>& serial) const {
+    inventory.serialize(serial);
+    
     serial.insert(serial.end(), {0, 0, 0, 0});
     *(int*)&serial[serial.size() - 4] = x;
     
     serial.insert(serial.end(), {0, 0, 0, 0});
     *(int*)&serial[serial.size() - 4] = y;
-    
-    for(const InventoryItem& i : inventory.inventory_arr)
-        i.serialize(serial);
     
     serial.insert(serial.end(), name.begin(), name.end() + 1);
 }

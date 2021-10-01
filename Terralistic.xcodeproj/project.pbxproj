@@ -530,6 +530,13 @@
 			path = biomes;
 			sourceTree = "<group>";
 		};
+		1675818C27072BAF00422C07 /* inventory */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = inventory;
+			sourceTree = "<group>";
+		};
 		1675E71A26611B6300B620F4 /* configManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -612,6 +619,7 @@
 				169990A62700E20E00224E11 /* naturalLight */,
 				3692C14C26E506A100F9DD71 /* entities */,
 				16B36D2A2681FF0400A4B03A /* items */,
+				1675818C27072BAF00422C07 /* inventory */,
 			);
 			path = Shared;
 			sourceTree = "<group>";

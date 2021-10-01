@@ -59,7 +59,7 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
 
     int biome_heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
-    biomes->biomes[x] = (Biome)((biome_heat * 4) + biome_height);
+    biomes->biomes[x] = (BiomeType)((biome_heat * 4) + biome_height);
     //biomes->biomes[x] = Biome::ICY_SEAS;
 }
 
@@ -79,7 +79,7 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
 void worldGenerator::generateSurface(int x, int surface_height, SimplexNoise &noise) {
     int last_layer = surface_height + 1;
     int generating_layer = 0;
-    biome &slice_biome = loaded_biomes[(int)biomes->biomes[x]];
+    Biome &slice_biome = loaded_biomes[(int)biomes->biomes[x]];
     for(int y = std::max(blocks->getHeight() / 3 * 2, surface_height); y > 0; y--) {
         if (y > surface_height) {
             liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidType::WATER);
@@ -188,7 +188,7 @@ void worldGenerator::generateStructureWorld(){
 
 void worldGenerator::generateFlatTerrain() {
     for (int x = 0; x < blocks->getWidth(); x++) {
-        biomes->biomes[x] = Biome::PLAINS;
+        biomes->biomes[x] = BiomeType::PLAINS;
     }
     for (int x = 0; x < blocks->getWidth(); x++) {
         for (int y = 0; y < blocks->getHeight(); y++) {
@@ -235,59 +235,59 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
 }
 
 void worldGenerator::loadBiomes() {
-    loaded_biomes.push_back(biome(Biome::ICY_SEAS, blocks->getHeight() / 3 * 2, 0,
-                                  {layer(BlockType::ICE, LayerHeightMode::PREVIOUS_LAYER, 3, 1),
-                                  layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight() / 3 * 2 - 50, 10)},
+    loaded_biomes.push_back(Biome(BiomeType::ICY_SEAS, blocks->getHeight() / 3 * 2, 0,
+                                  {BiomeLayer(BlockType::ICE, LayerHeightMode::PREVIOUS_LAYER, 3, 1),
+                                  BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight() / 3 * 2 - 50, 10)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::SNOWY_TUNDRA, blocks -> getHeight() / 3 * 2 + 20, 4,
-                                  {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
-                                   layer(BlockType::SNOWY_GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
-                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::SNOWY_TUNDRA, blocks -> getHeight() / 3 * 2 + 20, 4,
+                                  {BiomeLayer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   BiomeLayer(BlockType::SNOWY_GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   BiomeLayer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                    {}));
-    loaded_biomes.push_back(biome(Biome::COLD_HILLS, blocks -> getHeight() / 3 * 2 + 29, 15,
-                                  {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
-                                   layer(BlockType::SNOWY_GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 1, 0),
-                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 4, 2),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::COLD_HILLS, blocks -> getHeight() / 3 * 2 + 29, 15,
+                                  {BiomeLayer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   BiomeLayer(BlockType::SNOWY_GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 1, 0),
+                                   BiomeLayer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 4, 2),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                    {}));
-    loaded_biomes.push_back(biome(Biome::SNOWY_MOUNTAINS, blocks -> getHeight() / 3 * 2 + 70, 37,
-                                  {layer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
-                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 2, 1),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::SNOWY_MOUNTAINS, blocks -> getHeight() / 3 * 2 + 70, 37,
+                                  {BiomeLayer(BlockType::SNOW_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   BiomeLayer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 2, 1),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::SEA, blocks->getHeight() / 3 * 2 - 50, 10,
-                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::SEA, blocks->getHeight() / 3 * 2 - 50, 10,
+                                  {BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::PLAINS, blocks -> getHeight() / 6 * 4 + 22, 4,
-                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
-                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
-                                  {structureChance("tree_", 5, 20, 2)
+    loaded_biomes.push_back(Biome(BiomeType::PLAINS, blocks -> getHeight() / 6 * 4 + 22, 4,
+                                  {BiomeLayer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   BiomeLayer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+                                  {StructureChance("tree_", 5, 20, 2)
                                   }));
-    loaded_biomes.push_back(biome(Biome::FOREST, blocks -> getHeight() / 3 * 2 + 26, 10,
-                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
-                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
-                                  {structureChance("tree_", 3, 6, 2)}));
-    loaded_biomes.push_back(biome(Biome::MOUNTAINS, blocks -> getHeight() / 3 * 2 + 70, 33,
-                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::FOREST, blocks -> getHeight() / 3 * 2 + 26, 10,
+                                  {BiomeLayer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   BiomeLayer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+                                  {StructureChance("tree_", 3, 6, 2)}));
+    loaded_biomes.push_back(Biome(BiomeType::MOUNTAINS, blocks -> getHeight() / 3 * 2 + 70, 33,
+                                  {BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::WARM_OCEAN, blocks->getHeight() / 3 * 2 - 50, 10,
-                                  {layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::WARM_OCEAN, blocks->getHeight() / 3 * 2 - 50, 10,
+                                  {BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::DESERT, blocks -> getHeight() / 6 * 4 + 22, 4,
-                                  {layer(BlockType::SAND, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::DESERT, blocks -> getHeight() / 6 * 4 + 22, 4,
+                                  {BiomeLayer(BlockType::SAND, LayerHeightMode::PREVIOUS_LAYER, 6, 2),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::SAVANA, blocks -> getHeight() / 3 * 2 + 26, 10,
-                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
-                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::SAVANA, blocks -> getHeight() / 3 * 2 + 26, 10,
+                                  {BiomeLayer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   BiomeLayer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                   {}));
-    loaded_biomes.push_back(biome(Biome::SAVANA_MOUNTAINS, blocks -> getHeight() / 3 * 2 + 50, 25,
-                                  {layer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
-                                   layer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
-                                   layer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
+    loaded_biomes.push_back(Biome(BiomeType::SAVANA_MOUNTAINS, blocks -> getHeight() / 3 * 2 + 50, 25,
+                                  {BiomeLayer(BlockType::GRASS_BLOCK, LayerHeightMode::PREVIOUS_LAYER, 2, 0),
+                                   BiomeLayer(BlockType::DIRT, LayerHeightMode::PREVIOUS_LAYER, 5, 2),
+                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight(), 0)},
                                   {}));
 }

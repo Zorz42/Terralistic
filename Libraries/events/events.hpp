@@ -17,7 +17,7 @@ public:
     }
     
     void removeListener(EventListener<EventInstance>* listener) {
-        listeners.erase(std::find(listeners.begin(), listeners.end(), this));
+        listeners.erase(std::find(listeners.begin(), listeners.end(), listener));
     }
     
     void call(EventInstance event) {
