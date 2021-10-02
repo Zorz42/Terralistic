@@ -65,7 +65,7 @@ BlockRenderer::RenderBlocks* BlockRenderer::getClientBlock(unsigned short x, uns
 void BlockRenderer::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case PacketType::BLOCK: {
-            unsigned short x, y;
+            int x, y;
             unsigned char block_type;
             event.packet >> x >> y >> block_type;
             
@@ -73,7 +73,7 @@ void BlockRenderer::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::LIQUID: {
-            unsigned short x, y;
+            int x, y;
             unsigned char liquid_type, liquid_level;
             event.packet >> x >> y >> liquid_type >> liquid_level;
             
@@ -83,7 +83,8 @@ void BlockRenderer::onEvent(ClientPacketEvent &event) {
             break;
         }
         case PacketType::BLOCK_PROGRESS: {
-            unsigned short x, y, progress;
+            int x, y;
+            unsigned short progress;
             event.packet >> x >> y >> progress;
             
             blocks->setBreakProgress(x, y, progress);
