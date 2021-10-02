@@ -31,7 +31,6 @@ Server::Server(std::string resource_path, std::string world_path) :
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     entities(&blocks),
     liquids(&blocks)
-    //day_cycle(&blocks)
 {}
 
 void Server::loadWorld() {
