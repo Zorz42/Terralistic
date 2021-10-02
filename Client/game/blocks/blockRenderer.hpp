@@ -12,12 +12,13 @@
 #define BLOCK_WIDTH 8
 #define MAX_LIGHT 100
 
-class BlockRenderer : EventListener<ClientPacketEvent> {
+class BlockRenderer : EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent> {
     struct RenderBlocks {
         unsigned char variation = rand(), state = 16;
     };
     
     void onEvent(ClientPacketEvent& event) override;
+    void onEvent(BlockChangeEvent& event) override;
     
     RenderBlocks* client_blocks;
     RenderBlocks* getClientBlock(unsigned short x, unsigned short y);

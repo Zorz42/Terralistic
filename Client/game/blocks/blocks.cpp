@@ -50,6 +50,7 @@ BlockRenderer::BlockRenderer(ResourcePack* resource_pack, NetworkingManager* man
 
 void BlockRenderer::init() {
     manager->packet_event.addListener(this);
+    blocks->block_change_event.addListener(this);
     view_x = blocks->getWidth() * BLOCK_WIDTH;
     view_y = 0;
 }
@@ -92,6 +93,14 @@ void BlockRenderer::onEvent(ClientPacketEvent &event) {
         }
         default:;
     }
+}
+
+void BlockRenderer::onEvent(BlockChangeEvent &event) {
+    updateState(event.x, event.y);
+    updateState(event.x + 1, event.y);
+    updateState(event.x - 1, event.y);
+    updateState(event.x, event.y + 1);
+    updateState(event.x, event.y - 1);
 }
 
 BlockRenderer::~BlockRenderer() {
