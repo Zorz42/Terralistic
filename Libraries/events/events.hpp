@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 template<class EventInstance>
 class EventListener {
@@ -23,5 +24,9 @@ public:
     void call(EventInstance event) {
         for(EventListener<EventInstance>* listener : listeners)
             listener->onEvent(event);
+    }
+    ~EventSender() {
+        if(!listeners.empty())
+            std::cout << "Warning: Event destructed with listeners!" << std::endl;
     }
 };
