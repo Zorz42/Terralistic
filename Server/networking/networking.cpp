@@ -89,7 +89,6 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     break;
                 else if(status == sf::Socket::Disconnected) {
                     connections[i].player->inventory.item_change_event.removeListener(&connections[i]);
-                    connections[i].player->inventory.recipe_availability_change_event.removeListener(&connections[i]);
                     
                     players->savePlayer(connections[i].player);
                     entities->removeEntity(connections[i].player);
@@ -138,11 +137,11 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 connections[i].player = player;
                 
                 player->inventory.item_change_event.addListener(&connections[i]);
-                player->inventory.recipe_availability_change_event.addListener(&connections[i]);
                 
                 std::vector<char> map_data;
                 blocks->serialize(map_data);
                 liquids->serialize(map_data);
+                player->inventory.serialize(map_data);
                 
                 sf::Packet welcome_packet;
                 welcome_packet << PacketType::WELCOME << player->getX() << player->getY() << blocks->getWidth() << blocks->getHeight();
@@ -168,8 +167,6 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                         connections[i].send(item_packet);
                     }
                 }
-                
-                player->inventory.updateAvailableRecipes();
                 
                 sf::Packet join_packet;
                 join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;

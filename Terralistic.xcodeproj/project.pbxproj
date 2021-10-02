@@ -85,7 +85,6 @@
 		361DD1A426F7478900129191 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		361DD1A526F7478900129191 /* centeredObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03AB26E13FB50045FEA9 /* centeredObject.cpp */; };
 		361DD1A626F7478900129191 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
-		361DD1A926F7478900129191 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
 		361DD1AA26F7478900129191 /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* networking.cpp */; };
 		361DD1AB26F7478900129191 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		361DD1AD26F7478900129191 /* sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03B426E141D10045FEA9 /* sprite.cpp */; };
@@ -140,7 +139,6 @@
 		3657220D26D07181005AB3CC /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D226D07180005AB3CC /* networking.cpp */; };
 		3657220E26D07181005AB3CC /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D426D07180005AB3CC /* chat.cpp */; };
 		3657220F26D07181005AB3CC /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D826D07180005AB3CC /* inventory.cpp */; };
-		3657221026D07181005AB3CC /* inventoryItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D926D07180005AB3CC /* inventoryItem.cpp */; };
 		3657221126D07181005AB3CC /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721DC26D07180005AB3CC /* debugMenu.cpp */; };
 		3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E026D07180005AB3CC /* pauseScreen.cpp */; };
 		3657221326D07181005AB3CC /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E226D07180005AB3CC /* items.cpp */; };
@@ -166,7 +164,6 @@
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		36DDF8AD2689F725002337F3 /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* players.cpp */; };
-		36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16987C1A2659010D0016509C /* inventory.cpp */; };
 		36DDF8B12689F725002337F3 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		36DDF8B22689F725002337F3 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 /* End PBXBuildFile section */
@@ -275,7 +272,6 @@
 		1690D7D626BA869F0007755C /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1695428D2680B5B400F1F4FE /* versions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = versions.hpp; sourceTree = "<group>"; };
-		16987C1A2659010D0016509C /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
 		169990A527004E3F00224E11 /* movingType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = movingType.hpp; sourceTree = "<group>"; };
 		169990A72700E25300224E11 /* naturalLight.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = naturalLight.cpp; sourceTree = "<group>"; };
 		169990A82700E25300224E11 /* naturalLight.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = naturalLight.hpp; sourceTree = "<group>"; };
@@ -328,7 +324,6 @@
 		365721D426D07180005AB3CC /* chat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chat.cpp; sourceTree = "<group>"; };
 		365721D526D07180005AB3CC /* chat.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = chat.hpp; sourceTree = "<group>"; };
 		365721D826D07180005AB3CC /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
-		365721D926D07180005AB3CC /* inventoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventoryItem.cpp; sourceTree = "<group>"; };
 		365721DA26D07180005AB3CC /* clientInventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientInventory.hpp; sourceTree = "<group>"; };
 		365721DC26D07180005AB3CC /* debugMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugMenu.cpp; sourceTree = "<group>"; };
 		365721DD26D07180005AB3CC /* debugMenu.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugMenu.hpp; sourceTree = "<group>"; };
@@ -644,7 +639,6 @@
 			children = (
 				168600DF2681DB7300763775 /* serverPlayers.hpp */,
 				168600DE2681DB7300763775 /* players.cpp */,
-				16987C1A2659010D0016509C /* inventory.cpp */,
 			);
 			path = players;
 			sourceTree = "<group>";
@@ -850,7 +844,6 @@
 			children = (
 				365721DA26D07180005AB3CC /* clientInventory.hpp */,
 				365721D826D07180005AB3CC /* inventory.cpp */,
-				365721D926D07180005AB3CC /* inventoryItem.cpp */,
 			);
 			path = inventory;
 			sourceTree = "<group>";
@@ -1174,7 +1167,6 @@
 				16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */,
 				3657221D26D07181005AB3CC /* main.cpp in Sources */,
 				16A3C01126FF871C001B9E4E /* commands.cpp in Sources */,
-				3657221026D07181005AB3CC /* inventoryItem.cpp in Sources */,
 				3657220D26D07181005AB3CC /* networking.cpp in Sources */,
 				167C03B826E141FC0045FEA9 /* button.cpp in Sources */,
 				16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */,
@@ -1182,7 +1174,6 @@
 				167C03AC26E13FB50045FEA9 /* centeredObject.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* players.cpp in Sources */,
 				3657221326D07181005AB3CC /* items.cpp in Sources */,
-				36DDF8AE2689F725002337F3 /* inventory.cpp in Sources */,
 				1673274C26A80EF40063281A /* networking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */,
@@ -1249,7 +1240,6 @@
 				167581902707687E00422C07 /* inventory.cpp in Sources */,
 				16A3BFF326FF85F6001B9E4E /* pixelGrid.cpp in Sources */,
 				361DD1A626F7478900129191 /* players.cpp in Sources */,
-				361DD1A926F7478900129191 /* inventory.cpp in Sources */,
 				361DD1AA26F7478900129191 /* networking.cpp in Sources */,
 				361DD1AB26F7478900129191 /* print.cpp in Sources */,
 				361DD1AD26F7478900129191 /* sprite.cpp in Sources */,

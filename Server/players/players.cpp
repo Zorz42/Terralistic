@@ -157,7 +157,9 @@ char* ServerPlayers::addPlayerFromSerial(char* iter) {
     return iter;
 }
 
-ServerPlayerData::ServerPlayerData(char*& iter) : inventory(iter) {
+ServerPlayerData::ServerPlayerData(char*& iter) {
+    iter = inventory.loadFromSerial(iter);
+    
     x = *(int*)iter;
     iter += 4;
     y = *(int*)iter;

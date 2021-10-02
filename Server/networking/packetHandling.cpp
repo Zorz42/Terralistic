@@ -151,11 +151,3 @@ void Connection::onEvent(InventoryItemChangeEvent& event) {
     packet << PacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
     send(packet);
 }
-
-void Connection::onEvent(RecipeAvailabilityChangeEvent& event) {
-    sf::Packet packet;
-    packet << PacketType::RECIPE_AVAILABILTY_CHANGE << (unsigned short)player->inventory.getAvailableRecipes().size();
-    for(const Recipe* recipe : player->inventory.getAvailableRecipes())
-        packet << getRecipeIndex(recipe);
-    send(packet);
-}

@@ -225,6 +225,7 @@ void Game::handshakeWithServer() {
     char* iter = &map_data[0];
     iter = blocks.loadFromSerial(iter);
     iter = liquids.loadFromSerial(iter);
+    iter = inventory.loadFromSerial(iter);
     
     for(int x = 0; x < blocks.getWidth(); x++)
         for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlockInfo(x, y).transparent; y++)

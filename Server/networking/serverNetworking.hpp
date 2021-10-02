@@ -7,12 +7,11 @@
 #include "serverPlayers.hpp"
 #include "commands.hpp"
 
-class Connection : public EventListener<InventoryItemChangeEvent>, public EventListener<RecipeAvailabilityChangeEvent> {
+class Connection : public EventListener<InventoryItemChangeEvent> {
     sf::TcpSocket* socket;
     sf::Packet master_packet;
     
     void onEvent(InventoryItemChangeEvent& event) override;
-    void onEvent(RecipeAvailabilityChangeEvent& event) override;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
     ServerPlayer* player = nullptr;

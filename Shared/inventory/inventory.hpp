@@ -19,8 +19,6 @@ public:
     char item_pos;
 };
 
-class RecipeAvailabilityChangeEvent {};
-
 
 class Inventory {
     ItemStack mouse_item;
@@ -29,7 +27,6 @@ class Inventory {
     ItemStack inventory_arr[INVENTORY_SIZE];
     bool hasIngredientsForRecipe(const Recipe& recipe);
 public:
-    Inventory(char*& iter);
     Inventory();
     
     unsigned char selected_slot = 0;
@@ -49,7 +46,7 @@ public:
     unsigned short decreaseStack(char pos, unsigned short stack);
     
     void serialize(std::vector<char>& serial) const;
+    char* loadFromSerial(char* iter);
     
     EventSender<InventoryItemChangeEvent> item_change_event;
-    EventSender<RecipeAvailabilityChangeEvent> recipe_availability_change_event;
 };
