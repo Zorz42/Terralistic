@@ -55,7 +55,6 @@ class ClientInventory : public gfx::SceneModule, EventListener<ClientPacketEvent
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
     ClientInventoryItem *hovered = nullptr;
     char crafting_hovered = -1;
-    bool inventory_hovered = false;
     std::vector<DisplayRecipe*> available_recipes;
     
     void swapWithMouseItem(ClientInventoryItem* item);
@@ -66,13 +65,12 @@ class ClientInventory : public gfx::SceneModule, EventListener<ClientPacketEvent
     void init() override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     
     ResourcePack* resource_pack;
     NetworkingManager* manager;
 public:
     ClientInventory(NetworkingManager* manager, ResourcePack* resource_pack);
-    bool isHovered() const { return inventory_hovered; }
 };
 
 #endif

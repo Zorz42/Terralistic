@@ -16,7 +16,6 @@ class Minimap : public gfx::SceneModule {
     
     void init() override;
     void render() override;
-    void onKeyDown(gfx::Key key) override;
 public:
     Minimap(Blocks* blocks, Liquids* liquids, Lights* lights, BlockRenderer* client_blocks) : blocks(blocks), liquids(liquids), lights(lights), client_blocks(client_blocks) {}
 };

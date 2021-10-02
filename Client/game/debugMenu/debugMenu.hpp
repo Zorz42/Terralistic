@@ -19,7 +19,7 @@ class DebugMenu : public gfx::SceneModule {
     void init() override;
     void update() override;
     void render() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
 public:
     DebugMenu(ClientPlayers* player_handler, Blocks* blocks, BlockRenderer* client_blocks) : player_handler(player_handler), blocks(blocks), client_blocks(client_blocks) {}
 };

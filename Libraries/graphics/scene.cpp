@@ -22,8 +22,9 @@ short gfx::Scene::getMouseY() {
 void gfx::Scene::onKeyDownCallback(Key key_) {
     if(!key_states[(int)key_]) {
         key_states[(int)key_] = true;
-        for(SceneModule* module : modules)
-            module->onKeyDown(key_);
+        for(int i = (int)modules.size() - 1; i >= 0; i--)
+            if(modules[i]->onKeyDown(key_))
+                break;
     }
 }
 

@@ -21,7 +21,7 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     void onEvent(ClientPacketEvent& event) override;
     void init() override;
     void update() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     void stop() override;
     const std::string ip_address;

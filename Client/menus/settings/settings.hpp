@@ -10,7 +10,7 @@ class Settings : public gfx::Scene {
     gfx::Rect scale_back_rect, scale_select_rect;
     
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     BackgroundRect* background;
     

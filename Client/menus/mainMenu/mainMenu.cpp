@@ -39,20 +39,26 @@ void MainMenu::init() {
     version.y = -5;
 }
 
-void MainMenu::onKeyDown(gfx::Key key) {
+bool MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(singleplayer_button.isHovered(getMouseX(), getMouseY())) {
             WorldSelector world_selector(menu_back);
             switchToScene(world_selector);
+            return true;
         } else if(multiplayer_button.isHovered(getMouseX(), getMouseY())) {
             MultiplayerSelector multiplayer_selector(menu_back);
             switchToScene(multiplayer_selector);
+            return true;
         } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
             Settings settings(menu_back);
             switchToScene(settings);
-        } else if(exit_button.isHovered(getMouseX(), getMouseY()))
+            return true;
+        } else if(exit_button.isHovered(getMouseX(), getMouseY())) {
             returnFromScene();
+            return true;
+        }
     }
+    return false;
 }
 
 void MainMenu::render() {

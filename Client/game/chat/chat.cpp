@@ -61,7 +61,7 @@ void Chat::render() {
     }
 }
 
-void Chat::onKeyDown(gfx::Key key) {
+bool Chat::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
             sf::Packet chat_packet;
@@ -70,13 +70,17 @@ void Chat::onKeyDown(gfx::Key key) {
             chat_box.setText("");
         }
         chat_box.active = false;
+        return true;
     } else if(key == gfx::Key::T && !chat_box.active) {
         chat_box.active = true;
         chat_box.ignore_next_input = true;
+        return true;
     } else if(key == gfx::Key::ESCAPE && chat_box.active) {
         chat_box.setText("");
         chat_box.active = false;
+        return true;
     }
+    return false;
 }
 
 void Chat::onEvent(ClientPacketEvent &event) {

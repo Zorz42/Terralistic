@@ -5,7 +5,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 enum class BlockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, NUM_BLOCKS};
 enum class ItemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, NUM_ITEMS};
@@ -43,7 +43,7 @@ struct LiquidInfo {
 };
 
 struct Recipe {
-    std::unordered_map<ItemType, unsigned short> ingredients;
+    std::map<ItemType, unsigned short> ingredients;
     unsigned short result_stack;
     ItemType result_type;
 };

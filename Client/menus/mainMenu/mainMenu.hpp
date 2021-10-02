@@ -12,7 +12,7 @@ class MainMenu : public gfx::Scene {
 public:
     MainMenu(MenuBack* menu_back) : menu_back(menu_back) {}
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
 };
 

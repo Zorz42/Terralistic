@@ -52,11 +52,9 @@ void ClientInventory::render() {
     
     const gfx::Texture* text_texture = nullptr;
     hovered = nullptr;
-    inventory_hovered = false;
     
     for(int i = 0; i < (open ? 20 : 10); i++) {
         if(inventory[i].isHovered(mouse_x, mouse_y)) {
-            inventory_hovered = true;
             if(open) {
                 hovered = &inventory[i];
                 if(inventory[i].type != ItemType::NOTHING) {
@@ -150,18 +148,18 @@ void ClientInventory::selectSlot(char slot) {
     manager->sendPacket(packet);
 }
 
-void ClientInventory::onKeyDown(gfx::Key key) {
+bool ClientInventory::onKeyDown(gfx::Key key) {
     switch (key) {
-        case gfx::Key::NUM1: selectSlot(0); break;
-        case gfx::Key::NUM2: selectSlot(1); break;
-        case gfx::Key::NUM3: selectSlot(2); break;
-        case gfx::Key::NUM4: selectSlot(3); break;
-        case gfx::Key::NUM5: selectSlot(4); break;
-        case gfx::Key::NUM6: selectSlot(5); break;
-        case gfx::Key::NUM7: selectSlot(6); break;
-        case gfx::Key::NUM8: selectSlot(7); break;
-        case gfx::Key::NUM9: selectSlot(8); break;
-        case gfx::Key::NUM0: selectSlot(9); break;
+        case gfx::Key::NUM1: selectSlot(0); return true;
+        case gfx::Key::NUM2: selectSlot(1); return true;
+        case gfx::Key::NUM3: selectSlot(2); return true;
+        case gfx::Key::NUM4: selectSlot(3); return true;
+        case gfx::Key::NUM5: selectSlot(4); return true;
+        case gfx::Key::NUM6: selectSlot(5); return true;
+        case gfx::Key::NUM7: selectSlot(6); return true;
+        case gfx::Key::NUM8: selectSlot(7); return true;
+        case gfx::Key::NUM9: selectSlot(8); return true;
+        case gfx::Key::NUM0: selectSlot(9); return true;
         case gfx::Key::E:
             open = !open;
             if(!open && mouse_item.type != ItemType::NOTHING) {
@@ -171,21 +169,22 @@ void ClientInventory::onKeyDown(gfx::Key key) {
                 packet << PacketType::INVENTORY_SWAP << result;
                 manager->sendPacket(packet);
             }
-            break;
+            return true;
         case gfx::Key::MOUSE_LEFT: {
             if(hovered) {
                 swapWithMouseItem(hovered);
                 sf::Packet packet;
                 packet << PacketType::INVENTORY_SWAP << (unsigned char)(hovered - &inventory[0]);
                 manager->sendPacket(packet);
+                return true;
             } else if(crafting_hovered != -1) {
                 sf::Packet packet;
                 packet << PacketType::CRAFT << (unsigned char)crafting_hovered;
                 manager->sendPacket(packet);
+                return true;
             }
-            break;
         }
-        default: break;
+        default: return false;
     }
 }
 

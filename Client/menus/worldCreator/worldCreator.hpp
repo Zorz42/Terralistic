@@ -15,7 +15,7 @@ class WorldCreator : public gfx::Scene {
     BackgroundRect* menu_back;
     bool can_create = true;
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
 public:
     explicit WorldCreator(std::vector<std::string> worlds, BackgroundRect* menu_back) : worlds(std::move(worlds)), menu_back(menu_back) {}

@@ -6,7 +6,7 @@
 
 class MultiplayerSelector : public gfx::Scene {
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     void stop() override;
     gfx::Button back_button, join_button;

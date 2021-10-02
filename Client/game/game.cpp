@@ -142,7 +142,7 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, std::st
     items(&resource_pack, &client_blocks, &entities, &networking_manager),
     client_entities(&entities, &networking_manager),
     entities(&blocks),
-    block_selector(&networking_manager, &blocks, &client_blocks, &inventory, &players),
+    block_selector(&networking_manager, &blocks, &client_blocks, &players),
     inventory(&networking_manager, &resource_pack),
     debug_menu(&players, &blocks, &client_blocks),
     chat(&networking_manager),
@@ -279,13 +279,15 @@ void Game::renderBack() {
         module->render();
 }
 
-void Game::onKeyDown(gfx::Key key) {
+bool Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
         PauseScreen pause_screen(this);
         switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
+        return true;
     }
+    return false;
 }
 
 bool Game::isHandshakeDone() {

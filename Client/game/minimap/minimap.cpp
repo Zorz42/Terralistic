@@ -74,7 +74,3 @@ void Minimap::render() {
     minimap_sprite.loadFromPixelGrid(light_pixels);
     minimap_sprite.render();
 }
-
-void Minimap::onKeyDown(gfx::Key key) {
-    
-}

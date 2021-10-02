@@ -19,7 +19,7 @@ class Chat : public gfx::SceneModule, EventListener<ClientPacketEvent> {
     void init() override;
     void update() override;
     void render() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void stop() override;
 
     void onEvent(ClientPacketEvent& event) override;

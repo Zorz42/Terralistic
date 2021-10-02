@@ -23,7 +23,7 @@ class WorldSelector : public gfx::Scene {
     float top_rect_visibility = 0;
     
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     void onMouseScroll(int distance) override;
     void refresh();

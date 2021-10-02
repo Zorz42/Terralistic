@@ -187,7 +187,7 @@ namespace gfx {
         virtual void update() {}
         virtual void render() {}
         virtual void stop() {}
-        virtual void onKeyDown(Key key_) {}
+        virtual bool onKeyDown(Key key_) { return false; }
         bool getKeyState(Key key_) const;
 
         std::vector<TextInput*> text_inputs;

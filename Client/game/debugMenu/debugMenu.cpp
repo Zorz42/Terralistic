@@ -41,12 +41,14 @@ void DebugMenu::render() {
     }
 }
 
-void DebugMenu::onKeyDown(gfx::Key key) {
+bool DebugMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::M) {
         debug_menu_open = !debug_menu_open;
         if(debug_menu_open)
             updateFpsText();
+        return true;
     }
+    return false;
 }
 
 void DebugMenu::updateFpsText() {

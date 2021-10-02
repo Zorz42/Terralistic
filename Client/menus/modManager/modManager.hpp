@@ -36,7 +36,7 @@ class ModManager : public gfx::Scene {
     gfx::Button back_button;
     
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     void stop() override;
     BackgroundRect* background;

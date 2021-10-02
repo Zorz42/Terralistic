@@ -82,7 +82,7 @@ void WorldSelector::refresh() {
     }
 }
 
-void WorldSelector::onKeyDown(gfx::Key key) {
+bool WorldSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
@@ -113,7 +113,9 @@ void WorldSelector::onKeyDown(gfx::Key key) {
                     break;
                 }
             }
+        return true;
     }
+    return false;
 }
 
 void WorldSelector::onMouseScroll(int distance) {

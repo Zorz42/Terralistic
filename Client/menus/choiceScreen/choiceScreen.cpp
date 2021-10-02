@@ -32,15 +32,16 @@ void ChoiceScreen::init() {
     }
 }
 
-void ChoiceScreen::onKeyDown(gfx::Key key) {
+bool ChoiceScreen::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT)
         for(ChoiceScreenButton& i : buttons)
             if(i.gfx_button.isHovered(getMouseX(), getMouseY())) {
                 if(result)
                     *result = i.option;
                 returnFromScene();
-                break;
+                return true;
             }
+    return false;
 }
 
 void ChoiceScreen::render() {
