@@ -53,7 +53,6 @@ void ConfigFile::saveConfig() {
     for(auto& value : values)
         file << value.first + ":" + value.second + "\n";
     file.close();
-    values.clear();
 }
 
 ConfigFile::~ConfigFile() {
