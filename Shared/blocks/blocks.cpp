@@ -1,32 +1,32 @@
 #include "blocks.hpp"
 
-void Blocks::create(unsigned short width_, unsigned short height_) {
+void Blocks::create(int width_, int height_) {
     width = width_;
     height = height_;
     blocks = new Block[width * height];
 }
 
-Blocks::Block* Blocks::getBlock(unsigned short x, unsigned short y) {
+Blocks::Block* Blocks::getBlock(int x, int y) {
     if(x >= width || y >= height)
         throw BlockOutOfBoundsException();
     return &blocks[y * width + x];
 }
 
-const BlockInfo& Blocks::getBlockInfo(unsigned short x, unsigned short y) {
+const BlockInfo& Blocks::getBlockInfo(int x, int y) {
     return ::getBlockInfo(getBlock(x, y)->type);
 }
 
-BlockType Blocks::getBlockType(unsigned short x, unsigned short y) {
+BlockType Blocks::getBlockType(int x, int y) {
     return getBlock(x, y)->type;
 }
 
-void Blocks::setBlockTypeSilently(unsigned short x, unsigned short y, BlockType type) {
+void Blocks::setBlockTypeSilently(int x, int y, BlockType type) {
     if((int)type < 0 || type >= BlockType::NUM_BLOCKS)
         throw InvalidBlockTypeException();
     getBlock(x, y)->type = type;
 }
 
-void Blocks::setBlockType(unsigned short x, unsigned short y, BlockType type) {
+void Blocks::setBlockType(int x, int y, BlockType type) {
     if(type != getBlock(x, y)->type) {
         setBlockTypeSilently(x, y, type);
         
@@ -35,11 +35,11 @@ void Blocks::setBlockType(unsigned short x, unsigned short y, BlockType type) {
     }
 }
 
-unsigned short Blocks::getBreakProgress(unsigned short x, unsigned short y) {
+unsigned short Blocks::getBreakProgress(int x, int y) {
     return getBlock(x, y)->break_progress;
 }
 
-void Blocks::setBreakProgress(unsigned short x, unsigned short y, unsigned short progress) {
+void Blocks::setBreakProgress(int x, int y, unsigned short progress) {
     Block* block = getBlock(x, y);
     if(block->break_progress != progress) {
         block->break_progress = progress;
@@ -56,11 +56,11 @@ void Blocks::setBreakProgress(unsigned short x, unsigned short y, unsigned short
     }
 }
 
-unsigned char Blocks::getBreakStage(unsigned short x, unsigned short y) {
+unsigned char Blocks::getBreakStage(int x, int y) {
     return getBlock(x, y)->break_stage;
 }
 
-void Blocks::breakBlock(unsigned short x, unsigned short y) {
+void Blocks::breakBlock(int x, int y) {
     setBreakProgress(x, y, 0);
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
@@ -93,4 +93,8 @@ char* Blocks::loadFromSerial(char* iter) {
         block++;
     }
     return iter;
+}
+
+Blocks::~Blocks() {
+    delete[] blocks;
 }

@@ -71,4 +71,6 @@ public:
     EventSender<EntityPositionChangeEvent> entity_position_change_event;
     EventSender<EntityVelocityChangeEvent> entity_velocity_change_event;
     EventSender<EntityDeletionEvent> entity_deletion_event;
+    
+    ~Entities();
 };

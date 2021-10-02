@@ -5,27 +5,27 @@ void Liquids::create() {
     liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
 }
 
-Liquids::Liquid* Liquids::getLiquid(unsigned short x, unsigned short y) {
+Liquids::Liquid* Liquids::getLiquid(int x, int y) {
     if(x >= blocks->getWidth() || y >= blocks->getHeight())
         throw LiquidOutOfBoundsException();
     return &liquids[y * blocks->getWidth() + x];
 }
 
-const LiquidInfo& Liquids::getLiquidInfo(unsigned short x, unsigned short y) {
+const LiquidInfo& Liquids::getLiquidInfo(int x, int y) {
     return ::getLiquidInfo(getLiquid(x, y)->type);
 }
 
-LiquidType Liquids::getLiquidType(unsigned short x, unsigned short y) {
+LiquidType Liquids::getLiquidType(int x, int y) {
     return getLiquid(x, y)->type;
 }
 
-void Liquids::setLiquidTypeSilently(unsigned short x, unsigned short y, LiquidType type) {
+void Liquids::setLiquidTypeSilently(int x, int y, LiquidType type) {
     if((int)type < 0 || type >= LiquidType::NUM_LIQUIDS)
         throw InvalidBlockTypeException();
     getLiquid(x, y)->type = type;
 }
 
-void Liquids::setLiquidType(unsigned short x, unsigned short y, LiquidType type) {
+void Liquids::setLiquidType(int x, int y, LiquidType type) {
     if(type != getLiquidType(x, y)) {
         if(type == LiquidType::EMPTY)
             setLiquidLevel(x, y, 0);
@@ -37,19 +37,19 @@ void Liquids::setLiquidType(unsigned short x, unsigned short y, LiquidType type)
     }
 }
 
-void Liquids::scheduleLiquidUpdate(unsigned short x, unsigned short y) {
+void Liquids::scheduleLiquidUpdate(int x, int y) {
     getLiquid(x, y)->when_to_update = gfx::getTicks() + getLiquidInfo(x, y).flow_time;
 }
 
-bool Liquids::canUpdateLiquid(unsigned short x, unsigned short y) {
+bool Liquids::canUpdateLiquid(int x, int y) {
     return getLiquid(x, y)->when_to_update && gfx::getTicks() > getLiquid(x, y)->when_to_update;
 }
 
-bool Liquids::isFlowable(unsigned short x, unsigned short y) {
+bool Liquids::isFlowable(int x, int y) {
     return blocks->getBlockInfo(x, y).ghost && getLiquidType(x, y) == LiquidType::EMPTY;
 }
 
-void Liquids::updateLiquid(unsigned short x, unsigned short y) {
+void Liquids::updateLiquid(int x, int y) {
     getLiquid(x, y)->when_to_update = 0;
     
     if(!blocks->getBlockInfo(x, y).ghost)
@@ -132,11 +132,11 @@ void Liquids::updateLiquid(unsigned short x, unsigned short y) {
     }
 }
 
-void Liquids::setLiquidLevelSilently(unsigned short x, unsigned short y, unsigned char level) {
+void Liquids::setLiquidLevelSilently(int x, int y, unsigned char level) {
     getLiquid(x, y)->level = level;
 }
 
-void Liquids::setLiquidLevel(unsigned short x, unsigned short y, unsigned char level) {
+void Liquids::setLiquidLevel(int x, int y, unsigned char level) {
     if(level != getLiquidLevel(x, y)) {
         setLiquidLevelSilently(x, y, level);
         if(level == 0)
@@ -147,7 +147,7 @@ void Liquids::setLiquidLevel(unsigned short x, unsigned short y, unsigned char l
     }
 }
 
-unsigned char Liquids::getLiquidLevel(unsigned short x, unsigned short y) {
+unsigned char Liquids::getLiquidLevel(int x, int y) {
     return getLiquid(x, y)->level;
 }
 
@@ -185,4 +185,8 @@ unsigned short Liquids::getWidth() {
 
 unsigned short Liquids::getHeight() {
     return blocks->getHeight();
+}
+
+Liquids::~Liquids() {
+    delete[] liquids;
 }

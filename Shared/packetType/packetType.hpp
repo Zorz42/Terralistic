@@ -4,7 +4,7 @@
 
 enum class PacketType {
     // blocks
-    BLOCK, LIQUID,
+    BLOCK, LIQUID, BLOCK_PROGRESS,
     
     // entities
     ENTITY_VELOCITY, ENTITY_POSITION, ENTITY_DELETION,
@@ -19,7 +19,7 @@ enum class PacketType {
     INVENTORY, INVENTORY_SWAP, HOTBAR_SELECTION, CRAFT,
     
     // clicking
-    RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS,
+    RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING,
     
     // miscellaneous
     KICK, CHAT, WELCOME,

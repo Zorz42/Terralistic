@@ -86,13 +86,13 @@ bool Entity::isCollidingWithBlocks(Blocks* blocks, float colliding_x, float coll
        colliding_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getWidth())
         return true;
 
-    unsigned short starting_x = colliding_x / (BLOCK_WIDTH * 2);
-    unsigned short starting_y = colliding_y / (BLOCK_WIDTH * 2);
-    unsigned short ending_x = (colliding_x + getWidth() - 1) / (BLOCK_WIDTH * 2);
-    unsigned short ending_y = (colliding_y + getHeight() - 1) / (BLOCK_WIDTH * 2);
+    int starting_x = colliding_x / (BLOCK_WIDTH * 2);
+    int starting_y = colliding_y / (BLOCK_WIDTH * 2);
+    int ending_x = (colliding_x + getWidth() - 1) / (BLOCK_WIDTH * 2);
+    int ending_y = (colliding_y + getHeight() - 1) / (BLOCK_WIDTH * 2);
     
-    for(unsigned short x_ = starting_x; x_ <= ending_x; x_++)
-        for(unsigned short y_ = starting_y; y_ <= ending_y; y_++)
+    for(int x_ = starting_x; x_ <= ending_x; x_++)
+        for(int y_ = starting_y; y_ <= ending_y; y_++)
             if(!blocks->getBlockInfo(x_, y_).ghost)
                 return true;
     
@@ -153,4 +153,9 @@ void Entities::setY(Entity* entity, float y) {
         EntityPositionChangeEvent event(entity);
         entity_position_change_event.call(event);
     }
+}
+
+Entities::~Entities() {
+    for(Entity* entity : entities)
+        delete entity;
 }

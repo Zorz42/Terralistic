@@ -9,20 +9,20 @@
 
 class BlockChangeEvent {
 public:
-    BlockChangeEvent(unsigned short x, unsigned short y) : x(x), y(y) {}
-    unsigned short x, y;
+    BlockChangeEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
 };
 
 class BlockBreakEvent {
 public:
-    BlockBreakEvent(unsigned short x, unsigned short y) : x(x), y(y) {}
-    unsigned short x, y;
+    BlockBreakEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
 };
 
 class BlockBreakStageChangeEvent {
 public:
-    BlockBreakStageChangeEvent(unsigned short x, unsigned short y) : x(x), y(y) {}
-    unsigned short x, y;
+    BlockBreakStageChangeEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
 };
 
 class Blocks {
@@ -33,22 +33,22 @@ class Blocks {
     };
     
     Block *blocks = nullptr;
-    unsigned short width, height;
+    int width, height;
     
-    Block* getBlock(unsigned short x, unsigned short y);
+    Block* getBlock(int x, int y);
 public:
-    void create(unsigned short width, unsigned short height);
+    void create(int width, int height);
     
-    const BlockInfo& getBlockInfo(unsigned short x, unsigned short y);
-    BlockType getBlockType(unsigned short x, unsigned short y);
-    void setBlockType(unsigned short x, unsigned short y, BlockType type);
-    void setBlockTypeSilently(unsigned short x, unsigned short y, BlockType type);
+    const BlockInfo& getBlockInfo(int x, int y);
+    BlockType getBlockType(int x, int y);
+    void setBlockType(int x, int y, BlockType type);
+    void setBlockTypeSilently(int x, int y, BlockType type);
     
-    unsigned short getBreakProgress(unsigned short x, unsigned short y);
-    void setBreakProgress(unsigned short x, unsigned short y, unsigned short progress);
-    unsigned char getBreakStage(unsigned short x, unsigned short y);
+    unsigned short getBreakProgress(int x, int y);
+    void setBreakProgress(int x, int y, unsigned short progress);
+    unsigned char getBreakStage(int x, int y);
     
-    void breakBlock(unsigned short x, unsigned short y);
+    void breakBlock(int x, int y);
     
     unsigned short getWidth();
     unsigned short getHeight();
@@ -59,6 +59,8 @@ public:
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;
     EventSender<BlockBreakStageChangeEvent> block_break_stage_change_event;
+    
+    ~Blocks();
 };
 
 class BlockOutOfBoundsException : public std::exception {

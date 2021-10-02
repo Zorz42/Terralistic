@@ -6,13 +6,13 @@ void Lights::create() {
     blocks->block_change_event.addListener(this);
 }
 
-Lights::Light* Lights::getLight(unsigned short x, unsigned short y) {
+Lights::Light* Lights::getLight(int x, int y) {
     if(x >= blocks->getWidth() || y >= blocks->getHeight())
         throw LightOutOfBoundsException();
     return &lights[y * blocks->getWidth() + x];
 }
 
-void Lights::setLightLevel(unsigned short x, unsigned short y, unsigned char level) {
+void Lights::setLightLevel(int x, int y, unsigned char level) {
     if(level == 0)
         getLight(x, y)->light_source = false;
     if(getLight(x, y)->light_level != level) {
@@ -24,7 +24,7 @@ void Lights::setLightLevel(unsigned short x, unsigned short y, unsigned char lev
     }
 }
 
-void Lights::updateLight(unsigned short x, unsigned short y) {
+void Lights::updateLight(int x, int y) {
     getLight(x, y)->update_light = false;
     
     int neighbors[4][2] = {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
@@ -59,20 +59,20 @@ void Lights::updateLight(unsigned short x, unsigned short y) {
     }
 }
 
-void Lights::setLightSource(unsigned short x, unsigned short y, unsigned char level) {
+void Lights::setLightSource(int x, int y, unsigned char level) {
     getLight(x, y)->light_source = true;
     getLight(x, y)->light_level = level;
 }
 
-unsigned char Lights::getLightLevel(unsigned short x, unsigned short y) {
+unsigned char Lights::getLightLevel(int x, int y) {
     return getLight(x, y)->light_level;
 }
 
-void Lights::scheduleLightUpdate(unsigned short x, unsigned short y) {
+void Lights::scheduleLightUpdate(int x, int y) {
     getLight(x, y)->update_light = true;
 }
 
-bool Lights::hasScheduledLightUpdate(unsigned short x, unsigned short y) {
+bool Lights::hasScheduledLightUpdate(int x, int y) {
     return getLight(x, y)->update_light;
 }
 
@@ -86,4 +86,8 @@ unsigned short Lights::getHeight() {
 
 void Lights::onEvent(BlockChangeEvent& event) {
     scheduleLightUpdate(event.x, event.y);
+}
+
+Lights::~Lights() {
+    delete[] lights;
 }

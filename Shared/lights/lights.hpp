@@ -2,12 +2,6 @@
 
 #include "blocks.hpp"
 
-class LightSourceChangeEvent {
-public:
-    LightSourceChangeEvent(unsigned short x, unsigned short y) : x(x), y(y) {}
-    unsigned short x, y;
-};
-
 class Lights : EventListener<BlockChangeEvent> {
     struct Light {
         bool light_source = false, update_light = true;
@@ -16,8 +10,8 @@ class Lights : EventListener<BlockChangeEvent> {
     
     Light* lights;
     
-    Light* getLight(unsigned short x, unsigned short y);
-    void setLightLevel(unsigned short x, unsigned short y, unsigned char level);
+    Light* getLight(int x, int y);
+    void setLightLevel(int x, int y, unsigned char level);
     
     void onEvent(BlockChangeEvent& event) override;
     
@@ -29,11 +23,13 @@ public:
     unsigned short getWidth();
     unsigned short getHeight();
     
-    void updateLight(unsigned short x, unsigned short y);
-    void setLightSource(unsigned short x, unsigned short y, unsigned char level);
-    unsigned char getLightLevel(unsigned short x, unsigned short y);
-    void scheduleLightUpdate(unsigned short x, unsigned short y);
-    bool hasScheduledLightUpdate(unsigned short x, unsigned short y);
+    void updateLight(int x, int y);
+    void setLightSource(int x, int y, unsigned char level);
+    unsigned char getLightLevel(int x, int y);
+    void scheduleLightUpdate(int x, int y);
+    bool hasScheduledLightUpdate(int x, int y);
+    
+    ~Lights();
 };
 
 class LightOutOfBoundsException : public std::exception {

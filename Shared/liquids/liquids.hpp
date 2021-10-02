@@ -6,8 +6,8 @@ enum class FlowDirection {NONE, LEFT, RIGHT};
 
 class LiquidChangeEvent {
 public:
-    LiquidChangeEvent(unsigned short x, unsigned short y) : x(x), y(y) {}
-    unsigned short x, y;
+    LiquidChangeEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
 };
 
 class Liquids {
@@ -19,8 +19,8 @@ class Liquids {
     };
     
     Liquid* liquids = nullptr;
-    Liquid* getLiquid(unsigned short x, unsigned short y);
-    bool isFlowable(unsigned short x, unsigned short y);
+    Liquid* getLiquid(int x, int y);
+    bool isFlowable(int x, int y);
     
     Blocks* blocks;
 public:
@@ -31,23 +31,25 @@ public:
     unsigned short getWidth();
     unsigned short getHeight();
     
-    const LiquidInfo& getLiquidInfo(unsigned short x, unsigned short y);
-    LiquidType getLiquidType(unsigned short x, unsigned short y);
-    void setLiquidTypeSilently(unsigned short x, unsigned short y, LiquidType type);
-    void setLiquidType(unsigned short x, unsigned short y, LiquidType type);
+    const LiquidInfo& getLiquidInfo(int x, int y);
+    LiquidType getLiquidType(int x, int y);
+    void setLiquidTypeSilently(int x, int y, LiquidType type);
+    void setLiquidType(int x, int y, LiquidType type);
     
-    void scheduleLiquidUpdate(unsigned short x, unsigned short y);
-    bool canUpdateLiquid(unsigned short x, unsigned short y);
-    void updateLiquid(unsigned short x, unsigned short y);
+    void scheduleLiquidUpdate(int x, int y);
+    bool canUpdateLiquid(int x, int y);
+    void updateLiquid(int x, int y);
     
-    unsigned char getLiquidLevel(unsigned short x, unsigned short y);
-    void setLiquidLevel(unsigned short x, unsigned short y, unsigned char level);
-    void setLiquidLevelSilently(unsigned short x, unsigned short y, unsigned char level);
+    unsigned char getLiquidLevel(int x, int y);
+    void setLiquidLevel(int x, int y, unsigned char level);
+    void setLiquidLevelSilently(int x, int y, unsigned char level);
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
     
     EventSender<LiquidChangeEvent> liquid_change_event;
+    
+    ~Liquids();
 };
 
 class LiquidOutOfBoundsException : public std::exception {

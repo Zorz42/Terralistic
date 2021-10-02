@@ -30,5 +30,6 @@ public:
     explicit Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks) {}
     void init();
     Item* spawnItem(ItemType type, int x, int y);
+    
     EventSender<ItemCreationEvent> item_creation_event;
 };

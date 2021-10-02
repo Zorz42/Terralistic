@@ -2,6 +2,7 @@
 #include <utility>
 #include "properties.hpp"
 
+static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 static ItemInfo item_infos[(int)ItemType::NUM_ITEMS];
 static LiquidInfo liquid_infos[(int)LiquidType::NUM_LIQUIDS];
 static std::vector<Recipe> recipes;

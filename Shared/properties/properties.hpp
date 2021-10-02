@@ -22,7 +22,6 @@ struct BlockInfo {
     short break_time;
     ItemType drop;
 };
-static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 
 struct ItemInfo {
     ItemInfo() = default;
