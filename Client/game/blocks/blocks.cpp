@@ -120,3 +120,12 @@ void BlockRenderer::updateLights() {
     }
 }
  
+void BlockRenderer::onWelcomePacket(sf::Packet& packet, WelcomePacketType type) {
+    if(type == WelcomePacketType::BLOCKS) {
+        std::vector<char> data = manager->getData();
+        blocks->loadFromSerial(&data[0]);
+    } else if(type == WelcomePacketType::LIQUIDS) {
+        std::vector<char> data = manager->getData();
+        liquids->loadFromSerial(&data[0]);
+    }
+}

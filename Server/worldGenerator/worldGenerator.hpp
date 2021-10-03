@@ -22,7 +22,7 @@ struct structurePosition {
     structurePosition(std::string cname, int cx, int cy) : name(std::move(cname)), x(cx), y(cy) {}
 };
 
-class worldGenerator {
+class WorldGenerator {
     Blocks* blocks;
     Biomes* biomes;
     Liquids* liquids;
@@ -55,7 +55,7 @@ class worldGenerator {
     unsigned int generating_current = 0, generating_total = 1;
 
 public:
-    worldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)) {}
+    WorldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)) {}
 
     unsigned int getGeneratingCurrent() const { return generating_current; }
     unsigned int getGeneratingTotal() const { return generating_total; }

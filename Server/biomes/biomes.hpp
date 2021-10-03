@@ -1,6 +1,7 @@
 #pragma once
 
 #include "properties.hpp"
+#include "blocks.hpp"
 #include <vector>
 #include <string>
 
@@ -39,7 +40,9 @@ struct StructureChance {
 inline std::vector <Biome> loaded_biomes;
 
 class Biomes {
+    Blocks* blocks;
 public:
-    void create(unsigned short width);
+    Biomes(Blocks* blocks) : blocks(blocks) {}
+    void create();
     BiomeType* biomes;
 };

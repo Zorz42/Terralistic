@@ -14,16 +14,14 @@ public:
 
 class NetworkingManager {
     sf::TcpSocket socket;
-    sf::Packet master_packet;
 public:
     bool establishConnection(const std::string& ip, unsigned short port);
     void closeConnection();
     void checkForPackets();
     void sendPacket(sf::Packet& packet);
     void disableBlocking();
+    std::vector<char> getData();
     sf::Packet getPacket();
-    std::vector<char> getData(unsigned int size);
-    void flushPackets();
     EventSender<ClientPacketEvent> packet_event;
 };
 

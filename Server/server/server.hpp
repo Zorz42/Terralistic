@@ -6,20 +6,23 @@
 #include "serverNetworking.hpp"
 #include "worldGenerator.hpp"
 #include "entities.hpp"
+#include "items.hpp"
+#include "serverPlayers.hpp"
+#include "serverBlocks.hpp"
+#include "serverLiquids.hpp"
 
 enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
 
 class Server {
     std::string world_path;
-    Blocks blocks;
-    Liquids liquids;
+    ServerNetworkingManager networking_manager;
+    ServerBlocks blocks;
     Biomes biomes;
+    WorldGenerator generator;
+    ServerLiquids liquids;
     Items items;
     ServerPlayers players;
-    ServerNetworkingManager networking_manager;
     Entities entities;
-    
-    worldGenerator generator;
 
     bool running = true;
     

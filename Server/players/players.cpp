@@ -33,7 +33,7 @@ static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
         blocks->breakBlock(x, y);
 }
 
-ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items) : blocks(blocks), entities(entities), items(items) {
+ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworkingManager* networking_manager) : blocks(blocks), entities(entities), items(items), networking_manager(networking_manager) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = &treeUpdate;
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = &treeUpdate;
@@ -61,6 +61,8 @@ ServerPlayers::~ServerPlayers() {
 
 void ServerPlayers::init() {
     blocks->block_change_event.addListener(this);
+    networking_manager->new_connection_event.addListener(this);
+    networking_manager->connection_welcome_event.addListener(this);
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
@@ -213,4 +215,21 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
     for(auto neighbor : neighbors)
         if(neighbor[0] != -1 && custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate)
             custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate(blocks, neighbor[0], neighbor[1]);
+}
+
+void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
+    for(Entity* entity : entities->getEntities())
+        if(entity->type == EntityType::PLAYER) {
+            ServerPlayer* curr_player = (ServerPlayer*)entity;
+            sf::Packet join_packet;
+            join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
+            event.connection->send(join_packet);
+        }
+}
+
+void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
+    std::string player_name;
+    event.client_welcome_packet >> player_name;
+    ServerPlayer* player = addPlayer(player_name);
+    player->connection = event.connection;
 }

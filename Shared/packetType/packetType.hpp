@@ -22,8 +22,15 @@ enum class PacketType {
     RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING,
     
     // miscellaneous
-    KICK, CHAT, WELCOME,
+    KICK, CHAT,
+};
+
+enum class WelcomePacketType {
+    WELCOME, BLOCKS, LIQUIDS, INVENTORY,
 };
 
 sf::Packet& operator<<(sf::Packet& packet, PacketType packet_type);
 sf::Packet& operator>>(sf::Packet& packet, PacketType& packet_type);
+
+sf::Packet& operator<<(sf::Packet& packet, WelcomePacketType packet_type);
+sf::Packet& operator>>(sf::Packet& packet, WelcomePacketType& packet_type);

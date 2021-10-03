@@ -55,6 +55,8 @@ public:
     void setState(unsigned short x, unsigned short y, unsigned char state);
     unsigned char getState(unsigned short x, unsigned short y);
 
+    void onWelcomePacket(sf::Packet& packet, WelcomePacketType type);
+    
     ~BlockRenderer();
 };
 

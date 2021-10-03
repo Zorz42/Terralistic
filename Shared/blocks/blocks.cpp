@@ -78,7 +78,11 @@ unsigned short Blocks::getHeight() {
 
 void Blocks::serialize(std::vector<char>& serial) {
     unsigned long iter = serial.size();
-    serial.resize(serial.size() + width * height);
+    serial.resize(serial.size() + width * height + 4);
+    *(unsigned short*)&serial[iter] = width;
+    iter += 2;
+    *(unsigned short*)&serial[iter] = height;
+    iter += 2;
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
         serial[iter++] = (char)block->type;
@@ -87,6 +91,12 @@ void Blocks::serialize(std::vector<char>& serial) {
 }
 
 char* Blocks::loadFromSerial(char* iter) {
+    unsigned short width_, height_;
+    width_ = *(unsigned short*)iter;
+    iter += 2;
+    height_ = *(unsigned short*)iter;
+    iter += 2;
+    create(width_, height_);
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
         block->type = (BlockType)*iter++;

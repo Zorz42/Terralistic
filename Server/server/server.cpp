@@ -22,22 +22,19 @@ void onInterrupt(int signum) {
 }
 
 Server::Server(std::string resource_path, std::string world_path) :
-    blocks(),
-    items(&entities, &blocks),
-    players(&blocks, &entities, &items),
-    networking_manager(&blocks, &liquids, &players, &items, &entities),
+    networking_manager(),
+    blocks(&networking_manager),
+    biomes(&blocks),
+    liquids(&blocks, &networking_manager),
     generator(&blocks, &liquids, &biomes, std::move(resource_path)),
+    items(&entities, &blocks),
+    players(&blocks, &entities, &items, &networking_manager),
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
-    entities(&blocks),
-    liquids(&blocks)
+    entities(&blocks)
 {}
 
-void Server::loadWorld() {
-    blocks.create(4400, 1200);
-    liquids.create();
-    biomes.create(blocks.getWidth());
-    
+void Server::loadWorld() {    
     std::ifstream world_file(world_path, std::ios::binary);
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
     
@@ -47,6 +44,8 @@ void Server::loadWorld() {
     char* iter = &world_file_serial[0];
     
     iter = blocks.loadFromSerial(iter);
+    liquids.create();
+    biomes.create();
     iter = liquids.loadFromSerial(iter);
     
     while(iter < &world_file_serial[0] + world_file_serial.size())
@@ -81,10 +80,10 @@ void Server::start(unsigned short port) {
         generator.generateWorld(4400, 1200, seed);
     }
     
-    //day_cycle.init();
+    networking_manager.init();
+    blocks.init();
     items.init();
     players.init();
-    networking_manager.init();
     
     print::info("Starting server...");
     state = ServerState::STARTING;
@@ -111,12 +110,10 @@ void Server::start(unsigned short port) {
         entities.updateAllEntities(tick_length);
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
-        //day_cycle.update();
         
-        networking_manager.flushPackets();
         if(gfx::getTicks() / 1000 > seconds) {
             seconds = gfx::getTicks() / 1000;
-            networking_manager.syncEntityPositions();
+            //networking_manager.syncEntityPositions();
         }
     }
     
@@ -127,7 +124,6 @@ void Server::start(unsigned short port) {
         kick_packet << PacketType::KICK << std::string("Server stopped!");
         networking_manager.sendToEveryone(kick_packet);
     }
-    networking_manager.flushPackets();
 
     print::info("Stopping server");
     networking_manager.closeSocket();

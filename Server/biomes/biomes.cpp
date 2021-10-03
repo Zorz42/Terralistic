@@ -30,6 +30,6 @@ StructureChance::StructureChance(std::string name, float chance_on_block, int le
 
 }
 
-void Biomes::create(unsigned short width) {
-    biomes = new BiomeType[width];
+void Biomes::create() {
+    biomes = new BiomeType[blocks->getWidth()];
 }

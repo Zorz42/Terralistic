@@ -1,7 +1,7 @@
 #include "serverNetworking.hpp"
 #include "print.hpp"
 
-void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Connection &conn) {
+/*void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_type, Connection &conn) {
     switch (packet_type) {
         case PacketType::STARTED_BREAKING: {
             unsigned short x, y;
@@ -86,9 +86,9 @@ void ServerNetworkingManager::onPacket(sf::Packet &packet, PacketType packet_typ
             
         default:;
     }
-}
+}*/
 
-void ServerNetworkingManager::onEvent(BlockChangeEvent& event) {
+/*void ServerNetworkingManager::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::BLOCK << event.x << event.y << (unsigned char)blocks->getBlockType(event.x, event.y);
     sendToEveryone(packet);
@@ -150,4 +150,4 @@ void Connection::onEvent(InventoryItemChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
     send(packet);
-}
+}*/

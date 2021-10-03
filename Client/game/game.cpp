@@ -106,6 +106,8 @@ void HandshakeScreen::render() {
     }
     background_rect->renderBack();
     text.render();
+    
+    sf::Packet packet;
 }
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world) {
@@ -196,9 +198,18 @@ void Game::handshakeWithServer() {
     sf::Packet join_packet;
     join_packet << username;
     networking_manager.sendPacket(join_packet);
-    networking_manager.flushPackets();
     
-    sf::Packet packet = networking_manager.getPacket();
+    while(true) {
+        sf::Packet packet = networking_manager.getPacket();
+        WelcomePacketType type;
+        packet >> type;
+        if(type == WelcomePacketType::WELCOME)
+            break;
+        
+        client_blocks.onWelcomePacket(packet, type);
+    }
+    
+    /*sf::Packet packet = networking_manager.getPacket();
     PacketType type;
     packet >> type;
     
@@ -214,18 +225,18 @@ void Game::handshakeWithServer() {
     unsigned short world_width, world_height;
     packet >> world_width >> world_height;
     unsigned int size;
-    packet >> size;
+    packet >> size;*/
     
-    blocks.create(world_width, world_height);
+    //blocks.create(world_width, world_height);
     liquids.create();
     lights.create();
     client_blocks.create();
     
-    std::vector<char> map_data = networking_manager.getData(size);
-    char* iter = &map_data[0];
-    iter = blocks.loadFromSerial(iter);
-    iter = liquids.loadFromSerial(iter);
-    iter = inventory.loadFromSerial(iter);
+    //std::vector<char> map_data = networking_manager.getData(size);
+    //char* iter = &map_data[0];
+    //iter = blocks.loadFromSerial(iter);
+    //iter = liquids.loadFromSerial(iter);
+    //iter = inventory.loadFromSerial(iter);
     
     for(int x = 0; x < blocks.getWidth(); x++)
         for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlockInfo(x, y).transparent; y++)
@@ -253,7 +264,6 @@ void Game::update() {
         returnFromScene();
     }
     networking_manager.checkForPackets();
-    networking_manager.flushPackets();
     entities.updateAllEntities(getFrameLength());
     client_blocks.updateLights();
 }

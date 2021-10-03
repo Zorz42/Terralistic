@@ -5,11 +5,11 @@
 #include <string>
 #include "biomes.hpp"
 
-int worldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
+int WorldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
     SimplexNoise noise(seed);
     blocks->create(world_width, world_height);
     liquids->create();
-    biomes->create(blocks->getWidth());
+    biomes->create();
     
     loadAssets();
     if(seed == 1000) {
@@ -33,12 +33,12 @@ double turbulence(double x, double y, double size, SimplexNoise& noise) {
     return value / initialSize;
 }
 
-int worldGenerator::heatGeneratorInt(unsigned int x, SimplexNoise &noise) {
+int WorldGenerator::heatGeneratorInt(unsigned int x, SimplexNoise &noise) {
     int biome_heat = (noise.noise((float)x / 2000.0 + 0.125) + 1.0) * 1.5;
     return biome_heat == 3 ? 2 : biome_heat;
 }
 
-int worldGenerator::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
+int WorldGenerator::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
     if (x < 50 || x > blocks->getWidth() - 50)
         return 0;
     else if (x < 100 || x > blocks->getWidth() - 100)
@@ -49,7 +49,7 @@ int worldGenerator::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
     }
 }
 
-void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
+void WorldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     /*
     sea level = 300, sea floor = 250
     plains = 325
@@ -63,7 +63,7 @@ void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
     //biomes->biomes[x] = Biome::ICY_SEAS;
 }
 
-void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
+void WorldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
     int surface_height = calculateHeight(x, noise);
     generateSurface(x, surface_height, noise);
     for(auto &checking_structure : loaded_biomes[(int)biomes->biomes[x]].structure_chances){
@@ -76,7 +76,7 @@ void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
     }
 }
 
-void worldGenerator::generateSurface(int x, int surface_height, SimplexNoise &noise) {
+void WorldGenerator::generateSurface(int x, int surface_height, SimplexNoise &noise) {
     int last_layer = surface_height + 1;
     int generating_layer = 0;
     Biome &slice_biome = loaded_biomes[(int)biomes->biomes[x]];
@@ -113,7 +113,7 @@ void worldGenerator::generateSurface(int x, int surface_height, SimplexNoise &no
     }
 }
 
-int worldGenerator::calculateHeight(int x, SimplexNoise& noise) {
+int WorldGenerator::calculateHeight(int x, SimplexNoise& noise) {
     int biome_blend = 20;
     int slice_height = 0;
     int slice_height_variation = 0;
@@ -127,7 +127,7 @@ int worldGenerator::calculateHeight(int x, SimplexNoise& noise) {
     return (slice_height + turbulence(x + 0.003, 0, 64, noise) * slice_height_variation) / divide_at_end;
 }
 
-void worldGenerator::loadAssets() {
+void WorldGenerator::loadAssets() {
     std::ifstream structureFile;
     structureFile.open(resource_path + "/Structures.asset", std::ios::in);
 
@@ -166,7 +166,7 @@ void worldGenerator::loadAssets() {
     delete[] assetData;
 }
 
-void worldGenerator::generateStructure(const std::string& name, int x, int y) {
+void WorldGenerator::generateStructure(const std::string& name, int x, int y) {
     for (auto & structure : structures) {
         if (name == structure.name) {
             x -= structure.x_size / 2;
@@ -180,13 +180,13 @@ void worldGenerator::generateStructure(const std::string& name, int x, int y) {
 
 }
 
-void worldGenerator::generateStructureWorld(){
+void WorldGenerator::generateStructureWorld(){
     generateFlatTerrain();
     generateStructuresForStrWorld();
     updateBlocks();
 }
 
-void worldGenerator::generateFlatTerrain() {
+void WorldGenerator::generateFlatTerrain() {
     for (int x = 0; x < blocks->getWidth(); x++) {
         biomes->biomes[x] = BiomeType::PLAINS;
     }
@@ -200,7 +200,7 @@ void worldGenerator::generateFlatTerrain() {
     }
 }
 
-void worldGenerator::generateStructuresForStrWorld() {
+void WorldGenerator::generateStructuresForStrWorld() {
     int x = 0;
     while(x < blocks->getWidth()){
         for (auto & structure : structures) {
@@ -214,13 +214,13 @@ void worldGenerator::generateStructuresForStrWorld() {
     }
 }
 
-void worldGenerator::updateBlocks() {
+void WorldGenerator::updateBlocks() {
     //for(unsigned short x = 0; x < blocks->getWidth(); x++)
         //for(unsigned short y = 0; y < blocks->getHeight(); y++)
             //blocks->getBlock(x, y).update();
 }
 
-void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
+void WorldGenerator::generateDeafultWorld(SimplexNoise& noise) {
     for (int x = 0; x < blocks->getWidth(); x++) {
         biomeGeneratorSwitch(x, noise);
     }
@@ -234,7 +234,7 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
     updateBlocks();
 }
 
-void worldGenerator::loadBiomes() {
+void WorldGenerator::loadBiomes() {
     loaded_biomes.push_back(Biome(BiomeType::ICY_SEAS, blocks->getHeight() / 3 * 2, 0,
                                   {BiomeLayer(BlockType::ICE, LayerHeightMode::PREVIOUS_LAYER, 3, 1),
                                   BiomeLayer(BlockType::STONE_BLOCK, LayerHeightMode::WORLD_HEIGHT, blocks->getHeight() / 3 * 2 - 50, 10)},

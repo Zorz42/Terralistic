@@ -1,7 +1,7 @@
 #include "clientNetworking.hpp"
 
 void NetworkingManager::sendPacket(sf::Packet& packet) {
-    master_packet.append(packet.getData(), packet.getDataSize());
+    socket.send(packet);
 }
 
 void NetworkingManager::checkForPackets() {
@@ -10,12 +10,10 @@ void NetworkingManager::checkForPackets() {
     while(true) {
         sf::Socket::Status status = socket.receive(packet);
         if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
-            while(!packet.endOfPacket()) {
-                PacketType packet_type;
-                packet >> packet_type;
-                ClientPacketEvent event(packet, packet_type);
-                packet_event.call(event);
-            }
+            PacketType packet_type;
+            packet >> packet_type;
+            ClientPacketEvent event(packet, packet_type);
+            packet_event.call(event);
         } else
             break;
     }
@@ -39,7 +37,11 @@ sf::Packet NetworkingManager::getPacket() {
     return packet;
 }
 
-std::vector<char> NetworkingManager::getData(unsigned int size) {
+std::vector<char> NetworkingManager::getData() {
+    int size;
+    std::size_t temp;
+    socket.receive((char*)&size, sizeof(int), temp);
+    
     std::vector<char> data(size);
     int bytes_received = 0;
     size_t received;
@@ -48,11 +50,4 @@ std::vector<char> NetworkingManager::getData(unsigned int size) {
         bytes_received += received;
     }
     return data;
-}
-
-void NetworkingManager::flushPackets() {
-    if(master_packet.getDataSize()) {
-        socket.send(master_packet);
-        master_packet.clear();
-    }
 }

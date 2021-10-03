@@ -9,6 +9,7 @@
 #include "entities.hpp"
 #include "movingType.hpp"
 #include "inventory.hpp"
+#include "serverNetworking.hpp"
 
 class ServerPlayerData {
 public:
@@ -29,6 +30,7 @@ public:
     
     Inventory inventory;
     MovingType moving_type = MovingType::STANDING;
+    Connection* connection = nullptr;
     
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
@@ -45,20 +47,23 @@ struct BlockEvents {
     void (*onLeftClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
 };
 
-class ServerPlayers : EventListener<BlockChangeEvent> {
+class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent> {
     Entities* entities;
     Blocks* blocks;
     Items* items;
+    ServerNetworkingManager* networking_manager;
     
     std::vector<ServerPlayerData*> all_players;
 
     BlockEvents custom_block_events[(int)BlockType::NUM_BLOCKS];
     
     void onEvent(BlockChangeEvent& event) override;
+    void onEvent(ServerNewConnectionEvent& event) override;
+    void onEvent(ServerConnectionWelcomeEvent& event) override;
     
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
-    ServerPlayers(Blocks* blocks, Entities* entities, Items* items);
+    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworkingManager* networking_manager);
     void init();
     void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
