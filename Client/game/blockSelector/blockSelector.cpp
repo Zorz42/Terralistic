@@ -17,8 +17,8 @@ void BlockSelector::render() {
         prev_selected_y = blocks->getHeight();
     }
     
-    selected_block_x = (unsigned short)((mouse_x + client_blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
-    selected_block_y = (unsigned short)((mouse_y + client_blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
+    selected_block_x = (int)((mouse_x + client_blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
+    selected_block_y = (int)((mouse_y + client_blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
     if((selected_block_x != prev_selected_x || selected_block_y != prev_selected_y) && is_left_button_pressed) {
         sf::Packet packet;
         packet << PacketType::STARTED_BREAKING << selected_block_x << selected_block_y;
@@ -35,10 +35,10 @@ void BlockSelector::render() {
 
 bool BlockSelector::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_RIGHT) {
-        unsigned short starting_x = (player_handler->getMainPlayer()->getX()) / (BLOCK_WIDTH * 2);
-        unsigned short starting_y = (player_handler->getMainPlayer()->getY()) / (BLOCK_WIDTH * 2);
-        unsigned short ending_x = (player_handler->getMainPlayer()->getX() + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
-        unsigned short ending_y = (player_handler->getMainPlayer()->getY() + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
+        int starting_x = (player_handler->getMainPlayer()->getX()) / (BLOCK_WIDTH * 2);
+        int starting_y = (player_handler->getMainPlayer()->getY()) / (BLOCK_WIDTH * 2);
+        int ending_x = (player_handler->getMainPlayer()->getX() + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
+        int ending_y = (player_handler->getMainPlayer()->getY() + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
 
         if(selected_block_x < starting_x || selected_block_x > ending_x || selected_block_y < starting_y || selected_block_y > ending_y) {
             sf::Packet packet;

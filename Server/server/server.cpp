@@ -22,13 +22,13 @@ void onInterrupt(int signum) {
 }
 
 Server::Server(std::string resource_path, std::string world_path) :
-    networking_manager(),
-    blocks(&networking_manager),
+    networking(),
+    blocks(&networking),
     biomes(&blocks),
-    liquids(&blocks, &networking_manager),
+    liquids(&blocks, &networking),
     generator(&blocks, &liquids, &biomes, std::move(resource_path)),
     items(&entities, &blocks),
-    players(&blocks, &entities, &items, &networking_manager),
+    players(&blocks, &entities, &items, &networking),
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     entities(&blocks)
@@ -88,7 +88,7 @@ void Server::start(unsigned short port) {
     state = ServerState::STARTING;
 
     signal(SIGINT, onInterrupt);
-    networking_manager.openSocket(port);
+    networking.openSocket(port);
 
     state = ServerState::RUNNING;
     print::info("Server has started!");
@@ -104,28 +104,29 @@ void Server::start(unsigned short port) {
             gfx::sleep(ms_per_tick - tick_length);
         b = a;
 
-        networking_manager.checkForNewConnections();
-        networking_manager.getPacketsFromConnections();
+        networking.checkForNewConnections();
+        networking.getPacketsFromConnections();
         entities.updateAllEntities(tick_length);
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);
+        players.getPacketsFromPlayers();
         
         if(gfx::getTicks() / 1000 > seconds) {
             seconds = gfx::getTicks() / 1000;
-            //networking_manager.syncEntityPositions();
+            //networking.syncEntityPositions();
         }
     }
     
     state = ServerState::STOPPING;
 
-    if(!networking_manager.accept_itself) {
+    if(!networking.accept_itself) {
         sf::Packet kick_packet;
         kick_packet << PacketType::KICK << std::string("Server stopped!");
-        networking_manager.sendToEveryone(kick_packet);
+        networking.sendToEveryone(kick_packet);
     }
 
     print::info("Stopping server");
-    networking_manager.closeSocket();
+    networking.closeSocket();
 
     print::info("Saving world...");
     saveWorld();
@@ -138,7 +139,7 @@ void Server::stop() {
 }
 
 void Server::setPrivate(bool is_private) {
-    networking_manager.accept_itself = is_private;
+    networking.accept_itself = is_private;
 }
 
 unsigned int Server::getGeneratingTotal() const {

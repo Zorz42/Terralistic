@@ -11,7 +11,7 @@ void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
 }
 
 void ServerBlocks::init() {
-    networking_manager->connection_welcome_event.addListener(this);
+    networking->connection_welcome_event.addListener(this);
     block_change_event.addListener(this);
     block_break_stage_change_event.addListener(this);
 }
@@ -19,11 +19,11 @@ void ServerBlocks::init() {
 void ServerBlocks::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y);
-    networking_manager->sendToEveryone(packet);
+    networking->sendToEveryone(packet);
 }
 
 void ServerBlocks::onEvent(BlockBreakStageChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::BLOCK_PROGRESS << event.x << event.y << getBreakProgress(event.x, event.y);
-    networking_manager->sendToEveryone(packet);
+    networking->sendToEveryone(packet);
 }

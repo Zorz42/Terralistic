@@ -42,7 +42,7 @@ bool Connection::hasPacketInBuffer() {
     return !packet_buffer.empty();
 }
 
-std::pair<sf::Packet&, PacketType> Connection::getPacket() {
+std::pair<sf::Packet, PacketType> Connection::getPacket() {
     auto result = packet_buffer.front();
     packet_buffer.pop();
     return result;

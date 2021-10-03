@@ -11,11 +11,11 @@ void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
 }
 
 void ServerLiquids::init() {
-    networking_manager->connection_welcome_event.addListener(this);
+    networking->connection_welcome_event.addListener(this);
 }
 
 void ServerLiquids::onEvent(LiquidChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::LIQUID << event.x << event.y << (unsigned char)getLiquidType(event.x, event.y) << getLiquidLevel(event.x, event.y);
-    networking_manager->sendToEveryone(packet);
+    networking->sendToEveryone(packet);
 }

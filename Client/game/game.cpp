@@ -139,20 +139,20 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, std::st
     port(port),
     username(username),
     background_rect(background_rect),
-    client_blocks(&resource_pack, &networking_manager, &blocks, &liquids, &lights),
-    players(&networking_manager, &blocks, &liquids, &client_blocks, &resource_pack, &entities, username),
-    items(&resource_pack, &client_blocks, &entities, &networking_manager),
-    client_entities(&entities, &networking_manager),
+    client_blocks(&resource_pack, &networking, &blocks, &liquids, &lights),
+    players(&networking, &blocks, &liquids, &client_blocks, &resource_pack, &entities, username),
+    items(&resource_pack, &client_blocks, &entities, &networking),
+    client_entities(&entities, &networking),
     entities(&blocks),
-    block_selector(&networking_manager, &blocks, &client_blocks, &players),
-    inventory(&networking_manager, &resource_pack),
+    block_selector(&networking, &blocks, &client_blocks, &players),
+    inventory(&networking, &resource_pack),
     debug_menu(&players, &blocks, &client_blocks),
-    chat(&networking_manager),
+    chat(&networking),
     minimap(&blocks, &liquids, &lights, &client_blocks),
     liquids(&blocks),
     lights(&blocks)
 {
-    networking_manager.packet_event.addListener(this);
+    networking.packet_event.addListener(this);
 }
 
 void Game::init() {
@@ -165,7 +165,7 @@ void Game::init() {
     }
     resource_pack.load(active_resource_packs);
     
-    if(!networking_manager.establishConnection(ip_address, port)) {
+    if(!networking.establishConnection(ip_address, port)) {
         ChoiceScreen choice_screen(background_rect, "Could not connect to the server!", {"Close"});
         switchToScene(choice_screen);
         returnFromScene();
@@ -197,10 +197,10 @@ void Game::init() {
 void Game::handshakeWithServer() {
     sf::Packet join_packet;
     join_packet << username;
-    networking_manager.sendPacket(join_packet);
+    networking.sendPacket(join_packet);
     
     while(true) {
-        sf::Packet packet = networking_manager.getPacket();
+        sf::Packet packet = networking.getPacket();
         WelcomePacketType type;
         packet >> type;
         if(type == WelcomePacketType::WELCOME)
@@ -209,7 +209,7 @@ void Game::handshakeWithServer() {
         client_blocks.onWelcomePacket(packet, type);
     }
     
-    /*sf::Packet packet = networking_manager.getPacket();
+    /*sf::Packet packet = networking.getPacket();
     PacketType type;
     packet >> type;
     
@@ -232,7 +232,7 @@ void Game::handshakeWithServer() {
     lights.create();
     client_blocks.create();
     
-    //std::vector<char> map_data = networking_manager.getData(size);
+    //std::vector<char> map_data = networking.getData(size);
     //char* iter = &map_data[0];
     //iter = blocks.loadFromSerial(iter);
     //iter = liquids.loadFromSerial(iter);
@@ -242,7 +242,7 @@ void Game::handshakeWithServer() {
         for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlockInfo(x, y).transparent; y++)
             lights.setLightSource(x, y, MAX_LIGHT);
     
-    networking_manager.disableBlocking();
+    networking.disableBlocking();
     
     handshake_done = true;
 }
@@ -263,7 +263,7 @@ void Game::update() {
         switchToScene(choice_screen);
         returnFromScene();
     }
-    networking_manager.checkForPackets();
+    networking.checkForPackets();
     entities.updateAllEntities(getFrameLength());
     client_blocks.updateLights();
 }
@@ -280,7 +280,7 @@ void Game::render() {
 }
 
 void Game::stop() {
-    networking_manager.closeConnection();
+    networking.closeConnection();
 }
 
 void Game::renderBack() {

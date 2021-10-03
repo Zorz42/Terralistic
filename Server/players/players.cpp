@@ -34,7 +34,7 @@ static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
         blocks->breakBlock(x, y);
 }
 
-ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking_manager) : blocks(blocks), entities(entities), items(items), networking_manager(networking_manager) {
+ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking) : blocks(blocks), entities(entities), items(items), networking(networking) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = &treeUpdate;
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = &treeUpdate;
@@ -62,8 +62,8 @@ ServerPlayers::~ServerPlayers() {
 
 void ServerPlayers::init() {
     blocks->block_change_event.addListener(this);
-    networking_manager->new_connection_event.addListener(this);
-    networking_manager->connection_welcome_event.addListener(this);
+    networking->new_connection_event.addListener(this);
+    networking->connection_welcome_event.addListener(this);
     packet_event.addListener(this);
 }
 
@@ -261,10 +261,7 @@ void ServerPlayers::getPacketsFromPlayers() {
 void ServerPlayers::onEvent(ServerPacketEvent& event) {
     switch(event.packet_type) {
         case PacketType::STARTED_BREAKING: {
-            unsigned short x, y;
-            event.packet >> x >> y;
-            event.player->breaking_x = x;
-            event.player->breaking_y = y;
+            event.packet >> event.player->breaking_x >> event.player->breaking_y;
             event.player->breaking = true;
             break;
         }
@@ -275,7 +272,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
 
         case PacketType::RIGHT_CLICK: {
-            unsigned short x, y;
+            int x, y;
             event.packet >> x >> y;
             rightClickEvent(event.player, x, y);
             break;
@@ -309,7 +306,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             if(message.at(0) != '/') {
                 sf::Packet chat_packet;
                 chat_packet << PacketType::CHAT << chat_format;
-                networking_manager->sendToEveryone(chat_packet);
+                networking->sendToEveryone(chat_packet);
             }else{
                 //commands.startCommand(message, event.player->name);
             }
@@ -332,13 +329,13 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             event.player->moving_type = (MovingType)moving_type;
             sf::Packet moving_packet;
             moving_packet << PacketType::PLAYER_MOVING_TYPE << moving_type << event.player->id;
-            networking_manager->sendToEveryone(moving_packet);
+            networking->sendToEveryone(moving_packet);
         }
 
         case PacketType::PLAYER_JUMPED: {
             sf::Packet jumped_packet;
             jumped_packet << PacketType::PLAYER_JUMPED << event.player->id;
-            networking_manager->sendToEveryone(jumped_packet);
+            networking->sendToEveryone(jumped_packet);
         }
         default:;
     }

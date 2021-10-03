@@ -9,7 +9,7 @@
 
 class Connection {
     sf::TcpSocket* socket;
-    std::queue<std::pair<sf::Packet&, PacketType>> packet_buffer;
+    std::queue<std::pair<sf::Packet, PacketType>> packet_buffer;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
     bool greeted = false;
@@ -19,7 +19,7 @@ public:
     std::string getIpAddress();
     void pushPacket(sf::Packet& packet, PacketType type);
     bool hasPacketInBuffer();
-    std::pair<sf::Packet&, PacketType> getPacket();
+    std::pair<sf::Packet, PacketType> getPacket();
     ~Connection();
 };
 

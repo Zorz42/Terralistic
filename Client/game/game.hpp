@@ -27,7 +27,7 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     const std::string ip_address;
     const unsigned short port;
     std::string username;
-    NetworkingManager networking_manager;
+    NetworkingManager networking;
     ResourcePack resource_pack;
     ClientEntities client_entities;
     BlockRenderer client_blocks;

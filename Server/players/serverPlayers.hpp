@@ -35,7 +35,7 @@ public:
     Connection* getConnection();
     
     bool breaking = false;
-    unsigned short breaking_x = 0, breaking_y = 0;
+    int breaking_x = 0, breaking_y = 0;
     
     unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
@@ -61,7 +61,7 @@ class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewCo
     Entities* entities;
     Blocks* blocks;
     Items* items;
-    ServerNetworking* networking_manager;
+    ServerNetworking* networking;
     
     std::vector<ServerPlayerData*> all_players;
 
@@ -74,7 +74,7 @@ class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewCo
     
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
-    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking_manager);
+    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking);
     void init();
     void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     

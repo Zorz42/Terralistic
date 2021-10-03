@@ -15,7 +15,7 @@ enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNN
 
 class Server {
     std::string world_path;
-    ServerNetworking networking_manager;
+    ServerNetworking networking;
     ServerBlocks blocks;
     Biomes biomes;
     WorldGenerator generator;
