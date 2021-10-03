@@ -34,6 +34,8 @@ public:
     ClientInventory(NetworkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
     
     char* loadFromSerial(char* iter);
+    
+    void onWelcomePacket(sf::Packet& packet, WelcomePacketType type);
 };
 
 #endif

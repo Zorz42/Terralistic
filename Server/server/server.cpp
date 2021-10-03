@@ -84,6 +84,7 @@ void Server::start(unsigned short port) {
     items.init();
     players.init();
     entities.init();
+    liquids.init();
     
     print::info("Starting server...");
     state = ServerState::STARTING;

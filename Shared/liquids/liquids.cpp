@@ -166,6 +166,7 @@ void Liquids::serialize(std::vector<char>& serial) {
 }
 
 char* Liquids::loadFromSerial(char* iter) {
+    create();
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {

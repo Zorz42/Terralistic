@@ -210,3 +210,10 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         default: return false;
     }
 }
+
+void ClientInventory::onWelcomePacket(sf::Packet& packet, WelcomePacketType type) {
+    if(type == WelcomePacketType::INVENTORY) {
+        std::vector<char> data = manager->getData();
+        inventory.loadFromSerial(&data[0]);
+    }
+}

@@ -207,6 +207,8 @@ void Game::handshakeWithServer() {
             break;
         
         client_blocks.onWelcomePacket(packet, type);
+        inventory.onWelcomePacket(packet, type);
+        
     }
     
     /*sf::Packet packet = networking.getPacket();

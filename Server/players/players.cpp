@@ -235,6 +235,14 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     event.client_welcome_packet >> player_name;
     ServerPlayer* player = addPlayer(player_name);
     player->setConnection(event.connection);
+    
+    sf::Packet packet;
+    packet << WelcomePacketType::INVENTORY;
+    event.connection->send(packet);
+    
+    std::vector<char> data;
+    player->inventory.serialize(data);
+    event.connection->send(data);
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {

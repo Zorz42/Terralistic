@@ -12,6 +12,7 @@ void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
 
 void ServerLiquids::init() {
     networking->connection_welcome_event.addListener(this);
+    liquid_change_event.addListener(this);
 }
 
 void ServerLiquids::onEvent(LiquidChangeEvent& event) {
