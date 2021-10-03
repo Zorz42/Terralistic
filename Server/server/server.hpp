@@ -5,8 +5,8 @@
 #include <utility>
 #include "serverNetworking.hpp"
 #include "worldGenerator.hpp"
-#include "entities.hpp"
-#include "items.hpp"
+#include "serverEntities.hpp"
+#include "serverItems.hpp"
 #include "serverPlayers.hpp"
 #include "serverBlocks.hpp"
 #include "serverLiquids.hpp"
@@ -20,9 +20,9 @@ class Server {
     Biomes biomes;
     WorldGenerator generator;
     ServerLiquids liquids;
-    Items items;
+    ServerItems items;
     ServerPlayers players;
-    Entities entities;
+    ServerEntities entities;
 
     bool running = true;
     

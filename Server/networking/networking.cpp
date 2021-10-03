@@ -91,20 +91,10 @@ void ServerNetworking::getPacketsFromConnections() {
                 else if(status == sf::Socket::Disconnected) {
                     ServerDisconnectEvent event(connections[i]);
                     disconnect_event.call(event);
-                    //connections[i].player->inventory.item_change_event.removeListener(&connections[i]);
                     
-                    //players->savePlayer(connections[i].player);
-                    //entities->removeEntity(connections[i].player);
-                    
-                    /*int online_players_count = 0;
-                    for(Entity* entity : entities->getEntities())
-                        if(entity->type == EntityType::PLAYER)
-                            online_players_count++;
-                    print::info(connections[i].player->name + " (" + connections[i].getIpAddress() + ") disconnected (" + std::to_string(online_players_count) + " players online)");*/
-                    
+                    print::info(connections[i]->getIpAddress() + " disconnected (" + std::to_string(connections.size()) + " players online)");
                     delete connections[i];
                     connections.erase(connections.begin() + i);
-                    
                     
                     //sf::Packet entity_packet;
                     //entity_packet << PacketType::ENTITY_DELETION << connections[i].player->id;

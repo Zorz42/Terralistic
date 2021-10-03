@@ -65,6 +65,7 @@ void ServerPlayers::init() {
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);
     packet_event.addListener(this);
+    networking->disconnect_event.addListener(this);
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
@@ -258,6 +259,21 @@ void ServerPlayers::getPacketsFromPlayers() {
         }
 }
 
+void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
+    ServerPlayer* player = nullptr;
+    for(Entity* entity : entities->getEntities())
+        if(entity->type == EntityType::PLAYER) {
+            ServerPlayer* player_ = (ServerPlayer*)entity;
+            if(player_->getConnection() == event.connection) {
+                player = player_;
+                break;
+            }
+        }
+    
+    savePlayer(player);
+    entities->removeEntity(player);
+}
+
 void ServerPlayers::onEvent(ServerPacketEvent& event) {
     switch(event.packet_type) {
         case PacketType::STARTED_BREAKING: {
@@ -339,4 +355,11 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
         default:;
     }
+}
+
+void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
+    ItemStack item = inventory.getItem(event.item_pos);
+    sf::Packet packet;
+    packet << PacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
+    connection->send(packet);
 }

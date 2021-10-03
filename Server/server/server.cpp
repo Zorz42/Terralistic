@@ -27,11 +27,11 @@ Server::Server(std::string resource_path, std::string world_path) :
     biomes(&blocks),
     liquids(&blocks, &networking),
     generator(&blocks, &liquids, &biomes, std::move(resource_path)),
-    items(&entities, &blocks),
+    items(&entities, &blocks, &networking),
     players(&blocks, &entities, &items, &networking),
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
-    entities(&blocks)
+    entities(&blocks, &networking)
 {}
 
 void Server::loadWorld() {    
@@ -83,6 +83,7 @@ void Server::start(unsigned short port) {
     blocks.init();
     items.init();
     players.init();
+    entities.init();
     
     print::info("Starting server...");
     state = ServerState::STARTING;
@@ -113,7 +114,7 @@ void Server::start(unsigned short port) {
         
         if(gfx::getTicks() / 1000 > seconds) {
             seconds = gfx::getTicks() / 1000;
-            //networking.syncEntityPositions();
+            entities.syncEntityPositions();
         }
     }
     

@@ -23,10 +23,12 @@ public:
     Inventory inventory;
 };
 
-class ServerPlayer : public Entity {
+class ServerPlayer : public Entity, EventListener<InventoryItemChangeEvent> {
     Connection* connection = nullptr;
+    
+    void onEvent(InventoryItemChangeEvent& event) override;
 public:
-    explicit ServerPlayer(const ServerPlayerData& data) : Entity(EntityType::PLAYER, data.x, data.y), name(std::move(data.name)), inventory(data.inventory) { friction = false; }
+    ServerPlayer(const ServerPlayerData& data) : Entity(EntityType::PLAYER, data.x, data.y), name(std::move(data.name)), inventory(data.inventory) { friction = false; inventory.item_change_event.addListener(this); }
     std::string name;
     
     Inventory inventory;
@@ -41,6 +43,8 @@ public:
     unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
     
     bool isColliding(Blocks* blocks) override;
+    
+    ~ServerPlayer() { inventory.item_change_event.removeListener(this); }
 };
 
 struct BlockEvents {
@@ -57,7 +61,7 @@ public:
     ServerPlayer* player;
 };
 
-class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent> {
+class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent> {
     Entities* entities;
     Blocks* blocks;
     Items* items;
@@ -71,6 +75,7 @@ class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewCo
     void onEvent(ServerNewConnectionEvent& event) override;
     void onEvent(ServerConnectionWelcomeEvent& event) override;
     void onEvent(ServerPacketEvent& event) override;
+    void onEvent(ServerDisconnectEvent& event) override;
     
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
