@@ -66,16 +66,6 @@ void ServerNetworkingManager::checkForNewConnections() {
     }
 }
 
-void ServerNetworkingManager::init() {
-    /*blocks->block_change_event.addListener(this);
-    blocks->block_break_stage_change_event.addListener(this);
-    liquids->liquid_change_event.addListener(this);
-    items->item_creation_event.addListener(this);
-    entities->entity_deletion_event.addListener(this);
-    entities->entity_velocity_change_event.addListener(this);
-    entities->entity_position_change_event.addListener(this);*/
-}
-
 void ServerNetworkingManager::getPacketsFromPlayers() {
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
@@ -127,8 +117,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
             ServerNewConnectionEvent event2(connections[i]);
             new_connection_event.call(event2);
             
-            /*std::string player_name;
-            packet >> player_name;
+            /*
             bool already_exists = false;
             for(Entity* entity : entities->getEntities())
                 if(entity->type == EntityType::PLAYER) {
@@ -143,30 +132,7 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 connections[i].send(kick_packet);
                 connections.erase(connections.begin() + i);
             } else {
-                ServerPlayer* player = players->addPlayer(player_name);
-                connections[i].player = player;
-                
                 player->inventory.item_change_event.addListener(&connections[i]);
-                
-                std::vector<char> map_data;
-                blocks->serialize(map_data);
-                liquids->serialize(map_data);
-                player->inventory.serialize(map_data);
-                
-                sf::Packet welcome_packet;
-                welcome_packet << PacketType::WELCOME << player->getX() << player->getY() << blocks->getWidth() << blocks->getHeight();
-                
-                welcome_packet << (unsigned int)map_data.size();
-                connections[i].send(welcome_packet);
-                connections[i].send(map_data);
-                
-                for(Entity* entity : entities->getEntities())
-                    if(entity->type == EntityType::PLAYER) {
-                        ServerPlayer* curr_player = (ServerPlayer*)entity;
-                        sf::Packet join_packet;
-                        join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
-                        connections[i].send(join_packet);
-                    }
                 
                 for(const Entity* entity : entities->getEntities()) {
                     if(entity->type == EntityType::ITEM) {

@@ -80,7 +80,6 @@ void Server::start(unsigned short port) {
         generator.generateWorld(4400, 1200, seed);
     }
     
-    networking_manager.init();
     blocks.init();
     items.init();
     players.init();
