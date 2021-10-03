@@ -582,6 +582,8 @@
 				167513C126A498DA00E21C68 /* biomes */,
 				16B36D3926820AC700A4B03A /* worldGenerator */,
 				16A13D162709B73B009DEE40 /* liquids */,
+				16A13D1B2709E3A3009DEE40 /* entities */,
+				16A13D1C2709E3A7009DEE40 /* items */,
 				168600D42681DB1600763775 /* players */,
 				16A3C00E26FF871C001B9E4E /* commands */,
 				167B38922642F73900E3C718 /* server */,
@@ -741,6 +743,20 @@
 				16A13D172709B74A009DEE40 /* serverLiquids.cpp */,
 			);
 			path = liquids;
+			sourceTree = "<group>";
+		};
+		16A13D1B2709E3A3009DEE40 /* entities */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = entities;
+			sourceTree = "<group>";
+		};
+		16A13D1C2709E3A7009DEE40 /* items */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = items;
 			sourceTree = "<group>";
 		};
 		16A3BFFB26FF8662001B9E4E /* TerralisticTests */ = {

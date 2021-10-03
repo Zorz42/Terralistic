@@ -18,7 +18,7 @@ std::string Connection::getIpAddress() {
     return socket->getRemoteAddress().toString();
 }
 
-void Connection::freeSocket() {
+Connection::~Connection() {
     delete socket;
 }
 
@@ -34,22 +34,36 @@ void Connection::send(std::vector<char>& data) {
     }
 }
 
-void ServerNetworkingManager::openSocket(unsigned short port) {
+void Connection::pushPacket(sf::Packet& packet, PacketType type) {
+    packet_buffer.push({packet, type});
+}
+
+bool Connection::hasPacketInBuffer() {
+    return !packet_buffer.empty();
+}
+
+std::pair<sf::Packet&, PacketType> Connection::getPacket() {
+    auto result = packet_buffer.front();
+    packet_buffer.pop();
+    return result;
+}
+
+void ServerNetworking::openSocket(unsigned short port) {
     listener.listen(port);
     listener.setBlocking(false);
 }
 
-void ServerNetworkingManager::closeSocket() {
+void ServerNetworking::closeSocket() {
     listener.close();
 }
 
-void ServerNetworkingManager::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
+void ServerNetworking::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
     for(Connection* connection : connections)
         if(exclusion == nullptr || exclusion != connection)
             connection->send(packet);
 }
 
-void ServerNetworkingManager::checkForNewConnections() {
+void ServerNetworking::checkForNewConnections() {
     static sf::TcpSocket *socket = new sf::TcpSocket;
     while(true) {
         if(listener.accept(*socket) != sf::Socket::NotReady) {
@@ -66,7 +80,7 @@ void ServerNetworkingManager::checkForNewConnections() {
     }
 }
 
-void ServerNetworkingManager::getPacketsFromPlayers() {
+void ServerNetworking::getPacketsFromConnections() {
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
         if(connections[i]->greeted) {
@@ -88,7 +102,6 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                             online_players_count++;
                     print::info(connections[i].player->name + " (" + connections[i].getIpAddress() + ") disconnected (" + std::to_string(online_players_count) + " players online)");*/
                     
-                    connections[i]->freeSocket();
                     delete connections[i];
                     connections.erase(connections.begin() + i);
                     
@@ -101,8 +114,8 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                 } else if(status == sf::Socket::Done) {
                     unsigned char packet_type;
                     packet >> packet_type;
-                    ServerPacketEvent event(connections[i], packet);
-                    packet_event.call(event);
+                    
+                    connections[i]->pushPacket(packet, (PacketType)packet_type);
                 }
             }
         } else if(connections[i]->receive(packet) != sf::Socket::NotReady) {

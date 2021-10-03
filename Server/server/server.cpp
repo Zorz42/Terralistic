@@ -105,7 +105,7 @@ void Server::start(unsigned short port) {
         b = a;
 
         networking_manager.checkForNewConnections();
-        networking_manager.getPacketsFromPlayers();
+        networking_manager.getPacketsFromConnections();
         entities.updateAllEntities(tick_length);
         players.lookForItemsThatCanBePickedUp();
         players.updatePlayersBreaking(tick_length);

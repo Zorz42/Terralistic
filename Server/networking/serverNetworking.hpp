@@ -3,11 +3,13 @@
 
 #include <vector>
 #include <string>
+#include <queue>
 #include "packetType.hpp"
 #include "events.hpp"
 
 class Connection {
     sf::TcpSocket* socket;
+    std::queue<std::pair<sf::Packet&, PacketType>> packet_buffer;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
     bool greeted = false;
@@ -15,14 +17,10 @@ public:
     void send(std::vector<char>& data);
     sf::Socket::Status receive(sf::Packet& packet);
     std::string getIpAddress();
-    void freeSocket();
-};
-
-class ServerPacketEvent {
-public:
-    ServerPacketEvent(Connection* connection, sf::Packet& packet) : connection(connection), packet(packet) {}
-    Connection* connection;
-    sf::Packet& packet;
+    void pushPacket(sf::Packet& packet, PacketType type);
+    bool hasPacketInBuffer();
+    std::pair<sf::Packet&, PacketType> getPacket();
+    ~Connection();
 };
 
 class ServerConnectionWelcomeEvent {
@@ -44,7 +42,7 @@ public:
     Connection* connection;
 };
 
-class ServerNetworkingManager {
+class ServerNetworking {
     std::vector<Connection*> connections;
     sf::TcpListener listener;
 public:
@@ -54,11 +52,10 @@ public:
     void closeSocket();
     
     void checkForNewConnections();
-    void getPacketsFromPlayers();
+    void getPacketsFromConnections();
     
     bool accept_itself = false;
     
-    EventSender<ServerPacketEvent> packet_event;
     EventSender<ServerConnectionWelcomeEvent> connection_welcome_event;
     EventSender<ServerNewConnectionEvent> new_connection_event;
     EventSender<ServerDisconnectEvent> disconnect_event;

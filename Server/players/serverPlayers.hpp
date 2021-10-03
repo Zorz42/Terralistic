@@ -24,13 +24,15 @@ public:
 };
 
 class ServerPlayer : public Entity {
+    Connection* connection = nullptr;
 public:
     explicit ServerPlayer(const ServerPlayerData& data) : Entity(EntityType::PLAYER, data.x, data.y), name(std::move(data.name)), inventory(data.inventory) { friction = false; }
     std::string name;
     
     Inventory inventory;
     MovingType moving_type = MovingType::STANDING;
-    Connection* connection = nullptr;
+    void setConnection(Connection* connection);
+    Connection* getConnection();
     
     bool breaking = false;
     unsigned short breaking_x = 0, breaking_y = 0;
@@ -47,11 +49,19 @@ struct BlockEvents {
     void (*onLeftClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
 };
 
-class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent> {
+class ServerPacketEvent {
+public:
+    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
+    sf::Packet& packet;
+    PacketType packet_type;
+    ServerPlayer* player;
+};
+
+class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent> {
     Entities* entities;
     Blocks* blocks;
     Items* items;
-    ServerNetworkingManager* networking_manager;
+    ServerNetworking* networking_manager;
     
     std::vector<ServerPlayerData*> all_players;
 
@@ -60,10 +70,11 @@ class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewCo
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(ServerNewConnectionEvent& event) override;
     void onEvent(ServerConnectionWelcomeEvent& event) override;
+    void onEvent(ServerPacketEvent& event) override;
     
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
-    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworkingManager* networking_manager);
+    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking_manager);
     void init();
     void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
@@ -77,6 +88,9 @@ public:
     
     void updatePlayersBreaking(unsigned short tick_length);
     void lookForItemsThatCanBePickedUp();
+    void getPacketsFromPlayers();
+    
+    EventSender<ServerPacketEvent> packet_event;
     
     ~ServerPlayers();
 };

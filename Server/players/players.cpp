@@ -1,8 +1,9 @@
-#include "serverPlayers.hpp"
-#include "blocks.hpp"
 #include <filesystem>
 #include <fstream>
 #include <utility>
+#include "serverPlayers.hpp"
+#include "blocks.hpp"
+#include "print.hpp"
 
 static bool isBlockTree(Blocks* blocks, int x, int y) {
     return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && (blocks->getBlockType(x, y) == BlockType::WOOD || blocks->getBlockType(x, y) == BlockType::LEAVES);
@@ -33,7 +34,7 @@ static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
         blocks->breakBlock(x, y);
 }
 
-ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworkingManager* networking_manager) : blocks(blocks), entities(entities), items(items), networking_manager(networking_manager) {
+ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking_manager) : blocks(blocks), entities(entities), items(items), networking_manager(networking_manager) {
     custom_block_events[(int)BlockType::WOOD].onUpdate = &treeUpdate;
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = &treeUpdate;
@@ -63,6 +64,7 @@ void ServerPlayers::init() {
     blocks->block_change_event.addListener(this);
     networking_manager->new_connection_event.addListener(this);
     networking_manager->connection_welcome_event.addListener(this);
+    packet_event.addListener(this);
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
@@ -231,5 +233,113 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     std::string player_name;
     event.client_welcome_packet >> player_name;
     ServerPlayer* player = addPlayer(player_name);
-    player->connection = event.connection;
+    player->setConnection(event.connection);
+}
+
+void ServerPlayer::setConnection(Connection* connection_) {
+    assert(connection == nullptr);
+    connection = connection_;
+}
+
+Connection* ServerPlayer::getConnection() {
+    return connection;
+}
+
+void ServerPlayers::getPacketsFromPlayers() {
+    for(Entity* entity : entities->getEntities())
+        if(entity->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entity;
+            while(player->getConnection()->hasPacketInBuffer()) {
+                auto result = player->getConnection()->getPacket();
+                
+                ServerPacketEvent event(result.first, result.second, player);
+                packet_event.call(event);
+            }
+        }
+}
+
+void ServerPlayers::onEvent(ServerPacketEvent& event) {
+    switch(event.packet_type) {
+        case PacketType::STARTED_BREAKING: {
+            unsigned short x, y;
+            event.packet >> x >> y;
+            event.player->breaking_x = x;
+            event.player->breaking_y = y;
+            event.player->breaking = true;
+            break;
+        }
+
+        case PacketType::STOPPED_BREAKING: {
+            event.player->breaking = false;
+            break;
+        }
+
+        case PacketType::RIGHT_CLICK: {
+            unsigned short x, y;
+            event.packet >> x >> y;
+            rightClickEvent(event.player, x, y);
+            break;
+        }
+
+        case PacketType::PLAYER_VELOCITY: {
+            float velocity_x, velocity_y;
+            event.packet >> velocity_x >> velocity_y;
+            entities->setVelocityX(event.player, velocity_x);
+            entities->setVelocityY(event.player, velocity_y);
+            break;
+        }
+
+        case PacketType::INVENTORY_SWAP: {
+            unsigned char pos;
+            event.packet >> pos;
+            event.player->inventory.swapWithMouseItem(pos);
+            break;
+        }
+
+        case PacketType::HOTBAR_SELECTION: {
+            event.packet >> event.player->inventory.selected_slot;
+            break;
+        }
+
+        case PacketType::CHAT: {
+            std::string message;
+            event.packet >> message;
+            std::string chat_format = (event.player->name == "_" ? "Protagonist" : event.player->name) + ": " + message;
+            print::info(chat_format);
+            if(message.at(0) != '/') {
+                sf::Packet chat_packet;
+                chat_packet << PacketType::CHAT << chat_format;
+                networking_manager->sendToEveryone(chat_packet);
+            }else{
+                //commands.startCommand(message, event.player->name);
+            }
+            break;
+        }
+            
+        case PacketType::CRAFT: {
+            unsigned char craft_index;
+            event.packet >> craft_index;
+            const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
+            event.player->inventory.addItem(recipe_crafted->result_type, recipe_crafted->result_stack);
+            
+            for(auto ingredient : recipe_crafted->ingredients)
+                event.player->inventory.removeItem(ingredient.first, ingredient.second);
+        }
+            
+        case PacketType::PLAYER_MOVING_TYPE: {
+            unsigned char moving_type;
+            event.packet >> moving_type;
+            event.player->moving_type = (MovingType)moving_type;
+            sf::Packet moving_packet;
+            moving_packet << PacketType::PLAYER_MOVING_TYPE << moving_type << event.player->id;
+            networking_manager->sendToEveryone(moving_packet);
+        }
+
+        case PacketType::PLAYER_JUMPED: {
+            sf::Packet jumped_packet;
+            jumped_packet << PacketType::PLAYER_JUMPED << event.player->id;
+            networking_manager->sendToEveryone(jumped_packet);
+        }
+        default:;
+    }
 }
