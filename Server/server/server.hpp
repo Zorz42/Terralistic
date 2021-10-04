@@ -11,7 +11,7 @@
 #include "serverBlocks.hpp"
 #include "serverLiquids.hpp"
 
-enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
+enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
 
 class Server {
     std::string world_path;
@@ -28,6 +28,8 @@ class Server {
     
     void saveWorld();
     void loadWorld();
+    
+    std::vector<ServerModule*> modules;
 public:
     ServerState state = ServerState::NEUTRAL;
     

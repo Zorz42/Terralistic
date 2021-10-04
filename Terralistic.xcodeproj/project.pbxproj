@@ -256,6 +256,7 @@
 		167513C326A498DA00E21C68 /* biomes.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = biomes.hpp; sourceTree = "<group>"; };
 		1675818D2707687E00422C07 /* inventory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
 		1675818E2707687E00422C07 /* inventory.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = inventory.hpp; sourceTree = "<group>"; };
+		1675C53F270B458400749B3D /* serverModule.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverModule.hpp; sourceTree = "<group>"; };
 		1675E71B26611B8000B620F4 /* configManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = configManager.cpp; sourceTree = "<group>"; };
 		1675E71C26611B8000B620F4 /* configManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = configManager.hpp; sourceTree = "<group>"; };
 		1676AF3527044CD100321C8B /* lights.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lights.cpp; sourceTree = "<group>"; };
@@ -551,6 +552,14 @@
 			path = inventory;
 			sourceTree = "<group>";
 		};
+		1675C53E270B456F00749B3D /* serverModule */ = {
+			isa = PBXGroup;
+			children = (
+				1675C53F270B458400749B3D /* serverModule.hpp */,
+			);
+			path = serverModule;
+			sourceTree = "<group>";
+		};
 		1675E71A26611B6300B620F4 /* configManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -581,6 +590,7 @@
 			isa = PBXGroup;
 			children = (
 				167B387D2642F73900E3C718 /* print */,
+				1675C53E270B456F00749B3D /* serverModule */,
 				1673274926A80E760063281A /* networking */,
 				16A13D112709A000009DEE40 /* blocks */,
 				167513C126A498DA00E21C68 /* biomes */,

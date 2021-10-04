@@ -6,6 +6,7 @@
 #include <queue>
 #include "packetType.hpp"
 #include "events.hpp"
+#include "serverModule.hpp"
 
 class Connection {
     sf::TcpSocket* socket;
@@ -42,7 +43,7 @@ public:
     Connection* connection;
 };
 
-class ServerNetworking {
+class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
     sf::TcpListener listener;
 public:

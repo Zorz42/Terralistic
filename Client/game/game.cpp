@@ -49,9 +49,6 @@ void WorldStartingScreen::render() {
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
         switch(server->state) {
-            case ServerState::STARTING:
-                text.loadFromText("Starting server");
-                break;
             case ServerState::LOADING_WORLD:
                 text.loadFromText("Loading world");
                 break;
@@ -229,7 +226,6 @@ void Game::handshakeWithServer() {
     unsigned int size;
     packet >> size;*/
     
-    //blocks.create(world_width, world_height);
     liquids.create();
     lights.create();
     client_blocks.create();

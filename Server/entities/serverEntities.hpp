@@ -3,7 +3,7 @@
 #include "entities.hpp"
 #include "serverNetworking.hpp"
 
-class ServerEntities : public Entities, EventListener<EntityPositionChangeEvent>, EventListener<EntityVelocityChangeEvent>, EventListener<EntityDeletionEvent> {
+class ServerEntities : public ServerModule, public Entities, EventListener<EntityPositionChangeEvent>, EventListener<EntityVelocityChangeEvent>, EventListener<EntityDeletionEvent> {
     ServerNetworking* networking;
     
     void onEvent(EntityPositionChangeEvent& event) override;
@@ -13,7 +13,7 @@ class ServerEntities : public Entities, EventListener<EntityPositionChangeEvent>
 public:
     ServerEntities(Blocks* blocks, ServerNetworking* networking) : Entities(blocks), networking(networking) {}
     
-    void init();
+    void init() override;
     
     void syncEntityPositions();
 };

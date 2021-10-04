@@ -2,6 +2,7 @@
 
 #include "properties.hpp"
 #include "blocks.hpp"
+#include "serverModule.hpp"
 #include <vector>
 #include <string>
 
@@ -39,7 +40,7 @@ struct StructureChance {
 
 inline std::vector <Biome> loaded_biomes;
 
-class Biomes {
+class Biomes : public ServerModule {
     Blocks* blocks;
 public:
     Biomes(Blocks* blocks) : blocks(blocks) {}

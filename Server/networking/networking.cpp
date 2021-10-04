@@ -7,7 +7,9 @@
 #define TRANSFER_BUFFER_SIZE 16384 // 2^14
 
 void Connection::send(sf::Packet& packet) {
-    socket->send(packet);
+    sf::Socket::Status status = sf::Socket::Partial;
+    while(status == sf::Socket::Partial)
+        status = socket->send(packet);
 }
 
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
@@ -24,9 +26,14 @@ Connection::~Connection() {
 
 void Connection::send(std::vector<char>& data) {
     int size = (int)data.size();
-    socket->send((char*)&size, sizeof(int));
-    
     int bytes_sent = 0;
+    while(bytes_sent < sizeof(int)) {
+        size_t sent;
+        socket->send((char*)&size, sizeof(int), sent);
+        bytes_sent += sent;
+    }
+    
+    bytes_sent = 0;
     while(bytes_sent < data.size()) {
         size_t sent;
         socket->send(&data[bytes_sent], (int)data.size() - bytes_sent, sent);

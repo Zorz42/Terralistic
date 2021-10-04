@@ -5,7 +5,7 @@
 #include "worldGenerator.hpp"
 #include "entities.hpp"
 
-class Commands {
+class Commands : public ServerModule {
     Blocks* blocks;
     ServerPlayers* players;
     Items* items;
@@ -17,6 +17,6 @@ public:
     void formatLocation(std::vector<std::string>& message, const std::string& player, unsigned char start_format);
     void formatBlockType(std::string& type);
     void formatItemType(std::string& type);
-    void teleport(const std::string& player, unsigned int x, unsigned int y);
+    void teleport(const std::string& player, int x, int y);
     void giveItem(std::vector<std::string>& message, const std::string& player);
 };

@@ -3,7 +3,7 @@
 #include "liquids.hpp"
 #include "serverNetworking.hpp"
 
-class ServerLiquids : public Liquids, EventListener<ServerConnectionWelcomeEvent>, EventListener<LiquidChangeEvent> {
+class ServerLiquids : public ServerModule, public Liquids, EventListener<ServerConnectionWelcomeEvent>, EventListener<LiquidChangeEvent> {
     ServerNetworking* networking;
     
     void onEvent(ServerConnectionWelcomeEvent& event) override;
@@ -11,5 +11,5 @@ class ServerLiquids : public Liquids, EventListener<ServerConnectionWelcomeEvent
 public:
     ServerLiquids(Blocks* blocks, ServerNetworking* networking) : Liquids(blocks), networking(networking) {}
     
-    void init();
+    void init() override;
 };

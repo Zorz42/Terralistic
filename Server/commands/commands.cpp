@@ -77,7 +77,7 @@ void Commands::formatItemType(std::string &type) {
         type = std::to_string((int)getItemTypeByName(type));
 }
 
-void Commands::teleport(const std::string& player_name, unsigned int x, unsigned int y) {
+void Commands::teleport(const std::string& player_name, int x, int y) {
     y *= -1;
     y += blocks->getHeight();
     ServerPlayer* player = players->getPlayerByName(player_name);

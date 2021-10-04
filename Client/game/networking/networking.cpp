@@ -1,7 +1,9 @@
 #include "clientNetworking.hpp"
 
 void NetworkingManager::sendPacket(sf::Packet& packet) {
-    socket.send(packet);
+    sf::Socket::Status status = sf::Socket::Partial;
+    while(status == sf::Socket::Partial)
+        status = socket.send(packet);
 }
 
 void NetworkingManager::checkForPackets() {

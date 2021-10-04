@@ -61,7 +61,7 @@ public:
     ServerPlayer* player;
 };
 
-class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent> {
+class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent> {
     Entities* entities;
     Blocks* blocks;
     Items* items;
@@ -80,7 +80,7 @@ class ServerPlayers : EventListener<BlockChangeEvent>, EventListener<ServerNewCo
     void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
 public:
     ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking);
-    void init();
+    void init() override;
     void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
     const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }

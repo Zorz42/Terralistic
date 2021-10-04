@@ -3,7 +3,7 @@
 #include "blocks.hpp"
 #include "serverNetworking.hpp"
 
-class ServerBlocks : public Blocks, EventListener<ServerConnectionWelcomeEvent>, EventListener<BlockChangeEvent>, EventListener<BlockBreakStageChangeEvent> {
+class ServerBlocks : public ServerModule, public Blocks, EventListener<ServerConnectionWelcomeEvent>, EventListener<BlockChangeEvent>, EventListener<BlockBreakStageChangeEvent> {
     ServerNetworking* networking;
     
     void onEvent(ServerConnectionWelcomeEvent& event) override;
@@ -12,5 +12,5 @@ class ServerBlocks : public Blocks, EventListener<ServerConnectionWelcomeEvent>,
 public:
     ServerBlocks(ServerNetworking* networking) : networking(networking) {}
     
-    void init();
+    void init() override;
 };

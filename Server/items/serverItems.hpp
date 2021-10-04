@@ -3,7 +3,7 @@
 #include "items.hpp"
 #include "serverNetworking.hpp"
 
-class ServerItems : public Items, EventListener<ItemCreationEvent> {
+class ServerItems : public ServerModule, public Items, EventListener<ItemCreationEvent> {
     ServerNetworking* networking;
     
     void onEvent(ItemCreationEvent& event);

@@ -32,7 +32,17 @@ Server::Server(std::string resource_path, std::string world_path) :
     world_path(std::move(world_path)),
     seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     entities(&blocks, &networking)
-{}
+{
+    modules = {
+        &networking,
+        &blocks,
+        &biomes,
+        &liquids,
+        &items,
+        &players,
+        &entities,
+    };
+}
 
 void Server::loadWorld() {    
     std::ifstream world_file(world_path, std::ios::binary);
@@ -80,14 +90,8 @@ void Server::start(unsigned short port) {
         generator.generateWorld(4400, 1200, seed);
     }
     
-    blocks.init();
-    items.init();
-    players.init();
-    entities.init();
-    liquids.init();
-    
-    print::info("Starting server...");
-    state = ServerState::STARTING;
+    for(ServerModule* module : modules)
+        module->init();
 
     signal(SIGINT, onInterrupt);
     networking.openSocket(port);
@@ -119,6 +123,7 @@ void Server::start(unsigned short port) {
         }
     }
     
+    print::info("Stopping server");
     state = ServerState::STOPPING;
 
     if(!networking.accept_itself) {
@@ -126,8 +131,7 @@ void Server::start(unsigned short port) {
         kick_packet << PacketType::KICK << std::string("Server stopped!");
         networking.sendToEveryone(kick_packet);
     }
-
-    print::info("Stopping server");
+    
     networking.closeSocket();
 
     print::info("Saving world...");
