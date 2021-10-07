@@ -120,31 +120,6 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
     return nullptr;
 }
 
-void ServerPlayers::updatePlayersBreaking(unsigned short tick_length) {
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entity;
-            if(player->breaking)
-                leftClickEvent(player, player->breaking_x, player->breaking_y, tick_length);
-        }
-}
-
-void ServerPlayers::lookForItemsThatCanBePickedUp() {
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::ITEM) {
-            Item* item = (Item*)entity;
-            for(Entity* entity2 : entities->getEntities())
-                if(entity2->type == EntityType::PLAYER) {
-                    ServerPlayer* player = (ServerPlayer*)entity2;
-                    if(abs(item->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(item->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
-                       player->inventory.addItem(item->getType(), 1) != -1
-                       ) {
-                        entities->removeEntity(item);
-                    }
-                }
-        }
-}
-
 void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length) {
     if(custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick)
         custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick(blocks, x, y, player);
@@ -254,7 +229,7 @@ Connection* ServerPlayer::getConnection() {
     return connection;
 }
 
-void ServerPlayers::getPacketsFromPlayers() {
+void ServerPlayers::update(float frame_length) {
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER) {
             ServerPlayer* player = (ServerPlayer*)entity;
@@ -264,6 +239,27 @@ void ServerPlayers::getPacketsFromPlayers() {
                 ServerPacketEvent event(result.first, result.second, player);
                 packet_event.call(event);
             }
+        }
+    
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
+            if(player->breaking)
+                leftClickEvent(player, player->breaking_x, player->breaking_y, frame_length);
+        }
+
+    for(Entity* entity : entities->getEntities())
+        if(entity->type == EntityType::ITEM) {
+            Item* item = (Item*)entity;
+            for(Entity* entity2 : entities->getEntities())
+                if(entity2->type == EntityType::PLAYER) {
+                    ServerPlayer* player = (ServerPlayer*)entity2;
+                    if(abs(item->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(item->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
+                       player->inventory.addItem(item->getType(), 1) != -1
+                       ) {
+                        entities->removeEntity(item);
+                    }
+                }
         }
 }
 
@@ -319,21 +315,6 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 
         case PacketType::HOTBAR_SELECTION: {
             event.packet >> event.player->inventory.selected_slot;
-            break;
-        }
-
-        case PacketType::CHAT: {
-            std::string message;
-            event.packet >> message;
-            std::string chat_format = (event.player->name == "_" ? "Protagonist" : event.player->name) + ": " + message;
-            print::info(chat_format);
-            if(message.at(0) != '/') {
-                sf::Packet chat_packet;
-                chat_packet << PacketType::CHAT << chat_format;
-                networking->sendToEveryone(chat_packet);
-            }else{
-                //commands.startCommand(message, event.player->name);
-            }
             break;
         }
             

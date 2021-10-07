@@ -10,6 +10,8 @@
 #include "serverPlayers.hpp"
 #include "serverBlocks.hpp"
 #include "serverLiquids.hpp"
+#include "serverChat.hpp"
+#include "commands.hpp"
 
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
 
@@ -22,6 +24,8 @@ class Server {
     ServerLiquids liquids;
     ServerItems items;
     ServerPlayers players;
+    ServerChat chat;
+    Commands commands;
     ServerEntities entities;
 
     bool running = true;

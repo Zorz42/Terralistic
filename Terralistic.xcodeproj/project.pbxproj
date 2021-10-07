@@ -37,6 +37,9 @@
 		169990A92700E25300224E11 /* naturalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* naturalLight.cpp */; };
 		169990AA2700E25300224E11 /* naturalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* naturalLight.cpp */; };
 		169AD3A327023B690096D80D /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169AD3A127023B690096D80D /* blocks.cpp */; };
+		169B87D0270F5036006023B8 /* serverChat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169B87CE270F5035006023B8 /* serverChat.cpp */; };
+		169B87D1270F5036006023B8 /* serverChat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169B87CE270F5035006023B8 /* serverChat.cpp */; };
+		169B87D2270F5238006023B8 /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D426D07180005AB3CC /* chat.cpp */; };
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A0E8AC26FDBE630069211C /* minimap.cpp */; };
 		16A13D142709A100009DEE40 /* serverBlocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A13D122709A100009DEE40 /* serverBlocks.cpp */; };
@@ -144,7 +147,6 @@
 		365721CA26D0710F005AB3CC /* x-button.png in Resources */ = {isa = PBXBuildFile; fileRef = 3657219726D0710F005AB3CC /* x-button.png */; };
 		365721CD26D07147005AB3CC /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 365721CC26D07147005AB3CC /* resourcePack */; };
 		3657220D26D07181005AB3CC /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D226D07180005AB3CC /* networking.cpp */; };
-		3657220E26D07181005AB3CC /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D426D07180005AB3CC /* chat.cpp */; };
 		3657220F26D07181005AB3CC /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D826D07180005AB3CC /* inventory.cpp */; };
 		3657221126D07181005AB3CC /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721DC26D07180005AB3CC /* debugMenu.cpp */; };
 		3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E026D07180005AB3CC /* pauseScreen.cpp */; };
@@ -288,6 +290,8 @@
 		169990A82700E25300224E11 /* naturalLight.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = naturalLight.hpp; sourceTree = "<group>"; };
 		169AD3A127023B690096D80D /* blocks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blocks.cpp; sourceTree = "<group>"; };
 		169AD3A227023B690096D80D /* blocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blocks.hpp; sourceTree = "<group>"; };
+		169B87CE270F5035006023B8 /* serverChat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverChat.cpp; sourceTree = "<group>"; };
+		169B87CF270F5035006023B8 /* serverChat.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverChat.hpp; sourceTree = "<group>"; };
 		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
 		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
 		16A0E8AC26FDBE630069211C /* minimap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = minimap.cpp; sourceTree = "<group>"; };
@@ -599,6 +603,7 @@
 				16A13D1B2709E3A3009DEE40 /* entities */,
 				16A13D1C2709E3A7009DEE40 /* items */,
 				168600D42681DB1600763775 /* players */,
+				169B87CD270F5035006023B8 /* chat */,
 				16A3C00E26FF871C001B9E4E /* commands */,
 				167B38922642F73900E3C718 /* server */,
 				1626244C26430B41007E01C4 /* launcher */,
@@ -721,6 +726,15 @@
 				169AD3A127023B690096D80D /* blocks.cpp */,
 			);
 			path = blocks;
+			sourceTree = "<group>";
+		};
+		169B87CD270F5035006023B8 /* chat */ = {
+			isa = PBXGroup;
+			children = (
+				169B87CF270F5035006023B8 /* serverChat.hpp */,
+				169B87CE270F5035006023B8 /* serverChat.cpp */,
+			);
+			path = chat;
 			sourceTree = "<group>";
 		};
 		169DE4E826E3E1F0008DB021 /* modManager */ = {
@@ -1212,6 +1226,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				169B87D2270F5238006023B8 /* chat.cpp in Sources */,
 				3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */,
 				36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */,
 				166D85DD26AA0B9E00DB87B1 /* SimplexNoise.cpp in Sources */,
@@ -1222,7 +1237,6 @@
 				16A3BFF426FF85F6001B9E4E /* texture.cpp in Sources */,
 				3657221926D07181005AB3CC /* block.cpp in Sources */,
 				3657221526D07181005AB3CC /* players.cpp in Sources */,
-				3657220E26D07181005AB3CC /* chat.cpp in Sources */,
 				3657221426D07181005AB3CC /* resourcePack.cpp in Sources */,
 				3657221826D07181005AB3CC /* blockSelector.cpp in Sources */,
 				3657220F26D07181005AB3CC /* inventory.cpp in Sources */,
@@ -1253,6 +1267,7 @@
 				16670CE026DDFAA90057AA41 /* settings.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				169AD3A327023B690096D80D /* blocks.cpp in Sources */,
+				169B87D0270F5036006023B8 /* serverChat.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				167B53CD270A26EC000089B3 /* serverItems.cpp in Sources */,
 				3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */,
@@ -1304,6 +1319,7 @@
 				16A3BFF126FF85F6001B9E4E /* rectArray.cpp in Sources */,
 				361DD1A126F7478900129191 /* button.cpp in Sources */,
 				361DD1A326F7478900129191 /* resourcePath.cpp in Sources */,
+				169B87D1270F5036006023B8 /* serverChat.cpp in Sources */,
 				361DD1A426F7478900129191 /* items.cpp in Sources */,
 				361DD1A526F7478900129191 /* centeredObject.cpp in Sources */,
 				16A3C01226FF871C001B9E4E /* commands.cpp in Sources */,

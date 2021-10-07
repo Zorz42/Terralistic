@@ -91,9 +91,7 @@ public:
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
     
-    void updatePlayersBreaking(unsigned short tick_length);
-    void lookForItemsThatCanBePickedUp();
-    void getPacketsFromPlayers();
+    void update(float frame_length) override;
     
     EventSender<ServerPacketEvent> packet_event;
     

@@ -27,20 +27,24 @@ Server::Server(std::string resource_path, std::string world_path) :
     biomes(&blocks),
     liquids(&blocks, &networking),
     generator(&blocks, &liquids, &biomes, std::move(resource_path)),
+    entities(&blocks, &networking),
     items(&entities, &blocks, &networking),
     players(&blocks, &entities, &items, &networking),
+    chat(&players, &networking),
+    commands(&blocks, &players, &items, &entities, &chat),
     world_path(std::move(world_path)),
-    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
-    entities(&blocks, &networking)
+    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 {
     modules = {
         &networking,
         &blocks,
         &biomes,
         &liquids,
+        &entities,
         &items,
         &players,
-        &entities,
+        &chat,
+        &commands,
     };
 }
 
@@ -98,41 +102,27 @@ void Server::start(unsigned short port) {
 
     state = ServerState::RUNNING;
     print::info("Server has started!");
-    unsigned int a, b = gfx::getTicks(), seconds = 0;
-    unsigned short tick_length;
+    
+    unsigned int a, b = gfx::getTicks();
     
     int ms_per_tick = 1000 / TPS_LIMIT;
 
     while(running) {
         a = gfx::getTicks();
-        tick_length = a - b;
-        if(tick_length < ms_per_tick)
-            gfx::sleep(ms_per_tick - tick_length);
+        float frame_length = a - b;
+        if(frame_length < ms_per_tick)
+            gfx::sleep(ms_per_tick - frame_length);
         b = a;
-
-        networking.checkForNewConnections();
-        networking.getPacketsFromConnections();
-        entities.updateAllEntities(tick_length);
-        players.lookForItemsThatCanBePickedUp();
-        players.updatePlayersBreaking(tick_length);
-        players.getPacketsFromPlayers();
         
-        if(gfx::getTicks() / 1000 > seconds) {
-            seconds = gfx::getTicks() / 1000;
-            entities.syncEntityPositions();
-        }
+        for(ServerModule* module : modules)
+            module->update(frame_length);
     }
     
     print::info("Stopping server");
     state = ServerState::STOPPING;
 
-    if(!networking.accept_itself) {
-        sf::Packet kick_packet;
-        kick_packet << PacketType::KICK << std::string("Server stopped!");
-        networking.sendToEveryone(kick_packet);
-    }
-    
-    networking.closeSocket();
+    for(ServerModule* module : modules)
+        module->stop();
 
     print::info("Saving world...");
     saveWorld();

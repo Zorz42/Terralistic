@@ -60,17 +60,13 @@ void ServerNetworking::openSocket(unsigned short port) {
     listener.setBlocking(false);
 }
 
-void ServerNetworking::closeSocket() {
-    listener.close();
-}
-
 void ServerNetworking::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
     for(Connection* connection : connections)
         if(exclusion == nullptr || exclusion != connection)
             connection->send(packet);
 }
 
-void ServerNetworking::checkForNewConnections() {
+void ServerNetworking::update(float frame_length) {
     static sf::TcpSocket *socket = new sf::TcpSocket;
     while(true) {
         if(listener.accept(*socket) != sf::Socket::NotReady) {
@@ -85,9 +81,7 @@ void ServerNetworking::checkForNewConnections() {
         } else
             break;
     }
-}
-
-void ServerNetworking::getPacketsFromConnections() {
+    
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
         if(connections[i]->greeted) {
@@ -165,4 +159,14 @@ void ServerNetworking::getPacketsFromConnections() {
             }*/
         }
     }
+}
+
+void ServerNetworking::stop() {
+    if(!accept_itself) {
+        sf::Packet kick_packet;
+        kick_packet << PacketType::KICK << std::string("Server stopped!");
+        sendToEveryone(kick_packet);
+    }
+    
+    listener.close();
 }

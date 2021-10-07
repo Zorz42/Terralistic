@@ -10,10 +10,13 @@ class ServerEntities : public ServerModule, public Entities, EventListener<Entit
     void onEvent(EntityVelocityChangeEvent& event) override;
     void onEvent(EntityDeletionEvent& event) override;
     
+    unsigned int seconds = 0;
+    
 public:
     ServerEntities(Blocks* blocks, ServerNetworking* networking) : Entities(blocks), networking(networking) {}
     
     void init() override;
     
     void syncEntityPositions();
+    void update(float frame_length) override;
 };

@@ -21,7 +21,7 @@ public:
         listeners.erase(std::find(listeners.begin(), listeners.end(), listener));
     }
     
-    void call(EventInstance event) {
+    void call(EventInstance& event) {
         for(EventListener<EventInstance>* listener : listeners)
             listener->onEvent(event);
     }

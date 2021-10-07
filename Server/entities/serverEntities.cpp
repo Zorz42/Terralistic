@@ -1,4 +1,5 @@
 #include "serverEntities.hpp"
+#include "graphics.hpp"
 
 void ServerEntities::init() {
     entity_position_change_event.addListener(this);
@@ -24,10 +25,15 @@ void ServerEntities::onEvent(EntityPositionChangeEvent& event) {
     networking->sendToEveryone(packet);
 }
 
-void ServerEntities::syncEntityPositions() {
-    for(Entity* entity : getEntities()) {
-        sf::Packet packet;
-        packet << PacketType::ENTITY_POSITION << entity->getX() << entity->getY() << entity->id;
-        networking->sendToEveryone(packet);
+void ServerEntities::update(float frame_length) {
+    updateAllEntities(frame_length);
+    
+    if(gfx::getTicks() / 1000 > seconds) {
+        seconds = gfx::getTicks() / 1000;
+        for(Entity* entity : getEntities()) {
+            sf::Packet packet;
+            packet << PacketType::ENTITY_POSITION << entity->getX() << entity->getY() << entity->id;
+            networking->sendToEveryone(packet);
+        }
     }
 }

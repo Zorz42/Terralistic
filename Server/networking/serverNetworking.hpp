@@ -50,12 +50,12 @@ public:
     void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
     
     void openSocket(unsigned short port);
-    void closeSocket();
     
-    void checkForNewConnections();
-    void getPacketsFromConnections();
+    void update(float frame_length) override;
     
     bool accept_itself = false;
+    
+    void stop() override;
     
     EventSender<ServerConnectionWelcomeEvent> connection_welcome_event;
     EventSender<ServerNewConnectionEvent> new_connection_event;
