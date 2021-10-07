@@ -37,32 +37,25 @@ int worldGenerator::heatGeneratorInt(unsigned int x, SimplexNoise &noise) {
 }
 
 int worldGenerator::heightGeneratorInt(unsigned int x, SimplexNoise& noise) {
-    if (x < 50 || x > server_blocks->getWidth() - 50)
+    if (x < 100 || x > server_blocks->getWidth() - 100)
         return 0;
-    else if (x < 100 || x > server_blocks->getWidth() - 100)
+    else if (x < 150 || x > server_blocks->getWidth() - 150)
         return 1;
     else {
-        int biome_heat = (noise.noise((float)x / 600.0 + 0.001) + 1) * 2;
-        return std::min(std::max(1, biome_heat), 3);
+        int biome_heat = (noise.noise((float)x / 600.0 + 0.001) + 1) * 1.5 + 1;
+        return std::min(biome_heat, 3);
     }
 }
 
 void worldGenerator::biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise) {
-    /*
-    sea level = 300, sea floor = 250
-    plains = 325
-    hills = 400
-    mountains 600-700
-    */
 
     int biome_heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
     server_blocks->biomes[x] = (Biome)((biome_heat * 4) + biome_height);
-    //server_blocks->biomes[x] = Biome::ICY_SEAS;
 }
 
 void worldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
-    int surface_height = calculateHeight(x, noise);
+    int surface_height = server_blocks->surface_height[x];
     generateSurface(x, surface_height, noise);
     for(auto &checking_structure : loaded_biomes[(int)server_blocks->biomes[x]].structure_chances){
         if((noise.noise((float)x + 0.5, (float)surface_height + 0.5) + 1) * checking_structure.chance_on_each_block <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance_between_instances) {
@@ -111,18 +104,27 @@ void worldGenerator::generateSurface(int x, int surface_height, SimplexNoise &no
     }
 }
 
-int worldGenerator::calculateHeight(int x, SimplexNoise& noise) {
+void worldGenerator::calculateHeight(SimplexNoise& noise) {
     int biome_blend = 20;
-    int slice_height = 0;
-    int slice_height_variation = 0;
-    float divide_at_end = 0;
-        for(int i = std::max(0, x - biome_blend); i < std::min(server_blocks->getWidth() - 1, x + biome_blend); i++){
-            slice_height += loaded_biomes[(int)server_blocks->biomes[i]].surface_height * (1 - (float)std::abs(x - i) / biome_blend);
-            slice_height_variation += loaded_biomes[(int)server_blocks->biomes[i]].surface_height_variation * (1 - (float)std::abs(x - i) / biome_blend);
-            divide_at_end += (1 - (float)std::abs(x - i) / biome_blend);
-        }
+    float divide_at_end;
+    unsigned short no_blend_height[server_blocks->getWidth()];
+    for(int current_slice = 0; current_slice < server_blocks->getWidth(); current_slice++) {
+        no_blend_height[current_slice] = loaded_biomes[(int) server_blocks->biomes[current_slice]].surface_height;
+    }
 
-    return (slice_height + turbulence(x + 0.003, 0, 64, noise) * slice_height_variation) / divide_at_end;
+    for(int current_slice = 0; current_slice < server_blocks->getWidth(); current_slice++) {
+        divide_at_end = 0;
+        server_blocks->surface_height[current_slice] = 0;
+        unsigned short variation = 0;
+        for (int i = std::max(0, current_slice - biome_blend); i < std::min(server_blocks->getWidth() - 1, current_slice + biome_blend); i++) {
+            server_blocks->surface_height[current_slice] += no_blend_height[i] * (1 - (float)std::abs(current_slice - i) / biome_blend);
+            variation += loaded_biomes[(int) server_blocks->biomes[i]].surface_height_variation * (1 - (float)std::abs(current_slice - i) / biome_blend);
+            divide_at_end += (1 - (float)std::abs(current_slice - i) / biome_blend);
+        }
+        server_blocks->surface_height[current_slice] /= divide_at_end;
+        variation /= divide_at_end;
+        server_blocks->surface_height[current_slice] += turbulence(current_slice + 0.003, 0, 64, noise) * variation;
+    }
 }
 
 void worldGenerator::loadAssets() {
@@ -222,6 +224,7 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
     for (int x = 0; x < server_blocks->getWidth(); x++) {
         biomeGeneratorSwitch(x, noise);
     }
+    calculateHeight(noise);
     for (int x = 0; x < server_blocks->getWidth(); x++) {
         terrainGenerator(x, noise);
         generating_current++;

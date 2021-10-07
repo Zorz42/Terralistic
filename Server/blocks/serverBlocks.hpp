@@ -87,6 +87,7 @@ public:
     void setNaturalLight(unsigned short x);
     
     Biome *biomes = nullptr;
+    unsigned short *surface_height = nullptr;
     
     int getSpawnX() const;
     int getSpawnY();

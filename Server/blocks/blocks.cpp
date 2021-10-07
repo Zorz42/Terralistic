@@ -6,6 +6,7 @@ void ServerBlocks::createWorld(unsigned short world_width, unsigned short world_
     
     blocks = new ServerMapBlock[width * height];
     biomes = new Biome[width];
+    surface_height = new unsigned short[width];
 }
 
 int ServerBlocks::getSpawnX() const {

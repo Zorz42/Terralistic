@@ -27,7 +27,7 @@ class worldGenerator {
     std::vector<structurePosition> structurePositions;
 
     void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
-    int calculateHeight(int x, SimplexNoise& noise);
+    void calculateHeight(SimplexNoise& noise);
     //static int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
     void terrainGenerator(int x, SimplexNoise& noise);
     void generateSurface(int x, int surface_height, SimplexNoise& noise);

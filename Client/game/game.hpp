@@ -11,7 +11,7 @@
 #include "blockSelector.hpp"
 #include "debugMenu.hpp"
 #include "chat.hpp"
-#include "Minimap.hpp"
+#include "minimap.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
