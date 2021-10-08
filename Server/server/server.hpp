@@ -37,11 +37,11 @@ class Server {
 public:
     ServerState state = ServerState::NEUTRAL;
     
-    Server(std::string resource_path, std::string world_path);
+    Server(std::string resource_path, std::string world_path, unsigned short port);
     
     unsigned short seed;
     
-    void start(unsigned short port);
+    void start();
     void stop();
     
     void setPrivate(bool is_private);

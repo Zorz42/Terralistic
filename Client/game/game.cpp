@@ -108,13 +108,13 @@ void HandshakeScreen::render() {
 }
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world) {
-    Server private_server(gfx::getResourcePath(), world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
+    Server private_server(gfx::getResourcePath(), world_name, port);
     if(structure_world)
         private_server.seed = 1000;
   
     private_server.setPrivate(true);
-    server_thread = std::thread(&Server::start, &private_server, port);
+    server_thread = std::thread(&Server::start, &private_server);
     
     WorldStartingScreen world_starting_screen(menu_back, &private_server);
     gfx::runScene(world_starting_screen);

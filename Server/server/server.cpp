@@ -21,8 +21,8 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
-Server::Server(std::string resource_path, std::string world_path) :
-    networking(),
+Server::Server(std::string resource_path, std::string world_path, unsigned short port) :
+    networking(port),
     blocks(&networking),
     biomes(&blocks),
     liquids(&blocks, &networking),
@@ -81,7 +81,7 @@ void Server::saveWorld() {
     world_file.close();
 }
 
-void Server::start(unsigned short port) {
+void Server::start() {
     curr_server = this;
 
     if(std::filesystem::exists(world_path)) {
@@ -98,7 +98,6 @@ void Server::start(unsigned short port) {
         module->init();
 
     signal(SIGINT, onInterrupt);
-    networking.openSocket(port);
 
     state = ServerState::RUNNING;
     print::info("Server has started!");
@@ -118,13 +117,12 @@ void Server::start(unsigned short port) {
             module->update(frame_length);
     }
     
-    print::info("Stopping server");
     state = ServerState::STOPPING;
+    print::info("Stopping server");
 
     for(ServerModule* module : modules)
         module->stop();
 
-    print::info("Saving world...");
     saveWorld();
 
     state = ServerState::STOPPED;
@@ -135,7 +133,7 @@ void Server::stop() {
 }
 
 void Server::setPrivate(bool is_private) {
-    networking.accept_itself = is_private;
+    networking.is_private = is_private;
 }
 
 unsigned int Server::getGeneratingTotal() const {

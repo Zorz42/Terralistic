@@ -11,16 +11,24 @@
 class Connection {
     sf::TcpSocket* socket;
     std::queue<std::pair<sf::Packet, PacketType>> packet_buffer;
+    bool greeted = false;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
-    bool greeted = false;
+    
     void send(sf::Packet& packet);
     void send(std::vector<char>& data);
+    
+    bool hasBeenGreeted();
+    void greet();
+    
     sf::Socket::Status receive(sf::Packet& packet);
+    
     std::string getIpAddress();
+    
     void pushPacket(sf::Packet& packet, PacketType type);
     bool hasPacketInBuffer();
     std::pair<sf::Packet, PacketType> getPacket();
+    
     ~Connection();
 };
 
@@ -46,16 +54,18 @@ public:
 class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
     sf::TcpListener listener;
+    unsigned short port;
+
+    void init() override;
+    void update(float frame_length) override;
+    void stop() override;
+    
 public:
+    ServerNetworking(unsigned short port) : port(port) {}
+    
     void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
     
-    void openSocket(unsigned short port);
-    
-    void update(float frame_length) override;
-    
-    bool accept_itself = false;
-    
-    void stop() override;
+    bool is_private = false;
     
     EventSender<ServerConnectionWelcomeEvent> connection_welcome_event;
     EventSender<ServerNewConnectionEvent> new_connection_event;

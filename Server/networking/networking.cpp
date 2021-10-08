@@ -4,8 +4,6 @@
 #include "compress.hpp"
 #include "graphics.hpp"
 
-#define TRANSFER_BUFFER_SIZE 16384 // 2^14
-
 void Connection::send(sf::Packet& packet) {
     sf::Socket::Status status = sf::Socket::Partial;
     while(status == sf::Socket::Partial)
@@ -14,6 +12,14 @@ void Connection::send(sf::Packet& packet) {
 
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
     return socket->receive(packet);
+}
+
+bool Connection::hasBeenGreeted() {
+    return greeted;
+}
+
+void Connection::greet() {
+    greeted = true;
 }
 
 std::string Connection::getIpAddress() {
@@ -55,7 +61,7 @@ std::pair<sf::Packet, PacketType> Connection::getPacket() {
     return result;
 }
 
-void ServerNetworking::openSocket(unsigned short port) {
+void ServerNetworking::init() {
     listener.listen(port);
     listener.setBlocking(false);
 }
@@ -70,7 +76,7 @@ void ServerNetworking::update(float frame_length) {
     static sf::TcpSocket *socket = new sf::TcpSocket;
     while(true) {
         if(listener.accept(*socket) != sf::Socket::NotReady) {
-            if(!accept_itself || socket->getRemoteAddress().toString() == "127.0.0.1") {
+            if(!is_private || socket->getRemoteAddress().toString() == "127.0.0.1") {
                 socket->setBlocking(false);
                 Connection* connection = new Connection(socket);
                 connections.push_back(connection);
@@ -84,7 +90,7 @@ void ServerNetworking::update(float frame_length) {
     
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
-        if(connections[i]->greeted) {
+        if(connections[i]->hasBeenGreeted()) {
             while(true) {
                 sf::Socket::Status status = connections[i]->receive(packet);
                 if(status == sf::Socket::NotReady)
@@ -116,7 +122,7 @@ void ServerNetworking::update(float frame_length) {
             sf::Packet welcome_packet;
             welcome_packet << WelcomePacketType::WELCOME;
             connections[i]->send(welcome_packet);
-            connections[i]->greeted = true;
+            connections[i]->greet();
             
             ServerNewConnectionEvent event2(connections[i]);
             new_connection_event.call(event2);
@@ -162,7 +168,7 @@ void ServerNetworking::update(float frame_length) {
 }
 
 void ServerNetworking::stop() {
-    if(!accept_itself) {
+    if(!is_private) {
         sf::Packet kick_packet;
         kick_packet << PacketType::KICK << std::string("Server stopped!");
         sendToEveryone(kick_packet);
