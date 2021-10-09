@@ -17,8 +17,8 @@ void BlockSelector::render() {
         prev_selected_y = blocks->getHeight();
     }
     
-    selected_block_x = (int)((mouse_x + client_blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
-    selected_block_y = (int)((mouse_y + client_blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
+    selected_block_x = (int)((mouse_x + blocks->view_x - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
+    selected_block_y = (int)((mouse_y + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
     if((selected_block_x != prev_selected_x || selected_block_y != prev_selected_y) && is_left_button_pressed) {
         sf::Packet packet;
         packet << PacketType::STARTED_BREAKING << selected_block_x << selected_block_y;
@@ -28,8 +28,8 @@ void BlockSelector::render() {
         prev_selected_y = selected_block_y;
     }
     
-    select_rect.setX(-client_blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2);
-    select_rect.setY(-client_blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2);
+    select_rect.setX(-blocks->view_x + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2);
+    select_rect.setY(-blocks->view_y + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2);
     select_rect.render();
 }
 

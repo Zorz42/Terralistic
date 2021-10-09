@@ -68,11 +68,11 @@ void Blocks::breakBlock(int x, int y) {
     setBlockType(x, y, BlockType::AIR);
 }
 
-unsigned short Blocks::getWidth() {
+unsigned short Blocks::getWidth() const {
     return width;
 }
 
-unsigned short Blocks::getHeight() {
+unsigned short Blocks::getHeight() const {
     return height;
 }
 

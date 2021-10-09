@@ -12,9 +12,9 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             float vel_x, vel_y;
             event.packet >> vel_x >> vel_y >> id;
             
-            Entity* entity = entities->getEntityById(id);
-            entities->setVelocityX(entity, vel_x);
-            entities->setVelocityY(entity, vel_y);
+            Entity* entity = getEntityById(id);
+            setVelocityX(entity, vel_x);
+            setVelocityY(entity, vel_y);
             break;
         }
         case PacketType::ENTITY_POSITION: {
@@ -22,17 +22,17 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             int x, y;
             event.packet >> x >> y >> id;
             
-            Entity* entity = entities->getEntityById(id);
-            entities->setX(entity, x);
-            entities->setY(entity, y);
+            Entity* entity = getEntityById(id);
+            setX(entity, x);
+            setY(entity, y);
             break;
         }
         case PacketType::ENTITY_DELETION: {
             unsigned short id;
             event.packet >> id;
             
-            Entity* entity = entities->getEntityById(id);
-            entities->removeEntity(entity);
+            Entity* entity = getEntityById(id);
+            removeEntity(entity);
             break;
         }
         default:;

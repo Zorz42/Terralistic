@@ -39,8 +39,8 @@ void Minimap::render() {
     
     for(int y = 0; y < MINIMAP_SIZE; y++)
         for(int x = 0; x < MINIMAP_SIZE; x++) {
-            int block_x = client_blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x;
-            int block_y = client_blocks->view_y / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + y;
+            int block_x = blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x;
+            int block_y = blocks->view_y / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + y;
             
             gfx::Color block_color = TRANSPARENT, liquid_color = TRANSPARENT;
             unsigned char light_level = MAX_LIGHT;

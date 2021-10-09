@@ -4,10 +4,11 @@
 #include <string>
 #include <utility>
 #include "graphics.hpp"
-#include "blockRenderer.hpp"
+#include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 #include "clientEntities.hpp"
 #include "player.hpp"
+#include "liquids.hpp"
 
 #define PLAYER_WIDTH 14
 #define PLAYER_HEIGHT 24
@@ -35,14 +36,13 @@ class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> 
     void update() override;
     void onEvent(ClientPacketEvent& event) override;
     
-    BlockRenderer* client_blocks;
-    Blocks* blocks;
+    ClientBlocks* blocks;
     Liquids* liquids;
     NetworkingManager* manager;
     ResourcePack* resource_pack;
     Entities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, Entities* entities, const std::string& username);
+    ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username);
     
     void renderPlayers();
     

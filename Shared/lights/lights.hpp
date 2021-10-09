@@ -2,6 +2,8 @@
 
 #include "blocks.hpp"
 
+#define MAX_LIGHT 100
+
 class Lights : EventListener<BlockChangeEvent> {
     struct Light {
         bool light_source = false, update_light = true;
@@ -20,8 +22,8 @@ public:
     Lights(Blocks* blocks) : blocks(blocks) {}
     void create();
     
-    unsigned short getWidth();
-    unsigned short getHeight();
+    unsigned short getWidth() const;
+    unsigned short getHeight() const;
     
     void updateLight(int x, int y);
     void setLightSource(int x, int y, unsigned char level);

@@ -2,7 +2,7 @@
 #define blockSelector_hpp
 
 #include "graphics.hpp"
-#include "blockRenderer.hpp"
+#include "clientBLocks.hpp"
 #include "clientInventory.hpp"
 #include "clientPlayers.hpp"
 
@@ -18,11 +18,10 @@ class BlockSelector : public gfx::SceneModule {
     bool is_left_button_pressed = false;
     
     NetworkingManager* manager;
-    Blocks* blocks;
-    BlockRenderer* client_blocks;
+    ClientBlocks* blocks;
     ClientPlayers* player_handler;
 public:
-    BlockSelector(NetworkingManager* manager, Blocks* blocks, BlockRenderer* client_blocks, ClientPlayers* player_handler) : manager(manager), blocks(blocks), client_blocks(client_blocks), player_handler(player_handler) {}
+    BlockSelector(NetworkingManager* manager, ClientBlocks* blocks, ClientPlayers* player_handler) : manager(manager), blocks(blocks), player_handler(player_handler) {}
 };
 
 #endif

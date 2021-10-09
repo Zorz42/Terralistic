@@ -2,14 +2,15 @@
 #define minimap_hpp
 
 #include "graphics.hpp"
-#include "blockRenderer.hpp"
+#include "clientBlocks.hpp"
+#include "liquids.hpp"
+#include "lights.hpp"
 
 class Minimap : public gfx::SceneModule {
     gfx::Rect back_rect;
-    Blocks* blocks;
     Liquids* liquids;
     Lights* lights;
-    BlockRenderer* client_blocks;
+    ClientBlocks* blocks;
     gfx::Color block_colors[(int)BlockType::NUM_BLOCKS];
     gfx::Color liquid_colors[(int)LiquidType::NUM_LIQUIDS];
     sf::Texture minimap_texture;
@@ -17,7 +18,7 @@ class Minimap : public gfx::SceneModule {
     void init() override;
     void render() override;
 public:
-    Minimap(Blocks* blocks, Liquids* liquids, Lights* lights, BlockRenderer* client_blocks) : blocks(blocks), liquids(liquids), lights(lights), client_blocks(client_blocks) {}
+    Minimap(ClientBlocks* blocks, Liquids* liquids, Lights* lights) : blocks(blocks), liquids(liquids), lights(lights) {}
 };
 
 #endif

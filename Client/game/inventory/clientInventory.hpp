@@ -4,7 +4,7 @@
 #include "properties.hpp"
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
-#include "blockRenderer.hpp"
+#include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 #include "inventory.hpp"
 

@@ -5,13 +5,12 @@
 #include "clientNetworking.hpp"
 #include "entities.hpp"
 
-class ClientEntities : EventListener<ClientPacketEvent> {
-    Entities* entities;
+class ClientEntities : EventListener<ClientPacketEvent>, public Entities {
     NetworkingManager* manager;
     
     void onEvent(ClientPacketEvent& event) override;
 public:
-    explicit ClientEntities(Entities* entities, NetworkingManager* manager) : entities(entities), manager(manager) {}
+    explicit ClientEntities(Blocks* blocks, NetworkingManager* manager) : Entities(blocks), manager(manager) {}
     void init();
 };
 

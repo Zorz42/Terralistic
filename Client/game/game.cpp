@@ -136,18 +136,17 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, std::st
     port(port),
     username(username),
     background_rect(background_rect),
-    client_blocks(&resource_pack, &networking, &blocks, &liquids, &lights),
-    players(&networking, &blocks, &liquids, &client_blocks, &resource_pack, &entities, username),
-    items(&resource_pack, &client_blocks, &entities, &networking),
-    client_entities(&entities, &networking),
-    entities(&blocks),
-    block_selector(&networking, &blocks, &client_blocks, &players),
+    players(&networking, &blocks, &liquids, &resource_pack, &client_entities, username),
+    items(&resource_pack, &blocks, &client_entities, &networking),
+    client_entities(&blocks, &networking),
+    block_selector(&networking, &blocks, &players),
     inventory(&networking, &resource_pack),
-    debug_menu(&players, &blocks, &client_blocks),
+    debug_menu(&players, &blocks),
     chat(&networking),
-    minimap(&blocks, &liquids, &lights, &client_blocks),
-    liquids(&blocks),
-    lights(&blocks)
+    minimap(&blocks, &liquids, &lights),
+    blocks(&resource_pack, &networking),
+    liquids(&blocks, &resource_pack, &networking),
+    lights(&blocks, &resource_pack)
 {
     networking.packet_event.addListener(this);
 }
@@ -188,7 +187,7 @@ void Game::init() {
     
     client_entities.init();
     items.init();
-    client_blocks.init();
+    blocks.init();
 }
 
 void Game::handshakeWithServer() {
@@ -203,38 +202,13 @@ void Game::handshakeWithServer() {
         if(type == WelcomePacketType::WELCOME)
             break;
         
-        client_blocks.onWelcomePacket(packet, type);
+        blocks.onWelcomePacket(packet, type);
+        liquids.onWelcomePacket(packet, type);
         inventory.onWelcomePacket(packet, type);
-        
     }
     
-    /*sf::Packet packet = networking.getPacket();
-    PacketType type;
-    packet >> type;
-    
-    if(type == PacketType::KICK) {
-        got_kicked = true;
-        packet >> kick_reason;
-        handshake_done = true;
-        return;
-    }
-    
-    int player_x, player_y;
-    packet >> player_x >> player_y;
-    unsigned short world_width, world_height;
-    packet >> world_width >> world_height;
-    unsigned int size;
-    packet >> size;*/
-    
-    liquids.create();
     lights.create();
-    client_blocks.create();
-    
-    //std::vector<char> map_data = networking.getData(size);
-    //char* iter = &map_data[0];
-    //iter = blocks.loadFromSerial(iter);
-    //iter = liquids.loadFromSerial(iter);
-    //iter = inventory.loadFromSerial(iter);
+    blocks.create();
     
     for(int x = 0; x < blocks.getWidth(); x++)
         for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlockInfo(x, y).transparent; y++)
@@ -262,19 +236,20 @@ void Game::update() {
         returnFromScene();
     }
     networking.checkForPackets();
-    entities.updateAllEntities(getFrameLength());
-    client_blocks.updateLights();
+    client_entities.updateAllEntities(getFrameLength());
+    lights.updateLights();
 }
 
 void Game::render() {
     float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
-    int position_x = -(client_blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
+    int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
-    client_blocks.renderBackBlocks();
+    blocks.render();
     players.renderPlayers();
     items.renderItems();
-    client_blocks.renderFrontBlocks();
+    liquids.render();
+    lights.render();
 }
 
 void Game::stop() {

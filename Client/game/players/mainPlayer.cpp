@@ -109,16 +109,16 @@ void ClientPlayers::update() {
             for(unsigned short y = starting_y; y <= ending_y; y++)
                 speed_multiplier = std::min(speed_multiplier, liquids->getLiquidInfo(x, y).speed_multiplier);
         
-        client_blocks->view_x += (main_player->getX() - client_blocks->view_x + PLAYER_WIDTH) / 8;
-        client_blocks->view_y += (main_player->getY() - client_blocks->view_y + PLAYER_HEIGHT) / 8;
-        if(client_blocks->view_x < gfx::getWindowWidth() / 2)
-            client_blocks->view_x = gfx::getWindowWidth() / 2;
-        if(client_blocks->view_y < gfx::getWindowHeight() / 2)
-            client_blocks->view_y = gfx::getWindowHeight() / 2;
-        if(client_blocks->view_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2)
-            client_blocks->view_x = blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2;
-        if(client_blocks->view_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2)
-            client_blocks->view_y = blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
+        blocks->view_x += (main_player->getX() - blocks->view_x + PLAYER_WIDTH) / 8;
+        blocks->view_y += (main_player->getY() - blocks->view_y + PLAYER_HEIGHT) / 8;
+        if(blocks->view_x < gfx::getWindowWidth() / 2)
+            blocks->view_x = gfx::getWindowWidth() / 2;
+        if(blocks->view_y < gfx::getWindowHeight() / 2)
+            blocks->view_y = gfx::getWindowHeight() / 2;
+        if(blocks->view_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2)
+            blocks->view_x = blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2;
+        if(blocks->view_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2)
+            blocks->view_y = blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
         
         if(vel_x_change || vel_y_change) {
             entities->addVelocityX(main_player, vel_x_change);

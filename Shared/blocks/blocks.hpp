@@ -5,7 +5,6 @@
 #include "events.hpp"
 
 #define BLOCK_WIDTH 8
-#define MAX_LIGHT 100
 
 class BlockChangeEvent {
 public:
@@ -50,8 +49,8 @@ public:
     
     void breakBlock(int x, int y);
     
-    unsigned short getWidth();
-    unsigned short getHeight();
+    unsigned short getWidth() const;
+    unsigned short getHeight() const;
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
