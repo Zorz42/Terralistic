@@ -7,6 +7,12 @@ void ServerEntities::init() {
     entity_deletion_event.addListener(this);
 }
 
+void ServerEntities::stop() {
+    entity_position_change_event.removeListener(this);
+    entity_velocity_change_event.removeListener(this);
+    entity_deletion_event.removeListener(this);
+}
+
 void ServerEntities::onEvent(EntityDeletionEvent& event) {
     sf::Packet packet;
     packet << PacketType::ENTITY_DELETION << (unsigned short)event.entity->id;

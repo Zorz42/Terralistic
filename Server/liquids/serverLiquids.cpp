@@ -15,6 +15,11 @@ void ServerLiquids::init() {
     liquid_change_event.addListener(this);
 }
 
+void ServerLiquids::stop() {
+    networking->connection_welcome_event.removeListener(this);
+    liquid_change_event.removeListener(this);
+}
+
 void ServerLiquids::onEvent(LiquidChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::LIQUID << event.x << event.y << (unsigned char)getLiquidType(event.x, event.y) << getLiquidLevel(event.x, event.y);

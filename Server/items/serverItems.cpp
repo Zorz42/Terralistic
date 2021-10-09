@@ -2,8 +2,12 @@
 #include "packetType.hpp"
 
 void ServerItems::init() {
-    Items::init();
+    initItems();
     item_creation_event.addListener(this);
+}
+
+void ServerItems::stop() {
+    item_creation_event.removeListener(this);
 }
 
 void ServerItems::onEvent(ItemCreationEvent &event) {

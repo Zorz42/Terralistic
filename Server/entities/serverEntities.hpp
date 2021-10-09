@@ -12,11 +12,10 @@ class ServerEntities : public ServerModule, public Entities, EventListener<Entit
     
     unsigned int seconds = 0;
     
+    void init() override;
+    void update(float frame_length) override;
+    void stop() override;
+    
 public:
     ServerEntities(Blocks* blocks, ServerNetworking* networking) : Entities(blocks), networking(networking) {}
-    
-    void init() override;
-    
-    void syncEntityPositions();
-    void update(float frame_length) override;
 };

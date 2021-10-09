@@ -16,6 +16,12 @@ void ServerBlocks::init() {
     block_break_stage_change_event.addListener(this);
 }
 
+void ServerBlocks::stop() {
+    networking->connection_welcome_event.removeListener(this);
+    block_change_event.removeListener(this);
+    block_break_stage_change_event.removeListener(this);
+}
+
 void ServerBlocks::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y);

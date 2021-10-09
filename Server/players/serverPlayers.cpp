@@ -34,19 +34,25 @@ static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
         blocks->breakBlock(x, y);
 }
 
-ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking) : blocks(blocks), entities(entities), items(items), networking(networking) {
+void ServerPlayers::init() {
+    blocks->block_change_event.addListener(this);
+    networking->new_connection_event.addListener(this);
+    networking->connection_welcome_event.addListener(this);
+    packet_event.addListener(this);
+    networking->disconnect_event.addListener(this);
+    
     custom_block_events[(int)BlockType::WOOD].onUpdate = &treeUpdate;
 
     custom_block_events[(int)BlockType::LEAVES].onUpdate = &treeUpdate;
 
-    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) {
-        blocks->setBlockType(x, y, BlockType::DIRT);
+    custom_block_events[(int)BlockType::GRASS_BLOCK].onLeftClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
+        blocks_->setBlockType(x, y, BlockType::DIRT);
     };
 
-    custom_block_events[(int)BlockType::AIR].onRightClick = [](Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) {
+    custom_block_events[(int)BlockType::AIR].onRightClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
         BlockType type = ::getItemInfo(player->inventory.getSelectedSlot().type).places;
         if(type != BlockType::AIR && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
-            blocks->setBlockType(x, y, type);
+            blocks_->setBlockType(x, y, type);
         }
     };
 
@@ -55,17 +61,15 @@ ServerPlayers::ServerPlayers(Blocks* blocks, Entities* entities, Items* items, S
     custom_block_events[(int)BlockType::STONE].onUpdate = &stoneUpdate;
 }
 
-ServerPlayers::~ServerPlayers() {
+void ServerPlayers::stop() {
+    blocks->block_change_event.removeListener(this);
+    networking->new_connection_event.removeListener(this);
+    networking->connection_welcome_event.removeListener(this);
+    packet_event.removeListener(this);
+    networking->disconnect_event.removeListener(this);
+    
     for(ServerPlayerData* i : all_players)
         delete i;
-}
-
-void ServerPlayers::init() {
-    blocks->block_change_event.addListener(this);
-    networking->new_connection_event.addListener(this);
-    networking->connection_welcome_event.addListener(this);
-    packet_event.addListener(this);
-    networking->disconnect_event.addListener(this);
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
@@ -148,14 +152,6 @@ ServerPlayerData::ServerPlayerData(char*& iter) {
     while(*iter)
         name.push_back(*iter++);
     iter++;
-}
-
-bool ServerPlayer::isColliding(Blocks* blocks) {
-    return isCollidingWithBlocks(blocks) ||
-    (
-     moving_type == MovingType::SNEAK_WALKING && isCollidingWithBlocks(blocks, getX(), getY() + 1) &&
-     (!isCollidingWithBlocks(blocks, getX() + 1, getY() + 1) || !isCollidingWithBlocks(blocks, getX() - 1, getY() + 1))
-     );
 }
 
 void ServerPlayerData::serialize(std::vector<char>& serial) const {

@@ -8,8 +8,9 @@ class ServerLiquids : public ServerModule, public Liquids, EventListener<ServerC
     
     void onEvent(ServerConnectionWelcomeEvent& event) override;
     void onEvent(LiquidChangeEvent& event) override;
-public:
-    ServerLiquids(Blocks* blocks, ServerNetworking* networking) : Liquids(blocks), networking(networking) {}
     
     void init() override;
+    void stop() override;
+public:
+    ServerLiquids(Blocks* blocks, ServerNetworking* networking) : Liquids(blocks), networking(networking) {}
 };

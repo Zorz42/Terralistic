@@ -4,7 +4,7 @@
 ClientPlayers::ClientPlayers(NetworkingManager* manager, Blocks* blocks, Liquids* liquids, BlockRenderer* client_blocks, ResourcePack* resource_pack, Entities* entities, const std::string& username) :
 manager(manager), client_blocks(client_blocks), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), username(username) {}
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), Entity(EntityType::PLAYER, x, y, id) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : Player(x, y, name, id) {
     name_text.loadFromText(name, WHITE);
     friction = false;
 }
@@ -13,14 +13,6 @@ void ClientPlayers::renderPlayers() {
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER)
             render(*(ClientPlayer*)entity);
-}
-
-bool ClientPlayer::isColliding(Blocks* blocks) {
-    return isCollidingWithBlocks(blocks) ||
-    (
-     moving_type == MovingType::SNEAK_WALKING && isCollidingWithBlocks(blocks, getX(), getY() + 1) &&
-     (!isCollidingWithBlocks(blocks, getX() + 1, getY() + 1) || !isCollidingWithBlocks(blocks, getX() - 1, getY() + 1))
-     );
 }
 
 #define HEADER_MARGIN 4

@@ -20,8 +20,8 @@ class Server {
     ServerNetworking networking;
     ServerBlocks blocks;
     Biomes biomes;
-    WorldGenerator generator;
     ServerLiquids liquids;
+    WorldGenerator generator;
     ServerItems items;
     ServerPlayers players;
     ServerChat chat;

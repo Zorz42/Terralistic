@@ -9,8 +9,9 @@ class ServerBlocks : public ServerModule, public Blocks, EventListener<ServerCon
     void onEvent(ServerConnectionWelcomeEvent& event) override;
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(BlockBreakStageChangeEvent& event) override;
-public:
-    ServerBlocks(ServerNetworking* networking) : networking(networking) {}
     
     void init() override;
+    void stop() override;
+public:
+    ServerBlocks(ServerNetworking* networking) : networking(networking) {}
 };

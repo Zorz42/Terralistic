@@ -63,7 +63,8 @@ class ServerNetworking : public ServerModule {
 public:
     ServerNetworking(unsigned short port) : port(port) {}
     
-    void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
+    void sendToEveryone(sf::Packet& packet);
+    void kickConnection(Connection* connection);
     
     bool is_private = false;
     

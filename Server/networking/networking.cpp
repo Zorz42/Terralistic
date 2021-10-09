@@ -66,33 +66,27 @@ void ServerNetworking::init() {
     listener.setBlocking(false);
 }
 
-void ServerNetworking::sendToEveryone(sf::Packet& packet, Connection* exclusion) {
+void ServerNetworking::sendToEveryone(sf::Packet& packet) {
     for(Connection* connection : connections)
-        if(exclusion == nullptr || exclusion != connection)
-            connection->send(packet);
+        connection->send(packet);
 }
 
 void ServerNetworking::update(float frame_length) {
     static sf::TcpSocket *socket = new sf::TcpSocket;
-    while(true) {
-        if(listener.accept(*socket) != sf::Socket::NotReady) {
-            if(!is_private || socket->getRemoteAddress().toString() == "127.0.0.1") {
-                socket->setBlocking(false);
-                Connection* connection = new Connection(socket);
-                connections.push_back(connection);
-            } else {
-                delete socket;
-            }
+    while(listener.accept(*socket) != sf::Socket::NotReady)
+        if(!is_private || socket->getRemoteAddress().toString() == "127.0.0.1") {
+            socket->setBlocking(false);
+            Connection* connection = new Connection(socket);
+            connections.push_back(connection);
             socket = new sf::TcpSocket;
-        } else
-            break;
-    }
+        }
     
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
-        if(connections[i]->hasBeenGreeted()) {
+        if(connections[i]->hasBeenGreeted())
             while(true) {
                 sf::Socket::Status status = connections[i]->receive(packet);
+                
                 if(status == sf::Socket::NotReady)
                     break;
                 else if(status == sf::Socket::Disconnected) {
@@ -103,10 +97,6 @@ void ServerNetworking::update(float frame_length) {
                     delete connections[i];
                     connections.erase(connections.begin() + i);
                     
-                    //sf::Packet entity_packet;
-                    //entity_packet << PacketType::ENTITY_DELETION << connections[i].player->id;
-                    //sendToEveryone(entity_packet);
-                    
                     break;
                 } else if(status == sf::Socket::Done) {
                     unsigned char packet_type;
@@ -115,7 +105,7 @@ void ServerNetworking::update(float frame_length) {
                     connections[i]->pushPacket(packet, (PacketType)packet_type);
                 }
             }
-        } else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
+        else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);
             
@@ -156,12 +146,6 @@ void ServerNetworking::update(float frame_length) {
                 sf::Packet join_packet;
                 join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
                 sendToEveryone(join_packet, &connections[i]);
-
-                int online_players_count = 0;
-                for(Entity* entity : entities->getEntities())
-                    if(entity->type == EntityType::PLAYER)
-                        online_players_count++;
-                print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(online_players_count) + " players online)");
             }*/
         }
     }

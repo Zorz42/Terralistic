@@ -6,9 +6,9 @@ ItemType Item::getType() const {
     return type;
 }
 
-Item::Item(Entities* entities, ItemType type, int x, int y) : type(type), Entity(EntityType::ITEM, x, y) {}
+Item::Item(Entities* entities, ItemType type, int x, int y, unsigned short id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
 
-void Items::init() {
+void Items::initItems() {
     blocks->block_break_event.addListener(this);
 }
 

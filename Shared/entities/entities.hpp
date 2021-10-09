@@ -10,9 +10,9 @@ class Entities;
 class Entity {
     friend Entities;
     float x, y, velocity_x = 0, velocity_y = 0;
-    inline static unsigned short curr_id = 0;
+    inline static unsigned short curr_id = 1;
 public:
-    Entity(EntityType type, int x, int y, unsigned short id=curr_id++) : type(type), x(x), y(y), id(id) {}
+    Entity(EntityType type, int x, int y, unsigned short id=0) : type(type), x(x), y(y), id(id ? id : curr_id++) {}
     virtual unsigned short getWidth() = 0;
     virtual unsigned short getHeight() = 0;
     bool gravity = true, friction = true, has_moved_x;
