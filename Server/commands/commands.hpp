@@ -14,10 +14,11 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     Items* items;
     Entities* entities;
     ServerChat* chat;
-public:
-    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat) {}
     
     void init() override;
+    void stop() override;
+public:
+    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat) {}
     
     void startCommand(std::string message, ServerPlayer* player);
     void changeBlock(std::vector<std::string>& message);

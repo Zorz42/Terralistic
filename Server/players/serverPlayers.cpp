@@ -192,18 +192,33 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
+    ServerPlayer* player = nullptr;
+    
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER) {
             ServerPlayer* curr_player = (ServerPlayer*)entity;
-            sf::Packet join_packet;
-            join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
-            event.connection->send(join_packet);
+            if(curr_player->getConnection() == event.connection)
+                player = curr_player;
+            else {
+                sf::Packet join_packet;
+                join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
+                event.connection->send(join_packet);
+            }
         }
+    
+    sf::Packet join_packet;
+    join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
+    networking->sendToEveryone(join_packet);
 }
 
 void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     std::string player_name;
     event.client_welcome_packet >> player_name;
+    
+    ServerPlayer* already_joined_player = getPlayerByName(player_name);
+    if(already_joined_player)
+        networking->kickConnection(already_joined_player->getConnection(), "You logged in from another location!");
+    
     ServerPlayer* player = addPlayer(player_name);
     player->setConnection(event.connection);
     

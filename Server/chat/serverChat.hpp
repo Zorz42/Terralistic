@@ -14,10 +14,11 @@ class ServerChat : public ServerModule, EventListener<ServerPacketEvent> {
     void onEvent(ServerPacketEvent& event) override;
     ServerPlayers* players;
     ServerNetworking* networking;
+    
+    void init() override;
+    void stop() override;
 public:
     ServerChat(ServerPlayers* players, ServerNetworking* networking) : players(players), networking(networking) {}
     
     EventSender<ServerChatEvent> chat_event;
-    
-    void init() override;
 };

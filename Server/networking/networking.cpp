@@ -90,12 +90,7 @@ void ServerNetworking::update(float frame_length) {
                 if(status == sf::Socket::NotReady)
                     break;
                 else if(status == sf::Socket::Disconnected) {
-                    ServerDisconnectEvent event(connections[i]);
-                    disconnect_event.call(event);
-                    
-                    print::info(connections[i]->getIpAddress() + " disconnected (" + std::to_string(connections.size()) + " players online)");
-                    delete connections[i];
-                    connections.erase(connections.begin() + i);
+                    removeConnection(connections[i]);
                     
                     break;
                 } else if(status == sf::Socket::Done) {
@@ -116,47 +111,32 @@ void ServerNetworking::update(float frame_length) {
             
             ServerNewConnectionEvent event2(connections[i]);
             new_connection_event.call(event2);
-            
-            /*
-            bool already_exists = false;
-            for(Entity* entity : entities->getEntities())
-                if(entity->type == EntityType::PLAYER) {
-                    ServerPlayer* player = (ServerPlayer*)entity;
-                    if(player->name == player_name)
-                        already_exists = true;
-                }
-            */
-            /*if(already_exists) {
-                sf::Packet kick_packet;
-                kick_packet << PacketType::KICK << "You are already logged in from another location";
-                connections[i].send(kick_packet);
-                connections.erase(connections.begin() + i);
-            } else {
-                player->inventory.item_change_event.addListener(&connections[i]);
-                
-                for(const Entity* entity : entities->getEntities()) {
-                    if(entity->type == EntityType::ITEM) {
-                        Item* item = (Item*)entity;
-                        sf::Packet item_packet;
-                        item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
-                        connections[i].send(item_packet);
-                    }
-                }
-                
-                sf::Packet join_packet;
-                join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
-                sendToEveryone(join_packet, &connections[i]);
-            }*/
         }
     }
 }
 
 void ServerNetworking::stop() {
-    if(!is_private) {
-        sf::Packet kick_packet;
-        kick_packet << PacketType::KICK << std::string("Server stopped!");
-        sendToEveryone(kick_packet);
-    }
+    if(!is_private)
+        for(Connection* connection : connections)
+            kickConnection(connection, "Server stopped!");
     
     listener.close();
+}
+
+void ServerNetworking::kickConnection(Connection* connection, const std::string& reason) {
+    sf::Packet kick_packet;
+    kick_packet << PacketType::KICK << reason;
+    connection->send(kick_packet);
+    
+    removeConnection(connection);
+}
+
+void ServerNetworking::removeConnection(Connection* connection) {
+    ServerDisconnectEvent event(connection);
+    disconnect_event.call(event);
+    
+    print::info(connection->getIpAddress() + " disconnected (" + std::to_string(connections.size()) + " players online)");
+    
+    delete connection;
+    connections.erase(std::find(connections.begin(), connections.end(), connection));
 }

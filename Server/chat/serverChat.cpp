@@ -25,3 +25,7 @@ void ServerChat::init() {
     players->packet_event.addListener(this);
 }
 
+void ServerChat::stop() {
+    players->packet_event.removeListener(this);
+}
+

@@ -60,11 +60,13 @@ class ServerNetworking : public ServerModule {
     void update(float frame_length) override;
     void stop() override;
     
+    void removeConnection(Connection* connection);
+    
 public:
     ServerNetworking(unsigned short port) : port(port) {}
     
     void sendToEveryone(sf::Packet& packet);
-    void kickConnection(Connection* connection);
+    void kickConnection(Connection* connection, const std::string& reason);
     
     bool is_private = false;
     

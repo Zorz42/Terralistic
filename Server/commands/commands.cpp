@@ -13,6 +13,10 @@ void Commands::init() {
     chat->chat_event.addListener(this);
 }
 
+void Commands::stop() {
+    chat->chat_event.removeListener(this);
+}
+
 void Commands::startCommand(std::string message, ServerPlayer* player) {
     std::vector<std::string> seperated;
     size_t pos = message.find(' ');

@@ -22,13 +22,11 @@ public:
     const Item* item;
 };
 
-class Items : EventListener<BlockBreakEvent> {
-    void onEvent(BlockBreakEvent& event) override;
+class Items {
     Entities* entities;
     Blocks* blocks;
 public:
     explicit Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks) {}
-    void initItems();
     Item* spawnItem(ItemType type, int x, int y);
     
     EventSender<ItemCreationEvent> item_creation_event;
