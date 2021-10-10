@@ -15,7 +15,7 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent> {
     void stop() override;
     
     unsigned int getTime();
-    int light_should_be = 0;
+    int light_should_be = 0, prev_light_should_be = 0;
     
     void onEvent(BlockChangeEvent& event) override;
     

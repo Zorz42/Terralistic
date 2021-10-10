@@ -2,15 +2,18 @@
 #include "choiceScreen.hpp"
 
 void NetworkingManager::sendPacket(sf::Packet& packet) {
-    sf::Socket::Status status = sf::Socket::Partial;
-    while(status == sf::Socket::Partial)
-        status = socket.send(packet);
+    if(!socket.isBlocking())
+        socket.setBlocking(true);
+    
+    socket.send(packet);
 }
 
 void NetworkingManager::update(float frame_length) {
     sf::Packet packet;
     
     while(true) {
+        if(socket.isBlocking())
+            socket.setBlocking(false);
         sf::Socket::Status status = socket.receive(packet);
         if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
             PacketType packet_type;
@@ -34,23 +37,31 @@ void NetworkingManager::stop() {
 }
 
 sf::Packet NetworkingManager::getPacket() {
+    if(!socket.isBlocking())
+        socket.setBlocking(true);
+    
     sf::Packet packet;
     socket.receive(packet);
     return packet;
 }
 
 std::vector<char> NetworkingManager::getData() {
-    int size;
-    std::size_t temp;
-    socket.receive((char*)&size, sizeof(int), temp);
+    if(!socket.isBlocking())
+        socket.setBlocking(true);
     
+    sf::Packet packet;
+    socket.receive(packet);
+    int size;
+    packet >> size;
+    
+    size_t received;
     std::vector<char> data(size);
     int bytes_received = 0;
-    size_t received;
     while(bytes_received < size) {
-        socket.receive(&data[bytes_received], size, received);
+        socket.receive(&data[bytes_received], size - bytes_received, received);
         bytes_received += received;
     }
+        
     return data;
 }
 
@@ -79,6 +90,4 @@ void NetworkingManager::postInit() {
         WelcomePacketEvent event(packet, type);
         welcome_packet_event.call(event);
     }
-    
-    socket.setBlocking(false);
 }

@@ -5,12 +5,14 @@
 #include "graphics.hpp"
 
 void Connection::send(sf::Packet& packet) {
-    sf::Socket::Status status = sf::Socket::Partial;
-    while(status == sf::Socket::Partial)
-        status = socket->send(packet);
+    if(!socket->isBlocking())
+        socket->setBlocking(true);
+    socket->send(packet);
 }
 
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
+    if(socket->isBlocking())
+        socket->setBlocking(false);
     return socket->receive(packet);
 }
 
@@ -31,17 +33,16 @@ Connection::~Connection() {
 }
 
 void Connection::send(std::vector<char>& data) {
-    int size = (int)data.size();
-    int bytes_sent = 0;
-    while(bytes_sent < sizeof(int)) {
-        size_t sent;
-        socket->send((char*)&size, sizeof(int), sent);
-        bytes_sent += sent;
-    }
+    if(!socket->isBlocking())
+        socket->setBlocking(true);
     
-    bytes_sent = 0;
+    sf::Packet packet;
+    packet << (int)data.size();
+    send(packet);
+    
+    size_t sent;
+    int bytes_sent = 0;
     while(bytes_sent < data.size()) {
-        size_t sent;
         socket->send(&data[bytes_sent], (int)data.size() - bytes_sent, sent);
         bytes_sent += sent;
     }
@@ -75,7 +76,6 @@ void ServerNetworking::update(float frame_length) {
     static sf::TcpSocket *socket = new sf::TcpSocket;
     while(listener.accept(*socket) != sf::Socket::NotReady)
         if(!is_private || socket->getRemoteAddress().toString() == "127.0.0.1") {
-            socket->setBlocking(false);
             Connection* connection = new Connection(socket);
             connections.push_back(connection);
             socket = new sf::TcpSocket;
