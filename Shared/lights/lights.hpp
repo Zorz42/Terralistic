@@ -22,6 +22,9 @@ public:
     Lights(Blocks* blocks) : blocks(blocks) {}
     void create();
     
+    void init();
+    void stop();
+    
     unsigned short getWidth() const;
     unsigned short getHeight() const;
     

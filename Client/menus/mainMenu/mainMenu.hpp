@@ -1,5 +1,4 @@
-#ifndef mainMenu_hpp
-#define mainMenu_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -15,5 +14,3 @@ public:
     bool onKeyDown(gfx::Key key) override;
     void render() override;
 };
-
-#endif

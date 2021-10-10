@@ -1,9 +1,15 @@
 #include "lights.hpp"
 
+void Lights::init() {
+    blocks->block_change_event.addListener(this);
+}
+
+void Lights::stop() {
+    blocks->block_change_event.removeListener(this);
+}
+
 void Lights::create() {
     lights = new Light[blocks->getWidth() * blocks->getHeight()];
-    
-    blocks->block_change_event.addListener(this);
 }
 
 Lights::Light* Lights::getLight(int x, int y) {

@@ -6,7 +6,7 @@ void ClientItems::init() {
     manager->packet_event.addListener(this);
 }
 
-void ClientItems::renderItems() {
+void ClientItems::render() {
     int item_count = 0;
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::ITEM)
@@ -15,7 +15,7 @@ void ClientItems::renderItems() {
     int item_index = 0;
     for(Entity* entity : entities->getEntities()) {
         if(entity->type == EntityType::ITEM) {
-            ClientItem* item = (ClientItem*)entity;
+            Item* item = (Item*)entity;
             gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());
             item_rects.setTextureCoords(item_index, rect);
 
@@ -39,10 +39,14 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             event.packet >> x >> y >> id >> type_char;
             ItemType type = (ItemType)type_char;
             
-            ClientItem* item = new ClientItem(type, x, y, id);
+            Item* item = new Item(type, x, y, id);
             entities->registerEntity(item);
             break;
         }
         default:;
     }
+}
+
+void ClientItems::stop() {
+    manager->packet_event.removeListener(this);
 }

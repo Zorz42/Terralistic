@@ -182,38 +182,33 @@ namespace gfx {
     class SceneModule {
         friend Scene;
         bool enable_key_states = true;
+        short mouse_x, mouse_y;
     public:
         virtual void init() {}
-        virtual void update() {}
+        virtual void update(float frame_length) {}
         virtual void render() {}
         virtual void stop() {}
         virtual bool onKeyDown(Key key_) { return false; }
         bool getKeyState(Key key_) const;
-
+        virtual void onMouseScroll(int distance) {}
+        short getMouseX();
+        short getMouseY();
+        
         std::vector<TextInput*> text_inputs;
-        unsigned short mouse_x, mouse_y;
     };
-    
-    void runScene(Scene& scene);
 
     class Scene : public SceneModule {
-        friend void runScene(Scene& scene);
         void onEvent(sf::Event event);
         float frame_length;
         std::vector<SceneModule*> modules;
-        short mouse_x, mouse_y;
-        bool running = true;
-        void run();
-    public:
-        void registerAModule(SceneModule* module);
-        float getFrameLength() { return frame_length; }
-        virtual void onMouseScroll(int distance) {}
-        void switchToScene(Scene& scene);
-        void returnFromScene();
         void onKeyDownCallback(Key key_);
-        short getMouseX();
-        short getMouseY();
-        const std::vector<SceneModule*>& getModules();
+        bool running = true;
+    public:
+        void run();
+        void registerAModule(SceneModule* module);
+        void switchToScene(Scene& scene);
+        void cycleModules();
+        void returnFromScene();
     };
     
     void init(const std::string& resource_path_, unsigned short window_width_, unsigned short window_height_);

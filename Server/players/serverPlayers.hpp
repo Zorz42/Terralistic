@@ -34,7 +34,7 @@ public:
     bool breaking = false;
     int breaking_x = 0, breaking_y = 0;
     
-    ~ServerPlayer() { inventory.item_change_event.removeListener(this); }
+    void destruct();
 };
 
 struct BlockEvents {

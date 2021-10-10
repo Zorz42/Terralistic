@@ -38,3 +38,11 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
         default:;
     }
 }
+
+void ClientEntities::update(float frame_length) {
+    updateAllEntities(frame_length);
+}
+
+void ClientEntities::stop() {
+    manager->packet_event.removeListener(this);
+}

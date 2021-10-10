@@ -1,5 +1,4 @@
-#ifndef pauseScreen_hpp
-#define pauseScreen_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -26,5 +25,3 @@ public:
     void setBackWidth(unsigned short width) override;
     unsigned short getBackWidth() override;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef worldSelector_hpp
-#define worldSelector_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -30,5 +29,3 @@ class WorldSelector : public gfx::Scene {
 public:
     explicit WorldSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
 };
-
-#endif

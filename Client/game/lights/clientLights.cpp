@@ -1,6 +1,17 @@
 #include "clientLights.hpp"
 
-void ClientLights::updateLights() {
+void ClientLights::init() {
+    Lights::init();
+}
+
+void ClientLights::postInit() {
+    create();
+    for(int x = 0; x < getWidth(); x++)
+        for(unsigned short y = 0; y < getHeight() && blocks->getBlockInfo(x, y).transparent; y++)
+            setLightSource(x, y, MAX_LIGHT);
+}
+
+void ClientLights::update(float frame_length) {
     bool finished = false;
     while(!finished) {
         finished = true;
@@ -39,4 +50,8 @@ void ClientLights::render() {
     light_rects.resize(light_index);
     if(light_index)
         light_rects.render();
+}
+
+void ClientLights::stop() {
+    Lights::stop();
 }

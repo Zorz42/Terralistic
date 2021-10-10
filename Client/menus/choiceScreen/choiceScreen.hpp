@@ -1,5 +1,4 @@
-#ifndef choiceScreen_hpp
-#define choiceScreen_hpp
+#pragma once
 
 #include <string>
 #include <vector>
@@ -23,5 +22,3 @@ public:
     bool onKeyDown(gfx::Key key) override;
     void render() override;
 };
-
-#endif

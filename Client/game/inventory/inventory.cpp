@@ -3,6 +3,7 @@
 
 void ClientInventory::init() {
     manager->packet_event.addListener(this);
+    manager->welcome_packet_event.addListener(this);
     
     behind_inventory_rect.orientation = gfx::TOP;
     behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
@@ -40,7 +41,12 @@ void ClientInventory::init() {
         numbers[i].loadFromText(text);
     }
     
-    selectSlot(0);
+    selected_slot = 0;
+}
+
+void ClientInventory::stop() {
+    manager->packet_event.removeListener(this);
+    manager->welcome_packet_event.removeListener(this);
 }
 
 void ClientInventory::render() {
@@ -61,7 +67,7 @@ void ClientInventory::render() {
         
         gfx::RectShape back_rect(slot_x, slot_y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
         gfx::Color color = GREY;
-        if(mouse_x < back_rect.x || mouse_y < back_rect.y || mouse_x > back_rect.x + back_rect.w || mouse_y > back_rect.y + back_rect.h)
+        if(getMouseX() < back_rect.x || getMouseY() < back_rect.y || getMouseX() > back_rect.x + back_rect.w || getMouseY() > back_rect.y + back_rect.h)
             color.a = TRANSPARENCY;
         else if(open) {
             hovered = i;
@@ -70,8 +76,8 @@ void ClientInventory::render() {
                 text_texture = &resource_pack->getItemTextTexture(inventory.getItem(i).type);
                 under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
-                under_text_rect.setX(mouse_x + 20 - INVENTORY_UI_SPACING);
-                under_text_rect.setY(mouse_y + 20 - INVENTORY_UI_SPACING);
+                under_text_rect.setX(getMouseX() + 20 - INVENTORY_UI_SPACING);
+                under_text_rect.setY(getMouseY() + 20 - INVENTORY_UI_SPACING);
             }
         }
         
@@ -82,11 +88,11 @@ void ClientInventory::render() {
     
     if(text_texture) {
         under_text_rect.render();
-        text_texture->render(2, mouse_x + 20, mouse_y + 20);
+        text_texture->render(2, getMouseX() + 20, getMouseY() + 20);
     }
     
     if(open) {
-        renderItem(inventory.getItem(-1), mouse_x, mouse_y);
+        renderItem(inventory.getItem(-1), getMouseX(), getMouseY());
         
         hovered_recipe = -1;
         behind_crafting_rect.render();
@@ -99,7 +105,7 @@ void ClientInventory::render() {
             
             gfx::RectShape back_rect(slot_x, slot_y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
             gfx::Color color = GREY;
-            if(mouse_x < back_rect.x || mouse_y < back_rect.y || mouse_x > back_rect.x + back_rect.w || mouse_y > back_rect.y + back_rect.h)
+            if(getMouseX() < back_rect.x || getMouseY() < back_rect.y || getMouseX() > back_rect.x + back_rect.w || getMouseY() > back_rect.y + back_rect.h)
                 color.a = TRANSPARENCY;
             else
                 hovered_recipe = i;
@@ -111,13 +117,13 @@ void ClientInventory::render() {
         
         if(hovered_recipe != -1) {
             tooltip_active = true;
-            under_text_rect.setX(mouse_x);
-            under_text_rect.setY(mouse_y);
+            under_text_rect.setX(getMouseX());
+            under_text_rect.setY(getMouseY());
             under_text_rect.setWidth(SPACING / 2 + inventory.getAvailableRecipes()[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
             under_text_rect.setHeight(INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING);
             under_text_rect.render();
-            int x = mouse_x + SPACING / 2;
-            int y = mouse_y + SPACING / 2;
+            int x = getMouseX() + SPACING / 2;
+            int y = getMouseY() + SPACING / 2;
             for(auto ingredient : inventory.getAvailableRecipes()[hovered_recipe]->ingredients) {
                 gfx::RectShape back_rect(x, y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
                 back_rect.render(GREY);
@@ -211,8 +217,8 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
     }
 }
 
-void ClientInventory::onWelcomePacket(sf::Packet& packet, WelcomePacketType type) {
-    if(type == WelcomePacketType::INVENTORY) {
+void ClientInventory::onEvent(WelcomePacketEvent &event) {
+    if(event.packet_type == WelcomePacketType::INVENTORY) {
         std::vector<char> data = manager->getData();
         inventory.loadFromSerial(&data[0]);
     }

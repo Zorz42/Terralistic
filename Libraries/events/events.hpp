@@ -25,6 +25,7 @@ public:
         for(EventListener<EventInstance>* listener : listeners)
             listener->onEvent(event);
     }
+    
     ~EventSender() {
         if(!listeners.empty())
             std::cout << "Warning: Event destructed with listeners!" << std::endl;

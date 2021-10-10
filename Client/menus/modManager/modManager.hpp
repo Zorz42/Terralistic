@@ -1,5 +1,4 @@
-#ifndef modManager_hpp
-#define modManager_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -43,5 +42,3 @@ class ModManager : public gfx::Scene {
 public:
     explicit ModManager(BackgroundRect* background) : background(background) {}
 };
-
-#endif

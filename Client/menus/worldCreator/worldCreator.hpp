@@ -1,5 +1,4 @@
-#ifndef worldCreator_hpp
-#define worldCreator_hpp
+#pragma once
 
 #include <string>
 #include <vector>
@@ -20,5 +19,3 @@ class WorldCreator : public gfx::Scene {
 public:
     explicit WorldCreator(std::vector<std::string> worlds, BackgroundRect* menu_back) : worlds(std::move(worlds)), menu_back(menu_back) {}
 };
-
-#endif

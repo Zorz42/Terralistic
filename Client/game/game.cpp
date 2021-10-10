@@ -89,7 +89,7 @@ public:
 };
 
 void HandshakeScreen::init() {
-    handshake_thread = std::thread(&Game::handshakeWithServer, game);
+    //handshake_thread = std::thread(&Game::handshakeWithServer, game);
     text.scale = 3;
     text.orientation = gfx::CENTER;
     text.loadFromText("Getting terrain");
@@ -116,128 +116,57 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     private_server.setPrivate(true);
     server_thread = std::thread(&Server::start, &private_server);
     
-    WorldStartingScreen world_starting_screen(menu_back, &private_server);
-    gfx::runScene(world_starting_screen);
+    WorldStartingScreen(menu_back, &private_server).run();
 
-    Game game(menu_back, "_", "127.0.0.1", port);
-    gfx::runScene(game);
+    Game(menu_back, "_", "127.0.0.1", port).run();
+    
     private_server.stop();
     
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    WorldStartingScreen world_starting_screen2(menu_back, &private_server);
-    gfx::runScene(world_starting_screen2);
+    WorldStartingScreen(menu_back, &private_server).run();
     
     server_thread.join();
 }
 
-Game::Game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port) : ip_address(std::move(ip_address)),
-    port(port),
+Game::Game(BackgroundRect* background_rect, const std::string& username, const std::string& ip_address, unsigned short port) :
     username(username),
     background_rect(background_rect),
-    players(&networking, &blocks, &liquids, &resource_pack, &client_entities, username),
-    items(&resource_pack, &blocks, &client_entities, &networking),
-    client_entities(&blocks, &networking),
-    block_selector(&networking, &blocks, &players),
-    inventory(&networking, &resource_pack),
-    debug_menu(&players, &blocks),
-    chat(&networking),
-    minimap(&blocks, &liquids, &lights),
+    
+    networking(ip_address, port, username),
     blocks(&resource_pack, &networking),
     liquids(&blocks, &resource_pack, &networking),
-    lights(&blocks, &resource_pack)
+    lights(&blocks, &resource_pack),
+    entities(&blocks, &networking),
+    items(&resource_pack, &blocks, &entities, &networking),
+    players(&networking, &blocks, &liquids, &resource_pack, &entities, username),
+    block_selector(&networking, &blocks, &players),
+    inventory(&networking, &resource_pack),
+    minimap(&blocks, &liquids, &lights),
+    chat(&networking),
+    debug_menu(&players, &blocks)
 {
-    networking.packet_event.addListener(this);
-}
-
-void Game::init() {
-    std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
-    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
-        std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
-        std::string line;
-        while(std::getline(active_mods_file, line))
-            active_resource_packs.insert(active_resource_packs.begin(), sago::getDataHome() + "/Terralistic/Mods/" + line);
-    }
-    resource_pack.load(active_resource_packs);
-    
-    if(!networking.establishConnection(ip_address, port)) {
-        ChoiceScreen choice_screen(background_rect, "Could not connect to the server!", {"Close"});
-        switchToScene(choice_screen);
-        returnFromScene();
-    }
-    
-    HandshakeScreen handshake_screen(background_rect, this);
-    switchToScene(handshake_screen);
-    
-    if(got_kicked) {
-        ChoiceScreen choice_screen(background_rect, kick_reason, {"Close"});
-        switchToScene(choice_screen);
-        returnFromScene();
-    }
-    
+    registerAModule(&networking);
+    registerAModule(&resource_pack);
+    registerAModule(&blocks);
     registerAModule(&players);
+    registerAModule(&liquids);
+    registerAModule(&lights);
+    registerAModule(&entities);
+    registerAModule(&items);
     registerAModule(&block_selector);
     registerAModule(&inventory);
+    registerAModule(&minimap);
+    registerAModule(&chat);
 #ifdef DEVELOPER_MODE
     registerAModule(&debug_menu);
 #endif
-    registerAModule(&chat);
-    registerAModule(&minimap);
-    
-    client_entities.init();
-    items.init();
-    blocks.init();
 }
 
-void Game::handshakeWithServer() {
-    sf::Packet join_packet;
-    join_packet << username;
-    networking.sendPacket(join_packet);
-    
-    while(true) {
-        sf::Packet packet = networking.getPacket();
-        WelcomePacketType type;
-        packet >> type;
-        if(type == WelcomePacketType::WELCOME)
-            break;
-        
-        blocks.onWelcomePacket(packet, type);
-        liquids.onWelcomePacket(packet, type);
-        inventory.onWelcomePacket(packet, type);
-    }
-    
-    lights.create();
-    blocks.create();
-    
-    for(int x = 0; x < blocks.getWidth(); x++)
-        for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlockInfo(x, y).transparent; y++)
-            lights.setLightSource(x, y, MAX_LIGHT);
-    
-    networking.disableBlocking();
-    
-    handshake_done = true;
-}
-
-void Game::onEvent(ClientPacketEvent& event) {
-    switch(event.packet_type) {
-        case PacketType::KICK: {
-            event.packet >> kick_reason;
-            got_kicked = true;
-        }
-        default:;
-    }
-}
-
-void Game::update() {
-    if(got_kicked) {
-        ChoiceScreen choice_screen(background_rect, kick_reason, {"Close"});
-        switchToScene(choice_screen);
-        returnFromScene();
-    }
-    networking.checkForPackets();
-    client_entities.updateAllEntities(getFrameLength());
-    lights.updateLights();
+void Game::init() {
+    for(ClientModule* module : modules)
+        module->postInit();
 }
 
 void Game::render() {
@@ -245,22 +174,10 @@ void Game::render() {
     int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
-    blocks.render();
-    players.renderPlayers();
-    items.renderItems();
-    liquids.render();
-    lights.render();
-}
-
-void Game::stop() {
-    networking.closeConnection();
 }
 
 void Game::renderBack() {
-    for(SceneModule* module : getModules())
-        module->update();
-    for(SceneModule* module : getModules())
-        module->render();
+    cycleModules();
 }
 
 bool Game::onKeyDown(gfx::Key key) {
@@ -276,4 +193,21 @@ bool Game::onKeyDown(gfx::Key key) {
 
 bool Game::isHandshakeDone() {
     return handshake_done;
+}
+
+void Game::registerAModule(ClientModule* module) {
+    Scene::registerAModule(module);
+    module->game_error_event.addListener(this);
+    modules.push_back(module);
+}
+
+void Game::onEvent(GameErrorEvent& event) {
+    ChoiceScreen choice_screen(background_rect, event.message, {"Close"});
+    switchToScene(choice_screen);
+    returnFromScene();
+}
+
+void Game::stop() {
+    for(ClientModule* module : modules)
+        module->game_error_event.removeListener(this);
 }

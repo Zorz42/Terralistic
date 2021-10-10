@@ -1,5 +1,4 @@
-#ifndef inventoryHandler_hpp
-#define inventoryHandler_hpp
+#pragma once
 
 #include "properties.hpp"
 #include "graphics.hpp"
@@ -12,7 +11,7 @@
 #define INVENTORY_UI_SPACING 10
 #define INVENTORY_ITEM_BACK_RECT_WIDTH (4 * 8 + INVENTORY_UI_SPACING)
 
-class ClientInventory : public gfx::SceneModule, EventListener<ClientPacketEvent> {
+class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
     gfx::Texture numbers[10];
     Inventory inventory;
     bool open = false;
@@ -26,7 +25,9 @@ class ClientInventory : public gfx::SceneModule, EventListener<ClientPacketEvent
     void init() override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;
+    void onEvent(WelcomePacketEvent &event) override;
     bool onKeyDown(gfx::Key key) override;
+    void stop() override;
     
     ResourcePack* resource_pack;
     NetworkingManager* manager;
@@ -34,8 +35,4 @@ public:
     ClientInventory(NetworkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
     
     char* loadFromSerial(char* iter);
-    
-    void onWelcomePacket(sf::Packet& packet, WelcomePacketType type);
 };
-
-#endif

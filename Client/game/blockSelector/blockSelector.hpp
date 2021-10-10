@@ -1,12 +1,11 @@
-#ifndef blockSelector_hpp
-#define blockSelector_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "clientBLocks.hpp"
 #include "clientInventory.hpp"
 #include "clientPlayers.hpp"
 
-class BlockSelector : public gfx::SceneModule {
+class BlockSelector : public ClientModule {
     void init() override;
     void render() override;
 
@@ -23,5 +22,3 @@ class BlockSelector : public gfx::SceneModule {
 public:
     BlockSelector(NetworkingManager* manager, ClientBlocks* blocks, ClientPlayers* player_handler) : manager(manager), blocks(blocks), player_handler(player_handler) {}
 };
-
-#endif

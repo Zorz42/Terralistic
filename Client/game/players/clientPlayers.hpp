@@ -1,5 +1,4 @@
-#ifndef playerHandler_hpp
-#define playerHandler_hpp
+#pragma once
 
 #include <string>
 #include <utility>
@@ -23,7 +22,7 @@ public:
     bool has_jumped = false;
 };
 
-class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> {
+class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false, running_left = false, running_right = false;
     
     void render(ClientPlayer& player_to_draw);
@@ -33,8 +32,10 @@ class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> 
     ClientPlayer* getPlayerById(unsigned short id);
     
     void init() override;
-    void update() override;
+    void update(float frame_length) override;
     void onEvent(ClientPacketEvent& event) override;
+    void render() override;
+    void stop() override;
     
     ClientBlocks* blocks;
     Liquids* liquids;
@@ -44,9 +45,5 @@ class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> 
 public:
     ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username);
     
-    void renderPlayers();
-    
     const ClientPlayer* getMainPlayer() { return main_player; }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef game_hpp
-#define game_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "clientPlayers.hpp"
@@ -18,41 +17,42 @@
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
-class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public BackgroundRect {
-    void onEvent(ClientPacketEvent& event) override;
+class Game : public gfx::Scene, EventListener<GameErrorEvent>, public BackgroundRect {
+    void onEvent(GameErrorEvent& event) override;
+    
     void init() override;
-    void update() override;
     bool onKeyDown(gfx::Key key) override;
     void render() override;
     void stop() override;
-    const std::string ip_address;
-    const unsigned short port;
+    
     std::string username;
+    
     NetworkingManager networking;
     ResourcePack resource_pack;
-    ClientEntities client_entities;
-    ClientPlayers players;
-    ClientItems items;
-    ClientInventory inventory;
-    BlockSelector block_selector;
-    DebugMenu debug_menu;
-    Chat chat;
-    Minimap minimap;
     ClientBlocks blocks;
     ClientLiquids liquids;
     ClientLights lights;
+    ClientEntities entities;
+    ClientItems items;
+    ClientPlayers players;
+    BlockSelector block_selector;
+    ClientInventory inventory;
+    Minimap minimap;
+    Chat chat;
+    DebugMenu debug_menu;
+    
     BackgroundRect* background_rect;
-    bool handshake_done = false, got_kicked = false;
+    bool handshake_done = false;
     std::string kick_reason;
     
+    std::vector<ClientModule*> modules;
+    
+    void registerAModule(ClientModule* module);
 public:
-    Game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port=33770);
+    Game(BackgroundRect* background_rect, const std::string& username, const std::string& ip_address, unsigned short port=33770);
     
     void renderBack() override;
     void setBackWidth(unsigned short width) override { }
     unsigned short getBackWidth() override { return 0; }
     bool isHandshakeDone();
-    void handshakeWithServer();
 };
-
-#endif

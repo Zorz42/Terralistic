@@ -16,8 +16,8 @@ void ClientLiquids::onEvent(ClientPacketEvent &event) {
     }
 }
 
-void ClientLiquids::onWelcomePacket(sf::Packet& packet, WelcomePacketType type) {
-    if(type == WelcomePacketType::LIQUIDS) {
+void ClientLiquids::onEvent(WelcomePacketEvent& event) {
+    if(event.packet_type == WelcomePacketType::LIQUIDS) {
         std::vector<char> data = networking->getData();
         loadFromSerial(&data[0]);
     }
@@ -25,10 +25,12 @@ void ClientLiquids::onWelcomePacket(sf::Packet& packet, WelcomePacketType type) 
 
 void ClientLiquids::init() {
     networking->packet_event.addListener(this);
+    networking->welcome_packet_event.addListener(this);
 }
 
 void ClientLiquids::stop() {
     networking->packet_event.removeListener(this);
+    networking->welcome_packet_event.removeListener(this);
 }
 
 void ClientLiquids::render() {

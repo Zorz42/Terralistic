@@ -9,7 +9,7 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short
     friction = false;
 }
 
-void ClientPlayers::renderPlayers() {
+void ClientPlayers::render() {
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER)
             render(*(ClientPlayer*)entity);

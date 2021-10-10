@@ -1,5 +1,4 @@
-#ifndef multiplayerSelector_hpp
-#define multiplayerSelector_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -17,5 +16,3 @@ class MultiplayerSelector : public gfx::Scene {
 public:
     explicit MultiplayerSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
 };
-
-#endif

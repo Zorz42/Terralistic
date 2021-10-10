@@ -111,6 +111,8 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
 void ServerPlayers::savePlayer(ServerPlayer* player) {
     ServerPlayerData* player_data = getPlayerData(player->name);
     
+    player->destruct();
+    
     player_data->name = player->name;
     player_data->x = player->getX();
     player_data->y = player->getY();
@@ -197,9 +199,10 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER) {
             ServerPlayer* curr_player = (ServerPlayer*)entity;
-            if(curr_player->getConnection() == event.connection)
+            if(curr_player->getConnection() == event.connection) {
                 player = curr_player;
-            else {
+                break;
+            } else {
                 sf::Packet join_packet;
                 join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
                 event.connection->send(join_packet);
@@ -362,4 +365,8 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     sf::Packet packet;
     packet << PacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
     connection->send(packet);
+}
+
+void ServerPlayer::destruct() {
+    inventory.item_change_event.removeListener(this);
 }

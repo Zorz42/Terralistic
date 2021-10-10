@@ -4,12 +4,16 @@ void ClientPlayers::init() {
     manager->packet_event.addListener(this);
 }
 
+void ClientPlayers::stop() {
+    manager->packet_event.removeListener(this);
+}
+
 #define RUN_SPEED 18
 #define WALK_SPEED 10
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 50
 
-void ClientPlayers::update() {
+void ClientPlayers::update(float frame_length) {
     if(main_player) {
         static int prev_x, prev_y;
         float vel_x_change = 0, vel_y_change = 0;

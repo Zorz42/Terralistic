@@ -13,7 +13,7 @@ void DebugMenu::init() {
     coords_text.orientation = gfx::TOP_LEFT;
 }
 
-void DebugMenu::update() {
+void DebugMenu::update(float frame_length) {
     static unsigned int count = gfx::getTicks() / 1000 - 1;
     fps_count++;
     if(gfx::getTicks() / 1000 > count) {

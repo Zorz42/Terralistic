@@ -103,7 +103,7 @@ unsigned char ClientBlocks::getState(int x, int y) {
     return getRenderBlock(x, y)->state;
 }
 
-void ClientBlocks::create() {
+void ClientBlocks::postInit() {
     render_blocks = new RenderBlock[getWidth() * getHeight()];
     view_x = getWidth() * BLOCK_WIDTH;
     view_y = 0;
@@ -121,8 +121,8 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
     updateState(event.x, event.y - 1);
 }
 
-void ClientBlocks::onWelcomePacket(sf::Packet& packet, WelcomePacketType type) {
-    if(type == WelcomePacketType::BLOCKS) {
+void ClientBlocks::onEvent(WelcomePacketEvent& event) {
+    if(event.packet_type == WelcomePacketType::BLOCKS) {
         std::vector<char> data = networking->getData();
         loadFromSerial(&data[0]);
     }
@@ -131,11 +131,13 @@ void ClientBlocks::onWelcomePacket(sf::Packet& packet, WelcomePacketType type) {
 void ClientBlocks::init() {
     block_change_event.addListener(this);
     networking->packet_event.addListener(this);
+    networking->welcome_packet_event.addListener(this);
 }
 
 void ClientBlocks::stop() {
     block_change_event.removeListener(this);
     networking->packet_event.removeListener(this);
+    networking->welcome_packet_event.removeListener(this);
 }
 
 void ClientBlocks::render() {

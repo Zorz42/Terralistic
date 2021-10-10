@@ -193,7 +193,3 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
 std::string gfx::getResourcePath() {
     return resource_path;
 }
-
-void gfx::runScene(Scene& scene) {
-    scene.run();
-}

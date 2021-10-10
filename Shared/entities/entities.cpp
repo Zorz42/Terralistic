@@ -19,7 +19,6 @@ void Entities::removeEntity(Entity* entity) {
     entities.erase(std::find(entities.begin(), entities.end(), entity));
     EntityDeletionEvent event(entity);
     entity_deletion_event.call(event);
-    
     delete entity;
 }
 

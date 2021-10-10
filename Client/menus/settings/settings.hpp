@@ -1,5 +1,4 @@
-#ifndef settings_hpp
-#define settings_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -21,5 +20,3 @@ public:
 };
 
 void loadSettings();
-
-#endif

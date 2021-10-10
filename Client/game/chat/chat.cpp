@@ -24,7 +24,7 @@ void Chat::init() {
     text_inputs = {&chat_box};
 }
 
-void Chat::update() {
+void Chat::update(float frame_length) {
     int target_width = chat_box.active ? 300 : 100;
     chat_box.width += (target_width - (int)chat_box.width) / 3;
     
@@ -33,7 +33,7 @@ void Chat::update() {
 }
 
 void Chat::render() {
-    chat_box.render(mouse_x, mouse_y);
+    chat_box.render(getMouseX(), getMouseY());
     
     for(ChatLine* i : chat_lines) {
         if(!i->text.empty()) {
@@ -99,4 +99,6 @@ void Chat::onEvent(ClientPacketEvent &event) {
 void Chat::stop() {
     for(ChatLine* i : chat_lines)
         delete i;
+    
+    manager->packet_event.removeListener(this);
 }

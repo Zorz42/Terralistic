@@ -273,6 +273,7 @@
 		167973412712306600E90477 /* clientLiquids.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientLiquids.hpp; sourceTree = "<group>"; };
 		167973432712307D00E90477 /* clientLights.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clientLights.cpp; sourceTree = "<group>"; };
 		167973442712307D00E90477 /* clientLights.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientLights.hpp; sourceTree = "<group>"; };
+		167A2A802712DB9A0022F8F2 /* clientModule.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientModule.hpp; sourceTree = "<group>"; };
 		167B387E2642F73900E3C718 /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = print.cpp; sourceTree = "<group>"; };
 		167B387F2642F73900E3C718 /* print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
 		167B38932642F73900E3C718 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
@@ -924,19 +925,20 @@
 		365721CF26D07180005AB3CC /* game */ = {
 			isa = PBXGroup;
 			children = (
+				167A2A802712DB9A0022F8F2 /* clientModule.hpp */,
 				365721D026D07180005AB3CC /* networking */,
+				365721E426D07180005AB3CC /* resourcePack */,
 				1679733A2712300F00E90477 /* blocks */,
 				1679733B2712301400E90477 /* liquids */,
 				1679733C2712301900E90477 /* lights */,
 				16A681DC2705A77A0084E9CE /* entities */,
-				16A0E8AB26FDBE250069211C /* minimap */,
-				365721D326D07180005AB3CC /* chat */,
-				365721D726D07180005AB3CC /* inventory */,
-				365721DB26D07180005AB3CC /* debugMenu */,
 				365721E126D07180005AB3CC /* items */,
-				365721E426D07180005AB3CC /* resourcePack */,
 				365721E726D07180005AB3CC /* players */,
 				365721EC26D07180005AB3CC /* blockSelector */,
+				365721D726D07180005AB3CC /* inventory */,
+				16A0E8AB26FDBE250069211C /* minimap */,
+				365721D326D07180005AB3CC /* chat */,
+				365721DB26D07180005AB3CC /* debugMenu */,
 				1690693A26D1A1C80057345A /* game.hpp */,
 				365721F426D07180005AB3CC /* game.cpp */,
 			);
