@@ -120,10 +120,10 @@ void Server::start() {
     state = ServerState::STOPPING;
     print::info("Stopping server");
 
+    saveWorld();
+    
     for(ServerModule* module : modules)
         module->stop();
-
-    saveWorld();
 
     state = ServerState::STOPPED;
 }

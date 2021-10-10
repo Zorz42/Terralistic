@@ -77,36 +77,6 @@ void WorldStartingScreen::render() {
     text.render();
 }
 
-class HandshakeScreen : public gfx::Scene {
-    gfx::Sprite text;
-    std::thread handshake_thread;
-    void init() override;
-    void render() override;
-    BackgroundRect* background_rect;
-    Game* game;
-public:
-    HandshakeScreen(BackgroundRect* background_rect, Game* game) : background_rect(background_rect), game(game) {}
-};
-
-void HandshakeScreen::init() {
-    //handshake_thread = std::thread(&Game::handshakeWithServer, game);
-    text.scale = 3;
-    text.orientation = gfx::CENTER;
-    text.loadFromText("Getting terrain");
-    background_rect->setBackWidth(text.getWidth() + 300);
-}
-
-void HandshakeScreen::render() {
-    if(game->isHandshakeDone()) {
-        handshake_thread.join();
-        returnFromScene();
-    }
-    background_rect->renderBack();
-    text.render();
-    
-    sf::Packet packet;
-}
-
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world) {
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     Server private_server(gfx::getResourcePath(), world_name, port);
