@@ -1,34 +1,35 @@
 #include "clientNetworking.hpp"
+#include "choiceScreen.hpp"
 
 void NetworkingManager::sendPacket(sf::Packet& packet) {
-    master_packet.append(packet.getData(), packet.getDataSize());
+    sf::Socket::Status status = sf::Socket::Partial;
+    while(status == sf::Socket::Partial)
+        status = socket.send(packet);
 }
 
-void NetworkingManager::checkForPackets() {
+void NetworkingManager::update(float frame_length) {
     sf::Packet packet;
     
     while(true) {
         sf::Socket::Status status = socket.receive(packet);
         if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
-            while(!packet.endOfPacket()) {
-                PacketType packet_type;
-                packet >> packet_type;
-                ClientPacketEvent(packet, packet_type).call();
-            }
+            PacketType packet_type;
+            packet >> packet_type;
+            ClientPacketEvent event(packet, packet_type);
+            packet_event.call(event);
         } else
             break;
     }
 }
 
-bool NetworkingManager::establishConnection(const std::string &ip, unsigned short port) {
-    return socket.connect(ip, port) == sf::Socket::Done;
+void NetworkingManager::init() {
+    if(socket.connect(ip_address, port) != sf::Socket::Done) {
+        GameErrorEvent error_event("Could not connect to the server!");
+        game_error_event.call(error_event);
+    }
 }
 
-void NetworkingManager::disableBlocking() {
-    socket.setBlocking(false);
-}
-
-void NetworkingManager::closeConnection() {
+void NetworkingManager::stop() {
     socket.disconnect();
 }
 
@@ -38,7 +39,11 @@ sf::Packet NetworkingManager::getPacket() {
     return packet;
 }
 
-std::vector<char> NetworkingManager::getData(unsigned int size) {
+std::vector<char> NetworkingManager::getData() {
+    int size;
+    std::size_t temp;
+    socket.receive((char*)&size, sizeof(int), temp);
+    
     std::vector<char> data(size);
     int bytes_received = 0;
     size_t received;
@@ -49,9 +54,31 @@ std::vector<char> NetworkingManager::getData(unsigned int size) {
     return data;
 }
 
-void NetworkingManager::flushPackets() {
-    if(master_packet.getDataSize()) {
-        socket.send(master_packet);
-        master_packet.clear();
+void NetworkingManager::onEvent(ClientPacketEvent& event) {
+    if(event.packet_type == PacketType::KICK) {
+        std::string kick_message;
+        event.packet >> kick_message;
+        
+        GameErrorEvent error_event(kick_message);
+        game_error_event.call(error_event);
     }
+}
+
+void NetworkingManager::postInit() {
+    sf::Packet join_packet;
+    join_packet << username;
+    sendPacket(join_packet);
+    
+    while(true) {
+        sf::Packet packet = getPacket();
+        WelcomePacketType type;
+        packet >> type;
+        if(type == WelcomePacketType::WELCOME)
+            break;
+        
+        WelcomePacketEvent event(packet, type);
+        welcome_packet_event.call(event);
+    }
+    
+    socket.setBlocking(false);
 }

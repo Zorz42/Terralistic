@@ -23,19 +23,25 @@ void PauseScreen::init() {
     back_rect.blur_intensity = BLUR;
 }
 
-void PauseScreen::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::ESCAPE)
+bool PauseScreen::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::ESCAPE) {
         returnToGame();
+        return true;
+    }
     else if(key == gfx::Key::MOUSE_LEFT) {
-        if(resume_button.isHovered(getMouseX(), getMouseY()))
+        if(resume_button.isHovered(getMouseX(), getMouseY())) {
             returnToGame();
-        else if(settings_button.isHovered(getMouseX(), getMouseY())) {
+            return true;
+        } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
             Settings settings(this);
             switchToScene(settings);
+            return true;
         } else if(quit_button.isHovered(getMouseX(), getMouseY())) {
             exitToMenu();
+            return true;
         }
     }
+    return false;
 }
 
 void PauseScreen::render() {

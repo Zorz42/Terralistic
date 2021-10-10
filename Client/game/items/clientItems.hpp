@@ -1,5 +1,4 @@
-#ifndef clientItems_hpp
-#define clientItems_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "resourcePack.hpp"
@@ -7,26 +6,22 @@
 #include "clientNetworking.hpp"
 #include "clientBlocks.hpp"
 #include "clientEntities.hpp"
+#include "items.hpp"
 
 #define ITEM_WIDTH 8
 
-class ClientItem : public ClientEntity {
-    ItemType item_type;
-public:
-    ClientItem(ItemType item_type, int x, int y, unsigned short id) : item_type(item_type), ClientEntity(id, EntityType::ITEM, x, y) {}
-    ItemType getType() const { return item_type; }
-    unsigned short getWidth() override { return ITEM_WIDTH * 2; }
-    unsigned short getHeight() override { return ITEM_WIDTH * 2; }
-};
-
-class ClientItems : EventListener<ClientPacketEvent> {
+class ClientItems : public Items, public ClientModule, EventListener<ClientPacketEvent> {
     ResourcePack* resource_pack;
     void onEvent(ClientPacketEvent& event) override;
+    
     ClientBlocks* blocks;
-    ClientEntities* entities;
+    Entities* entities;
+    NetworkingManager* manager;
+    
+    void init() override;
+    void render() override;
+    void stop() override;
 public:
-    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, ClientEntities* entities) : resource_pack(resource_pack), blocks(blocks), entities(entities) {}
-    void renderItems();
+    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, Entities* entities, NetworkingManager* manager) : resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager), Items(entities, blocks) {}
 };
 
-#endif

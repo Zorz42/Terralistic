@@ -1,5 +1,4 @@
-#ifndef worldSelector_hpp
-#define worldSelector_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -23,12 +22,10 @@ class WorldSelector : public gfx::Scene {
     float top_rect_visibility = 0;
     
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     void onMouseScroll(int distance) override;
     void refresh();
 public:
     explicit WorldSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
 };
-
-#endif

@@ -4,6 +4,7 @@
 static const std::set<char> allowed_chars = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
 void Chat::init() {
+    manager->packet_event.addListener(this);
     chat_box.scale = 2;
     chat_box.setText("");
     chat_box.orientation = gfx::BOTTOM_LEFT;
@@ -23,7 +24,7 @@ void Chat::init() {
     text_inputs = {&chat_box};
 }
 
-void Chat::update() {
+void Chat::update(float frame_length) {
     int target_width = chat_box.active ? 300 : 100;
     chat_box.width += (target_width - (int)chat_box.width) / 3;
     
@@ -32,7 +33,7 @@ void Chat::update() {
 }
 
 void Chat::render() {
-    chat_box.render(mouse_x, mouse_y);
+    chat_box.render(getMouseX(), getMouseY());
     
     for(ChatLine* i : chat_lines) {
         if(!i->text.empty()) {
@@ -60,7 +61,7 @@ void Chat::render() {
     }
 }
 
-void Chat::onKeyDown(gfx::Key key) {
+bool Chat::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
             sf::Packet chat_packet;
@@ -69,13 +70,17 @@ void Chat::onKeyDown(gfx::Key key) {
             chat_box.setText("");
         }
         chat_box.active = false;
+        return true;
     } else if(key == gfx::Key::T && !chat_box.active) {
         chat_box.active = true;
         chat_box.ignore_next_input = true;
+        return true;
     } else if(key == gfx::Key::ESCAPE && chat_box.active) {
         chat_box.setText("");
         chat_box.active = false;
+        return true;
     }
+    return false;
 }
 
 void Chat::onEvent(ClientPacketEvent &event) {
@@ -94,4 +99,6 @@ void Chat::onEvent(ClientPacketEvent &event) {
 void Chat::stop() {
     for(ChatLine* i : chat_lines)
         delete i;
+    
+    manager->packet_event.removeListener(this);
 }

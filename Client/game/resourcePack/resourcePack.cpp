@@ -1,5 +1,6 @@
 #include <cassert>
 #include <filesystem>
+#include <fstream>
 #include "print.hpp"
 #include "resourcePack.hpp"
 #include "platform_folders.h"
@@ -54,20 +55,6 @@ std::string ResourcePack::getFile(const std::string& file_name) {
     }
     assert(false);
     return "";
-}
-
-void ResourcePack::load(const std::vector<std::string>& paths_) {
-    paths = paths_;
-    std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
-
-    breaking_texture.loadFromFile(getFile("/misc/breaking.png"));
-    player_texture.loadFromFile(getFile("/misc/player.png"));
-    background.loadFromFile(getFile("/misc/background.png"));
-
-    loadBlocks();
-    loadLiquids();
-    loadItems();
-
 }
 
 void ResourcePack::loadBlocks() {
@@ -145,4 +132,25 @@ void ResourcePack::loadItems() {
         texture_atlas_height += item_textures[i].getTextureHeight();
     }
     gfx::resetRenderTarget();
+}
+
+void ResourcePack::init() {
+    std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
+    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
+        std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
+        std::string line;
+        while(std::getline(active_mods_file, line))
+            active_resource_packs.insert(active_resource_packs.begin(), sago::getDataHome() + "/Terralistic/Mods/" + line);
+    }
+    
+    paths = active_resource_packs;
+    std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
+
+    breaking_texture.loadFromFile(getFile("/misc/breaking.png"));
+    player_texture.loadFromFile(getFile("/misc/player.png"));
+    background.loadFromFile(getFile("/misc/background.png"));
+
+    loadBlocks();
+    loadLiquids();
+    loadItems();
 }

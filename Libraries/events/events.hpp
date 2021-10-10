@@ -1,43 +1,33 @@
-#ifndef events_hpp
-#define events_hpp
+#pragma once
 
 #include <vector>
-#include <algorithm>
+#include <iostream>
 
-template<class EventListeningTo>
-class EventListener;
-
-template<class ChildType>
-class Event {
-    template<class EventListeningTo> friend class EventListener;
-    
-    inline static std::vector<EventListener<ChildType>*> listeners;
-public:
-    void call() {
-        for(EventListener<ChildType>* listener : listeners) {
-            if(cancelled)
-                break;
-            listener->onEvent(*(ChildType*)this);
-        }
-    }
-    
-    bool cancelled = false;
-};
-
-
-template<class EventListeningTo>
+template<class EventInstance>
 class EventListener {
 public:
-    EventListener() {
-        EventListeningTo::listeners.push_back(this);
-    }
-    
-    virtual ~EventListener() {
-        EventListeningTo::listeners.erase(std::find(EventListeningTo::listeners.begin(), EventListeningTo::listeners.end(), this));
-    }
-    
-    virtual void onEvent(EventListeningTo& event) = 0;
+    virtual void onEvent(EventInstance& event) = 0;
 };
 
-
-#endif
+template<class EventInstance>
+class EventSender {
+    std::vector<EventListener<EventInstance>*> listeners;
+public:
+    void addListener(EventListener<EventInstance>* listener){
+        listeners.push_back(listener);
+    }
+    
+    void removeListener(EventListener<EventInstance>* listener) {
+        listeners.erase(std::find(listeners.begin(), listeners.end(), listener));
+    }
+    
+    void call(EventInstance& event) {
+        for(EventListener<EventInstance>* listener : listeners)
+            listener->onEvent(event);
+    }
+    
+    ~EventSender() {
+        if(!listeners.empty())
+            std::cout << "Warning: Event destructed with listeners!" << std::endl;
+    }
+};

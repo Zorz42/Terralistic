@@ -21,20 +21,34 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
-Server::Server(std::string resource_path, std::string world_path) :
-    blocks(),
-    items(&entities),
-    players(&blocks, &entities, &items),
-    networking_manager(&blocks, &players, &items, &entities),
-    generator(&blocks, std::move(resource_path)),
+Server::Server(std::string resource_path, std::string world_path, unsigned short port) :
+    networking(port),
+    blocks(&networking),
+    biomes(&blocks),
+    liquids(&blocks, &networking),
+    generator(&blocks, &liquids, &biomes, std::move(resource_path)),
+    entities(&blocks, &networking),
+    items(&entities, &blocks, &networking),
+    players(&blocks, &entities, &items, &networking),
+    chat(&players, &networking),
+    commands(&blocks, &players, &items, &entities, &chat),
     world_path(std::move(world_path)),
-    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
-    entities(&blocks)
-{}
+    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+{
+    modules = {
+        &networking,
+        &blocks,
+        &biomes,
+        &liquids,
+        &entities,
+        &items,
+        &players,
+        &chat,
+        &commands,
+    };
+}
 
-void Server::loadWorld() {
-    blocks.createWorld(4400, 1200);
-    
+void Server::loadWorld() {    
     std::ifstream world_file(world_path, std::ios::binary);
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
     
@@ -42,7 +56,11 @@ void Server::loadWorld() {
     
     world_file.close();
     char* iter = &world_file_serial[0];
+    
     iter = blocks.loadFromSerial(iter);
+    liquids.create();
+    biomes.create();
+    iter = liquids.loadFromSerial(iter);
     
     while(iter < &world_file_serial[0] + world_file_serial.size())
         iter = players.addPlayerFromSerial(iter);
@@ -51,8 +69,9 @@ void Server::loadWorld() {
 void Server::saveWorld() {
     std::vector<char> world_file_serial;
     blocks.serialize(world_file_serial);
+    liquids.serialize(world_file_serial);
     
-    for(const ServerPlayer* player : players.getAllPlayers())
+    for(const ServerPlayerData* player : players.getAllPlayers())
         player->serialize(world_file_serial);
     
     world_file_serial = compress(world_file_serial);
@@ -62,7 +81,7 @@ void Server::saveWorld() {
     world_file.close();
 }
 
-void Server::start(unsigned short port) {
+void Server::start() {
     curr_server = this;
 
     if(std::filesystem::exists(world_path)) {
@@ -74,60 +93,37 @@ void Server::start(unsigned short port) {
         print::info("Generating world...");
         generator.generateWorld(4400, 1200, seed);
     }
-
-    for(int x = 0; x < blocks.getWidth(); x++)
-        for(unsigned short y = 0; y < blocks.getHeight() && blocks.getBlock(x, y).getBlockInfo().transparent; y++) {
-            blocks.setLightLevelDirectly(x, y, MAX_LIGHT);
-            blocks.setLightSourceDirectly(x, y, true);
-        }
     
-    print::info("Starting server...");
-    state = ServerState::STARTING;
+    for(ServerModule* module : modules)
+        module->init();
 
     signal(SIGINT, onInterrupt);
-    networking_manager.openSocket(port);
 
     state = ServerState::RUNNING;
     print::info("Server has started!");
-    unsigned int a, b = gfx::getTicks(), seconds = 0;
-    unsigned short tick_length;
+    
+    unsigned int a, b = gfx::getTicks();
     
     int ms_per_tick = 1000 / TPS_LIMIT;
 
     while(running) {
         a = gfx::getTicks();
-        tick_length = a - b;
-        if(tick_length < ms_per_tick)
-            gfx::sleep(ms_per_tick - tick_length);
+        float frame_length = a - b;
+        if(frame_length < ms_per_tick)
+            gfx::sleep(ms_per_tick - frame_length);
         b = a;
-
-        networking_manager.checkForNewConnections();
-        networking_manager.getPacketsFromPlayers();
-        entities.updateAllEntities(tick_length);
-        players.lookForItemsThatCanBePickedUp();
-        players.updatePlayersBreaking(tick_length);
-        players.updateBlocksInVisibleAreas();
-        networking_manager.flushPackets();
-        if(gfx::getTicks() / 1000 > seconds) {
-            seconds = gfx::getTicks() / 1000;
-            networking_manager.syncEntityPositions();
-        }
+        
+        for(ServerModule* module : modules)
+            module->update(frame_length);
     }
     
     state = ServerState::STOPPING;
-
-    if(!networking_manager.accept_itself) {
-        sf::Packet kick_packet;
-        kick_packet << PacketType::KICK << std::string("Server stopped!");
-        networking_manager.sendToEveryone(kick_packet);
-    }
-    networking_manager.flushPackets();
-
     print::info("Stopping server");
-    networking_manager.closeSocket();
 
-    print::info("Saving world...");
     saveWorld();
+    
+    for(ServerModule* module : modules)
+        module->stop();
 
     state = ServerState::STOPPED;
 }
@@ -137,7 +133,7 @@ void Server::stop() {
 }
 
 void Server::setPrivate(bool is_private) {
-    networking_manager.accept_itself = is_private;
+    networking.is_private = is_private;
 }
 
 unsigned int Server::getGeneratingTotal() const {

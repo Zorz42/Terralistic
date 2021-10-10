@@ -1,18 +1,16 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username) :
-manager(manager), blocks(blocks), resource_pack(resource_pack), entities(entities), username(username) {
-    
-}
+ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username) :
+manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), username(username) {}
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : name(name), ClientEntity(id, EntityType::PLAYER, x, y) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : Player(x, y, name, id) {
     name_text.loadFromText(name, WHITE);
     friction = false;
 }
 
-void ClientPlayers::renderPlayers() {
-    for(ClientEntity* entity : entities->getEntities())
+void ClientPlayers::render() {
+    for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER)
             render(*(ClientPlayer*)entity);
 }
@@ -21,11 +19,11 @@ void ClientPlayers::renderPlayers() {
 #define HEADER_PADDING 2
 
 void ClientPlayers::render(ClientPlayer& player_to_draw) {
-    if(player_to_draw.isTouchingGround(blocks) && player_to_draw.velocity_y == 0)
+    if(player_to_draw.isTouchingGround(blocks) && player_to_draw.getVelocityY() == 0)
         player_to_draw.has_jumped = false;
     
-    if(player_to_draw.velocity_x)
-        player_to_draw.flipped = player_to_draw.velocity_x < 0;
+    if(player_to_draw.getVelocityX())
+        player_to_draw.flipped = player_to_draw.getVelocityX() < 0;
     
     if(player_to_draw.moving_type == MovingType::STANDING)
         player_to_draw.started_moving = 0;
@@ -46,19 +44,19 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     else
         player_to_draw.texture_frame = 1;
     
-    int player_x = gfx::getWindowWidth() / 2 + player_to_draw.x - blocks->view_x;
-    int player_y = gfx::getWindowHeight() / 2 + player_to_draw.y - blocks->view_y;
+    int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - blocks->view_x;
+    int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y;
     resource_pack->getPlayerTexture().render(2, player_x, player_y, {(short)(player_to_draw.texture_frame * PLAYER_WIDTH), 0, (unsigned short)(PLAYER_WIDTH), (unsigned short)(PLAYER_HEIGHT)}, player_to_draw.flipped);
     if(player_to_draw.name != "_") {
-        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.x + PLAYER_WIDTH - blocks->view_x,
-        header_y = gfx::getWindowHeight() / 2 + player_to_draw.y - blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
+        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getY() + PLAYER_WIDTH - blocks->view_x,
+        header_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
         gfx::RectShape(header_x - HEADER_PADDING, header_y - HEADER_PADDING, player_to_draw.name_text.getTextureWidth() + 2 * HEADER_PADDING, player_to_draw.name_text.getTextureHeight() + 2 * HEADER_PADDING).render(BLACK);
         player_to_draw.name_text.render(1, header_x, header_y);
     }
 }
 
 ClientPlayer* ClientPlayers::getPlayerById(unsigned short id) {
-    for(ClientEntity* entity : entities->getEntities())
+    for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER && entity->id == id)
             return (ClientPlayer*)entity;
     assert(false);
@@ -78,13 +76,6 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             entities->registerEntity(new_player);
             if(name == username)
                 main_player = new_player;
-            
-            break;
-        }
-        case PacketType::PLAYER_LEAVE: {
-            unsigned short id;
-            event.packet >> id;
-            entities->removeEntity(getPlayerById(id));
             
             break;
         }

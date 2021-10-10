@@ -1,5 +1,4 @@
-#ifndef pauseScreen_hpp
-#define pauseScreen_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -15,7 +14,7 @@ class PauseScreen : public gfx::Scene, public BackgroundRect {
     void renderButtons();
     
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     BackgroundRect* background;
 public:
@@ -26,5 +25,3 @@ public:
     void setBackWidth(unsigned short width) override;
     unsigned short getBackWidth() override;
 };
-
-#endif

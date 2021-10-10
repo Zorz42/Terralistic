@@ -58,7 +58,7 @@ void Settings::init() {
     back_button.y = -SPACING;
 }
 
-void Settings::onKeyDown(gfx::Key key) {
+bool Settings::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         int new_scale = 0;
         if(back_button.isHovered(getMouseX(), getMouseY()))
@@ -78,7 +78,9 @@ void Settings::onKeyDown(gfx::Key key) {
             config.saveConfig();
             reloadSettings();
         }
+        return true;
     }
+    return false;
 }
 
 void Settings::render() {

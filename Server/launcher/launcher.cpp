@@ -25,9 +25,9 @@ int main(int argc, char **argv) {
     
     initProperties();
     
-    Server main_server(gfx::getResourcePath(), data_folder + "world");
+    Server main_server(gfx::getResourcePath(), data_folder + "world", 33770);
     
-    std::thread server_thread(&Server::start, &main_server, 33770);
+    std::thread server_thread(&Server::start, &main_server);
     
     ServerScene server_scene;
     gfx::runScene(server_scene);

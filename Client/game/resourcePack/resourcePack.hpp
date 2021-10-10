@@ -1,10 +1,10 @@
-#ifndef resourcePack_hpp
-#define resourcePack_hpp
+#pragma once
 
 #include "properties.hpp"
 #include "graphics.hpp"
+#include "clientModule.hpp"
 
-class ResourcePack {
+class ResourcePack : public ClientModule {
     gfx::Texture item_text_textures[(int)ItemType::NUM_ITEMS], breaking_texture, player_texture, background, block_texture_atlas, liquid_texture_atlas, item_texture_atlas;
     gfx::RectShape block_texture_rectangles[(int)BlockType::NUM_BLOCKS];
     gfx::RectShape liquid_texture_rectangles[(int)LiquidType::NUM_LIQUIDS];
@@ -12,11 +12,12 @@ class ResourcePack {
     std::vector<std::string> paths;
     
     gfx::RectShape item_texture_rectangles[(int)BlockType::NUM_BLOCKS];
-public:
-    void load(const std::vector<std::string>& paths_);
+    
     void loadBlocks();
     void loadLiquids();
     void loadItems();
+    void init() override;
+public:
 
     const gfx::Texture& getBlockTexture();
     const gfx::Texture& getItemTexture();
@@ -30,5 +31,3 @@ public:
     const gfx::RectShape& getTextureRectangle(ItemType type);
 
 };
-
-#endif

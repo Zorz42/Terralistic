@@ -39,13 +39,16 @@ void WorldCreator::init() {
     text_inputs = {&world_name};
 }
 
-void WorldCreator::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY()))
+bool WorldCreator::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY())) {
         returnFromScene();
-    else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
+        return true;
+    } else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
         startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, world_name.getText() == "StructureWorld");
         returnFromScene();
+        return true;
     }
+    return false;
 }
 
 void WorldCreator::render() {

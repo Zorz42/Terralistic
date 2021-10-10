@@ -49,9 +49,6 @@ void WorldStartingScreen::render() {
     if(server->state != prev_server_state) {
         prev_server_state = server->state;
         switch(server->state) {
-            case ServerState::STARTING:
-                text.loadFromText("Starting server");
-                break;
             case ServerState::LOADING_WORLD:
                 text.loadFromText("Loading world");
                 break;
@@ -80,161 +77,66 @@ void WorldStartingScreen::render() {
     text.render();
 }
 
-class HandshakeScreen : public gfx::Scene {
-    gfx::Sprite text;
-    std::thread handshake_thread;
-    void init() override;
-    void render() override;
-    BackgroundRect* background_rect;
-    Game* game;
-public:
-    HandshakeScreen(BackgroundRect* background_rect, Game* game) : background_rect(background_rect), game(game) {}
-};
-
-void HandshakeScreen::init() {
-    handshake_thread = std::thread(&Game::handshakeWithServer, game);
-    text.scale = 3;
-    text.orientation = gfx::CENTER;
-    text.loadFromText("Getting terrain");
-    background_rect->setBackWidth(text.getWidth() + 300);
-}
-
-void HandshakeScreen::render() {
-    if(game->isHandshakeDone()) {
-        handshake_thread.join();
-        returnFromScene();
-    }
-    background_rect->renderBack();
-    text.render();
-}
-
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world) {
-    Server private_server(gfx::getResourcePath(), world_name);
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
+    Server private_server(gfx::getResourcePath(), world_name, port);
     if(structure_world)
         private_server.seed = 1000;
   
     private_server.setPrivate(true);
-    server_thread = std::thread(&Server::start, &private_server, port);
+    server_thread = std::thread(&Server::start, &private_server);
     
-    WorldStartingScreen world_starting_screen(menu_back, &private_server);
-    gfx::runScene(world_starting_screen);
+    WorldStartingScreen(menu_back, &private_server).run();
 
-    Game game(menu_back, "_", "127.0.0.1", port);
-    gfx::runScene(game);
+    Game(menu_back, "_", "127.0.0.1", port).run();
+    
     private_server.stop();
     
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    WorldStartingScreen world_starting_screen2(menu_back, &private_server);
-    gfx::runScene(world_starting_screen2);
+    WorldStartingScreen(menu_back, &private_server).run();
     
     server_thread.join();
 }
 
-Game::Game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port) : ip_address(std::move(ip_address)),
-    port(port),
+Game::Game(BackgroundRect* background_rect, const std::string& username, const std::string& ip_address, unsigned short port) :
     username(username),
     background_rect(background_rect),
-    blocks(&resource_pack),
-    players(&networking_manager, &blocks, &resource_pack, &entities, username),
-    items(&resource_pack, &blocks, &entities),
-    entities(&blocks),
-    block_selector(&networking_manager, &blocks, &inventory, &players),
-    inventory(&networking_manager, &resource_pack),
-    debug_menu(&players, &blocks),
-    chat(&networking_manager),
-    minimap(&blocks)
-{}
-
-void Game::init() {
-    std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
-    if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
-        std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
-        std::string line;
-        while(std::getline(active_mods_file, line))
-            active_resource_packs.insert(active_resource_packs.begin(), sago::getDataHome() + "/Terralistic/Mods/" + line);
-    }
-    resource_pack.load(active_resource_packs);
     
-    if(!networking_manager.establishConnection(ip_address, port)) {
-        ChoiceScreen choice_screen(background_rect, "Could not connect to the server!", {"Close"});
-        switchToScene(choice_screen);
-        returnFromScene();
-    }
-    
-    HandshakeScreen handshake_screen(background_rect, this);
-    switchToScene(handshake_screen);
-    
-    if(got_kicked) {
-        ChoiceScreen choice_screen(background_rect, kick_reason, {"Close"});
-        switchToScene(choice_screen);
-        returnFromScene();
-    }
-    
+    networking(ip_address, port, username),
+    blocks(&resource_pack, &networking),
+    liquids(&blocks, &resource_pack, &networking),
+    lights(&blocks, &resource_pack),
+    entities(&blocks, &networking),
+    items(&resource_pack, &blocks, &entities, &networking),
+    players(&networking, &blocks, &liquids, &resource_pack, &entities, username),
+    block_selector(&networking, &blocks, &players),
+    inventory(&networking, &resource_pack),
+    minimap(&blocks, &liquids, &lights),
+    chat(&networking),
+    debug_menu(&players, &blocks)
+{
+    registerAModule(&networking);
+    registerAModule(&resource_pack);
+    registerAModule(&blocks);
     registerAModule(&players);
+    registerAModule(&liquids);
+    registerAModule(&lights);
+    registerAModule(&entities);
+    registerAModule(&items);
     registerAModule(&block_selector);
     registerAModule(&inventory);
+    registerAModule(&minimap);
+    registerAModule(&chat);
 #ifdef DEVELOPER_MODE
     registerAModule(&debug_menu);
 #endif
-    registerAModule(&chat);
-    registerAModule(&minimap);
 }
 
-void Game::handshakeWithServer() {
-    sf::Packet join_packet;
-    join_packet << username;
-    networking_manager.sendPacket(join_packet);
-    networking_manager.flushPackets();
-    
-    sf::Packet packet = networking_manager.getPacket();
-    PacketType type;
-    packet >> type;
-    
-    if(type == PacketType::KICK) {
-        got_kicked = true;
-        packet >> kick_reason;
-        handshake_done = true;
-        return;
-    }
-    
-    int player_x, player_y;
-    packet >> player_x >> player_y;
-    unsigned short world_width, world_height;
-    packet >> world_width >> world_height;
-    unsigned int size;
-    packet >> size;
-    
-    std::vector<char> map_data = networking_manager.getData(size);
-    
-    blocks.create(world_width, world_height, map_data);
-    
-    networking_manager.disableBlocking();
-    
-    handshake_done = true;
-}
-
-void Game::onEvent(ClientPacketEvent& event) {
-    switch(event.packet_type) {
-        case PacketType::KICK: {
-            event.packet >> kick_reason;
-            got_kicked = true;
-        }
-        default:;
-    }
-}
-
-void Game::update() {
-    if(got_kicked) {
-        ChoiceScreen choice_screen(background_rect, kick_reason, {"Close"});
-        switchToScene(choice_screen);
-        returnFromScene();
-    }
-    networking_manager.checkForPackets();
-    networking_manager.flushPackets();
-    entities.updateAllEntities(getFrameLength());
+void Game::init() {
+    for(ClientModule* module : modules)
+        module->postInit();
 }
 
 void Game::render() {
@@ -242,32 +144,40 @@ void Game::render() {
     int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
         resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
-    blocks.renderBackBlocks();
-    players.renderPlayers();
-    items.renderItems();
-    blocks.renderFrontBlocks();
-}
-
-void Game::stop() {
-    networking_manager.closeConnection();
 }
 
 void Game::renderBack() {
-    for(SceneModule* module : getModules())
-        module->update();
-    for(SceneModule* module : getModules())
-        module->render();
+    cycleModules();
 }
 
-void Game::onKeyDown(gfx::Key key) {
+bool Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
         PauseScreen pause_screen(this);
         switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
+        return true;
     }
+    return false;
 }
 
 bool Game::isHandshakeDone() {
     return handshake_done;
+}
+
+void Game::registerAModule(ClientModule* module) {
+    Scene::registerAModule(module);
+    module->game_error_event.addListener(this);
+    modules.push_back(module);
+}
+
+void Game::onEvent(GameErrorEvent& event) {
+    ChoiceScreen choice_screen(background_rect, event.message, {"Close"});
+    switchToScene(choice_screen);
+    returnFromScene();
+}
+
+void Game::stop() {
+    for(ClientModule* module : modules)
+        module->game_error_event.removeListener(this);
 }

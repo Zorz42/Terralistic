@@ -1,29 +1,43 @@
-#ifndef clientNetworking_hpp
-#define clientNetworking_hpp
+#pragma once
 
-#include <SFML/Network.hpp>
 #include "events.hpp"
 #include "packetType.hpp"
+#include "graphics.hpp"
+#include "clientModule.hpp"
 
-class NetworkingManager {
-    sf::TcpSocket socket;
-    sf::Packet master_packet;
-public:
-    bool establishConnection(const std::string& ip, unsigned short port);
-    void closeConnection();
-    void checkForPackets();
-    void sendPacket(sf::Packet& packet);
-    void disableBlocking();
-    sf::Packet getPacket();
-    std::vector<char> getData(unsigned int size);
-    void flushPackets();
-};
-
-class ClientPacketEvent : public Event<ClientPacketEvent> {
+class ClientPacketEvent {
 public:
     ClientPacketEvent(sf::Packet& packet, PacketType packet_type) : packet(packet), packet_type(packet_type) {}
     sf::Packet& packet;
     PacketType packet_type;
 };
 
-#endif
+class WelcomePacketEvent {
+public:
+    WelcomePacketEvent(sf::Packet& packet, WelcomePacketType packet_type) : packet(packet), packet_type(packet_type) {}
+    sf::Packet& packet;
+    WelcomePacketType packet_type;
+};
+
+class NetworkingManager : public ClientModule, EventListener<ClientPacketEvent> {
+    sf::TcpSocket socket;
+    
+    std::string ip_address, username;
+    unsigned short port;
+    
+    void onEvent(ClientPacketEvent& event) override;
+    
+    void init() override;
+    void postInit() override;
+    void stop() override;
+    void update(float frame_length) override;
+public:
+    NetworkingManager(const std::string& ip_address, unsigned short port, const std::string& username) : ip_address(ip_address), port(port), username(username) {}
+    
+    void sendPacket(sf::Packet& packet);
+    std::vector<char> getData();
+    sf::Packet getPacket();
+    
+    EventSender<ClientPacketEvent> packet_event;
+    EventSender<WelcomePacketEvent> welcome_packet_event;
+};

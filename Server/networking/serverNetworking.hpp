@@ -3,63 +3,76 @@
 
 #include <vector>
 #include <string>
+#include <queue>
 #include "packetType.hpp"
-#include "serverPlayers.hpp"
-#include "commands.hpp"
+#include "events.hpp"
+#include "serverModule.hpp"
 
 class Connection {
     sf::TcpSocket* socket;
-    sf::Packet master_packet;
+    std::queue<std::pair<sf::Packet, PacketType>> packet_buffer;
+    bool greeted = false;
 public:
-    explicit Connection(sf::TcpSocket* socket) : socket(socket) {}
-    ServerPlayer* player = nullptr;
+    Connection(sf::TcpSocket* socket) : socket(socket) {}
+    
     void send(sf::Packet& packet);
     void send(std::vector<char>& data);
+    
+    bool hasBeenGreeted();
+    void greet();
+    
     sf::Socket::Status receive(sf::Packet& packet);
+    
     std::string getIpAddress();
-    void freeSocket();
-    void flushPacket();
+    
+    void pushPacket(sf::Packet& packet, PacketType type);
+    bool hasPacketInBuffer();
+    std::pair<sf::Packet, PacketType> getPacket();
+    
+    ~Connection();
 };
 
-class ServerNetworkingManager : EventListener<ServerBlockChangeEvent>, EventListener<ServerBlockBreakStageChangeEvent>, EventListener<ServerLiquidChangeEvent>, EventListener<ServerItemCreationEvent>, EventListener<ServerItemDeletionEvent>, EventListener<ServerEntityVelocityChangeEvent>, EventListener<ServerInventoryItemStackChangeEvent>, EventListener<ServerInventoryItemTypeChangeEvent>, EventListener<RecipeAvailabilityChangeEvent>, EventListener<ServerLightChangeEvent>, EventListener<ServerEntityPositionChangeEvent> {
-    std::vector<Connection> connections;
-    sf::TcpListener listener;
-    
-    ServerBlocks* blocks;
-    Players* players;
-    ServerItems* items;
-    ServerEntities* entities;
-    Commands commands;
-    
-    void onEvent(ServerBlockChangeEvent& event) override;
-    void onEvent(ServerBlockBreakStageChangeEvent& event) override;
-    void onEvent(ServerLiquidChangeEvent& event) override;
-    void onEvent(ServerItemCreationEvent& event) override;
-    void onEvent(ServerItemDeletionEvent& event) override;
-    void onEvent(ServerEntityVelocityChangeEvent& event) override;
-    void onEvent(ServerInventoryItemStackChangeEvent& event) override;
-    void onEvent(ServerInventoryItemTypeChangeEvent& event) override;
-    void onEvent(RecipeAvailabilityChangeEvent& event) override;
-    void onEvent(ServerLightChangeEvent& event) override;\
-    void onEvent(ServerEntityPositionChangeEvent& event) override;
-    
-    void onPacket(sf::Packet& packet, PacketType packet_type, Connection& conn);
-    
-    static void sendInventoryItemPacket(Connection& connection, InventoryItem& item, ItemType type, unsigned short stack);
+class ServerConnectionWelcomeEvent {
 public:
-    ServerNetworkingManager(ServerBlocks* blocks, Players* players, ServerItems* items, ServerEntities* entities) : blocks(blocks), players(players), items(items), entities(entities), commands(blocks, players, items, entities){}
+    ServerConnectionWelcomeEvent(Connection* connection, sf::Packet& client_welcome_packet) : connection(connection), client_welcome_packet(client_welcome_packet) {}
+    Connection* connection;
+    sf::Packet& client_welcome_packet;
+};
+
+class ServerNewConnectionEvent {
+public:
+    ServerNewConnectionEvent(Connection* connection) : connection(connection) {}
+    Connection* connection;
+};
+
+class ServerDisconnectEvent {
+public:
+    ServerDisconnectEvent(Connection* connection) : connection(connection) {}
+    Connection* connection;
+};
+
+class ServerNetworking : public ServerModule {
+    std::vector<Connection*> connections;
+    sf::TcpListener listener;
+    unsigned short port;
+
+    void init() override;
+    void update(float frame_length) override;
+    void stop() override;
     
-    void sendToEveryone(sf::Packet& packet, Connection* exclusion=nullptr);
+    void removeConnection(Connection* connection);
     
-    void openSocket(unsigned short port);
-    void closeSocket();
+public:
+    ServerNetworking(unsigned short port) : port(port) {}
     
-    void checkForNewConnections();
-    void getPacketsFromPlayers();
-    void flushPackets();
-    void syncEntityPositions();
+    void sendToEveryone(sf::Packet& packet);
+    void kickConnection(Connection* connection, const std::string& reason);
     
-    bool accept_itself = false;
+    bool is_private = false;
+    
+    EventSender<ServerConnectionWelcomeEvent> connection_welcome_event;
+    EventSender<ServerNewConnectionEvent> new_connection_event;
+    EventSender<ServerDisconnectEvent> disconnect_event;
 };
 
 #endif
