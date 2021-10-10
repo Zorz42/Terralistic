@@ -108,12 +108,13 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, const s
     blocks(&resource_pack, &networking),
     liquids(&blocks, &resource_pack, &networking),
     lights(&blocks, &resource_pack),
+    natural_light(&blocks, &lights),
     entities(&blocks, &networking),
     items(&resource_pack, &blocks, &entities, &networking),
     players(&networking, &blocks, &liquids, &resource_pack, &entities, username),
     block_selector(&networking, &blocks, &players),
     inventory(&networking, &resource_pack),
-    minimap(&blocks, &liquids, &lights),
+    minimap(&blocks, &liquids, &lights, &natural_light),
     chat(&networking),
     debug_menu(&players, &blocks)
 {
@@ -123,6 +124,7 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, const s
     registerAModule(&players);
     registerAModule(&liquids);
     registerAModule(&lights);
+    registerAModule(&natural_light);
     registerAModule(&entities);
     registerAModule(&items);
     registerAModule(&block_selector);

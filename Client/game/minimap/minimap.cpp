@@ -59,6 +59,9 @@ void Minimap::render() {
             light_pixels.setPixel(x, y, {0, 0, 0, (unsigned char)((MAX_LIGHT - (int)light_level) * 255 / MAX_LIGHT)});
         }
     
+    for(int x = 0; x < MINIMAP_SIZE; x++)
+        natural_light->updateLight(blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x);
+    
     gfx::Sprite minimap_sprite;
     minimap_sprite.orientation = gfx::TOP_RIGHT;
     minimap_sprite.x = -SPACING / 2;

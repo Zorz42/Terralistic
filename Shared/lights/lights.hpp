@@ -33,6 +33,7 @@ public:
     unsigned char getLightLevel(int x, int y);
     void scheduleLightUpdate(int x, int y);
     bool hasScheduledLightUpdate(int x, int y);
+    void scheduleLightUpdateForNeighbors(int x, int y);
     
     ~Lights();
 };

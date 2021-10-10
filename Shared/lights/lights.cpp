@@ -61,13 +61,17 @@ void Lights::updateLight(int x, int y) {
                 if(light > level_to_be)
                     level_to_be = light;
             }
-        setLightLevel(x, y, level_to_be);
+        if(level_to_be != getLightLevel(x, y)) {
+            setLightLevel(x, y, level_to_be);
+            scheduleLightUpdate(x, y);
+        }
     }
 }
 
 void Lights::setLightSource(int x, int y, unsigned char level) {
     getLight(x, y)->light_source = true;
     getLight(x, y)->light_level = level;
+    scheduleLightUpdateForNeighbors(x, y);
 }
 
 unsigned char Lights::getLightLevel(int x, int y) {
@@ -92,6 +96,17 @@ unsigned short Lights::getHeight() const {
 
 void Lights::onEvent(BlockChangeEvent& event) {
     scheduleLightUpdate(event.x, event.y);
+}
+
+void Lights::scheduleLightUpdateForNeighbors(int x, int y) {
+    if(x != 0)
+        scheduleLightUpdate(x - 1, y);
+    if(x != blocks->getWidth() - 1)
+        scheduleLightUpdate(x + 1, y);
+    if(y != 0)
+        scheduleLightUpdate(x, y - 1);
+    if(y != blocks->getHeight() - 1)
+        scheduleLightUpdate(x, y + 1);
 }
 
 Lights::~Lights() {

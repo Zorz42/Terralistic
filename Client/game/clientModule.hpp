@@ -1,6 +1,7 @@
 #pragma once
 
 #include "events.hpp"
+#include "graphics.hpp"
 
 class GameErrorEvent {
 public:

@@ -6,9 +6,6 @@ void ClientLights::init() {
 
 void ClientLights::postInit() {
     create();
-    for(int x = 0; x < getWidth(); x++)
-        for(unsigned short y = 0; y < getHeight() && blocks->getBlockInfo(x, y).transparent; y++)
-            setLightSource(x, y, MAX_LIGHT);
 }
 
 void ClientLights::update(float frame_length) {
