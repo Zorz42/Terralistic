@@ -38,7 +38,6 @@
 		1682944326A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		169990A92700E25300224E11 /* naturalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* naturalLight.cpp */; };
-		169990AA2700E25300224E11 /* naturalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* naturalLight.cpp */; };
 		169AD3A327023B690096D80D /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169AD3A127023B690096D80D /* blocks.cpp */; };
 		169B87D0270F5036006023B8 /* serverChat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169B87CE270F5035006023B8 /* serverChat.cpp */; };
 		169B87D1270F5036006023B8 /* serverChat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169B87CE270F5035006023B8 /* serverChat.cpp */; };
@@ -1371,7 +1370,6 @@
 				361DD1BD26F7478900129191 /* rectShape.cpp in Sources */,
 				361DD1BE26F7478900129191 /* properties.cpp in Sources */,
 				167B53D2270A271D000089B3 /* serverEntities.cpp in Sources */,
-				169990AA2700E25300224E11 /* naturalLight.cpp in Sources */,
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
 				361DD1C126F7478900129191 /* rect.cpp in Sources */,
 				167422602702F48B00D6D8F2 /* liquids.cpp in Sources */,

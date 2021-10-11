@@ -10,7 +10,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     
     ClientBlocks* blocks;
     ResourcePack* resource_pack;
-    NetworkingManager* networking;
+    ClientNetworking* networking;
     
     void onEvent(WelcomePacketEvent& event) override;
     
@@ -18,5 +18,5 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     void render() override;
     void stop() override;
 public:
-    ClientLiquids(ClientBlocks* blocks, ResourcePack* resource_pack, NetworkingManager* networking) : Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks) {}
+    ClientLiquids(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking) : Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks) {}
 };

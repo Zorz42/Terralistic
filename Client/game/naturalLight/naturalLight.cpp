@@ -3,7 +3,6 @@
 #include "graphics.hpp"
 
 #define SECONDS_PER_DAY (60 * 10)
-//#define SECONDS_PER_DAY 5
 
 float dayFunction(float a) {
     a -= (int)a;
@@ -19,15 +18,24 @@ float dayFunction(float a) {
 
 void NaturalLight::init() {
     blocks->block_change_event.addListener(this);
-    started = gfx::getTicks();
+    networking->welcome_packet_event.addListener(this);
 }
 
 void NaturalLight::stop() {
     blocks->block_change_event.removeListener(this);
+    networking->welcome_packet_event.removeListener(this);
 }
 
 void NaturalLight::onEvent(BlockChangeEvent &event) {
-    setNaturalLight(event.x, 0);
+    removeNaturalLight(event.x);
+    updateLight(event.x);
+}
+
+void NaturalLight::onEvent(WelcomePacketEvent &event) {
+    if(event.packet_type == WelcomePacketType::TIME) {
+        event.packet >> server_time_on_join;
+        started = gfx::getTicks();
+    }
 }
 
 void NaturalLight::update(float frame_length) {
@@ -40,13 +48,18 @@ void NaturalLight::update(float frame_length) {
     }
 }
 
-void NaturalLight::setNaturalLight(unsigned short x, unsigned char power) {
-    for(unsigned short y = 0; y < blocks->getHeight() && blocks->getBlockInfo(x, y).transparent; y++)
+void NaturalLight::setNaturalLight(int x, unsigned char power) {
+    for(int y = 0; y < blocks->getHeight() && blocks->getBlockInfo(x, y).transparent; y++)
         lights->setLightSource(x, y, power);
 }
 
+void NaturalLight::removeNaturalLight(int x) {
+    for(int y = 0; y < blocks->getHeight(); y++)
+        lights->setLightSource(x, y, 0);
+}
+
 unsigned int NaturalLight::getTime() {
-    return gfx::getTicks() - started;
+    return server_time_on_join + gfx::getTicks() - started;
 }
 
 void NaturalLight::updateLight(int x) {

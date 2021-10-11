@@ -35,7 +35,7 @@ void updateOrientationRight(ClientBlocks* blocks, int x, int y) {
         blocks->setState(x, y, blocks->getState(x, y) + 1);
 }
 
-ClientBlocks::ClientBlocks(ResourcePack* resource_pack, NetworkingManager* networking) : resource_pack(resource_pack), networking(networking) {
+ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking) : resource_pack(resource_pack), networking(networking) {
     stateFunctions[(int)BlockType::DIRT] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::STONE_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::GRASS_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};

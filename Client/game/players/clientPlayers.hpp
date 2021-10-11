@@ -39,11 +39,11 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     
     ClientBlocks* blocks;
     Liquids* liquids;
-    NetworkingManager* manager;
+    ClientNetworking* manager;
     ResourcePack* resource_pack;
     Entities* entities;
 public:
-    ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username);
+    ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username);
     
     const ClientPlayer* getMainPlayer() { return main_player; }
 };

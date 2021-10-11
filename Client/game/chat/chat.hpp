@@ -12,7 +12,7 @@ struct ChatLine {
 
 class Chat : public ClientModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
-    NetworkingManager* manager;
+    ClientNetworking* manager;
     std::vector<ChatLine*> chat_lines;
     
     void init() override;
@@ -23,5 +23,5 @@ class Chat : public ClientModule, EventListener<ClientPacketEvent> {
 
     void onEvent(ClientPacketEvent& event) override;
 public:
-    Chat(NetworkingManager* manager) : manager(manager) {}
+    Chat(ClientNetworking* manager) : manager(manager) {}
 };

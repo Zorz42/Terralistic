@@ -30,9 +30,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     void stop() override;
     
     ResourcePack* resource_pack;
-    NetworkingManager* manager;
+    ClientNetworking* manager;
 public:
-    ClientInventory(NetworkingManager* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
+    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
     
     char* loadFromSerial(char* iter);
 };

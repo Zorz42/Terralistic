@@ -28,7 +28,7 @@ class Game : public gfx::Scene, EventListener<GameErrorEvent>, public Background
     
     std::string username;
     
-    NetworkingManager networking;
+    ClientNetworking networking;
     ResourcePack resource_pack;
     ClientBlocks blocks;
     ClientLiquids liquids;

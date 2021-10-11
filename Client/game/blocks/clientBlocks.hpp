@@ -25,9 +25,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void stop() override;
     
     ResourcePack* resource_pack;
-    NetworkingManager* networking;
+    ClientNetworking* networking;
 public:
-    ClientBlocks(ResourcePack* resource_pack, NetworkingManager* networking);
+    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking);
     
     int view_x, view_y;
     

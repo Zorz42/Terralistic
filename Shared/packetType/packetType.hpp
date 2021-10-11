@@ -26,7 +26,7 @@ enum class PacketType {
 };
 
 enum class WelcomePacketType {
-    WELCOME, BLOCKS, LIQUIDS, INVENTORY,
+    WELCOME, BLOCKS, LIQUIDS, INVENTORY, TIME,
 };
 
 sf::Packet& operator<<(sf::Packet& packet, PacketType packet_type);

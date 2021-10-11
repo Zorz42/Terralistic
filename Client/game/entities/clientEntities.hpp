@@ -5,7 +5,7 @@
 #include "entities.hpp"
 
 class ClientEntities : EventListener<ClientPacketEvent>, public ClientModule, public Entities {
-    NetworkingManager* manager;
+    ClientNetworking* manager;
     
     void onEvent(ClientPacketEvent& event) override;
     
@@ -13,5 +13,5 @@ class ClientEntities : EventListener<ClientPacketEvent>, public ClientModule, pu
     void update(float frame_length) override;
     void stop() override;
 public:
-    explicit ClientEntities(Blocks* blocks, NetworkingManager* manager) : Entities(blocks), manager(manager) {}
+    explicit ClientEntities(Blocks* blocks, ClientNetworking* manager) : Entities(blocks), manager(manager) {}
 };

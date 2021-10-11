@@ -16,12 +16,12 @@ class ClientItems : public Items, public ClientModule, EventListener<ClientPacke
     
     ClientBlocks* blocks;
     Entities* entities;
-    NetworkingManager* manager;
+    ClientNetworking* manager;
     
     void init() override;
     void render() override;
     void stop() override;
 public:
-    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, Entities* entities, NetworkingManager* manager) : resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager), Items(entities, blocks) {}
+    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, Entities* entities, ClientNetworking* manager) : resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager), Items(entities, blocks) {}
 };
 

@@ -101,6 +101,10 @@ void ServerNetworking::update(float frame_length) {
                 }
             }
         else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
+            sf::Packet time_packet;
+            time_packet << WelcomePacketType::TIME << gfx::getTicks();
+            connections[i]->send(time_packet);
+            
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);
             

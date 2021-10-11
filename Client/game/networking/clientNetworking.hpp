@@ -19,7 +19,7 @@ public:
     WelcomePacketType packet_type;
 };
 
-class NetworkingManager : public ClientModule, EventListener<ClientPacketEvent> {
+class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {
     sf::TcpSocket socket;
     
     std::string ip_address, username;
@@ -32,7 +32,7 @@ class NetworkingManager : public ClientModule, EventListener<ClientPacketEvent> 
     void stop() override;
     void update(float frame_length) override;
 public:
-    NetworkingManager(const std::string& ip_address, unsigned short port, const std::string& username) : ip_address(ip_address), port(port), username(username) {}
+    ClientNetworking(const std::string& ip_address, unsigned short port, const std::string& username) : ip_address(ip_address), port(port), username(username) {}
     
     void sendPacket(sf::Packet& packet);
     std::vector<char> getData();

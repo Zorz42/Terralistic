@@ -16,9 +16,9 @@ class BlockSelector : public ClientModule {
     
     bool is_left_button_pressed = false;
     
-    NetworkingManager* manager;
+    ClientNetworking* manager;
     ClientBlocks* blocks;
     ClientPlayers* player_handler;
 public:
-    BlockSelector(NetworkingManager* manager, ClientBlocks* blocks, ClientPlayers* player_handler) : manager(manager), blocks(blocks), player_handler(player_handler) {}
+    BlockSelector(ClientNetworking* manager, ClientBlocks* blocks, ClientPlayers* player_handler) : manager(manager), blocks(blocks), player_handler(player_handler) {}
 };

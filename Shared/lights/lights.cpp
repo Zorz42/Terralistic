@@ -69,7 +69,7 @@ void Lights::updateLight(int x, int y) {
 }
 
 void Lights::setLightSource(int x, int y, unsigned char level) {
-    getLight(x, y)->light_source = true;
+    getLight(x, y)->light_source = level > 0;
     getLight(x, y)->light_level = level;
     scheduleLightUpdateForNeighbors(x, y);
 }

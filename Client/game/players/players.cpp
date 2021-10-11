@@ -1,7 +1,7 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username) :
+ClientPlayers::ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username) :
 manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), username(username) {}
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : Player(x, y, name, id) {
@@ -48,7 +48,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y;
     resource_pack->getPlayerTexture().render(2, player_x, player_y, {(short)(player_to_draw.texture_frame * PLAYER_WIDTH), 0, (unsigned short)(PLAYER_WIDTH), (unsigned short)(PLAYER_HEIGHT)}, player_to_draw.flipped);
     if(player_to_draw.name != "_") {
-        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getY() + PLAYER_WIDTH - blocks->view_x,
+        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getX() + PLAYER_WIDTH - blocks->view_x,
         header_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
         gfx::RectShape(header_x - HEADER_PADDING, header_y - HEADER_PADDING, player_to_draw.name_text.getTextureWidth() + 2 * HEADER_PADDING, player_to_draw.name_text.getTextureHeight() + 2 * HEADER_PADDING).render(BLACK);
         player_to_draw.name_text.render(1, header_x, header_y);

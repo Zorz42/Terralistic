@@ -108,7 +108,7 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, const s
     blocks(&resource_pack, &networking),
     liquids(&blocks, &resource_pack, &networking),
     lights(&blocks, &resource_pack),
-    natural_light(&blocks, &lights),
+    natural_light(&networking, &blocks, &lights),
     entities(&blocks, &networking),
     items(&resource_pack, &blocks, &entities, &networking),
     players(&networking, &blocks, &liquids, &resource_pack, &entities, username),
