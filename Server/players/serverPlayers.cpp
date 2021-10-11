@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <fstream>
 #include <utility>
+#include <cassert>
 #include "serverPlayers.hpp"
 #include "blocks.hpp"
 #include "print.hpp"
@@ -165,7 +166,8 @@ void ServerPlayerData::serialize(std::vector<char>& serial) const {
     serial.insert(serial.end(), {0, 0, 0, 0});
     *(int*)&serial[serial.size() - 4] = y;
     
-    serial.insert(serial.end(), name.begin(), name.end() + 1);
+    serial.insert(serial.end(), name.begin(), name.end());
+    serial.insert(serial.end(), 0);
 }
 
 void ServerPlayers::onEvent(BlockChangeEvent& event) {

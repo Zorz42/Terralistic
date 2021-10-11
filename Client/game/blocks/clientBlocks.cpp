@@ -91,7 +91,7 @@ ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
 
 void ClientBlocks::updateState(int x, int y) {
     getRenderBlock(x, y)->state = 0;
-    for(auto& stateFunction : stateFunctions[(int)getBlockType(x, y)])
+    for(auto stateFunction : stateFunctions[(int)getBlockType(x, y)])
         stateFunction(this, x, y);
 }
 

@@ -2,8 +2,6 @@
 #include <iostream>
 #include "mainMenu.hpp"
 #include "platform_folders.h"
-#include "configManager.hpp"
-#include "resourcePack.hpp"
 #include "resourcePath.hpp"
 #include "serverPlayers.hpp"
 #include "settings.hpp"
@@ -11,7 +9,7 @@
 #include "versions.hpp"
 
 
-int main(int argc, char **argv) {    
+int main(int argc, char **argv) {
     srand((unsigned int)time(0));
     
     if(argc == 2 && (std::string)argv[1] == "version") {
@@ -33,7 +31,7 @@ int main(int argc, char **argv) {
     
 #ifndef DEVELOPER_MODE
     UpdateChecker update_checker(&menu_back, argv[0]);
-    gfx::runScene(update_checker);
+    update_checker.run();
     if(update_checker.hasUpdated()) {
         system(((std::string)"\"" + argv[0] + "\"&").c_str());
         gfx::quit();

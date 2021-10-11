@@ -26,8 +26,9 @@ public:
 
 class Blocks {
     struct Block {
+        Block() : type(BlockType::AIR) {}
         BlockType type:8;
-        unsigned char break_stage;
+        unsigned char break_stage = 0;
         unsigned short break_progress = 0;
     };
     

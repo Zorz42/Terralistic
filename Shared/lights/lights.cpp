@@ -23,10 +23,14 @@ void Lights::setLightLevel(int x, int y, unsigned char level) {
         getLight(x, y)->light_source = false;
     if(getLight(x, y)->light_level != level) {
         getLight(x, y)->light_level = level;
-        scheduleLightUpdate(x + 1, y);
-        scheduleLightUpdate(x - 1, y);
-        scheduleLightUpdate(x, y + 1);
-        scheduleLightUpdate(x, y - 1);
+        if(x < getWidth())
+            scheduleLightUpdate(x + 1, y);
+        if(x > 0)
+            scheduleLightUpdate(x - 1, y);
+        if(y < getHeight())
+            scheduleLightUpdate(x, y + 1);
+        if(y > 0)
+            scheduleLightUpdate(x, y - 1);
     }
 }
 
