@@ -26,11 +26,11 @@ class worldGenerator {
     std::vector<structure> structures;
     std::vector<structurePosition> structurePositions;
 
-    void biomeGeneratorSwitch(unsigned int x, SimplexNoise& noise);
+    void generateBiomes(unsigned int x, SimplexNoise& noise);
     void calculateHeight(SimplexNoise& noise);
-    //static int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
     void terrainGenerator(int x, SimplexNoise& noise);
-    void generateSurface(int x, int surface_height, SimplexNoise& noise);
+    void generateSurface(unsigned int x, SimplexNoise& noise);
+    void generateCaves(SimplexNoise &noise);
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();
@@ -40,10 +40,20 @@ class worldGenerator {
     static int heatGeneratorInt(unsigned int x, SimplexNoise& noise);
     void loadBiomes();
 
-    //void generateOakTree(int x, int y);
-    //void generateAccaciaTree(int x, int y);
-    void generateStructure(const std::string& name, int x, int y);
+    void generateBlockIcyOcean(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockSnowyPlains(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockSnowyHills(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockSnowyMountains(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockOcean(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockPlains(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockHills(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockMountains(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockWarmOcean(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockDesert(unsigned int x, unsigned int y, SimplexNoise& noise);
+    void generateBlockSavanaHills(unsigned int x, unsigned  int y, SimplexNoise& noise);
+    void generateBlockSavanaMountains(unsigned int x, unsigned  int y, SimplexNoise& noise);
 
+    void generateStructure(const std::string& name, int x, int y);
     void loadAssets();
 
     std::string resource_path;

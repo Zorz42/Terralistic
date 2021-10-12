@@ -17,18 +17,10 @@ public:
     Biome biome_name;
     int surface_height;
     int surface_height_variation;
-    std::vector <layer> ground_layers;
     std::vector <structureChance> structure_chances;
-    biome(Biome name, int height, int height_variation, std::vector <layer> layers, std::vector <structureChance> structure_chance);
+    biome(Biome name, int height, int height_variation, std::vector <structureChance> structure_chance);
 };
 
-struct layer{
-    BlockType block;
-    LayerHeightMode layer_height_mode;
-    int height;
-    int height_variation;
-    layer(BlockType cblock, LayerHeightMode height_mode, int cheight, int variation);
-};
 
 struct structureChance{
     std::string structure_name;
@@ -36,6 +28,5 @@ struct structureChance{
     int least_distance_between_instances;
     int x_of_last_instance;
     int unique_structures_of_type;
-    structureChance(std::string name, float chance_on_block, int least_distance,
-                    int unique_structures);
+    structureChance(std::string name, float chance_on_block, int least_distance, int unique_structures);
 };
