@@ -12,11 +12,13 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, Event
     unsigned int started = 0, server_time_on_join = 0;
     
     void init() override;
+    void postInit() override;
     void update(float frame_length) override;
     void stop() override;
     
-    unsigned int getTime();
-    int light_should_be = 0, prev_light_should_be = 0;
+    unsigned int getTime() const;
+    int light_should_be = 0;
+    unsigned char* lights_arr = nullptr;
     
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(WelcomePacketEvent& event) override;

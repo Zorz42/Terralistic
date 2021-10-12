@@ -21,6 +21,12 @@ void NaturalLight::init() {
     networking->welcome_packet_event.addListener(this);
 }
 
+void NaturalLight::postInit() {
+    lights_arr = new unsigned char[blocks->getWidth()];
+    for(int x = 0; x < blocks->getWidth(); x++)
+        lights_arr[x] = 0;
+}
+
 void NaturalLight::stop() {
     blocks->block_change_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
@@ -40,25 +46,27 @@ void NaturalLight::onEvent(WelcomePacketEvent &event) {
 
 void NaturalLight::update(float frame_length) {
     light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
-    
-    if(light_should_be != prev_light_should_be) {
-        for(int x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
-            updateLight(x);
-        prev_light_should_be = light_should_be;
-    }
+
+    for(int x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
+        updateLight(x);
+
 }
 
 void NaturalLight::setNaturalLight(int x, unsigned char power) {
-    for(int y = 0; y < blocks->getHeight() && blocks->getBlockInfo(x, y).transparent; y++)
-        lights->setLightSource(x, y, power);
+    if(lights_arr[x] != power) {
+        lights_arr[x] = power;
+        for(int y = 0; y < blocks->getHeight() && blocks->getBlockInfo(x, y).transparent; y++)
+            lights->setLightSource(x, y, power);
+    }
 }
 
 void NaturalLight::removeNaturalLight(int x) {
+    lights_arr[x] = 0;
     for(int y = 0; y < blocks->getHeight(); y++)
         lights->setLightSource(x, y, 0);
 }
 
-unsigned int NaturalLight::getTime() {
+unsigned int NaturalLight::getTime() const {
     return server_time_on_join + gfx::getTicks() - started;
 }
 

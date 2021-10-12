@@ -1,8 +1,5 @@
 #include "minimap.hpp"
 
-#define MINIMAP_SIZE 200
-#define MINIMAP_SCALE 1
-
 void Minimap::init() {
     back_rect.orientation = gfx::TOP_RIGHT;
     back_rect.setWidth(MINIMAP_SIZE * MINIMAP_SCALE);
@@ -34,8 +31,6 @@ void Minimap::init() {
 
 void Minimap::render() {
     back_rect.render();
-    
-    gfx::PixelGrid block_pixels(MINIMAP_SIZE, MINIMAP_SIZE), liquid_pixels(MINIMAP_SIZE, MINIMAP_SIZE), light_pixels(MINIMAP_SIZE, MINIMAP_SIZE);
     
     for(int y = 0; y < MINIMAP_SIZE; y++)
         for(int x = 0; x < MINIMAP_SIZE; x++) {
