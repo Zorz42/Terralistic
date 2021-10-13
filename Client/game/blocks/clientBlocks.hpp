@@ -4,6 +4,7 @@
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
 #include "blocks.hpp"
+#include "lights.hpp"
 
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     struct RenderBlock {
@@ -26,8 +27,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;
+    Lights* lights;
 public:
-    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking);
+    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights);
     
     int view_x, view_y;
     

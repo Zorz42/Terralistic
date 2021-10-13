@@ -35,7 +35,7 @@ void updateOrientationRight(ClientBlocks* blocks, int x, int y) {
         blocks->setState(x, y, blocks->getState(x, y) + 1);
 }
 
-ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking) : resource_pack(resource_pack), networking(networking) {
+ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights) : resource_pack(resource_pack), networking(networking), lights(lights) {
     stateFunctions[(int)BlockType::DIRT] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::STONE_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::GRASS_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
@@ -149,7 +149,7 @@ void ClientBlocks::render() {
             if(getState(x, y) == 16)
                 updateState(x, y);
             
-            if(getBlockType(x, y) != BlockType::AIR) {
+            if(getBlockType(x, y) != BlockType::AIR && lights->getLightLevel(x, y)) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
                 int texture_x = (getRenderBlock(x, y)->variation) % (resource_pack->getTextureRectangle(getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
                 int texture_y = resource_pack->getTextureRectangle(getBlockType(x, y)).y + BLOCK_WIDTH * getRenderBlock(x, y)->state;
