@@ -96,21 +96,23 @@ namespace gfx {
     class Texture;
     
     class RectArray {
-        sf::VertexArray vertex_array;
-        const Texture* image = nullptr;
+        sf::Vertex* vertex_array = nullptr;
+        sf::VertexBuffer vertex_buffer;
     public:
-        RectArray(unsigned short size) : vertex_array(sf::Quads, size * 4) {}
+        RectArray(unsigned short size);
+        RectArray() = default;
+        
         void setRect(unsigned short index, RectShape rect);
         void setColor(unsigned short index, Color color);
         void setTextureCoords(unsigned short index, RectShape texture_coordinates);
-        void setImage(const Texture* image);
-        void render();
-        void resize(unsigned short size);
+        void render(int size, const Texture* image=nullptr);
+        void resize(int size);
+        ~RectArray();
     };
     
     class Texture {
     protected:
-        friend void RectArray::render();
+        friend void RectArray::render(int size, const Texture* image);
         friend void setRenderTarget(Texture& texture);
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;

@@ -2,6 +2,7 @@
 
 void ClientLights::init() {
     Lights::init();
+    light_rects.resize((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()));
 }
 
 void ClientLights::postInit() {
@@ -22,7 +23,10 @@ void ClientLights::update(float frame_length) {
 }
 
 void ClientLights::render() {
-    gfx::RectArray light_rects((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()));
+    if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
+        most_blocks_on_screen = (blocks->getViewEndX() -blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY());
+        light_rects.resize(most_blocks_on_screen);
+    }
     
     int light_index = 0;
     for(unsigned short x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
@@ -44,9 +48,8 @@ void ClientLights::render() {
             }
         }
     
-    light_rects.resize(light_index);
     if(light_index)
-        light_rects.render();
+        light_rects.render(light_index);
 }
 
 void ClientLights::stop() {

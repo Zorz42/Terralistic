@@ -30,6 +30,12 @@ void Blocks::setBlockType(int x, int y, BlockType type) {
     if(type != getBlock(x, y)->type) {
         setBlockTypeSilently(x, y, type);
         
+        for(int i = 0; i < breaking_blocks.size(); i++)
+            if(breaking_blocks[i].x == x && breaking_blocks[i].y == y) {
+                breaking_blocks.erase(breaking_blocks.begin() + i);
+                break;
+            }
+        
         BlockChangeEvent event(x, y);
         block_change_event.call(event);
     }
@@ -43,14 +49,13 @@ unsigned short Blocks::getBreakProgress(int x, int y) {
 }
 
 void Blocks::updateBreakingBlocks(int frame_length) {
-    for(int i = 0; i < breaking_blocks.size(); i++)
+    for(int i = 0; i < breaking_blocks.size(); i++) {
         if(breaking_blocks[i].is_breaking) {
             breaking_blocks[i].break_progress += frame_length;
-            if(breaking_blocks[i].break_progress > getBlockInfo(breaking_blocks[i].x, breaking_blocks[i].y).break_time) {
+            if(breaking_blocks[i].break_progress > getBlockInfo(breaking_blocks[i].x, breaking_blocks[i].y).break_time)
                 breakBlock(breaking_blocks[i].x, breaking_blocks[i].y);
-                breaking_blocks.erase(breaking_blocks.begin() + i);
-            }
         }
+    }
 }
 
 unsigned char Blocks::getBreakStage(int x, int y) {
@@ -94,11 +99,11 @@ void Blocks::breakBlock(int x, int y) {
     setBlockType(x, y, BlockType::AIR);
 }
 
-unsigned short Blocks::getWidth() const {
+int Blocks::getWidth() const {
     return width;
 }
 
-unsigned short Blocks::getHeight() const {
+int Blocks::getHeight() const {
     return height;
 }
 

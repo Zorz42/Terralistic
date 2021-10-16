@@ -90,11 +90,11 @@ bool Lights::hasScheduledLightUpdate(int x, int y) {
     return getLight(x, y)->update_light;
 }
 
-unsigned short Lights::getWidth() const {
+int Lights::getWidth() const {
     return blocks->getWidth();
 }
 
-unsigned short Lights::getHeight() const {
+int Lights::getHeight() const {
     return blocks->getHeight();
 }
 

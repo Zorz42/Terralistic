@@ -4,14 +4,29 @@
 
 void ClientItems::init() {
     manager->packet_event.addListener(this);
+    item_creation_event.addListener(this);
+    entities->entity_deletion_event.addListener(this);
+}
+
+void ClientItems::stop() {
+    manager->packet_event.removeListener(this);
+    item_creation_event.removeListener(this);
+    entities->entity_deletion_event.removeListener(this);
+}
+
+void ClientItems::onEvent(ItemCreationEvent& event) {
+    item_count++;
+    item_rects.resize(item_count);
+}
+
+void ClientItems::onEvent(EntityDeletionEvent& event) {
+    if(event.entity->type == EntityType::ITEM) {
+        item_count--;
+        item_rects.resize(item_count);
+    }
 }
 
 void ClientItems::render() {
-    int item_count = 0;
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::ITEM)
-            item_count++;
-    gfx::RectArray item_rects(item_count);
     int item_index = 0;
     for(Entity* entity : entities->getEntities()) {
         if(entity->type == EntityType::ITEM) {
@@ -25,9 +40,9 @@ void ClientItems::render() {
             item_index++;
         }
     }
-    item_rects.setImage(&resource_pack->getItemTexture());
+    
     if(item_index)
-        item_rects.render();
+        item_rects.render(item_count, &resource_pack->getItemTexture());
 }
 
 void ClientItems::onEvent(ClientPacketEvent& event) {
@@ -41,12 +56,12 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             
             Item* item = new Item(type, x, y, id);
             entities->registerEntity(item);
+            
+            ItemCreationEvent item_event(item);
+            item_creation_event.call(item_event);
+            
             break;
         }
         default:;
     }
-}
-
-void ClientItems::stop() {
-    manager->packet_event.removeListener(this);
 }

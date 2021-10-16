@@ -12,6 +12,9 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     ResourcePack* resource_pack;
     ClientNetworking* networking;
     
+    gfx::RectArray liquid_rects;
+    int most_blocks_on_screen = 0;
+    
     void onEvent(WelcomePacketEvent& event) override;
     
     void init() override;

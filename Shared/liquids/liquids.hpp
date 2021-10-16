@@ -28,8 +28,8 @@ public:
     
     void create();
     
-    unsigned short getWidth() const;
-    unsigned short getHeight() const;
+    int getWidth() const;
+    int getHeight() const;
     
     const LiquidInfo& getLiquidInfo(int x, int y);
     LiquidType getLiquidType(int x, int y);

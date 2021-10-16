@@ -47,19 +47,19 @@ ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networ
     stateFunctions[(int)BlockType::ICE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
 }
 
-short ClientBlocks::getViewBeginX() const {
+int ClientBlocks::getViewBeginX() const {
     return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndX() const {
+int ClientBlocks::getViewEndX() const {
     return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWidth());
 }
 
-short ClientBlocks::getViewBeginY() const {
+int ClientBlocks::getViewBeginY() const {
     return std::max(view_y / (BLOCK_WIDTH * 2) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
 }
 
-short ClientBlocks::getViewEndY() const {
+int ClientBlocks::getViewEndY() const {
     return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getHeight());
 }
 
@@ -149,7 +149,10 @@ void ClientBlocks::stop() {
 }
 
 void ClientBlocks::render() {
-    gfx::RectArray block_rects((getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()));
+    if((getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY()) > most_blocks_on_screen) {
+        most_blocks_on_screen = (getViewEndX() - getViewBeginX()) * (getViewEndY() - getViewBeginY());
+        block_rects.resize(most_blocks_on_screen);
+    }
     
     int block_index = 0;
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
@@ -169,11 +172,8 @@ void ClientBlocks::render() {
             }
         }
     
-    block_rects.resize(block_index);
-    block_rects.setImage(&resource_pack->getBlockTexture());
-    
     if(block_index)
-        block_rects.render();
+        block_rects.render(block_index, &resource_pack->getBlockTexture());
     
     for(unsigned short x = getViewBeginX(); x < getViewEndX(); x++)
         for(unsigned short y = getViewBeginY(); y < getViewEndY(); y++) {

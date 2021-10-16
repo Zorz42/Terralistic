@@ -10,6 +10,9 @@ class ClientLights : public Lights, public ClientModule {
     ClientBlocks* blocks;
     ResourcePack* resource_pack;
     
+    gfx::RectArray light_rects;
+    int most_blocks_on_screen = 0;
+    
     void init() override;
     void postInit() override;
     void render() override;

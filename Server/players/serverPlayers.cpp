@@ -128,10 +128,10 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 }
 
 void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
-    if(custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick)
+    while(custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick)
         custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick(blocks, x, y, player);
     
-    else if(blocks->getBlockInfo(x, y).break_time != UNBREAKABLE)
+    if(blocks->getBlockInfo(x, y).break_time != UNBREAKABLE)
         blocks->startBreakingBlock(x, y);
 }
 
@@ -306,6 +306,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 
         case PacketType::STOPPED_BREAKING: {
             event.player->breaking = false;
+            blocks->stopBreakingBlock(event.player->breaking_x, event.player->breaking_y);
             break;
         }
 

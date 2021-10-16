@@ -18,20 +18,31 @@ void gfx::RectArray::setTextureCoords(unsigned short index, RectShape texture_co
     vertex_array[index * 4 + 3].texCoords = sf::Vector2f(texture_coordinates.x, texture_coordinates.y + texture_coordinates.h);
 }
 
-void gfx::RectArray::setImage(const Texture* image_) {
-    image = image_;
+gfx::RectArray::RectArray(unsigned short size) {
+    resize(size);
 }
 
-void gfx::RectArray::render() {
+void gfx::RectArray::resize(int size) {
+    vertex_buffer.setPrimitiveType(sf::Quads);
+    vertex_buffer.setUsage(sf::VertexBuffer::Stream);
+    delete[] vertex_array;
+    vertex_array = new sf::Vertex[size * 4];
+}
+
+gfx::RectArray::~RectArray() {
+    delete[] vertex_array;
+}
+
+void gfx::RectArray::render(int size, const Texture* image) {
     const sf::Texture* texture = nullptr;
     if(image)
         texture = &image->sfml_render_texture->getTexture();
     
     sf::RenderStates states;
     states.texture = texture;
-    render_target->draw(vertex_array, states);
-}
-
-void gfx::RectArray::resize(unsigned short size) {
-    vertex_array.resize(size * 4);
+    
+    vertex_buffer.create(size * 4);
+    vertex_buffer.update(vertex_array);
+    
+    render_target->draw(vertex_buffer, states);
 }

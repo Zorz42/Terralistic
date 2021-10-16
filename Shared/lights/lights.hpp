@@ -25,8 +25,8 @@ public:
     void init();
     void stop();
     
-    unsigned short getWidth() const;
-    unsigned short getHeight() const;
+    int getWidth() const;
+    int getHeight() const;
     
     void updateLight(int x, int y);
     void setLightSource(int x, int y, unsigned char level);

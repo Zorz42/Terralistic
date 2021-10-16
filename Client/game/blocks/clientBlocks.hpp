@@ -26,6 +26,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void update(float frame_length) override;
     void stop() override;
     
+    gfx::RectArray block_rects;
+    int most_blocks_on_screen = 0;
+    
     ResourcePack* resource_pack;
     ClientNetworking* networking;
     Lights* lights;
@@ -34,10 +37,10 @@ public:
     
     int view_x, view_y;
     
-    short getViewBeginX() const;
-    short getViewEndX() const;
-    short getViewBeginY() const;
-    short getViewEndY() const;
+    int getViewBeginX() const;
+    int getViewEndX() const;
+    int getViewBeginY() const;
+    int getViewEndY() const;
     
     void updateState(int x, int y);
     void setState(int x, int y, unsigned char state);

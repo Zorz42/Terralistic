@@ -10,9 +10,16 @@
 
 #define ITEM_WIDTH 8
 
-class ClientItems : public Items, public ClientModule, EventListener<ClientPacketEvent> {
+class ClientItems : public Items, public ClientModule, EventListener<ClientPacketEvent>, EventListener<ItemCreationEvent>, EventListener<EntityDeletionEvent> {
     ResourcePack* resource_pack;
+    
+    int item_count = 0;
+    
+    gfx::RectArray item_rects;
+    
     void onEvent(ClientPacketEvent& event) override;
+    void onEvent(ItemCreationEvent& event) override;
+    void onEvent(EntityDeletionEvent& event) override;
     
     ClientBlocks* blocks;
     Entities* entities;

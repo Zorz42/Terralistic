@@ -180,11 +180,11 @@ char* Liquids::loadFromSerial(char* iter) {
     return iter;
 }
 
-unsigned short Liquids::getWidth() const {
+int Liquids::getWidth() const {
     return blocks->getWidth();
 }
 
-unsigned short Liquids::getHeight() const {
+int Liquids::getHeight() const {
     return blocks->getHeight();
 }
 

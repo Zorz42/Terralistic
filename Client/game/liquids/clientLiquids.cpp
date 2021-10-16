@@ -26,6 +26,8 @@ void ClientLiquids::onEvent(WelcomePacketEvent& event) {
 void ClientLiquids::init() {
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
+    
+    liquid_rects.resize((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()));
 }
 
 void ClientLiquids::stop() {
@@ -34,7 +36,10 @@ void ClientLiquids::stop() {
 }
 
 void ClientLiquids::render() {
-    gfx::RectArray liquid_rects((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()));
+    if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
+        most_blocks_on_screen = (blocks->getViewEndX() -blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY());
+        liquid_rects.resize(most_blocks_on_screen);
+    }
     
     int liquid_index = 0;
     for(unsigned short x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
@@ -52,8 +57,6 @@ void ClientLiquids::render() {
             }
         }
     
-    liquid_rects.resize(liquid_index);
-    liquid_rects.setImage(&resource_pack->getLiquidTexture());
     if(liquid_index)
-        liquid_rects.render();
+        liquid_rects.render(liquid_index, &resource_pack->getLiquidTexture());
 }
