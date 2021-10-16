@@ -36,32 +36,58 @@ void Blocks::setBlockType(int x, int y, BlockType type) {
 }
 
 unsigned short Blocks::getBreakProgress(int x, int y) {
-    return getBlock(x, y)->break_progress;
+    for(BreakingBlock breaking_block : breaking_blocks)
+        if(breaking_block.x == x && breaking_block.y == y)
+            return breaking_block.break_progress;
+    return 0;
 }
 
-void Blocks::setBreakProgress(int x, int y, unsigned short progress) {
-    Block* block = getBlock(x, y);
-    if(block->break_progress != progress) {
-        block->break_progress = progress;
-        if(block->break_progress > getBlockInfo(x, y).break_time)
-            breakBlock(x, y);
-        
-        unsigned char stage = (unsigned char)((float)block->break_progress / (float)getBlockInfo(x, y).break_time * 9.f);
-        if(stage != block->break_stage) {
-            block->break_stage = stage;
-            
-            BlockBreakStageChangeEvent event(x, y);
-            block_break_stage_change_event.call(event);
+void Blocks::updateBreakingBlocks(int frame_length) {
+    for(int i = 0; i < breaking_blocks.size(); i++)
+        if(breaking_blocks[i].is_breaking) {
+            breaking_blocks[i].break_progress += frame_length;
+            if(breaking_blocks[i].break_progress > getBlockInfo(breaking_blocks[i].x, breaking_blocks[i].y).break_time) {
+                breakBlock(breaking_blocks[i].x, breaking_blocks[i].y);
+                breaking_blocks.erase(breaking_blocks.begin() + i);
+            }
         }
-    }
 }
 
 unsigned char Blocks::getBreakStage(int x, int y) {
-    return getBlock(x, y)->break_stage;
+    return (float)getBreakProgress(x, y) / (float)getBlockInfo(x, y).break_time * 9.f;
+}
+
+void Blocks::startBreakingBlock(int x, int y) {
+    BreakingBlock* breaking_block = nullptr;
+    
+    for(BreakingBlock& block : breaking_blocks)
+        if(block.x == x && block.y == y)
+            breaking_block = &block;
+    
+    if(!breaking_block) {
+        BreakingBlock new_breaking_block;
+        new_breaking_block.x = x;
+        new_breaking_block.y = y;
+        breaking_blocks.push_back(new_breaking_block);
+        breaking_block = &breaking_blocks.back();
+    }
+    
+    breaking_block->is_breaking = true;
+        
+    BlockStartedBreakingEvent event(x, y);
+    block_started_breaking_event.call(event);
+}
+
+void Blocks::stopBreakingBlock(int x, int y) {
+    for(BreakingBlock& breaking_block : breaking_blocks)
+        if(breaking_block.x == x && breaking_block.y == y) {
+            breaking_block.is_breaking = false;
+            BlockStoppedBreakingEvent event(x, y);
+            block_stopped_breaking_event.call(event);
+        }
 }
 
 void Blocks::breakBlock(int x, int y) {
-    setBreakProgress(x, y, 0);
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
     

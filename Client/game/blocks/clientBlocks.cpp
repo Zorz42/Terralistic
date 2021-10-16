@@ -73,12 +73,16 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             setBlockType(x, y, (BlockType)block_type);
             break;
         }
-        case PacketType::BLOCK_PROGRESS: {
+        case PacketType::STARTED_BREAKING: {
             int x, y;
-            unsigned short progress;
-            event.packet >> x >> y >> progress;
-            
-            setBreakProgress(x, y, progress);
+            event.packet >> x >> y;
+            startBreakingBlock(x, y);
+            break;
+        }
+        case PacketType::STOPPED_BREAKING: {
+            int x, y;
+            event.packet >> x >> y;
+            stopBreakingBlock(x, y);
             break;
         }
         default:;
@@ -132,6 +136,10 @@ void ClientBlocks::init() {
     block_change_event.addListener(this);
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
+}
+
+void ClientBlocks::update(float frame_length) {
+    updateBreakingBlocks(frame_length);
 }
 
 void ClientBlocks::stop() {

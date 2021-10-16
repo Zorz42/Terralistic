@@ -67,7 +67,8 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     void onEvent(ServerPacketEvent& event) override;
     void onEvent(ServerDisconnectEvent& event) override;
     
-    void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length);
+    void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
+    void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
     void init() override;
     void update(float frame_length) override;
@@ -75,8 +76,6 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     
 public:
     ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking) : blocks(blocks), entities(entities), items(items), networking(networking) {}
-    
-    void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
     
     const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
     

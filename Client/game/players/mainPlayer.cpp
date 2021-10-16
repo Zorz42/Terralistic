@@ -104,13 +104,13 @@ void ClientPlayers::update(float frame_length) {
         
         float speed_multiplier = 1;
         
-        unsigned short starting_x = (main_player->getX()) / (BLOCK_WIDTH * 2);
-        unsigned short starting_y = (main_player->getY()) / (BLOCK_WIDTH * 2);
-        unsigned short ending_x = (main_player->getX() + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
-        unsigned short ending_y = (main_player->getY() + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
+        int starting_x = (main_player->getX()) / (BLOCK_WIDTH * 2);
+        int starting_y = (main_player->getY()) / (BLOCK_WIDTH * 2);
+        int ending_x = (main_player->getX() + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
+        int ending_y = (main_player->getY() + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
         
-        for(unsigned short x = starting_x; x <= ending_x; x++)
-            for(unsigned short y = starting_y; y <= ending_y; y++)
+        for(int x = starting_x; x <= ending_x; x++)
+            for(int y = starting_y; y <= ending_y; y++)
                 speed_multiplier = std::min(speed_multiplier, liquids->getLiquidInfo(x, y).speed_multiplier);
         
         blocks->view_x += (main_player->getX() - blocks->view_x + PLAYER_WIDTH) / 8;

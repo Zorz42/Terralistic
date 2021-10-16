@@ -4,7 +4,7 @@
 
 enum class PacketType {
     // blocks
-    BLOCK, LIQUID, BLOCK_PROGRESS,
+    BLOCK, LIQUID,
     
     // entities
     ENTITY_VELOCITY, ENTITY_POSITION, ENTITY_DELETION,

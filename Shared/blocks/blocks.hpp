@@ -18,9 +18,15 @@ public:
     int x, y;
 };
 
-class BlockBreakStageChangeEvent {
+class BlockStartedBreakingEvent {
 public:
-    BlockBreakStageChangeEvent(int x, int y) : x(x), y(y) {}
+    BlockStartedBreakingEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
+};
+
+class BlockStoppedBreakingEvent {
+public:
+    BlockStoppedBreakingEvent(int x, int y) : x(x), y(y) {}
     int x, y;
 };
 
@@ -28,12 +34,18 @@ class Blocks {
     struct Block {
         Block() : type(BlockType::AIR) {}
         BlockType type:8;
-        unsigned char break_stage = 0;
+    };
+    
+    struct BreakingBlock {
         unsigned short break_progress = 0;
+        bool is_breaking = true;
+        int x, y;
     };
     
     Block *blocks = nullptr;
     int width, height;
+    
+    std::vector<BreakingBlock> breaking_blocks;
     
     Block* getBlock(int x, int y);
 public:
@@ -45,8 +57,10 @@ public:
     void setBlockTypeSilently(int x, int y, BlockType type);
     
     unsigned short getBreakProgress(int x, int y);
-    void setBreakProgress(int x, int y, unsigned short progress);
     unsigned char getBreakStage(int x, int y);
+    void startBreakingBlock(int x, int y);
+    void stopBreakingBlock(int x, int y);
+    void updateBreakingBlocks(int frame_length);
     
     void breakBlock(int x, int y);
     
@@ -58,7 +72,8 @@ public:
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;
-    EventSender<BlockBreakStageChangeEvent> block_break_stage_change_event;
+    EventSender<BlockStartedBreakingEvent> block_started_breaking_event;
+    EventSender<BlockStoppedBreakingEvent> block_stopped_breaking_event;
     
     ~Blocks();
 };

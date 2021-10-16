@@ -127,11 +127,12 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
     return nullptr;
 }
 
-void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y, unsigned short tick_length) {
+void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
     if(custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick)
         custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick(blocks, x, y, player);
+    
     else if(blocks->getBlockInfo(x, y).break_time != UNBREAKABLE)
-        blocks->setBreakProgress(x, y, blocks->getBreakProgress(x, y) + tick_length);
+        blocks->startBreakingBlock(x, y);
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
@@ -256,13 +257,6 @@ void ServerPlayers::update(float frame_length) {
                 packet_event.call(event);
             }
         }
-    
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
-            if(player->breaking)
-                leftClickEvent(player, player->breaking_x, player->breaking_y, frame_length);
-        }
 
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::ITEM) {
@@ -297,8 +291,16 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
 void ServerPlayers::onEvent(ServerPacketEvent& event) {
     switch(event.packet_type) {
         case PacketType::STARTED_BREAKING: {
-            event.packet >> event.player->breaking_x >> event.player->breaking_y;
+            int breaking_x, breaking_y;
+            event.packet >> breaking_x >> breaking_y;
+            
+            if(event.player->breaking)
+                blocks->stopBreakingBlock(event.player->breaking_x, event.player->breaking_y);
+            
+            event.player->breaking_x = breaking_x;
+            event.player->breaking_y = breaking_y;
             event.player->breaking = true;
+            leftClickEvent(event.player, breaking_x, breaking_y);
             break;
         }
 
