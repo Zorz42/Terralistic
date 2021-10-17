@@ -42,6 +42,7 @@
 		169B87D0270F5036006023B8 /* serverChat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169B87CE270F5035006023B8 /* serverChat.cpp */; };
 		169B87D1270F5036006023B8 /* serverChat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169B87CE270F5035006023B8 /* serverChat.cpp */; };
 		169B87D2270F5238006023B8 /* chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D426D07180005AB3CC /* chat.cpp */; };
+		169D0DFA271C10A700F1D484 /* particles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169D0DF8271C10A600F1D484 /* particles.cpp */; };
 		169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169DE4E926E3E201008DB021 /* modManager.cpp */; };
 		16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A0E8AC26FDBE630069211C /* minimap.cpp */; };
 		16A13D142709A100009DEE40 /* serverBlocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A13D122709A100009DEE40 /* serverBlocks.cpp */; };
@@ -156,7 +157,7 @@
 		3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E026D07180005AB3CC /* pauseScreen.cpp */; };
 		3657221326D07181005AB3CC /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E226D07180005AB3CC /* items.cpp */; };
 		3657221426D07181005AB3CC /* resourcePack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E526D07180005AB3CC /* resourcePack.cpp */; };
-		3657221526D07181005AB3CC /* players.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E826D07180005AB3CC /* players.cpp */; };
+		3657221526D07181005AB3CC /* clientPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E826D07180005AB3CC /* clientPlayers.cpp */; };
 		3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721EA26D07180005AB3CC /* mainPlayer.cpp */; };
 		3657221826D07181005AB3CC /* blockSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721ED26D07180005AB3CC /* blockSelector.cpp */; };
 		3657221C26D07181005AB3CC /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721F426D07180005AB3CC /* game.cpp */; };
@@ -300,6 +301,8 @@
 		169AD3A227023B690096D80D /* blocks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blocks.hpp; sourceTree = "<group>"; };
 		169B87CE270F5035006023B8 /* serverChat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serverChat.cpp; sourceTree = "<group>"; };
 		169B87CF270F5035006023B8 /* serverChat.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serverChat.hpp; sourceTree = "<group>"; };
+		169D0DF8271C10A600F1D484 /* particles.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = particles.cpp; sourceTree = "<group>"; };
+		169D0DF9271C10A600F1D484 /* particles.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = particles.hpp; sourceTree = "<group>"; };
 		169DE4E926E3E201008DB021 /* modManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modManager.cpp; sourceTree = "<group>"; };
 		169DE4EA26E3E201008DB021 /* modManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = modManager.hpp; sourceTree = "<group>"; };
 		16A0E8AC26FDBE630069211C /* minimap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = minimap.cpp; sourceTree = "<group>"; };
@@ -362,7 +365,7 @@
 		365721E326D07180005AB3CC /* clientItems.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientItems.hpp; sourceTree = "<group>"; };
 		365721E526D07180005AB3CC /* resourcePack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resourcePack.cpp; sourceTree = "<group>"; };
 		365721E626D07180005AB3CC /* resourcePack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = resourcePack.hpp; sourceTree = "<group>"; };
-		365721E826D07180005AB3CC /* players.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = players.cpp; sourceTree = "<group>"; };
+		365721E826D07180005AB3CC /* clientPlayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientPlayers.cpp; sourceTree = "<group>"; };
 		365721E926D07180005AB3CC /* clientPlayers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientPlayers.hpp; sourceTree = "<group>"; };
 		365721EA26D07180005AB3CC /* mainPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainPlayer.cpp; sourceTree = "<group>"; };
 		365721ED26D07180005AB3CC /* blockSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockSelector.cpp; sourceTree = "<group>"; };
@@ -770,6 +773,15 @@
 			path = chat;
 			sourceTree = "<group>";
 		};
+		169D0DF7271C101400F1D484 /* particles */ = {
+			isa = PBXGroup;
+			children = (
+				169D0DF9271C10A600F1D484 /* particles.hpp */,
+				169D0DF8271C10A600F1D484 /* particles.cpp */,
+			);
+			path = particles;
+			sourceTree = "<group>";
+		};
 		169DE4E826E3E1F0008DB021 /* modManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -927,6 +939,7 @@
 				365721D026D07180005AB3CC /* networking */,
 				365721E426D07180005AB3CC /* resourcePack */,
 				1679733A2712300F00E90477 /* blocks */,
+				169D0DF7271C101400F1D484 /* particles */,
 				1679733B2712301400E90477 /* liquids */,
 				1679733C2712301900E90477 /* lights */,
 				169990A62700E20E00224E11 /* naturalLight */,
@@ -1011,7 +1024,7 @@
 			isa = PBXGroup;
 			children = (
 				365721E926D07180005AB3CC /* clientPlayers.hpp */,
-				365721E826D07180005AB3CC /* players.cpp */,
+				365721E826D07180005AB3CC /* clientPlayers.cpp */,
 				365721EA26D07180005AB3CC /* mainPlayer.cpp */,
 			);
 			path = players;
@@ -1256,6 +1269,7 @@
 			files = (
 				169B87D2270F5238006023B8 /* chat.cpp in Sources */,
 				3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */,
+				169D0DFA271C10A700F1D484 /* particles.cpp in Sources */,
 				36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */,
 				166D85DD26AA0B9E00DB87B1 /* SimplexNoise.cpp in Sources */,
 				3657222426D07181005AB3CC /* menuBack.cpp in Sources */,
@@ -1264,7 +1278,7 @@
 				1674225F2702F48B00D6D8F2 /* liquids.cpp in Sources */,
 				16A3BFF426FF85F6001B9E4E /* texture.cpp in Sources */,
 				167973422712306600E90477 /* clientLiquids.cpp in Sources */,
-				3657221526D07181005AB3CC /* players.cpp in Sources */,
+				3657221526D07181005AB3CC /* clientPlayers.cpp in Sources */,
 				3657221426D07181005AB3CC /* resourcePack.cpp in Sources */,
 				3657221826D07181005AB3CC /* blockSelector.cpp in Sources */,
 				3657220F26D07181005AB3CC /* inventory.cpp in Sources */,

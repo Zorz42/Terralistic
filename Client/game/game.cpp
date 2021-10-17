@@ -106,6 +106,7 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, const s
     
     networking(ip_address, port, username),
     blocks(&resource_pack, &networking, &lights),
+    particles(&blocks),
     liquids(&blocks, &resource_pack, &networking),
     lights(&blocks, &resource_pack),
     natural_light(&networking, &blocks, &lights),
@@ -121,6 +122,7 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, const s
     registerAModule(&networking);
     registerAModule(&resource_pack);
     registerAModule(&blocks);
+    registerAModule(&particles);
     registerAModule(&players);
     registerAModule(&liquids);
     registerAModule(&lights);
