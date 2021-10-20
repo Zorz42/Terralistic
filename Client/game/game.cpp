@@ -112,7 +112,7 @@ Game::Game(BackgroundRect* background_rect, const std::string& username, const s
     natural_light(&networking, &blocks, &lights),
     entities(&blocks, &networking),
     items(&resource_pack, &blocks, &entities, &networking),
-    players(&networking, &blocks, &liquids, &resource_pack, &entities, username),
+    players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, username),
     block_selector(&networking, &blocks, &players),
     inventory(&networking, &resource_pack),
     minimap(&blocks, &liquids, &lights, &natural_light),

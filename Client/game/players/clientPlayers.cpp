@@ -1,8 +1,8 @@
 #include <cassert>
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username) :
-manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), username(username) {}
+ClientPlayers::ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username) :
+manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), particles(particles), username(username) {}
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : Player(x, y, name, id) {
     name_text.loadFromText(name, WHITE);
@@ -11,8 +11,17 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short
 
 void ClientPlayers::render() {
     for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::PLAYER)
-            render(*(ClientPlayer*)entity);
+        if(entity->type == EntityType::PLAYER) {
+            ClientPlayer* player = (ClientPlayer*)entity;
+            render(*player);
+            if(std::abs(player->getVelocityX()) > 15 && player->has_moved_x && player->isTouchingGround(blocks) && rand() % 2 == 0) {
+                Particle particle(&walk_particle, entity->getX() + entity->getWidth() / 2, entity->getY() + entity->getHeight());
+                particle.velocity_x = -player->getVelocityX() / 4 + rand() % 8 - 4;
+                particle.velocity_y = rand() % 2 - 2;
+                particles->spawnParticle(particle);
+                
+            }
+        }
 }
 
 #define HEADER_MARGIN 4

@@ -8,6 +8,7 @@
 #include "clientEntities.hpp"
 #include "player.hpp"
 #include "liquids.hpp"
+#include "particles.hpp"
 
 #define PLAYER_WIDTH 14
 #define PLAYER_HEIGHT 24
@@ -42,8 +43,9 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     ClientNetworking* manager;
     ResourcePack* resource_pack;
     Entities* entities;
+    Particles* particles;
 public:
-    ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, const std::string& username);
+    ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username);
     
     const ClientPlayer* getMainPlayer() { return main_player; }
 };
