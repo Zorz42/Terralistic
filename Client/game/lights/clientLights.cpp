@@ -2,7 +2,6 @@
 
 void ClientLights::init() {
     Lights::init();
-    light_rects.resize((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()));
 }
 
 void ClientLights::postInit() {
