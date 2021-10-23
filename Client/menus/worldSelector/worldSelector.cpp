@@ -10,10 +10,24 @@
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
 void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short mouse_y) {
-    button.y = short(button_y - position);
-    button.render(mouse_x, mouse_y);
-    delete_button.y = short(button_y - position + (button.getTranslatedRect().h - delete_button.getTranslatedRect().h) / 2);
+    int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
+    
+    gfx::Color back_color = BLACK;
+    back_color.a = 100;
+    gfx::RectShape(render_x, render_y, render_width, render_height).render(back_color);
+    
+    icon.render(1, render_x + SPACING, render_y + SPACING);
+    title.render(3, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
+    
+    play_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
+    play_button.y = render_y + render_height - play_button.getHeight() - SPACING;
+    play_button.render(mouse_x, mouse_y);
+    
+    delete_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + play_button.getWidth();
+    delete_button.y = render_y + render_height - play_button.getHeight() - SPACING;
     delete_button.render(mouse_x, mouse_y);
+    
+    last_played.render(2, render_x + render_width - last_played.getTextureWidth() * 2 - SPACING, render_y + render_height - last_played.getTextureHeight() * 2 - SPACING);
 }
 
 void WorldSelector::init() {
@@ -36,17 +50,27 @@ void WorldSelector::init() {
     
     top_rect.orientation = gfx::TOP;
     top_rect.setHeight(TOP_HEIGHT);
-    top_rect.fill_color.a = TRANSPARENCY / 3;
-    top_rect.shadow_intensity = SHADOW_INTENSITY / 2;
-    top_rect.blur_intensity = BLUR - 2;
     
     bottom_rect.orientation = gfx::BOTTOM;
     bottom_rect.setHeight(BOTTOM_HEIGHT);
-    bottom_rect.fill_color.a = TRANSPARENCY / 3;
-    bottom_rect.shadow_intensity = SHADOW_INTENSITY / 2;
-    bottom_rect.blur_intensity = BLUR - 2;
+    bottom_rect.fill_color.a = TRANSPARENCY / 2;
+    bottom_rect.shadow_intensity = SHADOW_INTENSITY;
+    bottom_rect.blur_intensity = BLUR;
     
     refresh();
+}
+
+std::string getFormattedLastTimeModified(const std::string& path) {
+    std::filesystem::file_time_type last_played_time = std::filesystem::last_write_time(path);
+    
+    auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(last_played_time - std::filesystem::file_time_type::clock::now()
+                                                        + std::chrono::system_clock::now());
+    
+    std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
+    
+    char formatted_time[100];
+    std::strftime(formatted_time, sizeof(formatted_time), "%d %B %Y %H:%M", std::localtime(&tt));
+    return formatted_time;
 }
 
 void WorldSelector::refresh() {
@@ -54,31 +78,37 @@ void WorldSelector::refresh() {
     scroll_limit = 0;
 
     worlds.clear();
-    worlds_names.clear();
 
     for(auto& p: std::filesystem::directory_iterator((sago::getDataHome() + "/Terralistic/Worlds/").c_str())) {
         std::string file_name = p.path().filename().string();
         std::string ending = ".world";
         if(file_name.size() > ending.size() && std::equal(ending.rbegin(), ending.rend(), file_name.rbegin())) {
             file_name.erase(file_name.end() - ending.size(), file_name.end());
-            worlds.emplace_back(file_name);
+            worlds.emplace_back();
+            worlds.back().name = file_name;
         }
     }
 
-    for(auto& world : worlds) {
-        world.button.orientation = gfx::TOP;
-        world.button.scale = 3;
-        world.button.loadFromText(world.name);
-        world.button_y = scroll_limit + TOP_HEIGHT;
+    for(WorldToSelect& world : worlds) {
+        world.y = scroll_limit + TOP_HEIGHT;
+        
+        world.icon.loadFromResources("world_icon.png");
+        
+        world.title.loadFromText(world.name);
 
-        world.delete_button.orientation = gfx::TOP;
-        world.delete_button.loadFromResources("x-button.png");
+        world.play_button.loadFromResources("play_button.png");
+        world.play_button.scale = 3;
+        world.play_button.margin = 5;
+        
+        world.delete_button.loadFromResources("x_button.png");
         world.delete_button.scale = 3;
-        world.delete_button.x = short(world.button.getTranslatedRect().w / 2 + world.delete_button.getTranslatedRect().w / 2 + SPACING);
+        world.delete_button.margin = 5;
 
-        scroll_limit += world.button.getTranslatedRect().h + SPACING * 2;
-
-        worlds_names.push_back(world.name);
+        world.last_played.setColor(GREY);
+        
+        world.last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world"));
+        
+        scroll_limit += 116 + SPACING * 3;
     }
 }
 
@@ -87,13 +117,16 @@ bool WorldSelector::onKeyDown(gfx::Key key) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
         else if(new_button.isHovered(getMouseX(), getMouseY())) {
+            std::vector<std::string> worlds_names;
+            for(WorldToSelect& world : worlds)
+                worlds_names.push_back(world.name);
             WorldCreator world_creator(worlds_names, menu_back);
             switchToScene(world_creator);
             refresh();
         }
         else
             for(auto & world : worlds) {
-                if(world.button.isHovered(getMouseX(), getMouseY())) {
+                if(world.play_button.isHovered(getMouseX(), getMouseY())) {
                     startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world", menu_back, false);
                     refresh();
                 }
@@ -134,7 +167,7 @@ void WorldSelector::render() {
     bool hoverable = getMouseY() > TOP_HEIGHT && getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
     for(WorldToSelect& world : worlds) {
-        world.button.disabled = !hoverable;
+        world.play_button.disabled = !hoverable;
         world.delete_button.disabled = !hoverable;
     }
 
@@ -148,8 +181,8 @@ void WorldSelector::render() {
     if(top_rect_visibility > 0.99f)
         top_rect_visibility = 1;
     top_rect.fill_color.a = top_rect_visibility * TRANSPARENCY / 2;
-    top_rect.blur_intensity = top_rect_visibility * (BLUR - 1);
-    top_rect.shadow_intensity = top_rect_visibility * SHADOW_INTENSITY / 2;
+    top_rect.blur_intensity = top_rect_visibility * BLUR;
+    top_rect.shadow_intensity = top_rect_visibility * SHADOW_INTENSITY;
     if(top_rect_visibility)
         top_rect.render();
     
