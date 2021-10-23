@@ -26,8 +26,6 @@ void ClientLiquids::onEvent(WelcomePacketEvent& event) {
 void ClientLiquids::init() {
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
-    
-    liquid_rects.resize((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()));
 }
 
 void ClientLiquids::stop() {

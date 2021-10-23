@@ -2,7 +2,6 @@
 #include <iostream>
 #include <csignal>
 #include <filesystem>
-#include <chrono>
 #include <fstream>
 #include <utility>
 
@@ -33,7 +32,7 @@ Server::Server(std::string resource_path, std::string world_path, unsigned short
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(std::move(world_path)),
-    seed(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+    seed(time(NULL))
 {
     modules = {
         &networking,

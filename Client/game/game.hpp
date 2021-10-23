@@ -15,6 +15,7 @@
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"
 #include "naturalLight.hpp"
+#include "particles.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
 
@@ -31,6 +32,7 @@ class Game : public gfx::Scene, EventListener<GameErrorEvent>, public Background
     ClientNetworking networking;
     ResourcePack resource_pack;
     ClientBlocks blocks;
+    Particles particles;
     ClientLiquids liquids;
     ClientLights lights;
     NaturalLight natural_light;
