@@ -132,7 +132,7 @@ void ClientBlocks::renderFrontBlocks() {
     if(liquid_index)
         light_rects.render();
     
-    light_rects.resize(light_index);
+    /*light_rects.resize(light_index);
     if(light_index)
-        light_rects.render();
+        light_rects.render();*/
 }

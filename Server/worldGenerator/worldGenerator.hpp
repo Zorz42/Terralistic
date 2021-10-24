@@ -31,6 +31,8 @@ class worldGenerator {
     void terrainGenerator(int x, SimplexNoise& noise);
     void generateSurface(unsigned int x, SimplexNoise& noise);
     void generateCaves(SimplexNoise &noise);
+    void generateCaveLakes();
+    void generateLakeRecursively(int x, int y);
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();

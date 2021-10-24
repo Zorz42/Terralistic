@@ -296,6 +296,31 @@ void worldGenerator::generateCaves(SimplexNoise &noise) {
     }
 }
 
+void worldGenerator::generateCaveLakes() {
+    for(int i = 0; i < 100000; i++){
+        int this_random = random();
+        unsigned short x = this_random % server_blocks->getWidth();
+        unsigned short y = this_random % server_blocks->getHeight();
+        if(server_blocks->getBlock(x, y).getBlockType() == BlockType::AIR){
+            while(y > 1 && server_blocks->getBlock(x, y - 1).getBlockType() == BlockType::AIR)
+                y--;
+            generateLakeRecursively(x, y);
+        }else
+            continue;
+    }
+}
+
+void worldGenerator::generateLakeRecursively(int x, int y) {
+    server_blocks->setTypeDirectly(x, y, LiquidType::WATER);
+    server_blocks->setLiquidLevelDirectly(x, y, 255);
+    if(y != 0 && server_blocks->getTypeDirectly(x, y - 1) == BlockType::AIR && server_blocks->getLiquidTypeDirectly(x, y) == LiquidType::EMPTY)
+        generateLakeRecursively(x, y - 1);
+    if(x != 0 && server_blocks->getTypeDirectly(x - 1, y) == BlockType::AIR && server_blocks->getLiquidTypeDirectly(x, y) == LiquidType::EMPTY)
+        generateLakeRecursively(x - 1, y);
+    if(x != server_blocks->getWidth() - 1 && server_blocks->getTypeDirectly(x + 1, y) == BlockType::AIR && server_blocks->getLiquidTypeDirectly(x, y) == LiquidType::EMPTY)
+        generateLakeRecursively(x + 1, y);
+}
+
 void worldGenerator::loadAssets() {
     std::ifstream structureFile;
     structureFile.open(resource_path + "/Structures.asset", std::ios::in);
@@ -399,6 +424,7 @@ void worldGenerator::generateDeafultWorld(SimplexNoise& noise) {
         generating_current++;
     }
     generateCaves(noise);
+    generateCaveLakes();
     for (const structurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }
