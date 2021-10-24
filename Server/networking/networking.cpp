@@ -84,6 +84,10 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
                     connections[i].freeSocket();
                     connections.erase(connections.begin() + i);
                     
+                    sf::Packet quit_packet;
+                    quit_packet << PacketType::PLAYER_LEAVE << connections[i].player->id;
+                    sendToEveryone(quit_packet);
+                    
                     break;
                 } else if(status == sf::Socket::Done) {
                     while(!packet.endOfPacket()) {
@@ -96,41 +100,54 @@ void ServerNetworkingManager::getPacketsFromPlayers() {
         } else if(connections[i].receive(packet) != sf::Socket::NotReady) {
             std::string player_name;
             packet >> player_name;
-            ServerPlayer* player = players->addPlayer(player_name);
-            connections[i].player = player;
+            bool already_exists = false;
+            for(ServerPlayer* curr_player : players->getOnlinePlayers())
+                if(curr_player->name == player_name)
+                    already_exists = true;
             
-            std::vector<char> map_data = blocks->toData();
-            
-            sf::Packet welcome_packet;
-            welcome_packet << player->getX() << player->getY() << blocks->getWidth() << blocks->getHeight();
-            
-            welcome_packet << (unsigned int)map_data.size();
-            connections[i].send(welcome_packet);
-            connections[i].flushPacket();
-            connections[i].send(map_data);
+            if(already_exists) {
+                sf::Packet kick_packet;
+                kick_packet << PacketType::KICK << "You are already logged in from another location";
+                connections[i].send(kick_packet);
+                connections[i].flushPacket();
+                connections.erase(connections.begin() + i);
+            } else {
+                ServerPlayer* player = players->addPlayer(player_name);
+                connections[i].player = player;
+                
+                std::vector<char> map_data = blocks->toData();
+                
+                sf::Packet welcome_packet;
+                welcome_packet << PacketType::WELCOME << player->getX() << player->getY() << blocks->getWidth() << blocks->getHeight();
+                
+                welcome_packet << (unsigned int)map_data.size();
+                connections[i].send(welcome_packet);
+                connections[i].flushPacket();
+                connections[i].send(map_data);
+                
+                for(ServerPlayer* curr_player : players->getOnlinePlayers()) {
+                    sf::Packet join_packet;
+                    join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
+                    connections[i].send(join_packet);
+                }
 
-            for(ServerPlayer* curr_player : players->getOnlinePlayers()) {
+                for(const ServerItem* item : items->getItems()) {
+                    sf::Packet item_packet;
+                    item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
+                    connections[i].send(item_packet);
+                }
+
+                for(InventoryItem& curr_item : player->inventory.inventory_arr)
+                    if(curr_item.getType() != ItemType::NOTHING)
+                        sendInventoryItemPacket(connections[i], curr_item, curr_item.getType(), curr_item.getStack());
+                player->inventory.updateAvailableRecipes();
+                
                 sf::Packet join_packet;
-                join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name;
-                connections[i].send(join_packet);
+                join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
+                sendToEveryone(join_packet, &connections[i]);
+
+                print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
             }
-
-            for(const ServerItem* item : items->getItems()) {
-                sf::Packet item_packet;
-                item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
-                connections[i].send(item_packet);
-            }
-
-            for(InventoryItem& curr_item : player->inventory.inventory_arr)
-                if(curr_item.getType() != ItemType::NOTHING)
-                    sendInventoryItemPacket(connections[i], curr_item, curr_item.getType(), curr_item.getStack());
-            player->inventory.updateAvailableRecipes();
-            
-            sf::Packet join_packet;
-            join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name;
-            sendToEveryone(join_packet, &connections[i]);
-
-            print::info(player->name + " (" + connections[i].getIpAddress() + ") connected (" + std::to_string(players->getOnlinePlayers().size()) + " players online)");
         }
     }
 }

@@ -37,7 +37,8 @@ class Game : public gfx::Scene, EventListener<ClientPacketEvent>, public Backgro
     Chat chat;
     Minimap minimap;
     BackgroundRect* background_rect;
-    bool handshake_done = false;
+    bool handshake_done = false, got_kicked = false;
+    std::string kick_reason;
     
 public:
     Game(BackgroundRect* background_rect, const std::string& username, std::string ip_address, unsigned short port=33770);

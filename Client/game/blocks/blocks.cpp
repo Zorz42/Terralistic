@@ -33,7 +33,7 @@ void ClientBlocks::create(unsigned short map_width, unsigned short map_height, c
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::BLOCK_CHANGE: {
+        case PacketType::BLOCK: {
             unsigned short x, y;
             unsigned char block_type;
             event.packet >> x >> y >> block_type;
@@ -42,7 +42,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             curr_block.setType((BlockType)block_type, curr_block.getLiquidType());
             break;
         }
-        case PacketType::LIGHT_CHANGE: {
+        case PacketType::LIGHT: {
             unsigned short x, y;
             unsigned char light_level;
             event.packet >> x >> y >> light_level;
@@ -50,7 +50,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             getBlock(x, y).setLightLevel(light_level);
             break;
         }
-        case PacketType::LIQUID_CHANGE: {
+        case PacketType::LIQUID: {
             unsigned short x, y;
             unsigned char liquid_type, liquid_level;
             event.packet >> x >> y >> liquid_type >> liquid_level;
@@ -60,7 +60,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             curr_block.setLiquidLevel(liquid_level);
             break;
         }
-        case PacketType::BLOCK_PROGRESS_CHANGE: {
+        case PacketType::BLOCK_PROGRESS: {
             unsigned char stage;
             unsigned short x, y;
             event.packet >> x >> y >> stage;

@@ -74,6 +74,7 @@ elif sys.platform == "linux":
     createDir("Output/Linux/Terralistic-server")
     shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic-server/Terralistic-server")
     shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic-server/Structures.asset")
+    shutil.copy(project_path + "Build/pixel_font.ttf", project_path + "Output/Linux/Terralistic-server/pixel_font.ttf")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
         os.system(project_path + "Output/Linux/Terralistic/Terralistic")
@@ -153,6 +154,7 @@ elif sys.platform == "win32":
         shutil.rmtree(f"{project_path}Output/Windows/Terralistic/Resources/")
     shutil.move(f"{project_path}Build/Resources/", f"{project_path}Output/Windows/Terralistic/Resources/")
     shutil.copy(f"{project_path}Build/Structures.asset", f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
+    shutil.copy(f"{project_path}Build/pixel_font.ttf", f"{project_path}Output/Windows/Terralistic-server/pixel_font.ttf")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
         os.system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")

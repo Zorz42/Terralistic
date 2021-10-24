@@ -12,7 +12,7 @@ public:
     float x, y, velocity_x = 0, velocity_y = 0;
     virtual unsigned short getWidth() = 0;
     virtual unsigned short getHeight() = 0;
-    bool gravity = true, friction = true;
+    bool gravity = true, friction = true, has_moved_x;
     const unsigned short id;
     const EntityType type;
     bool isColliding(ClientBlocks* blocks);

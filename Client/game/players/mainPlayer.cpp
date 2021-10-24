@@ -2,7 +2,7 @@
 
 void ClientPlayers::init() {
     sf::Packet packet;
-    packet << PacketType::VIEW_SIZE_CHANGE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
+    packet << PacketType::VIEW_SIZE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
     manager->sendPacket(packet);
 }
 
@@ -11,36 +11,12 @@ void ClientPlayers::init() {
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 50
 
-bool ClientPlayers::isPlayerColliding() {
-    if(main_player->x < 0 || main_player->y < 0 ||
-       main_player->y >= blocks->getHeight() * BLOCK_WIDTH * 2 - PLAYER_HEIGHT * 2 ||
-       main_player->x >= blocks->getWidth() * BLOCK_WIDTH * 2 - PLAYER_WIDTH * 2)
-        return true;
-
-    unsigned short starting_x = (main_player->x) / (BLOCK_WIDTH * 2);
-    unsigned short starting_y = (main_player->y) / (BLOCK_WIDTH * 2);
-    unsigned short ending_x = (main_player->x + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
-    unsigned short ending_y = (main_player->y + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
-    
-    for(unsigned short x = starting_x; x <= ending_x; x++)
-        for(unsigned short y = starting_y; y <= ending_y; y++)
-            if(!blocks->getBlock(x, y).getBlockInfo().ghost)
-                return true;
-    
-    return false;
-}
-
-bool ClientPlayers::isPlayerTouchingGround() {
-    main_player->y++;
-    bool result = isPlayerColliding();
-    main_player->y--;
-    return result;
-}
-
 void ClientPlayers::update() {
     if(main_player) {
         static int prev_x, prev_y, prev_view_x, prev_view_y;
         float vel_x_change = 0, vel_y_change = 0;
+        
+        MovingType prev_moving_type = main_player->moving_type;
         
         if(getKeyState(gfx::Key::SHIFT)) {
             if(getKeyState(gfx::Key::A) || getKeyState(gfx::Key::D))
@@ -116,18 +92,18 @@ void ClientPlayers::update() {
         }
         
         
-        if(getKeyState(gfx::Key::SPACE) && isPlayerTouchingGround()) {
+        if(getKeyState(gfx::Key::SPACE) && main_player->isTouchingGround(blocks)) {
             vel_y_change -= JUMP_VELOCITY;
             main_player->has_jumped = true;
+            sf::Packet packet;
+            packet << PacketType::PLAYER_JUMPED;
+            manager->sendPacket(packet);
         }
-            
-        if(main_player->velocity_x)
-            main_player->flipped = main_player->velocity_x < 0;
         
         static unsigned short prev_width = gfx::getWindowWidth(), prev_height = gfx::getWindowHeight();
         if(prev_width != gfx::getWindowWidth() || prev_height != gfx::getWindowHeight()) {
             sf::Packet packet;
-            packet << PacketType::VIEW_SIZE_CHANGE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
+            packet << PacketType::VIEW_SIZE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
             manager->sendPacket(packet);
 
             prev_width = gfx::getWindowWidth();
@@ -161,39 +137,21 @@ void ClientPlayers::update() {
             main_player->velocity_y += vel_y_change;
             
             sf::Packet packet;
-            packet << PacketType::PLAYER_VELOCITY_CHANGE << main_player->velocity_x << main_player->velocity_y;
+            packet << PacketType::PLAYER_VELOCITY << main_player->velocity_x << main_player->velocity_y;
             manager->sendPacket(packet);
         }
         
         if(prev_view_x != blocks->view_x || prev_view_y != blocks->view_y) {
             sf::Packet packet;
-            packet << PacketType::VIEW_POS_CHANGE << blocks->view_x << blocks->view_y;
+            packet << PacketType::VIEW_POS << blocks->view_x << blocks->view_y;
             manager->sendPacket(packet);
         }
         
-        bool has_moved_x = prev_x != int(main_player->x);
-        
-        if(isPlayerTouchingGround() && main_player->velocity_y == 0)
-            main_player->has_jumped = false;
-        
-        if(main_player->moving_type == MovingType::STANDING)
-            main_player->started_moving = 0;
-        
-        if(main_player->moving_type == MovingType::SNEAKING)
-            main_player->texture_frame = 10;
-        else if(main_player->has_jumped)
-            main_player->texture_frame = 0;
-        else if(main_player->moving_type == MovingType::WALKING && has_moved_x)
-            main_player->texture_frame = (gfx::getTicks() - main_player->started_moving) / 70 % 9 + 1;
-        else if(main_player->moving_type == MovingType::SNEAK_WALKING) {
-            if(has_moved_x)
-                main_player->texture_frame = (gfx::getTicks() - main_player->started_moving) / 150 % 6 + 10;
-            else
-                main_player->texture_frame = 10;
-        } else if(main_player->moving_type == MovingType::RUNNING && has_moved_x)
-            main_player->texture_frame = (gfx::getTicks() - main_player->started_moving) / 80 % 8 + 16;
-        else
-            main_player->texture_frame = 1;
+        if(prev_moving_type != main_player->moving_type) {
+            sf::Packet packet;
+            packet << PacketType::PLAYER_MOVING_TYPE << (unsigned char)main_player->moving_type;
+            manager->sendPacket(packet);
+        }
         
         prev_x = main_player->x;
         prev_y = main_player->y;

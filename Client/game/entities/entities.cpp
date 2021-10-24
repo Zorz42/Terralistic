@@ -50,6 +50,7 @@ void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
     if(velocity_y)
         y = y_to_be;
     
+    float prev_x = x;
     float x_to_be = x + float(velocity_x * frame_length) / 100;
     float move_x = x_to_be - x;
     int x_factor = move_x > 0 ? 1 : -1;
@@ -64,6 +65,7 @@ void ClientEntity::updateEntity(ClientBlocks *blocks, float frame_length) {
     }
     if(!has_collided_x)
         x = x_to_be;
+    has_moved_x = prev_x != x;
 }
 
 bool ClientEntity::isTouchingGround(ClientBlocks* blocks) {

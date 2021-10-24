@@ -28,9 +28,9 @@ ServerItem* ServerItems::spawnItem(ItemType type, int x, int y) {
 }
 
 void ServerItems::removeItem(ServerItem* item) {
-    items.erase(std::find(items.begin(), items.end(), item));
-    entities->removeEntity(item);
     ServerItemDeletionEvent event(*item);
     event.call();
+    items.erase(std::find(items.begin(), items.end(), item));
+    entities->removeEntity(item);
     delete item;
 }

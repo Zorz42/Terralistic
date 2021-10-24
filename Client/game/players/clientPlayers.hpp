@@ -7,8 +7,7 @@
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 #include "clientEntities.hpp"
-
-enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
+#include "movingType.hpp"
 
 #define PLAYER_WIDTH 14
 #define PLAYER_HEIGHT 24
@@ -35,8 +34,6 @@ class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> 
     std::string username;
     ClientPlayer* main_player = nullptr;
     ClientPlayer* getPlayerById(unsigned short id);
-    bool isPlayerColliding();
-    bool isPlayerTouchingGround();
     
     void init() override;
     void update() override;

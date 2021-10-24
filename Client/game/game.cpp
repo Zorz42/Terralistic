@@ -127,7 +127,8 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    gfx::runScene(world_starting_screen);
+    WorldStartingScreen world_starting_screen2(menu_back, &private_server);
+    gfx::runScene(world_starting_screen2);
     
     server_thread.join();
 }
@@ -166,6 +167,12 @@ void Game::init() {
     HandshakeScreen handshake_screen(background_rect, this);
     switchToScene(handshake_screen);
     
+    if(got_kicked) {
+        ChoiceScreen choice_screen(background_rect, kick_reason, {"Close"});
+        switchToScene(choice_screen);
+        returnFromScene();
+    }
+    
     registerAModule(&players);
     registerAModule(&block_selector);
     registerAModule(&inventory);
@@ -183,6 +190,15 @@ void Game::handshakeWithServer() {
     networking_manager.flushPackets();
     
     sf::Packet packet = networking_manager.getPacket();
+    PacketType type;
+    packet >> type;
+    
+    if(type == PacketType::KICK) {
+        got_kicked = true;
+        packet >> kick_reason;
+        handshake_done = true;
+        return;
+    }
     
     int player_x, player_y;
     packet >> player_x >> player_y;
@@ -203,17 +219,19 @@ void Game::handshakeWithServer() {
 void Game::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
         case PacketType::KICK: {
-            std::string kick_message;
-            event.packet >> kick_message;
-            ChoiceScreen choice_screen(background_rect, kick_message, {"Close"});
-            switchToScene(choice_screen);
-            returnFromScene();
+            event.packet >> kick_reason;
+            got_kicked = true;
         }
         default:;
     }
 }
 
 void Game::update() {
+    if(got_kicked) {
+        ChoiceScreen choice_screen(background_rect, kick_reason, {"Close"});
+        switchToScene(choice_screen);
+        returnFromScene();
+    }
     networking_manager.checkForPackets();
     networking_manager.flushPackets();
     entities.updateAllEntities(getFrameLength());

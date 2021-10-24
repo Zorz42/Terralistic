@@ -12,7 +12,7 @@
 #include "graphics.hpp"
 #include "compress.hpp"
 
-#define TPS_LIMIT 100
+#define TPS_LIMIT 20
 
 Server* curr_server = nullptr;
 
@@ -63,7 +63,6 @@ void Server::saveWorld() {
 }
 
 void Server::start(unsigned short port) {
-
     curr_server = this;
 
     if(std::filesystem::exists(world_path)) {
@@ -122,6 +121,7 @@ void Server::start(unsigned short port) {
         kick_packet << PacketType::KICK << std::string("Server stopped!");
         networking_manager.sendToEveryone(kick_packet);
     }
+    networking_manager.flushPackets();
 
     print::info("Stopping server");
     networking_manager.closeSocket();
