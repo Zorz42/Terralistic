@@ -13,7 +13,7 @@ void DebugMenu::init() {
     coords_text.orientation = gfx::TOP_LEFT;
 }
 
-void DebugMenu::update() {
+void DebugMenu::update(float frame_length) {
     static unsigned int count = gfx::getTicks() / 1000 - 1;
     fps_count++;
     if(gfx::getTicks() / 1000 > count) {
@@ -25,7 +25,7 @@ void DebugMenu::update() {
     
     if(debug_menu_open) {
         static unsigned int prev_x = 0, prev_y = 0;
-        unsigned int curr_x = player_handler->getMainPlayer()->x / (BLOCK_WIDTH * 2), curr_y = player_handler->getMainPlayer()->y / (BLOCK_WIDTH * 2);
+        unsigned int curr_x = player_handler->getMainPlayer()->getX() / (BLOCK_WIDTH * 2), curr_y = player_handler->getMainPlayer()->getY() / (BLOCK_WIDTH * 2);
         if(curr_x != prev_x || curr_y != prev_y) {
             prev_x = curr_x;
             prev_y = curr_y;
@@ -41,12 +41,14 @@ void DebugMenu::render() {
     }
 }
 
-void DebugMenu::onKeyDown(gfx::Key key) {
+bool DebugMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::M) {
         debug_menu_open = !debug_menu_open;
         if(debug_menu_open)
             updateFpsText();
+        return true;
     }
+    return false;
 }
 
 void DebugMenu::updateFpsText() {
@@ -54,5 +56,5 @@ void DebugMenu::updateFpsText() {
 }
 
 void DebugMenu::updateCoordsText() {
-    coords_text.loadFromText(std::string("X: ") + std::to_string(int(player_handler->getMainPlayer()->x / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - player_handler->getMainPlayer()->y / (BLOCK_WIDTH * 2))), BLACK);
+    coords_text.loadFromText(std::string("X: ") + std::to_string(int(player_handler->getMainPlayer()->getX() / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - player_handler->getMainPlayer()->getY() / (BLOCK_WIDTH * 2))), BLACK);
 }

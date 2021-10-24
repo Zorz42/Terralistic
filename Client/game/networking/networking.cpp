@@ -1,57 +1,95 @@
 #include "clientNetworking.hpp"
+#include "choiceScreen.hpp"
 
-void NetworkingManager::sendPacket(sf::Packet& packet) {
-    master_packet.append(packet.getData(), packet.getDataSize());
+void ClientNetworking::sendPacket(sf::Packet& packet) {
+    if(!socket.isBlocking())
+        socket.setBlocking(true);
+    
+    socket.send(packet);
 }
 
-void NetworkingManager::checkForPackets() {
+void ClientNetworking::update(float frame_length) {
     sf::Packet packet;
     
     while(true) {
+        if(socket.isBlocking())
+            socket.setBlocking(false);
         sf::Socket::Status status = socket.receive(packet);
         if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
-            while(!packet.endOfPacket()) {
-                PacketType packet_type;
-                packet >> packet_type;
-                ClientPacketEvent(packet, packet_type).call();
-            }
+            PacketType packet_type;
+            packet >> packet_type;
+            ClientPacketEvent event(packet, packet_type);
+            packet_event.call(event);
         } else
             break;
     }
 }
 
-bool NetworkingManager::establishConnection(const std::string &ip, unsigned short port) {
-    return socket.connect(ip, port) == sf::Socket::Done;
+void ClientNetworking::init() {
+    packet_event.addListener(this);
+    if(socket.connect(ip_address, port) != sf::Socket::Done) {
+        GameErrorEvent error_event("Could not connect to the server!");
+        game_error_event.call(error_event);
+    }
 }
 
-void NetworkingManager::disableBlocking() {
-    socket.setBlocking(false);
-}
-
-void NetworkingManager::closeConnection() {
+void ClientNetworking::stop() {
+    packet_event.removeListener(this);
     socket.disconnect();
 }
 
-sf::Packet NetworkingManager::getPacket() {
+sf::Packet ClientNetworking::getPacket() {
+    if(!socket.isBlocking())
+        socket.setBlocking(true);
+    
     sf::Packet packet;
     socket.receive(packet);
     return packet;
 }
 
-std::vector<char> NetworkingManager::getData(unsigned int size) {
+std::vector<char> ClientNetworking::getData() {
+    if(!socket.isBlocking())
+        socket.setBlocking(true);
+    
+    sf::Packet packet;
+    socket.receive(packet);
+    int size;
+    packet >> size;
+    
+    size_t received;
     std::vector<char> data(size);
     int bytes_received = 0;
-    size_t received;
     while(bytes_received < size) {
-        socket.receive(&data[bytes_received], size, received);
+        socket.receive(&data[bytes_received], size - bytes_received, received);
         bytes_received += received;
     }
+        
     return data;
 }
 
-void NetworkingManager::flushPackets() {
-    if(master_packet.getDataSize()) {
-        socket.send(master_packet);
-        master_packet.clear();
+void ClientNetworking::onEvent(ClientPacketEvent& event) {
+    if(event.packet_type == PacketType::KICK) {
+        std::string kick_message;
+        event.packet >> kick_message;
+        
+        GameErrorEvent error_event(kick_message);
+        game_error_event.call(error_event);
+    }
+}
+
+void ClientNetworking::postInit() {
+    sf::Packet join_packet;
+    join_packet << username;
+    sendPacket(join_packet);
+    
+    while(true) {
+        sf::Packet packet = getPacket();
+        WelcomePacketType type;
+        packet >> type;
+        if(type == WelcomePacketType::WELCOME)
+            break;
+        
+        WelcomePacketEvent event(packet, type);
+        welcome_packet_event.call(event);
     }
 }

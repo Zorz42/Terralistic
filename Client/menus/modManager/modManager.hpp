@@ -1,5 +1,4 @@
-#ifndef modManager_hpp
-#define modManager_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
@@ -36,12 +35,10 @@ class ModManager : public gfx::Scene {
     gfx::Button back_button;
     
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     void stop() override;
     BackgroundRect* background;
 public:
     explicit ModManager(BackgroundRect* background) : background(background) {}
 };
-
-#endif

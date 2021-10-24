@@ -6,31 +6,42 @@
 #include "serverNetworking.hpp"
 #include "worldGenerator.hpp"
 #include "serverEntities.hpp"
+#include "serverItems.hpp"
+#include "serverPlayers.hpp"
+#include "serverBlocks.hpp"
+#include "serverLiquids.hpp"
+#include "serverChat.hpp"
+#include "commands.hpp"
 
-enum class ServerState {NEUTRAL, STARTING, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
+enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
 
 class Server {
     std::string world_path;
+    ServerNetworking networking;
     ServerBlocks blocks;
+    Biomes biomes;
+    ServerLiquids liquids;
+    WorldGenerator generator;
     ServerItems items;
-    Players players;
-    ServerNetworkingManager networking_manager;
+    ServerPlayers players;
+    ServerChat chat;
+    Commands commands;
     ServerEntities entities;
-    
-    worldGenerator generator;
 
     bool running = true;
     
     void saveWorld();
     void loadWorld();
+    
+    std::vector<ServerModule*> modules;
 public:
     ServerState state = ServerState::NEUTRAL;
     
-    Server(std::string resource_path, std::string world_path);
+    Server(std::string resource_path, std::string world_path, unsigned short port);
     
     unsigned short seed;
     
-    void start(unsigned short port);
+    void start();
     void stop();
     
     void setPrivate(bool is_private);

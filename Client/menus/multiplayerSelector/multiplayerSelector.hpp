@@ -1,12 +1,11 @@
-#ifndef multiplayerSelector_hpp
-#define multiplayerSelector_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
 
 class MultiplayerSelector : public gfx::Scene {
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     void stop() override;
     gfx::Button back_button, join_button;
@@ -17,5 +16,3 @@ class MultiplayerSelector : public gfx::Scene {
 public:
     explicit MultiplayerSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
 };
-
-#endif

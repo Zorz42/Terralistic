@@ -1,5 +1,4 @@
-#ifndef graphics_hpp
-#define graphics_hpp
+#pragma once
 
 #include <string>
 #include <vector>
@@ -29,6 +28,7 @@ namespace gfx {
         unsigned short getHeight() const;
         void setPixel(unsigned short x, unsigned short y, Color color);
         unsigned char* getArray() const;
+        ~PixelGrid();
     };
     
     struct Orientation {
@@ -96,21 +96,23 @@ namespace gfx {
     class Texture;
     
     class RectArray {
-        sf::VertexArray vertex_array;
-        const Texture* image = nullptr;
+        sf::Vertex* vertex_array = nullptr;
+        sf::VertexBuffer vertex_buffer;
     public:
-        RectArray(unsigned short size) : vertex_array(sf::Quads, size * 4) {}
+        RectArray(unsigned short size);
+        RectArray() = default;
+        
         void setRect(unsigned short index, RectShape rect);
         void setColor(unsigned short index, Color color);
         void setTextureCoords(unsigned short index, RectShape texture_coordinates);
-        void setImage(const Texture* image);
-        void render();
-        void resize(unsigned short size);
+        void render(int size, const Texture* image=nullptr);
+        void resize(int size);
+        ~RectArray();
     };
     
     class Texture {
     protected:
-        friend void RectArray::render();
+        friend void RectArray::render(int size, const Texture* image);
         friend void setRenderTarget(Texture& texture);
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;
@@ -182,38 +184,33 @@ namespace gfx {
     class SceneModule {
         friend Scene;
         bool enable_key_states = true;
+        short mouse_x, mouse_y;
     public:
         virtual void init() {}
-        virtual void update() {}
+        virtual void update(float frame_length) {}
         virtual void render() {}
         virtual void stop() {}
-        virtual void onKeyDown(Key key_) {}
+        virtual bool onKeyDown(Key key_) { return false; }
         bool getKeyState(Key key_) const;
-
+        virtual void onMouseScroll(int distance) {}
+        short getMouseX();
+        short getMouseY();
+        
         std::vector<TextInput*> text_inputs;
-        unsigned short mouse_x, mouse_y;
     };
-    
-    void runScene(Scene& scene);
 
     class Scene : public SceneModule {
-        friend void runScene(Scene& scene);
         void onEvent(sf::Event event);
         float frame_length;
         std::vector<SceneModule*> modules;
-        short mouse_x, mouse_y;
-        bool running = true;
-        void run();
-    public:
-        void registerAModule(SceneModule* module);
-        float getFrameLength() { return frame_length; }
-        virtual void onMouseScroll(int distance) {}
-        void switchToScene(Scene& scene);
-        void returnFromScene();
         void onKeyDownCallback(Key key_);
-        short getMouseX();
-        short getMouseY();
-        const std::vector<SceneModule*>& getModules();
+        bool running = true;
+    public:
+        void run();
+        void registerAModule(SceneModule* module);
+        void switchToScene(Scene& scene);
+        void cycleModules();
+        void returnFromScene();
     };
     
     void init(const std::string& resource_path_, unsigned short window_width_, unsigned short window_height_);
@@ -236,5 +233,3 @@ namespace gfx {
 
     void setWindowSize(unsigned short width, unsigned short height);
 };
-
-#endif

@@ -1,35 +1,36 @@
-#ifndef packetType_hpp
-#define packetType_hpp
+#pragma once
 
 #include <SFML/Network.hpp>
 
 enum class PacketType {
     // blocks
-    BLOCK, LIGHT, LIQUID,
+    BLOCK, LIQUID,
     
     // entities
-    ENTITY_VELOCITY, ENTITY_POSITION,
+    ENTITY_VELOCITY, ENTITY_POSITION, ENTITY_DELETION,
     
     // players
-    PLAYER_JOIN, PLAYER_LEAVE, PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
-    
-    // view
-    VIEW_SIZE, VIEW_POS,
+    PLAYER_JOIN, PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
     
     // items
-    ITEM_CREATION, ITEM_DELETION,
+    ITEM_CREATION,
     
     // inventory
-    INVENTORY, INVENTORY_SWAP, HOTBAR_SELECTION, RECIPE_AVAILABILTY_CHANGE, CRAFT,
+    INVENTORY, INVENTORY_SWAP, HOTBAR_SELECTION, CRAFT,
     
     // clicking
-    RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING, BLOCK_PROGRESS,
+    RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING,
     
     // miscellaneous
-    KICK, CHAT, WELCOME,
+    KICK, CHAT,
+};
+
+enum class WelcomePacketType {
+    WELCOME, BLOCKS, LIQUIDS, INVENTORY, TIME,
 };
 
 sf::Packet& operator<<(sf::Packet& packet, PacketType packet_type);
 sf::Packet& operator>>(sf::Packet& packet, PacketType& packet_type);
 
-#endif
+sf::Packet& operator<<(sf::Packet& packet, WelcomePacketType packet_type);
+sf::Packet& operator>>(sf::Packet& packet, WelcomePacketType& packet_type);

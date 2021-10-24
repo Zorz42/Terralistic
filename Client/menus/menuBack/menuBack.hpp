@@ -1,5 +1,4 @@
-#ifndef menuBack_hpp
-#define menuBack_hpp
+#pragma once
 
 #include "graphics.hpp"
 
@@ -19,5 +18,3 @@ public:
     void setBackWidth(unsigned short width) override { back_rect.setWidth(width); }
     unsigned short getBackWidth() override { return back_rect.getWidth(); }
 };
-
-#endif

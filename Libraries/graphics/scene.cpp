@@ -4,26 +4,22 @@ bool key_states[(int)gfx::Key::UNKNOWN];
 
 void gfx::Scene::registerAModule(SceneModule* module) {
     modules.push_back(module);
-    module->init();
 }
 
-const std::vector<gfx::SceneModule*>& gfx::Scene::getModules() {
-    return modules;
-}
-
-short gfx::Scene::getMouseX() {
+short gfx::SceneModule::getMouseX() {
     return mouse_x;
 }
 
-short gfx::Scene::getMouseY() {
+short gfx::SceneModule::getMouseY() {
     return mouse_y;
 }
 
 void gfx::Scene::onKeyDownCallback(Key key_) {
     if(!key_states[(int)key_]) {
         key_states[(int)key_] = true;
-        for(SceneModule* module : modules)
-            module->onKeyDown(key_);
+        for(int i = (int)modules.size() - 1; i >= 0; i--)
+            if(modules[i]->onKeyDown(key_))
+                break;
     }
 }
 
@@ -46,10 +42,6 @@ void gfx::Scene::switchToScene(Scene& scene) {
     scene.run();
     for(SceneModule* module : modules)
         module->enable_key_states = true;
-}
-
-void gfx::Scene::returnFromScene() {
-    running = false;
 }
 
 gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
@@ -145,6 +137,12 @@ void gfx::Scene::onEvent(sf::Event event) {
         
         if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
             onKeyDownCallback(key);
+        
+        if(is_textbox_active && key == Key::ESCAPE) {
+            for(SceneModule* module : modules)
+                for(TextInput* i : module->text_inputs)
+                    i->active = false;
+        }
     }
     
     else if (event.type == sf::Event::KeyReleased) {
@@ -180,8 +178,11 @@ void gfx::Scene::onEvent(sf::Event event) {
 }
 
 void gfx::Scene::run() {
-    modules.push_back(this);
+    for(SceneModule* module : modules)
+        module->init();
+    modules.insert(modules.begin(), this);
     init();
+
     
     while(running && window->isOpen()) {
         unsigned int start = getTicks();
@@ -197,11 +198,7 @@ void gfx::Scene::run() {
         while(window->pollEvent(event))
             onEvent(event);
         
-        for(SceneModule* module : modules)
-            module->update();
-        
-        for(SceneModule* module : modules)
-            module->render();
+        cycleModules();
         
         window_texture.display();
         window->draw(sf::Sprite(window_texture.getTexture()));
@@ -212,4 +209,16 @@ void gfx::Scene::run() {
     
     for(SceneModule* module : modules)
         module->stop();
+}
+
+void gfx::Scene::cycleModules() {
+    for(SceneModule* module : modules)
+        module->update(frame_length);
+    
+    for(SceneModule* module : modules)
+        module->render();
+}
+
+void gfx::Scene::returnFromScene() {
+    running = false;
 }

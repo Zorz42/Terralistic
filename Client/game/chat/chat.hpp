@@ -1,5 +1,4 @@
-#ifndef chat_hpp
-#define chat_hpp
+#pragma once
 
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
@@ -11,20 +10,18 @@ struct ChatLine {
     unsigned int time_created{};
 };
 
-class Chat : public gfx::SceneModule, EventListener<ClientPacketEvent> {
+class Chat : public ClientModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
-    NetworkingManager* manager;
+    ClientNetworking* manager;
     std::vector<ChatLine*> chat_lines;
     
     void init() override;
-    void update() override;
+    void update(float frame_length) override;
     void render() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void stop() override;
 
     void onEvent(ClientPacketEvent& event) override;
 public:
-    explicit Chat(NetworkingManager* manager) : manager(manager) {}
+    Chat(ClientNetworking* manager) : manager(manager) {}
 };
-
-#endif

@@ -69,7 +69,7 @@ void ModManager::init() {
     back_button.y = -SPACING;
 }
 
-void ModManager::onKeyDown(gfx::Key key) {
+bool ModManager::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
@@ -83,7 +83,9 @@ void ModManager::onKeyDown(gfx::Key key) {
                 holding_y = holding->getY();
                 holding->smooth_factor = 1;
             }
+        return true;
     }
+    return false;
 }
 
 void ModManager::render() {

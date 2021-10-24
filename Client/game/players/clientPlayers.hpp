@@ -1,5 +1,4 @@
-#ifndef playerHandler_hpp
-#define playerHandler_hpp
+#pragma once
 
 #include <string>
 #include <utility>
@@ -7,26 +6,24 @@
 #include "clientBlocks.hpp"
 #include "resourcePack.hpp"
 #include "clientEntities.hpp"
-#include "movingType.hpp"
+#include "player.hpp"
+#include "liquids.hpp"
+#include "particles.hpp"
 
 #define PLAYER_WIDTH 14
 #define PLAYER_HEIGHT 24
 
-class ClientPlayer : public ClientEntity {
+class ClientPlayer : public Player {
 public:
     ClientPlayer(const std::string& name, int x, int y, unsigned short id);
     bool flipped = false;
     unsigned char texture_frame = 0;
-    const std::string name;
     gfx::Texture name_text;
-    MovingType moving_type = MovingType::STANDING;
     unsigned int started_moving = 0;
     bool has_jumped = false;
-    unsigned short getWidth() override { return PLAYER_WIDTH * 2; }
-    unsigned short getHeight() override { return PLAYER_HEIGHT * 2; }
 };
 
-class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> {
+class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false, running_left = false, running_right = false;
     
     void render(ClientPlayer& player_to_draw);
@@ -36,19 +33,19 @@ class ClientPlayers : public gfx::SceneModule, EventListener<ClientPacketEvent> 
     ClientPlayer* getPlayerById(unsigned short id);
     
     void init() override;
-    void update() override;
+    void update(float frame_length) override;
     void onEvent(ClientPacketEvent& event) override;
+    void render() override;
+    void stop() override;
     
     ClientBlocks* blocks;
-    NetworkingManager* manager;
+    Liquids* liquids;
+    ClientNetworking* manager;
     ResourcePack* resource_pack;
-    ClientEntities* entities;
+    Entities* entities;
+    Particles* particles;
 public:
-    ClientPlayers(NetworkingManager* manager, ClientBlocks* blocks, ResourcePack* resource_pack, ClientEntities* entities, const std::string& username);
-    
-    void renderPlayers();
+    ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username);
     
     const ClientPlayer* getMainPlayer() { return main_player; }
 };
-
-#endif

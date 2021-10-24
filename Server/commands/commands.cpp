@@ -2,18 +2,30 @@
 #include "print.hpp"
 #include "vector"
 
-void Commands::startCommand(std::string message, std::string player) {
-    std::vector<std::string> seperated;
-
-    {
-        size_t pos = message.find(' ');
-        while (pos != std::string::npos) {
-            seperated.push_back(message.substr(0, pos));
-            message.erase(0, pos + 1);
-            pos = message.find(' ');
-        }
-        seperated.push_back(message.substr(0, pos));
+void Commands::onEvent(ServerChatEvent& event) {
+    if(event.message[0] == '/') {
+        startCommand(event.message, event.sender);
+        event.cancelled = true;
     }
+}
+
+void Commands::init() {
+    chat->chat_event.addListener(this);
+}
+
+void Commands::stop() {
+    chat->chat_event.removeListener(this);
+}
+
+void Commands::startCommand(std::string message, ServerPlayer* player) {
+    std::vector<std::string> seperated;
+    size_t pos = message.find(' ');
+    while (pos != std::string::npos) {
+        seperated.push_back(message.substr(0, pos));
+        message.erase(0, pos + 1);
+        pos = message.find(' ');
+    }
+    seperated.push_back(message.substr(0, pos));
 
     if(seperated[0] == "/setBlock") {
         formatLocation(seperated, player, 1);
@@ -25,7 +37,7 @@ void Commands::startCommand(std::string message, std::string player) {
             teleport(player, std::stoi(seperated[1]), std::stoi(seperated[2]));
         }else {
             formatLocation(seperated, player, 2);
-            teleport(seperated[1], std::stoi(seperated[2]), std::stoi(seperated[3]));
+            teleport(players->getPlayerByName(seperated[1]), std::stoi(seperated[2]), std::stoi(seperated[3]));
         }
     }else if(seperated[0] == "/give"){
         formatItemType(seperated[1]);
@@ -36,12 +48,11 @@ void Commands::startCommand(std::string message, std::string player) {
 
 void Commands::changeBlock(std::vector<std::string>& message) {
     BlockType block = (BlockType)std::stoi(message[3]);
-
-    blocks->getBlock(std::stoi(message[1]), blocks->getHeight() - std::stoi(message[2])).setType(block);
-    blocks->getBlock(std::stoi(message[1]), blocks->getHeight() - std::stoi(message[2])).update();
+    
+    blocks->setBlockType(std::stoi(message[1]), blocks->getHeight() - std::stoi(message[2]), block);
 }
 
-void Commands::formatLocation(std::vector<std::string>& message, const std::string& player, unsigned char start_format) {
+void Commands::formatLocation(std::vector<std::string>& message, ServerPlayer* player, unsigned char start_format) {
     int block_x;
 
     if(players->getPlayerByName(message[start_format]) != nullptr){
@@ -50,7 +61,7 @@ void Commands::formatLocation(std::vector<std::string>& message, const std::stri
         return;
     }
     if(message[start_format].at(0) == '~') {
-        block_x = players->getPlayerByName(player)->getX() / 16;
+        block_x = player->getX() / 16;
         if(message[start_format].size() > 1) {
             message[start_format].erase(0, 1);
             block_x += std::stoi(message[start_format]);
@@ -59,7 +70,7 @@ void Commands::formatLocation(std::vector<std::string>& message, const std::stri
     }
     start_format++;
     if(message[start_format].at(0) == '~') {
-        block_x = blocks->getHeight() - players->getPlayerByName(player)->getY() / 16;
+        block_x = blocks->getHeight() - player->getY() / 16;
         if(message[start_format].size() > 1) {
             message[start_format].erase(0, 1);
             block_x += std::stoi(message[start_format]);
@@ -78,14 +89,15 @@ void Commands::formatItemType(std::string &type) {
         type = std::to_string((int)getItemTypeByName(type));
 }
 
-void Commands::teleport(const std::string& player, unsigned int x, unsigned int y) {
+void Commands::teleport(ServerPlayer* player, int x, int y) {
     y *= -1;
     y += blocks->getHeight();
-    players->getPlayerByName(player)->setPosition(x * 16, y * 16);
+    entities->setX(player, x * 16);
+    entities->setY(player, y * 16);
 }
 
-void Commands::giveItem(std::vector<std::string> &message, const std::string& player) {
+void Commands::giveItem(std::vector<std::string> &message, ServerPlayer* player) {
     if(message.size() == 2)
         message.emplace_back("1");
-    players->getPlayerByName(player)->inventory.addItem((ItemType) std::stoi(message[1]), std::stoi(message[2]));
+    player->inventory.addItem((ItemType) std::stoi(message[1]), std::stoi(message[2]));
 }

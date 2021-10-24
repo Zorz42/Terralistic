@@ -1,5 +1,4 @@
-#ifndef choiceScreen_hpp
-#define choiceScreen_hpp
+#pragma once
 
 #include <string>
 #include <vector>
@@ -20,8 +19,6 @@ public:
     ChoiceScreen(BackgroundRect* menu_back, std::string question, const std::vector<std::string>& options, std::string* result = nullptr);
 
     void init() override;
-    void onKeyDown(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
 };
-
-#endif

@@ -1,30 +1,27 @@
-#ifndef properties_hpp
-#define properties_hpp
+#pragma once
 
 #define UNBREAKABLE -1
 
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
 
 enum class BlockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, NUM_BLOCKS};
 enum class ItemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, NUM_ITEMS};
 enum class LiquidType {EMPTY, WATER, NUM_LIQUIDS};
-enum class Biome {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
-
-
+enum class BiomeType {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
 struct BlockInfo {
     BlockInfo() = default;
-    BlockInfo(std::string name, bool ghost, bool transparent, bool only_on_floor, short break_time, ItemType drop, std::vector<BlockType> connects_to);
+    BlockInfo(std::string name, bool ghost, bool transparent, short break_time, ItemType drop, std::vector<BlockType> connects_to);
     
-    bool ghost, transparent, only_on_floor;
+    bool ghost, transparent;
     std::string name;
     std::vector<BlockType> connects_to;
     short break_time;
     ItemType drop;
 };
-static BlockInfo block_infos[(int)BlockType::NUM_BLOCKS];
 
 struct ItemInfo {
     ItemInfo() = default;
@@ -44,17 +41,10 @@ struct LiquidInfo {
     float speed_multiplier;
 };
 
-struct ItemStack {
-    ItemStack(ItemType type, unsigned short stack) : type(type), stack(stack) {}
-    ItemStack() = default;
-    ItemType type = ItemType::NOTHING;
-    unsigned short stack = 0;
-};
-
 struct Recipe {
-    Recipe(std::vector<ItemStack> ingredients, ItemStack result) : ingredients(std::move(ingredients)), result(result) {}
-    std::vector<ItemStack> ingredients;
-    ItemStack result;
+    std::map<ItemType, unsigned short> ingredients;
+    unsigned short result_stack;
+    ItemType result_type;
 };
 
 void initProperties();
@@ -66,5 +56,3 @@ const LiquidInfo& getLiquidInfo(LiquidType type);
 const std::vector<Recipe>& getRecipes();
 unsigned short getRecipeIndex(const Recipe* recipe);
 
-
-#endif

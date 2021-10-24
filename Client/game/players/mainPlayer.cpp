@@ -1,9 +1,11 @@
 #include "clientPlayers.hpp"
 
 void ClientPlayers::init() {
-    sf::Packet packet;
-    packet << PacketType::VIEW_SIZE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
-    manager->sendPacket(packet);
+    manager->packet_event.addListener(this);
+}
+
+void ClientPlayers::stop() {
+    manager->packet_event.removeListener(this);
 }
 
 #define RUN_SPEED 18
@@ -11,9 +13,9 @@ void ClientPlayers::init() {
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 50
 
-void ClientPlayers::update() {
+void ClientPlayers::update(float frame_length) {
     if(main_player) {
-        static int prev_x, prev_y, prev_view_x, prev_view_y;
+        static int prev_x, prev_y;
         float vel_x_change = 0, vel_y_change = 0;
         
         MovingType prev_moving_type = main_player->moving_type;
@@ -100,29 +102,19 @@ void ClientPlayers::update() {
             manager->sendPacket(packet);
         }
         
-        static unsigned short prev_width = gfx::getWindowWidth(), prev_height = gfx::getWindowHeight();
-        if(prev_width != gfx::getWindowWidth() || prev_height != gfx::getWindowHeight()) {
-            sf::Packet packet;
-            packet << PacketType::VIEW_SIZE << (unsigned short)(gfx::getWindowWidth() / (BLOCK_WIDTH * 2)) << (unsigned short)(gfx::getWindowHeight() / (BLOCK_WIDTH * 2));
-            manager->sendPacket(packet);
-
-            prev_width = gfx::getWindowWidth();
-            prev_height = gfx::getWindowHeight();
-        }
-        
         float speed_multiplier = 1;
         
-        unsigned short starting_x = (main_player->x) / (BLOCK_WIDTH * 2);
-        unsigned short starting_y = (main_player->y) / (BLOCK_WIDTH * 2);
-        unsigned short ending_x = (main_player->x + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
-        unsigned short ending_y = (main_player->y + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
+        int starting_x = (main_player->getX()) / (BLOCK_WIDTH * 2);
+        int starting_y = (main_player->getY()) / (BLOCK_WIDTH * 2);
+        int ending_x = (main_player->getX() + PLAYER_WIDTH * 2 - 1) / (BLOCK_WIDTH * 2);
+        int ending_y = (main_player->getY() + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
         
-        for(unsigned short x = starting_x; x <= ending_x; x++)
-            for(unsigned short y = starting_y; y <= ending_y; y++)
-                speed_multiplier = std::min(speed_multiplier, blocks->getBlock(x, y).getLiquidInfo().speed_multiplier);
+        for(int x = starting_x; x <= ending_x; x++)
+            for(int y = starting_y; y <= ending_y; y++)
+                speed_multiplier = std::min(speed_multiplier, liquids->getLiquidInfo(x, y).speed_multiplier);
         
-        blocks->view_x += (main_player->x - blocks->view_x + PLAYER_WIDTH) / 8;
-        blocks->view_y += (main_player->y - blocks->view_y + PLAYER_HEIGHT) / 8;
+        blocks->view_x += (main_player->getX() - blocks->view_x + PLAYER_WIDTH) / 8;
+        blocks->view_y += (main_player->getY() - blocks->view_y + PLAYER_HEIGHT) / 8;
         if(blocks->view_x < gfx::getWindowWidth() / 2)
             blocks->view_x = gfx::getWindowWidth() / 2;
         if(blocks->view_y < gfx::getWindowHeight() / 2)
@@ -133,17 +125,11 @@ void ClientPlayers::update() {
             blocks->view_y = blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
         
         if(vel_x_change || vel_y_change) {
-            main_player->velocity_x += vel_x_change;
-            main_player->velocity_y += vel_y_change;
+            entities->addVelocityX(main_player, vel_x_change);
+            entities->addVelocityY(main_player, vel_y_change);
             
             sf::Packet packet;
-            packet << PacketType::PLAYER_VELOCITY << main_player->velocity_x << main_player->velocity_y;
-            manager->sendPacket(packet);
-        }
-        
-        if(prev_view_x != blocks->view_x || prev_view_y != blocks->view_y) {
-            sf::Packet packet;
-            packet << PacketType::VIEW_POS << blocks->view_x << blocks->view_y;
+            packet << PacketType::PLAYER_VELOCITY << main_player->getVelocityX() << main_player->getVelocityY();
             manager->sendPacket(packet);
         }
         
@@ -153,9 +139,7 @@ void ClientPlayers::update() {
             manager->sendPacket(packet);
         }
         
-        prev_x = main_player->x;
-        prev_y = main_player->y;
-        prev_view_x = blocks->view_x;
-        prev_view_y = blocks->view_y;
+        prev_x = main_player->getX();
+        prev_y = main_player->getY();
     }
 }

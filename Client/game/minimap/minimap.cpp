@@ -1,8 +1,5 @@
 #include "minimap.hpp"
 
-#define MINIMAP_SIZE 100
-#define MINIMAP_SCALE 2
-
 void Minimap::init() {
     back_rect.orientation = gfx::TOP_RIGHT;
     back_rect.setWidth(MINIMAP_SIZE * MINIMAP_SCALE);
@@ -35,8 +32,6 @@ void Minimap::init() {
 void Minimap::render() {
     back_rect.render();
     
-    gfx::PixelGrid block_pixels(MINIMAP_SIZE, MINIMAP_SIZE), liquid_pixels(MINIMAP_SIZE, MINIMAP_SIZE), light_pixels(MINIMAP_SIZE, MINIMAP_SIZE);
-    
     for(int y = 0; y < MINIMAP_SIZE; y++)
         for(int x = 0; x < MINIMAP_SIZE; x++) {
             int block_x = blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x;
@@ -46,15 +41,21 @@ void Minimap::render() {
             unsigned char light_level = MAX_LIGHT;
             
             if(block_x >= 0 && block_y >= 0 && block_x < blocks->getWidth() && block_y < blocks->getHeight()) {
-                block_color = block_colors[(int)blocks->getBlock(block_x, block_y).getBlockType()];
-                liquid_color = liquid_colors[(int)blocks->getBlock(block_x, block_y).getLiquidType()];
-                light_level = blocks->getBlock(block_x, block_y).getLightLevel();
+                block_color = block_colors[(int)blocks->getBlockType(block_x, block_y)];
+                liquid_color = liquid_colors[(int)blocks->getBlockType(block_x, block_y)];
+                light_level = lights->getLightLevel(block_x, block_y);
+                
+                if(lights->hasScheduledLightUpdate(block_x, block_y))
+                    lights->updateLight(block_x, block_y);
             }
             
             block_pixels.setPixel(x, y, block_color);
             liquid_pixels.setPixel(x, y, liquid_color);
             light_pixels.setPixel(x, y, {0, 0, 0, (unsigned char)((MAX_LIGHT - (int)light_level) * 255 / MAX_LIGHT)});
         }
+    
+    for(int x = 0; x < MINIMAP_SIZE; x++)
+        natural_light->updateLight(blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x);
     
     gfx::Sprite minimap_sprite;
     minimap_sprite.orientation = gfx::TOP_RIGHT;
@@ -70,8 +71,4 @@ void Minimap::render() {
     
     minimap_sprite.loadFromPixelGrid(light_pixels);
     minimap_sprite.render();
-}
-
-void Minimap::onKeyDown(gfx::Key key) {
-    
 }
