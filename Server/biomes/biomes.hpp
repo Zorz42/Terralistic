@@ -27,6 +27,8 @@ struct StructureChance {
     StructureChance(std::string name, float chance_on_block, int least_distance, int unique_structures);
 };
 
+inline std::vector <Biome> loaded_biomes;
+
 class Biomes : public ServerModule {
     Blocks* blocks;
 public:
