@@ -45,9 +45,9 @@ struct BlockEvents {
 
 class ServerPacketEvent {
 public:
-    ServerPacketEvent(sf::Packet& packet, PacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
+    ServerPacketEvent(sf::Packet& packet, ClientPacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
     sf::Packet& packet;
-    PacketType packet_type;
+    ClientPacketType packet_type;
     ServerPlayer* player;
 };
 

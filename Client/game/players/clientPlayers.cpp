@@ -74,7 +74,7 @@ ClientPlayer* ClientPlayers::getPlayerById(unsigned short id) {
 
 void ClientPlayers::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::PLAYER_JOIN: {
+        case ServerPacketType::PLAYER_JOIN: {
             int x, y;
             unsigned short id;
             unsigned char moving_type;
@@ -88,7 +88,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             
             break;
         }
-        case PacketType::PLAYER_MOVING_TYPE: {
+        case ServerPacketType::PLAYER_MOVING_TYPE: {
             unsigned short id;
             unsigned char moving_type;
             event.packet >> moving_type >> id;
@@ -99,7 +99,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             
             break;
         }
-        case PacketType::PLAYER_JUMPED: {
+        case ServerPacketType::PLAYER_JUMPED: {
             unsigned short id;
             event.packet >> id;
             if(id != main_player->id) {

@@ -207,13 +207,13 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
                 break;
             } else {
                 sf::Packet join_packet;
-                join_packet << PacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
+                join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
                 event.connection->send(join_packet);
             }
         }
     
     sf::Packet join_packet;
-    join_packet << PacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
+    join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
     networking->sendToEveryone(join_packet);
 }
 
@@ -290,7 +290,7 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
 
 void ServerPlayers::onEvent(ServerPacketEvent& event) {
     switch(event.packet_type) {
-        case PacketType::STARTED_BREAKING: {
+        case ClientPacketType::STARTED_BREAKING: {
             int breaking_x, breaking_y;
             event.packet >> breaking_x >> breaking_y;
             
@@ -304,20 +304,20 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             break;
         }
 
-        case PacketType::STOPPED_BREAKING: {
+        case ClientPacketType::STOPPED_BREAKING: {
             event.player->breaking = false;
             blocks->stopBreakingBlock(event.player->breaking_x, event.player->breaking_y);
             break;
         }
 
-        case PacketType::RIGHT_CLICK: {
+        case ClientPacketType::RIGHT_CLICK: {
             int x, y;
             event.packet >> x >> y;
             rightClickEvent(event.player, x, y);
             break;
         }
 
-        case PacketType::PLAYER_VELOCITY: {
+        case ClientPacketType::PLAYER_VELOCITY: {
             float velocity_x, velocity_y;
             event.packet >> velocity_x >> velocity_y;
             entities->setVelocityX(event.player, velocity_x);
@@ -325,19 +325,19 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             break;
         }
 
-        case PacketType::INVENTORY_SWAP: {
+        case ClientPacketType::INVENTORY_SWAP: {
             unsigned char pos;
             event.packet >> pos;
             event.player->inventory.swapWithMouseItem(pos);
             break;
         }
 
-        case PacketType::HOTBAR_SELECTION: {
+        case ClientPacketType::HOTBAR_SELECTION: {
             event.packet >> event.player->inventory.selected_slot;
             break;
         }
             
-        case PacketType::CRAFT: {
+        case ClientPacketType::CRAFT: {
             unsigned char craft_index;
             event.packet >> craft_index;
             const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
@@ -347,18 +347,18 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
                 event.player->inventory.removeItem(ingredient.first, ingredient.second);
         }
             
-        case PacketType::PLAYER_MOVING_TYPE: {
+        case ClientPacketType::PLAYER_MOVING_TYPE: {
             unsigned char moving_type;
             event.packet >> moving_type;
             event.player->moving_type = (MovingType)moving_type;
             sf::Packet moving_packet;
-            moving_packet << PacketType::PLAYER_MOVING_TYPE << moving_type << event.player->id;
+            moving_packet << ServerPacketType::PLAYER_MOVING_TYPE << moving_type << event.player->id;
             networking->sendToEveryone(moving_packet);
         }
 
-        case PacketType::PLAYER_JUMPED: {
+        case ClientPacketType::PLAYER_JUMPED: {
             sf::Packet jumped_packet;
-            jumped_packet << PacketType::PLAYER_JUMPED << event.player->id;
+            jumped_packet << ServerPacketType::PLAYER_JUMPED << event.player->id;
             networking->sendToEveryone(jumped_packet);
         }
         default:;
@@ -368,7 +368,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     ItemStack item = inventory.getItem(event.item_pos);
     sf::Packet packet;
-    packet << PacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
+    packet << ServerPacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
     connection->send(packet);
 }
 

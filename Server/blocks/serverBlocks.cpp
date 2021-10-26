@@ -30,18 +30,18 @@ void ServerBlocks::stop() {
 
 void ServerBlocks::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y);
+    packet << ServerPacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y);
     networking->sendToEveryone(packet);
 }
 
 void ServerBlocks::onEvent(BlockStartedBreakingEvent& event) {
     sf::Packet packet;
-    packet << PacketType::STARTED_BREAKING << event.x << event.y;
+    packet << ServerPacketType::STARTED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }
 
 void ServerBlocks::onEvent(BlockStoppedBreakingEvent& event) {
     sf::Packet packet;
-    packet << PacketType::STOPPED_BREAKING << event.x << event.y;
+    packet << ServerPacketType::STOPPED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }

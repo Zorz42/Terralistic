@@ -2,7 +2,7 @@
 
 void ClientLiquids::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::LIQUID: {
+        case ServerPacketType::LIQUID: {
             int x, y;
             unsigned char liquid_type, liquid_level;
             event.packet >> x >> y >> liquid_type >> liquid_level;

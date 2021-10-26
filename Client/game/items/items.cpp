@@ -47,7 +47,7 @@ void ClientItems::render() {
 
 void ClientItems::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
-        case PacketType::ITEM_CREATION: {
+        case ServerPacketType::ITEM_CREATION: {
             int x, y;
             unsigned short id;
             unsigned char type_char;

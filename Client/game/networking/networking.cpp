@@ -16,7 +16,7 @@ void ClientNetworking::update(float frame_length) {
             socket.setBlocking(false);
         sf::Socket::Status status = socket.receive(packet);
         if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
-            PacketType packet_type;
+            ServerPacketType packet_type;
             packet >> packet_type;
             ClientPacketEvent event(packet, packet_type);
             packet_event.call(event);
@@ -68,7 +68,7 @@ std::vector<char> ClientNetworking::getData() {
 }
 
 void ClientNetworking::onEvent(ClientPacketEvent& event) {
-    if(event.packet_type == PacketType::KICK) {
+    if(event.packet_type == ServerPacketType::KICK) {
         std::string kick_message;
         event.packet >> kick_message;
         

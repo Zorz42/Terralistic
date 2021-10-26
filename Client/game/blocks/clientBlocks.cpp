@@ -65,7 +65,7 @@ int ClientBlocks::getViewEndY() const {
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::BLOCK: {
+        case ServerPacketType::BLOCK: {
             int x, y;
             unsigned char block_type;
             event.packet >> x >> y >> block_type;
@@ -73,13 +73,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             setBlockType(x, y, (BlockType)block_type);
             break;
         }
-        case PacketType::STARTED_BREAKING: {
+        case ServerPacketType::STARTED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             startBreakingBlock(x, y);
             break;
         }
-        case PacketType::STOPPED_BREAKING: {
+        case ServerPacketType::STOPPED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             stopBreakingBlock(x, y);

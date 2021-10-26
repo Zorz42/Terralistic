@@ -48,7 +48,7 @@ void Connection::send(std::vector<char>& data) {
     }
 }
 
-void Connection::pushPacket(sf::Packet& packet, PacketType type) {
+void Connection::pushPacket(sf::Packet& packet, ClientPacketType type) {
     packet_buffer.push({packet, type});
 }
 
@@ -56,7 +56,7 @@ bool Connection::hasPacketInBuffer() {
     return !packet_buffer.empty();
 }
 
-std::pair<sf::Packet, PacketType> Connection::getPacket() {
+std::pair<sf::Packet, ClientPacketType> Connection::getPacket() {
     auto result = packet_buffer.front();
     packet_buffer.pop();
     return result;
@@ -97,7 +97,7 @@ void ServerNetworking::update(float frame_length) {
                     unsigned char packet_type;
                     packet >> packet_type;
                     
-                    connections[i]->pushPacket(packet, (PacketType)packet_type);
+                    connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
                 }
             }
         else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
@@ -129,7 +129,7 @@ void ServerNetworking::stop() {
 
 void ServerNetworking::kickConnection(Connection* connection, const std::string& reason) {
     sf::Packet kick_packet;
-    kick_packet << PacketType::KICK << reason;
+    kick_packet << ServerPacketType::KICK << reason;
     connection->send(kick_packet);
     
     removeConnection(connection);
