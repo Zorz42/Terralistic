@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 #include "blocks.hpp"
-#include "SimplexNoise.h"
+#include "perlinNoise.hpp"
 #include "biomes.hpp"
 #include "liquids.hpp"
 
@@ -30,34 +30,33 @@ class WorldGenerator {
     std::vector<structure> structures;
     std::vector<structurePosition> structurePositions;
 
-    void generateBiomes(unsigned int x, SimplexNoise& noise);
-    void calculateHeight(SimplexNoise& noise);
-    void terrainGenerator(int x, SimplexNoise& noise);
-    void generateSurface(unsigned int x, SimplexNoise& noise);
-    void generateCaves(SimplexNoise &noise);
+    void generateBiomes(unsigned int x, siv::PerlinNoise& noise);
+    void calculateHeight(siv::PerlinNoise& noise);
+    void terrainGenerator(int x, siv::PerlinNoise& noise);
+    void generateSurface(unsigned int x, siv::PerlinNoise& noise);
+    void generateCaves(siv::PerlinNoise &noise);
     void generateCaveLakes();
     void generateLakeRecursively(int x, int y);
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();
-    void updateBlocks();
-    void generateDeafultWorld(SimplexNoise& noise);
-    int heightGeneratorInt(unsigned int x, SimplexNoise& noise);
-    static int heatGeneratorInt(unsigned int x, SimplexNoise& noise);
+    void generateDeafultWorld(siv::PerlinNoise& noise);
+    int heightGeneratorInt(unsigned int x, siv::PerlinNoise& noise);
+    static int heatGeneratorInt(unsigned int x, siv::PerlinNoise& noise);
     void loadBiomes();
 
-    void generateBlockIcyOcean(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockSnowyPlains(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockSnowyHills(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockSnowyMountains(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockOcean(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockPlains(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockHills(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockMountains(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockWarmOcean(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockDesert(unsigned int x, unsigned int y, SimplexNoise& noise);
-    void generateBlockSavanaHills(unsigned int x, unsigned  int y, SimplexNoise& noise);
-    void generateBlockSavanaMountains(unsigned int x, unsigned  int y, SimplexNoise& noise);
+    void generateBlockIcyOcean(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockSnowyPlains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockSnowyHills(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockSnowyMountains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockOcean(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockPlains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockHills(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockMountains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockWarmOcean(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockDesert(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
+    void generateBlockSavanaHills(unsigned int x, unsigned  int y, siv::PerlinNoise& noise);
+    void generateBlockSavanaMountains(unsigned int x, unsigned  int y, siv::PerlinNoise& noise);
 
     void generateStructure(const std::string& name, int x, int y);
     void loadAssets();

@@ -215,11 +215,13 @@ namespace gfx {
     
     void init(const std::string& resource_path_, unsigned short window_width_, unsigned short window_height_);
     void quit();
+
     void loadFont(const std::string& path, unsigned char size);
     
     std::string getResourcePath();
 
     void setMinimumWindowSize(unsigned short width, unsigned short height);
+    void setWindowSize(unsigned short width, unsigned short height);
     unsigned short getWindowWidth();
     unsigned short getWindowHeight();
 
@@ -230,6 +232,4 @@ namespace gfx {
     void sleep(unsigned short ms);
     
     void setGlobalScale(float scale);
-
-    void setWindowSize(unsigned short width, unsigned short height);
 };

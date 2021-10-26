@@ -13,7 +13,6 @@
 		166D85D526AA0B9E00DB87B1 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C826AA0B9E00DB87B1 /* rect.cpp */; };
 		166D85D726AA0B9E00DB87B1 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85CA26AA0B9E00DB87B1 /* graphics.cpp */; };
 		166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85CE26AA0B9E00DB87B1 /* scene.cpp */; };
-		166D85DD26AA0B9E00DB87B1 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */; };
 		1673274C26A80EF40063281A /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* networking.cpp */; };
 		1674225F2702F48B00D6D8F2 /* liquids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1674225D2702F48B00D6D8F2 /* liquids.cpp */; };
 		167422602702F48B00D6D8F2 /* liquids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1674225D2702F48B00D6D8F2 /* liquids.cpp */; };
@@ -95,7 +94,6 @@
 		16C9470527109EC100A51E81 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C9470327109EC100A51E81 /* player.cpp */; };
 		16C9470627109EC100A51E81 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C9470327109EC100A51E81 /* player.cpp */; };
 		361DD18E26F7478900129191 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
-		361DD18F26F7478900129191 /* SimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */; };
 		361DD1A126F7478900129191 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03B726E141FC0045FEA9 /* button.cpp */; };
 		361DD1A326F7478900129191 /* resourcePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BF6959269D7F4D00CFE175 /* resourcePath.cpp */; };
 		361DD1A426F7478900129191 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
@@ -256,8 +254,6 @@
 		166D85CA26AA0B9E00DB87B1 /* graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graphics.cpp; sourceTree = "<group>"; };
 		166D85CB26AA0B9E00DB87B1 /* graphics-internal.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "graphics-internal.hpp"; sourceTree = "<group>"; };
 		166D85CE26AA0B9E00DB87B1 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cpp; sourceTree = "<group>"; };
-		166D85D126AA0B9E00DB87B1 /* SimplexNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplexNoise.h; sourceTree = "<group>"; };
-		166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplexNoise.cpp; sourceTree = "<group>"; };
 		1673274A26A80EF40063281A /* networking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = networking.cpp; sourceTree = "<group>"; };
 		1673274B26A80EF40063281A /* serverNetworking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverNetworking.hpp; sourceTree = "<group>"; };
 		1674225D2702F48B00D6D8F2 /* liquids.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liquids.cpp; sourceTree = "<group>"; };
@@ -390,6 +386,7 @@
 		3657220C26D07181005AB3CC /* menuBack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = menuBack.hpp; sourceTree = "<group>"; };
 		3672913126FE1F0A00786856 /* libdeflate.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libdeflate.0.dylib; path = Dependencies/libdeflate/libdeflate.0.dylib; sourceTree = "<group>"; };
 		3672913626FE206000786856 /* libdeflate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeflate.a; path = Dependencies/libdeflate/libdeflate.a; sourceTree = "<group>"; };
+		3677B5A827283E20000F4D77 /* perlinNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
 		3692C14D26E509F100F9DD71 /* entities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = entities.cpp; sourceTree = "<group>"; };
 		3692C14E26E509F100F9DD71 /* entities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entities.hpp; sourceTree = "<group>"; };
 		36B0452427247AD600A64113 /* world_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = world_icon.png; sourceTree = "<group>"; };
@@ -526,15 +523,6 @@
 				166D85CE26AA0B9E00DB87B1 /* scene.cpp */,
 			);
 			path = graphics;
-			sourceTree = "<group>";
-		};
-		166D85D026AA0B9E00DB87B1 /* simplexNoise */ = {
-			isa = PBXGroup;
-			children = (
-				166D85D126AA0B9E00DB87B1 /* SimplexNoise.h */,
-				166D85D226AA0B9E00DB87B1 /* SimplexNoise.cpp */,
-			);
-			path = simplexNoise;
 			sourceTree = "<group>";
 		};
 		1673274926A80E760063281A /* networking */ = {
@@ -677,7 +665,7 @@
 			isa = PBXGroup;
 			children = (
 				1689687725E9607800D26060 /* sago */,
-				166D85D026AA0B9E00DB87B1 /* simplexNoise */,
+				3677B5A827283E20000F4D77 /* perlinNoise.hpp */,
 			);
 			path = "External Libraries";
 			sourceTree = "<group>";
@@ -1285,7 +1273,6 @@
 				3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */,
 				169D0DFA271C10A700F1D484 /* particles.cpp in Sources */,
 				36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */,
-				166D85DD26AA0B9E00DB87B1 /* SimplexNoise.cpp in Sources */,
 				3657222426D07181005AB3CC /* menuBack.cpp in Sources */,
 				3657221C26D07181005AB3CC /* game.cpp in Sources */,
 				3657221126D07181005AB3CC /* debugMenu.cpp in Sources */,
@@ -1371,7 +1358,6 @@
 				1676AF392704595400321C8B /* blocks.cpp in Sources */,
 				361DD1ED26F7481200129191 /* launcher.cpp in Sources */,
 				361DD18E26F7478900129191 /* worldGenerator.cpp in Sources */,
-				361DD18F26F7478900129191 /* SimplexNoise.cpp in Sources */,
 				16C9470627109EC100A51E81 /* player.cpp in Sources */,
 				1676AF3827044CD100321C8B /* lights.cpp in Sources */,
 				16A3BFF526FF85F6001B9E4E /* texture.cpp in Sources */,
