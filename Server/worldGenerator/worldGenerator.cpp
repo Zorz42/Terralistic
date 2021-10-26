@@ -71,7 +71,7 @@ void WorldGenerator::terrainGenerator(int x, SimplexNoise& noise) {
 void WorldGenerator::calculateHeight(SimplexNoise& noise) {
     int biome_blend = 20;
     float divide_at_end;
-    unsigned short no_blend_height[blocks->getWidth()];
+    unsigned short *no_blend_height = new unsigned short[blocks->getWidth()];
     for(int current_slice = 0; current_slice < blocks->getWidth(); current_slice++) {
         no_blend_height[current_slice] = loaded_biomes[(int) biomes->biomes[current_slice]].surface_height;
     }
@@ -89,6 +89,7 @@ void WorldGenerator::calculateHeight(SimplexNoise& noise) {
         variation /= divide_at_end;
         blocks->surface_height[current_slice] += turbulence(current_slice + 0.003, 0, 64, noise) * variation;
     }
+    delete[] no_blend_height;
 }
 
 void WorldGenerator::generateSurface(unsigned int x, SimplexNoise &noise) {
@@ -300,7 +301,7 @@ void WorldGenerator::generateCaves(SimplexNoise &noise) {
 
 void WorldGenerator::generateCaveLakes() {
     for(int i = 0; i < 100000; i++){
-        int this_random = random();
+        int this_random = (int)random();
         unsigned short x = this_random % blocks->getWidth();
         unsigned short y = this_random % blocks->getHeight();
         if(blocks->getBlockType(x, y) == BlockType::AIR){
@@ -349,12 +350,12 @@ void WorldGenerator::loadAssets() {
         counter++;
         int y_offset = (unsigned char)assetData[counter];
         counter++;
-        auto *blocks = new BlockType[x_size * y_size];
+        auto *blocks_ = new BlockType[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {
-            blocks[i] = (BlockType)assetData[counter];
+            blocks_[i] = (BlockType)assetData[counter];
             counter++;
         }
-        structures.emplace_back(name, x_size, y_size, y_offset, blocks);
+        structures.emplace_back(name, x_size, y_size, y_offset, blocks_);
         previousEnd = counter;
     }
 

@@ -41,7 +41,7 @@ void gfx::init(const std::string& resource_path_, unsigned short window_width, u
     
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     window->setVerticalSyncEnabled(true);
-    window->setFramerateLimit(100);
+    window->setFramerateLimit(70);
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 
