@@ -65,6 +65,8 @@ class WorldGenerator {
     std::string resource_path;
 
     unsigned int generating_current = 0, generating_total = 1;
+    
+    unsigned short* surface_height;
 
 public:
     WorldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)) {}
