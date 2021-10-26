@@ -48,6 +48,7 @@ struct Recipe {
 };
 
 void initProperties();
+
 BlockType getBlockTypeByName(const std::string& name);
 ItemType getItemTypeByName(const std::string& name);
 const BlockInfo& getBlockInfo(BlockType type);

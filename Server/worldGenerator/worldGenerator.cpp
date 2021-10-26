@@ -20,7 +20,7 @@ int WorldGenerator::generateWorld(unsigned short world_width, unsigned short wor
         loadBiomes();
         generateDeafultWorld(noise);
     }
-    //delete[] surface_height; // crash (shouldn't be)
+    delete[] surface_height;
     return 0;
 }
 
