@@ -45,6 +45,7 @@ ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networ
     stateFunctions[(int)BlockType::SNOWY_GRASS_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::SNOW_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::ICE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
+    stateFunctions[(int)BlockType::IRON_ORE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
 }
 
 int ClientBlocks::getViewBeginX() const {
