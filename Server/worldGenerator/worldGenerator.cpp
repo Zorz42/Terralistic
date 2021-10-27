@@ -16,11 +16,11 @@ int WorldGenerator::generateWorld(unsigned short world_width, unsigned short wor
     if(seed == 1000) {
         generateStructureWorld();
     } else {
-        generating_total = blocks->getWidth() * 2;
+        generating_total = blocks->getWidth() * 3;
         loadBiomes();
         generateDeafultWorld(noise);
     }
-    delete[] surface_height;
+    //delete[] surface_height;
     return 0;
 }
 
@@ -304,7 +304,7 @@ void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
                 }
             }
         }
-        generating_current++;
+        generating_current += 2;
     }
 }
 
