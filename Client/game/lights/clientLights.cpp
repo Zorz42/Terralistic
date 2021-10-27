@@ -47,8 +47,8 @@ void ClientLights::render() {
             }
         }
     
-    if(light_index)
-        light_rects.render(light_index);
+    /*if(light_index)
+        light_rects.render(light_index);*/
 }
 
 void ClientLights::stop() {

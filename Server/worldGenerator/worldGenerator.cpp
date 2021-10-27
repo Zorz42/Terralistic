@@ -3,7 +3,7 @@
 #include <string>
 #include "worldGenerator.hpp"
 #include "biomes.hpp"
-#include "math.h"
+#include "cmath"
 
 int WorldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
     siv::PerlinNoise noise(seed);
@@ -289,11 +289,19 @@ void WorldGenerator::generateBlockSavanaMountains(unsigned int x, unsigned int y
 void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
     for(unsigned int x = 0; x < blocks->getWidth(); x++) {
         for (unsigned int y = surface_height[x]; y > 0; --y) {
-            float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(((float)blocks->getHeight() / 3 * 2 - y) / 200, (float)1);
+            float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(((float)blocks->getHeight() / 3 * 2 - y) / 300, (float)1);
             if (value > 0.3) {
                 blocks->setBlockTypeSilently(x, blocks->getHeight() - y, BlockType::AIR);
                 if (y == surface_height[x])
                     surface_height--;
+            }else {
+                value = turbulence((double) x / 4 + blocks->getWidth() * 3, (double)y / 2 + blocks->getHeight() * 3, 64, noise);
+                int multiply = std::min((float)1, std::max((float)0, (float)(y - blocks->getHeight() / 3 * 2 + 10) / 100));
+                if (value > -0.05 * multiply * multiply && value < 0.05 * multiply * multiply) {
+                    blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, BlockType::AIR);
+                    if (y == surface_height[x])
+                        surface_height--;
+                }
             }
         }
         generating_current++;
@@ -301,13 +309,13 @@ void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
 }
 
 void WorldGenerator::generateCaveLakes() {
-    for(int i = 0; i < 100000; i++){
+    for(int i = 0; i < 10000; i++){
         int this_random = (int)random();
         unsigned short x = this_random % blocks->getWidth();
-        unsigned short y = this_random % blocks->getHeight();
+        unsigned short y = blocks->getHeight() - (this_random % blocks->getHeight() / 3 * 2) - 1;
         if(blocks->getBlockType(x, y) == BlockType::AIR){
-            while(y > 1 && blocks->getBlockType(x, y) == BlockType::AIR)
-                y--;
+            while(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == BlockType::AIR)
+                y++;
             generateLakeRecursively(x, y);
         }else
             continue;
@@ -317,8 +325,8 @@ void WorldGenerator::generateCaveLakes() {
 void WorldGenerator::generateLakeRecursively(int x, int y) {
     liquids->setLiquidTypeSilently(x, y, LiquidType::WATER);
     liquids->setLiquidLevelSilently(x, y, 255);
-    if(y != 0 && blocks->getBlockType(x, y - 1) == BlockType::AIR && liquids->getLiquidType(x, y - 1) == LiquidType::EMPTY)
-        generateLakeRecursively(x, y - 1);
+    if(y != blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == BlockType::AIR && liquids->getLiquidType(x, y + 1) == LiquidType::EMPTY)
+        generateLakeRecursively(x, y + 1);
     if(x != 0 && blocks->getBlockType(x - 1, y) == BlockType::AIR && liquids->getLiquidType(x - 1, y) == LiquidType::EMPTY)
         generateLakeRecursively(x - 1, y);
     if(x != blocks->getWidth() - 1 && blocks->getBlockType(x + 1, y) == BlockType::AIR && liquids->getLiquidType(x + 1, y) == LiquidType::EMPTY)
