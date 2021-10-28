@@ -25,15 +25,16 @@ def generate_block_texture(input_file_path: str, output_file_path: str):
 
     input_image = Image.open(input_file_path)
     input_pixels = input_image.load()
+    input_width, input_height = input_image.size
 
     for y in range(0, 128, 8):
         copy_area(input_pixels, output_pixels, 0, 0, 8, 8, 0, y)
 
-    for i in range(4):
-        texture_y = i * 8 + 8
-        for y in range(0, 16, 1):
-            if int(y / math.pow(2, i)) % 2 == 0:
-                copy_area(input_pixels, output_pixels, 0, texture_y, 8, 8, 0, y * 8)
+    for texture_y in range(8, input_height - 31, 32):
+        for i in range(4):
+            for y in range(0, 16, 1):
+                if int(y / math.pow(2, i)) % 2 == 0:
+                    copy_area(input_pixels, output_pixels, 0, i * 8 + texture_y, 8, 8, 0, y * 8)
 
     for i in range(16):
         if int(i / 8) % 2 == 0 and i % 2 == 0:
