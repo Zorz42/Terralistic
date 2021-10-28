@@ -289,15 +289,15 @@ void WorldGenerator::generateBlockSavanaMountains(unsigned int x, unsigned int y
 void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
     for(unsigned int x = 0; x < blocks->getWidth(); x++) {
         for (unsigned int y = surface_height[x]; y > 0; --y) {
-            float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(((float)blocks->getHeight() / 3 * 2 - y) / 300, (float)1);
+            float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(std::max((float)0, ((float)blocks->getHeight() / 3 * 2 - y) / 300), (float)1);
             if (value > 0.3) {
                 blocks->setBlockTypeSilently(x, blocks->getHeight() - y, BlockType::AIR);
                 if (y == surface_height[x])
                     surface_height--;
             }else {
                 value = turbulence((double) x / 4 + blocks->getWidth() * 3, (double)y / 2 + blocks->getHeight() * 3, 64, noise);
-                int multiply = std::min((float)1, std::max((float)0, (float)(y - blocks->getHeight() / 3 * 2 + 10) / 100));
-                if (value > -0.05 * multiply * multiply && value < 0.05 * multiply * multiply) {
+                int multiply = std::min((float)1, std::max((float)0, 1 - (float)(y - blocks->getHeight() / 3 * 2) / 100));
+                if (value > -0.05 * multiply && value < 0.05 * multiply) {
                     blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, BlockType::AIR);
                     if (y == surface_height[x])
                         surface_height--;
