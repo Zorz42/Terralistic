@@ -66,17 +66,17 @@
 		16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B77FE826F5102700FE3FE9 /* updater.cpp */; };
 		16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BF6959269D7F4D00CFE175 /* resourcePath.cpp */; };
 		16BF6985269D854F00CFE175 /* sfml-audio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; };
-		16BF6986269D854F00CFE175 /* sfml-audio.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16BF6986269D854F00CFE175 /* sfml-audio.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF6987269D854F00CFE175 /* sfml-graphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; };
-		16BF6988269D854F00CFE175 /* sfml-graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16BF6988269D854F00CFE175 /* sfml-graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF6989269D854F00CFE175 /* sfml-network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; };
-		16BF698A269D854F00CFE175 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16BF698A269D854F00CFE175 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF698B269D854F00CFE175 /* sfml-system.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; };
-		16BF698C269D854F00CFE175 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16BF698C269D854F00CFE175 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF698D269D854F00CFE175 /* sfml-window.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; };
-		16BF698E269D854F00CFE175 /* sfml-window.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16BF698E269D854F00CFE175 /* sfml-window.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF698F269D854F00CFE175 /* SFML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; };
-		16BF6990269D854F00CFE175 /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16BF6990269D854F00CFE175 /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF6991269D855A00CFE175 /* FLAC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6975269D853A00CFE175 /* FLAC.framework */; };
 		16BF6992269D855A00CFE175 /* FLAC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6975269D853A00CFE175 /* FLAC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16BF6993269D855A00CFE175 /* freetype.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6973269D853A00CFE175 /* freetype.framework */; };
@@ -130,18 +130,18 @@
 		361DD1D426F7478900129191 /* Structures.asset in Resources */ = {isa = PBXBuildFile; fileRef = 3657217C26D0710F005AB3CC /* Structures.asset */; };
 		361DD1D526F7478900129191 /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3657217726D0710F005AB3CC /* pixel_font.ttf */; };
 		361DD1D926F7478900129191 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 3657217626D0710E005AB3CC /* icon.icns */; };
-		361DD1DB26F7478900129191 /* sfml-window.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		361DD1DB26F7478900129191 /* sfml-window.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695F269D853100CFE175 /* sfml-window.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1DC26F7478900129191 /* ogg.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6970269D853A00CFE175 /* ogg.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1DD26F7478900129191 /* FLAC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6975269D853A00CFE175 /* FLAC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		361DD1DE26F7478900129191 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		361DD1DE26F7478900129191 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1DF26F7478900129191 /* vorbisfile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6976269D853A00CFE175 /* vorbisfile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1E026F7478900129191 /* vorbisenc.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6972269D853A00CFE175 /* vorbisenc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1E126F7478900129191 /* vorbis.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6974269D853A00CFE175 /* vorbis.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		361DD1E226F7478900129191 /* sfml-audio.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		361DD1E326F7478900129191 /* sfml-graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		361DD1E226F7478900129191 /* sfml-audio.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6960269D853100CFE175 /* sfml-audio.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		361DD1E326F7478900129191 /* sfml-graphics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695E269D853100CFE175 /* sfml-graphics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1E426F7478900129191 /* OpenAL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6971269D853A00CFE175 /* OpenAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		361DD1E526F7478900129191 /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		361DD1E626F7478900129191 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		361DD1E526F7478900129191 /* SFML.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6961269D853100CFE175 /* SFML.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		361DD1E626F7478900129191 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1E726F7478900129191 /* freetype.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6973269D853A00CFE175 /* freetype.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		361DD1ED26F7481200129191 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
 		3657219826D0710F005AB3CC /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 3657217626D0710E005AB3CC /* icon.icns */; };
@@ -1196,7 +1196,7 @@
 		1689684E25E95FD000D26060 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1310;
 				TargetAttributes = {
 					1689685525E95FD000D26060 = {
 						CreatedOnToolsVersion = 12.4;
@@ -1571,7 +1571,7 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
@@ -1637,7 +1637,7 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
@@ -1750,7 +1750,7 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
@@ -1816,7 +1816,7 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
