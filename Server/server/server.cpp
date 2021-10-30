@@ -11,7 +11,7 @@
 #include "graphics.hpp"
 #include "compress.hpp"
 
-#define TPS_LIMIT 20
+#define TPS_LIMIT 60
 
 Server* curr_server = nullptr;
 
