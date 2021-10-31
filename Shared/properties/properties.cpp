@@ -60,6 +60,8 @@ void initProperties() {
     BlockInfo("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*drops*/ItemType::NOTHING,     /*connects_to*/{BlockType::SNOW_BLOCK                                          });
     block_infos[(int)BlockType::IRON_ORE] =
     BlockInfo("iron_ore",          /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*drops*/ItemType::IRON_ORE,    /*connects_to*/{                                                               });
+    block_infos[(int)BlockType::COPPER_ORE] =
+    BlockInfo("copper_ore",        /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*drops*/ItemType::COPPER_ORE,  /*connects_to*/{                                                               });
     
     // unique_items
     item_infos[(int)ItemType::NOTHING] =     ItemInfo(/*name*/"nothing",     /*max_stack*/0,  /*places*/BlockType::AIR        );
@@ -68,6 +70,7 @@ void initProperties() {
     item_infos[(int)ItemType::STONE_BLOCK] = ItemInfo(/*name*/"stone_block", /*max_stack*/99, /*places*/BlockType::STONE_BLOCK);
     item_infos[(int)ItemType::WOOD_PLANKS] = ItemInfo(/*name*/"wood_planks", /*max_stack*/99, /*places*/BlockType::AIR        );
     item_infos[(int)ItemType::IRON_ORE] =    ItemInfo(/*name*/"iron_ore",    /*max_stack*/99, /*places*/BlockType::IRON_ORE   );
+    item_infos[(int)ItemType::COPPER_ORE] =  ItemInfo(/*name*/"copper_ore",  /*max_stack*/99, /*places*/BlockType::COPPER_ORE );
     
     // unqiue_liquids
     liquid_infos[(int)LiquidType::EMPTY] = LiquidInfo(/*name*/"empty", /*flow_time*/0,   /*speed_multiplier*/1  );
