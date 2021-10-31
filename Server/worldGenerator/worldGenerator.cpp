@@ -296,7 +296,7 @@ void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
                     surface_height--;
             }else {
                 value = turbulence((double) x / 4 + blocks->getWidth() * 3, (double)y / 2 + blocks->getHeight() * 3, 64, noise);
-                int multiply = std::min((float)1, std::max((float)0, 1 - (float)(y - blocks->getHeight() / 3 * 2) / 100));
+                int multiply = std::min((float)1, std::max((float)0, (float)(y - surface_height[x]) / 100));
                 if (value > -0.05 * multiply && value < 0.05 * multiply) {
                     blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, BlockType::AIR);
                     if (y == surface_height[x])
@@ -308,11 +308,12 @@ void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
     }
 }
 
-void WorldGenerator::generateCaveLakes() {
+void WorldGenerator::generateCaveLakes(siv::PerlinNoise &noise) {
     for(int i = 0; i < 10000; i++){
-        int this_random = (int)random();
-        unsigned short x = this_random % blocks->getWidth();
-        unsigned short y = blocks->getHeight() - (this_random % blocks->getHeight() / 3 * 2) - 1;
+        //unsigned int x = (unsigned int)(noise.noise1D_0_1(i + 124.5) * blocks->getWidth());
+        //unsigned int y = blocks->getHeight() - (unsigned int)(noise.noise1D_0_1(i - 137.5) * blocks->getHeight() / 3 * 2) - 1;
+        unsigned int x = (unsigned int)(random() % blocks->getWidth());
+        unsigned int y = blocks->getHeight() - (unsigned int)(random() % blocks->getHeight() / 3 * 2) - 1;
         if(blocks->getBlockType(x, y) == BlockType::AIR){
             while(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == BlockType::AIR)
                 y++;
@@ -332,6 +333,24 @@ void WorldGenerator::generateLakeRecursively(int x, int y) {
     if(x != blocks->getWidth() - 1 && blocks->getBlockType(x + 1, y) == BlockType::AIR && liquids->getLiquidType(x + 1, y) == LiquidType::EMPTY)
         generateLakeRecursively(x + 1, y);
 }
+
+void WorldGenerator::generateOres(siv::PerlinNoise& noise) {
+    generateOre(BlockType::IRON_ORE, 0.75, 15, noise);
+}
+
+void WorldGenerator::generateOre(BlockType type,float chance, int blob_distance, siv::PerlinNoise& noise){
+    int offset_x = noise.noise1D((int)type + 0.5) * 500;
+    int offset_y = noise.noise1D((int)type - 0.5) * 200;
+    for(unsigned int x = 0; x < blocks->getWidth(); x++){
+        for(unsigned int y = 0; y < blocks->getHeight(); y++){
+            if(blocks->getBlockType(x, blocks->getHeight() - y - 1) == BlockType::STONE_BLOCK &&
+               noise.noise2D_0_1((float)x / blob_distance + offset_x, (float)y / blob_distance + offset_y) > chance){
+                    blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, type);
+            }
+        }
+    }
+}
+
 
 void WorldGenerator::loadAssets() {
     std::ifstream structureFile;
@@ -429,7 +448,8 @@ void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise) {
         generating_current++;
     }
     generateCaves(noise);
-    generateCaveLakes();
+    generateCaveLakes(noise);
+    generateOres(noise);
     for (const structurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }

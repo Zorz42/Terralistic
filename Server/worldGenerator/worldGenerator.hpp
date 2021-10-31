@@ -35,8 +35,10 @@ class WorldGenerator {
     void terrainGenerator(int x, siv::PerlinNoise& noise);
     void generateSurface(unsigned int x, siv::PerlinNoise& noise);
     void generateCaves(siv::PerlinNoise &noise);
-    void generateCaveLakes();
+    void generateCaveLakes(siv::PerlinNoise &noise);
     void generateLakeRecursively(int x, int y);
+    void generateOres(siv::PerlinNoise& noise);
+    void generateOre(BlockType type, float chance, int blob_distance, siv::PerlinNoise& noise);
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();
