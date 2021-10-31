@@ -13,5 +13,5 @@ class SettingsMenu : public gfx::Scene {
     BackgroundRect* background;
     
 public:
-    explicit SettingsMenu(BackgroundRect* background, Settings* settings) : background(background) {}
+    explicit SettingsMenu(BackgroundRect* background/*, Settings* settings*/) : background(background) {}
 };
