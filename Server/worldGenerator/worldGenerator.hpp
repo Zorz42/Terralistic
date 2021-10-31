@@ -7,6 +7,7 @@
 #include "perlinNoise.hpp"
 #include "biomes.hpp"
 #include "liquids.hpp"
+#include <random>
 
 
 struct structure {
@@ -35,14 +36,16 @@ class WorldGenerator {
     void terrainGenerator(int x, siv::PerlinNoise& noise);
     void generateSurface(unsigned int x, siv::PerlinNoise& noise);
     void generateCaves(siv::PerlinNoise &noise);
-    void generateCaveLakes(siv::PerlinNoise &noise);
+    void generateCaveLakes(std::mt19937& seeded_random);
     void generateLakeRecursively(int x, int y);
-    void generateOres(siv::PerlinNoise& noise);
-    void generateOre(BlockType type, float chance, int blob_distance, siv::PerlinNoise& noise);
+    void generateOres(siv::PerlinNoise& noise, std::mt19937& seeded_random);
+    void generateOre(BlockType type, float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random);
+    void generateStones(std::mt19937& seeded_random);
+    void placeStructures(siv::PerlinNoise& noise);
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();
-    void generateDeafultWorld(siv::PerlinNoise& noise);
+    void generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random);
     int heightGeneratorInt(unsigned int x, siv::PerlinNoise& noise);
     static int heatGeneratorInt(unsigned int x, siv::PerlinNoise& noise);
     void loadBiomes();
