@@ -38,7 +38,7 @@ bool PauseScreen::onKeyDown(gfx::Key key) {
             returnToGame();
             return true;
         } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
-            Settings settings(this);
+            SettingsMenu settings(this);
             switchToScene(settings);
             return true;
         } else if(mods_button.isHovered(getMouseX(), getMouseY())) {

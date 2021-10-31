@@ -59,7 +59,7 @@ bool MainMenu::onKeyDown(gfx::Key key) {
             switchToScene(multiplayer_selector);
             return true;
         } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
-            Settings settings(menu_back);
+            SettingsMenu settings(menu_back);
             switchToScene(settings);
             return true;
         } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
