@@ -1,4 +1,4 @@
-#include "settings.hpp"
+#include "settingsMenu.hpp"
 #include "configManager.hpp"
 #include "platform_folders.h"
 #include "modManager.hpp"
@@ -47,11 +47,6 @@ void Settings::init() {
     scale_back_rect.fill_color.a = TRANSPARENCY;
     scale_back_rect.shadow_intensity = SHADOW_INTENSITY;
     
-    mods_button.orientation = gfx::TOP;
-    mods_button.loadFromText("Mods");
-    mods_button.y = scale_back_rect.getY() + scale_back_rect.getHeight() + SPACING;
-    mods_button.scale = 3;
-    
     back_button.loadFromText("Back");
     back_button.scale = 3;
     back_button.orientation = gfx::BOTTOM;
@@ -69,10 +64,7 @@ bool Settings::onKeyDown(gfx::Key key) {
             new_scale = 100;
         else if(small_scale_button.isHovered(getMouseX(), getMouseY()))
             new_scale = 50;
-        else if(mods_button.isHovered(getMouseX(), getMouseY())) {
-            ModManager mod_manager(background);
-            switchToScene(mod_manager);
-        } if(new_scale) {
+        if(new_scale) {
             ConfigFile config(sago::getDataHome() + "/Terralistic/settings.txt");
             config.setInt("ui_scale", new_scale);
             config.saveConfig();
@@ -93,8 +85,6 @@ void Settings::render() {
     large_scale_button.render(getMouseX(), getMouseY());
     normal_scale_button.render(getMouseX(), getMouseY());
     small_scale_button.render(getMouseX(), getMouseY());
-    
-    mods_button.render(getMouseX(), getMouseY());
     
     back_button.render(getMouseX(), getMouseY());
 }

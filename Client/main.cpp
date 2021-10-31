@@ -4,7 +4,7 @@
 #include "platform_folders.h"
 #include "resourcePath.hpp"
 #include "serverPlayers.hpp"
-#include "settings.hpp"
+#include "settingsMenu.hpp"
 #include "updater.hpp"
 #include "versions.hpp"
 

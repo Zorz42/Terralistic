@@ -1,27 +1,36 @@
 #include "mainMenu.hpp"
 #include "worldSelector.hpp"
 #include "multiplayerSelector.hpp"
-#include "settings.hpp"
+#include "settingsMenu.hpp"
 #include "versions.hpp"
-
-#define BUTTON_SPACING 1
+#include "modManager.hpp"
 
 void MainMenu::init() {
     singleplayer_button.scale = 3;
     singleplayer_button.loadFromText("Singleplayer");
-    singleplayer_button.orientation = gfx::TOP;
+    singleplayer_button.orientation = gfx::CENTER;
     
     multiplayer_button.scale = 3;
     multiplayer_button.loadFromText("Multiplayer");
-    multiplayer_button.orientation = gfx::TOP;
+    multiplayer_button.orientation = gfx::CENTER;
     
     settings_button.scale = 3;
     settings_button.loadFromText("Settings");
-    settings_button.orientation = gfx::TOP;
+    settings_button.orientation = gfx::CENTER;
+    
+    mods_button.scale = 3;
+    mods_button.loadFromText("Mods");
+    mods_button.orientation = gfx::CENTER;
 
     exit_button.scale = 3;
     exit_button.loadFromText("Exit");
-    exit_button.orientation = gfx::TOP;
+    exit_button.orientation = gfx::CENTER;
+    
+    singleplayer_button.y = -(multiplayer_button.getHeight() + settings_button.getHeight() + mods_button.getHeight() + exit_button.getHeight() + 4) / 2 + singleplayer_button.getHeight() / 3;
+    multiplayer_button.y = singleplayer_button.y + singleplayer_button.getHeight() / 2 + multiplayer_button.getHeight() / 2 + 1;
+    settings_button.y = multiplayer_button.y + multiplayer_button.getHeight() / 2 + settings_button.getHeight() / 2 + 1;
+    mods_button.y = settings_button.y + settings_button.getHeight() / 2 + mods_button.getHeight() / 2 + 1;
+    exit_button.y = mods_button.y + mods_button.getHeight() / 2 + exit_button.getHeight() / 2 + 1;
     
     debug_title.loadFromText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
@@ -53,6 +62,10 @@ bool MainMenu::onKeyDown(gfx::Key key) {
             Settings settings(menu_back);
             switchToScene(settings);
             return true;
+        } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
+            ModManager mod_manager(menu_back);
+            switchToScene(mod_manager);
+            return true;
         } else if(exit_button.isHovered(getMouseX(), getMouseY())) {
             returnFromScene();
             return true;
@@ -62,13 +75,6 @@ bool MainMenu::onKeyDown(gfx::Key key) {
 }
 
 void MainMenu::render() {
-    int height = singleplayer_button.getHeight() + multiplayer_button.getHeight() + settings_button.getHeight() + exit_button.getHeight() + 3 * BUTTON_SPACING;
-    
-    singleplayer_button.y = gfx::getWindowHeight() / 2 - height / 2;
-    multiplayer_button.y = singleplayer_button.y + singleplayer_button.getHeight() + BUTTON_SPACING;
-    settings_button.y = multiplayer_button.y + multiplayer_button.getHeight() + BUTTON_SPACING;
-    exit_button.y = settings_button.y + settings_button.getHeight() + BUTTON_SPACING;
-    
     menu_back->setBackWidth(singleplayer_button.getWidth() + 100);
     menu_back->renderBack();
 
@@ -80,5 +86,6 @@ void MainMenu::render() {
     singleplayer_button.render(getMouseX(), getMouseY());
     multiplayer_button.render(getMouseX(), getMouseY());
     settings_button.render(getMouseX(), getMouseY());
+    mods_button.render(getMouseX(), getMouseY());
     exit_button.render(getMouseX(), getMouseY());
 }
