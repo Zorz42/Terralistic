@@ -1,4 +1,5 @@
 #include "settings.hpp"
+#include <cassert>
 
 std::string ChoiceSetting::exportToStr() {
     return std::to_string(getSelectedChoice());
