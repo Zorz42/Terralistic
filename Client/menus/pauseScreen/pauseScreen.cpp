@@ -12,7 +12,7 @@ void PauseScreen::init() {
     settings_button.y = resume_button.y + resume_button.getHeight() + SPACING;
     
     mods_button.scale = 3;
-    mods_button.loadFromText("Settings");
+    mods_button.loadFromText("Mods");
     mods_button.y = settings_button.y + settings_button.getHeight() + SPACING;
     
     quit_button.scale = 3;
