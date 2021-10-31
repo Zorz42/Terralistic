@@ -16,7 +16,7 @@ void ServerItems::stop() {
 
 void ServerItems::onEvent(ItemCreationEvent &event) {
     sf::Packet packet;
-    packet << PacketType::ITEM_CREATION << (int)event.item->getX() << (int)event.item->getY() << event.item->id << (unsigned char)event.item->getType();
+    packet << ServerPacketType::ITEM_CREATION << (int)event.item->getX() << (int)event.item->getY() << event.item->id << (unsigned char)event.item->getType();
     networking->sendToEveryone(packet);
 }
 
@@ -25,7 +25,7 @@ void ServerItems::onEvent(ServerNewConnectionEvent& event) {
         if(entity->type == EntityType::ITEM) {
             Item* item = (Item*)entity;
             sf::Packet item_packet;
-            item_packet << PacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
+            item_packet << ServerPacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << (unsigned char)item->getType();
             event.connection->send(item_packet);
         }
 }

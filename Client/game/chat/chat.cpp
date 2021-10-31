@@ -65,7 +65,7 @@ bool Chat::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
             sf::Packet chat_packet;
-            chat_packet << PacketType::CHAT << chat_box.getText();
+            chat_packet << ClientPacketType::CHAT << chat_box.getText();
             manager->sendPacket(chat_packet);
             chat_box.setText("");
         }
@@ -85,7 +85,7 @@ bool Chat::onKeyDown(gfx::Key key) {
 
 void Chat::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::CHAT: {
+        case ServerPacketType::CHAT: {
             ChatLine* new_line = new ChatLine;
             event.packet >> new_line->text;
             new_line->time_created = gfx::getTicks();

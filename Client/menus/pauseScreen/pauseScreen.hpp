@@ -4,7 +4,7 @@
 #include "menuBack.hpp"
 
 class PauseScreen : public gfx::Scene, public BackgroundRect {
-    gfx::Button resume_button, settings_button, quit_button;
+    gfx::Button resume_button, settings_button, mods_button, quit_button;
     gfx::Rect back_rect;
     gfx::Rect fade_rect;
     void returnToGame();

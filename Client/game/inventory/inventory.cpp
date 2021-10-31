@@ -154,7 +154,7 @@ void ClientInventory::renderItem(ItemStack item, short x, short y) {
 void ClientInventory::selectSlot(char slot) {
     selected_slot = slot;
     sf::Packet packet;
-    packet << PacketType::HOTBAR_SELECTION << selected_slot;
+    packet << ClientPacketType::HOTBAR_SELECTION << selected_slot;
     manager->sendPacket(packet);
 }
 
@@ -164,7 +164,7 @@ char* ClientInventory::loadFromSerial(char* iter) {
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::INVENTORY: {
+        case ServerPacketType::INVENTORY: {
             unsigned short stack;
             unsigned char item_id;
             short pos;
@@ -195,7 +195,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 unsigned char result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
                 inventory.setItem(-1, ItemStack());
                 sf::Packet packet;
-                packet << PacketType::INVENTORY_SWAP << result;
+                packet << ClientPacketType::INVENTORY_SWAP << result;
                 manager->sendPacket(packet);
             }
             return true;
@@ -203,12 +203,12 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
             if(hovered != -1) {
                 inventory.swapWithMouseItem(hovered);
                 sf::Packet packet;
-                packet << PacketType::INVENTORY_SWAP << (unsigned char)hovered;
+                packet << ClientPacketType::INVENTORY_SWAP << (unsigned char)hovered;
                 manager->sendPacket(packet);
                 return true;
             } else if(hovered_recipe != -1) {
                 sf::Packet packet;
-                packet << PacketType::CRAFT << (unsigned char)hovered_recipe;
+                packet << ClientPacketType::CRAFT << (unsigned char)hovered_recipe;
                 manager->sendPacket(packet);
                 return true;
             }

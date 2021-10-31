@@ -11,7 +11,7 @@ void BlockSelector::render() {
     if(!getKeyState(gfx::Key::MOUSE_LEFT) && is_left_button_pressed) {
         is_left_button_pressed = false;
         sf::Packet packet;
-        packet << PacketType::STOPPED_BREAKING;
+        packet << ClientPacketType::STOPPED_BREAKING;
         manager->sendPacket(packet);
         prev_selected_x = blocks->getWidth();
         prev_selected_y = blocks->getHeight();
@@ -21,7 +21,7 @@ void BlockSelector::render() {
     selected_block_y = (int)((getMouseY() + blocks->view_y - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
     if((selected_block_x != prev_selected_x || selected_block_y != prev_selected_y) && is_left_button_pressed) {
         sf::Packet packet;
-        packet << PacketType::STARTED_BREAKING << selected_block_x << selected_block_y;
+        packet << ClientPacketType::STARTED_BREAKING << selected_block_x << selected_block_y;
         manager->sendPacket(packet);
         
         prev_selected_x = selected_block_x;
@@ -42,7 +42,7 @@ bool BlockSelector::onKeyDown(gfx::Key key) {
 
         if(selected_block_x < starting_x || selected_block_x > ending_x || selected_block_y < starting_y || selected_block_y > ending_y) {
             sf::Packet packet;
-            packet << PacketType::RIGHT_CLICK << selected_block_x << selected_block_y;
+            packet << ClientPacketType::RIGHT_CLICK << selected_block_x << selected_block_y;
             manager->sendPacket(packet);
         }
         

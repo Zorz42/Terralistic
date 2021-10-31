@@ -8,6 +8,29 @@
 #include "updater.hpp"
 #include "versions.hpp"
 
+void processScaleChoice(int scale) {
+    switch(scale) {
+        case 0:
+            gfx::setGlobalScale(0.5);
+            break;
+        case 1:
+            gfx::setGlobalScale(1);
+            break;
+        case 2:
+            gfx::setGlobalScale(2);
+            break;
+    }
+}
+
+class ScaleChangeListener : public EventListener<SettingChangeEvent> {
+    ChoiceSetting* scale_setting;
+    void onEvent(SettingChangeEvent& event) override {
+        processScaleChoice(scale_setting->getSelectedChoice());
+    }
+public:
+    ScaleChangeListener(ChoiceSetting* scale_setting) : scale_setting(scale_setting) {}
+};
+
 
 int main(int argc, char **argv) {
     srand((unsigned int)time(0));
@@ -23,7 +46,15 @@ int main(int argc, char **argv) {
     
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
     
-    loadSettings();
+    Settings settings;
+    ChoiceSetting scale_setting("Scale", {"Small", "Normal", "Large"}, 1);
+    settings.addSetting(&scale_setting);
+    
+    processScaleChoice(scale_setting.getSelectedChoice());
+    
+    ScaleChangeListener scale_change_listener(&scale_setting);
+    scale_setting.setting_change_event.addListener(&scale_change_listener);
+    
     initProperties();
     
     MenuBack menu_back;
@@ -39,7 +70,10 @@ int main(int argc, char **argv) {
     }
 #endif
     MainMenu(&menu_back).run();
-
+    
+    settings.removeSetting(&scale_setting);
+    scale_setting.setting_change_event.removeListener(&scale_change_listener);
+    
     gfx::quit();
 
     return 0;

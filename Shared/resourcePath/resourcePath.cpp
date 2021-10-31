@@ -10,7 +10,7 @@ std::string removeEndUntilChars(std::string string, const std::set<char>& chars)
     return string;
 }
 
-std::string returnRndUntilChars(std::string string, const std::set<char>& chars) {
+std::string returnEndUntilChars(std::string string, const std::set<char>& chars) {
     int iter = (int)string.size() - 1;
     while(chars.count(string[iter]) == 0 && iter != 0)
         iter--;
@@ -21,7 +21,7 @@ std::string getResourcePath(std::string executable_path) {
     std::string parent_directory = removeEndUntilChars(std::move(executable_path), {'/', '\\'});
 
     std::string parent_parent_directory = removeEndUntilChars(parent_directory, {'/', '\\'}) + "/";
-    std::string parent_directory_name = returnRndUntilChars(parent_directory, {'/', '\\'});
+    std::string parent_directory_name = returnEndUntilChars(parent_directory, {'/', '\\'});
 
     if(parent_directory.empty())
         parent_directory = ".";

@@ -14,7 +14,7 @@ void ClientPlayers::render() {
         if(entity->type == EntityType::PLAYER) {
             ClientPlayer* player = (ClientPlayer*)entity;
             render(*player);
-            if(player->has_moved_x && player->isTouchingGround(blocks) && rand() % 2 == 0) {
+            if(player->has_moved_x && player->isTouchingGround(blocks) && rand() % 100 < abs(player->getVelocityX()) * 2.5) {
                 Particle particle(&walk_particle, entity->getX() + entity->getWidth() / 2, entity->getY() + entity->getHeight());
                 particle.velocity_x = -player->getVelocityX() / 4 + rand() % int(std::abs(player->getVelocityX())) - std::abs(player->getVelocityX()) / 2;
                 particle.velocity_y = -rand() % int(std::abs(player->getVelocityX()) / 3 * 2) - std::abs(player->getVelocityX()) / 2;
@@ -74,7 +74,7 @@ ClientPlayer* ClientPlayers::getPlayerById(unsigned short id) {
 
 void ClientPlayers::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::PLAYER_JOIN: {
+        case ServerPacketType::PLAYER_JOIN: {
             int x, y;
             unsigned short id;
             unsigned char moving_type;
@@ -88,7 +88,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             
             break;
         }
-        case PacketType::PLAYER_MOVING_TYPE: {
+        case ServerPacketType::PLAYER_MOVING_TYPE: {
             unsigned short id;
             unsigned char moving_type;
             event.packet >> moving_type >> id;
@@ -99,7 +99,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             
             break;
         }
-        case PacketType::PLAYER_JUMPED: {
+        case ServerPacketType::PLAYER_JUMPED: {
             unsigned short id;
             event.packet >> id;
             if(id != main_player->id) {

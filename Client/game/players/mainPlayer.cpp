@@ -98,7 +98,7 @@ void ClientPlayers::update(float frame_length) {
             vel_y_change -= JUMP_VELOCITY;
             main_player->has_jumped = true;
             sf::Packet packet;
-            packet << PacketType::PLAYER_JUMPED;
+            packet << ClientPacketType::PLAYER_JUMPED;
             manager->sendPacket(packet);
         }
         
@@ -129,13 +129,13 @@ void ClientPlayers::update(float frame_length) {
             entities->addVelocityY(main_player, vel_y_change);
             
             sf::Packet packet;
-            packet << PacketType::PLAYER_VELOCITY << main_player->getVelocityX() << main_player->getVelocityY();
+            packet << ClientPacketType::PLAYER_VELOCITY << main_player->getVelocityX() << main_player->getVelocityY();
             manager->sendPacket(packet);
         }
         
         if(prev_moving_type != main_player->moving_type) {
             sf::Packet packet;
-            packet << PacketType::PLAYER_MOVING_TYPE << (unsigned char)main_player->moving_type;
+            packet << ClientPacketType::PLAYER_MOVING_TYPE << (unsigned char)main_player->moving_type;
             manager->sendPacket(packet);
         }
         

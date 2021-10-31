@@ -1,5 +1,6 @@
 #include "pauseScreen.hpp"
-#include "settings.hpp"
+#include "settingsMenu.hpp"
+#include "modManager.hpp"
 
 void PauseScreen::init() {
     resume_button.scale = 3;
@@ -10,9 +11,13 @@ void PauseScreen::init() {
     settings_button.loadFromText("Settings");
     settings_button.y = resume_button.y + resume_button.getHeight() + SPACING;
     
+    mods_button.scale = 3;
+    mods_button.loadFromText("Mods");
+    mods_button.y = settings_button.y + settings_button.getHeight() + SPACING;
+    
     quit_button.scale = 3;
     quit_button.loadFromText("Leave Game");
-    quit_button.y = settings_button.y + settings_button.getHeight() + SPACING;
+    quit_button.y = mods_button.y + mods_button.getHeight() + SPACING;
     
     back_rect.fill_color.a = TRANSPARENCY;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
@@ -33,8 +38,12 @@ bool PauseScreen::onKeyDown(gfx::Key key) {
             returnToGame();
             return true;
         } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
-            Settings settings(this);
+            SettingsMenu settings(this);
             switchToScene(settings);
+            return true;
+        } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
+            ModManager mod_manager(this);
+            switchToScene(mod_manager);
             return true;
         } else if(quit_button.isHovered(getMouseX(), getMouseY())) {
             exitToMenu();
@@ -67,9 +76,11 @@ void PauseScreen::renderBackground() {
 void PauseScreen::renderButtons() {
     resume_button.x = back_rect.getX() + SPACING;
     quit_button.x = back_rect.getX() + SPACING;
+    mods_button.x = back_rect.getX() + SPACING;
     settings_button.x = back_rect.getX() + SPACING;
     resume_button.render(getMouseX(), getMouseY());
     settings_button.render(getMouseX(), getMouseY());
+    mods_button.render(getMouseX(), getMouseY());
     quit_button.render(getMouseX(), getMouseY());
     
     if(returning_to_game) {

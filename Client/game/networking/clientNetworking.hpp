@@ -7,9 +7,9 @@
 
 class ClientPacketEvent {
 public:
-    ClientPacketEvent(sf::Packet& packet, PacketType packet_type) : packet(packet), packet_type(packet_type) {}
+    ClientPacketEvent(sf::Packet& packet, ServerPacketType packet_type) : packet(packet), packet_type(packet_type) {}
     sf::Packet& packet;
-    PacketType packet_type;
+    ServerPacketType packet_type;
 };
 
 class WelcomePacketEvent {

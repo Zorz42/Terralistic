@@ -50,7 +50,7 @@ class Blocks {
     Block* getBlock(int x, int y);
 public:
     void create(int width, int height);
-    
+
     const BlockInfo& getBlockInfo(int x, int y);
     BlockType getBlockType(int x, int y);
     void setBlockType(int x, int y, BlockType type);

@@ -2,7 +2,7 @@
 #include "print.hpp"
 
 void ServerChat::onEvent(ServerPacketEvent &event) {
-    if(event.packet_type == PacketType::CHAT) {
+    if(event.packet_type == ClientPacketType::CHAT) {
         std::string message;
         event.packet >> message;
         
@@ -16,7 +16,7 @@ void ServerChat::onEvent(ServerPacketEvent &event) {
         print::info(chat_format);
         
         sf::Packet chat_packet;
-        chat_packet << PacketType::CHAT << chat_format;
+        chat_packet << ServerPacketType::CHAT << chat_format;
         networking->sendToEveryone(chat_packet);
     }
 }

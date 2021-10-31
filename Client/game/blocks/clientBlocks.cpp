@@ -45,6 +45,8 @@ ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networ
     stateFunctions[(int)BlockType::SNOWY_GRASS_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::SNOW_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
     stateFunctions[(int)BlockType::ICE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
+    stateFunctions[(int)BlockType::IRON_ORE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
+    stateFunctions[(int)BlockType::COPPER_ORE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
 }
 
 int ClientBlocks::getViewBeginX() const {
@@ -65,7 +67,7 @@ int ClientBlocks::getViewEndY() const {
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
-        case PacketType::BLOCK: {
+        case ServerPacketType::BLOCK: {
             int x, y;
             unsigned char block_type;
             event.packet >> x >> y >> block_type;
@@ -73,13 +75,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             setBlockType(x, y, (BlockType)block_type);
             break;
         }
-        case PacketType::STARTED_BREAKING: {
+        case ServerPacketType::STARTED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             startBreakingBlock(x, y);
             break;
         }
-        case PacketType::STOPPED_BREAKING: {
+        case ServerPacketType::STOPPED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             stopBreakingBlock(x, y);

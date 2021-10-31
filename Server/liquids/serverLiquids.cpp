@@ -22,6 +22,6 @@ void ServerLiquids::stop() {
 
 void ServerLiquids::onEvent(LiquidChangeEvent& event) {
     sf::Packet packet;
-    packet << PacketType::LIQUID << event.x << event.y << (unsigned char)getLiquidType(event.x, event.y) << getLiquidLevel(event.x, event.y);
+    packet << ServerPacketType::LIQUID << event.x << event.y << (unsigned char)getLiquidType(event.x, event.y) << getLiquidLevel(event.x, event.y);
     networking->sendToEveryone(packet);
 }

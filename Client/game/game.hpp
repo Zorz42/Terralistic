@@ -10,7 +10,7 @@
 #include "blockSelector.hpp"
 #include "debugMenu.hpp"
 #include "chat.hpp"
-#include "Minimap.hpp"
+#include "minimap.hpp"
 #include "clientBlocks.hpp"
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"

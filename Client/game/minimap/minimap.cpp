@@ -22,6 +22,8 @@ void Minimap::init() {
     block_colors[(int)BlockType::SNOWY_GRASS_BLOCK] = {217, 217, 217, 255};
     block_colors[(int)BlockType::SNOW_BLOCK] = {242, 242, 242, 255};
     block_colors[(int)BlockType::ICE] = {179, 217, 255, 255};
+    block_colors[(int)BlockType::IRON_ORE] = {160, 160, 160, 255};
+    block_colors[(int)BlockType::COPPER_ORE] = {200,109,61};
     
     liquid_colors[(int)LiquidType::EMPTY] = {0, 0, 0, 0};
     liquid_colors[(int)LiquidType::WATER] = {0, 92, 230, 150};

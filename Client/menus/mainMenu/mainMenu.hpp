@@ -4,7 +4,7 @@
 #include "menuBack.hpp"
 
 class MainMenu : public gfx::Scene {
-    gfx::Button singleplayer_button, multiplayer_button, settings_button, exit_button;
+    gfx::Button singleplayer_button, multiplayer_button, settings_button, mods_button, exit_button;
     gfx::Sprite title, version;
     MenuBack* menu_back;
     gfx::Sprite debug_title;

@@ -6,6 +6,34 @@
 #include "entities.hpp"
 #include "serverChat.hpp"
 
+class Command {
+public:
+    Blocks* blocks;
+    Entities* entities;
+    ServerPlayers* players;
+    Command(Blocks* blocks, Entities* entities, ServerPlayers* players) : blocks(blocks), entities(entities), players(players) {}
+    std::string indetifier;
+    virtual void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) = 0;
+};
+
+class SetblockCommand : public Command {
+public:
+    SetblockCommand(Blocks* blocks, Entities* entities, ServerPlayers* players) : Command(blocks, entities, players) { indetifier = "setblock"; }
+    void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
+class TpCommand : public Command {
+public:
+    TpCommand(Blocks* blocks, Entities* entities, ServerPlayers* players) : Command(blocks, entities, players) { indetifier = "tp"; }
+    void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
+class GiveCommand : public Command {
+public:
+    GiveCommand(Blocks* blocks, Entities* entities, ServerPlayers* players) : Command(blocks, entities, players) { indetifier = "give"; }
+    void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
 class Commands : public ServerModule, EventListener<ServerChatEvent> {
     void onEvent(ServerChatEvent& event) override;
     
@@ -15,16 +43,15 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     Entities* entities;
     ServerChat* chat;
     
+    SetblockCommand setblock_command;
+    TpCommand tp_command;
+    GiveCommand give_command;
+    std::vector<Command*> commands;
+    
     void init() override;
     void stop() override;
 public:
-    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat) {}
+    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, players), tp_command(blocks, entities, players), give_command(blocks, entities, players) {}
     
     void startCommand(std::string message, ServerPlayer* player);
-    void changeBlock(std::vector<std::string>& message);
-    void formatLocation(std::vector<std::string>& message, ServerPlayer* player, unsigned char start_format);
-    void formatBlockType(std::string& type);
-    void formatItemType(std::string& type);
-    void teleport(ServerPlayer*, int x, int y);
-    void giveItem(std::vector<std::string>& message, ServerPlayer* player);
 };

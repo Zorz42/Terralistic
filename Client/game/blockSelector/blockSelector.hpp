@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphics.hpp"
-#include "clientBLocks.hpp"
+#include "clientBlocks.hpp"
 #include "clientInventory.hpp"
 #include "clientPlayers.hpp"
 
