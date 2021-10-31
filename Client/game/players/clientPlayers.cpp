@@ -14,7 +14,7 @@ void ClientPlayers::render() {
         if(entity->type == EntityType::PLAYER) {
             ClientPlayer* player = (ClientPlayer*)entity;
             render(*player);
-            if(player->has_moved_x && player->isTouchingGround(blocks) && rand() % 2 == 0) {
+            if(player->has_moved_x && player->isTouchingGround(blocks) && rand() % 100 < abs(player->getVelocityX()) * 2.5) {
                 Particle particle(&walk_particle, entity->getX() + entity->getWidth() / 2, entity->getY() + entity->getHeight());
                 particle.velocity_x = -player->getVelocityX() / 4 + rand() % int(std::abs(player->getVelocityX())) - std::abs(player->getVelocityX()) / 2;
                 particle.velocity_y = -rand() % int(std::abs(player->getVelocityX()) / 3 * 2) - std::abs(player->getVelocityX()) / 2;
