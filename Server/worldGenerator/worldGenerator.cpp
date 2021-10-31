@@ -7,6 +7,7 @@
 
 int WorldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
     siv::PerlinNoise noise(seed);
+    std::mt19937 seeded_random(seed);
     surface_height = new unsigned short[world_width];
     blocks->create(world_width, world_height);
     liquids->create();
@@ -18,9 +19,8 @@ int WorldGenerator::generateWorld(unsigned short world_width, unsigned short wor
     } else {
         generating_total = blocks->getWidth() * 3;
         loadBiomes();
-        generateDeafultWorld(noise);
+        generateDeafultWorld(noise, seeded_random);
     }
-    //delete[] surface_height;
     return 0;
 }
 
@@ -59,12 +59,17 @@ void WorldGenerator::generateBiomes(unsigned int x, siv::PerlinNoise& noise) {
 
 void WorldGenerator::terrainGenerator(int x, siv::PerlinNoise& noise) {
     generateSurface(x, noise);
-    for(auto &checking_structure : loaded_biomes[(int)biomes->biomes[x]].structure_chances){
-        if((noise.noise2D((float)x + 0.5, (float)surface_height[x] + 0.5) + 1) * checking_structure.chance_on_each_block <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance_between_instances) {
-            structurePositions.emplace_back(structurePosition(checking_structure.structure_name +
-                                         std::to_string((int)((noise.noise2D((float)x - 0.5, (float)surface_height[x] - 0.5) + 1) / 2 * checking_structure.unique_structures_of_type)),
-                                         x, surface_height[x] - 1));
-            checking_structure.x_of_last_instance = x;
+}
+
+void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
+    for(int x = 0; x < blocks->getWidth(); x++) {
+        for (auto &checking_structure: loaded_biomes[(int) biomes->biomes[x]].structure_chances) {
+            if ((noise.noise2D((float) x + 0.5, (float) surface_height[x] + 0.5) + 1) * checking_structure.chance_on_each_block <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance_between_instances) {
+                structurePositions.emplace_back(structurePosition(checking_structure.structure_name +
+                                                                  std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) surface_height[x] - 0.5) + 1) / 2 * checking_structure.unique_structures_of_type)),
+                                                                  x, surface_height[x] - 1));
+                checking_structure.x_of_last_instance = x;
+            }
         }
     }
 }
@@ -288,19 +293,18 @@ void WorldGenerator::generateBlockSavanaMountains(unsigned int x, unsigned int y
 
 void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
     for(unsigned int x = 0; x < blocks->getWidth(); x++) {
-        for (unsigned int y = surface_height[x]; y > 0; --y) {
-            float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(std::max((float)0, ((float)blocks->getHeight() / 3 * 2 - y) / 300), (float)1);
+        for (unsigned int y = blocks->getHeight() - surface_height[x] - 1; y < blocks->getHeight(); y++) {
+            float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(std::max((float)0, ((float)blocks->getHeight() / 3 - y) / 300), (float)1);
             if (value > 0.3) {
-                blocks->setBlockTypeSilently(x, blocks->getHeight() - y, BlockType::AIR);
-                if (y == surface_height[x])
-                    surface_height--;
+                blocks->setBlockTypeSilently(x, y, BlockType::AIR);
+                if (y == blocks->getHeight() - surface_height[x])
+                    surface_height[x]--;
             }else {
                 value = turbulence((double) x / 4 + blocks->getWidth() * 3, (double)y / 2 + blocks->getHeight() * 3, 64, noise);
-                int multiply = std::min((float)1, std::max((float)0, (float)(y - surface_height[x]) / 100));
-                if (value > -0.05 * multiply && value < 0.05 * multiply) {
-                    blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, BlockType::AIR);
-                    if (y == surface_height[x])
-                        surface_height--;
+                if (value > -0.05 && value < 0.05) {
+                    blocks->setBlockTypeSilently(x, y, BlockType::AIR);
+                    if (y == blocks->getHeight() - surface_height[x])
+                        surface_height[x]--;
                 }
             }
         }
@@ -308,12 +312,10 @@ void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
     }
 }
 
-void WorldGenerator::generateCaveLakes(siv::PerlinNoise &noise) {
-    for(int i = 0; i < 10000; i++){
-        //unsigned int x = (unsigned int)(noise.noise1D_0_1(i + 124.5) * blocks->getWidth());
-        //unsigned int y = blocks->getHeight() - (unsigned int)(noise.noise1D_0_1(i - 137.5) * blocks->getHeight() / 3 * 2) - 1;
-        unsigned int x = (unsigned int)(random() % blocks->getWidth());
-        unsigned int y = blocks->getHeight() - (unsigned int)(random() % blocks->getHeight() / 3 * 2) - 1;
+void WorldGenerator::generateCaveLakes(std::mt19937& seeded_random) {
+    for(int i = 0; i < 500; i++){
+        unsigned int x = seeded_random() % blocks->getWidth();
+        unsigned int y = seeded_random() % (blocks->getHeight() / 3 * 2) + blocks->getHeight() / 3;
         if(blocks->getBlockType(x, y) == BlockType::AIR){
             while(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == BlockType::AIR)
                 y++;
@@ -334,13 +336,14 @@ void WorldGenerator::generateLakeRecursively(int x, int y) {
         generateLakeRecursively(x + 1, y);
 }
 
-void WorldGenerator::generateOres(siv::PerlinNoise& noise) {
-    generateOre(BlockType::IRON_ORE, 0.75, 15, noise);
+void WorldGenerator::generateOres(siv::PerlinNoise& noise, std::mt19937& seeded_random) {
+    generateOre(BlockType::IRON_ORE, 0.75, 15, noise, seeded_random);
+    generateOre(BlockType::COPPER_ORE, 0.75, 15, noise, seeded_random);
 }
 
-void WorldGenerator::generateOre(BlockType type,float chance, int blob_distance, siv::PerlinNoise& noise){
-    int offset_x = noise.noise1D((int)type + 0.5) * 500;
-    int offset_y = noise.noise1D((int)type - 0.5) * 200;
+void WorldGenerator::generateOre(BlockType type,float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random){
+    int offset_x = seeded_random() % 10000;
+    int offset_y = seeded_random() % 10000;
     for(unsigned int x = 0; x < blocks->getWidth(); x++){
         for(unsigned int y = 0; y < blocks->getHeight(); y++){
             if(blocks->getBlockType(x, blocks->getHeight() - y - 1) == BlockType::STONE_BLOCK &&
@@ -348,6 +351,15 @@ void WorldGenerator::generateOre(BlockType type,float chance, int blob_distance,
                     blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, type);
             }
         }
+    }
+}
+
+void WorldGenerator::generateStones(std::mt19937& seeded_random) {
+    unsigned int x;
+    for(int i = 0; i < 100; i++){
+        x = seeded_random() % blocks->getWidth();
+        if(liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == LiquidType::EMPTY)
+            blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, BlockType::STONE);
     }
 }
 
@@ -438,7 +450,7 @@ void WorldGenerator::generateStructuresForStrWorld() {
     }
 }
 
-void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise) {
+void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random) {
     for (int x = 0; x < blocks->getWidth(); x++) {
         generateBiomes(x, noise);
     }
@@ -448,8 +460,10 @@ void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise) {
         generating_current++;
     }
     generateCaves(noise);
-    generateCaveLakes(noise);
-    generateOres(noise);
+    generateCaveLakes(seeded_random);
+    generateOres(noise, seeded_random);
+    generateStones(seeded_random);
+    placeStructures(noise);
     for (const structurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }
