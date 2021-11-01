@@ -77,7 +77,7 @@ void WorldStartingScreen::render() {
     text.render();
 }
 
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world) {
+void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world) {
     unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     Server private_server(gfx::getResourcePath(), world_name, port);
     if(structure_world)
@@ -88,7 +88,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     
     WorldStartingScreen(menu_back, &private_server).run();
 
-    Game(menu_back, "_", "127.0.0.1", port).run();
+    Game(menu_back, settings, "_", "127.0.0.1", port).run();
     
     private_server.stop();
     
@@ -100,9 +100,10 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     server_thread.join();
 }
 
-Game::Game(BackgroundRect* background_rect, const std::string& username, const std::string& ip_address, unsigned short port) :
+Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, unsigned short port) :
     username(username),
     background_rect(background_rect),
+    settings(settings),
     
     networking(ip_address, port, username),
     blocks(&resource_pack, &networking, &lights),
@@ -156,7 +157,7 @@ void Game::renderBack() {
 
 bool Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
-        PauseScreen pause_screen(this);
+        PauseScreen pause_screen(this, settings);
         switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
             returnFromScene();

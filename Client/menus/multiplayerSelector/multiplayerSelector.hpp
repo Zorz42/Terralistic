@@ -2,6 +2,7 @@
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
+#include "settings.hpp"
 
 class MultiplayerSelector : public gfx::Scene {
     void init() override;
@@ -13,6 +14,7 @@ class MultiplayerSelector : public gfx::Scene {
     gfx::TextInput server_ip, username;
     bool can_connect = true;
     BackgroundRect* menu_back;
+    Settings* settings;
 public:
-    explicit MultiplayerSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
+    explicit MultiplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
 };

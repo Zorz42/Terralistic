@@ -2,6 +2,7 @@
 
 #include "graphics.hpp"
 #include "menuBack.hpp"
+#include "settings.hpp"
 
 struct WorldToSelect {
     std::string name;
@@ -27,6 +28,7 @@ class WorldSelector : public gfx::Scene {
     void refresh();
     
     BackgroundRect* menu_back;
+    Settings* settings;
 public:
-    explicit WorldSelector(BackgroundRect* menu_back) : menu_back(menu_back) {}
+    explicit WorldSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
 };

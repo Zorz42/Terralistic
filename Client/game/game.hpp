@@ -16,8 +16,9 @@
 #include "clientLights.hpp"
 #include "naturalLight.hpp"
 #include "particles.hpp"
+#include "settings.hpp"
 
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, bool structure_world);
+void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
 class Game : public gfx::Scene, EventListener<GameErrorEvent>, public BackgroundRect {
     void onEvent(GameErrorEvent& event) override;
@@ -45,6 +46,7 @@ class Game : public gfx::Scene, EventListener<GameErrorEvent>, public Background
     Chat chat;
     DebugMenu debug_menu;
     
+    Settings* settings;
     BackgroundRect* background_rect;
     bool handshake_done = false;
     std::string kick_reason;
@@ -53,7 +55,7 @@ class Game : public gfx::Scene, EventListener<GameErrorEvent>, public Background
     
     void registerAModule(ClientModule* module);
 public:
-    Game(BackgroundRect* background_rect, const std::string& username, const std::string& ip_address, unsigned short port=33770);
+    Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, unsigned short port=33770);
     
     void renderBack() override;
     void setBackWidth(unsigned short width) override { }

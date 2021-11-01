@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 #endif
-    MainMenu(&menu_back).run();
+    MainMenu(&menu_back, &settings).run();
     
     settings.removeSetting(&scale_setting);
     scale_setting.setting_change_event.removeListener(&scale_change_listener);

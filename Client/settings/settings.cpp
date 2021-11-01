@@ -34,3 +34,7 @@ void ChoiceSetting::setSelectedChoice(int choice) {
 Settings::~Settings() {
     assert(settings.empty());
 }
+
+const std::vector<Setting*>& Settings::getSettings() {
+    return settings;
+}

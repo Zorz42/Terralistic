@@ -44,7 +44,7 @@ bool WorldCreator::onKeyDown(gfx::Key key) {
         returnFromScene();
         return true;
     } else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
-        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, world_name.getText() == "StructureWorld");
+        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, settings, world_name.getText() == "StructureWorld");
         returnFromScene();
         return true;
     }

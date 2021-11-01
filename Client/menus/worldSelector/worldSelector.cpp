@@ -120,14 +120,14 @@ bool WorldSelector::onKeyDown(gfx::Key key) {
             std::vector<std::string> worlds_names;
             for(WorldToSelect& world : worlds)
                 worlds_names.push_back(world.name);
-            WorldCreator world_creator(worlds_names, menu_back);
+            WorldCreator world_creator(worlds_names, menu_back, settings);
             switchToScene(world_creator);
             refresh();
         }
         else
             for(auto & world : worlds) {
                 if(world.play_button.isHovered(getMouseX(), getMouseY())) {
-                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world", menu_back, false);
+                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world", menu_back, settings, false);
                     refresh();
                 }
                 else if(world.delete_button.isHovered(getMouseX(), getMouseY())) {

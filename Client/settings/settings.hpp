@@ -6,10 +6,13 @@
 #include "platform_folders.h"
 #include "events.hpp"
 
+enum class SettingType {CHOICE_SETTING};
+
 class SettingChangeEvent {};
 
 class Setting {
 public:
+    SettingType type;
     Setting(const std::string& indent) : indent(indent) {}
     const std::string indent;
     virtual std::string exportToStr() = 0;
@@ -20,7 +23,7 @@ public:
 class ChoiceSetting : public Setting {
     int selected_choice;
 public:
-    ChoiceSetting(const std::string& indent, const std::vector<std::string>& choices, int default_value) : Setting(indent), choices(choices), selected_choice(default_value) {}
+    ChoiceSetting(const std::string& indent, const std::vector<std::string>& choices, int default_value) : Setting(indent), choices(choices), selected_choice(default_value) { type = SettingType::CHOICE_SETTING; };
     const std::vector<std::string> choices;
     int getSelectedChoice();
     void setSelectedChoice(int choice);
@@ -36,5 +39,6 @@ public:
     Settings() : config_file(sago::getDataHome() + "/Terralistic/settings.txt") {}
     void addSetting(Setting* setting);
     void removeSetting(Setting* setting);
+    const std::vector<Setting*>& getSettings();
     ~Settings();
 };
