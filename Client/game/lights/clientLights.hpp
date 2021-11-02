@@ -22,6 +22,7 @@ class ClientLights : public Lights, public ClientModule {
     void stop() override;
     
     BooleanSetting light_enable_setting;
+    BooleanSetting old_light_setting;
 public:
-    ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), light_enable_setting("Light", true) {}
+    ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), light_enable_setting("Light", true), old_light_setting("Old light", false) {}
 };
