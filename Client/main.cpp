@@ -65,6 +65,9 @@ int main(int argc, char **argv) {
     gfx::init(getResourcePath(argv[0]), 1130, 700);
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     gfx::loadFont("pixel_font.ttf", 8);
+#ifndef __APPLE__
+    gfx::loadIconFromFile(gfx::getResourcePath() + "icon.png");
+#endif
     
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
     
@@ -75,7 +78,7 @@ int main(int argc, char **argv) {
     scale_setting.setting_change_event.addListener(&scale_change_listener);
     settings.addSetting(&scale_setting);
     
-    ChoiceSetting fps_setting("FPS limit", {"Vsync", "5", "60", "Unlimited"}, 1);
+    ChoiceSetting fps_setting("FPS limit", {"Vsync", "5", "60", "Unlimited"}, 2);
     FpsChangeListener fps_change_listener(&fps_setting);
     fps_setting.setting_change_event.addListener(&fps_change_listener);
     settings.addSetting(&fps_setting);

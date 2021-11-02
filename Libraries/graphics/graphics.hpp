@@ -235,4 +235,6 @@ namespace gfx {
     void setGlobalScale(float scale);
     void setFpsLimit(int limit);
     void enableVsync(bool enabled);
+
+    void loadIconFromFile(const std::string& path);
 };

@@ -199,3 +199,9 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
 std::string gfx::getResourcePath() {
     return resource_path;
 }
+
+void gfx::loadIconFromFile(const std::string& path) {
+    sf::Image icon;
+    icon.loadFromFile(path);
+    window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+}
