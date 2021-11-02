@@ -18,7 +18,7 @@ void gfx::Scene::onKeyDownCallback(Key key_) {
     if(!key_states[(int)key_]) {
         key_states[(int)key_] = true;
         for(int i = (int)modules.size() - 1; i >= 0; i--)
-            if(modules[i]->onKeyDown(key_))
+            if(modules[i]->enabled && modules[i]->onKeyDown(key_))
                 break;
     }
 }
@@ -102,11 +102,12 @@ void gfx::Scene::onEvent(sf::Event event) {
         bool clicked_text_box = false;
         if (key == Key::MOUSE_LEFT) {
             for (SceneModule* module : modules)
-                for (TextInput* i : module->text_inputs) {
-                    i->active = i->isHovered(getMouseX(), getMouseY());
-                    if (i->active)
-                        clicked_text_box = true;
-                }
+                if(module->enabled)
+                    for (TextInput* i : module->text_inputs) {
+                        i->active = i->isHovered(getMouseX(), getMouseY());
+                        if (i->active)
+                            clicked_text_box = true;
+                    }
         }
         if (key != Key::UNKNOWN && !clicked_text_box)
             onKeyDownCallback(key);
@@ -131,17 +132,19 @@ void gfx::Scene::onEvent(sf::Event event) {
         }
         bool is_textbox_active = false;
         for(SceneModule* module : modules)
-            for(TextInput* i : module->text_inputs)
-                if(i->active)
-                    is_textbox_active = true;
+            if(module->enabled)
+                for(TextInput* i : module->text_inputs)
+                    if(i->active)
+                        is_textbox_active = true;
         
         if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
             onKeyDownCallback(key);
         
         if(is_textbox_active && key == Key::ESCAPE) {
             for(SceneModule* module : modules)
-                for(TextInput* i : module->text_inputs)
-                    i->active = false;
+                if(module->enabled)
+                    for(TextInput* i : module->text_inputs)
+                        i->active = false;
         }
     }
     
@@ -157,17 +160,18 @@ void gfx::Scene::onEvent(sf::Event event) {
             return;
     
         for (SceneModule* module : modules)
-            for (TextInput* i : module->text_inputs)
-                if (i->active) {
-                    char result = c;
-                    if (!i->ignore_next_input) {
-                        if (i->textProcessing)
-                            result = i->textProcessing(result, (int)i->getText().size());
-                        if (result)
-                            i->setText(i->getText() + result);
+            if(module->enabled)
+                for (TextInput* i : module->text_inputs)
+                    if (i->active) {
+                        char result = c;
+                        if (!i->ignore_next_input) {
+                            if (i->textProcessing)
+                                result = i->textProcessing(result, (int)i->getText().size());
+                            if (result)
+                                i->setText(i->getText() + result);
+                        }
+                        i->ignore_next_input = false;
                     }
-                    i->ignore_next_input = false;
-                }
     }
     
     else if (event.type == sf::Event::MouseWheelScrolled)
@@ -183,16 +187,16 @@ void gfx::Scene::run() {
     modules.insert(modules.begin(), this);
     init();
 
-    
     while(running && window->isOpen()) {
         unsigned int start = getTicks();
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
         mouse_y = sf::Mouse::getPosition(*window).y / global_scale;
-        for(SceneModule* module : modules) {
-            module->mouse_x = mouse_x;
-            module->mouse_y = mouse_y;
-        }
+        for(SceneModule* module : modules)
+            if(module->enabled) {
+                module->mouse_x = mouse_x;
+                module->mouse_y = mouse_y;
+            }
         
         sf::Event event;
         while(window->pollEvent(event))
@@ -216,7 +220,8 @@ void gfx::Scene::cycleModules() {
         module->update(frame_length);
     
     for(SceneModule* module : modules)
-        module->render();
+        if(module->enabled)
+            module->render();
 }
 
 void gfx::Scene::returnFromScene() {

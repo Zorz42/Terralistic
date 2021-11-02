@@ -27,6 +27,20 @@ public:
     int getWidth() override;
 };
 
+class RenderBooleanSetting : public RenderSetting {
+    BooleanSetting* const setting;
+    gfx::Button toggle_button;
+    gfx::Sprite text;
+    void onMouseButtonDown(int x, int y) override;
+    void updateButtonText();
+public:
+    RenderBooleanSetting(BooleanSetting* setting);
+    
+    void render(int y, int width, int mouse_x, int mouse_y) override;
+    int getHeight() override;
+    int getWidth() override;
+};
+
 class SettingsMenu : public gfx::Scene {
     gfx::Button back_button;
     

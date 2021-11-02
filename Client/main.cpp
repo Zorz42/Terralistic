@@ -8,27 +8,51 @@
 #include "updater.hpp"
 #include "versions.hpp"
 
-void processScaleChoice(int scale) {
-    switch(scale) {
-        case 0:
-            gfx::setGlobalScale(0.5);
-            break;
-        case 1:
-            gfx::setGlobalScale(1);
-            break;
-        case 2:
-            gfx::setGlobalScale(2);
-            break;
-    }
-}
-
 class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     ChoiceSetting* scale_setting;
     void onEvent(SettingChangeEvent& event) override {
-        processScaleChoice(scale_setting->getSelectedChoice());
+        switch(scale_setting->getSelectedChoice()) {
+            case 0:
+                gfx::setGlobalScale(0.5);
+                break;
+            case 1:
+                gfx::setGlobalScale(1);
+                break;
+            case 2:
+                gfx::setGlobalScale(2);
+                break;
+        }
     }
 public:
     ScaleChangeListener(ChoiceSetting* scale_setting) : scale_setting(scale_setting) {}
+};
+
+class FpsChangeListener : public EventListener<SettingChangeEvent> {
+    ChoiceSetting* fps_setting;
+    void onEvent(SettingChangeEvent& event) override {
+        switch(fps_setting->getSelectedChoice()) {
+            case 0:
+                gfx::setFpsLimit(5);
+                break;
+            case 1:
+                gfx::setFpsLimit(60);
+                break;
+            case 2:
+                gfx::setFpsLimit(120);
+                break;
+        }
+    }
+public:
+    FpsChangeListener(ChoiceSetting* fps_setting) : fps_setting(fps_setting) {}
+};
+
+class VsyncToggleListener : public EventListener<SettingChangeEvent> {
+    BooleanSetting* vsync_setting;
+    void onEvent(SettingChangeEvent& event) override {
+        gfx::enableVsync(vsync_setting->getValue());
+    }
+public:
+    VsyncToggleListener(BooleanSetting* vsync_setting) : vsync_setting(vsync_setting) {}
 };
 
 
@@ -47,13 +71,21 @@ int main(int argc, char **argv) {
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
     
     Settings settings;
+    
     ChoiceSetting scale_setting("Scale", {"Small", "Normal", "Large"}, 1);
-    settings.addSetting(&scale_setting);
-    
-    processScaleChoice(scale_setting.getSelectedChoice());
-    
     ScaleChangeListener scale_change_listener(&scale_setting);
     scale_setting.setting_change_event.addListener(&scale_change_listener);
+    settings.addSetting(&scale_setting);
+    
+    ChoiceSetting fps_setting("FPS limit", {"5", "60", "120"}, 1);
+    FpsChangeListener fps_change_listener(&fps_setting);
+    fps_setting.setting_change_event.addListener(&fps_change_listener);
+    settings.addSetting(&fps_setting);
+    
+    BooleanSetting vsync_setting("Vsync", true);
+    VsyncToggleListener vsync_toggle_listener(&vsync_setting);
+    vsync_setting.setting_change_event.addListener(&vsync_toggle_listener);
+    settings.addSetting(&vsync_setting);
     
     initProperties();
     
@@ -73,6 +105,12 @@ int main(int argc, char **argv) {
     
     settings.removeSetting(&scale_setting);
     scale_setting.setting_change_event.removeListener(&scale_change_listener);
+    
+    settings.removeSetting(&fps_setting);
+    fps_setting.setting_change_event.removeListener(&fps_change_listener);
+    
+    settings.removeSetting(&vsync_setting);
+    vsync_setting.setting_change_event.removeListener(&vsync_toggle_listener);
     
     gfx::quit();
 

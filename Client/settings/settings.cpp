@@ -1,12 +1,12 @@
 #include "settings.hpp"
 #include <cassert>
 
-std::string ChoiceSetting::exportToStr() {
-    return std::to_string(getSelectedChoice());
+Settings::~Settings() {
+    assert(settings.empty());
 }
 
-void ChoiceSetting::loadFromStr(std::string value) {
-    setSelectedChoice(std::stoi(value));
+const std::vector<Setting*>& Settings::getSettings() {
+    return settings;
 }
 
 void Settings::addSetting(Setting* setting) {
@@ -20,6 +20,14 @@ void Settings::removeSetting(Setting* setting) {
     config_file.setStr(setting->indent, setting->exportToStr());
 }
 
+std::string ChoiceSetting::exportToStr() {
+    return std::to_string(getSelectedChoice());
+}
+
+void ChoiceSetting::loadFromStr(std::string value) {
+    setSelectedChoice(std::stoi(value));
+}
+
 int ChoiceSetting::getSelectedChoice() {
     return selected_choice;
 }
@@ -31,10 +39,21 @@ void ChoiceSetting::setSelectedChoice(int choice) {
     setting_change_event.call(event);
 }
 
-Settings::~Settings() {
-    assert(settings.empty());
+std::string BooleanSetting::exportToStr() {
+    return std::to_string(getValue());
 }
 
-const std::vector<Setting*>& Settings::getSettings() {
-    return settings;
+void BooleanSetting::loadFromStr(std::string value_) {
+    setValue(std::stoi(value_));
+}
+
+bool BooleanSetting::getValue() {
+    return value;
+}
+
+void BooleanSetting::setValue(bool new_value) {
+    value = new_value;
+    
+    SettingChangeEvent event;
+    setting_change_event.call(event);
 }

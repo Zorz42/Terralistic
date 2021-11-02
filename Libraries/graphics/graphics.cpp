@@ -40,8 +40,6 @@ void gfx::init(const std::string& resource_path_, unsigned short window_width, u
     resource_path = resource_path_;
     
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
-    window->setVerticalSyncEnabled(true);
-    window->setFramerateLimit(70);
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 
@@ -173,6 +171,14 @@ void gfx::sleep(unsigned short ms) {
 void gfx::setGlobalScale(float scale) {
     global_scale = scale;
     setWindowSize(getWindowWidth(), getWindowHeight());
+}
+
+void gfx::setFpsLimit(int limit) {
+    window->setFramerateLimit(limit);
+}
+
+void gfx::enableVsync(bool enabled) {
+    window->setVerticalSyncEnabled(enabled);
 }
 
 void gfx::setWindowSize(unsigned short width, unsigned short height) {

@@ -154,7 +154,7 @@ namespace gfx {
         Color def_color = GFX_DEFAULT_BUTTON_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR;
         bool isHovered(unsigned short mouse_x, unsigned short mouse_y) const;
         bool disabled = false;
-        unsigned char hover_progress = 0;
+        float hover_progress = 0;
         void render(unsigned short mouse_x, unsigned short mouse_y);
     };
 
@@ -195,6 +195,7 @@ namespace gfx {
         virtual void onMouseScroll(int distance) {}
         short getMouseX();
         short getMouseY();
+        bool enabled = true;
         
         std::vector<TextInput*> text_inputs;
     };
@@ -232,4 +233,6 @@ namespace gfx {
     void sleep(unsigned short ms);
     
     void setGlobalScale(float scale);
+    void setFpsLimit(int limit);
+    void enableVsync(bool enabled);
 };

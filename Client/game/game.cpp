@@ -116,7 +116,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, username),
     block_selector(&networking, &blocks, &players),
     inventory(&networking, &resource_pack),
-    minimap(&blocks, &liquids, &lights, &natural_light),
+    minimap(settings, &blocks, &liquids, &lights, &natural_light),
     chat(&networking),
     debug_menu(&players, &blocks)
 {

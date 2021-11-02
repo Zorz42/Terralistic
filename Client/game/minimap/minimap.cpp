@@ -29,6 +29,16 @@ void Minimap::init() {
     liquid_colors[(int)LiquidType::WATER] = {0, 92, 230, 150};
     
     minimap_texture.create(MINIMAP_SIZE, MINIMAP_SIZE);
+    
+    settings->addSetting(&minimap_toggle_setting);
+}
+
+void Minimap::stop() {
+    settings->removeSetting(&minimap_toggle_setting);
+}
+
+void Minimap::update(float frame_length) {
+    enabled = minimap_toggle_setting.getValue();
 }
 
 void Minimap::render() {

@@ -6,7 +6,7 @@
 #include "platform_folders.h"
 #include "events.hpp"
 
-enum class SettingType {CHOICE_SETTING};
+enum class SettingType {CHOICE_SETTING, BOOLEAN_SETTING};
 
 class SettingChangeEvent {};
 
@@ -27,6 +27,17 @@ public:
     const std::vector<std::string> choices;
     int getSelectedChoice();
     void setSelectedChoice(int choice);
+    
+    std::string exportToStr() override;
+    void loadFromStr(std::string value) override;
+};
+
+class BooleanSetting : public Setting {
+    bool value;
+public:
+    BooleanSetting(const std::string& indent, bool default_value) : Setting(indent), value(default_value) { type = SettingType::BOOLEAN_SETTING; };
+    bool getValue();
+    void setValue(bool new_value);
     
     std::string exportToStr() override;
     void loadFromStr(std::string value) override;

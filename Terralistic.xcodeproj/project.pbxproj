@@ -942,9 +942,9 @@
 			isa = PBXGroup;
 			children = (
 				167A2A802712DB9A0022F8F2 /* clientModule.hpp */,
+				1679733A2712300F00E90477 /* blocks */,
 				365721D026D07180005AB3CC /* networking */,
 				365721E426D07180005AB3CC /* resourcePack */,
-				1679733A2712300F00E90477 /* blocks */,
 				169D0DF7271C101400F1D484 /* particles */,
 				1679733B2712301400E90477 /* liquids */,
 				1679733C2712301900E90477 /* lights */,

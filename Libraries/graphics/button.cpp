@@ -16,12 +16,12 @@ bool gfx::Button::isHovered(unsigned short mouse_x, unsigned short mouse_y) cons
 void gfx::Button::render(unsigned short mouse_x, unsigned short mouse_y) {
     RectShape rect = getTranslatedRect();
     int hover_progress_target = isHovered(mouse_x, mouse_y) ? 255 : 0;
-    hover_progress += (hover_progress_target - (int)hover_progress) / 2;
+    hover_progress += float(hover_progress_target - (int)hover_progress) / 4;
     Color button_color{
-        (unsigned char)((int)hover_color.r * (int)hover_progress / 255 + (int)def_color.r * (int)(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.g * (int)hover_progress / 255 + (int)def_color.g * (int)(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.b * (int)hover_progress / 255 + (int)def_color.b * (int)(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.a * (int)hover_progress / 255 + (int)def_color.a * (int)(255 - hover_progress) / 255),
+        (unsigned char)((int)hover_color.r * hover_progress / 255 + (int)def_color.r * float(255 - hover_progress) / 255),
+        (unsigned char)((int)hover_color.g * hover_progress / 255 + (int)def_color.g * float(255 - hover_progress) / 255),
+        (unsigned char)((int)hover_color.b * hover_progress / 255 + (int)def_color.b * float(255 - hover_progress) / 255),
+        (unsigned char)((int)hover_color.a * hover_progress / 255 + (int)def_color.a * float(255 - hover_progress) / 255),
     };
     rect.render(button_color);
     float ms = margin * scale;
