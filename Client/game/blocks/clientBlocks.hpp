@@ -46,5 +46,7 @@ public:
     void setState(int x, int y, unsigned char state);
     unsigned char getState(int x, int y);
     
+    bool skip_rendering_in_dark = true;
+    
     ~ClientBlocks();
 };

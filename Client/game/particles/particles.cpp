@@ -85,9 +85,19 @@ void Particle::update(Blocks* blocks, float frame_length) {
         x = x_to_be;
 }
 
+void Particles::init() {
+    settings->addSetting(&particle_enable_setting);
+}
+
+void Particles::stop() {
+    settings->removeSetting(&particle_enable_setting);
+}
+
 void Particles::update(float frame_length) {
-    for(Particle& particle : particles)
-        particle.update(blocks, frame_length);
+    enabled = particle_enable_setting.getValue();
+    if(enabled)
+        for(Particle& particle : particles)
+            particle.update(blocks, frame_length);
 }
 
 void Particles::render() {

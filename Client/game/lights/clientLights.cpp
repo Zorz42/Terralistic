@@ -1,6 +1,9 @@
 #include "clientLights.hpp"
 
 void ClientLights::init() {
+#if DEVELOPER_MODE
+    settings->addSetting(&light_enable_setting);
+#endif
     Lights::init();
 }
 
@@ -9,7 +12,10 @@ void ClientLights::postInit() {
 }
 
 void ClientLights::update(float frame_length) {
-    bool finished = false;
+    enabled = light_enable_setting.getValue();
+    blocks->skip_rendering_in_dark = enabled;
+    
+    bool finished = !enabled;
     while(!finished) {
         finished = true;
         for(int y = blocks->getViewBeginY(); y < blocks->getViewEndY(); y++)
@@ -52,5 +58,8 @@ void ClientLights::render() {
 }
 
 void ClientLights::stop() {
+#if DEVELOPER_MODE
+    settings->removeSetting(&light_enable_setting);
+#endif
     Lights::stop();
 }

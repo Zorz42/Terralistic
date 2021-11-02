@@ -1,6 +1,7 @@
 #pragma once
 
 #include "clientBlocks.hpp"
+#include "settings.hpp"
 
 class ParticleInfo {
 public:
@@ -40,13 +41,18 @@ public:
 inline const WalkParticle walk_particle;
 
 class Particles : public ClientModule {
+    Settings* settings;
     ClientBlocks* blocks;
     std::vector<Particle> particles;
     
+    void init() override;
+    void stop() override;
     void update(float frame_length) override;
     void render() override;
+    
+    BooleanSetting particle_enable_setting;
 public:
-    Particles(ClientBlocks* blocks) : blocks(blocks) {}
+    Particles(Settings* settings, ClientBlocks* blocks) : settings(settings), blocks(blocks), particle_enable_setting("Particles", true) {}
     
     void spawnParticle(Particle particle);
 };

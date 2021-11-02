@@ -107,9 +107,9 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     
     networking(ip_address, port, username),
     blocks(&resource_pack, &networking, &lights),
-    particles(&blocks),
+    particles(settings, &blocks),
     liquids(&blocks, &resource_pack, &networking),
-    lights(&blocks, &resource_pack),
+    lights(settings, &blocks, &resource_pack),
     natural_light(&networking, &blocks, &lights),
     entities(&blocks, &networking),
     items(&resource_pack, &blocks, &entities, &networking),
