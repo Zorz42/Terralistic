@@ -32,27 +32,25 @@ class FpsChangeListener : public EventListener<SettingChangeEvent> {
     void onEvent(SettingChangeEvent& event) override {
         switch(fps_setting->getSelectedChoice()) {
             case 0:
-                gfx::setFpsLimit(5);
+                gfx::enableVsync(true);
+                gfx::setFpsLimit(0);
                 break;
             case 1:
-                gfx::setFpsLimit(60);
+                gfx::enableVsync(false);
+                gfx::setFpsLimit(5);
                 break;
             case 2:
-                gfx::setFpsLimit(120);
+                gfx::enableVsync(false);
+                gfx::setFpsLimit(60);
+                break;
+            case 3:
+                gfx::enableVsync(false);
+                gfx::setFpsLimit(0);
                 break;
         }
     }
 public:
     FpsChangeListener(ChoiceSetting* fps_setting) : fps_setting(fps_setting) {}
-};
-
-class VsyncToggleListener : public EventListener<SettingChangeEvent> {
-    BooleanSetting* vsync_setting;
-    void onEvent(SettingChangeEvent& event) override {
-        gfx::enableVsync(vsync_setting->getValue());
-    }
-public:
-    VsyncToggleListener(BooleanSetting* vsync_setting) : vsync_setting(vsync_setting) {}
 };
 
 
@@ -77,15 +75,10 @@ int main(int argc, char **argv) {
     scale_setting.setting_change_event.addListener(&scale_change_listener);
     settings.addSetting(&scale_setting);
     
-    ChoiceSetting fps_setting("FPS limit", {"5", "60", "120"}, 1);
+    ChoiceSetting fps_setting("FPS limit", {"Vsync", "5", "60", "Unlimited"}, 1);
     FpsChangeListener fps_change_listener(&fps_setting);
     fps_setting.setting_change_event.addListener(&fps_change_listener);
     settings.addSetting(&fps_setting);
-    
-    BooleanSetting vsync_setting("Vsync", true);
-    VsyncToggleListener vsync_toggle_listener(&vsync_setting);
-    vsync_setting.setting_change_event.addListener(&vsync_toggle_listener);
-    settings.addSetting(&vsync_setting);
     
     initProperties();
     
@@ -108,9 +101,6 @@ int main(int argc, char **argv) {
     
     settings.removeSetting(&fps_setting);
     fps_setting.setting_change_event.removeListener(&fps_change_listener);
-    
-    settings.removeSetting(&vsync_setting);
-    vsync_setting.setting_change_event.removeListener(&vsync_toggle_listener);
     
     gfx::quit();
 
