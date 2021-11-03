@@ -12,21 +12,21 @@ Blocks::Block* Blocks::getBlock(int x, int y) {
     return &blocks[y * width + x];
 }
 
-const BlockInfo& Blocks::getBlockInfo(int x, int y) {
-    return ::getBlockInfo(getBlock(x, y)->type);
+const BlockInfoOld& Blocks::getBlockInfo(int x, int y) {
+    return ::getBlockInfoOld(getBlock(x, y)->type);
 }
 
-BlockType Blocks::getBlockType(int x, int y) {
+BlockTypeOld Blocks::getBlockType(int x, int y) {
     return getBlock(x, y)->type;
 }
 
-void Blocks::setBlockTypeSilently(int x, int y, BlockType type) {
-    if((int)type < 0 || type >= BlockType::NUM_BLOCKS)
+void Blocks::setBlockTypeSilently(int x, int y, BlockTypeOld type) {
+    if((int)type < 0 || type >= BlockTypeOld::NUM_BLOCKS)
         throw InvalidBlockTypeException();
     getBlock(x, y)->type = type;
 }
 
-void Blocks::setBlockType(int x, int y, BlockType type) {
+void Blocks::setBlockType(int x, int y, BlockTypeOld type) {
     if(type != getBlock(x, y)->type) {
         setBlockTypeSilently(x, y, type);
         
@@ -96,7 +96,7 @@ void Blocks::breakBlock(int x, int y) {
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
     
-    setBlockType(x, y, BlockType::AIR);
+    setBlockType(x, y, BlockTypeOld::AIR);
 }
 
 int Blocks::getWidth() const {
@@ -130,7 +130,7 @@ char* Blocks::loadFromSerial(char* iter) {
     create(width_, height_);
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
-        block->type = (BlockType)*iter++;
+        block->type = (BlockTypeOld)*iter++;
         block++;
     }
     return iter;

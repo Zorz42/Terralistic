@@ -18,7 +18,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     RenderBlock* render_blocks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
     
-    std::vector<void (*)(ClientBlocks*, int, int)> stateFunctions[(int)BlockType::NUM_BLOCKS];
+    std::vector<void (*)(ClientBlocks*, int, int)> stateFunctions[(int)BlockTypeOld::NUM_BLOCKS];
     
     void init() override;
     void postInit() override;

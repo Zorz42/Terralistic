@@ -9,11 +9,11 @@
 struct StructureChance;
 
 struct Biome {
-    BiomeType biome_name;
+    BiomeTypeOld biome_name;
     int surface_height;
     int surface_height_variation;
     std::vector <StructureChance> structure_chances;
-    Biome(BiomeType name, int height, int height_variation, std::vector <StructureChance> structure_chance);
+    Biome(BiomeTypeOld name, int height, int height_variation, std::vector <StructureChance> structure_chance);
     Biome() = default;
 };
 
@@ -34,5 +34,5 @@ class Biomes : public ServerModule {
 public:
     Biomes(Blocks* blocks) : blocks(blocks) {}
     void create();
-    BiomeType* biomes;
+    BiomeTypeOld* biomes;
 };

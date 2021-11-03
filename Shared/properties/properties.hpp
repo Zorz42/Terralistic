@@ -8,35 +8,35 @@
 #include <map>
 #include "graphics.hpp"
 
-enum class BlockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, IRON_ORE, COPPER_ORE, NUM_BLOCKS};
-enum class ItemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, IRON_ORE, COPPER_ORE, NUM_ITEMS};
-enum class LiquidType {EMPTY, WATER, NUM_LIQUIDS};
-enum class BiomeType {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
+enum class BlockTypeOld {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, IRON_ORE, COPPER_ORE, NUM_BLOCKS};
+enum class ItemTypeOld {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, IRON_ORE, COPPER_ORE, NUM_ITEMS};
+enum class LiquidTypeOld {EMPTY, WATER, NUM_LIQUIDS};
+enum class BiomeTypeOld {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
-struct BlockInfo {
-    BlockInfo() = default;
-    BlockInfo(std::string name, bool ghost, bool transparent, short break_time, ItemType drop, std::vector<BlockType> connects_to, gfx::Color color);
+struct BlockInfoOld {
+    BlockInfoOld() = default;
+    BlockInfoOld(std::string name, bool ghost, bool transparent, short break_time, ItemTypeOld drop, std::vector<BlockTypeOld> connects_to, gfx::Color color);
     
     bool ghost, transparent;
     std::string name;
-    std::vector<BlockType> connects_to;
+    std::vector<BlockTypeOld> connects_to;
     short break_time;
-    ItemType drop;
+    ItemTypeOld drop;
     gfx::Color color;
 };
 
-struct ItemInfo {
-    ItemInfo() = default;
-    ItemInfo(std::string name, unsigned short stack_size, BlockType places);
+struct ItemInfoOld {
+    ItemInfoOld() = default;
+    ItemInfoOld(std::string name, unsigned short stack_size, BlockTypeOld places);
     
     std::string name;
     unsigned short stack_size;
-    BlockType places;
+    BlockTypeOld places;
 };
 
-struct LiquidInfo {
-    LiquidInfo() = default;
-    LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color);
+struct LiquidInfoOld {
+    LiquidInfoOld() = default;
+    LiquidInfoOld(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color);
     
     std::string name;
     unsigned short flow_time;
@@ -44,19 +44,19 @@ struct LiquidInfo {
     gfx::Color color;
 };
 
-struct Recipe {
-    std::map<ItemType, unsigned short> ingredients;
+struct RecipeOld {
+    std::map<ItemTypeOld, unsigned short> ingredients;
     unsigned short result_stack;
-    ItemType result_type;
+    ItemTypeOld result_type;
 };
 
 void initProperties();
 
-BlockType getBlockTypeByName(const std::string& name);
-ItemType getItemTypeByName(const std::string& name);
-const BlockInfo& getBlockInfo(BlockType type);
-const ItemInfo& getItemInfo(ItemType type);
-const LiquidInfo& getLiquidInfo(LiquidType type);
-const std::vector<Recipe>& getRecipes();
-unsigned short getRecipeIndex(const Recipe* recipe);
+BlockTypeOld getBlockTypeByNameOld(const std::string& name);
+ItemTypeOld getItemTypeByNameOld(const std::string& name);
+const BlockInfoOld& getBlockInfoOld(BlockTypeOld type);
+const ItemInfoOld& getItemInfoOld(ItemTypeOld type);
+const LiquidInfoOld& getLiquidInfoOld(LiquidTypeOld type);
+const std::vector<RecipeOld>& getRecipesOld();
+unsigned short getRecipeIndexOld(const RecipeOld* recipe);
 

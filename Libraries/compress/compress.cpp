@@ -7,17 +7,23 @@ std::vector<char> compress(std::vector<char>& decompressed_data) {
     
     compress((Bytef*)&compressed_data[0], &compressed_size, (Bytef*)&decompressed_data[0], decompressed_data.size());
     
-    *(unsigned long*)&compressed_data[compressed_size] = decompressed_data.size();
-    compressed_data.resize(compressed_size + 8);
+    unsigned int decompressed_size = (unsigned int)decompressed_data.size();
+    for(int i = 0; i < sizeof(unsigned int); i++)
+        compressed_data[compressed_size + i] = decompressed_size >> 8 * i;
+    
+    compressed_data.resize(compressed_size + sizeof(unsigned int));
     
     return compressed_data;
 }
 
 std::vector<char> decompress(std::vector<char>& compressed_data) {
-    unsigned long uncompressed_size = *(unsigned long*)&compressed_data[compressed_data.size() - 8];
+    unsigned long uncompressed_size = 0;
+    for(int i = 0; i < sizeof(unsigned int); i++)
+        uncompressed_size += (unsigned int)(unsigned char)compressed_data[compressed_data.size() - sizeof(unsigned int) + i] << i * 8;
+    
     std::vector<char> decompressed_data(uncompressed_size);
     
-    uncompress((Bytef*)&decompressed_data[0], &uncompressed_size, (Bytef*)&compressed_data[0], compressed_data.size() - 8);
+    uncompress((Bytef*)&decompressed_data[0], &uncompressed_size, (Bytef*)&compressed_data[0], compressed_data.size() - sizeof(unsigned int));
     
     return decompressed_data;
 }

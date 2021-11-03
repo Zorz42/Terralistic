@@ -32,8 +32,8 @@ public:
 
 class Blocks {
     struct Block {
-        Block() : type(BlockType::AIR) {}
-        BlockType type:8;
+        Block() : type(BlockTypeOld::AIR) {}
+        BlockTypeOld type:8;
     };
     
     struct BreakingBlock {
@@ -51,10 +51,10 @@ class Blocks {
 public:
     void create(int width, int height);
 
-    const BlockInfo& getBlockInfo(int x, int y);
-    BlockType getBlockType(int x, int y);
-    void setBlockType(int x, int y, BlockType type);
-    void setBlockTypeSilently(int x, int y, BlockType type);
+    const BlockInfoOld& getBlockInfo(int x, int y);
+    BlockTypeOld getBlockType(int x, int y);
+    void setBlockType(int x, int y, BlockTypeOld type);
+    void setBlockTypeSilently(int x, int y, BlockTypeOld type);
     
     unsigned short getBreakProgress(int x, int y);
     unsigned char getBreakStage(int x, int y);

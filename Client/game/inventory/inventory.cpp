@@ -71,7 +71,7 @@ void ClientInventory::render() {
             color.a = TRANSPARENCY;
         else if(open) {
             hovered = i;
-            if(inventory.getItem(i).type != ItemType::NOTHING) {
+            if(inventory.getItem(i).type != ItemTypeOld::NOTHING) {
                 tooltip_active = true;
                 text_texture = &resource_pack->getItemTextTexture(inventory.getItem(i).type);
                 under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
@@ -170,7 +170,7 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             short pos;
             event.packet >> stack >> item_id >> pos;
             
-            inventory.setItem(pos, ItemStack((ItemType)item_id, stack));
+            inventory.setItem(pos, ItemStack((ItemTypeOld)item_id, stack));
             break;
         }
         default: break;
@@ -191,7 +191,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::NUM0: selectSlot(9); return true;
         case gfx::Key::E:
             open = !open;
-            if(!open && inventory.getItem(-1).type != ItemType::NOTHING) {
+            if(!open && inventory.getItem(-1).type != ItemTypeOld::NOTHING) {
                 unsigned char result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
                 inventory.setItem(-1, ItemStack());
                 sf::Packet packet;

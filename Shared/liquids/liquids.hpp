@@ -12,7 +12,7 @@ public:
 
 class Liquids {
     struct Liquid {
-        LiquidType type:8;
+        LiquidTypeOld type:8;
         FlowDirection flow_direction:8;
         unsigned char level = 0;
         unsigned int when_to_update = 1;
@@ -31,10 +31,10 @@ public:
     int getWidth() const;
     int getHeight() const;
     
-    const LiquidInfo& getLiquidInfo(int x, int y);
-    LiquidType getLiquidType(int x, int y);
-    void setLiquidTypeSilently(int x, int y, LiquidType type);
-    void setLiquidType(int x, int y, LiquidType type);
+    const LiquidInfoOld& getLiquidInfo(int x, int y);
+    LiquidTypeOld getLiquidType(int x, int y);
+    void setLiquidTypeSilently(int x, int y, LiquidTypeOld type);
+    void setLiquidType(int x, int y, LiquidTypeOld type);
     
     void scheduleLiquidUpdate(int x, int y);
     bool canUpdateLiquid(int x, int y);

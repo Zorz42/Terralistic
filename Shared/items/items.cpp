@@ -1,13 +1,13 @@
 #include "items.hpp"
 #include "properties.hpp"
 
-ItemType Item::getType() const {
+ItemTypeOld Item::getType() const {
     return type;
 }
 
-Item::Item(ItemType type, int x, int y, unsigned short id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
+Item::Item(ItemTypeOld type, int x, int y, unsigned short id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
 
-Item* Items::spawnItem(ItemType type, int x, int y) {
+Item* Items::spawnItem(ItemTypeOld type, int x, int y) {
     Item* item = new Item(type, x, y);
     entities->registerEntity(item);
     ItemCreationEvent event(item);

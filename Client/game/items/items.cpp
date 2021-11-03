@@ -52,7 +52,7 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             unsigned short id;
             unsigned char type_char;
             event.packet >> x >> y >> id >> type_char;
-            ItemType type = (ItemType)type_char;
+            ItemTypeOld type = (ItemTypeOld)type_char;
             
             Item* item = new Item(type, x, y, id);
             entities->registerEntity(item);
