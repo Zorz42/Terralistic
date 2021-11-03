@@ -11,23 +11,6 @@ void Minimap::init() {
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = GREY;
     
-    block_colors[(int)BlockType::AIR] = {0, 0, 0, 0};
-    block_colors[(int)BlockType::DIRT] = {115, 77, 38};
-    block_colors[(int)BlockType::STONE_BLOCK] = {128, 128, 128, 255};
-    block_colors[(int)BlockType::GRASS_BLOCK] = {0, 153, 0, 255};
-    block_colors[(int)BlockType::STONE] = {128, 128, 128, 255};
-    block_colors[(int)BlockType::WOOD] = {128, 85, 0, 255};
-    block_colors[(int)BlockType::LEAVES] = {0, 179, 0, 255};
-    block_colors[(int)BlockType::SAND] = {210, 170, 109, 255};
-    block_colors[(int)BlockType::SNOWY_GRASS_BLOCK] = {217, 217, 217, 255};
-    block_colors[(int)BlockType::SNOW_BLOCK] = {242, 242, 242, 255};
-    block_colors[(int)BlockType::ICE] = {179, 217, 255, 255};
-    block_colors[(int)BlockType::IRON_ORE] = {160, 160, 160, 255};
-    block_colors[(int)BlockType::COPPER_ORE] = {200,109,61};
-    
-    liquid_colors[(int)LiquidType::EMPTY] = {0, 0, 0, 0};
-    liquid_colors[(int)LiquidType::WATER] = {0, 92, 230, 150};
-    
     minimap_texture.create(MINIMAP_SIZE, MINIMAP_SIZE);
     
     settings->addSetting(&minimap_toggle_setting);
@@ -53,8 +36,8 @@ void Minimap::render() {
             unsigned char light_level = MAX_LIGHT;
             
             if(block_x >= 0 && block_y >= 0 && block_x < blocks->getWidth() && block_y < blocks->getHeight()) {
-                block_color = block_colors[(int)blocks->getBlockType(block_x, block_y)];
-                liquid_color = liquid_colors[(int)blocks->getBlockType(block_x, block_y)];
+                block_color = blocks->getBlockInfo(block_x, block_y).color;
+                liquid_color = blocks->getBlockInfo(block_x, block_y).color;
                 light_level = lights->getLightLevel(block_x, block_y);
                 
                 if(lights->hasScheduledLightUpdate(block_x, block_y))

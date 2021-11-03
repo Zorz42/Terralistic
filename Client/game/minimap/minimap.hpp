@@ -18,8 +18,6 @@ class Minimap : public ClientModule {
     ClientBlocks* blocks;
     NaturalLight* natural_light;
     Settings* settings;
-    gfx::Color block_colors[(int)BlockType::NUM_BLOCKS];
-    gfx::Color liquid_colors[(int)LiquidType::NUM_LIQUIDS];
     sf::Texture minimap_texture;
     BooleanSetting minimap_toggle_setting;
     

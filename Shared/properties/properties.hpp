@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include "graphics.hpp"
 
 enum class BlockType {NOTHING = -1, AIR, DIRT, STONE_BLOCK, GRASS_BLOCK, STONE, WOOD, LEAVES, SAND, SNOWY_GRASS_BLOCK, SNOW_BLOCK, ICE, IRON_ORE, COPPER_ORE, NUM_BLOCKS};
 enum class ItemType {NOTHING, STONE, DIRT, STONE_BLOCK, WOOD_PLANKS, IRON_ORE, COPPER_ORE, NUM_ITEMS};
@@ -14,13 +15,14 @@ enum class BiomeType {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_M
 
 struct BlockInfo {
     BlockInfo() = default;
-    BlockInfo(std::string name, bool ghost, bool transparent, short break_time, ItemType drop, std::vector<BlockType> connects_to);
+    BlockInfo(std::string name, bool ghost, bool transparent, short break_time, ItemType drop, std::vector<BlockType> connects_to, gfx::Color color);
     
     bool ghost, transparent;
     std::string name;
     std::vector<BlockType> connects_to;
     short break_time;
     ItemType drop;
+    gfx::Color color;
 };
 
 struct ItemInfo {
@@ -34,11 +36,12 @@ struct ItemInfo {
 
 struct LiquidInfo {
     LiquidInfo() = default;
-    LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier);
+    LiquidInfo(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color);
     
     std::string name;
     unsigned short flow_time;
     float speed_multiplier;
+    gfx::Color color;
 };
 
 struct Recipe {
