@@ -1,7 +1,7 @@
 #include "biomes.hpp"
 #include <utility>
 
-Biome::Biome(BiomeTypeOld name, int height, int height_variation, std::vector <StructureChance> structure_chance) {
+Biome::Biome(BiomeType name, int height, int height_variation, std::vector <StructureChance> structure_chance) {
     biome_name = name;
     surface_height = height;
     surface_height_variation = height_variation;
@@ -18,5 +18,5 @@ StructureChance::StructureChance(std::string name, float chance_on_block, int le
 }
 
 void Biomes::create() {
-    biomes = new BiomeTypeOld[blocks->getWidth()];
+    biomes = new BiomeType[blocks->getWidth()];
 }

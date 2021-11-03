@@ -1,6 +1,8 @@
 #include "items.hpp"
 #include "properties.hpp"
 
+ItemType::ItemType(std::string  name, unsigned short stack_size, BlockTypeOld places) : name(std::move(name)), stack_size(stack_size), places(places) {}
+
 ItemTypeOld Item::getType() const {
     return type;
 }
@@ -13,4 +15,17 @@ Item* Items::spawnItem(ItemTypeOld type, int x, int y) {
     ItemCreationEvent event(item);
     item_creation_event.call(event);
     return item;
+}
+
+void Items::registerNewItemType(ItemType* item_type) {
+    item_type->id = item_types.size();
+    item_types.push_back(item_type);
+}
+
+ItemType* Items::getItemTypeById(unsigned char item_id) {
+    return item_types[item_id];
+}
+
+unsigned char Items::getNumItemTypes() {
+    return item_types.size();
 }

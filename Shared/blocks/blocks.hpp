@@ -30,6 +30,24 @@ public:
     int x, y;
 };
 
+class BlockType {
+public:
+    BlockType() = default;
+    BlockType(std::string name, bool ghost, bool transparent, short break_time, ItemTypeOld drop, std::vector<BlockTypeOld> connects_to, gfx::Color color);
+    
+    bool ghost, transparent;
+    std::string name;
+    std::vector<BlockTypeOld> connects_to;
+    short break_time;
+    ItemTypeOld drop;
+    gfx::Color color;
+    unsigned char id;
+};
+
+namespace BlockTypes {
+    inline BlockType air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*drops*/ItemTypeOld::NOTHING, /*connects_to*/ {}, /*color*/{0, 0, 0, 0});
+};
+
 class Blocks {
     struct Block {
         Block() : type(BlockTypeOld::AIR) {}
@@ -46,6 +64,7 @@ class Blocks {
     int width, height;
     
     std::vector<BreakingBlock> breaking_blocks;
+    std::vector<BlockType*> block_types;
     
     Block* getBlock(int x, int y);
 public:
@@ -69,6 +88,11 @@ public:
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
+    
+    void registerNewBlockType(BlockType* block_type);
+    BlockType* getBlockTypeById(unsigned char block_id);
+    BlockType* getBlockTypeByName(const std::string& name);
+    unsigned char getNumBlockTypes();
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;

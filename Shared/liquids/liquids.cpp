@@ -1,6 +1,8 @@
 #include "liquids.hpp"
 #include "graphics.hpp"
 
+LiquidType::LiquidType(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color) : name(std::move(name)), flow_time(flow_time), speed_multiplier(speed_multiplier), color(color) {}
+
 void Liquids::create() {
     liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
 }
@@ -187,6 +189,20 @@ int Liquids::getWidth() const {
 int Liquids::getHeight() const {
     return blocks->getHeight();
 }
+
+void Liquids::registerNewLiquidType(LiquidType* liquid_type) {
+    liquid_type->id = liquid_types.size();
+    liquid_types.push_back(liquid_type);
+}
+
+LiquidType* Liquids::getLiquidTypeById(unsigned char liquid_id) {
+    return liquid_types[liquid_id];
+}
+
+unsigned char Liquids::getNumLiquidTypes() {
+    return liquid_types.size();
+}
+
 
 Liquids::~Liquids() {
     delete[] liquids;

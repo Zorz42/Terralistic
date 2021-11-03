@@ -1,5 +1,7 @@
 #include "blocks.hpp"
 
+BlockType::BlockType(std::string name, bool ghost, bool transparent, short break_time, ItemTypeOld drop, std::vector<BlockTypeOld> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), drop(drop), connects_to(std::move(connects_to)), color(color) {}
+
 void Blocks::create(int width_, int height_) {
     width = width_;
     height = height_;
@@ -134,6 +136,26 @@ char* Blocks::loadFromSerial(char* iter) {
         block++;
     }
     return iter;
+}
+
+void Blocks::registerNewBlockType(BlockType* block_type) {
+    block_type->id = block_types.size();
+    block_types.push_back(block_type);
+}
+
+BlockType* Blocks::getBlockTypeById(unsigned char block_id) {
+    return block_types[block_id];
+}
+
+BlockType* Blocks::getBlockTypeByName(const std::string& name) {
+    for(BlockType* block_info : block_types)
+        if(block_info->name == name)
+            return block_info;
+    return nullptr;
+}
+
+unsigned char Blocks::getNumBlockTypes() {
+    return block_types.size();
 }
 
 Blocks::~Blocks() {

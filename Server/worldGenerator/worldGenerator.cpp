@@ -54,7 +54,7 @@ int WorldGenerator::heightGeneratorInt(unsigned int x, siv::PerlinNoise& noise) 
 void WorldGenerator::generateBiomes(unsigned int x, siv::PerlinNoise& noise) {
     int biome_heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
-    biomes->biomes[x] = (BiomeTypeOld)((biome_heat * 4) + biome_height);
+    biomes->biomes[x] = (BiomeType)((biome_heat * 4) + biome_height);
 }
 
 void WorldGenerator::terrainGenerator(int x, siv::PerlinNoise& noise) {
@@ -424,7 +424,7 @@ void WorldGenerator::generateStructureWorld() {
 
 void WorldGenerator::generateFlatTerrain() {
     for (int x = 0; x < blocks->getWidth(); x++) {
-        biomes->biomes[x] = BiomeTypeOld::PLAINS;
+        biomes->biomes[x] = BiomeType::PLAINS;
     }
     for (int x = 0; x < blocks->getWidth(); x++) {
         for (int y = 0; y < blocks->getHeight(); y++) {
@@ -470,29 +470,29 @@ void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937&
 }
 
 void WorldGenerator::loadBiomes() {
-    loaded_biomes.push_back(Biome(BiomeTypeOld::ICY_SEAS, blocks->getHeight() / 3 * 2 - 50, 10,
+    loaded_biomes.push_back(Biome(BiomeType::ICY_SEAS, blocks->getHeight() / 3 * 2 - 50, 10,
                                   {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::SNOWY_TUNDRA, blocks->getHeight() / 3 * 2 + 20, 4,
+    loaded_biomes.push_back(Biome(BiomeType::SNOWY_TUNDRA, blocks->getHeight() / 3 * 2 + 20, 4,
                                    {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::COLD_HILLS, blocks->getHeight() / 3 * 2 + 29, 15,
+    loaded_biomes.push_back(Biome(BiomeType::COLD_HILLS, blocks->getHeight() / 3 * 2 + 29, 15,
                                    {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::SNOWY_MOUNTAINS, blocks->getHeight() / 3 * 2 + 70, 37,
+    loaded_biomes.push_back(Biome(BiomeType::SNOWY_MOUNTAINS, blocks->getHeight() / 3 * 2 + 70, 37,
                                   {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::SEA, blocks->getHeight() / 3 * 2 - 50, 10,
+    loaded_biomes.push_back(Biome(BiomeType::SEA, blocks->getHeight() / 3 * 2 - 50, 10,
                                   {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::PLAINS, blocks->getHeight() / 3 * 2 + 22, 4,
+    loaded_biomes.push_back(Biome(BiomeType::PLAINS, blocks->getHeight() / 3 * 2 + 22, 4,
                                   {StructureChance("tree_", 5, 20, 2)
                                   }));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::FOREST, blocks->getHeight() / 3 * 2 + 23, 10,
+    loaded_biomes.push_back(Biome(BiomeType::FOREST, blocks->getHeight() / 3 * 2 + 23, 10,
                                   {StructureChance("tree_", 3, 6, 2)}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::MOUNTAINS, blocks->getHeight() / 3 * 2 + 64, 33,
+    loaded_biomes.push_back(Biome(BiomeType::MOUNTAINS, blocks->getHeight() / 3 * 2 + 64, 33,
                                   {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::WARM_OCEAN, blocks->getHeight() / 3 * 2 - 50, 10,
+    loaded_biomes.push_back(Biome(BiomeType::WARM_OCEAN, blocks->getHeight() / 3 * 2 - 50, 10,
                                   {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::DESERT, blocks->getHeight() / 6 * 4 + 22, 4,
+    loaded_biomes.push_back(Biome(BiomeType::DESERT, blocks->getHeight() / 6 * 4 + 22, 4,
                                   {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::SAVANA, blocks->getHeight() / 3 * 2 + 26, 10,
+    loaded_biomes.push_back(Biome(BiomeType::SAVANA, blocks->getHeight() / 3 * 2 + 26, 10,
                                   {}));
-    loaded_biomes.push_back(Biome(BiomeTypeOld::SAVANA_MOUNTAINS, blocks->getHeight() / 3 * 2 + 50, 25,
+    loaded_biomes.push_back(Biome(BiomeType::SAVANA_MOUNTAINS, blocks->getHeight() / 3 * 2 + 50, 25,
                                   {}));
 }

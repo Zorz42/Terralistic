@@ -10,6 +10,22 @@ public:
     int x, y;
 };
 
+class LiquidType {
+public:
+    LiquidType() = default;
+    LiquidType(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color);
+    
+    std::string name;
+    unsigned short flow_time;
+    float speed_multiplier;
+    gfx::Color color;
+    unsigned char id;
+};
+
+namespace LiquidTypes {
+    inline LiquidType empty(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1, /*color*/{0, 0, 0, 0});
+};
+
 class Liquids {
     struct Liquid {
         LiquidTypeOld type:8;
@@ -17,6 +33,8 @@ class Liquids {
         unsigned char level = 0;
         unsigned int when_to_update = 1;
     };
+    
+    std::vector<LiquidType*> liquid_types;
     
     Liquid* liquids = nullptr;
     Liquid* getLiquid(int x, int y);
@@ -46,6 +64,10 @@ public:
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
+    
+    void registerNewLiquidType(LiquidType* liquid_type);
+    LiquidType* getLiquidTypeById(unsigned char liquid_id);
+    unsigned char getNumLiquidTypes();
     
     EventSender<LiquidChangeEvent> liquid_change_event;
     

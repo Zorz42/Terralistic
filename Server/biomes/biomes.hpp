@@ -6,14 +6,16 @@
 #include <vector>
 #include <string>
 
+enum class BiomeType {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
+
 struct StructureChance;
 
 struct Biome {
-    BiomeTypeOld biome_name;
+    BiomeType biome_name;
     int surface_height;
     int surface_height_variation;
     std::vector <StructureChance> structure_chances;
-    Biome(BiomeTypeOld name, int height, int height_variation, std::vector <StructureChance> structure_chance);
+    Biome(BiomeType name, int height, int height_variation, std::vector <StructureChance> structure_chance);
     Biome() = default;
 };
 
@@ -34,5 +36,5 @@ class Biomes : public ServerModule {
 public:
     Biomes(Blocks* blocks) : blocks(blocks) {}
     void create();
-    BiomeTypeOld* biomes;
+    BiomeType* biomes;
 };
