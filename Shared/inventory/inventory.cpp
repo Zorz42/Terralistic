@@ -36,9 +36,10 @@ unsigned short Inventory::decreaseStack(char pos, unsigned short stack) {
 char* Inventory::loadFromSerial(char *iter) {
     for(ItemStack& item : inventory_arr) {
         item.type = (ItemTypeOld)*iter++;
-        item.stack = *(short*)iter;
+        item.stack = 0;
+        for(int i = 0; i < sizeof(short); i++)
+            item.stack += (unsigned int)*iter++ << i * 8;
         item_counts[(int)item.type] += item.stack;
-        iter += 2;
     }
     updateAvailableRecipes();
     return iter;
@@ -101,7 +102,8 @@ void Inventory::serialize(std::vector<char> &serial) const {
     for(ItemStack item : inventory_arr) {
         serial.push_back((char)item.type);
         serial.insert(serial.end(), {0, 0});
-        *(short*)&serial[serial.size() - 2] = item.stack;
+        for(int i = 0; i < sizeof(short); i++)
+            serial[serial.size() - sizeof(short) + i] = (short)(unsigned char)item.stack >> i * 8;
     }
 }
 

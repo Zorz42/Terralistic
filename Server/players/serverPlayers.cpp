@@ -148,10 +148,12 @@ char* ServerPlayers::addPlayerFromSerial(char* iter) {
 ServerPlayerData::ServerPlayerData(char*& iter) {
     iter = inventory.loadFromSerial(iter);
     
-    x = *(int*)iter;
-    iter += 4;
-    y = *(int*)iter;
-    iter += 4;
+    x = 0;
+    for(int i = 0; i < sizeof(int); i++)
+        x += (int)(unsigned char)*iter++ << i * 8;
+    y = 0;
+    for(int i = 0; i < sizeof(int); i++)
+        y += (int)(unsigned char)*iter++ << i * 8;
     
     while(*iter)
         name.push_back(*iter++);
@@ -161,11 +163,11 @@ ServerPlayerData::ServerPlayerData(char*& iter) {
 void ServerPlayerData::serialize(std::vector<char>& serial) const {
     inventory.serialize(serial);
     
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    *(int*)&serial[serial.size() - 4] = x;
+    for(int i = 0; i < sizeof(int); i++)
+        serial.push_back(x >> i * 8);
     
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    *(int*)&serial[serial.size() - 4] = y;
+    for(int i = 0; i < sizeof(int); i++)
+        serial.push_back(y >> i * 8);
     
     serial.insert(serial.end(), name.begin(), name.end());
     serial.insert(serial.end(), 0);
