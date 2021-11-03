@@ -214,6 +214,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
             }
         }
     
+    assert(player);
     sf::Packet join_packet;
     join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
     networking->sendToEveryone(join_packet);
@@ -285,7 +286,7 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
                 break;
             }
         }
-    
+    assert(player);
     savePlayer(player);
     entities->removeEntity(player);
 }
