@@ -105,10 +105,6 @@ void ClientBlocks::postInit() {
     view_y = 0;
 }
 
-ClientBlocks::~ClientBlocks() {
-    delete[] render_blocks;
-}
-
 void ClientBlocks::onEvent(BlockChangeEvent& event) {
     updateState(event.x, event.y);
     updateState(event.x + 1, event.y);
@@ -138,6 +134,8 @@ void ClientBlocks::stop() {
     block_change_event.removeListener(this);
     networking->packet_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
+    
+    delete[] render_blocks;
 }
 
 void ClientBlocks::render() {

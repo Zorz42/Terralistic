@@ -13,5 +13,5 @@ class ClientEntities : EventListener<ClientPacketEvent>, public ClientModule, pu
     void update(float frame_length) override;
     void stop() override;
 public:
-    explicit ClientEntities(Blocks* blocks, ClientNetworking* manager) : Entities(blocks), manager(manager) {}
+    ClientEntities(Blocks* blocks, ClientNetworking* manager) : Entities(blocks), manager(manager) {}
 };

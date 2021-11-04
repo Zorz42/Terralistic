@@ -18,6 +18,7 @@ class ResourcePack : public ClientModule {
     void loadLiquids();
     void loadItems();
     void init() override;
+    void stop() override;
     
     Blocks* blocks;
     Liquids* liquids;
@@ -35,6 +36,4 @@ public:
     const gfx::RectShape& getTextureRectangle(BlockType* type);
     const gfx::RectShape& getTextureRectangle(LiquidType* type);
     const gfx::RectShape& getTextureRectangle(ItemType* type);
-
-    ~ResourcePack();
 };

@@ -160,7 +160,7 @@ void ResourcePack::init() {
     loadItems();
 }
 
-ResourcePack::~ResourcePack() {
+void ResourcePack::stop() {
     delete[] item_text_textures;
     delete[] block_texture_rectangles;
     delete[] liquid_texture_rectangles;

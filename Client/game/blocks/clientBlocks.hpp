@@ -53,6 +53,4 @@ public:
     unsigned char getState(int x, int y);
     
     bool skip_rendering_in_dark = true;
-    
-    ~ClientBlocks();
 };
