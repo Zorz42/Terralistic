@@ -10,6 +10,7 @@
 #include "server.hpp"
 #include "graphics.hpp"
 #include "compress.hpp"
+#include "content.hpp"
 
 #define TPS_LIMIT 60
 
@@ -82,6 +83,8 @@ void Server::saveWorld() {
 
 void Server::start() {
     curr_server = this;
+    
+    addContent(&blocks, &liquids, &items);
 
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;

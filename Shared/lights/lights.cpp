@@ -60,7 +60,7 @@ void Lights::updateLight(int x, int y) {
         unsigned char level_to_be = 0;
         for(auto & neighbor : neighbors)
             if(neighbor[0] != -1) {
-                unsigned char light_step = blocks->getBlockInfo(neighbor[0], neighbor[1]).transparent ? 3 : 15;
+                unsigned char light_step = blocks->getBlockType(neighbor[0], neighbor[1])->transparent ? 3 : 15;
                 unsigned char light = light_step > getLightLevel(neighbor[0], neighbor[1]) ? 0 : getLightLevel(neighbor[0], neighbor[1]) - light_step;
                 if(light > level_to_be)
                     level_to_be = light;

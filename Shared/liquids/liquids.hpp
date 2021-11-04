@@ -24,7 +24,7 @@ public:
 
 namespace LiquidTypes {
     inline LiquidType empty(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1, /*color*/{0, 0, 0, 0});
-};
+}
 
 class Liquids {
     struct Liquid {
@@ -42,7 +42,7 @@ class Liquids {
     
     Blocks* blocks;
 public:
-    Liquids(Blocks* blocks) : blocks(blocks) {}
+    Liquids(Blocks* blocks) : blocks(blocks) { registerNewLiquidType(&LiquidTypes::empty); }
     
     void create();
     

@@ -33,25 +33,23 @@ public:
 class BlockType {
 public:
     BlockType() = default;
-    BlockType(std::string name, bool ghost, bool transparent, short break_time, ItemTypeOld drop, std::vector<BlockTypeOld> connects_to, gfx::Color color);
+    BlockType(std::string name, bool ghost, bool transparent, short break_time, std::vector<BlockType*> connects_to, gfx::Color color);
     
     bool ghost, transparent;
     std::string name;
-    std::vector<BlockTypeOld> connects_to;
+    std::vector<BlockType*> connects_to;
     short break_time;
-    ItemTypeOld drop;
     gfx::Color color;
     unsigned char id;
 };
 
 namespace BlockTypes {
-    inline BlockType air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*drops*/ItemTypeOld::NOTHING, /*connects_to*/ {}, /*color*/{0, 0, 0, 0});
+    inline BlockType air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*connects_to*/ {}, /*color*/{0, 0, 0, 0});
 };
 
 class Blocks {
     struct Block {
-        Block() : type(BlockTypeOld::AIR) {}
-        BlockTypeOld type:8;
+        BlockType* type = &BlockTypes::air;
     };
     
     struct BreakingBlock {
@@ -68,12 +66,12 @@ class Blocks {
     
     Block* getBlock(int x, int y);
 public:
+    Blocks();
     void create(int width, int height);
 
-    const BlockInfoOld& getBlockInfo(int x, int y);
-    BlockTypeOld getBlockType(int x, int y);
-    void setBlockType(int x, int y, BlockTypeOld type);
-    void setBlockTypeSilently(int x, int y, BlockTypeOld type);
+    BlockType* getBlockType(int x, int y);
+    void setBlockType(int x, int y, BlockType* type);
+    void setBlockTypeSilently(int x, int y, BlockType* type);
     
     unsigned short getBreakProgress(int x, int y);
     unsigned char getBreakStage(int x, int y);

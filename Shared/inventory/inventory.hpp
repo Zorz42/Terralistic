@@ -2,13 +2,14 @@
 
 #include "properties.hpp"
 #include "events.hpp"
+#include "items.hpp"
 
 #define INVENTORY_SIZE 20
 
 struct ItemStack {
-    ItemStack(ItemTypeOld type, unsigned short stack) : type(type), stack(stack) {}
+    ItemStack(ItemType* type, unsigned short stack) : type(type), stack(stack) {}
     ItemStack() = default;
-    ItemTypeOld type = ItemTypeOld::NOTHING;
+    ItemType* type = &ItemTypes::nothing;
     unsigned short stack = 0;
 };
 
@@ -21,21 +22,23 @@ public:
 
 
 class Inventory {
+    Items* items;
+    
     ItemStack mouse_item;
     unsigned int item_counts[(int)ItemTypeOld::NUM_ITEMS];
     std::vector<const RecipeOld*> available_recipes;
     ItemStack inventory_arr[INVENTORY_SIZE];
     bool hasIngredientsForRecipe(const RecipeOld& recipe);
 public:
-    Inventory();
+    Inventory(Items* items);
     
     unsigned char selected_slot = 0;
     
     const std::vector<const RecipeOld*>& getAvailableRecipes();
     void updateAvailableRecipes();
     
-    char addItem(ItemTypeOld id, int quantity);
-    char removeItem(ItemTypeOld id, int quantity);
+    char addItem(ItemType* id, int quantity);
+    char removeItem(ItemType* id, int quantity);
     void setItem(char pos, ItemStack item);
     ItemStack getItem(char pos);
     

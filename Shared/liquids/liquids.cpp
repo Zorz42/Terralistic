@@ -48,13 +48,13 @@ bool Liquids::canUpdateLiquid(int x, int y) {
 }
 
 bool Liquids::isFlowable(int x, int y) {
-    return blocks->getBlockInfo(x, y).ghost && getLiquidType(x, y) == LiquidTypeOld::EMPTY;
+    return blocks->getBlockType(x, y)->ghost && getLiquidType(x, y) == LiquidTypeOld::EMPTY;
 }
 
 void Liquids::updateLiquid(int x, int y) {
     getLiquid(x, y)->when_to_update = 0;
     
-    if(!blocks->getBlockInfo(x, y).ghost)
+    if(!blocks->getBlockType(x, y)->ghost)
         setLiquidType(x, y, LiquidTypeOld::EMPTY);
     
     if(getLiquidLevel(x, y) == 0)
@@ -158,7 +158,7 @@ void Liquids::serialize(std::vector<char>& serial) {
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
-            if(blocks->getBlockInfo(x, y).ghost) {
+            if(blocks->getBlockType(x, y)->ghost) {
                 serial.push_back((char)liquid->type);
                 if(getLiquidType(x, y) != LiquidTypeOld::EMPTY)
                     serial.push_back((char)liquid->level);
@@ -172,7 +172,7 @@ char* Liquids::loadFromSerial(char* iter) {
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
-            if(blocks->getBlockInfo(x, y).ghost) {
+            if(blocks->getBlockType(x, y)->ghost) {
                 liquid->type = (LiquidTypeOld)*iter++;
                 if(liquid->type != LiquidTypeOld::EMPTY)
                     liquid->level = *iter++;

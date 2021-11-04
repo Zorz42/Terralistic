@@ -71,9 +71,9 @@ void ClientInventory::render() {
             color.a = TRANSPARENCY;
         else if(open) {
             hovered = i;
-            if(inventory.getItem(i).type != ItemTypeOld::NOTHING) {
+            if(inventory.getItem(i).type != &ItemTypes::nothing) {
                 tooltip_active = true;
-                text_texture = &resource_pack->getItemTextTexture(inventory.getItem(i).type);
+                text_texture = &resource_pack->getItemTextTexture((ItemTypeOld)inventory.getItem(i).type->id);
                 under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setX(getMouseX() + 20 - INVENTORY_UI_SPACING);
@@ -112,7 +112,7 @@ void ClientInventory::render() {
             
             back_rect.render(color);
             
-            renderItem(ItemStack(inventory.getAvailableRecipes()[i]->result_type, inventory.getAvailableRecipes()[i]->result_stack), slot_x, slot_y);
+            renderItem(ItemStack(items->getItemTypeById((unsigned char)inventory.getAvailableRecipes()[i]->result_type), inventory.getAvailableRecipes()[i]->result_stack), slot_x, slot_y);
         }
         
         if(hovered_recipe != -1) {
@@ -127,7 +127,7 @@ void ClientInventory::render() {
             for(auto ingredient : inventory.getAvailableRecipes()[hovered_recipe]->ingredients) {
                 gfx::RectShape back_rect(x, y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
                 back_rect.render(GREY);
-                renderItem(ItemStack(ingredient.first, ingredient.second), x, y);
+                renderItem(ItemStack(items->getItemTypeById((unsigned char)ingredient.first), ingredient.second), x, y);
                 x += INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2;
             }
         }
@@ -138,7 +138,7 @@ void ClientInventory::render() {
 
 void ClientInventory::renderItem(ItemStack item, short x, short y) {
     const gfx::Texture& texture = resource_pack->getItemTexture();
-    texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, resource_pack->getTextureRectangle(item.type));
+    texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, resource_pack->getTextureRectangle((ItemTypeOld)item.type->id));
     
     if(item.stack > 1) {
         int stack = item.stack, number_x = x + BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING / 2;
@@ -170,7 +170,7 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             short pos;
             event.packet >> stack >> item_id >> pos;
             
-            inventory.setItem(pos, ItemStack((ItemTypeOld)item_id, stack));
+            inventory.setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));
             break;
         }
         default: break;
@@ -191,7 +191,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::NUM0: selectSlot(9); return true;
         case gfx::Key::E:
             open = !open;
-            if(!open && inventory.getItem(-1).type != ItemTypeOld::NOTHING) {
+            if(!open && inventory.getItem(-1).type != &ItemTypes::nothing) {
                 unsigned char result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
                 inventory.setItem(-1, ItemStack());
                 sf::Packet packet;

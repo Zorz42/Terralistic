@@ -13,8 +13,8 @@
 struct structure {
     std::string name;
     int x_size, y_size, y_offset;
-    BlockTypeOld* blocks;
-    structure(std::string cname, int x, int y, int offset, BlockTypeOld* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
+    short* blocks;
+    structure(std::string cname, int x, int y, int offset, short* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
 };
 
 struct structurePosition {
@@ -39,7 +39,7 @@ class WorldGenerator {
     void generateCaveLakes(std::mt19937& seeded_random);
     void generateLakeRecursively(int x, int y);
     void generateOres(siv::PerlinNoise& noise, std::mt19937& seeded_random);
-    void generateOre(BlockTypeOld type, float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random);
+    void generateOre(BlockType* type, float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random);
     void generateStones(std::mt19937& seeded_random);
     void placeStructures(siv::PerlinNoise& noise);
     void generateStructureWorld();

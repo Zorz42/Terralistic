@@ -5,21 +5,22 @@
 #include "serverPlayers.hpp"
 #include "blocks.hpp"
 #include "print.hpp"
+#include "content.hpp"
 
 static bool isBlockTree(Blocks* blocks, int x, int y) {
-    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && (blocks->getBlockType(x, y) == BlockTypeOld::WOOD || blocks->getBlockType(x, y) == BlockTypeOld::LEAVES);
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && (blocks->getBlockType(x, y) == &BlockTypes::wood || blocks->getBlockType(x, y) == &BlockTypes::leaves);
 }
 
 static bool isBlockWood(Blocks* blocks, int x, int y) {
-    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == BlockTypeOld::WOOD;
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &BlockTypes::wood;
 }
 
 static bool isBlockLeaves(Blocks* blocks, int x, int y) {
-    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == BlockTypeOld::LEAVES;
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &BlockTypes::leaves;
 }
 
 static void stoneUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
-    if(y < blocks->getHeight() - 1 && blocks->getBlockInfo(x, y + 1).transparent)
+    if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
         blocks->breakBlock(x, y);
 }
 
@@ -42,24 +43,24 @@ void ServerPlayers::init() {
     packet_event.addListener(this);
     networking->disconnect_event.addListener(this);
     
-    custom_block_events[(int)BlockTypeOld::WOOD].onUpdate = &treeUpdate;
+    custom_block_events[(int)BlockTypes::wood.id].onUpdate = &treeUpdate;
 
-    custom_block_events[(int)BlockTypeOld::LEAVES].onUpdate = &treeUpdate;
+    custom_block_events[(int)BlockTypes::leaves.id].onUpdate = &treeUpdate;
 
-    custom_block_events[(int)BlockTypeOld::GRASS_BLOCK].onLeftClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
-        blocks_->setBlockType(x, y, BlockTypeOld::DIRT);
+    custom_block_events[(int)BlockTypes::grass_block.id].onLeftClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
+        blocks_->setBlockType(x, y, &BlockTypes::dirt);
     };
 
-    custom_block_events[(int)BlockTypeOld::AIR].onRightClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
-        BlockTypeOld type = ::getItemInfoOld(player->inventory.getSelectedSlot().type).places;
-        if(type != BlockTypeOld::AIR && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
+    custom_block_events[(int)BlockTypes::air.id].onRightClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
+        BlockType* type = player->inventory.getSelectedSlot().type->places;
+        if(type != &BlockTypes::air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
             blocks_->setBlockType(x, y, type);
         }
     };
 
-    custom_block_events[(int)BlockTypeOld::SNOWY_GRASS_BLOCK].onLeftClick = custom_block_events[(int)BlockTypeOld::GRASS_BLOCK].onLeftClick;
+    custom_block_events[(int)BlockTypes::snowy_grass_block.id].onLeftClick = custom_block_events[(int)BlockTypes::grass_block.id].onLeftClick;
     
-    custom_block_events[(int)BlockTypeOld::STONE].onUpdate = &stoneUpdate;
+    custom_block_events[(int)BlockTypes::stone.id].onUpdate = &stoneUpdate;
 }
 
 void ServerPlayers::stop() {
@@ -91,13 +92,13 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
         
         int spawn_y = 0;
         for(unsigned short y = 0; y < blocks->getHeight(); y++) {
-            if(!blocks->getBlockInfo(blocks->getWidth() / 2, y).transparent || !blocks->getBlockInfo(blocks->getWidth() / 2 + 1, y).transparent)
+            if(!blocks->getBlockType(blocks->getWidth() / 2, y)->transparent || !blocks->getBlockType(blocks->getWidth() / 2 + 1, y)->transparent)
                 break;
             spawn_y += BLOCK_WIDTH * 2;
         }
         spawn_y -= PLAYER_HEIGHT * 2;
         
-        player_data = new ServerPlayerData();
+        player_data = new ServerPlayerData(items);
         player_data->name = name;
         player_data->x = spawn_x;
         player_data->y = spawn_y;
@@ -128,24 +129,24 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 }
 
 void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
-    while(custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick)
-        custom_block_events[(int)blocks->getBlockType(x, y)].onLeftClick(blocks, x, y, player);
+    while(custom_block_events[(int)blocks->getBlockType(x, y)->id].onLeftClick)
+        custom_block_events[(int)blocks->getBlockType(x, y)->id].onLeftClick(blocks, x, y, player);
     
-    if(blocks->getBlockInfo(x, y).break_time != UNBREAKABLE)
+    if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
         blocks->startBreakingBlock(x, y);
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
-    if(custom_block_events[(int)blocks->getBlockType(x, y)].onRightClick)
-        custom_block_events[(int)blocks->getBlockType(x, y)].onRightClick(blocks, x, y, player);
+    if(custom_block_events[(int)blocks->getBlockType(x, y)->id].onRightClick)
+        custom_block_events[(int)blocks->getBlockType(x, y)->id].onRightClick(blocks, x, y, player);
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
-    all_players.emplace_back(new ServerPlayerData(iter));
+    all_players.emplace_back(new ServerPlayerData(items, iter));
     return iter;
 }
 
-ServerPlayerData::ServerPlayerData(char*& iter) {
+ServerPlayerData::ServerPlayerData(Items* items, char*& iter) : inventory(items) {
     iter = inventory.loadFromSerial(iter);
     
     x = 0;
@@ -194,8 +195,8 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
     }
     
     for(auto neighbor : neighbors)
-        if(neighbor[0] != -1 && custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate)
-            custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])].onUpdate(blocks, neighbor[0], neighbor[1]);
+        if(neighbor[0] != -1 && custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])->id].onUpdate)
+            custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])->id].onUpdate(blocks, neighbor[0], neighbor[1]);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
@@ -344,10 +345,10 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             unsigned char craft_index;
             event.packet >> craft_index;
             const RecipeOld* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
-            event.player->inventory.addItem(recipe_crafted->result_type, recipe_crafted->result_stack);
+            event.player->inventory.addItem(items->getItemTypeById((unsigned char)recipe_crafted->result_type), recipe_crafted->result_stack);
             
             for(auto ingredient : recipe_crafted->ingredients)
-                event.player->inventory.removeItem(ingredient.first, ingredient.second);
+                event.player->inventory.removeItem(items->getItemTypeById((unsigned char)ingredient.first), ingredient.second);
         }
             
         case ClientPacketType::PLAYER_MOVING_TYPE: {
@@ -371,7 +372,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     ItemStack item = inventory.getItem(event.item_pos);
     sf::Packet packet;
-    packet << ServerPacketType::INVENTORY << item.stack << (unsigned char)item.type << (short)event.item_pos;
+    packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (short)event.item_pos;
     connection->send(packet);
 }
 

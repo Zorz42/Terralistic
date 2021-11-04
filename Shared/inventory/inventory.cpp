@@ -3,8 +3,8 @@
 #include "properties.hpp"
 
 void Inventory::setItem(char pos, ItemStack item) {
-    item_counts[(int)getItem(pos).type] -= getItem(pos).stack;
-    item_counts[(int)item.type] += item.stack;
+    item_counts[(int)getItem(pos).type->id] -= getItem(pos).stack;
+    item_counts[(int)item.type->id] += item.stack;
     ItemStack& item_stack = pos == -1 ? mouse_item : inventory_arr[pos];
     item_stack = item;
     updateAvailableRecipes();
@@ -15,8 +15,8 @@ void Inventory::setItem(char pos, ItemStack item) {
 
 unsigned short Inventory::increaseStack(char pos, unsigned short stack) {
     int stack_to_be = getItem(pos).stack + stack, result;
-    if(stack_to_be > ::getItemInfoOld(getItem(pos).type).stack_size)
-        stack_to_be = ::getItemInfoOld(getItem(pos).type).stack_size;
+    if(stack_to_be > getItem(pos).type->stack_size)
+        stack_to_be = getItem(pos).type->stack_size;
     result = stack_to_be - getItem(pos).stack;
     setItem(pos, ItemStack(getItem(pos).type, stack_to_be));
     return (unsigned short)result;
@@ -25,7 +25,7 @@ unsigned short Inventory::increaseStack(char pos, unsigned short stack) {
 unsigned short Inventory::decreaseStack(char pos, unsigned short stack) {
     if(stack >= getItem(pos).stack) {
         unsigned short prev_stack = getItem(pos).stack;
-        setItem(pos, ItemStack(ItemTypeOld::NOTHING, 0));
+        setItem(pos, ItemStack(&ItemTypes::nothing, 0));
         return prev_stack;
     } else {
         setItem(pos, ItemStack(getItem(pos).type, getItem(pos).stack - stack));
@@ -35,22 +35,22 @@ unsigned short Inventory::decreaseStack(char pos, unsigned short stack) {
 
 char* Inventory::loadFromSerial(char *iter) {
     for(ItemStack& item : inventory_arr) {
-        item.type = (ItemTypeOld)*iter++;
+        item.type = items->getItemTypeById(*iter++);
         item.stack = 0;
         for(int i = 0; i < sizeof(short); i++)
             item.stack += (unsigned int)*iter++ << i * 8;
-        item_counts[(int)item.type] += item.stack;
+        item_counts[(int)item.type->id] += item.stack;
     }
     updateAvailableRecipes();
     return iter;
 }
 
-Inventory::Inventory() {
+Inventory::Inventory(Items* items) : items(items) {
     for(unsigned int& i : item_counts)
         i = 0;
 }
 
-char Inventory::addItem(ItemTypeOld id, int quantity) {
+char Inventory::addItem(ItemType* id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(getItem(i).type == id) {
             quantity -= increaseStack(i, (unsigned short)quantity);
@@ -58,7 +58,7 @@ char Inventory::addItem(ItemTypeOld id, int quantity) {
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(getItem(i).type == ItemTypeOld::NOTHING) {
+        if(getItem(i).type == &ItemTypes::nothing) {
             setItem(i, ItemStack(id, getItem(i).stack));
             quantity -= increaseStack(i, (unsigned short)quantity);
             if(!quantity)
@@ -67,7 +67,7 @@ char Inventory::addItem(ItemTypeOld id, int quantity) {
     return -1;
 }
 
-char Inventory::removeItem(ItemTypeOld id, int quantity) {
+char Inventory::removeItem(ItemType* id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].type == id) {
             quantity -= decreaseStack(i, (unsigned short)quantity);
@@ -100,7 +100,7 @@ void Inventory::swapWithMouseItem(char pos) {
 
 void Inventory::serialize(std::vector<char> &serial) const {
     for(ItemStack item : inventory_arr) {
-        serial.push_back((char)item.type);
+        serial.push_back((char)item.type->id);
         serial.insert(serial.end(), {0, 0});
         for(int i = 0; i < sizeof(short); i++)
             serial[serial.size() - sizeof(short) + i] = (short)(unsigned char)item.stack >> i * 8;

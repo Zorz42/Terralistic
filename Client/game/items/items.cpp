@@ -31,7 +31,7 @@ void ClientItems::render() {
     for(Entity* entity : entities->getEntities()) {
         if(entity->type == EntityType::ITEM) {
             Item* item = (Item*)entity;
-            gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());
+            gfx::RectShape rect = resource_pack->getTextureRectangle((ItemTypeOld)item->getType()->id);
             item_rects.setTextureCoords(item_index, rect);
 
             short item_x = item->getX() - blocks->view_x + gfx::getWindowWidth() / 2;
@@ -50,11 +50,10 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
         case ServerPacketType::ITEM_CREATION: {
             int x, y;
             unsigned short id;
-            unsigned char type_char;
-            event.packet >> x >> y >> id >> type_char;
-            ItemTypeOld type = (ItemTypeOld)type_char;
+            unsigned char type;
+            event.packet >> x >> y >> id >> type;
             
-            Item* item = new Item(type, x, y, id);
+            Item* item = new Item(getItemTypeById(type), x, y, id);
             entities->registerEntity(item);
             
             ItemCreationEvent item_event(item);

@@ -11,6 +11,7 @@
 #include "server.hpp"
 #include "blockSelector.hpp"
 #include "compress.hpp"
+#include "content.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535
@@ -115,7 +116,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     items(&resource_pack, &blocks, &entities, &networking),
     players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, username),
     block_selector(&networking, &blocks, &players),
-    inventory(&networking, &resource_pack),
+    inventory(&networking, &resource_pack, &items),
     minimap(settings, &blocks, &liquids, &lights, &natural_light),
     chat(&networking),
     debug_menu(&players, &blocks)
@@ -140,6 +141,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 }
 
 void Game::init() {
+    addContent(&blocks, &liquids, &items);
     for(ClientModule* module : modules)
         module->postInit();
 }

@@ -33,7 +33,7 @@ bool Particle::isColliding(Blocks* blocks, float colliding_x, float colliding_y)
     
     for(int x_ = starting_x; x_ <= ending_x; x_++)
         for(int y_ = starting_y; y_ <= ending_y; y_++)
-            if(!blocks->getBlockInfo(x_, y_).ghost)
+            if(!blocks->getBlockType(x_, y_)->ghost)
                 return true;
     
     return false;

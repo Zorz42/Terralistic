@@ -36,8 +36,8 @@ void Minimap::render() {
             unsigned char light_level = MAX_LIGHT;
             
             if(block_x >= 0 && block_y >= 0 && block_x < blocks->getWidth() && block_y < blocks->getHeight()) {
-                block_color = blocks->getBlockInfo(block_x, block_y).color;
-                liquid_color = blocks->getBlockInfo(block_x, block_y).color;
+                block_color = blocks->getBlockType(block_x, block_y)->color;
+                liquid_color = blocks->getBlockType(block_x, block_y)->color;
                 light_level = lights->getLightLevel(block_x, block_y);
                 
                 if(lights->hasScheduledLightUpdate(block_x, block_y))

@@ -9,8 +9,8 @@
 
 class ServerPlayerData {
 public:
-    ServerPlayerData(char*& iter);
-    ServerPlayerData() = default;
+    ServerPlayerData(Items* items, char*& iter);
+    ServerPlayerData(Items* items) : inventory(items) {}
     
     void serialize(std::vector<char>& serial) const;
     
