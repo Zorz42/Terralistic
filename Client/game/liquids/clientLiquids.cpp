@@ -7,7 +7,7 @@ void ClientLiquids::onEvent(ClientPacketEvent &event) {
             unsigned char liquid_type, liquid_level;
             event.packet >> x >> y >> liquid_type >> liquid_level;
             
-            setLiquidType(x, y, (LiquidTypeOld)liquid_type);
+            setLiquidType(x, y, getLiquidTypeById(liquid_type));
             setLiquidLevel(x, y, liquid_level);
             
             break;
@@ -44,7 +44,7 @@ void ClientLiquids::render() {
         for(unsigned short y = blocks->getViewBeginY(); y < blocks->getViewEndY(); y++) {
             int block_x = x * BLOCK_WIDTH * 2 - blocks->view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - blocks->view_y + gfx::getWindowHeight() / 2;
 
-            if(getLiquidType(x, y) != LiquidTypeOld::EMPTY) {
+            if(getLiquidType(x, y) != &LiquidTypes::empty) {
                 int texture_y = resource_pack->getTextureRectangle(getLiquidType(x, y)).y * 2;
                 
                 liquid_rects.setTextureCoords(liquid_index, {0, (short)texture_y, BLOCK_WIDTH, BLOCK_WIDTH});

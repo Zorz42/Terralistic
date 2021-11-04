@@ -49,7 +49,7 @@ void addBlocks(Blocks* blocks, Items* items) {
 }
 
 void addLiquids(Liquids* liquids) {
-    
+    liquids->registerNewLiquidType(&LiquidTypes::water);
 }
 
 void addItems(Items* items) {

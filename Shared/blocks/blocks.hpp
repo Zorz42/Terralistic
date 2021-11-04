@@ -1,10 +1,11 @@
 #pragma once
 
 #include <vector>
-#include "properties.hpp"
 #include "events.hpp"
+#include "graphics.hpp"
 
 #define BLOCK_WIDTH 8
+#define UNBREAKABLE -1
 
 class BlockChangeEvent {
 public:

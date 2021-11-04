@@ -83,8 +83,6 @@ int main(int argc, char **argv) {
     fps_setting.setting_change_event.addListener(&fps_change_listener);
     settings.addSetting(&fps_setting);
     
-    initProperties();
-    
     MenuBack menu_back;
     menu_back.init();
     

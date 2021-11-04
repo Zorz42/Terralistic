@@ -1,6 +1,5 @@
 #pragma once
 
-#include "properties.hpp"
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
 #include "clientBlocks.hpp"

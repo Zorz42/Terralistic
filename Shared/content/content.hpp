@@ -21,7 +21,7 @@ namespace BlockTypes {
 }
 
 namespace LiquidTypes {
-    
+    inline LiquidType water(/*name*/"water", /*flow_time*/100, /*speed_multiplier*/0.5, /*color*/{0, 92, 230, 150});
 }
 
 namespace ItemTypes {

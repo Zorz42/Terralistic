@@ -61,7 +61,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     
     std::vector<ServerPlayerData*> all_players;
 
-    BlockEvents custom_block_events[(int)BlockTypeOld::NUM_BLOCKS];
+    BlockEvents *custom_block_events = nullptr;
     
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(ServerNewConnectionEvent& event) override;

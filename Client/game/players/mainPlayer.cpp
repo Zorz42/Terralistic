@@ -111,7 +111,7 @@ void ClientPlayers::update(float frame_length) {
         
         for(int x = starting_x; x <= ending_x; x++)
             for(int y = starting_y; y <= ending_y; y++)
-                speed_multiplier = std::min(speed_multiplier, liquids->getLiquidInfo(x, y).speed_multiplier);
+                speed_multiplier = std::min(speed_multiplier, liquids->getLiquidType(x, y)->speed_multiplier);
         
         blocks->view_x += (main_player->getX() - blocks->view_x + PLAYER_WIDTH) / 8;
         blocks->view_y += (main_player->getY() - blocks->view_y + PLAYER_HEIGHT) / 8;

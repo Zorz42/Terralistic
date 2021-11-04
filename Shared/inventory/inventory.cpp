@@ -1,6 +1,5 @@
 #include <algorithm>
 #include "inventory.hpp"
-#include "properties.hpp"
 
 void Inventory::setItem(char pos, ItemStack item) {
     item_counts[(int)getItem(pos).type->id] -= getItem(pos).stack;
@@ -46,8 +45,9 @@ char* Inventory::loadFromSerial(char *iter) {
 }
 
 Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes) {
-    for(unsigned int& i : item_counts)
-        i = 0;
+    item_counts = new unsigned int[items->getNumItemTypes()];
+    for(int i = 0; i < items->getNumItemTypes(); i++)
+        item_counts[i] = 0;
 }
 
 char Inventory::addItem(ItemType* id, int quantity) {
@@ -128,4 +128,24 @@ void Recipes::registerARecipe(Recipe* recipe) {
 
 const std::vector<Recipe*>& Recipes::getAllRecipes() {
     return recipes;
+}
+
+Inventory& Inventory::operator=(Inventory& inventory) {
+    items = inventory.items;
+    recipes = inventory.recipes;
+    
+    selected_slot = inventory.selected_slot;
+    for(int i = 0; i < INVENTORY_SIZE; i++)
+        inventory_arr[i] = inventory.inventory_arr[i];
+    mouse_item = inventory.mouse_item;
+    item_counts = new unsigned int[items->getNumItemTypes()];
+    for(int i = 0; i < items->getNumItemTypes(); i++)
+        item_counts[i] = inventory.item_counts[i];
+    available_recipes = inventory.available_recipes;
+    
+    return *this;
+}
+
+Inventory::~Inventory() {
+    delete[] item_counts;
 }

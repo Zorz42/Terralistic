@@ -113,7 +113,6 @@
 		361DD1BA26F7478900129191 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85CA26AA0B9E00DB87B1 /* graphics.cpp */; };
 		361DD1BC26F7478900129191 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		361DD1BD26F7478900129191 /* rectShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03AE26E1400D0045FEA9 /* rectShape.cpp */; };
-		361DD1BE26F7478900129191 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		361DD1C026F7478900129191 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		361DD1C126F7478900129191 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 166D85C826AA0B9E00DB87B1 /* rect.cpp */; };
 		361DD1C226F7478900129191 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
@@ -180,7 +179,6 @@
 		36D26F262731E91100F1F476 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36D26F252731E91100F1F476 /* icon.png */; };
 		36D26F272731E91100F1F476 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36D26F252731E91100F1F476 /* icon.png */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
-		36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DDF87C2689EAF9002337F3 /* properties.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
 		36DDF8AD2689F725002337F3 /* serverPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 168600DE2681DB7300763775 /* serverPlayers.cpp */; };
@@ -402,8 +400,6 @@
 		36D26F252731E91100F1F476 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
-		36DDF87C2689EAF9002337F3 /* properties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = properties.cpp; sourceTree = "<group>"; };
-		36DDF87D2689EAF9002337F3 /* properties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = properties.hpp; sourceTree = "<group>"; };
 		36EBE54226B1AC81005D2115 /* theme.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = theme.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -691,7 +687,6 @@
 				1695428D2680B5B400F1F4FE /* versions.hpp */,
 				1682944126A16D5C0017E2FD /* packetType */,
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
-				36DDF87A2689EAC5002337F3 /* properties */,
 				169AD3A027023B590096D80D /* blocks */,
 				1674225C2702F35800D6D8F2 /* liquids */,
 				1676AF3327044CB300321C8B /* lights */,
@@ -1151,15 +1146,6 @@
 			path = compress;
 			sourceTree = "<group>";
 		};
-		36DDF87A2689EAC5002337F3 /* properties */ = {
-			isa = PBXGroup;
-			children = (
-				36DDF87D2689EAF9002337F3 /* properties.hpp */,
-				36DDF87C2689EAF9002337F3 /* properties.cpp */,
-			);
-			path = properties;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1357,7 +1343,6 @@
 				16A0E8AE26FDBE630069211C /* minimap.cpp in Sources */,
 				36D31CD926DBE330006F89B3 /* compress.cpp in Sources */,
 				167C03AF26E1400D0045FEA9 /* rectShape.cpp in Sources */,
-				36DDF87E2689EAF9002337F3 /* properties.cpp in Sources */,
 				169990A92700E25300224E11 /* naturalLight.cpp in Sources */,
 				167513C426A498DA00E21C68 /* biomes.cpp in Sources */,
 				166D85D526AA0B9E00DB87B1 /* rect.cpp in Sources */,
@@ -1414,7 +1399,6 @@
 				361DD1BA26F7478900129191 /* graphics.cpp in Sources */,
 				361DD1BC26F7478900129191 /* compress.cpp in Sources */,
 				361DD1BD26F7478900129191 /* rectShape.cpp in Sources */,
-				361DD1BE26F7478900129191 /* properties.cpp in Sources */,
 				167B53D2270A271D000089B3 /* serverEntities.cpp in Sources */,
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
 				361DD1C126F7478900129191 /* rect.cpp in Sources */,

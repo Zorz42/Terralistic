@@ -1,5 +1,4 @@
 #include "items.hpp"
-#include "properties.hpp"
 
 ItemType::ItemType(std::string name, unsigned short stack_size, BlockType* places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 

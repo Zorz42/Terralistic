@@ -73,7 +73,7 @@ void ClientInventory::render() {
             hovered = i;
             if(inventory.getItem(i).type != &ItemTypes::nothing) {
                 tooltip_active = true;
-                text_texture = &resource_pack->getItemTextTexture((ItemTypeOld)inventory.getItem(i).type->id);
+                text_texture = &resource_pack->getItemTextTexture(inventory.getItem(i).type);
                 under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setX(getMouseX() + 20 - INVENTORY_UI_SPACING);
@@ -138,7 +138,7 @@ void ClientInventory::render() {
 
 void ClientInventory::renderItem(ItemStack item, short x, short y) {
     const gfx::Texture& texture = resource_pack->getItemTexture();
-    texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, resource_pack->getTextureRectangle((ItemTypeOld)item.type->id));
+    texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, resource_pack->getTextureRectangle(item.type));
     
     if(item.stack > 1) {
         int stack = item.stack, number_x = x + BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING / 2;

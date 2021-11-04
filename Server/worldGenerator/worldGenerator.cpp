@@ -150,7 +150,7 @@ void WorldGenerator::generateBlockIcyOcean(unsigned int x, unsigned int y, siv::
     else if(y > blocks->getHeight() / 3 * 2 - noise.noise1D((float)x / 4 + 0.125) - 2)
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::ice_block);
     else{
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -197,7 +197,7 @@ void WorldGenerator::generateBlockOcean(unsigned int x, unsigned int y, siv::Per
     if(y <= surface_height[x])
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
     else{
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -212,7 +212,7 @@ void WorldGenerator::generateBlockPlains(unsigned int x, unsigned int y, siv::Pe
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
     }else
     if(y < blocks->getHeight() / 3 * 2){
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -227,7 +227,7 @@ void WorldGenerator::generateBlockHills(unsigned int x, unsigned int y, siv::Per
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
     }else
     if(y < blocks->getHeight() / 3 * 2){
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -236,7 +236,7 @@ void WorldGenerator::generateBlockMountains(unsigned int x, unsigned int y, siv:
     if(y <= surface_height[x])
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
     else {
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -245,7 +245,7 @@ void WorldGenerator::generateBlockWarmOcean(unsigned int x, unsigned int y, siv:
     if(y <= surface_height[x])
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
     else{
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -257,7 +257,7 @@ void WorldGenerator::generateBlockDesert(unsigned int x, unsigned int y, siv::Pe
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::sand);
     }else{
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -272,7 +272,7 @@ void WorldGenerator::generateBlockSavanaHills(unsigned int x, unsigned int y, si
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
     }else
     if(y < blocks->getHeight() / 3 * 2){
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -287,7 +287,7 @@ void WorldGenerator::generateBlockSavanaMountains(unsigned int x, unsigned int y
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
     }else
     if(y < blocks->getHeight() / 3 * 2){
-        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, LiquidTypeOld::WATER);
+        liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, 255);
     }
 }
@@ -327,13 +327,13 @@ void WorldGenerator::generateCaveLakes(std::mt19937& seeded_random) {
 }
 
 void WorldGenerator::generateLakeRecursively(int x, int y) {
-    liquids->setLiquidTypeSilently(x, y, LiquidTypeOld::WATER);
+    liquids->setLiquidTypeSilently(x, y, &LiquidTypes::water);
     liquids->setLiquidLevelSilently(x, y, 255);
-    if(y != blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &BlockTypes::air && liquids->getLiquidType(x, y + 1) == LiquidTypeOld::EMPTY)
+    if(y != blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &BlockTypes::air && liquids->getLiquidType(x, y + 1) == &LiquidTypes::empty)
         generateLakeRecursively(x, y + 1);
-    if(x != 0 && blocks->getBlockType(x - 1, y) == &BlockTypes::air && liquids->getLiquidType(x - 1, y) == LiquidTypeOld::EMPTY)
+    if(x != 0 && blocks->getBlockType(x - 1, y) == &BlockTypes::air && liquids->getLiquidType(x - 1, y) == &LiquidTypes::empty)
         generateLakeRecursively(x - 1, y);
-    if(x != blocks->getWidth() - 1 && blocks->getBlockType(x + 1, y) == &BlockTypes::air && liquids->getLiquidType(x + 1, y) == LiquidTypeOld::EMPTY)
+    if(x != blocks->getWidth() - 1 && blocks->getBlockType(x + 1, y) == &BlockTypes::air && liquids->getLiquidType(x + 1, y) == &LiquidTypes::empty)
         generateLakeRecursively(x + 1, y);
 }
 
@@ -359,7 +359,7 @@ void WorldGenerator::generateStones(std::mt19937& seeded_random) {
     unsigned int x;
     for(int i = 0; i < 100; i++){
         x = seeded_random() % blocks->getWidth();
-        if(liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == LiquidTypeOld::EMPTY)
+        if(liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &LiquidTypes::empty)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, &BlockTypes::stone);
     }
 }

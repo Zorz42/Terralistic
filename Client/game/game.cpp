@@ -107,6 +107,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     settings(settings),
     
     networking(ip_address, port, username),
+    resource_pack(&blocks, &liquids, &items),
     blocks(&resource_pack, &networking, &lights),
     particles(settings, &blocks),
     liquids(&blocks, &resource_pack, &networking),
@@ -138,10 +139,11 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 #ifdef DEVELOPER_MODE
     registerAModule(&debug_menu);
 #endif
+    
+    addContent(&blocks, &liquids, &items, &recipes);
 }
 
 void Game::init() {
-    addContent(&blocks, &liquids, &items, &recipes);
     for(ClientModule* module : modules)
         module->postInit();
 }

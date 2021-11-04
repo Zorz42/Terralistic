@@ -1,5 +1,4 @@
 #include "clientItems.hpp"
-#include "properties.hpp"
 #include "resourcePack.hpp"
 
 void ClientItems::init() {
@@ -31,7 +30,7 @@ void ClientItems::render() {
     for(Entity* entity : entities->getEntities()) {
         if(entity->type == EntityType::ITEM) {
             Item* item = (Item*)entity;
-            gfx::RectShape rect = resource_pack->getTextureRectangle((ItemTypeOld)item->getType()->id);
+            gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());
             item_rects.setTextureCoords(item_index, rect);
 
             short item_x = item->getX() - blocks->view_x + gfx::getWindowWidth() / 2;

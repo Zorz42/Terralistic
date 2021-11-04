@@ -1,6 +1,5 @@
 #pragma once
 
-#include "properties.hpp"
 #include "blocks.hpp"
 #include "serverModule.hpp"
 #include <vector>

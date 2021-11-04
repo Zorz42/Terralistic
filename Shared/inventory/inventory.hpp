@@ -1,6 +1,5 @@
 #pragma once
 
-#include "properties.hpp"
 #include "events.hpp"
 #include "items.hpp"
 
@@ -42,7 +41,7 @@ class Inventory {
     Recipes* recipes;
     
     ItemStack mouse_item;
-    unsigned int item_counts[(int)ItemTypeOld::NUM_ITEMS];
+    unsigned int *item_counts = nullptr;
     std::vector<const Recipe*> available_recipes;
     ItemStack inventory_arr[INVENTORY_SIZE];
     bool hasIngredientsForRecipe(const Recipe* recipe);
@@ -68,5 +67,9 @@ public:
     void serialize(std::vector<char>& serial) const;
     char* loadFromSerial(char* iter);
     
+    Inventory& operator=(Inventory& inventory);
+    
     EventSender<InventoryItemChangeEvent> item_change_event;
+    
+    ~Inventory();
 };

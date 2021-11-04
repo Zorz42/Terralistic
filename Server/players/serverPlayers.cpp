@@ -37,6 +37,8 @@ static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
 }
 
 void ServerPlayers::init() {
+    custom_block_events = new BlockEvents[blocks->getNumBlockTypes()];
+    
     blocks->block_change_event.addListener(this);
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);
@@ -72,6 +74,8 @@ void ServerPlayers::stop() {
     
     for(ServerPlayerData* i : all_players)
         delete i;
+    
+    delete[] custom_block_events;
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
