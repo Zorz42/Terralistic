@@ -19,15 +19,15 @@ Blocks::Block* Blocks::getBlock(int x, int y) {
 }
 
 BlockType* Blocks::getBlockType(int x, int y) {
-    return getBlock(x, y)->type;
+    return getBlockTypeById(getBlock(x, y)->id);
 }
 
 void Blocks::setBlockTypeSilently(int x, int y, BlockType* type) {
-    getBlock(x, y)->type = type;
+    getBlock(x, y)->id = type->id;
 }
 
 void Blocks::setBlockType(int x, int y, BlockType* type) {
-    if(type != getBlock(x, y)->type) {
+    if(type->id != getBlock(x, y)->id) {
         setBlockTypeSilently(x, y, type);
         
         for(int i = 0; i < breaking_blocks.size(); i++)
@@ -116,7 +116,7 @@ void Blocks::serialize(std::vector<char>& serial) {
     iter += 2;
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
-        serial[iter++] = (char)block->type->id;
+        serial[iter++] = (char)block->id;
         block++;
     }
 }
@@ -130,7 +130,7 @@ char* Blocks::loadFromSerial(char* iter) {
     create(width_, height_);
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
-        block->type = getBlockTypeById(*iter++);
+        block->id = *iter++;
         block++;
     }
     return iter;

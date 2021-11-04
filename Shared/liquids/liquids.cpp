@@ -14,11 +14,11 @@ Liquids::Liquid* Liquids::getLiquid(int x, int y) {
 }
 
 LiquidType* Liquids::getLiquidType(int x, int y) {
-    return getLiquid(x, y)->type;
+    return getLiquidTypeById(getLiquid(x, y)->id);
 }
 
 void Liquids::setLiquidTypeSilently(int x, int y, LiquidType* type) {
-    getLiquid(x, y)->type = type;
+    getLiquid(x, y)->id = type->id;
 }
 
 void Liquids::setLiquidType(int x, int y, LiquidType* type) {
@@ -153,7 +153,7 @@ void Liquids::serialize(std::vector<char>& serial) {
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
-                serial.push_back((char)liquid->type->id);
+                serial.push_back((char)liquid->id);
                 if(getLiquidType(x, y) != &LiquidTypes::empty)
                     serial.push_back((char)liquid->level);
             }
@@ -167,8 +167,8 @@ char* Liquids::loadFromSerial(char* iter) {
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
-                liquid->type = getLiquidTypeById(*iter++);
-                if(liquid->type != &LiquidTypes::empty)
+                liquid->id = *iter++;
+                if(liquid->id != LiquidTypes::empty.id)
                     liquid->level = *iter++;
             }
             liquid++;

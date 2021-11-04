@@ -29,7 +29,7 @@ namespace LiquidTypes {
 class Liquids {
     class Liquid {
     public:
-        LiquidType* type = &LiquidTypes::empty;
+        unsigned char id = LiquidTypes::empty.id;
         FlowDirection flow_direction:8;
         unsigned char level = 0;
         unsigned int when_to_update = 1;

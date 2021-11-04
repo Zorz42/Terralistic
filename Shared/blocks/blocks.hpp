@@ -51,7 +51,7 @@ namespace BlockTypes {
 class Blocks {
     class Block {
     public:
-        BlockType* type = &BlockTypes::air;
+        unsigned char id = BlockTypes::air.id;
     };
     
     class BreakingBlock {
