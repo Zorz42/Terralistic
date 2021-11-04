@@ -214,6 +214,7 @@ namespace gfx {
         void switchToScene(Scene& scene);
         void cycleModules();
         void returnFromScene();
+        const std::vector<SceneModule*>& getModules();
     };
     
     void init(const std::string& resource_path_, unsigned short window_width_, unsigned short window_height_);

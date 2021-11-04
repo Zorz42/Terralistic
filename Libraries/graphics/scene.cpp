@@ -6,6 +6,10 @@ void gfx::Scene::registerAModule(SceneModule* module) {
     modules.push_back(module);
 }
 
+const std::vector<gfx::SceneModule*>& gfx::Scene::getModules() {
+    return modules;
+}
+
 short gfx::SceneModule::getMouseX() {
     return mouse_x;
 }

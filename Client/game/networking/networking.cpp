@@ -27,10 +27,8 @@ void ClientNetworking::update(float frame_length) {
 
 void ClientNetworking::init() {
     packet_event.addListener(this);
-    if(socket.connect(ip_address, port) != sf::Socket::Done) {
-        GameErrorEvent error_event("Could not connect to the server!");
-        game_error_event.call(error_event);
-    }
+    if(socket.connect(ip_address, port) != sf::Socket::Done)
+        throw InvalidConnectionException();
 }
 
 void ClientNetworking::stop() {
@@ -72,8 +70,7 @@ void ClientNetworking::onEvent(ClientPacketEvent& event) {
         std::string kick_message;
         event.packet >> kick_message;
         
-        GameErrorEvent error_event(kick_message);
-        game_error_event.call(error_event);
+        throw KickException(kick_message);
     }
 }
 

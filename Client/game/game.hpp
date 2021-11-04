@@ -20,13 +20,10 @@
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
-class Game : gfx::Scene, EventListener<GameErrorEvent>, public BackgroundRect {
-    void onEvent(GameErrorEvent& event) override;
-    
+class Game : gfx::Scene, public BackgroundRect {
     void init() override;
     bool onKeyDown(gfx::Key key) override;
     void render() override;
-    void stop() override;
     
     std::string username;
     
@@ -52,10 +49,6 @@ class Game : gfx::Scene, EventListener<GameErrorEvent>, public BackgroundRect {
     BackgroundRect* background_rect;
     bool handshake_done = false;
     std::string kick_reason;
-    
-    std::vector<ClientModule*> modules;
-    
-    void registerAModule(ClientModule* module);
 public:
     Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, unsigned short port=33770);
     

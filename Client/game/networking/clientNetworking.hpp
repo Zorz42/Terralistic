@@ -41,3 +41,20 @@ public:
     EventSender<ClientPacketEvent> packet_event;
     EventSender<WelcomePacketEvent> welcome_packet_event;
 };
+
+class InvalidConnectionException : public std::exception {
+public:
+    const char* what() const throw() {
+        return "Could not connect to the server!";
+    }
+};
+
+class KickException : public std::exception {
+    std::string message;
+public:
+    KickException(std::string message) : message(message) {}
+    
+    const char* what() const throw() {
+        return message.c_str();
+    }
+};

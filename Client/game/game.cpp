@@ -145,12 +145,18 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 }
 
 void Game::start() {
-    run();
+    try {
+        run();
+    } catch (const std::exception& e) {
+        ChoiceScreen choice_screen(background_rect, e.what(), {"Close"});
+        switchToScene(choice_screen);
+    }
 }
 
 void Game::init() {
-    for(ClientModule* module : modules)
-        module->postInit();
+    for(gfx::SceneModule* module : getModules()) {
+        ((ClientModule*)module)->postInit();
+    }
 }
 
 void Game::render() {
@@ -177,21 +183,4 @@ bool Game::onKeyDown(gfx::Key key) {
 
 bool Game::isHandshakeDone() {
     return handshake_done;
-}
-
-void Game::registerAModule(ClientModule* module) {
-    Scene::registerAModule(module);
-    module->game_error_event.addListener(this);
-    modules.push_back(module);
-}
-
-void Game::onEvent(GameErrorEvent& event) {
-    ChoiceScreen choice_screen(background_rect, event.message, {"Close"});
-    switchToScene(choice_screen);
-    returnFromScene();
-}
-
-void Game::stop() {
-    for(ClientModule* module : modules)
-        module->game_error_event.removeListener(this);
 }
