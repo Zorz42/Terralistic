@@ -954,10 +954,10 @@
 		365721CF26D07180005AB3CC /* game */ = {
 			isa = PBXGroup;
 			children = (
-				167A2A802712DB9A0022F8F2 /* clientModule.hpp */,
-				1679733A2712300F00E90477 /* blocks */,
+				36D26F282734635E00F1F476 /* clientModule */,
 				365721D026D07180005AB3CC /* networking */,
 				365721E426D07180005AB3CC /* resourcePack */,
+				1679733A2712300F00E90477 /* blocks */,
 				169D0DF7271C101400F1D484 /* particles */,
 				1679733B2712301400E90477 /* liquids */,
 				1679733C2712301900E90477 /* lights */,
@@ -1135,6 +1135,14 @@
 				3692C14D26E509F100F9DD71 /* entities.cpp */,
 			);
 			path = entities;
+			sourceTree = "<group>";
+		};
+		36D26F282734635E00F1F476 /* clientModule */ = {
+			isa = PBXGroup;
+			children = (
+				167A2A802712DB9A0022F8F2 /* clientModule.hpp */,
+			);
+			path = clientModule;
 			sourceTree = "<group>";
 		};
 		36D31CD626DBE31D006F89B3 /* compress */ = {
