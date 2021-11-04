@@ -66,7 +66,7 @@ void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
     for(int x = 0; x < blocks->getWidth(); x++) {
         for (auto &checking_structure: loaded_biomes[(int) biomes->biomes[x]].structure_chances) {
             if ((noise.noise2D((float) x + 0.5, (float) surface_height[x] + 0.5) + 1) * checking_structure.chance_on_each_block <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance_between_instances) {
-                structurePositions.emplace_back(structurePosition(checking_structure.structure_name +
+                structurePositions.emplace_back(StructurePosition(checking_structure.structure_name +
                                                                   std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) surface_height[x] - 0.5) + 1) / 2 * checking_structure.unique_structures_of_type)),
                                                                   x, surface_height[x] - 1));
                 checking_structure.x_of_last_instance = x;
@@ -465,7 +465,7 @@ void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937&
     generateOres(noise, seeded_random);
     generateStones(seeded_random);
     placeStructures(noise);
-    for (const structurePosition& i : structurePositions) {
+    for (const StructurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }
 }

@@ -45,7 +45,7 @@ char* Inventory::loadFromSerial(char *iter) {
     return iter;
 }
 
-Inventory::Inventory(Items* items) : items(items) {
+Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes) {
     for(unsigned int& i : item_counts)
         i = 0;
 }
@@ -107,18 +107,25 @@ void Inventory::serialize(std::vector<char> &serial) const {
     }
 }
 
-bool Inventory::hasIngredientsForRecipe(const RecipeOld& recipe) {
-    return std::all_of(recipe.ingredients.begin(), recipe.ingredients.end(), [this](auto ingredient){ return item_counts[(int)ingredient.first] >= ingredient.second; });
+bool Inventory::hasIngredientsForRecipe(const Recipe* recipe) {
+    return std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){ return item_counts[(int)ingredient.first->id] >= ingredient.second; });
 }
 
-const std::vector<const RecipeOld*>& Inventory::getAvailableRecipes() {
+const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
     return available_recipes;
 }
 
 void Inventory::updateAvailableRecipes() {
     available_recipes.clear();
-    for(const RecipeOld& recipe : getRecipesOld())
+    for(const Recipe* recipe : recipes->getAllRecipes())
         if(hasIngredientsForRecipe(recipe))
-            available_recipes.emplace_back(&recipe);
+            available_recipes.emplace_back(recipe);
 }
 
+void Recipes::registerARecipe(Recipe* recipe) {
+    recipes.push_back(recipe);
+}
+
+const std::vector<Recipe*>& Recipes::getAllRecipes() {
+    return recipes;
+}

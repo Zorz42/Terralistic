@@ -112,7 +112,7 @@ void ClientInventory::render() {
             
             back_rect.render(color);
             
-            renderItem(ItemStack(items->getItemTypeById((unsigned char)inventory.getAvailableRecipes()[i]->result_type), inventory.getAvailableRecipes()[i]->result_stack), slot_x, slot_y);
+            renderItem(ItemStack(inventory.getAvailableRecipes()[i]->result.type, inventory.getAvailableRecipes()[i]->result.stack), slot_x, slot_y);
         }
         
         if(hovered_recipe != -1) {
@@ -127,7 +127,7 @@ void ClientInventory::render() {
             for(auto ingredient : inventory.getAvailableRecipes()[hovered_recipe]->ingredients) {
                 gfx::RectShape back_rect(x, y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
                 back_rect.render(GREY);
-                renderItem(ItemStack(items->getItemTypeById((unsigned char)ingredient.first), ingredient.second), x, y);
+                renderItem(ItemStack(ingredient.first, ingredient.second), x, y);
                 x += INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2;
             }
         }

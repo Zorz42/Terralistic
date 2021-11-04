@@ -116,7 +116,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     items(&resource_pack, &blocks, &entities, &networking),
     players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, username),
     block_selector(&networking, &blocks, &players),
-    inventory(&networking, &resource_pack, &items),
+    inventory(&networking, &resource_pack, &items, &recipes),
     minimap(settings, &blocks, &liquids, &lights, &natural_light),
     chat(&networking),
     debug_menu(&players, &blocks)
@@ -141,7 +141,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 }
 
 void Game::init() {
-    addContent(&blocks, &liquids, &items);
+    addContent(&blocks, &liquids, &items, &recipes);
     for(ClientModule* module : modules)
         module->postInit();
 }

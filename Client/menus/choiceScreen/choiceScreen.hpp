@@ -5,7 +5,8 @@
 #include "graphics.hpp"
 #include "menuBack.hpp"
 
-struct ChoiceScreenButton {
+class ChoiceScreenButton {
+public:
     std::string option;
     gfx::Button gfx_button;
 };

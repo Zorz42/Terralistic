@@ -3,6 +3,7 @@
 #include "blocks.hpp"
 #include "liquids.hpp"
 #include "items.hpp"
+#include "inventory.hpp"
 
 namespace BlockTypes {
     extern BlockType dirt;
@@ -32,4 +33,4 @@ namespace ItemTypes {
     inline ItemType copper_ore (/*name*/"copper_ore",  /*max_stack*/99, /*places*/&BlockTypes::copper_ore );
 }
 
-void addContent(Blocks* blocks, Liquids* liquids, Items* items);
+void addContent(Blocks* blocks, Liquids* liquids, Items* items, Recipes* recipes);

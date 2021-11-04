@@ -27,7 +27,8 @@ namespace LiquidTypes {
 }
 
 class Liquids {
-    struct Liquid {
+    class Liquid {
+    public:
         LiquidTypeOld type:8;
         FlowDirection flow_direction:8;
         unsigned char level = 0;

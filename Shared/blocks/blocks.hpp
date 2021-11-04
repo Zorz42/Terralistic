@@ -48,11 +48,13 @@ namespace BlockTypes {
 };
 
 class Blocks {
-    struct Block {
+    class Block {
+    public:
         BlockType* type = &BlockTypes::air;
     };
     
-    struct BreakingBlock {
+    class BreakingBlock {
+    public:
         unsigned short break_progress = 0;
         bool is_breaking = true;
         int x, y;

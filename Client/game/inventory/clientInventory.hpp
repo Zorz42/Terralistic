@@ -33,7 +33,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     ClientNetworking* manager;
     Items* items;
 public:
-    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, Items* items) : manager(manager), resource_pack(resource_pack), inventory(items), items(items) {}
+    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, Items* items, Recipes* recipes) : manager(manager), resource_pack(resource_pack), inventory(items, recipes), items(items) {}
     
     char* loadFromSerial(char* iter);
 };

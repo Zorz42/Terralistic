@@ -7,7 +7,8 @@
 #include "lights.hpp"
 
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
-    struct RenderBlock {
+    class RenderBlock {
+    public:
         unsigned char variation = rand(), state = 16;
     };
     

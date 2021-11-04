@@ -8,9 +8,10 @@
 
 enum class BiomeType {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
-struct StructureChance;
+class StructureChance;
 
-struct Biome {
+class Biome {
+public:
     BiomeType biome_name;
     int surface_height;
     int surface_height_variation;
@@ -20,7 +21,8 @@ struct Biome {
 };
 
 
-struct StructureChance {
+class StructureChance {
+public:
     std::string structure_name;
     float chance_on_each_block;
     int least_distance_between_instances;

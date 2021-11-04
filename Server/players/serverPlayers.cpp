@@ -98,7 +98,7 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
         }
         spawn_y -= PLAYER_HEIGHT * 2;
         
-        player_data = new ServerPlayerData(items);
+        player_data = new ServerPlayerData(items, recipes);
         player_data->name = name;
         player_data->x = spawn_x;
         player_data->y = spawn_y;
@@ -142,11 +142,11 @@ void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsi
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
-    all_players.emplace_back(new ServerPlayerData(items, iter));
+    all_players.emplace_back(new ServerPlayerData(items, recipes, iter));
     return iter;
 }
 
-ServerPlayerData::ServerPlayerData(Items* items, char*& iter) : inventory(items) {
+ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, char*& iter) : inventory(items, recipes) {
     iter = inventory.loadFromSerial(iter);
     
     x = 0;
@@ -344,11 +344,11 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         case ClientPacketType::CRAFT: {
             unsigned char craft_index;
             event.packet >> craft_index;
-            const RecipeOld* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
-            event.player->inventory.addItem(items->getItemTypeById((unsigned char)recipe_crafted->result_type), recipe_crafted->result_stack);
+            const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
+            event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
             
             for(auto ingredient : recipe_crafted->ingredients)
-                event.player->inventory.removeItem(items->getItemTypeById((unsigned char)ingredient.first), ingredient.second);
+                event.player->inventory.removeItem(ingredient.first, ingredient.second);
         }
             
         case ClientPacketType::PLAYER_MOVING_TYPE: {

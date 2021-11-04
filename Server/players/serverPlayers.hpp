@@ -9,8 +9,8 @@
 
 class ServerPlayerData {
 public:
-    ServerPlayerData(Items* items, char*& iter);
-    ServerPlayerData(Items* items) : inventory(items) {}
+    ServerPlayerData(Items* items, Recipes* recipes, char*& iter);
+    ServerPlayerData(Items* items, Recipes* recipes) : inventory(items, recipes) {}
     
     void serialize(std::vector<char>& serial) const;
     
@@ -37,7 +37,8 @@ public:
     void destruct();
 };
 
-struct BlockEvents {
+class BlockEvents {
+public:
     void (*onUpdate)(Blocks* blocks, unsigned short x, unsigned short y) = nullptr;
     void (*onRightClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
     void (*onLeftClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
@@ -55,6 +56,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     Entities* entities;
     Blocks* blocks;
     Items* items;
+    Recipes* recipes;
     ServerNetworking* networking;
     
     std::vector<ServerPlayerData*> all_players;
@@ -75,7 +77,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     void stop() override;
     
 public:
-    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking) : blocks(blocks), entities(entities), items(items), networking(networking) {}
+    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes) {}
     
     const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
     

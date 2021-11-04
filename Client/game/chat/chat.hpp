@@ -3,7 +3,8 @@
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
 
-struct ChatLine {
+class ChatLine {
+public:
     std::string text;
     gfx::Sprite text_sprite;
     int y_to_be{};

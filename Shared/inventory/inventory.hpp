@@ -6,11 +6,19 @@
 
 #define INVENTORY_SIZE 20
 
-struct ItemStack {
+class ItemStack {
+public:
     ItemStack(ItemType* type, unsigned short stack) : type(type), stack(stack) {}
     ItemStack() = default;
     ItemType* type = &ItemTypes::nothing;
     unsigned short stack = 0;
+};
+
+
+class Recipe {
+public:
+    std::map<ItemType*, unsigned short> ingredients;
+    ItemStack result;
 };
 
 
@@ -21,20 +29,29 @@ public:
 };
 
 
+class Recipes {
+    std::vector<Recipe*> recipes;
+public:
+    void registerARecipe(Recipe* recipe);
+    const std::vector<Recipe*>& getAllRecipes();
+};
+
+
 class Inventory {
     Items* items;
+    Recipes* recipes;
     
     ItemStack mouse_item;
     unsigned int item_counts[(int)ItemTypeOld::NUM_ITEMS];
-    std::vector<const RecipeOld*> available_recipes;
+    std::vector<const Recipe*> available_recipes;
     ItemStack inventory_arr[INVENTORY_SIZE];
-    bool hasIngredientsForRecipe(const RecipeOld& recipe);
+    bool hasIngredientsForRecipe(const Recipe* recipe);
 public:
-    Inventory(Items* items);
+    Inventory(Items* items, Recipes* recipes);
     
     unsigned char selected_slot = 0;
     
-    const std::vector<const RecipeOld*>& getAvailableRecipes();
+    const std::vector<const Recipe*>& getAvailableRecipes();
     void updateAvailableRecipes();
     
     char addItem(ItemType* id, int quantity);
