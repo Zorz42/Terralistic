@@ -89,7 +89,8 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     
     WorldStartingScreen(menu_back, &private_server).run();
 
-    Game(menu_back, settings, "_", "127.0.0.1", port).run();
+    Game game(menu_back, settings, "_", "127.0.0.1", port);
+    game.start();
     
     private_server.stop();
     
@@ -141,6 +142,10 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 #endif
     
     addContent(&blocks, &liquids, &items, &recipes);
+}
+
+void Game::start() {
+    run();
 }
 
 void Game::init() {

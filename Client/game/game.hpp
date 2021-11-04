@@ -20,7 +20,7 @@
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
-class Game : public gfx::Scene, EventListener<GameErrorEvent>, public BackgroundRect {
+class Game : gfx::Scene, EventListener<GameErrorEvent>, public BackgroundRect {
     void onEvent(GameErrorEvent& event) override;
     
     void init() override;
@@ -63,4 +63,6 @@ public:
     void setBackWidth(unsigned short width) override { }
     unsigned short getBackWidth() override { return 0; }
     bool isHandshakeDone();
+    
+    void start();
 };

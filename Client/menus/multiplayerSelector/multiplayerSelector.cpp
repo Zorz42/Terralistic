@@ -68,7 +68,7 @@ bool MultiplayerSelector::onKeyDown(gfx::Key key) {
         return true;
     } else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_connect)) {
         Game game(menu_back, settings, username.getText(), server_ip.getText());
-        switchToScene(game);
+        game.start();
         return true;
     }
     return false;
