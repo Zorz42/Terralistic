@@ -7,7 +7,8 @@
 #include "lights.hpp"
 
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
-    struct RenderBlock {
+    class RenderBlock {
+    public:
         unsigned char variation = rand(), state = 16;
     };
     
@@ -18,13 +19,17 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     RenderBlock* render_blocks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
     
-    std::vector<void (*)(ClientBlocks*, int, int)> stateFunctions[(int)BlockType::NUM_BLOCKS];
-    
     void init() override;
     void postInit() override;
     void render() override;
     void update(float frame_length) override;
     void stop() override;
+    
+    bool updateOrientationSide(ClientBlocks* blocks, int x, int y, char side_x, char side_y);
+    void updateOrientationDown(ClientBlocks* blocks, int x, int y);
+    void updateOrientationUp(ClientBlocks* blocks, int x, int y);
+    void updateOrientationLeft(ClientBlocks* blocks, int x, int y);
+    void updateOrientationRight(ClientBlocks* blocks, int x, int y);
     
     gfx::RectArray block_rects;
     int most_blocks_on_screen = 0;
@@ -32,6 +37,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     ResourcePack* resource_pack;
     ClientNetworking* networking;
     Lights* lights;
+    
 public:
     ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights);
     
@@ -47,6 +53,4 @@ public:
     unsigned char getState(int x, int y);
     
     bool skip_rendering_in_dark = true;
-    
-    ~ClientBlocks();
 };

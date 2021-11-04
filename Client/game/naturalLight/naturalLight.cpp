@@ -55,7 +55,7 @@ void NaturalLight::update(float frame_length) {
 void NaturalLight::setNaturalLight(int x, unsigned char power) {
     if(lights_arr[x] != power) {
         lights_arr[x] = power;
-        for(int y = 0; y < blocks->getHeight() && blocks->getBlockInfo(x, y).transparent; y++)
+        for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++)
             lights->setLightSource(x, y, power);
     }
 }

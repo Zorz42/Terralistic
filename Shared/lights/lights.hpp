@@ -5,7 +5,8 @@
 #define MAX_LIGHT 100
 
 class Lights : EventListener<BlockChangeEvent> {
-    struct Light {
+    class Light {
+    public:
         bool light_source = false, update_light = true;
         unsigned char light_level = 0;
     };

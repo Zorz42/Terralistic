@@ -30,7 +30,7 @@ void ServerBlocks::stop() {
 
 void ServerBlocks::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
-    packet << ServerPacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y);
+    packet << ServerPacketType::BLOCK << event.x << event.y << getBlockType(event.x, event.y)->id;
     networking->sendToEveryone(packet);
 }
 

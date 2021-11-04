@@ -46,7 +46,7 @@ void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* ex
 
 void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() >= 1) {
-        ItemType item = getItemTypeByName(args[0]);
+        ItemType* item = items->getItemTypeByName(args[0]);
         int quantity = 1;
         if(args.size() >= 2)
             quantity = std::stoi(args[1]);
@@ -57,7 +57,7 @@ void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* 
 void SetblockCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() >= 3) {
         int x_coord = formatCoord(args[0], executor->getX() / 16), y_coord = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
-        BlockType block = getBlockTypeByName(args[2]);
+        BlockType* block = blocks->getBlockTypeByName(args[2]);
         y_coord = -y_coord + blocks->getHeight();
         blocks->setBlockType(x_coord, y_coord, block);
     }

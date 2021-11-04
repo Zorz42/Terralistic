@@ -1,53 +1,41 @@
 #include "clientBlocks.hpp"
 
-bool updateOrientationSide(ClientBlocks* blocks, int x, int y, char side_x, char side_y) {
+bool ClientBlocks::updateOrientationSide(ClientBlocks* blocks, int x, int y, char side_x, char side_y) {
     if(
             x + side_x >= blocks->getWidth() || x + side_x < 0 || y + side_y >= blocks->getHeight() || y + side_y < 0 ||
             blocks->getBlockType(x + side_x, y + side_y) == blocks->getBlockType(x, y) ||
-            std::count(blocks->getBlockInfo(x, y).connects_to.begin(), blocks->getBlockInfo(x, y).connects_to.end(), blocks->getBlockType(x + side_x, y + side_y))
+            std::count(blocks->getBlockType(x, y)->connects_to.begin(), blocks->getBlockType(x, y)->connects_to.end(), blocks->getBlockType(x + side_x, y + side_y))
             )
         return true;
     else
         return false;
 }
 
-void updateOrientationDown(ClientBlocks* blocks, int x, int y) {
+void ClientBlocks::updateOrientationDown(ClientBlocks* blocks, int x, int y) {
     blocks->setState(x, y, blocks->getState(x, y) * 2);
     if(updateOrientationSide(blocks, x, y, 0, 1))
         blocks->setState(x, y, blocks->getState(x, y) + 1);
 }
 
-void updateOrientationUp(ClientBlocks* blocks, int x, int y) {
+void ClientBlocks::updateOrientationUp(ClientBlocks* blocks, int x, int y) {
     blocks->setState(x, y, blocks->getState(x, y) * 2);
     if(updateOrientationSide(blocks, x, y, 0, -1))
         blocks->setState(x, y, blocks->getState(x, y) + 1);
 }
 
-void updateOrientationLeft(ClientBlocks* blocks, int x, int y) {
+void ClientBlocks::updateOrientationLeft(ClientBlocks* blocks, int x, int y) {
     blocks->setState(x, y, blocks->getState(x, y) * 2);
     if(updateOrientationSide(blocks, x, y, -1, 0))
         blocks->setState(x, y, blocks->getState(x, y) + 1);
 }
 
-void updateOrientationRight(ClientBlocks* blocks, int x, int y) {
+void ClientBlocks::updateOrientationRight(ClientBlocks* blocks, int x, int y) {
     blocks->setState(x, y, blocks->getState(x, y) * 2);
     if(updateOrientationSide(blocks, x, y, 1, 0))
         blocks->setState(x, y, blocks->getState(x, y) + 1);
 }
 
-ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights) : resource_pack(resource_pack), networking(networking), lights(lights) {
-    stateFunctions[(int)BlockType::DIRT] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::STONE_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::GRASS_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::WOOD] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::LEAVES] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::SAND] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::SNOWY_GRASS_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::SNOW_BLOCK] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::ICE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::IRON_ORE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-    stateFunctions[(int)BlockType::COPPER_ORE] = std::vector<void (*)(ClientBlocks*, int, int)>{&updateOrientationLeft, &updateOrientationDown, &updateOrientationRight, &updateOrientationUp};
-}
+ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights) : resource_pack(resource_pack), networking(networking), lights(lights) {}
 
 int ClientBlocks::getViewBeginX() const {
     return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
@@ -69,10 +57,10 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::BLOCK: {
             int x, y;
-            unsigned char block_type;
-            event.packet >> x >> y >> block_type;
+            unsigned char block_id;
+            event.packet >> x >> y >> block_id;
             
-            setBlockType(x, y, (BlockType)block_type);
+            setBlockType(x, y, getBlockTypeById(block_id));
             break;
         }
         case ServerPacketType::STARTED_BREAKING: {
@@ -97,8 +85,10 @@ ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
 
 void ClientBlocks::updateState(int x, int y) {
     getRenderBlock(x, y)->state = 0;
-    for(auto stateFunction : stateFunctions[(int)getBlockType(x, y)])
-        stateFunction(this, x, y);
+    updateOrientationLeft(this, x, y);
+    updateOrientationDown(this, x, y);
+    updateOrientationRight(this, x, y);
+    updateOrientationUp(this, x, y);
 }
 
 void ClientBlocks::setState(int x, int y, unsigned char state) {
@@ -113,10 +103,6 @@ void ClientBlocks::postInit() {
     render_blocks = new RenderBlock[getWidth() * getHeight()];
     view_x = getWidth() * BLOCK_WIDTH;
     view_y = 0;
-}
-
-ClientBlocks::~ClientBlocks() {
-    delete[] render_blocks;
 }
 
 void ClientBlocks::onEvent(BlockChangeEvent& event) {
@@ -148,6 +134,8 @@ void ClientBlocks::stop() {
     block_change_event.removeListener(this);
     networking->packet_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
+    
+    delete[] render_blocks;
 }
 
 void ClientBlocks::render() {
@@ -162,7 +150,7 @@ void ClientBlocks::render() {
             if(getState(x, y) == 16)
                 updateState(x, y);
             
-            if(getBlockType(x, y) != BlockType::AIR && (lights->getLightLevel(x, y) || !skip_rendering_in_dark)) {
+            if(getBlockType(x, y) != &BlockTypes::air && (lights->getLightLevel(x, y) || !skip_rendering_in_dark)) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
                 int texture_x = (getRenderBlock(x, y)->variation) % (resource_pack->getTextureRectangle(getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
                 int texture_y = resource_pack->getTextureRectangle(getBlockType(x, y)).y + BLOCK_WIDTH * getRenderBlock(x, y)->state;

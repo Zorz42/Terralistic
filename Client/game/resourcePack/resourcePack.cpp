@@ -5,17 +5,16 @@
 #include "resourcePack.hpp"
 #include "platform_folders.h"
 
-const gfx::Texture& ResourcePack::getBlockTexture(){
+const gfx::Texture& ResourcePack::getBlockTexture() {
     return block_texture_atlas;
 }
 
-const gfx::Texture& ResourcePack::getItemTexture(){
+const gfx::Texture& ResourcePack::getItemTexture() {
     return item_texture_atlas;
 }
 
-const gfx::Texture& ResourcePack::getItemTextTexture(ItemType type) {
-    assert((int)type >= 0 && type < ItemType::NUM_ITEMS);
-    return item_text_textures[(int)type];
+const gfx::Texture& ResourcePack::getItemTextTexture(ItemType* type) {
+    return item_text_textures[(int)type->id];
 }
 
 const gfx::Texture& ResourcePack::getLiquidTexture() {
@@ -34,16 +33,16 @@ const gfx::Texture& ResourcePack::getBackground() {
     return background;
 }
 
-const gfx::RectShape& ResourcePack::getTextureRectangle(BlockType type) {
-    return block_texture_rectangles[(int)type];
+const gfx::RectShape& ResourcePack::getTextureRectangle(BlockType* type) {
+    return block_texture_rectangles[(int)type->id];
 }
 
-const gfx::RectShape& ResourcePack::getTextureRectangle(LiquidType type) {
-    return liquid_texture_rectangles[(int)type];
+const gfx::RectShape& ResourcePack::getTextureRectangle(LiquidType* type) {
+    return liquid_texture_rectangles[(int)type->id];
 }
 
-const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType type) {
-    return item_texture_rectangles[(int)type];
+const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType* type) {
+    return item_texture_rectangles[(int)type->id];
 }
 
 std::string ResourcePack::getFile(const std::string& file_name) {
@@ -58,14 +57,14 @@ std::string ResourcePack::getFile(const std::string& file_name) {
 }
 
 void ResourcePack::loadBlocks() {
-    gfx::Texture block_textures[(int)BlockType::NUM_BLOCKS];
+    gfx::Texture *block_textures = new gfx::Texture[blocks->getNumBlockTypes()];
 
-    for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++)
-        block_textures[i].loadFromFile(getFile("/blocks/" + getBlockInfo((BlockType)i).name + ".png"));
+    for(int i = 1; i < blocks->getNumBlockTypes(); i++)
+        block_textures[i].loadFromFile(getFile("/blocks/" + blocks->getBlockTypeById(i)->name + ".png"));
 
     unsigned short max_y_size = 0;
     int texture_atlas_height = 0;
-    for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++){
+    for(int i = 1; i < blocks->getNumBlockTypes(); i++){
         if(block_textures[i].getTextureWidth() > max_y_size)
             max_y_size = block_textures[i].getTextureWidth();
         block_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, block_textures[i].getTextureWidth(), block_textures[i].getTextureHeight());
@@ -75,22 +74,24 @@ void ResourcePack::loadBlocks() {
     block_texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
     gfx::setRenderTarget(block_texture_atlas);
     texture_atlas_height = 0;
-    for(int i = 1; i < (int)BlockType::NUM_BLOCKS; i++){
+    for(int i = 1; i < blocks->getNumBlockTypes(); i++){
         block_textures[i].render(1, 0, texture_atlas_height);
         texture_atlas_height += block_textures[i].getTextureHeight();
     }
     gfx::resetRenderTarget();
+    
+    delete[] block_textures;
 }
 
 void ResourcePack::loadLiquids() {
-    gfx::Texture liquid_textures[(int)LiquidType::NUM_LIQUIDS];
+    gfx::Texture *liquid_textures = new gfx::Texture[liquids->getNumLiquidTypes()];
 
-    for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++)
-        liquid_textures[i].loadFromFile(getFile("/liquids/" + getLiquidInfo((LiquidType)i).name + ".png"));
+    for(int i = 1; i < liquids->getNumLiquidTypes(); i++)
+        liquid_textures[i].loadFromFile(getFile("/liquids/" + liquids->getLiquidTypeById(i)->name + ".png"));
 
     unsigned short max_y_size = 0;
     int texture_atlas_height = 0;
-    for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++){
+    for(int i = 1; i < liquids->getNumLiquidTypes(); i++){
         if(liquid_textures[i].getTextureWidth() > max_y_size)
             max_y_size = liquid_textures[i].getTextureWidth();
         liquid_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, liquid_textures[i].getTextureWidth(), liquid_textures[i].getTextureHeight());
@@ -100,7 +101,7 @@ void ResourcePack::loadLiquids() {
     liquid_texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
     gfx::setRenderTarget(liquid_texture_atlas);
     texture_atlas_height = 0;
-    for(int i = 1; i < (int)LiquidType::NUM_LIQUIDS; i++){
+    for(int i = 1; i < liquids->getNumLiquidTypes(); i++){
         liquid_textures[i].render(1, 0, texture_atlas_height);
         texture_atlas_height += liquid_textures[i].getTextureHeight();
     }
@@ -108,16 +109,16 @@ void ResourcePack::loadLiquids() {
 }
 
 void ResourcePack::loadItems() {
-    gfx::Texture item_textures[(int)ItemType::NUM_ITEMS];
+    gfx::Texture *item_textures = new gfx::Texture[items->getNumItemTypes()];
 
-    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++) {
-        item_textures[i].loadFromFile(getFile("/items/" + getItemInfo((ItemType)i).name + ".png"));
-        item_text_textures[i].loadFromText(getItemInfo((ItemType)i).name);
+    for(int i = 1; i < items->getNumItemTypes(); i++) {
+        item_textures[i].loadFromFile(getFile("/items/" + items->getItemTypeById(i)->name + ".png"));
+        item_text_textures[i].loadFromText(items->getItemTypeById(i)->name);
     }
 
     unsigned short max_x_size = 0;
     int texture_atlas_height = 0;
-    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++){
+    for(int i = 1; i < items->getNumItemTypes(); i++){
         if(item_textures[i].getTextureWidth() > max_x_size)
             max_x_size = item_textures[i].getTextureWidth();
         item_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, item_textures[i].getTextureWidth(), item_textures[i].getTextureHeight());
@@ -127,7 +128,7 @@ void ResourcePack::loadItems() {
     item_texture_atlas.createBlankImage(max_x_size, texture_atlas_height);
     gfx::setRenderTarget(item_texture_atlas);
     texture_atlas_height = 0;
-    for(int i = 1; i < (int)ItemType::NUM_ITEMS; i++){
+    for(int i = 1; i < items->getNumItemTypes(); i++){
         item_textures[i].render(1, 0, texture_atlas_height);
         texture_atlas_height += item_textures[i].getTextureHeight();
     }
@@ -145,12 +146,23 @@ void ResourcePack::init() {
     
     paths = active_resource_packs;
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
-
+    
     breaking_texture.loadFromFile(getFile("/misc/breaking.png"));
     player_texture.loadFromFile(getFile("/misc/player.png"));
     background.loadFromFile(getFile("/misc/background.png"));
 
+    item_text_textures = new gfx::Texture[items->getNumItemTypes()];
+    block_texture_rectangles = new gfx::RectShape[blocks->getNumBlockTypes()];
+    liquid_texture_rectangles = new gfx::RectShape[liquids->getNumLiquidTypes()];
+    item_texture_rectangles = new gfx::RectShape[items->getNumItemTypes()];
     loadBlocks();
     loadLiquids();
     loadItems();
+}
+
+void ResourcePack::stop() {
+    delete[] item_text_textures;
+    delete[] block_texture_rectangles;
+    delete[] liquid_texture_rectangles;
+    delete[] item_texture_rectangles;
 }

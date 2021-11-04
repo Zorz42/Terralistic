@@ -1,10 +1,11 @@
 #pragma once
 
 #include <vector>
-#include "properties.hpp"
 #include "events.hpp"
+#include "graphics.hpp"
 
 #define BLOCK_WIDTH 8
+#define UNBREAKABLE -1
 
 class BlockChangeEvent {
 public:
@@ -30,13 +31,31 @@ public:
     int x, y;
 };
 
+class BlockType {
+public:
+    BlockType() = default;
+    BlockType(std::string name, bool ghost, bool transparent, short break_time, std::vector<BlockType*> connects_to, gfx::Color color);
+    
+    bool ghost, transparent;
+    std::string name;
+    std::vector<BlockType*> connects_to;
+    short break_time;
+    gfx::Color color;
+    unsigned char id;
+};
+
+namespace BlockTypes {
+    inline BlockType air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*connects_to*/ {}, /*color*/{0, 0, 0, 0});
+};
+
 class Blocks {
-    struct Block {
-        Block() : type(BlockType::AIR) {}
-        BlockType type:8;
+    class Block {
+    public:
+        unsigned char id = BlockTypes::air.id;
     };
     
-    struct BreakingBlock {
+    class BreakingBlock {
+    public:
         unsigned short break_progress = 0;
         bool is_breaking = true;
         int x, y;
@@ -46,15 +65,16 @@ class Blocks {
     int width, height;
     
     std::vector<BreakingBlock> breaking_blocks;
+    std::vector<BlockType*> block_types;
     
     Block* getBlock(int x, int y);
 public:
+    Blocks();
     void create(int width, int height);
 
-    const BlockInfo& getBlockInfo(int x, int y);
-    BlockType getBlockType(int x, int y);
-    void setBlockType(int x, int y, BlockType type);
-    void setBlockTypeSilently(int x, int y, BlockType type);
+    BlockType* getBlockType(int x, int y);
+    void setBlockType(int x, int y, BlockType* type);
+    void setBlockTypeSilently(int x, int y, BlockType* type);
     
     unsigned short getBreakProgress(int x, int y);
     unsigned char getBreakStage(int x, int y);
@@ -69,6 +89,11 @@ public:
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
+    
+    void registerNewBlockType(BlockType* block_type);
+    BlockType* getBlockTypeById(unsigned char block_id);
+    BlockType* getBlockTypeByName(const std::string& name);
+    unsigned char getNumBlockTypes();
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;

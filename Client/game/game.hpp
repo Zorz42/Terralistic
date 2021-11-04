@@ -46,6 +46,8 @@ class Game : public gfx::Scene, EventListener<GameErrorEvent>, public Background
     Chat chat;
     DebugMenu debug_menu;
     
+    Recipes recipes;
+    
     Settings* settings;
     BackgroundRect* background_rect;
     bool handshake_done = false;

@@ -23,8 +23,6 @@ int main(int argc, char **argv) {
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     gfx::loadFont("pixel_font.ttf", 8);
     
-    initProperties();
-    
     Server main_server(gfx::getResourcePath(), data_folder + "world", 33770);
     
     std::thread server_thread(&Server::start, &main_server);

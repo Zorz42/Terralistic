@@ -1,5 +1,4 @@
 #include "clientItems.hpp"
-#include "properties.hpp"
 #include "resourcePack.hpp"
 
 void ClientItems::init() {
@@ -50,11 +49,10 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
         case ServerPacketType::ITEM_CREATION: {
             int x, y;
             unsigned short id;
-            unsigned char type_char;
-            event.packet >> x >> y >> id >> type_char;
-            ItemType type = (ItemType)type_char;
+            unsigned char type;
+            event.packet >> x >> y >> id >> type;
             
-            Item* item = new Item(type, x, y, id);
+            Item* item = new Item(getItemTypeById(type), x, y, id);
             entities->registerEntity(item);
             
             ItemCreationEvent item_event(item);

@@ -10,31 +10,48 @@ public:
     int x, y;
 };
 
+class LiquidType {
+public:
+    LiquidType() = default;
+    LiquidType(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color);
+    
+    std::string name;
+    unsigned short flow_time;
+    float speed_multiplier;
+    gfx::Color color;
+    unsigned char id;
+};
+
+namespace LiquidTypes {
+    inline LiquidType empty(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1, /*color*/{0, 0, 0, 0});
+}
+
 class Liquids {
-    struct Liquid {
-        LiquidType type:8;
+    class Liquid {
+    public:
+        unsigned char id = LiquidTypes::empty.id;
         FlowDirection flow_direction:8;
         unsigned char level = 0;
         unsigned int when_to_update = 1;
     };
     
+    std::vector<LiquidType*> liquid_types;
     Liquid* liquids = nullptr;
     Liquid* getLiquid(int x, int y);
     bool isFlowable(int x, int y);
     
     Blocks* blocks;
 public:
-    Liquids(Blocks* blocks) : blocks(blocks) {}
+    Liquids(Blocks* blocks) : blocks(blocks) { registerNewLiquidType(&LiquidTypes::empty); }
     
     void create();
     
     int getWidth() const;
     int getHeight() const;
     
-    const LiquidInfo& getLiquidInfo(int x, int y);
-    LiquidType getLiquidType(int x, int y);
-    void setLiquidTypeSilently(int x, int y, LiquidType type);
-    void setLiquidType(int x, int y, LiquidType type);
+    LiquidType* getLiquidType(int x, int y);
+    void setLiquidTypeSilently(int x, int y, LiquidType* type);
+    void setLiquidType(int x, int y, LiquidType* type);
     
     void scheduleLiquidUpdate(int x, int y);
     bool canUpdateLiquid(int x, int y);
@@ -46,6 +63,10 @@ public:
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
+    
+    void registerNewLiquidType(LiquidType* liquid_type);
+    LiquidType* getLiquidTypeById(unsigned char liquid_id);
+    unsigned char getNumLiquidTypes();
     
     EventSender<LiquidChangeEvent> liquid_change_event;
     

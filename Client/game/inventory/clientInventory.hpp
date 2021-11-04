@@ -1,6 +1,5 @@
 #pragma once
 
-#include "properties.hpp"
 #include "graphics.hpp"
 #include "clientNetworking.hpp"
 #include "clientBlocks.hpp"
@@ -31,8 +30,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     
     ResourcePack* resource_pack;
     ClientNetworking* manager;
+    Items* items;
 public:
-    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack) {}
+    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, Items* items, Recipes* recipes) : manager(manager), resource_pack(resource_pack), inventory(items, recipes), items(items) {}
     
     char* loadFromSerial(char* iter);
 };

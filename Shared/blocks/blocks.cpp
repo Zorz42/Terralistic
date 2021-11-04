@@ -1,5 +1,11 @@
 #include "blocks.hpp"
 
+BlockType::BlockType(std::string name, bool ghost, bool transparent, short break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
+
+Blocks::Blocks() {
+    registerNewBlockType(&BlockTypes::air);
+}
+
 void Blocks::create(int width_, int height_) {
     width = width_;
     height = height_;
@@ -12,22 +18,16 @@ Blocks::Block* Blocks::getBlock(int x, int y) {
     return &blocks[y * width + x];
 }
 
-const BlockInfo& Blocks::getBlockInfo(int x, int y) {
-    return ::getBlockInfo(getBlock(x, y)->type);
+BlockType* Blocks::getBlockType(int x, int y) {
+    return getBlockTypeById(getBlock(x, y)->id);
 }
 
-BlockType Blocks::getBlockType(int x, int y) {
-    return getBlock(x, y)->type;
+void Blocks::setBlockTypeSilently(int x, int y, BlockType* type) {
+    getBlock(x, y)->id = type->id;
 }
 
-void Blocks::setBlockTypeSilently(int x, int y, BlockType type) {
-    if((int)type < 0 || type >= BlockType::NUM_BLOCKS)
-        throw InvalidBlockTypeException();
-    getBlock(x, y)->type = type;
-}
-
-void Blocks::setBlockType(int x, int y, BlockType type) {
-    if(type != getBlock(x, y)->type) {
+void Blocks::setBlockType(int x, int y, BlockType* type) {
+    if(type->id != getBlock(x, y)->id) {
         setBlockTypeSilently(x, y, type);
         
         for(int i = 0; i < breaking_blocks.size(); i++)
@@ -52,14 +52,14 @@ void Blocks::updateBreakingBlocks(int frame_length) {
     for(int i = 0; i < breaking_blocks.size(); i++) {
         if(breaking_blocks[i].is_breaking) {
             breaking_blocks[i].break_progress += frame_length;
-            if(breaking_blocks[i].break_progress > getBlockInfo(breaking_blocks[i].x, breaking_blocks[i].y).break_time)
+            if(breaking_blocks[i].break_progress > getBlockType(breaking_blocks[i].x, breaking_blocks[i].y)->break_time)
                 breakBlock(breaking_blocks[i].x, breaking_blocks[i].y);
         }
     }
 }
 
 unsigned char Blocks::getBreakStage(int x, int y) {
-    return (float)getBreakProgress(x, y) / (float)getBlockInfo(x, y).break_time * 9.f;
+    return (float)getBreakProgress(x, y) / (float)getBlockType(x, y)->break_time * 9.f;
 }
 
 void Blocks::startBreakingBlock(int x, int y) {
@@ -96,7 +96,7 @@ void Blocks::breakBlock(int x, int y) {
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
     
-    setBlockType(x, y, BlockType::AIR);
+    setBlockType(x, y, &BlockTypes::air);
 }
 
 int Blocks::getWidth() const {
@@ -116,7 +116,7 @@ void Blocks::serialize(std::vector<char>& serial) {
     iter += 2;
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
-        serial[iter++] = (char)block->type;
+        serial[iter++] = (char)block->id;
         block++;
     }
 }
@@ -130,10 +130,30 @@ char* Blocks::loadFromSerial(char* iter) {
     create(width_, height_);
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
-        block->type = (BlockType)*iter++;
+        block->id = *iter++;
         block++;
     }
     return iter;
+}
+
+void Blocks::registerNewBlockType(BlockType* block_type) {
+    block_type->id = block_types.size();
+    block_types.push_back(block_type);
+}
+
+BlockType* Blocks::getBlockTypeById(unsigned char block_id) {
+    return block_types[block_id];
+}
+
+BlockType* Blocks::getBlockTypeByName(const std::string& name) {
+    for(BlockType* block_info : block_types)
+        if(block_info->name == name)
+            return block_info;
+    return nullptr;
+}
+
+unsigned char Blocks::getNumBlockTypes() {
+    return block_types.size();
 }
 
 Blocks::~Blocks() {

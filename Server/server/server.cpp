@@ -10,6 +10,7 @@
 #include "server.hpp"
 #include "graphics.hpp"
 #include "compress.hpp"
+#include "content.hpp"
 
 #define TPS_LIMIT 60
 
@@ -28,7 +29,7 @@ Server::Server(std::string resource_path, std::string world_path, unsigned short
     generator(&blocks, &liquids, &biomes, std::move(resource_path)),
     entities(&blocks, &networking),
     items(&entities, &blocks, &networking),
-    players(&blocks, &entities, &items, &networking),
+    players(&blocks, &entities, &items, &networking, &recipes),
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(std::move(world_path)),
@@ -82,6 +83,8 @@ void Server::saveWorld() {
 
 void Server::start() {
     curr_server = this;
+    
+    addContent(&blocks, &liquids, &items, &recipes);
 
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;

@@ -28,6 +28,8 @@ class Server {
     Commands commands;
     ServerEntities entities;
 
+    Recipes recipes;
+    
     bool running = true;
     
     void saveWorld();

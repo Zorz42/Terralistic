@@ -6,7 +6,8 @@
 #include "theme.hpp"
 
 namespace gfx {
-    struct Color {
+    class Color {
+    public:
         unsigned char r = 0, g = 0, b = 0, a = 255;
     };
 
@@ -31,7 +32,8 @@ namespace gfx {
         ~PixelGrid();
     };
     
-    struct Orientation {
+    class Orientation {
+    public:
         float x, y;
     };
     

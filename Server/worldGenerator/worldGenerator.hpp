@@ -10,17 +10,19 @@
 #include <random>
 
 
-struct structure {
+class Structure {
+public:
     std::string name;
     int x_size, y_size, y_offset;
-    BlockType* blocks;
-    structure(std::string cname, int x, int y, int offset, BlockType* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
+    short* blocks;
+    Structure(std::string cname, int x, int y, int offset, short* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
 };
 
-struct structurePosition {
+class StructurePosition {
+public:
     std::string name;
     int x, y;
-    structurePosition(std::string cname, int cx, int cy) : name(std::move(cname)), x(cx), y(cy) {}
+    StructurePosition(std::string cname, int cx, int cy) : name(std::move(cname)), x(cx), y(cy) {}
 };
 
 class WorldGenerator {
@@ -28,8 +30,8 @@ class WorldGenerator {
     Biomes* biomes;
     Liquids* liquids;
 
-    std::vector<structure> structures;
-    std::vector<structurePosition> structurePositions;
+    std::vector<Structure> structures;
+    std::vector<StructurePosition> structurePositions;
 
     void generateBiomes(unsigned int x, siv::PerlinNoise& noise);
     void calculateHeight(siv::PerlinNoise& noise);
@@ -39,7 +41,7 @@ class WorldGenerator {
     void generateCaveLakes(std::mt19937& seeded_random);
     void generateLakeRecursively(int x, int y);
     void generateOres(siv::PerlinNoise& noise, std::mt19937& seeded_random);
-    void generateOre(BlockType type, float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random);
+    void generateOre(BlockType* type, float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random);
     void generateStones(std::mt19937& seeded_random);
     void placeStructures(siv::PerlinNoise& noise);
     void generateStructureWorld();
