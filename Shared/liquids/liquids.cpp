@@ -8,8 +8,8 @@ void Liquids::create() {
 }
 
 Liquids::Liquid* Liquids::getLiquid(int x, int y) {
-    if(x >= blocks->getWidth() || y >= blocks->getHeight())
-        throw LiquidOutOfBoundsException();
+    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight())
+        throw LiquidOutOfBoundsException(x, y);
     return &liquids[y * blocks->getWidth() + x];
 }
 

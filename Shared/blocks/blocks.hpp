@@ -3,6 +3,7 @@
 #include <vector>
 #include "events.hpp"
 #include "graphics.hpp"
+#include "exception.hpp"
 
 #define BLOCK_WIDTH 8
 #define UNBREAKABLE -1
@@ -103,16 +104,7 @@ public:
     ~Blocks();
 };
 
-class BlockOutOfBoundsException : public std::exception {
+class BlockOutOfBoundsException : public Exception {
 public:
-    const char* what() const throw() {
-        return "Block is accessed out of the bounds!";
-    }
-};
-
-class InvalidBlockTypeException : public std::exception {
-public:
-    const char* what() const throw() {
-        return "Block type does not exist!";
-    }
+    BlockOutOfBoundsException(int x, int y) : Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")") {}
 };

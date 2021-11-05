@@ -12,6 +12,7 @@
 #include "blockSelector.hpp"
 #include "compress.hpp"
 #include "content.hpp"
+#include "exception.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535
@@ -147,8 +148,8 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 void Game::start() {
     try {
         run();
-    } catch (const std::exception& e) {
-        ChoiceScreen choice_screen(background_rect, e.what(), {"Close"});
+    } catch (const Exception& exception) {
+        ChoiceScreen choice_screen(background_rect, exception.message, {"Close"});
         switchToScene(choice_screen);
     }
 }

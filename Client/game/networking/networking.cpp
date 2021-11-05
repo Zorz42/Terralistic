@@ -28,7 +28,7 @@ void ClientNetworking::update(float frame_length) {
 void ClientNetworking::init() {
     packet_event.addListener(this);
     if(socket.connect(ip_address, port) != sf::Socket::Done)
-        throw InvalidConnectionException();
+        throw InvalidConnectionException(ip_address);
 }
 
 void ClientNetworking::stop() {

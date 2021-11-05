@@ -2,17 +2,7 @@
 
 #include <string>
 #include <map>
-
-class ConfigKeyException : public std::exception {
-    std::string key;
-public:
-    ConfigKeyException(std::string key) : key(std::move(key)) {}
-    
-    const char* what() const throw() {
-        return "Key does not exist in config!";
-    }
-};
-
+#include "exception.hpp"
 
 class ConfigFile {
     std::string path;
@@ -36,3 +26,14 @@ public:
     
     void saveConfig();
 };
+
+class FileNotFoundException : public Exception {
+public:
+    FileNotFoundException(std::string path) : Exception("File \"" + path + "\" was not found!") {}
+};
+
+class ConfigKeyException : public Exception {
+public:
+    ConfigKeyException(std::string key) : Exception("Key \"" + key + "\" does not exist in config!") {}
+};
+

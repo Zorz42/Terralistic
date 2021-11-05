@@ -4,6 +4,7 @@
 #include "packetType.hpp"
 #include "graphics.hpp"
 #include "clientModule.hpp"
+#include "exception.hpp"
 
 class ClientPacketEvent {
 public:
@@ -42,19 +43,12 @@ public:
     EventSender<WelcomePacketEvent> welcome_packet_event;
 };
 
-class InvalidConnectionException : public std::exception {
+class InvalidConnectionException : public Exception {
 public:
-    const char* what() const throw() {
-        return "Could not connect to the server!";
-    }
+    InvalidConnectionException(std::string ip) : Exception("Could not connect to the server with ip " + ip) {}
 };
 
-class KickException : public std::exception {
-    std::string message;
+class KickException : public Exception {
 public:
-    KickException(std::string message) : message(message) {}
-    
-    const char* what() const throw() {
-        return message.c_str();
-    }
+    KickException(std::string message) : Exception("You got kicked for: " + message) {}
 };

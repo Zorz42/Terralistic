@@ -13,8 +13,8 @@ void Lights::create() {
 }
 
 Lights::Light* Lights::getLight(int x, int y) {
-    if(x >= blocks->getWidth() || y >= blocks->getHeight())
-        throw LightOutOfBoundsException();
+    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight())
+        throw LightOutOfBoundsException(x, y);
     return &lights[y * blocks->getWidth() + x];
 }
 

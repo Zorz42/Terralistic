@@ -13,8 +13,8 @@ void Blocks::create(int width_, int height_) {
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
-    if(x >= width || y >= height)
-        throw BlockOutOfBoundsException();
+    if(x < 0 || x >= width || y < 0 || y >= height)
+        throw BlockOutOfBoundsException(x, y);
     return &blocks[y * width + x];
 }
 

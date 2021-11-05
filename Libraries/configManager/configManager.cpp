@@ -1,5 +1,6 @@
 #include <utility>
 #include <fstream>
+#include <filesystem>
 #include "configManager.hpp"
 
 ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
@@ -7,6 +8,9 @@ ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
 }
 
 void ConfigFile::loadConfig() {
+    if(!std::filesystem::is_regular_file(path))
+        throw FileNotFoundException(path);
+    
     std::ifstream file(path);
     std::string line;
     while(std::getline(file, line)) {

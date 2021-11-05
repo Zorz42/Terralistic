@@ -5,7 +5,10 @@ std::vector<char> compress(std::vector<char>& decompressed_data) {
     unsigned long compressed_size = decompressed_data.size() * 1.1 + 12;
     std::vector<char> compressed_data(compressed_size);
     
-    compress((Bytef*)&compressed_data[0], &compressed_size, (Bytef*)&decompressed_data[0], decompressed_data.size());
+    if(compress((Bytef*)&compressed_data[0], &compressed_size, (Bytef*)&decompressed_data[0], decompressed_data.size()) != Z_OK) {
+        throw ArchivingException();
+        return {};
+    }
     
     unsigned int decompressed_size = (unsigned int)decompressed_data.size();
     for(int i = 0; i < sizeof(unsigned int); i++)
@@ -23,7 +26,10 @@ std::vector<char> decompress(std::vector<char>& compressed_data) {
     
     std::vector<char> decompressed_data(uncompressed_size);
     
-    uncompress((Bytef*)&decompressed_data[0], &uncompressed_size, (Bytef*)&compressed_data[0], compressed_data.size() - sizeof(unsigned int));
+    if(uncompress((Bytef*)&decompressed_data[0], &uncompressed_size, (Bytef*)&compressed_data[0], compressed_data.size() - sizeof(unsigned int)) != Z_OK) {
+        throw ArchiveCopputionException();
+        return {};
+    }
     
     return decompressed_data;
 }

@@ -39,9 +39,7 @@ public:
     ~Lights();
 };
 
-class LightOutOfBoundsException : public std::exception {
+class LightOutOfBoundsException : public Exception {
 public:
-    const char* what() const throw() {
-        return "Light is accessed out of the bounds!";
-    }
+    LightOutOfBoundsException(int x, int y) : Exception("Light is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")") {}
 };

@@ -73,16 +73,7 @@ public:
     ~Liquids();
 };
 
-class LiquidOutOfBoundsException : public std::exception {
+class LiquidOutOfBoundsException : public Exception {
 public:
-    const char* what() const throw() {
-        return "Liquid is accessed out of the bounds!";
-    }
-};
-
-class InvalidLiquidTypeException : public std::exception {
-public:
-    const char* what() const throw() {
-        return "Liquid type does not exist!";
-    }
+    LiquidOutOfBoundsException(int x, int y) : Exception("Liquid is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")") {}
 };

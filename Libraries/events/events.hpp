@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include "exception.hpp"
 
 template<class EventInstance>
 class EventListener {
