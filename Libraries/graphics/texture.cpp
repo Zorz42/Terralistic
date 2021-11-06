@@ -1,5 +1,4 @@
 #include "graphics-internal.hpp"
-#include <cassert>
 
 void gfx::Texture::createBlankImage(unsigned short width, unsigned short height) {
     freeTexture();

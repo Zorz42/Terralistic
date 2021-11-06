@@ -1,4 +1,5 @@
 #include "graphics-internal.hpp"
+
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
     loadFromText(text, text_color);

@@ -1,8 +1,11 @@
 #pragma once
 
 #include <SFML/Network.hpp>
+#include "exception.hpp"
 
 enum class ClientPacketType {
+    _START,
+    
     // players
     PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
     
@@ -14,9 +17,13 @@ enum class ClientPacketType {
     
     // miscellaneous
     CHAT,
+    
+    _END,
 };
 
 enum class ServerPacketType {
+    _START,
+    
     // blocks
     BLOCK, LIQUID, STARTED_BREAKING, STOPPED_BREAKING,
     
@@ -34,10 +41,17 @@ enum class ServerPacketType {
     
     // miscellaneous
     KICK, CHAT,
+    
+    _END,
 };
 
 enum class WelcomePacketType {
-    WELCOME, BLOCKS, LIQUIDS, INVENTORY, TIME,
+    _START, WELCOME, BLOCKS, LIQUIDS, INVENTORY, TIME, _END,
+};
+
+class PacketValueException : Exception {
+public:
+    PacketValueException() : Exception("Invalid packet value type.") {}
 };
 
 sf::Packet& operator<<(sf::Packet& packet, ClientPacketType packet_type);

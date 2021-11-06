@@ -1,5 +1,4 @@
 #include <cmath>
-#include <cassert>
 #include "graphics-internal.hpp"
 
 static unsigned short min_window_width, min_window_height;
