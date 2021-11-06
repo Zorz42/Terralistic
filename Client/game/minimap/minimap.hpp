@@ -7,8 +7,8 @@
 #include "naturalLight.hpp"
 #include "settings.hpp"
 
-#define MINIMAP_SIZE 100
-#define MINIMAP_SCALE 2
+#define MINIMAP_SIZE 200
+#define MINIMAP_SCALE 1
 
 class Minimap : public ClientModule {
     gfx::Rect back_rect;
