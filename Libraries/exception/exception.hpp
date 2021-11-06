@@ -8,3 +8,8 @@ public:
     const std::string message;
     const char* what() const throw();
 };
+
+class ValueException : Exception {
+public:
+    ValueException(const std::string& message) : Exception(message) {}
+};

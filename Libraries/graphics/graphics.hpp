@@ -96,6 +96,7 @@ namespace gfx {
     class RectArray {
         sf::Vertex* vertex_array = nullptr;
         sf::VertexBuffer vertex_buffer;
+        int length = 0;
     public:
         RectArray(int size);
         RectArray() = default;
@@ -246,11 +247,6 @@ public:
 class LoadException : Exception {
 public:
     LoadException(const std::string& path) : Exception("Could not load file " + path) {}
-};
-
-class ScaleException : Exception {
-public:
-    ScaleException() : Exception("Scale was set to zero or less value.") {}
 };
 
 class CreationException : Exception {

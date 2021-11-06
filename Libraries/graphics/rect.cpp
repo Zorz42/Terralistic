@@ -107,6 +107,9 @@ int gfx::Rect::getWidth() const {
 }
 
 void gfx::Rect::setWidth(int width_) {
+    if(width_ < 0)
+        throw ValueException("Width must be positive.");
+    
     if(target_width != width_) {
         target_width = width_;
         updateBlurTextureSize();
@@ -120,6 +123,9 @@ int gfx::Rect::getHeight() const {
 }
 
 void gfx::Rect::setHeight(int height_) {
+    if(height_ < 0)
+        throw ValueException("Height must be positive.");
+    
     if(target_height != height_) {
         target_height = height_;
         updateBlurTextureSize();

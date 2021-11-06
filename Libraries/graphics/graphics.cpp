@@ -36,6 +36,9 @@ static const char* blur_shader_code =
 "}";
 
 void gfx::init(const std::string& resource_path_, int window_width, int window_height) {
+    if(window_width < 0 || window_height < 0)
+        throw ValueException("Winow width and height must be positive.");
+    
     resource_path = resource_path_;
     
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
@@ -96,11 +99,15 @@ void gfx::init(const std::string& resource_path_, int window_width, int window_h
 }
 
 void gfx::setMinimumWindowSize(int width, int height) {
+    if(width < 0 || height < 0)
+        throw ValueException("Window width and height must be positive.");
     min_window_width = width;
     min_window_height = height;
 }
 
 void gfx::loadFont(const std::string& path, int size) {
+    if(size < 0)
+        throw ValueException("Font size must be positive.");
     if(!font.loadFromFile(resource_path + path))
         throw LoadException(resource_path + path);
     font_size = size;
@@ -150,6 +157,9 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
 }
 
 void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
+    if(blur_intensity < 0)
+        throw ValueException("Blur intensity must be positive.");
+    
     blur_intensity = std::pow(2, blur_intensity);
     blur_shader.setUniform("source", texture.getTexture());
     
@@ -165,17 +175,21 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
 }
 
 void gfx::sleep(int ms) {
+    if(ms < 0)
+        throw ValueException("Milliseconds of sleep must be positive.");
     sf::sleep(sf::milliseconds(ms));
 }
 
 void gfx::setGlobalScale(float scale) {
     if(scale <= 0)
-        throw ScaleException();
+        throw ValueException("Scale must be positive.");
     global_scale = scale;
     setWindowSize(getWindowWidth(), getWindowHeight());
 }
 
 void gfx::setFpsLimit(int limit) {
+    if(limit < 0)
+        throw ValueException("Fps limit must be positive.");
     window->setFramerateLimit(limit);
 }
 
@@ -184,6 +198,9 @@ void gfx::enableVsync(bool enabled) {
 }
 
 void gfx::setWindowSize(int width, int height) {
+    if(width < 0 || height < 0)
+        throw ValueException("Window width and height must be positive.");
+    
     width *= global_scale;
     height *= global_scale;
     

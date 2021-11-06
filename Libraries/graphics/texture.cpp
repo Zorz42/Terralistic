@@ -1,6 +1,9 @@
 #include "graphics-internal.hpp"
 
 void gfx::Texture::createBlankImage(int width, int height) {
+    if(width <= 0 || height <= 0)
+        throw ValueException("Width and Height of a texture size must be positive.");
+    
     freeTexture();
     sfml_render_texture = new sf::RenderTexture;
     if(!sfml_render_texture->create(width, height))
@@ -73,6 +76,9 @@ void gfx::Texture::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
 void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool flipped) const {
+    if(scale <= 0)
+        throw ValueException("Texture scale must be positive.");
+    
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());
     sprite.setTextureRect({src_rect.x, src_rect.y, src_rect.w, src_rect.h});
