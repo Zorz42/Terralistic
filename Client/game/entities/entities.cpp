@@ -8,7 +8,7 @@ void ClientEntities::init() {
 void ClientEntities::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
         case ServerPacketType::ENTITY_VELOCITY: {
-            unsigned short id;
+            int id;
             float vel_x, vel_y;
             event.packet >> vel_x >> vel_y >> id;
             
@@ -18,7 +18,7 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             break;
         }
         case ServerPacketType::ENTITY_POSITION: {
-            unsigned short id;
+            int id;
             int x, y;
             event.packet >> x >> y >> id;
             
@@ -28,7 +28,7 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             break;
         }
         case ServerPacketType::ENTITY_DELETION: {
-            unsigned short id;
+            int id;
             event.packet >> id;
             
             Entity* entity = getEntityById(id);

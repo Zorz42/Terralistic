@@ -18,8 +18,8 @@ void MultiplayerSelector::init() {
     join_button.y = -SPACING;
     join_button.orientation = gfx::BOTTOM;
     
-    back_button.x = short((-join_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2);
-    join_button.x = short((join_button.getWidth() + back_button.getWidth() - join_button.getWidth() + SPACING) / 2);
+    back_button.x = (-join_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
+    join_button.x = (join_button.getWidth() + back_button.getWidth() - join_button.getWidth() + SPACING) / 2;
     
     server_ip.scale = 3;
     server_ip.orientation = gfx::CENTER;

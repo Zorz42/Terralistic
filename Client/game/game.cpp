@@ -80,7 +80,7 @@ void WorldStartingScreen::render() {
 }
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world) {
-    unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
+    int port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     Server private_server(gfx::getResourcePath(), world_name, port);
     if(structure_world)
         private_server.seed = 1000;
@@ -103,7 +103,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     server_thread.join();
 }
 
-Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, unsigned short port) :
+Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port) :
     username(username),
     background_rect(background_rect),
     settings(settings),

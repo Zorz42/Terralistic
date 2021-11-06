@@ -4,7 +4,7 @@
 ClientPlayers::ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username) :
 manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), particles(particles), username(username) {}
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, unsigned short id) : Player(x, y, name, id) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
     name_text.loadFromText(name, WHITE);
     friction = false;
 }
@@ -55,7 +55,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     
     int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - blocks->view_x;
     int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y;
-    resource_pack->getPlayerTexture().render(2, player_x, player_y, {(short)(player_to_draw.texture_frame * PLAYER_WIDTH), 0, (unsigned short)(PLAYER_WIDTH), (unsigned short)(PLAYER_HEIGHT)}, player_to_draw.flipped);
+    resource_pack->getPlayerTexture().render(2, player_x, player_y, {player_to_draw.texture_frame * PLAYER_WIDTH, 0, PLAYER_WIDTH, PLAYER_HEIGHT}, player_to_draw.flipped);
     if(player_to_draw.name != "_") {
         int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getX() + PLAYER_WIDTH - blocks->view_x,
         header_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
@@ -64,7 +64,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     }
 }
 
-ClientPlayer* ClientPlayers::getPlayerById(unsigned short id) {
+ClientPlayer* ClientPlayers::getPlayerById(int id) {
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER && entity->id == id)
             return (ClientPlayer*)entity;
@@ -76,7 +76,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::PLAYER_JOIN: {
             int x, y;
-            unsigned short id;
+            int id;
             unsigned char moving_type;
             std::string name;
             event.packet >> x >> y >> id >> name >> moving_type;
@@ -89,7 +89,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             break;
         }
         case ServerPacketType::PLAYER_MOVING_TYPE: {
-            unsigned short id;
+            int id;
             unsigned char moving_type;
             event.packet >> moving_type >> id;
             if(id != main_player->id) {
@@ -100,7 +100,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             break;
         }
         case ServerPacketType::PLAYER_JUMPED: {
-            unsigned short id;
+            int id;
             event.packet >> id;
             if(id != main_player->id) {
                 ClientPlayer* player = getPlayerById(id);

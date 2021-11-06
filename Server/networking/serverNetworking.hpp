@@ -54,7 +54,7 @@ public:
 class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
     sf::TcpListener listener;
-    unsigned short port;
+    int port;
 
     void init() override;
     void update(float frame_length) override;
@@ -63,7 +63,7 @@ class ServerNetworking : public ServerModule {
     void removeConnection(Connection* connection);
     
 public:
-    ServerNetworking(unsigned short port) : port(port) {}
+    ServerNetworking(int port) : port(port) {}
     
     void sendToEveryone(sf::Packet& packet);
     void kickConnection(Connection* connection, const std::string& reason);

@@ -1,6 +1,6 @@
 #include "blocks.hpp"
 
-BlockType::BlockType(std::string name, bool ghost, bool transparent, short break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
+BlockType::BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
 
 Blocks::Blocks() {
     registerNewBlockType(&BlockTypes::air);
@@ -41,7 +41,7 @@ void Blocks::setBlockType(int x, int y, BlockType* type) {
     }
 }
 
-unsigned short Blocks::getBreakProgress(int x, int y) {
+int Blocks::getBreakProgress(int x, int y) {
     for(BreakingBlock breaking_block : breaking_blocks)
         if(breaking_block.x == x && breaking_block.y == y)
             return breaking_block.break_progress;
@@ -122,7 +122,7 @@ void Blocks::serialize(std::vector<char>& serial) {
 }
 
 char* Blocks::loadFromSerial(char* iter) {
-    unsigned short width_, height_;
+    int width_, height_;
     width_ = *(unsigned short*)iter;
     iter += 2;
     height_ = *(unsigned short*)iter;

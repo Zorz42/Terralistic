@@ -6,10 +6,10 @@
 #include "cmath"
 #include "content.hpp"
 
-int WorldGenerator::generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed) {
+int WorldGenerator::generateWorld(int world_width, int world_height, unsigned int seed) {
     siv::PerlinNoise noise(seed);
     std::mt19937 seeded_random(seed);
-    surface_height = new unsigned short[world_width];
+    surface_height = new int[world_width];
     blocks->create(world_width, world_height);
     liquids->create();
     biomes->create();
@@ -78,7 +78,7 @@ void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
 void WorldGenerator::calculateHeight(siv::PerlinNoise& noise) {
     int biome_blend = 20;
     float divide_at_end;
-    unsigned short *no_blend_height = new unsigned short[blocks->getWidth()];
+    int *no_blend_height = new int[blocks->getWidth()];
     for(int current_slice = 0; current_slice < blocks->getWidth(); current_slice++) {
         no_blend_height[current_slice] = loaded_biomes[(int) biomes->biomes[current_slice]].surface_height;
     }
@@ -86,7 +86,7 @@ void WorldGenerator::calculateHeight(siv::PerlinNoise& noise) {
     for(int current_slice = 0; current_slice < blocks->getWidth(); current_slice++) {
         divide_at_end = 0;
         surface_height[current_slice] = 0;
-        unsigned short variation = 0;
+        int variation = 0;
         for (int i = std::max(0, current_slice - biome_blend); i < std::min(blocks->getWidth() - 1, current_slice + biome_blend); i++) {
             surface_height[current_slice] += no_blend_height[i] * (1 - (float)std::abs(current_slice - i) / biome_blend);
             variation += loaded_biomes[(int) biomes->biomes[i]].surface_height_variation * (1 - (float)std::abs(current_slice - i) / biome_blend);
@@ -391,7 +391,7 @@ void WorldGenerator::loadAssets() {
         counter++;
         int y_offset = (unsigned char)assetData[counter];
         counter++;
-        auto *blocks_ = new short[x_size * y_size];
+        int *blocks_ = new int[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {
             blocks_[i] = assetData[counter];
             counter++;
@@ -411,7 +411,7 @@ void WorldGenerator::generateStructure(const std::string& name, int x, int y) {
             y += structure.y_offset;
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != -1)
-                    blocks->setBlockTypeSilently((unsigned short)(x + j % structure.x_size), (unsigned short)(blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size) - structure.y_size - 1, blocks->getBlockTypeById(structure.blocks[j]));
+                    blocks->setBlockTypeSilently(x + j % structure.x_size, blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size - structure.y_size - 1, blocks->getBlockTypeById(structure.blocks[j]));
             break;
         }
     }
@@ -430,9 +430,9 @@ void WorldGenerator::generateFlatTerrain() {
     for (int x = 0; x < blocks->getWidth(); x++) {
         for (int y = 0; y < blocks->getHeight(); y++) {
             if (y <= 324) {//generates surface
-                blocks->setBlockTypeSilently((unsigned short)x, blocks->getHeight() - y - 1, &BlockTypes::dirt);
+                blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, &BlockTypes::dirt);
             }else if(y == 325)
-                blocks->setBlockTypeSilently((unsigned short)x, blocks->getHeight() - y - 1, &BlockTypes::grass_block);
+                blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, &BlockTypes::grass_block);
         }
     }
 }
@@ -445,7 +445,7 @@ void WorldGenerator::generateStructuresForStrWorld() {
                 return;
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != -1)
-                    blocks->setBlockTypeSilently((unsigned short)(x + j % structure.x_size), (unsigned short)(blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size) - structure.y_size, blocks->getBlockTypeById(structure.blocks[j]));
+                    blocks->setBlockTypeSilently(x + j % structure.x_size, blocks->getHeight() - 326 + (j - j % structure.x_size) / structure.x_size - structure.y_size, blocks->getBlockTypeById(structure.blocks[j]));
             x += structure.x_size + 1;
         }
     }

@@ -13,10 +13,10 @@ public:
 class LiquidType {
 public:
     LiquidType() = default;
-    LiquidType(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color);
+    LiquidType(std::string name, int flow_time, float speed_multiplier, gfx::Color color);
     
     std::string name;
-    unsigned short flow_time;
+    int flow_time;
     float speed_multiplier;
     gfx::Color color;
     unsigned char id;

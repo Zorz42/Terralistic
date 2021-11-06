@@ -1,12 +1,12 @@
 #include "items.hpp"
 
-ItemType::ItemType(std::string name, unsigned short stack_size, BlockType* places) : name(std::move(name)), stack_size(stack_size), places(places) {}
+ItemType::ItemType(std::string name, int stack_size, BlockType* places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
 ItemType* Item::getType() const {
     return type;
 }
 
-Item::Item(ItemType* type, int x, int y, unsigned short id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
+Item::Item(ItemType* type, int x, int y, int id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
 
 Item* Items::spawnItem(ItemType* type, int x, int y) {
     Item* item = new Item(type, x, y);
@@ -17,7 +17,7 @@ Item* Items::spawnItem(ItemType* type, int x, int y) {
 }
 
 void Items::registerNewItemType(ItemType* item_type) {
-    item_type->id = item_types.size();
+    item_type->id = (int)item_types.size();
     item_types.push_back(item_type);
 }
 

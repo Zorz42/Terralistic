@@ -12,18 +12,18 @@ void Inventory::setItem(char pos, ItemStack item) {
     item_change_event.call(event);
 }
 
-unsigned short Inventory::increaseStack(char pos, unsigned short stack) {
+int Inventory::increaseStack(char pos, int stack) {
     int stack_to_be = getItem(pos).stack + stack, result;
     if(stack_to_be > getItem(pos).type->stack_size)
         stack_to_be = getItem(pos).type->stack_size;
     result = stack_to_be - getItem(pos).stack;
     setItem(pos, ItemStack(getItem(pos).type, stack_to_be));
-    return (unsigned short)result;
+    return result;
 }
 
-unsigned short Inventory::decreaseStack(char pos, unsigned short stack) {
+int Inventory::decreaseStack(char pos, int stack) {
     if(stack >= getItem(pos).stack) {
-        unsigned short prev_stack = getItem(pos).stack;
+        int prev_stack = getItem(pos).stack;
         setItem(pos, ItemStack(&ItemTypes::nothing, 0));
         return prev_stack;
     } else {
@@ -53,14 +53,14 @@ Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(rec
 char Inventory::addItem(ItemType* id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(getItem(i).type == id) {
-            quantity -= increaseStack(i, (unsigned short)quantity);
+            quantity -= increaseStack(i, quantity);
             if(!quantity)
                 return (char)i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(getItem(i).type == &ItemTypes::nothing) {
             setItem(i, ItemStack(id, getItem(i).stack));
-            quantity -= increaseStack(i, (unsigned short)quantity);
+            quantity -= increaseStack(i, quantity);
             if(!quantity)
                 return (char)i;
         }
@@ -70,12 +70,12 @@ char Inventory::addItem(ItemType* id, int quantity) {
 char Inventory::removeItem(ItemType* id, int quantity) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].type == id) {
-            quantity -= decreaseStack(i, (unsigned short)quantity);
+            quantity -= decreaseStack(i, quantity);
             if(!quantity)
                 return (char)i;
         }
     if(mouse_item.type == id) {
-        quantity -= decreaseStack(-1, (unsigned short)quantity);
+        quantity -= decreaseStack(-1, quantity);
         if(!quantity)
             return (char)-1;
     }

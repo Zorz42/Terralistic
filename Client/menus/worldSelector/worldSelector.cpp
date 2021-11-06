@@ -9,7 +9,7 @@
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
-void WorldToSelect::render(int position, unsigned short mouse_x, unsigned short mouse_y) {
+void WorldToSelect::render(int position, int mouse_x, int mouse_y) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
     
     gfx::Color back_color = BLACK;

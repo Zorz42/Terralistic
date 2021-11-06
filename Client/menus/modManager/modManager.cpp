@@ -20,7 +20,7 @@ void GuiMod::renderTile() {
     text.render(2, getTranslatedX() + getWidth() / 2 - text.getTextureWidth(), getTranslatedY() + SPACING / 2);
 }
 
-bool GuiMod::hoversPoint(unsigned short x, unsigned short y) {
+bool GuiMod::hoversPoint(int x, int y) {
     return x > getTranslatedX() && x < getTranslatedX() + getWidth() && y > getTranslatedY() && y < getTranslatedY() + getHeight();
 }
 
@@ -132,7 +132,7 @@ void ModManager::render() {
     }
     
     if(holding) {
-        short holding_x_should_be = getMouseX() - gfx::getWindowWidth() / 2 + holding->getWidth() / 2 - hold_x, holding_y_should_be = getMouseY() - hold_y;
+        int holding_x_should_be = getMouseX() - gfx::getWindowWidth() / 2 + holding->getWidth() / 2 - hold_x, holding_y_should_be = getMouseY() - hold_y;
         
         holding_vel_y += (holding_y_should_be - holding_y) / 3;
         holding_vel_y /= 1.4;

@@ -109,10 +109,10 @@ void PauseScreen::renderBack() {
     back_rect.setX(gfx::getWindowWidth() / 2 - getBackWidth() / 2);
 }
 
-void PauseScreen::setBackWidth(unsigned short width) {
+void PauseScreen::setBackWidth(int width) {
     back_rect.setWidth(width);
 }
 
-unsigned short PauseScreen::getBackWidth() {
+int PauseScreen::getBackWidth() {
     return back_rect.getWidth();
 }

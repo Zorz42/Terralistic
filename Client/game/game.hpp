@@ -50,11 +50,11 @@ class Game : gfx::Scene, public BackgroundRect {
     bool handshake_done = false;
     std::string kick_reason;
 public:
-    Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, unsigned short port=33770);
+    Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port=33770);
     
     void renderBack() override;
-    void setBackWidth(unsigned short width) override { }
-    unsigned short getBackWidth() override { return 0; }
+    void setBackWidth(int width) override { }
+    int getBackWidth() override { return 0; }
     bool isHandshakeDone();
     
     void start();

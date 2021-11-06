@@ -19,12 +19,12 @@ static bool isBlockLeaves(Blocks* blocks, int x, int y) {
     return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &BlockTypes::leaves;
 }
 
-static void stoneUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
+static void stoneUpdate(Blocks* blocks, int x, int y) {
     if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
         blocks->breakBlock(x, y);
 }
 
-static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
+static void treeUpdate(Blocks* blocks, int x, int y) {
     if(
        (!isBlockTree(blocks, x, y + 1) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y)) ||
        (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y + 1)) ||
@@ -49,11 +49,11 @@ void ServerPlayers::init() {
 
     custom_block_events[(int)BlockTypes::leaves.id].onUpdate = &treeUpdate;
 
-    custom_block_events[(int)BlockTypes::grass_block.id].onLeftClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
+    custom_block_events[(int)BlockTypes::grass_block.id].onLeftClick = [](Blocks* blocks_, int x, int y, ServerPlayer* player) {
         blocks_->setBlockType(x, y, &BlockTypes::dirt);
     };
 
-    custom_block_events[(int)BlockTypes::air.id].onRightClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
+    custom_block_events[(int)BlockTypes::air.id].onRightClick = [](Blocks* blocks_, int x, int y, ServerPlayer* player) {
         BlockType* type = player->inventory.getSelectedSlot().type->places;
         if(type != &BlockTypes::air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
             blocks_->setBlockType(x, y, type);
@@ -95,7 +95,7 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
         int spawn_x = blocks->getWidth() / 2 * BLOCK_WIDTH * 2;
         
         int spawn_y = 0;
-        for(unsigned short y = 0; y < blocks->getHeight(); y++) {
+        for(int y = 0; y < blocks->getHeight(); y++) {
             if(!blocks->getBlockType(blocks->getWidth() / 2, y)->transparent || !blocks->getBlockType(blocks->getWidth() / 2 + 1, y)->transparent)
                 break;
             spawn_y += BLOCK_WIDTH * 2;
@@ -132,17 +132,17 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
     return nullptr;
 }
 
-void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
-    while(custom_block_events[(int)blocks->getBlockType(x, y)->id].onLeftClick)
-        custom_block_events[(int)blocks->getBlockType(x, y)->id].onLeftClick(blocks, x, y, player);
+void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
+    while(custom_block_events[blocks->getBlockType(x, y)->id].onLeftClick)
+        custom_block_events[blocks->getBlockType(x, y)->id].onLeftClick(blocks, x, y, player);
     
     if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
         blocks->startBreakingBlock(x, y);
 }
 
-void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
-    if(custom_block_events[(int)blocks->getBlockType(x, y)->id].onRightClick)
-        custom_block_events[(int)blocks->getBlockType(x, y)->id].onRightClick(blocks, x, y, player);
+void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
+    if(custom_block_events[blocks->getBlockType(x, y)->id].onRightClick)
+        custom_block_events[blocks->getBlockType(x, y)->id].onRightClick(blocks, x, y, player);
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
@@ -376,7 +376,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     ItemStack item = inventory.getItem(event.item_pos);
     sf::Packet packet;
-    packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (short)event.item_pos;
+    packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (int)event.item_pos;
     connection->send(packet);
 }
 

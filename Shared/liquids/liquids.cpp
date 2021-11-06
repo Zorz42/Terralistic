@@ -1,7 +1,7 @@
 #include "liquids.hpp"
 #include "graphics.hpp"
 
-LiquidType::LiquidType(std::string name, unsigned short flow_time, float speed_multiplier, gfx::Color color) : name(std::move(name)), flow_time(flow_time), speed_multiplier(speed_multiplier), color(color) {}
+LiquidType::LiquidType(std::string name, int flow_time, float speed_multiplier, gfx::Color color) : name(std::move(name)), flow_time(flow_time), speed_multiplier(speed_multiplier), color(color) {}
 
 void Liquids::create() {
     liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
@@ -69,7 +69,7 @@ void Liquids::updateLiquid(int x, int y) {
     if(under_exists) {
         setLiquidType(x, y + 1, getLiquidType(x, y));
         
-        short liquid_sum = getLiquidLevel(x, y + 1) + getLiquidLevel(x, y);
+        int liquid_sum = getLiquidLevel(x, y + 1) + getLiquidLevel(x, y);
         if(liquid_sum > 127) {
             setLiquidLevel(x, y + 1, 127);
             setLiquidLevel(x, y, liquid_sum - 127);
@@ -90,8 +90,8 @@ void Liquids::updateLiquid(int x, int y) {
         setLiquidType(x - 1, y, getLiquidType(x, y));
     
     if(left_exists && right_exists) {
-        short avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) / 3;
-        short mod = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) % 3;
+        int avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) / 3;
+        int mod = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) % 3;
         if(mod) {
             if(getLiquid(x, y)->flow_direction == FlowDirection::LEFT) {
                 setLiquidLevel(x - 1, y, avg + mod);
@@ -113,15 +113,15 @@ void Liquids::updateLiquid(int x, int y) {
         getLiquid(x, y)->flow_direction = FlowDirection::NONE;
         
     } else if(right_exists) {
-        short avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y)) / 2;
-        short mod = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y)) % 2;
+        int avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y)) / 2;
+        int mod = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y)) % 2;
         setLiquidLevel(x + 1, y, avg + mod);
         getLiquid(x + 1, y)->flow_direction = FlowDirection::RIGHT;
         setLiquidLevel(x, y, avg);
         
     } else if(left_exists) {
-        short avg = (getLiquidLevel(x, y) + getLiquidLevel(x - 1, y)) / 2;
-        short mod = (getLiquidLevel(x, y) + getLiquidLevel(x - 1, y)) % 2;
+        int avg = (getLiquidLevel(x, y) + getLiquidLevel(x - 1, y)) / 2;
+        int mod = (getLiquidLevel(x, y) + getLiquidLevel(x - 1, y)) % 2;
         setLiquidLevel(x - 1, y, avg + mod);
         getLiquid(x - 1, y)->flow_direction = FlowDirection::LEFT;
         setLiquidLevel(x, y, avg);

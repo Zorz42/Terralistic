@@ -10,7 +10,7 @@ public:
     explicit GuiMod(const std::string& name);
     void renderTile();
     const std::string& getName() { return name; }
-    bool hoversPoint(unsigned short x, unsigned short y);
+    bool hoversPoint(int x, int y);
     bool enabled = true;
     
     using gfx::Rect::getWidth;
@@ -28,8 +28,8 @@ public:
 class ModManager : public gfx::Scene {
     GuiMod* holding = nullptr;
     std::vector<GuiMod*> mods;
-    unsigned short hold_x = 0, hold_y = 0;
-    short holding_x = 0, holding_y = 0, holding_vel_x = 0, holding_vel_y = 0;
+    int hold_x = 0, hold_y = 0;
+    int holding_x = 0, holding_y = 0, holding_vel_x = 0, holding_vel_y = 0;
     gfx::Rect placeholder;
     gfx::Sprite enabled_text, disabled_text;
     gfx::Button back_button;

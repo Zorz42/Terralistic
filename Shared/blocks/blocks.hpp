@@ -33,12 +33,12 @@ public:
 class BlockType {
 public:
     BlockType() = default;
-    BlockType(std::string name, bool ghost, bool transparent, short break_time, std::vector<BlockType*> connects_to, gfx::Color color);
+    BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color);
     
     bool ghost, transparent;
     std::string name;
     std::vector<BlockType*> connects_to;
-    short break_time;
+    int break_time;
     gfx::Color color;
     unsigned char id;
 };
@@ -55,7 +55,7 @@ class Blocks {
     
     class BreakingBlock {
     public:
-        unsigned short break_progress = 0;
+        int break_progress = 0;
         bool is_breaking = true;
         int x, y;
     };
@@ -75,7 +75,7 @@ public:
     void setBlockType(int x, int y, BlockType* type);
     void setBlockTypeSilently(int x, int y, BlockType* type);
     
-    unsigned short getBreakProgress(int x, int y);
+    int getBreakProgress(int x, int y);
     unsigned char getBreakStage(int x, int y);
     void startBreakingBlock(int x, int y);
     void stopBreakingBlock(int x, int y);

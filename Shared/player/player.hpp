@@ -8,12 +8,12 @@
 enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 
 class Player : public Entity {
-    unsigned short getWidth() override;
-    unsigned short getHeight() override;
+    int getWidth() override;
+    int getHeight() override;
     
     bool isColliding(Blocks* blocks) override;
 public:
-    Player(int x, int y, const std::string& name, unsigned short id=0) : Entity(EntityType::PLAYER, x, y, id), name(name) {}
+    Player(int x, int y, const std::string& name, int id=0) : Entity(EntityType::PLAYER, x, y, id), name(name) {}
     
     const std::string name;
     

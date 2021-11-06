@@ -10,13 +10,13 @@ class Entities;
 class Entity {
     friend Entities;
     float x, y, velocity_x = 0, velocity_y = 0;
-    inline static unsigned short curr_id = 1;
+    inline static int curr_id = 1;
 public:
-    Entity(EntityType type, int x, int y, unsigned short id=0) : type(type), x(x), y(y), id(id ? id : curr_id++) {}
-    virtual unsigned short getWidth() = 0;
-    virtual unsigned short getHeight() = 0;
+    Entity(EntityType type, int x, int y, int id=0) : type(type), x(x), y(y), id(id ? id : curr_id++) {}
+    virtual int getWidth() = 0;
+    virtual int getHeight() = 0;
     bool gravity = true, friction = true, has_moved_x;
-    const unsigned short id;
+    const int id;
     const EntityType type;
     virtual bool isColliding(Blocks* blocks) { return isCollidingWithBlocks(blocks); }
     bool isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y);
@@ -59,7 +59,7 @@ public:
     void updateAllEntities(float frame_length);
     void registerEntity(Entity* entity);
     void removeEntity(Entity* entity);
-    Entity* getEntityById(unsigned short id);
+    Entity* getEntityById(int id);
     const std::vector<Entity*>& getEntities();
     void setVelocityX(Entity* entity, float velocity_x);
     void setVelocityY(Entity* entity, float velocity_y);

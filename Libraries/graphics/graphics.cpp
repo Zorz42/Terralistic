@@ -1,7 +1,7 @@
 #include <cmath>
 #include "graphics-internal.hpp"
 
-static unsigned short min_window_width, min_window_height;
+static int min_window_width, min_window_height;
 static sf::Clock global_clock;
 
 static const char* blur_shader_code =

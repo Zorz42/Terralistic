@@ -7,7 +7,7 @@ namespace gfx {
     inline sf::RenderTexture window_texture;
     inline sf::Font font;
 
-    inline unsigned short font_size;
+    inline int font_size;
     inline sf::RenderTexture *render_target = nullptr;
 
     inline float global_scale = 1;

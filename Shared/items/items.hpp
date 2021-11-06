@@ -9,12 +9,12 @@
 class ItemType {
 public:
     ItemType() = default;
-    ItemType(std::string name, unsigned short stack_size, BlockType* places);
+    ItemType(std::string name, int stack_size, BlockType* places);
     
     std::string name;
-    unsigned short stack_size;
+    int stack_size;
     BlockType* places;
-    unsigned char id;
+    int id;
 };
 
 namespace ItemTypes {
@@ -24,11 +24,11 @@ namespace ItemTypes {
 class Item : public Entity {
     ItemType* type;
 public:
-    Item(ItemType* type, int x, int y, unsigned short id=0);
+    Item(ItemType* type, int x, int y, int id=0);
     ItemType* getType() const;
     
-    unsigned short getWidth() override { return ITEM_WIDTH * 2; }
-    unsigned short getHeight() override { return ITEM_WIDTH * 2; }
+    int getWidth() override { return ITEM_WIDTH * 2; }
+    int getHeight() override { return ITEM_WIDTH * 2; }
 };
 
 class ItemCreationEvent {

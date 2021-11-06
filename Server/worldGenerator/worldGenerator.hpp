@@ -14,8 +14,8 @@ class Structure {
 public:
     std::string name;
     int x_size, y_size, y_offset;
-    short* blocks;
-    Structure(std::string cname, int x, int y, int offset, short* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
+    int* blocks;
+    Structure(std::string cname, int x, int y, int offset, int* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
 };
 
 class StructurePosition {
@@ -72,7 +72,7 @@ class WorldGenerator {
 
     unsigned int generating_current = 0, generating_total = 1;
     
-    unsigned short* surface_height;
+    int* surface_height;
 
 public:
     WorldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)) {}
@@ -80,7 +80,7 @@ public:
     unsigned int getGeneratingCurrent() const { return generating_current; }
     unsigned int getGeneratingTotal() const { return generating_total; }
 
-    int generateWorld(unsigned short world_width, unsigned short world_height, unsigned int seed);
+    int generateWorld(int world_width, int world_height, unsigned int seed);
 };
 
 #endif

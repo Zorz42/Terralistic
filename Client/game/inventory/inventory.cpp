@@ -136,7 +136,7 @@ void ClientInventory::render() {
     under_text_rect.shadow_intensity += ((tooltip_active ? SHADOW_INTENSITY / 2 : 0) - under_text_rect.shadow_intensity) / 3;
 }
 
-void ClientInventory::renderItem(ItemStack item, short x, short y) {
+void ClientInventory::renderItem(ItemStack item, int x, int y) {
     const gfx::Texture& texture = resource_pack->getItemTexture();
     texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, resource_pack->getTextureRectangle(item.type));
     
@@ -165,9 +165,9 @@ char* ClientInventory::loadFromSerial(char* iter) {
 void ClientInventory::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::INVENTORY: {
-            unsigned short stack;
+            int stack;
             unsigned char item_id;
-            short pos;
+            int pos;
             event.packet >> stack >> item_id >> pos;
             
             inventory.setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));

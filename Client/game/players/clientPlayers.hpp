@@ -15,7 +15,7 @@
 
 class ClientPlayer : public Player {
 public:
-    ClientPlayer(const std::string& name, int x, int y, unsigned short id);
+    ClientPlayer(const std::string& name, int x, int y, int id);
     bool flipped = false;
     unsigned char texture_frame = 0;
     gfx::Texture name_text;
@@ -30,7 +30,7 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
 
     std::string username;
     ClientPlayer* main_player = nullptr;
-    ClientPlayer* getPlayerById(unsigned short id);
+    ClientPlayer* getPlayerById(int id);
     
     void init() override;
     void update(float frame_length) override;

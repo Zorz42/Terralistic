@@ -22,7 +22,7 @@ void Entities::removeEntity(Entity* entity) {
     delete entity;
 }
 
-Entity* Entities::getEntityById(unsigned short id) {
+Entity* Entities::getEntityById(int id) {
     for(Entity* entity : entities)
         if(entity->id == id)
             return entity;

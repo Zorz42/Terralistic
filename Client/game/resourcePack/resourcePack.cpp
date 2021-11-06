@@ -62,7 +62,7 @@ void ResourcePack::loadBlocks() {
     for(int i = 1; i < blocks->getNumBlockTypes(); i++)
         block_textures[i].loadFromFile(getFile("/blocks/" + blocks->getBlockTypeById(i)->name + ".png"));
 
-    unsigned short max_y_size = 0;
+    int max_y_size = 0;
     int texture_atlas_height = 0;
     for(int i = 1; i < blocks->getNumBlockTypes(); i++){
         if(block_textures[i].getTextureWidth() > max_y_size)
@@ -89,7 +89,7 @@ void ResourcePack::loadLiquids() {
     for(int i = 1; i < liquids->getNumLiquidTypes(); i++)
         liquid_textures[i].loadFromFile(getFile("/liquids/" + liquids->getLiquidTypeById(i)->name + ".png"));
 
-    unsigned short max_y_size = 0;
+    int max_y_size = 0;
     int texture_atlas_height = 0;
     for(int i = 1; i < liquids->getNumLiquidTypes(); i++){
         if(liquid_textures[i].getTextureWidth() > max_y_size)
@@ -116,7 +116,7 @@ void ResourcePack::loadItems() {
         item_text_textures[i].loadFromText(items->getItemTypeById(i)->name);
     }
 
-    unsigned short max_x_size = 0;
+    int max_x_size = 0;
     int texture_atlas_height = 0;
     for(int i = 1; i < items->getNumItemTypes(); i++){
         if(item_textures[i].getTextureWidth() > max_x_size)

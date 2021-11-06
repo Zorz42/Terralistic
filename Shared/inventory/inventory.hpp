@@ -7,16 +7,16 @@
 
 class ItemStack {
 public:
-    ItemStack(ItemType* type, unsigned short stack) : type(type), stack(stack) {}
+    ItemStack(ItemType* type, int stack) : type(type), stack(stack) {}
     ItemStack() = default;
     ItemType* type = &ItemTypes::nothing;
-    unsigned short stack = 0;
+    int stack = 0;
 };
 
 
 class Recipe {
 public:
-    std::map<ItemType*, unsigned short> ingredients;
+    std::map<ItemType*, int> ingredients;
     ItemStack result;
 };
 
@@ -61,8 +61,8 @@ public:
     ItemStack getSelectedSlot();
     void swapWithMouseItem(char pos);
     
-    unsigned short increaseStack(char pos, unsigned short stack);
-    unsigned short decreaseStack(char pos, unsigned short stack);
+    int increaseStack(char pos, int stack);
+    int decreaseStack(char pos, int stack);
     
     void serialize(std::vector<char>& serial) const;
     char* loadFromSerial(char* iter);

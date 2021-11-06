@@ -19,7 +19,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     char hovered = -1, hovered_recipe = -1;
     
     void selectSlot(char slot);
-    void renderItem(ItemStack item, short x, short y);
+    void renderItem(ItemStack item, int x, int y);
     
     void init() override;
     void render() override;

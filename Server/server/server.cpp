@@ -21,7 +21,7 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
-Server::Server(std::string resource_path, std::string world_path, unsigned short port) :
+Server::Server(std::string resource_path, std::string world_path, int port) :
     networking(port),
     blocks(&networking),
     biomes(&blocks),
@@ -33,7 +33,7 @@ Server::Server(std::string resource_path, std::string world_path, unsigned short
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(std::move(world_path)),
-    seed(time(NULL))
+    seed((int)time(NULL))
 {
     modules = {
         &networking,
