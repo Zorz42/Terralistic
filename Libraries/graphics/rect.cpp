@@ -96,8 +96,10 @@ void gfx::Rect::render() {
 }
 
 void gfx::Rect::updateBlurTextureSize() {
-    if(blur_texture && target_width && target_height)
-        blur_texture->create(target_width, target_height);
+    if(blur_texture && target_width && target_height) {
+        if(!blur_texture->create(target_width, target_height))
+            throw CreationException();
+    }
 }
 
 unsigned short gfx::Rect::getWidth() const {

@@ -43,8 +43,8 @@ void gfx::init(const std::string& resource_path_, unsigned short window_width, u
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 
-    bool result = blur_shader.loadFromMemory(blur_shader_code, sf::Shader::Type::Fragment);
-    assert(result);
+    if(!blur_shader.loadFromMemory(blur_shader_code, sf::Shader::Type::Fragment))
+        throw ShaderException();
 
     shadow_texture.create(700, 700);
 
@@ -102,8 +102,9 @@ void gfx::setMinimumWindowSize(unsigned short width, unsigned short height) {
 }
 
 void gfx::loadFont(const std::string& path, unsigned char size) {
+    if(!font.loadFromFile(resource_path + path))
+        throw LoadException(resource_path + path);
     font_size = size;
-    font.loadFromFile(resource_path + path);
 }
 
 void gfx::quit() {
@@ -133,7 +134,7 @@ unsigned int gfx::getTicks() {
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
-    output.generateMipmap(); // without that it doesnt work on smaller textures
+    //output.generateMipmap(); // without that it doesnt work on smaller textures
     sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);
@@ -169,6 +170,8 @@ void gfx::sleep(unsigned short ms) {
 }
 
 void gfx::setGlobalScale(float scale) {
+    if(scale <= 0)
+        throw ScaleException();
     global_scale = scale;
     setWindowSize(getWindowWidth(), getWindowHeight());
 }
@@ -202,6 +205,7 @@ std::string gfx::getResourcePath() {
 
 void gfx::loadIconFromFile(const std::string& path) {
     sf::Image icon;
-    icon.loadFromFile(path);
+    if(!icon.loadFromFile(path))
+        throw LoadException(path);
     window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }

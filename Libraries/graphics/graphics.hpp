@@ -4,6 +4,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include "theme.hpp"
+#include "exception.hpp"
 
 namespace gfx {
     class Color {
@@ -240,4 +241,24 @@ namespace gfx {
     void enableVsync(bool enabled);
 
     void loadIconFromFile(const std::string& path);
+};
+
+class ShaderException : Exception {
+public:
+    ShaderException() : Exception("Error compiling a shader.") {}
+};
+
+class LoadException : Exception {
+public:
+    LoadException(const std::string& path) : Exception("Could not load file " + path) {}
+};
+
+class ScaleException : Exception {
+public:
+    ScaleException() : Exception("Scale was set to zero or less value.") {}
+};
+
+class CreationException : Exception {
+public:
+    CreationException() : Exception("Could not create texture.") {}
 };

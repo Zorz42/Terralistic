@@ -14,10 +14,7 @@ unsigned short gfx::PixelGrid::getHeight() const {
 
 void gfx::PixelGrid::setPixel(unsigned short x, unsigned short y, Color color) {
     int index = ((int)y * width + x) * 4;
-    array[index] = color.r;
-    array[index + 1] = color.g;
-    array[index + 2] = color.b;
-    array[index + 3] = color.a;
+    *(int*)&array[index] = (int)color.r + ((int)color.g << 8) + ((int)color.b << 16) + ((int)color.a << 24);
 }
 
 unsigned char* gfx::PixelGrid::getArray() const {

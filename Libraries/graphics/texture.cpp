@@ -4,8 +4,8 @@
 void gfx::Texture::createBlankImage(unsigned short width, unsigned short height) {
     freeTexture();
     sfml_render_texture = new sf::RenderTexture;
-    bool result = sfml_render_texture->create(width, height);
-    assert(result);
+    if(!sfml_render_texture->create(width, height))
+        throw CreationException();
     clear();
 }
 
@@ -36,8 +36,9 @@ void gfx::Texture::loadFromResources(const std::string& path) {
 
 void gfx::Texture::loadFromFile(const std::string& path) {
     sf::Texture image_texture;
-    bool result = image_texture.loadFromFile(path);
-    assert(result);
+    if(!image_texture.loadFromFile(path))
+        throw LoadException(path);
+    
     sf::RectangleShape sfml_rect;
     sf::Vector2u size = image_texture.getSize();
     sfml_rect.setSize({(float)size.x, (float)size.y});

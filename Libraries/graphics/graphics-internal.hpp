@@ -1,9 +1,7 @@
 #pragma once
 
-#include "graphics.hpp"
-
-#include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include "graphics.hpp"
 
 namespace gfx {
 
