@@ -35,7 +35,7 @@ static const char* blur_shader_code =
 "    gl_FragColor = color;"
 "}";
 
-void gfx::init(const std::string& resource_path_, unsigned short window_width, unsigned short window_height) {
+void gfx::init(const std::string& resource_path_, int window_width, int window_height) {
     resource_path = resource_path_;
     
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
@@ -95,12 +95,12 @@ void gfx::init(const std::string& resource_path_, unsigned short window_width, u
     shadow_part_down.display();
 }
 
-void gfx::setMinimumWindowSize(unsigned short width, unsigned short height) {
+void gfx::setMinimumWindowSize(int width, int height) {
     min_window_width = width;
     min_window_height = height;
 }
 
-void gfx::loadFont(const std::string& path, unsigned char size) {
+void gfx::loadFont(const std::string& path, int size) {
     if(!font.loadFromFile(resource_path + path))
         throw LoadException(resource_path + path);
     font_size = size;
@@ -110,11 +110,11 @@ void gfx::quit() {
     delete window;
 }
 
-unsigned short gfx::getWindowWidth() {
+int gfx::getWindowWidth() {
     return window->getSize().x / global_scale;
 }
 
-unsigned short gfx::getWindowHeight() {
+int gfx::getWindowHeight() {
     return window->getSize().y / global_scale;
 }
 
@@ -128,7 +128,7 @@ void gfx::resetRenderTarget() {
     render_target = &window_texture;
 }
 
-unsigned int gfx::getTicks() {
+int gfx::getTicks() {
     return global_clock.getElapsedTime().asMilliseconds();
 }
 
@@ -164,7 +164,7 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
     }
 }
 
-void gfx::sleep(unsigned short ms) {
+void gfx::sleep(int ms) {
     sf::sleep(sf::milliseconds(ms));
 }
 
@@ -183,7 +183,7 @@ void gfx::enableVsync(bool enabled) {
     window->setVerticalSyncEnabled(enabled);
 }
 
-void gfx::setWindowSize(unsigned short width, unsigned short height) {
+void gfx::setWindowSize(int width, int height) {
     width *= global_scale;
     height *= global_scale;
     

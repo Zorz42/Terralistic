@@ -1,22 +1,22 @@
 #include "graphics-internal.hpp"
 
-unsigned short gfx::Button::getWidth() const {
+int gfx::Button::getWidth() const {
     return (getTextureWidth() + margin * 2) * scale;
 }
 
-unsigned short gfx::Button::getHeight() const {
+int gfx::Button::getHeight() const {
     return (getTextureHeight() + margin * 2) * scale;
 }
 
-bool gfx::Button::isHovered(unsigned short mouse_x, unsigned short mouse_y) const {
+bool gfx::Button::isHovered(int mouse_x, int mouse_y) const {
     RectShape rect = getTranslatedRect();
     return !disabled && mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
 
-void gfx::Button::render(unsigned short mouse_x, unsigned short mouse_y) {
+void gfx::Button::render(int mouse_x, int mouse_y) {
     RectShape rect = getTranslatedRect();
     int hover_progress_target = isHovered(mouse_x, mouse_y) ? 255 : 0;
-    hover_progress += float(hover_progress_target - (int)hover_progress) / 4;
+    hover_progress += float(hover_progress_target - hover_progress) / 4;
     Color button_color{
         (unsigned char)((int)hover_color.r * hover_progress / 255 + (int)def_color.r * float(255 - hover_progress) / 255),
         (unsigned char)((int)hover_color.g * hover_progress / 255 + (int)def_color.g * float(255 - hover_progress) / 255),

@@ -1,6 +1,6 @@
 #include "graphics-internal.hpp"
 
-gfx::RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
+gfx::RectShape::RectShape(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {}
 
 void gfx::RectShape::render(Color color) const {
     sf::RectangleShape rect;

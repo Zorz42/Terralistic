@@ -1,6 +1,4 @@
 #pragma once
-
-#include <vector>
 #include "events.hpp"
 #include "graphics.hpp"
 #include "exception.hpp"

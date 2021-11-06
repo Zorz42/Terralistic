@@ -102,11 +102,11 @@ void gfx::Rect::updateBlurTextureSize() {
     }
 }
 
-unsigned short gfx::Rect::getWidth() const {
+int gfx::Rect::getWidth() const {
     return width;
 }
 
-void gfx::Rect::setWidth(unsigned short width_) {
+void gfx::Rect::setWidth(int width_) {
     if(target_width != width_) {
         target_width = width_;
         updateBlurTextureSize();
@@ -115,11 +115,11 @@ void gfx::Rect::setWidth(unsigned short width_) {
         width = width_;
 }
 
-unsigned short gfx::Rect::getHeight() const {
+int gfx::Rect::getHeight() const {
     return height;
 }
 
-void gfx::Rect::setHeight(unsigned short height_) {
+void gfx::Rect::setHeight(int height_) {
     if(target_height != height_) {
         target_height = height_;
         updateBlurTextureSize();
@@ -128,21 +128,21 @@ void gfx::Rect::setHeight(unsigned short height_) {
         height = height_;
 }
 
-short gfx::Rect::getX() const {
+int gfx::Rect::getX() const {
     return x;
 }
 
-void gfx::Rect::setX(short x_) {
+void gfx::Rect::setX(int x_) {
     target_x = x_;
     if(first_time)
         x = x_;
 }
 
-short gfx::Rect::getY() const {
+int gfx::Rect::getY() const {
     return y;
 }
 
-void gfx::Rect::setY(short y_) {
+void gfx::Rect::setY(int y_) {
     target_y = y_;
     if(first_time)
         y = y_;

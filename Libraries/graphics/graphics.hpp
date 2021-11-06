@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
 #include "theme.hpp"
 #include "exception.hpp"
@@ -12,21 +11,20 @@ namespace gfx {
 
     class RectShape {
     public:
-        RectShape(short x = 0, short y = 0, unsigned short w = 0, unsigned short h = 0);
-        short x, y;
-        unsigned short w, h;
+        RectShape(int x = 0, int y = 0, int w = 0, int h = 0);
+        int x, y, w, h;
         void render(Color color) const;
         void renderOutline(Color color) const;
     };
     
     class PixelGrid {
         unsigned char* array;
-        unsigned short width, height;
+        int width, height;
     public:
-        PixelGrid(unsigned short width, unsigned short height);
-        unsigned short getWidth() const;
-        unsigned short getHeight() const;
-        void setPixel(unsigned short x, unsigned short y, Color color);
+        PixelGrid(int width, int height);
+        int getWidth() const;
+        int getHeight() const;
+        void setPixel(int x, int y, Color color);
         unsigned char* getArray() const;
         ~PixelGrid();
     };
@@ -48,44 +46,43 @@ namespace gfx {
     
     class _CenteredObject {
     public:
-        explicit _CenteredObject(short x = 0, short y = 0, Orientation orientation = TOP_LEFT);
+        explicit _CenteredObject(int x = 0, int y = 0, Orientation orientation = TOP_LEFT);
         Orientation orientation;
         RectShape getTranslatedRect() const;
-        virtual unsigned short getWidth() const { return 0; };
-        virtual unsigned short getHeight() const { return 0; };
-        short getTranslatedX() const;
-        short getTranslatedY() const;
+        virtual int getWidth() const { return 0; };
+        virtual int getHeight() const { return 0; };
+        int getTranslatedX() const;
+        int getTranslatedY() const;
 
-        short x, y;
+        int x, y;
     };
 
     class Rect : public _CenteredObject {
         sf::RenderTexture* blur_texture = nullptr;
         using _CenteredObject::x;
         using _CenteredObject::y;
-        unsigned short width, height;
+        int width, height;
         
-        short target_x = 0, target_y = 0;
-        unsigned short target_width = 0, target_height = 0;
+        int target_x = 0, target_y = 0, target_width = 0, target_height = 0;
         
         bool first_time = true;
 
         void updateBlurTextureSize();
         
     public:
-        unsigned short getWidth() const override;
-        void setWidth(unsigned short width_);
+        int getWidth() const override;
+        void setWidth(int width_);
         
-        unsigned short getHeight() const override;
-        void setHeight(unsigned short height_);
+        int getHeight() const override;
+        void setHeight(int height_);
         
-        short getX() const;
-        void setX(short x_);
+        int getX() const;
+        void setX(int x_);
         
-        short getY() const;
-        void setY(short y_);
+        int getY() const;
+        void setY(int y_);
         
-        unsigned short smooth_factor = 1;
+        int smooth_factor = 1;
         float blur_intensity = 0;
         unsigned char shadow_intensity = 0;
         Color fill_color = {0, 0, 0, 0};
@@ -100,12 +97,12 @@ namespace gfx {
         sf::Vertex* vertex_array = nullptr;
         sf::VertexBuffer vertex_buffer;
     public:
-        RectArray(unsigned short size);
+        RectArray(int size);
         RectArray() = default;
         
-        void setRect(unsigned short index, RectShape rect);
-        void setColor(unsigned short index, Color color);
-        void setTextureCoords(unsigned short index, RectShape texture_coordinates);
+        void setRect(int index, RectShape rect);
+        void setColor(int index, Color color);
+        void setTextureCoords(int index, RectShape texture_coordinates);
         void render(int size, const Texture* image=nullptr);
         void resize(int size);
         ~RectArray();
@@ -119,12 +116,12 @@ namespace gfx {
         sf::RenderTexture *sfml_render_texture = nullptr;
         Color color{255, 255, 255};
     public:
-        void render(float scale, short x, short y, bool flipped=false) const;
-        void render(float scale, short x, short y, RectShape src_rect, bool flipped=false) const;
-        unsigned short getTextureWidth() const;
-        unsigned short getTextureHeight() const;
+        void render(float scale, int x, int y, bool flipped=false) const;
+        void render(float scale, int x, int y, RectShape src_rect, bool flipped=false) const;
+        int getTextureWidth() const;
+        int getTextureHeight() const;
         void clear();
-        void createBlankImage(unsigned short width, unsigned short height);
+        void createBlankImage(int width, int height);
         void loadFromText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
         void loadFromResources(const std::string& path);
         void loadFromFile(const std::string& path);
@@ -138,8 +135,8 @@ namespace gfx {
     public:
         bool flipped = false;
         float scale = 1;
-        unsigned short getWidth() const override { return getTextureWidth() * scale; }
-        unsigned short getHeight() const override { return getTextureHeight() * scale; }
+        int getWidth() const override { return getTextureWidth() * scale; }
+        int getHeight() const override { return getTextureHeight() * scale; }
         Sprite();
         void render() const;
 
@@ -147,32 +144,32 @@ namespace gfx {
 
     class Button : public Sprite {
     public:
-        unsigned short margin = GFX_DEFAULT_BUTTON_MARGIN;
+        int margin = GFX_DEFAULT_BUTTON_MARGIN;
 
-        unsigned short getWidth() const override;
-        unsigned short getHeight() const override;
+        int getWidth() const override;
+        int getHeight() const override;
 
         Color def_color = GFX_DEFAULT_BUTTON_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR;
-        bool isHovered(unsigned short mouse_x, unsigned short mouse_y) const;
+        bool isHovered(int mouse_x, int mouse_y) const;
         bool disabled = false;
         float hover_progress = 0;
-        void render(unsigned short mouse_x, unsigned short mouse_y);
+        void render(int mouse_x, int mouse_y);
     };
 
     class TextInput : public Button {
         std::string text;
         Rect back_rect;
     public:
-        void render(unsigned short mouse_x, unsigned short mouse_y);
+        void render(int mouse_x, int mouse_y);
         TextInput();
 
         std::string getText() const { return text; }
-        unsigned short getWidth() const override;
+        int getWidth() const override;
         void setText(const std::string& text);
 
         bool active = false, ignore_next_input = false;
         char (*textProcessing)(char c, int length) = nullptr;
-        unsigned short width = GFX_DEFAULT_TEXT_INPUT_WIDTH;
+        int width = GFX_DEFAULT_TEXT_INPUT_WIDTH;
         Color text_color = GFX_DEFAULT_TEXT_COLOR;
         void setBlurIntensity(float blur_intensity);
         void setBorderColor(Color color);
@@ -185,7 +182,7 @@ namespace gfx {
     class SceneModule {
         friend Scene;
         bool enable_key_states = true;
-        short mouse_x, mouse_y;
+        int mouse_x, mouse_y;
     public:
         virtual void init() {}
         virtual void update(float frame_length) {}
@@ -194,8 +191,8 @@ namespace gfx {
         virtual bool onKeyDown(Key key_) { return false; }
         bool getKeyState(Key key_) const;
         virtual void onMouseScroll(int distance) {}
-        short getMouseX();
-        short getMouseY();
+        int getMouseX();
+        int getMouseY();
         bool enabled = true;
         
         std::vector<TextInput*> text_inputs;
@@ -216,23 +213,23 @@ namespace gfx {
         const std::vector<SceneModule*>& getModules();
     };
     
-    void init(const std::string& resource_path_, unsigned short window_width_, unsigned short window_height_);
+    void init(const std::string& resource_path_, int window_width_, int window_height_);
     void quit();
 
-    void loadFont(const std::string& path, unsigned char size);
+    void loadFont(const std::string& path, int size);
     
     std::string getResourcePath();
 
-    void setMinimumWindowSize(unsigned short width, unsigned short height);
-    void setWindowSize(unsigned short width, unsigned short height);
-    unsigned short getWindowWidth();
-    unsigned short getWindowHeight();
+    void setMinimumWindowSize(int width, int height);
+    void setWindowSize(int width, int height);
+    int getWindowWidth();
+    int getWindowHeight();
 
     void setRenderTarget(Texture& tex);
     void resetRenderTarget();
 
-    unsigned int getTicks();
-    void sleep(unsigned short ms);
+    int getTicks();
+    void sleep(int ms);
     
     void setGlobalScale(float scale);
     void setFpsLimit(int limit);

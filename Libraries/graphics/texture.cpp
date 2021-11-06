@@ -1,6 +1,6 @@
 #include "graphics-internal.hpp"
 
-void gfx::Texture::createBlankImage(unsigned short width, unsigned short height) {
+void gfx::Texture::createBlankImage(int width, int height) {
     freeTexture();
     sfml_render_texture = new sf::RenderTexture;
     if(!sfml_render_texture->create(width, height))
@@ -61,18 +61,18 @@ void gfx::Texture::setColor(Color color_) {
     color = color_;
 }
 
-unsigned short gfx::Texture::getTextureWidth() const {
+int gfx::Texture::getTextureWidth() const {
     return sfml_render_texture->getSize().x;
 }
 
-unsigned short gfx::Texture::getTextureHeight() const {
+int gfx::Texture::getTextureHeight() const {
     return sfml_render_texture->getSize().y;
 }
 
 void gfx::Texture::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
-void gfx::Texture::render(float scale, short x, short y, RectShape src_rect, bool flipped) const {
+void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool flipped) const {
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());
     sprite.setTextureRect({src_rect.x, src_rect.y, src_rect.w, src_rect.h});
@@ -84,7 +84,7 @@ void gfx::Texture::render(float scale, short x, short y, RectShape src_rect, boo
     render_target->draw(sprite);
 }
 
-void gfx::Texture::render(float scale, short x, short y, bool flipped) const {
+void gfx::Texture::render(float scale, int x, int y, bool flipped) const {
     render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped);
 }
 

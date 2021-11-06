@@ -1,5 +1,4 @@
 #include <set>
-#include <utility>
 #include "resourcePath.hpp"
 
 std::string removeEndUntilChars(std::string string, const std::set<char>& chars) {

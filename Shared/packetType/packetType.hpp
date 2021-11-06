@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/Network.hpp>
 #include "exception.hpp"
 

@@ -97,7 +97,7 @@ void ClientInventory::render() {
         hovered_recipe = -1;
         behind_crafting_rect.render();
         
-        behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + inventory.getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
+        behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)inventory.getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
         
         for(int i = 0; i < inventory.getAvailableRecipes().size(); i++) {
             int slot_x = 1.5 * INVENTORY_UI_SPACING;
@@ -119,7 +119,7 @@ void ClientInventory::render() {
             tooltip_active = true;
             under_text_rect.setX(getMouseX());
             under_text_rect.setY(getMouseY());
-            under_text_rect.setWidth(SPACING / 2 + inventory.getAvailableRecipes()[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
+            under_text_rect.setWidth(SPACING / 2 + (int)inventory.getAvailableRecipes()[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
             under_text_rect.setHeight(INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING);
             under_text_rect.render();
             int x = getMouseX() + SPACING / 2;

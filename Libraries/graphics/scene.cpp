@@ -10,11 +10,11 @@ const std::vector<gfx::SceneModule*>& gfx::Scene::getModules() {
     return modules;
 }
 
-short gfx::SceneModule::getMouseX() {
+int gfx::SceneModule::getMouseX() {
     return mouse_x;
 }
 
-short gfx::SceneModule::getMouseY() {
+int gfx::SceneModule::getMouseY() {
     return mouse_y;
 }
 
