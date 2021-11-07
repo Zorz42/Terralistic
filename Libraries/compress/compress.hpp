@@ -5,9 +5,9 @@
 std::vector<char> compress(std::vector<char>& decompressed_data);
 std::vector<char> decompress(std::vector<char>& compressed_data);
 
-class ArchiveCopputionException : Exception {
+class ArchiveCorrutionException : Exception {
 public:
-    ArchiveCopputionException() : Exception("Archive is corrupted!") {}
+    ArchiveCorrutionException() : Exception("Archive is corrupted!") {}
 };
 
 class ArchivingException : Exception {
