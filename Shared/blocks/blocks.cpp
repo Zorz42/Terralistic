@@ -17,7 +17,7 @@ void Blocks::create(int width_, int height_) {
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
     if(x < 0 || x >= width || y < 0 || y >= height)
-        throw BlockOutOfBoundsException(x, y);
+        throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &blocks[y * width + x];
 }
 

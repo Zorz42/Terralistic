@@ -48,11 +48,6 @@ enum class WelcomePacketType {
     _START, WELCOME, BLOCKS, LIQUIDS, INVENTORY, TIME, _END,
 };
 
-class PacketValueException : Exception {
-public:
-    PacketValueException() : Exception("Invalid packet value type.") {}
-};
-
 sf::Packet& operator<<(sf::Packet& packet, ClientPacketType packet_type);
 sf::Packet& operator>>(sf::Packet& packet, ClientPacketType& packet_type);
 

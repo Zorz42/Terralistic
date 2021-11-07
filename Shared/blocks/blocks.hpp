@@ -102,8 +102,3 @@ public:
     
     ~Blocks();
 };
-
-class BlockOutOfBoundsException : public Exception {
-public:
-    BlockOutOfBoundsException(int x, int y) : Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")") {}
-};
