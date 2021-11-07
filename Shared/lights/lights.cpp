@@ -18,7 +18,7 @@ Lights::Light* Lights::getLight(int x, int y) {
     return &lights[y * blocks->getWidth() + x];
 }
 
-void Lights::setLightLevel(int x, int y, unsigned char level) {
+void Lights::setLightLevel(int x, int y, int level) {
     if(level == 0)
         getLight(x, y)->light_source = false;
     if(getLight(x, y)->light_level != level) {
@@ -57,11 +57,11 @@ void Lights::updateLight(int x, int y) {
     }
     
     if(!getLight(x, y)->light_source) {
-        unsigned char level_to_be = 0;
+        int level_to_be = 0;
         for(auto & neighbor : neighbors)
             if(neighbor[0] != -1) {
-                unsigned char light_step = blocks->getBlockType(neighbor[0], neighbor[1])->transparent ? 3 : 15;
-                unsigned char light = light_step > getLightLevel(neighbor[0], neighbor[1]) ? 0 : getLightLevel(neighbor[0], neighbor[1]) - light_step;
+                int light_step = blocks->getBlockType(neighbor[0], neighbor[1])->transparent ? 3 : 15;
+                int light = light_step > getLightLevel(neighbor[0], neighbor[1]) ? 0 : getLightLevel(neighbor[0], neighbor[1]) - light_step;
                 if(light > level_to_be)
                     level_to_be = light;
             }
@@ -72,13 +72,13 @@ void Lights::updateLight(int x, int y) {
     }
 }
 
-void Lights::setLightSource(int x, int y, unsigned char level) {
+void Lights::setLightSource(int x, int y, int level) {
     getLight(x, y)->light_source = level > 0;
     getLight(x, y)->light_level = level;
     scheduleLightUpdateForNeighbors(x, y);
 }
 
-unsigned char Lights::getLightLevel(int x, int y) {
+int Lights::getLightLevel(int x, int y) {
     return getLight(x, y)->light_level;
 }
 

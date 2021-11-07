@@ -155,10 +155,10 @@ ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, char*& iter) 
     
     x = 0;
     for(int i = 0; i < sizeof(int); i++)
-        x += (int)(unsigned char)*iter++ << i * 8;
+        x += (int)*iter++ << i * 8;
     y = 0;
     for(int i = 0; i < sizeof(int); i++)
-        y += (int)(unsigned char)*iter++ << i * 8;
+        y += (int)*iter++ << i * 8;
     
     while(*iter)
         name.push_back(*iter++);
@@ -214,14 +214,14 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
                 break;
             } else {
                 sf::Packet join_packet;
-                join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
+                join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (int)curr_player->moving_type;
                 event.connection->send(join_packet);
             }
         }
     
     assert(player);
     sf::Packet join_packet;
-    join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
+    join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
     networking->sendToEveryone(join_packet);
 }
 
@@ -334,7 +334,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
 
         case ClientPacketType::INVENTORY_SWAP: {
-            unsigned char pos;
+            int pos;
             event.packet >> pos;
             event.player->inventory.swapWithMouseItem(pos);
             break;
@@ -346,7 +346,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
             
         case ClientPacketType::CRAFT: {
-            unsigned char craft_index;
+            int craft_index;
             event.packet >> craft_index;
             const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
             event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
@@ -356,7 +356,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
             
         case ClientPacketType::PLAYER_MOVING_TYPE: {
-            unsigned char moving_type;
+            int moving_type;
             event.packet >> moving_type;
             event.player->moving_type = (MovingType)moving_type;
             sf::Packet moving_packet;

@@ -40,7 +40,7 @@ public:
     std::vector<BlockType*> connects_to;
     int break_time;
     gfx::Color color;
-    unsigned char id;
+    int id;
 };
 
 namespace BlockTypes {
@@ -50,7 +50,8 @@ namespace BlockTypes {
 class Blocks {
     class Block {
     public:
-        unsigned char id = BlockTypes::air.id;
+        Block() : id(BlockTypes::air.id) {}
+        int id:8;
     };
     
     class BreakingBlock {
@@ -76,7 +77,7 @@ public:
     void setBlockTypeSilently(int x, int y, BlockType* type);
     
     int getBreakProgress(int x, int y);
-    unsigned char getBreakStage(int x, int y);
+    int getBreakStage(int x, int y);
     void startBreakingBlock(int x, int y);
     void stopBreakingBlock(int x, int y);
     void updateBreakingBlocks(int frame_length);
@@ -90,9 +91,9 @@ public:
     char* loadFromSerial(char* iter);
     
     void registerNewBlockType(BlockType* block_type);
-    BlockType* getBlockTypeById(unsigned char block_id);
+    BlockType* getBlockTypeById(int block_id);
     BlockType* getBlockTypeByName(const std::string& name);
-    unsigned char getNumBlockTypes();
+    int getNumBlockTypes();
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;

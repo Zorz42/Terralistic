@@ -21,12 +21,12 @@ void Items::registerNewItemType(ItemType* item_type) {
     item_types.push_back(item_type);
 }
 
-ItemType* Items::getItemTypeById(unsigned char item_id) {
+ItemType* Items::getItemTypeById(int item_id) {
     return item_types[item_id];
 }
 
-unsigned char Items::getNumItemTypes() {
-    return item_types.size();
+int Items::getNumItemTypes() {
+    return (int)item_types.size();
 }
 
 void Items::setBlockDrop(BlockType* block_type, ItemType* item_type) {

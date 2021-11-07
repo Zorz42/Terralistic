@@ -209,7 +209,7 @@ void gfx::setWindowSize(int width, int height) {
     if(height < min_window_height * global_scale)
         height = min_window_height * global_scale;
     
-    sf::FloatRect visibleArea(0, 0, (unsigned int)width / global_scale, (unsigned int)height / global_scale);
+    sf::FloatRect visibleArea(0, 0, width / global_scale, height / global_scale);
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width / global_scale, height / global_scale);

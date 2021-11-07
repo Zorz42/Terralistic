@@ -1,6 +1,6 @@
 #include "clientBlocks.hpp"
 
-bool ClientBlocks::updateOrientationSide(ClientBlocks* blocks, int x, int y, char side_x, char side_y) {
+bool ClientBlocks::updateOrientationSide(ClientBlocks* blocks, int x, int y, int side_x, int side_y) {
     if(
             x + side_x >= blocks->getWidth() || x + side_x < 0 || y + side_y >= blocks->getHeight() || y + side_y < 0 ||
             blocks->getBlockType(x + side_x, y + side_y) == blocks->getBlockType(x, y) ||
@@ -57,7 +57,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::BLOCK: {
             int x, y;
-            unsigned char block_id;
+            int block_id;
             event.packet >> x >> y >> block_id;
             
             setBlockType(x, y, getBlockTypeById(block_id));
@@ -91,11 +91,11 @@ void ClientBlocks::updateState(int x, int y) {
     updateOrientationUp(this, x, y);
 }
 
-void ClientBlocks::setState(int x, int y, unsigned char state) {
+void ClientBlocks::setState(int x, int y, int state) {
     getRenderBlock(x, y)->state = state;
 }
 
-unsigned char ClientBlocks::getState(int x, int y) {
+int ClientBlocks::getState(int x, int y) {
     return getRenderBlock(x, y)->state;
 }
 

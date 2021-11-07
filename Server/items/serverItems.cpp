@@ -34,7 +34,7 @@ void ServerItems::onEvent(BlockBreakEvent& event) {
     static std::random_device device;
     static std::mt19937 engine(device());
     if(getBlockDrop(blocks->getBlockType(event.x, event.y)) != &ItemTypes::nothing) {
-        Item* item = spawnItem(getItemTypeById((unsigned char)getBlockDrop(blocks->getBlockType(event.x, event.y))->id), event.x * BLOCK_WIDTH * 2, event.y * BLOCK_WIDTH * 2);
+        Item* item = spawnItem(getItemTypeById(getBlockDrop(blocks->getBlockType(event.x, event.y))->id), event.x * BLOCK_WIDTH * 2, event.y * BLOCK_WIDTH * 2);
         entities->addVelocityX(item, int(engine() % 40) - 20);
         entities->addVelocityY(item, -int(engine() % 20) - 20);
     }

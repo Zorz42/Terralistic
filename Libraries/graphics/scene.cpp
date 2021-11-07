@@ -192,7 +192,7 @@ void gfx::Scene::run() {
     init();
 
     while(running && window->isOpen()) {
-        unsigned int start = getTicks();
+        int start = getTicks();
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
         mouse_y = sf::Mouse::getPosition(*window).y / global_scale;

@@ -48,8 +48,8 @@ public:
     
     void setPrivate(bool is_private);
     
-    unsigned int getGeneratingTotal() const;
-    unsigned int getGeneratingCurrent() const;
+    int getGeneratingTotal() const;
+    int getGeneratingCurrent() const;
 };
 
 #endif

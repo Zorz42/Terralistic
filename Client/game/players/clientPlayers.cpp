@@ -77,7 +77,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
         case ServerPacketType::PLAYER_JOIN: {
             int x, y;
             int id;
-            unsigned char moving_type;
+            int moving_type;
             std::string name;
             event.packet >> x >> y >> id >> name >> moving_type;
             ClientPlayer* new_player = new ClientPlayer(name, x, y, id);
@@ -90,7 +90,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
         }
         case ServerPacketType::PLAYER_MOVING_TYPE: {
             int id;
-            unsigned char moving_type;
+            int moving_type;
             event.packet >> moving_type >> id;
             if(id != main_player->id) {
                 ClientPlayer* player = getPlayerById(id);

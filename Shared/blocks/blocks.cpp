@@ -7,6 +7,9 @@ Blocks::Blocks() {
 }
 
 void Blocks::create(int width_, int height_) {
+    if(width_ < 0 || height_ < 0)
+        throw ValueException("Width and height must be positive");
+    
     width = width_;
     height = height_;
     blocks = new Block[width * height];
@@ -49,6 +52,9 @@ int Blocks::getBreakProgress(int x, int y) {
 }
 
 void Blocks::updateBreakingBlocks(int frame_length) {
+    if(frame_length < 0)
+        throw ValueException("Frame length must be positive");
+    
     for(int i = 0; i < breaking_blocks.size(); i++) {
         if(breaking_blocks[i].is_breaking) {
             breaking_blocks[i].break_progress += frame_length;
@@ -58,11 +64,14 @@ void Blocks::updateBreakingBlocks(int frame_length) {
     }
 }
 
-unsigned char Blocks::getBreakStage(int x, int y) {
+int Blocks::getBreakStage(int x, int y) {
     return (float)getBreakProgress(x, y) / (float)getBlockType(x, y)->break_time * 9.f;
 }
 
 void Blocks::startBreakingBlock(int x, int y) {
+    if(x < 0 || x >= width || y < 0 || y >= height)
+        throw BlockOutOfBoundsException(x, y);
+    
     BreakingBlock* breaking_block = nullptr;
     
     for(BreakingBlock& block : breaking_blocks)
@@ -84,6 +93,9 @@ void Blocks::startBreakingBlock(int x, int y) {
 }
 
 void Blocks::stopBreakingBlock(int x, int y) {
+    if(x < 0 || x >= width || y < 0 || y >= height)
+        throw BlockOutOfBoundsException(x, y);
+    
     for(BreakingBlock& breaking_block : breaking_blocks)
         if(breaking_block.x == x && breaking_block.y == y) {
             breaking_block.is_breaking = false;
@@ -137,11 +149,11 @@ char* Blocks::loadFromSerial(char* iter) {
 }
 
 void Blocks::registerNewBlockType(BlockType* block_type) {
-    block_type->id = block_types.size();
+    block_type->id = (int)block_types.size();
     block_types.push_back(block_type);
 }
 
-BlockType* Blocks::getBlockTypeById(unsigned char block_id) {
+BlockType* Blocks::getBlockTypeById(int block_id) {
     return block_types[block_id];
 }
 
@@ -152,8 +164,8 @@ BlockType* Blocks::getBlockTypeByName(const std::string& name) {
     return nullptr;
 }
 
-unsigned char Blocks::getNumBlockTypes() {
-    return block_types.size();
+int Blocks::getNumBlockTypes() {
+    return (int)block_types.size();
 }
 
 Blocks::~Blocks() {

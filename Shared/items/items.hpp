@@ -49,9 +49,9 @@ public:
     Item* spawnItem(ItemType* type, int x, int y);
     
     void registerNewItemType(ItemType* item_type);
-    ItemType* getItemTypeById(unsigned char item_id);
+    ItemType* getItemTypeById(int item_id);
     ItemType* getItemTypeByName(const std::string& name);
-    unsigned char getNumItemTypes();
+    int getNumItemTypes();
     
     void setBlockDrop(BlockType* block_type, ItemType* item_type);
     ItemType* getBlockDrop(BlockType* block_type);

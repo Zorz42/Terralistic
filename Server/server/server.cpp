@@ -104,7 +104,7 @@ void Server::start() {
     state = ServerState::RUNNING;
     print::info("Server has started!");
     
-    unsigned int a, b = gfx::getTicks();
+    int a, b = gfx::getTicks();
     
     int ms_per_tick = 1000 / TPS_LIMIT;
 
@@ -138,10 +138,10 @@ void Server::setPrivate(bool is_private) {
     networking.is_private = is_private;
 }
 
-unsigned int Server::getGeneratingTotal() const {
+int Server::getGeneratingTotal() const {
     return generator.getGeneratingTotal();
 }
 
-unsigned int Server::getGeneratingCurrent() const {
+int Server::getGeneratingCurrent() const {
     return generator.getGeneratingCurrent();
 }

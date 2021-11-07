@@ -135,7 +135,7 @@ void ClientPlayers::update(float frame_length) {
         
         if(prev_moving_type != main_player->moving_type) {
             sf::Packet packet;
-            packet << ClientPacketType::PLAYER_MOVING_TYPE << (unsigned char)main_player->moving_type;
+            packet << ClientPacketType::PLAYER_MOVING_TYPE << (int)main_player->moving_type;
             manager->sendPacket(packet);
         }
         

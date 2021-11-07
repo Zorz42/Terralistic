@@ -128,11 +128,11 @@ void Liquids::updateLiquid(int x, int y) {
     }
 }
 
-void Liquids::setLiquidLevelSilently(int x, int y, unsigned char level) {
+void Liquids::setLiquidLevelSilently(int x, int y, int level) {
     getLiquid(x, y)->level = level;
 }
 
-void Liquids::setLiquidLevel(int x, int y, unsigned char level) {
+void Liquids::setLiquidLevel(int x, int y, int level) {
     if(level != getLiquidLevel(x, y)) {
         setLiquidLevelSilently(x, y, level);
         if(level == 0)
@@ -143,7 +143,7 @@ void Liquids::setLiquidLevel(int x, int y, unsigned char level) {
     }
 }
 
-unsigned char Liquids::getLiquidLevel(int x, int y) {
+int Liquids::getLiquidLevel(int x, int y) {
     return getLiquid(x, y)->level;
 }
 
@@ -185,16 +185,16 @@ int Liquids::getHeight() const {
 }
 
 void Liquids::registerNewLiquidType(LiquidType* liquid_type) {
-    liquid_type->id = liquid_types.size();
+    liquid_type->id = (int)liquid_types.size();
     liquid_types.push_back(liquid_type);
 }
 
-LiquidType* Liquids::getLiquidTypeById(unsigned char liquid_id) {
+LiquidType* Liquids::getLiquidTypeById(int liquid_id) {
     return liquid_types[liquid_id];
 }
 
-unsigned char Liquids::getNumLiquidTypes() {
-    return liquid_types.size();
+int Liquids::getNumLiquidTypes() {
+    return (int)liquid_types.size();
 }
 
 Liquids::~Liquids() {

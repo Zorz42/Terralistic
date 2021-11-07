@@ -52,7 +52,7 @@ void ClientLights::render() {
                 }
             } else {
                 int low_x = x + 1 == blocks->getWidth() ? x : x + 1, low_y = y + 1 == blocks->getHeight() ? y : y + 1;
-                unsigned char light_levels[] = {getLightLevel(x, y), getLightLevel(low_x, y), getLightLevel(low_x, low_y), getLightLevel(x, low_y)};
+                int light_levels[] = {getLightLevel(x, y), getLightLevel(low_x, y), getLightLevel(low_x, low_y), getLightLevel(x, low_y)};
                 
                 if(light_levels[0] != MAX_LIGHT || light_levels[1] != MAX_LIGHT || light_levels[2] != MAX_LIGHT || light_levels[3] != MAX_LIGHT) {
                     light_rects.setColor(light_index * 4, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(x, y))});

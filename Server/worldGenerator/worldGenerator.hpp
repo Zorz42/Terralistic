@@ -33,10 +33,10 @@ class WorldGenerator {
     std::vector<Structure> structures;
     std::vector<StructurePosition> structurePositions;
 
-    void generateBiomes(unsigned int x, siv::PerlinNoise& noise);
+    void generateBiomes(int x, siv::PerlinNoise& noise);
     void calculateHeight(siv::PerlinNoise& noise);
     void terrainGenerator(int x, siv::PerlinNoise& noise);
-    void generateSurface(unsigned int x, siv::PerlinNoise& noise);
+    void generateSurface(int x, siv::PerlinNoise& noise);
     void generateCaves(siv::PerlinNoise &noise);
     void generateCaveLakes(std::mt19937& seeded_random);
     void generateLakeRecursively(int x, int y);
@@ -48,39 +48,39 @@ class WorldGenerator {
     void generateFlatTerrain();
     void generateStructuresForStrWorld();
     void generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random);
-    int heightGeneratorInt(unsigned int x, siv::PerlinNoise& noise);
-    static int heatGeneratorInt(unsigned int x, siv::PerlinNoise& noise);
+    int heightGeneratorInt(int x, siv::PerlinNoise& noise);
+    static int heatGeneratorInt(int x, siv::PerlinNoise& noise);
     void loadBiomes();
 
-    void generateBlockIcyOcean(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockSnowyPlains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockSnowyHills(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockSnowyMountains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockOcean(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockPlains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockHills(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockMountains(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockWarmOcean(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockDesert(unsigned int x, unsigned int y, siv::PerlinNoise& noise);
-    void generateBlockSavanaHills(unsigned int x, unsigned  int y, siv::PerlinNoise& noise);
-    void generateBlockSavanaMountains(unsigned int x, unsigned  int y, siv::PerlinNoise& noise);
+    void generateBlockIcyOcean(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockSnowyPlains(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockSnowyHills(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockSnowyMountains(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockOcean(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockPlains(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockHills(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockMountains(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockWarmOcean(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockDesert(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockSavanaHills(int x, int y, siv::PerlinNoise& noise);
+    void generateBlockSavanaMountains(int x, int y, siv::PerlinNoise& noise);
 
     void generateStructure(const std::string& name, int x, int y);
     void loadAssets();
 
     std::string resource_path;
 
-    unsigned int generating_current = 0, generating_total = 1;
+    int generating_current = 0, generating_total = 1;
     
     int* surface_height;
 
 public:
     WorldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)) {}
 
-    unsigned int getGeneratingCurrent() const { return generating_current; }
-    unsigned int getGeneratingTotal() const { return generating_total; }
+    int getGeneratingCurrent() const { return generating_current; }
+    int getGeneratingTotal() const { return generating_total; }
 
-    int generateWorld(int world_width, int world_height, unsigned int seed);
+    int generateWorld(int world_width, int world_height, int seed);
 };
 
 #endif

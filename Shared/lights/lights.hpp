@@ -7,14 +7,15 @@
 class Lights : EventListener<BlockChangeEvent> {
     class Light {
     public:
+        Light() : light_level(0) {}
         bool light_source = false, update_light = true;
-        unsigned char light_level = 0;
+        int light_level:8;
     };
     
     Light* lights;
     
     Light* getLight(int x, int y);
-    void setLightLevel(int x, int y, unsigned char level);
+    void setLightLevel(int x, int y, int level);
     
     void onEvent(BlockChangeEvent& event) override;
     
@@ -30,8 +31,8 @@ public:
     int getHeight() const;
     
     void updateLight(int x, int y);
-    void setLightSource(int x, int y, unsigned char level);
-    unsigned char getLightLevel(int x, int y);
+    void setLightSource(int x, int y, int level);
+    int getLightLevel(int x, int y);
     void scheduleLightUpdate(int x, int y);
     bool hasScheduledLightUpdate(int x, int y);
     void scheduleLightUpdateForNeighbors(int x, int y);

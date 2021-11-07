@@ -49,7 +49,7 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
         case ServerPacketType::ITEM_CREATION: {
             int x, y;
             int id;
-            unsigned char type;
+            int type;
             event.packet >> x >> y >> id >> type;
             
             Item* item = new Item(getItemTypeById(type), x, y, id);

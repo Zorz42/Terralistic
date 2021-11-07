@@ -17,9 +17,9 @@ class ClientPlayer : public Player {
 public:
     ClientPlayer(const std::string& name, int x, int y, int id);
     bool flipped = false;
-    unsigned char texture_frame = 0;
+    int texture_frame = 0;
     gfx::Texture name_text;
-    unsigned int started_moving = 0;
+    int started_moving = 0;
     bool has_jumped = false;
 };
 

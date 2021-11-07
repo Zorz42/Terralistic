@@ -55,7 +55,7 @@ public:
 
 
 int main(int argc, char **argv) {
-    srand((unsigned int)time(0));
+    srand((int)time(0));
     
     if(argc == 2 && (std::string)argv[1] == "version") {
         std::cout << CURR_VERSION_STR << std::endl;

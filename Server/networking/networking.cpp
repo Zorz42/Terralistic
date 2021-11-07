@@ -94,7 +94,7 @@ void ServerNetworking::update(float frame_length) {
                     
                     break;
                 } else if(status == sf::Socket::Done) {
-                    unsigned char packet_type;
+                    int packet_type;
                     packet >> packet_type;
                     
                     connections[i]->pushPacket(packet, (ClientPacketType)packet_type);

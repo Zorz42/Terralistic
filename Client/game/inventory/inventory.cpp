@@ -151,7 +151,7 @@ void ClientInventory::renderItem(ItemStack item, int x, int y) {
     }
 }
 
-void ClientInventory::selectSlot(char slot) {
+void ClientInventory::selectSlot(int slot) {
     selected_slot = slot;
     sf::Packet packet;
     packet << ClientPacketType::HOTBAR_SELECTION << selected_slot;
@@ -166,7 +166,7 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::INVENTORY: {
             int stack;
-            unsigned char item_id;
+            int item_id;
             int pos;
             event.packet >> stack >> item_id >> pos;
             
@@ -192,7 +192,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::E:
             open = !open;
             if(!open && inventory.getItem(-1).type != &ItemTypes::nothing) {
-                unsigned char result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
+                int result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
                 inventory.setItem(-1, ItemStack());
                 sf::Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << result;
@@ -203,12 +203,12 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
             if(hovered != -1) {
                 inventory.swapWithMouseItem(hovered);
                 sf::Packet packet;
-                packet << ClientPacketType::INVENTORY_SWAP << (unsigned char)hovered;
+                packet << ClientPacketType::INVENTORY_SWAP << hovered;
                 manager->sendPacket(packet);
                 return true;
             } else if(hovered_recipe != -1) {
                 sf::Packet packet;
-                packet << ClientPacketType::CRAFT << (unsigned char)hovered_recipe;
+                packet << ClientPacketType::CRAFT << hovered_recipe;
                 manager->sendPacket(packet);
                 return true;
             }

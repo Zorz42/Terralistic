@@ -22,7 +22,7 @@ void NaturalLight::init() {
 }
 
 void NaturalLight::postInit() {
-    lights_arr = new unsigned char[blocks->getWidth()];
+    lights_arr = new int[blocks->getWidth()];
     for(int x = 0; x < blocks->getWidth(); x++)
         lights_arr[x] = 0;
 }
@@ -52,7 +52,7 @@ void NaturalLight::update(float frame_length) {
 
 }
 
-void NaturalLight::setNaturalLight(int x, unsigned char power) {
+void NaturalLight::setNaturalLight(int x, int power) {
     if(lights_arr[x] != power) {
         lights_arr[x] = power;
         for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++)
@@ -66,7 +66,7 @@ void NaturalLight::removeNaturalLight(int x) {
         lights->setLightSource(x, y, 0);
 }
 
-unsigned int NaturalLight::getTime() const {
+int NaturalLight::getTime() const {
     return server_time_on_join + gfx::getTicks() - started;
 }
 

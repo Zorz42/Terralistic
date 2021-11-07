@@ -19,7 +19,7 @@ public:
     int flow_time;
     float speed_multiplier;
     gfx::Color color;
-    unsigned char id;
+    int id;
 };
 
 namespace LiquidTypes {
@@ -29,10 +29,11 @@ namespace LiquidTypes {
 class Liquids {
     class Liquid {
     public:
-        unsigned char id = LiquidTypes::empty.id;
+        Liquid() : id(LiquidTypes::empty.id), level(0) {}
+        int id:8;
         FlowDirection flow_direction:8;
-        unsigned char level = 0;
-        unsigned int when_to_update = 1;
+        int level:8;
+        int when_to_update = 1;
     };
     
     std::vector<LiquidType*> liquid_types;
@@ -57,16 +58,16 @@ public:
     bool canUpdateLiquid(int x, int y);
     void updateLiquid(int x, int y);
     
-    unsigned char getLiquidLevel(int x, int y);
-    void setLiquidLevel(int x, int y, unsigned char level);
-    void setLiquidLevelSilently(int x, int y, unsigned char level);
+    int getLiquidLevel(int x, int y);
+    void setLiquidLevel(int x, int y, int level);
+    void setLiquidLevelSilently(int x, int y, int level);
     
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
     
     void registerNewLiquidType(LiquidType* liquid_type);
-    LiquidType* getLiquidTypeById(unsigned char liquid_id);
-    unsigned char getNumLiquidTypes();
+    LiquidType* getLiquidTypeById(int liquid_id);
+    int getNumLiquidTypes();
     
     EventSender<LiquidChangeEvent> liquid_change_event;
     

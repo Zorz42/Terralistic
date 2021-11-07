@@ -33,7 +33,7 @@ void Minimap::render() {
             int block_y = blocks->view_y / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + y;
             
             gfx::Color block_color = TRANSPARENT, liquid_color = TRANSPARENT;
-            unsigned char light_level = MAX_LIGHT;
+            int light_level = MAX_LIGHT;
             
             if(block_x >= 0 && block_y >= 0 && block_x < blocks->getWidth() && block_y < blocks->getHeight()) {
                 block_color = blocks->getBlockType(block_x, block_y)->color;

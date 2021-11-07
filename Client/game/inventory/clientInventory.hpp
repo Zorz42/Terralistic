@@ -14,11 +14,11 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     gfx::Texture numbers[10];
     Inventory inventory;
     bool open = false;
-    unsigned char selected_slot = 0;
+    int selected_slot = 0;
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
-    char hovered = -1, hovered_recipe = -1;
+    int hovered = -1, hovered_recipe = -1;
     
-    void selectSlot(char slot);
+    void selectSlot(int slot);
     void renderItem(ItemStack item, int x, int y);
     
     void init() override;

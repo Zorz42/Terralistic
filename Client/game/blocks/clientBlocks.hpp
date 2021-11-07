@@ -9,7 +9,8 @@
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderBlock {
     public:
-        unsigned char variation = rand(), state = 16;
+        RenderBlock() : variation(rand()), state(16) {}
+        int variation:8, state:8;
     };
     
     void onEvent(ClientPacketEvent& event) override;
@@ -25,7 +26,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void update(float frame_length) override;
     void stop() override;
     
-    bool updateOrientationSide(ClientBlocks* blocks, int x, int y, char side_x, char side_y);
+    bool updateOrientationSide(ClientBlocks* blocks, int x, int y, int side_x, int side_y);
     void updateOrientationDown(ClientBlocks* blocks, int x, int y);
     void updateOrientationUp(ClientBlocks* blocks, int x, int y);
     void updateOrientationLeft(ClientBlocks* blocks, int x, int y);
@@ -49,8 +50,8 @@ public:
     int getViewEndY() const;
     
     void updateState(int x, int y);
-    void setState(int x, int y, unsigned char state);
-    unsigned char getState(int x, int y);
+    void setState(int x, int y, int state);
+    int getState(int x, int y);
     
     bool skip_rendering_in_dark = true;
 };

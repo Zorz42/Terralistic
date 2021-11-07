@@ -12,7 +12,7 @@ int Particle::getY() {
     return y;
 }
 
-unsigned int Particle::getSpawnedTime() {
+int Particle::getSpawnedTime() {
     return spawned_time;
 }
 
