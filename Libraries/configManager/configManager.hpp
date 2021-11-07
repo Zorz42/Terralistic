@@ -24,14 +24,3 @@ public:
     
     void saveConfig();
 };
-
-class FileNotFoundException : public Exception {
-public:
-    FileNotFoundException(std::string path) : Exception("File \"" + path + "\" was not found!") {}
-};
-
-class ConfigKeyException : public Exception {
-public:
-    ConfigKeyException(std::string key) : Exception("Key \"" + key + "\" does not exist in config!") {}
-};
-

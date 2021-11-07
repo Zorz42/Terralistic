@@ -2,12 +2,12 @@
 
 void gfx::Texture::createBlankImage(int width, int height) {
     if(width <= 0 || height <= 0)
-        throw ValueException("Width and Height of a texture size must be positive.");
+        throw Exception("Width and Height of a texture size must be positive.");
     
     freeTexture();
     sfml_render_texture = new sf::RenderTexture;
     if(!sfml_render_texture->create(width, height))
-        throw CreationException();
+        throw Exception("Could not create texture.");
     clear();
 }
 
@@ -39,7 +39,7 @@ void gfx::Texture::loadFromResources(const std::string& path) {
 void gfx::Texture::loadFromFile(const std::string& path) {
     sf::Texture image_texture;
     if(!image_texture.loadFromFile(path))
-        throw LoadException(path);
+        throw Exception("Could not load file " + path);
     
     sf::RectangleShape sfml_rect;
     sf::Vector2u size = image_texture.getSize();
@@ -77,7 +77,7 @@ void gfx::Texture::clear() {
 }
 void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool flipped) const {
     if(scale <= 0)
-        throw ValueException("Texture scale must be positive.");
+        throw Exception("Texture scale must be positive.");
     
     sf::Sprite sprite;
     sprite.setTexture(sfml_render_texture->getTexture());

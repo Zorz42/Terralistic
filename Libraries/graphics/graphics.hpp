@@ -238,18 +238,3 @@ namespace gfx {
 
     void loadIconFromFile(const std::string& path);
 };
-
-class ShaderException : Exception {
-public:
-    ShaderException() : Exception("Error compiling a shader.") {}
-};
-
-class LoadException : Exception {
-public:
-    LoadException(const std::string& path) : Exception("Could not load file " + path) {}
-};
-
-class CreationException : Exception {
-public:
-    CreationException() : Exception("Could not create texture.") {}
-};

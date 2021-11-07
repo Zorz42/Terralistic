@@ -8,7 +8,7 @@ Blocks::Blocks() {
 
 void Blocks::create(int width_, int height_) {
     if(width_ < 0 || height_ < 0)
-        throw ValueException("Width and height must be positive");
+        throw Exception("Width and height must be positive");
     
     width = width_;
     height = height_;
@@ -53,7 +53,7 @@ int Blocks::getBreakProgress(int x, int y) {
 
 void Blocks::updateBreakingBlocks(int frame_length) {
     if(frame_length < 0)
-        throw ValueException("Frame length must be positive");
+        throw Exception("Frame length must be positive");
     
     for(int i = 0; i < breaking_blocks.size(); i++) {
         if(breaking_blocks[i].is_breaking) {

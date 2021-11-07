@@ -62,7 +62,7 @@
     bool threw = false;
     try {
         config.getStr("testKey");
-    } catch(ConfigKeyException e) {
+    } catch(Exception e) {
         threw = true;
     }
     XCTAssertTrue(threw);

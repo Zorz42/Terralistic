@@ -7,10 +7,7 @@ ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
     loadConfig();
 }
 
-void ConfigFile::loadConfig() {
-    if(!std::filesystem::is_regular_file(path))
-        throw FileNotFoundException(path);
-    
+void ConfigFile::loadConfig() {    
     std::ifstream file(path);
     std::string line;
     while(std::getline(file, line)) {
@@ -23,7 +20,7 @@ void ConfigFile::loadConfig() {
 
 std::string ConfigFile::getStr(const std::string& key) {
     if(!keyExists(key))
-        throw ConfigKeyException(key);
+        throw Exception("Key \"" + key + "\" does not exist in config!");
     return values[key];
 }
 

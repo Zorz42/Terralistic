@@ -16,7 +16,7 @@ gfx::TextInput::TextInput() {
 
 void gfx::TextInput::setBlurIntensity(float blur_intensity) {
     if(blur_intensity <= 0)
-        throw ValueException("Blur intensity must be positive.");
+        throw Exception("Blur intensity must be positive.");
     back_rect.blur_intensity = blur_intensity;
 }
 

@@ -101,7 +101,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     server_thread = std::thread(startServer, &private_server, &game);
     
     WorldStartingScreen(menu_back, &private_server).run();
-
+    
     game.start();
     
     private_server.stop();
@@ -110,6 +110,11 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
         gfx::sleep(1);
     
     WorldStartingScreen(menu_back, &private_server).run();
+    
+    if(game.interrupt) {
+        ChoiceScreen choice_screen(menu_back, game.interrupt_message, {"Close"});
+        choice_screen.run();
+    }
     
     server_thread.join();
 }
@@ -158,7 +163,11 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 
 void Game::start() {
     try {
+        if(interrupt)
+            throw Exception(interrupt_message);
         run();
+        if(interrupt)
+            throw Exception(interrupt_message);
     } catch (const Exception& exception) {
         ChoiceScreen choice_screen(background_rect, exception.message, {"Close"});
         switchToScene(choice_screen);

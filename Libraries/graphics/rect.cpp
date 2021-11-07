@@ -98,7 +98,7 @@ void gfx::Rect::render() {
 void gfx::Rect::updateBlurTextureSize() {
     if(blur_texture && target_width && target_height) {
         if(!blur_texture->create(target_width, target_height))
-            throw CreationException();
+            throw Exception("Could not create texture.");
     }
 }
 
@@ -108,7 +108,7 @@ int gfx::Rect::getWidth() const {
 
 void gfx::Rect::setWidth(int width_) {
     if(width_ < 0)
-        throw ValueException("Width must be positive.");
+        throw Exception("Width must be positive.");
     
     if(target_width != width_) {
         target_width = width_;
@@ -124,7 +124,7 @@ int gfx::Rect::getHeight() const {
 
 void gfx::Rect::setHeight(int height_) {
     if(height_ < 0)
-        throw ValueException("Height must be positive.");
+        throw Exception("Height must be positive.");
     
     if(target_height != height_) {
         target_height = height_;

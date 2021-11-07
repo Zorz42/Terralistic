@@ -2,7 +2,7 @@
 
 void gfx::RectArray::setRect(int index, RectShape rect) {
     if(index < 0 || index >= length)
-        throw ValueException("Rect index must be positive.");
+        throw Exception("Rect index must be positive.");
     
     vertex_array[index * 4].position = sf::Vector2f(rect.x, rect.y);
     vertex_array[index * 4 + 1].position = sf::Vector2f(rect.x + rect.w, rect.y);
@@ -12,13 +12,13 @@ void gfx::RectArray::setRect(int index, RectShape rect) {
 
 void gfx::RectArray::setColor(int index, Color color) {
     if(index < 0 || index >= length * 4)
-        throw ValueException("Color index must be positive.");
+        throw Exception("Color index must be positive.");
     vertex_array[index].color = {color.r, color.g, color.b, color.a};
 }
 
 void gfx::RectArray::setTextureCoords(int index, RectShape texture_coordinates) {
     if(index < 0 || index >= length)
-        throw ValueException("Texture coord index must be positive.");
+        throw Exception("Texture coord index must be positive.");
     vertex_array[index * 4].texCoords = sf::Vector2f(texture_coordinates.x, texture_coordinates.y);
     vertex_array[index * 4 + 1].texCoords = sf::Vector2f(texture_coordinates.x + texture_coordinates.w, texture_coordinates.y);
     vertex_array[index * 4 + 2].texCoords = sf::Vector2f(texture_coordinates.x + texture_coordinates.w, texture_coordinates.y + texture_coordinates.h);
@@ -27,13 +27,13 @@ void gfx::RectArray::setTextureCoords(int index, RectShape texture_coordinates) 
 
 gfx::RectArray::RectArray(int size) {
     if(size < 0)
-        throw ValueException("RectArray size must be positive.");
+        throw Exception("RectArray size must be positive.");
     resize(size);
 }
 
 void gfx::RectArray::resize(int size) {
     if(size < 0)
-        throw ValueException("RectArray size must be positive.");
+        throw Exception("RectArray size must be positive.");
     vertex_buffer.setPrimitiveType(sf::Quads);
     vertex_buffer.setUsage(sf::VertexBuffer::Stream);
     delete[] vertex_array;
@@ -47,7 +47,7 @@ gfx::RectArray::~RectArray() {
 
 void gfx::RectArray::render(int size, const Texture* image) {
     if(size < 0)
-        throw ValueException("RectArray size must be positive.");
+        throw Exception("RectArray size must be positive.");
     
     const sf::Texture* texture = nullptr;
     if(image)

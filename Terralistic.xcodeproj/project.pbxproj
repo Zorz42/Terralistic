@@ -167,6 +167,7 @@
 		3657222226D07181005AB3CC /* mainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220526D07181005AB3CC /* mainMenu.cpp */; };
 		3657222326D07181005AB3CC /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220826D07181005AB3CC /* worldSelector.cpp */; };
 		3657222426D07181005AB3CC /* menuBack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220B26D07181005AB3CC /* menuBack.cpp */; };
+		3666D8F92737F6B200C23231 /* exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D26F2A27352F7900F1F476 /* exception.cpp */; };
 		3672919B26FE225900786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672919C26FE226400786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3692C14F26E509F100F9DD71 /* entities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entities.cpp */; };
@@ -1379,6 +1380,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3666D8F92737F6B200C23231 /* exception.cpp in Sources */,
 				16A3C00726FF869A001B9E4E /* compress.cpp in Sources */,
 				16A3C00826FF869A001B9E4E /* configManager.cpp in Sources */,
 				16A3C00626FF8677001B9E4E /* TestConfigManager.mm in Sources */,
