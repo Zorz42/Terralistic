@@ -57,5 +57,8 @@ public:
     int getBackWidth() override { return 0; }
     bool isHandshakeDone();
     
+    bool interrupt = false;
+    std::string interrupt_message;
+    
     void start();
 };

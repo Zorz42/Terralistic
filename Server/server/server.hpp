@@ -13,7 +13,7 @@
 #include "serverChat.hpp"
 #include "commands.hpp"
 
-enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
+enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
 class Server {
     std::string world_path;

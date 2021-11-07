@@ -61,6 +61,7 @@ void WorldStartingScreen::render() {
                 text.loadFromText("Saving world");
                 break;
             case ServerState::RUNNING:
+            case ServerState::CRASHED:
             case ServerState::STOPPED:
                 returnFromScene();
                 break;
@@ -79,18 +80,28 @@ void WorldStartingScreen::render() {
     text.render();
 }
 
+void startServer(Server* server, Game* game) {
+    try {
+        server->start();
+    } catch (const Exception& exception) {
+        server->state = ServerState::CRASHED;
+        game->interrupt_message = exception.message;
+        game->interrupt = true;
+    }
+}
+
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world) {
     int port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
     Server private_server(gfx::getResourcePath(), world_name, port);
+    Game game(menu_back, settings, "_", "127.0.0.1", port);
     if(structure_world)
         private_server.seed = 1000;
   
     private_server.setPrivate(true);
-    server_thread = std::thread(&Server::start, &private_server);
+    server_thread = std::thread(startServer, &private_server, &game);
     
     WorldStartingScreen(menu_back, &private_server).run();
 
-    Game game(menu_back, settings, "_", "127.0.0.1", port);
     game.start();
     
     private_server.stop();
@@ -155,12 +166,15 @@ void Game::start() {
 }
 
 void Game::init() {
-    for(gfx::SceneModule* module : getModules()) {
-        ((ClientModule*)module)->postInit();
-    }
+    for(gfx::SceneModule* module : getModules())
+        if(module != this)
+            ((ClientModule*)module)->postInit();
 }
 
 void Game::render() {
+    if(interrupt)
+        throw Exception(interrupt_message);
+    
     float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
     int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)

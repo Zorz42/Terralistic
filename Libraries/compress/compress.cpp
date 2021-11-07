@@ -27,7 +27,7 @@ std::vector<char> decompress(std::vector<char>& compressed_data) {
     std::vector<char> decompressed_data(uncompressed_size);
     
     if(uncompress((Bytef*)&decompressed_data[0], &uncompressed_size, (Bytef*)&compressed_data[0], compressed_data.size() - sizeof(int)) != Z_OK) {
-        throw ArchiveCorrutionException();
+        throw Exception("test");
         return {};
     }
     
