@@ -14,7 +14,7 @@ void Lights::create() {
 
 Lights::Light* Lights::getLight(int x, int y) {
     if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight())
-        throw LightOutOfBoundsException(x, y);
+        throw Exception("Light is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &lights[y * blocks->getWidth() + x];
 }
 
@@ -103,6 +103,8 @@ void Lights::onEvent(BlockChangeEvent& event) {
 }
 
 void Lights::scheduleLightUpdateForNeighbors(int x, int y) {
+    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight())
+        throw Exception("Light is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     if(x != 0)
         scheduleLightUpdate(x - 1, y);
     if(x != blocks->getWidth() - 1)

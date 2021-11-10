@@ -9,7 +9,7 @@ void Liquids::create() {
 
 Liquids::Liquid* Liquids::getLiquid(int x, int y) {
     if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight())
-        throw LiquidOutOfBoundsException(x, y);
+        throw Exception("Liquid is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &liquids[y * blocks->getWidth() + x];
 }
 
@@ -190,6 +190,8 @@ void Liquids::registerNewLiquidType(LiquidType* liquid_type) {
 }
 
 LiquidType* Liquids::getLiquidTypeById(int liquid_id) {
+    if(liquid_id < 0 || liquid_id >= liquid_types.size())
+        throw Exception("Liquid id is out of bounds.");
     return liquid_types[liquid_id];
 }
 

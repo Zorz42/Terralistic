@@ -70,7 +70,7 @@ int Blocks::getBreakStage(int x, int y) {
 
 void Blocks::startBreakingBlock(int x, int y) {
     if(x < 0 || x >= width || y < 0 || y >= height)
-        throw BlockOutOfBoundsException(x, y);
+        throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     
     BreakingBlock* breaking_block = nullptr;
     
@@ -94,7 +94,7 @@ void Blocks::startBreakingBlock(int x, int y) {
 
 void Blocks::stopBreakingBlock(int x, int y) {
     if(x < 0 || x >= width || y < 0 || y >= height)
-        throw BlockOutOfBoundsException(x, y);
+        throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     
     for(BreakingBlock& breaking_block : breaking_blocks)
         if(breaking_block.x == x && breaking_block.y == y) {

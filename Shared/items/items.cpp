@@ -22,6 +22,8 @@ void Items::registerNewItemType(ItemType* item_type) {
 }
 
 ItemType* Items::getItemTypeById(int item_id) {
+    if(item_id < 0 || item_id >= item_types.size())
+        throw Exception("Item type id does not exist.");
     return item_types[item_id];
 }
 
@@ -46,5 +48,6 @@ ItemType* Items::getItemTypeByName(const std::string& name) {
     for(ItemType* item_info : item_types)
         if(item_info->name == name)
             return item_info;
+    throw Exception("Could not find item by name");
     return nullptr;
 }

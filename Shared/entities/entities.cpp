@@ -16,7 +16,10 @@ void Entities::registerEntity(Entity* entity) {
 }
 
 void Entities::removeEntity(Entity* entity) {
-    entities.erase(std::find(entities.begin(), entities.end(), entity));
+    auto pos = std::find(entities.begin(), entities.end(), entity);
+    if(pos == entities.end())
+        throw Exception("Removed non existing entity");
+    entities.erase(pos);
     EntityDeletionEvent event(entity);
     entity_deletion_event.call(event);
     delete entity;
@@ -26,11 +29,14 @@ Entity* Entities::getEntityById(int id) {
     for(Entity* entity : entities)
         if(entity->id == id)
             return entity;
-    assert(false);
+    throw Exception("Entity not found by id");
     return nullptr;
 }
 
 void Entity::updateEntity(Blocks *blocks, float frame_length) {
+    if(frame_length < 0)
+        throw Exception("Frame length is negative value");
+    
     if(friction) {
         velocity_y *= std::pow(0.995f, frame_length);
         velocity_x *= std::pow(isTouchingGround(blocks) ? 0.99f : 0.9995f, frame_length);

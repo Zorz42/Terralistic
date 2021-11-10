@@ -73,8 +73,3 @@ public:
     
     ~Liquids();
 };
-
-class LiquidOutOfBoundsException : public Exception {
-public:
-    LiquidOutOfBoundsException(int x, int y) : Exception("Liquid is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")") {}
-};

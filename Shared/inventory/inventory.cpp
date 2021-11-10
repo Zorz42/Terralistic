@@ -51,6 +51,8 @@ Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(rec
 }
 
 int Inventory::addItem(ItemType* id, int quantity) {
+    if(quantity < 0)
+        throw Exception("Item quantity cannot be negative.");
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(getItem(i).type == id) {
             quantity -= increaseStack(i, quantity);
@@ -68,6 +70,8 @@ int Inventory::addItem(ItemType* id, int quantity) {
 }
 
 int Inventory::removeItem(ItemType* id, int quantity) {
+    if(quantity < 0)
+        throw Exception("Item quantity cannot be negative.");
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].type == id) {
             quantity -= decreaseStack(i, quantity);
@@ -83,6 +87,8 @@ int Inventory::removeItem(ItemType* id, int quantity) {
 }
 
 ItemStack Inventory::getItem(int pos) {
+    if(pos < -1 || pos >= INVENTORY_SIZE)
+        throw Exception("Inventory position does not exist");
     if(pos == -1)
         return mouse_item;
     return inventory_arr[pos];
@@ -93,6 +99,8 @@ ItemStack Inventory::getSelectedSlot() {
 }
 
 void Inventory::swapWithMouseItem(int pos) {
+    if(pos < -1 || pos >= INVENTORY_SIZE)
+        throw Exception("Inventory position does not exist");
     ItemStack temp = mouse_item;
     mouse_item = inventory_arr[pos];
     inventory_arr[pos] = temp;
