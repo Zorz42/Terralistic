@@ -53,6 +53,8 @@ void NaturalLight::update(float frame_length) {
 }
 
 void NaturalLight::setNaturalLight(int x, int power) {
+    if(x < 0 || x >= blocks->getWidth())
+        throw Exception("Natural light x out of range");
     if(lights_arr[x] != power) {
         lights_arr[x] = power;
         for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++)
@@ -61,6 +63,8 @@ void NaturalLight::setNaturalLight(int x, int power) {
 }
 
 void NaturalLight::removeNaturalLight(int x) {
+    if(x < 0 || x >= blocks->getWidth())
+        throw Exception("Natural light x out of range");
     lights_arr[x] = 0;
     for(int y = 0; y < blocks->getHeight(); y++)
         lights->setLightSource(x, y, 0);
@@ -71,5 +75,7 @@ int NaturalLight::getTime() const {
 }
 
 void NaturalLight::updateLight(int x) {
+    if(x < 0 || x >= blocks->getWidth())
+        throw Exception("Natural light x out of range");
     setNaturalLight(x, light_should_be);
 }

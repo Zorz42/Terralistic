@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cmath>
 #include "clientEntities.hpp"
 

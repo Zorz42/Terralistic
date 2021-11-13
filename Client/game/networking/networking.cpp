@@ -28,7 +28,7 @@ void ClientNetworking::update(float frame_length) {
 void ClientNetworking::init() {
     packet_event.addListener(this);
     if(socket.connect(ip_address, port) != sf::Socket::Done)
-        throw InvalidConnectionException(ip_address);
+        throw Exception("Could not connect to the server with ip " + ip_address);
 }
 
 void ClientNetworking::stop() {
@@ -70,7 +70,7 @@ void ClientNetworking::onEvent(ClientPacketEvent& event) {
         std::string kick_message;
         event.packet >> kick_message;
         
-        throw KickException(kick_message);
+        throw Exception("You got kicked for: " + kick_message);
     }
 }
 

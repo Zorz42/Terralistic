@@ -68,8 +68,7 @@ ClientPlayer* ClientPlayers::getPlayerById(int id) {
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::PLAYER && entity->id == id)
             return (ClientPlayer*)entity;
-    assert(false);
-    return nullptr;
+    throw Exception("Player not found by id");
 }
 
 void ClientPlayers::onEvent(ClientPacketEvent &event) {

@@ -95,6 +95,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 #endif
+    
     MainMenu(&menu_back, &settings).run();
     
     settings.removeSetting(&scale_setting);

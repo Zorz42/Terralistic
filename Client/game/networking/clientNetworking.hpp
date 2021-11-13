@@ -42,13 +42,3 @@ public:
     EventSender<ClientPacketEvent> packet_event;
     EventSender<WelcomePacketEvent> welcome_packet_event;
 };
-
-class InvalidConnectionException : public Exception {
-public:
-    InvalidConnectionException(std::string ip) : Exception("Could not connect to the server with ip " + ip) {}
-};
-
-class KickException : public Exception {
-public:
-    KickException(std::string message) : Exception("You got kicked for: " + message) {}
-};

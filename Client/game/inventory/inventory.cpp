@@ -152,6 +152,9 @@ void ClientInventory::renderItem(ItemStack item, int x, int y) {
 }
 
 void ClientInventory::selectSlot(int slot) {
+    if(slot < 0 || slot >= 10)
+        throw Exception("Inventory slot is out of range");
+    
     selected_slot = slot;
     sf::Packet packet;
     packet << ClientPacketType::HOTBAR_SELECTION << selected_slot;

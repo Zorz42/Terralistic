@@ -1,5 +1,4 @@
 #include <thread>
-#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include "game.hpp"

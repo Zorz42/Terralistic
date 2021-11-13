@@ -1,4 +1,3 @@
-#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include "print.hpp"
@@ -52,8 +51,7 @@ std::string ResourcePack::getFile(const std::string& file_name) {
         if(std::filesystem::exists(file))
             return file;
     }
-    assert(false);
-    return "";
+    throw Exception(file_name + " was not found.");
 }
 
 void ResourcePack::loadBlocks() {
