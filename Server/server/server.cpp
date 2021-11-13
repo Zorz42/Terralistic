@@ -1,4 +1,6 @@
 #include <fstream>
+#include <filesystem>
+#include <signal.h>
 #include "print.hpp"
 #include "server.hpp"
 #include "compress.hpp"

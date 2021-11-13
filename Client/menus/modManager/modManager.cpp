@@ -1,4 +1,5 @@
 #include <fstream>
+#include <filesystem>
 #include <set>
 #include "platform_folders.h"
 #include "modManager.hpp"

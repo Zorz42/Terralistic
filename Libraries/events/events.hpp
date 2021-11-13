@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 #include "exception.hpp"
 
 template<class EventInstance>

@@ -1,3 +1,4 @@
+#include <cassert>
 #include "serverPlayers.hpp"
 #include "content.hpp"
 

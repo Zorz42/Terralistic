@@ -1,4 +1,5 @@
 #include <fstream>
+#include <filesystem>
 #include "resourcePack.hpp"
 #include "platform_folders.h"
 
