@@ -1,4 +1,5 @@
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;

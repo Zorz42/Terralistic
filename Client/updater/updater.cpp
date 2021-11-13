@@ -1,7 +1,5 @@
 #include <SFML/Network.hpp>
-#include <iostream>
 #include <fstream>
-#include <filesystem>
 #include "updater.hpp"
 #include "versions.hpp"
 #include "platform_folders.h"

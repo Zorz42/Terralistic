@@ -637,8 +637,8 @@
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				167B387D2642F73900E3C718 /* print */,
 				1675C53E270B456F00749B3D /* serverModule */,
+				167B387D2642F73900E3C718 /* print */,
 				1673274926A80E760063281A /* networking */,
 				16A13D112709A000009DEE40 /* blocks */,
 				167513C126A498DA00E21C68 /* biomes */,

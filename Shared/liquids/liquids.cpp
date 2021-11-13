@@ -1,5 +1,4 @@
 #include "liquids.hpp"
-#include "graphics.hpp"
 
 LiquidType::LiquidType(std::string name, int flow_time, float speed_multiplier, gfx::Color color) : name(std::move(name)), flow_time(flow_time), speed_multiplier(speed_multiplier), color(color) {}
 

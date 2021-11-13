@@ -1,8 +1,4 @@
-#ifndef serverPlayers_hpp
-#define serverPlayers_hpp
-
-#include <utility>
-#include "items.hpp"
+#pragma once
 #include "player.hpp"
 #include "inventory.hpp"
 #include "serverNetworking.hpp"
@@ -89,5 +85,3 @@ public:
     
     EventSender<ServerPacketEvent> packet_event;
 };
-
-#endif

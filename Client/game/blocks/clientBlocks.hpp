@@ -1,9 +1,6 @@
 #pragma once
-
-#include "graphics.hpp"
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
-#include "blocks.hpp"
 #include "lights.hpp"
 
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {

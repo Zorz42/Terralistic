@@ -1,4 +1,3 @@
-#include <cmath>
 #include "clientEntities.hpp"
 
 void ClientEntities::init() {

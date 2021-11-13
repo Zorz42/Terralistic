@@ -1,6 +1,4 @@
 #include "commands.hpp"
-#include "print.hpp"
-#include "vector"
 
 void Commands::onEvent(ServerChatEvent& event) {
     if(event.message[0] == '/') {

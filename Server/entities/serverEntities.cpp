@@ -1,5 +1,4 @@
 #include "serverEntities.hpp"
-#include "graphics.hpp"
 
 void ServerEntities::init() {
     entity_position_change_event.addListener(this);

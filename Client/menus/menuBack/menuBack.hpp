@@ -1,5 +1,4 @@
 #pragma once
-
 #include "graphics.hpp"
 
 class BackgroundRect {

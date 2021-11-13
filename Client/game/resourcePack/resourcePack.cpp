@@ -1,6 +1,4 @@
-#include <filesystem>
 #include <fstream>
-#include "print.hpp"
 #include "resourcePack.hpp"
 #include "platform_folders.h"
 

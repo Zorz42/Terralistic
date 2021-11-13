@@ -1,10 +1,7 @@
 #pragma once
-
 #include "events.hpp"
 #include "packetType.hpp"
-#include "graphics.hpp"
 #include "clientModule.hpp"
-#include "exception.hpp"
 
 class ClientPacketEvent {
 public:

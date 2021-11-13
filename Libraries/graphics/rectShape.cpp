@@ -1,4 +1,5 @@
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 gfx::RectShape::RectShape(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {
     if(w < 0 || h < 0)

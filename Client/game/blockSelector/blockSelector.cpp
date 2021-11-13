@@ -1,5 +1,4 @@
 #include "blockSelector.hpp"
-#include "packetType.hpp"
 
 void BlockSelector::init() {
     select_rect.setWidth(2 * BLOCK_WIDTH);

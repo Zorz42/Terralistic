@@ -1,7 +1,4 @@
 #pragma once
-
-#include <vector>
-#include "blocks.hpp"
 #include "entities.hpp"
 
 #define ITEM_WIDTH 8

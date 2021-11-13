@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "theme.hpp"
-#include "exception.hpp"
 
 namespace gfx {
     class Color {

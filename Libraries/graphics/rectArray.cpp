@@ -1,4 +1,5 @@
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 void gfx::RectArray::setRect(int index, RectShape rect) {
     if(index < 0 || index >= length)

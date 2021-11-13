@@ -1,16 +1,9 @@
-#ifndef server_hpp
-#define server_hpp
-
-#include <string>
-#include <utility>
-#include "serverNetworking.hpp"
+#pragma once
 #include "worldGenerator.hpp"
 #include "serverEntities.hpp"
 #include "serverItems.hpp"
-#include "serverPlayers.hpp"
 #include "serverBlocks.hpp"
 #include "serverLiquids.hpp"
-#include "serverChat.hpp"
 #include "commands.hpp"
 
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
@@ -51,5 +44,3 @@ public:
     int getGeneratingTotal() const;
     int getGeneratingCurrent() const;
 };
-
-#endif

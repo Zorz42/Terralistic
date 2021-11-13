@@ -1,13 +1,5 @@
 #pragma once
-
-#include <string>
-#include <utility>
-#include "graphics.hpp"
-#include "clientBlocks.hpp"
-#include "resourcePack.hpp"
-#include "clientEntities.hpp"
 #include "player.hpp"
-#include "liquids.hpp"
 #include "particles.hpp"
 
 #define PLAYER_WIDTH 14

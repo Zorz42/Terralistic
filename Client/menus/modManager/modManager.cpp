@@ -1,4 +1,3 @@
-#include <filesystem>
 #include <fstream>
 #include <set>
 #include "platform_folders.h"

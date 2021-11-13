@@ -1,8 +1,5 @@
 #pragma once
-
-#include "blocks.hpp"
 #include "liquids.hpp"
-#include "items.hpp"
 #include "inventory.hpp"
 
 namespace BlockTypes {

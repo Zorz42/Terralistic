@@ -1,8 +1,4 @@
-#ifndef serverNetworking_hpp
-#define serverNetworking_hpp
-
-#include <vector>
-#include <string>
+#pragma once
 #include <queue>
 #include "packetType.hpp"
 #include "events.hpp"
@@ -74,5 +70,3 @@ public:
     EventSender<ServerNewConnectionEvent> new_connection_event;
     EventSender<ServerDisconnectEvent> disconnect_event;
 };
-
-#endif

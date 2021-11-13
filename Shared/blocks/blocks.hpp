@@ -1,7 +1,6 @@
 #pragma once
 #include "events.hpp"
 #include "graphics.hpp"
-#include "exception.hpp"
 
 #define BLOCK_WIDTH 8
 #define UNBREAKABLE -1

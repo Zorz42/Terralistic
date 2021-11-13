@@ -1,9 +1,5 @@
 #include <fstream>
-#include <vector>
-#include <string>
 #include "worldGenerator.hpp"
-#include "biomes.hpp"
-#include "cmath"
 #include "content.hpp"
 
 int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {

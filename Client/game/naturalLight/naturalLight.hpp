@@ -1,9 +1,5 @@
 #pragma once
-
 #include "clientBlocks.hpp"
-#include "events.hpp"
-#include "lights.hpp"
-#include "clientModule.hpp"
 
 class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     ClientNetworking* networking;

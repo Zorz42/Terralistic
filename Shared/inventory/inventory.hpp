@@ -1,6 +1,4 @@
 #pragma once
-
-#include "events.hpp"
 #include "items.hpp"
 
 #define INVENTORY_SIZE 20

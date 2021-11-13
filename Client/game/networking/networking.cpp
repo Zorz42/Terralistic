@@ -1,5 +1,4 @@
 #include "clientNetworking.hpp"
-#include "choiceScreen.hpp"
 
 void ClientNetworking::sendPacket(sf::Packet& packet) {
     if(!socket.isBlocking())

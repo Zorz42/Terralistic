@@ -1,6 +1,4 @@
-#include <cmath>
 #include "naturalLight.hpp"
-#include "graphics.hpp"
 
 #define SECONDS_PER_DAY (60 * 10)
 

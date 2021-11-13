@@ -1,10 +1,6 @@
 #pragma once
-
-#include "graphics.hpp"
-#include "clientNetworking.hpp"
-#include "resourcePack.hpp"
-#include "liquids.hpp"
 #include "clientBlocks.hpp"
+
 class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
     void onEvent(ClientPacketEvent& event) override;
     

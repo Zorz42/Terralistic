@@ -1,5 +1,4 @@
 #pragma once
-
 #include "blocks.hpp"
 
 enum class FlowDirection {NONE, LEFT, RIGHT};

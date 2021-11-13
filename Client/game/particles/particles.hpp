@@ -1,5 +1,4 @@
 #pragma once
-
 #include "clientBlocks.hpp"
 #include "settings.hpp"
 

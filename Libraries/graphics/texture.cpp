@@ -1,4 +1,5 @@
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 void gfx::Texture::createBlankImage(int width, int height) {
     if(width <= 0 || height <= 0)

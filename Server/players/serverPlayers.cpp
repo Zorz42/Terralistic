@@ -1,10 +1,4 @@
-#include <filesystem>
-#include <fstream>
-#include <utility>
-#include <cassert>
 #include "serverPlayers.hpp"
-#include "blocks.hpp"
-#include "print.hpp"
 #include "content.hpp"
 
 static bool isBlockTree(Blocks* blocks, int x, int y) {

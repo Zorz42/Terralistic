@@ -1,4 +1,5 @@
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 gfx::PixelGrid::PixelGrid(int width, int height) : width(width), height(height) {
     if(width <= 0 || height <= 0)

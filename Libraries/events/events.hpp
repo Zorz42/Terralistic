@@ -1,7 +1,6 @@
 #pragma once
-#include <vector>
 #include <iostream>
-#include <algorithm>
+#include "exception.hpp"
 
 template<class EventInstance>
 class EventListener {
@@ -18,7 +17,10 @@ public:
     }
     
     void removeListener(EventListener<EventInstance>* listener) {
-        listeners.erase(std::find(listeners.begin(), listeners.end(), listener));
+        auto pos = std::find(listeners.begin(), listeners.end(), listener);
+        if(pos == listeners.end())
+            throw Exception("Removed non-existing listener.");
+        listeners.erase(pos);
     }
     
     void call(EventInstance& event) {

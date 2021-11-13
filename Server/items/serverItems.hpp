@@ -1,5 +1,4 @@
 #pragma once
-
 #include "items.hpp"
 #include "serverNetworking.hpp"
 

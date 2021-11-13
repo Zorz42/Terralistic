@@ -1,5 +1,4 @@
 #include "clientItems.hpp"
-#include "resourcePack.hpp"
 
 void ClientItems::init() {
     manager->packet_event.addListener(this);

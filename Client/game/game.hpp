@@ -1,9 +1,5 @@
 #pragma once
-
-#include "graphics.hpp"
-#include "clientPlayers.hpp"
 #include "clientItems.hpp"
-#include "menuBack.hpp"
 #include "menuBack.hpp"
 #include "clientEntities.hpp"
 #include "clientInventory.hpp"
@@ -11,12 +7,8 @@
 #include "debugMenu.hpp"
 #include "chat.hpp"
 #include "minimap.hpp"
-#include "clientBlocks.hpp"
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"
-#include "naturalLight.hpp"
-#include "particles.hpp"
-#include "settings.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 

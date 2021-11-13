@@ -1,5 +1,4 @@
 #pragma once
-
 #include "blocks.hpp"
 
 #define MAX_LIGHT 100

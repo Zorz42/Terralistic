@@ -1,8 +1,4 @@
 #pragma once
-
-#include <string>
-#include <vector>
-#include "graphics.hpp"
 #include "menuBack.hpp"
 
 class ChoiceScreenButton {

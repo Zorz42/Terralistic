@@ -1,6 +1,5 @@
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
-#include "configManager.hpp"
 #include "platform_folders.h"
 
 void MultiplayerSelector::init() {

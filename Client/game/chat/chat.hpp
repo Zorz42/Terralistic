@@ -1,6 +1,4 @@
 #pragma once
-
-#include "graphics.hpp"
 #include "clientNetworking.hpp"
 
 class ChatLine {

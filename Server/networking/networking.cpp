@@ -1,7 +1,5 @@
-#include <iostream>
 #include "serverNetworking.hpp"
 #include "print.hpp"
-#include "compress.hpp"
 #include "graphics.hpp"
 
 void Connection::send(sf::Packet& packet) {

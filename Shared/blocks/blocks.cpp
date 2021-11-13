@@ -1,4 +1,5 @@
 #include "blocks.hpp"
+#include "exception.hpp"
 
 BlockType::BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
 

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "entities.hpp"
 
 #define PLAYER_HEIGHT 24

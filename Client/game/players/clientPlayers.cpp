@@ -1,4 +1,3 @@
-#include <cassert>
 #include "clientPlayers.hpp"
 
 ClientPlayers::ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username) :

@@ -1,6 +1,7 @@
 #pragma once
+
 #include <map>
-#include "exception.hpp"
+#include <string>
 
 class ConfigFile {
     std::string path;

@@ -1,8 +1,5 @@
-#ifndef updater_hpp
-#define updater_hpp
-
+#pragma once
 #include <thread>
-#include "graphics.hpp"
 #include "menuBack.hpp"
 
 enum class UpdateState {NEUTRAL, CHECKING, DOWNLOADING, APPLYING, FINISHED};
@@ -21,5 +18,3 @@ public:
     UpdateChecker(MenuBack* menu_back, std::string exec_path) : menu_back(menu_back), exec_path(exec_path) {}
     bool hasUpdated() { return has_updated; }
 };
-
-#endif

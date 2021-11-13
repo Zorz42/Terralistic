@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Network.hpp>
-#include "exception.hpp"
 
 enum class ClientPacketType {
     _START,

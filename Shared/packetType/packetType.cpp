@@ -1,4 +1,5 @@
 #include "packetType.hpp"
+#include "exception.hpp"
 
 sf::Packet& operator<<(sf::Packet& packet, ClientPacketType packet_type) {
     if(packet_type <= ClientPacketType::_START || packet_type >= ClientPacketType::_END)

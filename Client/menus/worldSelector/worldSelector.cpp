@@ -1,9 +1,7 @@
-#include <algorithm>
 #include <filesystem>
 #include "worldSelector.hpp"
 #include "game.hpp"
 #include "worldCreator.hpp"
-#include "platform_folders.h"
 #include "choiceScreen.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)

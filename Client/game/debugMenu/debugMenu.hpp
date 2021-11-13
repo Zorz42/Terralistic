@@ -1,8 +1,5 @@
 #pragma once
-
-#include "graphics.hpp"
 #include "clientPlayers.hpp"
-#include "clientBlocks.hpp"
 
 class DebugMenu : public ClientModule {
     bool debug_menu_open = false;

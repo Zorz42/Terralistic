@@ -1,5 +1,6 @@
 #include <cmath>
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 static int min_window_width, min_window_height;
 static sf::Clock global_clock;

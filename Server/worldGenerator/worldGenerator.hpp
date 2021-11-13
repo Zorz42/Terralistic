@@ -1,14 +1,7 @@
-#ifndef worldGenerator_hpp
-#define worldGenerator_hpp
-
-#include <string>
-#include <utility>
-#include "blocks.hpp"
+#pragma once
 #include "perlinNoise.hpp"
 #include "biomes.hpp"
 #include "liquids.hpp"
-#include <random>
-
 
 class Structure {
 public:
@@ -82,5 +75,3 @@ public:
 
     int generateWorld(int world_width, int world_height, int seed);
 };
-
-#endif

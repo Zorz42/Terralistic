@@ -1,11 +1,6 @@
 #include <filesystem>
-#include <iostream>
 #include "mainMenu.hpp"
-#include "platform_folders.h"
 #include "resourcePath.hpp"
-#include "serverPlayers.hpp"
-#include "settings.hpp"
-#include "updater.hpp"
 #include "versions.hpp"
 
 class ScaleChangeListener : public EventListener<SettingChangeEvent> {

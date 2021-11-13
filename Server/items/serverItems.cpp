@@ -1,6 +1,5 @@
 #include <random>
 #include "serverItems.hpp"
-#include "packetType.hpp"
 
 void ServerItems::init() {
     blocks->block_break_event.addListener(this);

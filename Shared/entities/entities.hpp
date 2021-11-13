@@ -1,6 +1,4 @@
 #pragma once
-
-#include <vector>
 #include "blocks.hpp"
 
 enum class EntityType { ITEM, PLAYER };

@@ -1,5 +1,6 @@
 #include <cmath>
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 int approach(int object, int target, int smooth_factor) {
     if(std::abs(target - object) < smooth_factor)

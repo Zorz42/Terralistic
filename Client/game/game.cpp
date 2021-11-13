@@ -1,17 +1,9 @@
 #include <thread>
-#include <filesystem>
-#include <fstream>
 #include "game.hpp"
 #include "pauseScreen.hpp"
-#include "platform_folders.h"
 #include "choiceScreen.hpp"
-#include "debugMenu.hpp"
-#include "chat.hpp"
 #include "server.hpp"
-#include "blockSelector.hpp"
-#include "compress.hpp"
 #include "content.hpp"
-#include "exception.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535

@@ -1,7 +1,4 @@
 #pragma once
-
-#include <string>
-#include <vector>
 #include "configManager.hpp"
 #include "platform_folders.h"
 #include "events.hpp"

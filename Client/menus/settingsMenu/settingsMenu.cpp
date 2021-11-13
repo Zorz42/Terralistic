@@ -1,7 +1,4 @@
 #include "settingsMenu.hpp"
-#include "configManager.hpp"
-#include "platform_folders.h"
-#include "modManager.hpp"
 
 void SettingsMenu::init() {
     for(Setting* setting : settings->getSettings()) {

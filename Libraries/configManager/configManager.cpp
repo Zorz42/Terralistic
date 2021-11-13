@@ -1,7 +1,7 @@
 #include <utility>
 #include <fstream>
-#include <filesystem>
 #include "configManager.hpp"
+#include "exception.hpp"
 
 ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
     loadConfig();

@@ -1,5 +1,6 @@
 #include <zlib.h>
 #include "compress.hpp"
+#include "exception.hpp"
 
 std::vector<char> compress(std::vector<char>& decompressed_data) {
     unsigned long compressed_size = decompressed_data.size() * 1.01 + 12;
