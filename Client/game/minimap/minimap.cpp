@@ -33,7 +33,7 @@ void Minimap::render() {
             int block_y = blocks->view_y / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + y;
             
             gfx::Color block_color = TRANSPARENT, liquid_color = TRANSPARENT;
-            unsigned char light_level = MAX_LIGHT;
+            int light_level = MAX_LIGHT;
             
             if(block_x >= 0 && block_y >= 0 && block_x < blocks->getWidth() && block_y < blocks->getHeight()) {
                 block_color = blocks->getBlockType(block_x, block_y)->color;
@@ -49,8 +49,11 @@ void Minimap::render() {
             light_pixels.setPixel(x, y, {0, 0, 0, (unsigned char)((MAX_LIGHT - (int)light_level) * 255 / MAX_LIGHT)});
         }
     
-    for(int x = 0; x < MINIMAP_SIZE; x++)
-        natural_light->updateLight(blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x);
+    for(int x = 0; x < MINIMAP_SIZE; x++) {
+        int translated_x = blocks->view_x / BLOCK_WIDTH / 2 - MINIMAP_SIZE / 2 + x;
+        if(translated_x >= 0 && translated_x < blocks->getWidth())
+            natural_light->updateLight(translated_x);
+    }
     
     gfx::Sprite minimap_sprite;
     minimap_sprite.orientation = gfx::TOP_RIGHT;

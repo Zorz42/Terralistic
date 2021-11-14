@@ -1,6 +1,5 @@
 #include "print.hpp"
 #include <iomanip>
-#include <ctime>
 #include <iostream>
 
 static void printText(const std::string& text) {

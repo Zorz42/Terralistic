@@ -1,14 +1,11 @@
 #pragma once
-
-#include "graphics.hpp"
 #include "clientPlayers.hpp"
-#include "clientBlocks.hpp"
 
 class DebugMenu : public ClientModule {
     bool debug_menu_open = false;
     gfx::Sprite fps_text, coords_text;
     ClientPlayers* player_handler;
-    unsigned int fps_count = 0;
+    int fps_count = 0;
     ClientBlocks* blocks;
     
     void updateFpsText();

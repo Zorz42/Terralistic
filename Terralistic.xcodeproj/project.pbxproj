@@ -398,6 +398,7 @@
 		36B04545272498F300A64113 /* play_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play_button.png; sourceTree = "<group>"; };
 		36B045482724991F00A64113 /* x_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = x_button.png; sourceTree = "<group>"; };
 		36D26F252731E91100F1F476 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
+		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
 		36EBE54226B1AC81005D2115 /* theme.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = theme.hpp; sourceTree = "<group>"; };
@@ -636,8 +637,8 @@
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				167B387D2642F73900E3C718 /* print */,
 				1675C53E270B456F00749B3D /* serverModule */,
+				167B387D2642F73900E3C718 /* print */,
 				1673274926A80E760063281A /* networking */,
 				16A13D112709A000009DEE40 /* blocks */,
 				167513C126A498DA00E21C68 /* biomes */,
@@ -927,6 +928,7 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				36D26F2927352F6600F1F476 /* exception */,
 				36D31CD626DBE31D006F89B3 /* compress */,
 				1676E9F62699BF8600034070 /* events */,
 				1675E71A26611B6300B620F4 /* configManager */,
@@ -954,10 +956,10 @@
 		365721CF26D07180005AB3CC /* game */ = {
 			isa = PBXGroup;
 			children = (
-				167A2A802712DB9A0022F8F2 /* clientModule.hpp */,
-				1679733A2712300F00E90477 /* blocks */,
+				36D26F282734635E00F1F476 /* clientModule */,
 				365721D026D07180005AB3CC /* networking */,
 				365721E426D07180005AB3CC /* resourcePack */,
+				1679733A2712300F00E90477 /* blocks */,
 				169D0DF7271C101400F1D484 /* particles */,
 				1679733B2712301400E90477 /* liquids */,
 				1679733C2712301900E90477 /* lights */,
@@ -1135,6 +1137,22 @@
 				3692C14D26E509F100F9DD71 /* entities.cpp */,
 			);
 			path = entities;
+			sourceTree = "<group>";
+		};
+		36D26F282734635E00F1F476 /* clientModule */ = {
+			isa = PBXGroup;
+			children = (
+				167A2A802712DB9A0022F8F2 /* clientModule.hpp */,
+			);
+			path = clientModule;
+			sourceTree = "<group>";
+		};
+		36D26F2927352F6600F1F476 /* exception */ = {
+			isa = PBXGroup;
+			children = (
+				36D26F2B27352F7900F1F476 /* exception.hpp */,
+			);
+			path = exception;
 			sourceTree = "<group>";
 		};
 		36D31CD626DBE31D006F89B3 /* compress */ = {

@@ -1,10 +1,12 @@
 #include "graphics-internal.hpp"
+#include "exception.hpp"
+
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
     loadFromText(text, text_color);
 }
 
-unsigned short gfx::TextInput::getWidth() const {
+int gfx::TextInput::getWidth() const {
     return (width + 2 * margin) * scale;
 }
 
@@ -14,10 +16,12 @@ gfx::TextInput::TextInput() {
 }
 
 void gfx::TextInput::setBlurIntensity(float blur_intensity) {
+    if(blur_intensity <= 0)
+        throw Exception("Blur intensity must be positive.");
     back_rect.blur_intensity = blur_intensity;
 }
 
-void gfx::TextInput::render(unsigned short mouse_x, unsigned short mouse_y) {
+void gfx::TextInput::render(int mouse_x, int mouse_y) {
     RectShape rect = getTranslatedRect();
     back_rect.setX(rect.x);
     back_rect.setY(rect.y);
@@ -30,8 +34,7 @@ void gfx::TextInput::render(unsigned short mouse_x, unsigned short mouse_y) {
     rect.y += margin * scale;
     rect.w = getTextureWidth() * scale;
     rect.h -= margin * 2 * scale;
-    short x;
-    unsigned short w;
+    int x, w;
     if (rect.w > width * scale) {
         x = rect.w / scale - width;
         w = width;
@@ -41,7 +44,7 @@ void gfx::TextInput::render(unsigned short mouse_x, unsigned short mouse_y) {
         w = rect.w / scale;
     }
     
-    Texture::render(scale, rect.x, rect.y, {x, 0, w, (unsigned short)(rect.h / scale)});
+    Texture::render(scale, rect.x, rect.y, {x, 0, w, int(rect.h / scale)});
     if (active)
         RectShape(rect.x + (rect.w > width * scale ? width * scale : rect.w ), rect.y, scale, rect.h).render(text_color);
         

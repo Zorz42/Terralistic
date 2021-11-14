@@ -1,19 +1,12 @@
-#ifndef server_hpp
-#define server_hpp
-
-#include <string>
-#include <utility>
-#include "serverNetworking.hpp"
+#pragma once
 #include "worldGenerator.hpp"
 #include "serverEntities.hpp"
 #include "serverItems.hpp"
-#include "serverPlayers.hpp"
 #include "serverBlocks.hpp"
 #include "serverLiquids.hpp"
-#include "serverChat.hpp"
 #include "commands.hpp"
 
-enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED};
+enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
 class Server {
     std::string world_path;
@@ -39,17 +32,15 @@ class Server {
 public:
     ServerState state = ServerState::NEUTRAL;
     
-    Server(std::string resource_path, std::string world_path, unsigned short port);
+    Server(std::string resource_path, std::string world_path, int port);
     
-    unsigned short seed;
+    int seed;
     
     void start();
     void stop();
     
     void setPrivate(bool is_private);
     
-    unsigned int getGeneratingTotal() const;
-    unsigned int getGeneratingCurrent() const;
+    int getGeneratingTotal() const;
+    int getGeneratingCurrent() const;
 };
-
-#endif

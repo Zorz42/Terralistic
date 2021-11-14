@@ -1,7 +1,5 @@
 #include "choiceScreen.hpp"
 
-#include <utility>
-
 ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, const std::vector<std::string>& options, std::string* result) : menu_back(menu_back), question(std::move(question)), result(result) {
     for(const std::string& option : options) {
         buttons.emplace_back();

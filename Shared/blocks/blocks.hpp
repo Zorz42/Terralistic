@@ -1,6 +1,4 @@
 #pragma once
-
-#include <vector>
 #include "events.hpp"
 #include "graphics.hpp"
 
@@ -34,14 +32,14 @@ public:
 class BlockType {
 public:
     BlockType() = default;
-    BlockType(std::string name, bool ghost, bool transparent, short break_time, std::vector<BlockType*> connects_to, gfx::Color color);
+    BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color);
     
     bool ghost, transparent;
     std::string name;
     std::vector<BlockType*> connects_to;
-    short break_time;
+    int break_time;
     gfx::Color color;
-    unsigned char id;
+    int id;
 };
 
 namespace BlockTypes {
@@ -51,12 +49,13 @@ namespace BlockTypes {
 class Blocks {
     class Block {
     public:
-        unsigned char id = BlockTypes::air.id;
+        Block() : id(BlockTypes::air.id) {}
+        int id:8;
     };
     
     class BreakingBlock {
     public:
-        unsigned short break_progress = 0;
+        int break_progress = 0;
         bool is_breaking = true;
         int x, y;
     };
@@ -76,8 +75,8 @@ public:
     void setBlockType(int x, int y, BlockType* type);
     void setBlockTypeSilently(int x, int y, BlockType* type);
     
-    unsigned short getBreakProgress(int x, int y);
-    unsigned char getBreakStage(int x, int y);
+    int getBreakProgress(int x, int y);
+    int getBreakStage(int x, int y);
     void startBreakingBlock(int x, int y);
     void stopBreakingBlock(int x, int y);
     void updateBreakingBlocks(int frame_length);
@@ -91,9 +90,9 @@ public:
     char* loadFromSerial(char* iter);
     
     void registerNewBlockType(BlockType* block_type);
-    BlockType* getBlockTypeById(unsigned char block_id);
+    BlockType* getBlockTypeById(int block_id);
     BlockType* getBlockTypeByName(const std::string& name);
-    unsigned char getNumBlockTypes();
+    int getNumBlockTypes();
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;
@@ -101,18 +100,4 @@ public:
     EventSender<BlockStoppedBreakingEvent> block_stopped_breaking_event;
     
     ~Blocks();
-};
-
-class BlockOutOfBoundsException : public std::exception {
-public:
-    const char* what() const throw() {
-        return "Block is accessed out of the bounds!";
-    }
-};
-
-class InvalidBlockTypeException : public std::exception {
-public:
-    const char* what() const throw() {
-        return "Block type does not exist!";
-    }
 };

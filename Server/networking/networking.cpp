@@ -1,7 +1,5 @@
-#include <iostream>
 #include "serverNetworking.hpp"
 #include "print.hpp"
-#include "compress.hpp"
 #include "graphics.hpp"
 
 void Connection::send(sf::Packet& packet) {
@@ -94,7 +92,7 @@ void ServerNetworking::update(float frame_length) {
                     
                     break;
                 } else if(status == sf::Socket::Done) {
-                    unsigned char packet_type;
+                    int packet_type;
                     packet >> packet_type;
                     
                     connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
@@ -136,11 +134,15 @@ void ServerNetworking::kickConnection(Connection* connection, const std::string&
 }
 
 void ServerNetworking::removeConnection(Connection* connection) {
+    auto pos = std::find(connections.begin(), connections.end(), connection);
+    if(pos == connections.end())
+        throw Exception("Removed non existing connection.");
+    
     ServerDisconnectEvent event(connection);
     disconnect_event.call(event);
     
     print::info(connection->getIpAddress() + " disconnected (" + std::to_string(connections.size()) + " players online)");
     
     delete connection;
-    connections.erase(std::find(connections.begin(), connections.end(), connection));
+    connections.erase(pos);
 }

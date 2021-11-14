@@ -1,6 +1,4 @@
 #pragma once
-
-#include "graphics.hpp"
 #include "menuBack.hpp"
 #include "settings.hpp"
 
@@ -24,6 +22,6 @@ public:
     bool hasExitedToMenu() const;
     
     void renderBack() override;
-    void setBackWidth(unsigned short width) override;
-    unsigned short getBackWidth() override;
+    void setBackWidth(int width) override;
+    int getBackWidth() override;
 };

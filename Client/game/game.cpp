@@ -1,16 +1,8 @@
 #include <thread>
-#include <cassert>
-#include <filesystem>
-#include <fstream>
 #include "game.hpp"
 #include "pauseScreen.hpp"
-#include "platform_folders.h"
 #include "choiceScreen.hpp"
-#include "debugMenu.hpp"
-#include "chat.hpp"
 #include "server.hpp"
-#include "blockSelector.hpp"
-#include "compress.hpp"
 #include "content.hpp"
 
 #define FROM_PORT 49152
@@ -60,6 +52,7 @@ void WorldStartingScreen::render() {
                 text.loadFromText("Saving world");
                 break;
             case ServerState::RUNNING:
+            case ServerState::CRASHED:
             case ServerState::STOPPED:
                 returnFromScene();
                 break;
@@ -78,18 +71,29 @@ void WorldStartingScreen::render() {
     text.render();
 }
 
+void startServer(Server* server, Game* game) {
+    try {
+        server->start();
+    } catch (const Exception& exception) {
+        server->state = ServerState::CRASHED;
+        game->interrupt_message = exception.message;
+        game->interrupt = true;
+    }
+}
+
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world) {
-    unsigned short port = rand() % (TO_PORT - FROM_PORT) + TO_PORT;
+    int port = rand() % (TO_PORT - FROM_PORT) + FROM_PORT;
     Server private_server(gfx::getResourcePath(), world_name, port);
+    Game game(menu_back, settings, "_", "127.0.0.1", port);
     if(structure_world)
         private_server.seed = 1000;
   
     private_server.setPrivate(true);
-    server_thread = std::thread(&Server::start, &private_server);
+    server_thread = std::thread(startServer, &private_server, &game);
     
     WorldStartingScreen(menu_back, &private_server).run();
-
-    Game(menu_back, settings, "_", "127.0.0.1", port).run();
+    
+    game.start();
     
     private_server.stop();
     
@@ -98,10 +102,15 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     
     WorldStartingScreen(menu_back, &private_server).run();
     
+    if(game.interrupt) {
+        ChoiceScreen choice_screen(menu_back, game.interrupt_message, {"Close"});
+        choice_screen.run();
+    }
+    
     server_thread.join();
 }
 
-Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, unsigned short port) :
+Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port) :
     username(username),
     background_rect(background_rect),
     settings(settings),
@@ -143,12 +152,29 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     addContent(&blocks, &liquids, &items, &recipes);
 }
 
+void Game::start() {
+    try {
+        if(interrupt)
+            throw Exception(interrupt_message);
+        run();
+        if(interrupt)
+            throw Exception(interrupt_message);
+    } catch (const Exception& exception) {
+        ChoiceScreen choice_screen(background_rect, exception.message, {"Close"});
+        switchToScene(choice_screen);
+    }
+}
+
 void Game::init() {
-    for(ClientModule* module : modules)
-        module->postInit();
+    for(gfx::SceneModule* module : getModules())
+        if(module != this)
+            ((ClientModule*)module)->postInit();
 }
 
 void Game::render() {
+    if(interrupt)
+        throw Exception(interrupt_message);
+    
     float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
     int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
     for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
@@ -172,21 +198,4 @@ bool Game::onKeyDown(gfx::Key key) {
 
 bool Game::isHandshakeDone() {
     return handshake_done;
-}
-
-void Game::registerAModule(ClientModule* module) {
-    Scene::registerAModule(module);
-    module->game_error_event.addListener(this);
-    modules.push_back(module);
-}
-
-void Game::onEvent(GameErrorEvent& event) {
-    ChoiceScreen choice_screen(background_rect, event.message, {"Close"});
-    switchToScene(choice_screen);
-    returnFromScene();
-}
-
-void Game::stop() {
-    for(ClientModule* module : modules)
-        module->game_error_event.removeListener(this);
 }

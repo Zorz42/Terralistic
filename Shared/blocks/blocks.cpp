@@ -1,20 +1,24 @@
 #include "blocks.hpp"
+#include "exception.hpp"
 
-BlockType::BlockType(std::string name, bool ghost, bool transparent, short break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
+BlockType::BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
 
 Blocks::Blocks() {
     registerNewBlockType(&BlockTypes::air);
 }
 
 void Blocks::create(int width_, int height_) {
+    if(width_ < 0 || height_ < 0)
+        throw Exception("Width and height must be positive");
+    
     width = width_;
     height = height_;
     blocks = new Block[width * height];
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
-    if(x >= width || y >= height)
-        throw BlockOutOfBoundsException();
+    if(x < 0 || x >= width || y < 0 || y >= height)
+        throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &blocks[y * width + x];
 }
 
@@ -41,7 +45,7 @@ void Blocks::setBlockType(int x, int y, BlockType* type) {
     }
 }
 
-unsigned short Blocks::getBreakProgress(int x, int y) {
+int Blocks::getBreakProgress(int x, int y) {
     for(BreakingBlock breaking_block : breaking_blocks)
         if(breaking_block.x == x && breaking_block.y == y)
             return breaking_block.break_progress;
@@ -58,11 +62,14 @@ void Blocks::updateBreakingBlocks(int frame_length) {
     }
 }
 
-unsigned char Blocks::getBreakStage(int x, int y) {
+int Blocks::getBreakStage(int x, int y) {
     return (float)getBreakProgress(x, y) / (float)getBlockType(x, y)->break_time * 9.f;
 }
 
 void Blocks::startBreakingBlock(int x, int y) {
+    if(x < 0 || x >= width || y < 0 || y >= height)
+        throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    
     BreakingBlock* breaking_block = nullptr;
     
     for(BreakingBlock& block : breaking_blocks)
@@ -84,6 +91,9 @@ void Blocks::startBreakingBlock(int x, int y) {
 }
 
 void Blocks::stopBreakingBlock(int x, int y) {
+    if(x < 0 || x >= width || y < 0 || y >= height)
+        throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    
     for(BreakingBlock& breaking_block : breaking_blocks)
         if(breaking_block.x == x && breaking_block.y == y) {
             breaking_block.is_breaking = false;
@@ -122,7 +132,7 @@ void Blocks::serialize(std::vector<char>& serial) {
 }
 
 char* Blocks::loadFromSerial(char* iter) {
-    unsigned short width_, height_;
+    int width_, height_;
     width_ = *(unsigned short*)iter;
     iter += 2;
     height_ = *(unsigned short*)iter;
@@ -137,11 +147,11 @@ char* Blocks::loadFromSerial(char* iter) {
 }
 
 void Blocks::registerNewBlockType(BlockType* block_type) {
-    block_type->id = block_types.size();
+    block_type->id = (int)block_types.size();
     block_types.push_back(block_type);
 }
 
-BlockType* Blocks::getBlockTypeById(unsigned char block_id) {
+BlockType* Blocks::getBlockTypeById(int block_id) {
     return block_types[block_id];
 }
 
@@ -152,8 +162,8 @@ BlockType* Blocks::getBlockTypeByName(const std::string& name) {
     return nullptr;
 }
 
-unsigned char Blocks::getNumBlockTypes() {
-    return block_types.size();
+int Blocks::getNumBlockTypes() {
+    return (int)block_types.size();
 }
 
 Blocks::~Blocks() {

@@ -3,8 +3,6 @@
 #include "server.hpp"
 #include "platform_folders.h"
 #include "resourcePath.hpp"
-#include "serverPlayers.hpp"
-#include "graphics.hpp"
 
 class ServerScene : public gfx::Scene {
     gfx::Sprite text;

@@ -1,8 +1,6 @@
 #pragma once
-
 #include "events.hpp"
 #include "packetType.hpp"
-#include "graphics.hpp"
 #include "clientModule.hpp"
 
 class ClientPacketEvent {
@@ -23,7 +21,7 @@ class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {
     sf::TcpSocket socket;
     
     std::string ip_address, username;
-    unsigned short port;
+    int port;
     
     void onEvent(ClientPacketEvent& event) override;
     
@@ -32,7 +30,7 @@ class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {
     void stop() override;
     void update(float frame_length) override;
 public:
-    ClientNetworking(const std::string& ip_address, unsigned short port, const std::string& username) : ip_address(ip_address), port(port), username(username) {}
+    ClientNetworking(const std::string& ip_address, int port, const std::string& username) : ip_address(ip_address), port(port), username(username) {}
     
     void sendPacket(sf::Packet& packet);
     std::vector<char> getData();

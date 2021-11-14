@@ -1,10 +1,5 @@
 #pragma once
-
-#include "graphics.hpp"
-#include "clientNetworking.hpp"
-#include "resourcePack.hpp"
 #include "clientBlocks.hpp"
-#include "lights.hpp"
 #include "settings.hpp"
 
 class ClientLights : public Lights, public ClientModule {

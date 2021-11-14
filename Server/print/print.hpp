@@ -1,6 +1,4 @@
-#ifndef print_hpp
-#define print_hpp
-
+#pragma once
 #include <string>
 
 namespace print {
@@ -8,5 +6,3 @@ namespace print {
     void warning(const std::string& text);
     void error(const std::string& text);
 }
-
-#endif

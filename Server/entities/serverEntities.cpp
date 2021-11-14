@@ -1,5 +1,4 @@
 #include "serverEntities.hpp"
-#include "graphics.hpp"
 
 void ServerEntities::init() {
     entity_position_change_event.addListener(this);
@@ -15,7 +14,7 @@ void ServerEntities::stop() {
 
 void ServerEntities::onEvent(EntityDeletionEvent& event) {
     sf::Packet packet;
-    packet << ServerPacketType::ENTITY_DELETION << (unsigned short)event.entity->id;
+    packet << ServerPacketType::ENTITY_DELETION << event.entity->id;
     networking->sendToEveryone(packet);
 }
 

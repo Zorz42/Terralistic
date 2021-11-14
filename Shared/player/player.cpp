@@ -1,9 +1,9 @@
 #include "player.hpp"
 
-unsigned short Player::getWidth() {
+int Player::getWidth() {
     return PLAYER_WIDTH * 2;
 }
-unsigned short Player::getHeight() {
+int Player::getHeight() {
     return PLAYER_HEIGHT * 2;
 }
 

@@ -1,6 +1,5 @@
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
-#include "configManager.hpp"
 #include "platform_folders.h"
 
 void MultiplayerSelector::init() {
@@ -18,8 +17,8 @@ void MultiplayerSelector::init() {
     join_button.y = -SPACING;
     join_button.orientation = gfx::BOTTOM;
     
-    back_button.x = short((-join_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2);
-    join_button.x = short((join_button.getWidth() + back_button.getWidth() - join_button.getWidth() + SPACING) / 2);
+    back_button.x = (-join_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
+    join_button.x = (join_button.getWidth() + back_button.getWidth() - join_button.getWidth() + SPACING) / 2;
     
     server_ip.scale = 3;
     server_ip.orientation = gfx::CENTER;
@@ -68,7 +67,7 @@ bool MultiplayerSelector::onKeyDown(gfx::Key key) {
         return true;
     } else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_connect)) {
         Game game(menu_back, settings, username.getText(), server_ip.getText());
-        switchToScene(game);
+        game.start();
         return true;
     }
     return false;

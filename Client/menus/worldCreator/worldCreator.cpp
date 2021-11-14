@@ -1,7 +1,5 @@
-#include <algorithm>
 #include "worldCreator.hpp"
 #include "game.hpp"
-#include "platform_folders.h"
 
 void WorldCreator::init() {
     back_button.scale = 3;

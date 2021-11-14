@@ -1,12 +1,13 @@
 #include <utility>
 #include <fstream>
 #include "configManager.hpp"
+#include "exception.hpp"
 
 ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
     loadConfig();
 }
 
-void ConfigFile::loadConfig() {
+void ConfigFile::loadConfig() {    
     std::ifstream file(path);
     std::string line;
     while(std::getline(file, line)) {
@@ -19,7 +20,7 @@ void ConfigFile::loadConfig() {
 
 std::string ConfigFile::getStr(const std::string& key) {
     if(!keyExists(key))
-        throw ConfigKeyException(key);
+        throw Exception("Key \"" + key + "\" does not exist in config!");
     return values[key];
 }
 

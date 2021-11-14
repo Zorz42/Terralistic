@@ -49,6 +49,14 @@
                BlueprintName = "TerralisticTests"
                ReferencedContainer = "container:Terralistic.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "TestCompress/testCompressPerformance">
+               </Test>
+               <Test
+                  Identifier = "TestCompress/testDecompressPerformance">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

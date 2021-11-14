@@ -1,6 +1,4 @@
 #pragma once
-
-#include "graphics.hpp"
 #include "menuBack.hpp"
 #include "settings.hpp"
 

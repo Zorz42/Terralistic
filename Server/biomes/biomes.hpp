@@ -1,9 +1,6 @@
 #pragma once
-
 #include "blocks.hpp"
 #include "serverModule.hpp"
-#include <vector>
-#include <string>
 
 enum class BiomeType {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
@@ -11,23 +8,23 @@ class StructureChance;
 
 class Biome {
 public:
-    BiomeType biome_name;
-    int surface_height;
-    int surface_height_variation;
+    BiomeType type;
+    int height;
+    int height_variation;
     std::vector <StructureChance> structure_chances;
-    Biome(BiomeType name, int height, int height_variation, std::vector <StructureChance> structure_chance);
+    Biome(BiomeType type, int height, int height_variation, std::vector<StructureChance> structure_chances);
     Biome() = default;
 };
 
 
 class StructureChance {
 public:
-    std::string structure_name;
-    float chance_on_each_block;
-    int least_distance_between_instances;
+    std::string name;
+    float chance;
+    int least_distance;
     int x_of_last_instance;
-    int unique_structures_of_type;
-    StructureChance(std::string name, float chance_on_block, int least_distance, int unique_structures);
+    int unique_structures;
+    StructureChance(std::string name, float chance, int least_distance, int unique_structures);
 };
 
 inline std::vector <Biome> loaded_biomes;

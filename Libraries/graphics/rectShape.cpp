@@ -1,6 +1,10 @@
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
-gfx::RectShape::RectShape(short x, short y, unsigned short w, unsigned short h) : x(x), y(y), w(w), h(h) {}
+gfx::RectShape::RectShape(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {
+    if(w < 0 || h < 0)
+        throw Exception("RectShape width and height must be positive.");
+}
 
 void gfx::RectShape::render(Color color) const {
     sf::RectangleShape rect;

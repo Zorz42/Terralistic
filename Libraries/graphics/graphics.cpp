@@ -1,8 +1,8 @@
 #include <cmath>
-#include <cassert>
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
-static unsigned short min_window_width, min_window_height;
+static int min_window_width, min_window_height;
 static sf::Clock global_clock;
 
 static const char* blur_shader_code =
@@ -36,15 +36,18 @@ static const char* blur_shader_code =
 "    gl_FragColor = color;"
 "}";
 
-void gfx::init(const std::string& resource_path_, unsigned short window_width, unsigned short window_height) {
+void gfx::init(const std::string& resource_path_, int window_width, int window_height) {
+    if(window_width < 0 || window_height < 0)
+        throw Exception("Winow width and height must be positive.");
+    
     resource_path = resource_path_;
     
     window = new sf::RenderWindow(sf::VideoMode(window_width, window_height), "Terralistic");
     render_target = &window_texture;
     setWindowSize(window_width, window_height);
 
-    bool result = blur_shader.loadFromMemory(blur_shader_code, sf::Shader::Type::Fragment);
-    assert(result);
+    if(!blur_shader.loadFromMemory(blur_shader_code, sf::Shader::Type::Fragment))
+        throw Exception("Error compiling a shader.");
 
     shadow_texture.create(700, 700);
 
@@ -96,25 +99,30 @@ void gfx::init(const std::string& resource_path_, unsigned short window_width, u
     shadow_part_down.display();
 }
 
-void gfx::setMinimumWindowSize(unsigned short width, unsigned short height) {
+void gfx::setMinimumWindowSize(int width, int height) {
+    if(width < 0 || height < 0)
+        throw Exception("Window width and height must be positive.");
     min_window_width = width;
     min_window_height = height;
 }
 
-void gfx::loadFont(const std::string& path, unsigned char size) {
+void gfx::loadFont(const std::string& path, int size) {
+    if(size < 0)
+        throw Exception("Font size must be positive.");
+    if(!font.loadFromFile(resource_path + path))
+        throw Exception("Could not load file " + resource_path + path);
     font_size = size;
-    font.loadFromFile(resource_path + path);
 }
 
 void gfx::quit() {
     delete window;
 }
 
-unsigned short gfx::getWindowWidth() {
+int gfx::getWindowWidth() {
     return window->getSize().x / global_scale;
 }
 
-unsigned short gfx::getWindowHeight() {
+int gfx::getWindowHeight() {
     return window->getSize().y / global_scale;
 }
 
@@ -128,12 +136,12 @@ void gfx::resetRenderTarget() {
     render_target = &window_texture;
 }
 
-unsigned int gfx::getTicks() {
+int gfx::getTicks() {
     return global_clock.getElapsedTime().asMilliseconds();
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
-    output.generateMipmap(); // without that it doesnt work on smaller textures
+    output.generateMipmap(); // without that it doesnt work on smaller textures on some computers
     sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);
@@ -150,6 +158,9 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
 }
 
 void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
+    if(blur_intensity < 0)
+        throw Exception("Blur intensity must be positive.");
+    
     blur_intensity = std::pow(2, blur_intensity);
     blur_shader.setUniform("source", texture.getTexture());
     
@@ -164,16 +175,22 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
     }
 }
 
-void gfx::sleep(unsigned short ms) {
+void gfx::sleep(int ms) {
+    if(ms < 0)
+        throw Exception("Milliseconds of sleep must be positive.");
     sf::sleep(sf::milliseconds(ms));
 }
 
 void gfx::setGlobalScale(float scale) {
+    if(scale <= 0)
+        throw Exception("Scale must be positive.");
     global_scale = scale;
     setWindowSize(getWindowWidth(), getWindowHeight());
 }
 
 void gfx::setFpsLimit(int limit) {
+    if(limit < 0)
+        throw Exception("Fps limit must be positive.");
     window->setFramerateLimit(limit);
 }
 
@@ -181,7 +198,10 @@ void gfx::enableVsync(bool enabled) {
     window->setVerticalSyncEnabled(enabled);
 }
 
-void gfx::setWindowSize(unsigned short width, unsigned short height) {
+void gfx::setWindowSize(int width, int height) {
+    if(width < 0 || height < 0)
+        throw Exception("Window width and height must be positive.");
+    
     width *= global_scale;
     height *= global_scale;
     
@@ -190,7 +210,7 @@ void gfx::setWindowSize(unsigned short width, unsigned short height) {
     if(height < min_window_height * global_scale)
         height = min_window_height * global_scale;
     
-    sf::FloatRect visibleArea(0, 0, (unsigned int)width / global_scale, (unsigned int)height / global_scale);
+    sf::FloatRect visibleArea(0, 0, width / global_scale, height / global_scale);
     window->setView(sf::View(visibleArea));
     window->setSize({(unsigned int)width, (unsigned int)height});
     window_texture.create(width / global_scale, height / global_scale);
@@ -202,6 +222,7 @@ std::string gfx::getResourcePath() {
 
 void gfx::loadIconFromFile(const std::string& path) {
     sf::Image icon;
-    icon.loadFromFile(path);
+    if(!icon.loadFromFile(path))
+        throw Exception("Could not load file " + path);
     window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }

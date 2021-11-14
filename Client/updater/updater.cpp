@@ -1,5 +1,4 @@
 #include <SFML/Network.hpp>
-#include <iostream>
 #include <fstream>
 #include <filesystem>
 #include "updater.hpp"

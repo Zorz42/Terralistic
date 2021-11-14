@@ -1,12 +1,12 @@
 #include "items.hpp"
 
-ItemType::ItemType(std::string name, unsigned short stack_size, BlockType* places) : name(std::move(name)), stack_size(stack_size), places(places) {}
+ItemType::ItemType(std::string name, int stack_size, BlockType* places) : name(std::move(name)), stack_size(stack_size), places(places) {}
 
 ItemType* Item::getType() const {
     return type;
 }
 
-Item::Item(ItemType* type, int x, int y, unsigned short id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
+Item::Item(ItemType* type, int x, int y, int id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
 
 Item* Items::spawnItem(ItemType* type, int x, int y) {
     Item* item = new Item(type, x, y);
@@ -17,16 +17,18 @@ Item* Items::spawnItem(ItemType* type, int x, int y) {
 }
 
 void Items::registerNewItemType(ItemType* item_type) {
-    item_type->id = item_types.size();
+    item_type->id = (int)item_types.size();
     item_types.push_back(item_type);
 }
 
-ItemType* Items::getItemTypeById(unsigned char item_id) {
+ItemType* Items::getItemTypeById(int item_id) {
+    if(item_id < 0 || item_id >= item_types.size())
+        throw Exception("Item type id does not exist.");
     return item_types[item_id];
 }
 
-unsigned char Items::getNumItemTypes() {
-    return item_types.size();
+int Items::getNumItemTypes() {
+    return (int)item_types.size();
 }
 
 void Items::setBlockDrop(BlockType* block_type, ItemType* item_type) {
@@ -46,5 +48,6 @@ ItemType* Items::getItemTypeByName(const std::string& name) {
     for(ItemType* item_info : item_types)
         if(item_info->name == name)
             return item_info;
+    throw Exception("Could not find item by name");
     return nullptr;
 }

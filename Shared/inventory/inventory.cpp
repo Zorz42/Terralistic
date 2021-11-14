@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "inventory.hpp"
 
-void Inventory::setItem(char pos, ItemStack item) {
+void Inventory::setItem(int pos, ItemStack item) {
     item_counts[(int)getItem(pos).type->id] -= getItem(pos).stack;
     item_counts[(int)item.type->id] += item.stack;
     ItemStack& item_stack = pos == -1 ? mouse_item : inventory_arr[pos];
@@ -12,18 +12,18 @@ void Inventory::setItem(char pos, ItemStack item) {
     item_change_event.call(event);
 }
 
-unsigned short Inventory::increaseStack(char pos, unsigned short stack) {
+int Inventory::increaseStack(int pos, int stack) {
     int stack_to_be = getItem(pos).stack + stack, result;
     if(stack_to_be > getItem(pos).type->stack_size)
         stack_to_be = getItem(pos).type->stack_size;
     result = stack_to_be - getItem(pos).stack;
     setItem(pos, ItemStack(getItem(pos).type, stack_to_be));
-    return (unsigned short)result;
+    return result;
 }
 
-unsigned short Inventory::decreaseStack(char pos, unsigned short stack) {
+int Inventory::decreaseStack(int pos, int stack) {
     if(stack >= getItem(pos).stack) {
-        unsigned short prev_stack = getItem(pos).stack;
+        int prev_stack = getItem(pos).stack;
         setItem(pos, ItemStack(&ItemTypes::nothing, 0));
         return prev_stack;
     } else {
@@ -37,7 +37,7 @@ char* Inventory::loadFromSerial(char *iter) {
         item.type = items->getItemTypeById(*iter++);
         item.stack = 0;
         for(int i = 0; i < sizeof(short); i++)
-            item.stack += (unsigned int)*iter++ << i * 8;
+            item.stack += (int)*iter++ << i * 8;
         item_counts[(int)item.type->id] += item.stack;
     }
     updateAvailableRecipes();
@@ -45,44 +45,50 @@ char* Inventory::loadFromSerial(char *iter) {
 }
 
 Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes) {
-    item_counts = new unsigned int[items->getNumItemTypes()];
+    item_counts = new int[items->getNumItemTypes()];
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = 0;
 }
 
-char Inventory::addItem(ItemType* id, int quantity) {
+int Inventory::addItem(ItemType* id, int quantity) {
+    if(quantity < 0)
+        throw Exception("Item quantity cannot be negative.");
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(getItem(i).type == id) {
-            quantity -= increaseStack(i, (unsigned short)quantity);
+            quantity -= increaseStack(i, quantity);
             if(!quantity)
-                return (char)i;
+                return i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(getItem(i).type == &ItemTypes::nothing) {
             setItem(i, ItemStack(id, getItem(i).stack));
-            quantity -= increaseStack(i, (unsigned short)quantity);
+            quantity -= increaseStack(i, quantity);
             if(!quantity)
-                return (char)i;
+                return i;
         }
     return -1;
 }
 
-char Inventory::removeItem(ItemType* id, int quantity) {
+int Inventory::removeItem(ItemType* id, int quantity) {
+    if(quantity < 0)
+        throw Exception("Item quantity cannot be negative.");
     for(int i = 0; i < INVENTORY_SIZE; i++)
         if(inventory_arr[i].type == id) {
-            quantity -= decreaseStack(i, (unsigned short)quantity);
+            quantity -= decreaseStack(i, quantity);
             if(!quantity)
-                return (char)i;
+                return i;
         }
     if(mouse_item.type == id) {
-        quantity -= decreaseStack(-1, (unsigned short)quantity);
+        quantity -= decreaseStack(-1, quantity);
         if(!quantity)
-            return (char)-1;
+            return -1;
     }
     return -1;
 }
 
-ItemStack Inventory::getItem(char pos) {
+ItemStack Inventory::getItem(int pos) {
+    if(pos < -1 || pos >= INVENTORY_SIZE)
+        throw Exception("Inventory position does not exist");
     if(pos == -1)
         return mouse_item;
     return inventory_arr[pos];
@@ -92,7 +98,9 @@ ItemStack Inventory::getSelectedSlot() {
     return getItem(selected_slot);
 }
 
-void Inventory::swapWithMouseItem(char pos) {
+void Inventory::swapWithMouseItem(int pos) {
+    if(pos < -1 || pos >= INVENTORY_SIZE)
+        throw Exception("Inventory position does not exist");
     ItemStack temp = mouse_item;
     mouse_item = inventory_arr[pos];
     inventory_arr[pos] = temp;
@@ -138,7 +146,7 @@ Inventory& Inventory::operator=(Inventory& inventory) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         inventory_arr[i] = inventory.inventory_arr[i];
     mouse_item = inventory.mouse_item;
-    item_counts = new unsigned int[items->getNumItemTypes()];
+    item_counts = new int[items->getNumItemTypes()];
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = inventory.item_counts[i];
     available_recipes = inventory.available_recipes;

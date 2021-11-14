@@ -6,11 +6,15 @@ void gfx::Scene::registerAModule(SceneModule* module) {
     modules.push_back(module);
 }
 
-short gfx::SceneModule::getMouseX() {
+const std::vector<gfx::SceneModule*>& gfx::Scene::getModules() {
+    return modules;
+}
+
+int gfx::SceneModule::getMouseX() {
     return mouse_x;
 }
 
-short gfx::SceneModule::getMouseY() {
+int gfx::SceneModule::getMouseY() {
     return mouse_y;
 }
 
@@ -188,7 +192,7 @@ void gfx::Scene::run() {
     init();
 
     while(running && window->isOpen()) {
-        unsigned int start = getTicks();
+        int start = getTicks();
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
         mouse_y = sf::Mouse::getPosition(*window).y / global_scale;

@@ -1,5 +1,4 @@
 #include "clientNetworking.hpp"
-#include "choiceScreen.hpp"
 
 void ClientNetworking::sendPacket(sf::Packet& packet) {
     if(!socket.isBlocking())
@@ -27,10 +26,8 @@ void ClientNetworking::update(float frame_length) {
 
 void ClientNetworking::init() {
     packet_event.addListener(this);
-    if(socket.connect(ip_address, port) != sf::Socket::Done) {
-        GameErrorEvent error_event("Could not connect to the server!");
-        game_error_event.call(error_event);
-    }
+    if(socket.connect(ip_address, port) != sf::Socket::Done)
+        throw Exception("Could not connect to the server with ip " + ip_address);
 }
 
 void ClientNetworking::stop() {
@@ -72,8 +69,7 @@ void ClientNetworking::onEvent(ClientPacketEvent& event) {
         std::string kick_message;
         event.packet >> kick_message;
         
-        GameErrorEvent error_event(kick_message);
-        game_error_event.call(error_event);
+        throw Exception("You got kicked for: " + kick_message);
     }
 }
 

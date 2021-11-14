@@ -1,6 +1,4 @@
 #pragma once
-
-#include "graphics.hpp"
 #include "clientNetworking.hpp"
 
 class ChatLine {
@@ -8,7 +6,7 @@ public:
     std::string text;
     gfx::Sprite text_sprite;
     int y_to_be{};
-    unsigned int time_created{};
+    int time_created{};
 };
 
 class Chat : public ClientModule, EventListener<ClientPacketEvent> {

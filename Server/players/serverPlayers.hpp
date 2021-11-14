@@ -1,8 +1,4 @@
-#ifndef serverPlayers_hpp
-#define serverPlayers_hpp
-
-#include <utility>
-#include "items.hpp"
+#pragma once
 #include "player.hpp"
 #include "inventory.hpp"
 #include "serverNetworking.hpp"
@@ -39,9 +35,9 @@ public:
 
 class BlockEvents {
 public:
-    void (*onUpdate)(Blocks* blocks, unsigned short x, unsigned short y) = nullptr;
-    void (*onRightClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
-    void (*onLeftClick)(Blocks* blocks, unsigned short x, unsigned short y, ServerPlayer* player) = nullptr;
+    void (*onUpdate)(Blocks* blocks, int x, int y) = nullptr;
+    void (*onRightClick)(Blocks* blocks, int x, int y, ServerPlayer* player) = nullptr;
+    void (*onLeftClick)(Blocks* blocks, int x, int y, ServerPlayer* player) = nullptr;
 };
 
 class ServerPacketEvent {
@@ -69,8 +65,8 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     void onEvent(ServerPacketEvent& event) override;
     void onEvent(ServerDisconnectEvent& event) override;
     
-    void leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
-    void rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y);
+    void leftClickEvent(ServerPlayer* player, int x, int y);
+    void rightClickEvent(ServerPlayer* player, int x, int y);
     
     void init() override;
     void update(float frame_length) override;
@@ -89,5 +85,3 @@ public:
     
     EventSender<ServerPacketEvent> packet_event;
 };
-
-#endif

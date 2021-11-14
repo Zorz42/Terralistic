@@ -1,10 +1,4 @@
-#include <filesystem>
-#include <fstream>
-#include <utility>
-#include <cassert>
 #include "serverPlayers.hpp"
-#include "blocks.hpp"
-#include "print.hpp"
 #include "content.hpp"
 
 static bool isBlockTree(Blocks* blocks, int x, int y) {
@@ -19,12 +13,12 @@ static bool isBlockLeaves(Blocks* blocks, int x, int y) {
     return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &BlockTypes::leaves;
 }
 
-static void stoneUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
+static void stoneUpdate(Blocks* blocks, int x, int y) {
     if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
         blocks->breakBlock(x, y);
 }
 
-static void treeUpdate(Blocks* blocks, unsigned short x, unsigned short y) {
+static void treeUpdate(Blocks* blocks, int x, int y) {
     if(
        (!isBlockTree(blocks, x, y + 1) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y)) ||
        (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y + 1)) ||
@@ -49,11 +43,11 @@ void ServerPlayers::init() {
 
     custom_block_events[(int)BlockTypes::leaves.id].onUpdate = &treeUpdate;
 
-    custom_block_events[(int)BlockTypes::grass_block.id].onLeftClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
+    custom_block_events[(int)BlockTypes::grass_block.id].onLeftClick = [](Blocks* blocks_, int x, int y, ServerPlayer* player) {
         blocks_->setBlockType(x, y, &BlockTypes::dirt);
     };
 
-    custom_block_events[(int)BlockTypes::air.id].onRightClick = [](Blocks* blocks_, unsigned short x, unsigned short y, ServerPlayer* player) {
+    custom_block_events[(int)BlockTypes::air.id].onRightClick = [](Blocks* blocks_, int x, int y, ServerPlayer* player) {
         BlockType* type = player->inventory.getSelectedSlot().type->places;
         if(type != &BlockTypes::air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
             blocks_->setBlockType(x, y, type);
@@ -95,7 +89,7 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
         int spawn_x = blocks->getWidth() / 2 * BLOCK_WIDTH * 2;
         
         int spawn_y = 0;
-        for(unsigned short y = 0; y < blocks->getHeight(); y++) {
+        for(int y = 0; y < blocks->getHeight(); y++) {
             if(!blocks->getBlockType(blocks->getWidth() / 2, y)->transparent || !blocks->getBlockType(blocks->getWidth() / 2 + 1, y)->transparent)
                 break;
             spawn_y += BLOCK_WIDTH * 2;
@@ -132,17 +126,17 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
     return nullptr;
 }
 
-void ServerPlayers::leftClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
-    while(custom_block_events[(int)blocks->getBlockType(x, y)->id].onLeftClick)
-        custom_block_events[(int)blocks->getBlockType(x, y)->id].onLeftClick(blocks, x, y, player);
+void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
+    while(custom_block_events[blocks->getBlockType(x, y)->id].onLeftClick)
+        custom_block_events[blocks->getBlockType(x, y)->id].onLeftClick(blocks, x, y, player);
     
     if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
         blocks->startBreakingBlock(x, y);
 }
 
-void ServerPlayers::rightClickEvent(ServerPlayer* player, unsigned short x, unsigned short y) {
-    if(custom_block_events[(int)blocks->getBlockType(x, y)->id].onRightClick)
-        custom_block_events[(int)blocks->getBlockType(x, y)->id].onRightClick(blocks, x, y, player);
+void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
+    if(custom_block_events[blocks->getBlockType(x, y)->id].onRightClick)
+        custom_block_events[blocks->getBlockType(x, y)->id].onRightClick(blocks, x, y, player);
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
@@ -153,12 +147,11 @@ char* ServerPlayers::addPlayerFromSerial(char* iter) {
 ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, char*& iter) : inventory(items, recipes) {
     iter = inventory.loadFromSerial(iter);
     
-    x = 0;
-    for(int i = 0; i < sizeof(int); i++)
-        x += (int)(unsigned char)*iter++ << i * 8;
-    y = 0;
-    for(int i = 0; i < sizeof(int); i++)
-        y += (int)(unsigned char)*iter++ << i * 8;
+    memcpy(&x, iter, sizeof(int));
+    iter += sizeof(int);
+    
+    memcpy(&y, iter, sizeof(int));
+    iter += sizeof(int);
     
     while(*iter)
         name.push_back(*iter++);
@@ -168,11 +161,11 @@ ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, char*& iter) 
 void ServerPlayerData::serialize(std::vector<char>& serial) const {
     inventory.serialize(serial);
     
-    for(int i = 0; i < sizeof(int); i++)
-        serial.push_back(x >> i * 8);
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    memcpy(&serial[serial.size() - 4], &x, sizeof(int));
     
-    for(int i = 0; i < sizeof(int); i++)
-        serial.push_back(y >> i * 8);
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    memcpy(&serial[serial.size() - 4], &y, sizeof(int));
     
     serial.insert(serial.end(), name.begin(), name.end());
     serial.insert(serial.end(), 0);
@@ -214,14 +207,16 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
                 break;
             } else {
                 sf::Packet join_packet;
-                join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (unsigned char)curr_player->moving_type;
+                join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (int)curr_player->moving_type;
                 event.connection->send(join_packet);
             }
         }
     
-    assert(player);
+    if(player == nullptr)
+        throw Exception("Could not find the player.");
+    
     sf::Packet join_packet;
-    join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (unsigned char)player->moving_type;
+    join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
     networking->sendToEveryone(join_packet);
 }
 
@@ -246,7 +241,8 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {
-    assert(connection == nullptr);
+    if(connection)
+        throw Exception("Overwriting connection, which has already been set");
     connection = connection_;
 }
 
@@ -291,7 +287,10 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
                 break;
             }
         }
-    assert(player);
+    
+    if(player == nullptr)
+        throw Exception("Could not find the player.");
+    
     savePlayer(player);
     entities->removeEntity(player);
 }
@@ -334,7 +333,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
 
         case ClientPacketType::INVENTORY_SWAP: {
-            unsigned char pos;
+            int pos;
             event.packet >> pos;
             event.player->inventory.swapWithMouseItem(pos);
             break;
@@ -346,7 +345,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
             
         case ClientPacketType::CRAFT: {
-            unsigned char craft_index;
+            int craft_index;
             event.packet >> craft_index;
             const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
             event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
@@ -356,7 +355,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
             
         case ClientPacketType::PLAYER_MOVING_TYPE: {
-            unsigned char moving_type;
+            int moving_type;
             event.packet >> moving_type;
             event.player->moving_type = (MovingType)moving_type;
             sf::Packet moving_packet;
@@ -376,7 +375,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     ItemStack item = inventory.getItem(event.item_pos);
     sf::Packet packet;
-    packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (short)event.item_pos;
+    packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (int)event.item_pos;
     connection->send(packet);
 }
 

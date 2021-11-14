@@ -1,8 +1,8 @@
 #include "settings.hpp"
-#include <cassert>
 
 Settings::~Settings() {
-    assert(settings.empty());
+    if(!settings.empty())
+        std::cout << "Warning: settings not empty when destructed!" << std::endl;
 }
 
 const std::vector<Setting*>& Settings::getSettings() {
@@ -16,7 +16,10 @@ void Settings::addSetting(Setting* setting) {
 }
 
 void Settings::removeSetting(Setting* setting) {
-    settings.erase(std::find(settings.begin(), settings.end(), setting));
+    auto pos = std::find(settings.begin(), settings.end(), setting);
+    if(pos == settings.end())
+        throw Exception("Removed non-existing setting.");
+    settings.erase(pos);
     config_file.setStr(setting->indent, setting->exportToStr());
 }
 

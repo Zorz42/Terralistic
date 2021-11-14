@@ -1,7 +1,4 @@
 #pragma once
-
-#include <vector>
-#include "blocks.hpp"
 #include "entities.hpp"
 
 #define ITEM_WIDTH 8
@@ -9,12 +6,12 @@
 class ItemType {
 public:
     ItemType() = default;
-    ItemType(std::string name, unsigned short stack_size, BlockType* places);
+    ItemType(std::string name, int stack_size, BlockType* places);
     
     std::string name;
-    unsigned short stack_size;
+    int stack_size;
     BlockType* places;
-    unsigned char id;
+    int id;
 };
 
 namespace ItemTypes {
@@ -24,11 +21,11 @@ namespace ItemTypes {
 class Item : public Entity {
     ItemType* type;
 public:
-    Item(ItemType* type, int x, int y, unsigned short id=0);
+    Item(ItemType* type, int x, int y, int id=0);
     ItemType* getType() const;
     
-    unsigned short getWidth() override { return ITEM_WIDTH * 2; }
-    unsigned short getHeight() override { return ITEM_WIDTH * 2; }
+    int getWidth() override { return ITEM_WIDTH * 2; }
+    int getHeight() override { return ITEM_WIDTH * 2; }
 };
 
 class ItemCreationEvent {
@@ -49,9 +46,9 @@ public:
     Item* spawnItem(ItemType* type, int x, int y);
     
     void registerNewItemType(ItemType* item_type);
-    ItemType* getItemTypeById(unsigned char item_id);
+    ItemType* getItemTypeById(int item_id);
     ItemType* getItemTypeByName(const std::string& name);
-    unsigned char getNumItemTypes();
+    int getNumItemTypes();
     
     void setBlockDrop(BlockType* block_type, ItemType* item_type);
     ItemType* getBlockDrop(BlockType* block_type);

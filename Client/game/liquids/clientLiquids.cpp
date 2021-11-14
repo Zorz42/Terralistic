@@ -4,7 +4,7 @@ void ClientLiquids::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::LIQUID: {
             int x, y;
-            unsigned char liquid_type, liquid_level;
+            int liquid_type, liquid_level;
             event.packet >> x >> y >> liquid_type >> liquid_level;
             
             setLiquidType(x, y, getLiquidTypeById(liquid_type));
@@ -40,17 +40,17 @@ void ClientLiquids::render() {
     }
     
     int liquid_index = 0;
-    for(unsigned short x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
-        for(unsigned short y = blocks->getViewBeginY(); y < blocks->getViewEndY(); y++) {
+    for(int x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
+        for(int y = blocks->getViewBeginY(); y < blocks->getViewEndY(); y++) {
             int block_x = x * BLOCK_WIDTH * 2 - blocks->view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - blocks->view_y + gfx::getWindowHeight() / 2;
 
             if(getLiquidType(x, y) != &LiquidTypes::empty) {
                 int texture_y = resource_pack->getTextureRectangle(getLiquidType(x, y)).y * 2;
                 
-                liquid_rects.setTextureCoords(liquid_index, {0, (short)texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
+                liquid_rects.setTextureCoords(liquid_index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 
                 int level = ((int)getLiquidLevel(x, y) + 1) / 8;
-                liquid_rects.setRect(liquid_index, {(short)block_x, short(block_y + BLOCK_WIDTH * 2 - level), (short)BLOCK_WIDTH * 2, (unsigned short)level});
+                liquid_rects.setRect(liquid_index, {block_x, block_y + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
                 liquid_index++;
             }
         }

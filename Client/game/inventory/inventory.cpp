@@ -97,7 +97,7 @@ void ClientInventory::render() {
         hovered_recipe = -1;
         behind_crafting_rect.render();
         
-        behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + inventory.getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
+        behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)inventory.getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
         
         for(int i = 0; i < inventory.getAvailableRecipes().size(); i++) {
             int slot_x = 1.5 * INVENTORY_UI_SPACING;
@@ -119,7 +119,7 @@ void ClientInventory::render() {
             tooltip_active = true;
             under_text_rect.setX(getMouseX());
             under_text_rect.setY(getMouseY());
-            under_text_rect.setWidth(SPACING / 2 + inventory.getAvailableRecipes()[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
+            under_text_rect.setWidth(SPACING / 2 + (int)inventory.getAvailableRecipes()[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
             under_text_rect.setHeight(INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING);
             under_text_rect.render();
             int x = getMouseX() + SPACING / 2;
@@ -136,7 +136,7 @@ void ClientInventory::render() {
     under_text_rect.shadow_intensity += ((tooltip_active ? SHADOW_INTENSITY / 2 : 0) - under_text_rect.shadow_intensity) / 3;
 }
 
-void ClientInventory::renderItem(ItemStack item, short x, short y) {
+void ClientInventory::renderItem(ItemStack item, int x, int y) {
     const gfx::Texture& texture = resource_pack->getItemTexture();
     texture.render(4, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, resource_pack->getTextureRectangle(item.type));
     
@@ -151,7 +151,10 @@ void ClientInventory::renderItem(ItemStack item, short x, short y) {
     }
 }
 
-void ClientInventory::selectSlot(char slot) {
+void ClientInventory::selectSlot(int slot) {
+    if(slot < 0 || slot >= 10)
+        throw Exception("Inventory slot is out of range");
+    
     selected_slot = slot;
     sf::Packet packet;
     packet << ClientPacketType::HOTBAR_SELECTION << selected_slot;
@@ -165,9 +168,9 @@ char* ClientInventory::loadFromSerial(char* iter) {
 void ClientInventory::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::INVENTORY: {
-            unsigned short stack;
-            unsigned char item_id;
-            short pos;
+            int stack;
+            int item_id;
+            int pos;
             event.packet >> stack >> item_id >> pos;
             
             inventory.setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));
@@ -192,7 +195,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::E:
             open = !open;
             if(!open && inventory.getItem(-1).type != &ItemTypes::nothing) {
-                unsigned char result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
+                int result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
                 inventory.setItem(-1, ItemStack());
                 sf::Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << result;
@@ -203,12 +206,12 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
             if(hovered != -1) {
                 inventory.swapWithMouseItem(hovered);
                 sf::Packet packet;
-                packet << ClientPacketType::INVENTORY_SWAP << (unsigned char)hovered;
+                packet << ClientPacketType::INVENTORY_SWAP << hovered;
                 manager->sendPacket(packet);
                 return true;
             } else if(hovered_recipe != -1) {
                 sf::Packet packet;
-                packet << ClientPacketType::CRAFT << (unsigned char)hovered_recipe;
+                packet << ClientPacketType::CRAFT << hovered_recipe;
                 manager->sendPacket(packet);
                 return true;
             }

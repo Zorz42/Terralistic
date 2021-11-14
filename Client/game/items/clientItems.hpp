@@ -1,12 +1,5 @@
 #pragma once
-
-#include "graphics.hpp"
-#include "resourcePack.hpp"
-#include "events.hpp"
-#include "clientNetworking.hpp"
 #include "clientBlocks.hpp"
-#include "clientEntities.hpp"
-#include "items.hpp"
 
 #define ITEM_WIDTH 8
 

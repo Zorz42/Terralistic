@@ -1,5 +1,4 @@
 #include "clientItems.hpp"
-#include "resourcePack.hpp"
 
 void ClientItems::init() {
     manager->packet_event.addListener(this);
@@ -33,9 +32,9 @@ void ClientItems::render() {
             gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());
             item_rects.setTextureCoords(item_index, rect);
 
-            short item_x = item->getX() - blocks->view_x + gfx::getWindowWidth() / 2;
-            short item_y = item->getY() - blocks->view_y + gfx::getWindowHeight() / 2;
-            item_rects.setRect(item_index, {item_x, item_y, (unsigned short)(rect.h * 2), (unsigned short)(rect.w * 2)});
+            int item_x = item->getX() - blocks->view_x + gfx::getWindowWidth() / 2;
+            int item_y = item->getY() - blocks->view_y + gfx::getWindowHeight() / 2;
+            item_rects.setRect(item_index, {item_x, item_y, rect.h * 2, rect.w * 2});
             item_index++;
         }
     }
@@ -48,8 +47,8 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
         case ServerPacketType::ITEM_CREATION: {
             int x, y;
-            unsigned short id;
-            unsigned char type;
+            int id;
+            int type;
             event.packet >> x >> y >> id >> type;
             
             Item* item = new Item(getItemTypeById(type), x, y, id);

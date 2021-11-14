@@ -1,14 +1,8 @@
-#include <thread>
-#include <iostream>
-#include <csignal>
-#include <filesystem>
 #include <fstream>
-#include <utility>
-
+#include <filesystem>
+#include <signal.h>
 #include "print.hpp"
-#include "serverPlayers.hpp"
 #include "server.hpp"
-#include "graphics.hpp"
 #include "compress.hpp"
 #include "content.hpp"
 
@@ -21,7 +15,7 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
-Server::Server(std::string resource_path, std::string world_path, unsigned short port) :
+Server::Server(std::string resource_path, std::string world_path, int port) :
     networking(port),
     blocks(&networking),
     biomes(&blocks),
@@ -33,8 +27,11 @@ Server::Server(std::string resource_path, std::string world_path, unsigned short
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(std::move(world_path)),
-    seed(time(NULL))
+    seed((int)time(NULL))
 {
+    if(port < 0 || port > 65535)
+        throw Exception("Port number out of range");
+    
     modules = {
         &networking,
         &blocks,
@@ -50,6 +47,9 @@ Server::Server(std::string resource_path, std::string world_path, unsigned short
 
 void Server::loadWorld() {    
     std::ifstream world_file(world_path, std::ios::binary);
+    if(!world_file.is_open())
+        throw Exception("Could not load world.");
+    
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
     
     world_file_serial = decompress(world_file_serial);
@@ -104,7 +104,7 @@ void Server::start() {
     state = ServerState::RUNNING;
     print::info("Server has started!");
     
-    unsigned int a, b = gfx::getTicks();
+    int a, b = gfx::getTicks();
     
     int ms_per_tick = 1000 / TPS_LIMIT;
 
@@ -138,10 +138,10 @@ void Server::setPrivate(bool is_private) {
     networking.is_private = is_private;
 }
 
-unsigned int Server::getGeneratingTotal() const {
+int Server::getGeneratingTotal() const {
     return generator.getGeneratingTotal();
 }
 
-unsigned int Server::getGeneratingCurrent() const {
+int Server::getGeneratingCurrent() const {
     return generator.getGeneratingCurrent();
 }
