@@ -53,9 +53,6 @@ int Blocks::getBreakProgress(int x, int y) {
 }
 
 void Blocks::updateBreakingBlocks(int frame_length) {
-    if(frame_length < 0)
-        throw Exception("Frame length must be positive");
-    
     for(int i = 0; i < breaking_blocks.size(); i++) {
         if(breaking_blocks[i].is_breaking) {
             breaking_blocks[i].break_progress += frame_length;

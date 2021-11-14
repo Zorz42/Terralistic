@@ -3,6 +3,9 @@
 #include "content.hpp"
 
 int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
+    if(world_width <= 0 || world_height <= 0)
+        throw Exception("World width and height must be a positive integer.");
+    
     siv::PerlinNoise noise((unsigned int)seed);
     std::mt19937 seeded_random(seed);
     surface_height = new int[world_width];
@@ -61,9 +64,9 @@ void WorldGenerator::terrainGenerator(int x, siv::PerlinNoise& noise) {
 void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
     for(int x = 0; x < blocks->getWidth(); x++) {
         for (auto &checking_structure: loaded_biomes[(int) biomes->biomes[x]].structure_chances) {
-            if ((noise.noise2D((float) x + 0.5, (float) surface_height[x] + 0.5) + 1) * checking_structure.chance_on_each_block <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance_between_instances) {
-                structurePositions.emplace_back(StructurePosition(checking_structure.structure_name +
-                                                                  std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) surface_height[x] - 0.5) + 1) / 2 * checking_structure.unique_structures_of_type)),
+            if ((noise.noise2D((float) x + 0.5, (float) surface_height[x] + 0.5) + 1) * checking_structure.chance <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance) {
+                structurePositions.emplace_back(StructurePosition(checking_structure.name +
+                                                                  std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) surface_height[x] - 0.5) + 1) / 2 * checking_structure.unique_structures)),
                                                                   x, surface_height[x] - 1));
                 checking_structure.x_of_last_instance = x;
             }
@@ -76,7 +79,7 @@ void WorldGenerator::calculateHeight(siv::PerlinNoise& noise) {
     float divide_at_end;
     int *no_blend_height = new int[blocks->getWidth()];
     for(int current_slice = 0; current_slice < blocks->getWidth(); current_slice++) {
-        no_blend_height[current_slice] = loaded_biomes[(int) biomes->biomes[current_slice]].surface_height;
+        no_blend_height[current_slice] = loaded_biomes[(int) biomes->biomes[current_slice]].height;
     }
 
     for(int current_slice = 0; current_slice < blocks->getWidth(); current_slice++) {
@@ -85,7 +88,7 @@ void WorldGenerator::calculateHeight(siv::PerlinNoise& noise) {
         int variation = 0;
         for (int i = std::max(0, current_slice - biome_blend); i < std::min(blocks->getWidth() - 1, current_slice + biome_blend); i++) {
             surface_height[current_slice] += no_blend_height[i] * (1 - (float)std::abs(current_slice - i) / biome_blend);
-            variation += loaded_biomes[(int) biomes->biomes[i]].surface_height_variation * (1 - (float)std::abs(current_slice - i) / biome_blend);
+            variation += loaded_biomes[(int) biomes->biomes[i]].height_variation * (1 - (float)std::abs(current_slice - i) / biome_blend);
             divide_at_end += (1 - (float)std::abs(current_slice - i) / biome_blend);
         }
         surface_height[current_slice] /= divide_at_end;

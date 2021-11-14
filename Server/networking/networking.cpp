@@ -134,11 +134,15 @@ void ServerNetworking::kickConnection(Connection* connection, const std::string&
 }
 
 void ServerNetworking::removeConnection(Connection* connection) {
+    auto pos = std::find(connections.begin(), connections.end(), connection);
+    if(pos == connections.end())
+        throw Exception("Removed non existing connection.");
+    
     ServerDisconnectEvent event(connection);
     disconnect_event.call(event);
     
     print::info(connection->getIpAddress() + " disconnected (" + std::to_string(connections.size()) + " players online)");
     
     delete connection;
-    connections.erase(std::find(connections.begin(), connections.end(), connection));
+    connections.erase(pos);
 }

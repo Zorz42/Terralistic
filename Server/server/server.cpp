@@ -29,6 +29,9 @@ Server::Server(std::string resource_path, std::string world_path, int port) :
     world_path(std::move(world_path)),
     seed((int)time(NULL))
 {
+    if(port < 0 || port > 65535)
+        throw Exception("Port number out of range");
+    
     modules = {
         &networking,
         &blocks,
@@ -44,6 +47,9 @@ Server::Server(std::string resource_path, std::string world_path, int port) :
 
 void Server::loadWorld() {    
     std::ifstream world_file(world_path, std::ios::binary);
+    if(!world_file.is_open())
+        throw Exception("Could not load world.");
+    
     std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
     
     world_file_serial = decompress(world_file_serial);

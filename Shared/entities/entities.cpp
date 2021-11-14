@@ -33,9 +33,6 @@ Entity* Entities::getEntityById(int id) {
 }
 
 void Entity::updateEntity(Blocks *blocks, float frame_length) {
-    if(frame_length < 0)
-        throw Exception("Frame length is negative value");
-    
     if(friction) {
         velocity_y *= std::pow(0.995f, frame_length);
         velocity_x *= std::pow(isTouchingGround(blocks) ? 0.99f : 0.9995f, frame_length);
