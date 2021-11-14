@@ -1,4 +1,3 @@
-#include <cassert>
 #include "serverPlayers.hpp"
 #include "content.hpp"
 
@@ -213,7 +212,9 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
             }
         }
     
-    assert(player);
+    if(player == nullptr)
+        throw Exception("Could not find the player.");
+    
     sf::Packet join_packet;
     join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
     networking->sendToEveryone(join_packet);
@@ -240,7 +241,8 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {
-    assert(connection == nullptr);
+    if(connection)
+        throw Exception("Overwriting connection, which has already been set");
     connection = connection_;
 }
 
@@ -285,7 +287,10 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
                 break;
             }
         }
-    assert(player);
+    
+    if(player == nullptr)
+        throw Exception("Could not find the player.");
+    
     savePlayer(player);
     entities->removeEntity(player);
 }
