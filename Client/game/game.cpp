@@ -74,9 +74,9 @@ void WorldStartingScreen::render() {
 void startServer(Server* server, Game* game) {
     try {
         server->start();
-    } catch (const Exception& exception) {
+    } catch (const std::exception& exception) {
         server->state = ServerState::CRASHED;
-        game->interrupt_message = exception.message;
+        game->interrupt_message = exception.what();
         game->interrupt = true;
     }
 }
@@ -159,8 +159,8 @@ void Game::start() {
         run();
         if(interrupt)
             throw Exception(interrupt_message);
-    } catch (const Exception& exception) {
-        ChoiceScreen choice_screen(background_rect, exception.message, {"Close"});
+    } catch (const std::exception& exception) {
+        ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
         switchToScene(choice_screen);
     }
 }
