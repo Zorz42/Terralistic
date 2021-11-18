@@ -1,12 +1,14 @@
 #include <fstream>
 #include <filesystem>
 #include <signal.h>
+#include <thread>
 #include "print.hpp"
 #include "server.hpp"
 #include "compress.hpp"
 #include "content.hpp"
 
 #define TPS_LIMIT 60
+#define AUTOSAVE_INTERVAL (5 * 60)
 
 Server* curr_server = nullptr;
 
@@ -71,6 +73,10 @@ void Server::saveWorld() {
     blocks.serialize(world_file_serial);
     liquids.serialize(world_file_serial);
     
+    for(Entity* entity : entities.getEntities())
+        if(entity->type == EntityType::PLAYER)
+            players.savePlayer((ServerPlayer*)entity);
+    
     for(const ServerPlayerData* player : players.getAllPlayers())
         player->serialize(world_file_serial);
     
@@ -107,7 +113,8 @@ void Server::start() {
     int a, b = gfx::getTicks();
     
     int ms_per_tick = 1000 / TPS_LIMIT;
-
+    int save_inverval = 0;
+    
     while(running) {
         a = gfx::getTicks();
         float frame_length = a - b;
@@ -117,6 +124,13 @@ void Server::start() {
         
         for(ServerModule* module : modules)
             module->update(frame_length);
+        
+        if(gfx::getTicks() / AUTOSAVE_INTERVAL / 1000 > save_inverval) {
+            print::info("Autosaving world...");
+            save_inverval = gfx::getTicks() / AUTOSAVE_INTERVAL / 1000;
+            std::thread save_thread(&Server::saveWorld, this);
+            save_thread.detach();
+        }
     }
     
     state = ServerState::STOPPING;

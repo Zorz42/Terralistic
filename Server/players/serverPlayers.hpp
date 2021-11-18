@@ -30,7 +30,7 @@ public:
     bool breaking = false;
     int breaking_x = 0, breaking_y = 0;
     
-    void destruct();
+    ~ServerPlayer();
 };
 
 class BlockEvents {

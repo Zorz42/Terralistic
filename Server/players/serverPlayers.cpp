@@ -111,8 +111,6 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
 void ServerPlayers::savePlayer(ServerPlayer* player) {
     ServerPlayerData* player_data = getPlayerData(player->name);
     
-    player->destruct();
-    
     player_data->name = player->name;
     player_data->x = player->getX();
     player_data->y = player->getY();
@@ -379,6 +377,6 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     connection->send(packet);
 }
 
-void ServerPlayer::destruct() {
+ServerPlayer::~ServerPlayer() {
     inventory.item_change_event.removeListener(this);
 }
