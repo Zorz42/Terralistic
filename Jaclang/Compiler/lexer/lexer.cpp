@@ -1,9 +1,3 @@
-//
-//  lexer.cpp
-//  Jaclang
-//
-//  Created by Jakob Zorz on 04/07/2021.
-//
 #include <iostream>
 #include "lexer.hpp"
 

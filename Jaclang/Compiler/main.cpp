@@ -1,13 +1,5 @@
-//
-//  main.cpp
-//  Jaclang
-//
-//  Created by Jakob Zorz on 04/07/2021.
-//
-
 #include <iostream>
 #include <fstream>
-
 #include "lexer.hpp"
 
 #define TOKEN_PRINT_SPACING 25
@@ -20,6 +12,11 @@ void printToken(std::string prefix, std::string content) {
 }
 
 int main(int argc, const char * argv[]) {
+    if(argc == 1) {
+        std::cerr << "Usage: jaclang [input file]" << std::endl;
+        return 1;
+    }
+    
     std::string file_path = argv[1];
     std::ifstream file(file_path);
     if(!file.is_open()) {
