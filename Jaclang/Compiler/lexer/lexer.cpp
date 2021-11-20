@@ -112,6 +112,7 @@ std::vector<Token> tokenize(std::filebuf* file_buffer) {
     }
     if(!curr_token.empty())
         tokens.push_back(endToken());
+    tokens.push_back({TokenType::END});
     return tokens;
 }
 
@@ -133,8 +134,9 @@ void printToken(const Token& token) {
         case TokenType::CONSTANT_INTEGER:
             printToken("CONST_INT", std::to_string(token.const_int));
             break;
-            
+        
         case TokenType::NONE:
+        case TokenType::END:
             break;
             
             // symbols

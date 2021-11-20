@@ -22,7 +22,10 @@ int main(int argc, const char * argv[]) {
         printToken(token);
     
     Parser parser;
-    std::vector<ProgramLine> program_lines = parser.parseTokens(tokens);
+    parser.parseTokens(tokens);
+    
+    for(ProgramLine* line : parser.getProgramLines())
+        parser.getProgramLineTypeByID(line->type_id)->print(line);
     
     return 0;
 }
