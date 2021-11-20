@@ -5,7 +5,11 @@
 
 enum class TokenType {
     NONE, INDENT, STRING, CONSTANT_INTEGER,
-    ASSIGNMENT, EQUALS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY_BRACKET, RIGHT_CURLY_BRACKET,
+    // synbols
+    ASSIGNMENT, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY_BRACKET, RIGHT_CURLY_BRACKET,
+    // operators
+    EQUALS, PLUS, MINUS,
+    // keywords
     IF, WHILE,
 };
 
@@ -17,3 +21,4 @@ public:
 };
 
 std::vector<Token> tokenize(std::filebuf* file_buffer);
+void printToken(const Token& token);

@@ -1,11 +1,11 @@
 #include <iostream>
 #include "lexer.hpp"
 
+#define TOKEN_PRINT_SPACING 25
+
 inline bool isInteger(const std::string& text) {
-    // copied from internet and modified
    char* p;
    strtol(text.c_str(), &p, 10);
-
    return *p == 0;
 }
 
@@ -21,6 +21,10 @@ TokenType getSymbol(char c) {
             return TokenType::LEFT_CURLY_BRACKET;
         case '}':
             return TokenType::RIGHT_CURLY_BRACKET;
+        case '+':
+            return TokenType::PLUS;
+        case '-':
+            return TokenType::MINUS;
             
         default:
             return TokenType::NONE;
@@ -109,4 +113,64 @@ std::vector<Token> tokenize(std::filebuf* file_buffer) {
     if(!curr_token.empty())
         tokens.push_back(endToken());
     return tokens;
+}
+
+void printToken(std::string prefix, std::string content) {
+    std::cout << prefix;
+    for(int i = (int)prefix.size(); i < TOKEN_PRINT_SPACING; i++)
+        std::cout << " ";
+    std::cout << content << std::endl;
+}
+
+void printToken(const Token& token) {
+    switch(token.type) {
+        case TokenType::INDENT:
+            printToken("INDENT", token.text);
+            break;
+        case TokenType::STRING:
+            printToken("STRING", std::string("\"") + token.text + "\"");
+            break;
+        case TokenType::CONSTANT_INTEGER:
+            printToken("CONST_INT", std::to_string(token.const_int));
+            break;
+            
+        case TokenType::NONE:
+            break;
+            
+            // symbols
+        case TokenType::ASSIGNMENT:
+            printToken("ASSIGNMENT", "=");
+            break;
+        case TokenType::LEFT_BRACKET:
+            printToken("LEFT_BRACKET", "(");
+            break;
+        case TokenType::RIGHT_BRACKET:
+            printToken("RIGHT_BRACKET", ")");
+            break;
+        case TokenType::LEFT_CURLY_BRACKET:
+            printToken("LEFT_CURLY_BRACKET", "{");
+            break;
+        case TokenType::RIGHT_CURLY_BRACKET:
+            printToken("RIGHT_CURLY_BRACKET", "}");
+            break;
+            
+            // operators
+        case TokenType::EQUALS:
+            printToken("EQUALS", "==");
+            break;
+        case TokenType::PLUS:
+            printToken("PLUS", "+");
+            break;
+        case TokenType::MINUS:
+            printToken("MINUS", "-");
+            break;
+
+            // keywords
+        case TokenType::IF:
+            printToken("IF", "if");
+            break;
+        case TokenType::WHILE:
+            printToken("WHILE", "while");
+            break;
+    }
 }
