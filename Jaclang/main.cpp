@@ -5,6 +5,7 @@
 #include "error.hpp"
 #include "expression.hpp"
 #include "constantValues.hpp"
+#include "variables.hpp"
 
 int main(int argc, const char * argv[]) {
     if(argc == 1) {
@@ -26,6 +27,7 @@ int main(int argc, const char * argv[]) {
             printToken(token);
         
         Parser parser;
+        parser.registerAProgramLineType(&ProgramLineTypes::variable_declaration);
         parser.registerAProgramLineType(&ProgramLineTypes::expression);
         ProgramLineTypes::expression.registerAValueType(&ValueTypes::constant_integer);
         
