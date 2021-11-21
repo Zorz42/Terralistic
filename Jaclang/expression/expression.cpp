@@ -11,9 +11,7 @@ void ExpressionType::print(ProgramLine* line, int depth) {
     depth++;
     
     while(true) {
-        for(int i = 0; i < depth; i++)
-            std::cout << '\t';
-        std::cout << expression->value << std::endl;
+        getValueTypeByID(expression->value->type_id)->print(expression->value, depth);
         
         if(expression->operator_type == OperatorType::NONE)
             break;
@@ -36,17 +34,20 @@ void ExpressionType::print(ProgramLine* line, int depth) {
 }
 
 ProgramLine* ExpressionType::parse(const Token*& curr_token) {
-    if(curr_token->type != TokenType::CONSTANT_INTEGER)
-        return nullptr;
-    
     Expression *expression = new Expression, *curr_expression = expression;
     
     while(true) {
-        if(curr_token->type != TokenType::CONSTANT_INTEGER)
-            throw Error("Expected value after operator.");
+        Value* value = nullptr;
+        for(ValueType* value_type : value_types) {
+            value = value_type->parse(curr_token);
+            if(value)
+                break;
+        }
         
-        curr_expression->value = curr_token->const_int;
-        curr_token++;
+        if(!value)
+            throw Error("Expected value after operator.") ;
+        
+        curr_expression->value = value;
         
         switch(curr_token->type) {
             case TokenType::PLUS:
@@ -72,4 +73,13 @@ ProgramLine* ExpressionType::parse(const Token*& curr_token) {
     }
     
     return expression;
+}
+
+void ExpressionType::registerAValueType(ValueType* value_type) {
+    value_type->id = (int)value_types.size();
+    value_types.push_back(value_type);
+}
+
+ValueType* ExpressionType::getValueTypeByID(int id) {
+    return value_types[id];
 }

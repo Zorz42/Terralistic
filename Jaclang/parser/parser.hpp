@@ -3,7 +3,8 @@
 
 class ProgramLine {
 public:
-    int type_id;
+    ProgramLine(int type_id) : type_id(type_id) {}
+    const int type_id;
     virtual ~ProgramLine() {}
 };
 

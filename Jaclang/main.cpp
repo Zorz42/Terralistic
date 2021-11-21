@@ -4,6 +4,7 @@
 #include "parser.hpp"
 #include "error.hpp"
 #include "expression.hpp"
+#include "constantValues.hpp"
 
 int main(int argc, const char * argv[]) {
     if(argc == 1) {
@@ -26,6 +27,8 @@ int main(int argc, const char * argv[]) {
         
         Parser parser;
         parser.registerAProgramLineType(&ProgramLineTypes::expression);
+        ProgramLineTypes::expression.registerAValueType(&ValueTypes::constant_integer);
+        
         parser.parseTokens(tokens);
         
         for(ProgramLine* line : parser.getProgramLines())
