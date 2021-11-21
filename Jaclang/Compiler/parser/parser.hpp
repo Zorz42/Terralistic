@@ -10,7 +10,7 @@ public:
 class ProgramLineType {
 public:
     int id;
-    virtual void print(ProgramLine* line) = 0;
+    virtual void print(ProgramLine* line, int depth) = 0;
     virtual ProgramLine* parse(const Token*& curr_token) = 0;
 };
 

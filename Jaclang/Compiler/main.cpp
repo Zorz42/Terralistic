@@ -29,7 +29,7 @@ int main(int argc, const char * argv[]) {
         parser.parseTokens(tokens);
         
         for(ProgramLine* line : parser.getProgramLines())
-            parser.getProgramLineTypeByID(line->type_id)->print(line);
+            parser.getProgramLineTypeByID(line->type_id)->print(line, 0);
     } catch(Error error) {
         printError(error);
     }

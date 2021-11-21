@@ -1,9 +1,38 @@
+#include <iostream>
 #include "expression.hpp"
 #include "error.hpp"
 
-void ExpressionType::print(ProgramLine* line) {
+void ExpressionType::print(ProgramLine* line, int depth) {
     Expression* expression = (Expression*)line;
     
+    for(int i = 0; i < depth; i++)
+        std::cout << '\t';
+    std::cout << "expression:" << std::endl;
+    depth++;
+    
+    while(true) {
+        for(int i = 0; i < depth; i++)
+            std::cout << '\t';
+        std::cout << expression->value << std::endl;
+        
+        if(expression->operator_type == OperatorType::NONE)
+            break;
+
+        for(int i = 0; i < depth; i++)
+            std::cout << '\t';
+        switch(expression->operator_type) {
+            case OperatorType::PLUS:
+                std::cout << "+";
+                break;
+            case OperatorType::MINUS:
+                std::cout << "-";
+                break;
+            default:;
+        }
+        std::cout << std::endl;
+        
+        expression = expression->next;
+    }
 }
 
 ProgramLine* ExpressionType::parse(const Token*& curr_token) {

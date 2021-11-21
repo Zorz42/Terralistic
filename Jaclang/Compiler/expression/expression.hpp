@@ -12,7 +12,7 @@ public:
 
 class ExpressionType : public ProgramLineType {
 public:
-    void print(ProgramLine* line) override;
+    void print(ProgramLine* line, int depth) override;
     ProgramLine* parse(const Token*& curr_token) override;
 };
 
