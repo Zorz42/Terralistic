@@ -28,6 +28,7 @@ int main(int argc, const char * argv[]) {
         
         Parser parser;
         parser.registerAProgramLineType(&ProgramLineTypes::variable_declaration);
+        parser.registerAProgramLineType(&ProgramLineTypes::variable_setting);
         parser.registerAProgramLineType(&ProgramLineTypes::expression);
         ProgramLineTypes::expression.registerAValueType(&ValueTypes::constant_integer);
         
