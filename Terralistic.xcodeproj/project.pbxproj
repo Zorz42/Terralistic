@@ -170,6 +170,8 @@
 		3666D90D2748FEC500C23231 /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D90A2748FEC500C23231 /* lexer.cpp */; };
 		3666D90E2748FEC500C23231 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D90C2748FEC500C23231 /* main.cpp */; };
 		3666D9132749247A00C23231 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D9112749247A00C23231 /* parser.cpp */; };
+		3666D917274A303C00C23231 /* error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D915274A303C00C23231 /* error.cpp */; };
+		3666D91B274A30EA00C23231 /* expression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D919274A30EA00C23231 /* expression.cpp */; };
 		3672919B26FE225900786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672919C26FE226400786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3692C14F26E509F100F9DD71 /* entities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entities.cpp */; };
@@ -409,6 +411,10 @@
 		3666D90C2748FEC500C23231 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3666D9112749247A00C23231 /* parser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
 		3666D9122749247A00C23231 /* parser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
+		3666D915274A303C00C23231 /* error.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = error.cpp; sourceTree = "<group>"; };
+		3666D916274A303C00C23231 /* error.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = error.hpp; sourceTree = "<group>"; };
+		3666D919274A30EA00C23231 /* expression.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = expression.cpp; sourceTree = "<group>"; };
+		3666D91A274A30EA00C23231 /* expression.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = expression.hpp; sourceTree = "<group>"; };
 		3677B5A827283E20000F4D77 /* perlinNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
 		3692C14D26E509F100F9DD71 /* entities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = entities.cpp; sourceTree = "<group>"; };
 		3692C14E26E509F100F9DD71 /* entities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entities.hpp; sourceTree = "<group>"; };
@@ -1184,8 +1190,10 @@
 		3666D9082748FEC500C23231 /* Compiler */ = {
 			isa = PBXGroup;
 			children = (
+				3666D914274A303000C23231 /* error */,
 				3666D9092748FEC500C23231 /* lexer */,
 				3666D9102749245E00C23231 /* parser */,
+				3666D918274A30D500C23231 /* expression */,
 				3666D90C2748FEC500C23231 /* main.cpp */,
 			);
 			path = Compiler;
@@ -1207,6 +1215,24 @@
 				3666D9112749247A00C23231 /* parser.cpp */,
 			);
 			path = parser;
+			sourceTree = "<group>";
+		};
+		3666D914274A303000C23231 /* error */ = {
+			isa = PBXGroup;
+			children = (
+				3666D916274A303C00C23231 /* error.hpp */,
+				3666D915274A303C00C23231 /* error.cpp */,
+			);
+			path = error;
+			sourceTree = "<group>";
+		};
+		3666D918274A30D500C23231 /* expression */ = {
+			isa = PBXGroup;
+			children = (
+				3666D91A274A30EA00C23231 /* expression.hpp */,
+				3666D919274A30EA00C23231 /* expression.cpp */,
+			);
+			path = expression;
 			sourceTree = "<group>";
 		};
 		3692C14C26E506A100F9DD71 /* entities */ = {
@@ -1529,8 +1555,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3666D917274A303C00C23231 /* error.cpp in Sources */,
 				3666D90E2748FEC500C23231 /* main.cpp in Sources */,
 				3666D90D2748FEC500C23231 /* lexer.cpp in Sources */,
+				3666D91B274A30EA00C23231 /* expression.cpp in Sources */,
 				3666D9132749247A00C23231 /* parser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

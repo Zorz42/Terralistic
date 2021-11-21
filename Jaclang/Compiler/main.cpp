@@ -2,6 +2,8 @@
 #include <fstream>
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "error.hpp"
+#include "expression.hpp"
 
 int main(int argc, const char * argv[]) {
     if(argc == 1) {
@@ -16,16 +18,21 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
     
-    std::vector<Token> tokens = tokenize(file.rdbuf());
-    
-    for(Token& token : tokens)
-        printToken(token);
-    
-    Parser parser;
-    parser.parseTokens(tokens);
-    
-    for(ProgramLine* line : parser.getProgramLines())
-        parser.getProgramLineTypeByID(line->type_id)->print(line);
+    try {
+        std::vector<Token> tokens = tokenize(file.rdbuf());
+        
+        for(Token& token : tokens)
+            printToken(token);
+        
+        Parser parser;
+        parser.registerAProgramLineType(&ProgramLineTypes::expression);
+        parser.parseTokens(tokens);
+        
+        for(ProgramLine* line : parser.getProgramLines())
+            parser.getProgramLineTypeByID(line->type_id)->print(line);
+    } catch(Error error) {
+        printError(error);
+    }
     
     return 0;
 }
