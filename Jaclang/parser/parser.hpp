@@ -1,18 +1,20 @@
 #pragma once
 #include "lexer.hpp"
 
-class ProgramLine {
-public:
-    ProgramLine(int type_id) : type_id(type_id) {}
-    const int type_id;
-    virtual ~ProgramLine() {}
-};
+class ProgramLine;
 
 class ProgramLineType {
 public:
     int id;
     virtual void print(ProgramLine* line, int depth) = 0;
     virtual ProgramLine* parse(const Token*& curr_token) = 0;
+};
+
+class ProgramLine {
+public:
+    ProgramLine(ProgramLineType* type) : type(type) {}
+    ProgramLineType* const type;
+    virtual ~ProgramLine() {}
 };
 
 class Parser {

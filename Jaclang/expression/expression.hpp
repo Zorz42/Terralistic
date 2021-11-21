@@ -3,18 +3,20 @@
 
 enum class OperatorType { NONE, EQUALS, PLUS, MINUS, };
 
-class Value {
-public:
-    Value(int type_id) : type_id(type_id) {}
-    int type_id;
-    virtual ~Value() {}
-};
+class Value;
 
 class ValueType {
 public:
     int id;
     virtual void print(Value* value, int depth) = 0;
     virtual Value* parse(const Token*& curr_token) = 0;
+};
+
+class Value {
+public:
+    Value(ValueType* type) : type(type) {}
+    ValueType* const type;
+    virtual ~Value() {}
 };
 
 class ExpressionType : public ProgramLineType {
@@ -26,13 +28,9 @@ public:
     ValueType* getValueTypeByID(int id);
 };
 
-namespace ProgramLineTypes {
-    inline ExpressionType expression;
-};
-
 class Expression : public ProgramLine {
 public:
-    Expression() : ProgramLine(ProgramLineTypes::expression.id) {}
+    Expression(ProgramLineType* type) : ProgramLine(type) {}
     Value* value;
     OperatorType operator_type;
     Expression* next;

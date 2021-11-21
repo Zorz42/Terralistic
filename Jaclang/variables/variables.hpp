@@ -3,39 +3,47 @@
 
 class Variable {
 public:
-    std::string name;
+    Variable(const std::string& name, int id) : name(name), id(id) {}
+    const std::string name;
+    const int id;
 };
 
-class VariableDeclarationType : public ProgramLineType {
+class VariableManager {
     std::vector<Variable> variables;
 public:
-    void print(ProgramLine* line, int depth) override;
-    ProgramLine* parse(const Token*& curr_token) override;
     Variable& getVariableByID(int id);
     Variable& getVariableByName(const std::string& name);
     int getVariableIdByName(const std::string& name);
+    bool variableExists(const std::string& name);
+    Variable& addVariable(const std::string& name);
 };
 
-class VariableSettingType : public ProgramLineType {
+class VariableDeclarationType : public ProgramLineType {
+    VariableManager* variable_manager;
 public:
+    VariableDeclarationType(VariableManager* variable_manager) : variable_manager(variable_manager) {}
     void print(ProgramLine* line, int depth) override;
     ProgramLine* parse(const Token*& curr_token) override;
 };
 
-namespace ProgramLineTypes {
-    inline VariableDeclarationType variable_declaration;
-    inline VariableSettingType variable_setting;
+class VariableSettingType : public ProgramLineType {
+    VariableManager* variable_manager;
+    ExpressionType* expression_type;
+public:
+    VariableSettingType(VariableManager* variable_manager, ExpressionType* expression_type) : variable_manager(variable_manager), expression_type(expression_type) {}
+    void print(ProgramLine* line, int depth) override;
+    ProgramLine* parse(const Token*& curr_token) override;
 };
 
 class VariableDeclaration : public ProgramLine {
 public:
-    VariableDeclaration() : ProgramLine(ProgramLineTypes::variable_declaration.id) {}
+    VariableDeclaration(ProgramLineType* type) : ProgramLine(type) {}
     int variable_id;
 };
 
 class VariableSetting : public ProgramLine {
 public:
-    VariableSetting() : ProgramLine(ProgramLineTypes::variable_setting.id) {}
+    VariableSetting(ProgramLineType* type) : ProgramLine(type) {}
     int variable_id;
     Expression* value;
 };

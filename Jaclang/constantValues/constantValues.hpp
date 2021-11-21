@@ -7,12 +7,8 @@ public:
     Value* parse(const Token*& curr_token) override;
 };
 
-namespace ValueTypes {
-    inline ConstantIntegerType constant_integer;
-};
-
 class ConstantInteger : public Value {
 public:
-    ConstantInteger() : Value(ValueTypes::constant_integer.id) {}
+    ConstantInteger(ValueType* type) : Value(type) {}
     int value;
 };

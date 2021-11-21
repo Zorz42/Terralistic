@@ -11,7 +11,7 @@ void ExpressionType::print(ProgramLine* line, int depth) {
     depth++;
     
     while(true) {
-        getValueTypeByID(expression->value->type_id)->print(expression->value, depth);
+        expression->value->type->print(expression->value, depth);
         
         if(expression->operator_type == OperatorType::NONE)
             break;
@@ -34,7 +34,7 @@ void ExpressionType::print(ProgramLine* line, int depth) {
 }
 
 ProgramLine* ExpressionType::parse(const Token*& curr_token) {
-    Expression *expression = new Expression, *curr_expression = expression;
+    Expression *expression = new Expression(this), *curr_expression = expression;
     
     while(true) {
         Value* value = nullptr;
@@ -66,7 +66,7 @@ ProgramLine* ExpressionType::parse(const Token*& curr_token) {
             return expression;
         }
         
-        curr_expression->next = new Expression;
+        curr_expression->next = new Expression(this);
         curr_expression = curr_expression->next;
         
         curr_token++;

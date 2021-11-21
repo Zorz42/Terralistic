@@ -26,16 +26,22 @@ int main(int argc, const char * argv[]) {
         for(Token& token : tokens)
             printToken(token);
         
+        ExpressionType expression_type;
+        ConstantIntegerType constant_integer_type;
+        VariableManager variable_manager;
+        VariableSettingType variable_setting_type(&variable_manager, &expression_type);
+        VariableDeclarationType variable_declaration_type(&variable_manager);
+        
         Parser parser;
-        parser.registerAProgramLineType(&ProgramLineTypes::variable_declaration);
-        parser.registerAProgramLineType(&ProgramLineTypes::variable_setting);
-        parser.registerAProgramLineType(&ProgramLineTypes::expression);
-        ProgramLineTypes::expression.registerAValueType(&ValueTypes::constant_integer);
+        parser.registerAProgramLineType(&variable_declaration_type);
+        parser.registerAProgramLineType(&variable_setting_type);
+        parser.registerAProgramLineType(&expression_type);
+        expression_type.registerAValueType(&constant_integer_type);
         
         parser.parseTokens(tokens);
         
         for(ProgramLine* line : parser.getProgramLines())
-            parser.getProgramLineTypeByID(line->type_id)->print(line, 0);
+            line->type->print(line, 0);
     } catch(Error error) {
         printError(error);
     }
