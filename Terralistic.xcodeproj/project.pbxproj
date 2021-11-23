@@ -177,7 +177,7 @@
 		3672919C26FE226400786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3692C14F26E509F100F9DD71 /* entities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entities.cpp */; };
 		3693E4FE274A95B900939213 /* variables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E4FC274A95B900939213 /* variables.cpp */; };
-		3693E502274AC5F900939213 /* runner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E500274AC5F900939213 /* runner.cpp */; };
+		3693E502274AC5F900939213 /* virtualMachine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E500274AC5F900939213 /* virtualMachine.cpp */; };
 		36B0452627247AD600A64113 /* world_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B0452427247AD600A64113 /* world_icon.png */; };
 		36B0452727247AD600A64113 /* world_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B0452427247AD600A64113 /* world_icon.png */; };
 		36B04546272498F300A64113 /* play_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B04545272498F300A64113 /* play_button.png */; };
@@ -425,8 +425,8 @@
 		3692C14E26E509F100F9DD71 /* entities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entities.hpp; sourceTree = "<group>"; };
 		3693E4FC274A95B900939213 /* variables.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = variables.cpp; sourceTree = "<group>"; };
 		3693E4FD274A95B900939213 /* variables.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = variables.hpp; sourceTree = "<group>"; };
-		3693E500274AC5F900939213 /* runner.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = runner.cpp; sourceTree = "<group>"; };
-		3693E501274AC5F900939213 /* runner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = runner.hpp; sourceTree = "<group>"; };
+		3693E500274AC5F900939213 /* virtualMachine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = virtualMachine.cpp; sourceTree = "<group>"; };
+		3693E501274AC5F900939213 /* virtualMachine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = virtualMachine.hpp; sourceTree = "<group>"; };
 		36B0452427247AD600A64113 /* world_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = world_icon.png; sourceTree = "<group>"; };
 		36B04545272498F300A64113 /* play_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play_button.png; sourceTree = "<group>"; };
 		36B045482724991F00A64113 /* x_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = x_button.png; sourceTree = "<group>"; };
@@ -1178,7 +1178,7 @@
 				3666D914274A303000C23231 /* error */,
 				3666D9092748FEC500C23231 /* lexer */,
 				3666D9102749245E00C23231 /* parser */,
-				3693E4FF274AC5BA00939213 /* runner */,
+				3693E4FF274AC5BA00939213 /* virtualMachine */,
 				3666D918274A30D500C23231 /* expression */,
 				3666D91C274A5A8D00C23231 /* constantValues */,
 				3693E4FB274A958400939213 /* variables */,
@@ -1250,13 +1250,13 @@
 			path = variables;
 			sourceTree = "<group>";
 		};
-		3693E4FF274AC5BA00939213 /* runner */ = {
+		3693E4FF274AC5BA00939213 /* virtualMachine */ = {
 			isa = PBXGroup;
 			children = (
-				3693E501274AC5F900939213 /* runner.hpp */,
-				3693E500274AC5F900939213 /* runner.cpp */,
+				3693E501274AC5F900939213 /* virtualMachine.hpp */,
+				3693E500274AC5F900939213 /* virtualMachine.cpp */,
 			);
-			path = runner;
+			path = virtualMachine;
 			sourceTree = "<group>";
 		};
 		36D26F282734635E00F1F476 /* clientModule */ = {
@@ -1575,7 +1575,7 @@
 				3666D90D2748FEC500C23231 /* lexer.cpp in Sources */,
 				3693E4FE274A95B900939213 /* variables.cpp in Sources */,
 				3666D91B274A30EA00C23231 /* expression.cpp in Sources */,
-				3693E502274AC5F900939213 /* runner.cpp in Sources */,
+				3693E502274AC5F900939213 /* virtualMachine.cpp in Sources */,
 				3666D9132749247A00C23231 /* parser.cpp in Sources */,
 				3666D91F274A5AA500C23231 /* constantValues.cpp in Sources */,
 			);
