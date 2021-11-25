@@ -26,7 +26,9 @@ int main(int argc, const char * argv[]) {
         for(Token& token : tokens)
             printToken(token);
         
-        ExpressionType expression_type;
+        VirtualMachine virtual_machine;
+        
+        ExpressionType expression_type(&virtual_machine);
         ConstantIntegerType constant_integer_type;
         VariableManager variable_manager;
         VariableSettingType variable_setting_type(&variable_manager, &expression_type);
@@ -42,6 +44,13 @@ int main(int argc, const char * argv[]) {
         
         for(ProgramLine* line : parser.getProgramLines())
             line->type->print(line, 0);
+        
+        for(ProgramLine* line : parser.getProgramLines())
+            virtual_machine.addInstructions(line->type->toInstructions(line));
+        
+        for(Instruction* instruction : virtual_machine.getInstructions())
+            instruction->type->print(instruction);
+        
     } catch(Error error) {
         printError(error);
     }

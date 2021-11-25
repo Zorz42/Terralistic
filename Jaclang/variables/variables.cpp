@@ -94,3 +94,11 @@ ProgramLine* VariableSettingType::parse(const Token*& curr_token) {
     
     return variable_setting;
 }
+
+std::vector<Instruction*> VariableDeclarationType::toInstructions(ProgramLine* line) {
+    return {};
+}
+
+std::vector<Instruction*> VariableSettingType::toInstructions(ProgramLine* line) {
+    return {};
+}

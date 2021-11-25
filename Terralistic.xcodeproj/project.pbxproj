@@ -1176,9 +1176,9 @@
 			isa = PBXGroup;
 			children = (
 				3666D914274A303000C23231 /* error */,
+				3693E4FF274AC5BA00939213 /* virtualMachine */,
 				3666D9092748FEC500C23231 /* lexer */,
 				3666D9102749245E00C23231 /* parser */,
-				3693E4FF274AC5BA00939213 /* virtualMachine */,
 				3666D918274A30D500C23231 /* expression */,
 				3666D91C274A5A8D00C23231 /* constantValues */,
 				3693E4FB274A958400939213 /* variables */,

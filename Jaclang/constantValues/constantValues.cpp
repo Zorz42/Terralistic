@@ -18,3 +18,7 @@ Value* ConstantIntegerType::parse(const Token*& curr_token) {
     
     return const_int;
 }
+
+std::vector<Instruction*> ConstantIntegerType::toInstructions(Value* value) {
+    return {};
+}

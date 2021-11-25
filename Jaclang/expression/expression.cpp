@@ -2,6 +2,11 @@
 #include "expression.hpp"
 #include "error.hpp"
 
+ExpressionType::ExpressionType(VirtualMachine* virtual_machine) : virtual_machine(virtual_machine) {
+    virtual_machine->registerAnInstructionType(&add_instruction);
+    virtual_machine->registerAnInstructionType(&sub_instruction);
+}
+
 void ExpressionType::print(ProgramLine* line, int depth) {
     Expression* expression = (Expression*)line;
     
@@ -82,4 +87,16 @@ void ExpressionType::registerAValueType(ValueType* value_type) {
 
 ValueType* ExpressionType::getValueTypeByID(int id) {
     return value_types[id];
+}
+
+std::vector<Instruction*> ExpressionType::toInstructions(ProgramLine* line) {
+    return {};
+}
+
+void AdditionInstructionType::print(Instruction* instruction) {
+    std::cout << "ADD" << std::endl;
+}
+
+void SubtractionInstructionType::print(Instruction* instruction) {
+    std::cout << "SUB" << std::endl;
 }

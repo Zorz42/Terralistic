@@ -1,13 +1,14 @@
 #pragma once
 #include "lexer.hpp"
+#include "virtualMachine.hpp"
 
 class ProgramLine;
 
 class ProgramLineType {
 public:
-    int id;
     virtual void print(ProgramLine* line, int depth) = 0;
     virtual ProgramLine* parse(const Token*& curr_token) = 0;
+    virtual std::vector<Instruction*> toInstructions(ProgramLine* line) = 0;
 };
 
 class ProgramLine {
@@ -23,6 +24,5 @@ class Parser {
 public:
     void parseTokens(const std::vector<Token>& tokens);
     const std::vector<ProgramLine*> getProgramLines();
-    ProgramLineType* getProgramLineTypeByID(int id);
     void registerAProgramLineType(ProgramLineType* program_line_type);
 };

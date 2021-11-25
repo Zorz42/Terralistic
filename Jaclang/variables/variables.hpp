@@ -24,6 +24,7 @@ public:
     VariableDeclarationType(VariableManager* variable_manager) : variable_manager(variable_manager) {}
     void print(ProgramLine* line, int depth) override;
     ProgramLine* parse(const Token*& curr_token) override;
+    std::vector<Instruction*> toInstructions(ProgramLine* line) override;
 };
 
 class VariableSettingType : public ProgramLineType {
@@ -33,6 +34,7 @@ public:
     VariableSettingType(VariableManager* variable_manager, ExpressionType* expression_type) : variable_manager(variable_manager), expression_type(expression_type) {}
     void print(ProgramLine* line, int depth) override;
     ProgramLine* parse(const Token*& curr_token) override;
+    std::vector<Instruction*> toInstructions(ProgramLine* line) override;
 };
 
 class VariableDeclaration : public ProgramLine {

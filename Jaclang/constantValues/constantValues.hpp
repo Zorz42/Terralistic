@@ -5,6 +5,7 @@ class ConstantIntegerType : public ValueType {
 public:
     void print(Value* value, int depth) override;
     Value* parse(const Token*& curr_token) override;
+    std::vector<Instruction*> toInstructions(Value* value) override;
 };
 
 class ConstantInteger : public Value {

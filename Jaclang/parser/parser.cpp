@@ -22,11 +22,6 @@ const std::vector<ProgramLine*> Parser::getProgramLines() {
     return program_lines;
 }
 
-ProgramLineType* Parser::getProgramLineTypeByID(int id) {
-    return program_line_types[id];
-}
-
 void Parser::registerAProgramLineType(ProgramLineType* program_line_type) {
-    program_line_type->id = (int)program_line_types.size();
     program_line_types.push_back(program_line_type);
 }
