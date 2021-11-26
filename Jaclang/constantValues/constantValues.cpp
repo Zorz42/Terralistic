@@ -20,5 +20,15 @@ Value* ConstantIntegerType::parse(const Token*& curr_token) {
 }
 
 std::vector<Instruction*> ConstantIntegerType::toInstructions(Value* value) {
-    return {};
+    ConstantInteger* const_int = (ConstantInteger*)value;
+    std::vector<Instruction*> instructions;
+    IntegerLoadInstruction* instruction = new IntegerLoadInstruction(&int_load_instruction);
+    instruction->value = const_int->value;
+    instructions.push_back(instruction);
+    return instructions;
+}
+
+void IntegerLoadInstructionType::print(Instruction* instruction) {
+    IntegerLoadInstruction* load_instruction = (IntegerLoadInstruction*)instruction;
+    std::cout << "LOAD_INT " << load_instruction->value << std::endl;
 }

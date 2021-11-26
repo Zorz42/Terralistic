@@ -107,6 +107,10 @@ std::vector<Instruction*> ExpressionType::toInstructions(ProgramLine* line) {
             
         default:;
     }
+    
+    std::vector<Instruction*> value_instructions = expression->value->type->toInstructions(expression->value);
+    instructions.insert(instructions.end(), value_instructions.begin(), value_instructions.end());
+    
     if(new_instruction)
         instructions.push_back(new_instruction);
     
