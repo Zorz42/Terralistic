@@ -27,9 +27,21 @@ public:
     std::vector<Instruction*> toInstructions(ProgramLine* line) override;
 };
 
+class VariableSettingInstructionType : public InstructionType {
+public:
+    void print(Instruction* instruction) override;
+};
+
+class VariableSettingInstruction : public Instruction {
+public:
+    VariableSettingInstruction(VariableSettingInstructionType* type) : Instruction(type) {}
+    int variable_id;
+};
+
 class VariableSettingType : public ProgramLineType {
     VariableManager* variable_manager;
     ExpressionType* expression_type;
+    VariableSettingInstructionType variable_setting_instruction;
 public:
     VariableSettingType(VariableManager* variable_manager, ExpressionType* expression_type) : variable_manager(variable_manager), expression_type(expression_type) {}
     void print(ProgramLine* line, int depth) override;

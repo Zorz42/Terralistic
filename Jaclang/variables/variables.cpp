@@ -100,5 +100,15 @@ std::vector<Instruction*> VariableDeclarationType::toInstructions(ProgramLine* l
 }
 
 std::vector<Instruction*> VariableSettingType::toInstructions(ProgramLine* line) {
-    return {};
+    VariableSetting* variable_setting = (VariableSetting*)line;
+    std::vector<Instruction*> instructions = variable_setting->value->type->toInstructions(variable_setting->value);
+    VariableSettingInstruction* instruction = new VariableSettingInstruction(&variable_setting_instruction);
+    instruction->variable_id = variable_setting->variable_id;
+    instructions.push_back(instruction);
+    return instructions;
+}
+
+void VariableSettingInstructionType::print(Instruction *instruction) {
+    VariableSettingInstruction* variable_setting = (VariableSettingInstruction*)instruction;
+    std::cout << "SET_VAR " << variable_setting->variable_id << std::endl;
 }
