@@ -16,13 +16,9 @@ void ExpressionType::print(ProgramLine* line, int depth) {
     depth++;
     
     while(true) {
-        expression->value->type->print(expression->value, depth);
-        
-        if(expression->operator_type == OperatorType::NONE)
-            break;
-
-        for(int i = 0; i < depth; i++)
-            std::cout << '\t';
+        if(expression->operator_type != OperatorType::NONE)
+            for(int i = 0; i < depth; i++)
+                std::cout << '\t';
         switch(expression->operator_type) {
             case OperatorType::PLUS:
                 std::cout << "+";
@@ -32,7 +28,14 @@ void ExpressionType::print(ProgramLine* line, int depth) {
                 break;
             default:;
         }
-        std::cout << std::endl;
+        
+        if(expression->operator_type != OperatorType::NONE)
+            std::cout << std::endl;
+        
+        expression->value->type->print(expression->value, depth);
+        
+        if(!expression->next)
+            break;
         
         expression = expression->next;
     }
@@ -54,25 +57,24 @@ ProgramLine* ExpressionType::parse(const Token*& curr_token) {
         
         curr_expression->value = value;
         
+        OperatorType operator_type = OperatorType::NONE;
+        
         switch(curr_token->type) {
             case TokenType::PLUS:
-                curr_expression->operator_type = OperatorType::PLUS;
+                operator_type = OperatorType::PLUS;
                 break;
             case TokenType::MINUS:
-                curr_expression->operator_type = OperatorType::MINUS;
+                operator_type = OperatorType::MINUS;
                 break;
-            default:
-                curr_expression->operator_type = OperatorType::NONE;
-                break;
+            default:;
         }
         
-        if(curr_expression->operator_type == OperatorType::NONE) {
-            curr_expression->next = nullptr;
+        if(operator_type == OperatorType::NONE)
             return expression;
-        }
         
         curr_expression->next = new Expression(this);
         curr_expression = curr_expression->next;
+        curr_expression->operator_type = operator_type;
         
         curr_token++;
     }
@@ -90,7 +92,30 @@ ValueType* ExpressionType::getValueTypeByID(int id) {
 }
 
 std::vector<Instruction*> ExpressionType::toInstructions(ProgramLine* line) {
-    return {};
+    Expression* expression = (Expression*)line;
+    std::vector<Instruction*> instructions;
+
+    Instruction* new_instruction = nullptr;
+    switch(expression->operator_type) {
+        case OperatorType::PLUS:
+            new_instruction = new AdditionInstruction(&add_instruction);
+            break;
+            
+        case OperatorType::MINUS:
+            new_instruction = new SubtractionInstruction(&sub_instruction);
+            break;
+            
+        default:;
+    }
+    if(new_instruction)
+        instructions.push_back(new_instruction);
+    
+    if(expression->next) {
+        std::vector<Instruction*> next_instructions = expression->type->toInstructions(expression->next);
+        instructions.insert(instructions.end(), next_instructions.begin(), next_instructions.end());
+    }
+    
+    return instructions;
 }
 
 void AdditionInstructionType::print(Instruction* instruction) {

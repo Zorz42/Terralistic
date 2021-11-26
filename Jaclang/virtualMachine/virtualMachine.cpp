@@ -10,6 +10,5 @@ const std::vector<Instruction*>& VirtualMachine::getInstructions() {
 }
 
 void VirtualMachine::addInstructions(const std::vector<Instruction*>& instructions_to_add) {
-    for(Instruction* instruction : instructions_to_add)
-        instructions.push_back(instruction);
+    instructions.insert(instructions.end(), instructions_to_add.begin(), instructions_to_add.end());
 }

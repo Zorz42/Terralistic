@@ -28,7 +28,7 @@ public:
 
 class AdditionInstruction : public Instruction {
 public:
-    
+    AdditionInstruction(AdditionInstructionType* type) : Instruction(type) {}
 };
 
 class SubtractionInstructionType : public InstructionType {
@@ -38,7 +38,7 @@ public:
 
 class SubtractionInstruction : public Instruction {
 public:
-
+    SubtractionInstruction(SubtractionInstructionType* type) : Instruction(type) {}
 };
 
 
@@ -60,7 +60,7 @@ public:
 class Expression : public ProgramLine {
 public:
     Expression(ProgramLineType* type) : ProgramLine(type) {}
+    OperatorType operator_type = OperatorType::NONE;
     Value* value;
-    OperatorType operator_type;
-    Expression* next;
+    Expression* next = nullptr;
 };
