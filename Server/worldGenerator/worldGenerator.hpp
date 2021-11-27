@@ -35,7 +35,7 @@ class WorldGenerator {
     void generateLakeRecursively(int x, int y);
     void generateOres(siv::PerlinNoise& noise, std::mt19937& seeded_random);
     void generateOre(BlockType* type, float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random);
-    void generateStones(std::mt19937& seeded_random);
+    void generateFoliage(std::mt19937& seeded_random);
     void placeStructures(siv::PerlinNoise& noise);
     void generateStructureWorld();
     void generateFlatTerrain();

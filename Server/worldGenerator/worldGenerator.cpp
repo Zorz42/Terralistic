@@ -354,12 +354,13 @@ void WorldGenerator::generateOre(BlockType* type, float chance, int blob_distanc
     }
 }
 
-void WorldGenerator::generateStones(std::mt19937& seeded_random) {
-    int x;
-    for(int i = 0; i < 100; i++){
-        x = seeded_random() % blocks->getWidth();
-        if(liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &LiquidTypes::empty)
+void WorldGenerator::generateFoliage(std::mt19937& seeded_random) {
+    for(int x = 0; x < blocks->getWidth(); x++) {
+        if(seeded_random() % 6 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &LiquidTypes::empty)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, &BlockTypes::stone);
+        
+        else if(seeded_random() % 3 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &LiquidTypes::empty)
+            blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, &BlockTypes::grass);
     }
 }
 
@@ -462,7 +463,7 @@ void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937&
     generateCaves(noise);
     generateCaveLakes(seeded_random);
     generateOres(noise, seeded_random);
-    generateStones(seeded_random);
+    generateFoliage(seeded_random);
     placeStructures(noise);
     for (const StructurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);

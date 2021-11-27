@@ -15,6 +15,7 @@ namespace BlockTypes {
     extern BlockType ice_block;
     extern BlockType iron_ore;
     extern BlockType copper_ore;
+    extern BlockType grass;
 }
 
 namespace LiquidTypes {

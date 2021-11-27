@@ -25,6 +25,7 @@ namespace BlockTypes {
     BlockType ice_block        ("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&BlockTypes::snow_block                                              }, /*color*/{179, 217, 255});
     BlockType iron_ore         ("iron_ore",          /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                                                     }, /*color*/{160, 160, 160});
     BlockType copper_ore       ("copper_ore",        /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                                                     }, /*color*/{200, 109, 61} );
+    BlockType grass            ("grass",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1,           /*connects_to*/{                                                                     }, /*color*/{50,   203, 50});
 }
 
 void addBlocks(Blocks* blocks, Items* items) {
@@ -46,6 +47,7 @@ void addBlocks(Blocks* blocks, Items* items) {
     items->setBlockDrop(&BlockTypes::iron_ore, &ItemTypes::iron_ore);
     blocks->registerNewBlockType(&BlockTypes::copper_ore);
     items->setBlockDrop(&BlockTypes::copper_ore, &ItemTypes::copper_ore);
+    blocks->registerNewBlockType(&BlockTypes::grass);
 }
 
 void addLiquids(Liquids* liquids) {

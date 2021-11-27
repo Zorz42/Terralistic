@@ -85,10 +85,12 @@ ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
 
 void ClientBlocks::updateState(int x, int y) {
     getRenderBlock(x, y)->state = 0;
-    updateOrientationLeft(this, x, y);
-    updateOrientationDown(this, x, y);
-    updateOrientationRight(this, x, y);
-    updateOrientationUp(this, x, y);
+    if(resource_pack->getTextureRectangle(getBlockType(x, y)).h != 8) {
+        updateOrientationLeft(this, x, y);
+        updateOrientationDown(this, x, y);
+        updateOrientationRight(this, x, y);
+        updateOrientationUp(this, x, y);
+    }
 }
 
 void ClientBlocks::setState(int x, int y, int state) {
