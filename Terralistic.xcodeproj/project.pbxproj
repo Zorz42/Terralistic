@@ -150,11 +150,11 @@
 		3657219A26D0710F005AB3CC /* pixel_font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3657217726D0710F005AB3CC /* pixel_font.ttf */; };
 		3657219C26D0710F005AB3CC /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 3657217826D0710F005AB3CC /* background.png */; };
 		365721CD26D07147005AB3CC /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 365721CC26D07147005AB3CC /* resourcePack */; };
-		3657220D26D07181005AB3CC /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D226D07180005AB3CC /* networking.cpp */; };
-		3657220F26D07181005AB3CC /* inventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D826D07180005AB3CC /* inventory.cpp */; };
+		3657220D26D07181005AB3CC /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D226D07180005AB3CC /* clientNetworking.cpp */; };
+		3657220F26D07181005AB3CC /* clientInventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D826D07180005AB3CC /* clientInventory.cpp */; };
 		3657221126D07181005AB3CC /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721DC26D07180005AB3CC /* debugMenu.cpp */; };
 		3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E026D07180005AB3CC /* pauseScreen.cpp */; };
-		3657221326D07181005AB3CC /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E226D07180005AB3CC /* items.cpp */; };
+		3657221326D07181005AB3CC /* clientItems.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E226D07180005AB3CC /* clientItems.cpp */; };
 		3657221426D07181005AB3CC /* resourcePack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E526D07180005AB3CC /* resourcePack.cpp */; };
 		3657221526D07181005AB3CC /* clientPlayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721E826D07180005AB3CC /* clientPlayers.cpp */; };
 		3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721EA26D07180005AB3CC /* mainPlayer.cpp */; };
@@ -376,16 +376,16 @@
 		3657217C26D0710F005AB3CC /* Structures.asset */ = {isa = PBXFileReference; lastKnownFileType = file; path = Structures.asset; sourceTree = "<group>"; };
 		365721CC26D07147005AB3CC /* resourcePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resourcePack; sourceTree = "<group>"; };
 		365721D126D07180005AB3CC /* clientNetworking.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientNetworking.hpp; sourceTree = "<group>"; };
-		365721D226D07180005AB3CC /* networking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = networking.cpp; sourceTree = "<group>"; };
+		365721D226D07180005AB3CC /* clientNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientNetworking.cpp; sourceTree = "<group>"; };
 		365721D426D07180005AB3CC /* chat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chat.cpp; sourceTree = "<group>"; };
 		365721D526D07180005AB3CC /* chat.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = chat.hpp; sourceTree = "<group>"; };
-		365721D826D07180005AB3CC /* inventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inventory.cpp; sourceTree = "<group>"; };
+		365721D826D07180005AB3CC /* clientInventory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientInventory.cpp; sourceTree = "<group>"; };
 		365721DA26D07180005AB3CC /* clientInventory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientInventory.hpp; sourceTree = "<group>"; };
 		365721DC26D07180005AB3CC /* debugMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugMenu.cpp; sourceTree = "<group>"; };
 		365721DD26D07180005AB3CC /* debugMenu.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugMenu.hpp; sourceTree = "<group>"; };
 		365721DF26D07180005AB3CC /* pauseScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = pauseScreen.hpp; sourceTree = "<group>"; };
 		365721E026D07180005AB3CC /* pauseScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pauseScreen.cpp; sourceTree = "<group>"; };
-		365721E226D07180005AB3CC /* items.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = items.cpp; sourceTree = "<group>"; };
+		365721E226D07180005AB3CC /* clientItems.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientItems.cpp; sourceTree = "<group>"; };
 		365721E326D07180005AB3CC /* clientItems.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientItems.hpp; sourceTree = "<group>"; };
 		365721E526D07180005AB3CC /* resourcePack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resourcePack.cpp; sourceTree = "<group>"; };
 		365721E626D07180005AB3CC /* resourcePack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = resourcePack.hpp; sourceTree = "<group>"; };
@@ -1024,7 +1024,7 @@
 			isa = PBXGroup;
 			children = (
 				365721D126D07180005AB3CC /* clientNetworking.hpp */,
-				365721D226D07180005AB3CC /* networking.cpp */,
+				365721D226D07180005AB3CC /* clientNetworking.cpp */,
 			);
 			path = networking;
 			sourceTree = "<group>";
@@ -1042,7 +1042,7 @@
 			isa = PBXGroup;
 			children = (
 				365721DA26D07180005AB3CC /* clientInventory.hpp */,
-				365721D826D07180005AB3CC /* inventory.cpp */,
+				365721D826D07180005AB3CC /* clientInventory.cpp */,
 			);
 			path = inventory;
 			sourceTree = "<group>";
@@ -1069,7 +1069,7 @@
 			isa = PBXGroup;
 			children = (
 				365721E326D07180005AB3CC /* clientItems.hpp */,
-				365721E226D07180005AB3CC /* items.cpp */,
+				365721E226D07180005AB3CC /* clientItems.cpp */,
 			);
 			path = items;
 			sourceTree = "<group>";
@@ -1458,12 +1458,12 @@
 				3657221526D07181005AB3CC /* clientPlayers.cpp in Sources */,
 				3657221426D07181005AB3CC /* resourcePack.cpp in Sources */,
 				3657221826D07181005AB3CC /* blockSelector.cpp in Sources */,
-				3657220F26D07181005AB3CC /* inventory.cpp in Sources */,
+				3657220F26D07181005AB3CC /* clientInventory.cpp in Sources */,
 				1676AF3727044CD100321C8B /* lights.cpp in Sources */,
 				16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */,
 				3657221D26D07181005AB3CC /* main.cpp in Sources */,
 				16A3C01126FF871C001B9E4E /* commands.cpp in Sources */,
-				3657220D26D07181005AB3CC /* networking.cpp in Sources */,
+				3657220D26D07181005AB3CC /* clientNetworking.cpp in Sources */,
 				167B53D1270A271D000089B3 /* serverEntities.cpp in Sources */,
 				16C9470527109EC100A51E81 /* player.cpp in Sources */,
 				167C03B826E141FC0045FEA9 /* button.cpp in Sources */,
@@ -1472,7 +1472,7 @@
 				36DDF8AC2689F725002337F3 /* items.cpp in Sources */,
 				167C03AC26E13FB50045FEA9 /* centeredObject.cpp in Sources */,
 				36DDF8AD2689F725002337F3 /* serverPlayers.cpp in Sources */,
-				3657221326D07181005AB3CC /* items.cpp in Sources */,
+				3657221326D07181005AB3CC /* clientItems.cpp in Sources */,
 				1673274C26A80EF40063281A /* networking.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				1679733F2712303100E90477 /* clientBlocks.cpp in Sources */,
