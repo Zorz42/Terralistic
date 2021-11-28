@@ -63,23 +63,15 @@ void addItems(Items* items) {
     items->registerNewItemType(&ItemTypes::iron_ore);
     items->registerNewItemType(&ItemTypes::copper_ore);
     items->registerNewItemType(&ItemTypes::fiber);
+    items->registerNewItemType(&ItemTypes::hatchet);
 }
 
-inline Recipe stone_to_dirt_recipe;
-inline Recipe wood_planks_to_dirt_recipe;
-inline Recipe stone_and_dirt_to_stone;
-
 void addRecipes(Recipes* recipes) {
-    stone_to_dirt_recipe.result = ItemStack(&ItemTypes::dirt, 2);
-    stone_to_dirt_recipe.ingredients[&ItemTypes::stone_block] = 1;
-    recipes->registerARecipe(&stone_to_dirt_recipe);
-
-    wood_planks_to_dirt_recipe.result = ItemStack(&ItemTypes::dirt, 1);
-    wood_planks_to_dirt_recipe.ingredients[&ItemTypes::wood_planks] = 1;
-    recipes->registerARecipe(&wood_planks_to_dirt_recipe);
-
-    stone_and_dirt_to_stone.result = ItemStack(&ItemTypes::stone_block, 1);
-    stone_and_dirt_to_stone.ingredients[&ItemTypes::stone_block] = 2;
-    stone_and_dirt_to_stone.ingredients[&ItemTypes::dirt] = 2;
-    recipes->registerARecipe(&stone_and_dirt_to_stone);
+    Recipe* recipe;
+    
+    recipe = new Recipe;
+    recipe->result = ItemStack(&ItemTypes::hatchet, 1);
+    recipe->ingredients[&ItemTypes::fiber] = 4;
+    recipe->ingredients[&ItemTypes::stone] = 1;
+    recipes->registerARecipe(recipe);
 }
