@@ -88,19 +88,14 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     
     if(!player_data) {
         int spawn_x = blocks->getWidth() / 2 * BLOCK_WIDTH * 2;
-        
-        int spawn_y = 0;
-        for(int y = 0; y < blocks->getHeight(); y++) {
-            if(!blocks->getBlockType(blocks->getWidth() / 2, y)->transparent || !blocks->getBlockType(blocks->getWidth() / 2 + 1, y)->transparent)
-                break;
-            spawn_y += BLOCK_WIDTH * 2;
-        }
+        int spawn_y = (blocks->getHeight() - blocks->getSurfaceHeight(spawn_x / (BLOCK_WIDTH * 2))) * BLOCK_WIDTH * 2;
         spawn_y -= PLAYER_HEIGHT * 2;
-        
+
         player_data = new ServerPlayerData(items, recipes);
         player_data->name = name;
         player_data->x = spawn_x;
         player_data->y = spawn_y;
+        player_data->health = 50;
         all_players.emplace_back(player_data);
     }
     

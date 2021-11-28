@@ -8,7 +8,6 @@ int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
     
     siv::PerlinNoise noise((unsigned int)seed);
     std::mt19937 seeded_random(seed);
-    surface_height = new int[world_width];
     blocks->create(world_width, world_height);
     liquids->create();
     biomes->create();
@@ -64,10 +63,10 @@ void WorldGenerator::terrainGenerator(int x, siv::PerlinNoise& noise) {
 void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
     for(int x = 0; x < blocks->getWidth(); x++) {
         for (auto &checking_structure: loaded_biomes[(int) biomes->biomes[x]].structure_chances) {
-            if ((noise.noise2D((float) x + 0.5, (float) surface_height[x] + 0.5) + 1) * checking_structure.chance <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance) {
+            if ((noise.noise2D((float) x + 0.5, (float) blocks->getSurfaceHeight(x) + 0.5) + 1) * checking_structure.chance <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance) {
                 structurePositions.emplace_back(StructurePosition(checking_structure.name +
-                                                                  std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) surface_height[x] - 0.5) + 1) / 2 * checking_structure.unique_structures)),
-                                                                  x, surface_height[x] - 1));
+                                                                  std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) blocks->getSurfaceHeight(x) - 0.5) + 1) / 2 * checking_structure.unique_structures)),
+                                                                  x, blocks->getSurfaceHeight(x) - 1));
                 checking_structure.x_of_last_instance = x;
             }
         }
@@ -84,22 +83,23 @@ void WorldGenerator::calculateHeight(siv::PerlinNoise& noise) {
 
     for(int current_slice = 0; current_slice < blocks->getWidth(); current_slice++) {
         divide_at_end = 0;
-        surface_height[current_slice] = 0;
+        blocks->setSurfaceHeight(current_slice, 0);
         int variation = 0;
         for (int i = std::max(0, current_slice - biome_blend); i < std::min(blocks->getWidth() - 1, current_slice + biome_blend); i++) {
-            surface_height[current_slice] += no_blend_height[i] * (1 - (float)std::abs(current_slice - i) / biome_blend);
+            blocks->setSurfaceHeight(current_slice, blocks->getSurfaceHeight(current_slice) +  no_blend_height[i] * (1 - (float)std::abs(current_slice - i) / biome_blend));
             variation += loaded_biomes[(int) biomes->biomes[i]].height_variation * (1 - (float)std::abs(current_slice - i) / biome_blend);
             divide_at_end += (1 - (float)std::abs(current_slice - i) / biome_blend);
         }
-        surface_height[current_slice] /= divide_at_end;
+        blocks->setSurfaceHeight(current_slice, blocks->getSurfaceHeight(current_slice) / divide_at_end);
         variation /= divide_at_end;
-        surface_height[current_slice] += turbulence(current_slice + 0.003, 0, 64, noise) * variation;
+        blocks->setSurfaceHeight(current_slice, blocks->getSurfaceHeight(current_slice) + turbulence(current_slice + 0.003, 0, 64, noise) * variation);
     }
     delete[] no_blend_height;
+
 }
 
 void WorldGenerator::generateSurface(int x, siv::PerlinNoise &noise) {
-    int generate_from = std::max(blocks->getHeight() / 3 * 2, (int)surface_height[x]);
+    int generate_from = std::max(blocks->getHeight() / 3 * 2, (int)blocks->getSurfaceHeight(x));
     for(int y = generate_from; y > 0; y--){
         int changed_x = std::max(std::min((int)(x + noise.noise2D(x + 0.5, y + 0.5) * 8), (int)blocks->getWidth()), 0);
         switch ((int)biomes->biomes[changed_x]) {
@@ -144,7 +144,7 @@ void WorldGenerator::generateSurface(int x, siv::PerlinNoise &noise) {
 }
 
 void WorldGenerator::generateBlockIcyOcean(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x])
+    if(y <= blocks->getSurfaceHeight(x))
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
     else if(y > blocks->getHeight() / 3 * 2 - noise.noise1D((float)x / 4 + 0.125) - 2)
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::ice_block);
@@ -155,12 +155,12 @@ void WorldGenerator::generateBlockIcyOcean(int x, int y, siv::PerlinNoise &noise
 }
 
 void WorldGenerator::generateBlockSnowyPlains(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 20)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 20)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
-        else if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
+        else if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::dirt);
-        else if(y == surface_height[x] + ceil(noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
+        else if(y == blocks->getSurfaceHeight(x) + ceil(noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::snowy_grass_block);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::snow_block);
@@ -169,12 +169,12 @@ void WorldGenerator::generateBlockSnowyPlains(int x, int y, siv::PerlinNoise &no
 }
 
 void WorldGenerator::generateBlockSnowyHills(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 20)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 20)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
-        else if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
+        else if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::dirt);
-        else if(y == surface_height[x] + ceil(noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
+        else if(y == blocks->getSurfaceHeight(x) + ceil(noise.noise1D((float)x / 3 + 0.15) * 0.5) - 5)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::snowy_grass_block);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::snow_block);
@@ -183,8 +183,8 @@ void WorldGenerator::generateBlockSnowyHills(int x, int y, siv::PerlinNoise &noi
 }
 
 void WorldGenerator::generateBlockSnowyMountains(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + noise.noise1D((float)x / 3 + 0.15) * 0.5 - 5)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + noise.noise1D((float)x / 3 + 0.15) * 0.5 - 5)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::snow_block);
@@ -193,7 +193,7 @@ void WorldGenerator::generateBlockSnowyMountains(int x, int y, siv::PerlinNoise 
 }
 
 void WorldGenerator::generateBlockOcean(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x])
+    if(y <= blocks->getSurfaceHeight(x))
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
     else{
         liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
@@ -202,10 +202,10 @@ void WorldGenerator::generateBlockOcean(int x, int y, siv::PerlinNoise &noise) {
 }
 
 void WorldGenerator::generateBlockPlains(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
-        else if(y < surface_height[x])
+        else if(y < blocks->getSurfaceHeight(x))
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::dirt);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
@@ -217,10 +217,10 @@ void WorldGenerator::generateBlockPlains(int x, int y, siv::PerlinNoise &noise) 
 }
 
 void WorldGenerator::generateBlockHills(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
-        else if(y < surface_height[x])
+        else if(y < blocks->getSurfaceHeight(x))
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::dirt);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
@@ -232,7 +232,7 @@ void WorldGenerator::generateBlockHills(int x, int y, siv::PerlinNoise &noise) {
 }
 
 void WorldGenerator::generateBlockMountains(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x])
+    if(y <= blocks->getSurfaceHeight(x))
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
     else {
         liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
@@ -241,7 +241,7 @@ void WorldGenerator::generateBlockMountains(int x, int y, siv::PerlinNoise &nois
 }
 
 void WorldGenerator::generateBlockWarmOcean(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x])
+    if(y <= blocks->getSurfaceHeight(x))
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
     else{
         liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &LiquidTypes::water);
@@ -250,8 +250,8 @@ void WorldGenerator::generateBlockWarmOcean(int x, int y, siv::PerlinNoise &nois
 }
 
 void WorldGenerator::generateBlockDesert(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::sand);
@@ -262,10 +262,10 @@ void WorldGenerator::generateBlockDesert(int x, int y, siv::PerlinNoise &noise) 
 }
 
 void WorldGenerator::generateBlockSavanaHills(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 15)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
-        else if(y < surface_height[x])
+        else if(y < blocks->getSurfaceHeight(x))
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::dirt);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
@@ -277,10 +277,10 @@ void WorldGenerator::generateBlockSavanaHills(int x, int y, siv::PerlinNoise &no
 }
 
 void WorldGenerator::generateBlockSavanaMountains(int x, int y, siv::PerlinNoise &noise) {
-    if(y <= surface_height[x]){
-        if(y < surface_height[x] + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 25)
+    if(y <= blocks->getSurfaceHeight(x)){
+        if(y < blocks->getSurfaceHeight(x) + (noise.noise1D((float)x / 3 + 0.15) * 1.8) - 25)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::stone_block);
-        else if(y < surface_height[x])
+        else if(y < blocks->getSurfaceHeight(x))
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::dirt);
         else
             blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &BlockTypes::grass_block);
@@ -293,18 +293,18 @@ void WorldGenerator::generateBlockSavanaMountains(int x, int y, siv::PerlinNoise
 
 void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
     for(int x = 0; x < blocks->getWidth(); x++) {
-        for (int y = blocks->getHeight() - surface_height[x] - 1; y < blocks->getHeight(); y++) {
+        for (int y = blocks->getHeight() - blocks->getSurfaceHeight(x) - 1; y < blocks->getHeight(); y++) {
             float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(std::max((float)0, ((float)blocks->getHeight() / 3 - y) / 300), (float)1);
             if (value > 0.3) {
                 blocks->setBlockTypeSilently(x, y, &BlockTypes::air);
-                if (y == blocks->getHeight() - surface_height[x])
-                    surface_height[x]--;
+                if (y == blocks->getHeight() - blocks->getSurfaceHeight(x))
+                    blocks->setSurfaceHeight(x, blocks->getSurfaceHeight(x) - 1);
             }else {
                 value = turbulence((double) x / 4 + blocks->getWidth() * 3, (double)y / 2 + blocks->getHeight() * 3, 64, noise);
                 if (value > -0.05 && value < 0.05) {
                     blocks->setBlockTypeSilently(x, y, &BlockTypes::air);
-                    if (y == blocks->getHeight() - surface_height[x])
-                        surface_height[x]--;
+                    if (y == blocks->getHeight() - blocks->getSurfaceHeight(x))
+                        blocks->setSurfaceHeight(x, blocks->getSurfaceHeight(x) - 1);
                 }
             }
         }
@@ -358,8 +358,8 @@ void WorldGenerator::generateStones(std::mt19937& seeded_random) {
     int x;
     for(int i = 0; i < 100; i++){
         x = seeded_random() % blocks->getWidth();
-        if(liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &LiquidTypes::empty)
-            blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, &BlockTypes::stone);
+        if(liquids->getLiquidType(x, blocks->getHeight() - blocks->getSurfaceHeight(x) - 1) == &LiquidTypes::empty)
+            blocks->setBlockTypeSilently(x, blocks->getHeight() - blocks->getSurfaceHeight(x) - 1, &BlockTypes::stone);
     }
 }
 

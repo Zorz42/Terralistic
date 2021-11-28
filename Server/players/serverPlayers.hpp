@@ -12,6 +12,7 @@ public:
     
     std::string name;
     int x, y;
+    short health;
     Inventory inventory;
 };
 
