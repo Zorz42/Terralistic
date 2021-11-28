@@ -141,7 +141,8 @@ void ClientInventory::render() {
 void ClientInventory::renderItem(ItemStack item, int x, int y) {
     const gfx::Texture& texture = resource_pack->getItemTexture();
     gfx::RectShape texture_rect = resource_pack->getTextureRectangle(item.type);
-    texture.render(32. / texture_rect.w, x + INVENTORY_UI_SPACING / 2, y + INVENTORY_UI_SPACING / 2, texture_rect);
+    int offset = 16 - texture_rect.w;
+    texture.render(2, x + INVENTORY_UI_SPACING / 2 + offset, y + INVENTORY_UI_SPACING / 2 + offset, texture_rect);
     
     if(item.stack > 1) {
         int stack = item.stack, number_x = x + BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING / 2;
