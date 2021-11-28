@@ -35,6 +35,7 @@ void ClientBlocks::updateOrientationRight(ClientBlocks* blocks, int x, int y) {
         blocks->setState(x, y, blocks->getState(x, y) + 1);
 }
 
+
 ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights) : resource_pack(resource_pack), networking(networking), lights(lights) {}
 
 int ClientBlocks::getViewBeginX() const {

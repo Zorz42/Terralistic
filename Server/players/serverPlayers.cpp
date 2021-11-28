@@ -1,5 +1,6 @@
 #include "serverPlayers.hpp"
 #include "content.hpp"
+#include <cstring>
 
 static bool isBlockTree(Blocks* blocks, int x, int y) {
     return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && (blocks->getBlockType(x, y) == &BlockTypes::wood || blocks->getBlockType(x, y) == &BlockTypes::leaves);

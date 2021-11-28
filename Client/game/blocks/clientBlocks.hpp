@@ -2,6 +2,7 @@
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
 #include "lights.hpp"
+#include "content.hpp"
 
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderBlock {
