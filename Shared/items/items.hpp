@@ -34,12 +34,20 @@ public:
     const Item* item;
 };
 
+class BlockDrop {
+public:
+    BlockDrop() : drop(nullptr) {}
+    explicit BlockDrop(ItemType* drop, float chance=1) : drop(drop), chance(chance) {}
+    ItemType* drop;
+    float chance;
+};
+
 class Items {
     Entities* entities;
     Blocks* blocks;
     
     std::vector<ItemType*> item_types;
-    std::vector<ItemType*> drops;
+    std::vector<BlockDrop> drops;
     
 public:
     explicit Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks) { registerNewItemType(&ItemTypes::nothing); }
@@ -50,8 +58,8 @@ public:
     ItemType* getItemTypeByName(const std::string& name);
     int getNumItemTypes();
     
-    void setBlockDrop(BlockType* block_type, ItemType* item_type);
-    ItemType* getBlockDrop(BlockType* block_type);
+    void setBlockDrop(BlockType* block_type, BlockDrop block_drop);
+    BlockDrop getBlockDrop(BlockType* block_type);
     
     EventSender<ItemCreationEvent> item_creation_event;
 };

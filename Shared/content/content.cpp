@@ -30,24 +30,25 @@ namespace BlockTypes {
 
 void addBlocks(Blocks* blocks, Items* items) {
     blocks->registerNewBlockType(&BlockTypes::dirt);
-    items->setBlockDrop(&BlockTypes::dirt, &ItemTypes::dirt);
+    items->setBlockDrop(&BlockTypes::dirt, BlockDrop(&ItemTypes::dirt));
     blocks->registerNewBlockType(&BlockTypes::stone_block);
-    items->setBlockDrop(&BlockTypes::stone_block, &ItemTypes::stone_block);
+    items->setBlockDrop(&BlockTypes::stone_block, BlockDrop(&ItemTypes::stone_block));
     blocks->registerNewBlockType(&BlockTypes::grass_block);
     blocks->registerNewBlockType(&BlockTypes::stone);
-    items->setBlockDrop(&BlockTypes::stone, &ItemTypes::stone);
+    items->setBlockDrop(&BlockTypes::stone, BlockDrop(&ItemTypes::stone));
     blocks->registerNewBlockType(&BlockTypes::wood);
-    items->setBlockDrop(&BlockTypes::wood, &ItemTypes::wood_planks);
+    items->setBlockDrop(&BlockTypes::wood, BlockDrop(&ItemTypes::wood_planks));
     blocks->registerNewBlockType(&BlockTypes::leaves);
     blocks->registerNewBlockType(&BlockTypes::sand);
     blocks->registerNewBlockType(&BlockTypes::snowy_grass_block);
     blocks->registerNewBlockType(&BlockTypes::snow_block);
     blocks->registerNewBlockType(&BlockTypes::ice_block);
     blocks->registerNewBlockType(&BlockTypes::iron_ore);
-    items->setBlockDrop(&BlockTypes::iron_ore, &ItemTypes::iron_ore);
+    items->setBlockDrop(&BlockTypes::iron_ore, BlockDrop(&ItemTypes::iron_ore));
     blocks->registerNewBlockType(&BlockTypes::copper_ore);
-    items->setBlockDrop(&BlockTypes::copper_ore, &ItemTypes::copper_ore);
+    items->setBlockDrop(&BlockTypes::copper_ore, BlockDrop(&ItemTypes::copper_ore));
     blocks->registerNewBlockType(&BlockTypes::grass);
+    items->setBlockDrop(&BlockTypes::grass, BlockDrop(&ItemTypes::fiber, 0.3));
 }
 
 void addLiquids(Liquids* liquids) {
@@ -61,6 +62,7 @@ void addItems(Items* items) {
     items->registerNewItemType(&ItemTypes::wood_planks);
     items->registerNewItemType(&ItemTypes::iron_ore);
     items->registerNewItemType(&ItemTypes::copper_ore);
+    items->registerNewItemType(&ItemTypes::fiber);
 }
 
 inline Recipe stone_to_dirt_recipe;

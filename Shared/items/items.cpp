@@ -31,17 +31,17 @@ int Items::getNumItemTypes() {
     return (int)item_types.size();
 }
 
-void Items::setBlockDrop(BlockType* block_type, ItemType* item_type) {
+void Items::setBlockDrop(BlockType* block_type, BlockDrop block_drop) {
     if(drops.size() <= block_type->id)
         drops.resize(block_type->id + 1);
     
-    drops[block_type->id] = item_type;
+    drops[block_type->id] = block_drop;
 }
 
-ItemType* Items::getBlockDrop(BlockType* block_type) {
-    if(block_type->id < drops.size() && drops[block_type->id])
+BlockDrop Items::getBlockDrop(BlockType* block_type) {
+    if(block_type->id < drops.size() && drops[block_type->id].drop)
         return drops[block_type->id];
-    return &ItemTypes::nothing;
+    return BlockDrop(&ItemTypes::nothing);
 }
 
 ItemType* Items::getItemTypeByName(const std::string& name) {

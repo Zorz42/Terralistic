@@ -29,6 +29,7 @@ namespace ItemTypes {
     inline ItemType wood_planks(/*name*/"wood_planks", /*max_stack*/99, /*places*/&BlockTypes::air        );
     inline ItemType iron_ore   (/*name*/"iron_ore",    /*max_stack*/99, /*places*/&BlockTypes::iron_ore   );
     inline ItemType copper_ore (/*name*/"copper_ore",  /*max_stack*/99, /*places*/&BlockTypes::copper_ore );
+    inline ItemType fiber      (/*name*/"fiber",       /*max_stack*/99, /*places*/&BlockTypes::air        );
 }
 
 void addContent(Blocks* blocks, Liquids* liquids, Items* items, Recipes* recipes);
