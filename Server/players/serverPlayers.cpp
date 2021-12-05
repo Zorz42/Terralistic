@@ -259,14 +259,22 @@ void ServerPlayers::update(float frame_length) {
                 packet_event.call(event);
             }
         }
-
+        
     for(Entity* entity : entities->getEntities())
         if(entity->type == EntityType::ITEM) {
             Item* item = (Item*)entity;
             for(Entity* entity2 : entities->getEntities())
                 if(entity2->type == EntityType::PLAYER) {
                     ServerPlayer* player = (ServerPlayer*)entity2;
-                    if(abs(item->getX() + BLOCK_WIDTH - player->getX() - 14) < 50 && abs(item->getY() + BLOCK_WIDTH - player->getY() - 25) < 50 &&
+                    int distance_x = abs(item->getX() + BLOCK_WIDTH - player->getX() - 14);
+                    int distance_y = abs(item->getY() + BLOCK_WIDTH - player->getY() - 25);
+                    
+                    if(distance_x < 50 && distance_y < 50) {
+                        entities->addVelocityX(item, (player->getX() - item->getX()) * frame_length / 200.f);
+                        entities->addVelocityY(item, (player->getY() - item->getY()) * frame_length / 70.f);
+                    }
+                    
+                    if(distance_x < 10 && distance_y < 10 &&
                        player->inventory.addItem(item->getType(), 1) != -1
                        ) {
                         entities->removeEntity(item);
