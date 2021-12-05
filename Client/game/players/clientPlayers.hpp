@@ -8,7 +8,6 @@
 class ClientPlayer : public Player {
 public:
     ClientPlayer(const std::string& name, int x, int y, int id);
-    bool flipped = false;
     int texture_frame = 0;
     gfx::Texture name_text;
     int started_moving = 0;

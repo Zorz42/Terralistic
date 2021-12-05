@@ -25,8 +25,8 @@ public:
     }
     
     void call(EventInstance& event) {
-        for(EventListener<EventInstance>* listener : listeners)
-            listener->onEvent(event);
+        for(int i = 0; i < listeners.size(); i++)
+            listeners[i]->onEvent(event);
     }
     
     ~EventSender() {

@@ -73,12 +73,12 @@ void Server::saveWorld() {
     blocks.serialize(world_file_serial);
     liquids.serialize(world_file_serial);
     
-    for(Entity* entity : entities.getEntities())
-        if(entity->type == EntityType::PLAYER)
-            players.savePlayer((ServerPlayer*)entity);
+    for(int i = 0; i < entities.getEntities().size(); i++)
+        if(entities.getEntities()[i]->type == EntityType::PLAYER)
+            players.savePlayer((ServerPlayer*)entities.getEntities()[i]);
     
-    for(const ServerPlayerData* player : players.getAllPlayers())
-        player->serialize(world_file_serial);
+    for(int i = 0; i < players.getAllPlayers().size(); i++)
+        players.getAllPlayers()[i]->serialize(world_file_serial);
     
     world_file_serial = compress(world_file_serial);
     
@@ -102,8 +102,8 @@ void Server::start() {
         generator.generateWorld(4400, 1200, seed);
     }
     
-    for(ServerModule* module : modules)
-        module->init();
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->init();
 
     signal(SIGINT, onInterrupt);
 
@@ -122,8 +122,8 @@ void Server::start() {
             gfx::sleep(ms_per_tick - frame_length);
         b = a;
         
-        for(ServerModule* module : modules)
-            module->update(frame_length);
+        for(int i = 0; i < modules.size(); i++)
+            modules[i]->update(frame_length);
         
         if(gfx::getTicks() / AUTOSAVE_INTERVAL / 1000 > save_inverval) {
             print::info("Autosaving world...");
@@ -138,8 +138,8 @@ void Server::start() {
 
     saveWorld();
     
-    for(ServerModule* module : modules)
-        module->stop();
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->stop();
 
     state = ServerState::STOPPED;
 }

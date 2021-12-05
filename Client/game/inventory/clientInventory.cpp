@@ -219,6 +219,13 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 manager->sendPacket(packet);
                 return true;
             }
+            return false;
+        }
+        case gfx::Key::Q: {
+            sf::Packet packet;
+            packet << ClientPacketType::ITEM_DROP;
+            manager->sendPacket(packet);
+            return true;
         }
         default: return false;
     }

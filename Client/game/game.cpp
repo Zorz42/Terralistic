@@ -166,9 +166,9 @@ void Game::start() {
 }
 
 void Game::init() {
-    for(gfx::SceneModule* module : getModules())
-        if(module != this)
-            ((ClientModule*)module)->postInit();
+    for(int i = 0; i < getModules().size(); i++)
+        if(getModules()[i] != this)
+            ((ClientModule*)getModules()[i])->postInit();
 }
 
 void Game::render() {

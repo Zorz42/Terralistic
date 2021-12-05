@@ -57,6 +57,7 @@ void ServerPlayers::init() {
     custom_block_events[(int)BlockTypes::snowy_grass_block.id].onLeftClick = custom_block_events[(int)BlockTypes::grass_block.id].onLeftClick;
     
     custom_block_events[(int)BlockTypes::stone.id].onUpdate = &stoneUpdate;
+    custom_block_events[(int)BlockTypes::grass.id].onUpdate = &stoneUpdate;
 }
 
 void ServerPlayers::stop() {
@@ -66,16 +67,16 @@ void ServerPlayers::stop() {
     packet_event.removeListener(this);
     networking->disconnect_event.removeListener(this);
     
-    for(ServerPlayerData* i : all_players)
-        delete i;
+    for(int i = 0; i < all_players.size(); i++)
+        delete all_players[i];
     
     delete[] custom_block_events;
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entity;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
             if(player->name == name)
                 return player;
         }
@@ -118,9 +119,9 @@ void ServerPlayers::savePlayer(ServerPlayer* player) {
 }
 
 ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
-    for(ServerPlayerData* data : all_players)
-        if(data->name == name)
-            return data;
+    for(int i = 0; i < all_players.size(); i++)
+        if(all_players[i]->name == name)
+            return all_players[i];
     return nullptr;
 }
 
@@ -189,17 +190,17 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
         neighbors[4][1] = event.y + 1;
     }
     
-    for(auto neighbor : neighbors)
-        if(neighbor[0] != -1 && custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])->id].onUpdate)
-            custom_block_events[(int)blocks->getBlockType(neighbor[0], neighbor[1])->id].onUpdate(blocks, neighbor[0], neighbor[1]);
+    for(int i = 0; i < 5; i++)
+        if(neighbors[i][0] != -1 && custom_block_events[(int)blocks->getBlockType(neighbors[i][0], neighbors[i][1])->id].onUpdate)
+            custom_block_events[(int)blocks->getBlockType(neighbors[i][0], neighbors[i][1])->id].onUpdate(blocks, neighbors[i][0], neighbors[i][1]);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
     ServerPlayer* player = nullptr;
     
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::PLAYER) {
-            ServerPlayer* curr_player = (ServerPlayer*)entity;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* curr_player = (ServerPlayer*)entities->getEntities()[i];
             if(curr_player->getConnection() == event.connection) {
                 player = curr_player;
                 break;
@@ -249,9 +250,12 @@ Connection* ServerPlayer::getConnection() {
 }
 
 void ServerPlayers::update(float frame_length) {
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entity;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
+            if(player->getVelocityX())
+                player->flipped = player->getVelocityX() < 0;
+            
             while(player->getConnection()->hasPacketInBuffer()) {
                 auto result = player->getConnection()->getPacket();
                 
@@ -260,12 +264,12 @@ void ServerPlayers::update(float frame_length) {
             }
         }
         
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::ITEM) {
-            Item* item = (Item*)entity;
-            for(Entity* entity2 : entities->getEntities())
-                if(entity2->type == EntityType::PLAYER) {
-                    ServerPlayer* player = (ServerPlayer*)entity2;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::ITEM) {
+            Item* item = (Item*)entities->getEntities()[i];
+            for(int i2 = 0; i2 < entities->getEntities().size(); i2++)
+                if(entities->getEntities()[i2]->type == EntityType::PLAYER) {
+                    ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i2];
                     int distance_x = abs(item->getX() + BLOCK_WIDTH - player->getX() - 14);
                     int distance_y = abs(item->getY() + BLOCK_WIDTH - player->getY() - 25);
                     
@@ -285,9 +289,9 @@ void ServerPlayers::update(float frame_length) {
 
 void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
     ServerPlayer* player = nullptr;
-    for(Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::PLAYER) {
-            ServerPlayer* player_ = (ServerPlayer*)entity;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* player_ = (ServerPlayer*)entities->getEntities()[i];
             if(player_->getConnection() == event.connection) {
                 player = player_;
                 break;
@@ -358,6 +362,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             
             for(auto ingredient : recipe_crafted->ingredients)
                 event.player->inventory.removeItem(ingredient.first, ingredient.second);
+            break;
         }
             
         case ClientPacketType::PLAYER_MOVING_TYPE: {
@@ -367,12 +372,24 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             sf::Packet moving_packet;
             moving_packet << ServerPacketType::PLAYER_MOVING_TYPE << moving_type << event.player->id;
             networking->sendToEveryone(moving_packet);
+            break;
         }
 
         case ClientPacketType::PLAYER_JUMPED: {
             sf::Packet jumped_packet;
             jumped_packet << ServerPacketType::PLAYER_JUMPED << event.player->id;
             networking->sendToEveryone(jumped_packet);
+            break;
+        }
+            
+        case ClientPacketType::ITEM_DROP: {
+            ItemType* dropped_item = event.player->inventory.getSelectedSlot().type;
+            if(dropped_item != &ItemTypes::nothing) {
+                event.player->inventory.decreaseStack(event.player->inventory.selected_slot, 1);
+                Item* dropped_item_instance = items->spawnItem(dropped_item, event.player->getX() + (event.player->flipped ? -1 : 1) * 10, event.player->getY());
+                entities->addVelocityX(dropped_item_instance, (event.player->flipped ? -1 : 1) * 50);
+            }
+            break;
         }
         default:;
     }

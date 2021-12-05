@@ -20,9 +20,9 @@ void ServerItems::onEvent(ItemCreationEvent &event) {
 }
 
 void ServerItems::onEvent(ServerNewConnectionEvent& event) {
-    for(const Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::ITEM) {
-            Item* item = (Item*)entity;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::ITEM) {
+            Item* item = (Item*)entities->getEntities()[i];
             sf::Packet item_packet;
             item_packet << ServerPacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << item->getType()->id;
             event.connection->send(item_packet);

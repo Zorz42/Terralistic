@@ -77,7 +77,7 @@ void WorldSelector::refresh() {
 
     worlds.clear();
 
-    for(auto& p: std::filesystem::directory_iterator((sago::getDataHome() + "/Terralistic/Worlds/").c_str())) {
+    for(auto& p : std::filesystem::directory_iterator((sago::getDataHome() + "/Terralistic/Worlds/").c_str())) {
         std::string file_name = p.path().filename().string();
         std::string ending = ".world";
         if(file_name.size() > ending.size() && std::equal(ending.rbegin(), ending.rend(), file_name.rbegin())) {
@@ -87,24 +87,24 @@ void WorldSelector::refresh() {
         }
     }
 
-    for(WorldToSelect& world : worlds) {
-        world.y = scroll_limit + TOP_HEIGHT;
+    for(int i = 0; i < worlds.size(); i++) {
+        worlds[i].y = scroll_limit + TOP_HEIGHT;
         
-        world.icon.loadFromResources("world_icon.png");
+        worlds[i].icon.loadFromResources("world_icon.png");
         
-        world.title.loadFromText(world.name);
+        worlds[i].title.loadFromText(worlds[i].name);
 
-        world.play_button.loadFromResources("play_button.png");
-        world.play_button.scale = 3;
-        world.play_button.margin = 5;
+        worlds[i].play_button.loadFromResources("play_button.png");
+        worlds[i].play_button.scale = 3;
+        worlds[i].play_button.margin = 5;
         
-        world.delete_button.loadFromResources("x_button.png");
-        world.delete_button.scale = 3;
-        world.delete_button.margin = 5;
+        worlds[i].delete_button.loadFromResources("x_button.png");
+        worlds[i].delete_button.scale = 3;
+        worlds[i].delete_button.margin = 5;
 
-        world.last_played.setColor(GREY);
+        worlds[i].last_played.setColor(GREY);
         
-        world.last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world"));
+        worlds[i].last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i].name + ".world"));
         
         scroll_limit += 116 + SPACING * 3;
     }
@@ -116,29 +116,29 @@ bool WorldSelector::onKeyDown(gfx::Key key) {
             returnFromScene();
         else if(new_button.isHovered(getMouseX(), getMouseY())) {
             std::vector<std::string> worlds_names;
-            for(WorldToSelect& world : worlds)
-                worlds_names.push_back(world.name);
+            for(int i = 0; i < worlds.size(); i++)
+                worlds_names.push_back(worlds[i].name);
             WorldCreator world_creator(worlds_names, menu_back, settings);
             switchToScene(world_creator);
             refresh();
         }
         else
-            for(auto & world : worlds) {
-                if(world.play_button.isHovered(getMouseX(), getMouseY())) {
-                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world", menu_back, settings, false);
+            for(int i = 0; i < worlds.size(); i++) {
+                if(worlds[i].play_button.isHovered(getMouseX(), getMouseY())) {
+                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i].name + ".world", menu_back, settings, false);
                     refresh();
                 }
-                else if(world.delete_button.isHovered(getMouseX(), getMouseY())) {
+                else if(worlds[i].delete_button.isHovered(getMouseX(), getMouseY())) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
                     else {
-                        ChoiceScreen choice_screen(menu_back, std::string("Do you want to delete ") + world.name + "?", {"Yes", "No"}, &result);
+                        ChoiceScreen choice_screen(menu_back, std::string("Do you want to delete ") + worlds[i].name + "?", {"Yes", "No"}, &result);
                         switchToScene(choice_screen);
                     }
 
                     if(result == "Yes") {
-                        std::filesystem::remove(sago::getDataHome() + "/Terralistic/Worlds/" + world.name + ".world");
+                        std::filesystem::remove(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i].name + ".world");
                         refresh();
                     }
                     break;
@@ -164,13 +164,13 @@ void WorldSelector::render() {
     
     bool hoverable = getMouseY() > TOP_HEIGHT && getMouseY() < gfx::getWindowHeight() - BOTTOM_HEIGHT;
 
-    for(WorldToSelect& world : worlds) {
-        world.play_button.disabled = !hoverable;
-        world.delete_button.disabled = !hoverable;
+    for(int i = 0; i < worlds.size(); i++) {
+        worlds[i].play_button.disabled = !hoverable;
+        worlds[i].delete_button.disabled = !hoverable;
     }
 
-    for(WorldToSelect& world : worlds)
-        world.render(position, getMouseX(), getMouseY());
+    for(int i = 0; i < worlds.size(); i++)
+        worlds[i].render(position, getMouseX(), getMouseY());
 
     top_rect.setWidth(menu_back->getBackWidth());
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;

@@ -45,9 +45,9 @@ BlockDrop Items::getBlockDrop(BlockType* block_type) {
 }
 
 ItemType* Items::getItemTypeByName(const std::string& name) {
-    for(ItemType* item_info : item_types)
-        if(item_info->name == name)
-            return item_info;
+    for(int i = 0; i < item_types.size(); i++)
+        if(item_types[i]->name == name)
+            return item_types[i];
     throw Exception("Could not find item by name");
     return nullptr;
 }

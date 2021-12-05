@@ -33,12 +33,12 @@ int Inventory::decreaseStack(int pos, int stack) {
 }
 
 char* Inventory::loadFromSerial(char *iter) {
-    for(ItemStack& item : inventory_arr) {
-        item.type = items->getItemTypeById(*iter++);
-        item.stack = 0;
-        for(int i = 0; i < sizeof(short); i++)
-            item.stack += (int)*iter++ << i * 8;
-        item_counts[(int)item.type->id] += item.stack;
+    for(int i = 0; i < INVENTORY_SIZE; i++) {
+        inventory_arr[i].type = items->getItemTypeById(*iter++);
+        inventory_arr[i].stack = 0;
+        for(int i2 = 0; i2 < sizeof(short); i2++)
+            inventory_arr[i].stack += (int)*iter++ << i2 * 8;
+        item_counts[(int)inventory_arr[i].type->id] += inventory_arr[i].stack;
     }
     updateAvailableRecipes();
     return iter;
@@ -107,11 +107,11 @@ void Inventory::swapWithMouseItem(int pos) {
 }
 
 void Inventory::serialize(std::vector<char> &serial) const {
-    for(ItemStack item : inventory_arr) {
-        serial.push_back((char)item.type->id);
+    for(int i = 0; i < INVENTORY_SIZE; i++) {
+        serial.push_back((char)inventory_arr[i].type->id);
         serial.insert(serial.end(), {0, 0});
-        for(int i = 0; i < sizeof(short); i++)
-            serial[serial.size() - sizeof(short) + i] = (short)(unsigned char)item.stack >> i * 8;
+        for(int i2 = 0; i2 < sizeof(short); i2++)
+            serial[serial.size() - sizeof(short) + i2] = (short)(unsigned char)inventory_arr[i].stack >> i2 * 8;
     }
 }
 
@@ -125,9 +125,9 @@ const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
 
 void Inventory::updateAvailableRecipes() {
     available_recipes.clear();
-    for(const Recipe* recipe : recipes->getAllRecipes())
-        if(hasIngredientsForRecipe(recipe))
-            available_recipes.emplace_back(recipe);
+    for(int i = 0; i < recipes->getAllRecipes().size(); i++)
+        if(hasIngredientsForRecipe(recipes->getAllRecipes()[i]))
+            available_recipes.emplace_back(recipes->getAllRecipes()[i]);
 }
 
 void Recipes::registerARecipe(Recipe* recipe) {

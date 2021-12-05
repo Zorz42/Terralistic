@@ -2,8 +2,8 @@
 #include "entities.hpp"
 
 void Entities::updateAllEntities(float frame_length) {
-    for(Entity* entity : entities)
-        entity->updateEntity(blocks, frame_length);
+    for(int i = 0; i < entities.size(); i++)
+        entities[i]->updateEntity(blocks, frame_length);
 }
 
 const std::vector<Entity*>& Entities::getEntities() {
@@ -25,9 +25,9 @@ void Entities::removeEntity(Entity* entity) {
 }
 
 Entity* Entities::getEntityById(int id) {
-    for(Entity* entity : entities)
-        if(entity->id == id)
-            return entity;
+    for(int i = 0; i < entities.size(); i++)
+        if(entities[i]->id == id)
+            return entities[i];
     throw Exception("Entity not found by id");
     return nullptr;
 }
@@ -157,6 +157,6 @@ void Entities::setY(Entity* entity, float y) {
 }
 
 Entities::~Entities() {
-    for(Entity* entity : entities)
-        delete entity;
+    for(int i = 0; i < entities.size(); i++)
+        delete entities[i];
 }
