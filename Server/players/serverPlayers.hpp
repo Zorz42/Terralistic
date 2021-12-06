@@ -43,6 +43,10 @@ public:
     }
 };
 
+class AirBehaviour : public BlockBehaviour {
+    void onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) override;
+};
+
 class ServerPacketEvent {
 public:
     ServerPacketEvent(sf::Packet& packet, ClientPacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
@@ -76,6 +80,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     void stop() override;
     
     BlockBehaviour default_behaviour;
+    AirBehaviour air_behaviour;
     
 public:
     ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes) {}
@@ -88,7 +93,7 @@ public:
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
     
-    BlockBehaviour* getBlockBehaviour(BlockType* type);
+    BlockBehaviour*& getBlockBehaviour(BlockType* type);
     
     EventSender<ServerPacketEvent> packet_event;
 };

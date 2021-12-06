@@ -104,13 +104,6 @@ void GameContent::addBlockBehaviour(ServerPlayers* players) {
         //blocks_->setBlockType(x, y, &blocks.dirt);
     //};
     
-    /*players->getBlockBehaviour(&BlockTypes::air).onRightClick = [](Blocks* blocks_, int x, int y, ServerPlayer* player) {
-        BlockType* type = player->inventory.getSelectedSlot().type->places;
-        if(type != &BlockTypes::air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
-            blocks_->setBlockType(x, y, type);
-        }
-    };*/
-    
     //players->getBlockBehaviour(&BlockTypes::snowy_grass_block).onLeftClick = players->getBlockBehaviour(&BlockTypes::grass_block).onLeftClick;
     
     /*players->getBlockBehaviour(&BlockTypes::wood).onUpdate = [this](Blocks* blocks, int x, int y) {

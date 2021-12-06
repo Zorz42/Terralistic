@@ -1,10 +1,19 @@
 #include "serverPlayers.hpp"
 #include "content.hpp"
 
+void AirBehaviour::onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
+    BlockType* type = player->inventory.getSelectedSlot().type->places;
+    if(type != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
+        blocks->setBlockType(x, y, type);
+    }
+}
+
 void ServerPlayers::init() {
     blocks_behaviour = new BlockBehaviour*[blocks->getNumBlockTypes()];
     for(int i = 0; i < blocks->getNumBlockTypes(); i++)
         blocks_behaviour[i] = &default_behaviour;
+    
+    getBlockBehaviour(&blocks->air) = &air_behaviour;
     
     blocks->block_change_event.addListener(this);
     networking->new_connection_event.addListener(this);
@@ -350,7 +359,7 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     connection->send(packet);
 }
 
-BlockBehaviour* ServerPlayers::getBlockBehaviour(BlockType* type) {
+BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
     return blocks_behaviour[type->id];
 }
 
