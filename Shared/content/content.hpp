@@ -35,7 +35,7 @@ public:
 
 class ItemTypes {
 public:
-    ItemTypes(BlockTypes* blocks);
+    ItemTypes(BlockTypes* blocks, Blocks* blocks_);
     void addContent(Items* items);
     
     ItemType stone;
@@ -51,7 +51,7 @@ public:
 class GameContent {
     void addRecipes(Recipes* recipes);
 public:
-    GameContent() : blocks(), liquids(), items(&blocks) {}
+    GameContent(Blocks* blocks_) : blocks(), liquids(), items(&blocks, blocks_) {}
     
     void addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes);
     void addBlockBehaviour(ServerPlayers* players);

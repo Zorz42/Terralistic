@@ -296,13 +296,13 @@ void WorldGenerator::generateCaves(siv::PerlinNoise &noise) {
         for (int y = blocks->getHeight() - surface_height[x] - 1; y < blocks->getHeight(); y++) {
             float value = turbulence((double)x / 2, (double)y, 64, noise) * std::min(std::max((float)0, ((float)blocks->getHeight() / 3 - y) / 300), (float)1);
             if (value > 0.3) {
-                blocks->setBlockTypeSilently(x, y, &BlockTypes_::air);
+                blocks->setBlockTypeSilently(x, y, &blocks->air);
                 if (y == blocks->getHeight() - surface_height[x])
                     surface_height[x]--;
             }else {
                 value = turbulence((double) x / 4 + blocks->getWidth() * 3, (double)y / 2 + blocks->getHeight() * 3, 64, noise);
                 if (value > -0.05 && value < 0.05) {
-                    blocks->setBlockTypeSilently(x, y, &BlockTypes_::air);
+                    blocks->setBlockTypeSilently(x, y, &blocks->air);
                     if (y == blocks->getHeight() - surface_height[x])
                         surface_height[x]--;
                 }
@@ -316,8 +316,8 @@ void WorldGenerator::generateCaveLakes(std::mt19937& seeded_random) {
     for(int i = 0; i < 500; i++){
         int x = seeded_random() % blocks->getWidth();
         int y = seeded_random() % (blocks->getHeight() / 3 * 2) + blocks->getHeight() / 3;
-        if(blocks->getBlockType(x, y) == &BlockTypes_::air) {
-            while(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &BlockTypes_::air)
+        if(blocks->getBlockType(x, y) == &blocks->air) {
+            while(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &blocks->air)
                 y++;
             generateLakeRecursively(x, y);
         }else
@@ -328,11 +328,11 @@ void WorldGenerator::generateCaveLakes(std::mt19937& seeded_random) {
 void WorldGenerator::generateLakeRecursively(int x, int y) {
     liquids->setLiquidTypeSilently(x, y, &content->liquids.water);
     liquids->setLiquidLevelSilently(x, y, 255);
-    if(y != blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &BlockTypes_::air && liquids->getLiquidType(x, y + 1) == &LiquidTypes_::empty)
+    if(y != blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &blocks->air && liquids->getLiquidType(x, y + 1) == &liquids->empty)
         generateLakeRecursively(x, y + 1);
-    if(x != 0 && blocks->getBlockType(x - 1, y) == &BlockTypes_::air && liquids->getLiquidType(x - 1, y) == &LiquidTypes_::empty)
+    if(x != 0 && blocks->getBlockType(x - 1, y) == &blocks->air && liquids->getLiquidType(x - 1, y) == &liquids->empty)
         generateLakeRecursively(x - 1, y);
-    if(x != blocks->getWidth() - 1 && blocks->getBlockType(x + 1, y) == &BlockTypes_::air && liquids->getLiquidType(x + 1, y) == &LiquidTypes_::empty)
+    if(x != blocks->getWidth() - 1 && blocks->getBlockType(x + 1, y) == &blocks->air && liquids->getLiquidType(x + 1, y) == &liquids->empty)
         generateLakeRecursively(x + 1, y);
 }
 
@@ -356,10 +356,10 @@ void WorldGenerator::generateOre(BlockType* type, float chance, int blob_distanc
 
 void WorldGenerator::generateFoliage(std::mt19937& seeded_random) {
     for(int x = 0; x < blocks->getWidth(); x++) {
-        if(seeded_random() % 6 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &LiquidTypes_::empty)
+        if(seeded_random() % 6 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &liquids->empty)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, &content->blocks.stone);
         
-        else if(seeded_random() % 3 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &LiquidTypes_::empty)
+        else if(seeded_random() % 3 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &liquids->empty)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, &content->blocks.grass);
     }
 }

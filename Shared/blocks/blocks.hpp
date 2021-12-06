@@ -42,14 +42,10 @@ public:
     int id;
 };
 
-namespace BlockTypes_ {
-    inline BlockType air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*connects_to*/ {}, /*color*/{0, 0, 0, 0});
-};
-
 class Blocks {
     class Block {
     public:
-        Block() : id(BlockTypes_::air.id) {}
+        Block() : id(/*air*/0) {}
         int id:8;
     };
     
@@ -71,6 +67,8 @@ public:
     Blocks();
     void create(int width, int height);
 
+    BlockType air;
+    
     BlockType* getBlockType(int x, int y);
     void setBlockType(int x, int y, BlockType* type);
     void setBlockTypeSilently(int x, int y, BlockType* type);

@@ -14,10 +14,6 @@ public:
     int id;
 };
 
-namespace ItemTypes_ {
-    inline ItemType nothing(/*name*/"nothing", /*max_stack*/0,  /*places*/&BlockTypes_::air);
-}
-
 class Item : public Entity {
     ItemType* type;
 public:
@@ -50,8 +46,10 @@ class Items {
     std::vector<BlockDrop> drops;
     
 public:
-    explicit Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks) { registerNewItemType(&ItemTypes_::nothing); }
+    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing(/*name*/"nothing", /*max_stack*/0,  /*places*/&blocks->air) { registerNewItemType(&nothing); }
     Item* spawnItem(ItemType* type, int x, int y);
+    
+    ItemType nothing;
     
     void registerNewItemType(ItemType* item_type);
     ItemType* getItemTypeById(int item_id);

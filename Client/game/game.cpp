@@ -129,7 +129,8 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     inventory(&networking, &resource_pack, &items, &recipes),
     minimap(settings, &blocks, &liquids, &lights, &natural_light),
     chat(&networking),
-    debug_menu(&players, &blocks)
+    debug_menu(&players, &blocks),
+    content(&blocks)
 {
     registerAModule(&networking);
     registerAModule(&resource_pack);

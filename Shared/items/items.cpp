@@ -41,7 +41,7 @@ void Items::setBlockDrop(BlockType* block_type, BlockDrop block_drop) {
 BlockDrop Items::getBlockDrop(BlockType* block_type) {
     if(block_type->id < drops.size() && drops[block_type->id].drop)
         return drops[block_type->id];
-    return BlockDrop(&ItemTypes_::nothing);
+    return BlockDrop(&nothing);
 }
 
 ItemType* Items::getItemTypeByName(const std::string& name) {

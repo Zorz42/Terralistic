@@ -24,7 +24,7 @@ int Inventory::increaseStack(int pos, int stack) {
 int Inventory::decreaseStack(int pos, int stack) {
     if(stack >= getItem(pos).stack) {
         int prev_stack = getItem(pos).stack;
-        setItem(pos, ItemStack(&ItemTypes_::nothing, 0));
+        setItem(pos, ItemStack(&items->nothing, 0));
         return prev_stack;
     } else {
         setItem(pos, ItemStack(getItem(pos).type, getItem(pos).stack - stack));
@@ -44,10 +44,13 @@ char* Inventory::loadFromSerial(char *iter) {
     return iter;
 }
 
-Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes) {
+Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes), mouse_item(&items->nothing, 0) {
     item_counts = new int[items->getNumItemTypes()];
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = 0;
+    
+    for(int i = 0; i < INVENTORY_SIZE; i++)
+        inventory_arr[i].type = &items->nothing;
 }
 
 int Inventory::addItem(ItemType* id, int quantity) {
@@ -60,7 +63,7 @@ int Inventory::addItem(ItemType* id, int quantity) {
                 return i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(getItem(i).type == &ItemTypes_::nothing) {
+        if(getItem(i).type == &items->nothing) {
             setItem(i, ItemStack(id, getItem(i).stack));
             quantity -= increaseStack(i, quantity);
             if(!quantity)

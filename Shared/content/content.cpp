@@ -27,15 +27,15 @@ LiquidTypes::LiquidTypes() :
 water(/*name*/"water", /*flow_time*/100, /*speed_multiplier*/0.5, /*color*/{0, 92, 230, 150})
 {}
 
-ItemTypes::ItemTypes(BlockTypes* blocks) :
+ItemTypes::ItemTypes(BlockTypes* blocks, Blocks* blocks_) :
 stone      (/*name*/"stone",       /*max_stack*/99, /*places*/&blocks->stone      ),
 dirt       (/*name*/"dirt",        /*max_stack*/99, /*places*/&blocks->dirt       ),
 stone_block(/*name*/"stone_block", /*max_stack*/99, /*places*/&blocks->stone_block),
-wood_planks(/*name*/"wood_planks", /*max_stack*/99, /*places*/&BlockTypes_::air   ),
+wood_planks(/*name*/"wood_planks", /*max_stack*/99, /*places*/&blocks_->air       ),
 iron_ore   (/*name*/"iron_ore",    /*max_stack*/99, /*places*/&blocks->iron_ore   ),
 copper_ore (/*name*/"copper_ore",  /*max_stack*/99, /*places*/&blocks->copper_ore ),
-fiber      (/*name*/"fiber",       /*max_stack*/99, /*places*/&BlockTypes_::air   ),
-hatchet    (/*name*/"hatchet",     /*max_stack*/1,  /*places*/&BlockTypes_::air   )
+fiber      (/*name*/"fiber",       /*max_stack*/99, /*places*/&blocks_->air       ),
+hatchet    (/*name*/"hatchet",     /*max_stack*/1,  /*places*/&blocks_->air       )
 {}
 
 void BlockTypes::addContent(Blocks* blocks, Items* items, ItemTypes* item_types) {

@@ -29,6 +29,7 @@ Server::Server(std::string resource_path, std::string world_path, int port) :
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(std::move(world_path)),
+    content(&blocks),
     seed((int)time(NULL))
 {
     if(port < 0 || port > 65535)
