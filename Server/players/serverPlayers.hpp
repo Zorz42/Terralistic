@@ -33,7 +33,7 @@ public:
     ~ServerPlayer();
 };
 
-class BlockEvents {
+class BlockBehaviour {
 public:
     void (*onUpdate)(Blocks* blocks, int x, int y) = nullptr;
     void (*onRightClick)(Blocks* blocks, int x, int y, ServerPlayer* player) = nullptr;
@@ -57,7 +57,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     
     std::vector<ServerPlayerData*> all_players;
 
-    BlockEvents *custom_block_events = nullptr;
+    BlockBehaviour *blocks_behaviour = nullptr;
     
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(ServerNewConnectionEvent& event) override;
@@ -82,6 +82,8 @@ public:
     char* addPlayerFromSerial(char* iter);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
+    
+    BlockBehaviour& getBlockBehaviour(BlockType* type);
     
     EventSender<ServerPacketEvent> packet_event;
 };

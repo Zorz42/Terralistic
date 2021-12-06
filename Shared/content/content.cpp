@@ -51,6 +51,52 @@ void addBlocks(Blocks* blocks, Items* items) {
     items->setBlockDrop(&BlockTypes::grass, BlockDrop(&ItemTypes::fiber, 0.3));
 }
 
+static bool isBlockTree(Blocks* blocks, int x, int y) {
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && (blocks->getBlockType(x, y) == &BlockTypes::wood || blocks->getBlockType(x, y) == &BlockTypes::leaves);
+}
+
+static bool isBlockWood(Blocks* blocks, int x, int y) {
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &BlockTypes::wood;
+}
+
+static bool isBlockLeaves(Blocks* blocks, int x, int y) {
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &BlockTypes::leaves;
+}
+
+static void stoneUpdate(Blocks* blocks, int x, int y) {
+    if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
+        blocks->breakBlock(x, y);
+}
+
+static void treeUpdate(Blocks* blocks, int x, int y) {
+    if(
+       (!isBlockTree(blocks, x, y + 1) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y)) ||
+       (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y + 1)) ||
+       (isBlockWood(blocks, x, y - 1) && isBlockWood(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y) && !isBlockTree(blocks, x, y + 1)) ||
+       (isBlockLeaves(blocks, x - 1, y) && !isBlockTree(blocks, x + 1, y) && !isBlockTree(blocks, x, y - 1) && !isBlockTree(blocks, x, y + 1)) ||
+       (isBlockLeaves(blocks, x + 1, y) && !isBlockTree(blocks, x - 1, y) && !isBlockTree(blocks, x, y - 1) && !isBlockTree(blocks, x, y + 1)) ||
+       (!isBlockTree(blocks, x, y + 1) && isBlockLeaves(blocks, x - 1, y) && isBlockLeaves(blocks, x + 1, y) && isBlockLeaves(blocks, x, y - 1))
+       )
+        blocks->breakBlock(x, y);
+}
+
+void addBlockBehaviour(ServerPlayers* players) {
+    players->getBlockBehaviour(&BlockTypes::wood).onUpdate = &treeUpdate;
+    players->getBlockBehaviour(&BlockTypes::leaves).onUpdate = &treeUpdate;
+    players->getBlockBehaviour(&BlockTypes::grass_block).onLeftClick = [](Blocks* blocks_, int x, int y, ServerPlayer* player) {
+        blocks_->setBlockType(x, y, &BlockTypes::dirt);
+    };
+    players->getBlockBehaviour(&BlockTypes::air).onRightClick = [](Blocks* blocks_, int x, int y, ServerPlayer* player) {
+        BlockType* type = player->inventory.getSelectedSlot().type->places;
+        if(type != &BlockTypes::air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
+            blocks_->setBlockType(x, y, type);
+        }
+    };
+    players->getBlockBehaviour(&BlockTypes::snowy_grass_block).onLeftClick = players->getBlockBehaviour(&BlockTypes::grass_block).onLeftClick;
+    players->getBlockBehaviour(&BlockTypes::wood).onUpdate = &stoneUpdate;
+    players->getBlockBehaviour(&BlockTypes::wood).onUpdate = &stoneUpdate;
+}
+
 void addLiquids(Liquids* liquids) {
     liquids->registerNewLiquidType(&LiquidTypes::water);
 }

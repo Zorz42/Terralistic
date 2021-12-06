@@ -1,6 +1,7 @@
 #pragma once
 #include "liquids.hpp"
 #include "inventory.hpp"
+#include "serverPlayers.hpp"
 
 namespace BlockTypes {
     extern BlockType dirt;
@@ -34,3 +35,4 @@ namespace ItemTypes {
 }
 
 void addContent(Blocks* blocks, Liquids* liquids, Items* items, Recipes* recipes);
+void addBlockBehaviour(ServerPlayers* players);

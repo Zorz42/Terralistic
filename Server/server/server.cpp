@@ -89,9 +89,9 @@ void Server::saveWorld() {
 
 void Server::start() {
     curr_server = this;
-    
-    addContent(&blocks, &liquids, &items, &recipes);
 
+    addContent(&blocks, &liquids, &items, &recipes);
+    
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
@@ -104,6 +104,8 @@ void Server::start() {
     
     for(int i = 0; i < modules.size(); i++)
         modules[i]->init();
+    
+    addBlockBehaviour(&players);
 
     signal(SIGINT, onInterrupt);
 
