@@ -152,7 +152,7 @@ void ClientBlocks::render() {
             if(getState(x, y) == 16)
                 updateState(x, y);
             
-            if(getBlockType(x, y) != &BlockTypes::air && (lights->getLightLevel(x, y) || !skip_rendering_in_dark)) {
+            if(getBlockType(x, y) != &BlockTypes_::air && (lights->getLightLevel(x, y) || !skip_rendering_in_dark)) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
                 int texture_x = (getRenderBlock(x, y)->variation) % (resource_pack->getTextureRectangle(getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
                 int texture_y = resource_pack->getTextureRectangle(getBlockType(x, y)).y + BLOCK_WIDTH * getRenderBlock(x, y)->state;

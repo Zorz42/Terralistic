@@ -44,7 +44,7 @@ void ClientLiquids::render() {
         for(int y = blocks->getViewBeginY(); y < blocks->getViewEndY(); y++) {
             int block_x = x * BLOCK_WIDTH * 2 - blocks->view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - blocks->view_y + gfx::getWindowHeight() / 2;
 
-            if(getLiquidType(x, y) != &LiquidTypes::empty) {
+            if(getLiquidType(x, y) != &LiquidTypes_::empty) {
                 int texture_y = resource_pack->getTextureRectangle(getLiquidType(x, y)).y * 2;
                 
                 liquid_rects.setTextureCoords(liquid_index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});

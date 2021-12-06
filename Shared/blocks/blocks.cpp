@@ -4,7 +4,7 @@
 BlockType::BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
 
 Blocks::Blocks() {
-    registerNewBlockType(&BlockTypes::air);
+    registerNewBlockType(&BlockTypes_::air);
 }
 
 void Blocks::create(int width_, int height_) {
@@ -106,7 +106,7 @@ void Blocks::breakBlock(int x, int y) {
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
     
-    setBlockType(x, y, &BlockTypes::air);
+    setBlockType(x, y, &BlockTypes_::air);
 }
 
 int Blocks::getWidth() const {

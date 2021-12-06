@@ -24,7 +24,7 @@ int Inventory::increaseStack(int pos, int stack) {
 int Inventory::decreaseStack(int pos, int stack) {
     if(stack >= getItem(pos).stack) {
         int prev_stack = getItem(pos).stack;
-        setItem(pos, ItemStack(&ItemTypes::nothing, 0));
+        setItem(pos, ItemStack(&ItemTypes_::nothing, 0));
         return prev_stack;
     } else {
         setItem(pos, ItemStack(getItem(pos).type, getItem(pos).stack - stack));
@@ -60,7 +60,7 @@ int Inventory::addItem(ItemType* id, int quantity) {
                 return i;
         }
     for(int i = 0; i < INVENTORY_SIZE; i++)
-        if(getItem(i).type == &ItemTypes::nothing) {
+        if(getItem(i).type == &ItemTypes_::nothing) {
             setItem(i, ItemStack(id, getItem(i).stack));
             quantity -= increaseStack(i, quantity);
             if(!quantity)

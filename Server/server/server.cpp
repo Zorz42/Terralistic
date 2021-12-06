@@ -22,7 +22,7 @@ Server::Server(std::string resource_path, std::string world_path, int port) :
     blocks(&networking),
     biomes(&blocks),
     liquids(&blocks, &networking),
-    generator(&blocks, &liquids, &biomes, std::move(resource_path)),
+    generator(&blocks, &liquids, &biomes, std::move(resource_path), &content),
     entities(&blocks, &networking),
     items(&entities, &blocks, &networking),
     players(&blocks, &entities, &items, &networking, &recipes),
@@ -90,7 +90,7 @@ void Server::saveWorld() {
 void Server::start() {
     curr_server = this;
 
-    addContent(&blocks, &liquids, &items, &recipes);
+    content.addContent(&blocks, &liquids, &items, &recipes);
     
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
@@ -105,7 +105,7 @@ void Server::start() {
     for(int i = 0; i < modules.size(); i++)
         modules[i]->init();
     
-    addBlockBehaviour(&players);
+    content.addBlockBehaviour(&players);
 
     signal(SIGINT, onInterrupt);
 

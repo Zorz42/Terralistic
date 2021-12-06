@@ -7,7 +7,7 @@ class ItemStack {
 public:
     ItemStack(ItemType* type, int stack) : type(type), stack(stack) {}
     ItemStack() = default;
-    ItemType* type = &ItemTypes::nothing;
+    ItemType* type = &ItemTypes_::nothing;
     int stack = 0;
 };
 

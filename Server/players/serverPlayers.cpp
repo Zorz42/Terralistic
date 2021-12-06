@@ -335,7 +335,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             
         case ClientPacketType::ITEM_DROP: {
             ItemType* dropped_item = event.player->inventory.getSelectedSlot().type;
-            if(dropped_item != &ItemTypes::nothing) {
+            if(dropped_item != &ItemTypes_::nothing) {
                 event.player->inventory.decreaseStack(event.player->inventory.selected_slot, 1);
                 Item* dropped_item_instance = items->spawnItem(dropped_item, event.player->getX() + (event.player->flipped ? -1 : 1) * 10, event.player->getY());
                 entities->addVelocityX(dropped_item_instance, (event.player->flipped ? -1 : 1) * 50);

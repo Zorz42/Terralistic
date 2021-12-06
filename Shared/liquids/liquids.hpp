@@ -21,14 +21,14 @@ public:
     int id;
 };
 
-namespace LiquidTypes {
+namespace LiquidTypes_ {
     inline LiquidType empty(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1, /*color*/{0, 0, 0, 0});
 }
 
 class Liquids {
     class Liquid {
     public:
-        Liquid() : id(LiquidTypes::empty.id), level(0) {}
+        Liquid() : id(LiquidTypes_::empty.id), level(0) {}
         int id:8;
         FlowDirection flow_direction:8;
         int level:8;
@@ -42,7 +42,7 @@ class Liquids {
     
     Blocks* blocks;
 public:
-    Liquids(Blocks* blocks) : blocks(blocks) { registerNewLiquidType(&LiquidTypes::empty); }
+    Liquids(Blocks* blocks) : blocks(blocks) { registerNewLiquidType(&LiquidTypes_::empty); }
     
     void create();
     

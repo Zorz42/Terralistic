@@ -149,7 +149,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&debug_menu);
 #endif
     
-    addContent(&blocks, &liquids, &items, &recipes);
+    content.addContent(&blocks, &liquids, &items, &recipes);
 }
 
 void Game::start() {

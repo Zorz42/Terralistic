@@ -42,14 +42,14 @@ public:
     int id;
 };
 
-namespace BlockTypes {
+namespace BlockTypes_ {
     inline BlockType air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*connects_to*/ {}, /*color*/{0, 0, 0, 0});
 };
 
 class Blocks {
     class Block {
     public:
-        Block() : id(BlockTypes::air.id) {}
+        Block() : id(BlockTypes_::air.id) {}
         int id:8;
     };
     
