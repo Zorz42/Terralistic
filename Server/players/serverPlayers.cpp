@@ -2,7 +2,9 @@
 #include "content.hpp"
 
 void ServerPlayers::init() {
-    blocks_behaviour = new BlockBehaviour[blocks->getNumBlockTypes()];
+    blocks_behaviour = new BlockBehaviour*[blocks->getNumBlockTypes()];
+    for(int i = 0; i < blocks->getNumBlockTypes(); i++)
+        blocks_behaviour[i] = &default_behaviour;
     
     blocks->block_change_event.addListener(this);
     networking->new_connection_event.addListener(this);
@@ -77,16 +79,11 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 }
 
 void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
-    while(getBlockBehaviour(blocks->getBlockType(x, y)).onLeftClick)
-        getBlockBehaviour(blocks->getBlockType(x, y)).onLeftClick(blocks, x, y, player);
-    
-    if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
-        blocks->startBreakingBlock(x, y);
+    getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(blocks, x, y, player);
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
-    if(getBlockBehaviour(blocks->getBlockType(x, y)).onRightClick)
-        getBlockBehaviour(blocks->getBlockType(x, y)).onRightClick(blocks, x, y, player);
+    getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(blocks, x, y, player);
 }
 
 char* ServerPlayers::addPlayerFromSerial(char* iter) {
@@ -142,8 +139,8 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
     }
     
     for(int i = 0; i < 5; i++)
-        if(neighbors[i][0] != -1 && getBlockBehaviour(blocks->getBlockType(neighbors[i][0], neighbors[i][1])).onUpdate)
-            getBlockBehaviour(blocks->getBlockType(neighbors[i][0], neighbors[i][1])).onUpdate(blocks, neighbors[i][0], neighbors[i][1]);
+        if(neighbors[i][0] != -1)
+            getBlockBehaviour(blocks->getBlockType(neighbors[i][0], neighbors[i][1]))->onUpdate(blocks, neighbors[i][0], neighbors[i][1]);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
@@ -353,7 +350,7 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     connection->send(packet);
 }
 
-BlockBehaviour& ServerPlayers::getBlockBehaviour(BlockType* type) {
+BlockBehaviour* ServerPlayers::getBlockBehaviour(BlockType* type) {
     return blocks_behaviour[type->id];
 }
 
