@@ -88,7 +88,12 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 }
 
 void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
-    getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(blocks, x, y, player);
+    while(true) {
+        BlockType* type = blocks->getBlockType(x, y);
+        getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(blocks, x, y, player);
+        if(blocks->getBlockType(x, y) == type)
+            break;
+    }
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
