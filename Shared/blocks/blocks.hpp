@@ -31,8 +31,8 @@ public:
 
 class BlockType {
 public:
-    BlockType() = default;
-    BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color);
+    //BlockType() = default;
+    BlockType(std::string name);
     
     bool ghost, transparent;
     std::string name;

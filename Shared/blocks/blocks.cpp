@@ -1,9 +1,13 @@
 #include "blocks.hpp"
 #include "exception.hpp"
 
-BlockType::BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
+BlockType::BlockType(std::string name) : name(std::move(name)) {}
 
-Blocks::Blocks() : air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*connects_to*/ {}, /*color*/{0, 0, 0, 0}) {
+Blocks::Blocks() : air("air") {
+    air.ghost = true;
+    air.transparent = true;
+    air.break_time = UNBREAKABLE;
+    air.color = {0, 0, 0, 0};
     registerNewBlockType(&air);
 }
 

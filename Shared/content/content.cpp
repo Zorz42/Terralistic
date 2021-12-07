@@ -1,3 +1,4 @@
+#include "configManager.hpp"
 #include "content.hpp"
 
 void GameContent::addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
@@ -8,19 +9,19 @@ void GameContent::addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, 
 }
 
 BlockTypes::BlockTypes() :
-dirt             ("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&grass_block, &snowy_grass_block }, /*color*/{115, 77,  38} ),
-stone_block      ("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&snowy_grass_block               }, /*color*/{128, 128, 128}),
-grass_block      ("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&dirt, &snowy_grass_block        }, /*color*/{0,   153, 0}  ),
-stone            ("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500,        /*connects_to*/{                                 }, /*color*/{128, 128, 128}),
-wood             ("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&grass_block, &leaves            }, /*color*/{128, 85,  0}  ),
-leaves           ("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE, /*connects_to*/{                                 }, /*color*/{0,   179, 0}  ),
-sand             ("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&dirt, &grass_block, &stone_block}, /*color*/{210, 170, 109}),
-snowy_grass_block("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&dirt, &grass_block, &stone_block}, /*color*/{217, 217, 217}),
-snow_block       ("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&snowy_grass_block, &ice_block   }, /*color*/{242, 242, 242}),
-ice_block        ("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&snow_block                      }, /*color*/{179, 217, 255}),
-iron_ore         ("iron_ore",          /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                 }, /*color*/{160, 160, 160}),
-copper_ore       ("copper_ore",        /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                 }, /*color*/{200, 109, 61} ),
-grass            ("grass",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1,           /*connects_to*/{                                 }, /*color*/{50,  203, 50} )
+dirt             ("dirt"),
+stone_block      ("stone_block"),
+grass_block      ("grass_block"),
+stone            ("stone"),
+wood             ("wood"),
+leaves           ("leaves"),
+sand             ("sand"),
+snowy_grass_block("snowy_grass_block"),
+snow_block       ("snow_block"),
+ice_block        ("ice_block"),
+iron_ore         ("iron_ore"),
+copper_ore       ("copper_ore"),
+grass            ("grass")
 {}
 
 LiquidTypes::LiquidTypes() :
@@ -39,7 +40,38 @@ hatchet    (/*name*/"hatchet",     /*max_stack*/1,  /*places*/&blocks_->air     
 {}
 
 void BlockTypes::addContent(Blocks* blocks, Items* items, ItemTypes* item_types, const std::string& resource_path) {
-    blocks->registerNewBlockType(&dirt);
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass};
+    
+    for(BlockType* block_type : block_types)
+        blocks->registerNewBlockType(block_type);
+    
+    for(BlockType* block_type : block_types) {
+        ConfigFile block_properties(resource_path + "blockinfos/" + block_type->name + ".txt");
+        
+        block_type->color = {(unsigned char)block_properties.getInt("color_r"), (unsigned char)block_properties.getInt("color_g"), (unsigned char)block_properties.getInt("color_b")};
+        
+        if(block_properties.getStr("break_time") == "UNBREAKABLE")
+            block_type->break_time = UNBREAKABLE;
+        else
+            block_type->break_time = block_properties.getInt("break_time");
+        
+        block_type->ghost = block_properties.getStr("ghost") == "true";
+        block_type->transparent = block_properties.getStr("transparent") == "true";
+        
+        std::string connects_to = block_properties.getStr("connects_to");
+        while(!connects_to.empty()) {
+            int iter = (int)connects_to.find(' ');
+            std::string name = iter == -1 ? connects_to : connects_to.substr(0, iter);
+            if(iter == -1)
+                connects_to.clear();
+            else
+                connects_to.erase(connects_to.begin(), connects_to.begin() + iter + 1);
+
+            block_type->connects_to.push_back(blocks->getBlockTypeByName(name));
+        }
+    }
+    
+    /*blocks->registerNewBlockType(&dirt);
     items->setBlockDrop(&dirt, BlockDrop(&item_types->dirt));
     blocks->registerNewBlockType(&stone_block);
     items->setBlockDrop(&stone_block, BlockDrop(&item_types->stone_block));
@@ -58,7 +90,7 @@ void BlockTypes::addContent(Blocks* blocks, Items* items, ItemTypes* item_types,
     blocks->registerNewBlockType(&copper_ore);
     items->setBlockDrop(&copper_ore, BlockDrop(&item_types->copper_ore));
     blocks->registerNewBlockType(&grass);
-    items->setBlockDrop(&grass, BlockDrop(&item_types->fiber, 0.3));
+    items->setBlockDrop(&grass, BlockDrop(&item_types->fiber, 0.3));*/
 }
 
 bool BlockTypes::isBlockTree(Blocks* blocks, int x, int y) {

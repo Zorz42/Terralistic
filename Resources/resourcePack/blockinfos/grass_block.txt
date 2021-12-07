@@ -2,7 +2,7 @@ name: grass_block
 ghost: false
 transparent: false
 break_time: 1000
-connects_to: dirt, snowy_grass_block
+connects_to: dirt snowy_grass_block
 color_r: 0
 color_g: 135
 color_b: 0
