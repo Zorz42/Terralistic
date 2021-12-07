@@ -1,0 +1,10 @@
+name: dirt
+ghost: false
+transparent: false
+break_time: 1000
+connects_to: grass_block, snowy_grass_block
+color_r: 115
+color_g: 77
+color_b: 38
+drop: dirt
+drop_chance: 100

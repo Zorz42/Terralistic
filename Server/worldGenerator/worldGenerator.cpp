@@ -367,7 +367,9 @@ void WorldGenerator::generateFoliage(std::mt19937& seeded_random) {
 
 void WorldGenerator::loadAssets() {
     std::ifstream structureFile;
-    structureFile.open(resource_path + "/Structures.asset", std::ios::in);
+    structureFile.open(resource_path + "misc/structures.asset", std::ios::in);
+    if(!structureFile.is_open())
+        throw Exception("Could not open structures file");
 
     structureFile.seekg(0, std::ios::end);
     int size = (int)structureFile.tellg();

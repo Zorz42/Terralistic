@@ -17,18 +17,18 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
-Server::Server(std::string resource_path, std::string world_path, int port) :
+Server::Server(const std::string& resource_path, const std::string& world_path, int port) :
     networking(port),
     blocks(&networking),
     biomes(&blocks),
     liquids(&blocks, &networking),
-    generator(&blocks, &liquids, &biomes, std::move(resource_path), &content),
+    generator(&blocks, &liquids, &biomes, resource_path + "resourcePack/", &content),
     entities(&blocks, &networking),
     items(&entities, &blocks, &networking),
     players(&blocks, &entities, &items, &networking, &recipes),
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
-    world_path(std::move(world_path)),
+    world_path(world_path),
     content(&blocks),
     seed((int)time(NULL))
 {

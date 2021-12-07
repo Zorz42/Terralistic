@@ -33,7 +33,7 @@ class Server {
 public:
     ServerState state = ServerState::NEUTRAL;
     
-    Server(std::string resource_path, std::string world_path, int port);
+    Server(const std::string& resource_path, const std::string& world_path, int port);
     
     int seed;
     

@@ -20,7 +20,7 @@ snow_block       ("snow_block",        /*ghost*/false, /*transparent*/false, /*b
 ice_block        ("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&snow_block                      }, /*color*/{179, 217, 255}),
 iron_ore         ("iron_ore",          /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                 }, /*color*/{160, 160, 160}),
 copper_ore       ("copper_ore",        /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                 }, /*color*/{200, 109, 61} ),
-grass            ("grass",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1,           /*connects_to*/{                                 }, /*color*/{50,   203, 50})
+grass            ("grass",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1,           /*connects_to*/{                                 }, /*color*/{50,  203, 50} )
 {}
 
 LiquidTypes::LiquidTypes() :

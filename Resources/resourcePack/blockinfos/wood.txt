@@ -1,0 +1,10 @@
+name: wood
+ghost: true
+transparent: false
+break_time: 1000
+connects_to: grass_block, leaves
+color_r: 128
+color_g: 85
+color_b: 0
+drop: wood
+drop_chance: 100
