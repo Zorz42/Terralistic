@@ -30,6 +30,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(world_path),
     content(&blocks),
+    resource_path(resource_path),
     seed((int)time(NULL))
 {
     if(port < 0 || port > 65535)
@@ -91,7 +92,7 @@ void Server::saveWorld() {
 void Server::start() {
     curr_server = this;
 
-    content.addContent(&blocks, &liquids, &items, &recipes);
+    content.addContent(&blocks, &liquids, &items, &recipes, resource_path + "resourcePack/");
     
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;

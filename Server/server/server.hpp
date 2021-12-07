@@ -30,6 +30,7 @@ class Server {
     void loadWorld();
     
     std::vector<ServerModule*> modules;
+    std::string resource_path;
 public:
     ServerState state = ServerState::NEUTRAL;
     

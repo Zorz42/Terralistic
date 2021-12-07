@@ -8,7 +8,7 @@ class ItemTypes;
 class BlockTypes {
 public:
     BlockTypes();
-    void addContent(Blocks* blocks, Items* items, ItemTypes* item_types);
+    void addContent(Blocks* blocks, Items* items, ItemTypes* item_types, const std::string& resource_path);
     
     bool isBlockTree(Blocks* blocks, int x, int y);
     bool isBlockWood(Blocks* blocks, int x, int y);
@@ -100,7 +100,7 @@ class GameContent {
 public:
     GameContent(Blocks* blocks_) : blocks(), liquids(), items(&blocks, blocks_), wood_behaviour(&blocks), leaves_behaviour(&blocks), grass_block_behaviour(&blocks), snowy_grass_block_behaviour(&blocks) {}
     
-    void addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes);
+    void addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
     void addBlockBehaviour(ServerPlayers* players);
     
     BlockTypes blocks;

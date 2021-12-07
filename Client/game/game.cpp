@@ -150,7 +150,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&debug_menu);
 #endif
     
-    content.addContent(&blocks, &liquids, &items, &recipes);
+    content.addContent(&blocks, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
 }
 
 void Game::start() {

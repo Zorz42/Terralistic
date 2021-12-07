@@ -1,7 +1,7 @@
 #include "content.hpp"
 
-void GameContent::addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes) {
-    blocks.addContent(blocks_, items_, &items);
+void GameContent::addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
+    blocks.addContent(blocks_, items_, &items, resource_path);
     liquids.addContent(liquids_);
     items.addContent(items_);
     addRecipes(recipes);
@@ -38,7 +38,7 @@ fiber      (/*name*/"fiber",       /*max_stack*/99, /*places*/&blocks_->air     
 hatchet    (/*name*/"hatchet",     /*max_stack*/1,  /*places*/&blocks_->air       )
 {}
 
-void BlockTypes::addContent(Blocks* blocks, Items* items, ItemTypes* item_types) {
+void BlockTypes::addContent(Blocks* blocks, Items* items, ItemTypes* item_types, const std::string& resource_path) {
     blocks->registerNewBlockType(&dirt);
     items->setBlockDrop(&dirt, BlockDrop(&item_types->dirt));
     blocks->registerNewBlockType(&stone_block);
