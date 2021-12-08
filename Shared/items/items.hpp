@@ -5,11 +5,10 @@
 
 class ItemType {
 public:
-    ItemType() = default;
-    ItemType(std::string name, int stack_size, BlockType* places);
+    ItemType(std::string name) : name(std::move(name)) {}
     
     std::string name;
-    int stack_size;
+    int max_stack;
     BlockType* places;
     int id;
 };
@@ -46,7 +45,7 @@ class Items {
     std::vector<BlockDrop> drops;
     
 public:
-    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing(/*name*/"nothing", /*max_stack*/0,  /*places*/&blocks->air) { registerNewItemType(&nothing); }
+    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing("nothing") { nothing.places = &blocks->air; nothing.max_stack = 0; registerNewItemType(&nothing); }
     Item* spawnItem(ItemType* type, int x, int y);
     
     ItemType nothing;

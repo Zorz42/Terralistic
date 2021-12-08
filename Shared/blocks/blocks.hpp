@@ -31,7 +31,6 @@ public:
 
 class BlockType {
 public:
-    //BlockType() = default;
     BlockType(std::string name);
     
     bool ghost, transparent;

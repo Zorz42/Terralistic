@@ -1,4 +1,3 @@
-name: iron_ore
 ghost: false
 transparent: false
 break_time: 1500

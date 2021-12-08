@@ -1,7 +1,5 @@
 #include "items.hpp"
 
-ItemType::ItemType(std::string name, int stack_size, BlockType* places) : name(std::move(name)), stack_size(stack_size), places(places) {}
-
 ItemType* Item::getType() const {
     return type;
 }

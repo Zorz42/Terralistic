@@ -1,4 +1,3 @@
-name: snow_block
 ghost: false
 transparent: false
 break_time: 500

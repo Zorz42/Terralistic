@@ -29,7 +29,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(world_path),
-    content(&blocks),
+    content(&blocks, &items),
     resource_path(resource_path),
     seed((int)time(NULL))
 {
@@ -107,7 +107,7 @@ void Server::start() {
     for(int i = 0; i < modules.size(); i++)
         modules[i]->init();
     
-    content.addBlockBehaviour(&players);
+    content.blocks.addBlockBehaviour(&players);
 
     signal(SIGINT, onInterrupt);
 

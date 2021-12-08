@@ -1,0 +1,2 @@
+max_stack: 99
+places: air

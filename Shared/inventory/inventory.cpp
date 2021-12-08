@@ -14,8 +14,8 @@ void Inventory::setItem(int pos, ItemStack item) {
 
 int Inventory::increaseStack(int pos, int stack) {
     int stack_to_be = getItem(pos).stack + stack, result;
-    if(stack_to_be > getItem(pos).type->stack_size)
-        stack_to_be = getItem(pos).type->stack_size;
+    if(stack_to_be > getItem(pos).type->max_stack)
+        stack_to_be = getItem(pos).type->max_stack;
     result = stack_to_be - getItem(pos).stack;
     setItem(pos, ItemStack(getItem(pos).type, stack_to_be));
     return result;

@@ -1,4 +1,3 @@
-name: sand
 ghost: false
 transparent: false
 break_time: 500

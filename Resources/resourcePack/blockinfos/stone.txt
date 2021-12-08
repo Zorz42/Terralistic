@@ -1,4 +1,3 @@
-name: stone
 ghost: true
 transparent: true
 break_time: 1500

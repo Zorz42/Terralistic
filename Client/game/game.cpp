@@ -130,7 +130,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     minimap(settings, &blocks, &liquids, &lights, &natural_light),
     chat(&networking),
     debug_menu(&players, &blocks),
-    content(&blocks)
+    content(&blocks, &items)
 {
     registerAModule(&networking);
     registerAModule(&resource_pack);

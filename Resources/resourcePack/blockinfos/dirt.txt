@@ -1,4 +1,3 @@
-name: dirt
 ghost: false
 transparent: false
 break_time: 1000

@@ -1,4 +1,3 @@
-name: stone_block
 ghost: false
 transparent: false
 break_time: 1000
