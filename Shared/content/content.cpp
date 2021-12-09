@@ -78,26 +78,16 @@ bool BlockTypes::isBlockLeaves(Blocks* blocks, int x, int y) {
 }
 
 void WoodBehaviour::onUpdate(Blocks* blocks, int x, int y) {
-    if(
-       (!blocks_->isBlockTree(blocks, x, y + 1) && !blocks_->isBlockTree(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x + 1, y)) ||
-       (blocks_->isBlockWood(blocks, x, y - 1) && blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (blocks_->isBlockWood(blocks, x, y - 1) && blocks_->isBlockWood(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (blocks_->isBlockLeaves(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x, y - 1) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (blocks_->isBlockLeaves(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x, y - 1) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (!blocks_->isBlockTree(blocks, x, y + 1) && blocks_->isBlockLeaves(blocks, x - 1, y) && blocks_->isBlockLeaves(blocks, x + 1, y) && blocks_->isBlockLeaves(blocks, x, y - 1))
-       )
+    if((y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &blocks->air &&
+       (!blocks_->isBlockTree(blocks, x - 1, y) || !blocks_->isBlockTree(blocks, x + 1, y)))
+       || (!blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y) && !blocks_->isBlockWood(blocks, x, y + 1) && !blocks_->isBlockWood(blocks, x, y - 1)))
         blocks->breakBlock(x, y);
 }
 
 void LeavesBehaviour::onUpdate(Blocks* blocks, int x, int y) {
-    if(
-       (!blocks_->isBlockTree(blocks, x, y + 1) && !blocks_->isBlockTree(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x + 1, y)) ||
-       (blocks_->isBlockWood(blocks, x, y - 1) && blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (blocks_->isBlockWood(blocks, x, y - 1) && blocks_->isBlockWood(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (blocks_->isBlockLeaves(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x, y - 1) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (blocks_->isBlockLeaves(blocks, x + 1, y) && !blocks_->isBlockTree(blocks, x - 1, y) && !blocks_->isBlockTree(blocks, x, y - 1) && !blocks_->isBlockTree(blocks, x, y + 1)) ||
-       (!blocks_->isBlockTree(blocks, x, y + 1) && blocks_->isBlockLeaves(blocks, x - 1, y) && blocks_->isBlockLeaves(blocks, x + 1, y) && blocks_->isBlockLeaves(blocks, x, y - 1))
-       )
+    if(!blocks_->isBlockWood(blocks, x, y + 1) &&
+       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x + 1, y) || blocks_->isBlockLeaves(blocks, x - 1, y)) &&
+       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x - 1, y) || blocks_->isBlockLeaves(blocks, x + 1, y)))
         blocks->breakBlock(x, y);
 }
 
