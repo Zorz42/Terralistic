@@ -97,9 +97,8 @@ void ClientInventory::render() {
         renderItem(inventory->getItem(-1), getMouseX(), getMouseY());
         
         hovered_recipe = -1;
-        behind_crafting_rect.render();
-        
         behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)inventory->getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
+        behind_crafting_rect.render();
         
         for(int i = 0; i < inventory->getAvailableRecipes().size(); i++) {
             int slot_x = 1.5 * INVENTORY_UI_SPACING;
