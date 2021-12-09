@@ -53,7 +53,7 @@ class BlockTypes {
     std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass};
 public:
     BlockTypes(Blocks* blocks);
-    void addContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
+    void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
     void addBlockBehaviour(ServerPlayers* players);
     
     bool isBlockTree(Blocks* blocks, int x, int y);
@@ -76,9 +76,10 @@ public:
 };
 
 class LiquidTypes {
+    std::vector<LiquidType*> liquid_types = {&water};
 public:
-    LiquidTypes();
-    void addContent(Liquids* liquids);
+    LiquidTypes(Liquids* liquids);
+    void loadContent(Liquids* liquids, const std::string& resource_path);
     
     LiquidType water;
 };
@@ -87,7 +88,7 @@ class ItemTypes {
     std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet};
 public:
     ItemTypes(BlockTypes* blocks, Blocks* blocks_, Items* items);
-    void addContent(Items* items, Blocks* blocks, const std::string& resource_path);
+    void loadContent(Items* items, Blocks* blocks, const std::string& resource_path);
     
     ItemType stone{"stone"};
     ItemType dirt{"dirt"};
@@ -102,9 +103,9 @@ public:
 class GameContent {
     void addRecipes(Recipes* recipes);
 public:
-    GameContent(Blocks* blocks_, Items* items_) : blocks(blocks_), liquids(), items(&blocks, blocks_, items_) {}
+    GameContent(Blocks* blocks_, Liquids* liquids_, Items* items_) : blocks(blocks_), liquids(liquids_), items(&blocks, blocks_, items_) {}
     
-    void addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
+    void loadContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
     
     BlockTypes blocks;
     LiquidTypes liquids;

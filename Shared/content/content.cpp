@@ -1,10 +1,10 @@
 #include "configManager.hpp"
 #include "content.hpp"
 
-void GameContent::addContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
-    blocks.addContent(blocks_, items_, &items, resource_path);
-    liquids.addContent(liquids_);
-    items.addContent(items_, blocks_, resource_path);
+void GameContent::loadContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
+    blocks.loadContent(blocks_, items_, &items, resource_path);
+    liquids.loadContent(liquids_, resource_path);
+    items.loadContent(items_, blocks_, resource_path);
     addRecipes(recipes);
 }
 
@@ -23,7 +23,7 @@ BlockTypes::BlockTypes(Blocks* blocks) {
         blocks->registerNewBlockType(block_type);
 }
 
-void BlockTypes::addContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path) {
+void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path) {
     for(BlockType* block_type : block_types) {
         ConfigFile block_properties(resource_path + "blockinfos/" + block_type->name + ".txt");
         
@@ -109,12 +109,20 @@ void GrassBehaviour::onUpdate(Blocks* blocks, int x, int y) {
         blocks->breakBlock(x, y);
 }
 
-LiquidTypes::LiquidTypes() :
-water(/*name*/"water", /*flow_time*/100, /*speed_multiplier*/0.5, /*color*/{0, 92, 230, 150})
-{}
+LiquidTypes::LiquidTypes(Liquids* liquids) :
+water("water")
+{
+    for(LiquidType* liquid_type : liquid_types)
+        liquids->registerNewLiquidType(liquid_type);
+}
 
-void LiquidTypes::addContent(Liquids* liquids) {
-    liquids->registerNewLiquidType(&water);
+void LiquidTypes::loadContent(Liquids* liquids, const std::string& resource_path) {
+    for(LiquidType* liquid_type : liquid_types) {
+        ConfigFile liquid_properties(resource_path + "liquidinfos/" + liquid_type->name + ".txt");
+        liquid_type->flow_time = liquid_properties.getInt("flow_time");
+        liquid_type->speed_multiplier = liquid_properties.getInt("speed_multiplier") / 100.f;
+        liquid_type->color = {(unsigned char)liquid_properties.getInt("color_r"), (unsigned char)liquid_properties.getInt("color_g"), (unsigned char)liquid_properties.getInt("color_b"), (unsigned char)liquid_properties.getInt("color_a")};
+    }
 }
 
 ItemTypes::ItemTypes(BlockTypes* blocks, Blocks* blocks_, Items* items) {
@@ -122,7 +130,7 @@ ItemTypes::ItemTypes(BlockTypes* blocks, Blocks* blocks_, Items* items) {
         items->registerNewItemType(item_type);
 }
 
-void ItemTypes::addContent(Items* items, Blocks* blocks, const std::string& resource_path) {
+void ItemTypes::loadContent(Items* items, Blocks* blocks, const std::string& resource_path) {
     for(ItemType* item_type : item_types) {
         ConfigFile item_properties(resource_path + "iteminfos/" + item_type->name + ".txt");
         item_type->max_stack = item_properties.getInt("max_stack");

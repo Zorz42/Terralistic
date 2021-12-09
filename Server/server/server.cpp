@@ -29,7 +29,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(world_path),
-    content(&blocks, &items),
+    content(&blocks, &liquids, &items),
     resource_path(resource_path),
     seed((int)time(NULL))
 {
@@ -92,7 +92,7 @@ void Server::saveWorld() {
 void Server::start() {
     curr_server = this;
 
-    content.addContent(&blocks, &liquids, &items, &recipes, resource_path + "resourcePack/");
+    content.loadContent(&blocks, &liquids, &items, &recipes, resource_path + "resourcePack/");
     
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;

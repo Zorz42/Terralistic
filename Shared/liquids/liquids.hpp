@@ -11,8 +11,7 @@ public:
 
 class LiquidType {
 public:
-    LiquidType() = default;
-    LiquidType(std::string name, int flow_time, float speed_multiplier, gfx::Color color);
+    LiquidType(std::string name) : name(std::move(name)) {}
     
     std::string name;
     int flow_time;
@@ -38,7 +37,7 @@ class Liquids {
     
     Blocks* blocks;
 public:
-    Liquids(Blocks* blocks) : blocks(blocks), empty(/*name*/"empty", /*flow_time*/0, /*speed_multiplier*/1, /*color*/{0, 0, 0, 0}) { registerNewLiquidType(&empty); }
+    Liquids(Blocks* blocks) : blocks(blocks), empty("empty") { empty.flow_time = 0; empty.speed_multiplier = 1; empty.color = TRANSPARENT; registerNewLiquidType(&empty); }
     
     void create();
     
