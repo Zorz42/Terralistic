@@ -2,6 +2,7 @@
 #include "perlinNoise.hpp"
 #include "biomes.hpp"
 #include "liquids.hpp"
+#include "content.hpp"
 
 class Structure {
 public:
@@ -35,7 +36,7 @@ class WorldGenerator {
     void generateLakeRecursively(int x, int y);
     void generateOres(siv::PerlinNoise& noise, std::mt19937& seeded_random);
     void generateOre(BlockType* type, float chance, int blob_distance, siv::PerlinNoise& noise, std::mt19937& seeded_random);
-    void generateStones(std::mt19937& seeded_random);
+    void generateFoliage(std::mt19937& seeded_random);
     void placeStructures(siv::PerlinNoise& noise);
     void generateStructureWorld();
     void generateFlatTerrain();
@@ -67,8 +68,10 @@ class WorldGenerator {
     
     int* surface_height;
 
+    GameContent* content;
+    
 public:
-    WorldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)) {}
+    WorldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path, GameContent* content) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)), content(content) {}
 
     int getGeneratingCurrent() const { return generating_current; }
     int getGeneratingTotal() const { return generating_total; }

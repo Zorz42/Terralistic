@@ -66,8 +66,8 @@ void ServerNetworking::init() {
 }
 
 void ServerNetworking::sendToEveryone(sf::Packet& packet) {
-    for(Connection* connection : connections)
-        connection->send(packet);
+    for(int i = 0; i < connections.size(); i++)
+        connections[i]->send(packet);
 }
 
 void ServerNetworking::update(float frame_length) {
@@ -119,8 +119,8 @@ void ServerNetworking::update(float frame_length) {
 
 void ServerNetworking::stop() {
     if(!is_private)
-        for(Connection* connection : connections)
-            kickConnection(connection, "Server stopped!");
+        for(int i = 0; i < connections.size(); i++)
+            kickConnection(connections[i], "Server stopped!");
     
     listener.close();
 }

@@ -75,7 +75,7 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     args.erase(args.begin());
     indentifier.erase(indentifier.begin());
 
-    for(Command* command : commands)
-        if(command->indetifier == indentifier)
-            command->onCommand(args, player);
+    for(int i = 0; i < commands.size(); i++)
+        if(commands[i]->indetifier == indentifier)
+            commands[i]->onCommand(args, player);
 }

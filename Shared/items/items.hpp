@@ -5,18 +5,13 @@
 
 class ItemType {
 public:
-    ItemType() = default;
-    ItemType(std::string name, int stack_size, BlockType* places);
+    ItemType(std::string name) : name(std::move(name)) {}
     
     std::string name;
-    int stack_size;
+    int max_stack;
     BlockType* places;
     int id;
 };
-
-namespace ItemTypes {
-    inline ItemType nothing(/*name*/"nothing", /*max_stack*/0,  /*places*/&BlockTypes::air);
-}
 
 class Item : public Entity {
     ItemType* type;
@@ -34,24 +29,34 @@ public:
     const Item* item;
 };
 
+class BlockDrop {
+public:
+    BlockDrop() : drop(nullptr) {}
+    explicit BlockDrop(ItemType* drop, float chance=1) : drop(drop), chance(chance) {}
+    ItemType* drop;
+    float chance;
+};
+
 class Items {
     Entities* entities;
     Blocks* blocks;
     
     std::vector<ItemType*> item_types;
-    std::vector<ItemType*> drops;
+    std::vector<BlockDrop> drops;
     
 public:
-    explicit Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks) { registerNewItemType(&ItemTypes::nothing); }
+    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing("nothing") { nothing.places = &blocks->air; nothing.max_stack = 0; registerNewItemType(&nothing); }
     Item* spawnItem(ItemType* type, int x, int y);
+    
+    ItemType nothing;
     
     void registerNewItemType(ItemType* item_type);
     ItemType* getItemTypeById(int item_id);
     ItemType* getItemTypeByName(const std::string& name);
     int getNumItemTypes();
     
-    void setBlockDrop(BlockType* block_type, ItemType* item_type);
-    ItemType* getBlockDrop(BlockType* block_type);
+    void setBlockDrop(BlockType* block_type, BlockDrop block_drop);
+    BlockDrop getBlockDrop(BlockType* block_type);
     
     EventSender<ItemCreationEvent> item_creation_event;
 };

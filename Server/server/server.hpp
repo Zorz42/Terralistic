@@ -5,6 +5,7 @@
 #include "serverBlocks.hpp"
 #include "serverLiquids.hpp"
 #include "commands.hpp"
+#include "content.hpp"
 
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
@@ -20,8 +21,8 @@ class Server {
     ServerChat chat;
     Commands commands;
     ServerEntities entities;
-
     Recipes recipes;
+    GameContent content;
     
     bool running = true;
     
@@ -29,10 +30,11 @@ class Server {
     void loadWorld();
     
     std::vector<ServerModule*> modules;
+    std::string resource_path;
 public:
     ServerState state = ServerState::NEUTRAL;
     
-    Server(std::string resource_path, std::string world_path, int port);
+    Server(const std::string& resource_path, const std::string& world_path, int port);
     
     int seed;
     

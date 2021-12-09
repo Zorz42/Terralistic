@@ -9,7 +9,7 @@
 
 class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
     gfx::Texture numbers[10];
-    Inventory inventory;
+    Inventory *inventory = nullptr;
     bool open = false;
     int selected_slot = 0;
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
@@ -28,8 +28,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     ResourcePack* resource_pack;
     ClientNetworking* manager;
     Items* items;
+    Recipes* recipes;
 public:
-    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, Items* items, Recipes* recipes) : manager(manager), resource_pack(resource_pack), inventory(items, recipes), items(items) {}
+    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, Items* items, Recipes* recipes) : manager(manager), resource_pack(resource_pack), items(items), recipes(recipes) {}
     
     char* loadFromSerial(char* iter);
 };

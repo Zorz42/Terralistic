@@ -1,0 +1,2 @@
+max_stack: 1
+places: air

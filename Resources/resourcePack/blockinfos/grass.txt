@@ -1,0 +1,9 @@
+ghost: true
+transparent: true
+break_time: 1
+connects_to:
+color_r: 50
+color_g: 203
+color_b: 50
+drop: fiber
+drop_chance: 30

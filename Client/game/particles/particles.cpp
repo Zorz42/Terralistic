@@ -96,8 +96,8 @@ void Particles::stop() {
 void Particles::update(float frame_length) {
     enabled = particle_enable_setting.getValue();
     if(enabled)
-        for(Particle& particle : particles)
-            particle.update(blocks, frame_length);
+        for(int i = 0; i < particles.size(); i++)
+            particles[i].update(blocks, frame_length);
 }
 
 void Particles::render() {

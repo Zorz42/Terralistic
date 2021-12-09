@@ -1,81 +1,139 @@
+#include "configManager.hpp"
 #include "content.hpp"
 
-void addBlocks(Blocks* blocks, Items* items);
-void addLiquids(Liquids* liquids);
-void addItems(Items* items);
-void addRecipes(Recipes* recipes);
-
-void addContent(Blocks* blocks, Liquids* liquids, Items* items, Recipes* recipes) {
-    addBlocks(blocks, items);
-    addLiquids(liquids);
-    addItems(items);
+void GameContent::loadContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
+    blocks.loadContent(blocks_, items_, &items, resource_path);
+    liquids.loadContent(liquids_, resource_path);
+    items.loadContent(items_, blocks_, resource_path);
     addRecipes(recipes);
 }
 
-namespace BlockTypes {
-    BlockType dirt             ("dirt",              /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&BlockTypes::grass_block, &BlockTypes::snowy_grass_block             }, /*color*/{115, 77,  38} );
-    BlockType stone_block      ("stone_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&BlockTypes::snowy_grass_block                                       }, /*color*/{128, 128, 128});
-    BlockType grass_block      ("grass_block",       /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&BlockTypes::dirt, &BlockTypes::snowy_grass_block                    }, /*color*/{0,   153, 0}  );
-    BlockType stone            ("stone",             /*ghost*/true,  /*transparent*/true,  /*break_time*/1500,        /*connects_to*/{                                                                     }, /*color*/{128, 128, 128});
-    BlockType wood             ("wood",              /*ghost*/true,  /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&BlockTypes::grass_block, &BlockTypes::leaves                        }, /*color*/{128, 85,  0}  );
-    BlockType leaves           ("leaves",            /*ghost*/true,  /*transparent*/false, /*break_time*/UNBREAKABLE, /*connects_to*/{                                                                     }, /*color*/{0,   179, 0}  );
-    BlockType sand             ("sand",              /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&BlockTypes::dirt, &BlockTypes::grass_block, &BlockTypes::stone_block}, /*color*/{210, 170, 109});
-    BlockType snowy_grass_block("snowy_grass_block", /*ghost*/false, /*transparent*/false, /*break_time*/1000,        /*connects_to*/{&BlockTypes::dirt, &BlockTypes::grass_block, &BlockTypes::stone_block}, /*color*/{217, 217, 217});
-    BlockType snow_block       ("snow_block",        /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&BlockTypes::snowy_grass_block, &BlockTypes::ice_block               }, /*color*/{242, 242, 242});
-    BlockType ice_block        ("ice_block",         /*ghost*/false, /*transparent*/false, /*break_time*/500,         /*connects_to*/{&BlockTypes::snow_block                                              }, /*color*/{179, 217, 255});
-    BlockType iron_ore         ("iron_ore",          /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                                                     }, /*color*/{160, 160, 160});
-    BlockType copper_ore       ("copper_ore",        /*ghost*/false, /*transparent*/false, /*break_time*/1500,        /*connects_to*/{                                                                     }, /*color*/{200, 109, 61} );
+void GameContent::addRecipes(Recipes* recipes) {
+    Recipe* recipe;
+    
+    recipe = new Recipe;
+    recipe->result = ItemStack(&items.hatchet, 1);
+    recipe->ingredients[&items.fiber] = 4;
+    recipe->ingredients[&items.stone] = 1;
+    recipes->registerARecipe(recipe);
 }
 
-void addBlocks(Blocks* blocks, Items* items) {
-    blocks->registerNewBlockType(&BlockTypes::dirt);
-    items->setBlockDrop(&BlockTypes::dirt, &ItemTypes::dirt);
-    blocks->registerNewBlockType(&BlockTypes::stone_block);
-    items->setBlockDrop(&BlockTypes::stone_block, &ItemTypes::stone_block);
-    blocks->registerNewBlockType(&BlockTypes::grass_block);
-    blocks->registerNewBlockType(&BlockTypes::stone);
-    items->setBlockDrop(&BlockTypes::stone, &ItemTypes::stone);
-    blocks->registerNewBlockType(&BlockTypes::wood);
-    items->setBlockDrop(&BlockTypes::wood, &ItemTypes::wood_planks);
-    blocks->registerNewBlockType(&BlockTypes::leaves);
-    blocks->registerNewBlockType(&BlockTypes::sand);
-    blocks->registerNewBlockType(&BlockTypes::snowy_grass_block);
-    blocks->registerNewBlockType(&BlockTypes::snow_block);
-    blocks->registerNewBlockType(&BlockTypes::ice_block);
-    blocks->registerNewBlockType(&BlockTypes::iron_ore);
-    items->setBlockDrop(&BlockTypes::iron_ore, &ItemTypes::iron_ore);
-    blocks->registerNewBlockType(&BlockTypes::copper_ore);
-    items->setBlockDrop(&BlockTypes::copper_ore, &ItemTypes::copper_ore);
+BlockTypes::BlockTypes(Blocks* blocks) {
+    for(BlockType* block_type : block_types)
+        blocks->registerNewBlockType(block_type);
 }
 
-void addLiquids(Liquids* liquids) {
-    liquids->registerNewLiquidType(&LiquidTypes::water);
+void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path) {
+    for(BlockType* block_type : block_types) {
+        ConfigFile block_properties(resource_path + "blockinfos/" + block_type->name + ".txt");
+        
+        block_type->color = {(unsigned char)block_properties.getInt("color_r"), (unsigned char)block_properties.getInt("color_g"), (unsigned char)block_properties.getInt("color_b")};
+        
+        if(block_properties.getStr("break_time") == "UNBREAKABLE")
+            block_type->break_time = UNBREAKABLE;
+        else
+            block_type->break_time = block_properties.getInt("break_time");
+        
+        block_type->ghost = block_properties.getStr("ghost") == "true";
+        block_type->transparent = block_properties.getStr("transparent") == "true";
+        
+        std::string connects_to = block_properties.getStr("connects_to");
+        while(!connects_to.empty()) {
+            int iter = (int)connects_to.find(' ');
+            std::string name = iter == -1 ? connects_to : connects_to.substr(0, iter);
+            if(iter == -1)
+                connects_to.clear();
+            else
+                connects_to.erase(connects_to.begin(), connects_to.begin() + iter + 1);
+
+            block_type->connects_to.push_back(blocks->getBlockTypeByName(name));
+        }
+        
+        ItemType* drop = items->getItemTypeByName(block_properties.getStr("drop"));
+        if(drop != &items->nothing) {
+            items->setBlockDrop(block_type, BlockDrop(drop, block_properties.getInt("drop_chance") / 100.f));
+        }
+    }
 }
 
-void addItems(Items* items) {
-    items->registerNewItemType(&ItemTypes::stone);
-    items->registerNewItemType(&ItemTypes::dirt);
-    items->registerNewItemType(&ItemTypes::stone_block);
-    items->registerNewItemType(&ItemTypes::wood_planks);
-    items->registerNewItemType(&ItemTypes::iron_ore);
-    items->registerNewItemType(&ItemTypes::copper_ore);
+void BlockTypes::addBlockBehaviour(ServerPlayers* players) {
+    players->getBlockBehaviour(&wood) = &wood_behaviour;
+    players->getBlockBehaviour(&leaves) = &leaves_behaviour;
+    players->getBlockBehaviour(&grass_block) = &grass_block_behaviour;
+    players->getBlockBehaviour(&snowy_grass_block) = &snowy_grass_block_behaviour;
+    players->getBlockBehaviour(&stone) = &stone_behaviour;
+    players->getBlockBehaviour(&grass) = &grass_behaviour;
 }
 
-inline Recipe stone_to_dirt_recipe;
-inline Recipe wood_planks_to_dirt_recipe;
-inline Recipe stone_and_dirt_to_stone;
+bool BlockTypes::isBlockTree(Blocks* blocks, int x, int y) {
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && (blocks->getBlockType(x, y) == &wood || blocks->getBlockType(x, y) == &leaves);
+}
 
-void addRecipes(Recipes* recipes) {
-    stone_to_dirt_recipe.result = ItemStack(&ItemTypes::dirt, 2);
-    stone_to_dirt_recipe.ingredients[&ItemTypes::stone_block] = 1;
-    recipes->registerARecipe(&stone_to_dirt_recipe);
+bool BlockTypes::isBlockWood(Blocks* blocks, int x, int y) {
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &wood;
+}
 
-    wood_planks_to_dirt_recipe.result = ItemStack(&ItemTypes::dirt, 1);
-    wood_planks_to_dirt_recipe.ingredients[&ItemTypes::wood_planks] = 1;
-    recipes->registerARecipe(&wood_planks_to_dirt_recipe);
+bool BlockTypes::isBlockLeaves(Blocks* blocks, int x, int y) {
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &leaves;
+}
 
-    stone_and_dirt_to_stone.result = ItemStack(&ItemTypes::stone_block, 1);
-    stone_and_dirt_to_stone.ingredients[&ItemTypes::stone_block] = 2;
-    stone_and_dirt_to_stone.ingredients[&ItemTypes::dirt] = 2;
-    recipes->registerARecipe(&stone_and_dirt_to_stone);
+void WoodBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+    if((y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &blocks->air &&
+       (!blocks_->isBlockTree(blocks, x - 1, y) || !blocks_->isBlockTree(blocks, x + 1, y)))
+       || (!blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y) && !blocks_->isBlockWood(blocks, x, y + 1) && !blocks_->isBlockWood(blocks, x, y - 1)))
+        blocks->breakBlock(x, y);
+}
+
+void LeavesBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+    if(!blocks_->isBlockWood(blocks, x, y + 1) &&
+       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x + 1, y) || blocks_->isBlockLeaves(blocks, x - 1, y)) &&
+       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x - 1, y) || blocks_->isBlockLeaves(blocks, x + 1, y)))
+        blocks->breakBlock(x, y);
+}
+
+void GrassBlockBehaviour::onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
+    blocks->setBlockType(x, y, &blocks_->dirt);
+}
+
+void SnowyGrassBlockBehaviour::onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
+    blocks->setBlockType(x, y, &blocks_->dirt);
+}
+
+void StoneBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+    if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
+        blocks->breakBlock(x, y);
+}
+
+void GrassBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+    if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
+        blocks->breakBlock(x, y);
+}
+
+LiquidTypes::LiquidTypes(Liquids* liquids) :
+water("water")
+{
+    for(LiquidType* liquid_type : liquid_types)
+        liquids->registerNewLiquidType(liquid_type);
+}
+
+void LiquidTypes::loadContent(Liquids* liquids, const std::string& resource_path) {
+    for(LiquidType* liquid_type : liquid_types) {
+        ConfigFile liquid_properties(resource_path + "liquidinfos/" + liquid_type->name + ".txt");
+        liquid_type->flow_time = liquid_properties.getInt("flow_time");
+        liquid_type->speed_multiplier = liquid_properties.getInt("speed_multiplier") / 100.f;
+        liquid_type->color = {(unsigned char)liquid_properties.getInt("color_r"), (unsigned char)liquid_properties.getInt("color_g"), (unsigned char)liquid_properties.getInt("color_b"), (unsigned char)liquid_properties.getInt("color_a")};
+    }
+}
+
+ItemTypes::ItemTypes(BlockTypes* blocks, Blocks* blocks_, Items* items) {
+    for(ItemType* item_type : item_types)
+        items->registerNewItemType(item_type);
+}
+
+void ItemTypes::loadContent(Items* items, Blocks* blocks, const std::string& resource_path) {
+    for(ItemType* item_type : item_types) {
+        ConfigFile item_properties(resource_path + "iteminfos/" + item_type->name + ".txt");
+        item_type->max_stack = item_properties.getInt("max_stack");
+        item_type->places = blocks->getBlockTypeByName(item_properties.getStr("places"));
+    }
 }

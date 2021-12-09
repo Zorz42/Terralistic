@@ -74,9 +74,9 @@ bool ModManager::onKeyDown(gfx::Key key) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
         
-        for(GuiMod* mod : mods)
-            if(mod->hoversPoint(getMouseX(), getMouseY())) {
-                holding = mod;
+        for(int i = 0; i < mods.size(); i++)
+            if(mods[i]->hoversPoint(getMouseX(), getMouseY())) {
+                holding = mods[i];
                 hold_x = getMouseX() - holding->getTranslatedX();
                 hold_y = getMouseY() - holding->getTranslatedY();
                 holding_x = holding->getX();
@@ -91,23 +91,23 @@ bool ModManager::onKeyDown(gfx::Key key) {
 void ModManager::render() {
     int placeholder_x = 0, placeholder_y = 0;
     int curr_disabled_y = 2 * SPACING + enabled_text.getHeight(), curr_enabled_y = 2 * SPACING + enabled_text.getHeight();
-    for(GuiMod* mod : mods) {
-        if(mod == holding) {
-            placeholder_x = mod->enabled ? 200 : -200;
-            placeholder_y = mod->enabled ? curr_enabled_y : curr_disabled_y;
+    for(int i = 0; i < mods.size(); i++) {
+        if(mods[i] == holding) {
+            placeholder_x = mods[i]->enabled ? 200 : -200;
+            placeholder_y = mods[i]->enabled ? curr_enabled_y : curr_disabled_y;
             placeholder.setX(placeholder_x);
             placeholder.setY(placeholder_y);
-            placeholder.setWidth(mod->getWidth());
-            placeholder.setHeight(mod->getHeight());
+            placeholder.setWidth(mods[i]->getWidth());
+            placeholder.setHeight(mods[i]->getHeight());
         } else {
-            mod->orientation = gfx::TOP;
-            mod->setY(mod->enabled ? curr_enabled_y : curr_disabled_y);
-            mod->setX(mod->enabled ? 200 : -200);
+            mods[i]->orientation = gfx::TOP;
+            mods[i]->setY(mods[i]->enabled ? curr_enabled_y : curr_disabled_y);
+            mods[i]->setX(mods[i]->enabled ? 200 : -200);
         }
-        if(mod->enabled)
-            curr_enabled_y += mod->getHeight() + SPACING;
+        if(mods[i]->enabled)
+            curr_enabled_y += mods[i]->getHeight() + SPACING;
         else
-            curr_disabled_y += mod->getHeight() + SPACING;
+            curr_disabled_y += mods[i]->getHeight() + SPACING;
     }
     
     background->setBackWidth(800);
@@ -122,9 +122,9 @@ void ModManager::render() {
     disabled_text.render();
     back_button.render(getMouseX(), getMouseY());
     
-    for(GuiMod* mod : mods)
-        if(mod != holding)
-            mod->renderTile();
+    for(int i = 0; i < mods.size(); i++)
+        if(mods[i] != holding)
+            mods[i]->renderTile();
     
     if(holding) {
         placeholder.render();
@@ -150,24 +150,24 @@ void ModManager::render() {
     
         int min_distance = std::abs(holding_x - placeholder_x) + std::abs(holding_y - placeholder_y);;
         GuiMod* nearest = holding;
-        for(GuiMod* mod : mods) {
-            if(mod != holding) {
-                int distance = std::abs(holding_x - mod->getX()) + std::abs(holding_y - mod->getY());
+        for(int i = 0; i < mods.size(); i++) {
+            if(mods[i] != holding) {
+                int distance = std::abs(holding_x - mods[i]->getX()) + std::abs(holding_y - mods[i]->getY());
                 if(!nearest || distance < min_distance) {
                     min_distance = distance;
-                    nearest = mod;
+                    nearest = mods[i];
                 }
             }
         }
         
         if(nearest != holding) {
             bool looking_for_holding = true, looking_for_nearest = true;
-            for(GuiMod*& mod : mods)
-                if(mod == holding && looking_for_holding) {
-                    mod = nearest;
+            for(int i = 0; i < mods.size(); i++)
+                if(mods[i] == holding && looking_for_holding) {
+                    mods[i] = nearest;
                     looking_for_holding = false;
-                } else if(mod == nearest && looking_for_nearest) {
-                    mod = holding;
+                } else if(mods[i] == nearest && looking_for_nearest) {
+                    mods[i] = holding;
                     looking_for_nearest = false;
                 }
         }
@@ -176,9 +176,9 @@ void ModManager::render() {
 
 void ModManager::stop() {
     std::ofstream mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt", std::ios::trunc);
-    for(GuiMod* mod : mods) {
-        if(mod->enabled)
-            mods_file << mod->getName() << std::endl;
-        delete mod;
+    for(int i = 0; i < mods.size(); i++) {
+        if(mods[i]->enabled)
+            mods_file << mods[i]->getName() << std::endl;
+        delete mods[i];
     }
 }
