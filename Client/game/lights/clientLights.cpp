@@ -13,8 +13,7 @@ void ClientLights::postInit() {
 }
 
 void ClientLights::update(float frame_length) {
-    enabled = light_enable_setting.getValue();
-    blocks->skip_rendering_in_dark = enabled;
+    /*enabled = light_enable_setting.getValue();
     
     bool finished = !enabled;
     while(!finished) {
@@ -25,11 +24,11 @@ void ClientLights::update(float frame_length) {
                     updateLight(x, y);
                     finished = true;
                 }
-    }
+    }*/
 }
 
 void ClientLights::render() {
-    if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
+    /*if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
         most_blocks_on_screen = (blocks->getViewEndX() -blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY());
         light_rects.resize(most_blocks_on_screen);
     }
@@ -68,7 +67,7 @@ void ClientLights::render() {
         }
     
     if(light_index)
-        light_rects.render(light_index);
+        light_rects.render(light_index);*/
 }
 
 void ClientLights::stop() {

@@ -115,6 +115,7 @@ void ClientPlayers::update(float frame_length) {
         
         blocks->view_x += (main_player->getX() - blocks->view_x + PLAYER_WIDTH) / 8;
         blocks->view_y += (main_player->getY() - blocks->view_y + PLAYER_HEIGHT) / 8;
+        
         if(blocks->view_x < gfx::getWindowWidth() / 2)
             blocks->view_x = gfx::getWindowWidth() / 2;
         if(blocks->view_y < gfx::getWindowHeight() / 2)

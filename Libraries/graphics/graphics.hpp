@@ -103,14 +103,14 @@ namespace gfx {
         void setRect(int index, RectShape rect);
         void setColor(int index, Color color);
         void setTextureCoords(int index, RectShape texture_coordinates);
-        void render(int size, const Texture* image=nullptr);
+        void render(int size, const Texture* image=nullptr, int x=0, int y=0);
         void resize(int size);
         ~RectArray();
     };
     
     class Texture {
     protected:
-        friend void RectArray::render(int size, const Texture* image);
+        friend void RectArray::render(int size, const Texture* image, int x, int y);
         friend void setRenderTarget(Texture& texture);
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;

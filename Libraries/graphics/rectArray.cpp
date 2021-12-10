@@ -36,7 +36,7 @@ void gfx::RectArray::resize(int size) {
     if(size < 0)
         throw Exception("RectArray size must be positive.");
     vertex_buffer.setPrimitiveType(sf::Quads);
-    vertex_buffer.setUsage(sf::VertexBuffer::Stream);
+    vertex_buffer.setUsage(sf::VertexBuffer::Dynamic);
     delete[] vertex_array;
     vertex_array = new sf::Vertex[size * 4];
     length = size;
@@ -46,7 +46,7 @@ gfx::RectArray::~RectArray() {
     delete[] vertex_array;
 }
 
-void gfx::RectArray::render(int size, const Texture* image) {
+void gfx::RectArray::render(int size, const Texture* image, int x, int y) {
     if(size < 0)
         throw Exception("RectArray size must be positive.");
     
@@ -54,8 +54,12 @@ void gfx::RectArray::render(int size, const Texture* image) {
     if(image)
         texture = &image->sfml_render_texture->getTexture();
     
+    sf::Transform transformation;
+    transformation.translate(x, y);
+    
     sf::RenderStates states;
     states.texture = texture;
+    states.transform = transformation;
     
     vertex_buffer.create(size * 4);
     vertex_buffer.update(vertex_array);

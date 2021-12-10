@@ -141,7 +141,7 @@ int gfx::getTicks() {
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
-    output.generateMipmap(); // without that it doesnt work on smaller textures on some computers
+    //output.generateMipmap(); // without that it doesnt work on smaller textures on some computers
     sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);
@@ -158,10 +158,11 @@ void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
 }
 
 void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
+#define BLUR_QUALITY 4.f // larger = worse but faster
     if(blur_intensity < 0)
         throw Exception("Blur intensity must be positive.");
     
-    blur_intensity = std::pow(2, blur_intensity);
+    blur_intensity = std::pow(BLUR_QUALITY, blur_intensity);
     blur_shader.setUniform("source", texture.getTexture());
     
     while(blur_intensity >= 1.f) {
@@ -171,7 +172,7 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
         blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / texture.getSize().y));
         applyShader(blur_shader, texture);
         
-        blur_intensity /= 2;
+        blur_intensity /= BLUR_QUALITY;
     }
 }
 

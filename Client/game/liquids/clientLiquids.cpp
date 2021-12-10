@@ -34,7 +34,7 @@ void ClientLiquids::stop() {
 }
 
 void ClientLiquids::render() {
-    if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
+    /*if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
         most_blocks_on_screen = (blocks->getViewEndX() -blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY());
         liquid_rects.resize(most_blocks_on_screen);
     }
@@ -56,5 +56,5 @@ void ClientLiquids::render() {
         }
     
     if(liquid_index)
-        liquid_rects.render(liquid_index, &resource_pack->getLiquidTexture());
+        liquid_rects.render(liquid_index, &resource_pack->getLiquidTexture());*/
 }

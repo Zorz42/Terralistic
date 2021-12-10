@@ -4,6 +4,8 @@
 #include "lights.hpp"
 #include "content.hpp"
 
+#define BLOCK_CHUNK_SIZE 16
+
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderBlock {
     public:
@@ -11,11 +13,20 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         int variation:8, state:8;
     };
     
+    class RenderChunk {
+        gfx::RectArray block_rects;
+    public:
+        RenderChunk() : block_rects(BLOCK_CHUNK_SIZE * BLOCK_CHUNK_SIZE) {}
+        void update(ClientBlocks* blocks, ResourcePack* resource_pack, int x, int y);
+        void render(ResourcePack* resource_pack_, int x, int y);
+    };
+    
     void onEvent(ClientPacketEvent& event) override;
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(WelcomePacketEvent& event) override;
     
     RenderBlock* render_blocks = nullptr;
+    RenderChunk* render_chunks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
     
     void init() override;
@@ -29,9 +40,6 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void updateOrientationUp(ClientBlocks* blocks, int x, int y);
     void updateOrientationLeft(ClientBlocks* blocks, int x, int y);
     void updateOrientationRight(ClientBlocks* blocks, int x, int y);
-    
-    gfx::RectArray block_rects;
-    int most_blocks_on_screen = 0;
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;
@@ -51,5 +59,5 @@ public:
     void setState(int x, int y, int state);
     int getState(int x, int y);
     
-    bool skip_rendering_in_dark = true;
+    RenderChunk* getChunk(int x, int y);
 };
