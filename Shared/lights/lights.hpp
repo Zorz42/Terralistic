@@ -3,6 +3,12 @@
 
 #define MAX_LIGHT 100
 
+class LightLevelChangeEvent {
+public:
+    LightLevelChangeEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
+};
+
 class Lights : EventListener<BlockChangeEvent> {
     class Light {
     public:
@@ -35,6 +41,8 @@ public:
     void scheduleLightUpdate(int x, int y);
     bool hasScheduledLightUpdate(int x, int y);
     void scheduleLightUpdateForNeighbors(int x, int y);
+    
+    EventSender<LightLevelChangeEvent> light_level_change_event;
     
     ~Lights();
 };

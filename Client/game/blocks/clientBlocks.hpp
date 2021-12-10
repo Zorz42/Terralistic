@@ -13,10 +13,10 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         int variation:8, state:8;
     };
     
-    class RenderChunk {
+    class RenderBlockChunk {
         gfx::RectArray block_rects;
     public:
-        RenderChunk() : block_rects(BLOCK_CHUNK_SIZE * BLOCK_CHUNK_SIZE) {}
+        RenderBlockChunk() : block_rects(BLOCK_CHUNK_SIZE * BLOCK_CHUNK_SIZE) {}
         void update(ClientBlocks* blocks, ResourcePack* resource_pack, int x, int y);
         void render(ResourcePack* resource_pack_, int x, int y);
     };
@@ -26,8 +26,10 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void onEvent(WelcomePacketEvent& event) override;
     
     RenderBlock* render_blocks = nullptr;
-    RenderChunk* render_chunks = nullptr;
+    RenderBlockChunk* render_chunks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
+    
+    RenderBlockChunk* getRenderBlockChunk(int x, int y);
     
     void init() override;
     void postInit() override;
@@ -58,6 +60,4 @@ public:
     void updateState(int x, int y);
     void setState(int x, int y, int state);
     int getState(int x, int y);
-    
-    RenderChunk* getChunk(int x, int y);
 };

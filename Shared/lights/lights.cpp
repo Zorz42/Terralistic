@@ -23,6 +23,9 @@ void Lights::setLightLevel(int x, int y, int level) {
         getLight(x, y)->light_source = false;
     if(getLight(x, y)->light_level != level) {
         getLight(x, y)->light_level = level;
+        LightLevelChangeEvent event(x, y);
+        light_level_change_event.call(event);
+        
         if(x < getWidth())
             scheduleLightUpdate(x + 1, y);
         if(x > 0)
@@ -73,8 +76,8 @@ void Lights::updateLight(int x, int y) {
 }
 
 void Lights::setLightSource(int x, int y, int level) {
-    getLight(x, y)->light_source = level > 0;
-    getLight(x, y)->light_level = level;
+    getLight(x, y)->light_source = true;
+    setLightLevel(x, y, level);
     scheduleLightUpdateForNeighbors(x, y);
 }
 

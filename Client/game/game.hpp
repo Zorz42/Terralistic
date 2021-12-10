@@ -6,10 +6,10 @@
 #include "blockSelector.hpp"
 #include "debugMenu.hpp"
 #include "chat.hpp"
-#include "minimap.hpp"
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"
 #include "content.hpp"
+#include "naturalLight.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
@@ -32,7 +32,6 @@ class Game : gfx::Scene, public BackgroundRect {
     ClientPlayers players;
     BlockSelector block_selector;
     ClientInventory inventory;
-    Minimap minimap;
     Chat chat;
     DebugMenu debug_menu;
     Recipes recipes;

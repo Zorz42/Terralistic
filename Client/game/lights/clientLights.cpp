@@ -4,16 +4,25 @@ void ClientLights::init() {
 #if DEVELOPER_MODE
     settings->addSetting(&light_enable_setting);
 #endif
-    settings->addSetting(&old_light_setting);
     Lights::init();
+    light_level_change_event.addListener(this);
 }
 
 void ClientLights::postInit() {
     create();
+    light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
+    
+    for(int x = 0; x < getWidth(); x++)
+        for(int y = 0; y < getHeight(); y++)
+            getLightChunk(x / 16, y / 16)->update(this, x, y);
+}
+
+ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
+    return &light_chunks[y * getWidth() / 16 + x];
 }
 
 void ClientLights::update(float frame_length) {
-    /*enabled = light_enable_setting.getValue();
+    enabled = light_enable_setting.getValue();
     
     bool finished = !enabled;
     while(!finished) {
@@ -24,56 +33,43 @@ void ClientLights::update(float frame_length) {
                     updateLight(x, y);
                     finished = true;
                 }
-    }*/
+    }
+}
+
+void ClientLights::LightChunk::update(Lights* lights, int x, int y) {
+    int rel_x = x % LIGHT_CHUNK_SIZE, rel_y = y % LIGHT_CHUNK_SIZE;
+    int index = LIGHT_CHUNK_SIZE * rel_y + rel_x;
+    light_rects.setRect(index, {rel_x * BLOCK_WIDTH * 2 + BLOCK_WIDTH, rel_y * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+    
+    int low_x = x == lights->getWidth() - 1 ? x : x + 1, low_y = y == lights->getHeight() - 1 ? y : y + 1;
+    light_rects.setColor(index * 4, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(x, y))});
+    light_rects.setColor(index * 4 + 1, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(low_x, y))});
+    light_rects.setColor(index * 4 + 2, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(low_x, low_y))});
+    light_rects.setColor(index * 4 + 3, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(x, low_y))});
+}
+
+void ClientLights::LightChunk::render(int x, int y) {
+    light_rects.render(LIGHT_CHUNK_SIZE * LIGHT_CHUNK_SIZE, nullptr, x, y);
+}
+
+void ClientLights::onEvent(LightLevelChangeEvent& event) {
+    int high_x = event.x == 0 ? event.x : event.x - 1, high_y = event.y == 0 ? event.y : event.y - 1;
+    getLightChunk(event.x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, event.x, event.y);
+    getLightChunk(high_x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, high_x, event.y);
+    getLightChunk(event.x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, event.x, high_y);
+    getLightChunk(high_x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, high_x, high_y);
 }
 
 void ClientLights::render() {
-    /*if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
-        most_blocks_on_screen = (blocks->getViewEndX() -blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY());
-        light_rects.resize(most_blocks_on_screen);
-    }
-    
-    int light_index = 0;
-    for(int x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
-        for(int y = blocks->getViewBeginY(); y < blocks->getViewEndY(); y++) {
-            int block_x = x * BLOCK_WIDTH * 2 - blocks->view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - blocks->view_y + gfx::getWindowHeight() / 2;
-            
-            if(old_light_setting.getValue()) {
-                if(getLightLevel(x, y) != MAX_LIGHT) {
-                    light_rects.setColor(light_index * 4, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(x, y))});
-                    light_rects.setColor(light_index * 4 + 1, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(x, y))});
-                    light_rects.setColor(light_index * 4 + 2, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(x, y))});
-                    light_rects.setColor(light_index * 4 + 3, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(x, y))});
-                    
-                    light_rects.setRect(light_index, {block_x, block_y, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-                    
-                    light_index++;
-                }
-            } else {
-                int low_x = x + 1 == blocks->getWidth() ? x : x + 1, low_y = y + 1 == blocks->getHeight() ? y : y + 1;
-                int light_levels[] = {getLightLevel(x, y), getLightLevel(low_x, y), getLightLevel(low_x, low_y), getLightLevel(x, low_y)};
-                
-                if(light_levels[0] != MAX_LIGHT || light_levels[1] != MAX_LIGHT || light_levels[2] != MAX_LIGHT || light_levels[3] != MAX_LIGHT) {
-                    light_rects.setColor(light_index * 4, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(x, y))});
-                    light_rects.setColor(light_index * 4 + 1, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(low_x, y))});
-                    light_rects.setColor(light_index * 4 + 2, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(low_x, low_y))});
-                    light_rects.setColor(light_index * 4 + 3, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * getLightLevel(x, low_y))});
-                    
-                    light_rects.setRect(light_index, {block_x + BLOCK_WIDTH, block_y + BLOCK_WIDTH, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-                    
-                    light_index++;
-                }
-            }
-        }
-    
-    if(light_index)
-        light_rects.render(light_index);*/
+    for(int x = blocks->getViewBeginX() / 16; x <= blocks->getViewEndX() / 16; x++)
+        for(int y = blocks->getViewBeginY() / 16; y <= blocks->getViewEndY() / 16; y++)
+            getLightChunk(x, y)->render(x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - blocks->view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - blocks->view_y + gfx::getWindowHeight() / 2);
 }
 
 void ClientLights::stop() {
 #if DEVELOPER_MODE
     settings->removeSetting(&light_enable_setting);
 #endif
-    settings->removeSetting(&old_light_setting);
     Lights::stop();
+    light_level_change_event.removeListener(this);
 }

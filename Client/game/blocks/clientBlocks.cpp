@@ -84,7 +84,7 @@ ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
     return &render_blocks[y * getWidth() + x];
 }
 
-ClientBlocks::RenderChunk* ClientBlocks::getChunk(int x, int y) {
+ClientBlocks::RenderBlockChunk* ClientBlocks::getRenderBlockChunk(int x, int y) {
     return &render_chunks[y * getWidth() / 16 + x];
 }
 
@@ -108,13 +108,13 @@ int ClientBlocks::getState(int x, int y) {
 
 void ClientBlocks::postInit() {
     render_blocks = new RenderBlock[getWidth() * getHeight()];
-    render_chunks = new RenderChunk[getWidth() / 16 * getHeight() / 16];
+    render_chunks = new RenderBlockChunk[getWidth() / 16 * getHeight() / 16];
     view_x = getWidth() * BLOCK_WIDTH;
     view_y = 0;
     
     for(int x = 0; x < getWidth(); x++)
         for(int y = 0; y < getHeight(); y++)
-            getChunk(x / 16, y / 16)->update(this, resource_pack, x, y);
+            getRenderBlockChunk(x / 16, y / 16)->update(this, resource_pack, x, y);
 }
 
 void ClientBlocks::onEvent(BlockChangeEvent& event) {
@@ -123,7 +123,7 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
     updateState(event.x - 1, event.y);
     updateState(event.x, event.y + 1);
     updateState(event.x, event.y - 1);
-    getChunk(event.x / 16, event.y / 16)->update(this, resource_pack, event.x, event.y);
+    getRenderBlockChunk(event.x / 16, event.y / 16)->update(this, resource_pack, event.x, event.y);
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
@@ -151,7 +151,7 @@ void ClientBlocks::stop() {
     delete[] render_blocks;
 }
 
-void ClientBlocks::RenderChunk::update(ClientBlocks* blocks, ResourcePack* resource_pack_, int x, int y) {
+void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, ResourcePack* resource_pack_, int x, int y) {
     int rel_x = x % BLOCK_CHUNK_SIZE, rel_y = y % BLOCK_CHUNK_SIZE;
     int index = BLOCK_CHUNK_SIZE * rel_y + rel_x;
     if(blocks->getBlockType(x, y) != &blocks->air) {
@@ -164,17 +164,17 @@ void ClientBlocks::RenderChunk::update(ClientBlocks* blocks, ResourcePack* resou
     } else {
         block_rects.setTextureCoords(index, {0, 0, 0, 0});
     }
-    block_rects.setRect(index, {rel_x * BLOCK_CHUNK_SIZE, rel_y * BLOCK_CHUNK_SIZE, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+    block_rects.setRect(index, {rel_x * BLOCK_WIDTH * 2, rel_y * BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
 }
 
-void ClientBlocks::RenderChunk::render(ResourcePack* resource_pack_, int x, int y) {
+void ClientBlocks::RenderBlockChunk::render(ResourcePack* resource_pack_, int x, int y) {
     block_rects.render(16 * 16, &resource_pack_->getBlockTexture(), x, y);
 }
 
 void ClientBlocks::render() {
     for(int x = getViewBeginX() / 16; x <= getViewEndX() / 16; x++)
         for(int y = getViewBeginY() / 16; y <= getViewEndY() / 16; y++)
-            getChunk(x, y)->render(resource_pack, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2);
+            getRenderBlockChunk(x, y)->render(resource_pack, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2);
     
     for(int x = getViewBeginX(); x < getViewEndX(); x++)
         for(int y = getViewBeginY(); y < getViewEndY(); y++) {
