@@ -118,12 +118,11 @@ void ClientBlocks::postInit() {
 }
 
 void ClientBlocks::onEvent(BlockChangeEvent& event) {
-    updateState(event.x, event.y);
-    updateState(event.x + 1, event.y);
-    updateState(event.x - 1, event.y);
-    updateState(event.x, event.y + 1);
-    updateState(event.x, event.y - 1);
-    getRenderBlockChunk(event.x / 16, event.y / 16)->update(this, resource_pack, event.x, event.y);
+    int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
+    for(int i = 0; i < 5; i++) {
+        updateState(coords[i][0], coords[i][1]);
+        getRenderBlockChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, resource_pack, coords[i][0], coords[i][1]);
+    }
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
