@@ -17,9 +17,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         bool is_created = false;
     public:
         bool isCreated() { return is_created; }
-        void create(ClientBlocks* blocks, ResourcePack* resource_pack_, int x, int y);
-        void update(ClientBlocks* blocks, ResourcePack* resource_pack, int x, int y);
-        void render(ResourcePack* resource_pack_, int x, int y);
+        void create(ClientBlocks* blocks, int x, int y);
+        void update(ClientBlocks* blocks, int x, int y);
+        void render(ClientBlocks* blocks, int x, int y);
     };
     
     void onEvent(ClientPacketEvent& event) override;
@@ -31,6 +31,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     RenderBlock* getRenderBlock(int x, int y);
     
     RenderBlockChunk* getRenderBlockChunk(int x, int y);
+    
+    gfx::TextureAtlas blocks_atlas;
+    gfx::Texture breaking_texture;
     
     void init() override;
     void postInit() override;
@@ -49,6 +52,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     
 public:
     ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking);
+    
+    const gfx::Texture& getBlocksAtlasTexture();
+    gfx::RectShape getBlockRectInAtlas(BlockType* type);
     
     int view_x, view_y;
     

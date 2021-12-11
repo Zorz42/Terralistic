@@ -90,7 +90,7 @@ ClientBlocks::RenderBlockChunk* ClientBlocks::getRenderBlockChunk(int x, int y) 
 
 void ClientBlocks::updateState(int x, int y) {
     getRenderBlock(x, y)->state = 0;
-    if(resource_pack->getTextureRectangle(getBlockType(x, y)).h != 8) {
+    if(getBlockType(x, y) != &air && getBlockRectInAtlas(getBlockType(x, y)).h != 8) {
         updateOrientationLeft(this, x, y);
         updateOrientationDown(this, x, y);
         updateOrientationRight(this, x, y);
@@ -117,7 +117,7 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
     for(int i = 0; i < 5; i++) {
         updateState(coords[i][0], coords[i][1]);
-        getRenderBlockChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, resource_pack, coords[i][0], coords[i][1]);
+        getRenderBlockChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, coords[i][0], coords[i][1]);
     }
 }
 
@@ -132,6 +132,20 @@ void ClientBlocks::init() {
     block_change_event.addListener(this);
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
+    
+    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    
+    std::vector<gfx::Texture*> block_textures(getNumBlockTypes() - 1);
+
+    for(int i = 1; i < getNumBlockTypes(); i++) {
+        block_textures[i - 1] = new gfx::Texture;
+        block_textures[i - 1]->loadFromFile(resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".png"));
+    }
+    
+    blocks_atlas.create(block_textures);
+    
+    for(int i = 1; i < getNumBlockTypes(); i++)
+        delete block_textures[i - 1];
 }
 
 void ClientBlocks::update(float frame_length) {
@@ -147,18 +161,18 @@ void ClientBlocks::stop() {
     delete[] render_chunks;
 }
 
-void ClientBlocks::RenderBlockChunk::create(ClientBlocks* blocks, ResourcePack* resource_pack_, int x, int y) {
+void ClientBlocks::RenderBlockChunk::create(ClientBlocks* blocks, int x, int y) {
     block_rects.resize(BLOCK_CHUNK_SIZE * BLOCK_CHUNK_SIZE);
     is_created = true;
     
     for(int x2 = 0; x2 < BLOCK_CHUNK_SIZE; x2++)
         for(int y2 = 0; y2 < BLOCK_CHUNK_SIZE; y2++) {
             block_rects.setRect(BLOCK_CHUNK_SIZE * y2 + x2, {x2 * BLOCK_WIDTH * 2, y2 * BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
-            update(blocks, resource_pack_, x * BLOCK_CHUNK_SIZE + x2, y * BLOCK_CHUNK_SIZE + y2);
+            update(blocks, x * BLOCK_CHUNK_SIZE + x2, y * BLOCK_CHUNK_SIZE + y2);
         }
 }
 
-void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, ResourcePack* resource_pack_, int x, int y) {
+void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) {
     if(!is_created)
         return;
     
@@ -168,32 +182,40 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, ResourcePack* 
         if(blocks->getState(x, y) == 16)
             blocks->updateState(x, y);
         
-        int texture_x = (blocks->getRenderBlock(x, y)->variation) % (resource_pack_->getTextureRectangle(blocks->getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
-        int texture_y = resource_pack_->getTextureRectangle(blocks->getBlockType(x, y)).y + BLOCK_WIDTH * blocks->getRenderBlock(x, y)->state;
+        int texture_x = (blocks->getRenderBlock(x, y)->variation) % (blocks->getBlockRectInAtlas(blocks->getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
+        int texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x, y)).y + BLOCK_WIDTH * blocks->getRenderBlock(x, y)->state;
         block_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
     } else {
         block_rects.setTextureCoords(index, {0, 0, 0, 0});
     }
 }
 
-void ClientBlocks::RenderBlockChunk::render(ResourcePack* resource_pack_, int x, int y) {
-    block_rects.render(16 * 16, &resource_pack_->getBlockTexture(), x, y);
+void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
+    block_rects.render(16 * 16, &blocks->getBlocksAtlasTexture(), x, y);
+}
+
+const gfx::Texture& ClientBlocks::getBlocksAtlasTexture() {
+    return blocks_atlas.getTexture();
+}
+
+gfx::RectShape ClientBlocks::getBlockRectInAtlas(BlockType* type) {
+    return blocks_atlas.getRect(type->id - 1);
 }
 
 void ClientBlocks::render() {
     for(int x = getViewBeginX() / 16; x <= getViewEndX() / 16; x++)
         for(int y = getViewBeginY() / 16; y <= getViewEndY() / 16; y++) {
             if(!getRenderBlockChunk(x, y)->isCreated())
-                getRenderBlockChunk(x, y)->create(this, resource_pack, x, y);
+                getRenderBlockChunk(x, y)->create(this, x, y);
             
-            getRenderBlockChunk(x, y)->render(resource_pack, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2);
+            getRenderBlockChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2);
         }
     
     for(int x = getViewBeginX(); x < getViewEndX(); x++)
         for(int y = getViewBeginY(); y < getViewEndY(); y++) {
             if(getBreakStage(x, y)) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
-                resource_pack->getBreakingTexture().render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x, y) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
+                breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x, y) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
             }
         }
 }

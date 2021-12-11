@@ -3,10 +3,6 @@
 #include "resourcePack.hpp"
 #include "platform_folders.h"
 
-const gfx::Texture& ResourcePack::getBlockTexture() {
-    return block_texture_atlas;
-}
-
 const gfx::Texture& ResourcePack::getItemTexture() {
     return item_texture_atlas;
 }
@@ -19,20 +15,12 @@ const gfx::Texture& ResourcePack::getLiquidTexture() {
     return liquid_texture_atlas;
 }
 
-const gfx::Texture& ResourcePack::getBreakingTexture() {
-    return breaking_texture;
-}
-
 const gfx::Texture& ResourcePack::getPlayerTexture() {
     return player_texture;
 }
 
 const gfx::Texture& ResourcePack::getBackground() {
     return background;
-}
-
-const gfx::RectShape& ResourcePack::getTextureRectangle(BlockType* type) {
-    return block_texture_rectangles[(int)type->id];
 }
 
 const gfx::RectShape& ResourcePack::getTextureRectangle(LiquidType* type) {
@@ -51,33 +39,6 @@ std::string ResourcePack::getFile(const std::string& file_name) {
             return file;
     }
     throw Exception(file_name + " was not found.");
-}
-
-void ResourcePack::loadBlocks() {
-    gfx::Texture *block_textures = new gfx::Texture[blocks->getNumBlockTypes()];
-
-    for(int i = 1; i < blocks->getNumBlockTypes(); i++)
-        block_textures[i].loadFromFile(getFile("/blocks/" + blocks->getBlockTypeById(i)->name + ".png"));
-
-    int max_y_size = 0;
-    int texture_atlas_height = 0;
-    for(int i = 1; i < blocks->getNumBlockTypes(); i++){
-        if(block_textures[i].getTextureWidth() > max_y_size)
-            max_y_size = block_textures[i].getTextureWidth();
-        block_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, block_textures[i].getTextureWidth(), block_textures[i].getTextureHeight());
-        texture_atlas_height += block_textures[i].getTextureHeight();
-    }
-
-    block_texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
-    gfx::setRenderTarget(block_texture_atlas);
-    texture_atlas_height = 0;
-    for(int i = 1; i < blocks->getNumBlockTypes(); i++){
-        block_textures[i].render(1, 0, texture_atlas_height);
-        texture_atlas_height += block_textures[i].getTextureHeight();
-    }
-    gfx::resetRenderTarget();
-    
-    delete[] block_textures;
 }
 
 void ResourcePack::loadLiquids() {
@@ -144,22 +105,18 @@ void ResourcePack::init() {
     paths = active_resource_packs;
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
     
-    breaking_texture.loadFromFile(getFile("/misc/breaking.png"));
     player_texture.loadFromFile(getFile("/misc/player.png"));
     background.loadFromFile(getFile("/misc/background.png"));
 
     item_text_textures = new gfx::Texture[items->getNumItemTypes()];
-    block_texture_rectangles = new gfx::RectShape[blocks->getNumBlockTypes()];
     liquid_texture_rectangles = new gfx::RectShape[liquids->getNumLiquidTypes()];
     item_texture_rectangles = new gfx::RectShape[items->getNumItemTypes()];
-    loadBlocks();
     loadLiquids();
     loadItems();
 }
 
 void ResourcePack::stop() {
     delete[] item_text_textures;
-    delete[] block_texture_rectangles;
     delete[] liquid_texture_rectangles;
     delete[] item_texture_rectangles;
 }
