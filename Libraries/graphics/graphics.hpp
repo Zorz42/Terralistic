@@ -16,18 +16,6 @@ namespace gfx {
         void renderOutline(Color color) const;
     };
     
-    class PixelGrid {
-        unsigned char* array;
-        int width, height;
-    public:
-        PixelGrid(int width, int height);
-        int getWidth() const;
-        int getHeight() const;
-        void setPixel(int x, int y, Color color);
-        unsigned char* getArray() const;
-        ~PixelGrid();
-    };
-    
     class Orientation {
     public:
         float x, y;
@@ -125,7 +113,6 @@ namespace gfx {
         void loadFromText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
         void loadFromResources(const std::string& path);
         void loadFromFile(const std::string& path);
-        void loadFromPixelGrid(const PixelGrid& pixel_grid);
         void setColor(Color color_);
         
         ~Texture();

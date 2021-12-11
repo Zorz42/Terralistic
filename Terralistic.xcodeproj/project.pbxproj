@@ -50,8 +50,6 @@
 		16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A13D172709B74A009DEE40 /* serverLiquids.cpp */; };
 		16A3BFF026FF85F6001B9E4E /* rectArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFED26FF85F6001B9E4E /* rectArray.cpp */; };
 		16A3BFF126FF85F6001B9E4E /* rectArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFED26FF85F6001B9E4E /* rectArray.cpp */; };
-		16A3BFF226FF85F6001B9E4E /* pixelGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFEE26FF85F6001B9E4E /* pixelGrid.cpp */; };
-		16A3BFF326FF85F6001B9E4E /* pixelGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFEE26FF85F6001B9E4E /* pixelGrid.cpp */; };
 		16A3BFF426FF85F6001B9E4E /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFEF26FF85F6001B9E4E /* texture.cpp */; };
 		16A3BFF526FF85F6001B9E4E /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A3BFEF26FF85F6001B9E4E /* texture.cpp */; };
 		16A3C00526FF8677001B9E4E /* TestCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00326FF8677001B9E4E /* TestCompress.mm */; };
@@ -328,7 +326,6 @@
 		16A13D172709B74A009DEE40 /* serverLiquids.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverLiquids.cpp; sourceTree = "<group>"; };
 		16A13D182709B74A009DEE40 /* serverLiquids.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverLiquids.hpp; sourceTree = "<group>"; };
 		16A3BFED26FF85F6001B9E4E /* rectArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rectArray.cpp; sourceTree = "<group>"; };
-		16A3BFEE26FF85F6001B9E4E /* pixelGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pixelGrid.cpp; sourceTree = "<group>"; };
 		16A3BFEF26FF85F6001B9E4E /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = texture.cpp; sourceTree = "<group>"; };
 		16A3BFFA26FF8662001B9E4E /* TerralisticTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TerralisticTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16A3C00326FF8677001B9E4E /* TestCompress.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestCompress.mm; sourceTree = "<group>"; };
@@ -548,7 +545,6 @@
 				166D85CB26AA0B9E00DB87B1 /* graphics-internal.hpp */,
 				166D85CA26AA0B9E00DB87B1 /* graphics.cpp */,
 				167C03AE26E1400D0045FEA9 /* rectShape.cpp */,
-				16A3BFEE26FF85F6001B9E4E /* pixelGrid.cpp */,
 				167C03AB26E13FB50045FEA9 /* centeredObject.cpp */,
 				166D85C826AA0B9E00DB87B1 /* rect.cpp */,
 				16A3BFED26FF85F6001B9E4E /* rectArray.cpp */,
@@ -1460,7 +1456,6 @@
 				3692C14F26E509F100F9DD71 /* entities.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				3657221F26D07181005AB3CC /* multiplayerSelector.cpp in Sources */,
-				16A3BFF226FF85F6001B9E4E /* pixelGrid.cpp in Sources */,
 				16670CE026DDFAA90057AA41 /* settingsMenu.cpp in Sources */,
 				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				169AD3A327023B690096D80D /* blocks.cpp in Sources */,
@@ -1520,7 +1515,6 @@
 				361DD1A526F7478900129191 /* centeredObject.cpp in Sources */,
 				16A3C01226FF871C001B9E4E /* commands.cpp in Sources */,
 				167581902707687E00422C07 /* inventory.cpp in Sources */,
-				16A3BFF326FF85F6001B9E4E /* pixelGrid.cpp in Sources */,
 				361DD1A626F7478900129191 /* serverPlayers.cpp in Sources */,
 				361DD1AA26F7478900129191 /* networking.cpp in Sources */,
 				361DD1AB26F7478900129191 /* print.cpp in Sources */,
