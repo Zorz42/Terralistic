@@ -1,5 +1,6 @@
 #pragma once
 #include "clientBlocks.hpp"
+#include "lights.hpp"
 #include "settings.hpp"
 
 #define LIGHT_CHUNK_SIZE 16
@@ -7,8 +8,10 @@
 class ClientLights : public Lights, public ClientModule, EventListener<LightLevelChangeEvent> {
     class LightChunk {
         gfx::RectArray light_rects;
+        bool is_created = false;
     public:
-        LightChunk() : light_rects(LIGHT_CHUNK_SIZE * LIGHT_CHUNK_SIZE) {}
+        bool isCreated() { return is_created; }
+        void create(Lights* lights, int x, int y);
         void update(Lights* lights, int x, int y);
         void render(int x, int y);
     };

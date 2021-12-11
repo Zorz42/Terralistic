@@ -1,7 +1,6 @@
 #pragma once
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
-#include "lights.hpp"
 #include "content.hpp"
 
 #define BLOCK_CHUNK_SIZE 16
@@ -12,11 +11,13 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         RenderBlock() : variation(rand()), state(16) {}
         int variation:8, state:8;
     };
-    
+
     class RenderBlockChunk {
         gfx::RectArray block_rects;
+        bool is_created = false;
     public:
-        RenderBlockChunk() : block_rects(BLOCK_CHUNK_SIZE * BLOCK_CHUNK_SIZE) {}
+        bool isCreated() { return is_created; }
+        void create(ClientBlocks* blocks, ResourcePack* resource_pack_, int x, int y);
         void update(ClientBlocks* blocks, ResourcePack* resource_pack, int x, int y);
         void render(ResourcePack* resource_pack_, int x, int y);
     };
@@ -45,10 +46,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;
-    Lights* lights;
     
 public:
-    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights);
+    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking);
     
     int view_x, view_y;
     
