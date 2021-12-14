@@ -67,7 +67,8 @@ void ServerNetworking::init() {
 
 void ServerNetworking::sendToEveryone(sf::Packet& packet) {
     for(int i = 0; i < connections.size(); i++)
-        connections[i]->send(packet);
+        if(connections[i]->hasBeenGreeted())
+            connections[i]->send(packet);
 }
 
 void ServerNetworking::update(float frame_length) {

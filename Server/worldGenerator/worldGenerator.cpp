@@ -431,7 +431,7 @@ void WorldGenerator::generateFlatTerrain() {
     }
     for (int x = 0; x < blocks->getWidth(); x++) {
         for (int y = 0; y < blocks->getHeight(); y++) {
-            if (y <= 324) {//generates surface
+            if (y <= 324) {
                 blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, &content->blocks.dirt);
             }else if(y == 325)
                 blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, &content->blocks.grass_block);

@@ -4,7 +4,8 @@ void ClientLiquids::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::LIQUID: {
             int x, y;
-            int liquid_type, liquid_level;
+            int liquid_type;
+            float liquid_level;
             event.packet >> x >> y >> liquid_type >> liquid_level;
             
             setLiquidType(x, y, getLiquidTypeById(liquid_type));
@@ -34,7 +35,7 @@ void ClientLiquids::stop() {
 }
 
 void ClientLiquids::render() {
-    /*if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
+    if((blocks->getViewEndX() - blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY()) > most_blocks_on_screen) {
         most_blocks_on_screen = (blocks->getViewEndX() -blocks->getViewBeginX()) * (blocks->getViewEndY() - blocks->getViewBeginY());
         liquid_rects.resize(most_blocks_on_screen);
     }
@@ -49,12 +50,12 @@ void ClientLiquids::render() {
                 
                 liquid_rects.setTextureCoords(liquid_index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 
-                int level = ((int)getLiquidLevel(x, y) + 1) / 8;
+                int level = ((int)getLiquidLevel(x, y) + 1) / BLOCK_WIDTH / 2;
                 liquid_rects.setRect(liquid_index, {block_x, block_y + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
                 liquid_index++;
             }
         }
     
     if(liquid_index)
-        liquid_rects.render(liquid_index, &resource_pack->getLiquidTexture());*/
+        liquid_rects.render(liquid_index, &resource_pack->getLiquidTexture());
 }
