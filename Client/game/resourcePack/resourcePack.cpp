@@ -11,20 +11,12 @@ const gfx::Texture& ResourcePack::getItemTextTexture(ItemType* type) {
     return item_text_textures[(int)type->id];
 }
 
-const gfx::Texture& ResourcePack::getLiquidTexture() {
-    return liquid_texture_atlas;
-}
-
 const gfx::Texture& ResourcePack::getPlayerTexture() {
     return player_texture;
 }
 
 const gfx::Texture& ResourcePack::getBackground() {
     return background;
-}
-
-const gfx::RectShape& ResourcePack::getTextureRectangle(LiquidType* type) {
-    return liquid_texture_rectangles[(int)type->id];
 }
 
 const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType* type) {
@@ -39,31 +31,6 @@ std::string ResourcePack::getFile(const std::string& file_name) {
             return file;
     }
     throw Exception(file_name + " was not found.");
-}
-
-void ResourcePack::loadLiquids() {
-    gfx::Texture *liquid_textures = new gfx::Texture[liquids->getNumLiquidTypes()];
-
-    for(int i = 1; i < liquids->getNumLiquidTypes(); i++)
-        liquid_textures[i].loadFromFile(getFile("/liquids/" + liquids->getLiquidTypeById(i)->name + ".png"));
-
-    int max_y_size = 0;
-    int texture_atlas_height = 0;
-    for(int i = 1; i < liquids->getNumLiquidTypes(); i++){
-        if(liquid_textures[i].getTextureWidth() > max_y_size)
-            max_y_size = liquid_textures[i].getTextureWidth();
-        liquid_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, liquid_textures[i].getTextureWidth(), liquid_textures[i].getTextureHeight());
-        texture_atlas_height += liquid_textures[i].getTextureHeight();
-    }
-
-    liquid_texture_atlas.createBlankImage(max_y_size, texture_atlas_height);
-    gfx::setRenderTarget(liquid_texture_atlas);
-    texture_atlas_height = 0;
-    for(int i = 1; i < liquids->getNumLiquidTypes(); i++){
-        liquid_textures[i].render(1, 0, texture_atlas_height);
-        texture_atlas_height += liquid_textures[i].getTextureHeight();
-    }
-    gfx::resetRenderTarget();
 }
 
 void ResourcePack::loadItems() {
@@ -109,14 +76,11 @@ void ResourcePack::init() {
     background.loadFromFile(getFile("/misc/background.png"));
 
     item_text_textures = new gfx::Texture[items->getNumItemTypes()];
-    liquid_texture_rectangles = new gfx::RectShape[liquids->getNumLiquidTypes()];
     item_texture_rectangles = new gfx::RectShape[items->getNumItemTypes()];
-    loadLiquids();
     loadItems();
 }
 
 void ResourcePack::stop() {
     delete[] item_text_textures;
-    delete[] liquid_texture_rectangles;
     delete[] item_texture_rectangles;
 }

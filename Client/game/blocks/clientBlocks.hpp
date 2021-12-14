@@ -12,7 +12,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         int variation:8, state:8;
     };
 
-    class RenderBlockChunk {
+    class BlockChunk {
         gfx::RectArray block_rects;
         bool is_created = false;
     public:
@@ -27,10 +27,10 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void onEvent(WelcomePacketEvent& event) override;
     
     RenderBlock* render_blocks = nullptr;
-    RenderBlockChunk* render_chunks = nullptr;
+    BlockChunk* block_chunks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
     
-    RenderBlockChunk* getRenderBlockChunk(int x, int y);
+    BlockChunk* getBlockChunk(int x, int y);
     
     gfx::TextureAtlas blocks_atlas;
     gfx::Texture breaking_texture;

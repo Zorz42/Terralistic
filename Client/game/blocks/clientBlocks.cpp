@@ -84,8 +84,8 @@ ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
     return &render_blocks[y * getWidth() + x];
 }
 
-ClientBlocks::RenderBlockChunk* ClientBlocks::getRenderBlockChunk(int x, int y) {
-    return &render_chunks[y * getWidth() / 16 + x];
+ClientBlocks::BlockChunk* ClientBlocks::getBlockChunk(int x, int y) {
+    return &block_chunks[y * getWidth() / 16 + x];
 }
 
 void ClientBlocks::updateState(int x, int y) {
@@ -108,7 +108,7 @@ int ClientBlocks::getState(int x, int y) {
 
 void ClientBlocks::postInit() {
     render_blocks = new RenderBlock[getWidth() * getHeight()];
-    render_chunks = new RenderBlockChunk[getWidth() / 16 * getHeight() / 16];
+    block_chunks = new BlockChunk[getWidth() / 16 * getHeight() / 16];
     view_x = getWidth() * BLOCK_WIDTH;
     view_y = 0;
 }
@@ -117,7 +117,7 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
     for(int i = 0; i < 5; i++) {
         updateState(coords[i][0], coords[i][1]);
-        getRenderBlockChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, coords[i][0], coords[i][1]);
+        getBlockChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, coords[i][0], coords[i][1]);
     }
 }
 
@@ -158,10 +158,10 @@ void ClientBlocks::stop() {
     networking->welcome_packet_event.removeListener(this);
     
     delete[] render_blocks;
-    delete[] render_chunks;
+    delete[] block_chunks;
 }
 
-void ClientBlocks::RenderBlockChunk::create(ClientBlocks* blocks, int x, int y) {
+void ClientBlocks::BlockChunk::create(ClientBlocks* blocks, int x, int y) {
     block_rects.resize(BLOCK_CHUNK_SIZE * BLOCK_CHUNK_SIZE);
     is_created = true;
     
@@ -172,7 +172,7 @@ void ClientBlocks::RenderBlockChunk::create(ClientBlocks* blocks, int x, int y) 
         }
 }
 
-void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) {
+void ClientBlocks::BlockChunk::update(ClientBlocks* blocks, int x, int y) {
     if(!is_created)
         return;
     
@@ -190,7 +190,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
     }
 }
 
-void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
+void ClientBlocks::BlockChunk::render(ClientBlocks* blocks, int x, int y) {
     block_rects.render(16 * 16, &blocks->getBlocksAtlasTexture(), x, y);
 }
 
@@ -205,10 +205,10 @@ gfx::RectShape ClientBlocks::getBlockRectInAtlas(BlockType* type) {
 void ClientBlocks::render() {
     for(int x = getViewBeginX() / 16; x <= getViewEndX() / 16; x++)
         for(int y = getViewBeginY() / 16; y <= getViewEndY() / 16; y++) {
-            if(!getRenderBlockChunk(x, y)->isCreated())
-                getRenderBlockChunk(x, y)->create(this, x, y);
+            if(!getBlockChunk(x, y)->isCreated())
+                getBlockChunk(x, y)->create(this, x, y);
             
-            getRenderBlockChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2);
+            getBlockChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2);
         }
     
     for(int x = getViewBeginX(); x < getViewEndX(); x++)

@@ -116,7 +116,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     settings(settings),
     
     networking(ip_address, port, username),
-    resource_pack(&liquids, &items),
+    resource_pack(&items),
     blocks(&resource_pack, &networking),
     particles(settings, &blocks),
     liquids(&blocks, &resource_pack, &networking),
