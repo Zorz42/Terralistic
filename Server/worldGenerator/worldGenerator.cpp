@@ -357,9 +357,6 @@ void WorldGenerator::generateOre(BlockType* type, float chance, int blob_distanc
 
 void WorldGenerator::generateFoliage(std::mt19937& seeded_random) {
     for(int x = 0; x < blocks->getWidth(); x++) {
-        liquids->setLiquidType(x, blocks->getHeight() - surface_height[x] - 2, &content->liquids.water);
-        liquids->setLiquidLevel(x, blocks->getHeight() - surface_height[x] - 2, MAX_LIQUID_LEVEL);
-        
         if(seeded_random() % 6 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_height[x] - 1) == &liquids->empty)
             blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_height[x] - 1, &content->blocks.stone);
         
