@@ -3,7 +3,7 @@
 
 enum class FlowDirection {NONE, LEFT, RIGHT};
 
-#define MAX_LIQUID_LEVEL
+#define MAX_LIQUID_LEVEL 100
 
 class LiquidChangeEvent {
 public:

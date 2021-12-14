@@ -43,7 +43,7 @@ void Liquids::updateLiquid(int x, int y) {
     
     bool under_exists = false, left_exists = false, right_exists = false;
     
-    if(y < getHeight() - 1 && (isFlowable(x, y + 1) || (getLiquidType(x, y + 1) == getLiquidType(x, y) && getLiquidLevel(x, y + 1) != 255)))
+    if(y < getHeight() - 1 && (isFlowable(x, y + 1) || (getLiquidType(x, y + 1) == getLiquidType(x, y) && getLiquidLevel(x, y + 1) != MAX_LIQUID_LEVEL)))
         under_exists = true;
     
     if(x > 0 && (isFlowable(x - 1, y) || (getLiquidType(x - 1, y) == getLiquidType(x, y) && getLiquidLevel(x - 1, y) < getLiquidLevel(x, y))))
@@ -57,9 +57,9 @@ void Liquids::updateLiquid(int x, int y) {
         setLiquidType(x, y + 1, getLiquidType(x, y));
         
         int liquid_sum = getLiquidLevel(x, y + 1) + getLiquidLevel(x, y);
-        if(liquid_sum > 255) {
-            setLiquidLevel(x, y + 1, 255);
-            setLiquidLevel(x, y, liquid_sum - 255);
+        if(liquid_sum > MAX_LIQUID_LEVEL) {
+            setLiquidLevel(x, y + 1, MAX_LIQUID_LEVEL);
+            setLiquidLevel(x, y, liquid_sum - MAX_LIQUID_LEVEL);
         } else {
             setLiquidType(x, y, &empty);
             setLiquidLevel(x, y + 1, liquid_sum);
@@ -121,8 +121,9 @@ void Liquids::serialize(std::vector<char>& serial) {
             if(blocks->getBlockType(x, y)->ghost) {
                 serial.push_back((char)liquid->id);
                 if(getLiquidType(x, y) != &empty) {
-                    serial.insert(serial.end(), {0, 0, 0, 0});
-                    memcpy(&serial[serial.size() - 4], &liquid->level, sizeof(float));
+                    serial.push_back((char)liquid->level);
+                    //serial.insert(serial.end(), {0, 0, 0, 0});
+                    //memcpy(&serial[serial.size() - 4], &liquid->level, sizeof(float));
                 }
             }
             liquid++;
@@ -137,8 +138,9 @@ char* Liquids::loadFromSerial(char* iter) {
             if(blocks->getBlockType(x, y)->ghost) {
                 liquid->id = *iter++;
                 if(liquid->id != empty.id) {
-                    memcpy(&liquid->level, iter, sizeof(float));
-                    iter += sizeof(float);
+                    liquid->level = *iter++;
+                    //memcpy(&liquid->level, iter, sizeof(float));
+                    //iter += sizeof(float);
                 }
             }
             liquid++;

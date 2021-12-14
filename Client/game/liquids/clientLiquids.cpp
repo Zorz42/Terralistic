@@ -50,7 +50,7 @@ void ClientLiquids::render() {
                 
                 liquid_rects.setTextureCoords(liquid_index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 
-                int level = ((int)getLiquidLevel(x, y) + 1) / BLOCK_WIDTH / 2;
+                int level = getLiquidLevel(x, y) / MAX_LIQUID_LEVEL * BLOCK_WIDTH * 2;
                 liquid_rects.setRect(liquid_index, {block_x, block_y + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
                 liquid_index++;
             }
