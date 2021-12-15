@@ -22,6 +22,7 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     std::string username;
     ClientPlayer* main_player = nullptr;
     ClientPlayer* getPlayerById(int id);
+    gfx::Texture player_texture;
     
     void init() override;
     void update(float frame_length) override;
@@ -35,8 +36,10 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     ResourcePack* resource_pack;
     Entities* entities;
     Particles* particles;
+    Camera* camera;
 public:
-    ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username);
+    ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, Camera* camera, const std::string& username) :
+    manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), particles(particles), camera(camera), username(username) {}
     
     const ClientPlayer* getMainPlayer() { return main_player; }
 };

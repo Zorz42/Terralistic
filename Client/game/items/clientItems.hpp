@@ -9,6 +9,7 @@ class ClientItems : public Items, public ClientModule, EventListener<ClientPacke
     int item_count = 0;
     
     gfx::RectArray item_rects;
+    gfx::TextureAtlas items_atlas;
     
     void onEvent(ClientPacketEvent& event) override;
     void onEvent(ItemCreationEvent& event) override;
@@ -17,11 +18,15 @@ class ClientItems : public Items, public ClientModule, EventListener<ClientPacke
     ClientBlocks* blocks;
     Entities* entities;
     ClientNetworking* manager;
+    Camera* camera;
     
     void init() override;
     void render() override;
     void stop() override;
 public:
-    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, Entities* entities, ClientNetworking* manager) : resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager), Items(entities, blocks) {}
+    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, Entities* entities, ClientNetworking* manager, Camera* camera) :  Items(entities, blocks), resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager), camera(camera) {}
+    
+    const gfx::Texture& getItemsAtlasTexture();
+    gfx::RectShape getItemRectInAtlas(ItemType* type);
 };
 

@@ -42,6 +42,7 @@ inline const WalkParticle walk_particle;
 class Particles : public ClientModule {
     Settings* settings;
     ClientBlocks* blocks;
+    Camera* camera;
     std::vector<Particle> particles;
     
     void init() override;
@@ -51,7 +52,7 @@ class Particles : public ClientModule {
     
     BooleanSetting particle_enable_setting;
 public:
-    Particles(Settings* settings, ClientBlocks* blocks) : settings(settings), blocks(blocks), particle_enable_setting("Particles", true) {}
+    Particles(Settings* settings, ClientBlocks* blocks, Camera* camera) : settings(settings), blocks(blocks), camera(camera), particle_enable_setting("Particles", true) {}
     
     void spawnParticle(Particle particle);
 };

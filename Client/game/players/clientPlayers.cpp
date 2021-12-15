@@ -1,8 +1,5 @@
 #include "clientPlayers.hpp"
 
-ClientPlayers::ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username) :
-manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), particles(particles), username(username) {}
-
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
     name_text.loadFromText(name, WHITE);
     friction = false;
@@ -52,12 +49,12 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     else
         player_to_draw.texture_frame = 1;
     
-    int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - blocks->view_x;
-    int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y;
-    resource_pack->getPlayerTexture().render(2, player_x, player_y, {player_to_draw.texture_frame * PLAYER_WIDTH, 0, PLAYER_WIDTH, PLAYER_HEIGHT}, player_to_draw.flipped);
+    int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - camera->getX();
+    int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY();
+    player_texture.render(2, player_x, player_y, {player_to_draw.texture_frame * PLAYER_WIDTH, 0, PLAYER_WIDTH, PLAYER_HEIGHT}, player_to_draw.flipped);
     if(player_to_draw.name != "_") {
-        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getX() + PLAYER_WIDTH - blocks->view_x,
-        header_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - blocks->view_y - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
+        int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getX() + PLAYER_WIDTH - camera->getX(),
+        header_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY() - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
         gfx::RectShape(header_x - HEADER_PADDING, header_y - HEADER_PADDING, player_to_draw.name_text.getTextureWidth() + 2 * HEADER_PADDING, player_to_draw.name_text.getTextureHeight() + 2 * HEADER_PADDING).render(BLACK);
         player_to_draw.name_text.render(1, header_x, header_y);
     }
@@ -81,8 +78,12 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             ClientPlayer* new_player = new ClientPlayer(name, x, y, id);
             new_player->moving_type = (MovingType)moving_type;
             entities->registerEntity(new_player);
-            if(name == username)
+            if(name == username) {
                 main_player = new_player;
+                camera->setX(main_player->getX() + PLAYER_WIDTH);
+                camera->setY(main_player->getY() + PLAYER_HEIGHT);
+                camera->jumpToTarget();
+            }
             
             break;
         }

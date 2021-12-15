@@ -2,6 +2,7 @@
 
 void ClientPlayers::init() {
     manager->packet_event.addListener(this);
+    player_texture.loadFromFile(resource_pack->getFile("/misc/player.png"));
 }
 
 void ClientPlayers::stop() {
@@ -113,17 +114,17 @@ void ClientPlayers::update(float frame_length) {
             for(int y = starting_y; y <= ending_y; y++)
                 speed_multiplier = std::min(speed_multiplier, liquids->getLiquidType(x, y)->speed_multiplier);
         
-        blocks->view_x += (main_player->getX() - blocks->view_x + PLAYER_WIDTH) / 8;
-        blocks->view_y += (main_player->getY() - blocks->view_y + PLAYER_HEIGHT) / 8;
+        camera->setX(main_player->getX() + PLAYER_WIDTH);
+        camera->setY(main_player->getY() + PLAYER_HEIGHT);
         
-        if(blocks->view_x < gfx::getWindowWidth() / 2)
-            blocks->view_x = gfx::getWindowWidth() / 2;
-        if(blocks->view_y < gfx::getWindowHeight() / 2)
-            blocks->view_y = gfx::getWindowHeight() / 2;
-        if(blocks->view_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2)
-            blocks->view_x = blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2;
-        if(blocks->view_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2)
-            blocks->view_y = blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2;
+        if(camera->getTargetX() < gfx::getWindowWidth() / 2)
+            camera->setX(gfx::getWindowWidth() / 2);
+        if(camera->getTargetY() < gfx::getWindowHeight() / 2)
+            camera->setY(gfx::getWindowHeight() / 2);
+        if(camera->getTargetX() >= blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2)
+            camera->setX(blocks->getWidth() * BLOCK_WIDTH * 2 - gfx::getWindowWidth() / 2);
+        if(camera->getTargetY() >= blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2)
+            camera->setY(blocks->getHeight() * BLOCK_WIDTH * 2 - gfx::getWindowHeight() / 2);
         
         if(vel_x_change || vel_y_change) {
             entities->addVelocityX(main_player, vel_x_change);

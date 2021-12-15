@@ -19,6 +19,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightLeve
     Settings* settings;
     ClientBlocks* blocks;
     ResourcePack* resource_pack;
+    Camera* camera;
     
     void onEvent(LightLevelChangeEvent& event) override;
     
@@ -34,5 +35,5 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightLeve
     
     LightChunk* getLightChunk(int x, int y);
 public:
-    ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), light_enable_setting("Light", true) {}
+    ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
 };

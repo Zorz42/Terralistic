@@ -2,6 +2,7 @@
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
 #include "content.hpp"
+#include "camera.hpp"
 
 #define BLOCK_CHUNK_SIZE 16
 
@@ -49,19 +50,23 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;
+    Camera* camera;
     
 public:
-    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking);
+    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : resource_pack(resource_pack), networking(networking), camera(camera) {}
     
     const gfx::Texture& getBlocksAtlasTexture();
     gfx::RectShape getBlockRectInAtlas(BlockType* type);
     
-    int view_x, view_y;
+    int getBlocksViewBeginX();
+    int getBlocksViewEndX();
+    int getBlocksViewBeginY();
+    int getBlocksViewEndY();
     
-    int getViewBeginX() const;
-    int getViewEndX() const;
-    int getViewBeginY() const;
-    int getViewEndY() const;
+    int getBlocksExtendedViewBeginX();
+    int getBlocksExtendedViewEndX();
+    int getBlocksExtendedViewBeginY();
+    int getBlocksExtendedViewEndY();
     
     void updateState(int x, int y);
     void setState(int x, int y, int state);

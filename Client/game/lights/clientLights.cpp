@@ -23,8 +23,8 @@ void ClientLights::update(float frame_length) {
     bool finished = !enabled;
     while(!finished) {
         finished = true;
-        for(int y = blocks->getViewBeginY(); y < blocks->getViewEndY(); y++)
-            for(int x = blocks->getViewBeginX(); x < blocks->getViewEndX(); x++)
+        for(int y = blocks->getBlocksExtendedViewBeginY(); y < blocks->getBlocksExtendedViewEndY(); y++)
+            for(int x = blocks->getBlocksExtendedViewBeginX(); x < blocks->getBlocksExtendedViewEndX(); x++)
                 if(hasScheduledLightUpdate(x, y)) {
                     updateLight(x, y);
                     finished = true;
@@ -71,11 +71,11 @@ void ClientLights::onEvent(LightLevelChangeEvent& event) {
 }
 
 void ClientLights::render() {
-    for(int x = blocks->getViewBeginX() / 16; x <= blocks->getViewEndX() / 16; x++)
-        for(int y = blocks->getViewBeginY() / 16; y <= blocks->getViewEndY() / 16; y++) {
+    for(int x = blocks->getBlocksViewBeginX() / LIGHT_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / LIGHT_CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / LIGHT_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / LIGHT_CHUNK_SIZE; y++) {
             if(!getLightChunk(x, y)->isCreated())
                 getLightChunk(x, y)->create(this, x, y);
-            getLightChunk(x, y)->render(x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - blocks->view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - blocks->view_y + gfx::getWindowHeight() / 2);
+            getLightChunk(x, y)->render(x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
 }
 

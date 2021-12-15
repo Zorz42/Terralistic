@@ -58,12 +58,12 @@ void ClientLiquids::stop() {
 }
 
 void ClientLiquids::render() {
-    for(int x = blocks->getViewBeginX() / 16; x <= blocks->getViewEndX() / 16; x++)
-        for(int y = blocks->getViewBeginY() / 16; y <= blocks->getViewEndY() / 16; y++) {
+    for(int x = blocks->getBlocksViewBeginX() / 16; x <= blocks->getBlocksViewEndX() / 16; x++)
+        for(int y = blocks->getBlocksViewBeginY() / 16; y <= blocks->getBlocksViewEndY() / 16; y++) {
             if(!getLiquidChunk(x, y)->isCreated())
                 getLiquidChunk(x, y)->create(this, x, y);
             
-            getLiquidChunk(x, y)->render(this, x * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - blocks->view_x + gfx::getWindowWidth() / 2, y * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - blocks->view_y + gfx::getWindowHeight() / 2);
+            getLiquidChunk(x, y)->render(this, x * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
 }
 

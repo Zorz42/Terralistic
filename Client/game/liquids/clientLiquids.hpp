@@ -21,6 +21,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     ClientBlocks* blocks;
     ResourcePack* resource_pack;
     ClientNetworking* networking;
+    Camera* camera;
     
     LiquidChunk* getLiquidChunk(int x, int y);
     
@@ -33,7 +34,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     void render() override;
     void stop() override;
 public:
-    ClientLiquids(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking) : Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks) {}
+    ClientLiquids(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks), camera(camera) {}
     
     const gfx::Texture& getLiquidsAtlasTexture();
     gfx::RectShape getLiquidRectInAtlas(LiquidType* type);

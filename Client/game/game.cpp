@@ -116,16 +116,16 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     settings(settings),
     
     networking(ip_address, port, username),
-    resource_pack(&items),
-    blocks(&resource_pack, &networking),
-    particles(settings, &blocks),
-    liquids(&blocks, &resource_pack, &networking),
-    lights(settings, &blocks, &resource_pack),
+    background(&camera, &resource_pack),
+    blocks(&resource_pack, &networking, &camera),
+    particles(settings, &blocks, &camera),
+    liquids(&blocks, &resource_pack, &networking, &camera),
+    lights(settings, &blocks, &resource_pack, &camera),
     natural_light(&networking, &blocks, &lights),
     entities(&blocks, &networking),
-    items(&resource_pack, &blocks, &entities, &networking),
-    players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, username),
-    block_selector(&networking, &blocks, &players),
+    items(&resource_pack, &blocks, &entities, &networking, &camera),
+    players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, &camera, username),
+    block_selector(&networking, &blocks, &players, &camera),
     inventory(&networking, &resource_pack, &items, &recipes),
     chat(&networking),
     debug_menu(&players, &blocks),
@@ -133,6 +133,8 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 {
     registerAModule(&networking);
     registerAModule(&resource_pack);
+    registerAModule(&camera);
+    registerAModule(&background);
     registerAModule(&blocks);
     registerAModule(&particles);
     registerAModule(&players);
@@ -173,11 +175,6 @@ void Game::init() {
 void Game::render() {
     if(interrupt)
         throw Exception(interrupt_message);
-    
-    float scale = (float)gfx::getWindowHeight() / resource_pack.getBackground().getTextureHeight();
-    int position_x = -(blocks.view_x / 5) % int(resource_pack.getBackground().getTextureWidth() * scale);
-    for(int i = 0; i < gfx::getWindowWidth() / (resource_pack.getBackground().getTextureWidth() * scale) + 2; i++)
-        resource_pack.getBackground().render(scale, position_x + i * resource_pack.getBackground().getTextureWidth() * scale, 0);
 }
 
 void Game::renderBack() {

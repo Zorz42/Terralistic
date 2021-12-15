@@ -3,26 +3,6 @@
 #include "resourcePack.hpp"
 #include "platform_folders.h"
 
-const gfx::Texture& ResourcePack::getItemTexture() {
-    return item_texture_atlas;
-}
-
-const gfx::Texture& ResourcePack::getItemTextTexture(ItemType* type) {
-    return item_text_textures[(int)type->id];
-}
-
-const gfx::Texture& ResourcePack::getPlayerTexture() {
-    return player_texture;
-}
-
-const gfx::Texture& ResourcePack::getBackground() {
-    return background;
-}
-
-const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType* type) {
-    return item_texture_rectangles[(int)type->id];
-}
-
 std::string ResourcePack::getFile(const std::string& file_name) {
     std::string file;
     for(int i = 0; i < paths.size(); i++) {
@@ -31,33 +11,6 @@ std::string ResourcePack::getFile(const std::string& file_name) {
             return file;
     }
     throw Exception(file_name + " was not found.");
-}
-
-void ResourcePack::loadItems() {
-    gfx::Texture *item_textures = new gfx::Texture[items->getNumItemTypes()];
-
-    for(int i = 1; i < items->getNumItemTypes(); i++) {
-        item_textures[i].loadFromFile(getFile("/items/" + items->getItemTypeById(i)->name + ".png"));
-        item_text_textures[i].loadFromText(items->getItemTypeById(i)->name);
-    }
-
-    int max_x_size = 0;
-    int texture_atlas_height = 0;
-    for(int i = 1; i < items->getNumItemTypes(); i++){
-        if(item_textures[i].getTextureWidth() > max_x_size)
-            max_x_size = item_textures[i].getTextureWidth();
-        item_texture_rectangles[i] = gfx::RectShape(0, texture_atlas_height, item_textures[i].getTextureWidth(), item_textures[i].getTextureHeight());
-        texture_atlas_height += item_textures[i].getTextureHeight();
-    }
-
-    item_texture_atlas.createBlankImage(max_x_size, texture_atlas_height);
-    gfx::setRenderTarget(item_texture_atlas);
-    texture_atlas_height = 0;
-    for(int i = 1; i < items->getNumItemTypes(); i++){
-        item_textures[i].render(1, 0, texture_atlas_height);
-        texture_atlas_height += item_textures[i].getTextureHeight();
-    }
-    gfx::resetRenderTarget();
 }
 
 void ResourcePack::init() {
@@ -71,16 +24,4 @@ void ResourcePack::init() {
     
     paths = active_resource_packs;
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
-    
-    player_texture.loadFromFile(getFile("/misc/player.png"));
-    background.loadFromFile(getFile("/misc/background.png"));
-
-    item_text_textures = new gfx::Texture[items->getNumItemTypes()];
-    item_texture_rectangles = new gfx::RectShape[items->getNumItemTypes()];
-    loadItems();
-}
-
-void ResourcePack::stop() {
-    delete[] item_text_textures;
-    delete[] item_texture_rectangles;
 }

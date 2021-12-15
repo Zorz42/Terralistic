@@ -10,6 +10,8 @@
 #include "clientLights.hpp"
 #include "content.hpp"
 #include "naturalLight.hpp"
+#include "camera.hpp"
+#include "background.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
@@ -22,6 +24,8 @@ class Game : gfx::Scene, public BackgroundRect {
     
     ClientNetworking networking;
     ResourcePack resource_pack;
+    Camera camera;
+    Background background;
     ClientBlocks blocks;
     Particles particles;
     ClientLiquids liquids;

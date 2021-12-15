@@ -1,5 +1,7 @@
 #include "clientBlocks.hpp"
 
+#define EXTENDED_VIEW_MARGIN 100
+
 bool ClientBlocks::updateOrientationSide(ClientBlocks* blocks, int x, int y, int side_x, int side_y) {
     if(
             x + side_x >= blocks->getWidth() || x + side_x < 0 || y + side_y >= blocks->getHeight() || y + side_y < 0 ||
@@ -33,25 +35,6 @@ void ClientBlocks::updateOrientationRight(ClientBlocks* blocks, int x, int y) {
     blocks->setState(x, y, blocks->getState(x, y) * 2);
     if(updateOrientationSide(blocks, x, y, 1, 0))
         blocks->setState(x, y, blocks->getState(x, y) + 1);
-}
-
-
-ClientBlocks::ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking) : resource_pack(resource_pack), networking(networking) {}
-
-int ClientBlocks::getViewBeginX() const {
-    return std::max(view_x / (BLOCK_WIDTH * 2) - gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
-}
-
-int ClientBlocks::getViewEndX() const {
-    return std::min(view_x / (BLOCK_WIDTH * 2) + gfx::getWindowWidth() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getWidth());
-}
-
-int ClientBlocks::getViewBeginY() const {
-    return std::max(view_y / (BLOCK_WIDTH * 2) - gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) - 2, 0);
-}
-
-int ClientBlocks::getViewEndY() const {
-    return std::min(view_y / (BLOCK_WIDTH * 2) + gfx::getWindowHeight() / 2 / (BLOCK_WIDTH * 2) + 2, (int)getHeight());
 }
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
@@ -109,8 +92,6 @@ int ClientBlocks::getState(int x, int y) {
 void ClientBlocks::postInit() {
     render_blocks = new RenderBlock[getWidth() * getHeight()];
     block_chunks = new BlockChunk[getWidth() / 16 * getHeight() / 16];
-    view_x = getWidth() * BLOCK_WIDTH;
-    view_y = 0;
 }
 
 void ClientBlocks::onEvent(BlockChangeEvent& event) {
@@ -203,19 +184,53 @@ gfx::RectShape ClientBlocks::getBlockRectInAtlas(BlockType* type) {
 }
 
 void ClientBlocks::render() {
-    for(int x = getViewBeginX() / 16; x <= getViewEndX() / 16; x++)
-        for(int y = getViewBeginY() / 16; y <= getViewEndY() / 16; y++) {
+    for(int x = getBlocksViewBeginX() / 16; x <= getBlocksViewEndX() / 16; x++)
+        for(int y = getBlocksViewBeginY() / 16; y <= getBlocksViewEndY() / 16; y++) {
             if(!getBlockChunk(x, y)->isCreated())
                 getBlockChunk(x, y)->create(this, x, y);
             
-            getBlockChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2);
+            getBlockChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
     
-    for(int x = getViewBeginX(); x < getViewEndX(); x++)
-        for(int y = getViewBeginY(); y < getViewEndY(); y++) {
+    for(int x = getBlocksViewBeginX(); x < getBlocksViewEndX(); x++)
+        for(int y = getBlocksViewBeginY(); y < getBlocksViewEndY(); y++) {
             if(getBreakStage(x, y)) {
-                int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
+                int block_x = x * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
                 breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x, y) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
             }
         }
 }
+
+int ClientBlocks::getBlocksViewBeginX() {
+    return std::max(camera->getViewBeginX() / (BLOCK_WIDTH * 2) - 2, 0);
+}
+
+int ClientBlocks::getBlocksViewEndX() {
+    return std::min(camera->getViewEndX() / (BLOCK_WIDTH * 2) + 2, getWidth());
+}
+
+int ClientBlocks::getBlocksViewBeginY() {
+    return std::max(camera->getViewBeginY() / (BLOCK_WIDTH * 2) - 2, 0);
+}
+
+int ClientBlocks::getBlocksViewEndY() {
+    return std::min(camera->getViewEndY() / (BLOCK_WIDTH * 2) + 2, getHeight());
+}
+
+
+int ClientBlocks::getBlocksExtendedViewBeginX() {
+    return std::max(camera->getViewBeginX() / (BLOCK_WIDTH * 2) - EXTENDED_VIEW_MARGIN, 0);
+}
+
+int ClientBlocks::getBlocksExtendedViewEndX() {
+    return std::min(camera->getViewEndX() / (BLOCK_WIDTH * 2) + EXTENDED_VIEW_MARGIN, getWidth());
+}
+
+int ClientBlocks::getBlocksExtendedViewBeginY() {
+    return std::max(camera->getViewBeginY() / (BLOCK_WIDTH * 2) - EXTENDED_VIEW_MARGIN, 0);
+}
+
+int ClientBlocks::getBlocksExtendedViewEndY() {
+    return std::min(camera->getViewEndY() / (BLOCK_WIDTH * 2) + EXTENDED_VIEW_MARGIN, getHeight());
+}
+
