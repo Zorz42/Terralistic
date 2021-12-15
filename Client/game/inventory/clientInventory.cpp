@@ -10,7 +10,7 @@ void ClientInventory::init() {
     behind_inventory_rect.orientation = gfx::TOP;
     behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
     behind_inventory_rect.setY(INVENTORY_UI_SPACING / 2);
-    behind_inventory_rect.blur_intensity = BLUR - 2;
+    behind_inventory_rect.blur_intensity = BLUR;
     behind_inventory_rect.fill_color.a = TRANSPARENCY;
     behind_inventory_rect.setHeight(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
     behind_inventory_rect.shadow_intensity = SHADOW_INTENSITY;
@@ -28,12 +28,12 @@ void ClientInventory::init() {
     behind_crafting_rect.setX(INVENTORY_UI_SPACING / 2);
     behind_crafting_rect.setY(INVENTORY_UI_SPACING / 2);
     behind_crafting_rect.setWidth(INVENTORY_ITEM_BACK_RECT_WIDTH + 2 * INVENTORY_UI_SPACING);
-    behind_crafting_rect.blur_intensity = BLUR - 2;
+    behind_crafting_rect.blur_intensity = BLUR;
     behind_crafting_rect.fill_color.a = TRANSPARENCY;
     behind_crafting_rect.shadow_intensity = SHADOW_INTENSITY;
     behind_crafting_rect.smooth_factor = 2;
     
-    under_text_rect.blur_intensity = BLUR - 2;
+    under_text_rect.blur_intensity = BLUR;
     under_text_rect.fill_color.a = TRANSPARENCY;
         
     for(int i = 0; i < 10; i++) {
