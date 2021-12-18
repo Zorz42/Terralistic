@@ -37,7 +37,6 @@ public:
     std::string name;
     std::vector<BlockType*> connects_to;
     int break_time;
-    gfx::Color color;
     int id;
 };
 

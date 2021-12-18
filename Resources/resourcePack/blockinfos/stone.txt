@@ -2,8 +2,5 @@ ghost: true
 transparent: true
 break_time: 1500
 connects_to:
-color_r: 128
-color_g: 128
-color_b: 128
 drop: stone
 drop_chance: 100

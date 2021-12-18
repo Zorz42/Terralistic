@@ -27,8 +27,6 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
     for(BlockType* block_type : block_types) {
         ConfigFile block_properties(resource_path + "blockinfos/" + block_type->name + ".txt");
         
-        block_type->color = {(unsigned char)block_properties.getInt("color_r"), (unsigned char)block_properties.getInt("color_g"), (unsigned char)block_properties.getInt("color_b")};
-        
         if(block_properties.getStr("break_time") == "UNBREAKABLE")
             block_type->break_time = UNBREAKABLE;
         else
@@ -121,7 +119,6 @@ void LiquidTypes::loadContent(Liquids* liquids, const std::string& resource_path
         ConfigFile liquid_properties(resource_path + "liquidinfos/" + liquid_type->name + ".txt");
         liquid_type->flow_time = liquid_properties.getInt("flow_time");
         liquid_type->speed_multiplier = liquid_properties.getInt("speed_multiplier") / 100.f;
-        liquid_type->color = {(unsigned char)liquid_properties.getInt("color_r"), (unsigned char)liquid_properties.getInt("color_g"), (unsigned char)liquid_properties.getInt("color_b"), (unsigned char)liquid_properties.getInt("color_a")};
     }
 }
 

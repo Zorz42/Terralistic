@@ -93,6 +93,8 @@
 		16C9470627109EC100A51E81 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C9470327109EC100A51E81 /* player.cpp */; };
 		3605ED50276A0A0A00ECCA08 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED4E276A0A0A00ECCA08 /* camera.cpp */; };
 		3605ED54276A1ED000ECCA08 /* background.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED52276A1ED000ECCA08 /* background.cpp */; };
+		3605ED58276E90FA00ECCA08 /* walls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED56276E90FA00ECCA08 /* walls.cpp */; };
+		3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED56276E90FA00ECCA08 /* walls.cpp */; };
 		361702D4272EF9E600FFA390 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 361702D2272EF9E600FFA390 /* settings.cpp */; };
 		361DD18E26F7478900129191 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		361DD1A126F7478900129191 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03B726E141FC0045FEA9 /* button.cpp */; };
@@ -365,6 +367,8 @@
 		3605ED4F276A0A0A00ECCA08 /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
 		3605ED52276A1ED000ECCA08 /* background.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = background.cpp; sourceTree = "<group>"; };
 		3605ED53276A1ED000ECCA08 /* background.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = background.hpp; sourceTree = "<group>"; };
+		3605ED56276E90FA00ECCA08 /* walls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = walls.cpp; sourceTree = "<group>"; };
+		3605ED57276E90FA00ECCA08 /* walls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = walls.hpp; sourceTree = "<group>"; };
 		361702D2272EF9E600FFA390 /* settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settings.cpp; sourceTree = "<group>"; };
 		361702D3272EF9E600FFA390 /* settings.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = settings.hpp; sourceTree = "<group>"; };
 		361DD1EB26F7478900129191 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -728,6 +732,7 @@
 				1682944126A16D5C0017E2FD /* packetType */,
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
 				169AD3A027023B590096D80D /* blocks */,
+				3605ED55276E90E600ECCA08 /* walls */,
 				1674225C2702F35800D6D8F2 /* liquids */,
 				1676AF3327044CB300321C8B /* lights */,
 				3692C14C26E506A100F9DD71 /* entities */,
@@ -963,6 +968,15 @@
 				3605ED52276A1ED000ECCA08 /* background.cpp */,
 			);
 			path = background;
+			sourceTree = "<group>";
+		};
+		3605ED55276E90E600ECCA08 /* walls */ = {
+			isa = PBXGroup;
+			children = (
+				3605ED57276E90FA00ECCA08 /* walls.hpp */,
+				3605ED56276E90FA00ECCA08 /* walls.cpp */,
+			);
+			path = walls;
 			sourceTree = "<group>";
 		};
 		361702D1272EF9D100FFA390 /* settings */ = {
@@ -1500,6 +1514,7 @@
 				3657222126D07181005AB3CC /* worldCreator.cpp in Sources */,
 				1675818F2707687E00422C07 /* inventory.cpp in Sources */,
 				167973452712307D00E90477 /* clientLights.cpp in Sources */,
+				3605ED58276E90FA00ECCA08 /* walls.cpp in Sources */,
 				166D85D326AA0B9E00DB87B1 /* textInput.cpp in Sources */,
 				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				166D85D726AA0B9E00DB87B1 /* graphics.cpp in Sources */,
@@ -1543,6 +1558,7 @@
 				16A3BFF126FF85F6001B9E4E /* rectArray.cpp in Sources */,
 				361DD1A126F7478900129191 /* button.cpp in Sources */,
 				361DD1A326F7478900129191 /* resourcePath.cpp in Sources */,
+				3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */,
 				169B87D1270F5036006023B8 /* serverChat.cpp in Sources */,
 				361DD1A426F7478900129191 /* items.cpp in Sources */,
 				36A2B4B2276553A6000C63D5 /* textureAtlas.cpp in Sources */,
