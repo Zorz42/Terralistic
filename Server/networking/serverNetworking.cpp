@@ -60,6 +60,11 @@ std::pair<sf::Packet, ClientPacketType> Connection::getPacket() {
     return result;
 }
 
+ServerNetworking::ServerNetworking(int port) : port(port) {
+    if(port < 0 || port > 65535)
+        throw Exception("Port number out of range");
+}
+
 void ServerNetworking::init() {
     listener.listen(port);
     listener.setBlocking(false);
