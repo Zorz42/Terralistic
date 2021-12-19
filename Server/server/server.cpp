@@ -138,10 +138,11 @@ void Server::start() {
     }
     
     state = ServerState::STOPPING;
-    print::info("Stopping server");
-
+    
+    print::info("Saving world...");
     saveWorld();
     
+    print::info("Stopping server...");
     for(int i = 0; i < modules.size(); i++)
         modules[i]->stop();
 
