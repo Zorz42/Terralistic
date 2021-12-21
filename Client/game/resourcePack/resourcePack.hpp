@@ -4,7 +4,7 @@
 #include "items.hpp"
 
 class ResourcePack : public ClientModule {
-    gfx::Texture *item_text_textures = nullptr, breaking_texture, player_texture, background, block_texture_atlas, liquid_texture_atlas, item_texture_atlas;
+    gfx::Texture *item_text_textures = nullptr, breaking_texture, player_texture, background, block_texture_atlas, liquid_texture_atlas, item_texture_atlas, hearts;
     gfx::RectShape *block_texture_rectangles = nullptr;
     gfx::RectShape *liquid_texture_rectangles = nullptr;
     gfx::RectShape *item_texture_rectangles = nullptr;
@@ -30,6 +30,7 @@ public:
     const gfx::Texture& getBreakingTexture();
     const gfx::Texture& getPlayerTexture();
     const gfx::Texture& getBackground();
+    const gfx::Texture& getHeartTexture();
     const gfx::RectShape& getTextureRectangle(BlockType* type);
     const gfx::RectShape& getTextureRectangle(LiquidType* type);
     const gfx::RectShape& getTextureRectangle(ItemType* type);

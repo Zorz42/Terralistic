@@ -9,6 +9,7 @@
 #include "minimap.hpp"
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"
+#include "health.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
@@ -34,6 +35,8 @@ class Game : gfx::Scene, public BackgroundRect {
     Minimap minimap;
     Chat chat;
     DebugMenu debug_menu;
+    Health player_health;
+
     
     Recipes recipes;
     

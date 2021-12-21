@@ -129,7 +129,8 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     inventory(&networking, &resource_pack, &items, &recipes),
     minimap(settings, &blocks, &liquids, &lights, &natural_light),
     chat(&networking),
-    debug_menu(&players, &blocks)
+    debug_menu(&players, &blocks),
+    player_health(&networking, &resource_pack)
 {
     registerAModule(&networking);
     registerAModule(&resource_pack);
@@ -145,6 +146,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&inventory);
     registerAModule(&minimap);
     registerAModule(&chat);
+    registerAModule(&player_health);
 #ifdef DEVELOPER_MODE
     registerAModule(&debug_menu);
 #endif

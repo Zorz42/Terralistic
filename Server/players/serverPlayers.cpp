@@ -110,6 +110,7 @@ void ServerPlayers::savePlayer(ServerPlayer* player) {
     player_data->name = player->name;
     player_data->x = player->getX();
     player_data->y = player->getY();
+    player_data->health = player->getHealth();
     player_data->inventory = player->inventory;
 }
 
@@ -150,6 +151,9 @@ ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, char*& iter) 
     while(*iter)
         name.push_back(*iter++);
     iter++;
+
+    memcpy(&health, iter, sizeof(short));
+    iter += sizeof(short);
 }
 
 void ServerPlayerData::serialize(std::vector<char>& serial) const {
@@ -163,6 +167,9 @@ void ServerPlayerData::serialize(std::vector<char>& serial) const {
     
     serial.insert(serial.end(), name.begin(), name.end());
     serial.insert(serial.end(), 0);
+
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    memcpy(&serial[serial.size() - 4], &health, sizeof(short));
 }
 
 void ServerPlayers::onEvent(BlockChangeEvent& event) {

@@ -31,6 +31,10 @@ const gfx::Texture& ResourcePack::getBackground() {
     return background;
 }
 
+const gfx::Texture& ResourcePack::getHeartTexture() {
+    return hearts;
+}
+
 const gfx::RectShape& ResourcePack::getTextureRectangle(BlockType* type) {
     return block_texture_rectangles[(int)type->id];
 }
@@ -147,6 +151,7 @@ void ResourcePack::init() {
     breaking_texture.loadFromFile(getFile("/misc/breaking.png"));
     player_texture.loadFromFile(getFile("/misc/player.png"));
     background.loadFromFile(getFile("/misc/background.png"));
+    hearts.loadFromFile(getFile("/misc/hearts.png"));
 
     item_text_textures = new gfx::Texture[items->getNumItemTypes()];
     block_texture_rectangles = new gfx::RectShape[blocks->getNumBlockTypes()];
