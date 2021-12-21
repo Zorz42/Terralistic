@@ -26,15 +26,15 @@ void ClientItems::onEvent(EntityDeletionEvent& event) {
 
 void ClientItems::render() {
     int item_index = 0;
-    for(Entity* entity : entities->getEntities()) {
-        if(entity->type == EntityType::ITEM) {
-            Item* item = (Item*)entity;
+    for(int i = 0; i < entities->getEntities().size(); i++) {
+        if(entities->getEntities()[i]->type == EntityType::ITEM) {
+            Item* item = (Item*)entities->getEntities()[i];
             gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());
             item_rects.setTextureCoords(item_index, rect);
 
             int item_x = item->getX() - blocks->view_x + gfx::getWindowWidth() / 2;
             int item_y = item->getY() - blocks->view_y + gfx::getWindowHeight() / 2;
-            item_rects.setRect(item_index, {item_x, item_y, rect.h * 2, rect.w * 2});
+            item_rects.setRect(item_index, {item_x + rect.w - 8, item_y - rect.h * 2 + 16, rect.h * 2, rect.w * 2});
             item_index++;
         }
     }

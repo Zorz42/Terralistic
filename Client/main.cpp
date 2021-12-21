@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
     MenuBack menu_back;
     menu_back.init();
     
-#ifndef DEVELOPER_MODE
+/*#ifndef DEVELOPER_MODE
     UpdateChecker update_checker(&menu_back, argv[0]);
     update_checker.run();
     if(update_checker.hasUpdated()) {
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
         gfx::quit();
         return 0;
     }
-#endif
+#endif*/
     
     MainMenu(&menu_back, &settings).run();
     

@@ -130,6 +130,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     minimap(settings, &blocks, &liquids, &lights, &natural_light),
     chat(&networking),
     debug_menu(&players, &blocks),
+    content(&blocks, &liquids, &items),
     player_health(&networking, &resource_pack)
 {
     registerAModule(&networking);
@@ -151,7 +152,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&debug_menu);
 #endif
     
-    addContent(&blocks, &liquids, &items, &recipes);
+    content.loadContent(&blocks, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
 }
 
 void Game::start() {
@@ -168,9 +169,9 @@ void Game::start() {
 }
 
 void Game::init() {
-    for(gfx::SceneModule* module : getModules())
-        if(module != this)
-            ((ClientModule*)module)->postInit();
+    for(int i = 0; i < getModules().size(); i++)
+        if(getModules()[i] != this)
+            ((ClientModule*)getModules()[i])->postInit();
 }
 
 void Game::render() {

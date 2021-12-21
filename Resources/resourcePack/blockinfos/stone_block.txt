@@ -1,0 +1,9 @@
+ghost: false
+transparent: false
+break_time: 1000
+connects_to: snowy_grass_block
+color_r: 128
+color_g: 128
+color_b: 128
+drop: stone_block
+drop_chance: 100

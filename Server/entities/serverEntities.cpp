@@ -35,9 +35,9 @@ void ServerEntities::update(float frame_length) {
     
     if(gfx::getTicks() / 1000 > seconds) {
         seconds = gfx::getTicks() / 1000;
-        for(Entity* entity : getEntities()) {
+        for(int i = 0; i < getEntities().size(); i++) {
             sf::Packet packet;
-            packet << ServerPacketType::ENTITY_POSITION << entity->getX() << entity->getY() << entity->id;
+            packet << ServerPacketType::ENTITY_POSITION << getEntities()[i]->getX() << getEntities()[i]->getY() << getEntities()[i]->id;
             networking->sendToEveryone(packet);
         }
     }

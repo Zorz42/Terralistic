@@ -1,0 +1,9 @@
+ghost: false
+transparent: false
+break_time: 500
+connects_to: dirt grass_block stone_block
+color_r: 210
+color_g: 170
+color_b: 109
+drop: nothing
+drop_chance: 100

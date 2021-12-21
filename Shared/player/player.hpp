@@ -7,14 +7,15 @@
 enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 
 class Player : public Entity {
-    int getWidth() override;
-    int getHeight() override;
-
     bool isColliding(Blocks* blocks) override;
 public:
     Player(int x, int y, const std::string& name, short health, int id=0) : Entity(EntityType::PLAYER, x, y, id), name(name), health(health) {}
     
+    int getWidth() override;
+    int getHeight() override;
+
     const std::string name;
+    bool flipped = false;
     short health;
     int getHealth();
 

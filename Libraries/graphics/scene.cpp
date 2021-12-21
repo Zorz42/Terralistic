@@ -41,11 +41,11 @@ gfx::Key translateMouseKey(sf::Mouse::Button sfml_button) {
 }
 
 void gfx::Scene::switchToScene(Scene& scene) {
-    for(SceneModule* module : modules)
-        module->enable_key_states = false;
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->enable_key_states = false;
     scene.run();
-    for(SceneModule* module : modules)
-        module->enable_key_states = true;
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->enable_key_states = true;
 }
 
 gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
@@ -135,20 +135,20 @@ void gfx::Scene::onEvent(sf::Event event) {
                     }
         }
         bool is_textbox_active = false;
-        for(SceneModule* module : modules)
-            if(module->enabled)
-                for(TextInput* i : module->text_inputs)
-                    if(i->active)
+        for(int i = 0; i < modules.size(); i++)
+            if(modules[i]->enabled)
+                for(int i2 = 0; i2 < modules[i]->text_inputs.size(); i2++)
+                    if(modules[i]->text_inputs[i2]->active)
                         is_textbox_active = true;
         
         if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
             onKeyDownCallback(key);
         
         if(is_textbox_active && key == Key::ESCAPE) {
-            for(SceneModule* module : modules)
-                if(module->enabled)
-                    for(TextInput* i : module->text_inputs)
-                        i->active = false;
+            for(int i = 0; i < modules.size(); i++)
+                if(modules[i]->enabled)
+                    for(int i2 = 0; i2 < modules[i]->text_inputs.size(); i2++)
+                        modules[i]->text_inputs[i2]->active = false;
         }
     }
     
@@ -186,8 +186,8 @@ void gfx::Scene::onEvent(sf::Event event) {
 }
 
 void gfx::Scene::run() {
-    for(SceneModule* module : modules)
-        module->init();
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->init();
     modules.insert(modules.begin(), this);
     init();
 
@@ -196,10 +196,10 @@ void gfx::Scene::run() {
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
         mouse_y = sf::Mouse::getPosition(*window).y / global_scale;
-        for(SceneModule* module : modules)
-            if(module->enabled) {
-                module->mouse_x = mouse_x;
-                module->mouse_y = mouse_y;
+        for(int i = 0; i < modules.size(); i++)
+            if(modules[i]->enabled) {
+                modules[i]->mouse_x = mouse_x;
+                modules[i]->mouse_y = mouse_y;
             }
         
         sf::Event event;
@@ -215,17 +215,17 @@ void gfx::Scene::run() {
         frame_length = getTicks() - start;
     }
     
-    for(SceneModule* module : modules)
-        module->stop();
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->stop();
 }
 
 void gfx::Scene::cycleModules() {
-    for(SceneModule* module : modules)
-        module->update(frame_length);
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->update(frame_length);
     
-    for(SceneModule* module : modules)
-        if(module->enabled)
-            module->render();
+    for(int i = 0; i < modules.size(); i++)
+        if(modules[i]->enabled)
+            modules[i]->render();
 }
 
 void gfx::Scene::returnFromScene() {

@@ -1,0 +1,9 @@
+ghost: false
+transparent: false
+break_time: 500
+connects_to: snow_block
+color_r: 179
+color_g: 217
+color_b: 255
+drop: nothing
+drop_chance: 100

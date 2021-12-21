@@ -34,11 +34,18 @@ public:
     ~ServerPlayer();
 };
 
-class BlockEvents {
+class BlockBehaviour {
 public:
-    void (*onUpdate)(Blocks* blocks, int x, int y) = nullptr;
-    void (*onRightClick)(Blocks* blocks, int x, int y, ServerPlayer* player) = nullptr;
-    void (*onLeftClick)(Blocks* blocks, int x, int y, ServerPlayer* player) = nullptr;
+    virtual void onUpdate(Blocks* blocks, int x, int y) {}
+    virtual void onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) {}
+    virtual void onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
+        if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
+            blocks->startBreakingBlock(x, y);
+    }
+};
+
+class AirBehaviour : public BlockBehaviour {
+    void onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) override;
 };
 
 class ServerPacketEvent {
@@ -58,7 +65,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     
     std::vector<ServerPlayerData*> all_players;
 
-    BlockEvents *custom_block_events = nullptr;
+    BlockBehaviour **blocks_behaviour = nullptr;
     
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(ServerNewConnectionEvent& event) override;
@@ -73,6 +80,9 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     void update(float frame_length) override;
     void stop() override;
     
+    BlockBehaviour default_behaviour;
+    AirBehaviour air_behaviour;
+    
 public:
     ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes) {}
     
@@ -83,6 +93,8 @@ public:
     char* addPlayerFromSerial(char* iter);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
+    
+    BlockBehaviour*& getBlockBehaviour(BlockType* type);
     
     EventSender<ServerPacketEvent> packet_event;
 };

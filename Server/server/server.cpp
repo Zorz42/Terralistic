@@ -17,18 +17,20 @@ void onInterrupt(int signum) {
     std::cout << std::endl;
 }
 
-Server::Server(std::string resource_path, std::string world_path, int port) :
+Server::Server(const std::string& resource_path, const std::string& world_path, int port) :
     networking(port),
     blocks(&networking),
     biomes(&blocks),
     liquids(&blocks, &networking),
-    generator(&blocks, &liquids, &biomes, std::move(resource_path)),
+    generator(&blocks, &liquids, &biomes, resource_path + "resourcePack/", &content),
     entities(&blocks, &networking),
     items(&entities, &blocks, &networking),
     players(&blocks, &entities, &items, &networking, &recipes),
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
-    world_path(std::move(world_path)),
+    world_path(world_path),
+    content(&blocks, &liquids, &items),
+    resource_path(resource_path),
     seed((int)time(NULL))
 {
     if(port < 0 || port > 65535)
@@ -73,12 +75,12 @@ void Server::saveWorld() {
     blocks.serialize(world_file_serial);
     liquids.serialize(world_file_serial);
     
-    for(Entity* entity : entities.getEntities())
-        if(entity->type == EntityType::PLAYER)
-            players.savePlayer((ServerPlayer*)entity);
+    for(int i = 0; i < entities.getEntities().size(); i++)
+        if(entities.getEntities()[i]->type == EntityType::PLAYER)
+            players.savePlayer((ServerPlayer*)entities.getEntities()[i]);
     
-    for(const ServerPlayerData* player : players.getAllPlayers())
-        player->serialize(world_file_serial);
+    for(int i = 0; i < players.getAllPlayers().size(); i++)
+        players.getAllPlayers()[i]->serialize(world_file_serial);
     
     world_file_serial = compress(world_file_serial);
     
@@ -89,9 +91,9 @@ void Server::saveWorld() {
 
 void Server::start() {
     curr_server = this;
-    
-    addContent(&blocks, &liquids, &items, &recipes);
 
+    content.loadContent(&blocks, &liquids, &items, &recipes, resource_path + "resourcePack/");
+    
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
@@ -102,8 +104,10 @@ void Server::start() {
         generator.generateWorld(4400, 1200, seed);
     }
     
-    for(ServerModule* module : modules)
-        module->init();
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->init();
+    
+    content.blocks.addBlockBehaviour(&players);
 
     signal(SIGINT, onInterrupt);
 
@@ -122,8 +126,8 @@ void Server::start() {
             gfx::sleep(ms_per_tick - frame_length);
         b = a;
         
-        for(ServerModule* module : modules)
-            module->update(frame_length);
+        for(int i = 0; i < modules.size(); i++)
+            modules[i]->update(frame_length);
         
         if(gfx::getTicks() / AUTOSAVE_INTERVAL / 1000 > save_inverval) {
             print::info("Autosaving world...");
@@ -138,8 +142,8 @@ void Server::start() {
 
     saveWorld();
     
-    for(ServerModule* module : modules)
-        module->stop();
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->stop();
 
     state = ServerState::STOPPED;
 }

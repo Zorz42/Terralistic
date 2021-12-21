@@ -10,6 +10,7 @@
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"
 #include "health.hpp"
+#include "content.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
@@ -36,10 +37,9 @@ class Game : gfx::Scene, public BackgroundRect {
     Chat chat;
     DebugMenu debug_menu;
     Health player_health;
-
-    
     Recipes recipes;
-    
+    GameContent content;
+
     Settings* settings;
     BackgroundRect* background_rect;
     bool handshake_done = false;

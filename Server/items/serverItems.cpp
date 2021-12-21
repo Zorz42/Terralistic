@@ -20,9 +20,9 @@ void ServerItems::onEvent(ItemCreationEvent &event) {
 }
 
 void ServerItems::onEvent(ServerNewConnectionEvent& event) {
-    for(const Entity* entity : entities->getEntities())
-        if(entity->type == EntityType::ITEM) {
-            Item* item = (Item*)entity;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::ITEM) {
+            Item* item = (Item*)entities->getEntities()[i];
             sf::Packet item_packet;
             item_packet << ServerPacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << item->getType()->id;
             event.connection->send(item_packet);
@@ -32,8 +32,9 @@ void ServerItems::onEvent(ServerNewConnectionEvent& event) {
 void ServerItems::onEvent(BlockBreakEvent& event) {
     static std::random_device device;
     static std::mt19937 engine(device());
-    if(getBlockDrop(blocks->getBlockType(event.x, event.y)) != &ItemTypes::nothing) {
-        Item* item = spawnItem(getItemTypeById(getBlockDrop(blocks->getBlockType(event.x, event.y))->id), event.x * BLOCK_WIDTH * 2, event.y * BLOCK_WIDTH * 2);
+    BlockDrop drop = getBlockDrop(blocks->getBlockType(event.x, event.y));
+    if(drop.drop != &nothing && (double)rand() / RAND_MAX < drop.chance) {
+        Item* item = spawnItem(getItemTypeById(drop.drop->id), event.x * BLOCK_WIDTH * 2, event.y * BLOCK_WIDTH * 2);
         entities->addVelocityX(item, int(engine() % 40) - 20);
         entities->addVelocityY(item, -int(engine() % 20) - 20);
     }

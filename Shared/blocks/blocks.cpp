@@ -1,10 +1,14 @@
 #include "blocks.hpp"
 #include "exception.hpp"
 
-BlockType::BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color) : ghost(ghost), transparent(transparent), name(std::move(name)), break_time(break_time), connects_to(std::move(connects_to)), color(color) {}
+BlockType::BlockType(std::string name) : name(std::move(name)) {}
 
-Blocks::Blocks() {
-    registerNewBlockType(&BlockTypes::air);
+Blocks::Blocks() : air("air") {
+    air.ghost = true;
+    air.transparent = true;
+    air.break_time = UNBREAKABLE;
+    air.color = {0, 0, 0, 0};
+    registerNewBlockType(&air);
 }
 
 void Blocks::create(int width_, int height_) {
@@ -48,9 +52,9 @@ void Blocks::setBlockType(int x, int y, BlockType* type) {
 }
 
 int Blocks::getBreakProgress(int x, int y) {
-    for(BreakingBlock breaking_block : breaking_blocks)
-        if(breaking_block.x == x && breaking_block.y == y)
-            return breaking_block.break_progress;
+    for(int i = 0; i < breaking_blocks.size(); i++)
+        if(breaking_blocks[i].x == x && breaking_blocks[i].y == y)
+            return breaking_blocks[i].break_progress;
     return 0;
 }
 
@@ -74,9 +78,9 @@ void Blocks::startBreakingBlock(int x, int y) {
     
     BreakingBlock* breaking_block = nullptr;
     
-    for(BreakingBlock& block : breaking_blocks)
-        if(block.x == x && block.y == y)
-            breaking_block = &block;
+    for(int i = 0; i < breaking_blocks.size(); i++)
+        if(breaking_blocks[i].x == x && breaking_blocks[i].y == y)
+            breaking_block = &breaking_blocks[i];
     
     if(!breaking_block) {
         BreakingBlock new_breaking_block;
@@ -96,9 +100,9 @@ void Blocks::stopBreakingBlock(int x, int y) {
     if(x < 0 || x >= width || y < 0 || y >= height)
         throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     
-    for(BreakingBlock& breaking_block : breaking_blocks)
-        if(breaking_block.x == x && breaking_block.y == y) {
-            breaking_block.is_breaking = false;
+    for(int i = 0; i < breaking_blocks.size(); i++)
+        if(breaking_blocks[i].x == x && breaking_blocks[i].y == y) {
+            breaking_blocks[i].is_breaking = false;
             BlockStoppedBreakingEvent event(x, y);
             block_stopped_breaking_event.call(event);
         }
@@ -108,7 +112,7 @@ void Blocks::breakBlock(int x, int y) {
     BlockBreakEvent event(x, y);
     block_break_event.call(event);
     
-    setBlockType(x, y, &BlockTypes::air);
+    setBlockType(x, y, &air);
 }
 
 int Blocks::getWidth() const {
@@ -166,9 +170,9 @@ BlockType* Blocks::getBlockTypeById(int block_id) {
 }
 
 BlockType* Blocks::getBlockTypeByName(const std::string& name) {
-    for(BlockType* block_info : block_types)
-        if(block_info->name == name)
-            return block_info;
+    for(int i = 0; i < block_types.size(); i++)
+        if(block_types[i]->name == name)
+            return block_types[i];
     return nullptr;
 }
 

@@ -86,10 +86,12 @@ ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
 
 void ClientBlocks::updateState(int x, int y) {
     getRenderBlock(x, y)->state = 0;
-    updateOrientationLeft(this, x, y);
-    updateOrientationDown(this, x, y);
-    updateOrientationRight(this, x, y);
-    updateOrientationUp(this, x, y);
+    if(resource_pack->getTextureRectangle(getBlockType(x, y)).h != 8) {
+        updateOrientationLeft(this, x, y);
+        updateOrientationDown(this, x, y);
+        updateOrientationRight(this, x, y);
+        updateOrientationUp(this, x, y);
+    }
 }
 
 void ClientBlocks::setState(int x, int y, int state) {
@@ -151,7 +153,7 @@ void ClientBlocks::render() {
             if(getState(x, y) == 16)
                 updateState(x, y);
             
-            if(getBlockType(x, y) != &BlockTypes::air && (lights->getLightLevel(x, y) || !skip_rendering_in_dark)) {
+            if(getBlockType(x, y) != &air && (lights->getLightLevel(x, y) || !skip_rendering_in_dark)) {
                 int block_x = x * BLOCK_WIDTH * 2 - view_x + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - view_y + gfx::getWindowHeight() / 2;
                 int texture_x = (getRenderBlock(x, y)->variation) % (resource_pack->getTextureRectangle(getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
                 int texture_y = resource_pack->getTextureRectangle(getBlockType(x, y)).y + BLOCK_WIDTH * getRenderBlock(x, y)->state;

@@ -58,10 +58,10 @@ void Lights::updateLight(int x, int y) {
     
     if(!getLight(x, y)->light_source) {
         int level_to_be = 0;
-        for(auto & neighbor : neighbors)
-            if(neighbor[0] != -1) {
-                int light_step = blocks->getBlockType(neighbor[0], neighbor[1])->transparent ? 3 : 15;
-                int light = light_step > getLightLevel(neighbor[0], neighbor[1]) ? 0 : getLightLevel(neighbor[0], neighbor[1]) - light_step;
+        for(int i = 0; i < 4; i++)
+            if(neighbors[i][0] != -1) {
+                int light_step = blocks->getBlockType(neighbors[i][0], neighbors[i][1])->transparent ? 3 : 15;
+                int light = light_step > getLightLevel(neighbors[i][0], neighbors[i][1]) ? 0 : getLightLevel(neighbors[i][0], neighbors[i][1]) - light_step;
                 if(light > level_to_be)
                     level_to_be = light;
             }

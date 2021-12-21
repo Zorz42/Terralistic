@@ -1,7 +1,5 @@
 #include "items.hpp"
 
-ItemType::ItemType(std::string name, int stack_size, BlockType* places) : name(std::move(name)), stack_size(stack_size), places(places) {}
-
 ItemType* Item::getType() const {
     return type;
 }
@@ -31,23 +29,23 @@ int Items::getNumItemTypes() {
     return (int)item_types.size();
 }
 
-void Items::setBlockDrop(BlockType* block_type, ItemType* item_type) {
+void Items::setBlockDrop(BlockType* block_type, BlockDrop block_drop) {
     if(drops.size() <= block_type->id)
         drops.resize(block_type->id + 1);
     
-    drops[block_type->id] = item_type;
+    drops[block_type->id] = block_drop;
 }
 
-ItemType* Items::getBlockDrop(BlockType* block_type) {
-    if(block_type->id < drops.size() && drops[block_type->id])
+BlockDrop Items::getBlockDrop(BlockType* block_type) {
+    if(block_type->id < drops.size() && drops[block_type->id].drop)
         return drops[block_type->id];
-    return &ItemTypes::nothing;
+    return BlockDrop(&nothing);
 }
 
 ItemType* Items::getItemTypeByName(const std::string& name) {
-    for(ItemType* item_info : item_types)
-        if(item_info->name == name)
-            return item_info;
+    for(int i = 0; i < item_types.size(); i++)
+        if(item_types[i]->name == name)
+            return item_types[i];
     throw Exception("Could not find item by name");
     return nullptr;
 }

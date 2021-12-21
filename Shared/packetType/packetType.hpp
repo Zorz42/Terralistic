@@ -5,7 +5,7 @@ enum class ClientPacketType {
     _START,
     
     // players
-    PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
+    PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED, ITEM_DROP,
     
     // inventory
     INVENTORY_SWAP, HOTBAR_SELECTION, CRAFT,

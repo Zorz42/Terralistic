@@ -31,8 +31,7 @@ public:
 
 class BlockType {
 public:
-    BlockType() = default;
-    BlockType(std::string name, bool ghost, bool transparent, int break_time, std::vector<BlockType*> connects_to, gfx::Color color);
+    BlockType(std::string name);
     
     bool ghost, transparent;
     std::string name;
@@ -42,14 +41,10 @@ public:
     int id;
 };
 
-namespace BlockTypes {
-    inline BlockType air("air", /*ghost*/true, /*transparent*/true, /*break_time*/UNBREAKABLE, /*connects_to*/ {}, /*color*/{0, 0, 0, 0});
-};
-
 class Blocks {
     class Block {
     public:
-        Block() : id(BlockTypes::air.id) {}
+        Block() : id(/*air*/0) {}
         int id:8;
     };
     
@@ -72,6 +67,8 @@ public:
     Blocks();
     void create(int width, int height);
 
+    BlockType air;
+    
     BlockType* getBlockType(int x, int y);
     void setBlockType(int x, int y, BlockType* type);
     void setBlockTypeSilently(int x, int y, BlockType* type);

@@ -49,8 +49,8 @@ const gfx::RectShape& ResourcePack::getTextureRectangle(ItemType* type) {
 
 std::string ResourcePack::getFile(const std::string& file_name) {
     std::string file;
-    for(const std::string& path : paths) {
-        file = path + file_name;
+    for(int i = 0; i < paths.size(); i++) {
+        file = paths[i] + file_name;
         if(std::filesystem::exists(file))
             return file;
     }

@@ -1,7 +1,5 @@
 #include "liquids.hpp"
 
-LiquidType::LiquidType(std::string name, int flow_time, float speed_multiplier, gfx::Color color) : name(std::move(name)), flow_time(flow_time), speed_multiplier(speed_multiplier), color(color) {}
-
 void Liquids::create() {
     liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
 }
@@ -22,7 +20,7 @@ void Liquids::setLiquidTypeSilently(int x, int y, LiquidType* type) {
 
 void Liquids::setLiquidType(int x, int y, LiquidType* type) {
     if(type != getLiquidType(x, y)) {
-        if(type == &LiquidTypes::empty)
+        if(type == &empty)
             setLiquidLevel(x, y, 0);
         
         setLiquidTypeSilently(x, y, type);
@@ -41,14 +39,14 @@ bool Liquids::canUpdateLiquid(int x, int y) {
 }
 
 bool Liquids::isFlowable(int x, int y) {
-    return blocks->getBlockType(x, y)->ghost && getLiquidType(x, y) == &LiquidTypes::empty;
+    return blocks->getBlockType(x, y)->ghost && getLiquidType(x, y) == &empty;
 }
 
 void Liquids::updateLiquid(int x, int y) {
     getLiquid(x, y)->when_to_update = 0;
     
     if(!blocks->getBlockType(x, y)->ghost)
-        setLiquidType(x, y, &LiquidTypes::empty);
+        setLiquidType(x, y, &empty);
     
     if(getLiquidLevel(x, y) == 0)
         return;
@@ -73,7 +71,7 @@ void Liquids::updateLiquid(int x, int y) {
             setLiquidLevel(x, y + 1, 127);
             setLiquidLevel(x, y, liquid_sum - 127);
         } else {
-            setLiquidType(x, y, &LiquidTypes::empty);
+            setLiquidType(x, y, &empty);
             setLiquidLevel(x, y + 1, liquid_sum);
         }
         
@@ -135,7 +133,7 @@ void Liquids::setLiquidLevel(int x, int y, int level) {
     if(level != getLiquidLevel(x, y)) {
         setLiquidLevelSilently(x, y, level);
         if(level == 0)
-            setLiquidType(x, y, &LiquidTypes::empty);
+            setLiquidType(x, y, &empty);
         
         LiquidChangeEvent event(x, y);
         liquid_change_event.call(event);
@@ -153,7 +151,7 @@ void Liquids::serialize(std::vector<char>& serial) {
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 serial.push_back((char)liquid->id);
-                if(getLiquidType(x, y) != &LiquidTypes::empty)
+                if(getLiquidType(x, y) != &empty)
                     serial.push_back((char)liquid->level);
             }
             liquid++;
@@ -167,7 +165,7 @@ char* Liquids::loadFromSerial(char* iter) {
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 liquid->id = *iter++;
-                if(liquid->id != LiquidTypes::empty.id)
+                if(liquid->id != empty.id)
                     liquid->level = *iter++;
             }
             liquid++;

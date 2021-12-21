@@ -1,33 +1,114 @@
 #pragma once
 #include "liquids.hpp"
 #include "inventory.hpp"
+#include "serverPlayers.hpp"
 
-namespace BlockTypes {
-    extern BlockType dirt;
-    extern BlockType stone_block;
-    extern BlockType grass_block;
-    extern BlockType stone;
-    extern BlockType wood;
-    extern BlockType leaves;
-    extern BlockType sand;
-    extern BlockType snowy_grass_block;
-    extern BlockType snow_block;
-    extern BlockType ice_block;
-    extern BlockType iron_ore;
-    extern BlockType copper_ore;
-}
+class ItemTypes;
+class BlockTypes;
 
-namespace LiquidTypes {
-    inline LiquidType water(/*name*/"water", /*flow_time*/100, /*speed_multiplier*/0.5, /*color*/{0, 92, 230, 150});
-}
+class WoodBehaviour : public BlockBehaviour {
+    void onUpdate(Blocks* blocks, int x, int y) override;
+    BlockTypes* blocks_;
+public:
+    WoodBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+};
 
-namespace ItemTypes {
-    inline ItemType stone      (/*name*/"stone",       /*max_stack*/99, /*places*/&BlockTypes::stone      );
-    inline ItemType dirt       (/*name*/"dirt",        /*max_stack*/99, /*places*/&BlockTypes::dirt       );
-    inline ItemType stone_block(/*name*/"stone_block", /*max_stack*/99, /*places*/&BlockTypes::stone_block);
-    inline ItemType wood_planks(/*name*/"wood_planks", /*max_stack*/99, /*places*/&BlockTypes::air        );
-    inline ItemType iron_ore   (/*name*/"iron_ore",    /*max_stack*/99, /*places*/&BlockTypes::iron_ore   );
-    inline ItemType copper_ore (/*name*/"copper_ore",  /*max_stack*/99, /*places*/&BlockTypes::copper_ore );
-}
+class LeavesBehaviour : public BlockBehaviour {
+    void onUpdate(Blocks* blocks, int x, int y) override;
+    BlockTypes* blocks_;
+public:
+    LeavesBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+};
 
-void addContent(Blocks* blocks, Liquids* liquids, Items* items, Recipes* recipes);
+class GrassBlockBehaviour : public BlockBehaviour {
+    void onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) override;
+    BlockTypes* blocks_;
+public:
+    GrassBlockBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+};
+
+class SnowyGrassBlockBehaviour : public BlockBehaviour {
+    void onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) override;
+    BlockTypes* blocks_;
+public:
+    SnowyGrassBlockBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+};
+
+class StoneBehaviour : public BlockBehaviour {
+    void onUpdate(Blocks* blocks, int x, int y) override;
+};
+
+class GrassBehaviour : public BlockBehaviour {
+    void onUpdate(Blocks* blocks, int x, int y) override;
+};
+
+class BlockTypes {
+    WoodBehaviour wood_behaviour{this};
+    LeavesBehaviour leaves_behaviour{this};
+    GrassBlockBehaviour grass_block_behaviour{this};
+    SnowyGrassBlockBehaviour snowy_grass_block_behaviour{this};
+    StoneBehaviour stone_behaviour;
+    GrassBehaviour grass_behaviour;
+    
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass};
+public:
+    BlockTypes(Blocks* blocks);
+    void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
+    void addBlockBehaviour(ServerPlayers* players);
+    
+    bool isBlockTree(Blocks* blocks, int x, int y);
+    bool isBlockWood(Blocks* blocks, int x, int y);
+    bool isBlockLeaves(Blocks* blocks, int x, int y);
+    
+    BlockType dirt{"dirt"};
+    BlockType stone_block{"stone_block"};
+    BlockType grass_block{"grass_block"};
+    BlockType stone{"stone"};
+    BlockType wood{"wood"};
+    BlockType leaves{"leaves"};
+    BlockType sand{"sand"};
+    BlockType snowy_grass_block{"snowy_grass_block"};
+    BlockType snow_block{"snow_block"};
+    BlockType ice_block{"ice_block"};
+    BlockType iron_ore{"iron_ore"};
+    BlockType copper_ore{"copper_ore"};
+    BlockType grass{"grass"};
+};
+
+class LiquidTypes {
+    std::vector<LiquidType*> liquid_types = {&water};
+public:
+    LiquidTypes(Liquids* liquids);
+    void loadContent(Liquids* liquids, const std::string& resource_path);
+    
+    LiquidType water;
+};
+
+class ItemTypes {
+    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet};
+public:
+    ItemTypes(BlockTypes* blocks, Blocks* blocks_, Items* items);
+    void loadContent(Items* items, Blocks* blocks, const std::string& resource_path);
+    
+    ItemType stone{"stone"};
+    ItemType dirt{"dirt"};
+    ItemType stone_block{"stone_block"};
+    ItemType wood_planks{"wood_planks"};
+    ItemType iron_ore{"iron_ore"};
+    ItemType copper_ore{"copper_ore"};
+    ItemType fiber{"fiber"};
+    ItemType hatchet{"hatchet"};
+};
+
+class GameContent {
+    void addRecipes(Recipes* recipes);
+public:
+    GameContent(Blocks* blocks_, Liquids* liquids_, Items* items_) : blocks(blocks_), liquids(liquids_), items(&blocks, blocks_, items_) {}
+    
+    void loadContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
+    
+    BlockTypes blocks;
+    LiquidTypes liquids;
+    ItemTypes items;
+};
+

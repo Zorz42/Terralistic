@@ -12,8 +12,12 @@ void ConfigFile::loadConfig() {
     std::string line;
     while(std::getline(file, line)) {
         unsigned long separator_index = line.find(':');
-        if(separator_index < line.length())
-            values[line.substr(0, separator_index)] = line.substr(separator_index + 1, line.size());
+        if(separator_index < line.length()) {
+            std::string value = line.substr(separator_index + 1, line.size());
+            while(!value.empty() && value[0] == ' ')
+                value.erase(value.begin());
+            values[line.substr(0, separator_index)] = value;
+        }
     }
     file.close();
 }
