@@ -95,6 +95,7 @@
 		3605ED54276A1ED000ECCA08 /* background.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED52276A1ED000ECCA08 /* background.cpp */; };
 		3605ED58276E90FA00ECCA08 /* walls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED56276E90FA00ECCA08 /* walls.cpp */; };
 		3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED56276E90FA00ECCA08 /* walls.cpp */; };
+		3605ED5F27739DDA00ECCA08 /* health.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED5E27739DDA00ECCA08 /* health.cpp */; };
 		361702D4272EF9E600FFA390 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 361702D2272EF9E600FFA390 /* settings.cpp */; };
 		361DD18E26F7478900129191 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		361DD1A126F7478900129191 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03B726E141FC0045FEA9 /* button.cpp */; };
@@ -369,6 +370,8 @@
 		3605ED53276A1ED000ECCA08 /* background.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = background.hpp; sourceTree = "<group>"; };
 		3605ED56276E90FA00ECCA08 /* walls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = walls.cpp; sourceTree = "<group>"; };
 		3605ED57276E90FA00ECCA08 /* walls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = walls.hpp; sourceTree = "<group>"; };
+		3605ED5D27739DDA00ECCA08 /* health.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = health.hpp; sourceTree = "<group>"; };
+		3605ED5E27739DDA00ECCA08 /* health.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = health.cpp; sourceTree = "<group>"; };
 		361702D2272EF9E600FFA390 /* settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settings.cpp; sourceTree = "<group>"; };
 		361702D3272EF9E600FFA390 /* settings.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = settings.hpp; sourceTree = "<group>"; };
 		361DD1EB26F7478900129191 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -680,6 +683,7 @@
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
+				3605ED602773A7B000ECCA08 /* worldSaver */,
 				1675C53E270B456F00749B3D /* serverModule */,
 				167B387D2642F73900E3C718 /* print */,
 				1673274926A80E760063281A /* networking */,
@@ -979,6 +983,22 @@
 			path = walls;
 			sourceTree = "<group>";
 		};
+		3605ED5C27739DDA00ECCA08 /* health */ = {
+			isa = PBXGroup;
+			children = (
+				3605ED5D27739DDA00ECCA08 /* health.hpp */,
+				3605ED5E27739DDA00ECCA08 /* health.cpp */,
+			);
+			path = health;
+			sourceTree = "<group>";
+		};
+		3605ED602773A7B000ECCA08 /* worldSaver */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = worldSaver;
+			sourceTree = "<group>";
+		};
 		361702D1272EF9D100FFA390 /* settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -1032,6 +1052,7 @@
 				365721E126D07180005AB3CC /* items */,
 				365721E726D07180005AB3CC /* players */,
 				365721EC26D07180005AB3CC /* blockSelector */,
+				3605ED5C27739DDA00ECCA08 /* health */,
 				365721D726D07180005AB3CC /* inventory */,
 				365721D326D07180005AB3CC /* chat */,
 				365721DB26D07180005AB3CC /* debugMenu */,
@@ -1493,6 +1514,7 @@
 				36DDF8AD2689F725002337F3 /* serverPlayers.cpp in Sources */,
 				3657221326D07181005AB3CC /* clientItems.cpp in Sources */,
 				1673274C26A80EF40063281A /* serverNetworking.cpp in Sources */,
+				3605ED5F27739DDA00ECCA08 /* health.cpp in Sources */,
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				1679733F2712303100E90477 /* clientBlocks.cpp in Sources */,
 				16A13D142709A100009DEE40 /* serverBlocks.cpp in Sources */,

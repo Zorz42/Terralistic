@@ -22,3 +22,4 @@ void Health::onEvent(ClientPacketEvent &event) {
         default: break;
     }
 }
+
