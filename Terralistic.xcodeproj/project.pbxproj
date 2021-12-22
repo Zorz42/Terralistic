@@ -96,6 +96,8 @@
 		3605ED58276E90FA00ECCA08 /* walls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED56276E90FA00ECCA08 /* walls.cpp */; };
 		3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED56276E90FA00ECCA08 /* walls.cpp */; };
 		3605ED5F27739DDA00ECCA08 /* health.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED5E27739DDA00ECCA08 /* health.cpp */; };
+		3605ED632773B91400ECCA08 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED612773B91400ECCA08 /* worldSaver.cpp */; };
+		3605ED642773B91400ECCA08 /* worldSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3605ED612773B91400ECCA08 /* worldSaver.cpp */; };
 		361702D4272EF9E600FFA390 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 361702D2272EF9E600FFA390 /* settings.cpp */; };
 		361DD18E26F7478900129191 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		361DD1A126F7478900129191 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167C03B726E141FC0045FEA9 /* button.cpp */; };
@@ -372,6 +374,8 @@
 		3605ED57276E90FA00ECCA08 /* walls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = walls.hpp; sourceTree = "<group>"; };
 		3605ED5D27739DDA00ECCA08 /* health.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = health.hpp; sourceTree = "<group>"; };
 		3605ED5E27739DDA00ECCA08 /* health.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = health.cpp; sourceTree = "<group>"; };
+		3605ED612773B91400ECCA08 /* worldSaver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = worldSaver.cpp; sourceTree = "<group>"; };
+		3605ED622773B91400ECCA08 /* worldSaver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = worldSaver.hpp; sourceTree = "<group>"; };
 		361702D2272EF9E600FFA390 /* settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settings.cpp; sourceTree = "<group>"; };
 		361702D3272EF9E600FFA390 /* settings.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = settings.hpp; sourceTree = "<group>"; };
 		361DD1EB26F7478900129191 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -683,9 +687,9 @@
 		167B38752642F73900E3C718 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				3605ED602773A7B000ECCA08 /* worldSaver */,
 				1675C53E270B456F00749B3D /* serverModule */,
 				167B387D2642F73900E3C718 /* print */,
+				3605ED602773A7B000ECCA08 /* worldSaver */,
 				1673274926A80E760063281A /* networking */,
 				16A13D112709A000009DEE40 /* blocks */,
 				167513C126A498DA00E21C68 /* biomes */,
@@ -995,6 +999,8 @@
 		3605ED602773A7B000ECCA08 /* worldSaver */ = {
 			isa = PBXGroup;
 			children = (
+				3605ED622773B91400ECCA08 /* worldSaver.hpp */,
+				3605ED612773B91400ECCA08 /* worldSaver.cpp */,
 			);
 			path = worldSaver;
 			sourceTree = "<group>";
@@ -1531,6 +1537,7 @@
 				169B87D0270F5036006023B8 /* serverChat.cpp in Sources */,
 				166D85DB26AA0B9E00DB87B1 /* scene.cpp in Sources */,
 				167B53CD270A26EC000089B3 /* serverItems.cpp in Sources */,
+				3605ED632773B91400ECCA08 /* worldSaver.cpp in Sources */,
 				3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */,
 				16A3BFF026FF85F6001B9E4E /* rectArray.cpp in Sources */,
 				3657222126D07181005AB3CC /* worldCreator.cpp in Sources */,
@@ -1575,6 +1582,7 @@
 				361DD1ED26F7481200129191 /* launcher.cpp in Sources */,
 				361DD18E26F7478900129191 /* worldGenerator.cpp in Sources */,
 				16C9470627109EC100A51E81 /* player.cpp in Sources */,
+				3605ED642773B91400ECCA08 /* worldSaver.cpp in Sources */,
 				1676AF3827044CD100321C8B /* lights.cpp in Sources */,
 				16A3BFF526FF85F6001B9E4E /* texture.cpp in Sources */,
 				16A3BFF126FF85F6001B9E4E /* rectArray.cpp in Sources */,
