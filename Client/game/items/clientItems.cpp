@@ -4,6 +4,18 @@ void ClientItems::init() {
     manager->packet_event.addListener(this);
     item_creation_event.addListener(this);
     entities->entity_deletion_event.addListener(this);
+    
+    std::vector<gfx::Texture*> item_textures(getNumItemTypes() - 1);
+
+    for(int i = 1; i < getNumItemTypes(); i++) {
+        item_textures[i - 1] = new gfx::Texture;
+        item_textures[i - 1]->loadFromFile(resource_pack->getFile("/items/" + getItemTypeById(i)->name + ".png"));
+    }
+
+    items_atlas.create(item_textures);
+    
+    for(int i = 1; i < getNumItemTypes(); i++)
+        delete item_textures[i - 1];
 }
 
 void ClientItems::stop() {
@@ -29,18 +41,18 @@ void ClientItems::render() {
     for(int i = 0; i < entities->getEntities().size(); i++) {
         if(entities->getEntities()[i]->type == EntityType::ITEM) {
             Item* item = (Item*)entities->getEntities()[i];
-            gfx::RectShape rect = resource_pack->getTextureRectangle(item->getType());
+            gfx::RectShape rect = getItemRectInAtlas(item->getType());
             item_rects.setTextureCoords(item_index, rect);
 
-            int item_x = item->getX() - blocks->view_x + gfx::getWindowWidth() / 2;
-            int item_y = item->getY() - blocks->view_y + gfx::getWindowHeight() / 2;
+            int item_x = item->getX() - camera->getX() + gfx::getWindowWidth() / 2;
+            int item_y = item->getY() - camera->getY() + gfx::getWindowHeight() / 2;
             item_rects.setRect(item_index, {item_x + rect.w - 8, item_y - rect.h * 2 + 16, rect.h * 2, rect.w * 2});
             item_index++;
         }
     }
     
     if(item_index)
-        item_rects.render(item_count, &resource_pack->getItemTexture());
+        item_rects.render(item_count, &getItemsAtlasTexture());
 }
 
 void ClientItems::onEvent(ClientPacketEvent& event) {
@@ -61,4 +73,12 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
         }
         default:;
     }
+}
+
+const gfx::Texture& ClientItems::getItemsAtlasTexture() {
+    return items_atlas.getTexture();
+}
+
+gfx::RectShape ClientItems::getItemRectInAtlas(ItemType* type) {
+    return items_atlas.getRect(type->id - 1);
 }

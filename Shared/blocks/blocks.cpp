@@ -7,7 +7,6 @@ Blocks::Blocks() : air("air") {
     air.ghost = true;
     air.transparent = true;
     air.break_time = UNBREAKABLE;
-    air.color = {0, 0, 0, 0};
     registerNewBlockType(&air);
 }
 

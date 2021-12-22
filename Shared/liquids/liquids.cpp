@@ -30,36 +30,26 @@ void Liquids::setLiquidType(int x, int y, LiquidType* type) {
     }
 }
 
-void Liquids::scheduleLiquidUpdate(int x, int y) {
-    getLiquid(x, y)->when_to_update = gfx::getTicks() + getLiquidType(x, y)->flow_time;
-}
-
-bool Liquids::canUpdateLiquid(int x, int y) {
-    return getLiquid(x, y)->when_to_update && gfx::getTicks() > getLiquid(x, y)->when_to_update;
-}
-
 bool Liquids::isFlowable(int x, int y) {
     return blocks->getBlockType(x, y)->ghost && getLiquidType(x, y) == &empty;
 }
 
 void Liquids::updateLiquid(int x, int y) {
-    getLiquid(x, y)->when_to_update = 0;
+    if(getLiquidLevel(x, y) == 0)
+        return;
     
     if(!blocks->getBlockType(x, y)->ghost)
         setLiquidType(x, y, &empty);
     
-    if(getLiquidLevel(x, y) == 0)
-        return;
-    
     bool under_exists = false, left_exists = false, right_exists = false;
     
-    if(y < blocks->getHeight() && (isFlowable(x, y + 1) || (getLiquidType(x, y + 1) == getLiquidType(x, y) && getLiquidLevel(x, y + 1) != 127)))
+    if(y < getHeight() - 1 && (isFlowable(x, y + 1) || (getLiquidType(x, y + 1) == getLiquidType(x, y) && getLiquidLevel(x, y + 1) != MAX_LIQUID_LEVEL)))
         under_exists = true;
     
-    if(x >= 0 && (isFlowable(x - 1, y) || (getLiquidType(x - 1, y) == getLiquidType(x, y) && getLiquidLevel(x - 1, y) < getLiquidLevel(x, y))))
+    if(x > 0 && (isFlowable(x - 1, y) || (getLiquidType(x - 1, y) == getLiquidType(x, y) && getLiquidLevel(x - 1, y) < getLiquidLevel(x, y))))
         left_exists = true;
     
-    if(x < blocks->getWidth() && (isFlowable(x + 1, y) || (getLiquidType(x + 1, y) == getLiquidType(x, y) && getLiquidLevel(x + 1, y) < getLiquidLevel(x, y))))
+    if(x < getWidth() - 1 && (isFlowable(x + 1, y) || (getLiquidType(x + 1, y) == getLiquidType(x, y) && getLiquidLevel(x + 1, y) < getLiquidLevel(x, y))))
         right_exists = true;
     
     
@@ -67,9 +57,9 @@ void Liquids::updateLiquid(int x, int y) {
         setLiquidType(x, y + 1, getLiquidType(x, y));
         
         int liquid_sum = getLiquidLevel(x, y + 1) + getLiquidLevel(x, y);
-        if(liquid_sum > 127) {
-            setLiquidLevel(x, y + 1, 127);
-            setLiquidLevel(x, y, liquid_sum - 127);
+        if(liquid_sum > MAX_LIQUID_LEVEL) {
+            setLiquidLevel(x, y + 1, MAX_LIQUID_LEVEL);
+            setLiquidLevel(x, y, liquid_sum - MAX_LIQUID_LEVEL);
         } else {
             setLiquidType(x, y, &empty);
             setLiquidLevel(x, y + 1, liquid_sum);
@@ -86,46 +76,25 @@ void Liquids::updateLiquid(int x, int y) {
     if(left_exists)
         setLiquidType(x - 1, y, getLiquidType(x, y));
     
-    if(left_exists && right_exists) {
-        int avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) / 3;
-        int mod = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) % 3;
-        if(mod) {
-            if(getLiquid(x, y)->flow_direction == FlowDirection::LEFT) {
-                setLiquidLevel(x - 1, y, avg + mod);
-                getLiquid(x - 1, y)->flow_direction = FlowDirection::LEFT;
-                setLiquidLevel(x + 1, y, avg);
-            } else {
-                setLiquidLevel(x + 1, y, avg + mod);
-                getLiquid(x + 1, y)->flow_direction = FlowDirection::RIGHT;
-                setLiquidLevel(x - 1, y, avg);
-            }
-        } else {
-            getLiquid(x - 1, y)->flow_direction = FlowDirection::NONE;
-            setLiquidLevel(x - 1, y, avg);
-            getLiquid(x + 1, y)->flow_direction = FlowDirection::NONE;
-            setLiquidLevel(x + 1, y, avg);
-        }
-        
-        setLiquidLevel(x, y, avg);
-        getLiquid(x, y)->flow_direction = FlowDirection::NONE;
-        
-    } else if(right_exists) {
-        int avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y)) / 2;
-        int mod = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y)) % 2;
-        setLiquidLevel(x + 1, y, avg + mod);
-        getLiquid(x + 1, y)->flow_direction = FlowDirection::RIGHT;
+    if(left_exists && right_exists && int(getLiquidLevel(x + 1, y)) != int(getLiquidLevel(x, y)) && int(getLiquidLevel(x - 1, y)) != int(getLiquidLevel(x, y))) {
+        float avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) / 3;
+        setLiquidLevel(x - 1, y, avg);
+        setLiquidLevel(x + 1, y, avg);
         setLiquidLevel(x, y, avg);
         
-    } else if(left_exists) {
-        int avg = (getLiquidLevel(x, y) + getLiquidLevel(x - 1, y)) / 2;
-        int mod = (getLiquidLevel(x, y) + getLiquidLevel(x - 1, y)) % 2;
-        setLiquidLevel(x - 1, y, avg + mod);
-        getLiquid(x - 1, y)->flow_direction = FlowDirection::LEFT;
+    } else if(right_exists && int(getLiquidLevel(x + 1, y)) != int(getLiquidLevel(x, y))) {
+        float avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y)) / 2;
+        setLiquidLevel(x + 1, y, avg);
+        setLiquidLevel(x, y, avg);
+        
+    } else if(left_exists && int(getLiquidLevel(x - 1, y)) != int(getLiquidLevel(x, y))) {
+        float avg = (getLiquidLevel(x, y) + getLiquidLevel(x - 1, y)) / 2;
+        setLiquidLevel(x - 1, y, avg);
         setLiquidLevel(x, y, avg);
     }
 }
 
-void Liquids::setLiquidLevelSilently(int x, int y, int level) {
+void Liquids::setLiquidLevelSilently(int x, int y, float level) {
     getLiquid(x, y)->level = level;
 }
 
@@ -140,7 +109,7 @@ void Liquids::setLiquidLevel(int x, int y, int level) {
     }
 }
 
-int Liquids::getLiquidLevel(int x, int y) {
+float Liquids::getLiquidLevel(int x, int y) {
     return getLiquid(x, y)->level;
 }
 
@@ -151,8 +120,11 @@ void Liquids::serialize(std::vector<char>& serial) {
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 serial.push_back((char)liquid->id);
-                if(getLiquidType(x, y) != &empty)
+                if(getLiquidType(x, y) != &empty) {
                     serial.push_back((char)liquid->level);
+                    //serial.insert(serial.end(), {0, 0, 0, 0});
+                    //memcpy(&serial[serial.size() - 4], &liquid->level, sizeof(float));
+                }
             }
             liquid++;
         }
@@ -165,8 +137,11 @@ char* Liquids::loadFromSerial(char* iter) {
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 liquid->id = *iter++;
-                if(liquid->id != empty.id)
+                if(liquid->id != empty.id) {
                     liquid->level = *iter++;
+                    //memcpy(&liquid->level, iter, sizeof(float));
+                    //iter += sizeof(float);
+                }
             }
             liquid++;
         }

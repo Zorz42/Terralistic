@@ -10,7 +10,7 @@ void ClientInventory::init() {
     behind_inventory_rect.orientation = gfx::TOP;
     behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
     behind_inventory_rect.setY(INVENTORY_UI_SPACING / 2);
-    behind_inventory_rect.blur_intensity = BLUR - 2;
+    behind_inventory_rect.blur_intensity = BLUR;
     behind_inventory_rect.fill_color.a = TRANSPARENCY;
     behind_inventory_rect.setHeight(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
     behind_inventory_rect.shadow_intensity = SHADOW_INTENSITY;
@@ -28,12 +28,12 @@ void ClientInventory::init() {
     behind_crafting_rect.setX(INVENTORY_UI_SPACING / 2);
     behind_crafting_rect.setY(INVENTORY_UI_SPACING / 2);
     behind_crafting_rect.setWidth(INVENTORY_ITEM_BACK_RECT_WIDTH + 2 * INVENTORY_UI_SPACING);
-    behind_crafting_rect.blur_intensity = BLUR - 2;
+    behind_crafting_rect.blur_intensity = BLUR;
     behind_crafting_rect.fill_color.a = TRANSPARENCY;
     behind_crafting_rect.shadow_intensity = SHADOW_INTENSITY;
     behind_crafting_rect.smooth_factor = 2;
     
-    under_text_rect.blur_intensity = BLUR - 2;
+    under_text_rect.blur_intensity = BLUR;
     under_text_rect.fill_color.a = TRANSPARENCY;
         
     for(int i = 0; i < 10; i++) {
@@ -44,11 +44,17 @@ void ClientInventory::init() {
     }
     
     selected_slot = 0;
+    
+    item_text_textures = new gfx::Texture[items->getNumItemTypes() - 1];
+    
+    for(int i = 1; i < items->getNumItemTypes(); i++)
+        item_text_textures[i - 1].loadFromText(items->getItemTypeById(i)->name);
 }
 
 void ClientInventory::stop() {
     manager->packet_event.removeListener(this);
     manager->welcome_packet_event.removeListener(this);
+    delete[] item_text_textures;
 }
 
 void ClientInventory::render() {
@@ -75,7 +81,7 @@ void ClientInventory::render() {
             hovered = i;
             if(inventory->getItem(i).type != &items->nothing) {
                 tooltip_active = true;
-                text_texture = &resource_pack->getItemTextTexture(inventory->getItem(i).type);
+                text_texture = &getItemTextTexture(inventory->getItem(i).type);
                 under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setX(getMouseX() + 20 - INVENTORY_UI_SPACING);
@@ -85,7 +91,8 @@ void ClientInventory::render() {
         
         back_rect.render(color);
         
-        renderItem(inventory->getItem(i), slot_x, slot_y);
+        if(inventory->getItem(i).type != &items->nothing)
+            renderItem(inventory->getItem(i), slot_x, slot_y);
     }
     
     if(text_texture) {
@@ -94,7 +101,8 @@ void ClientInventory::render() {
     }
     
     if(open) {
-        renderItem(inventory->getItem(-1), getMouseX(), getMouseY());
+        if(inventory->getItem(-1).type != &items->nothing)
+            renderItem(inventory->getItem(-1), getMouseX(), getMouseY());
         
         hovered_recipe = -1;
         behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)inventory->getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
@@ -138,10 +146,9 @@ void ClientInventory::render() {
 }
 
 void ClientInventory::renderItem(ItemStack item, int x, int y) {
-    const gfx::Texture& texture = resource_pack->getItemTexture();
-    gfx::RectShape texture_rect = resource_pack->getTextureRectangle(item.type);
+    gfx::RectShape texture_rect = items->getItemRectInAtlas(item.type);
     int offset = 16 - texture_rect.w;
-    texture.render(2, x + INVENTORY_UI_SPACING / 2 + offset, y + INVENTORY_UI_SPACING / 2 + offset, texture_rect);
+    items->getItemsAtlasTexture().render(2, x + INVENTORY_UI_SPACING / 2 + offset, y + INVENTORY_UI_SPACING / 2 + offset, texture_rect);
     
     if(item.stack > 1) {
         int stack = item.stack, number_x = x + BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING / 2;
@@ -235,4 +242,8 @@ void ClientInventory::onEvent(WelcomePacketEvent &event) {
         std::vector<char> data = manager->getData();
         inventory->loadFromSerial(&data[0]);
     }
+}
+
+const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {
+    return item_text_textures[type->id - 1];
 }

@@ -2,12 +2,12 @@
 #include <string>
 #include <stdexcept>
 
-class Exception : std::exception {
+class Exception : public std::exception {
 public:
     Exception(const std::string& message) : message(message) {}
     const std::string message;
     
-    const char* what() const throw () {
+    const char* what() const throw() {
        return message.c_str();
     }
 };

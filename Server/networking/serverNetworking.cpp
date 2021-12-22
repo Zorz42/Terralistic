@@ -60,6 +60,11 @@ std::pair<sf::Packet, ClientPacketType> Connection::getPacket() {
     return result;
 }
 
+ServerNetworking::ServerNetworking(int port) : port(port) {
+    if(port < 0 || port > 65535)
+        throw Exception("Port number out of range");
+}
+
 void ServerNetworking::init() {
     listener.listen(port);
     listener.setBlocking(false);
@@ -67,7 +72,8 @@ void ServerNetworking::init() {
 
 void ServerNetworking::sendToEveryone(sf::Packet& packet) {
     for(int i = 0; i < connections.size(); i++)
-        connections[i]->send(packet);
+        if(connections[i]->hasBeenGreeted())
+            connections[i]->send(packet);
 }
 
 void ServerNetworking::update(float frame_length) {

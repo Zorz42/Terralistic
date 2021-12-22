@@ -9,7 +9,7 @@
 #define SPACING 16
 #define BUTTON_MARGIN 10
 #define TRANSPARENCY 170
-#define BLUR 3.5
+#define BLUR 2
 #define SHADOW_INTENSITY 220
 #define TEXT_INPUT_WIDTH 200
 
