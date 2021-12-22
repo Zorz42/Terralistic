@@ -12,6 +12,7 @@ public:
     
     std::string name;
     int x, y;
+    short health;
     Inventory inventory;
 };
 
@@ -20,7 +21,7 @@ class ServerPlayer : public Player, EventListener<InventoryItemChangeEvent> {
     
     void onEvent(InventoryItemChangeEvent& event) override;
 public:
-    ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y, data.name), inventory(data.inventory) { friction = false; inventory.item_change_event.addListener(this); }
+    ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name, data.health), inventory(data.inventory) { friction = false; inventory.item_change_event.addListener(this); }
     
     Inventory inventory;
     

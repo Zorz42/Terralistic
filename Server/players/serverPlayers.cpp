@@ -51,19 +51,14 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     
     if(!player_data) {
         int spawn_x = blocks->getWidth() / 2 * BLOCK_WIDTH * 2;
-        
-        int spawn_y = 0;
-        for(int y = 0; y < blocks->getHeight(); y++) {
-            if(!blocks->getBlockType(blocks->getWidth() / 2, y)->transparent || !blocks->getBlockType(blocks->getWidth() / 2 + 1, y)->transparent)
-                break;
-            spawn_y += BLOCK_WIDTH * 2;
-        }
+        int spawn_y = (blocks->getHeight() - blocks->getSurfaceHeight(spawn_x / (BLOCK_WIDTH * 2))) * BLOCK_WIDTH * 2;
         spawn_y -= PLAYER_HEIGHT * 2;
-        
+
         player_data = new ServerPlayerData(items, recipes);
         player_data->name = name;
         player_data->x = spawn_x;
         player_data->y = spawn_y;
+        player_data->health = 50;
         all_players.emplace_back(player_data);
     }
     
@@ -78,6 +73,7 @@ void ServerPlayers::savePlayer(ServerPlayer* player) {
     player_data->name = player->name;
     player_data->x = player->getX();
     player_data->y = player->getY();
+    player_data->health = player->getHealth();
     player_data->inventory = player->inventory;
 }
 
@@ -118,6 +114,9 @@ ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, char*& iter) 
     while(*iter)
         name.push_back(*iter++);
     iter++;
+
+    memcpy(&health, iter, sizeof(short));
+    iter += sizeof(short);
 }
 
 void ServerPlayerData::serialize(std::vector<char>& serial) const {
@@ -131,6 +130,9 @@ void ServerPlayerData::serialize(std::vector<char>& serial) const {
     
     serial.insert(serial.end(), name.begin(), name.end());
     serial.insert(serial.end(), 0);
+
+    serial.insert(serial.end(), {0, 0, 0, 0});
+    memcpy(&serial[serial.size() - 4], &health, sizeof(short));
 }
 
 void ServerPlayers::onEvent(BlockChangeEvent& event) {

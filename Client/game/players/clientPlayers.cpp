@@ -1,6 +1,6 @@
 #include "clientPlayers.hpp"
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, 50, id) {
     name_text.loadFromText(name, WHITE);
     friction = false;
 }

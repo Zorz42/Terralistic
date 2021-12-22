@@ -8,6 +8,7 @@
 #include "chat.hpp"
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"
+#include "health.hpp"
 #include "content.hpp"
 #include "naturalLight.hpp"
 #include "camera.hpp"
@@ -38,9 +39,10 @@ class Game : gfx::Scene, public BackgroundRect {
     ClientInventory inventory;
     Chat chat;
     DebugMenu debug_menu;
+    Health player_health;
     Recipes recipes;
     GameContent content;
-    
+
     Settings* settings;
     BackgroundRect* background_rect;
     bool handshake_done = false;

@@ -56,7 +56,8 @@ class Blocks {
     
     Block *blocks = nullptr;
     int width, height;
-    
+    int* surface_height;
+
     std::vector<BreakingBlock> breaking_blocks;
     std::vector<BlockType*> block_types;
     
@@ -81,7 +82,9 @@ public:
     
     int getWidth() const;
     int getHeight() const;
-    
+    int getSurfaceHeight(int x);
+    void setSurfaceHeight(int x, int y);
+
     void serialize(std::vector<char>& serial);
     char* loadFromSerial(char* iter);
     

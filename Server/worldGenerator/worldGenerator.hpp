@@ -65,8 +65,6 @@ class WorldGenerator {
     std::string resource_path;
 
     int generating_current = 0, generating_total = 1;
-    
-    int* surface_height;
 
     GameContent* content;
     

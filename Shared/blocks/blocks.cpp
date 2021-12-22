@@ -17,6 +17,8 @@ void Blocks::create(int width_, int height_) {
     width = width_;
     height = height_;
     blocks = new Block[width * height];
+    surface_height = new int[width];
+
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
@@ -118,6 +120,14 @@ int Blocks::getWidth() const {
 
 int Blocks::getHeight() const {
     return height;
+}
+
+int Blocks::getSurfaceHeight(int x) {
+    return surface_height[x];
+}
+
+void Blocks::setSurfaceHeight(int x, int y) {
+    surface_height[x] = y;
 }
 
 void Blocks::serialize(std::vector<char>& serial) {
