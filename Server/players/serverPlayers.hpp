@@ -12,7 +12,7 @@ public:
     
     std::string name;
     int x, y;
-    short health;
+    int health;
     Inventory inventory;
 };
 
@@ -21,13 +21,15 @@ class ServerPlayer : public Player, EventListener<InventoryItemChangeEvent> {
     
     void onEvent(InventoryItemChangeEvent& event) override;
 public:
-    ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name, data.health), inventory(data.inventory) { friction = false; inventory.item_change_event.addListener(this); }
-    
+    ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) { friction = false; inventory.item_change_event.addListener(this); }
+
     Inventory inventory;
     
     void setConnection(Connection* connection);
     Connection* getConnection();
-    
+    void setPlayerHealth(int new_health);
+
+    int health;
     bool breaking = false;
     int breaking_x = 0, breaking_y = 0;
     

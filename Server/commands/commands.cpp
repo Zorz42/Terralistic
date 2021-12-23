@@ -13,6 +13,7 @@ void Commands::init() {
     commands.push_back(&tp_command);
     commands.push_back(&give_command);
     commands.push_back(&setblock_command);
+    commands.push_back(&health_command);
 }
 
 void Commands::stop() {
@@ -50,6 +51,16 @@ void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* 
             quantity = std::stoi(args[1]);
         executor->inventory.addItem(item, quantity);
     }
+}
+
+void SetHealthCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 1) {
+        executor->setPlayerHealth(std::stoi(args[0]));
+    }
+    else{
+        players->getPlayerByName(args[0])->setPlayerHealth(std::stoi(args[1]));
+    }
+
 }
 
 void SetblockCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {

@@ -7,10 +7,6 @@ int Player::getHeight() {
     return PLAYER_HEIGHT * 2;
 }
 
-int Player::getHealth() {
-    return health;
-}
-
 bool Player::isColliding(Blocks* blocks) {
     return isCollidingWithBlocks(blocks) ||
     (

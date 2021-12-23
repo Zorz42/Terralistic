@@ -58,7 +58,7 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
         player_data->name = name;
         player_data->x = spawn_x;
         player_data->y = spawn_y;
-        player_data->health = 50;
+        player_data->health = 100;
         all_players.emplace_back(player_data);
     }
     
@@ -73,7 +73,7 @@ void ServerPlayers::savePlayer(ServerPlayer* player) {
     player_data->name = player->name;
     player_data->x = player->getX();
     player_data->y = player->getY();
-    player_data->health = player->getHealth();
+    player_data->health = player->health;
     player_data->inventory = player->inventory;
 }
 
@@ -194,6 +194,10 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     
     ServerPlayer* player = addPlayer(player_name);
     player->setConnection(event.connection);
+
+    sf::Packet healthPacket;
+    healthPacket << WelcomePacketType::HEALTH << player->health;
+    event.connection->send(healthPacket);
     
     sf::Packet packet;
     packet << WelcomePacketType::INVENTORY;
@@ -364,6 +368,13 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     ItemStack item = inventory.getItem(event.item_pos);
     sf::Packet packet;
     packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (int)event.item_pos;
+    connection->send(packet);
+}
+
+void ServerPlayer::setPlayerHealth(int new_health) {
+    health = new_health;
+    sf::Packet packet;
+    packet << ServerPacketType::HEALTH << new_health;
     connection->send(packet);
 }
 

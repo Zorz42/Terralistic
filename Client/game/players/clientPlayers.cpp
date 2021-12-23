@@ -3,7 +3,7 @@
 ClientPlayers::ClientPlayers(ClientNetworking* manager, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, const std::string& username) :
 manager(manager), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), particles(particles), username(username) {}
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, 50, id) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
     name_text.loadFromText(name, WHITE);
     friction = false;
 }
