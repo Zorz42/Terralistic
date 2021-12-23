@@ -136,28 +136,28 @@ void ServerPlayerData::serialize(std::vector<char>& serial) const {
 }
 
 void ServerPlayers::onEvent(BlockChangeEvent& event) {
-    int neighbors[5][2] = {{event.x, event.y}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
+    int neighbours[5][2] = {{event.x, event.y}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
     
     if(event.x != 0) {
-        neighbors[1][0] = event.x - 1;
-        neighbors[1][1] = event.y;
+        neighbours[1][0] = event.x - 1;
+        neighbours[1][1] = event.y;
     }
     if(event.x != blocks->getWidth() - 1) {
-        neighbors[2][0] = event.x + 1;
-        neighbors[2][1] = event.y;
+        neighbours[2][0] = event.x + 1;
+        neighbours[2][1] = event.y;
     }
     if(event.y != 0) {
-        neighbors[3][0] = event.x;
-        neighbors[3][1] = event.y - 1;
+        neighbours[3][0] = event.x;
+        neighbours[3][1] = event.y - 1;
     }
     if(event.y != blocks->getHeight() - 1) {
-        neighbors[4][0] = event.x;
-        neighbors[4][1] = event.y + 1;
+        neighbours[4][0] = event.x;
+        neighbours[4][1] = event.y + 1;
     }
     
     for(int i = 0; i < 5; i++)
-        if(neighbors[i][0] != -1)
-            getBlockBehaviour(blocks->getBlockType(neighbors[i][0], neighbors[i][1]))->onUpdate(blocks, neighbors[i][0], neighbors[i][1]);
+        if(neighbours[i][0] != -1)
+            getBlockBehaviour(blocks->getBlockType(neighbours[i][0], neighbours[i][1]))->onUpdate(blocks, neighbours[i][0], neighbours[i][1]);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
@@ -247,11 +247,8 @@ void ServerPlayers::update(float frame_length) {
                         entities->addVelocityY(item, (player->getY() - item->getY()) * frame_length / 70.f);
                     }
                     
-                    if(distance_x < 10 && distance_y < 10 &&
-                       player->inventory.addItem(item->getType(), 1) != -1
-                       ) {
+                    if(distance_x < 10 && distance_y < 10 && player->inventory.addItem(item->getType(), 1) != -1)
                         entities->removeEntity(item);
-                    }
                 }
         }
 }

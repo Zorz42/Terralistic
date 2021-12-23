@@ -15,6 +15,7 @@ class BlockSelector : public ClientModule {
     ClientNetworking* manager;
     ClientBlocks* blocks;
     ClientPlayers* player_handler;
+    Camera* camera;
 public:
-    BlockSelector(ClientNetworking* manager, ClientBlocks* blocks, ClientPlayers* player_handler) : manager(manager), blocks(blocks), player_handler(player_handler) {}
+    BlockSelector(ClientNetworking* manager, ClientBlocks* blocks, ClientPlayers* player_handler, Camera* camera) : manager(manager), blocks(blocks), player_handler(player_handler), camera(camera) {}
 };

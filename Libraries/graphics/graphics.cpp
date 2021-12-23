@@ -142,27 +142,29 @@ int gfx::getTicks() {
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     output.generateMipmap(); // without that it doesnt work on smaller textures on some computers
-    sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
+    sf::Vector2f output_size = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);
-    vertices[0] = sf::Vertex(sf::Vector2f(0, 0),                       sf::Vector2f(0, 1));
-    vertices[1] = sf::Vertex(sf::Vector2f(outputSize.x, 0),            sf::Vector2f(1, 1));
-    vertices[2] = sf::Vertex(sf::Vector2f(0, outputSize.y),            sf::Vector2f(0, 0));
-    vertices[3] = sf::Vertex(sf::Vector2f(outputSize.x, outputSize.y), sf::Vector2f(1, 0));
-
+    vertices[0] = sf::Vertex(sf::Vector2f(0, 0),                         sf::Vector2f(0, 1));
+    vertices[1] = sf::Vertex(sf::Vector2f(output_size.x, 0),             sf::Vector2f(1, 1));
+    vertices[2] = sf::Vertex(sf::Vector2f(0, output_size.y),             sf::Vector2f(0, 0));
+    vertices[3] = sf::Vertex(sf::Vector2f(output_size.x, output_size.y), sf::Vector2f(1, 0));
+    
     sf::RenderStates states;
-    states.shader    = &shader;
+    states.shader = &shader;
     states.blendMode = sf::BlendNone;
 
     output.draw(vertices, states);
 }
 
 void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
+#define BLUR_QUALITY 4.f // larger = worse but faster
     if(blur_intensity < 0)
         throw Exception("Blur intensity must be positive.");
     
-    blur_intensity = std::pow(2, blur_intensity);
+    blur_intensity = std::pow(BLUR_QUALITY, blur_intensity);
     blur_shader.setUniform("source", texture.getTexture());
+    
     
     while(blur_intensity >= 1.f) {
         blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / texture.getSize().x, 0));
@@ -171,7 +173,7 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
         blur_shader.setUniform("offset", sf::Vector2f(0, blur_intensity / texture.getSize().y));
         applyShader(blur_shader, texture);
         
-        blur_intensity /= 2;
+        blur_intensity /= BLUR_QUALITY;
     }
 }
 

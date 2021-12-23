@@ -2,8 +2,5 @@ ghost: false
 transparent: false
 break_time: 1500
 connects_to:
-color_r: 200
-color_g: 109
-color_b: 61
 drop: copper_ore
 drop_chance: 100

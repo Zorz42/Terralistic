@@ -16,18 +16,6 @@ namespace gfx {
         void renderOutline(Color color) const;
     };
     
-    class PixelGrid {
-        unsigned char* array;
-        int width, height;
-    public:
-        PixelGrid(int width, int height);
-        int getWidth() const;
-        int getHeight() const;
-        void setPixel(int x, int y, Color color);
-        unsigned char* getArray() const;
-        ~PixelGrid();
-    };
-    
     class Orientation {
     public:
         float x, y;
@@ -103,14 +91,14 @@ namespace gfx {
         void setRect(int index, RectShape rect);
         void setColor(int index, Color color);
         void setTextureCoords(int index, RectShape texture_coordinates);
-        void render(int size, const Texture* image=nullptr);
+        void render(int size, const Texture* image=nullptr, int x=0, int y=0);
         void resize(int size);
         ~RectArray();
     };
     
     class Texture {
     protected:
-        friend void RectArray::render(int size, const Texture* image);
+        friend void RectArray::render(int size, const Texture* image, int x, int y);
         friend void setRenderTarget(Texture& texture);
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;
@@ -125,10 +113,18 @@ namespace gfx {
         void loadFromText(const std::string& text, Color text_color=GFX_DEFAULT_TEXT_COLOR);
         void loadFromResources(const std::string& path);
         void loadFromFile(const std::string& path);
-        void loadFromPixelGrid(const PixelGrid& pixel_grid);
         void setColor(Color color_);
         
         ~Texture();
+    };
+
+    class TextureAtlas {
+        Texture texture;
+        std::vector<RectShape> rects;
+    public:
+        const Texture& getTexture() { return texture; }
+        void create(const std::vector<Texture*>& textures);
+        RectShape getRect(int id);
     };
 
     class Sprite : public _CenteredObject, public Texture {

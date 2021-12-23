@@ -1,8 +1,10 @@
 #pragma once
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
-#include "lights.hpp"
 #include "content.hpp"
+#include "camera.hpp"
+
+#define BLOCK_CHUNK_SIZE 16
 
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderBlock {
@@ -10,13 +12,29 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         RenderBlock() : variation(rand()), state(16) {}
         int variation:8, state:8;
     };
+
+    class BlockChunk {
+        gfx::RectArray block_rects;
+        bool is_created = false;
+    public:
+        bool isCreated() { return is_created; }
+        void create(ClientBlocks* blocks, int x, int y);
+        void update(ClientBlocks* blocks, int x, int y);
+        void render(ClientBlocks* blocks, int x, int y);
+    };
     
     void onEvent(ClientPacketEvent& event) override;
     void onEvent(BlockChangeEvent& event) override;
     void onEvent(WelcomePacketEvent& event) override;
     
     RenderBlock* render_blocks = nullptr;
+    BlockChunk* block_chunks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
+    
+    BlockChunk* getBlockChunk(int x, int y);
+    
+    gfx::TextureAtlas blocks_atlas;
+    gfx::Texture breaking_texture;
     
     void init() override;
     void postInit() override;
@@ -30,26 +48,27 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void updateOrientationLeft(ClientBlocks* blocks, int x, int y);
     void updateOrientationRight(ClientBlocks* blocks, int x, int y);
     
-    gfx::RectArray block_rects;
-    int most_blocks_on_screen = 0;
-    
     ResourcePack* resource_pack;
     ClientNetworking* networking;
-    Lights* lights;
+    Camera* camera;
     
 public:
-    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Lights* lights);
+    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : resource_pack(resource_pack), networking(networking), camera(camera) {}
     
-    int view_x, view_y;
+    const gfx::Texture& getBlocksAtlasTexture();
+    gfx::RectShape getBlockRectInAtlas(BlockType* type);
     
-    int getViewBeginX() const;
-    int getViewEndX() const;
-    int getViewBeginY() const;
-    int getViewEndY() const;
+    int getBlocksViewBeginX();
+    int getBlocksViewEndX();
+    int getBlocksViewBeginY();
+    int getBlocksViewEndY();
+    
+    int getBlocksExtendedViewBeginX();
+    int getBlocksExtendedViewEndX();
+    int getBlocksExtendedViewBeginY();
+    int getBlocksExtendedViewEndY();
     
     void updateState(int x, int y);
     void setState(int x, int y, int state);
     int getState(int x, int y);
-    
-    bool skip_rendering_in_dark = true;
 };

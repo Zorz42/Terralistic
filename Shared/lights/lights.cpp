@@ -23,6 +23,9 @@ void Lights::setLightLevel(int x, int y, int level) {
         getLight(x, y)->light_source = false;
     if(getLight(x, y)->light_level != level) {
         getLight(x, y)->light_level = level;
+        LightLevelChangeEvent event(x, y);
+        light_level_change_event.call(event);
+        
         if(x < getWidth())
             scheduleLightUpdate(x + 1, y);
         if(x > 0)
@@ -37,31 +40,31 @@ void Lights::setLightLevel(int x, int y, int level) {
 void Lights::updateLight(int x, int y) {
     getLight(x, y)->update_light = false;
     
-    int neighbors[4][2] = {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
+    int neighbours[4][2] = {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
     
     if(x != 0) {
-        neighbors[0][0] = x - 1;
-        neighbors[0][1] = y;
+        neighbours[0][0] = x - 1;
+        neighbours[0][1] = y;
     }
     if(x != blocks->getWidth() - 1) {
-        neighbors[1][0] = x + 1;
-        neighbors[1][1] = y;
+        neighbours[1][0] = x + 1;
+        neighbours[1][1] = y;
     }
     if(y != 0) {
-        neighbors[2][0] = x;
-        neighbors[2][1] = y - 1;
+        neighbours[2][0] = x;
+        neighbours[2][1] = y - 1;
     }
     if(y != blocks->getHeight() - 1) {
-        neighbors[3][0] = x;
-        neighbors[3][1] = y + 1;
+        neighbours[3][0] = x;
+        neighbours[3][1] = y + 1;
     }
     
     if(!getLight(x, y)->light_source) {
         int level_to_be = 0;
         for(int i = 0; i < 4; i++)
-            if(neighbors[i][0] != -1) {
-                int light_step = blocks->getBlockType(neighbors[i][0], neighbors[i][1])->transparent ? 3 : 15;
-                int light = light_step > getLightLevel(neighbors[i][0], neighbors[i][1]) ? 0 : getLightLevel(neighbors[i][0], neighbors[i][1]) - light_step;
+            if(neighbours[i][0] != -1) {
+                int light_step = blocks->getBlockType(neighbours[i][0], neighbours[i][1])->transparent ? 3 : 15;
+                int light = light_step > getLightLevel(neighbours[i][0], neighbours[i][1]) ? 0 : getLightLevel(neighbours[i][0], neighbours[i][1]) - light_step;
                 if(light > level_to_be)
                     level_to_be = light;
             }
@@ -73,8 +76,8 @@ void Lights::updateLight(int x, int y) {
 }
 
 void Lights::setLightSource(int x, int y, int level) {
-    getLight(x, y)->light_source = level > 0;
-    getLight(x, y)->light_level = level;
+    getLight(x, y)->light_source = true;
+    setLightLevel(x, y, level);
     scheduleLightUpdateForNeighbors(x, y);
 }
 

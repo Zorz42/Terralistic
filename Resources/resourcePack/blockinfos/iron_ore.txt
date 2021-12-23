@@ -2,8 +2,5 @@ ghost: false
 transparent: false
 break_time: 1500
 connects_to:
-color_r: 160
-color_g: 160
-color_b: 160
 drop: iron_ore
 drop_chance: 100

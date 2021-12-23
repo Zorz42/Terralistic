@@ -59,7 +59,7 @@ class ServerNetworking : public ServerModule {
     void removeConnection(Connection* connection);
     
 public:
-    ServerNetworking(int port) : port(port) {}
+    ServerNetworking(int port);
     
     void sendToEveryone(sf::Packet& packet);
     void kickConnection(Connection* connection, const std::string& reason);

@@ -32,10 +32,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     content(&blocks, &liquids, &items),
     resource_path(resource_path),
     seed((int)time(NULL))
-{
-    if(port < 0 || port > 65535)
-        throw Exception("Port number out of range");
-    
+{    
     modules = {
         &networking,
         &blocks,
@@ -138,10 +135,11 @@ void Server::start() {
     }
     
     state = ServerState::STOPPING;
-    print::info("Stopping server");
-
+    
+    print::info("Saving world...");
     saveWorld();
     
+    print::info("Stopping server...");
     for(int i = 0; i < modules.size(); i++)
         modules[i]->stop();
 

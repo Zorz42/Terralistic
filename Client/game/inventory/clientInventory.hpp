@@ -2,6 +2,7 @@
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
 #include "inventory.hpp"
+#include "clientItems.hpp"
 
 #define INVENTORY_SIZE 20
 #define INVENTORY_UI_SPACING 10
@@ -15,6 +16,8 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
     int hovered = -1, hovered_recipe = -1;
     
+    gfx::Texture *item_text_textures = nullptr;
+    
     void selectSlot(int slot);
     void renderItem(ItemStack item, int x, int y);
     
@@ -27,10 +30,12 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     
     ResourcePack* resource_pack;
     ClientNetworking* manager;
-    Items* items;
+    ClientItems* items;
     Recipes* recipes;
 public:
-    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, Items* items, Recipes* recipes) : manager(manager), resource_pack(resource_pack), items(items), recipes(recipes) {}
+    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes) : manager(manager), resource_pack(resource_pack), items(items), recipes(recipes) {}
+    
+    const gfx::Texture& getItemTextTexture(ItemType* type);
     
     char* loadFromSerial(char* iter);
 };

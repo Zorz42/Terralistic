@@ -95,18 +95,18 @@ void Particles::stop() {
 
 void Particles::update(float frame_length) {
     enabled = particle_enable_setting.getValue();
-    if(enabled)
-        for(int i = 0; i < particles.size(); i++)
+    if(enabled) {
+        for(int i = 0; i < particles.size(); i++) {
             particles[i].update(blocks, frame_length);
+            if(gfx::getTicks() - particles[i].getSpawnedTime() > particles[i].getInfo()->lifetime)
+                particles.erase(particles.begin() + i);
+        }
+    }
 }
 
 void Particles::render() {
-    for(int i = 0; i < particles.size(); i++) {
-        particles[i].getInfo()->render(particles[i].getX() - blocks->view_x + gfx::getWindowWidth() / 2, particles[i].getY() - blocks->view_y + gfx::getWindowHeight() / 2);
-        
-        if(gfx::getTicks() - particles[i].getSpawnedTime() > particles[i].getInfo()->lifetime)
-            particles.erase(particles.begin() + i);
-    }
+    for(int i = 0; i < particles.size(); i++)
+        particles[i].getInfo()->render(particles[i].getX() - camera->getX() + gfx::getWindowWidth() / 2, particles[i].getY() - camera->getY() + gfx::getWindowHeight() / 2);
 }
 
 void WalkParticle::render(int x, int y) const {
