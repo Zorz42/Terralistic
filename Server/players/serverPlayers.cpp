@@ -144,7 +144,7 @@ std::vector<char> ServerPlayers::toSerial() {
         serial.insert(serial.end(), 0);
 
         serial.insert(serial.end(), {0, 0});
-        memcpy(&serial[serial.size() - 4], &all_players[i]->health, sizeof(short));
+        memcpy(&serial[serial.size() - 2], &all_players[i]->health, sizeof(short));
     }
     return serial;
 }
