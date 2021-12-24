@@ -26,11 +26,11 @@ void Lights::setLightLevel(int x, int y, int level) {
         LightLevelChangeEvent event(x, y);
         light_level_change_event.call(event);
         
-        if(x < getWidth())
+        if(x < getWidth() - 1)
             scheduleLightUpdate(x + 1, y);
         if(x > 0)
             scheduleLightUpdate(x - 1, y);
-        if(y < getHeight())
+        if(y < getHeight() - 1)
             scheduleLightUpdate(x, y + 1);
         if(y > 0)
             scheduleLightUpdate(x, y - 1);

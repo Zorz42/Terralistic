@@ -6,12 +6,14 @@
 #include "serverLiquids.hpp"
 #include "commands.hpp"
 #include "content.hpp"
+#include "worldSaver.hpp"
 
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
 class Server {
     std::string world_path;
     ServerNetworking networking;
+    WorldSaver world_saver;
     ServerBlocks blocks;
     Biomes biomes;
     ServerLiquids liquids;

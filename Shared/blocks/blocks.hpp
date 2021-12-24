@@ -86,7 +86,7 @@ public:
     void setSurfaceHeight(int x, int y);
 
     void serialize(std::vector<char>& serial);
-    char* loadFromSerial(char* iter);
+    const char* loadFromSerial(const char* iter);
     
     void registerNewBlockType(BlockType* block_type);
     BlockType* getBlockTypeById(int block_id);

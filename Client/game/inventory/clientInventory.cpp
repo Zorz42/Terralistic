@@ -171,7 +171,7 @@ void ClientInventory::selectSlot(int slot) {
     manager->sendPacket(packet);
 }
 
-char* ClientInventory::loadFromSerial(char* iter) {
+const char* ClientInventory::loadFromSerial(const char* iter) {
     return inventory->loadFromSerial(iter);
 }
 

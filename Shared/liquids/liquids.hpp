@@ -57,7 +57,7 @@ public:
     void setLiquidLevelSilently(int x, int y, float level);
     
     void serialize(std::vector<char>& serial);
-    char* loadFromSerial(char* iter);
+    const char* loadFromSerial(const char* iter);
     
     void registerNewLiquidType(LiquidType* liquid_type);
     LiquidType* getLiquidTypeById(int liquid_id);

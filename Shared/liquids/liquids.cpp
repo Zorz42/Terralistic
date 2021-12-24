@@ -120,28 +120,22 @@ void Liquids::serialize(std::vector<char>& serial) {
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 serial.push_back((char)liquid->id);
-                if(getLiquidType(x, y) != &empty) {
+                if(getLiquidType(x, y) != &empty)
                     serial.push_back((char)liquid->level);
-                    //serial.insert(serial.end(), {0, 0, 0, 0});
-                    //memcpy(&serial[serial.size() - 4], &liquid->level, sizeof(float));
-                }
             }
             liquid++;
         }
 }
 
-char* Liquids::loadFromSerial(char* iter) {
+const char* Liquids::loadFromSerial(const char* iter) {
     create();
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 liquid->id = *iter++;
-                if(liquid->id != empty.id) {
+                if(liquid->id != empty.id)
                     liquid->level = *iter++;
-                    //memcpy(&liquid->level, iter, sizeof(float));
-                    //iter += sizeof(float);
-                }
             }
             liquid++;
         }

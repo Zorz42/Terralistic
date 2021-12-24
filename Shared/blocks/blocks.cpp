@@ -144,7 +144,7 @@ void Blocks::serialize(std::vector<char>& serial) {
     }
 }
 
-char* Blocks::loadFromSerial(char* iter) {
+const char* Blocks::loadFromSerial(const char* iter) {
     int width_, height_;
     width_ = *(unsigned short*)iter;
     iter += 2;

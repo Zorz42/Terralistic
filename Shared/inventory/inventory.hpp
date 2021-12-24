@@ -63,7 +63,7 @@ public:
     int decreaseStack(int pos, int stack);
     
     void serialize(std::vector<char>& serial) const;
-    char* loadFromSerial(char* iter);
+    const char* loadFromSerial(const char* iter);
     
     Inventory& operator=(Inventory& inventory);
     

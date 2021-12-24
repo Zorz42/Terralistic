@@ -58,8 +58,8 @@ void ClientLiquids::stop() {
 }
 
 void ClientLiquids::render() {
-    for(int x = blocks->getBlocksViewBeginX() / 16; x <= blocks->getBlocksViewEndX() / 16; x++)
-        for(int y = blocks->getBlocksViewBeginY() / 16; y <= blocks->getBlocksViewEndY() / 16; y++) {
+    for(int x = blocks->getBlocksViewBeginX() / LIQUID_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / LIQUID_CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / LIQUID_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / LIQUID_CHUNK_SIZE; y++) {
             if(!getLiquidChunk(x, y)->isCreated())
                 getLiquidChunk(x, y)->create(this, x, y);
             

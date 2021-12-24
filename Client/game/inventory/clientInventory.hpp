@@ -37,5 +37,5 @@ public:
     
     const gfx::Texture& getItemTextTexture(ItemType* type);
     
-    char* loadFromSerial(char* iter);
+    const char* loadFromSerial(const char* iter);
 };

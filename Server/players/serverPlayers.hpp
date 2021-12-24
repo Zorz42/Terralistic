@@ -5,7 +5,7 @@
 
 class ServerPlayerData {
 public:
-    ServerPlayerData(Items* items, Recipes* recipes, char*& iter);
+    ServerPlayerData(Items* items, Recipes* recipes, const char*& iter);
     ServerPlayerData(Items* items, Recipes* recipes) : inventory(items, recipes) {}
     
     void serialize(std::vector<char>& serial) const;
@@ -90,7 +90,7 @@ public:
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
-    char* addPlayerFromSerial(char* iter);
+    const char* addPlayerFromSerial(const char* iter);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
     
