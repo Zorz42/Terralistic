@@ -1,4 +1,5 @@
 #include "liquids.hpp"
+#include "compress.hpp"
 
 void Liquids::create() {
     liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
@@ -113,7 +114,7 @@ float Liquids::getLiquidLevel(int x, int y) {
     return getLiquid(x, y)->level;
 }
 
-std::vector<char> Liquids::serialize() {
+std::vector<char> Liquids::toSerial() {
     std::vector<char> serial;
     serial.reserve(blocks->getWidth() * blocks->getHeight() * 2);
     Liquid* liquid = liquids;
@@ -126,12 +127,13 @@ std::vector<char> Liquids::serialize() {
             }
             liquid++;
         }
-    return serial;
+    return compress(serial);
 }
 
-void Liquids::loadFromSerial(const std::vector<char>& serial) {
+void Liquids::fromSerial(const std::vector<char>& serial) {
+    std::vector<char> decompressed = decompress(serial);
     create();
-    const char* iter = &serial[0];
+    const char* iter = &decompressed[0];
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {

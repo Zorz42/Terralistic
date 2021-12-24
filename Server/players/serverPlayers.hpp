@@ -90,8 +90,8 @@ public:
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
     
-    std::vector<char> serialize();
-    void loadFromSerial(const std::vector<char>& serial);
+    std::vector<char> toSerial();
+    void fromSerial(const std::vector<char>& serial);
     
     BlockBehaviour*& getBlockBehaviour(BlockType* type);
     

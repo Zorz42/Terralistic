@@ -9,7 +9,7 @@ void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
     packet << WelcomePacketType::LIQUIDS;
     event.connection->send(packet);
     
-    event.connection->send(serialize());
+    event.connection->send(toSerial());
 }
 
 void ServerLiquids::init() {

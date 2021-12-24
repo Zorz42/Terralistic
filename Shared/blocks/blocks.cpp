@@ -1,5 +1,6 @@
 #include "blocks.hpp"
 #include "exception.hpp"
+#include "compress.hpp"
 
 BlockType::BlockType(std::string name) : name(std::move(name)) {}
 
@@ -120,7 +121,7 @@ int Blocks::getHeight() const {
     return height;
 }
 
-std::vector<char> Blocks::serialize() {
+std::vector<char> Blocks::toSerial() {
     std::vector<char> serial;
     unsigned long iter = 0;
     serial.resize(serial.size() + width * height + 4);
@@ -133,11 +134,13 @@ std::vector<char> Blocks::serialize() {
         serial[iter++] = (char)block->id;
         block++;
     }
-    return serial;
+    return compress(serial);
 }
 
-void Blocks::loadFromSerial(const std::vector<char>& serial) {
-    const char* iter = &serial[0];
+void Blocks::fromSerial(const std::vector<char>& serial) {
+    std::vector<char> decompressed = decompress(serial);
+    
+    const char* iter = &decompressed[0];
     int width_, height_;
     width_ = *(unsigned short*)iter;
     iter += 2;

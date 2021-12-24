@@ -50,67 +50,19 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
 
 void Server::loadWorld() {
     world_saver.load();
-    blocks.loadFromSerial(world_saver.getSectionData("blocks"));
+    blocks.fromSerial(world_saver.getSectionData("blocks"));
     liquids.create();
     biomes.create();
-    liquids.loadFromSerial(world_saver.getSectionData("liquids"));
-    players.loadFromSerial(world_saver.getSectionData("players"));
-    
-    /*const char* iter = &world_saver.getSectionData("players")[0];
-    while(iter < &world_saver.getSectionData("players")[0] + world_saver.getSectionData("players").size())
-        iter = players.addPlayerFromSerial(iter);*/
-    
-    /*std::ifstream world_file(world_path, std::ios::binary);
-    if(!world_file.is_open())
-        throw Exception("Could not load world.");
-    
-    std::vector<char> world_file_serial((std::istreambuf_iterator<char>(world_file)), std::istreambuf_iterator<char>());
-    
-    world_file_serial = decompress(world_file_serial);
-    
-    world_file.close();
-    char* iter = &world_file_serial[0];
-    
-    iter = blocks.loadFromSerial(iter);
-    liquids.create();
-    biomes.create();
-    iter = liquids.loadFromSerial(iter);
-    
-    while(iter < &world_file_serial[0] + world_file_serial.size())
-        iter = players.addPlayerFromSerial(iter);*/
+    liquids.fromSerial(world_saver.getSectionData("liquids"));
+    players.fromSerial(world_saver.getSectionData("players"));
 }
 
 void Server::saveWorld() {
-    world_saver.setSectionData("blocks", blocks.serialize());
-    world_saver.setSectionData("liquids", liquids.serialize());
-
-    
-    /*for(int i = 0; i < entities.getEntities().size(); i++)
-        if(entities.getEntities()[i]->type == EntityType::PLAYER)
-            players.savePlayer((ServerPlayer*)entities.getEntities()[i]);
-    
-    for(int i = 0; i < players.getAllPlayers().size(); i++)
-        players.getAllPlayers()[i]->serialize(serial);*/
-    
-    world_saver.setSectionData("players", players.serialize());
+    world_saver.setSectionData("blocks", blocks.toSerial());
+    world_saver.setSectionData("liquids", liquids.toSerial());
+    world_saver.setSectionData("players", players.toSerial());
     
     world_saver.save();
-    /*std::vector<char> world_file_serial;
-    blocks.serialize(world_file_serial);
-    liquids.serialize(world_file_serial);
-    
-    for(int i = 0; i < entities.getEntities().size(); i++)
-        if(entities.getEntities()[i]->type == EntityType::PLAYER)
-            players.savePlayer((ServerPlayer*)entities.getEntities()[i]);
-    
-    for(int i = 0; i < players.getAllPlayers().size(); i++)
-        players.getAllPlayers()[i]->serialize(world_file_serial);
-    
-    world_file_serial = compress(world_file_serial);
-    
-    std::ofstream world_file(world_path, std::ios::trunc | std::ios::binary);
-    world_file.write(&world_file_serial[0], world_file_serial.size());
-    world_file.close();*/
 }
 
 void Server::start() {

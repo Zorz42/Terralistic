@@ -98,13 +98,13 @@ void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
     getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(blocks, x, y, player);
 }
 
-void ServerPlayers::loadFromSerial(const std::vector<char> &serial) {
+void ServerPlayers::fromSerial(const std::vector<char> &serial) {
     int iter = 0;
     while(iter < serial.size()) {
         ServerPlayerData* new_player = new ServerPlayerData(items, recipes);
         
         int inventory_serial_size = 3 * INVENTORY_SIZE;
-        new_player->inventory.loadFromSerial(std::vector<char>(serial.begin() + iter, serial.begin() + iter + inventory_serial_size));
+        new_player->inventory.fromSerial(std::vector<char>(serial.begin() + iter, serial.begin() + iter + inventory_serial_size));
         iter += inventory_serial_size;
         
         memcpy(&new_player->x, &serial[iter], sizeof(int));
@@ -124,14 +124,14 @@ void ServerPlayers::loadFromSerial(const std::vector<char> &serial) {
     }
 }
 
-std::vector<char> ServerPlayers::serialize() {
+std::vector<char> ServerPlayers::toSerial() {
     for(int i = 0; i < entities->getEntities().size(); i++)
         if(entities->getEntities()[i]->type == EntityType::PLAYER)
             savePlayer((ServerPlayer*)entities->getEntities()[i]);
     
     std::vector<char> serial;
     for(int i = 0; i < all_players.size(); i++) {
-        std::vector<char> inventory_serial = all_players[i]->inventory.serialize();
+        std::vector<char> inventory_serial = all_players[i]->inventory.toSerial();
         serial.insert(serial.end(), inventory_serial.begin(), inventory_serial.end());
         
         serial.insert(serial.end(), {0, 0, 0, 0});
@@ -213,7 +213,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     packet << WelcomePacketType::INVENTORY;
     event.connection->send(packet);
     
-    event.connection->send(player->inventory.serialize());
+    event.connection->send(player->inventory.toSerial());
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {

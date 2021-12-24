@@ -104,7 +104,7 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
     if(event.packet_type == WelcomePacketType::BLOCKS)
-        loadFromSerial(networking->getData());
+        fromSerial(networking->getData());
 }
 
 void ClientBlocks::init() {

@@ -32,7 +32,7 @@ int Inventory::decreaseStack(int pos, int stack) {
     }
 }
 
-void Inventory::loadFromSerial(const std::vector<char>& serial) {
+void Inventory::fromSerial(const std::vector<char>& serial) {
     const char* iter = &serial[0];
     for(int i = 0; i < INVENTORY_SIZE; i++) {
         inventory_arr[i].type = items->getItemTypeById((int)*iter++);
@@ -44,7 +44,7 @@ void Inventory::loadFromSerial(const std::vector<char>& serial) {
     updateAvailableRecipes();
 }
 
-std::vector<char> Inventory::serialize() const {
+std::vector<char> Inventory::toSerial() const {
     std::vector<char> serial;
     for(int i = 0; i < INVENTORY_SIZE; i++) {
         serial.push_back((char)inventory_arr[i].type->id);
