@@ -120,8 +120,9 @@ int Blocks::getHeight() const {
     return height;
 }
 
-void Blocks::serialize(std::vector<char>& serial) {
-    unsigned long iter = serial.size();
+std::vector<char> Blocks::serialize() {
+    std::vector<char> serial;
+    unsigned long iter = 0;
     serial.resize(serial.size() + width * height + 4);
     *(unsigned short*)&serial[iter] = width;
     iter += 2;
@@ -132,9 +133,11 @@ void Blocks::serialize(std::vector<char>& serial) {
         serial[iter++] = (char)block->id;
         block++;
     }
+    return serial;
 }
 
-const char* Blocks::loadFromSerial(const char* iter) {
+void Blocks::loadFromSerial(const std::vector<char>& serial) {
+    const char* iter = &serial[0];
     int width_, height_;
     width_ = *(unsigned short*)iter;
     iter += 2;
@@ -146,7 +149,6 @@ const char* Blocks::loadFromSerial(const char* iter) {
         block->id = *iter++;
         block++;
     }
-    return iter;
 }
 
 void Blocks::registerNewBlockType(BlockType* block_type) {

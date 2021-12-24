@@ -9,9 +9,7 @@ void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
     packet << WelcomePacketType::LIQUIDS;
     event.connection->send(packet);
     
-    std::vector<char> block_data;
-    serialize(block_data);
-    event.connection->send(block_data);
+    event.connection->send(serialize());
 }
 
 void ServerLiquids::init() {

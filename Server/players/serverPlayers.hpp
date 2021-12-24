@@ -5,10 +5,7 @@
 
 class ServerPlayerData {
 public:
-    ServerPlayerData(Items* items, Recipes* recipes, const char*& iter);
     ServerPlayerData(Items* items, Recipes* recipes) : inventory(items, recipes) {}
-    
-    void serialize(std::vector<char>& serial) const;
     
     std::string name;
     int x, y;
@@ -90,9 +87,11 @@ public:
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
-    const char* addPlayerFromSerial(const char* iter);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
+    
+    std::vector<char> serialize();
+    void loadFromSerial(const std::vector<char>& serial);
     
     BlockBehaviour*& getBlockBehaviour(BlockType* type);
     

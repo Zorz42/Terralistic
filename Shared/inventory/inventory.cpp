@@ -32,24 +32,26 @@ int Inventory::decreaseStack(int pos, int stack) {
     }
 }
 
-const char* Inventory::loadFromSerial(const char *iter) {
+void Inventory::loadFromSerial(const std::vector<char>& serial) {
+    const char* iter = &serial[0];
     for(int i = 0; i < INVENTORY_SIZE; i++) {
-        inventory_arr[i].type = items->getItemTypeById(*iter++);
+        inventory_arr[i].type = items->getItemTypeById((int)*iter++);
         inventory_arr[i].stack = 0;
         memcpy(&inventory_arr[i].stack, iter, sizeof(short));
         iter += sizeof(short);
         item_counts[(int)inventory_arr[i].type->id] += inventory_arr[i].stack;
     }
     updateAvailableRecipes();
-    return iter;
 }
 
-void Inventory::serialize(std::vector<char> &serial) const {
+std::vector<char> Inventory::serialize() const {
+    std::vector<char> serial;
     for(int i = 0; i < INVENTORY_SIZE; i++) {
         serial.push_back((char)inventory_arr[i].type->id);
         serial.insert(serial.end(), {0, 0});
         memcpy(&serial[serial.size() - 2], &inventory_arr[i].stack, sizeof(short));
     }
+    return serial;
 }
 
 Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes), mouse_item(&items->nothing, 0) {

@@ -50,14 +50,15 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
 
 void Server::loadWorld() {
     world_saver.load();
-    blocks.loadFromSerial(&world_saver.getSectionData("blocks")[0]);
+    blocks.loadFromSerial(world_saver.getSectionData("blocks"));
     liquids.create();
     biomes.create();
-    liquids.loadFromSerial(&world_saver.getSectionData("liquids")[0]);
+    liquids.loadFromSerial(world_saver.getSectionData("liquids"));
+    players.loadFromSerial(world_saver.getSectionData("players"));
     
-    const char* iter = &world_saver.getSectionData("players")[0];
+    /*const char* iter = &world_saver.getSectionData("players")[0];
     while(iter < &world_saver.getSectionData("players")[0] + world_saver.getSectionData("players").size())
-        iter = players.addPlayerFromSerial(iter);
+        iter = players.addPlayerFromSerial(iter);*/
     
     /*std::ifstream world_file(world_path, std::ios::binary);
     if(!world_file.is_open())
@@ -80,21 +81,18 @@ void Server::loadWorld() {
 }
 
 void Server::saveWorld() {
-    std::vector<char> serial;
-    blocks.serialize(serial);
-    world_saver.setSectionData("blocks", serial);
-    serial.clear();
-    liquids.serialize(serial);
-    world_saver.setSectionData("liquids", serial);
-    serial.clear();
+    world_saver.setSectionData("blocks", blocks.serialize());
+    world_saver.setSectionData("liquids", liquids.serialize());
+
     
-    for(int i = 0; i < entities.getEntities().size(); i++)
+    /*for(int i = 0; i < entities.getEntities().size(); i++)
         if(entities.getEntities()[i]->type == EntityType::PLAYER)
             players.savePlayer((ServerPlayer*)entities.getEntities()[i]);
     
     for(int i = 0; i < players.getAllPlayers().size(); i++)
-        players.getAllPlayers()[i]->serialize(serial);
-    world_saver.setSectionData("players", serial);
+        players.getAllPlayers()[i]->serialize(serial);*/
+    
+    world_saver.setSectionData("players", players.serialize());
     
     world_saver.save();
     /*std::vector<char> world_file_serial;

@@ -171,8 +171,8 @@ void ClientInventory::selectSlot(int slot) {
     manager->sendPacket(packet);
 }
 
-const char* ClientInventory::loadFromSerial(const char* iter) {
-    return inventory->loadFromSerial(iter);
+void ClientInventory::loadFromSerial(const std::vector<char>& serial) {
+    return inventory->loadFromSerial(serial);
 }
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {
@@ -238,10 +238,8 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
 }
 
 void ClientInventory::onEvent(WelcomePacketEvent &event) {
-    if(event.packet_type == WelcomePacketType::INVENTORY) {
-        std::vector<char> data = manager->getData();
-        inventory->loadFromSerial(&data[0]);
-    }
+    if(event.packet_type == WelcomePacketType::INVENTORY)
+        inventory->loadFromSerial(manager->getData());
 }
 
 const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {

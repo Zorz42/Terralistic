@@ -32,8 +32,8 @@ public:
     int getWidth() const;
     int getHeight() const;
     
-    void serialize(std::vector<char>& serial);
-    char* loadFromSerial(char* iter);
+    std::vector<char> serialize();
+    void loadFromSerial(const std::vector<char>& serial);
     
     void registerNewWallType(WallType* wall_type);
     WallType* getWallTypeById(int wall_id);

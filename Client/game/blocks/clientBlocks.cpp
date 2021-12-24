@@ -103,10 +103,8 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::BLOCKS) {
-        std::vector<char> data = networking->getData();
-        loadFromSerial(&data[0]);
-    }
+    if(event.packet_type == WelcomePacketType::BLOCKS)
+        loadFromSerial(networking->getData());
 }
 
 void ClientBlocks::init() {

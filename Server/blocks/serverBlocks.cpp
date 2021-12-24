@@ -5,9 +5,7 @@ void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
     packet << WelcomePacketType::BLOCKS;
     event.connection->send(packet);
     
-    std::vector<char> block_data;
-    serialize(block_data);
-    event.connection->send(block_data);
+    event.connection->send(serialize());
 }
 
 void ServerBlocks::init() {    

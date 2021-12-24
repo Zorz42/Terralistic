@@ -113,8 +113,9 @@ float Liquids::getLiquidLevel(int x, int y) {
     return getLiquid(x, y)->level;
 }
 
-void Liquids::serialize(std::vector<char>& serial) {
-    serial.reserve(serial.size() + blocks->getWidth() * blocks->getHeight() * 2);
+std::vector<char> Liquids::serialize() {
+    std::vector<char> serial;
+    serial.reserve(blocks->getWidth() * blocks->getHeight() * 2);
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
@@ -125,10 +126,12 @@ void Liquids::serialize(std::vector<char>& serial) {
             }
             liquid++;
         }
+    return serial;
 }
 
-const char* Liquids::loadFromSerial(const char* iter) {
+void Liquids::loadFromSerial(const std::vector<char>& serial) {
     create();
+    const char* iter = &serial[0];
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
@@ -139,7 +142,6 @@ const char* Liquids::loadFromSerial(const char* iter) {
             }
             liquid++;
         }
-    return iter;
 }
 
 int Liquids::getWidth() const {

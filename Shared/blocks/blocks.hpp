@@ -82,8 +82,8 @@ public:
     int getWidth() const;
     int getHeight() const;
     
-    void serialize(std::vector<char>& serial);
-    const char* loadFromSerial(const char* iter);
+    std::vector<char> serialize();
+    void loadFromSerial(const std::vector<char>& serial);
     
     void registerNewBlockType(BlockType* block_type);
     BlockType* getBlockTypeById(int block_id);

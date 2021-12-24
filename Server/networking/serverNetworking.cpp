@@ -30,7 +30,7 @@ Connection::~Connection() {
     delete socket;
 }
 
-void Connection::send(std::vector<char>& data) {
+void Connection::send(const std::vector<char>& data) {
     if(!socket->isBlocking())
         socket->setBlocking(true);
     

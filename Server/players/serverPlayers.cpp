@@ -98,42 +98,55 @@ void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
     getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(blocks, x, y, player);
 }
 
-const char* ServerPlayers::addPlayerFromSerial(const char* iter) {
-    all_players.emplace_back(new ServerPlayerData(items, recipes, iter));
-    return iter;
+void ServerPlayers::loadFromSerial(const std::vector<char> &serial) {
+    int iter = 0;
+    while(iter < serial.size()) {
+        ServerPlayerData* new_player = new ServerPlayerData(items, recipes);
+        
+        int inventory_serial_size = 3 * INVENTORY_SIZE;
+        new_player->inventory.loadFromSerial(std::vector<char>(serial.begin() + iter, serial.begin() + iter + inventory_serial_size));
+        iter += inventory_serial_size;
+        
+        memcpy(&new_player->x, &serial[iter], sizeof(int));
+        iter += sizeof(int);
+        
+        memcpy(&new_player->y, &serial[iter], sizeof(int));
+        iter += sizeof(int);
+        
+        while(serial[iter])
+            new_player->name.push_back(serial[iter++]);
+        iter++;
+
+        memcpy(&new_player->health, &serial[iter], sizeof(short));
+        iter += sizeof(short);
+        
+        all_players.push_back(new_player);
+    }
 }
 
-ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, const char*& iter) : inventory(items, recipes) {
-    iter = inventory.loadFromSerial(iter);
+std::vector<char> ServerPlayers::serialize() {
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER)
+            savePlayer((ServerPlayer*)entities->getEntities()[i]);
     
-    memcpy(&x, iter, sizeof(int));
-    iter += sizeof(int);
-    
-    memcpy(&y, iter, sizeof(int));
-    iter += sizeof(int);
-    
-    while(*iter)
-        name.push_back(*iter++);
-    iter++;
+    std::vector<char> serial;
+    for(int i = 0; i < all_players.size(); i++) {
+        std::vector<char> inventory_serial = all_players[i]->inventory.serialize();
+        serial.insert(serial.end(), inventory_serial.begin(), inventory_serial.end());
+        
+        serial.insert(serial.end(), {0, 0, 0, 0});
+        memcpy(&serial[serial.size() - 4], &all_players[i]->x, sizeof(int));
+        
+        serial.insert(serial.end(), {0, 0, 0, 0});
+        memcpy(&serial[serial.size() - 4], &all_players[i]->y, sizeof(int));
+        
+        serial.insert(serial.end(), all_players[i]->name.begin(), all_players[i]->name.end());
+        serial.insert(serial.end(), 0);
 
-    memcpy(&health, iter, sizeof(short));
-    iter += sizeof(short);
-}
-
-void ServerPlayerData::serialize(std::vector<char>& serial) const {
-    inventory.serialize(serial);
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    memcpy(&serial[serial.size() - 4], &x, sizeof(int));
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    memcpy(&serial[serial.size() - 4], &y, sizeof(int));
-    
-    serial.insert(serial.end(), name.begin(), name.end());
-    serial.insert(serial.end(), 0);
-
-    serial.insert(serial.end(), {0, 0});
-    memcpy(&serial[serial.size() - 4], &health, sizeof(short));
+        serial.insert(serial.end(), {0, 0});
+        memcpy(&serial[serial.size() - 4], &all_players[i]->health, sizeof(short));
+    }
+    return serial;
 }
 
 void ServerPlayers::onEvent(BlockChangeEvent& event) {
@@ -200,9 +213,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     packet << WelcomePacketType::INVENTORY;
     event.connection->send(packet);
     
-    std::vector<char> data;
-    player->inventory.serialize(data);
-    event.connection->send(data);
+    event.connection->send(player->inventory.serialize());
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {
