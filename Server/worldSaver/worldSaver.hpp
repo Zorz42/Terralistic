@@ -8,11 +8,11 @@ class WorldSaveEvent {};
 class WorldLoadEvent {};
 
 class WorldSaver : public ServerModule {
-    void init() override;
-    void stop() override;
+    void update(float frame_length) override;
     
     std::string world_path;
     std::map<std::string, std::vector<char>> sections;
+    int save_inverval = 0;
 public:
     WorldSaver(const std::string& world_path) : world_path(world_path) {}
     

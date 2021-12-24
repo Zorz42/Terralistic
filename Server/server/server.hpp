@@ -28,9 +28,6 @@ class Server {
     
     bool running = true;
     
-    void saveWorld();
-    void loadWorld();
-    
     std::vector<ServerModule*> modules;
     std::string resource_path;
 public:

@@ -8,7 +8,6 @@
 #include "content.hpp"
 
 #define TPS_LIMIT 60
-#define AUTOSAVE_INTERVAL (5 * 60)
 
 Server* curr_server = nullptr;
 
@@ -20,13 +19,13 @@ void onInterrupt(int signum) {
 Server::Server(const std::string& resource_path, const std::string& world_path, int port) :
     networking(port),
     world_saver(world_path),
-    blocks(&networking),
-    biomes(&blocks),
-    liquids(&blocks, &networking),
+    blocks(&networking, &world_saver),
+    biomes(&blocks, &world_saver),
+    liquids(&blocks, &networking, &world_saver),
     generator(&blocks, &liquids, &biomes, resource_path + "resourcePack/", &content),
     entities(&blocks, &networking),
     items(&entities, &blocks, &networking),
-    players(&blocks, &entities, &items, &networking, &recipes),
+    players(&blocks, &entities, &items, &networking, &recipes, &world_saver),
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(world_path),
@@ -48,32 +47,18 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     };
 }
 
-void Server::loadWorld() {
-    world_saver.load();
-    blocks.fromSerial(world_saver.getSectionData("blocks"));
-    liquids.create();
-    biomes.create();
-    liquids.fromSerial(world_saver.getSectionData("liquids"));
-    players.fromSerial(world_saver.getSectionData("players"));
-}
-
-void Server::saveWorld() {
-    world_saver.setSectionData("blocks", blocks.toSerial());
-    world_saver.setSectionData("liquids", liquids.toSerial());
-    world_saver.setSectionData("players", players.toSerial());
-    
-    world_saver.save();
-}
-
 void Server::start() {
     curr_server = this;
 
     content.loadContent(&blocks, &liquids, &items, &recipes, resource_path + "resourcePack/");
     
+    for(int i = 0; i < modules.size(); i++)
+        modules[i]->preInit();
+    
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
         print::info("Loading world...");
-        loadWorld();
+        world_saver.load();
     } else {
         state = ServerState::GENERATING_WORLD;
         print::info("Generating world...");
@@ -81,7 +66,7 @@ void Server::start() {
     }
     
     for(int i = 0; i < modules.size(); i++)
-        modules[i]->init();
+        modules[i]->postInit();
     
     content.blocks.addBlockBehaviour(&players);
 
@@ -93,7 +78,6 @@ void Server::start() {
     int a, b = gfx::getTicks();
     
     int ms_per_tick = 1000 / TPS_LIMIT;
-    int save_inverval = 0;
     
     while(running) {
         a = gfx::getTicks();
@@ -104,19 +88,12 @@ void Server::start() {
         
         for(int i = 0; i < modules.size(); i++)
             modules[i]->update(frame_length);
-        
-        if(gfx::getTicks() / AUTOSAVE_INTERVAL / 1000 > save_inverval) {
-            print::info("Autosaving world...");
-            save_inverval = gfx::getTicks() / AUTOSAVE_INTERVAL / 1000;
-            std::thread save_thread(&Server::saveWorld, this);
-            save_thread.detach();
-        }
     }
     
     state = ServerState::STOPPING;
     
     print::info("Saving world...");
-    saveWorld();
+    world_saver.save();
     
     print::info("Stopping server...");
     for(int i = 0; i < modules.size(); i++)

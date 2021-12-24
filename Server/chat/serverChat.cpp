@@ -21,7 +21,7 @@ void ServerChat::onEvent(ServerPacketEvent &event) {
     }
 }
 
-void ServerChat::init() {
+void ServerChat::preInit() {
     players->packet_event.addListener(this);
 }
 

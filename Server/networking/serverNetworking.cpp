@@ -65,7 +65,7 @@ ServerNetworking::ServerNetworking(int port) : port(port) {
         throw Exception("Port number out of range");
 }
 
-void ServerNetworking::init() {
+void ServerNetworking::postInit() {
     listener.listen(port);
     listener.setBlocking(false);
 }

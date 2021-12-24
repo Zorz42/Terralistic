@@ -9,18 +9,22 @@ void AirBehaviour::onRightClick(Blocks* blocks, int x, int y, ServerPlayer* play
     }
 }
 
-void ServerPlayers::init() {
-    blocks_behaviour = new BlockBehaviour*[blocks->getNumBlockTypes()];
-    for(int i = 0; i < blocks->getNumBlockTypes(); i++)
-        blocks_behaviour[i] = &default_behaviour;
-    
-    getBlockBehaviour(&blocks->air) = &air_behaviour;
-    
+void ServerPlayers::preInit() {
     blocks->block_change_event.addListener(this);
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);
     packet_event.addListener(this);
     networking->disconnect_event.addListener(this);
+    world_saver->world_load_event.addListener(this);
+    world_saver->world_save_event.addListener(this);
+}
+
+void ServerPlayers::postInit() {
+    blocks_behaviour = new BlockBehaviour*[blocks->getNumBlockTypes()];
+    for(int i = 0; i < blocks->getNumBlockTypes(); i++)
+        blocks_behaviour[i] = &default_behaviour;
+    
+    getBlockBehaviour(&blocks->air) = &air_behaviour;
 }
 
 void ServerPlayers::stop() {
@@ -29,6 +33,8 @@ void ServerPlayers::stop() {
     networking->connection_welcome_event.removeListener(this);
     packet_event.removeListener(this);
     networking->disconnect_event.removeListener(this);
+    world_saver->world_load_event.removeListener(this);
+    world_saver->world_save_event.removeListener(this);
     
     for(int i = 0; i < all_players.size(); i++)
         delete all_players[i];
@@ -382,4 +388,12 @@ BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
 
 ServerPlayer::~ServerPlayer() {
     inventory.item_change_event.removeListener(this);
+}
+
+void ServerPlayers::onEvent(WorldSaveEvent &event) {
+    world_saver->setSectionData("players", toSerial());
+}
+
+void ServerPlayers::onEvent(WorldLoadEvent &event) {
+    fromSerial(world_saver->getSectionData("players"));
 }

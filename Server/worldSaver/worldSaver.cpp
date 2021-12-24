@@ -1,5 +1,10 @@
 #include <fstream>
+#include <thread>
 #include "worldSaver.hpp"
+#include "print.hpp"
+#include "graphics.hpp"
+
+#define AUTOSAVE_INTERVAL (5 * 60)
 
 void WorldSaver::setSectionData(const std::string& name, const std::vector<char>& data) {
     sections[name] = data;
@@ -36,9 +41,15 @@ void WorldSaver::load() {
         sections[section_name] = std::vector<char>(input.begin() + iter, input.begin() + iter + section_size);
         iter += section_size;
     }
+    
+    WorldLoadEvent event;
+    world_load_event.call(event);
 }
 
 void WorldSaver::save() {
+    WorldSaveEvent event;
+    world_save_event.call(event);
+    
     std::vector<char> output;
     
     for(auto i : sections) {
@@ -56,10 +67,11 @@ void WorldSaver::save() {
     std::copy(output.cbegin(), output.cend(), std::ostreambuf_iterator<char>(file));
 }
 
-void WorldSaver::init() {
-    
-}
-
-void WorldSaver::stop() {
-    
+void WorldSaver::update(float frame_length) {
+    if(gfx::getTicks() / AUTOSAVE_INTERVAL / 1000 > save_inverval) {
+        print::info("Autosaving world...");
+        save_inverval = gfx::getTicks() / AUTOSAVE_INTERVAL / 1000;
+        std::thread save_thread(&WorldSaver::save, this);
+        save_thread.detach();
+    }
 }

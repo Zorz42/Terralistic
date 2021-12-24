@@ -11,7 +11,7 @@ class ServerItems : public ServerModule, public Items, EventListener<ItemCreatio
     void onEvent(ServerNewConnectionEvent& event) override;
     void onEvent(BlockBreakEvent& event) override;
     
-    void init() override;
+    void preInit() override;
     void stop() override;
 public:
     ServerItems(Entities* entities, Blocks* blocks, ServerNetworking* networking) : Items(entities, blocks), networking(networking), entities(entities), blocks(blocks) {}

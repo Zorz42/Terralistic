@@ -44,7 +44,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     GiveCommand give_command;
     std::vector<Command*> commands;
     
-    void init() override;
+    void preInit() override;
     void stop() override;
 public:
     Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players), tp_command(blocks, entities, items, players), give_command(blocks, entities, items, players) {}

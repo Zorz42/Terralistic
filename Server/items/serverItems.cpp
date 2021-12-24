@@ -1,7 +1,7 @@
 #include <random>
 #include "serverItems.hpp"
 
-void ServerItems::init() {
+void ServerItems::preInit() {
     blocks->block_break_event.addListener(this);
     item_creation_event.addListener(this);
     networking->new_connection_event.addListener(this);
