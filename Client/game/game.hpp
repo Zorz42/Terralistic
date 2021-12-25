@@ -13,6 +13,7 @@
 #include "naturalLight.hpp"
 #include "camera.hpp"
 #include "background.hpp"
+#include "clientWalls.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
@@ -28,6 +29,7 @@ class Game : public gfx::Scene, public BackgroundRect {
     Camera camera;
     Background background;
     ClientBlocks blocks;
+    ClientWalls walls;
     Particles particles;
     ClientLiquids liquids;
     ClientLights lights;

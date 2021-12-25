@@ -3,7 +3,7 @@
 
 class WallType {
 public:
-    WallType(std::string name);
+    WallType(std::string name) : name(name) {}
     
     std::string name;
     int id;
@@ -17,16 +17,19 @@ class Walls {
     };
     
     Wall* walls = nullptr;
+    Blocks* blocks;
     
     std::vector<WallType*> wall_types;
     Wall* getWall(int x, int y);
+    
+    int curr_id = 0;
 public:
-    Walls();
+    Walls(Blocks* blocks) : blocks(blocks), clear("clear") { registerNewWallType(&clear); }
     void create();
 
-    BlockType clear;
+    WallType clear;
     
-    BlockType* getWallType(int x, int y);
+    WallType* getWallType(int x, int y);
     void setWallTypeSilently(int x, int y, WallType* type);
     
     int getWidth() const;

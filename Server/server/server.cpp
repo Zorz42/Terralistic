@@ -20,6 +20,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     networking(port),
     world_saver(world_path),
     blocks(&networking, &world_saver),
+    walls(&blocks),
     biomes(&blocks, &world_saver),
     liquids(&blocks, &networking, &world_saver),
     generator(&blocks, &liquids, &biomes, resource_path + "resourcePack/", &content),
@@ -29,7 +30,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(world_path),
-    content(&blocks, &liquids, &items),
+    content(&blocks, &walls, &liquids, &items),
     resource_path(resource_path),
     seed((int)time(NULL))
 {    
@@ -37,6 +38,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
         &networking,
         &world_saver,
         &blocks,
+        &walls,
         &biomes,
         &liquids,
         &entities,
@@ -50,7 +52,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
 void Server::start() {
     curr_server = this;
 
-    content.loadContent(&blocks, &liquids, &items, &recipes, resource_path + "resourcePack/");
+    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
     
     for(int i = 0; i < modules.size(); i++)
         modules[i]->preInit();

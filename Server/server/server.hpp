@@ -7,6 +7,7 @@
 #include "commands.hpp"
 #include "content.hpp"
 #include "worldSaver.hpp"
+#include "serverWalls.hpp"
 
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
@@ -15,6 +16,7 @@ class Server {
     ServerNetworking networking;
     WorldSaver world_saver;
     ServerBlocks blocks;
+    ServerWalls walls;
     Biomes biomes;
     ServerLiquids liquids;
     WorldGenerator generator;

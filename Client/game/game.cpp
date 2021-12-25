@@ -139,6 +139,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     networking(ip_address, port, username),
     background(&camera, &resource_pack),
     blocks(&resource_pack, &networking, &camera),
+    walls(&blocks),
     particles(settings, &blocks, &camera),
     liquids(&blocks, &resource_pack, &networking, &camera),
     lights(settings, &blocks, &resource_pack, &camera),
@@ -150,7 +151,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     inventory(&networking, &resource_pack, &items, &recipes),
     chat(&networking),
     debug_menu(&players, &blocks),
-    content(&blocks, &liquids, &items),
+    content(&blocks, &walls, &liquids, &items),
     player_health(&networking, &resource_pack)
 {
     registerAModule(&networking);
@@ -158,6 +159,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&camera);
     registerAModule(&background);
     registerAModule(&blocks);
+    registerAModule(&walls);
     registerAModule(&particles);
     registerAModule(&players);
     registerAModule(&liquids);
@@ -173,7 +175,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&debug_menu);
 #endif
     
-    content.loadContent(&blocks, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
+    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
 }
 
 void Game::initialize() {

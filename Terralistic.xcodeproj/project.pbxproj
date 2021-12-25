@@ -169,6 +169,9 @@
 		3657222226D07181005AB3CC /* mainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220526D07181005AB3CC /* mainMenu.cpp */; };
 		3657222326D07181005AB3CC /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220826D07181005AB3CC /* worldSelector.cpp */; };
 		3657222426D07181005AB3CC /* menuBack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220B26D07181005AB3CC /* menuBack.cpp */; };
+		366399CF27775E17007C944E /* serverWalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366399CD27775E17007C944E /* serverWalls.cpp */; };
+		366399D027775E17007C944E /* serverWalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366399CD27775E17007C944E /* serverWalls.cpp */; };
+		366399D427775F10007C944E /* clientWalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366399D227775F10007C944E /* clientWalls.cpp */; };
 		3666D90D2748FEC500C23231 /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D90A2748FEC500C23231 /* lexer.cpp */; };
 		3666D90E2748FEC500C23231 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D90C2748FEC500C23231 /* main.cpp */; };
 		3666D9132749247A00C23231 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D9112749247A00C23231 /* parser.cpp */; };
@@ -416,6 +419,10 @@
 		3657220926D07181005AB3CC /* worldSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSelector.hpp; sourceTree = "<group>"; };
 		3657220B26D07181005AB3CC /* menuBack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = menuBack.cpp; sourceTree = "<group>"; };
 		3657220C26D07181005AB3CC /* menuBack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = menuBack.hpp; sourceTree = "<group>"; };
+		366399CD27775E17007C944E /* serverWalls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverWalls.cpp; sourceTree = "<group>"; };
+		366399CE27775E17007C944E /* serverWalls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverWalls.hpp; sourceTree = "<group>"; };
+		366399D227775F10007C944E /* clientWalls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clientWalls.cpp; sourceTree = "<group>"; };
+		366399D327775F10007C944E /* clientWalls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientWalls.hpp; sourceTree = "<group>"; };
 		3666D8FE2748FE9700C23231 /* jaclang */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = jaclang; sourceTree = BUILT_PRODUCTS_DIR; };
 		3666D90A2748FEC500C23231 /* lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
 		3666D90B2748FEC500C23231 /* lexer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = lexer.hpp; sourceTree = "<group>"; };
@@ -692,6 +699,7 @@
 				3605ED602773A7B000ECCA08 /* worldSaver */,
 				1673274926A80E760063281A /* networking */,
 				16A13D112709A000009DEE40 /* blocks */,
+				366399CC27775DFA007C944E /* walls */,
 				167513C126A498DA00E21C68 /* biomes */,
 				16A13D162709B73B009DEE40 /* liquids */,
 				16B36D3926820AC700A4B03A /* worldGenerator */,
@@ -1050,6 +1058,7 @@
 				3605ED4D276A09E900ECCA08 /* camera */,
 				3605ED51276A1EB900ECCA08 /* background */,
 				1679733A2712300F00E90477 /* blocks */,
+				366399D127775F03007C944E /* walls */,
 				169D0DF7271C101400F1D484 /* particles */,
 				1679733B2712301400E90477 /* liquids */,
 				1679733C2712301900E90477 /* lights */,
@@ -1218,6 +1227,24 @@
 				3657220B26D07181005AB3CC /* menuBack.cpp */,
 			);
 			path = menuBack;
+			sourceTree = "<group>";
+		};
+		366399CC27775DFA007C944E /* walls */ = {
+			isa = PBXGroup;
+			children = (
+				366399CE27775E17007C944E /* serverWalls.hpp */,
+				366399CD27775E17007C944E /* serverWalls.cpp */,
+			);
+			path = walls;
+			sourceTree = "<group>";
+		};
+		366399D127775F03007C944E /* walls */ = {
+			isa = PBXGroup;
+			children = (
+				366399D327775F10007C944E /* clientWalls.hpp */,
+				366399D227775F10007C944E /* clientWalls.cpp */,
+			);
+			path = walls;
 			sourceTree = "<group>";
 		};
 		3666D9052748FEC500C23231 /* Jaclang */ = {
@@ -1509,6 +1536,7 @@
 				16B77FEA26F5102700FE3FE9 /* updater.cpp in Sources */,
 				3657221D26D07181005AB3CC /* main.cpp in Sources */,
 				16A3C01126FF871C001B9E4E /* commands.cpp in Sources */,
+				366399CF27775E17007C944E /* serverWalls.cpp in Sources */,
 				3657220D26D07181005AB3CC /* clientNetworking.cpp in Sources */,
 				167B53D1270A271D000089B3 /* serverEntities.cpp in Sources */,
 				16C9470527109EC100A51E81 /* player.cpp in Sources */,
@@ -1527,6 +1555,7 @@
 				169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */,
 				167C03B526E141D10045FEA9 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
+				366399D427775F10007C944E /* clientWalls.cpp in Sources */,
 				3692C14F26E509F100F9DD71 /* entities.cpp in Sources */,
 				3605ED50276A0A0A00ECCA08 /* camera.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
@@ -1576,6 +1605,7 @@
 			files = (
 				167B53CE270A26EC000089B3 /* serverItems.cpp in Sources */,
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
+				366399D027775E17007C944E /* serverWalls.cpp in Sources */,
 				16A13D152709A10D009DEE40 /* serverBlocks.cpp in Sources */,
 				16A61F612708DA3300738C61 /* entities.cpp in Sources */,
 				1676AF392704595400321C8B /* blocks.cpp in Sources */,
