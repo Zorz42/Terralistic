@@ -81,7 +81,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             if(name == username) {
                 main_player = new_player;
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
-                camera->setY(main_player->getY() + PLAYER_HEIGHT);
+                camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
             }
             

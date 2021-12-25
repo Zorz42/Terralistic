@@ -36,7 +36,7 @@ public:
     Server(const std::string& resource_path, const std::string& world_path, int port);
     
     int seed;
-    
+
     void start();
     void stop();
     

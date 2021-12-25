@@ -17,9 +17,10 @@ class WorldStartingScreen : public gfx::Scene {
     void init() override;
     void render() override;
     Server* server;
+    Game* game;
     ServerState prev_server_state = ServerState::NEUTRAL;
 public:
-    WorldStartingScreen(BackgroundRect* menu_back, Server* server) : menu_back(menu_back), server(server) {}
+    WorldStartingScreen(BackgroundRect* menu_back, Server* server, Game* game) : menu_back(menu_back), server(server), game(game) {}
 };
 
 void WorldStartingScreen::init() {
@@ -51,15 +52,21 @@ void WorldStartingScreen::render() {
             case ServerState::STOPPING:
                 text.loadFromText("Saving world");
                 break;
-            case ServerState::RUNNING:
             case ServerState::CRASHED:
             case ServerState::STOPPED:
                 returnFromScene();
+                break;
+            case ServerState::RUNNING:
+                text.loadFromText("Joining world");
                 break;
             default:;
         }
         menu_back->setBackWidth(text.getWidth() + 300);
     }
+    
+    if(server->state == ServerState::RUNNING && game->isInitialized())
+        returnFromScene();
+    
     if(server->state == ServerState::GENERATING_WORLD) {
         loading_bar_back.setWidth(text.getWidth() + 200);
         loading_bar.setX(loading_bar_back.getTranslatedX());
@@ -74,8 +81,19 @@ void WorldStartingScreen::render() {
 void startServer(Server* server, Game* game) {
     try {
         server->start();
-    } catch (const std::exception& exception) {
+    } catch(const std::exception& exception) {
         server->state = ServerState::CRASHED;
+        game->interrupt_message = exception.what();
+        game->interrupt = true;
+    }
+}
+
+void initGame(Server* server, Game* game) {
+    try {
+        while(server->state != ServerState::RUNNING)
+            gfx::sleep(1);
+        game->initialize();
+    } catch(const std::exception& exception) {
         game->interrupt_message = exception.what();
         game->interrupt = true;
     }
@@ -90,8 +108,11 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
   
     private_server.setPrivate(true);
     server_thread = std::thread(startServer, &private_server, &game);
+    std::thread game_init_thread(initGame, &private_server, &game);
     
-    WorldStartingScreen(menu_back, &private_server).run();
+    WorldStartingScreen(menu_back, &private_server, &game).run();
+    
+    game_init_thread.join();
     
     game.start();
     
@@ -100,7 +121,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
     
-    WorldStartingScreen(menu_back, &private_server).run();
+    WorldStartingScreen(menu_back, &private_server, &game).run();
     
     if(game.interrupt) {
         ChoiceScreen choice_screen(menu_back, game.interrupt_message, {"Close"});
@@ -153,6 +174,19 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
 #endif
     
     content.loadContent(&blocks, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
+}
+
+void Game::initialize() {
+    try {
+        if(interrupt)
+            throw Exception(interrupt_message);
+        Scene::initialize();
+        if(interrupt)
+            throw Exception(interrupt_message);
+    } catch (const std::exception& exception) {
+        ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
+        switchToScene(choice_screen);
+    }
 }
 
 void Game::start() {
