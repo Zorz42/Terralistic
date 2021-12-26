@@ -11,7 +11,7 @@ public:
 
 class Chat : public ClientModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
-    ClientNetworking* manager;
+    ClientNetworking* networking;
     std::vector<ChatLine*> chat_lines;
     
     void init() override;
@@ -22,5 +22,5 @@ class Chat : public ClientModule, EventListener<ClientPacketEvent> {
 
     void onEvent(ClientPacketEvent& event) override;
 public:
-    Chat(ClientNetworking* manager) : manager(manager) {}
+    Chat(ClientNetworking* networking) : networking(networking) {}
 };

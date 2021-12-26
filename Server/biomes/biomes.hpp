@@ -31,7 +31,7 @@ public:
 inline std::vector <Biome> loaded_biomes;
 
 class Biomes : public ServerModule, EventListener<WorldLoadEvent> {
-    void preInit() override;
+    void init() override;
     void stop() override;
     void onEvent(WorldLoadEvent& event) override;
     WorldSaver* world_saver;

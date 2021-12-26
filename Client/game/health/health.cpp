@@ -1,13 +1,13 @@
 #include "health.hpp"
 
 void Health::init() {
-    /*manager->packet_event.addListener(this);
-    manager->welcome_packet_event.addListener(this);*/
+    /*networking->packet_event.addListener(this);
+     networking->welcome_packet_event.addListener(this);*/
 }
 
 void Health::stop() {
-    /*manager->packet_event.removeListener(this);
-    manager->welcome_packet_event.removeListener(this);*/
+    /*networking->packet_event.removeListener(this);
+     networking->welcome_packet_event.removeListener(this);*/
 }
 
 void Health::render() {

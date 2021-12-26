@@ -26,7 +26,7 @@ class ServerLiquids : public ServerModule, public Liquids, EventListener<ServerC
     bool& getLiquidSchedule(int x, int y);
     bool isLiquidScheduled(int x, int y);
     
-    void preInit() override;
+    void init() override;
     void postInit() override;
     void update(float frame_length) override;
     void stop() override;

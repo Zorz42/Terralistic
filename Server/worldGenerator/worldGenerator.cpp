@@ -11,6 +11,7 @@ int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
     siv::PerlinNoise noise((unsigned int)seed);
     std::mt19937 seeded_random(seed);
     blocks->create(world_width, world_height);
+    walls->create();
     liquids->create();
     biomes->create();
 
@@ -20,7 +21,7 @@ int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
     } else {
         generating_total = blocks->getWidth() * 3;
         loadBiomes();
-        generateDeafultWorld(noise, seeded_random);
+        generateDefaultWorld(noise, seeded_random);
     }
     
     delete[] surface_heights;
@@ -154,7 +155,7 @@ void WorldGenerator::generateBlockIcyOcean(int x, int y, siv::PerlinNoise &noise
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &content->blocks.stone_block);
     else if(y > blocks->getHeight() / 3 * 2 - noise.noise1D((float)x / 4 + 0.125) - 2)
         blocks->setBlockTypeSilently(x, blocks->getHeight() - y, &content->blocks.ice_block);
-    else{
+    else {
         liquids->setLiquidTypeSilently(x, blocks->getHeight() - y, &content->liquids.water);
         liquids->setLiquidLevelSilently(x, blocks->getHeight() - y, MAX_LIQUID_LEVEL);
     }
@@ -460,7 +461,13 @@ void WorldGenerator::generateStructuresForStrWorld() {
     }
 }
 
-void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random) {
+void WorldGenerator::placeWalls() {
+    for(int x = 0; x < blocks->getWidth(); x++)
+        for(int y = blocks->getHeight() - surface_heights[x]; y < blocks->getHeight(); y++)
+            walls->setWallTypeSilently(x, y, &content->walls.dirt);
+}
+
+void WorldGenerator::generateDefaultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random) {
     for (int x = 0; x < blocks->getWidth(); x++) {
         generateBiomes(x, noise);
     }
@@ -474,6 +481,7 @@ void WorldGenerator::generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937&
     generateOres(noise, seeded_random);
     generateFoliage(seeded_random);
     placeStructures(noise);
+    placeWalls();
     for (const StructurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }

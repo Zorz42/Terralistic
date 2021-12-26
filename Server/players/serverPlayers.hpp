@@ -77,7 +77,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     void leftClickEvent(ServerPlayer* player, int x, int y);
     void rightClickEvent(ServerPlayer* player, int x, int y);
     
-    void preInit() override;
+    void init() override;
     void postInit() override;
     void update(float frame_length) override;
     void stop() override;

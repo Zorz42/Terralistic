@@ -44,7 +44,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     GiveCommand give_command;
     std::vector<Command*> commands;
     
-    void preInit() override;
+    void init() override;
     void stop() override;
     
     void startCommand(std::string message, ServerPlayer* player);

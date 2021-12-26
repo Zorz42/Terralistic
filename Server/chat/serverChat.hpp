@@ -14,7 +14,7 @@ class ServerChat : public ServerModule, EventListener<ServerPacketEvent> {
     ServerPlayers* players;
     ServerNetworking* networking;
     
-    void preInit() override;
+    void init() override;
     void stop() override;
 public:
     ServerChat(ServerPlayers* players, ServerNetworking* networking) : players(players), networking(networking) {}

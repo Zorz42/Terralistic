@@ -21,12 +21,13 @@ public:
 
 class WorldGenerator {
     Blocks* blocks;
+    Walls* walls;
     Biomes* biomes;
     Liquids* liquids;
-
+    
     std::vector<Structure> structures;
     std::vector<StructurePosition> structurePositions;
-
+    
     void generateBiomes(int x, siv::PerlinNoise& noise);
     void calculateHeight(siv::PerlinNoise& noise);
     void terrainGenerator(int x, siv::PerlinNoise& noise);
@@ -41,11 +42,11 @@ class WorldGenerator {
     void generateStructureWorld();
     void generateFlatTerrain();
     void generateStructuresForStrWorld();
-    void generateDeafultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random);
+    void generateDefaultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random);
     int heightGeneratorInt(int x, siv::PerlinNoise& noise);
     static int heatGeneratorInt(int x, siv::PerlinNoise& noise);
     void loadBiomes();
-
+    
     void generateBlockIcyOcean(int x, int y, siv::PerlinNoise& noise);
     void generateBlockSnowyPlains(int x, int y, siv::PerlinNoise& noise);
     void generateBlockSnowyHills(int x, int y, siv::PerlinNoise& noise);
@@ -58,10 +59,12 @@ class WorldGenerator {
     void generateBlockDesert(int x, int y, siv::PerlinNoise& noise);
     void generateBlockSavanaHills(int x, int y, siv::PerlinNoise& noise);
     void generateBlockSavanaMountains(int x, int y, siv::PerlinNoise& noise);
-
+    
     void generateStructure(const std::string& name, int x, int y);
     void loadAssets();
-
+    
+    void placeWalls();
+    
     std::string resource_path;
 
     int generating_current = 0, generating_total = 1;
@@ -70,7 +73,7 @@ class WorldGenerator {
     GameContent* content;
     
 public:
-    WorldGenerator(Blocks* blocks, Liquids* liquids, Biomes* biomes, std::string resource_path, GameContent* content) : blocks(blocks), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)), content(content) {}
+    WorldGenerator(Blocks* blocks, Walls* walls, Liquids* liquids, Biomes* biomes, std::string resource_path, GameContent* content) : blocks(blocks), walls(walls), liquids(liquids), biomes(biomes), resource_path(std::move(resource_path)), content(content) {}
 
     int getGeneratingCurrent() const { return generating_current; }
     int getGeneratingTotal() const { return generating_total; }

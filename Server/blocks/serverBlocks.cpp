@@ -8,7 +8,7 @@ void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
     event.connection->send(toSerial());
 }
 
-void ServerBlocks::preInit() {    
+void ServerBlocks::init() {    
     networking->connection_welcome_event.addListener(this);
     block_change_event.addListener(this);
     block_started_breaking_event.addListener(this);

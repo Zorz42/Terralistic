@@ -1,6 +1,6 @@
 #include "serverEntities.hpp"
 
-void ServerEntities::preInit() {
+void ServerEntities::init() {
     entity_position_change_event.addListener(this);
     entity_velocity_change_event.addListener(this);
     entity_deletion_event.addListener(this);

@@ -4,7 +4,7 @@ Biome::Biome(BiomeType type, int height, int height_variation, std::vector<Struc
 
 StructureChance::StructureChance(std::string name, float chance, int least_distance, int unique_structures) : name(name), chance(chance), least_distance(least_distance), x_of_last_instance(-10000), unique_structures(unique_structures) {}
 
-void Biomes::preInit() {
+void Biomes::init() {
     world_saver->world_load_event.addListener(this);
 }
 

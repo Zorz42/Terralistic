@@ -1,7 +1,7 @@
 #include "clientPlayers.hpp"
 
 void ClientPlayers::init() {
-    manager->packet_event.addListener(this);
+    networking->packet_event.addListener(this);
 }
 
 void ClientPlayers::loadTextures() {
@@ -9,7 +9,7 @@ void ClientPlayers::loadTextures() {
 }
 
 void ClientPlayers::stop() {
-    manager->packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
 }
 
 #define RUN_SPEED 18
@@ -103,7 +103,7 @@ void ClientPlayers::update(float frame_length) {
             main_player->has_jumped = true;
             sf::Packet packet;
             packet << ClientPacketType::PLAYER_JUMPED;
-            manager->sendPacket(packet);
+            networking->sendPacket(packet);
         }
         
         float speed_multiplier = 1;
@@ -135,13 +135,13 @@ void ClientPlayers::update(float frame_length) {
             
             sf::Packet packet;
             packet << ClientPacketType::PLAYER_VELOCITY << main_player->getVelocityX() << main_player->getVelocityY();
-            manager->sendPacket(packet);
+            networking->sendPacket(packet);
         }
         
         if(prev_moving_type != main_player->moving_type) {
             sf::Packet packet;
             packet << ClientPacketType::PLAYER_MOVING_TYPE << (int)main_player->moving_type;
-            manager->sendPacket(packet);
+            networking->sendPacket(packet);
         }
         
         prev_x = main_player->getX();

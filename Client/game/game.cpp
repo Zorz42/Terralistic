@@ -140,7 +140,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     networking(ip_address, port, username),
     background(&camera, &resource_pack),
     blocks(&resource_pack, &networking, &camera),
-    walls(&blocks),
+    walls(&blocks, &resource_pack, &networking, &camera),
     particles(settings, &blocks, &camera),
     liquids(&blocks, &resource_pack, &networking, &camera),
     lights(settings, &blocks, &resource_pack, &camera),

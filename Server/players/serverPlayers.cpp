@@ -9,7 +9,7 @@ void AirBehaviour::onRightClick(Blocks* blocks, int x, int y, ServerPlayer* play
     }
 }
 
-void ServerPlayers::preInit() {
+void ServerPlayers::init() {
     blocks->block_change_event.addListener(this);
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);

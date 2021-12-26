@@ -20,10 +20,10 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     networking(port),
     world_saver(world_path),
     blocks(&networking, &world_saver),
-    walls(&blocks),
+    walls(&blocks, &world_saver, &networking),
     biomes(&blocks, &world_saver),
     liquids(&blocks, &networking, &world_saver),
-    generator(&blocks, &liquids, &biomes, resource_path + "resourcePack/", &content),
+    generator(&blocks, &walls, &liquids, &biomes, resource_path + "resourcePack/", &content),
     entities(&blocks, &networking),
     items(&entities, &blocks, &networking),
     players(&blocks, &entities, &items, &networking, &recipes, &world_saver),
@@ -55,7 +55,7 @@ void Server::start() {
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
     
     for(int i = 0; i < modules.size(); i++)
-        modules[i]->preInit();
+        modules[i]->init();
     
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;

@@ -10,7 +10,7 @@ class Health : public ClientModule, EventListener<ClientPacketEvent> {
     void stop() override;
 
     ResourcePack* resource_pack;
-    ClientNetworking* manager;
+    ClientNetworking* networking;
 public:
-    Health(ClientNetworking* manager, ResourcePack* resource_pack) : manager(manager), resource_pack(resource_pack){}
+    Health(ClientNetworking* networking, ResourcePack* resource_pack) : networking(networking), resource_pack(resource_pack){}
 };

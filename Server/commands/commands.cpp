@@ -7,7 +7,7 @@ void Commands::onEvent(ServerChatEvent& event) {
     }
 }
 
-void Commands::preInit() {
+void Commands::init() {
     chat->chat_event.addListener(this);
     
     commands.push_back(&tp_command);

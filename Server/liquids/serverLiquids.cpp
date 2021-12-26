@@ -12,7 +12,7 @@ void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
     event.connection->send(toSerial());
 }
 
-void ServerLiquids::preInit() {
+void ServerLiquids::init() {
     networking->connection_welcome_event.addListener(this);
     liquid_change_event.addListener(this);
     blocks->block_change_event.addListener(this);

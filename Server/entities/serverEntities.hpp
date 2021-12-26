@@ -11,7 +11,7 @@ class ServerEntities : public ServerModule, public Entities, EventListener<Entit
     
     int seconds = 0;
     
-    void preInit() override;
+    void init() override;
     void update(float frame_length) override;
     void stop() override;
     

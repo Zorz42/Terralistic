@@ -46,7 +46,7 @@ void Walls::fromSerial(const std::vector<char>& serial) {
     Wall* wall = walls;
     for(int i = 0; i < getWidth() * getHeight(); i++) {
         wall->id = *iter++;
-        walls++;
+        wall++;
     }
 }
 

@@ -1,7 +1,7 @@
 #include "clientItems.hpp"
 
 void ClientItems::init() {
-    manager->packet_event.addListener(this);
+    networking->packet_event.addListener(this);
     item_creation_event.addListener(this);
     entities->entity_deletion_event.addListener(this);
 }
@@ -21,7 +21,7 @@ void ClientItems::loadTextures() {
 }
 
 void ClientItems::stop() {
-    manager->packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
     item_creation_event.removeListener(this);
     entities->entity_deletion_event.removeListener(this);
 }
