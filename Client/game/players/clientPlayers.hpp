@@ -25,6 +25,7 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     gfx::Texture player_texture;
     
     void init() override;
+    void loadTextures() override;
     void update(float frame_length) override;
     void onEvent(ClientPacketEvent& event) override;
     void render() override;

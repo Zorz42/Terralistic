@@ -111,7 +111,9 @@ void ClientBlocks::init() {
     block_change_event.addListener(this);
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
-    
+}
+
+void ClientBlocks::loadTextures() {
     breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
     
     std::vector<gfx::Texture*> block_textures(getNumBlockTypes() - 1);

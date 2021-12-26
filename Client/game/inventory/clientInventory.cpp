@@ -35,15 +35,17 @@ void ClientInventory::init() {
     
     under_text_rect.blur_intensity = BLUR;
     under_text_rect.fill_color.a = TRANSPARENCY;
-        
+    
+    selected_slot = 0;
+}
+
+void ClientInventory::loadTextures() {
     for(int i = 0; i < 10; i++) {
         numbers[i].setColor(WHITE);
         std::string text = "0";
         text[0] += i;
         numbers[i].loadFromText(text);
     }
-    
-    selected_slot = 0;
     
     item_text_textures = new gfx::Texture[items->getNumItemTypes() - 1];
     

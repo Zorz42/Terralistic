@@ -4,7 +4,9 @@ void ClientItems::init() {
     manager->packet_event.addListener(this);
     item_creation_event.addListener(this);
     entities->entity_deletion_event.addListener(this);
-    
+}
+
+void ClientItems::loadTextures() {
     std::vector<gfx::Texture*> item_textures(getNumItemTypes() - 1);
 
     for(int i = 1; i < getNumItemTypes(); i++) {

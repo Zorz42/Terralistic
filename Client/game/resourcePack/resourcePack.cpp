@@ -28,6 +28,8 @@ void ResourcePack::init() {
     
     paths = active_resource_packs;
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
-  
+}
+
+void ResourcePack::loadTextures() {
     hearts.loadFromFile(getFile("/misc/hearts.png"));
 }

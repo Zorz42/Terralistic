@@ -30,7 +30,9 @@ void ClientLiquids::init() {
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
     liquid_change_event.addListener(this);
-    
+}
+
+void ClientLiquids::loadTextures() {
     std::vector<gfx::Texture*> liquid_textures(getNumLiquidTypes() - 1);
 
     for(int i = 1; i < getNumLiquidTypes(); i++) {

@@ -22,6 +22,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     void renderItem(ItemStack item, int x, int y);
     
     void init() override;
+    void loadTextures() override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;
     void onEvent(WelcomePacketEvent &event) override;

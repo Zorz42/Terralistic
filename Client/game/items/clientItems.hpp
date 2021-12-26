@@ -21,6 +21,7 @@ class ClientItems : public Items, public ClientModule, EventListener<ClientPacke
     Camera* camera;
     
     void init() override;
+    void loadTextures() override;
     void render() override;
     void stop() override;
 public:

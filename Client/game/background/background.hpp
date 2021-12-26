@@ -3,7 +3,7 @@
 #include "resourcePack.hpp"
 
 class Background : public ClientModule {
-    void init() override;
+    void loadTextures() override;
     void render() override;
     
     gfx::Texture background;

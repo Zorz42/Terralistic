@@ -114,6 +114,7 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     
     game_init_thread.join();
     
+    game.loadTextures();
     game.start();
     
     private_server.stop();
@@ -189,6 +190,12 @@ void Game::initialize() {
         ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
         switchToScene(choice_screen);
     }
+}
+
+void Game::loadTextures() {
+    for(int i = 0; i < getModules().size(); i++)
+        if(getModules()[i] != this)
+            ((ClientModule*)getModules()[i])->loadTextures();
 }
 
 void Game::start() {

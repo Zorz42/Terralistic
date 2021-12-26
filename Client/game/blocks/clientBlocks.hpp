@@ -38,6 +38,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     
     void init() override;
     void postInit() override;
+    void loadTextures() override;
     void render() override;
     void update(float frame_length) override;
     void stop() override;

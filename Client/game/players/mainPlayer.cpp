@@ -2,6 +2,9 @@
 
 void ClientPlayers::init() {
     manager->packet_event.addListener(this);
+}
+
+void ClientPlayers::loadTextures() {
     player_texture.loadFromFile(resource_pack->getFile("/misc/player.png"));
 }
 
