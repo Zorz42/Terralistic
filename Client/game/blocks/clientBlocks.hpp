@@ -42,11 +42,11 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void update(float frame_length) override;
     void stop() override;
     
-    bool updateOrientationSide(ClientBlocks* blocks, int x, int y, int side_x, int side_y);
-    void updateOrientationDown(ClientBlocks* blocks, int x, int y);
-    void updateOrientationUp(ClientBlocks* blocks, int x, int y);
-    void updateOrientationLeft(ClientBlocks* blocks, int x, int y);
-    void updateOrientationRight(ClientBlocks* blocks, int x, int y);
+    bool updateOrientationSide(int x, int y, int side_x, int side_y);
+    void updateOrientationDown(int x, int y);
+    void updateOrientationUp(int x, int y);
+    void updateOrientationLeft(int x, int y);
+    void updateOrientationRight(int x, int y);
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;

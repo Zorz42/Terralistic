@@ -463,8 +463,9 @@ void WorldGenerator::generateStructuresForStrWorld() {
 
 void WorldGenerator::placeWalls() {
     for(int x = 0; x < blocks->getWidth(); x++)
-        for(int y = blocks->getHeight() - surface_heights[x]; y < blocks->getHeight(); y++)
-            walls->setWallTypeSilently(x, y, &content->walls.dirt);
+        for(int y = 1; y < blocks->getHeight() - 1; y++)
+            if(y > blocks->getHeight() - surface_heights[x - 1] && y > blocks->getHeight() - surface_heights[x] && y > blocks->getHeight() - surface_heights[x + 1])
+                walls->setWallTypeSilently(x, y, &content->walls.dirt);
 }
 
 void WorldGenerator::generateDefaultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random) {

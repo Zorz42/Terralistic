@@ -32,21 +32,21 @@ class ClientWalls : public Walls, public ClientModule, EventListener<WelcomePack
     void postInit() override;
     void loadTextures() override;
     void render() override;
-    void update(float frame_length) override;
     void stop() override;
     
-    bool updateOrientationSide(ClientBlocks* blocks, int x, int y, int side_x, int side_y);
-    void updateOrientationDown(ClientBlocks* blocks, int x, int y);
-    void updateOrientationUp(ClientBlocks* blocks, int x, int y);
-    void updateOrientationLeft(ClientBlocks* blocks, int x, int y);
-    void updateOrientationRight(ClientBlocks* blocks, int x, int y);
+    bool updateOrientationSide(int x, int y, int side_x, int side_y);
+    void updateOrientationDown(int x, int y);
+    void updateOrientationUp(int x, int y);
+    void updateOrientationLeft(int x, int y);
+    void updateOrientationRight(int x, int y);
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;
     Camera* camera;
+    ClientBlocks* blocks;
 
 public:
-    ClientWalls(Blocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : Walls(blocks), resource_pack(resource_pack), networking(networking), camera(camera) {}
+    ClientWalls(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : Walls(blocks), blocks(blocks), resource_pack(resource_pack), networking(networking), camera(camera) {}
     
     const gfx::Texture& getWallsAtlasTexture();
     gfx::RectShape getWallRectInAtlas(WallType* type);
