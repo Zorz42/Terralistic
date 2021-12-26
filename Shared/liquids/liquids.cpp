@@ -1,4 +1,5 @@
 #include "liquids.hpp"
+#include "compress.hpp"
 
 void Liquids::create() {
     liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
@@ -113,39 +114,36 @@ float Liquids::getLiquidLevel(int x, int y) {
     return getLiquid(x, y)->level;
 }
 
-void Liquids::serialize(std::vector<char>& serial) {
-    serial.reserve(serial.size() + blocks->getWidth() * blocks->getHeight() * 2);
+std::vector<char> Liquids::toSerial() {
+    std::vector<char> serial;
+    serial.reserve(blocks->getWidth() * blocks->getHeight() * 2);
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 serial.push_back((char)liquid->id);
-                if(getLiquidType(x, y) != &empty) {
+                if(getLiquidType(x, y) != &empty)
                     serial.push_back((char)liquid->level);
-                    //serial.insert(serial.end(), {0, 0, 0, 0});
-                    //memcpy(&serial[serial.size() - 4], &liquid->level, sizeof(float));
-                }
             }
             liquid++;
         }
+    return compress(serial);
 }
 
-char* Liquids::loadFromSerial(char* iter) {
+void Liquids::fromSerial(const std::vector<char>& serial) {
+    std::vector<char> decompressed = decompress(serial);
     create();
+    const char* iter = &decompressed[0];
     Liquid* liquid = liquids;
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
                 liquid->id = *iter++;
-                if(liquid->id != empty.id) {
+                if(liquid->id != empty.id)
                     liquid->level = *iter++;
-                    //memcpy(&liquid->level, iter, sizeof(float));
-                    //iter += sizeof(float);
-                }
             }
             liquid++;
         }
-    return iter;
 }
 
 int Liquids::getWidth() const {

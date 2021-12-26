@@ -32,16 +32,26 @@ int Inventory::decreaseStack(int pos, int stack) {
     }
 }
 
-char* Inventory::loadFromSerial(char *iter) {
+void Inventory::fromSerial(const std::vector<char>& serial) {
+    const char* iter = &serial[0];
     for(int i = 0; i < INVENTORY_SIZE; i++) {
-        inventory_arr[i].type = items->getItemTypeById(*iter++);
+        inventory_arr[i].type = items->getItemTypeById((int)*iter++);
         inventory_arr[i].stack = 0;
-        for(int i2 = 0; i2 < sizeof(short); i2++)
-            inventory_arr[i].stack += (int)*iter++ << i2 * 8;
+        memcpy(&inventory_arr[i].stack, iter, sizeof(short));
+        iter += sizeof(short);
         item_counts[(int)inventory_arr[i].type->id] += inventory_arr[i].stack;
     }
     updateAvailableRecipes();
-    return iter;
+}
+
+std::vector<char> Inventory::toSerial() const {
+    std::vector<char> serial;
+    for(int i = 0; i < INVENTORY_SIZE; i++) {
+        serial.push_back((char)inventory_arr[i].type->id);
+        serial.insert(serial.end(), {0, 0});
+        memcpy(&serial[serial.size() - 2], &inventory_arr[i].stack, sizeof(short));
+    }
+    return serial;
 }
 
 Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes), mouse_item(&items->nothing, 0) {
@@ -107,15 +117,6 @@ void Inventory::swapWithMouseItem(int pos) {
     ItemStack temp = mouse_item;
     mouse_item = inventory_arr[pos];
     inventory_arr[pos] = temp;
-}
-
-void Inventory::serialize(std::vector<char> &serial) const {
-    for(int i = 0; i < INVENTORY_SIZE; i++) {
-        serial.push_back((char)inventory_arr[i].type->id);
-        serial.insert(serial.end(), {0, 0});
-        for(int i2 = 0; i2 < sizeof(short); i2++)
-            serial[serial.size() - sizeof(short) + i2] = (short)(unsigned char)inventory_arr[i].stack >> i2 * 8;
-    }
 }
 
 bool Inventory::hasIngredientsForRecipe(const Recipe* recipe) {

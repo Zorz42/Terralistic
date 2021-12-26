@@ -22,6 +22,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     void renderItem(ItemStack item, int x, int y);
     
     void init() override;
+    void loadTextures() override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;
     void onEvent(WelcomePacketEvent &event) override;
@@ -29,13 +30,13 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     void stop() override;
     
     ResourcePack* resource_pack;
-    ClientNetworking* manager;
+    ClientNetworking* networking;
     ClientItems* items;
     Recipes* recipes;
 public:
-    ClientInventory(ClientNetworking* manager, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes) : manager(manager), resource_pack(resource_pack), items(items), recipes(recipes) {}
+    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes) {}
     
     const gfx::Texture& getItemTextTexture(ItemType* type);
     
-    char* loadFromSerial(char* iter);
+    void loadFromSerial(const std::vector<char>& serial);
 };

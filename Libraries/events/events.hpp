@@ -14,7 +14,7 @@ template<class EventInstance>
 class EventSender {
     std::vector<EventListener<EventInstance>*> listeners;
 public:
-    void addListener(EventListener<EventInstance>* listener){
+    void addListener(EventListener<EventInstance>* listener) {
         listeners.push_back(listener);
     }
     

@@ -47,7 +47,7 @@ enum class ServerPacketType {
 };
 
 enum class WelcomePacketType {
-    _START, WELCOME, BLOCKS, LIQUIDS, INVENTORY, TIME, HEALTH, _END,
+    _START, WELCOME, BLOCKS, WALLS, LIQUIDS, INVENTORY, TIME, HEALTH, _END,
 };
 
 sf::Packet& operator<<(sf::Packet& packet, ClientPacketType packet_type);

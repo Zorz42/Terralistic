@@ -1,8 +1,9 @@
 #include "configManager.hpp"
 #include "content.hpp"
 
-void GameContent::loadContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
+void GameContent::loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
     blocks.loadContent(blocks_, items_, &items, resource_path);
+    walls.loadContent(walls_, resource_path);
     liquids.loadContent(liquids_, resource_path);
     items.loadContent(items_, blocks_, resource_path);
     addRecipes(recipes);
@@ -105,6 +106,16 @@ void StoneBehaviour::onUpdate(Blocks* blocks, int x, int y) {
 void GrassBehaviour::onUpdate(Blocks* blocks, int x, int y) {
     if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
         blocks->breakBlock(x, y);
+}
+
+WallTypes::WallTypes(Walls* walls) :
+dirt("dirt")
+{
+    for(WallType* wall_type : wall_types)
+        walls->registerNewWallType(wall_type);
+}
+void WallTypes::loadContent(Walls* walls, const std::string& resource_path) {
+    
 }
 
 LiquidTypes::LiquidTypes(Liquids* liquids) :

@@ -141,7 +141,7 @@ int gfx::getTicks() {
 }
 
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
-    output.generateMipmap(); // without that it doesnt work on smaller textures on some computers
+    output.generateMipmap(); // without that it doesn't work on smaller textures on some computers
     sf::Vector2f output_size = static_cast<sf::Vector2f>(output.getSize());
 
     sf::VertexArray vertices(sf::TrianglesStrip, 4);

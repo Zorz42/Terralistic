@@ -34,3 +34,4 @@ void Health::onEvent(WelcomePacketEvent &event) {
         default: break;
     }
 }
+

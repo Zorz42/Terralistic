@@ -1,5 +1,6 @@
 #include "blocks.hpp"
 #include "exception.hpp"
+#include "compress.hpp"
 
 BlockType::BlockType(std::string name) : name(std::move(name)) {}
 
@@ -17,8 +18,6 @@ void Blocks::create(int width_, int height_) {
     width = width_;
     height = height_;
     blocks = new Block[width * height];
-    surface_height = new int[width];
-
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
@@ -122,16 +121,9 @@ int Blocks::getHeight() const {
     return height;
 }
 
-int Blocks::getSurfaceHeight(int x) {
-    return surface_height[x];
-}
-
-void Blocks::setSurfaceHeight(int x, int y) {
-    surface_height[x] = y;
-}
-
-void Blocks::serialize(std::vector<char>& serial) {
-    unsigned long iter = serial.size();
+std::vector<char> Blocks::toSerial() {
+    std::vector<char> serial;
+    unsigned long iter = 0;
     serial.resize(serial.size() + width * height + 4);
     *(unsigned short*)&serial[iter] = width;
     iter += 2;
@@ -142,9 +134,13 @@ void Blocks::serialize(std::vector<char>& serial) {
         serial[iter++] = (char)block->id;
         block++;
     }
+    return compress(serial);
 }
 
-char* Blocks::loadFromSerial(char* iter) {
+void Blocks::fromSerial(const std::vector<char>& serial) {
+    std::vector<char> decompressed = decompress(serial);
+    
+    const char* iter = &decompressed[0];
     int width_, height_;
     width_ = *(unsigned short*)iter;
     iter += 2;
@@ -156,7 +152,6 @@ char* Blocks::loadFromSerial(char* iter) {
         block->id = *iter++;
         block++;
     }
-    return iter;
 }
 
 void Blocks::registerNewBlockType(BlockType* block_type) {

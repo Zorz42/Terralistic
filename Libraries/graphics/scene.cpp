@@ -2,6 +2,16 @@
 
 bool key_states[(int)gfx::Key::UNKNOWN];
 
+void gfx::Scene::initialize() {
+    if(!initialized) {
+        for(int i = 0; i < modules.size(); i++)
+            modules[i]->init();
+        modules.insert(modules.begin(), this);
+        init();
+        initialized = true;
+    }
+}
+
 void gfx::Scene::registerAModule(SceneModule* module) {
     modules.push_back(module);
 }
@@ -186,10 +196,7 @@ void gfx::Scene::onEvent(sf::Event event) {
 }
 
 void gfx::Scene::run() {
-    for(int i = 0; i < modules.size(); i++)
-        modules[i]->init();
-    modules.insert(modules.begin(), this);
-    init();
+    initialize();
 
     while(running && window->isOpen()) {
         int start = getTicks();
@@ -230,4 +237,8 @@ void gfx::Scene::cycleModules() {
 
 void gfx::Scene::returnFromScene() {
     running = false;
+}
+
+bool gfx::Scene::isInitialized() {
+    return initialized;
 }

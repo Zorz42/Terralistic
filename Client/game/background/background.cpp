@@ -1,6 +1,6 @@
 #include "background.hpp"
 
-void Background::init() {
+void Background::loadTextures() {
     background.loadFromFile(resource_pack->getFile("/misc/background.png"));
 }
 

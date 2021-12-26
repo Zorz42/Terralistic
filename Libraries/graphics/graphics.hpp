@@ -199,8 +199,10 @@ namespace gfx {
         float frame_length;
         std::vector<SceneModule*> modules;
         void onKeyDownCallback(Key key_);
-        bool running = true;
+        bool running = true, initialized = false;
     public:
+        void initialize();
+        bool isInitialized();
         void run();
         void registerAModule(SceneModule* module);
         void switchToScene(Scene& scene);

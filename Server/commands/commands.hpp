@@ -53,8 +53,8 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     
     void init() override;
     void stop() override;
-public:
-    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players), tp_command(blocks, entities, items, players), give_command(blocks, entities, items, players), health_command(blocks, entities, items, players) {}
     
     void startCommand(std::string message, ServerPlayer* player);
+public:
+    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players), tp_command(blocks, entities, items, players), give_command(blocks, entities, items, players) {}
 };

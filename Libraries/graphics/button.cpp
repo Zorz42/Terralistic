@@ -23,7 +23,8 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
         (unsigned char)((int)hover_color.b * hover_progress / 255 + (int)def_color.b * float(255 - hover_progress) / 255),
         (unsigned char)((int)hover_color.a * hover_progress / 255 + (int)def_color.a * float(255 - hover_progress) / 255),
     };
-    rect.render(button_color);
+    int padding = (255 - hover_progress) / 255 * 10;
+    RectShape(rect.x + padding, rect.y + padding, rect.w - 2 * padding, rect.h - 2 * padding).render(button_color);
     float ms = margin * scale;
     Texture::render(scale, rect.x + ms, rect.y + ms);
 }

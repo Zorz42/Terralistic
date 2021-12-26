@@ -1,5 +1,6 @@
 #include <XCTest/XCTest.h>
 #include "configManager.hpp"
+#include "exception.hpp"
 
 @interface TestConfigManager : XCTestCase
 

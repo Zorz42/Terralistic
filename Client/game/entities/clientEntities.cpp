@@ -1,7 +1,7 @@
 #include "clientEntities.hpp"
 
 void ClientEntities::init() {
-    manager->packet_event.addListener(this);
+    networking->packet_event.addListener(this);
 }
 void ClientEntities::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
@@ -42,5 +42,5 @@ void ClientEntities::update(float frame_length) {
 }
 
 void ClientEntities::stop() {
-    manager->packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
 }

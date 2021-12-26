@@ -9,15 +9,18 @@ void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
     packet << WelcomePacketType::LIQUIDS;
     event.connection->send(packet);
     
-    std::vector<char> block_data;
-    serialize(block_data);
-    event.connection->send(block_data);
+    event.connection->send(toSerial());
 }
 
 void ServerLiquids::init() {
     networking->connection_welcome_event.addListener(this);
     liquid_change_event.addListener(this);
     blocks->block_change_event.addListener(this);
+    world_saver->world_load_event.addListener(this);
+    world_saver->world_save_event.addListener(this);
+}
+
+void ServerLiquids::postInit() {
     liquid_update_queue = std::priority_queue<LiquidUpdate, std::vector<LiquidUpdate>, bool(*)(LiquidUpdate&, LiquidUpdate&)>(cmpLiquidUpdates);
     
     liquid_schedules = new bool[getWidth() * getHeight()];
@@ -35,6 +38,8 @@ void ServerLiquids::stop() {
     networking->connection_welcome_event.removeListener(this);
     liquid_change_event.removeListener(this);
     blocks->block_change_event.removeListener(this);
+    world_saver->world_load_event.removeListener(this);
+    world_saver->world_save_event.removeListener(this);
 }
 
 bool& ServerLiquids::getLiquidSchedule(int x, int y) {
@@ -89,4 +94,12 @@ void ServerLiquids::onEvent(LiquidChangeEvent& event) {
 
 void ServerLiquids::onEvent(BlockChangeEvent& event) {
     scheduleLiquidUpdateForNeighbours(event.x, event.y);
+}
+
+void ServerLiquids::onEvent(WorldSaveEvent &event) {
+    world_saver->setSectionData("liquids", toSerial());
+}
+
+void ServerLiquids::onEvent(WorldLoadEvent &event) {
+    fromSerial(world_saver->getSectionData("liquids"));
 }

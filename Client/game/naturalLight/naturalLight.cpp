@@ -45,7 +45,7 @@ void NaturalLight::onEvent(WelcomePacketEvent &event) {
 void NaturalLight::update(float frame_length) {
     light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 
-    for(int x = blocks->getBlocksExtendedViewBeginX(); x < blocks->getBlocksExtendedViewEndX(); x++)
+    for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
         updateLight(x);
 
 }

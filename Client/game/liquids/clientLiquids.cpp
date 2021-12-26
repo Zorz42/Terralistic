@@ -18,10 +18,8 @@ void ClientLiquids::onEvent(ClientPacketEvent &event) {
 }
 
 void ClientLiquids::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::LIQUIDS) {
-        std::vector<char> data = networking->getData();
-        loadFromSerial(&data[0]);
-    }
+    if(event.packet_type == WelcomePacketType::LIQUIDS)
+        fromSerial(networking->getData());
 }
 
 void ClientLiquids::onEvent(LiquidChangeEvent& event) {
@@ -32,7 +30,9 @@ void ClientLiquids::init() {
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
     liquid_change_event.addListener(this);
-    
+}
+
+void ClientLiquids::loadTextures() {
     std::vector<gfx::Texture*> liquid_textures(getNumLiquidTypes() - 1);
 
     for(int i = 1; i < getNumLiquidTypes(); i++) {
@@ -58,8 +58,8 @@ void ClientLiquids::stop() {
 }
 
 void ClientLiquids::render() {
-    for(int x = blocks->getBlocksViewBeginX() / 16; x <= blocks->getBlocksViewEndX() / 16; x++)
-        for(int y = blocks->getBlocksViewBeginY() / 16; y <= blocks->getBlocksViewEndY() / 16; y++) {
+    for(int x = blocks->getBlocksViewBeginX() / LIQUID_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / LIQUID_CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / LIQUID_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / LIQUID_CHUNK_SIZE; y++) {
             if(!getLiquidChunk(x, y)->isCreated())
                 getLiquidChunk(x, y)->create(this, x, y);
             

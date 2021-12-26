@@ -17,14 +17,15 @@ class ClientItems : public Items, public ClientModule, EventListener<ClientPacke
     
     ClientBlocks* blocks;
     Entities* entities;
-    ClientNetworking* manager;
+    ClientNetworking* networking;
     Camera* camera;
     
     void init() override;
+    void loadTextures() override;
     void render() override;
     void stop() override;
 public:
-    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, Entities* entities, ClientNetworking* manager, Camera* camera) :  Items(entities, blocks), resource_pack(resource_pack), blocks(blocks), entities(entities), manager(manager), camera(camera) {}
+    ClientItems(ResourcePack* resource_pack, ClientBlocks* blocks, Entities* entities, ClientNetworking* networking, Camera* camera) :  Items(entities, blocks), resource_pack(resource_pack), blocks(blocks), entities(entities), networking(networking), camera(camera) {}
     
     const gfx::Texture& getItemsAtlasTexture();
     gfx::RectShape getItemRectInAtlas(ItemType* type);

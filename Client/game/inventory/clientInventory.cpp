@@ -4,8 +4,8 @@
 void ClientInventory::init() {
     inventory = new Inventory(items, recipes);
     
-    manager->packet_event.addListener(this);
-    manager->welcome_packet_event.addListener(this);
+    networking->packet_event.addListener(this);
+    networking->welcome_packet_event.addListener(this);
     
     behind_inventory_rect.orientation = gfx::TOP;
     behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
@@ -35,15 +35,17 @@ void ClientInventory::init() {
     
     under_text_rect.blur_intensity = BLUR;
     under_text_rect.fill_color.a = TRANSPARENCY;
-        
+    
+    selected_slot = 0;
+}
+
+void ClientInventory::loadTextures() {
     for(int i = 0; i < 10; i++) {
         numbers[i].setColor(WHITE);
         std::string text = "0";
         text[0] += i;
         numbers[i].loadFromText(text);
     }
-    
-    selected_slot = 0;
     
     item_text_textures = new gfx::Texture[items->getNumItemTypes() - 1];
     
@@ -52,8 +54,8 @@ void ClientInventory::init() {
 }
 
 void ClientInventory::stop() {
-    manager->packet_event.removeListener(this);
-    manager->welcome_packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
+    networking->welcome_packet_event.removeListener(this);
     delete[] item_text_textures;
 }
 
@@ -168,11 +170,11 @@ void ClientInventory::selectSlot(int slot) {
     selected_slot = slot;
     sf::Packet packet;
     packet << ClientPacketType::HOTBAR_SELECTION << selected_slot;
-    manager->sendPacket(packet);
+    networking->sendPacket(packet);
 }
 
-char* ClientInventory::loadFromSerial(char* iter) {
-    return inventory->loadFromSerial(iter);
+void ClientInventory::loadFromSerial(const std::vector<char>& serial) {
+    return inventory->fromSerial(serial);
 }
 
 void ClientInventory::onEvent(ClientPacketEvent &event) {
@@ -209,7 +211,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 inventory->setItem(-1, ItemStack(&items->nothing, 0));
                 sf::Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << result;
-                manager->sendPacket(packet);
+                networking->sendPacket(packet);
             }
             return true;
         case gfx::Key::MOUSE_LEFT: {
@@ -217,12 +219,12 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 inventory->swapWithMouseItem(hovered);
                 sf::Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << hovered;
-                manager->sendPacket(packet);
+                networking->sendPacket(packet);
                 return true;
             } else if(hovered_recipe != -1) {
                 sf::Packet packet;
                 packet << ClientPacketType::CRAFT << hovered_recipe;
-                manager->sendPacket(packet);
+                networking->sendPacket(packet);
                 return true;
             }
             return false;
@@ -230,7 +232,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::Q: {
             sf::Packet packet;
             packet << ClientPacketType::ITEM_DROP;
-            manager->sendPacket(packet);
+            networking->sendPacket(packet);
             return true;
         }
         default: return false;
@@ -238,10 +240,8 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
 }
 
 void ClientInventory::onEvent(WelcomePacketEvent &event) {
-    if(event.packet_type == WelcomePacketType::INVENTORY) {
-        std::vector<char> data = manager->getData();
-        inventory->loadFromSerial(&data[0]);
-    }
+    if(event.packet_type == WelcomePacketType::INVENTORY)
+        inventory->fromSerial(networking->getData());
 }
 
 const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {

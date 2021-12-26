@@ -31,6 +31,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     
     void init() override;
     void postInit() override;
+    void loadTextures() override;
     void render() override;
     void stop() override;
 public:

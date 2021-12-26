@@ -8,6 +8,7 @@ class ResourcePack : public ClientModule {
     std::vector<std::string> paths;
     
     void init() override;
+    void loadTextures() override;
 public:
     const gfx::Texture& getHeartTexture();
     std::string getFile(const std::string& file_name);

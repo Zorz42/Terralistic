@@ -3,4 +3,54 @@
    uuid = "CF6BAB8D-6D63-4396-A4D6-6A91623FA2CC"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Libraries/exception/exception.hpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "7"
+            endingLineNumber = "7"
+            landmarkName = "Exception"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 69a488fcf3b759a5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Exception::Exception(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 69a488fcf3b759a5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Exception::Exception(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "72">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

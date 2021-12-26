@@ -30,7 +30,7 @@ Connection::~Connection() {
     delete socket;
 }
 
-void Connection::send(std::vector<char>& data) {
+void Connection::send(const std::vector<char>& data) {
     if(!socket->isBlocking())
         socket->setBlocking(true);
     
@@ -65,7 +65,7 @@ ServerNetworking::ServerNetworking(int port) : port(port) {
         throw Exception("Port number out of range");
 }
 
-void ServerNetworking::init() {
+void ServerNetworking::postInit() {
     listener.listen(port);
     listener.setBlocking(false);
 }

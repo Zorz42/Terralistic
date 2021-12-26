@@ -1,6 +1,7 @@
 #pragma once
 #include "blocks.hpp"
 #include "serverModule.hpp"
+#include "worldSaver.hpp"
 
 enum class BiomeType {NO_BIOME = -1, ICY_SEAS, SNOWY_TUNDRA, COLD_HILLS, SNOWY_MOUNTAINS, SEA, PLAINS, FOREST, MOUNTAINS, WARM_OCEAN, DESERT, SAVANA, SAVANA_MOUNTAINS, NUM_BIOMES};
 
@@ -29,10 +30,14 @@ public:
 
 inline std::vector <Biome> loaded_biomes;
 
-class Biomes : public ServerModule {
+class Biomes : public ServerModule, EventListener<WorldLoadEvent> {
+    void init() override;
+    void stop() override;
+    void onEvent(WorldLoadEvent& event) override;
+    WorldSaver* world_saver;
     Blocks* blocks;
 public:
-    Biomes(Blocks* blocks) : blocks(blocks) {}
+    Biomes(Blocks* blocks, WorldSaver* world_saver) : blocks(blocks), world_saver(world_saver) {}
     void create();
     BiomeType* biomes;
 };

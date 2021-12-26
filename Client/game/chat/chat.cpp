@@ -4,7 +4,7 @@
 static const std::set<char> allowed_chars = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
 void Chat::init() {
-    manager->packet_event.addListener(this);
+    networking->packet_event.addListener(this);
     chat_box.scale = 2;
     chat_box.setText("");
     chat_box.orientation = gfx::BOTTOM_LEFT;
@@ -66,7 +66,7 @@ bool Chat::onKeyDown(gfx::Key key) {
         if(!chat_box.getText().empty()) {
             sf::Packet chat_packet;
             chat_packet << ClientPacketType::CHAT << chat_box.getText();
-            manager->sendPacket(chat_packet);
+            networking->sendPacket(chat_packet);
             chat_box.setText("");
         }
         chat_box.active = false;
@@ -100,5 +100,5 @@ void Chat::stop() {
     for(int i = 0; i < chat_lines.size(); i++)
         delete chat_lines[i];
     
-    manager->packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
 }

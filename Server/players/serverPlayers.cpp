@@ -10,17 +10,21 @@ void AirBehaviour::onRightClick(Blocks* blocks, int x, int y, ServerPlayer* play
 }
 
 void ServerPlayers::init() {
-    blocks_behaviour = new BlockBehaviour*[blocks->getNumBlockTypes()];
-    for(int i = 0; i < blocks->getNumBlockTypes(); i++)
-        blocks_behaviour[i] = &default_behaviour;
-    
-    getBlockBehaviour(&blocks->air) = &air_behaviour;
-    
     blocks->block_change_event.addListener(this);
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);
     packet_event.addListener(this);
     networking->disconnect_event.addListener(this);
+    world_saver->world_load_event.addListener(this);
+    world_saver->world_save_event.addListener(this);
+}
+
+void ServerPlayers::postInit() {
+    blocks_behaviour = new BlockBehaviour*[blocks->getNumBlockTypes()];
+    for(int i = 0; i < blocks->getNumBlockTypes(); i++)
+        blocks_behaviour[i] = &default_behaviour;
+    
+    getBlockBehaviour(&blocks->air) = &air_behaviour;
 }
 
 void ServerPlayers::stop() {
@@ -29,6 +33,8 @@ void ServerPlayers::stop() {
     networking->connection_welcome_event.removeListener(this);
     packet_event.removeListener(this);
     networking->disconnect_event.removeListener(this);
+    world_saver->world_load_event.removeListener(this);
+    world_saver->world_save_event.removeListener(this);
     
     for(int i = 0; i < all_players.size(); i++)
         delete all_players[i];
@@ -50,14 +56,15 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     ServerPlayerData* player_data = getPlayerData(name);
     
     if(!player_data) {
-        int spawn_x = blocks->getWidth() / 2 * BLOCK_WIDTH * 2;
-        int spawn_y = (blocks->getHeight() - blocks->getSurfaceHeight(spawn_x / (BLOCK_WIDTH * 2))) * BLOCK_WIDTH * 2;
-        spawn_y -= PLAYER_HEIGHT * 2;
+        int spawn_x = blocks->getWidth() / 2;
+        int spawn_y = 0;
+        while(blocks->getBlockType(spawn_x, spawn_y)->ghost && blocks->getBlockType(spawn_x + 1, spawn_y)->ghost)
+            spawn_y++;
 
         player_data = new ServerPlayerData(items, recipes);
         player_data->name = name;
-        player_data->x = spawn_x;
-        player_data->y = spawn_y;
+        player_data->x = spawn_x * BLOCK_WIDTH * 2;
+        player_data->y = spawn_y * BLOCK_WIDTH * 2 - PLAYER_HEIGHT * 2;
         player_data->health = 100;
         all_players.emplace_back(player_data);
     }
@@ -97,42 +104,55 @@ void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
     getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(blocks, x, y, player);
 }
 
-char* ServerPlayers::addPlayerFromSerial(char* iter) {
-    all_players.emplace_back(new ServerPlayerData(items, recipes, iter));
-    return iter;
+void ServerPlayers::fromSerial(const std::vector<char> &serial) {
+    int iter = 0;
+    while(iter < serial.size()) {
+        ServerPlayerData* new_player = new ServerPlayerData(items, recipes);
+        
+        int inventory_serial_size = 3 * INVENTORY_SIZE;
+        new_player->inventory.fromSerial(std::vector<char>(serial.begin() + iter, serial.begin() + iter + inventory_serial_size));
+        iter += inventory_serial_size;
+        
+        memcpy(&new_player->x, &serial[iter], sizeof(int));
+        iter += sizeof(int);
+        
+        memcpy(&new_player->y, &serial[iter], sizeof(int));
+        iter += sizeof(int);
+        
+        while(serial[iter])
+            new_player->name.push_back(serial[iter++]);
+        iter++;
+
+        memcpy(&new_player->health, &serial[iter], sizeof(short));
+        iter += sizeof(short);
+        
+        all_players.push_back(new_player);
+    }
 }
 
-ServerPlayerData::ServerPlayerData(Items* items, Recipes* recipes, char*& iter) : inventory(items, recipes) {
-    iter = inventory.loadFromSerial(iter);
+std::vector<char> ServerPlayers::toSerial() {
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER)
+            savePlayer((ServerPlayer*)entities->getEntities()[i]);
     
-    memcpy(&x, iter, sizeof(int));
-    iter += sizeof(int);
-    
-    memcpy(&y, iter, sizeof(int));
-    iter += sizeof(int);
-    
-    while(*iter)
-        name.push_back(*iter++);
-    iter++;
+    std::vector<char> serial;
+    for(int i = 0; i < all_players.size(); i++) {
+        std::vector<char> inventory_serial = all_players[i]->inventory.toSerial();
+        serial.insert(serial.end(), inventory_serial.begin(), inventory_serial.end());
+        
+        serial.insert(serial.end(), {0, 0, 0, 0});
+        memcpy(&serial[serial.size() - 4], &all_players[i]->x, sizeof(int));
+        
+        serial.insert(serial.end(), {0, 0, 0, 0});
+        memcpy(&serial[serial.size() - 4], &all_players[i]->y, sizeof(int));
+        
+        serial.insert(serial.end(), all_players[i]->name.begin(), all_players[i]->name.end());
+        serial.insert(serial.end(), 0);
 
-    memcpy(&health, iter, sizeof(short));
-    iter += sizeof(short);
-}
-
-void ServerPlayerData::serialize(std::vector<char>& serial) const {
-    inventory.serialize(serial);
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    memcpy(&serial[serial.size() - 4], &x, sizeof(int));
-    
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    memcpy(&serial[serial.size() - 4], &y, sizeof(int));
-    
-    serial.insert(serial.end(), name.begin(), name.end());
-    serial.insert(serial.end(), 0);
-
-    serial.insert(serial.end(), {0, 0, 0, 0});
-    memcpy(&serial[serial.size() - 4], &health, sizeof(short));
+        serial.insert(serial.end(), {0, 0});
+        memcpy(&serial[serial.size() - 2], &all_players[i]->health, sizeof(short));
+    }
+    return serial;
 }
 
 void ServerPlayers::onEvent(BlockChangeEvent& event) {
@@ -203,9 +223,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     packet << WelcomePacketType::INVENTORY;
     event.connection->send(packet);
     
-    std::vector<char> data;
-    player->inventory.serialize(data);
-    event.connection->send(data);
+    event.connection->send(player->inventory.toSerial());
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {
@@ -381,4 +399,12 @@ BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
 
 ServerPlayer::~ServerPlayer() {
     inventory.item_change_event.removeListener(this);
+}
+
+void ServerPlayers::onEvent(WorldSaveEvent &event) {
+    world_saver->setSectionData("players", toSerial());
+}
+
+void ServerPlayers::onEvent(WorldLoadEvent &event) {
+    fromSerial(world_saver->getSectionData("players"));
 }

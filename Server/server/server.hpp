@@ -6,13 +6,17 @@
 #include "serverLiquids.hpp"
 #include "commands.hpp"
 #include "content.hpp"
+#include "worldSaver.hpp"
+#include "serverWalls.hpp"
 
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
 class Server {
     std::string world_path;
     ServerNetworking networking;
+    WorldSaver world_saver;
     ServerBlocks blocks;
+    ServerWalls walls;
     Biomes biomes;
     ServerLiquids liquids;
     WorldGenerator generator;
@@ -26,9 +30,6 @@ class Server {
     
     bool running = true;
     
-    void saveWorld();
-    void loadWorld();
-    
     std::vector<ServerModule*> modules;
     std::string resource_path;
 public:
@@ -37,7 +38,7 @@ public:
     Server(const std::string& resource_path, const std::string& world_path, int port);
     
     int seed;
-    
+
     void start();
     void stop();
     

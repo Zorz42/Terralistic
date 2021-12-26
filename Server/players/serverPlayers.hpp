@@ -2,13 +2,11 @@
 #include "player.hpp"
 #include "inventory.hpp"
 #include "serverNetworking.hpp"
+#include "worldSaver.hpp"
 
 class ServerPlayerData {
 public:
-    ServerPlayerData(Items* items, Recipes* recipes, char*& iter);
     ServerPlayerData(Items* items, Recipes* recipes) : inventory(items, recipes) {}
-    
-    void serialize(std::vector<char>& serial) const;
     
     std::string name;
     int x, y;
@@ -58,12 +56,13 @@ public:
     ServerPlayer* player;
 };
 
-class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent> {
+class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent> {
     Entities* entities;
     Blocks* blocks;
     Items* items;
     Recipes* recipes;
     ServerNetworking* networking;
+    WorldSaver* world_saver;
     
     std::vector<ServerPlayerData*> all_players;
 
@@ -74,11 +73,14 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     void onEvent(ServerConnectionWelcomeEvent& event) override;
     void onEvent(ServerPacketEvent& event) override;
     void onEvent(ServerDisconnectEvent& event) override;
+    void onEvent(WorldSaveEvent& event) override;
+    void onEvent(WorldLoadEvent& event) override;
     
     void leftClickEvent(ServerPlayer* player, int x, int y);
     void rightClickEvent(ServerPlayer* player, int x, int y);
     
     void init() override;
+    void postInit() override;
     void update(float frame_length) override;
     void stop() override;
     
@@ -86,15 +88,17 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     AirBehaviour air_behaviour;
     
 public:
-    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes) {}
+    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes, WorldSaver* world_saver) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes), world_saver(world_saver) {}
     
     const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
     
     ServerPlayer* getPlayerByName(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
-    char* addPlayerFromSerial(char* iter);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
+    
+    std::vector<char> toSerial();
+    void fromSerial(const std::vector<char>& serial);
     
     BlockBehaviour*& getBlockBehaviour(BlockType* type);
     

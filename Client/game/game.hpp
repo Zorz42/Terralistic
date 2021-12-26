@@ -13,10 +13,11 @@
 #include "naturalLight.hpp"
 #include "camera.hpp"
 #include "background.hpp"
+#include "clientWalls.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
-class Game : gfx::Scene, public BackgroundRect {
+class Game : public gfx::Scene, public BackgroundRect {
     void init() override;
     bool onKeyDown(gfx::Key key) override;
     void render() override;
@@ -28,6 +29,7 @@ class Game : gfx::Scene, public BackgroundRect {
     Camera camera;
     Background background;
     ClientBlocks blocks;
+    ClientWalls walls;
     Particles particles;
     ClientLiquids liquids;
     ClientLights lights;
@@ -58,5 +60,7 @@ public:
     bool interrupt = false;
     std::string interrupt_message;
     
+    void initialize();
+    void loadTextures();
     void start();
 };

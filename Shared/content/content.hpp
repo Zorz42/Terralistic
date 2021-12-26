@@ -2,6 +2,7 @@
 #include "liquids.hpp"
 #include "inventory.hpp"
 #include "serverPlayers.hpp"
+#include "walls.hpp"
 
 class ItemTypes;
 class BlockTypes;
@@ -75,6 +76,15 @@ public:
     BlockType grass{"grass"};
 };
 
+class WallTypes {
+    std::vector<WallType*> wall_types = {&dirt};
+public:
+    WallTypes(Walls* walls);
+    void loadContent(Walls* walls, const std::string& resource_path);
+    
+    WallType dirt;
+};
+
 class LiquidTypes {
     std::vector<LiquidType*> liquid_types = {&water};
 public:
@@ -103,11 +113,12 @@ public:
 class GameContent {
     void addRecipes(Recipes* recipes);
 public:
-    GameContent(Blocks* blocks_, Liquids* liquids_, Items* items_) : blocks(blocks_), liquids(liquids_), items(&blocks, blocks_, items_) {}
+    GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_), walls(walls_), liquids(liquids_), items(&blocks, blocks_, items_) {}
     
-    void loadContent(Blocks* blocks_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
+    void loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
     
     BlockTypes blocks;
+    WallTypes walls;
     LiquidTypes liquids;
     ItemTypes items;
 };

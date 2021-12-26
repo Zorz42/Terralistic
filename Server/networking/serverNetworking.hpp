@@ -12,7 +12,7 @@ public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
     
     void send(sf::Packet& packet);
-    void send(std::vector<char>& data);
+    void send(const std::vector<char>& data);
     
     bool hasBeenGreeted();
     void greet();
@@ -52,7 +52,7 @@ class ServerNetworking : public ServerModule {
     sf::TcpListener listener;
     int port;
 
-    void init() override;
+    void postInit() override;
     void update(float frame_length) override;
     void stop() override;
     
