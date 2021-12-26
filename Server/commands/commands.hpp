@@ -30,6 +30,12 @@ public:
     void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
+class SetHealthCommand : public Command {
+public:
+    SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "setHealth"; }
+    void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
 class Commands : public ServerModule, EventListener<ServerChatEvent> {
     void onEvent(ServerChatEvent& event) override;
     
@@ -42,6 +48,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     SetblockCommand setblock_command;
     TpCommand tp_command;
     GiveCommand give_command;
+    SetHealthCommand health_command;
     std::vector<Command*> commands;
     
     void init() override;

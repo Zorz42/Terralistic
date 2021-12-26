@@ -1,6 +1,6 @@
 #include "clientPlayers.hpp"
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, 50, id) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
     name_text.loadFromText(name, WHITE);
     friction = false;
 }
@@ -84,7 +84,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
             }
-            
+
             break;
         }
         case ServerPacketType::PLAYER_MOVING_TYPE: {
