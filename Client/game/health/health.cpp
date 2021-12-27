@@ -12,7 +12,7 @@ void Health::stop() {
 
 void Health::render() {
     const gfx::Texture& texture = resource_pack->getHeartTexture();
-    int offset = gfx::getWindowWidth() - (std::min(max_health / 4, 10) + 1) * 25;
+    int offset = gfx::getWindowWidth() - (std::min(max_health / 4, 10) + 1) * 25 + 15;
     for(int i = max_health / 4 - 1; i >= 0; i--){
         texture.render(2, offset + (i * 25) % 250,  (10 + (i - i % 10)), gfx::RectShape(0, 0 + (std::min(std::max(0, 4 * (i + 1) - health), 4)) * 11, 11, 11));
     }
