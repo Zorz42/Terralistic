@@ -3,6 +3,7 @@
 #include "worldSaver.hpp"
 #include "print.hpp"
 #include "graphics.hpp"
+#include <cstring>
 
 #define AUTOSAVE_INTERVAL (5 * 60)
 

@@ -3,7 +3,7 @@
 #include "resourcePack.hpp"
 
 class Health : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
-    int health = 107, max_health = 107;
+    int health = 107, max_health = 80;
     void init() override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;

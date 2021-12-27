@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "inventory.hpp"
+#include <cstring>
 
 void Inventory::setItem(int pos, ItemStack item) {
     item_counts[(int)getItem(pos).type->id] -= getItem(pos).stack;
