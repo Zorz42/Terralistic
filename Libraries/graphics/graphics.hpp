@@ -185,6 +185,7 @@ namespace gfx {
         virtual void render() {}
         virtual void stop() {}
         virtual bool onKeyDown(Key key_) { return false; }
+        virtual bool onKeyUp(Key key_) { return false; }
         bool getKeyState(Key key_) const;
         virtual void onMouseScroll(int distance) {}
         int getMouseX();
@@ -199,6 +200,7 @@ namespace gfx {
         float frame_length;
         std::vector<SceneModule*> modules;
         void onKeyDownCallback(Key key_);
+        void onKeyUpCallback(Key key_);
         bool running = true, initialized = false;
     public:
         void initialize();

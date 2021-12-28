@@ -15,6 +15,7 @@ class PauseScreen : public gfx::Scene, public BackgroundRect {
     
     void init() override;
     bool onKeyDown(gfx::Key key) override;
+    bool onKeyUp(gfx::Key key) override;
     void render() override;
     BackgroundRect* background;
 public:

@@ -20,7 +20,7 @@ class SingleplayerSelector : public gfx::Scene {
     int scroll_limit = 0, position = 0;
     
     void init() override;
-    bool onKeyDown(gfx::Key key) override;
+    bool onKeyUp(gfx::Key key) override;
     void render() override;
     void onMouseScroll(int distance) override;
     void refresh();

@@ -12,10 +12,10 @@ class ChoiceScreen : public gfx::Scene {
     std::string question, *result;
     std::vector<ChoiceScreenButton> buttons;
     BackgroundRect* menu_back;
+    
+    void init() override;
+    bool onKeyUp(gfx::Key key) override;
+    void render() override;
 public:
     ChoiceScreen(BackgroundRect* menu_back, std::string question, const std::vector<std::string>& options, std::string* result = nullptr);
-
-    void init() override;
-    bool onKeyDown(gfx::Key key) override;
-    void render() override;
 };

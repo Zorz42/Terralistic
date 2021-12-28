@@ -13,7 +13,7 @@ struct MenuServer {
 class MultiplayerSelector : public gfx::Scene {
     void init() override;
     void onMouseScroll(int distance) override;
-    bool onKeyDown(gfx::Key key) override;
+    bool onKeyUp(gfx::Key key) override;
     void render() override;
     void stop() override;
     
@@ -31,5 +31,5 @@ class MultiplayerSelector : public gfx::Scene {
     BackgroundRect* menu_back;
     Settings* settings;
 public:
-    explicit MultiplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
+    MultiplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
 };

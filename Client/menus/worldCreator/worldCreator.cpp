@@ -37,7 +37,7 @@ void WorldCreator::init() {
     text_inputs = {&world_name};
 }
 
-bool WorldCreator::onKeyDown(gfx::Key key) {
+bool WorldCreator::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY())) {
         returnFromScene();
         return true;

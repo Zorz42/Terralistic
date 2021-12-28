@@ -11,6 +11,6 @@ class MainMenu : public gfx::Scene {
 public:
     MainMenu(MenuBack* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
     void init() override;
-    bool onKeyDown(gfx::Key key) override;
+    bool onKeyUp(gfx::Key key) override;
     void render() override;
 };

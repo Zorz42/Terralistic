@@ -34,6 +34,7 @@ class ModManager : public gfx::Scene {
     
     void init() override;
     bool onKeyDown(gfx::Key key) override;
+    bool onKeyUp(gfx::Key key) override;
     void render() override;
     void stop() override;
     BackgroundRect* background;

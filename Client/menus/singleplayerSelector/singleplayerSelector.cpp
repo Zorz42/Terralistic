@@ -110,7 +110,7 @@ void SingleplayerSelector::refresh() {
     }
 }
 
-bool SingleplayerSelector::onKeyDown(gfx::Key key) {
+bool SingleplayerSelector::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();

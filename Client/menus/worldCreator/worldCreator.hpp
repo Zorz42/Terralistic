@@ -12,7 +12,7 @@ class WorldCreator : public gfx::Scene {
     Settings* settings;
     bool can_create = true;
     void init() override;
-    bool onKeyDown(gfx::Key key) override;
+    bool onKeyUp(gfx::Key key) override;
     void render() override;
 public:
     explicit WorldCreator(std::vector<std::string> worlds, BackgroundRect* menu_back, Settings* settings) : worlds(std::move(worlds)), menu_back(menu_back), settings(settings) {}

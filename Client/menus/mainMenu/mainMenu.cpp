@@ -48,7 +48,7 @@ void MainMenu::init() {
     version.y = -5;
 }
 
-bool MainMenu::onKeyDown(gfx::Key key) {
+bool MainMenu::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(singleplayer_button.isHovered(getMouseX(), getMouseY())) {
             SingleplayerSelector world_selector(menu_back, settings);
