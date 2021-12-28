@@ -185,6 +185,8 @@
 		3693E4FE274A95B900939213 /* variables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E4FC274A95B900939213 /* variables.cpp */; };
 		3693E502274AC5F900939213 /* virtualMachine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E500274AC5F900939213 /* virtualMachine.cpp */; };
 		369981EB277BB73900FA3F72 /* delete_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 369981EA277BB73900FA3F72 /* delete_button.png */; };
+		369981EE277BC26200FA3F72 /* remove_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 369981EC277BC26200FA3F72 /* remove_button.png */; };
+		369981EF277BC26200FA3F72 /* join_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 369981ED277BC26200FA3F72 /* join_button.png */; };
 		36A2B4B1276553A6000C63D5 /* textureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */; };
 		36A2B4B2276553A6000C63D5 /* textureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */; };
 		36B0452627247AD600A64113 /* world_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B0452427247AD600A64113 /* world_icon.png */; };
@@ -443,6 +445,8 @@
 		3693E500274AC5F900939213 /* virtualMachine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = virtualMachine.cpp; sourceTree = "<group>"; };
 		3693E501274AC5F900939213 /* virtualMachine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = virtualMachine.hpp; sourceTree = "<group>"; };
 		369981EA277BB73900FA3F72 /* delete_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete_button.png; sourceTree = "<group>"; };
+		369981EC277BC26200FA3F72 /* remove_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remove_button.png; sourceTree = "<group>"; };
+		369981ED277BC26200FA3F72 /* join_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = join_button.png; sourceTree = "<group>"; };
 		36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = textureAtlas.cpp; sourceTree = "<group>"; };
 		36B0452427247AD600A64113 /* world_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = world_icon.png; sourceTree = "<group>"; };
 		36B04545272498F300A64113 /* play_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play_button.png; sourceTree = "<group>"; };
@@ -1037,6 +1041,8 @@
 		3657217526D0710E005AB3CC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				369981ED277BC26200FA3F72 /* join_button.png */,
+				369981EC277BC26200FA3F72 /* remove_button.png */,
 				369981EA277BB73900FA3F72 /* delete_button.png */,
 				36D26F252731E91100F1F476 /* icon.png */,
 				36B04545272498F300A64113 /* play_button.png */,
@@ -1485,6 +1491,8 @@
 				3657219C26D0710F005AB3CC /* background.png in Resources */,
 				365721CD26D07147005AB3CC /* resourcePack in Resources */,
 				3657219826D0710F005AB3CC /* icon.icns in Resources */,
+				369981EF277BC26200FA3F72 /* join_button.png in Resources */,
+				369981EE277BC26200FA3F72 /* remove_button.png in Resources */,
 				36B0452627247AD600A64113 /* world_icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

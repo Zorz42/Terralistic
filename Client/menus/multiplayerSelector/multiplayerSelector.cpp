@@ -1,6 +1,7 @@
+#include "platform_folders.h"
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
-#include "platform_folders.h"
+#include "choiceScreen.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
@@ -22,6 +23,36 @@ void MenuServer::render(int position, int mouse_x, int mouse_y) {
     remove_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + join_button.getWidth();
     remove_button.y = render_y + render_height - join_button.getHeight() - SPACING;
     remove_button.render(mouse_x, mouse_y);
+}
+
+void MultiplayerSelector::refresh() {
+    for(int i = 0; i < servers.size(); i++)
+        delete servers[i];
+    servers.clear();
+    
+    scroll_limit = 0;
+    
+    for(int i = 0; i < server_ips.size(); i++) {
+        servers.push_back(new MenuServer);
+        MenuServer* server = servers.back();
+        
+        server->y = scroll_limit + TOP_HEIGHT;
+        
+        server->icon.loadFromResources("world_icon.png");
+        
+        server->ip = server_ips[i];
+        server->ip_texture.loadFromText(server_ips[i]);
+
+        server->join_button.loadFromResources("join_button.png");
+        server->join_button.scale = 3;
+        server->join_button.margin = 5;
+        
+        server->remove_button.loadFromResources("remove_button.png");
+        server->remove_button.scale = 3;
+        server->remove_button.margin = 5;
+        
+        scroll_limit += 116 + SPACING * 3;
+    }
 }
 
 void MultiplayerSelector::init() {
@@ -56,11 +87,13 @@ void MultiplayerSelector::init() {
     std::string servers_str = config.getStr("servers"), curr_serv;
     for(int i = 0; i < servers_str.size(); i++) {
         if(servers_str[i] == ' ') {
-            addServer(curr_serv);
+            server_ips.push_back(curr_serv);
             curr_serv.clear();
         } else
             curr_serv.push_back(servers_str[i]);
     }
+    
+    refresh();
     
 /*[](char c, int length) {
         if((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_' || c == ':' || c == '.')
@@ -77,31 +110,38 @@ void MultiplayerSelector::init() {
     };*/
 }
 
-void MultiplayerSelector::addServer(const std::string& ip) {
-    servers.push_back(new MenuServer);
-    MenuServer* server = servers.back();
-    
-    server->y = scroll_limit + TOP_HEIGHT;
-    
-    server->icon.loadFromResources("world_icon.png");
-    
-    server->ip = ip;
-    server->ip_texture.loadFromText(ip);
-
-    server->join_button.loadFromResources("play_button.png");
-    server->join_button.scale = 3;
-    server->join_button.margin = 5;
-    
-    server->remove_button.loadFromResources("delete_button.png");
-    server->remove_button.scale = 3;
-    server->remove_button.margin = 5;
-    
-    scroll_limit += 116 + SPACING * 3;
-}
-
 bool MultiplayerSelector::onKeyDown(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY())) {
-        returnFromScene();
+    if(key == gfx::Key::MOUSE_LEFT) {
+        if(back_button.isHovered(getMouseX(), getMouseY()))
+            returnFromScene();
+        /*else if(new_button.isHovered(getMouseX(), getMouseY())) {
+            std::vector<std::string> worlds_names;
+            for(int i = 0; i < worlds.size(); i++)
+                worlds_names.push_back(worlds[i]->name);
+            WorldCreator world_creator(worlds_names, menu_back, settings);
+            switchToScene(world_creator);
+            refresh();
+        }*/
+        else
+            for(int i = 0; i < servers.size(); i++) {
+                if(servers[i]->join_button.isHovered(getMouseX(), getMouseY())) {
+                    //startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
+                } else if(servers[i]->remove_button.isHovered(getMouseX(), getMouseY())) {
+                    std::string result;
+                    if(getKeyState(gfx::Key::SHIFT))
+                        result = "Yes";
+                    else {
+                        ChoiceScreen choice_screen(menu_back, "Do you want to remove " + servers[i]->ip + "?", {"Yes", "No"}, &result);
+                        switchToScene(choice_screen);
+                    }
+
+                    if(result == "Yes") {
+                        server_ips.erase(server_ips.begin() + i);
+                        refresh();
+                    }
+                    break;
+                }
+            }
         return true;
     }
     return false;
@@ -157,8 +197,8 @@ void MultiplayerSelector::render() {
 void MultiplayerSelector::stop() {
     ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     std::string servers_str;
-    for(int i = 0; i < servers.size(); i++) {
-        servers_str += servers[i]->ip;
+    for(int i = 0; i < server_ips.size(); i++) {
+        servers_str += server_ips[i];
         servers_str.push_back(' ');
     }
     config.setStr("servers", servers_str);

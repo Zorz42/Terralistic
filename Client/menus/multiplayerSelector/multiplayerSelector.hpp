@@ -22,10 +22,11 @@ class MultiplayerSelector : public gfx::Scene {
     gfx::Rect top_rect, bottom_rect;
     float top_rect_visibility = 0;
     
+    std::vector<std::string> server_ips;
     std::vector<MenuServer*> servers;
     int scroll_limit = 0, position = 0;
     
-    void addServer(const std::string& ip);
+    void refresh();
 
     BackgroundRect* menu_back;
     Settings* settings;
