@@ -1,5 +1,5 @@
 #include "mainMenu.hpp"
-#include "worldSelector.hpp"
+#include "singleplayerSelector.hpp"
 #include "multiplayerSelector.hpp"
 #include "settingsMenu.hpp"
 #include "versions.hpp"
@@ -51,7 +51,7 @@ void MainMenu::init() {
 bool MainMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(singleplayer_button.isHovered(getMouseX(), getMouseY())) {
-            WorldSelector world_selector(menu_back, settings);
+            SingleplayerSelector world_selector(menu_back, settings);
             switchToScene(world_selector);
             return true;
         } else if(multiplayer_button.isHovered(getMouseX(), getMouseY())) {

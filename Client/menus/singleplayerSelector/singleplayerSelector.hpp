@@ -2,7 +2,7 @@
 #include "menuBack.hpp"
 #include "settings.hpp"
 
-struct WorldToSelect {
+struct World {
     std::string name;
     gfx::Button play_button, delete_button;
     gfx::Texture title, icon, last_played;
@@ -10,13 +10,13 @@ struct WorldToSelect {
     int y;
 };
 
-class WorldSelector : public gfx::Scene {
+class SingleplayerSelector : public gfx::Scene {
     gfx::Sprite title;
     gfx::Button back_button, new_button;
     gfx::Rect top_rect, bottom_rect;
     float top_rect_visibility = 0;
     
-    std::vector<WorldToSelect> worlds;
+    std::vector<World*> worlds;
     int scroll_limit = 0, position = 0;
     
     void init() override;
@@ -28,5 +28,5 @@ class WorldSelector : public gfx::Scene {
     BackgroundRect* menu_back;
     Settings* settings;
 public:
-    explicit WorldSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
+    explicit SingleplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
 };
