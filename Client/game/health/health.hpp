@@ -4,7 +4,9 @@
 
 class Health : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
     int health = 107, max_health = 80;
+    gfx::Texture heart_texture;
     void init() override;
+    void loadTextures() override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;
     void onEvent(WelcomePacketEvent &event) override;

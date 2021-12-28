@@ -3,10 +3,6 @@
 #include "resourcePack.hpp"
 #include "platform_folders.h"
 
-const gfx::Texture& ResourcePack::getHeartTexture() {
-    return hearts;
-}
-
 std::string ResourcePack::getFile(const std::string& file_name) {
     std::string file;
     for(int i = 0; i < paths.size(); i++) {
@@ -28,8 +24,4 @@ void ResourcePack::init() {
     
     paths = active_resource_packs;
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
-}
-
-void ResourcePack::loadTextures() {
-    hearts.loadFromFile(getFile("/misc/hearts.png"));
 }
