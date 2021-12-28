@@ -4,6 +4,7 @@
 #include "print.hpp"
 #include "graphics.hpp"
 #include <cstring>
+#include <sstream>
 
 #define AUTOSAVE_INTERVAL (5 * 60)
 
@@ -19,25 +20,20 @@ void WorldSaver::load() {
     sections.clear();
     
     std::ifstream file(world_path, std::ios::binary);
-    file.unsetf(std::ios::skipws);
-    std::streampos file_size;
-    file.seekg(0, std::ios::end);
-    file_size = file.tellg();
-    file.seekg(0, std::ios::beg);
-    std::vector<char> input;
-    input.reserve(file_size);
+    std::ostringstream ss;
+    ss << file.rdbuf();
+    const std::string& s = ss.str();
+    std::vector<char> input(s.begin(), s.end());
 
-    input.insert(input.begin(), std::istream_iterator<char>(file), std::istream_iterator<char>());
-    
     int iter = 0;
     while(iter < input.size()) {
         std::string section_name;
-        int section_size;
-        while(input[iter] != 0)
+        unsigned int section_size;
+        while(input[iter])
             section_name.push_back(input[iter++]);
         iter++;
-        memcpy(&section_size, &input[iter], sizeof(int));
-        iter += sizeof(int);
+        memcpy(&section_size, &input[iter], sizeof(unsigned int));
+        iter += sizeof(unsigned int);
 
         sections[section_name] = std::vector<char>(input.begin() + iter, input.begin() + iter + section_size);
         iter += section_size;
@@ -58,13 +54,13 @@ void WorldSaver::save() {
         output.push_back(0);
         
         output.insert(output.end(), {0, 0, 0, 0});
-        int size = (int)i.second.size();
-        memcpy(&output[output.size() - 4], &size, sizeof(int));
+        unsigned int size = i.second.size();
+        memcpy(&output[output.size() - 4], &size, sizeof(unsigned int));
         
         output.insert(output.end(), i.second.begin(), i.second.end());
     }
-    
-    std::ofstream file(world_path);
+
+    std::ofstream file(world_path, std::ios::binary);
     std::copy(output.cbegin(), output.cend(), std::ostreambuf_iterator<char>(file));
 }
 

@@ -12,7 +12,9 @@ else()
     set(IS_RELEASE TRUE)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+if(!WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif()
 
 if(IS_DEBUG)
     add_compile_definitions(DEVELOPER_MODE NDEBUG)
