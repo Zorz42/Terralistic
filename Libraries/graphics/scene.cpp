@@ -172,7 +172,7 @@ void gfx::Scene::onEvent(sf::Event event) {
     else if (event.type == sf::Event::KeyReleased) {
         gfx::Key key = translateKeyboardKey(event.key.code);
         if (key != Key::UNKNOWN)
-            key_states[(int)key] = false;
+            onKeyUpCallback(key);
     }
     
     else if (event.type == sf::Event::TextEntered) {

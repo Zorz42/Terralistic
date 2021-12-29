@@ -72,10 +72,12 @@ std::string getFormattedLastTimeModified(const std::string& path) {
 }
 
 void SingleplayerSelector::refresh() {
+    for(int i = 0; i < worlds.size(); i++)
+        delete worlds[i];
+    worlds.clear();
+    
     position = 0;
     scroll_limit = 0;
-
-    worlds.clear();
 
     for(auto& p : std::filesystem::directory_iterator((sago::getDataHome() + "/Terralistic/Worlds/").c_str())) {
         std::string file_name = p.path().filename().string();

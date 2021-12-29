@@ -32,17 +32,10 @@ void SettingsMenu::stop() {
         delete render_settings[i];
 }
 
-bool SettingsMenu::onKeyDown(gfx::Key key) {
+bool SettingsMenu::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
-        return true;
-    }
-    return false;
-}
-
-bool SettingsMenu::onKeyUp(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT) {
         for(int i = 0; i < render_settings.size(); i++)
             render_settings[i]->onMouseButtonUp(getMouseX(), getMouseY());
         return true;

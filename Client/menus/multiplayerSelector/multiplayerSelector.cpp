@@ -2,6 +2,7 @@
 #include "multiplayerSelector.hpp"
 #include "game.hpp"
 #include "choiceScreen.hpp"
+#include "serverAdder.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
@@ -95,12 +96,6 @@ void MultiplayerSelector::init() {
     
     refresh();
     
-/*[](char c, int length) {
-        if((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_' || c == ':' || c == '.')
-            return c;
-        return '\0';
-    };*/
-    
    /* [](char c, int length) {
         if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
             return c;
@@ -114,14 +109,13 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
-        /*else if(new_button.isHovered(getMouseX(), getMouseY())) {
-            std::vector<std::string> worlds_names;
-            for(int i = 0; i < worlds.size(); i++)
-                worlds_names.push_back(worlds[i]->name);
-            WorldCreator world_creator(worlds_names, menu_back, settings);
-            switchToScene(world_creator);
+        else if(new_button.isHovered(getMouseX(), getMouseY())) {
+            ServerAdder server_adder(menu_back);
+            switchToScene(server_adder);
+            if(!server_adder.server_ip.empty())
+                server_ips.push_back(server_adder.server_ip);
             refresh();
-        }*/
+        }
         else
             for(int i = 0; i < servers.size(); i++) {
                 if(servers[i]->join_button.isHovered(getMouseX(), getMouseY())) {
@@ -202,4 +196,6 @@ void MultiplayerSelector::stop() {
         servers_str.push_back(' ');
     }
     config.setStr("servers", servers_str);
+    for(int i = 0; i < servers.size(); i++)
+        delete servers[i];
 }
