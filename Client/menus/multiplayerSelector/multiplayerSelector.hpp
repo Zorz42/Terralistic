@@ -2,17 +2,34 @@
 #include "menuBack.hpp"
 #include "settings.hpp"
 
+struct MenuServer {
+    std::string ip;
+    gfx::Button join_button, remove_button;
+    gfx::Texture ip_texture, icon;
+    void render(int position, int mouse_x, int mouse_y);
+    int y;
+};
+
 class MultiplayerSelector : public gfx::Scene {
     void init() override;
-    bool onKeyDown(gfx::Key key) override;
+    void onMouseScroll(int distance) override;
+    bool onKeyUp(gfx::Key key) override;
     void render() override;
     void stop() override;
-    gfx::Button back_button, join_button;
-    gfx::Sprite server_ip_title, username_title;
-    gfx::TextInput server_ip, username;
-    bool can_connect = true;
+    
+    gfx::Sprite title;
+    gfx::Button back_button, new_button;
+    gfx::Rect top_rect, bottom_rect;
+    float top_rect_visibility = 0;
+    
+    std::vector<std::string> server_ips;
+    std::vector<MenuServer*> servers;
+    int scroll_limit = 0, position = 0;
+    
+    void refresh();
+
     BackgroundRect* menu_back;
     Settings* settings;
 public:
-    explicit MultiplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
+    MultiplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
 };

@@ -167,7 +167,7 @@
 		3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220026D07181005AB3CC /* choiceScreen.cpp */; };
 		3657222126D07181005AB3CC /* worldCreator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220326D07181005AB3CC /* worldCreator.cpp */; };
 		3657222226D07181005AB3CC /* mainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220526D07181005AB3CC /* mainMenu.cpp */; };
-		3657222326D07181005AB3CC /* worldSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220826D07181005AB3CC /* worldSelector.cpp */; };
+		3657222326D07181005AB3CC /* singleplayerSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220826D07181005AB3CC /* singleplayerSelector.cpp */; };
 		3657222426D07181005AB3CC /* menuBack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3657220B26D07181005AB3CC /* menuBack.cpp */; };
 		366399CF27775E17007C944E /* serverWalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366399CD27775E17007C944E /* serverWalls.cpp */; };
 		366399D027775E17007C944E /* serverWalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366399CD27775E17007C944E /* serverWalls.cpp */; };
@@ -180,15 +180,19 @@
 		3666D91F274A5AA500C23231 /* constantValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D91D274A5AA500C23231 /* constantValues.cpp */; };
 		3672919B26FE225900786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672919C26FE226400786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
+		3672B160277C8431001293B5 /* serverAdder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B15E277C8431001293B5 /* serverAdder.cpp */; };
+		3672B164277C885D001293B5 /* nameChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B162277C885D001293B5 /* nameChooser.cpp */; };
 		367503DB276019D700B3A468 /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 365721CC26D07147005AB3CC /* resourcePack */; };
 		3692C14F26E509F100F9DD71 /* entities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entities.cpp */; };
 		3693E4FE274A95B900939213 /* variables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E4FC274A95B900939213 /* variables.cpp */; };
 		3693E502274AC5F900939213 /* virtualMachine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E500274AC5F900939213 /* virtualMachine.cpp */; };
+		369981EB277BB73900FA3F72 /* delete_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 369981EA277BB73900FA3F72 /* delete_button.png */; };
+		369981EE277BC26200FA3F72 /* remove_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 369981EC277BC26200FA3F72 /* remove_button.png */; };
+		369981EF277BC26200FA3F72 /* join_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 369981ED277BC26200FA3F72 /* join_button.png */; };
 		36A2B4B1276553A6000C63D5 /* textureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */; };
 		36A2B4B2276553A6000C63D5 /* textureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */; };
 		36B0452627247AD600A64113 /* world_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B0452427247AD600A64113 /* world_icon.png */; };
 		36B04546272498F300A64113 /* play_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B04545272498F300A64113 /* play_button.png */; };
-		36B045492724991F00A64113 /* x_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B045482724991F00A64113 /* x_button.png */; };
 		36D26F262731E91100F1F476 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36D26F252731E91100F1F476 /* icon.png */; };
 		36D26F272731E91100F1F476 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36D26F252731E91100F1F476 /* icon.png */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
@@ -415,8 +419,8 @@
 		3657220326D07181005AB3CC /* worldCreator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldCreator.cpp; sourceTree = "<group>"; };
 		3657220526D07181005AB3CC /* mainMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainMenu.cpp; sourceTree = "<group>"; };
 		3657220626D07181005AB3CC /* mainMenu.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = mainMenu.hpp; sourceTree = "<group>"; };
-		3657220826D07181005AB3CC /* worldSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldSelector.cpp; sourceTree = "<group>"; };
-		3657220926D07181005AB3CC /* worldSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldSelector.hpp; sourceTree = "<group>"; };
+		3657220826D07181005AB3CC /* singleplayerSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = singleplayerSelector.cpp; sourceTree = "<group>"; };
+		3657220926D07181005AB3CC /* singleplayerSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = singleplayerSelector.hpp; sourceTree = "<group>"; };
 		3657220B26D07181005AB3CC /* menuBack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = menuBack.cpp; sourceTree = "<group>"; };
 		3657220C26D07181005AB3CC /* menuBack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = menuBack.hpp; sourceTree = "<group>"; };
 		366399CD27775E17007C944E /* serverWalls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverWalls.cpp; sourceTree = "<group>"; };
@@ -435,6 +439,10 @@
 		3666D91A274A30EA00C23231 /* expression.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = expression.hpp; sourceTree = "<group>"; };
 		3666D91D274A5AA500C23231 /* constantValues.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = constantValues.cpp; sourceTree = "<group>"; };
 		3666D91E274A5AA500C23231 /* constantValues.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = constantValues.hpp; sourceTree = "<group>"; };
+		3672B15E277C8431001293B5 /* serverAdder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverAdder.cpp; sourceTree = "<group>"; };
+		3672B15F277C8431001293B5 /* serverAdder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverAdder.hpp; sourceTree = "<group>"; };
+		3672B162277C885D001293B5 /* nameChooser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nameChooser.cpp; sourceTree = "<group>"; };
+		3672B163277C885D001293B5 /* nameChooser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = nameChooser.hpp; sourceTree = "<group>"; };
 		3677B5A827283E20000F4D77 /* perlinNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
 		3692C14D26E509F100F9DD71 /* entities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = entities.cpp; sourceTree = "<group>"; };
 		3692C14E26E509F100F9DD71 /* entities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entities.hpp; sourceTree = "<group>"; };
@@ -442,10 +450,12 @@
 		3693E4FD274A95B900939213 /* variables.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = variables.hpp; sourceTree = "<group>"; };
 		3693E500274AC5F900939213 /* virtualMachine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = virtualMachine.cpp; sourceTree = "<group>"; };
 		3693E501274AC5F900939213 /* virtualMachine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = virtualMachine.hpp; sourceTree = "<group>"; };
+		369981EA277BB73900FA3F72 /* delete_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete_button.png; sourceTree = "<group>"; };
+		369981EC277BC26200FA3F72 /* remove_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remove_button.png; sourceTree = "<group>"; };
+		369981ED277BC26200FA3F72 /* join_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = join_button.png; sourceTree = "<group>"; };
 		36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = textureAtlas.cpp; sourceTree = "<group>"; };
 		36B0452427247AD600A64113 /* world_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = world_icon.png; sourceTree = "<group>"; };
 		36B04545272498F300A64113 /* play_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play_button.png; sourceTree = "<group>"; };
-		36B045482724991F00A64113 /* x_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = x_button.png; sourceTree = "<group>"; };
 		36D26F252731E91100F1F476 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
@@ -1037,8 +1047,10 @@
 		3657217526D0710E005AB3CC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				369981ED277BC26200FA3F72 /* join_button.png */,
+				369981EC277BC26200FA3F72 /* remove_button.png */,
+				369981EA277BB73900FA3F72 /* delete_button.png */,
 				36D26F252731E91100F1F476 /* icon.png */,
-				36B045482724991F00A64113 /* x_button.png */,
 				36B04545272498F300A64113 /* play_button.png */,
 				36B0452427247AD600A64113 /* world_icon.png */,
 				365721CC26D07147005AB3CC /* resourcePack */,
@@ -1162,15 +1174,17 @@
 		365721FA26D07181005AB3CC /* menus */ = {
 			isa = PBXGroup;
 			children = (
+				3657220A26D07181005AB3CC /* menuBack */,
+				365721FE26D07181005AB3CC /* choiceScreen */,
 				365721DE26D07180005AB3CC /* pauseScreen */,
+				3657220426D07181005AB3CC /* mainMenu */,
 				16670CDD26DDFA990057AA41 /* settingsMenu */,
 				169DE4E826E3E1F0008DB021 /* modManager */,
 				365721FB26D07181005AB3CC /* multiplayerSelector */,
-				365721FE26D07181005AB3CC /* choiceScreen */,
+				3672B15D277C8315001293B5 /* serverAdder */,
+				3672B161277C883F001293B5 /* nameChooser */,
+				3657220726D07181005AB3CC /* singleplayerSelector */,
 				3657220126D07181005AB3CC /* worldCreator */,
-				3657220426D07181005AB3CC /* mainMenu */,
-				3657220726D07181005AB3CC /* worldSelector */,
-				3657220A26D07181005AB3CC /* menuBack */,
 			);
 			path = menus;
 			sourceTree = "<group>";
@@ -1211,13 +1225,13 @@
 			path = mainMenu;
 			sourceTree = "<group>";
 		};
-		3657220726D07181005AB3CC /* worldSelector */ = {
+		3657220726D07181005AB3CC /* singleplayerSelector */ = {
 			isa = PBXGroup;
 			children = (
-				3657220926D07181005AB3CC /* worldSelector.hpp */,
-				3657220826D07181005AB3CC /* worldSelector.cpp */,
+				3657220926D07181005AB3CC /* singleplayerSelector.hpp */,
+				3657220826D07181005AB3CC /* singleplayerSelector.cpp */,
 			);
-			path = worldSelector;
+			path = singleplayerSelector;
 			sourceTree = "<group>";
 		};
 		3657220A26D07181005AB3CC /* menuBack */ = {
@@ -1305,6 +1319,24 @@
 				3666D91D274A5AA500C23231 /* constantValues.cpp */,
 			);
 			path = constantValues;
+			sourceTree = "<group>";
+		};
+		3672B15D277C8315001293B5 /* serverAdder */ = {
+			isa = PBXGroup;
+			children = (
+				3672B15F277C8431001293B5 /* serverAdder.hpp */,
+				3672B15E277C8431001293B5 /* serverAdder.cpp */,
+			);
+			path = serverAdder;
+			sourceTree = "<group>";
+		};
+		3672B161277C883F001293B5 /* nameChooser */ = {
+			isa = PBXGroup;
+			children = (
+				3672B163277C885D001293B5 /* nameChooser.hpp */,
+				3672B162277C885D001293B5 /* nameChooser.cpp */,
+			);
+			path = nameChooser;
 			sourceTree = "<group>";
 		};
 		3692C14C26E506A100F9DD71 /* entities */ = {
@@ -1480,11 +1512,13 @@
 			files = (
 				3657219A26D0710F005AB3CC /* pixel_font.ttf in Resources */,
 				36D26F262731E91100F1F476 /* icon.png in Resources */,
-				36B045492724991F00A64113 /* x_button.png in Resources */,
+				369981EB277BB73900FA3F72 /* delete_button.png in Resources */,
 				36B04546272498F300A64113 /* play_button.png in Resources */,
 				3657219C26D0710F005AB3CC /* background.png in Resources */,
 				365721CD26D07147005AB3CC /* resourcePack in Resources */,
 				3657219826D0710F005AB3CC /* icon.icns in Resources */,
+				369981EF277BC26200FA3F72 /* join_button.png in Resources */,
+				369981EE277BC26200FA3F72 /* remove_button.png in Resources */,
 				36B0452627247AD600A64113 /* world_icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1553,6 +1587,7 @@
 				1679733F2712303100E90477 /* clientBlocks.cpp in Sources */,
 				16A13D142709A100009DEE40 /* serverBlocks.cpp in Sources */,
 				169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */,
+				3672B160277C8431001293B5 /* serverAdder.cpp in Sources */,
 				167C03B526E141D10045FEA9 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
 				366399D427775F10007C944E /* clientWalls.cpp in Sources */,
@@ -1574,9 +1609,10 @@
 				167973452712307D00E90477 /* clientLights.cpp in Sources */,
 				3605ED58276E90FA00ECCA08 /* walls.cpp in Sources */,
 				166D85D326AA0B9E00DB87B1 /* textInput.cpp in Sources */,
+				3672B164277C885D001293B5 /* nameChooser.cpp in Sources */,
 				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				166D85D726AA0B9E00DB87B1 /* graphics.cpp in Sources */,
-				3657222326D07181005AB3CC /* worldSelector.cpp in Sources */,
+				3657222326D07181005AB3CC /* singleplayerSelector.cpp in Sources */,
 				36D31CD926DBE330006F89B3 /* compress.cpp in Sources */,
 				167C03AF26E1400D0045FEA9 /* rectShape.cpp in Sources */,
 				169990A92700E25300224E11 /* naturalLight.cpp in Sources */,

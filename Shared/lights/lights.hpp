@@ -17,7 +17,7 @@ class Lights : EventListener<BlockChangeEvent> {
         int light_level:8;
     };
     
-    Light* lights;
+    Light* lights = nullptr;
     
     Light* getLight(int x, int y);
     void setLightLevel(int x, int y, int level);

@@ -19,4 +19,6 @@ namespace gfx {
     inline sf::RenderTexture shadow_texture, shadow_part_left, shadow_part_right, shadow_part_up, shadow_part_down;
     
     inline std::string resource_path;
+
+    inline bool key_states[(int)gfx::Key::UNKNOWN];
 }

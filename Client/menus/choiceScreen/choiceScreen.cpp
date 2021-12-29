@@ -30,7 +30,7 @@ void ChoiceScreen::init() {
     }
 }
 
-bool ChoiceScreen::onKeyDown(gfx::Key key) {
+bool ChoiceScreen::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT)
         for(int i = 0; i < buttons.size(); i++)
             if(buttons[i].gfx_button.isHovered(getMouseX(), getMouseY())) {

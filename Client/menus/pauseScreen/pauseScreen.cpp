@@ -33,7 +33,11 @@ bool PauseScreen::onKeyDown(gfx::Key key) {
         returnToGame();
         return true;
     }
-    else if(key == gfx::Key::MOUSE_LEFT) {
+    return false;
+}
+
+bool PauseScreen::onKeyUp(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT) {
         if(resume_button.isHovered(getMouseX(), getMouseY())) {
             returnToGame();
             return true;

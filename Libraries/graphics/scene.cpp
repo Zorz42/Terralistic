@@ -1,7 +1,5 @@
 #include "graphics-internal.hpp"
 
-bool key_states[(int)gfx::Key::UNKNOWN];
-
 void gfx::Scene::initialize() {
     if(!initialized) {
         for(int i = 0; i < modules.size(); i++)
@@ -33,6 +31,15 @@ void gfx::Scene::onKeyDownCallback(Key key_) {
         key_states[(int)key_] = true;
         for(int i = (int)modules.size() - 1; i >= 0; i--)
             if(modules[i]->enabled && modules[i]->onKeyDown(key_))
+                break;
+    }
+}
+
+void gfx::Scene::onKeyUpCallback(Key key_) {
+    if(key_states[(int)key_]) {
+        key_states[(int)key_] = false;
+        for(int i = (int)modules.size() - 1; i >= 0; i--)
+            if(modules[i]->enabled && modules[i]->onKeyUp(key_))
                 break;
     }
 }
@@ -130,7 +137,7 @@ void gfx::Scene::onEvent(sf::Event event) {
     else if (event.type == sf::Event::MouseButtonReleased) {
         gfx::Key key = translateMouseKey(event.mouseButton.button);
         if (key != Key::UNKNOWN)
-            key_states[(int)key] = false;
+            onKeyUpCallback(key);
     }
     
     else if (event.type == sf::Event::KeyPressed) {
@@ -165,7 +172,7 @@ void gfx::Scene::onEvent(sf::Event event) {
     else if (event.type == sf::Event::KeyReleased) {
         gfx::Key key = translateKeyboardKey(event.key.code);
         if (key != Key::UNKNOWN)
-            key_states[(int)key] = false;
+            onKeyUpCallback(key);
     }
     
     else if (event.type == sf::Event::TextEntered) {

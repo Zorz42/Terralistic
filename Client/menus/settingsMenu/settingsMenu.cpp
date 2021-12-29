@@ -32,12 +32,12 @@ void SettingsMenu::stop() {
         delete render_settings[i];
 }
 
-bool SettingsMenu::onKeyDown(gfx::Key key) {
+bool SettingsMenu::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
         for(int i = 0; i < render_settings.size(); i++)
-            render_settings[i]->onMouseButtonDown(getMouseX(), getMouseY());
+            render_settings[i]->onMouseButtonUp(getMouseX(), getMouseY());
         return true;
     }
     return false;
@@ -119,7 +119,7 @@ int RenderChoiceSetting::getWidth() {
     return width;
 }
 
-void RenderChoiceSetting::onMouseButtonDown(int x, int y) {
+void RenderChoiceSetting::onMouseButtonUp(int x, int y) {
     for(int i = 0; i < choice_buttons.size(); i++)
         if(choice_buttons[i]->isHovered(x, y))
             setting->setSelectedChoice(i);
@@ -172,7 +172,7 @@ int RenderBooleanSetting::getWidth() {
     return width;
 }
 
-void RenderBooleanSetting::onMouseButtonDown(int x, int y) {
+void RenderBooleanSetting::onMouseButtonUp(int x, int y) {
     if(toggle_button.isHovered(x, y)) {
         setting->setValue(!setting->getValue());
         updateButtonText();

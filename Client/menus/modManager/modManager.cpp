@@ -71,9 +71,6 @@ void ModManager::init() {
 
 bool ModManager::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered(getMouseX(), getMouseY()))
-            returnFromScene();
-        
         for(int i = 0; i < mods.size(); i++)
             if(mods[i]->hoversPoint(getMouseX(), getMouseY())) {
                 holding = mods[i];
@@ -83,6 +80,15 @@ bool ModManager::onKeyDown(gfx::Key key) {
                 holding_y = holding->getY();
                 holding->smooth_factor = 1;
             }
+        return true;
+    }
+    return false;
+}
+
+bool ModManager::onKeyUp(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT) {
+        if(back_button.isHovered(getMouseX(), getMouseY()))
+            returnFromScene();
         return true;
     }
     return false;
