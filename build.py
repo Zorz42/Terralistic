@@ -72,9 +72,10 @@ elif sys.platform == "linux":
     shutil.copy(project_path + "Build/Terralistic", project_path + "Output/Linux/Terralistic/Terralistic")
 
     createDir("Output/Linux/Terralistic-server")
+    if os.path.exists(project_path + "Output/Linux/Terralistic-server/"):
+        shutil.rmtree(project_path + "Output/Linux/Terralistic-server/")
+    shutil.copytree(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic-server/Resources/")
     shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic-server/Terralistic-server")
-    shutil.copy(project_path + "Build/Structures.asset", project_path + "Output/Linux/Terralistic-server/Structures.asset")
-    shutil.copy(project_path + "Build/pixel_font.ttf", project_path + "Output/Linux/Terralistic-server/pixel_font.ttf")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
         os.system(project_path + "Output/Linux/Terralistic/Terralistic")
