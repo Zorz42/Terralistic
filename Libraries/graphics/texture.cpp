@@ -76,6 +76,7 @@ int gfx::Texture::getTextureHeight() const {
 void gfx::Texture::clear() {
     sfml_render_texture->clear({0, 0, 0, 0});
 }
+
 void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool flipped) const {
     if(scale <= 0)
         throw Exception("Texture scale must be positive.");
