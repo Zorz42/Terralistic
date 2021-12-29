@@ -17,11 +17,12 @@
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
 
-class Game : public gfx::Scene, public BackgroundRect {
+class Game : gfx::Scene, public BackgroundRect {
     void init() override;
     bool onKeyDown(gfx::Key key) override;
     void render() override;
     
+    void initialize();
     std::string username;
     
     ClientNetworking networking;
@@ -52,14 +53,13 @@ class Game : public gfx::Scene, public BackgroundRect {
 public:
     Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port=33770);
     
+    using gfx::Scene::isInitialized;
     void renderBack() override;
-    void setBackWidth(int width) override { }
+    void setBackWidth(int width) override {}
     int getBackWidth() override { return 0; }
-    bool isHandshakeDone();
     
     bool interrupt = false;
     std::string interrupt_message;
     
-    void initialize();
     void start();
 };
