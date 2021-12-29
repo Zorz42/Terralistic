@@ -3,7 +3,7 @@
 #include <cstring>
 
 void AirBehaviour::onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
-    BlockType* type = player->inventory.getSelectedSlot().type->places;
+    BlockType* type = player->inventory.getSelectedSlot().type->places_block;
     if(type != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
         blocks->setBlockType(x, y, type);
     }

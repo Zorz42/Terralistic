@@ -1,2 +1,3 @@
 max_stack: 99
-places: stone
+places_block: stone
+places_wall: clear

@@ -97,8 +97,8 @@ public:
 class ItemTypes {
     std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet};
 public:
-    ItemTypes(BlockTypes* blocks, Blocks* blocks_, Items* items);
-    void loadContent(Items* items, Blocks* blocks, const std::string& resource_path);
+    ItemTypes(Items* items);
+    void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
     
     ItemType stone{"stone"};
     ItemType dirt{"dirt"};
@@ -113,7 +113,7 @@ public:
 class GameContent {
     void addRecipes(Recipes* recipes);
 public:
-    GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_), walls(walls_), liquids(liquids_), items(&blocks, blocks_, items_) {}
+    GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_), walls(walls_), liquids(liquids_), items(items_) {}
     
     void loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
     

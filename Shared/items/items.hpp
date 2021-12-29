@@ -1,5 +1,6 @@
 #pragma once
 #include "entities.hpp"
+#include "walls.hpp"
 
 #define ITEM_WIDTH 8
 
@@ -9,7 +10,8 @@ public:
     
     std::string name;
     int max_stack;
-    BlockType* places;
+    BlockType* places_block;
+    WallType* places_wall;
     int id;
 };
 
@@ -45,7 +47,7 @@ class Items {
     std::vector<BlockDrop> drops;
     
 public:
-    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing("nothing") { nothing.places = &blocks->air; nothing.max_stack = 0; registerNewItemType(&nothing); }
+    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing("nothing") { nothing.places_block = &blocks->air; nothing.max_stack = 0; registerNewItemType(&nothing); }
     Item* spawnItem(ItemType* type, int x, int y);
     
     ItemType nothing;

@@ -5,7 +5,7 @@ void GameContent::loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_,
     blocks.loadContent(blocks_, items_, &items, resource_path);
     walls.loadContent(walls_, resource_path);
     liquids.loadContent(liquids_, resource_path);
-    items.loadContent(items_, blocks_, resource_path);
+    items.loadContent(items_, blocks_, walls_, resource_path);
     addRecipes(recipes);
 }
 
@@ -133,15 +133,16 @@ void LiquidTypes::loadContent(Liquids* liquids, const std::string& resource_path
     }
 }
 
-ItemTypes::ItemTypes(BlockTypes* blocks, Blocks* blocks_, Items* items) {
+ItemTypes::ItemTypes(Items* items) {
     for(ItemType* item_type : item_types)
         items->registerNewItemType(item_type);
 }
 
-void ItemTypes::loadContent(Items* items, Blocks* blocks, const std::string& resource_path) {
+void ItemTypes::loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path) {
     for(ItemType* item_type : item_types) {
         ConfigFile item_properties(resource_path + "iteminfos/" + item_type->name + ".txt");
         item_type->max_stack = item_properties.getInt("max_stack");
-        item_type->places = blocks->getBlockTypeByName(item_properties.getStr("places"));
+        item_type->places_block = blocks->getBlockTypeByName(item_properties.getStr("places_block"));
+        item_type->places_wall = walls->getWallTypeByName(item_properties.getStr("places_wall"));
     }
 }
