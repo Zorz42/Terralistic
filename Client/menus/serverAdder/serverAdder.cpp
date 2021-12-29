@@ -38,7 +38,7 @@ bool ServerAdder::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY())) {
         returnFromScene();
         return true;
-    } else if((key == gfx::Key::MOUSE_LEFT && add_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
+    } else if((key == gfx::Key::MOUSE_LEFT && add_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_add)) {
         server_ip = server_ip_input.getText();
         returnFromScene();
         return true;
@@ -49,10 +49,10 @@ bool ServerAdder::onKeyUp(gfx::Key key) {
 void ServerAdder::render() {
     menu_back->setBackWidth(server_ip_input.getWidth() + 100);
     menu_back->renderBack();
-    if(can_create != !server_ip_input.getText().empty()) {
-        can_create = !can_create;
-        add_button.loadFromText("Add server", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)});
-        add_button.disabled = !can_create;
+    if(can_add != !server_ip_input.getText().empty()) {
+        can_add = !can_add;
+        add_button.loadFromText("Add server", {(unsigned char)(can_add ? WHITE.r : GREY.r), (unsigned char)(can_add ? WHITE.g : GREY.g), (unsigned char)(can_add ? WHITE.b : GREY.b)});
+        add_button.disabled = !can_add;
     }
     add_button.render(getMouseX(), getMouseY());
     back_button.render(getMouseX(), getMouseY());

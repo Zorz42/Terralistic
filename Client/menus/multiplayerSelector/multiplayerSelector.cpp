@@ -3,6 +3,7 @@
 #include "game.hpp"
 #include "choiceScreen.hpp"
 #include "serverAdder.hpp"
+#include "nameChooser.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
@@ -58,7 +59,6 @@ void MultiplayerSelector::refresh() {
 
 void MultiplayerSelector::init() {
     ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
-    config.setDefaultStr("username", "");
     config.setDefaultStr("servers", "");
     
     title.scale = 3;
@@ -95,14 +95,6 @@ void MultiplayerSelector::init() {
     }
     
     refresh();
-    
-   /* [](char c, int length) {
-        if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-            return c;
-        if(c == ' ')
-            return '_';
-        return '\0';
-    };*/
 }
 
 bool MultiplayerSelector::onKeyUp(gfx::Key key) {
@@ -119,6 +111,8 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
         else
             for(int i = 0; i < servers.size(); i++) {
                 if(servers[i]->join_button.isHovered(getMouseX(), getMouseY())) {
+                    NameChooser name_chooser(menu_back, settings, servers[i]->ip);
+                    switchToScene(name_chooser);
                     //startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
                 } else if(servers[i]->remove_button.isHovered(getMouseX(), getMouseY())) {
                     std::string result;
