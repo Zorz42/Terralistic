@@ -61,6 +61,5 @@ public:
     std::string interrupt_message;
     
     void initialize();
-    void loadTextures();
     void start();
 };

@@ -114,7 +114,6 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     
     game_init_thread.join();
     
-    game.loadTextures();
     game.start();
     
     private_server.stop();
@@ -192,16 +191,13 @@ void Game::initialize() {
     }
 }
 
-void Game::loadTextures() {
-    for(int i = 0; i < getModules().size(); i++)
-        if(getModules()[i] != this)
-            ((ClientModule*)getModules()[i])->loadTextures();
-}
-
 void Game::start() {
     try {
         if(interrupt)
             throw Exception(interrupt_message);
+        for(int i = 0; i < getModules().size(); i++)
+            if(getModules()[i] != this)
+                ((ClientModule*)getModules()[i])->loadTextures();
         run();
         if(interrupt)
             throw Exception(interrupt_message);

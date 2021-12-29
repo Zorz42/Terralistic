@@ -23,8 +23,16 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
         (unsigned char)((int)hover_color.b * hover_progress / 255 + (int)def_color.b * float(255 - hover_progress) / 255),
         (unsigned char)((int)hover_color.a * hover_progress / 255 + (int)def_color.a * float(255 - hover_progress) / 255),
     };
+    Color button_border_color{
+        (unsigned char)((int)border_hover_color.r * hover_progress / 255 + (int)def_border_color.r * float(255 - hover_progress) / 255),
+        (unsigned char)((int)border_hover_color.g * hover_progress / 255 + (int)def_border_color.g * float(255 - hover_progress) / 255),
+        (unsigned char)((int)border_hover_color.b * hover_progress / 255 + (int)def_border_color.b * float(255 - hover_progress) / 255),
+        (unsigned char)((int)border_hover_color.a * hover_progress / 255 + (int)def_border_color.a * float(255 - hover_progress) / 255),
+    };
     int padding = (255 - hover_progress) / 255 * 30;
-    RectShape(rect.x + padding, rect.y + padding, std::max(0, rect.w - 2 * padding), std::max(0, rect.h - 2 * padding)).render(button_color);
-    float ms = margin * scale;
-    Texture::render(scale, rect.x + ms, rect.y + ms);
+    RectShape hover_rect(rect.x + padding, rect.y + padding, std::max(0, rect.w - 2 * padding), std::max(0, rect.h - 2 * padding));
+    hover_rect.render(button_color);
+    hover_rect.renderOutline(button_border_color);
+    
+    Texture::render(scale, rect.x + margin * scale, rect.y + margin * scale);
 }
