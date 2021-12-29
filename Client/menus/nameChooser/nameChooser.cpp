@@ -48,6 +48,7 @@ bool NameChooser::onKeyUp(gfx::Key key) {
     } else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_join)) {
         Game game(menu_back, settings, name_input.getText(), server_ip);
         game.initialize();
+        game.loadTextures();
         game.start();
         returnFromScene();
         return true;
