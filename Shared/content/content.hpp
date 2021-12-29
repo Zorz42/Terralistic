@@ -8,52 +8,56 @@ class ItemTypes;
 class BlockTypes;
 
 class WoodBehaviour : public BlockBehaviour {
-    void onUpdate(Blocks* blocks, int x, int y) override;
+    void onUpdate(int x, int y) override;
     BlockTypes* blocks_;
 public:
-    WoodBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+    WoodBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
 };
 
 class LeavesBehaviour : public BlockBehaviour {
-    void onUpdate(Blocks* blocks, int x, int y) override;
+    void onUpdate(int x, int y) override;
     BlockTypes* blocks_;
 public:
-    LeavesBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+    LeavesBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
 };
 
 class GrassBlockBehaviour : public BlockBehaviour {
-    void onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) override;
+    void onLeftClick(int x, int y, ServerPlayer* player) override;
     BlockTypes* blocks_;
 public:
-    GrassBlockBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+    GrassBlockBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
 };
 
 class SnowyGrassBlockBehaviour : public BlockBehaviour {
-    void onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) override;
+    void onLeftClick(int x, int y, ServerPlayer* player) override;
     BlockTypes* blocks_;
 public:
-    SnowyGrassBlockBehaviour(BlockTypes* blocks) : blocks_(blocks) {}
+    SnowyGrassBlockBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
 };
 
 class StoneBehaviour : public BlockBehaviour {
-    void onUpdate(Blocks* blocks, int x, int y) override;
+    void onUpdate(int x, int y) override;
+public:
+    StoneBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids) {}
 };
 
 class GrassBehaviour : public BlockBehaviour {
-    void onUpdate(Blocks* blocks, int x, int y) override;
+    void onUpdate(int x, int y) override;
+public:
+    GrassBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids) {}
 };
 
 class BlockTypes {
-    WoodBehaviour wood_behaviour{this};
-    LeavesBehaviour leaves_behaviour{this};
-    GrassBlockBehaviour grass_block_behaviour{this};
-    SnowyGrassBlockBehaviour snowy_grass_block_behaviour{this};
+    WoodBehaviour wood_behaviour;
+    LeavesBehaviour leaves_behaviour;
+    GrassBlockBehaviour grass_block_behaviour;
+    SnowyGrassBlockBehaviour snowy_grass_block_behaviour;
     StoneBehaviour stone_behaviour;
     GrassBehaviour grass_behaviour;
     
     std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass};
 public:
-    BlockTypes(Blocks* blocks);
+    BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
     void addBlockBehaviour(ServerPlayers* players);
     
@@ -95,7 +99,7 @@ public:
 };
 
 class ItemTypes {
-    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet};
+    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall};
 public:
     ItemTypes(Items* items);
     void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
@@ -108,12 +112,13 @@ public:
     ItemType copper_ore{"copper_ore"};
     ItemType fiber{"fiber"};
     ItemType hatchet{"hatchet"};
+    ItemType dirt_wall{"dirt_wall"};
 };
 
 class GameContent {
     void addRecipes(Recipes* recipes);
 public:
-    GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_), walls(walls_), liquids(liquids_), items(items_) {}
+    GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_, walls_, liquids_), walls(walls_), liquids(liquids_), items(items_) {}
     
     void loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
     

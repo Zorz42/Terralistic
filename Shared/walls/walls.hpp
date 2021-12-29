@@ -1,6 +1,12 @@
 #pragma once
 #include "blocks.hpp"
 
+class WallChangeEvent {
+public:
+    WallChangeEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
+};
+
 class WallType {
 public:
     WallType(std::string name) : name(name) {}
@@ -30,6 +36,7 @@ public:
     WallType clear;
     
     WallType* getWallType(int x, int y);
+    void setWallType(int x, int y, WallType* type);
     void setWallTypeSilently(int x, int y, WallType* type);
     
     int getWidth() const;
@@ -42,4 +49,6 @@ public:
     WallType* getWallTypeById(int wall_id);
     WallType* getWallTypeByName(const std::string& name);
     int getNumWallTypes();
+    
+    EventSender<WallChangeEvent> wall_change_event;
 };

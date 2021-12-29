@@ -19,7 +19,13 @@ void GameContent::addRecipes(Recipes* recipes) {
     recipes->registerARecipe(recipe);
 }
 
-BlockTypes::BlockTypes(Blocks* blocks) {
+BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
+    wood_behaviour(this, blocks, walls, liquids),
+    leaves_behaviour(this, blocks, walls, liquids),
+    grass_block_behaviour(this, blocks, walls, liquids),
+    snowy_grass_block_behaviour(this, blocks, walls, liquids),
+    stone_behaviour(blocks, walls, liquids),
+    grass_behaviour(blocks, walls, liquids) {
     for(BlockType* block_type : block_types)
         blocks->registerNewBlockType(block_type);
 }
@@ -76,34 +82,34 @@ bool BlockTypes::isBlockLeaves(Blocks* blocks, int x, int y) {
     return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &leaves;
 }
 
-void WoodBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+void WoodBehaviour::onUpdate(int x, int y) {
     if((y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &blocks->air &&
        (!blocks_->isBlockTree(blocks, x - 1, y) || !blocks_->isBlockTree(blocks, x + 1, y)))
        || (!blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y) && !blocks_->isBlockWood(blocks, x, y + 1) && !blocks_->isBlockWood(blocks, x, y - 1)))
         blocks->breakBlock(x, y);
 }
 
-void LeavesBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+void LeavesBehaviour::onUpdate(int x, int y) {
     if(!blocks_->isBlockWood(blocks, x, y + 1) &&
        (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x + 1, y) || blocks_->isBlockLeaves(blocks, x - 1, y)) &&
        (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x - 1, y) || blocks_->isBlockLeaves(blocks, x + 1, y)))
         blocks->breakBlock(x, y);
 }
 
-void GrassBlockBehaviour::onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
+void GrassBlockBehaviour::onLeftClick(int x, int y, ServerPlayer* player) {
     blocks->setBlockType(x, y, &blocks_->dirt);
 }
 
-void SnowyGrassBlockBehaviour::onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
+void SnowyGrassBlockBehaviour::onLeftClick(int x, int y, ServerPlayer* player) {
     blocks->setBlockType(x, y, &blocks_->dirt);
 }
 
-void StoneBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+void StoneBehaviour::onUpdate(int x, int y) {
     if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
         blocks->breakBlock(x, y);
 }
 
-void GrassBehaviour::onUpdate(Blocks* blocks, int x, int y) {
+void GrassBehaviour::onUpdate(int x, int y) {
     if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
         blocks->breakBlock(x, y);
 }

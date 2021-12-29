@@ -19,6 +19,21 @@ void Walls::setWallTypeSilently(int x, int y, WallType* type) {
     getWall(x, y)->id = type->id;
 }
 
+void Walls::setWallType(int x, int y, WallType* type) {
+    if(type->id != getWall(x, y)->id) {
+        setWallTypeSilently(x, y, type);
+        
+        /*for(int i = 0; i < breaking_blocks.size(); i++)
+            if(breaking_blocks[i].x == x && breaking_blocks[i].y == y) {
+                breaking_blocks.erase(breaking_blocks.begin() + i);
+                break;
+            }*/
+        
+        WallChangeEvent event(x, y);
+        wall_change_event.call(event);
+    }
+}
+
 int Walls::getWidth() const {
     return blocks->getWidth();
 }

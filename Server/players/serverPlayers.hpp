@@ -3,6 +3,7 @@
 #include "inventory.hpp"
 #include "serverNetworking.hpp"
 #include "worldSaver.hpp"
+#include "liquids.hpp"
 
 class ServerPlayerData {
 public:
@@ -36,16 +37,22 @@ public:
 
 class BlockBehaviour {
 public:
-    virtual void onUpdate(Blocks* blocks, int x, int y) {}
-    virtual void onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) {}
-    virtual void onLeftClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
+    Blocks* blocks;
+    Walls* walls;
+    Liquids* liquids;
+    BlockBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : blocks(blocks), walls(walls), liquids(liquids) {}
+    virtual void onUpdate(int x, int y) {}
+    virtual void onRightClick(int x, int y, ServerPlayer* player) {}
+    virtual void onLeftClick(int x, int y, ServerPlayer* player) {
         if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
             blocks->startBreakingBlock(x, y);
     }
 };
 
 class AirBehaviour : public BlockBehaviour {
-    void onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) override;
+    void onRightClick(int x, int y, ServerPlayer* player) override;
+public:
+    AirBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids) {}
 };
 
 class ServerPacketEvent {
@@ -88,7 +95,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     AirBehaviour air_behaviour;
     
 public:
-    ServerPlayers(Blocks* blocks, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes, WorldSaver* world_saver) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes), world_saver(world_saver) {}
+    ServerPlayers(Blocks* blocks, Walls* walls, Liquids* liquids, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes, WorldSaver* world_saver) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes), world_saver(world_saver), default_behaviour(blocks, walls, liquids), air_behaviour(blocks, walls, liquids) {}
     
     const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
     

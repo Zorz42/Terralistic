@@ -2,11 +2,13 @@
 #include "content.hpp"
 #include <cstring>
 
-void AirBehaviour::onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
-    BlockType* type = player->inventory.getSelectedSlot().type->places_block;
-    if(type != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
-        blocks->setBlockType(x, y, type);
-    }
+void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
+    BlockType* places_block = player->inventory.getSelectedSlot().type->places_block;
+    WallType* places_wall = player->inventory.getSelectedSlot().type->places_wall;
+    if(places_block != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
+        blocks->setBlockType(x, y, places_block);
+    else if(places_wall != &walls->clear && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
+        walls->setWallType(x, y, places_wall);
 }
 
 void ServerPlayers::init() {
@@ -94,14 +96,14 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
     while(true) {
         BlockType* type = blocks->getBlockType(x, y);
-        getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(blocks, x, y, player);
+        getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(x, y, player);
         if(blocks->getBlockType(x, y) == type)
             break;
     }
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
-    getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(blocks, x, y, player);
+    getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(x, y, player);
 }
 
 void ServerPlayers::fromSerial(const std::vector<char> &serial) {
@@ -177,7 +179,7 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
     
     for(int i = 0; i < 5; i++)
         if(neighbours[i][0] != -1)
-            getBlockBehaviour(blocks->getBlockType(neighbours[i][0], neighbours[i][1]))->onUpdate(blocks, neighbours[i][0], neighbours[i][1]);
+            getBlockBehaviour(blocks->getBlockType(neighbours[i][0], neighbours[i][1]))->onUpdate(neighbours[i][0], neighbours[i][1]);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
