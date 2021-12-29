@@ -36,7 +36,7 @@ void gfx::RectArray::resize(int size) {
     if(size < 0)
         throw Exception("RectArray size must be positive.");
     vertex_buffer.setPrimitiveType(sf::Quads);
-    vertex_buffer.setUsage(sf::VertexBuffer::Dynamic);
+    vertex_buffer.setUsage(sf::VertexBuffer::Static);
     delete[] vertex_array;
     vertex_array = new sf::Vertex[size * 4];
     length = size;
