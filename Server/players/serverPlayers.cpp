@@ -125,8 +125,8 @@ void ServerPlayers::fromSerial(const std::vector<char> &serial) {
             new_player->name.push_back(serial[iter++]);
         iter++;
 
-        memcpy(&new_player->health, &serial[iter], sizeof(short));
-        iter += sizeof(short);
+        memcpy(&new_player->health, &serial[iter], sizeof(int));
+        iter += sizeof(int);
         
         all_players.push_back(new_player);
     }
@@ -151,8 +151,8 @@ std::vector<char> ServerPlayers::toSerial() {
         serial.insert(serial.end(), all_players[i]->name.begin(), all_players[i]->name.end());
         serial.insert(serial.end(), 0);
 
-        serial.insert(serial.end(), {0, 0});
-        memcpy(&serial[serial.size() - 2], &all_players[i]->health, sizeof(short));
+        serial.insert(serial.end(), {0, 0, 0, 0});
+        memcpy(&serial[serial.size() - 4], &all_players[i]->health, sizeof(int));
     }
     return serial;
 }
