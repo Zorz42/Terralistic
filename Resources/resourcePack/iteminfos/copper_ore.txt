@@ -1,3 +1,4 @@
+display_name: Copper Ore
 max_stack: 99
 places_block: copper_ore
 places_wall: clear

@@ -1,3 +1,4 @@
+display_name: Stone Block
 max_stack: 99
 places_block: stone_block
 places_wall: clear

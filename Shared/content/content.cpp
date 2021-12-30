@@ -147,6 +147,7 @@ ItemTypes::ItemTypes(Items* items) {
 void ItemTypes::loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path) {
     for(ItemType* item_type : item_types) {
         ConfigFile item_properties(resource_path + "iteminfos/" + item_type->name + ".txt");
+        item_type->display_name = item_properties.getStr("display_name");
         item_type->max_stack = item_properties.getInt("max_stack");
         item_type->places_block = blocks->getBlockTypeByName(item_properties.getStr("places_block"));
         item_type->places_wall = walls->getWallTypeByName(item_properties.getStr("places_wall"));

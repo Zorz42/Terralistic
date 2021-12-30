@@ -50,7 +50,7 @@ void ClientInventory::loadTextures() {
     item_text_textures = new gfx::Texture[items->getNumItemTypes() - 1];
     
     for(int i = 1; i < items->getNumItemTypes(); i++)
-        item_text_textures[i - 1].loadFromText(items->getItemTypeById(i)->name);
+        item_text_textures[i - 1].loadFromText(items->getItemTypeById(i)->display_name);
 }
 
 void ClientInventory::stop() {

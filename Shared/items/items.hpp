@@ -8,7 +8,7 @@ class ItemType {
 public:
     ItemType(std::string name) : name(std::move(name)) {}
     
-    std::string name;
+    std::string name, display_name;
     int max_stack;
     BlockType* places_block;
     WallType* places_wall;
@@ -47,7 +47,7 @@ class Items {
     std::vector<BlockDrop> drops;
     
 public:
-    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing("nothing") { nothing.places_block = &blocks->air; nothing.max_stack = 0; registerNewItemType(&nothing); }
+    Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing("nothing") { nothing.places_block = &blocks->air; nothing.max_stack = 0; nothing.display_name = "Nothing"; registerNewItemType(&nothing); }
     Item* spawnItem(ItemType* type, int x, int y);
     
     ItemType nothing;

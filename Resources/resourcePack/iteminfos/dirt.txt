@@ -1,3 +1,4 @@
+display_name: Dirt
 max_stack: 99
 places_block: dirt
 places_wall: clear

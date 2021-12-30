@@ -1,3 +1,4 @@
+display_name: Hatchet
 max_stack: 1
 places_block: air
 places_wall: clear

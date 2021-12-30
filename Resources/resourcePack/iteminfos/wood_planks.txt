@@ -1,3 +1,4 @@
+display_name: Wood Planks
 max_stack: 99
 places_block: air
 places_wall: clear

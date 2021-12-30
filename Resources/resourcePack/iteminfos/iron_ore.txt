@@ -1,3 +1,4 @@
+display_name: Iron Ore
 max_stack: 99
 places_block: iron_ore
 places_wall: clear
