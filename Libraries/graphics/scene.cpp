@@ -217,6 +217,7 @@ void gfx::Scene::run() {
             }
         
         sf::Event event;
+        
         while(window->pollEvent(event))
             onEvent(event);
         
