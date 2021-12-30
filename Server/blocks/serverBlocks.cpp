@@ -38,13 +38,13 @@ void ServerBlocks::onEvent(BlockChangeEvent& event) {
 
 void ServerBlocks::onEvent(BlockStartedBreakingEvent& event) {
     sf::Packet packet;
-    packet << ServerPacketType::STARTED_BREAKING << event.x << event.y;
+    packet << ServerPacketType::BLOCK_STARTED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }
 
 void ServerBlocks::onEvent(BlockStoppedBreakingEvent& event) {
     sf::Packet packet;
-    packet << ServerPacketType::STOPPED_BREAKING << event.x << event.y;
+    packet << ServerPacketType::BLOCK_STOPPED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }
 

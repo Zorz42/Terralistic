@@ -2,13 +2,14 @@
 #include "serverBlocks.hpp"
 #include "walls.hpp"
 
-class ServerWalls : public ServerModule, public Walls, EventListener<ServerConnectionWelcomeEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent> {
+class ServerWalls : public ServerModule, public Walls, EventListener<ServerConnectionWelcomeEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent>, EventListener<WallChangeEvent> {
     WorldSaver* world_saver;
     ServerNetworking* networking;
     
     void onEvent(ServerConnectionWelcomeEvent& event) override;
     void onEvent(WorldSaveEvent& event) override;
     void onEvent(WorldLoadEvent& event) override;
+    void onEvent(WallChangeEvent& event) override;
     
     void init() override;
     void stop() override;

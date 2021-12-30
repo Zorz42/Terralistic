@@ -2,7 +2,7 @@
 #include "clientBlocks.hpp"
 #include "walls.hpp"
 
-class ClientWalls : public Walls, public ClientModule, EventListener<WelcomePacketEvent> {
+class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacketEvent>, EventListener<WallChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderWall {
     public:
         RenderWall() : variation(rand()), state(16) {}
@@ -26,6 +26,8 @@ class ClientWalls : public Walls, public ClientModule, EventListener<WelcomePack
     
     gfx::TextureAtlas walls_atlas;
     
+    void onEvent(ClientPacketEvent& event) override;
+    void onEvent(WallChangeEvent& event) override;
     void onEvent(WelcomePacketEvent& event) override;
     
     void init() override;

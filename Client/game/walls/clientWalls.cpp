@@ -64,8 +64,44 @@ void ClientWalls::onEvent(WelcomePacketEvent& event) {
         fromSerial(networking->getData());
 }
 
+void ClientWalls::onEvent(ClientPacketEvent& event) {
+    switch(event.packet_type) {
+        case ServerPacketType::WALL: {
+            int x, y;
+            int wall_id;
+            event.packet >> x >> y >> wall_id;
+            
+            setWallType(x, y, getWallTypeById(wall_id));
+            break;
+        }
+        /*case ServerPacketType::BLOCK_STARTED_BREAKING: {
+            int x, y;
+            event.packet >> x >> y;
+            startBreakingBlock(x, y);
+            break;
+        }
+        case ServerPacketType::BLOCK_STOPPED_BREAKING: {
+            int x, y;
+            event.packet >> x >> y;
+            stopBreakingBlock(x, y);
+            break;
+        }*/
+        default:;
+    }
+}
+
+void ClientWalls::onEvent(WallChangeEvent& event) {
+    int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
+    for(int i = 0; i < 5; i++) {
+        updateState(coords[i][0], coords[i][1]);
+        getWallChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, coords[i][0], coords[i][1]);
+    }
+}
+
 void ClientWalls::init() {
     networking->welcome_packet_event.addListener(this);
+    networking->packet_event.addListener(this);
+    wall_change_event.addListener(this);
 }
 
 void ClientWalls::loadTextures() {
@@ -84,6 +120,8 @@ void ClientWalls::loadTextures() {
 
 void ClientWalls::stop() {
     networking->welcome_packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
+    wall_change_event.removeListener(this);
     
     delete[] render_walls;
     delete[] wall_chunks;
