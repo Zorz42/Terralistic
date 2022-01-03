@@ -124,6 +124,7 @@ public:
     void loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
     
     BlockTypes blocks;
+    
     WallTypes walls;
     LiquidTypes liquids;
     ItemTypes items;
