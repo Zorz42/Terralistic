@@ -2,3 +2,5 @@ display_name: Hammer
 max_stack: 1
 places_block: air
 places_wall: clear
+required_tool_power:
+tool_properties: hammer 100

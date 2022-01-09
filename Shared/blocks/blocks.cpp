@@ -4,11 +4,12 @@
 
 BlockType::BlockType(std::string name) : name(std::move(name)) {}
 
-Blocks::Blocks() : air("air") {
+Blocks::Blocks() : air("air"), hand("hand") {
     air.ghost = true;
     air.transparent = true;
     air.break_time = UNBREAKABLE;
     registerNewBlockType(&air);
+    registerNewToolType(&hand);
 }
 
 void Blocks::create(int width_, int height_) {
@@ -167,6 +168,17 @@ BlockType* Blocks::getBlockTypeByName(const std::string& name) {
     for(int i = 0; i < block_types.size(); i++)
         if(block_types[i]->name == name)
             return block_types[i];
+    return nullptr;
+}
+
+void Blocks::registerNewToolType(Tool* tool) {
+    tool_types.push_back(tool);
+}
+
+Tool* Blocks::getToolTypeByName(const std::string& name) {
+    for(int i = 0; i < tool_types.size(); i++)
+        if(tool_types[i]->name == name)
+            return tool_types[i];
     return nullptr;
 }
 

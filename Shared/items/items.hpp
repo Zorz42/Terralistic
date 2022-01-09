@@ -12,6 +12,7 @@ public:
     int max_stack;
     BlockType* places_block;
     WallType* places_wall;
+    std::map<Tool*, int> tool_powers;
     int id;
 };
 

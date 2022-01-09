@@ -30,10 +30,11 @@ class Walls {
     
     int curr_id = 0;
 public:
-    Walls(Blocks* blocks) : blocks(blocks), clear("clear") { registerNewWallType(&clear); }
+    Walls(Blocks* blocks) : blocks(blocks), clear("clear"), hammer("hammer") { registerNewWallType(&clear); blocks->registerNewToolType(&hammer); }
     void create();
 
     WallType clear;
+    Tool hammer;
     
     WallType* getWallType(int x, int y);
     void setWallType(int x, int y, WallType* type);

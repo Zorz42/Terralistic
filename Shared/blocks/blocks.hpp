@@ -29,10 +29,17 @@ public:
     int x, y;
 };
 
+class Tool {
+public:
+    Tool(const std::string& name) : name(name) {}
+    std::string name;
+};
+
 class BlockType {
 public:
     BlockType(std::string name);
-    
+    Tool* effective_tool;
+    int required_tool_power;
     bool ghost, transparent;
     std::string name;
     std::vector<BlockType*> connects_to;
@@ -59,6 +66,7 @@ class Blocks {
 
     std::vector<BreakingBlock> breaking_blocks;
     std::vector<BlockType*> block_types;
+    std::vector<Tool*> tool_types;
     
     Block* getBlock(int x, int y);
 public:
@@ -66,6 +74,7 @@ public:
     void create(int width, int height);
 
     BlockType air;
+    Tool hand;
     
     BlockType* getBlockType(int x, int y);
     void setBlockType(int x, int y, BlockType* type);
@@ -89,6 +98,9 @@ public:
     BlockType* getBlockTypeById(int block_id);
     BlockType* getBlockTypeByName(const std::string& name);
     int getNumBlockTypes();
+    
+    void registerNewToolType(Tool* tool);
+    Tool* getToolTypeByName(const std::string& name);
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;

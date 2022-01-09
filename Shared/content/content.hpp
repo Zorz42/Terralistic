@@ -119,12 +119,13 @@ public:
 class GameContent {
     void addRecipes(Recipes* recipes);
 public:
-    GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_, walls_, liquids_), walls(walls_), liquids(liquids_), items(items_) {}
+    GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_, walls_, liquids_), walls(walls_), liquids(liquids_), items(items_), axe("axe") { blocks_->registerNewToolType(&axe); }
     
     void loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path);
     
     BlockTypes blocks;
     
+    Tool axe;
     WallTypes walls;
     LiquidTypes liquids;
     ItemTypes items;

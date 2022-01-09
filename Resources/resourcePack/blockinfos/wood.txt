@@ -4,3 +4,5 @@ break_time: 1000
 connects_to: grass_block leaves
 drop: wood_planks
 drop_chance: 100
+effective_tool: axe
+effective_tool_power: 0

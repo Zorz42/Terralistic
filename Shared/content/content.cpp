@@ -61,9 +61,18 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         }
         
         ItemType* drop = items->getItemTypeByName(block_properties.getStr("drop"));
-        if(drop != &items->nothing) {
+        if(drop != &items->nothing)
             items->setBlockDrop(block_type, BlockDrop(drop, block_properties.getInt("drop_chance") / 100.f));
-        }
+        
+        if(block_properties.keyExists("effective_tool"))
+            block_type->effective_tool = blocks->getToolTypeByName(block_properties.getStr("effective_tool"));
+        else
+            block_type->effective_tool = &blocks->hand;
+        
+        if(block_properties.keyExists("effective_tool_power"))
+            block_type->required_tool_power = block_properties.getInt("effective_tool_power");
+        else
+            block_type->required_tool_power = 0;
     }
 }
 
@@ -157,5 +166,17 @@ void ItemTypes::loadContent(Items* items, Blocks* blocks, Walls* walls, const st
         item_type->max_stack = item_properties.getInt("max_stack");
         item_type->places_block = blocks->getBlockTypeByName(item_properties.getStr("places_block"));
         item_type->places_wall = walls->getWallTypeByName(item_properties.getStr("places_wall"));
+        
+        std::vector<std::string> tool_properties_split_up = {""};
+        std::string tool_properties_raw = item_properties.getStr("tool_properties");
+        for(int i = 0; i < tool_properties_raw.size(); i++) {
+            if(tool_properties_raw[i] == ' ')
+                tool_properties_split_up.emplace_back();
+            else
+                tool_properties_split_up.back().push_back(tool_properties_raw[i]);
+        }
+        
+        for(int i = 0; i + 1 < tool_properties_split_up.size(); i += 2)
+            item_type->tool_powers[blocks->getToolTypeByName(tool_properties_split_up[i])] = std::stoi(tool_properties_split_up[i + 1]);
     }
 }

@@ -96,7 +96,8 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
     while(true) {
         BlockType* type = blocks->getBlockType(x, y);
-        getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(x, y, player);
+        if(blocks->getBlockType(x, y)->effective_tool == &blocks->hand || (player->inventory.getSelectedSlot().type->tool_powers.count(blocks->getBlockType(x, y)->effective_tool) && player->inventory.getSelectedSlot().type->tool_powers[blocks->getBlockType(x, y)->effective_tool] >= blocks->getBlockType(x, y)->required_tool_power))
+            getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(x, y, player);
         if(blocks->getBlockType(x, y) == type)
             break;
     }
