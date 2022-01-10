@@ -64,6 +64,10 @@ void ClientWalls::onEvent(WelcomePacketEvent& event) {
         fromSerial(networking->getData());
 }
 
+void ClientWalls::update(float frame_length) {
+    updateBreakingWalls(frame_length);
+}
+
 void ClientWalls::onEvent(ClientPacketEvent& event) {
     switch(event.packet_type) {
         case ServerPacketType::WALL: {
@@ -74,18 +78,18 @@ void ClientWalls::onEvent(ClientPacketEvent& event) {
             setWallType(x, y, getWallTypeById(wall_id));
             break;
         }
-        /*case ServerPacketType::BLOCK_STARTED_BREAKING: {
+        case ServerPacketType::WALL_STARTED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
-            startBreakingBlock(x, y);
+            startBreakingWall(x, y);
             break;
         }
-        case ServerPacketType::BLOCK_STOPPED_BREAKING: {
+        case ServerPacketType::WALL_STOPPED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
-            stopBreakingBlock(x, y);
+            stopBreakingWall(x, y);
             break;
-        }*/
+        }
         default:;
     }
 }
@@ -105,6 +109,8 @@ void ClientWalls::init() {
 }
 
 void ClientWalls::loadTextures() {
+    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    
     std::vector<gfx::Texture*> wall_textures(getNumWallTypes() - 1);
 
     for(int i = 1; i < getNumWallTypes(); i++) {
@@ -175,6 +181,14 @@ void ClientWalls::render() {
                 getWallChunk(x, y)->create(this, x, y);
             
             getWallChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+        }
+    
+    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX(); x++)
+        for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY(); y++) {
+            if(getBreakStage(x, y)) {
+                int block_x = x * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
+                breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x, y) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
+            }
         }
 }
 

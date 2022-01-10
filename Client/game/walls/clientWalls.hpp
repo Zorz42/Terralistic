@@ -25,6 +25,7 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     WallChunk* getWallChunk(int x, int y);
     
     gfx::TextureAtlas walls_atlas;
+    gfx::Texture breaking_texture;
     
     void onEvent(ClientPacketEvent& event) override;
     void onEvent(WallChangeEvent& event) override;
@@ -34,6 +35,7 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     void postInit() override;
     void loadTextures() override;
     void render() override;
+    void update(float frame_length) override;
     void stop() override;
     
     bool updateOrientationSide(int x, int y, int side_x, int side_y);

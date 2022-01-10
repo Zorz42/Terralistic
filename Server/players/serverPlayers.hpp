@@ -66,6 +66,7 @@ public:
 class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent> {
     Entities* entities;
     Blocks* blocks;
+    Walls* walls;
     Items* items;
     Recipes* recipes;
     ServerNetworking* networking;
@@ -95,7 +96,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockChangeEvent>, Even
     AirBehaviour air_behaviour;
     
 public:
-    ServerPlayers(Blocks* blocks, Walls* walls, Liquids* liquids, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes, WorldSaver* world_saver) : blocks(blocks), entities(entities), items(items), networking(networking), recipes(recipes), world_saver(world_saver), default_behaviour(blocks, walls, liquids), air_behaviour(blocks, walls, liquids) {}
+    ServerPlayers(Blocks* blocks, Walls* walls, Liquids* liquids, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes, WorldSaver* world_saver) : blocks(blocks), walls(walls), entities(entities), items(items), networking(networking), recipes(recipes), world_saver(world_saver), default_behaviour(blocks, walls, liquids), air_behaviour(blocks, walls, liquids) {}
     
     const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
     

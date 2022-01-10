@@ -29,17 +29,28 @@ int Items::getNumItemTypes() {
     return (int)item_types.size();
 }
 
-void Items::setBlockDrop(BlockType* block_type, BlockDrop block_drop) {
-    if(drops.size() <= block_type->id)
-        drops.resize(block_type->id + 1);
-    
-    drops[block_type->id] = block_drop;
+void Items::setBlockDrop(BlockType* block_type, TileDrop drop) {
+    if(block_drops.size() <= block_type->id)
+        block_drops.resize(block_type->id + 1);
+    block_drops[block_type->id] = drop;
 }
 
-BlockDrop Items::getBlockDrop(BlockType* block_type) {
-    if(block_type->id < drops.size() && drops[block_type->id].drop)
-        return drops[block_type->id];
-    return BlockDrop(&nothing);
+TileDrop Items::getBlockDrop(BlockType* block_type) {
+    if(block_type->id < block_drops.size() && block_drops[block_type->id].drop)
+        return block_drops[block_type->id];
+    return TileDrop(&nothing);
+}
+
+void Items::setWallDrop(WallType* wall_type, TileDrop drop) {
+    if(wall_drops.size() <= wall_type->id)
+        wall_drops.resize(wall_type->id + 1);
+    wall_drops[wall_type->id] = drop;
+}
+
+TileDrop Items::getWallDrop(WallType* wall_type) {
+    if(wall_type->id < wall_drops.size() && wall_drops[wall_type->id].drop)
+        return wall_drops[wall_type->id];
+    return TileDrop(&nothing);
 }
 
 ItemType* Items::getItemTypeByName(const std::string& name) {

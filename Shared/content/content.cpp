@@ -3,7 +3,7 @@
 
 void GameContent::loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
     blocks.loadContent(blocks_, items_, &items, resource_path);
-    walls.loadContent(walls_, resource_path);
+    walls.loadContent(walls_, items_, resource_path);
     liquids.loadContent(liquids_, resource_path);
     items.loadContent(items_, blocks_, walls_, resource_path);
     addRecipes(recipes);
@@ -62,7 +62,7 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         
         ItemType* drop = items->getItemTypeByName(block_properties.getStr("drop"));
         if(drop != &items->nothing)
-            items->setBlockDrop(block_type, BlockDrop(drop, block_properties.getInt("drop_chance") / 100.f));
+            items->setBlockDrop(block_type, TileDrop(drop, block_properties.getInt("drop_chance") / 100.f));
         
         if(block_properties.keyExists("effective_tool"))
             block_type->effective_tool = blocks->getToolTypeByName(block_properties.getStr("effective_tool"));
@@ -135,8 +135,16 @@ dirt("dirt")
     for(WallType* wall_type : wall_types)
         walls->registerNewWallType(wall_type);
 }
-void WallTypes::loadContent(Walls* walls, const std::string& resource_path) {
-    
+void WallTypes::loadContent(Walls* walls, Items* items, const std::string& resource_path) {
+    for(WallType* wall_type : wall_types) {
+        ConfigFile wall_properties(resource_path + "wallinfos/" + wall_type->name + ".txt");
+        if(wall_properties.getStr("break_time") == "UNBREAKABLE")
+            wall_type->break_time = UNBREAKABLE;
+        else
+            wall_type->break_time = wall_properties.getInt("break_time");
+        
+        items->setWallDrop(wall_type, TileDrop(items->getItemTypeByName(wall_properties.getStr("drops"))));
+    }
 }
 
 LiquidTypes::LiquidTypes(Liquids* liquids) :

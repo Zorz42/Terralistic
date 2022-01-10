@@ -84,7 +84,7 @@ class WallTypes {
     std::vector<WallType*> wall_types = {&dirt};
 public:
     WallTypes(Walls* walls);
-    void loadContent(Walls* walls, const std::string& resource_path);
+    void loadContent(Walls* walls, Items* items, const std::string& resource_path);
     
     WallType dirt;
 };

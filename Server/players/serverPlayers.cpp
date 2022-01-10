@@ -4,11 +4,8 @@
 
 void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
     BlockType* places_block = player->inventory.getSelectedSlot().type->places_block;
-    WallType* places_wall = player->inventory.getSelectedSlot().type->places_wall;
     if(places_block != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
         blocks->setBlockType(x, y, places_block);
-    else if(places_wall != &walls->clear && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
-        walls->setWallType(x, y, places_wall);
 }
 
 void ServerPlayers::init() {
@@ -96,15 +93,24 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
     while(true) {
         BlockType* type = blocks->getBlockType(x, y);
-        if(blocks->getBlockType(x, y)->effective_tool == &blocks->hand || (player->inventory.getSelectedSlot().type->tool_powers.count(blocks->getBlockType(x, y)->effective_tool) && player->inventory.getSelectedSlot().type->tool_powers[blocks->getBlockType(x, y)->effective_tool] >= blocks->getBlockType(x, y)->required_tool_power))
-            getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(x, y, player);
+        if(type->ghost && player->inventory.getSelectedSlot().type->tool_powers.count(&walls->hammer))
+            walls->startBreakingWall(x, y);
+        
+        if(type->effective_tool == &blocks->hand || (player->inventory.getSelectedSlot().type->tool_powers.count(type->effective_tool) && player->inventory.getSelectedSlot().type->tool_powers[type->effective_tool] >= type->required_tool_power))
+            getBlockBehaviour(type)->onLeftClick(x, y, player);
+        
         if(blocks->getBlockType(x, y) == type)
             break;
     }
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
-    getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(x, y, player);
+    WallType* places_wall = player->inventory.getSelectedSlot().type->places_wall;
+    if(places_wall != &walls->clear) {
+        if(walls->getWallType(x, y) == &walls->clear && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
+            walls->setWallType(x, y, places_wall);
+    } else
+        getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(x, y, player);
 }
 
 void ServerPlayers::fromSerial(const std::vector<char> &serial) {
@@ -298,8 +304,10 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             int breaking_x, breaking_y;
             event.packet >> breaking_x >> breaking_y;
             
-            if(event.player->breaking)
+            if(event.player->breaking) {
                 blocks->stopBreakingBlock(event.player->breaking_x, event.player->breaking_y);
+                walls->stopBreakingWall(event.player->breaking_x, event.player->breaking_y);
+            }
             
             event.player->breaking_x = breaking_x;
             event.player->breaking_y = breaking_y;
@@ -311,6 +319,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         case ClientPacketType::STOPPED_BREAKING: {
             event.player->breaking = false;
             blocks->stopBreakingBlock(event.player->breaking_x, event.player->breaking_y);
+            walls->stopBreakingWall(event.player->breaking_x, event.player->breaking_y);
             break;
         }
 

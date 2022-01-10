@@ -1,0 +1,2 @@
+break_time: 1000
+drops: dirt_wall

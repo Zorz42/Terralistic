@@ -32,10 +32,10 @@ public:
     const Item* item;
 };
 
-class BlockDrop {
+class TileDrop {
 public:
-    BlockDrop() : drop(nullptr) {}
-    explicit BlockDrop(ItemType* drop, float chance=1) : drop(drop), chance(chance) {}
+    TileDrop() : drop(nullptr) {}
+    explicit TileDrop(ItemType* drop, float chance=1) : drop(drop), chance(chance) {}
     ItemType* drop;
     float chance;
 };
@@ -45,7 +45,8 @@ class Items {
     Blocks* blocks;
     
     std::vector<ItemType*> item_types;
-    std::vector<BlockDrop> drops;
+    std::vector<TileDrop> block_drops;
+    std::vector<TileDrop> wall_drops;
     
 public:
     Items(Entities* entities, Blocks* blocks) : entities(entities), blocks(blocks), nothing("nothing") { nothing.places_block = &blocks->air; nothing.max_stack = 0; nothing.display_name = "Nothing"; registerNewItemType(&nothing); }
@@ -58,8 +59,11 @@ public:
     ItemType* getItemTypeByName(const std::string& name);
     int getNumItemTypes();
     
-    void setBlockDrop(BlockType* block_type, BlockDrop block_drop);
-    BlockDrop getBlockDrop(BlockType* block_type);
+    void setBlockDrop(BlockType* block_type, TileDrop drop);
+    TileDrop getBlockDrop(BlockType* block_type);
+    
+    void setWallDrop(WallType* wall_type, TileDrop drop);
+    TileDrop getWallDrop(WallType* wall_type);
     
     EventSender<ItemCreationEvent> item_creation_event;
 };
