@@ -39,6 +39,12 @@ void Blocks::setBlockType(int x, int y, BlockType* type) {
     if(type->id != getBlock(x, y)->id) {
         setBlockTypeSilently(x, y, type);
         
+        for(int i = 0; i < breaking_blocks.size(); i++)
+            if(breaking_blocks[i].x == x && breaking_blocks[i].y == y) {
+                breaking_blocks.erase(breaking_blocks.begin() + i);
+                break;
+            }
+        
         BlockChangeEvent event(x, y);
         block_change_event.call(event);
     }

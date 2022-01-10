@@ -23,6 +23,12 @@ void Walls::setWallType(int x, int y, WallType* type) {
     if(type->id != getWall(x, y)->id) {
         setWallTypeSilently(x, y, type);
         
+        for(int i = 0; i < breaking_walls.size(); i++)
+            if(breaking_walls[i].x == x && breaking_walls[i].y == y) {
+                breaking_walls.erase(breaking_walls.begin() + i);
+                break;
+            }
+        
         WallChangeEvent event(x, y);
         wall_change_event.call(event);
     }
