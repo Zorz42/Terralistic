@@ -22,7 +22,7 @@ void WorldJoiningScreen::init() {
 }
 
 void WorldJoiningScreen::render() {
-    if(game->isInitialized())
+    if(game->isInitialized() || game->interrupt)
         returnFromScene();
     
     menu_back->setBackWidth(text.getWidth() + 300);
@@ -85,8 +85,10 @@ void Game::initialize() {
         if(interrupt)
             throw Exception(interrupt_message);
     } catch (const std::exception& exception) {
-        ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
-        switchToScene(choice_screen);
+        interrupt_message = exception.what();
+        interrupt = true;
+        //ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
+        //switchToScene(choice_screen);
     }
 }
 
@@ -98,6 +100,9 @@ void Game::start() {
         std::thread init_thread(&Game::initialize, this);
         WorldJoiningScreen(background_rect, this).run();
         init_thread.join();
+        
+        if(interrupt)
+            throw Exception(interrupt_message);
         
         for(int i = 0; i < getModules().size(); i++)
             if(getModules()[i] != this)

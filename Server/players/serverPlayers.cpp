@@ -2,11 +2,10 @@
 #include "content.hpp"
 #include <cstring>
 
-void AirBehaviour::onRightClick(Blocks* blocks, int x, int y, ServerPlayer* player) {
-    BlockType* type = player->inventory.getSelectedSlot().type->places;
-    if(type != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1)) {
-        blocks->setBlockType(x, y, type);
-    }
+void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
+    BlockType* places_block = player->inventory.getSelectedSlot().type->places_block;
+    if(places_block != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
+        blocks->setBlockType(x, y, places_block);
 }
 
 void ServerPlayers::init() {
@@ -94,14 +93,24 @@ ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
 void ServerPlayers::leftClickEvent(ServerPlayer* player, int x, int y) {
     while(true) {
         BlockType* type = blocks->getBlockType(x, y);
-        getBlockBehaviour(blocks->getBlockType(x, y))->onLeftClick(blocks, x, y, player);
+        if(type->ghost && player->inventory.getSelectedSlot().type->tool_powers.count(&walls->hammer))
+            walls->startBreakingWall(x, y);
+        
+        if(type->effective_tool == &blocks->hand || (player->inventory.getSelectedSlot().type->tool_powers.count(type->effective_tool) && player->inventory.getSelectedSlot().type->tool_powers[type->effective_tool] >= type->required_tool_power))
+            getBlockBehaviour(type)->onLeftClick(x, y, player);
+        
         if(blocks->getBlockType(x, y) == type)
             break;
     }
 }
 
 void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
-    getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(blocks, x, y, player);
+    WallType* places_wall = player->inventory.getSelectedSlot().type->places_wall;
+    if(places_wall != &walls->clear) {
+        if(walls->getWallType(x, y) == &walls->clear && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
+            walls->setWallType(x, y, places_wall);
+    } else
+        getBlockBehaviour(blocks->getBlockType(x, y))->onRightClick(x, y, player);
 }
 
 void ServerPlayers::fromSerial(const std::vector<char> &serial) {
@@ -123,8 +132,8 @@ void ServerPlayers::fromSerial(const std::vector<char> &serial) {
             new_player->name.push_back(serial[iter++]);
         iter++;
 
-        memcpy(&new_player->health, &serial[iter], sizeof(short));
-        iter += sizeof(short);
+        memcpy(&new_player->health, &serial[iter], sizeof(int));
+        iter += sizeof(int);
         
         all_players.push_back(new_player);
     }
@@ -149,8 +158,8 @@ std::vector<char> ServerPlayers::toSerial() {
         serial.insert(serial.end(), all_players[i]->name.begin(), all_players[i]->name.end());
         serial.insert(serial.end(), 0);
 
-        serial.insert(serial.end(), {0, 0});
-        memcpy(&serial[serial.size() - 2], &all_players[i]->health, sizeof(short));
+        serial.insert(serial.end(), {0, 0, 0, 0});
+        memcpy(&serial[serial.size() - 4], &all_players[i]->health, sizeof(int));
     }
     return serial;
 }
@@ -177,7 +186,7 @@ void ServerPlayers::onEvent(BlockChangeEvent& event) {
     
     for(int i = 0; i < 5; i++)
         if(neighbours[i][0] != -1)
-            getBlockBehaviour(blocks->getBlockType(neighbours[i][0], neighbours[i][1]))->onUpdate(blocks, neighbours[i][0], neighbours[i][1]);
+            getBlockBehaviour(blocks->getBlockType(neighbours[i][0], neighbours[i][1]))->onUpdate(neighbours[i][0], neighbours[i][1]);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
@@ -295,8 +304,10 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             int breaking_x, breaking_y;
             event.packet >> breaking_x >> breaking_y;
             
-            if(event.player->breaking)
+            if(event.player->breaking) {
                 blocks->stopBreakingBlock(event.player->breaking_x, event.player->breaking_y);
+                walls->stopBreakingWall(event.player->breaking_x, event.player->breaking_y);
+            }
             
             event.player->breaking_x = breaking_x;
             event.player->breaking_y = breaking_y;
@@ -308,6 +319,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         case ClientPacketType::STOPPED_BREAKING: {
             event.player->breaking = false;
             blocks->stopBreakingBlock(event.player->breaking_x, event.player->breaking_y);
+            walls->stopBreakingWall(event.player->breaking_x, event.player->breaking_y);
             break;
         }
 

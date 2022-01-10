@@ -14,21 +14,32 @@ public:
 int main(int argc, char **argv) {
     std::string data_folder = sago::getDataHome() + "/Terralistic-Server/";
     
+    bool gui = true;
+    
+    if(argc > 1 && (std::string)argv[1] == "nogui")
+        gui = false;
+    
     if(!std::filesystem::exists(data_folder))
         std::filesystem::create_directory(data_folder);
     
-    gfx::init(getResourcePath(argv[0]), 500, 300);
-    gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
-    gfx::loadFont("pixel_font.ttf", 8);
+    std::string resource_path = getResourcePath(argv[0]);
     
-    Server main_server(gfx::getResourcePath(), data_folder + "world", 33770);
+    if(gui) {
+        gfx::init(resource_path, 500, 300);
+        gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
+        gfx::loadFont("pixel_font.ttf", 8);
+    }
     
-    std::thread server_thread(&Server::start, &main_server);
+    Server main_server(resource_path, data_folder + "world", 33770);
     
-    ServerScene().run();
-    
-    main_server.stop();
-    server_thread.join();
+    if(gui) {
+        std::thread server_thread(&Server::start, &main_server);
+        ServerScene().run();
+        main_server.stop();
+        server_thread.join();
+    } else {
+        main_server.start();
+    }
 }
 
 void ServerScene::init() {

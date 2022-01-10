@@ -42,13 +42,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             setBlockType(x, y, getBlockTypeById(block_id));
             break;
         }
-        case ServerPacketType::STARTED_BREAKING: {
+        case ServerPacketType::BLOCK_STARTED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             startBreakingBlock(x, y);
             break;
         }
-        case ServerPacketType::STOPPED_BREAKING: {
+        case ServerPacketType::BLOCK_STOPPED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             stopBreakingBlock(x, y);
