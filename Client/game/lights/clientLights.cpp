@@ -5,15 +5,13 @@ void ClientLights::init() {
     settings->addSetting(&light_enable_setting);
 #endif
     Lights::init();
-    light_level_change_event.addListener(this);
+    light_color_change_event.addListener(this);
 }
 
 void ClientLights::postInit() {
     create();
     light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
-    for(int x = 0; x < getWidth(); x++)
-        for(int y = 0; y < getHeight(); y++)
-            setLightSource(x, y, blocks->getBlockType(x, y)->light_emission);
+    updateAllLightEmitters();
 }
 
 ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
@@ -35,7 +33,25 @@ void ClientLights::update(float frame_length) {
     }
 }
 
-void ClientLights::LightChunk::update(Lights* lights, int x, int y) {
+LightColor ClientLights::getAverageColor(int x, int y) {
+    int r = 0, g = 0, b = 0;
+    int lights[5][2] = {{x, y}, {x + 1, y}, {x, y + 1}, {x - 1, y}, {x, y - 1}};
+    int count = 0;
+    for(int i = 0; i < 5; i++)
+        if(lights[i][0] >= 0 && lights[i][0] < getWidth() && lights[i][1] >= 0 && lights[i][1] < getHeight()) {
+            LightColor color = getLightColor(lights[i][0], lights[i][1]);
+            r += color.r;
+            g += color.g;
+            b += color.b;
+            count++;
+        }
+    r /= count;
+    g /= count;
+    b /= count;
+    return LightColor(r, g, b);
+}
+
+void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     if(!is_created)
         return;
     
@@ -44,17 +60,36 @@ void ClientLights::LightChunk::update(Lights* lights, int x, int y) {
     light_rects.setRect(index, {rel_x * BLOCK_WIDTH * 2 + BLOCK_WIDTH, rel_y * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     
     int low_x = x == lights->getWidth() - 1 ? x : x + 1, low_y = y == lights->getHeight() - 1 ? y : y + 1;
-    light_rects.setColor(index * 4, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(x, y))});
-    light_rects.setColor(index * 4 + 1, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(low_x, y))});
-    light_rects.setColor(index * 4 + 2, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(low_x, low_y))});
-    light_rects.setColor(index * 4 + 3, {0, 0, 0, (unsigned char)(255 - 255.0 / MAX_LIGHT * lights->getLightLevel(x, low_y))});
+    
+    LightColor color1 = lights->getAverageColor(x, y), color2 = lights->getAverageColor(low_x, y), color3 = lights->getAverageColor(low_x, low_y), color4 = lights->getAverageColor(x, low_y);
+    
+    light_rects.setColor(index * 4, {
+        (unsigned char)(255.0 / MAX_LIGHT * color1.r),
+        (unsigned char)(255.0 / MAX_LIGHT * color1.g),
+        (unsigned char)(255.0 / MAX_LIGHT * color1.b),
+    });
+    light_rects.setColor(index * 4 + 1, {
+        (unsigned char)(255.0 / MAX_LIGHT * color2.r),
+        (unsigned char)(255.0 / MAX_LIGHT * color2.g),
+        (unsigned char)(255.0 / MAX_LIGHT * color2.b),
+    });
+    light_rects.setColor(index * 4 + 2, {
+        (unsigned char)(255.0 / MAX_LIGHT * color3.r),
+        (unsigned char)(255.0 / MAX_LIGHT * color3.g),
+        (unsigned char)(255.0 / MAX_LIGHT * color3.b),
+    });
+    light_rects.setColor(index * 4 + 3, {
+        (unsigned char)(255.0 / MAX_LIGHT * color4.r),
+        (unsigned char)(255.0 / MAX_LIGHT * color4.g),
+        (unsigned char)(255.0 / MAX_LIGHT * color4.b),
+    });
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
-    light_rects.render(LIGHT_CHUNK_SIZE * LIGHT_CHUNK_SIZE, nullptr, x, y);
+    light_rects.render(LIGHT_CHUNK_SIZE * LIGHT_CHUNK_SIZE, nullptr, x, y, /*blend_multiply*/true);
 }
 
-void ClientLights::LightChunk::create(Lights *lights, int x, int y) {
+void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {
     light_rects.resize(LIGHT_CHUNK_SIZE * LIGHT_CHUNK_SIZE);
     is_created = true;
     
@@ -65,16 +100,12 @@ void ClientLights::LightChunk::create(Lights *lights, int x, int y) {
         }
 }
 
-void ClientLights::onEvent(LightLevelChangeEvent& event) {
+void ClientLights::onEvent(LightColorChangeEvent& event) {
     int high_x = event.x == 0 ? event.x : event.x - 1, high_y = event.y == 0 ? event.y : event.y - 1;
     getLightChunk(event.x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, event.x, event.y);
     getLightChunk(high_x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, high_x, event.y);
     getLightChunk(event.x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, event.x, high_y);
     getLightChunk(high_x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, high_x, high_y);
-}
-
-void ClientLights::onBlockChange(BlockChangeEvent &event) {
-    setLightSource(event.x, event.y, blocks->getBlockType(event.x, event.y)->light_emission);
 }
 
 void ClientLights::render() {
@@ -91,6 +122,6 @@ void ClientLights::stop() {
     settings->removeSetting(&light_enable_setting);
 #endif
     Lights::stop();
-    light_level_change_event.removeListener(this);
+    light_color_change_event.removeListener(this);
     delete[] light_chunks;
 }

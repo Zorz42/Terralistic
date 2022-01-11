@@ -3,32 +3,40 @@
 
 #define MAX_LIGHT 100
 
-class LightLevelChangeEvent {
+class LightColorChangeEvent {
 public:
-    LightLevelChangeEvent(int x, int y) : x(x), y(y) {}
+    LightColorChangeEvent(int x, int y) : x(x), y(y) {}
     int x, y;
+};
+
+class LightColor {
+public:
+    LightColor(int r, int g, int b) : r(r), g(g), b(b) {}
+    int r:8, g:8, b:8;
+    bool operator==(LightColor color);
+    bool operator!=(LightColor color);
 };
 
 class Lights : EventListener<BlockChangeEvent> {
     class Light {
     public:
-        Light() : light_level(0) {}
+        Light() : color(0, 0, 0) {}
         bool light_source = false, update_light = true;
-        int light_level:8;
+        LightColor color;
     };
     
     Light* lights = nullptr;
     
     Light* getLight(int x, int y);
-    void setLightLevel(int x, int y, int level);
+    void setLightColor(int x, int y, LightColor color);
     
     void onEvent(BlockChangeEvent& event) override;
-    virtual void onBlockChange(BlockChangeEvent& event) {}
     
     Blocks* blocks;
 public:
     Lights(Blocks* blocks) : blocks(blocks) {}
     void create();
+    void updateAllLightEmitters();
     
     void init();
     void stop();
@@ -37,13 +45,16 @@ public:
     int getHeight() const;
     
     void updateLight(int x, int y);
-    void setLightSource(int x, int y, int level);
+    void setLightSource(int x, int y, LightColor color);
+    LightColor getLightColor(int x, int y);
     int getLightLevel(int x, int y);
     void scheduleLightUpdate(int x, int y);
     bool hasScheduledLightUpdate(int x, int y);
     void scheduleLightUpdateForNeighbors(int x, int y);
     
-    EventSender<LightLevelChangeEvent> light_level_change_event;
+    void updateLightEmitter(int x, int y);
+    
+    EventSender<LightColorChangeEvent> light_color_change_event;
     
     ~Lights();
 };
