@@ -109,12 +109,6 @@ void ClientLights::onEvent(LightColorChangeEvent& event) {
         for(int y = event.y - 2; y <= event.y + 2; y++)
             if(x >= 0 && x < getWidth() && y >= 0 && y < getHeight())
                 getLightChunk(x / LIGHT_CHUNK_SIZE, y / LIGHT_CHUNK_SIZE)->update(this, x, y);
-    
-    /*int high_x = event.x == 0 ? event.x : event.x - 1, high_y = event.y == 0 ? event.y : event.y - 1;
-    getLightChunk(event.x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, event.x, event.y);
-    getLightChunk(high_x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, high_x, event.y);
-    getLightChunk(event.x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, event.x, high_y);
-    getLightChunk(high_x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, high_x, high_y);*/
 }
 
 void ClientLights::render() {
