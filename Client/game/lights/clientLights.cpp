@@ -11,6 +11,9 @@ void ClientLights::init() {
 void ClientLights::postInit() {
     create();
     light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
+    for(int x = 0; x < getWidth(); x++)
+        for(int y = 0; y < getHeight(); y++)
+            setLightSource(x, y, blocks->getBlockType(x, y)->light_emission);
 }
 
 ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
