@@ -46,6 +46,7 @@ public:
     
     void updateLight(int x, int y);
     void setLightSource(int x, int y, LightColor color);
+    bool isLightSource(int x, int y);
     LightColor getLightColor(int x, int y);
     int getLightLevel(int x, int y);
     void scheduleLightUpdate(int x, int y);

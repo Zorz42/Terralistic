@@ -35,9 +35,9 @@ void ClientLights::update(float frame_length) {
 
 LightColor ClientLights::getAverageColor(int x, int y) {
     int r = 0, g = 0, b = 0;
-    int lights[5][2] = {{x, y}, {x + 1, y}, {x, y + 1}, {x - 1, y}, {x, y - 1}};
+    int lights[4][2] = {{x + 1, y}, {x, y + 1}, {x - 1, y}, {x, y - 1}};
     int count = 0;
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 4; i++)
         if(lights[i][0] >= 0 && lights[i][0] < getWidth() && lights[i][1] >= 0 && lights[i][1] < getHeight()) {
             LightColor color = getLightColor(lights[i][0], lights[i][1]);
             r += color.r;
@@ -61,7 +61,11 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     
     int low_x = x == lights->getWidth() - 1 ? x : x + 1, low_y = y == lights->getHeight() - 1 ? y : y + 1;
     
-    LightColor color1 = lights->getAverageColor(x, y), color2 = lights->getAverageColor(low_x, y), color3 = lights->getAverageColor(low_x, low_y), color4 = lights->getAverageColor(x, low_y);
+    LightColor
+    color1 = lights->isLightSource(x, y) ? lights->getAverageColor(x, y) : lights->getLightColor(x, y),
+    color2 = lights->isLightSource(low_x, y) ? lights->getAverageColor(low_x, y) : lights->getLightColor(low_x, y),
+    color3 = lights->isLightSource(low_x, low_y) ? lights->getAverageColor(low_x, low_y) : lights->getLightColor(low_x, low_y),
+    color4 = lights->isLightSource(x, low_y) ? lights->getAverageColor(x, low_y) : lights->getLightColor(x, low_y);
     
     light_rects.setColor(index * 4, {
         (unsigned char)(255.0 / MAX_LIGHT * color1.r),
@@ -101,11 +105,16 @@ void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {
 }
 
 void ClientLights::onEvent(LightColorChangeEvent& event) {
-    int high_x = event.x == 0 ? event.x : event.x - 1, high_y = event.y == 0 ? event.y : event.y - 1;
+    for(int x = event.x - 2; x <= event.x + 2; x++)
+        for(int y = event.y - 2; y <= event.y + 2; y++)
+            if(x >= 0 && x < getWidth() && y >= 0 && y < getHeight())
+                getLightChunk(x / LIGHT_CHUNK_SIZE, y / LIGHT_CHUNK_SIZE)->update(this, x, y);
+    
+    /*int high_x = event.x == 0 ? event.x : event.x - 1, high_y = event.y == 0 ? event.y : event.y - 1;
     getLightChunk(event.x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, event.x, event.y);
     getLightChunk(high_x / LIGHT_CHUNK_SIZE, event.y / LIGHT_CHUNK_SIZE)->update(this, high_x, event.y);
     getLightChunk(event.x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, event.x, high_y);
-    getLightChunk(high_x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, high_x, high_y);
+    getLightChunk(high_x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, high_x, high_y);*/
 }
 
 void ClientLights::render() {

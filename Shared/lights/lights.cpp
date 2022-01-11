@@ -32,6 +32,10 @@ Lights::Light* Lights::getLight(int x, int y) {
     return &lights[y * blocks->getWidth() + x];
 }
 
+bool Lights::isLightSource(int x, int y) {
+    return getLight(x, y)->light_source;
+}
+
 void Lights::setLightColor(int x, int y, LightColor color) {
     if(color.r == 0 && color.g == 0 && color.b == 0)
         getLight(x, y)->light_source = false;
