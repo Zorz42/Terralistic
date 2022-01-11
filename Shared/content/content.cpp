@@ -73,6 +73,8 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
             block_type->required_tool_power = block_properties.getInt("effective_tool_power");
         else
             block_type->required_tool_power = 0;
+        
+        block_type->light_emission = block_properties.getInt("light_emmision");
     }
 }
 

@@ -70,6 +70,10 @@ void ClientLights::onEvent(LightLevelChangeEvent& event) {
     getLightChunk(high_x / LIGHT_CHUNK_SIZE, high_y / LIGHT_CHUNK_SIZE)->update(this, high_x, high_y);
 }
 
+void ClientLights::onBlockChange(BlockChangeEvent &event) {
+    setLightSource(event.x, event.y, blocks->getBlockType(event.x, event.y)->light_emission);
+}
+
 void ClientLights::render() {
     for(int x = blocks->getBlocksViewBeginX() / LIGHT_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / LIGHT_CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / LIGHT_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / LIGHT_CHUNK_SIZE; y++) {

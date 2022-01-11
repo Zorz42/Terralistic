@@ -22,6 +22,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightLeve
     Camera* camera;
     
     void onEvent(LightLevelChangeEvent& event) override;
+    void onBlockChange(BlockChangeEvent& event) override;
     
     LightChunk* light_chunks = nullptr;
     

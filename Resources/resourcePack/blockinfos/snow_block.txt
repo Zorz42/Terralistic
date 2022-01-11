@@ -4,3 +4,4 @@ break_time: 500
 connects_to: snowy_grass_block ice_block
 drop: nothing
 drop_chance: 100
+light_emmision: 0

@@ -4,3 +4,4 @@ break_time: 500
 connects_to: dirt grass_block stone_block
 drop: nothing
 drop_chance: 100
+light_emmision: 0

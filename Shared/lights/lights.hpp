@@ -23,6 +23,7 @@ class Lights : EventListener<BlockChangeEvent> {
     void setLightLevel(int x, int y, int level);
     
     void onEvent(BlockChangeEvent& event) override;
+    virtual void onBlockChange(BlockChangeEvent& event) {}
     
     Blocks* blocks;
 public:

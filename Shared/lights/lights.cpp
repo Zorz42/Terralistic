@@ -103,6 +103,7 @@ int Lights::getHeight() const {
 
 void Lights::onEvent(BlockChangeEvent& event) {
     scheduleLightUpdate(event.x, event.y);
+    onBlockChange(event);
 }
 
 void Lights::scheduleLightUpdateForNeighbors(int x, int y) {

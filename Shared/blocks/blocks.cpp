@@ -8,6 +8,7 @@ Blocks::Blocks() : air("air"), hand("hand") {
     air.ghost = true;
     air.transparent = true;
     air.break_time = UNBREAKABLE;
+    air.light_emission = 0;
     registerNewBlockType(&air);
     registerNewToolType(&hand);
 }

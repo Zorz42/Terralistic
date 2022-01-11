@@ -44,6 +44,7 @@ public:
     std::string name;
     std::vector<BlockType*> connects_to;
     int break_time;
+    int light_emission;
     int id;
 };
 

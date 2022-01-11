@@ -1,7 +1,7 @@
 ghost: true
 transparent: true
-break_time: 1500
+break_time: 1000
 connects_to:
-drop: stone
+drop: torch
 drop_chance: 100
-light_emmision: 0
+light_emmision: 70
