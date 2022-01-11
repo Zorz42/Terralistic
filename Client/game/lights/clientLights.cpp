@@ -28,7 +28,7 @@ void ClientLights::update(float frame_length) {
             for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
                 if(hasScheduledLightUpdate(x, y)) {
                     updateLight(x, y);
-                    finished = true;
+                    finished = false;
                 }
     }
 }
