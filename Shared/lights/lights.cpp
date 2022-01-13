@@ -153,7 +153,7 @@ void Lights::scheduleLightUpdateForNeighbors(int x, int y) {
 }
 
 void Lights::updateLightEmitter(int x, int y) {
-    setLightSource(x, y, LightColor(((rand() % 100) * blocks->getBlockType(x, y)->light_emission) % 100, ((rand() % 100) * blocks->getBlockType(x, y)->light_emission) % 100, ((rand() % 100) * blocks->getBlockType(x, y)->light_emission) % 100));
+    setLightSource(x, y, LightColor(blocks->getBlockType(x, y)->light_emission_r, blocks->getBlockType(x, y)->light_emission_g, blocks->getBlockType(x, y)->light_emission_b));
 }
 
 Lights::~Lights() {

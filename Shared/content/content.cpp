@@ -74,7 +74,9 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         else
             block_type->required_tool_power = 0;
         
-        block_type->light_emission = block_properties.getInt("light_emmision");
+        block_type->light_emission_r = block_properties.getInt("light_emmision_r");
+        block_type->light_emission_g = block_properties.getInt("light_emmision_g");
+        block_type->light_emission_b = block_properties.getInt("light_emmision_b");
     }
 }
 
