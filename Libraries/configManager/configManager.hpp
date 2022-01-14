@@ -7,7 +7,6 @@ class ConfigFile {
     std::string path;
     std::map<std::string, std::string> values;
     
-    void loadConfig();
 public:
     explicit ConfigFile(std::string path);
     ConfigFile() = default;
@@ -24,4 +23,6 @@ public:
     bool keyExists(const std::string& key) const;
     
     void saveConfig();
+    
+    void reloadFromDisk();
 };

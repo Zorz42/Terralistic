@@ -213,6 +213,13 @@ namespace gfx {
         const std::vector<SceneModule*>& getModules();
     };
     
+    class GlobalUpdateFunction {
+    public:
+        virtual void update() = 0;
+    };
+
+    void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
+
     void init(const std::string& resource_path_, int window_width_, int window_height_);
     void quit();
 

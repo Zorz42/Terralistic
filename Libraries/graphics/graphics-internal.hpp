@@ -21,4 +21,6 @@ namespace gfx {
     inline std::string resource_path;
 
     inline bool key_states[(int)gfx::Key::UNKNOWN];
+
+    inline std::vector<GlobalUpdateFunction*> global_update_functions;
 }
