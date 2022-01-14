@@ -37,7 +37,7 @@ enum class ServerPacketType {
     // inventory
     INVENTORY,
 
-    //health
+    // health
     HEALTH,
 
     // miscellaneous

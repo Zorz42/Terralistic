@@ -43,6 +43,7 @@ public:
     void stop();
     
     void setPrivate(bool is_private);
+    void enableAutosave(bool autosave_enabled);
     
     int getGeneratingTotal() const;
     int getGeneratingCurrent() const;

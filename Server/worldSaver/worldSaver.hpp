@@ -22,6 +22,8 @@ public:
     void load();
     void save();
     
+    bool autosave_enabled = true;
+    
     EventSender<WorldSaveEvent> world_save_event;
     EventSender<WorldLoadEvent> world_load_event;
 };

@@ -45,7 +45,7 @@ class Game : gfx::Scene, public BackgroundRect {
     Health player_health;
     Recipes recipes;
     GameContent content;
-
+    
     Settings* settings;
     BackgroundRect* background_rect;
     bool handshake_done = false;

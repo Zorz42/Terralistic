@@ -119,3 +119,7 @@ int Server::getGeneratingTotal() const {
 int Server::getGeneratingCurrent() const {
     return generator.getGeneratingCurrent();
 }
+
+void Server::enableAutosave(bool autosave_enabled) {
+    world_saver.autosave_enabled = autosave_enabled;
+}
