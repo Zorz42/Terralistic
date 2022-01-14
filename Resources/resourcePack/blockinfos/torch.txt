@@ -4,6 +4,6 @@ break_time: 1000
 connects_to:
 drop: torch
 drop_chance: 100
-light_emmision_r: 80
-light_emmision_g: 80
-light_emmision_b: 50
+light_emission_r: 80
+light_emission_g: 80
+light_emission_b: 50

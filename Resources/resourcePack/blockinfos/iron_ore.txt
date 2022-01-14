@@ -4,6 +4,6 @@ break_time: 1500
 connects_to:
 drop: iron_ore
 drop_chance: 100
-light_emmision_r: 0
-light_emmision_g: 0
-light_emmision_b: 0
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0

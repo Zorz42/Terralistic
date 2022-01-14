@@ -6,6 +6,6 @@ drop: wood_planks
 drop_chance: 100
 effective_tool: axe
 effective_tool_power: 0
-light_emmision_r: 0
-light_emmision_g: 0
-light_emmision_b: 0
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0

@@ -4,6 +4,6 @@ break_time: 1000
 connects_to: dirt snowy_grass_block
 drop: nothing
 drop_chance: 100
-light_emmision_r: 0
-light_emmision_g: 0
-light_emmision_b: 0
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0
