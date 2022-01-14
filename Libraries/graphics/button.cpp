@@ -29,8 +29,11 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
         (unsigned char)((int)border_hover_color.b * hover_progress / 255 + (int)def_border_color.b * float(255 - hover_progress) / 255),
         (unsigned char)((int)border_hover_color.a * hover_progress / 255 + (int)def_border_color.a * float(255 - hover_progress) / 255),
     };
+    
     int padding = (255 - hover_progress) / 255 * 30;
     RectShape hover_rect(rect.x + padding, rect.y + padding, std::max(0, rect.w - 2 * padding), std::max(0, rect.h - 2 * padding));
+    rect.render(def_color);
+    rect.renderOutline(def_border_color);
     hover_rect.render(button_color);
     hover_rect.renderOutline(button_border_color);
     
