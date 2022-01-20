@@ -14,7 +14,7 @@ public:
 
 class SetblockCommand : public Command {
 public:
-    SetblockCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "setblock"; }
+    SetblockCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) {indetifier = "setblock";}
     void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 

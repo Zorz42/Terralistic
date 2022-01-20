@@ -477,12 +477,13 @@ void WorldGenerator::generateDefaultWorld(siv::PerlinNoise& noise, std::mt19937&
         terrainGenerator(x, noise);
         generating_current++;
     }
+    placeWalls();
     generateCaves(noise);
     generateCaveLakes(seeded_random);
     generateOres(noise, seeded_random);
     generateFoliage(seeded_random);
     placeStructures(noise);
-    placeWalls();
+
     for (const StructurePosition& i : structurePositions) {
         generateStructure(i.name, i.x, i.y);
     }

@@ -22,9 +22,10 @@ void Commands::stop() {
 
 int formatCoord(std::string coord_str, int curr_coord) {
     int coord = 0;
-    if(coord_str[0] == '~')
+    if(coord_str[0] == '~') {
         coord += curr_coord;
-    coord_str.erase(coord_str.begin());
+        coord_str.erase(coord_str.begin());
+    }
     if(!coord_str.empty())
         coord += std::stoi(coord_str);
     return coord;
@@ -36,11 +37,18 @@ void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* ex
         ServerPlayer* to_teleport = executor;
         if(args.size() >= 3)
             to_teleport = players->getPlayerByName(args[2]);
+        sf::Packet feedback_message;
+        feedback_message << ServerPacketType::CHAT << "Successfully teleported " + to_teleport->name + " to " + std::to_string(x_coord) + " " + std::to_string(y_coord);
+        //feedback_message << ServerPacketType::CHAT <<
+        executor->getConnection()->send(feedback_message);
         y_coord = -y_coord + blocks->getHeight();
         entities->setX(to_teleport, x_coord * 16);
         entities->setY(to_teleport, y_coord * 16);
-        
+        return;
     }
+    sf::Packet error_message;
+    error_message << ServerPacketType::CHAT << "Arguments not formatted correctly. Type /help tp for a list of formats.";
+    executor->getConnection()->send(error_message);
 }
 
 void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
@@ -87,6 +95,45 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     indentifier.erase(indentifier.begin());
 
     for(int i = 0; i < commands.size(); i++)
-        if(commands[i]->indetifier == indentifier)
+        if(commands[i]->indetifier == indentifier) {
             commands[i]->onCommand(args, player);
+            return;
+        }
+    sf::Packet error_message;
+    error_message << ServerPacketType::CHAT << "Command not recognised. Type /help for a list of commands.";
+    player->getConnection()->send(error_message);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
