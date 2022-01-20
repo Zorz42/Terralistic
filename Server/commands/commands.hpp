@@ -20,19 +20,25 @@ public:
 
 class TpCommand : public Command {
 public:
-    TpCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "tp"; }
+    TpCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "tp";}
     void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
 class GiveCommand : public Command {
 public:
-    GiveCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "give"; }
+    GiveCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "give";}
     void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
 class SetHealthCommand : public Command {
 public:
-    SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "setHealth"; }
+    SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "setHealth";}
+    void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
+class HelpCommand : public Command {
+public:
+    HelpCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "help";}
     void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
@@ -49,6 +55,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     TpCommand tp_command;
     GiveCommand give_command;
     SetHealthCommand health_command;
+    HelpCommand help_command;
     std::vector<Command*> commands;
     
     void init() override;
@@ -56,5 +63,5 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     
     void startCommand(std::string message, ServerPlayer* player);
 public:
-    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players), tp_command(blocks, entities, items, players), give_command(blocks, entities, items, players), health_command(blocks, entities, items, players) {}
+    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players), tp_command(blocks, entities, items, players), give_command(blocks, entities, items, players), health_command(blocks, entities, items, players), help_command(blocks, entities, items, players) {}
 };

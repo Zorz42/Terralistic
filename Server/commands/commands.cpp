@@ -14,6 +14,7 @@ void Commands::init() {
     commands.push_back(&give_command);
     commands.push_back(&setblock_command);
     commands.push_back(&health_command);
+    commands.push_back(&help_command);
 }
 
 void Commands::stop() {
@@ -89,7 +90,7 @@ void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* ex
             ServerPlayer* destination = players->getPlayerByName(args[0]);
             if(destination == nullptr) {
                 sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Player with name " + args[0] + "does not exist";
+                error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
                 executor->getConnection()->send(error_message);
                 return;
             }
@@ -123,14 +124,15 @@ void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* 
             quantity = std::stoi(args[1]);
             std::destroy(args.begin(), args.begin());
         }
-        ItemType* item = items->getItemTypeByName(args[0]);
-        if(item == nullptr){
+        try {
+            ItemType *item = items->getItemTypeByName(args[0]);
+            executor->inventory.addItem(item, quantity);
+        }catch(Exception& e) {
             sf::Packet error_message;
-            error_message << ServerPacketType::CHAT << "Item with name " + args[0] + "does not exist";
+            error_message << ServerPacketType::CHAT << "Item with name " + args[0] + " does not exist";
             executor->getConnection()->send(error_message);
             return;
         }
-        executor->inventory.addItem(item, quantity);
         return;
     }
     sf::Packet error_message;
@@ -179,6 +181,52 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     sf::Packet error_message;
     error_message << ServerPacketType::CHAT << "Command not recognised. Type /help for a list of commands.";
     player->getConnection()->send(error_message);
+}
+
+void HelpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.empty()){
+        sf::Packet help_message;
+        std::string message = "List of commands:\n"
+                              "help -> display this list\n"
+                              "tp -> teleport players\n"
+                              "give -> give items to yourself\n"
+                              "setHealth -> set player's health\n"
+                              "setBlock -> place a block in world\n";
+        help_message << ServerPacketType::CHAT << message;
+        executor->getConnection()->send(help_message);
+    }else if(args.size() == 1){
+        if(args[0] == "tp"){
+            sf::Packet help_message;
+            help_message << ServerPacketType::CHAT << "Possible invocations of teleport command:\n"
+                                                      "tp [player_name] -> teleport yourself to that player\n"
+                                                      "tp [player_1_name] [player_2_name] -> teleport player 1 to player 2\n"
+                                                      "tp [x_coordinate] [y_coordinate] -> teleport yourself to that location\n"
+                                                      "tp [player_name] [x_coordinate] [y_coordinate] -> teleport that player to that location";
+            executor->getConnection()->send(help_message);
+        }else if(args[0] == "give"){
+            sf::Packet help_message;
+            help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
+                                                      "give [item_name] -> give 1 item of that type to yourself\n"
+                                                      "give [item_name] [quantity] -> give entered number of items of that type to yourself";
+            executor->getConnection()->send(help_message);
+        }else if(args[0] == "setHealth"){
+            sf::Packet help_message;
+            help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
+                                                      "setHealth [health] -> set your health to that number\n"
+                                                      "setHealth [player_name] [health] -> set that player's name to that number";
+            executor->getConnection()->send(help_message);
+        }else if(args[0] == "setBlock"){
+            sf::Packet help_message;
+            help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
+                                                      "not implemented yet";
+            executor->getConnection()->send(help_message);
+        }
+    }else{
+        sf::Packet error_message;
+        error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help to display a list of commands or\n"
+                                                   "/help [command_identifier] to display a specific command's help menu";
+        executor->getConnection()->send(error_message);
+    }
 }
 
 
