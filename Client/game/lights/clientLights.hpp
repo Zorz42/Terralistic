@@ -5,14 +5,14 @@
 
 #define LIGHT_CHUNK_SIZE 16
 
-class ClientLights : public Lights, public ClientModule, EventListener<LightLevelChangeEvent> {
+class ClientLights : public Lights, public ClientModule, EventListener<LightColorChangeEvent> {
     class LightChunk {
         gfx::RectArray light_rects;
         bool is_created = false;
     public:
         bool isCreated() { return is_created; }
-        void create(Lights* lights, int x, int y);
-        void update(Lights* lights, int x, int y);
+        void create(ClientLights* lights, int x, int y);
+        void update(ClientLights* lights, int x, int y);
         void render(int x, int y);
     };
     
@@ -21,7 +21,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightLeve
     ResourcePack* resource_pack;
     Camera* camera;
     
-    void onEvent(LightLevelChangeEvent& event) override;
+    void onEvent(LightColorChangeEvent& event) override;
     
     LightChunk* light_chunks = nullptr;
     
@@ -34,6 +34,8 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightLeve
     BooleanSetting light_enable_setting;
     
     LightChunk* getLightChunk(int x, int y);
+    
+    LightColor getAverageColor(int x, int y);
 public:
     ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
 };

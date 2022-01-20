@@ -2,134 +2,32 @@
 #include "game.hpp"
 #include "pauseScreen.hpp"
 #include "choiceScreen.hpp"
-#include "server.hpp"
 #include "content.hpp"
 
-#define FROM_PORT 49152
-#define TO_PORT 65535
-
-static std::thread server_thread;
-
-class WorldStartingScreen : public gfx::Scene {
+class WorldJoiningScreen : public gfx::Scene {
     BackgroundRect* menu_back;
     gfx::Sprite text;
-    gfx::Rect loading_bar, loading_bar_back;
     void init() override;
     void render() override;
-    Server* server;
     Game* game;
-    ServerState prev_server_state = ServerState::NEUTRAL;
 public:
-    WorldStartingScreen(BackgroundRect* menu_back, Server* server, Game* game) : menu_back(menu_back), server(server), game(game) {}
+    WorldJoiningScreen(BackgroundRect* menu_back, Game* game) : menu_back(menu_back), game(game) {}
 };
 
-void WorldStartingScreen::init() {
+void WorldJoiningScreen::init() {
     text.scale = 3;
     text.createBlankImage(1, 1);
     text.orientation = gfx::CENTER;
-    
-    loading_bar_back.orientation = gfx::CENTER;
-    loading_bar_back.fill_color.a = TRANSPARENCY;
-    loading_bar_back.setHeight(50);
-    loading_bar_back.setY(100);
-    
-    loading_bar.fill_color = WHITE;
-    loading_bar.fill_color.a = TRANSPARENCY;
-    loading_bar.setHeight(50);
+    text.loadFromText("Joining world");
 }
 
-void WorldStartingScreen::render() {
-    menu_back->renderBack();
-    if(server->state != prev_server_state) {
-        prev_server_state = server->state;
-        switch(server->state) {
-            case ServerState::LOADING_WORLD:
-                text.loadFromText("Loading world");
-                break;
-            case ServerState::GENERATING_WORLD:
-                text.loadFromText("Generating world");
-                break;
-            case ServerState::STOPPING:
-                text.loadFromText("Saving world");
-                break;
-            case ServerState::CRASHED:
-            case ServerState::STOPPED:
-                returnFromScene();
-                break;
-            case ServerState::RUNNING:
-                text.loadFromText("Joining world");
-                break;
-            default:;
-        }
-        menu_back->setBackWidth(text.getWidth() + 300);
-    }
-    
-    if(server->state == ServerState::RUNNING && game->isInitialized())
+void WorldJoiningScreen::render() {
+    if(game->isInitialized() || game->interrupt)
         returnFromScene();
     
-    if(server->state == ServerState::GENERATING_WORLD) {
-        loading_bar_back.setWidth(text.getWidth() + 200);
-        loading_bar.setX(loading_bar_back.getTranslatedX());
-        loading_bar.setY(loading_bar_back.getTranslatedY());
-        loading_bar.setWidth(server->getGeneratingCurrent() * (text.getWidth() + 200) / server->getGeneratingTotal());
-        loading_bar_back.render();
-        loading_bar.render();
-    }
+    menu_back->setBackWidth(text.getWidth() + 300);
+    menu_back->renderBack();
     text.render();
-}
-
-void startServer(Server* server, Game* game) {
-    try {
-        server->start();
-    } catch(const std::exception& exception) {
-        server->state = ServerState::CRASHED;
-        game->interrupt_message = exception.what();
-        game->interrupt = true;
-    }
-}
-
-void initGame(Server* server, Game* game) {
-    try {
-        while(server->state != ServerState::RUNNING)
-            gfx::sleep(1);
-        game->initialize();
-    } catch(const std::exception& exception) {
-        game->interrupt_message = exception.what();
-        game->interrupt = true;
-    }
-}
-
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world) {
-    int port = rand() % (TO_PORT - FROM_PORT) + FROM_PORT;
-    Server private_server(gfx::getResourcePath(), world_name, port);
-    Game game(menu_back, settings, "_", "127.0.0.1", port);
-    if(structure_world)
-        private_server.seed = 1000;
-  
-    private_server.setPrivate(true);
-    server_thread = std::thread(startServer, &private_server, &game);
-    std::thread game_init_thread(initGame, &private_server, &game);
-    
-    WorldStartingScreen(menu_back, &private_server, &game).run();
-    
-    game_init_thread.join();
-    
-    game.loadTextures();
-    game.start();
-    
-    private_server.stop();
-    
-    while(private_server.state == ServerState::RUNNING)
-        gfx::sleep(1);
-    
-    WorldStartingScreen(menu_back, &private_server, &game).run();
-    
-    if(game.interrupt) {
-        ChoiceScreen choice_screen(menu_back, game.interrupt_message, {"Close"});
-        choice_screen.run();
-    }
-    
-    server_thread.join();
 }
 
 Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port) :
@@ -164,10 +62,10 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&particles);
     registerAModule(&players);
     registerAModule(&liquids);
-    registerAModule(&lights);
     registerAModule(&natural_light);
     registerAModule(&entities);
     registerAModule(&items);
+    registerAModule(&lights);
     registerAModule(&block_selector);
     registerAModule(&inventory);
     registerAModule(&chat);
@@ -187,21 +85,28 @@ void Game::initialize() {
         if(interrupt)
             throw Exception(interrupt_message);
     } catch (const std::exception& exception) {
-        ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
-        switchToScene(choice_screen);
+        interrupt_message = exception.what();
+        interrupt = true;
+        //ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
+        //switchToScene(choice_screen);
     }
-}
-
-void Game::loadTextures() {
-    for(int i = 0; i < getModules().size(); i++)
-        if(getModules()[i] != this)
-            ((ClientModule*)getModules()[i])->loadTextures();
 }
 
 void Game::start() {
     try {
         if(interrupt)
             throw Exception(interrupt_message);
+        
+        std::thread init_thread(&Game::initialize, this);
+        WorldJoiningScreen(background_rect, this).run();
+        init_thread.join();
+        
+        if(interrupt)
+            throw Exception(interrupt_message);
+        
+        for(int i = 0; i < getModules().size(); i++)
+            if(getModules()[i] != this)
+                ((ClientModule*)getModules()[i])->loadTextures();
         run();
         if(interrupt)
             throw Exception(interrupt_message);
@@ -235,8 +140,4 @@ bool Game::onKeyDown(gfx::Key key) {
         return true;
     }
     return false;
-}
-
-bool Game::isHandshakeDone() {
-    return handshake_done;
 }

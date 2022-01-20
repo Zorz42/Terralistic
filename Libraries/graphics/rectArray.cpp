@@ -46,7 +46,7 @@ gfx::RectArray::~RectArray() {
     delete[] vertex_array;
 }
 
-void gfx::RectArray::render(int size, const Texture* image, int x, int y) {
+void gfx::RectArray::render(int size, const Texture* image, int x, int y, bool blend_multiply) {
     if(size < 0)
         throw Exception("RectArray size must be positive.");
     
@@ -60,6 +60,9 @@ void gfx::RectArray::render(int size, const Texture* image, int x, int y) {
     sf::RenderStates states;
     states.texture = texture;
     states.transform = transformation;
+    
+    if(blend_multiply)
+        states.blendMode = sf::BlendMultiply;
     
     vertex_buffer.create(size * 4);
     vertex_buffer.update(vertex_array);

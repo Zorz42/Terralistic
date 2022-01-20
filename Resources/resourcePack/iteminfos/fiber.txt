@@ -1,2 +1,5 @@
+display_name: Fiber
 max_stack: 99
-places: air
+places_block: air
+places_wall: clear
+tool_properties:

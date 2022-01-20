@@ -42,13 +42,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             setBlockType(x, y, getBlockTypeById(block_id));
             break;
         }
-        case ServerPacketType::STARTED_BREAKING: {
+        case ServerPacketType::BLOCK_STARTED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             startBreakingBlock(x, y);
             break;
         }
-        case ServerPacketType::STOPPED_BREAKING: {
+        case ServerPacketType::BLOCK_STOPPED_BREAKING: {
             int x, y;
             event.packet >> x >> y;
             stopBreakingBlock(x, y);
@@ -89,7 +89,7 @@ void ClientBlocks::postInit() {
     block_chunks = new BlockChunk[getWidth() / 16 * getHeight() / 16];
 }
 
-void ClientBlocks::onEvent(BlockChangeEvent& event) {
+void ClientBlocks::onEvent(BlockChangeEvent& event) {    
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
     for(int i = 0; i < 5; i++) {
         updateState(coords[i][0], coords[i][1]);
@@ -161,9 +161,8 @@ void ClientBlocks::BlockChunk::update(ClientBlocks* blocks, int x, int y) {
         int texture_x = (blocks->getRenderBlock(x, y)->variation) % (blocks->getBlockRectInAtlas(blocks->getBlockType(x, y)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
         int texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x, y)).y + BLOCK_WIDTH * blocks->getRenderBlock(x, y)->state;
         block_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
-    } else {
+    } else
         block_rects.setTextureCoords(index, {0, 0, 0, 0});
-    }
 }
 
 void ClientBlocks::BlockChunk::render(ClientBlocks* blocks, int x, int y) {

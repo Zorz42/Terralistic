@@ -3,12 +3,14 @@
 
 void ServerItems::init() {
     blocks->block_break_event.addListener(this);
+    walls->wall_break_event.addListener(this);
     item_creation_event.addListener(this);
     networking->new_connection_event.addListener(this);
 }
 
 void ServerItems::stop() {
     blocks->block_break_event.removeListener(this);
+    walls->wall_break_event.removeListener(this);
     item_creation_event.removeListener(this);
     networking->new_connection_event.removeListener(this);
 }
@@ -32,7 +34,18 @@ void ServerItems::onEvent(ServerNewConnectionEvent& event) {
 void ServerItems::onEvent(BlockBreakEvent& event) {
     static std::random_device device;
     static std::mt19937 engine(device());
-    BlockDrop drop = getBlockDrop(blocks->getBlockType(event.x, event.y));
+    TileDrop drop = getBlockDrop(blocks->getBlockType(event.x, event.y));
+    if(drop.drop != &nothing && (double)rand() / RAND_MAX < drop.chance) {
+        Item* item = spawnItem(getItemTypeById(drop.drop->id), event.x * BLOCK_WIDTH * 2, event.y * BLOCK_WIDTH * 2);
+        entities->addVelocityX(item, int(engine() % 40) - 20);
+        entities->addVelocityY(item, -int(engine() % 20) - 20);
+    }
+}
+
+void ServerItems::onEvent(WallBreakEvent& event) {
+    static std::random_device device;
+    static std::mt19937 engine(device());
+    TileDrop drop = getWallDrop(walls->getWallType(event.x, event.y));
     if(drop.drop != &nothing && (double)rand() / RAND_MAX < drop.chance) {
         Item* item = spawnItem(getItemTypeById(drop.drop->id), event.x * BLOCK_WIDTH * 2, event.y * BLOCK_WIDTH * 2);
         entities->addVelocityX(item, int(engine() % 40) - 20);

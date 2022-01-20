@@ -4,3 +4,6 @@ break_time: 500
 connects_to: snow_block
 drop: nothing
 drop_chance: 100
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0

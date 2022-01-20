@@ -1,5 +1,5 @@
-display_name: Iron Ore
+display_name: Torch
 max_stack: 99
-places_block: iron_ore
+places_block: torch
 places_wall: clear
 tool_properties:

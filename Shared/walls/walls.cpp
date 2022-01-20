@@ -19,6 +19,21 @@ void Walls::setWallTypeSilently(int x, int y, WallType* type) {
     getWall(x, y)->id = type->id;
 }
 
+void Walls::setWallType(int x, int y, WallType* type) {
+    if(type->id != getWall(x, y)->id) {
+        setWallTypeSilently(x, y, type);
+        
+        for(int i = 0; i < breaking_walls.size(); i++)
+            if(breaking_walls[i].x == x && breaking_walls[i].y == y) {
+                breaking_walls.erase(breaking_walls.begin() + i);
+                break;
+            }
+        
+        WallChangeEvent event(x, y);
+        wall_change_event.call(event);
+    }
+}
+
 int Walls::getWidth() const {
     return blocks->getWidth();
 }
@@ -68,4 +83,68 @@ WallType* Walls::getWallTypeByName(const std::string& name) {
 
 int Walls::getNumWallTypes() {
     return (int)wall_types.size();
+}
+
+int Walls::getBreakProgress(int x, int y) {
+    for(int i = 0; i < breaking_walls.size(); i++)
+        if(breaking_walls[i].x == x && breaking_walls[i].y == y)
+            return breaking_walls[i].break_progress;
+    return 0;
+}
+
+void Walls::updateBreakingWalls(int frame_length) {
+    for(int i = 0; i < breaking_walls.size(); i++) {
+        if(breaking_walls[i].is_breaking) {
+            breaking_walls[i].break_progress += frame_length;
+            if(breaking_walls[i].break_progress > getWallType(breaking_walls[i].x, breaking_walls[i].y)->break_time)
+                breakWall(breaking_walls[i].x, breaking_walls[i].y);
+        }
+    }
+}
+
+int Walls::getBreakStage(int x, int y) {
+    return (float)getBreakProgress(x, y) / (float)getWallType(x, y)->break_time * 9.f;
+}
+
+void Walls::startBreakingWall(int x, int y) {
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("Wall is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    
+    BreakingWall* breaking_wall = nullptr;
+    
+    for(int i = 0; i < breaking_walls.size(); i++)
+        if(breaking_walls[i].x == x && breaking_walls[i].y == y)
+            breaking_wall = &breaking_walls[i];
+    
+    if(!breaking_wall) {
+        BreakingWall new_breaking_wall;
+        new_breaking_wall.x = x;
+        new_breaking_wall.y = y;
+        breaking_walls.push_back(new_breaking_wall);
+        breaking_wall = &breaking_walls.back();
+    }
+    
+    breaking_wall->is_breaking = true;
+        
+    WallStartedBreakingEvent event(x, y);
+    wall_started_breaking_event.call(event);
+}
+
+void Walls::stopBreakingWall(int x, int y) {
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("Wall is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    
+    for(int i = 0; i < breaking_walls.size(); i++)
+        if(breaking_walls[i].x == x && breaking_walls[i].y == y) {
+            breaking_walls[i].is_breaking = false;
+            WallStoppedBreakingEvent event(x, y);
+            wall_stopped_breaking_event.call(event);
+        }
+}
+
+void Walls::breakWall(int x, int y) {
+    WallBreakEvent event(x, y);
+    wall_break_event.call(event);
+    
+    setWallType(x, y, &clear);
 }

@@ -91,14 +91,14 @@ namespace gfx {
         void setRect(int index, RectShape rect);
         void setColor(int index, Color color);
         void setTextureCoords(int index, RectShape texture_coordinates);
-        void render(int size, const Texture* image=nullptr, int x=0, int y=0);
+        void render(int size, const Texture* image=nullptr, int x=0, int y=0, bool blend_multiply=false);
         void resize(int size);
         ~RectArray();
     };
     
     class Texture {
     protected:
-        friend void RectArray::render(int size, const Texture* image, int x, int y);
+        friend void RectArray::render(int size, const Texture* image, int x, int y, bool blend_multiply);
         friend void setRenderTarget(Texture& texture);
         void freeTexture();
         sf::RenderTexture *sfml_render_texture = nullptr;
@@ -145,7 +145,7 @@ namespace gfx {
         int getWidth() const override;
         int getHeight() const override;
 
-        Color def_color = GFX_DEFAULT_BUTTON_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR;
+        Color def_color = GFX_DEFAULT_BUTTON_COLOR, def_border_color = GFX_DEFAULT_BUTTON_BORDER_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR, border_hover_color = GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR;
         bool isHovered(int mouse_x, int mouse_y) const;
         bool disabled = false;
         float hover_progress = 0;

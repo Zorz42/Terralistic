@@ -1,0 +1,9 @@
+ghost: true
+transparent: true
+break_time: 1000
+connects_to:
+drop: torch
+drop_chance: 100
+light_emission_r: 80
+light_emission_g: 80
+light_emission_b: 50

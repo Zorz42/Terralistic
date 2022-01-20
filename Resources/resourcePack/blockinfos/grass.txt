@@ -4,3 +4,6 @@ break_time: 1
 connects_to:
 drop: fiber
 drop_chance: 30
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0

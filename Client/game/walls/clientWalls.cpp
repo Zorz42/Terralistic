@@ -64,11 +64,53 @@ void ClientWalls::onEvent(WelcomePacketEvent& event) {
         fromSerial(networking->getData());
 }
 
+void ClientWalls::update(float frame_length) {
+    updateBreakingWalls(frame_length);
+}
+
+void ClientWalls::onEvent(ClientPacketEvent& event) {
+    switch(event.packet_type) {
+        case ServerPacketType::WALL: {
+            int x, y;
+            int wall_id;
+            event.packet >> x >> y >> wall_id;
+            
+            setWallType(x, y, getWallTypeById(wall_id));
+            break;
+        }
+        case ServerPacketType::WALL_STARTED_BREAKING: {
+            int x, y;
+            event.packet >> x >> y;
+            startBreakingWall(x, y);
+            break;
+        }
+        case ServerPacketType::WALL_STOPPED_BREAKING: {
+            int x, y;
+            event.packet >> x >> y;
+            stopBreakingWall(x, y);
+            break;
+        }
+        default:;
+    }
+}
+
+void ClientWalls::onEvent(WallChangeEvent& event) {
+    int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
+    for(int i = 0; i < 5; i++) {
+        updateState(coords[i][0], coords[i][1]);
+        getWallChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, coords[i][0], coords[i][1]);
+    }
+}
+
 void ClientWalls::init() {
     networking->welcome_packet_event.addListener(this);
+    networking->packet_event.addListener(this);
+    wall_change_event.addListener(this);
 }
 
 void ClientWalls::loadTextures() {
+    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    
     std::vector<gfx::Texture*> wall_textures(getNumWallTypes() - 1);
 
     for(int i = 1; i < getNumWallTypes(); i++) {
@@ -84,6 +126,8 @@ void ClientWalls::loadTextures() {
 
 void ClientWalls::stop() {
     networking->welcome_packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
+    wall_change_event.removeListener(this);
     
     delete[] render_walls;
     delete[] wall_chunks;
@@ -137,6 +181,14 @@ void ClientWalls::render() {
                 getWallChunk(x, y)->create(this, x, y);
             
             getWallChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+        }
+    
+    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX(); x++)
+        for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY(); y++) {
+            if(getBreakStage(x, y)) {
+                int block_x = x * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
+                breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x, y) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
+            }
         }
 }
 
