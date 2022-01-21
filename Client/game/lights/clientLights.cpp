@@ -11,6 +11,7 @@ void ClientLights::init() {
 void ClientLights::postInit() {
     create();
     light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
+    light_updates = new bool[getWidth() * getHeight()];
     updateAllLightEmitters();
 }
 
@@ -105,17 +106,24 @@ void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {
 }
 
 void ClientLights::onEvent(LightColorChangeEvent& event) {
-    for(int x = event.x - 2; x <= event.x + 2; x++)
-        for(int y = event.y - 2; y <= event.y + 2; y++)
-            if(x >= 0 && x < getWidth() && y >= 0 && y < getHeight())
-                getLightChunk(x / LIGHT_CHUNK_SIZE, y / LIGHT_CHUNK_SIZE)->update(this, x, y);
+    getLightUpdate(event.x, event.y) = true;
 }
 
 void ClientLights::render() {
+    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX() && x < getWidth() - 1; x++)
+        for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY() && y < getHeight() - 1; y++)
+            if(getLightUpdate(x, y) || getLightUpdate(x + 1, y) || getLightUpdate(x, y + 1) || getLightUpdate(x + 1, y + 1))
+                getLightChunk(x / LIGHT_CHUNK_SIZE, y / LIGHT_CHUNK_SIZE)->update(this, x, y);
+    
+    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX() + 1 && x < getWidth(); x++)
+        for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY() + 1 && y < getHeight(); y++)
+            getLightUpdate(x, y) = false;
+    
     for(int x = blocks->getBlocksViewBeginX() / LIGHT_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / LIGHT_CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / LIGHT_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / LIGHT_CHUNK_SIZE; y++) {
             if(!getLightChunk(x, y)->isCreated())
                 getLightChunk(x, y)->create(this, x, y);
+            
             getLightChunk(x, y)->render(x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
 }
@@ -127,4 +135,10 @@ void ClientLights::stop() {
     Lights::stop();
     light_color_change_event.removeListener(this);
     delete[] light_chunks;
+}
+
+bool& ClientLights::getLightUpdate(int x, int y) {
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("Light update is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    return light_updates[y * getWidth() + x];
 }
