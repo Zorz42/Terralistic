@@ -87,8 +87,6 @@ void Game::initialize() {
     } catch (const std::exception& exception) {
         interrupt_message = exception.what();
         interrupt = true;
-        //ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
-        //switchToScene(choice_screen);
     }
 }
 

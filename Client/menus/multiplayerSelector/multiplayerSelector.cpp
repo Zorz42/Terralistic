@@ -113,7 +113,6 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
                 if(servers[i]->join_button.isHovered(getMouseX(), getMouseY())) {
                     NameChooser name_chooser(menu_back, settings, servers[i]->ip);
                     switchToScene(name_chooser);
-                    //startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
                 } else if(servers[i]->remove_button.isHovered(getMouseX(), getMouseY())) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))

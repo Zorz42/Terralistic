@@ -11,18 +11,23 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             event.packet >> vel_x >> vel_y >> id;
             
             Entity* entity = getEntityById(id);
-            setVelocityX(entity, vel_x);
-            setVelocityY(entity, vel_y);
+            if(!entity->ignore_server_updates) {
+                setVelocityX(entity, vel_x);
+                setVelocityY(entity, vel_y);
+            }
             break;
         }
         case ServerPacketType::ENTITY_POSITION: {
+            sf::Packet event_packet = event.packet;
             int id;
             int x, y;
-            event.packet >> x >> y >> id;
+            event_packet >> x >> y >> id;
             
             Entity* entity = getEntityById(id);
-            setX(entity, x);
-            setY(entity, y);
+            if(!entity->ignore_server_updates) {
+                setX(entity, x);
+                setY(entity, y);
+            }
             break;
         }
         case ServerPacketType::ENTITY_DELETION: {

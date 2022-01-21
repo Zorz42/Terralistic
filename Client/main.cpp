@@ -67,6 +67,7 @@ int main(int argc, char **argv) {
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
     
     Settings settings;
+    gfx::addAGlobalUpdateFunction(&settings);
     
     ChoiceSetting scale_setting("Scale", {"Small", "Normal", "Large"}, 1);
     ScaleChangeListener scale_change_listener(&scale_setting);

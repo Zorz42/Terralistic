@@ -7,7 +7,7 @@
 #include "compress.hpp"
 #include "content.hpp"
 
-#define TPS_LIMIT 60
+#define TPS_LIMIT 20
 
 Server* curr_server = nullptr;
 
@@ -118,4 +118,8 @@ int Server::getGeneratingTotal() const {
 
 int Server::getGeneratingCurrent() const {
     return generator.getGeneratingCurrent();
+}
+
+void Server::enableAutosave(bool autosave_enabled) {
+    world_saver.autosave_enabled = autosave_enabled;
 }

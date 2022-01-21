@@ -5,7 +5,7 @@ enum class ClientPacketType {
     _START,
     
     // players
-    PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED, ITEM_DROP,
+    PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED, ITEM_DROP, MAIN_PLAYER_POSITION,
     
     // inventory
     INVENTORY_SWAP, HOTBAR_SELECTION, CRAFT,
@@ -29,7 +29,7 @@ enum class ServerPacketType {
     ENTITY_VELOCITY, ENTITY_POSITION, ENTITY_DELETION,
     
     // players
-    PLAYER_JOIN, PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED,
+    PLAYER_JOIN, PLAYER_VELOCITY, PLAYER_MOVING_TYPE, PLAYER_JUMPED, MAIN_PLAYER_POSITION,
     
     // items
     ITEM_CREATION,
@@ -37,7 +37,7 @@ enum class ServerPacketType {
     // inventory
     INVENTORY,
 
-    //health
+    // health
     HEALTH,
 
     // miscellaneous

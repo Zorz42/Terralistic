@@ -13,7 +13,7 @@ public:
     Entity(EntityType type, int x, int y, int id=0) : type(type), x(x), y(y), id(id ? id : curr_id++) {}
     virtual int getWidth() = 0;
     virtual int getHeight() = 0;
-    bool gravity = true, friction = true, has_moved_x;
+    bool gravity = true, friction = true, has_moved_x, ignore_server_updates = false;
     const int id;
     const EntityType type;
     virtual bool isColliding(Blocks* blocks) { return isCollidingWithBlocks(blocks); }

@@ -18,6 +18,17 @@ public:
     WorldStartingScreen(BackgroundRect* menu_back, Server* server) : menu_back(menu_back), server(server) {}
 };
 
+class AutosaveChangeListener : public EventListener<SettingChangeEvent> {
+    BooleanSetting* autosave_setting;
+    Server* server;
+    void onEvent(SettingChangeEvent& event) override {
+        server->enableAutosave(autosave_setting->getValue());
+    }
+public:
+    AutosaveChangeListener(BooleanSetting* autosave_setting, Server* server) : autosave_setting(autosave_setting), server(server) {}
+};
+
+
 void WorldStartingScreen::init() {
     text.scale = 3;
     text.createBlankImage(1, 1);
@@ -90,12 +101,20 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     
     WorldStartingScreen(menu_back, &private_server).run();
     
+    BooleanSetting autosave_setting("Autosave", true);
+    AutosaveChangeListener autosave_listener(&autosave_setting, &private_server);
+    settings->addSetting(&autosave_setting);
+    autosave_setting.setting_change_event.addListener(&autosave_listener);
+    
     game.start();
     
     private_server.stop();
     
     while(private_server.state == ServerState::RUNNING)
         gfx::sleep(1);
+    
+    settings->removeSetting(&autosave_setting);
+    autosave_setting.setting_change_event.removeListener(&autosave_listener);
     
     WorldStartingScreen(menu_back, &private_server).run();
     

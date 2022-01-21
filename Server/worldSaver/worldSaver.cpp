@@ -66,9 +66,11 @@ void WorldSaver::save() {
 
 void WorldSaver::update(float frame_length) {
     if(gfx::getTicks() / AUTOSAVE_INTERVAL / 1000 > save_inverval) {
-        print::info("Autosaving world...");
         save_inverval = gfx::getTicks() / AUTOSAVE_INTERVAL / 1000;
-        std::thread save_thread(&WorldSaver::save, this);
-        save_thread.detach();
+        if(autosave_enabled) {
+            print::info("Autosaving world...");
+            std::thread save_thread(&WorldSaver::save, this);
+            save_thread.detach();
+        }
     }
 }
