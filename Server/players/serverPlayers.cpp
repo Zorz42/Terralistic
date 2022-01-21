@@ -387,6 +387,20 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             }
             break;
         }
+        case ClientPacketType::MAIN_PLAYER_POSITION: {
+            int x, y;
+            event.packet >> x >> y;
+            
+            if(abs(event.player->getX() - x) + abs(event.player->getY() - y) > 50) {
+                sf::Packet packet;
+                packet << ServerPacketType::MAIN_PLAYER_POSITION << event.player->getX() << event.player->getY();
+                event.player->getConnection()->send(packet);
+            } else {
+                entities->setX(event.player, x);
+                entities->setY(event.player, y);
+            }
+            break;
+        }
         default:;
     }
 }

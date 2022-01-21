@@ -7,7 +7,7 @@
 #include "compress.hpp"
 #include "content.hpp"
 
-#define TPS_LIMIT 60
+#define TPS_LIMIT 20
 
 Server* curr_server = nullptr;
 

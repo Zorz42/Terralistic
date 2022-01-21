@@ -80,6 +80,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             entities->registerEntity(new_player);
             if(name == username) {
                 main_player = new_player;
+                main_player->ignore_server_updates = true;
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
@@ -106,6 +107,28 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 player->has_jumped = true;
             }
             
+            break;
+        }
+        case ServerPacketType::ENTITY_POSITION: {
+            sf::Packet event_packet = event.packet;
+            int id;
+            int x, y;
+            event_packet >> x >> y >> id;
+            
+            Entity* entity = entities->getEntityById(id);
+            if(entity == main_player) {
+                sf::Packet packet;
+                packet << ClientPacketType::MAIN_PLAYER_POSITION << main_player->getX() << main_player->getY();
+                networking->sendPacket(packet);
+            }
+            break;
+        }
+        case ServerPacketType::MAIN_PLAYER_POSITION: {
+            int x, y;
+            event.packet >> x >> y;
+            
+            entities->setX(main_player, x);
+            entities->setY(main_player, y);
             break;
         }
         default:;
