@@ -67,7 +67,8 @@ void Settings::reloadSettings() {
     is_loading = true;
     config_file.reloadFromDisk();
     for(int i = 0; i < settings.size(); i++)
-        settings[i]->loadFromStr(config_file.getStr(settings[i]->indent));
+        if(config_file.keyExists(settings[i]->indent))
+            settings[i]->loadFromStr(config_file.getStr(settings[i]->indent));
     is_loading = false;
 }
 
