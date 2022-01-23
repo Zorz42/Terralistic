@@ -192,6 +192,8 @@
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
 		36A2B4B1276553A6000C63D5 /* textureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */; };
 		36A2B4B2276553A6000C63D5 /* textureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */; };
+		36A52164279D667700C1F8CB /* TestException.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52163279D667700C1F8CB /* TestException.mm */; };
+		36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* TestEvent.mm */; };
 		36B0452627247AD600A64113 /* world_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B0452427247AD600A64113 /* world_icon.png */; };
 		36B04546272498F300A64113 /* play_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B04545272498F300A64113 /* play_button.png */; };
 		36D26F262731E91100F1F476 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36D26F252731E91100F1F476 /* icon.png */; };
@@ -456,6 +458,8 @@
 		369981ED277BC26200FA3F72 /* join_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = join_button.png; sourceTree = "<group>"; };
 		369981F0277CCAD500FA3F72 /* privateWorld.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = privateWorld.cpp; sourceTree = "<group>"; };
 		36A2B4B0276553A6000C63D5 /* textureAtlas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = textureAtlas.cpp; sourceTree = "<group>"; };
+		36A52163279D667700C1F8CB /* TestException.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestException.mm; sourceTree = "<group>"; };
+		36A52165279D684F00C1F8CB /* TestEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestEvent.mm; sourceTree = "<group>"; };
 		36B0452427247AD600A64113 /* world_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = world_icon.png; sourceTree = "<group>"; };
 		36B04545272498F300A64113 /* play_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play_button.png; sourceTree = "<group>"; };
 		36D26F252731E91100F1F476 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
@@ -911,6 +915,8 @@
 		16A3BFFB26FF8662001B9E4E /* TerralisticTests */ = {
 			isa = PBXGroup;
 			children = (
+				36A52165279D684F00C1F8CB /* TestEvent.mm */,
+				36A52163279D667700C1F8CB /* TestException.mm */,
 				16A3C00326FF8677001B9E4E /* TestCompress.mm */,
 				16A3C00426FF8677001B9E4E /* TestConfigManager.mm */,
 			);
@@ -1632,8 +1638,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */,
 				16A3C00726FF869A001B9E4E /* compress.cpp in Sources */,
 				16A3C00826FF869A001B9E4E /* configManager.cpp in Sources */,
+				36A52164279D667700C1F8CB /* TestException.mm in Sources */,
 				16A3C00626FF8677001B9E4E /* TestConfigManager.mm in Sources */,
 				16A3C00526FF8677001B9E4E /* TestCompress.mm in Sources */,
 			);
