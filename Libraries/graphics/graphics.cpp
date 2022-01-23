@@ -228,3 +228,7 @@ void gfx::loadIconFromFile(const std::string& path) {
         throw Exception("Could not load file " + path);
     window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
+
+void gfx::addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function) {
+    global_update_functions.push_back(global_update_function);
+}

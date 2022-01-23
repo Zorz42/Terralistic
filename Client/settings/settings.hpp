@@ -1,6 +1,7 @@
 #pragma once
 #include "configManager.hpp"
 #include "platform_folders.h"
+#include "graphics.hpp"
 #include "events.hpp"
 
 enum class SettingType {CHOICE_SETTING, BOOLEAN_SETTING};
@@ -40,13 +41,18 @@ public:
     void loadFromStr(std::string value) override;
 };
 
-class Settings {
+class Settings : public gfx::GlobalUpdateFunction, EventListener<SettingChangeEvent> {
     std::vector<Setting*> settings;
     ConfigFile config_file;
+    int count = 0;
+    void update() override;
+    void onEvent(SettingChangeEvent& event) override;
+    bool is_loading = false;
 public:
     Settings() : config_file(sago::getDataHome() + "/Terralistic/settings.txt") {}
     void addSetting(Setting* setting);
     void removeSetting(Setting* setting);
     const std::vector<Setting*>& getSettings();
+    void reloadSettings();
     ~Settings();
 };

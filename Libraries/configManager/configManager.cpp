@@ -4,10 +4,10 @@
 #include "exception.hpp"
 
 ConfigFile::ConfigFile(std::string path) : path(std::move(path)) {
-    loadConfig();
+    reloadFromDisk();
 }
 
-void ConfigFile::loadConfig() {    
+void ConfigFile::reloadFromDisk() {
     std::ifstream file(path);
     std::string line;
     while(std::getline(file, line)) {
@@ -63,3 +63,4 @@ void ConfigFile::saveConfig() {
 ConfigFile::~ConfigFile() {
     saveConfig();
 }
+

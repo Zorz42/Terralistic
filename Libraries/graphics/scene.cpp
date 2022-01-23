@@ -223,6 +223,9 @@ void gfx::Scene::run() {
         
         cycleModules();
         
+        for(int i = 0; i < global_update_functions.size(); i++)
+            global_update_functions[i]->update();
+        
         window_texture.display();
         window->draw(sf::Sprite(window_texture.getTexture()));
         window->display();
