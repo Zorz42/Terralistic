@@ -1,4 +1,5 @@
 #include "commands.hpp"
+#include "commandMessages.cpp"
 
 void Commands::onEvent(ServerChatEvent& event) {
     if(event.message[0] == '/') {
@@ -32,20 +33,16 @@ int formatCoord(std::string coord_str, int curr_coord) {
     return coord;
 }
 
-void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
+void TpCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
     if(args.size() == 1 && !(std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].at(0) == '~')){
         ServerPlayer* destination = players->getPlayerByName(args[0]);
         if(destination == nullptr){
-            sf::Packet error_message;
-            error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
-            executor->getConnection()->send(error_message);
+            playerNotFound(args[0], executor);
             return;
         }
         entities->setX(executor, destination->getX());
         entities->setY(executor, destination->getY());
-        sf::Packet feedback_message;
-        feedback_message << ServerPacketType::CHAT << "Successfully teleported " + executor->name + " to " + destination->name;
-        executor->getConnection()->send(feedback_message);
+        successfulTP(executor->name, destination->name, executor);
         return;
     }
     if(args.size() == 2 || args.size() == 3){
@@ -53,17 +50,13 @@ void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* ex
         ServerPlayer *to_teleport = nullptr;
         if(std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].at(0) == '~'){
             if(!std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
-                sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help tp for a list of arguments";
-                executor->getConnection()->send(error_message);
+                argumentsIncorrect("tp", executor);
                 return;
             }
             x_coord = formatCoord(args[0], executor->getX() / 16);
             y_coord = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
 
-            sf::Packet feedback_message;
-            feedback_message << ServerPacketType::CHAT << "Successfully teleported " + executor->name + " to " + std::to_string(x_coord) + " " + std::to_string(y_coord);
-            executor->getConnection()->send(feedback_message);
+            successfulTP(executor->name, std::to_string(x_coord) + " " + std::to_string(y_coord), executor);
 
             y_coord = -y_coord + blocks->getHeight();
             entities->setX(executor, x_coord * 16);
@@ -72,9 +65,7 @@ void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* ex
         }else
             to_teleport = players->getPlayerByName(args[0]);
         if(to_teleport == nullptr) {
-            sf::Packet error_message;
-            error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
-            executor->getConnection()->send(error_message);
+            playerNotFound(args[0], executor);
             return;
         }
         else
@@ -82,67 +73,40 @@ void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* ex
 
         if(args.size() == 1){
             if(std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
-                sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help tp for a list of arguments";
-                executor->getConnection()->send(error_message);
+                argumentsIncorrect("tp", executor);
                 return;
             }
             ServerPlayer* destination = players->getPlayerByName(args[0]);
             if(destination == nullptr) {
-                sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
-                executor->getConnection()->send(error_message);
+                playerNotFound(args[0], executor);
                 return;
             }
             entities->setX(to_teleport, destination->getX());
             entities->setY(to_teleport, destination->getY());
-            sf::Packet feedback_message;
-            feedback_message << ServerPacketType::CHAT << "Successfully teleported " + to_teleport->name + " to " + destination->name;
-            executor->getConnection()->send(feedback_message);
+            successfulTP(to_teleport->name, destination->name, executor);
             return;
         }
         x_coord = formatCoord(args[0], executor->getX() / 16);
         y_coord = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
 
-        sf::Packet feedback_message;
-        feedback_message << ServerPacketType::CHAT << "Successfully teleported " + executor->name + " to " + std::to_string(x_coord) + " " + std::to_string(y_coord);
-        executor->getConnection()->send(feedback_message);
+        successfulTP(executor->name, std::to_string(x_coord) + " " + std::to_string(y_coord), executor);
 
         y_coord = -y_coord + blocks->getHeight();
         entities->setX(executor, x_coord * 16);
         entities->setY(executor, y_coord * 16);
     }
-    sf::Packet error_message;
-    error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help tp for a list of arguments";
-    executor->getConnection()->send(error_message);
+    argumentsIncorrect("tp", executor);
 }
 
-void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
-    arg_type types[args.size()];
-    for(int i = 0; i < args.size(); i++){
-        if(args[i].size() > 5 && args[i].substr(0, 5) == "Item:"){
-            types[i] = arg_type::ITEM;
-        }else if(args[i].size() > 6 && args[i].substr(0, 6) == "Block:"){
-            types[i] = arg_type::BLOCK;
-        }else if(args[i].size() > 7 && args[i].substr(0, 7) == "Liquid:"){
-            types[i] = arg_type::LIQUID;
-        }else if(std::all_of(args[i].begin(), args[i].end(), ::isdigit)){
-            types[i] = arg_type::NUMBER;
-        }else{
-            types[i] = arg_type::STRING;
-        }
-    }
-    if(args.size() == 1 && types[0] == arg_type::ITEM){
+void GiveCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+    if(arg_types == "I"){
         try {
             ItemType *item = items->getItemTypeByName(args[0].substr(5, args[0].size() - 5));
             executor->inventory.addItem(item, 1);
         }catch(Exception& e) {
-            sf::Packet error_message;
-            error_message << ServerPacketType::CHAT << "Item with name " + args[0] + " does not exist";
-            executor->getConnection()->send(error_message);
+            itemNotFound(args[0], executor);
         }
-        return;
-    }else if(args.size() == 2 && types[0] == arg_type::STRING && types[1] == arg_type::ITEM){
+    }else if(arg_types == "SI"){
         ServerPlayer* reciever = executor;
         ItemType *item;
         try {
@@ -150,66 +114,56 @@ void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* 
             item = items->getItemTypeByName(args[1].substr(5, args[1].size() - 5));
             reciever->inventory.addItem(item, 1);
         }catch(Exception& e) {
-            if(e.message == "Could not find player by name") {
-                sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
-                executor->getConnection()->send(error_message);
-            }else{
-                sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Item with name " + args[1] + " does not exist";
-                executor->getConnection()->send(error_message);
-            }
-            return;
+            if(e.message == "Could not find player by name")
+                playerNotFound(args[0], executor);
+            else
+                itemNotFound(args[1], executor);
         }
-    }else if(args.size() == 2 && types[0] == arg_type::ITEM && types[1] == arg_type::NUMBER){
+    }else if(arg_types == "IN"){
         ItemType *item;
         try {
             item = items->getItemTypeByName(args[0].substr(5, args[0].size() - 5));
             executor->inventory.addItem(item, std::stoi(args[1]));
         }catch(Exception& e) {
-            sf::Packet error_message;
-            error_message << ServerPacketType::CHAT << "Item with name " + args[0] + " does not exist";
-            executor->getConnection()->send(error_message);
-            return;
+            itemNotFound(args[0], executor);
         }
-    }else if(args.size() == 3 && types[0] == arg_type::STRING && types[1] == arg_type::ITEM && types[2] == arg_type::NUMBER){
-        ServerPlayer* reciever = executor;
+    }else if(arg_types == "SIN"){
+        ServerPlayer* reciever;
         ItemType *item;
         try {
             reciever = players->getPlayerByName(args[0]);
             item = items->getItemTypeByName(args[1].substr(5, args[1].size() - 5));
             reciever->inventory.addItem(item, std::stoi(args[2]));
         }catch(Exception& e) {
-            if(e.message == "Could not find player by name") {
-                sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
-                executor->getConnection()->send(error_message);
-            }else{
-                sf::Packet error_message;
-                error_message << ServerPacketType::CHAT << "Item with name " + args[1] + " does not exist";
-                executor->getConnection()->send(error_message);
-            }
-            return;
+            if(e.message == "Could not find player by name")
+                playerNotFound(args[0], executor);
+            else
+                itemNotFound(args[1], executor);
         }
-    }else {
-        sf::Packet error_message;
-        error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help give for a list of arguments";
-        executor->getConnection()->send(error_message);
-    }
+    }else
+        argumentsIncorrect("give", executor);
 }
 
-void SetHealthCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() == 1) {
+void SetHealthCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+    if(arg_types == "N")
         executor->setPlayerHealth(std::stoi(args[0]));
-    }
-    else{
-        players->getPlayerByName(args[0])->setPlayerHealth(std::stoi(args[1]));
+    else if(arg_types == "SN"){
+        ServerPlayer* curr_player;
+        try {
+            curr_player = players->getPlayerByName(args[0]);
+            curr_player->setPlayerHealth(std::stoi(args[1]));
+        }catch(Exception& e) {
+            playerNotFound(args[0], executor);
+        }
     }
 
 }
 
-void SetblockCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() >= 3) {
+void SetblockCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+    for(int i = 0; i < 3; i++)
+        if(arg_types.at(i) == 'N')
+            arg_types.at(i) = 'C';
+    if(arg_types == "CCB") {
         int x_coord = formatCoord(args[0], executor->getX() / 16), y_coord = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
         BlockType* block = blocks->getBlockTypeByName(args[2]);
         y_coord = -y_coord + blocks->getHeight();
@@ -231,9 +185,26 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     args.erase(args.begin());
     indentifier.erase(indentifier.begin());
 
+    std::string arg_types;
+    for(auto & arg : args){
+        if(arg.size() > 5 && arg.substr(0, 5) == "Item:"){
+            arg_types += 'I';//item
+        }else if(arg.size() > 6 && arg.substr(0, 1) == "~"){
+            arg_types += 'C';//coordinate
+        }else if(arg.size() > 6 && arg.substr(0, 6) == "Block:"){
+            arg_types += 'B';//block
+        }else if(arg.size() > 7 && arg.substr(0, 7) == "Liquid:"){
+            arg_types += 'L';//liquid
+        }else if(std::all_of(arg.begin(), arg.end(), ::isdigit)){
+            arg_types += 'N';//number
+        }else{
+            arg_types += 'S';//string
+        }
+    }
+
     for(int i = 0; i < commands.size(); i++)
         if(commands[i]->indetifier == indentifier) {
-            commands[i]->onCommand(args, player);
+            commands[i]->onCommand(args, arg_types, player);
             return;
         }
     sf::Packet error_message;
@@ -241,7 +212,7 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     player->getConnection()->send(error_message);
 }
 
-void HelpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
+void HelpCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
     if(args.empty()){
         sf::Packet help_message;
         std::string message = "List of commands:\n"
@@ -265,7 +236,9 @@ void HelpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* 
             sf::Packet help_message;
             help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
                                                       "give [item_name] -> give 1 item of that type to yourself\n"
-                                                      "give [item_name] [quantity] -> give entered number of items of that type to yourself";
+                                                      "give [player] [item_name] -> give 1 item of that type to that player\n"
+                                                      "give [item_name] [quantity] -> give entered number of items of that type to yourself\n"
+                                                      "give [player] ]item_name] [quantity] -> give entered number of items of that type to that player";
             executor->getConnection()->send(help_message);
         }else if(args[0] == "setHealth"){
             sf::Packet help_message;
@@ -281,7 +254,7 @@ void HelpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* 
         }
     }else{
         sf::Packet error_message;
-        error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help to display a list of commands or\n"
+        error_message << ServerPacketType::CHAT << "Arguments incorrect. \nUse /help to display a list of commands or\n"
                                                    "/help [command_identifier] to display a specific command's help menu";
         executor->getConnection()->send(error_message);
     }
