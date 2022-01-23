@@ -365,10 +365,11 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             int craft_index;
             event.packet >> craft_index;
             const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
-            event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
             
             for(auto ingredient : recipe_crafted->ingredients)
                 event.player->inventory.removeItem(ingredient.first, ingredient.second);
+            event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+            
             break;
         }
             

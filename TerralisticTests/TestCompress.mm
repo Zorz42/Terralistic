@@ -8,7 +8,7 @@
 
 @implementation TestCompress
 
-#define DATA_SIZE 100000000
+#define DATA_SIZE 1000000
 std::vector<char> uncompressed_data(DATA_SIZE), compressed_data(DATA_SIZE);
 
 - (void)setUp {

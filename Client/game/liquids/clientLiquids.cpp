@@ -23,7 +23,7 @@ void ClientLiquids::onEvent(WelcomePacketEvent& event) {
 }
 
 void ClientLiquids::onEvent(LiquidChangeEvent& event) {
-    getLiquidChunk(event.x / 16, event.y / 16)->update(this, event.x, event.y);
+    getLiquidUpdate(event.x, event.y) = true;
 }
 
 void ClientLiquids::init() {
@@ -48,6 +48,9 @@ void ClientLiquids::loadTextures() {
 
 void ClientLiquids::postInit() {
     liquid_chunks = new LiquidChunk[getWidth() / 16 * getHeight() / 16];
+    liquid_updates = new bool[getWidth() * getHeight()];
+    for(int i = 0; i < getWidth() * getHeight(); i++)
+        liquid_updates[i] = false;
 }
 
 void ClientLiquids::stop() {
@@ -55,6 +58,12 @@ void ClientLiquids::stop() {
     networking->welcome_packet_event.removeListener(this);
     liquid_change_event.removeListener(this);
     delete[] liquid_chunks;
+}
+
+bool& ClientLiquids::getLiquidUpdate(int x, int y) {
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("LiquidUpdate is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    return liquid_updates[y * getWidth() + x];
 }
 
 void ClientLiquids::render() {
@@ -65,6 +74,13 @@ void ClientLiquids::render() {
             
             getLiquidChunk(x, y)->render(this, x * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
+    
+    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX(); x++)
+        for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY(); y++)
+            if(getLiquidUpdate(x, y)) {
+                getLiquidUpdate(x, y) = false;
+                getLiquidChunk(x / LIQUID_CHUNK_SIZE, y / LIQUID_CHUNK_SIZE)->update(this, x, y);
+            }
 }
 
 void ClientLiquids::LiquidChunk::create(ClientLiquids* liquids, int x, int y) {

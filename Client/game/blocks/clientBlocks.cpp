@@ -59,11 +59,21 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 }
 
 ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("RenderBlock is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &render_blocks[y * getWidth() + x];
 }
 
 ClientBlocks::BlockChunk* ClientBlocks::getBlockChunk(int x, int y) {
-    return &block_chunks[y * getWidth() / 16 + x];
+    if(x < 0 || x >= getWidth() / BLOCK_CHUNK_SIZE || y < 0 || y >= getHeight() / BLOCK_CHUNK_SIZE)
+        throw Exception("Chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    return &block_chunks[y * getWidth() / BLOCK_CHUNK_SIZE + x];
+}
+
+bool& ClientBlocks::getBlockUpdate(int x, int y) {
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("BlockUpdate is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    return block_updates[y * getWidth() + x];
 }
 
 void ClientBlocks::updateState(int x, int y) {
@@ -87,14 +97,13 @@ int ClientBlocks::getState(int x, int y) {
 void ClientBlocks::postInit() {
     render_blocks = new RenderBlock[getWidth() * getHeight()];
     block_chunks = new BlockChunk[getWidth() / 16 * getHeight() / 16];
+    block_updates = new bool[getWidth() * getHeight()];
+    for(int i = 0; i < getWidth() * getHeight(); i++)
+        block_updates[i] = false;
 }
 
-void ClientBlocks::onEvent(BlockChangeEvent& event) {    
-    int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
-    for(int i = 0; i < 5; i++) {
-        updateState(coords[i][0], coords[i][1]);
-        getBlockChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, coords[i][0], coords[i][1]);
-    }
+void ClientBlocks::onEvent(BlockChangeEvent& event) {
+    getBlockUpdate(event.x, event.y) = true;
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
@@ -191,6 +200,15 @@ void ClientBlocks::render() {
             if(getBreakStage(x, y)) {
                 int block_x = x * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
                 breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x, y) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
+            }
+            
+            if(getBlockUpdate(x, y)) {
+                getBlockUpdate(x, y) = false;
+                int coords[5][2] = {{x, y}, {x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}};
+                for(int i = 0; i < 5; i++) {
+                    updateState(coords[i][0], coords[i][1]);
+                    getBlockChunk(coords[i][0] / 16, coords[i][1] / 16)->update(this, coords[i][0], coords[i][1]);
+                }
             }
         }
 }

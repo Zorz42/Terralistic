@@ -84,7 +84,7 @@ void startServer(Server* server, Game* game) {
         server->start();
     } catch(const std::exception& exception) {
         server->state = ServerState::CRASHED;
-        game->interrupt_message = exception.what();
+        game->interrupt_message = (std::string)"Server crash: " + exception.what();
         game->interrupt = true;
     }
 }

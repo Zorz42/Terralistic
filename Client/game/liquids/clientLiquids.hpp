@@ -34,6 +34,9 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     void loadTextures() override;
     void render() override;
     void stop() override;
+    
+    bool* liquid_updates = nullptr;
+    bool& getLiquidUpdate(int x, int y);
 public:
     ClientLiquids(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks), camera(camera) {}
     

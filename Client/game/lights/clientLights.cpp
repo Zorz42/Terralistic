@@ -12,6 +12,8 @@ void ClientLights::postInit() {
     create();
     light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
     light_updates = new bool[getWidth() * getHeight()];
+    for(int i = 0; i < getWidth() * getHeight(); i++)
+        light_updates[i] = false;
     updateAllLightEmitters();
 }
 
