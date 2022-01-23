@@ -1,5 +1,5 @@
 #include "commands.hpp"
-#include "commandMessages.cpp"
+#include "commandMessages.hpp"
 
 void Commands::onEvent(ServerChatEvent& event) {
     if(event.message[0] == '/') {
