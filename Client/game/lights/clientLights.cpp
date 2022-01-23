@@ -58,7 +58,6 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     
     int rel_x = x % LIGHT_CHUNK_SIZE, rel_y = y % LIGHT_CHUNK_SIZE;
     int index = LIGHT_CHUNK_SIZE * rel_y + rel_x;
-    light_rects.setRect(index, {rel_x * BLOCK_WIDTH * 2 + BLOCK_WIDTH, rel_y * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
     
     int low_x = x == lights->getWidth() - 1 ? x : x + 1, low_y = y == lights->getHeight() - 1 ? y : y + 1;
     
@@ -100,7 +99,8 @@ void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {
     
     for(int x2 = 0; x2 < LIGHT_CHUNK_SIZE; x2++)
         for(int y2 = 0; y2 < LIGHT_CHUNK_SIZE; y2++) {
-            light_rects.setRect(LIGHT_CHUNK_SIZE * y2 + x2, {x2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH, y2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
+            int x_stretch = (x == 0 && x2 == 0) ? BLOCK_WIDTH : 0;
+            light_rects.setRect(LIGHT_CHUNK_SIZE * y2 + x2, {x2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH - x_stretch, y2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2 + x_stretch, BLOCK_WIDTH * 2});
             update(lights, x * LIGHT_CHUNK_SIZE + x2, y * LIGHT_CHUNK_SIZE + y2);
         }
 }
