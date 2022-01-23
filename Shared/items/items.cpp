@@ -58,5 +58,4 @@ ItemType* Items::getItemTypeByName(const std::string& name) {
         if(item_types[i]->name == name)
             return item_types[i];
     throw Exception("Could not find item by name");
-    return nullptr;
 }

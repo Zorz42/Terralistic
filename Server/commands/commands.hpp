@@ -7,6 +7,7 @@ public:
     Entities* entities;
     Items* items;
     ServerPlayers* players;
+    enum class arg_type {BLOCK, ITEM, LIQUID, STRING, NUMBER};
     Command(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : blocks(blocks), entities(entities), items(items), players(players) {}
     std::string indetifier;
     virtual void onCommand(const std::vector<std::string>& args, ServerPlayer* executor) = 0;
@@ -57,7 +58,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     SetHealthCommand health_command;
     HelpCommand help_command;
     std::vector<Command*> commands;
-    
+
     void init() override;
     void stop() override;
     

@@ -48,7 +48,17 @@ ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
             if(player->name == name)
                 return player;
         }
-    return nullptr;
+    throw Exception("Could not find player by name");
+}
+
+bool ServerPlayers::playerExists(const std::string& name) {
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
+            if(player->name == name)
+                return true;
+        }
+    return false;
 }
 
 ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
@@ -216,10 +226,11 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
 void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     std::string player_name;
     event.client_welcome_packet >> player_name;
-    
-    ServerPlayer* already_joined_player = getPlayerByName(player_name);
-    if(already_joined_player)
-        networking->kickConnection(already_joined_player->getConnection(), "You logged in from another location!");
+
+    if(playerExists(player_name)) {
+        ServerPlayer *already_joined_player = getPlayerByName(player_name);
+        networking->kickConnection(already_joined_player->getConnection(),"You logged in from another location!");
+    }
     
     ServerPlayer* player = addPlayer(player_name);
     player->setConnection(event.connection);

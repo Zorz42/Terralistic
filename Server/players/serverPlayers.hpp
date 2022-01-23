@@ -101,6 +101,7 @@ public:
     const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
     
     ServerPlayer* getPlayerByName(const std::string& name);
+    bool playerExists(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);

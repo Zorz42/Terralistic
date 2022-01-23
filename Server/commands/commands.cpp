@@ -118,26 +118,84 @@ void TpCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* ex
 }
 
 void GiveCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() == 1 || args.size() == 2) {
-        int quantity = 1;
-        if(args.size() == 2) {
-            quantity = std::stoi(args[1]);
-            std::destroy(args.begin(), args.begin());
+    arg_type types[args.size()];
+    for(int i = 0; i < args.size(); i++){
+        if(args[i].size() > 5 && args[i].substr(0, 5) == "Item:"){
+            types[i] = arg_type::ITEM;
+        }else if(args[i].size() > 6 && args[i].substr(0, 6) == "Block:"){
+            types[i] = arg_type::BLOCK;
+        }else if(args[i].size() > 7 && args[i].substr(0, 7) == "Liquid:"){
+            types[i] = arg_type::LIQUID;
+        }else if(std::all_of(args[i].begin(), args[i].end(), ::isdigit)){
+            types[i] = arg_type::NUMBER;
+        }else{
+            types[i] = arg_type::STRING;
         }
+    }
+    if(args.size() == 1 && types[0] == arg_type::ITEM){
         try {
-            ItemType *item = items->getItemTypeByName(args[0]);
-            executor->inventory.addItem(item, quantity);
+            ItemType *item = items->getItemTypeByName(args[0].substr(5, args[0].size() - 5));
+            executor->inventory.addItem(item, 1);
+        }catch(Exception& e) {
+            sf::Packet error_message;
+            error_message << ServerPacketType::CHAT << "Item with name " + args[0] + " does not exist";
+            executor->getConnection()->send(error_message);
+        }
+        return;
+    }else if(args.size() == 2 && types[0] == arg_type::STRING && types[1] == arg_type::ITEM){
+        ServerPlayer* reciever = executor;
+        ItemType *item;
+        try {
+            reciever = players->getPlayerByName(args[0]);
+            item = items->getItemTypeByName(args[1].substr(5, args[1].size() - 5));
+            reciever->inventory.addItem(item, 1);
+        }catch(Exception& e) {
+            if(e.message == "Could not find player by name") {
+                sf::Packet error_message;
+                error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
+                executor->getConnection()->send(error_message);
+            }else{
+                sf::Packet error_message;
+                error_message << ServerPacketType::CHAT << "Item with name " + args[1] + " does not exist";
+                executor->getConnection()->send(error_message);
+            }
+            return;
+        }
+    }else if(args.size() == 2 && types[0] == arg_type::ITEM && types[1] == arg_type::NUMBER){
+        ItemType *item;
+        try {
+            item = items->getItemTypeByName(args[0].substr(5, args[0].size() - 5));
+            executor->inventory.addItem(item, std::stoi(args[1]));
         }catch(Exception& e) {
             sf::Packet error_message;
             error_message << ServerPacketType::CHAT << "Item with name " + args[0] + " does not exist";
             executor->getConnection()->send(error_message);
             return;
         }
-        return;
+    }else if(args.size() == 3 && types[0] == arg_type::STRING && types[1] == arg_type::ITEM && types[2] == arg_type::NUMBER){
+        ServerPlayer* reciever = executor;
+        ItemType *item;
+        try {
+            reciever = players->getPlayerByName(args[0]);
+            item = items->getItemTypeByName(args[1].substr(5, args[1].size() - 5));
+            reciever->inventory.addItem(item, std::stoi(args[2]));
+        }catch(Exception& e) {
+            if(e.message == "Could not find player by name") {
+                sf::Packet error_message;
+                error_message << ServerPacketType::CHAT << "Player with name " + args[0] + " does not exist";
+                executor->getConnection()->send(error_message);
+            }else{
+                sf::Packet error_message;
+                error_message << ServerPacketType::CHAT << "Item with name " + args[1] + " does not exist";
+                executor->getConnection()->send(error_message);
+            }
+            return;
+        }
+    }else {
+        sf::Packet error_message;
+        error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help give for a list of arguments";
+        executor->getConnection()->send(error_message);
     }
-    sf::Packet error_message;
-    error_message << ServerPacketType::CHAT << "Arguments incorrect. Use /help tp for a list of arguments";
-    executor->getConnection()->send(error_message);
 }
 
 void SetHealthCommand::onCommand(const std::vector<std::string>& args, ServerPlayer* executor) {
