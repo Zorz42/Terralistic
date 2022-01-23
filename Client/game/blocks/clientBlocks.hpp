@@ -48,6 +48,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void updateOrientationLeft(int x, int y);
     void updateOrientationRight(int x, int y);
     
+    bool* block_updates = nullptr;
+    bool& getBlockUpdate(int x, int y);
+    
     ResourcePack* resource_pack;
     ClientNetworking* networking;
     Camera* camera;
