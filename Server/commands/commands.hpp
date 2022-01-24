@@ -9,37 +9,37 @@ public:
     ServerPlayers* players;
     Command(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : blocks(blocks), entities(entities), items(items), players(players) {}
     std::string indetifier;
-    virtual void onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) = 0;
+    virtual void onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) = 0;
 };
 
 class SetblockCommand : public Command {
 public:
     SetblockCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) {indetifier = "setblock";}
-    void onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
+    void onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
 };
 
 class TpCommand : public Command {
 public:
     TpCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "tp";}
-    void onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
+    void onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
 };
 
 class GiveCommand : public Command {
 public:
     GiveCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "give";}
-    void onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
+    void onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
 };
 
 class SetHealthCommand : public Command {
 public:
     SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "setHealth";}
-    void onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
+    void onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
 };
 
 class HelpCommand : public Command {
 public:
     HelpCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players) : Command(blocks, entities, items, players) { indetifier = "help";}
-    void onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
+    void onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) override;
 };
 
 class Commands : public ServerModule, EventListener<ServerChatEvent> {

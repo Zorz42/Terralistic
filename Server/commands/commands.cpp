@@ -22,7 +22,7 @@ void Commands::stop() {
     chat->chat_event.removeListener(this);
 }
 
-int formatCoord(std::string coord_str, int curr_coord) {
+float formatCoord(std::string coord_str, float curr_coord) {
     int coord = 0;
     if(coord_str[0] == '~') {
         coord += curr_coord;
@@ -33,72 +33,50 @@ int formatCoord(std::string coord_str, int curr_coord) {
     return coord;
 }
 
-void TpCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
-    if(args.size() == 1 && !(std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].at(0) == '~')){
-        ServerPlayer* destination = players->getPlayerByName(args[0]);
-        if(destination == nullptr){
+void TpCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+    for(int i = 0; i < arg_types.size(); i++)
+        if(arg_types.at(i) == 'N')
+            arg_types.at(i) = 'C';
+    if(arg_types == "S"){
+        arg_types = "SS";
+        args.insert(args.begin(), executor->name);
+    }
+    if(arg_types == "SS"){
+        try {
+            ServerPlayer* curr_player = players->getPlayerByName(args[1]);
+            args.erase(args.end());
+            args.push_back(std::to_string((float)curr_player->getX() / 16));
+            args.push_back(std::to_string(-(float)curr_player->getY() / 16 + blocks->getHeight()));
+            arg_types = "SCC";
+        }catch(Exception& e) {
+            playerNotFound(args[1], executor);
+            return;
+        }
+    }
+    if(arg_types == "CC"){
+        args.insert(args.begin(), executor->name);
+        arg_types = "SCC";
+    }
+    if(arg_types == "SCC"){
+        try {
+            ServerPlayer* to_teleport = players->getPlayerByName(args[0]);
+            float x = formatCoord(args[1], (float)executor->getX() / 16);
+            float y = formatCoord(args[2], -(float)executor->getY() / 16 + blocks->getHeight());
+            successfulTP(to_teleport->name, args[1] + " " + args[2], executor);
+            y = -y + blocks->getHeight();
+            entities->setX(executor, x * 16);
+            entities->setY(executor, y * 16);
+            return;
+        }catch (Exception& e){
             playerNotFound(args[0], executor);
             return;
         }
-        entities->setX(executor, destination->getX());
-        entities->setY(executor, destination->getY());
-        successfulTP(executor->name, destination->name, executor);
-        return;
     }
-    if(args.size() == 2 || args.size() == 3){
-        int x_coord, y_coord;
-        ServerPlayer *to_teleport = nullptr;
-        if(std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].at(0) == '~'){
-            if(!std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
-                argumentsIncorrect("tp", executor);
-                return;
-            }
-            x_coord = formatCoord(args[0], executor->getX() / 16);
-            y_coord = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
 
-            successfulTP(executor->name, std::to_string(x_coord) + " " + std::to_string(y_coord), executor);
-
-            y_coord = -y_coord + blocks->getHeight();
-            entities->setX(executor, x_coord * 16);
-            entities->setY(executor, y_coord * 16);
-            return;
-        }else
-            to_teleport = players->getPlayerByName(args[0]);
-        if(to_teleport == nullptr) {
-            playerNotFound(args[0], executor);
-            return;
-        }
-        else
-            std::destroy(args.begin(), args.begin());
-
-        if(args.size() == 1){
-            if(std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
-                argumentsIncorrect("tp", executor);
-                return;
-            }
-            ServerPlayer* destination = players->getPlayerByName(args[0]);
-            if(destination == nullptr) {
-                playerNotFound(args[0], executor);
-                return;
-            }
-            entities->setX(to_teleport, destination->getX());
-            entities->setY(to_teleport, destination->getY());
-            successfulTP(to_teleport->name, destination->name, executor);
-            return;
-        }
-        x_coord = formatCoord(args[0], executor->getX() / 16);
-        y_coord = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
-
-        successfulTP(executor->name, std::to_string(x_coord) + " " + std::to_string(y_coord), executor);
-
-        y_coord = -y_coord + blocks->getHeight();
-        entities->setX(executor, x_coord * 16);
-        entities->setY(executor, y_coord * 16);
-    }
     argumentsIncorrect("tp", executor);
 }
 
-void GiveCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+void GiveCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
     if(arg_types == "I"){
         try {
             ItemType *item = items->getItemTypeByName(args[0].substr(5, args[0].size() - 5));
@@ -144,7 +122,7 @@ void GiveCommand::onCommand(const std::vector<std::string>& args, std::string ar
         argumentsIncorrect("give", executor);
 }
 
-void SetHealthCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+void SetHealthCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
     if(arg_types == "N")
         executor->setPlayerHealth(std::stoi(args[0]));
     else if(arg_types == "SN"){
@@ -159,8 +137,8 @@ void SetHealthCommand::onCommand(const std::vector<std::string>& args, std::stri
 
 }
 
-void SetblockCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
-    for(int i = 0; i < 3; i++)
+void SetblockCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+    for(int i = 0; i < arg_types.size(); i++)
         if(arg_types.at(i) == 'N')
             arg_types.at(i) = 'C';
     if(arg_types == "CCB") {
@@ -189,7 +167,7 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     for(auto & arg : args){
         if(arg.size() > 5 && arg.substr(0, 5) == "Item:"){
             arg_types += 'I';//item
-        }else if(arg.size() > 6 && arg.substr(0, 1) == "~"){
+        }else if(arg.substr(0, 1) == "~"){
             arg_types += 'C';//coordinate
         }else if(arg.size() > 6 && arg.substr(0, 6) == "Block:"){
             arg_types += 'B';//block
@@ -212,7 +190,7 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     player->getConnection()->send(error_message);
 }
 
-void HelpCommand::onCommand(const std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
+void HelpCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
     if(args.empty()){
         sf::Packet help_message;
         std::string message = "List of commands:\n"
