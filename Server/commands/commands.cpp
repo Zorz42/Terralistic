@@ -134,7 +134,6 @@ void SetHealthCommand::onCommand(std::vector<std::string>& args, std::string arg
             playerNotFound(args[0], executor);
         }
     }
-
 }
 
 void SetblockCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
@@ -142,7 +141,7 @@ void SetblockCommand::onCommand(std::vector<std::string>& args, std::string arg_
         if(arg_types.at(i) == 'N')
             arg_types.at(i) = 'C';
     if(arg_types == "CCB") {
-        int x_coord = formatCoord(args[0], executor->getX() / 16), y_coord = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
+        int x_coord = formatCoord(args[0], (float)executor->getX() / 16), y_coord = formatCoord(args[1], -(float)executor->getY() / 16 + blocks->getHeight());
         BlockType* block = blocks->getBlockTypeByName(args[2]);
         y_coord = -y_coord + blocks->getHeight();
         blocks->setBlockType(x_coord, y_coord, block);
@@ -213,10 +212,10 @@ void HelpCommand::onCommand(std::vector<std::string>& args, std::string arg_type
         }else if(args[0] == "give"){
             sf::Packet help_message;
             help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
-                                                      "give [item_name] -> give 1 item of that type to yourself\n"
-                                                      "give [player] [item_name] -> give 1 item of that type to that player\n"
-                                                      "give [item_name] [quantity] -> give entered number of items of that type to yourself\n"
-                                                      "give [player] ]item_name] [quantity] -> give entered number of items of that type to that player";
+                                                      "give Item:[item_name] -> give 1 item of that type to yourself\n"
+                                                      "give [player] Item:[item_name] -> give 1 item of that type to that player\n"
+                                                      "give Item:[item_name] [quantity] -> give entered number of items of that type to yourself\n"
+                                                      "give [player] Item:]item_name] [quantity] -> give entered number of items of that type to that player";
             executor->getConnection()->send(help_message);
         }else if(args[0] == "setHealth"){
             sf::Packet help_message;
@@ -227,7 +226,7 @@ void HelpCommand::onCommand(std::vector<std::string>& args, std::string arg_type
         }else if(args[0] == "setBlock"){
             sf::Packet help_message;
             help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
-                                                      "not implemented yet";
+                                                      "setBlock [x_coordinate] [y_coordinate] Block:[block]";
             executor->getConnection()->send(help_message);
         }
     }else{
