@@ -86,10 +86,20 @@ bool Chat::onKeyDown(gfx::Key key) {
 void Chat::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::CHAT: {
-            ChatLine* new_line = new ChatLine;
-            event.packet >> new_line->text;
-            new_line->time_created = gfx::getTicks();
-                chat_lines.push_back(new_line);
+            std::string curr_line, whole_message;
+            event.packet >> whole_message;
+            while(!whole_message.empty()) {
+                curr_line.push_back(whole_message[0]);
+                whole_message.erase(whole_message.begin());
+                if(whole_message[0] == '\n') {
+                    ChatLine* new_line = new ChatLine;
+                    new_line->text = curr_line;
+                    new_line->time_created = gfx::getTicks();
+                        chat_lines.push_back(new_line);
+                    whole_message.erase(whole_message.begin());
+                    curr_line = "";
+                }
+            }
             break;
         }
         default:;
