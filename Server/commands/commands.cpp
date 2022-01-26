@@ -78,48 +78,33 @@ void TpCommand::onCommand(std::vector<std::string>& args, std::string arg_types,
 
 void GiveCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
     if(arg_types == "I"){
-        try {
-            ItemType *item = items->getItemTypeByName(args[0].substr(5, args[0].size() - 5));
-            executor->inventory.addItem(item, 1);
-        }catch(Exception& e) {
-            itemNotFound(args[0], executor);
-        }
-    }else if(arg_types == "SI"){
-        ServerPlayer* reciever = executor;
-        ItemType *item;
-        try {
-            reciever = players->getPlayerByName(args[0]);
-            item = items->getItemTypeByName(args[1].substr(5, args[1].size() - 5));
-            reciever->inventory.addItem(item, 1);
-        }catch(Exception& e) {
-            if(e.message == "Could not find player by name")
-                playerNotFound(args[0], executor);
-            else
-                itemNotFound(args[1], executor);
-        }
-    }else if(arg_types == "IN"){
-        ItemType *item;
-        try {
-            item = items->getItemTypeByName(args[0].substr(5, args[0].size() - 5));
-            executor->inventory.addItem(item, std::stoi(args[1]));
-        }catch(Exception& e) {
-            itemNotFound(args[0], executor);
-        }
-    }else if(arg_types == "SIN"){
-        ServerPlayer* reciever;
+        arg_types = "SI";
+        args.insert(args.begin(), executor->name);
+    }
+    if(arg_types == "SI"){
+        arg_types = "SIN";
+        args.emplace_back("1");
+    }
+    if(arg_types == "IN"){
+        arg_types = "SIN";
+        args.insert(args.begin(), executor->name);
+    }
+    if(arg_types == "SIN") {
+        ServerPlayer *reciever;
         ItemType *item;
         try {
             reciever = players->getPlayerByName(args[0]);
             item = items->getItemTypeByName(args[1].substr(5, args[1].size() - 5));
             reciever->inventory.addItem(item, std::stoi(args[2]));
-        }catch(Exception& e) {
-            if(e.message == "Could not find player by name")
+        } catch (Exception &e) {
+            if (e.message == "Could not find player by name")
                 playerNotFound(args[0], executor);
             else
                 itemNotFound(args[1], executor);
         }
-    }else
-        argumentsIncorrect("give", executor);
+        return;
+    }
+    argumentsIncorrect("give", executor);
 }
 
 void SetHealthCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
