@@ -8,7 +8,7 @@
 #include "chat.hpp"
 #include "clientLiquids.hpp"
 #include "clientLights.hpp"
-#include "health.hpp"
+#include "clientHealth.hpp"
 #include "content.hpp"
 #include "naturalLight.hpp"
 #include "camera.hpp"

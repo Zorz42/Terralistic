@@ -1,4 +1,5 @@
-#include "health.hpp"
+#include "clientHealth.hpp"
+
 
 void Health::init() {
     networking->packet_event.addListener(this);
@@ -13,6 +14,7 @@ void Health::stop() {
     networking->packet_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
 }
+
 
 void Health::render() {
     int offset = gfx::getWindowWidth() - (std::min(max_health / 4, 10) + 1) * 25 + 15;

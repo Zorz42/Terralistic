@@ -118,8 +118,8 @@ int Entity::getY() const {
 
 void Entities::setVelocityX(Entity* entity, float velocity_x) {
     if(entity->velocity_x != velocity_x) {
+        EntityVelocityChangeEvent event(entity, entity->getVelocityX(), entity->getVelocityY());
         entity->velocity_x = velocity_x;
-        EntityVelocityChangeEvent event(entity);
         entity_velocity_change_event.call(event);
     }
 }
@@ -127,7 +127,7 @@ void Entities::setVelocityX(Entity* entity, float velocity_x) {
 void Entities::setVelocityY(Entity* entity, float velocity_y) {
     if(entity->velocity_y != velocity_y) {
         entity->velocity_y = velocity_y;
-        EntityVelocityChangeEvent event(entity);
+        EntityVelocityChangeEvent event(entity, entity->getVelocityX(), entity->getVelocityY());
         entity_velocity_change_event.call(event);
     }
 }

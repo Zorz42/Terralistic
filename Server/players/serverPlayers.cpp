@@ -51,6 +51,16 @@ ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
     throw Exception("Could not find player by name");
 }
 
+ServerPlayer* ServerPlayers::getPlayerById(const int id) {
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
+            if(player->id == id)
+                return player;
+        }
+    throw Exception("Could not find player by name");
+}
+
 bool ServerPlayers::playerExists(const std::string& name) {
     for(int i = 0; i < entities->getEntities().size(); i++)
         if(entities->getEntities()[i]->type == EntityType::PLAYER) {
