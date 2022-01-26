@@ -2,8 +2,8 @@
 #include "clientNetworking.hpp"
 #include "resourcePack.hpp"
 
-class Health : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
-    int health = 107, max_health = 80;
+class ClientHealth : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
+    int health = 80, max_health = 80;
     gfx::Texture heart_texture;
     void init() override;
     void loadTextures() override;
@@ -15,5 +15,5 @@ class Health : public ClientModule, EventListener<ClientPacketEvent>, EventListe
     ResourcePack* resource_pack;
     ClientNetworking* networking;
 public:
-    Health(ClientNetworking* networking, ResourcePack* resource_pack) : networking(networking), resource_pack(resource_pack){}
+    ClientHealth(ClientNetworking* networking, ResourcePack* resource_pack) : networking(networking), resource_pack(resource_pack){}
 };

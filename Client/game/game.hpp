@@ -42,7 +42,7 @@ class Game : gfx::Scene, public BackgroundRect {
     ClientInventory inventory;
     Chat chat;
     DebugMenu debug_menu;
-    Health player_health;
+    ClientHealth player_health;
     Recipes recipes;
     GameContent content;
     
