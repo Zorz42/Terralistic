@@ -19,5 +19,7 @@ class ServerChat : public ServerModule, EventListener<ServerPacketEvent> {
 public:
     ServerChat(ServerPlayers* players, ServerNetworking* networking) : players(players), networking(networking) {}
     
+    void sendChat(ServerPlayer* player, const std::string& message);
+    
     EventSender<ServerChatEvent> chat_event;
 };

@@ -1,5 +1,4 @@
 #include "commands.hpp"
-#include "commandMessages.hpp"
 
 void Commands::onEvent(ServerChatEvent& event) {
     if(event.message[0] == '/') {
@@ -33,104 +32,73 @@ float formatCoord(std::string coord_str, float curr_coord) {
     return coord;
 }
 
-void TpCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
-    for(int i = 0; i < arg_types.size(); i++)
-        if(arg_types.at(i) == 'N')
-            arg_types.at(i) = 'C';
-    if(arg_types == "S"){
-        arg_types = "SS";
-        args.insert(args.begin(), executor->name);
+bool TpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 2 && std::all_of(args[0].begin(), args[0].end(), ::isdigit) && std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
+        int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], executor->getY() / 16);
+        entities->setX(executor, x);
+        entities->setY(executor, y);
+        chat->sendChat(executor, "Teleported you to x: " + std::to_string(x) + ", y: " + std::to_string(y) + ".");
+        return true;
+    } else if(args.size() == 1) {
+        ServerPlayer* target = players->getPlayerByName(args[0]);
+        entities->setX(executor, target->getX());
+        entities->setY(executor, target->getY());
+        chat->sendChat(executor, "Teleported you to " + args[0] + ".");
+        return true;
+    } else if(args.size() == 2) {
+        ServerPlayer* target1 = players->getPlayerByName(args[0]), *target2 = players->getPlayerByName(args[1]);
+        entities->setX(target1, target2->getX());
+        entities->setY(target1, target2->getY());
+        chat->sendChat(executor, "Teleported " + args[0] + " to " + args[1] + ".");
+        return true;
+    } else if(args.size() == 3 && std::all_of(args[1].begin(), args[1].end(), ::isdigit) && std::all_of(args[2].begin(), args[2].end(), ::isdigit)) {
+        ServerPlayer* target = players->getPlayerByName(args[0]);
+        int x = formatCoord(args[1], executor->getX() / 16), y = formatCoord(args[2], executor->getY() / 16);
+        entities->setX(target, x);
+        entities->setY(target, y);
+        chat->sendChat(executor, "Teleported " + args[0] + " to x: " + std::to_string(x) + ", y: " + std::to_string(y) + ".");
+        return true;
     }
-    if(arg_types == "SS"){
-        try {
-            ServerPlayer* curr_player = players->getPlayerByName(args[1]);
-            args.erase(args.end());
-            args.push_back(std::to_string((float)curr_player->getX() / 16));
-            args.push_back(std::to_string(-(float)curr_player->getY() / 16 + blocks->getHeight()));
-            arg_types = "SCC";
-        }catch(Exception& e) {
-            playerNotFound(args[1], executor);
-            return;
-        }
-    }
-    if(arg_types == "CC"){
-        args.insert(args.begin(), executor->name);
-        arg_types = "SCC";
-    }
-    if(arg_types == "SCC"){
-        try {
-            ServerPlayer* to_teleport = players->getPlayerByName(args[0]);
-            float x = formatCoord(args[1], (float)executor->getX() / 16);
-            float y = formatCoord(args[2], -(float)executor->getY() / 16 + blocks->getHeight());
-            successfulTP(to_teleport->name, args[1] + " " + args[2], executor);
-            y = -y + blocks->getHeight();
-            entities->setX(executor, x * 16);
-            entities->setY(executor, y * 16);
-            return;
-        }catch (Exception& e){
-            playerNotFound(args[0], executor);
-            return;
-        }
-    }
-
-    argumentsIncorrect("tp", executor);
+    return false;
 }
 
-void GiveCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
-    if(arg_types == "I"){
-        arg_types = "SI";
-        args.insert(args.begin(), executor->name);
+bool GiveCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 1) {
+        executor->inventory.addItem(items->getItemTypeByName(args[0]), 1);
+        chat->sendChat(executor, "Gave 1 " + args[0] + ".");
+        return true;
+    } else if(args.size() == 2 && std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
+        executor->inventory.addItem(items->getItemTypeByName(args[0]), std::stoi(args[1]));
+        chat->sendChat(executor, "Gave " + args[1] + " " + args[0] + ".");
+        return true;
+    } else if(args.size() == 3 && std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
+        players->getPlayerByName(args[2])->inventory.addItem(items->getItemTypeByName(args[0]), std::stoi(args[1]));
+        chat->sendChat(executor, "Gave " + args[2] + " " + args[1] + " " + args[0] + ".");
+        return true;
     }
-    if(arg_types == "SI"){
-        arg_types = "SIN";
-        args.emplace_back("1");
-    }
-    if(arg_types == "IN"){
-        arg_types = "SIN";
-        args.insert(args.begin(), executor->name);
-    }
-    if(arg_types == "SIN") {
-        ServerPlayer *reciever;
-        ItemType *item;
-        try {
-            reciever = players->getPlayerByName(args[0]);
-            item = items->getItemTypeByName(args[1].substr(5, args[1].size() - 5));
-            reciever->inventory.addItem(item, std::stoi(args[2]));
-        } catch (Exception &e) {
-            if (e.message == "Could not find player by name")
-                playerNotFound(args[0], executor);
-            else
-                itemNotFound(args[1], executor);
-        }
-        return;
-    }
-    argumentsIncorrect("give", executor);
+    return false;
 }
 
-void SetHealthCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
-    if(arg_types == "N")
+bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 1 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
         executor->setPlayerHealth(std::stoi(args[0]));
-    else if(arg_types == "SN"){
-        ServerPlayer* curr_player;
-        try {
-            curr_player = players->getPlayerByName(args[0]);
-            curr_player->setPlayerHealth(std::stoi(args[1]));
-        }catch(Exception& e) {
-            playerNotFound(args[0], executor);
-        }
+        chat->sendChat(executor, "Set your health to " + args[0] + ".");
+        return true;
+    } else if(args.size() == 2 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
+        players->getPlayerByName(args[1])->setPlayerHealth(std::stoi(args[0]));
+        chat->sendChat(executor, "Set " + args[1] + "'s health to " + args[0] + ".");
+        return true;
     }
+    return false;
 }
 
-void SetblockCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
-    for(int i = 0; i < arg_types.size(); i++)
-        if(arg_types.at(i) == 'N')
-            arg_types.at(i) = 'C';
-    if(arg_types == "CCB") {
-        int x_coord = formatCoord(args[0], (float)executor->getX() / 16), y_coord = formatCoord(args[1], -(float)executor->getY() / 16 + blocks->getHeight());
-        BlockType* block = blocks->getBlockTypeByName(args[2]);
-        y_coord = -y_coord + blocks->getHeight();
-        blocks->setBlockType(x_coord, y_coord, block);
+bool SetblockCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 3 && std::all_of(args[1].begin(), args[1].end(), ::isdigit) && std::all_of(args[2].begin(), args[2].end(), ::isdigit)) {
+        blocks->setBlockType(std::stoi(args[1]), std::stoi(args[2]), blocks->getBlockTypeByName(args[0]));
+        chat->sendChat(executor, "Set block on x: " + args[1] + ", y: " + args[2] + " to " + args[0] + ".");
+        return true;
     }
+    return false;
 }
 
 void Commands::startCommand(std::string message, ServerPlayer* player) {
@@ -147,111 +115,36 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     args.erase(args.begin());
     indentifier.erase(indentifier.begin());
 
-    std::string arg_types;
-    for(auto & arg : args){
-        if(arg.size() > 5 && arg.substr(0, 5) == "Item:"){
-            arg_types += 'I';//item
-        }else if(arg.substr(0, 1) == "~"){
-            arg_types += 'C';//coordinate
-        }else if(arg.size() > 6 && arg.substr(0, 6) == "Block:"){
-            arg_types += 'B';//block
-        }else if(arg.size() > 7 && arg.substr(0, 7) == "Liquid:"){
-            arg_types += 'L';//liquid
-        }else if(std::all_of(arg.begin(), arg.end(), ::isdigit)){
-            arg_types += 'N';//number
-        }else{
-            arg_types += 'S';//string
-        }
-    }
-
     for(int i = 0; i < commands.size(); i++)
-        if(commands[i]->indetifier == indentifier) {
-            commands[i]->onCommand(args, arg_types, player);
+        if(commands[i]->indentifier == indentifier) {
+            try {
+                if(!commands[i]->onCommand(args, player))
+                    chat->sendChat(player, commands[i]->usage);
+            } catch(Exception& e) {
+                chat->sendChat(player, e.message);
+            }
             return;
         }
-    sf::Packet error_message;
-    error_message << ServerPacketType::CHAT << "Command not recognised. Type /help for a list of commands.";
-    player->getConnection()->send(error_message);
+    
+    chat->sendChat(player, "Command \"" + indentifier + "\" not recognised. Type /help for a list of commands.");
 }
 
-void HelpCommand::onCommand(std::vector<std::string>& args, std::string arg_types, ServerPlayer* executor) {
-    if(args.empty()){
-        sf::Packet help_message;
-        std::string message = "List of commands:\n"
-                              "help -> display this list\n"
-                              "tp -> teleport players\n"
-                              "give -> give items to yourself\n"
-                              "setHealth -> set player's health\n"
-                              "setBlock -> place a block in world\n";
-        help_message << ServerPacketType::CHAT << message;
-        executor->getConnection()->send(help_message);
-    }else if(args.size() == 1){
-        if(args[0] == "tp"){
-            sf::Packet help_message;
-            help_message << ServerPacketType::CHAT << "Possible invocations of teleport command:\n"
-                                                      "tp [player_name] -> teleport yourself to that player\n"
-                                                      "tp [player_1_name] [player_2_name] -> teleport player 1 to player 2\n"
-                                                      "tp [x_coordinate] [y_coordinate] -> teleport yourself to that location\n"
-                                                      "tp [player_name] [x_coordinate] [y_coordinate] -> teleport that player to that location";
-            executor->getConnection()->send(help_message);
-        }else if(args[0] == "give"){
-            sf::Packet help_message;
-            help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
-                                                      "give Item:[item_name] -> give 1 item of that type to yourself\n"
-                                                      "give [player] Item:[item_name] -> give 1 item of that type to that player\n"
-                                                      "give Item:[item_name] [quantity] -> give entered number of items of that type to yourself\n"
-                                                      "give [player] Item:]item_name] [quantity] -> give entered number of items of that type to that player";
-            executor->getConnection()->send(help_message);
-        }else if(args[0] == "setHealth"){
-            sf::Packet help_message;
-            help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
-                                                      "setHealth [health] -> set your health to that number\n"
-                                                      "setHealth [player_name] [health] -> set that player's name to that number";
-            executor->getConnection()->send(help_message);
-        }else if(args[0] == "setBlock"){
-            sf::Packet help_message;
-            help_message << ServerPacketType::CHAT << "Possible invocations of this command:\n"
-                                                      "setBlock [x_coordinate] [y_coordinate] Block:[block]";
-            executor->getConnection()->send(help_message);
-        }
-    }else{
-        sf::Packet error_message;
-        error_message << ServerPacketType::CHAT << "Arguments incorrect. \nUse /help to display a list of commands or\n"
-                                                   "/help [command_identifier] to display a specific command's help menu";
-        executor->getConnection()->send(error_message);
+bool HelpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.empty()) {
+        std::string message = "List of commands:\n";
+        for(int i = 0; i < commands.size(); i++)
+            message += commands[i]->indentifier + " -> " + commands[i]->description + "\n";
+        chat->sendChat(executor, message);
+        return true;
+    } else if(args.size() == 1) {
+        for(int i = 0; i < commands.size(); i++)
+            if(commands[i]->indentifier == args[0]) {
+                chat->sendChat(executor, commands[i]->usage);
+                return true;
+            }
+        
+        chat->sendChat(executor, "Command \"" + indentifier + "\" not found.");
+        return true;
     }
+    return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

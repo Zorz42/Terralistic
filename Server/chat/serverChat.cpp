@@ -25,6 +25,12 @@ void ServerChat::init() {
     players->packet_event.addListener(this);
 }
 
+void ServerChat::sendChat(ServerPlayer* player, const std::string& message) {
+    sf::Packet chat_packet;
+    chat_packet << ServerPacketType::CHAT << message;
+    player->getConnection()->send(chat_packet);
+}
+
 void ServerChat::stop() {
     players->packet_event.removeListener(this);
 }
