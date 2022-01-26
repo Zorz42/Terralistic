@@ -88,6 +88,7 @@ void Chat::onEvent(ClientPacketEvent &event) {
         case ServerPacketType::CHAT: {
             std::string curr_line, whole_message;
             event.packet >> whole_message;
+            whole_message.push_back('\n');
             while(!whole_message.empty()) {
                 curr_line.push_back(whole_message[0]);
                 whole_message.erase(whole_message.begin());
