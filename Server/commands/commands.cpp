@@ -33,10 +33,10 @@ float formatCoord(std::string coord_str, float curr_coord) {
 }
 
 bool TpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() == 2 && std::all_of(args[0].begin(), args[0].end(), ::isdigit) && std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
-        int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], executor->getY() / 16);
-        entities->setX(executor, x);
-        entities->setY(executor, y);
+    if(args.size() == 2 && (std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].substr(0, 1) == "~") && (std::all_of(args[1].begin(), args[1].end(), ::isdigit) || args[0].substr(0, 1) == "~")) {
+        int x = formatCoord(args[0], (float)executor->getX() / 16), y = formatCoord(args[1], -(float)executor->getY() / 16 + blocks->getHeight());
+        entities->setX(executor, x * 16);
+        entities->setY(executor, (-y + blocks->getHeight()) * 16);
         chat->sendChat(executor, "Teleported you to x: " + std::to_string(x) + ", y: " + std::to_string(y) + ".");
         return true;
     } else if(args.size() == 1) {
