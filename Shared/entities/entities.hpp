@@ -32,9 +32,8 @@ public:
 
 class EntityVelocityChangeEvent {
 public:
-    explicit EntityVelocityChangeEvent(Entity* entity, float oldVelX, float oldVelY) : entity(entity), oldVelX(oldVelX), oldVelY(oldVelY) {}
+    explicit EntityVelocityChangeEvent(Entity* entity) : entity(entity){}
     Entity* entity;
-    float oldVelX, oldVelY;
 };
 
 class EntityPositionChangeEvent {
