@@ -36,6 +36,13 @@ public:
     Entity* entity;
 };
 
+class EntityAbsoluteVelocityChangeEvent {
+public:
+    explicit EntityAbsoluteVelocityChangeEvent(Entity* entity, float old_vel_x, float old_vel_y) : entity(entity), old_vel_x(old_vel_x), old_vel_y(old_vel_y){}
+    Entity* entity;
+    float old_vel_x, old_vel_y;
+};
+
 class EntityPositionChangeEvent {
 public:
     explicit EntityPositionChangeEvent(Entity* entity) : entity(entity) {}
@@ -68,6 +75,7 @@ public:
     
     EventSender<EntityPositionChangeEvent> entity_position_change_event;
     EventSender<EntityVelocityChangeEvent> entity_velocity_change_event;
+    EventSender<EntityAbsoluteVelocityChangeEvent> entity_absolute_velocity_change_event;
     EventSender<EntityDeletionEvent> entity_deletion_event;
     
     ~Entities();

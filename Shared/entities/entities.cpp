@@ -2,8 +2,14 @@
 #include "entities.hpp"
 
 void Entities::updateAllEntities(float frame_length) {
-    for(int i = 0; i < entities.size(); i++)
+    for(int i = 0; i < entities.size(); i++) {
+        float old_vel_x = entities[i]->velocity_x, old_vel_y = entities[i]->velocity_y;
         entities[i]->updateEntity(blocks, frame_length);
+        if(old_vel_x != entities[i]->velocity_x || old_vel_y != entities[i]->velocity_y){
+            EntityAbsoluteVelocityChangeEvent event(entities[i], old_vel_x, old_vel_y);
+            entity_absolute_velocity_change_event.call(event);
+        }
+    }
 }
 
 const std::vector<Entity*>& Entities::getEntities() {

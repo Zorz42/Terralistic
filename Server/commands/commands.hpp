@@ -52,9 +52,9 @@ public:
 
 class SetHealthCommand : public Command {
 public:
-    SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "sethealth", "Possible invocations of this command:\n"
-                                                                                                         "sethealth [health] -> set your health to that number\n"
-                                                                                                         "sethealth [health] [player_name] -> set that player's name to that number", "set player's health") {}
+    SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "setHealth", "Possible invocations of this command:\n"
+                                                                                                         "setHealth [health] -> set your health to that number\n"
+                                                                                                         "setHealth [health] [player_name] -> set that player's name to that number", "set player's health") {}
     bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
