@@ -15,6 +15,7 @@ void Commands::init() {
     commands.push_back(&setblock_command);
     commands.push_back(&health_command);
     commands.push_back(&help_command);
+    commands.push_back(&fill_command);
 }
 
 void Commands::stop() {
@@ -93,9 +94,33 @@ bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* e
 }
 
 bool SetblockCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() == 3 && std::all_of(args[1].begin(), args[1].end(), ::isdigit) && std::all_of(args[2].begin(), args[2].end(), ::isdigit)) {
-        blocks->setBlockType(std::stoi(args[1]), std::stoi(args[2]), blocks->getBlockTypeByName(args[0]));
-        chat->sendChat(executor, "Set block on x: " + args[1] + ", y: " + args[2] + " to " + args[0] + ".");
+    if(args.size() == 3 &&
+            (std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].substr(0, 1) == "~") &&
+            (std::all_of(args[1].begin(), args[1].end(), ::isdigit) || args[1].substr(0, 1) == "~")) {
+        int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
+        blocks->setBlockType(x, -y + blocks->getHeight(), blocks->getBlockTypeByName(args[2]));
+        chat->sendChat(executor, "Set block on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
+        return true;
+    }
+    return false;
+}
+
+bool FillCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 5 &&
+       (std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].substr(0, 1) == "~") &&
+       (std::all_of(args[1].begin(), args[1].end(), ::isdigit) || args[1].substr(0, 1) == "~") &&
+       (std::all_of(args[2].begin(), args[2].end(), ::isdigit) || args[2].substr(0, 1) == "~") &&
+       (std::all_of(args[3].begin(), args[3].end(), ::isdigit) || args[3].substr(0, 1) == "~")) {
+        int x1 = formatCoord(args[0], executor->getX() / 16), y1 = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
+        int x2 = formatCoord(args[2], executor->getX() / 16), y2 = formatCoord(args[3], -executor->getY() / 16 + blocks->getHeight());
+        if((abs(x1 - x2) + 1) * (abs(y1 - y2) + 1) > 1000){
+            chat->sendChat(executor, "you exceeded the limit of 1000 blocks");
+            return true;
+        }
+        for(int i = x1; i <= x2; i++)
+            for(int j = y1; j <= y2; j++)
+                blocks->setBlockType(i, -j + blocks->getHeight(), blocks->getBlockTypeByName(args[4]));
+        chat->sendChat(executor, "Filled from x: " + std::to_string(x1) + ", y: " + std::to_string(y1) + " to x: " + std::to_string(x2) + ", y: " + std::to_string(y2) + "with " + args[4] + ".");
         return true;
     }
     return false;

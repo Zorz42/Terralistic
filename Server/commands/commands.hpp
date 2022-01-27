@@ -15,9 +15,17 @@ public:
 
 class SetblockCommand : public Command {
 public:
-    SetblockCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "setblock",
+    SetblockCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "setBlock",
                                                                                                         "Possible invocations of this command:\n"
-                                                                                                        "setBlock [block] [x_coordinate] [y_coordinate]", "place a block in world") {}
+                                                                                                        "setBlock [x_coordinate] [y_coordinate] [block]", "place a block in world") {}
+    bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
+class FillCommand : public Command {
+public:
+    FillCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "fill",
+                                                                                                                          "Possible invocations of this command:\n"
+                                                                                                                          "fill [x_coordinate_1] [y_coordinate_1] [x_coordinate_2] [y_coordinate_2] [block]", "fill a region of world with a block") {}
     bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
@@ -74,6 +82,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     GiveCommand give_command;
     SetHealthCommand health_command;
     HelpCommand help_command;
+    FillCommand fill_command;
     std::vector<Command*> commands;
 
     void init() override;
@@ -81,5 +90,5 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     
     void startCommand(std::string message, ServerPlayer* player);
 public:
-    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players, chat), tp_command(blocks, entities, items, players, chat), give_command(blocks, entities, items, players, chat), health_command(blocks, entities, items, players, chat), help_command(blocks, entities, items, players, chat, commands) {}
+    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players, chat), tp_command(blocks, entities, items, players, chat), give_command(blocks, entities, items, players, chat), health_command(blocks, entities, items, players, chat), help_command(blocks, entities, items, players, chat, commands), fill_command(blocks, entities, items, players, chat) {}
 };

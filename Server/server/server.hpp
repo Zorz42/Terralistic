@@ -23,7 +23,7 @@ class Server {
     WorldGenerator generator;
     ServerItems items;
     ServerPlayers players;
-    ServerHealth health;
+    //ServerHealth health;
     ServerChat chat;
     Commands commands;
     ServerEntities entities;
