@@ -3,9 +3,22 @@
 #include "graphics.hpp"
 
 void Connection::send(sf::Packet& packet) {
+    master_packet << (int)packet.getDataSize();
+    master_packet.append(packet.getData(), packet.getDataSize());
+}
+
+void Connection::sendDirectly(sf::Packet& packet) {
     if(!socket->isBlocking())
         socket->setBlocking(true);
     socket->send(packet);
+}
+
+
+void Connection::flushPackets() {
+    if(!socket->isBlocking())
+        socket->setBlocking(true);
+    socket->send(master_packet);
+    master_packet.clear();
 }
 
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
@@ -36,7 +49,7 @@ void Connection::send(const std::vector<char>& data) {
     
     sf::Packet packet;
     packet << (int)data.size();
-    send(packet);
+    sendDirectly(packet);
     
     size_t sent;
     int bytes_sent = 0;
@@ -87,7 +100,8 @@ void ServerNetworking::update(float frame_length) {
     
     sf::Packet packet;
     for(int i = 0; i < connections.size(); i++) {
-        if(connections[i]->hasBeenGreeted())
+        if(connections[i]->hasBeenGreeted()) {
+            connections[i]->flushPackets();
             while(true) {
                 sf::Socket::Status status = connections[i]->receive(packet);
                 
@@ -104,17 +118,17 @@ void ServerNetworking::update(float frame_length) {
                     connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
                 }
             }
-        else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
+        } else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
             sf::Packet time_packet;
             time_packet << WelcomePacketType::TIME << gfx::getTicks();
-            connections[i]->send(time_packet);
+            connections[i]->sendDirectly(time_packet);
             
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);
             
             sf::Packet welcome_packet;
             welcome_packet << WelcomePacketType::WELCOME;
-            connections[i]->send(welcome_packet);
+            connections[i]->sendDirectly(welcome_packet);
             connections[i]->greet();
             
             ServerNewConnectionEvent event2(connections[i]);
