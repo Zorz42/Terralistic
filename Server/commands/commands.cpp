@@ -33,8 +33,22 @@ float formatCoord(std::string coord_str, float curr_coord) {
     return coord;
 }
 
+bool isCoord(const std::string& coord_str) {
+    if(std::all_of(coord_str.begin(), coord_str.end(), ::isdigit))
+        return true;
+    
+    if(coord_str.size() > 1) {
+        std::string number = coord_str;
+        number.erase(number.begin());
+        if(coord_str[0] == '~' && std::all_of(number.begin(), number.end(), ::isdigit))
+            return true;
+    }
+    
+    return false;
+}
+
 bool TpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() == 2 && (std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].substr(0, 1) == "~") && (std::all_of(args[1].begin(), args[1].end(), ::isdigit) || args[0].substr(0, 1) == "~")) {
+    if(args.size() == 2 && isCoord(args[0]) && isCoord(args[1])) {
         int x = formatCoord(args[0], (float)executor->getX() / 16), y = formatCoord(args[1], -(float)executor->getY() / 16 + blocks->getHeight());
         entities->setX(executor, x * 16);
         entities->setY(executor, (-y + blocks->getHeight()) * 16);
@@ -52,7 +66,7 @@ bool TpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor
         entities->setY(target1, target2->getY());
         chat->sendChat(executor, "Teleported " + args[0] + " to " + args[1] + ".");
         return true;
-    } else if(args.size() == 3 && (std::all_of(args[1].begin(), args[1].end(), ::isdigit) || args[1].substr(0, 1) == "~") && (std::all_of(args[2].begin(), args[2].end(), ::isdigit) || args[2].substr(0, 1) == "~")) {
+    } else if(args.size() == 3 && isCoord(args[1]) && isCoord(args[2])) {
         ServerPlayer* target = players->getPlayerByName(args[0]);
         int x = formatCoord(args[1], (float)executor->getX() / 16), y = formatCoord(args[2], -(float)executor->getY() / 16 + blocks->getHeight());
         entities->setX(target, x * 16);
@@ -94,9 +108,7 @@ bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* e
 }
 
 bool SetblockCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() == 3 &&
-            (std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].substr(0, 1) == "~") &&
-            (std::all_of(args[1].begin(), args[1].end(), ::isdigit) || args[1].substr(0, 1) == "~")) {
+    if(args.size() == 3 && isCoord(args[0]) && isCoord(args[1])) {
         int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
         blocks->setBlockType(x, -y + blocks->getHeight(), blocks->getBlockTypeByName(args[2]));
         chat->sendChat(executor, "Set block on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
@@ -106,11 +118,7 @@ bool SetblockCommand::onCommand(std::vector<std::string>& args, ServerPlayer* ex
 }
 
 bool FillCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
-    if(args.size() == 5 &&
-       (std::all_of(args[0].begin(), args[0].end(), ::isdigit) || args[0].substr(0, 1) == "~") &&
-       (std::all_of(args[1].begin(), args[1].end(), ::isdigit) || args[1].substr(0, 1) == "~") &&
-       (std::all_of(args[2].begin(), args[2].end(), ::isdigit) || args[2].substr(0, 1) == "~") &&
-       (std::all_of(args[3].begin(), args[3].end(), ::isdigit) || args[3].substr(0, 1) == "~")) {
+    if(args.size() == 5 && isCoord(args[0]) && isCoord(args[1]) && isCoord(args[2]) && isCoord(args[3])) {
         int x1 = formatCoord(args[0], executor->getX() / 16), y1 = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
         int x2 = formatCoord(args[2], executor->getX() / 16), y2 = formatCoord(args[3], -executor->getY() / 16 + blocks->getHeight());
         if((abs(x1 - x2) + 1) * (abs(y1 - y2) + 1) > 1000){

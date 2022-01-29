@@ -33,7 +33,7 @@ void ServerWalls::onEvent(WorldLoadEvent &event) {
 void ServerWalls::onEvent(ServerConnectionWelcomeEvent& event) {
     sf::Packet packet;
     packet << WelcomePacketType::WALLS;
-    event.connection->send(packet);
+    event.connection->sendDirectly(packet);
     
     event.connection->send(toSerial());
 }

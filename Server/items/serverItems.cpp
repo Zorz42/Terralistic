@@ -27,7 +27,7 @@ void ServerItems::onEvent(ServerNewConnectionEvent& event) {
             Item* item = (Item*)entities->getEntities()[i];
             sf::Packet item_packet;
             item_packet << ServerPacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << item->getType()->id;
-            event.connection->send(item_packet);
+            event.connection->sendDirectly(item_packet);
         }
 }
 

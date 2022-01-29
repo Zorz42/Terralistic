@@ -15,10 +15,21 @@ void ClientNetworking::update(float frame_length) {
             socket.setBlocking(false);
         sf::Socket::Status status = socket.receive(packet);
         if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
-            ServerPacketType packet_type;
-            packet >> packet_type;
-            ClientPacketEvent event(packet, packet_type);
-            packet_event.call(event);
+            while(!packet.endOfPacket()) {
+                sf::Packet sub_packet;
+                int size;
+                packet >> size;
+                for(int i = 0; i < size; i++) {
+                    unsigned char c;
+                    packet >> c;
+                    sub_packet << c;
+                }
+                
+                ServerPacketType packet_type;
+                sub_packet >> packet_type;
+                ClientPacketEvent event(sub_packet, packet_type);
+                packet_event.call(event);
+            }
         } else
             break;
     }

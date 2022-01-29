@@ -6,12 +6,14 @@
 
 class Connection {
     sf::TcpSocket* socket;
+    sf::Packet master_packet;
     std::queue<std::pair<sf::Packet, ClientPacketType>> packet_buffer;
     bool greeted = false;
 public:
     Connection(sf::TcpSocket* socket) : socket(socket) {}
     
     void send(sf::Packet& packet);
+    void sendDirectly(sf::Packet& packet);
     void send(const std::vector<char>& data);
     
     bool hasBeenGreeted();
@@ -25,6 +27,7 @@ public:
     bool hasPacketInBuffer();
     std::pair<sf::Packet, ClientPacketType> getPacket();
     
+    void flushPackets();
     ~Connection();
 };
 

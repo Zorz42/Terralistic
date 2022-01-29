@@ -221,7 +221,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
             } else {
                 sf::Packet join_packet;
                 join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (int)curr_player->moving_type;
-                event.connection->send(join_packet);
+                event.connection->sendDirectly(join_packet);
             }
         }
     
@@ -247,11 +247,11 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
 
     sf::Packet healthPacket;
     healthPacket << WelcomePacketType::HEALTH << player->health;
-    event.connection->send(healthPacket);
+    event.connection->sendDirectly(healthPacket);
     
     sf::Packet packet;
     packet << WelcomePacketType::INVENTORY;
-    event.connection->send(packet);
+    event.connection->sendDirectly(packet);
     
     event.connection->send(player->inventory.toSerial());
 }

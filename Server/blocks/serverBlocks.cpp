@@ -3,7 +3,7 @@
 void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
     sf::Packet packet;
     packet << WelcomePacketType::BLOCKS;
-    event.connection->send(packet);
+    event.connection->sendDirectly(packet);
     
     event.connection->send(toSerial());
 }

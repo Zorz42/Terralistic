@@ -38,7 +38,7 @@ public:
 
 class EntityAbsoluteVelocityChangeEvent {
 public:
-    explicit EntityAbsoluteVelocityChangeEvent(Entity* entity, float old_vel_x, float old_vel_y) : entity(entity), old_vel_x(old_vel_x), old_vel_y(old_vel_y){}
+    explicit EntityAbsoluteVelocityChangeEvent(Entity* entity, float old_vel_x, float old_vel_y) : entity(entity), old_vel_x(old_vel_x), old_vel_y(old_vel_y) {}
     Entity* entity;
     float old_vel_x, old_vel_y;
 };

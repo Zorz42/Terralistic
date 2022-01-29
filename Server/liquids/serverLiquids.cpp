@@ -7,7 +7,7 @@ bool cmpLiquidUpdates(LiquidUpdate& a, LiquidUpdate& b) {
 void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
     sf::Packet packet;
     packet << WelcomePacketType::LIQUIDS;
-    event.connection->send(packet);
+    event.connection->sendDirectly(packet);
     
     event.connection->send(toSerial());
 }
