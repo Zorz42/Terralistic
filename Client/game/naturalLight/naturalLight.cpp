@@ -22,7 +22,7 @@ void NaturalLight::init() {
 void NaturalLight::postInit() {
     lights_arr = new int[blocks->getWidth()];
     for(int x = 0; x < blocks->getWidth(); x++)
-        lights_arr[x] = 0;
+        lights_arr[x] = -1;
 }
 
 void NaturalLight::stop() {
@@ -46,8 +46,14 @@ void NaturalLight::update(float frame_length) {
     light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 
     for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
-        updateLight(x);
-
+        if(lights_arr[x] == -1)
+            updateLight(x);
+    
+    if(curr_x_updating < blocks->getBlocksExtendedViewBeginX() || curr_x_updating > blocks->getBlocksExtendedViewEndX())
+        curr_x_updating = blocks->getBlocksExtendedViewBeginX();
+    
+    updateLight(curr_x_updating);
+    curr_x_updating++;
 }
 
 void NaturalLight::setNaturalLight(int x, int power) {
@@ -80,7 +86,5 @@ int NaturalLight::getTime() const {
 }
 
 void NaturalLight::updateLight(int x) {
-    if(x < 0 || x >= blocks->getWidth())
-        throw Exception("Natural light x out of range");
     setNaturalLight(x, light_should_be);
 }
