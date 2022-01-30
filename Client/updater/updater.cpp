@@ -56,6 +56,7 @@ void UpdateChecker::checkForUpdates() {
         std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
         has_updated = true;
     }
+    
     update_state = UpdateState::FINISHED;
 }
 

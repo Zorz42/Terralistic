@@ -239,7 +239,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
 
     if(playerExists(player_name)) {
         ServerPlayer *already_joined_player = getPlayerByName(player_name);
-        networking->kickConnection(already_joined_player->getConnection(),"You logged in from another location!");
+        networking->kickConnection(already_joined_player->getConnection(), "You logged in from another location!");
     }
     
     ServerPlayer* player = addPlayer(player_name);

@@ -2,6 +2,7 @@
 #include "mainMenu.hpp"
 #include "resourcePath.hpp"
 #include "versions.hpp"
+#include "updater.hpp"
 
 class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     ChoiceSetting* scale_setting;
@@ -82,15 +83,10 @@ int main(int argc, char **argv) {
     MenuBack menu_back;
     menu_back.init();
     
-/*#ifndef DEVELOPER_MODE
+#ifndef DEVELOPER_MODE
     UpdateChecker update_checker(&menu_back, argv[0]);
     update_checker.run();
-    if(update_checker.hasUpdated()) {
-        system(((std::string)"\"" + argv[0] + "\"&").c_str());
-        gfx::quit();
-        return 0;
-    }
-#endif*/
+#endif
     
     MainMenu(&menu_back, &settings).run();
     
