@@ -1,6 +1,6 @@
 #include "naturalLight.hpp"
 
-#define SECONDS_PER_DAY (10)
+#define SECONDS_PER_DAY (60 * 10)
 
 float dayFunction(float a) {
     a -= (int)a;
