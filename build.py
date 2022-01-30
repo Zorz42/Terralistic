@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 import shutil
@@ -30,19 +32,24 @@ if sys.platform == "darwin":
 
         os.remove(sfml_file)
     
-    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic -configuration release -jobs $(sysctl -n hw.ncpu) BUILD_DIR={project_path}")
-    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server -configuration release -jobs $(sysctl -n hw.ncpu) BUILD_DIR={project_path}")
+    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic archive -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic.xcarchive")
+    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server archive -configuration release -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic-server.xcarchive")
 
     createDir("Output/MacOS/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
-    shutil.move(project_path + "Release/Terralistic.app/", project_path + "Output/MacOS/")
+    os.system(f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic.xcarchive -exportPath {project_path}Terralistic.app/ -exportOptionsPlist {project_path}exportOptions.plist")
+    shutil.copytree(f"{project_path}Terralistic.app/Terralistic.app/", f"{project_path}Output/MacOS/Terralistic.app/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic-server.app/", ignore_errors=True)
-    shutil.move(project_path + "Release/Terralistic-server.app/", project_path + "Output/MacOS/")
+    os.system(f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic-server.xcarchive -exportPath {project_path}Terralistic-server.app/ -exportOptionsPlist {project_path}exportOptions.plist")
+    shutil.copytree(f"{project_path}Terralistic-server.app/Terralistic-server.app/", f"{project_path}Output/MacOS/Terralistic-server.app/")
 
-    shutil.rmtree(project_path + "Release/")
+    shutil.rmtree(project_path + "Terralistic.xcarchive/")
+    shutil.rmtree(project_path + "Terralistic-server.xcarchive/")
 
+    shutil.rmtree(project_path + "Terralistic.app/")
+    shutil.rmtree(project_path + "Terralistic-server.app/")
 
 elif sys.platform == "linux":
     createDir("Dependencies/")
