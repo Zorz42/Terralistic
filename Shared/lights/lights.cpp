@@ -58,9 +58,6 @@ void Lights::setLightColor(int x, int y, LightColor color) {
 void Lights::updateLight(int x, int y) {
     getLight(x, y)->update_light = false;
     
-    if(getLight(x, y)->light_source)
-        return;
-    
     int neighbours[4][2] = {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
     
     if(x != 0) {
@@ -98,6 +95,12 @@ void Lights::updateLight(int x, int y) {
                 color_to_be.b = b;
         }
     
+    if(isLightSource(x, y)) {
+        color_to_be.r = std::max(color_to_be.r, getLight(x, y)->source_color.r);
+        color_to_be.g = std::max(color_to_be.g, getLight(x, y)->source_color.g);
+        color_to_be.b = std::max(color_to_be.b, getLight(x, y)->source_color.b);
+    }
+    
     if(color_to_be != getLightColor(x, y)) {
         setLightColor(x, y, color_to_be);
         scheduleLightUpdate(x, y);
@@ -106,7 +109,7 @@ void Lights::updateLight(int x, int y) {
 
 void Lights::setLightSource(int x, int y, LightColor color) {
     getLight(x, y)->light_source = true;
-    setLightColor(x, y, color);
+    getLight(x, y)->source_color = color;
     scheduleLightUpdateForNeighbors(x, y);
 }
 
@@ -140,8 +143,7 @@ void Lights::onEvent(BlockChangeEvent& event) {
 }
 
 void Lights::scheduleLightUpdateForNeighbors(int x, int y) {
-    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight())
-        throw Exception("Light is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    scheduleLightUpdate(x, y);
     if(x != 0)
         scheduleLightUpdate(x - 1, y);
     if(x != blocks->getWidth() - 1)

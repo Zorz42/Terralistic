@@ -36,24 +36,6 @@ void ClientLights::update(float frame_length) {
     }
 }
 
-LightColor ClientLights::getAverageColor(int x, int y) {
-    int r = 0, g = 0, b = 0;
-    int lights[4][2] = {{x + 1, y}, {x, y + 1}, {x - 1, y}, {x, y - 1}};
-    int count = 0;
-    for(int i = 0; i < 4; i++)
-        if(lights[i][0] >= 0 && lights[i][0] < getWidth() && lights[i][1] >= 0 && lights[i][1] < getHeight()) {
-            LightColor color = getLightColor(lights[i][0], lights[i][1]);
-            r += color.r;
-            g += color.g;
-            b += color.b;
-            count++;
-        }
-    r /= count;
-    g /= count;
-    b /= count;
-    return LightColor(r, g, b);
-}
-
 void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     if(!is_created)
         return;
@@ -64,10 +46,10 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     int low_x = x == lights->getWidth() - 1 ? x : x + 1, low_y = y == lights->getHeight() - 1 ? y : y + 1;
     
     LightColor
-    color1 = lights->isLightSource(x, y) ? lights->getAverageColor(x, y) : lights->getLightColor(x, y),
-    color2 = lights->isLightSource(low_x, y) ? lights->getAverageColor(low_x, y) : lights->getLightColor(low_x, y),
-    color3 = lights->isLightSource(low_x, low_y) ? lights->getAverageColor(low_x, low_y) : lights->getLightColor(low_x, low_y),
-    color4 = lights->isLightSource(x, low_y) ? lights->getAverageColor(x, low_y) : lights->getLightColor(x, low_y);
+    color1 = lights->getLightColor(x, y),
+    color2 = lights->getLightColor(low_x, y),
+    color3 = lights->getLightColor(low_x, low_y),
+    color4 = lights->getLightColor(x, low_y);
     
     light_rects.setColor(index * 4, {
         (unsigned char)(255.0 / MAX_LIGHT * color1.r),

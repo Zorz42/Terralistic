@@ -37,8 +37,6 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     
     bool* light_updates = nullptr;
     bool& getLightUpdate(int x, int y);
-    
-    LightColor getAverageColor(int x, int y);
 public:
     ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
 };

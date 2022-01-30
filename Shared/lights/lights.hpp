@@ -20,8 +20,9 @@ public:
 class Lights : EventListener<BlockChangeEvent> {
     class Light {
     public:
-        Light() : color(0, 0, 0) {}
+        Light() : color(0, 0, 0), source_color(0, 0, 0) {}
         bool light_source = false, update_light = true;
+        LightColor source_color;
         LightColor color;
     };
     
