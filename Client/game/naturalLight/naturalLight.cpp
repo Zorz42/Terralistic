@@ -45,12 +45,12 @@ void NaturalLight::onEvent(WelcomePacketEvent &event) {
 void NaturalLight::update(float frame_length) {
     light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 
-    for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
+    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX(); x++)
         if(lights_arr[x] == -1)
             updateLight(x);
     
-    if(curr_x_updating < blocks->getBlocksExtendedViewBeginX() || curr_x_updating > blocks->getBlocksExtendedViewEndX())
-        curr_x_updating = blocks->getBlocksExtendedViewBeginX();
+    if(curr_x_updating < blocks->getBlocksViewBeginX() || curr_x_updating > blocks->getBlocksViewEndX())
+        curr_x_updating = blocks->getBlocksViewBeginX();
     
     updateLight(curr_x_updating);
     curr_x_updating++;
