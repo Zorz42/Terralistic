@@ -1,6 +1,6 @@
 #include "naturalLight.hpp"
 
-#define SECONDS_PER_DAY (60 * 10)
+#define SECONDS_PER_DAY (10)
 
 float dayFunction(float a) {
     a -= (int)a;
@@ -57,8 +57,13 @@ void NaturalLight::setNaturalLight(int x, int power) {
         lights_arr[x] = power;
         for(int y = 0; y < blocks->getHeight(); y++)
             lights->updateLightEmitter(x, y);
-        for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++)
-            lights->setLightSource(x, y, LightColor(power, power, power));
+        for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++) {
+            LightColor light_color = lights->getLightSourceColor(x, y);
+            light_color.r = std::max(light_color.r, power);
+            light_color.g = std::max(light_color.g, power);
+            light_color.b = std::max(light_color.b, power);
+            lights->setLightSource(x, y, light_color);
+        }
     }
 }
 

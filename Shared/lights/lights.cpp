@@ -121,6 +121,10 @@ LightColor Lights::getLightColor(int x, int y) {
     return getLight(x, y)->color;
 }
 
+LightColor Lights::getLightSourceColor(int x, int y) {
+    return getLight(x, y)->source_color;
+}
+
 void Lights::scheduleLightUpdate(int x, int y) {
     getLight(x, y)->update_light = true;
 }
