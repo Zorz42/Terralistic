@@ -54,6 +54,7 @@ class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
     sf::TcpListener listener;
     int port;
+    int start_time;
 
     void postInit() override;
     void update(float frame_length) override;
