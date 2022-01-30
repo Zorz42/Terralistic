@@ -33,18 +33,16 @@ float formatCoord(std::string coord_str, float curr_coord) {
     return coord;
 }
 
-bool isCoord(const std::string& coord_str) {
-    if(std::all_of(coord_str.begin(), coord_str.end(), ::isdigit))
-        return true;
-    
-    if(coord_str.size() > 1) {
-        std::string number = coord_str;
-        number.erase(number.begin());
-        if(coord_str[0] == '~' && std::all_of(number.begin(), number.end(), ::isdigit))
+bool isCoord(std::string& coord_str) {
+    std::string copy = coord_str;
+
+    if(copy[0] == '~') {
+        copy.erase(0);
+        if(copy.empty())
             return true;
     }
-    
-    return false;
+
+    return std::all_of(coord_str.begin(), coord_str.end(), ::isdigit);
 }
 
 bool TpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
