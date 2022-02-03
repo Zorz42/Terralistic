@@ -114,9 +114,13 @@ void WoodBehaviour::onUpdate(int x, int y) {
 }
 
 void LeavesBehaviour::onUpdate(int x, int y) {
-    if(!blocks_->isBlockWood(blocks, x, y + 1) &&
-       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x + 1, y) || blocks_->isBlockLeaves(blocks, x - 1, y)) &&
-       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x - 1, y) || blocks_->isBlockLeaves(blocks, x + 1, y)))
+    if(!blocks_->isBlockWood(blocks, x, y + 1) && !blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y) &&
+       ((blocks_->isBlockLeaves(blocks, x, y - 1) && !blocks_->isBlockLeaves(blocks, x, y + 1) && blocks_->isBlockLeaves(blocks, x - 1, y) && blocks_->isBlockLeaves(blocks, x + 1, y)) ||
+        (!blocks_->isBlockLeaves(blocks, x, y - 1) && !blocks_->isBlockLeaves(blocks, x, y + 1) && !blocks_->isBlockLeaves(blocks, x - 1, y) && !blocks_->isBlockLeaves(blocks, x + 1, y)) ||
+        (blocks_->isBlockLeaves(blocks, x, y - 1) && !blocks_->isBlockLeaves(blocks, x, y + 1) && !blocks_->isBlockLeaves(blocks, x - 1, y) && !blocks_->isBlockLeaves(blocks, x + 1, y)) ||
+        (!blocks_->isBlockLeaves(blocks, x, y - 1) && !blocks_->isBlockLeaves(blocks, x, y + 1) && blocks_->isBlockLeaves(blocks, x - 1, y) && !blocks_->isBlockLeaves(blocks, x + 1, y)) ||
+        (!blocks_->isBlockLeaves(blocks, x, y - 1) && !blocks_->isBlockLeaves(blocks, x, y + 1) && !blocks_->isBlockLeaves(blocks, x - 1, y) && blocks_->isBlockLeaves(blocks, x + 1, y))
+        ))
         blocks->breakBlock(x, y);
 }
 
