@@ -1,0 +1,11 @@
+ghost: true
+transparent: true
+break_time: 1000
+connects_to:
+drop: wood_planks
+drop_chance: 100
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0
+width: 4
+height: 3
