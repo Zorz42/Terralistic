@@ -36,8 +36,9 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::BLOCK: {
             int x, y;
-            int block_id;
-            event.packet >> x >> y >> block_id;
+            unsigned char block_id;
+            unsigned char x_from_main, y_from_main;
+            event.packet >> x >> y >> block_id >> x_from_main >> y_from_main;
             
             setBlockType(x, y, getBlockTypeById(block_id));
             break;

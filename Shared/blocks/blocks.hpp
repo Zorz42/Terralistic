@@ -46,13 +46,15 @@ public:
     int break_time;
     int light_emission_r, light_emission_g, light_emission_b;
     int id;
+    int width, height;
 };
 
 class Blocks {
     class Block {
     public:
-        Block() : id(/*air*/0) {}
+        Block() : id(/*air*/0), x_from_main(0), y_from_main(0) {}
         int id:8;
+        int x_from_main:8, y_from_main:8;
     };
     
     class BreakingBlock {
@@ -78,8 +80,10 @@ public:
     Tool hand;
     
     BlockType* getBlockType(int x, int y);
-    void setBlockType(int x, int y, BlockType* type);
+    void setBlockType(int x, int y, BlockType* type, int x_from_main=0, int y_from_main=0);
     void setBlockTypeSilently(int x, int y, BlockType* type);
+    int getBlockXFromMain(int x, int y);
+    int getBlockYFromMain(int x, int y);
     
     int getBreakProgress(int x, int y);
     int getBreakStage(int x, int y);

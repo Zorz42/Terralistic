@@ -82,6 +82,14 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         block_type->light_emission_r = block_properties.getInt("light_emission_r");
         block_type->light_emission_g = block_properties.getInt("light_emission_g");
         block_type->light_emission_b = block_properties.getInt("light_emission_b");
+        
+        if(block_properties.keyExists("width") && block_properties.keyExists("height")) {
+            block_type->width = block_properties.getInt("width");
+            block_type->height = block_properties.getInt("height");
+        } else {
+            block_type->width = 0;
+            block_type->height = 0;
+        }
     }
 }
 

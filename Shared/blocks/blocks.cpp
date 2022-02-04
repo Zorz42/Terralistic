@@ -38,7 +38,7 @@ void Blocks::setBlockTypeSilently(int x, int y, BlockType* type) {
     getBlock(x, y)->id = type->id;
 }
 
-void Blocks::setBlockType(int x, int y, BlockType* type) {
+void Blocks::setBlockType(int x, int y, BlockType* type, int x_from_main, int y_from_main) {
     if(type->id != getBlock(x, y)->id) {
         setBlockTypeSilently(x, y, type);
         
@@ -47,6 +47,9 @@ void Blocks::setBlockType(int x, int y, BlockType* type) {
                 breaking_blocks.erase(breaking_blocks.begin() + i);
                 break;
             }
+        
+        getBlock(x, y)->x_from_main = x_from_main;
+        getBlock(x, y)->y_from_main = y_from_main;
         
         BlockChangeEvent event(x, y);
         block_change_event.call(event);
@@ -128,7 +131,7 @@ int Blocks::getHeight() const {
 std::vector<char> Blocks::toSerial() {
     std::vector<char> serial;
     unsigned long iter = 0;
-    serial.resize(serial.size() + width * height + 4);
+    serial.resize(serial.size() + width * height * 3 + 4);
     *(unsigned short*)&serial[iter] = width;
     iter += 2;
     *(unsigned short*)&serial[iter] = height;
@@ -136,6 +139,8 @@ std::vector<char> Blocks::toSerial() {
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
         serial[iter++] = (char)block->id;
+        serial[iter++] = (char)block->x_from_main;
+        serial[iter++] = (char)block->y_from_main;
         block++;
     }
     return compress(serial);
@@ -154,6 +159,8 @@ void Blocks::fromSerial(const std::vector<char>& serial) {
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
         block->id = *iter++;
+        block->x_from_main = *iter++;
+        block->y_from_main = *iter++;
         block++;
     }
 }
@@ -187,6 +194,14 @@ Tool* Blocks::getToolTypeByName(const std::string& name) {
 
 int Blocks::getNumBlockTypes() {
     return (int)block_types.size();
+}
+
+int Blocks::getBlockXFromMain(int x, int y) {
+    return getBlock(x, y)->x_from_main;
+}
+
+int Blocks::getBlockYFromMain(int x, int y) {
+    return getBlock(x, y)->y_from_main;
 }
 
 Blocks::~Blocks() {

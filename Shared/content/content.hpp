@@ -55,7 +55,7 @@ class BlockTypes {
     StoneBehaviour stone_behaviour;
     GrassBehaviour grass_behaviour;
     
-    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch};
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &testblock};
 public:
     BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
@@ -79,6 +79,7 @@ public:
     BlockType copper_ore{"copper_ore"};
     BlockType grass{"grass"};
     BlockType torch{"torch"};
+    BlockType testblock{"testblock"};
 };
 
 class WallTypes {
@@ -100,7 +101,7 @@ public:
 };
 
 class ItemTypes {
-    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch};
+    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &testblock};
 public:
     ItemTypes(Items* items);
     void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
@@ -116,6 +117,7 @@ public:
     ItemType dirt_wall{"dirt_wall"};
     ItemType hammer{"hammer"};
     ItemType torch{"torch"};
+    ItemType testblock{"testblock"};
 };
 
 class GameContent {
