@@ -4,6 +4,7 @@
 
 #define BLOCK_WIDTH 8
 #define UNBREAKABLE -1
+#define BLOCK_CHUNK_SIZE 16
 
 class BlockChangeEvent {
 public:
@@ -64,7 +65,13 @@ class Blocks {
         int x, y;
     };
     
+    class BlockChunk {
+    public:
+        int breaking_blocks_count = 0;
+    };
+    
     Block *blocks = nullptr;
+    BlockChunk *chunks = nullptr;
     int width, height;
 
     std::vector<BreakingBlock> breaking_blocks;
@@ -72,6 +79,7 @@ class Blocks {
     std::vector<Tool*> tool_types;
     
     Block* getBlock(int x, int y);
+    BlockChunk* getChunk(int x, int y);
 public:
     Blocks();
     void create(int width, int height);
@@ -90,6 +98,7 @@ public:
     void startBreakingBlock(int x, int y);
     void stopBreakingBlock(int x, int y);
     void updateBreakingBlocks(int frame_length);
+    int getChunkBreakingBlocksCount(int x, int y);
     
     void breakBlock(int x, int y);
     

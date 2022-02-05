@@ -61,7 +61,7 @@ void ClientWalls::postInit() {
 
 void ClientWalls::onEvent(WelcomePacketEvent& event) {
     if(event.packet_type == WelcomePacketType::WALLS)
-        fromSerial(networking->getData());
+        fromSerial(event.data);
 }
 
 void ClientWalls::update(float frame_length) {
@@ -134,13 +134,13 @@ void ClientWalls::stop() {
 }
 
 void ClientWalls::WallChunk::create(ClientWalls* walls, int x, int y) {
-    wall_rects.resize(BLOCK_CHUNK_SIZE * BLOCK_CHUNK_SIZE);
+    wall_rects.resize(RENDER_BLOCK_CHUNK_SIZE * RENDER_BLOCK_CHUNK_SIZE);
     is_created = true;
     
-    for(int x2 = 0; x2 < BLOCK_CHUNK_SIZE; x2++)
-        for(int y2 = 0; y2 < BLOCK_CHUNK_SIZE; y2++) {
-            wall_rects.setRect(BLOCK_CHUNK_SIZE * y2 + x2, {x2 * BLOCK_WIDTH * 2 - BLOCK_WIDTH * 2, y2 * BLOCK_WIDTH * 2 - BLOCK_WIDTH * 2, BLOCK_WIDTH * 6, BLOCK_WIDTH * 6});
-            update(walls, x * BLOCK_CHUNK_SIZE + x2, y * BLOCK_CHUNK_SIZE + y2);
+    for(int x2 = 0; x2 < RENDER_BLOCK_CHUNK_SIZE; x2++)
+        for(int y2 = 0; y2 < RENDER_BLOCK_CHUNK_SIZE; y2++) {
+            wall_rects.setRect(RENDER_BLOCK_CHUNK_SIZE * y2 + x2, {x2 * BLOCK_WIDTH * 2 - BLOCK_WIDTH * 2, y2 * BLOCK_WIDTH * 2 - BLOCK_WIDTH * 2, BLOCK_WIDTH * 6, BLOCK_WIDTH * 6});
+            update(walls, x * RENDER_BLOCK_CHUNK_SIZE + x2, y * RENDER_BLOCK_CHUNK_SIZE + y2);
         }
 }
 
@@ -148,8 +148,8 @@ void ClientWalls::WallChunk::update(ClientWalls* walls, int x, int y) {
     if(!is_created)
         return;
     
-    int rel_x = x % BLOCK_CHUNK_SIZE, rel_y = y % BLOCK_CHUNK_SIZE;
-    int index = BLOCK_CHUNK_SIZE * rel_y + rel_x;
+    int rel_x = x % RENDER_BLOCK_CHUNK_SIZE, rel_y = y % RENDER_BLOCK_CHUNK_SIZE;
+    int index = RENDER_BLOCK_CHUNK_SIZE * rel_y + rel_x;
     if(walls->getWallType(x, y) != &walls->clear) {
         if(walls->getState(x, y) == 16)
             walls->updateState(x, y);
@@ -175,12 +175,12 @@ gfx::RectShape ClientWalls::getWallRectInAtlas(WallType* type) {
 }
 
 void ClientWalls::render() {
-    for(int x = blocks->getBlocksViewBeginX() / BLOCK_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / BLOCK_CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / BLOCK_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / BLOCK_CHUNK_SIZE; y++) {
+    for(int x = blocks->getBlocksViewBeginX() / RENDER_BLOCK_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / RENDER_BLOCK_CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / RENDER_BLOCK_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / RENDER_BLOCK_CHUNK_SIZE; y++) {
             if(!getWallChunk(x, y)->isCreated())
                 getWallChunk(x, y)->create(this, x, y);
             
-            getWallChunk(x, y)->render(this, x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+            getWallChunk(x, y)->render(this, x * RENDER_BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * RENDER_BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
     
     for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX(); x++)

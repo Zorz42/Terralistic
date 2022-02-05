@@ -108,7 +108,7 @@ void ClientLights::render() {
             if(!getLightChunk(x, y)->isCreated())
                 getLightChunk(x, y)->create(this, x, y);
             
-            getLightChunk(x, y)->render(x * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+            getLightChunk(x, y)->render(x * RENDER_BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * RENDER_BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
 }
 

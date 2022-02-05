@@ -8,7 +8,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3"
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Libraries/exception/exception.hpp"
@@ -20,11 +20,11 @@
             landmarkType = "3">
             <Locations>
                <Location
-                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 69a488fcf3b759a5"
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 6b7c656dc9d6d64"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "Exception::Exception(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  symbolName = "EventSender&lt;ClientPacketEvent&gt;::removeListener(EventListener&lt;ClientPacketEvent&gt;*)"
                   moduleName = "Terralistic"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
@@ -32,7 +32,7 @@
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "7"
                   endingLineNumber = "7"
-                  offsetFromSymbolStart = "72">
+                  offsetFromSymbolStart = "1629">
                </Location>
                <Location
                   uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 69a488fcf3b759a5"
@@ -47,7 +47,1627 @@
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "7"
                   endingLineNumber = "7"
-                  offsetFromSymbolStart = "72">
+                  offsetFromSymbolStart = "33">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4dfaed2b040cfa91"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;EntityAbsoluteVelocityChangeEvent&gt;::removeListener(EventListener&lt;EntityAbsoluteVelocityChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1698">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - bb6739c479573940"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Settings::removeSetting(Setting*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1771">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 3e102f1b1b136140"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;SettingChangeEvent&gt;::removeListener(EventListener&lt;SettingChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 3a2f21062cde882d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "WorldGenerator::generateWorld(int, int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 3db34a76435b11e2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "WorldGenerator::loadAssets()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "3405">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - be073fabf20182c2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Game::initialize()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "247">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - be073fabf20182c2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Game::initialize()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "376">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 69a488fcf3b759a5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Exception::Exception(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "28">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 9845f1540aaa0a3b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Game::start()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "845">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 9845f1540aaa0a3b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Game::start()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "969">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 9845f1540aaa0a3b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Game::start()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1113">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - e97d4cefe463e407"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Liquids::getLiquid(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "896">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 71df182b2ce872fd"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Liquids::getLiquidTypeById(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "370">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 650c3d514d8cb8f9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::Texture::createBlankImage(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "318">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 650c3d514d8cb8f9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::Texture::createBlankImage(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "454">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 38189cef4bb40a23"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::Texture::loadFromFile(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "446">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 6627d7afcd6d93e4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::Texture::render(float, int, int, gfx::RectShape, bool) const"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "588">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 22e9b1664151b055"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientLiquids::getLiquidUpdate(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "886">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ac796a0429e87340"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;WelcomePacketEvent&gt;::removeListener(EventListener&lt;WelcomePacketEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1622">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4ffc90feb08fe052"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;LiquidChangeEvent&gt;::removeListener(EventListener&lt;LiquidChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1622">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 9c5a9b364a6c01ce"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientPlayers::getPlayerById(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "721">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 5a8127302bdb1f3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ResourcePack::getFile(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "852">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 984aeea42b6bb3bf"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientInventory::selectSlot(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "280">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ffb806cbade37756"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;BlockChangeEvent&gt;::removeListener(EventListener&lt;BlockChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1669">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4b7ab32294d41225"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Lights::getLight(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "904">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - c3723e37193099e0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;ServerChatEvent&gt;::removeListener(EventListener&lt;ServerChatEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - c73c36c67423f9c9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;ServerConnectionWelcomeEvent&gt;::removeListener(EventListener&lt;ServerConnectionWelcomeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 257059edf4b5a81e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;WallChangeEvent&gt;::removeListener(EventListener&lt;WallChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 8b9c7bfd8699198"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;WallStartedBreakingEvent&gt;::removeListener(EventListener&lt;WallStartedBreakingEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ef8f35f05f00a5a8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;WallStoppedBreakingEvent&gt;::removeListener(EventListener&lt;WallStoppedBreakingEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - c73c43de39e71d80"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;WorldLoadEvent&gt;::removeListener(EventListener&lt;WorldLoadEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 351afece26fbcf9e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;WorldSaveEvent&gt;::removeListener(EventListener&lt;WorldSaveEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - d88c1dc4a3e97059"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientNetworking::init()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "290">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 56f66e6ed9156976"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientNetworking::onEvent(ClientPacketEvent&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "317">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - b5d528f9111e79f7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;EntityPositionChangeEvent&gt;::removeListener(EventListener&lt;EntityPositionChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1622">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 5621c248a071c3d3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;EntityVelocityChangeEvent&gt;::removeListener(EventListener&lt;EntityVelocityChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1622">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - a66111840861b75c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;EntityDeletionEvent&gt;::removeListener(EventListener&lt;EntityDeletionEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1622">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 5886b78374cdb947"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Items::getItemTypeById(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "244">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - cc31120ff0446d2f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Items::getItemTypeByName(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "906">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - e0f14d186ba35666"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;ServerNewConnectionEvent&gt;::removeListener(EventListener&lt;ServerNewConnectionEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 776455928016514"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;ServerPacketEvent&gt;::removeListener(EventListener&lt;ServerPacketEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 602a66daafcc8a80"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;ServerDisconnectEvent&gt;::removeListener(EventListener&lt;ServerDisconnectEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 72cc7fc65594c3b0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ServerPlayers::getPlayerByName(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "686">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 282cc99d691bd196"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ServerPlayers::getPlayerById(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "676">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - b3ded845e58ed044"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ServerPlayers::onEvent(ServerNewConnectionEvent&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1495">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - f9f8d3ff4009be26"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ServerPlayer::setConnection(Connection*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "154">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - cd4f1bbd301e5593"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ServerPlayers::onEvent(ServerDisconnectEvent&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "692">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 98f7d85c70b4d44a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;InventoryItemChangeEvent&gt;::removeListener(EventListener&lt;InventoryItemChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1901">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - f2c5682ec7d4ea7e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;ItemCreationEvent&gt;::removeListener(EventListener&lt;ItemCreationEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1622">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 5aa2363632b32cb4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ServerNetworking::ServerNetworking(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "732">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - e228258d35dc562a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ServerNetworking::removeConnection(Connection*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1977">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 1d422cc1a792e014"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientBlocks::getRenderBlock(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "646">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 6729a8e570d69c52"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientBlocks::getRenderBlockChunk(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "618">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - b15a01e3c02b5959"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientBlocks::getBlockUpdate(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "664">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - cf7a7215250b3863"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientBlocks::setBlockUpdate(int, int, bool)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "718">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - d52f021f4174b4c5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;BlockStartedBreakingEvent&gt;::removeListener(EventListener&lt;BlockStartedBreakingEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ee8fb6e73579f0f5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;BlockStoppedBreakingEvent&gt;::removeListener(EventListener&lt;BlockStoppedBreakingEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - bce7878bd17b129a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Entities::removeEntity(Entity*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1848">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 834c6775eb539ad7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Entities::getEntityById(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "360">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 6ff22566eacd40d0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Blocks::create(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "352">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 71ed81781f0d550b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Blocks::getBlock(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "530">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - bc527f2a945733f4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Blocks::startBreakingBlock(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1233">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 3a0b2c9bad3af219"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Blocks::getChunk(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "556">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 1296ed89c77b979d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Blocks::stopBreakingBlock(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "937">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - b232b641f2523812"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;BlockBreakEvent&gt;::removeListener(EventListener&lt;BlockBreakEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 66cb310f26fe7da"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;WallBreakEvent&gt;::removeListener(EventListener&lt;WallBreakEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1629">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 8b1087dc2be502a1"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::RectArray::setRect(int, gfx::RectShape)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "796">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - af2e77060e3af18f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::RectArray::setColor(int, gfx::Color)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "343">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - fed65a2f768d22f7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::RectArray::setTextureCoords(int, gfx::RectShape)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "830">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4b40fcd7d7a67d40"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::RectArray::RectArray(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "167">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - fb8aad611fb0ab42"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::RectArray::resize(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "335">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - d25cd22db87c2207"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::RectArray::render(int, gfx::Texture const*, int, int, bool)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "604">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4ae4ee97da118885"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Inventory::getItem(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "251">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - cb1223e8b27c119a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Inventory::addItem(ItemType*, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "520">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ab5c9157b5a6eae6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Inventory::removeItem(ItemType*, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "540">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - c1ec4e51fa0ef18b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Inventory::swapWithMouseItem(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "369">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 102dff397cb064f3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ClientLights::getLightUpdate(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "896">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 79ab8a490205a878"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;LightColorChangeEvent&gt;::removeListener(EventListener&lt;LightColorChangeEvent&gt;*)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1698">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 8a344674621082d3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Walls::getWall(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "553">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ef36fe0070525a20"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Walls::startBreakingWall(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "1169">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 1d5294108856b8d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Walls::stopBreakingWall(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "790">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - af35a3ae8ae0ae59"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::TextInput::setBlurIntensity(float)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "219">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 9dfefd6be5a3428f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "operator&lt;&lt;(sf::Packet&amp;, ClientPacketType)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "121">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ce58d374d66703b8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "operator&gt;&gt;(sf::Packet&amp;, ClientPacketType&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "140">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ed64a3d8f9c7e2a7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "operator&lt;&lt;(sf::Packet&amp;, ServerPacketType)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "121">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - c20f779b654bfa50"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "operator&gt;&gt;(sf::Packet&amp;, ServerPacketType&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "140">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 1c4d4713c2f4737d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "operator&lt;&lt;(sf::Packet&amp;, WelcomePacketType)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "121">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - b35c62219e69a126"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "operator&gt;&gt;(sf::Packet&amp;, WelcomePacketType&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "140">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 1a1f25b88cff714f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::init(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;, int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "2274">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 1a1f25b88cff714f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::init(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;, int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "2394">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 24b284bbf3ae7326"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::setWindowSize(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "720">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - a6df552a52b8b240"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::blurTexture(sf::RenderTexture&amp;, float)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "460">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - bc032e5b2665cddb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::setMinimumWindowSize(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "128">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - a1fa31328b10be3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::loadFont(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "169">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - a1fa31328b10be3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::loadFont(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "371">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 67bacb6853e7f43c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::sleep(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "108">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4f6505ae53f769fe"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::setGlobalScale(float)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "312">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 86295ef9c120529f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::setFpsLimit(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "143">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 3de343c22e279aec"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::loadIconFromFile(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "223">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 158d6afb4bc3f8e8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "compress(std::__1::vector&lt;char, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "594">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - e0c11286618fd0ad"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "decompress(std::__1::vector&lt;char, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "830">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - c142aed4ba6ddcf8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::RectShape::RectShape(int, int, int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "219">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 1d4fb419079534c0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "NaturalLight::removeNaturalLight(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "547">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 129bdcb4ffe471f9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "NaturalLight::setNaturalLight(int, int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "387">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4a05e3fc061c175b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::Rect::updateBlurTextureSize()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "293">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 92a23c9418fa44fa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::Rect::setWidth(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "239">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 646f674ded9bd454"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "gfx::Rect::setHeight(int)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "239">
+               </Location>
+               <Location
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 4f3c33e2644bc0e0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ConfigFile::getStr(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "7"
+                  endingLineNumber = "7"
+                  offsetFromSymbolStart = "263">
                </Location>
             </Locations>
          </BreakpointContent>

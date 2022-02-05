@@ -248,6 +248,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     sf::Packet healthPacket;
     healthPacket << WelcomePacketType::HEALTH << player->health;
     event.connection->sendDirectly(healthPacket);
+    event.connection->send(std::vector<char>());
     
     sf::Packet packet;
     packet << WelcomePacketType::INVENTORY;

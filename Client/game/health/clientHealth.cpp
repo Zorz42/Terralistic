@@ -32,11 +32,7 @@ void ClientHealth::onEvent(ClientPacketEvent &event) {
 }
 
 void ClientHealth::onEvent(WelcomePacketEvent &event) {
-    switch (event.packet_type) {
-        case WelcomePacketType::HEALTH:
-            event.packet >> health;
-            break;
-        default: break;
-    }
+    if(event.packet_type == WelcomePacketType::HEALTH)
+        event.packet >> health;
 }
 

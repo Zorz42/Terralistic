@@ -12,9 +12,10 @@ public:
 
 class WelcomePacketEvent {
 public:
-    WelcomePacketEvent(sf::Packet& packet, WelcomePacketType packet_type) : packet(packet), packet_type(packet_type) {}
+    WelcomePacketEvent(sf::Packet& packet, WelcomePacketType packet_type, const std::vector<char>& data) : packet(packet), packet_type(packet_type), data(data) {}
     sf::Packet& packet;
     WelcomePacketType packet_type;
+    const std::vector<char>& data;
 };
 
 class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {

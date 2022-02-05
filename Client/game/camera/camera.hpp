@@ -2,7 +2,7 @@
 #include "clientModule.hpp"
 
 class Camera : public ClientModule {
-    float x = 0, y = 0, target_x = 0, target_y = 0;
+    float x = 35200, y = 9600, target_x = 35200, target_y = 9600;
     void update(float frame_length) override;
     
 public:

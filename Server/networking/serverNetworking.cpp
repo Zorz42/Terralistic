@@ -123,6 +123,7 @@ void ServerNetworking::update(float frame_length) {
             sf::Packet time_packet;
             time_packet << WelcomePacketType::TIME << gfx::getTicks() - start_time;
             connections[i]->sendDirectly(time_packet);
+            connections[i]->send(std::vector<char>());
             
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);

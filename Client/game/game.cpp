@@ -57,22 +57,20 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&resource_pack);
     registerAModule(&camera);
     registerAModule(&background);
-    registerAModule(&walls);
+    //registerAModule(&walls); //
     registerAModule(&blocks);
-    registerAModule(&particles);
-    registerAModule(&players);
-    registerAModule(&liquids);
-    registerAModule(&natural_light);
-    registerAModule(&entities);
-    registerAModule(&items);
-    registerAModule(&lights);
-    registerAModule(&block_selector);
-    registerAModule(&inventory);
-    registerAModule(&chat);
-    registerAModule(&player_health);
-#ifdef DEVELOPER_MODE
+    //registerAModule(&particles); //
+    //registerAModule(&entities); //
+    //registerAModule(&items); //
+    //registerAModule(&players); //
+    //registerAModule(&liquids); //
+    //registerAModule(&lights); //
+    //registerAModule(&natural_light); //
+    //registerAModule(&block_selector); //
+    //registerAModule(&inventory); //
+    //registerAModule(&chat); //
+    //registerAModule(&player_health); //
     registerAModule(&debug_menu);
-#endif
     
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
 }
