@@ -2,6 +2,8 @@
 #include "clientBlocks.hpp"
 #include "walls.hpp"
 
+#define RENDER_WALL_CHUNK_SIZE 16
+
 class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacketEvent>, EventListener<WallChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderWall {
     public:
@@ -9,7 +11,7 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
         int variation:8, state:8;
     };
 
-    class WallChunk {
+    class RenderWallChunk {
         gfx::RectArray wall_rects;
         bool is_created = false;
     public:
@@ -20,9 +22,9 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     };
     
     RenderWall* render_walls = nullptr;
-    WallChunk* wall_chunks = nullptr;
+    RenderWallChunk* wall_chunks = nullptr;
     RenderWall* getRenderWall(int x, int y);
-    WallChunk* getWallChunk(int x, int y);
+    RenderWallChunk* getWallChunk(int x, int y);
     
     gfx::TextureAtlas walls_atlas;
     gfx::Texture breaking_texture;

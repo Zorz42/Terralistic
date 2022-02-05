@@ -57,7 +57,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&resource_pack);
     registerAModule(&camera);
     registerAModule(&background);
-    //registerAModule(&walls); //
+    registerAModule(&walls);
     registerAModule(&blocks);
     //registerAModule(&particles); //
     //registerAModule(&entities); //
