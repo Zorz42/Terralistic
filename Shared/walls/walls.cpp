@@ -8,14 +8,14 @@ Walls::Wall* Walls::getWall(int x, int y) {
 }
 
 Walls::WallChunk* Walls::getChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / WALL_CHUNK_SIZE || y < 0 || y >= getHeight() / WALL_CHUNK_SIZE)
+    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE)
         throw Exception("Wall chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
-    return &chunks[y * getWidth() / WALL_CHUNK_SIZE + x];
+    return &chunks[y * getWidth() / CHUNK_SIZE + x];
 }
 
 void Walls::create() {
     walls = new Wall[getWidth() * getHeight()];
-    chunks = new WallChunk[getWidth() / WALL_CHUNK_SIZE * getHeight() / WALL_CHUNK_SIZE];
+    chunks = new WallChunk[getWidth() / CHUNK_SIZE * getHeight() / CHUNK_SIZE];
 }
 
 WallType* Walls::getWallType(int x, int y) {
@@ -133,7 +133,7 @@ void Walls::startBreakingWall(int x, int y) {
     
     breaking_wall->is_breaking = true;
     
-    getChunk(x / WALL_CHUNK_SIZE, y / WALL_CHUNK_SIZE)->breaking_wall_count++;
+    getChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->breaking_wall_count++;
         
     WallStartedBreakingEvent event(x, y);
     wall_started_breaking_event.call(event);
@@ -146,7 +146,7 @@ void Walls::stopBreakingWall(int x, int y) {
     for(int i = 0; i < breaking_walls.size(); i++)
         if(breaking_walls[i].x == x && breaking_walls[i].y == y) {
             breaking_walls[i].is_breaking = false;
-            getChunk(x / WALL_CHUNK_SIZE, y / WALL_CHUNK_SIZE)->breaking_wall_count--;
+            getChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->breaking_wall_count--;
             WallStoppedBreakingEvent event(x, y);
             wall_stopped_breaking_event.call(event);
         }

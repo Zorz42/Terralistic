@@ -40,8 +40,8 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     if(!is_created)
         return;
     
-    int rel_x = x % LIGHT_CHUNK_SIZE, rel_y = y % LIGHT_CHUNK_SIZE;
-    int index = LIGHT_CHUNK_SIZE * rel_y + rel_x;
+    int rel_x = x % CHUNK_SIZE, rel_y = y % CHUNK_SIZE;
+    int index = CHUNK_SIZE * rel_y + rel_x;
     
     int low_x = x == lights->getWidth() - 1 ? x : x + 1, low_y = y == lights->getHeight() - 1 ? y : y + 1;
     
@@ -74,18 +74,18 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
-    light_rects.render(LIGHT_CHUNK_SIZE * LIGHT_CHUNK_SIZE, nullptr, x, y, /*blend_multiply*/true);
+    light_rects.render(CHUNK_SIZE * CHUNK_SIZE, nullptr, x, y, /*blend_multiply*/true);
 }
 
 void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {
-    light_rects.resize(LIGHT_CHUNK_SIZE * LIGHT_CHUNK_SIZE);
+    light_rects.resize(CHUNK_SIZE * CHUNK_SIZE);
     is_created = true;
     
-    for(int x2 = 0; x2 < LIGHT_CHUNK_SIZE; x2++)
-        for(int y2 = 0; y2 < LIGHT_CHUNK_SIZE; y2++) {
+    for(int x2 = 0; x2 < CHUNK_SIZE; x2++)
+        for(int y2 = 0; y2 < CHUNK_SIZE; y2++) {
             int x_stretch = (x == 0 && x2 == 0) ? BLOCK_WIDTH : 0;
-            light_rects.setRect(LIGHT_CHUNK_SIZE * y2 + x2, {x2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH - x_stretch, y2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2 + x_stretch, BLOCK_WIDTH * 2});
-            update(lights, x * LIGHT_CHUNK_SIZE + x2, y * LIGHT_CHUNK_SIZE + y2);
+            light_rects.setRect(CHUNK_SIZE * y2 + x2, {x2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH - x_stretch, y2 * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2 + x_stretch, BLOCK_WIDTH * 2});
+            update(lights, x * CHUNK_SIZE + x2, y * CHUNK_SIZE + y2);
         }
 }
 
@@ -97,18 +97,18 @@ void ClientLights::render() {
     for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX() && x < getWidth() - 1; x++)
         for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY() && y < getHeight() - 1; y++)
             if(getLightUpdate(x, y) || getLightUpdate(x + 1, y) || getLightUpdate(x, y + 1) || getLightUpdate(x + 1, y + 1))
-                getLightChunk(x / LIGHT_CHUNK_SIZE, y / LIGHT_CHUNK_SIZE)->update(this, x, y);
+                getLightChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->update(this, x, y);
     
     for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX() + 1 && x < getWidth(); x++)
         for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY() + 1 && y < getHeight(); y++)
             getLightUpdate(x, y) = false;
     
-    for(int x = blocks->getBlocksViewBeginX() / LIGHT_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / LIGHT_CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / LIGHT_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / LIGHT_CHUNK_SIZE; y++) {
+    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
             if(!getLightChunk(x, y)->isCreated())
                 getLightChunk(x, y)->create(this, x, y);
             
-            getLightChunk(x, y)->render(x * RENDER_BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * RENDER_BLOCK_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+            getLightChunk(x, y)->render(x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
 }
 

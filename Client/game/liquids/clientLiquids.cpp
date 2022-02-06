@@ -23,7 +23,7 @@ void ClientLiquids::onEvent(WelcomePacketEvent& event) {
 }
 
 void ClientLiquids::onEvent(LiquidChangeEvent& event) {
-    getLiquidUpdate(event.x, event.y) = true;
+    scheduleLiquidUpdate(event.x, event.y);
 }
 
 void ClientLiquids::init() {
@@ -47,10 +47,7 @@ void ClientLiquids::loadTextures() {
 }
 
 void ClientLiquids::postInit() {
-    liquid_chunks = new LiquidChunk[getWidth() / 16 * getHeight() / 16];
-    liquid_updates = new bool[getWidth() * getHeight()];
-    for(int i = 0; i < getWidth() * getHeight(); i++)
-        liquid_updates[i] = false;
+    liquid_chunks = new RenderLiquidChunk[getWidth() / 16 * getHeight() / 16];
 }
 
 void ClientLiquids::stop() {
@@ -60,58 +57,46 @@ void ClientLiquids::stop() {
     delete[] liquid_chunks;
 }
 
-bool& ClientLiquids::getLiquidUpdate(int x, int y) {
-    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
-        throw Exception("LiquidUpdate is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
-    return liquid_updates[y * getWidth() + x];
+void ClientLiquids::scheduleLiquidUpdate(int x, int y) {
+    getRenderLiquidChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_update = true;
 }
 
 void ClientLiquids::render() {
-    for(int x = blocks->getBlocksViewBeginX() / LIQUID_CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / LIQUID_CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / LIQUID_CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / LIQUID_CHUNK_SIZE; y++) {
-            if(!getLiquidChunk(x, y)->isCreated())
-                getLiquidChunk(x, y)->create(this, x, y);
+    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
+            if(getRenderLiquidChunk(x, y)->has_update) {
+                getRenderLiquidChunk(x, y)->has_update = false;
+                getRenderLiquidChunk(x, y)->update(this, x, y);
+            }
             
-            getLiquidChunk(x, y)->render(this, x * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * LIQUID_CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+            getRenderLiquidChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
+}
+
+void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int y) {
+    liquid_count = 0;
+    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
+        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+            if(liquids->getLiquidType(x_, y_) != &liquids->empty)
+                liquid_count++;
     
-    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX(); x++)
-        for(int y = blocks->getBlocksViewBeginY(); y <= blocks->getBlocksViewEndY(); y++)
-            if(getLiquidUpdate(x, y)) {
-                getLiquidUpdate(x, y) = false;
-                getLiquidChunk(x / LIQUID_CHUNK_SIZE, y / LIQUID_CHUNK_SIZE)->update(this, x, y);
+    liquid_rects.resize(liquid_count);
+    
+    int index = 0;
+    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
+        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+            if(liquids->getLiquidType(x_, y_) != &liquids->empty) {
+                int texture_y = liquids->getLiquidRectInAtlas(liquids->getLiquidType(x_, y_)).y * 2;
+                liquid_rects.setTextureCoords(index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
+                
+                int level = liquids->getLiquidLevel(x_, y_) / MAX_LIQUID_LEVEL * BLOCK_WIDTH * 2;
+                liquid_rects.setRect(index, {(x_ % CHUNK_SIZE) * BLOCK_WIDTH * 2, (y_ % CHUNK_SIZE) * BLOCK_WIDTH * 2 + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
+                index++;
             }
 }
 
-void ClientLiquids::LiquidChunk::create(ClientLiquids* liquids, int x, int y) {
-    liquid_rects.resize(LIQUID_CHUNK_SIZE * LIQUID_CHUNK_SIZE);
-    is_created = true;
-    
-    for(int x2 = 0; x2 < LIQUID_CHUNK_SIZE; x2++)
-        for(int y2 = 0; y2 < LIQUID_CHUNK_SIZE; y2++)
-            update(liquids, x * LIQUID_CHUNK_SIZE + x2, y * LIQUID_CHUNK_SIZE + y2);
-}
-
-void ClientLiquids::LiquidChunk::update(ClientLiquids* liquids, int x, int y) {
-    if(!is_created)
-        return;
-    
-    int rel_x = x % LIQUID_CHUNK_SIZE, rel_y = y % LIQUID_CHUNK_SIZE;
-    int index = LIQUID_CHUNK_SIZE * rel_y + rel_x;
-    if(liquids->getLiquidType(x, y) != &liquids->empty) {
-        int texture_y = liquids->getLiquidRectInAtlas(liquids->getLiquidType(x, y)).y * 2;
-        liquid_rects.setTextureCoords(index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
-        
-        int level = liquids->getLiquidLevel(x, y) / MAX_LIQUID_LEVEL * BLOCK_WIDTH * 2;
-        liquid_rects.setRect(index, {rel_x * BLOCK_WIDTH * 2, rel_y * BLOCK_WIDTH * 2 + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
-    } else {
-        liquid_rects.setTextureCoords(index, {0, 0, 0, 0});
-        liquid_rects.setRect(index, {0, 0, 0, 0});
-    }
-}
-
-void ClientLiquids::LiquidChunk::render(ClientLiquids* liquids, int x, int y) {
-    liquid_rects.render(16 * 16, &liquids->getLiquidsAtlasTexture(), x, y);
+void ClientLiquids::RenderLiquidChunk::render(ClientLiquids* liquids, int x, int y) {
+    liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y);
 }
 
 const gfx::Texture& ClientLiquids::getLiquidsAtlasTexture() {
@@ -122,6 +107,6 @@ gfx::RectShape ClientLiquids::getLiquidRectInAtlas(LiquidType* type) {
     return liquids_atlas.getRect(type->id - 1);
 }
 
-ClientLiquids::LiquidChunk* ClientLiquids::getLiquidChunk(int x, int y) {
+ClientLiquids::RenderLiquidChunk* ClientLiquids::getRenderLiquidChunk(int x, int y) {
     return &liquid_chunks[y * getWidth() / 16 + x];
 }

@@ -22,7 +22,7 @@ void Blocks::create(int width_, int height_) {
     width = width_;
     height = height_;
     blocks = new Block[width * height];
-    chunks = new BlockChunk[width / BLOCK_CHUNK_SIZE * height / BLOCK_CHUNK_SIZE];
+    chunks = new BlockChunk[width / CHUNK_SIZE * height / CHUNK_SIZE];
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
@@ -98,16 +98,16 @@ void Blocks::startBreakingBlock(int x, int y) {
     
     breaking_block->is_breaking = true;
         
-    getChunk(x / BLOCK_CHUNK_SIZE, y / BLOCK_CHUNK_SIZE)->breaking_blocks_count++;
+    getChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->breaking_blocks_count++;
     
     BlockStartedBreakingEvent event(x, y);
     block_started_breaking_event.call(event);
 }
 
 Blocks::BlockChunk* Blocks::getChunk(int x, int y) {
-    if(x < 0 || x >= width / BLOCK_CHUNK_SIZE || y < 0 || y >= height / BLOCK_CHUNK_SIZE)
+    if(x < 0 || x >= width / CHUNK_SIZE || y < 0 || y >= height / CHUNK_SIZE)
         throw Exception("Block chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
-    return &chunks[y * width / BLOCK_CHUNK_SIZE + x];
+    return &chunks[y * width / CHUNK_SIZE + x];
 }
 
 void Blocks::stopBreakingBlock(int x, int y) {
@@ -117,7 +117,7 @@ void Blocks::stopBreakingBlock(int x, int y) {
     for(int i = 0; i < breaking_blocks.size(); i++)
         if(breaking_blocks[i].x == x && breaking_blocks[i].y == y) {
             breaking_blocks[i].is_breaking = false;
-            getChunk(x / BLOCK_CHUNK_SIZE, y / BLOCK_CHUNK_SIZE)->breaking_blocks_count--;
+            getChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->breaking_blocks_count--;
             BlockStoppedBreakingEvent event(x, y);
             block_stopped_breaking_event.call(event);
         }

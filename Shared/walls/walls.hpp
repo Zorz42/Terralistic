@@ -1,8 +1,6 @@
 #pragma once
 #include "blocks.hpp"
 
-#define WALL_CHUNK_SIZE 16
-
 class WallChangeEvent {
 public:
     WallChangeEvent(int x, int y) : x(x), y(y) {}

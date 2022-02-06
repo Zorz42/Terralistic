@@ -4,8 +4,6 @@
 #include "content.hpp"
 #include "camera.hpp"
 
-#define RENDER_BLOCK_CHUNK_SIZE 16
-
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderBlock {
     public:
@@ -15,11 +13,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
 
     class RenderBlockChunk {
         gfx::RectArray block_rects;
-        bool is_created = false;
+        int block_count;
     public:
-        bool has_update = false;
-        bool isCreated() { return is_created; }
-        void create(ClientBlocks* blocks, int x, int y);
+        bool has_update = true;
         void update(ClientBlocks* blocks, int x, int y);
         void render(ClientBlocks* blocks, int x, int y);
     };
@@ -49,9 +45,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void updateOrientationLeft(int x, int y);
     void updateOrientationRight(int x, int y);
     
-    bool* block_updates = nullptr;
-    bool getBlockUpdate(int x, int y);
-    void setBlockUpdate(int x, int y, bool value);
+    void scheduleBlockUpdate(int x, int y);
     
     int view_begin_x, view_begin_y, view_end_x, view_end_y, extended_view_begin_x, extended_view_begin_y, extended_view_end_x, extended_view_end_y;
     

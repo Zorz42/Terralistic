@@ -36,8 +36,10 @@ bool Liquids::isFlowable(int x, int y) {
 }
 
 void Liquids::updateLiquid(int x, int y) {
-    if(getLiquidLevel(x, y) == 0)
+    if(getLiquidLevel(x, y) == 0) {
+        setLiquidType(x, y, &empty);
         return;
+    }
     
     if(!blocks->getBlockType(x, y)->ghost)
         setLiquidType(x, y, &empty);

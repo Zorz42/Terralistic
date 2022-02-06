@@ -3,8 +3,6 @@
 #include "lights.hpp"
 #include "settings.hpp"
 
-#define LIGHT_CHUNK_SIZE 16
-
 class ClientLights : public Lights, public ClientModule, EventListener<LightColorChangeEvent> {
     class LightChunk {
         gfx::RectArray light_rects;
