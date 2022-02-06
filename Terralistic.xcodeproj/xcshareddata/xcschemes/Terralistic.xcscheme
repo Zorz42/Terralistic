@@ -64,7 +64,6 @@
       debugDocumentVersioning = "NO"
       debugXPCServices = "NO"
       debugServiceExtension = "internal"
-      enableGPUShaderValidationMode = "2"
       allowLocationSimulation = "NO"
       viewDebuggingEnabled = "No"
       queueDebuggingEnabled = "No"

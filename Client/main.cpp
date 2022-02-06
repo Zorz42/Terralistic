@@ -49,6 +49,15 @@ public:
     FpsChangeListener(ChoiceSetting* fps_setting) : fps_setting(fps_setting) {}
 };
 
+class BlurChangeListener : public EventListener<SettingChangeEvent> {
+    BooleanSetting* blur_setting;
+    void onEvent(SettingChangeEvent& event) override {
+        gfx::blur_enabled = blur_setting->getValue();
+    }
+public:
+    BlurChangeListener(BooleanSetting* blur_setting) : blur_setting(blur_setting) {}
+};
+
 
 int main(int argc, char **argv) {
     srand((int)time(0));
@@ -79,6 +88,11 @@ int main(int argc, char **argv) {
     FpsChangeListener fps_change_listener(&fps_setting);
     fps_setting.setting_change_event.addListener(&fps_change_listener);
     settings.addSetting(&fps_setting);
+    
+    BooleanSetting blur_setting("Blur Effect", true);
+    BlurChangeListener blur_change_listener(&blur_setting);
+    blur_setting.setting_change_event.addListener(&blur_change_listener);
+    settings.addSetting(&blur_setting);
     
     MenuBack menu_back;
     menu_back.init();

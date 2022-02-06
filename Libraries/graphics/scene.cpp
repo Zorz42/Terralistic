@@ -204,7 +204,7 @@ void gfx::Scene::onEvent(sf::Event event) {
 
 void gfx::Scene::run() {
     initialize();
-
+    
     while(running && window->isOpen()) {
         int start = getTicks();
         

@@ -18,21 +18,16 @@ void gfx::Rect::render() {
     
     RectShape rect = getTranslatedRect();
 
-    if(blur_intensity) {
+    if(blur_intensity && blur_enabled) {
         if(!blur_texture) {
             blur_texture = new sf::RenderTexture;
             updateBlurTextureSize();
         }
         
-        blur_texture->clear({0, 0, 0});
-        sf::Sprite back_sprite;
-        back_sprite.setTexture(render_target->getTexture());
-        back_sprite.setTextureRect({getTranslatedX() - x + target_x, getTranslatedY() - y + target_y, target_width, target_height});
-        blur_texture->draw(back_sprite);
-        blur_texture->display();
-        
-        blurTexture(*blur_texture, blur_intensity);
-        blur_texture->display();
+        if(getTicks() - blur_last_updated > 33) {
+            updateBlurTexture();
+            blur_last_updated = getTicks();
+        }
         
         sf::Sprite sprite;
         sprite.setTexture(blur_texture->getTexture());
@@ -97,10 +92,23 @@ void gfx::Rect::render() {
 }
 
 void gfx::Rect::updateBlurTextureSize() {
-    if(blur_texture && target_width && target_height) {
+    if(blur_texture && target_width && target_height && (blur_texture->getSize().x != target_width || blur_texture->getSize().y != target_height)) {
         if(!blur_texture->create(target_width, target_height))
             throw Exception("Could not create texture.");
+        updateBlurTexture();
     }
+}
+
+void gfx::Rect::updateBlurTexture() {
+    blur_texture->clear({0, 0, 0});
+    sf::Sprite back_sprite;
+    back_sprite.setTexture(render_target->getTexture());
+    back_sprite.setTextureRect({getTranslatedX() - x + target_x, getTranslatedY() - y + target_y, target_width, target_height});
+    blur_texture->draw(back_sprite);
+    blur_texture->display();
+    
+    blurTexture(*blur_texture, blur_intensity);
+    blur_texture->display();
 }
 
 int gfx::Rect::getWidth() const {

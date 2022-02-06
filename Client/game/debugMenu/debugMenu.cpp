@@ -24,20 +24,20 @@ void DebugMenu::update(float frame_length) {
     }
     
     if(debug_menu_open) {
-        /*static int prev_x = 0, prev_y = 0;
+        static int prev_x = 0, prev_y = 0;
         int curr_x = player_handler->getMainPlayer()->getX() / (BLOCK_WIDTH * 2), curr_y = player_handler->getMainPlayer()->getY() / (BLOCK_WIDTH * 2);
         if(curr_x != prev_x || curr_y != prev_y) {
             prev_x = curr_x;
             prev_y = curr_y;
             updateCoordsText();
-        }*/
+        }
     }
 }
 
 void DebugMenu::render() {
     if(debug_menu_open) {
         fps_text.render();
-        //coords_text.render();
+        coords_text.render();
     }
 }
 

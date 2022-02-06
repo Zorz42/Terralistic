@@ -51,10 +51,12 @@ namespace gfx {
         int width, height;
         
         int target_x = 0, target_y = 0, target_width = 0, target_height = 0;
+        int blur_last_updated = 0;
         
         bool first_time = true;
 
         void updateBlurTextureSize();
+        void updateBlurTexture();
         
     public:
         int getWidth() const override;
@@ -243,4 +245,6 @@ namespace gfx {
     void enableVsync(bool enabled);
 
     void loadIconFromFile(const std::string& path);
+
+    inline bool blur_enabled = true;
 };

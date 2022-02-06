@@ -165,7 +165,6 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
     blur_intensity = std::pow(BLUR_QUALITY, blur_intensity);
     blur_shader.setUniform("source", texture.getTexture());
     
-    
     while(blur_intensity >= 1.f) {
         blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / texture.getSize().x, 0));
         applyShader(blur_shader, texture);
