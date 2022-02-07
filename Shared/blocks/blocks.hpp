@@ -47,7 +47,7 @@ public:
     int break_time;
     int light_emission_r, light_emission_g, light_emission_b;
     int id;
-    int width, height;
+    int width = 0, height = 0;
 };
 
 class Blocks {

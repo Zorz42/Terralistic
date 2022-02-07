@@ -39,7 +39,6 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     int index = 0;
     for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
         for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++) {
-            
             int rel_x = x_ % CHUNK_SIZE, rel_y = y_ % CHUNK_SIZE;
             int x_stretch = x_ == 0 ? BLOCK_WIDTH : 0;
             int low_x = x_ == lights->getWidth() - 1 ? x_ : x_ + 1, low_y = y_ == lights->getHeight() - 1 ? y_ : y_ + 1;

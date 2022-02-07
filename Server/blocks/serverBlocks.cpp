@@ -15,6 +15,7 @@ void ServerBlocks::init() {
     block_stopped_breaking_event.addListener(this);
     world_saver->world_load_event.addListener(this);
     world_saver->world_save_event.addListener(this);
+    block_update_event.addListener(this);
 }
 
 void ServerBlocks::update(float frame_length) {
@@ -28,12 +29,30 @@ void ServerBlocks::stop() {
     block_stopped_breaking_event.removeListener(this);
     world_saver->world_load_event.removeListener(this);
     world_saver->world_save_event.removeListener(this);
+    block_update_event.addListener(this);
 }
 
 void ServerBlocks::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
     packet << ServerPacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y)->id << (unsigned char)getBlockXFromMain(event.x, event.y) << (unsigned char)getBlockYFromMain(event.x, event.y);
     networking->sendToEveryone(packet);
+    
+    int neighbours[5][2] = {{event.x, event.y}, {event.x - 1, event.y}, {event.x, event.y - 1}, {event.x + 1, event.y}, {event.x, event.y + 1}};
+    for(int i = 0; i < 5; i++)
+        if(neighbours[i][0] >= 0 && neighbours[i][0] < getWidth() && neighbours[i][1] >= 0 && neighbours[i][1] < getHeight()) {
+            BlockUpdateEvent update_event(neighbours[i][0], neighbours[i][1]);
+            block_update_event.call(update_event);
+        }
+}
+
+void ServerBlocks::onEvent(BlockUpdateEvent& event) {
+    if(getBlockType(event.x, event.y)->width != 0) {
+        int x_offset = getBlockXFromMain(event.x, event.y), y_offset = getBlockYFromMain(event.x, event.y);
+        if(x_offset + 1 < getBlockType(event.x, event.y)->width)
+            setBlockType(event.x + 1, event.y, getBlockType(event.x, event.y), x_offset + 1, y_offset);
+        if(y_offset + 1 < getBlockType(event.x, event.y)->height)
+            setBlockType(event.x, event.y + 1, getBlockType(event.x, event.y), x_offset, y_offset + 1);
+    }
 }
 
 void ServerBlocks::onEvent(BlockStartedBreakingEvent& event) {

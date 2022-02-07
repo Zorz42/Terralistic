@@ -40,7 +40,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             unsigned char x_from_main, y_from_main;
             event.packet >> x >> y >> block_id >> x_from_main >> y_from_main;
             
-            setBlockType(x, y, getBlockTypeById(block_id));
+            setBlockType(x, y, getBlockTypeById(block_id), x_from_main, y_from_main);
             break;
         }
         case ServerPacketType::BLOCK_STARTED_BREAKING: {
@@ -173,8 +173,15 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
                     blocks->updateState(x_, y_);
                 block_rects.setRect(index, {(x_ % CHUNK_SIZE) * BLOCK_WIDTH * 2, (y_ % CHUNK_SIZE) * BLOCK_WIDTH * 2, BLOCK_WIDTH * 2, BLOCK_WIDTH * 2});
                 
-                int texture_x = (blocks->getRenderBlock(x_, y_)->variation) % (blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
-                int texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).y + BLOCK_WIDTH * blocks->getRenderBlock(x_, y_)->state;
+                int texture_x;
+                int texture_y;
+                if(blocks->getBlockType(x_, y_)->width == 0) {
+                    texture_x = (blocks->getRenderBlock(x_, y_)->variation) % (blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
+                    texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).y + BLOCK_WIDTH * blocks->getRenderBlock(x_, y_)->state;
+                } else {
+                    texture_x = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).x + blocks->getBlockXFromMain(x_, y_) * BLOCK_WIDTH;
+                    texture_y =blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).y + blocks->getBlockYFromMain(x_, y_) * BLOCK_WIDTH;
+                }
                 block_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 index++;
             }
@@ -230,7 +237,6 @@ int ClientBlocks::getBlocksViewBeginY() {
 int ClientBlocks::getBlocksViewEndY() {
     return view_end_y;
 }
-
 
 int ClientBlocks::getBlocksExtendedViewBeginX() {
     return extended_view_begin_x;

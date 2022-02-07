@@ -86,9 +86,6 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         if(block_properties.keyExists("width") && block_properties.keyExists("height")) {
             block_type->width = block_properties.getInt("width");
             block_type->height = block_properties.getInt("height");
-        } else {
-            block_type->width = 0;
-            block_type->height = 0;
         }
     }
 }

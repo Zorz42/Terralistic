@@ -9,7 +9,7 @@ void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
 }
 
 void ServerPlayers::init() {
-    blocks->block_change_event.addListener(this);
+    blocks->block_update_event.addListener(this);
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);
     packet_event.addListener(this);
@@ -27,7 +27,7 @@ void ServerPlayers::postInit() {
 }
 
 void ServerPlayers::stop() {
-    blocks->block_change_event.removeListener(this);
+    blocks->block_update_event.removeListener(this);
     networking->new_connection_event.removeListener(this);
     networking->connection_welcome_event.removeListener(this);
     packet_event.removeListener(this);
@@ -184,29 +184,8 @@ std::vector<char> ServerPlayers::toSerial() {
     return serial;
 }
 
-void ServerPlayers::onEvent(BlockChangeEvent& event) {
-    int neighbours[5][2] = {{event.x, event.y}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
-    
-    if(event.x != 0) {
-        neighbours[1][0] = event.x - 1;
-        neighbours[1][1] = event.y;
-    }
-    if(event.x != blocks->getWidth() - 1) {
-        neighbours[2][0] = event.x + 1;
-        neighbours[2][1] = event.y;
-    }
-    if(event.y != 0) {
-        neighbours[3][0] = event.x;
-        neighbours[3][1] = event.y - 1;
-    }
-    if(event.y != blocks->getHeight() - 1) {
-        neighbours[4][0] = event.x;
-        neighbours[4][1] = event.y + 1;
-    }
-    
-    for(int i = 0; i < 5; i++)
-        if(neighbours[i][0] != -1)
-            getBlockBehaviour(blocks->getBlockType(neighbours[i][0], neighbours[i][1]))->onUpdate(neighbours[i][0], neighbours[i][1]);
+void ServerPlayers::onEvent(BlockUpdateEvent& event) {
+    getBlockBehaviour(blocks->getBlockType(event.x, event.y))->onUpdate(event.x, event.y);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
