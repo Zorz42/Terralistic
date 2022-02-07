@@ -49,7 +49,7 @@ namespace gfx {
     class Timer {
         sf::Clock clock;
     public:
-        int getTimeElapsed() const;
+        float getTimeElapsed() const;
         void reset();
     };
 

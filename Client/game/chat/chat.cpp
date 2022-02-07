@@ -52,11 +52,14 @@ void Chat::render() {
         }
         
         if(chat_lines[i]->timer.getTimeElapsed() < 10000 || chat_box.active) {
-            int alpha = chat_lines[i]->timer.getTimeElapsed() - 10000;
-            if(alpha >= 500)
+            float alpha = 10000 - chat_lines[i]->timer.getTimeElapsed();
+            if(alpha >= 500 || chat_box.active)
                 alpha = 500;
-            chat_lines[i]->text_sprite.setColor({255, 255, 255, (unsigned char)((float)alpha / 500.f * 255)});
-            chat_lines[i]->text_sprite.render();
+            
+            if(alpha > 0) {
+                chat_lines[i]->text_sprite.setColor({255, 255, 255, (unsigned char)(alpha / 500 * 255)});
+                chat_lines[i]->text_sprite.render();
+            }
         }
     }
 }
