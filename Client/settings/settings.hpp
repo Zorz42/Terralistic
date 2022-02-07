@@ -48,6 +48,7 @@ class Settings : public gfx::GlobalUpdateFunction, EventListener<SettingChangeEv
     void update() override;
     void onEvent(SettingChangeEvent& event) override;
     bool is_loading = false;
+    gfx::Timer timer;
 public:
     Settings() : config_file(sago::getDataHome() + "/Terralistic/settings.txt") {}
     void addSetting(Setting* setting);

@@ -38,7 +38,7 @@ void NaturalLight::onEvent(BlockChangeEvent &event) {
 void NaturalLight::onEvent(WelcomePacketEvent &event) {
     if(event.packet_type == WelcomePacketType::TIME) {
         event.packet >> server_time_on_join;
-        started = gfx::getTicks();
+        server_timer.reset();
     }
 }
 
@@ -82,7 +82,7 @@ void NaturalLight::removeNaturalLight(int x) {
 }
 
 int NaturalLight::getTime() const {
-    return server_time_on_join + gfx::getTicks() - started;
+    return server_time_on_join + server_timer.getTimeElapsed();
 }
 
 void NaturalLight::updateLight(int x) {

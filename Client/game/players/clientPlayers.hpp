@@ -10,7 +10,7 @@ public:
     ClientPlayer(const std::string& name, int x, int y, int id);
     int texture_frame = 0;
     gfx::Texture name_text;
-    int started_moving = 0;
+    int started_moving;
     bool has_jumped = false;
 };
 
@@ -30,6 +30,8 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     void onEvent(ClientPacketEvent& event) override;
     void render() override;
     void stop() override;
+    
+    gfx::Timer timer;
     
     ClientBlocks* blocks;
     Liquids* liquids;

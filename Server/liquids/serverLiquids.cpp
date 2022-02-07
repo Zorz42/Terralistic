@@ -54,7 +54,7 @@ bool ServerLiquids::isLiquidScheduled(int x, int y) {
 
 void ServerLiquids::update(float frame_length) {
     int count = 0;
-    while(count < 300 && !liquid_update_queue.empty() && liquid_update_queue.top().time < gfx::getTicks()) {
+    while(count < 300 && !liquid_update_queue.empty() && liquid_update_queue.top().time < timer.getTimeElapsed()) {
         LiquidUpdate curr = liquid_update_queue.top();
         liquid_update_queue.pop();
         updateLiquid(curr.x, curr.y);
@@ -69,7 +69,7 @@ void ServerLiquids::scheduleLiquidUpdate(int x, int y) {
         LiquidUpdate liquid_update;
         liquid_update.x = x;
         liquid_update.y = y;
-        liquid_update.time = gfx::getTicks() + getLiquidType(x, y)->flow_time;
+        liquid_update.time = timer.getTimeElapsed() + getLiquidType(x, y)->flow_time;
         liquid_update_queue.push(liquid_update);
     }
 }

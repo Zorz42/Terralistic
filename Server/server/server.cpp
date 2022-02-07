@@ -79,19 +79,19 @@ void Server::start() {
     state = ServerState::RUNNING;
     print::info("Server has started!");
     
-    int a, b = gfx::getTicks();
-    
     int ms_per_tick = 1000 / TPS_LIMIT;
     
+    float frame_length = 0;
+    
     while(running) {
-        a = gfx::getTicks();
-        float frame_length = a - b;
-        if(frame_length < ms_per_tick)
-            gfx::sleep(ms_per_tick - frame_length);
-        b = a;
+        gfx::Timer timer;
         
         for(int i = 0; i < modules.size(); i++)
             modules[i]->update(frame_length);
+        
+        if(ms_per_tick > timer.getTimeElapsed())
+            gfx::sleep(ms_per_tick - timer.getTimeElapsed());
+        frame_length = timer.getTimeElapsed();
     }
     
     state = ServerState::STOPPING;

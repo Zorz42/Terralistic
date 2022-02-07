@@ -136,10 +136,6 @@ void gfx::resetRenderTarget() {
     render_target = &window_texture;
 }
 
-int gfx::getTicks() {
-    return global_clock.getElapsedTime().asMilliseconds();
-}
-
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     output.generateMipmap(); // without that it doesn't work on smaller textures on some computers
     sf::Vector2f output_size = static_cast<sf::Vector2f>(output.getSize());
@@ -174,6 +170,14 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
         
         blur_intensity /= BLUR_QUALITY;
     }
+}
+
+int gfx::Timer::getTimeElapsed() const {
+    return clock.getElapsedTime().asMilliseconds();
+}
+
+void gfx::Timer::reset() {
+    clock.restart();
 }
 
 void gfx::sleep(int ms) {

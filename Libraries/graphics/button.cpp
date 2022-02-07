@@ -23,6 +23,7 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
         (unsigned char)((int)hover_color.b * hover_progress / 255 + (int)def_color.b * float(255 - hover_progress) / 255),
         (unsigned char)((int)hover_color.a * hover_progress / 255 + (int)def_color.a * float(255 - hover_progress) / 255),
     };
+    
     Color button_border_color{
         (unsigned char)((int)border_hover_color.r * hover_progress / 255 + (int)def_border_color.r * float(255 - hover_progress) / 255),
         (unsigned char)((int)border_hover_color.g * hover_progress / 255 + (int)def_border_color.g * float(255 - hover_progress) / 255),

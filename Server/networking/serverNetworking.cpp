@@ -81,7 +81,7 @@ ServerNetworking::ServerNetworking(int port) : port(port) {
 void ServerNetworking::postInit() {
     listener.listen(port);
     listener.setBlocking(false);
-    start_time = gfx::getTicks();
+    timer.reset();
 }
 
 void ServerNetworking::sendToEveryone(sf::Packet& packet) {
@@ -121,7 +121,7 @@ void ServerNetworking::update(float frame_length) {
             }
         } else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
             sf::Packet time_packet;
-            time_packet << WelcomePacketType::TIME << gfx::getTicks() - start_time;
+            time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
             connections[i]->sendDirectly(time_packet);
             connections[i]->send(std::vector<char>());
             

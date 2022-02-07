@@ -51,9 +51,9 @@ void Chat::render() {
                     chat_lines[i2]->y_to_be -= chat_lines[i]->text_sprite.getHeight();
         }
         
-        if(chat_lines[i]->time_created + 10500 > gfx::getTicks() || chat_box.active) {
-            int alpha = chat_lines[i]->time_created + 10500 - gfx::getTicks();
-            if(alpha < 0 || alpha >= 500)
+        if(chat_lines[i]->timer.getTimeElapsed() < 10000 || chat_box.active) {
+            int alpha = chat_lines[i]->timer.getTimeElapsed() - 10000;
+            if(alpha >= 500)
                 alpha = 500;
             chat_lines[i]->text_sprite.setColor({255, 255, 255, (unsigned char)((float)alpha / 500.f * 255)});
             chat_lines[i]->text_sprite.render();
@@ -95,7 +95,6 @@ void Chat::onEvent(ClientPacketEvent &event) {
                 if(whole_message[0] == '\n') {
                     ChatLine* new_line = new ChatLine;
                     new_line->text = curr_line;
-                    new_line->time_created = gfx::getTicks();
                         chat_lines.push_back(new_line);
                     whole_message.erase(whole_message.begin());
                     curr_line = "";

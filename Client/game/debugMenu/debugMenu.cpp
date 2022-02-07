@@ -14,10 +14,9 @@ void DebugMenu::init() {
 }
 
 void DebugMenu::update(float frame_length) {
-    static int count = gfx::getTicks() / 1000 - 1;
     fps_count++;
-    if(gfx::getTicks() / 1000 > count) {
-        count++;
+    if(timer.getTimeElapsed() > 1000) {
+        timer.reset();
         if(debug_menu_open)
             updateFpsText();
         fps_count = 0;

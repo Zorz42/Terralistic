@@ -42,7 +42,7 @@ void ClientPlayers::update(float frame_length) {
             if(walking_right) {
                 vel_x_change += WALK_SPEED;
                 if(!main_player->started_moving)
-                    main_player->started_moving = gfx::getTicks();
+                    main_player->started_moving = timer.getTimeElapsed();
             } else
                 vel_x_change -= WALK_SPEED;
         }
@@ -52,7 +52,7 @@ void ClientPlayers::update(float frame_length) {
             if(walking_left) {
                 vel_x_change -= WALK_SPEED;
                 if(!main_player->started_moving)
-                    main_player->started_moving = gfx::getTicks();
+                    main_player->started_moving = timer.getTimeElapsed();
             } else
                 vel_x_change += WALK_SPEED;
         }
@@ -62,7 +62,7 @@ void ClientPlayers::update(float frame_length) {
             if(sneaking_right) {
                 vel_x_change += SNEAK_SPEED;
                 if(!main_player->started_moving)
-                    main_player->started_moving = gfx::getTicks();
+                    main_player->started_moving = timer.getTimeElapsed();
             } else
                 vel_x_change -= SNEAK_SPEED;
         }
@@ -72,7 +72,7 @@ void ClientPlayers::update(float frame_length) {
             if(sneaking_left) {
                 vel_x_change -= SNEAK_SPEED;
                 if(!main_player->started_moving)
-                    main_player->started_moving = gfx::getTicks();
+                    main_player->started_moving = timer.getTimeElapsed();
             } else
                 vel_x_change += SNEAK_SPEED;
         }
@@ -82,7 +82,7 @@ void ClientPlayers::update(float frame_length) {
             if(running_right) {
                 vel_x_change += RUN_SPEED;
                 if(!main_player->started_moving)
-                    main_player->started_moving = gfx::getTicks();
+                    main_player->started_moving = timer.getTimeElapsed();
             } else
                 vel_x_change -= RUN_SPEED;
         }
@@ -92,7 +92,7 @@ void ClientPlayers::update(float frame_length) {
             if(running_left) {
                 vel_x_change -= RUN_SPEED;
                 if(!main_player->started_moving)
-                    main_player->started_moving = gfx::getTicks();
+                    main_player->started_moving = timer.getTimeElapsed();
             } else
                 vel_x_change += RUN_SPEED;
         }

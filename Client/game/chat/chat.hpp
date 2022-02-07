@@ -6,7 +6,7 @@ public:
     std::string text;
     gfx::Sprite text_sprite;
     int y_to_be{};
-    int time_created{};
+    gfx::Timer timer;
 };
 
 class Chat : public ClientModule, EventListener<ClientPacketEvent> {

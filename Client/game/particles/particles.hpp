@@ -11,7 +11,7 @@ public:
 
 class Particle {
     const ParticleInfo* info;
-    int spawned_time = gfx::getTicks();
+    gfx::Timer timer;
     float x, y;
 public:
     Particle(const ParticleInfo* info, float x, float y) : info(info), x(x), y(y) {}
@@ -26,7 +26,7 @@ public:
     int getX();
     int getY();
     
-    int getSpawnedTime();
+    int getTimeSpawned();
     
     float velocity_x = 0, velocity_y = 0;
 };

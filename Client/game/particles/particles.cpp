@@ -12,8 +12,8 @@ int Particle::getY() {
     return y;
 }
 
-int Particle::getSpawnedTime() {
-    return spawned_time;
+int Particle::getTimeSpawned() {
+    return timer.getTimeElapsed();
 }
 
 bool Particle::isColliding(Blocks* blocks) {
@@ -98,7 +98,7 @@ void Particles::update(float frame_length) {
     if(enabled) {
         for(int i = 0; i < particles.size(); i++) {
             particles[i].update(blocks, frame_length);
-            if(gfx::getTicks() - particles[i].getSpawnedTime() > particles[i].getInfo()->lifetime)
+            if(particles[i].getTimeSpawned() > particles[i].getInfo()->lifetime)
                 particles.erase(particles.begin() + i);
         }
     }

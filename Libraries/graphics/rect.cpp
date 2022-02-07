@@ -11,10 +11,13 @@ int approach(int object, int target, int smooth_factor) {
 void gfx::Rect::render() {
     first_time = false;
     
-    x = approach(x, target_x, smooth_factor);
-    y = approach(y, target_y, smooth_factor);
-    width = approach(width, target_width, smooth_factor);
-    height = approach(height, target_height, smooth_factor);
+    if(approach_timer.getTimeElapsed() > 10) {
+        x = approach(x, target_x, smooth_factor);
+        y = approach(y, target_y, smooth_factor);
+        width = approach(width, target_width, smooth_factor);
+        height = approach(height, target_height, smooth_factor);
+        approach_timer.reset();
+    }
     
     RectShape rect = getTranslatedRect();
 
@@ -24,9 +27,9 @@ void gfx::Rect::render() {
             updateBlurTextureSize();
         }
         
-        if(getTicks() - blur_last_updated > 33) {
+        if(blur_timer.getTimeElapsed() > 33) {
             updateBlurTexture();
-            blur_last_updated = getTicks();
+            blur_timer.reset();
         }
         
         sf::Sprite sprite;

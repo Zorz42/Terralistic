@@ -75,8 +75,8 @@ void Settings::reloadSettings() {
 #define SETTINGS_RELOAD_INTERVAL 5000
 
 void Settings::update() {
-    if(gfx::getTicks() / SETTINGS_RELOAD_INTERVAL > count) {
-        count = gfx::getTicks() / SETTINGS_RELOAD_INTERVAL;
+    if(timer.getTimeElapsed() / SETTINGS_RELOAD_INTERVAL > count) {
+        count = timer.getTimeElapsed() / SETTINGS_RELOAD_INTERVAL;
         reloadSettings();
     }
 }

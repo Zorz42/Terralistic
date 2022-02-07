@@ -38,14 +38,14 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     else if(player_to_draw.has_jumped)
         player_to_draw.texture_frame = 0;
     else if(player_to_draw.moving_type == MovingType::WALKING && player_to_draw.has_moved_x)
-        player_to_draw.texture_frame = (gfx::getTicks() - player_to_draw.started_moving) / 70 % 9 + 1;
+        player_to_draw.texture_frame = (timer.getTimeElapsed() - player_to_draw.started_moving) / 70 % 9 + 1;
     else if(player_to_draw.moving_type == MovingType::SNEAK_WALKING) {
         if(player_to_draw.has_moved_x)
-            player_to_draw.texture_frame = (gfx::getTicks() - player_to_draw.started_moving) / 150 % 6 + 10;
+            player_to_draw.texture_frame = (timer.getTimeElapsed() - player_to_draw.started_moving) / 150 % 6 + 10;
         else
             player_to_draw.texture_frame = 10;
     } else if(player_to_draw.moving_type == MovingType::RUNNING && player_to_draw.has_moved_x)
-        player_to_draw.texture_frame = (gfx::getTicks() - player_to_draw.started_moving) / 80 % 8 + 16;
+        player_to_draw.texture_frame = (timer.getTimeElapsed() - player_to_draw.started_moving) / 80 % 8 + 16;
     else
         player_to_draw.texture_frame = 1;
     
