@@ -96,8 +96,10 @@ void ClientWalls::onEvent(ClientPacketEvent& event) {
 
 void ClientWalls::onEvent(WallChangeEvent& event) {
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 5; i++) {
         scheduleWallUpdate(coords[i][0], coords[i][1]);
+        updateState(coords[i][0], coords[i][1]);
+    }
 }
 
 void ClientWalls::scheduleWallUpdate(int x, int y) {
@@ -136,14 +138,7 @@ void ClientWalls::stop() {
 }
 
 void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
-    wall_count = 0;
-    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
-            if(walls->getWallType(x_, y_) != &walls->clear)
-                wall_count++;
-    
-    wall_rects.resize(wall_count);
-    
+    has_update = false;
     int index = 0;
     for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
         for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
@@ -157,10 +152,16 @@ void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
                 wall_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH * 3, BLOCK_WIDTH * 3});
                 index++;
             }
+    wall_count = index;
 }
 
 void ClientWalls::RenderWallChunk::render(ClientWalls* walls, int x, int y) {
     wall_rects.render(wall_count, &walls->getWallsAtlasTexture(), x, y);
+}
+
+void ClientWalls::RenderWallChunk::create() {
+    wall_rects.resize(CHUNK_SIZE * CHUNK_SIZE);
+    is_created = true;
 }
 
 const gfx::Texture& ClientWalls::getWallsAtlasTexture() {
@@ -174,17 +175,18 @@ gfx::RectShape ClientWalls::getWallRectInAtlas(WallType* type) {
 void ClientWalls::render() {
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
-            if(getRenderWallChunk(x, y)->has_update) {
-                getRenderWallChunk(x, y)->has_update = false;
+            if(!getRenderWallChunk(x, y)->isCreated())
+                getRenderWallChunk(x, y)->create();
+            
+            if(getRenderWallChunk(x, y)->has_update)
                 getRenderWallChunk(x, y)->update(this, x, y);
-            }
                 
             getRenderWallChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
             
             if(getChunkBreakingWallsCount(x, y) > 0) {
                 for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
                     for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
-                        if(getBreakStage(x, y)) {
+                        if(getBreakStage(x_, y_)) {
                             int block_x = x_ * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y_ * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
                             breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x_, y_) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
                         }

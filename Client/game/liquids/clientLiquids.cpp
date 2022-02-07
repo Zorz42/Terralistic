@@ -64,24 +64,18 @@ void ClientLiquids::scheduleLiquidUpdate(int x, int y) {
 void ClientLiquids::render() {
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
-            if(getRenderLiquidChunk(x, y)->has_update) {
-                getRenderLiquidChunk(x, y)->has_update = false;
+            if(!getRenderLiquidChunk(x, y)->isCreated())
+                getRenderLiquidChunk(x, y)->create();
+            
+            if(getRenderLiquidChunk(x, y)->has_update)
                 getRenderLiquidChunk(x, y)->update(this, x, y);
-            }
             
             getRenderLiquidChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
 }
 
 void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int y) {
-    liquid_count = 0;
-    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
-            if(liquids->getLiquidType(x_, y_) != &liquids->empty)
-                liquid_count++;
-    
-    liquid_rects.resize(liquid_count);
-    
+    has_update = false;
     int index = 0;
     for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
         for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
@@ -93,10 +87,16 @@ void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int
                 liquid_rects.setRect(index, {(x_ % CHUNK_SIZE) * BLOCK_WIDTH * 2, (y_ % CHUNK_SIZE) * BLOCK_WIDTH * 2 + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
                 index++;
             }
+    liquid_count = index;
 }
 
 void ClientLiquids::RenderLiquidChunk::render(ClientLiquids* liquids, int x, int y) {
     liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y);
+}
+
+void ClientLiquids::RenderLiquidChunk::create() {
+    liquid_rects.resize(CHUNK_SIZE * CHUNK_SIZE);
+    is_created = true;
 }
 
 const gfx::Texture& ClientLiquids::getLiquidsAtlasTexture() {

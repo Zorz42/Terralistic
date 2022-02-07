@@ -64,8 +64,8 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&items);
     registerAModule(&players);
     registerAModule(&liquids);
-    //registerAModule(&lights); //
-    //registerAModule(&natural_light); //
+    registerAModule(&lights);
+    registerAModule(&natural_light);
     registerAModule(&block_selector);
     registerAModule(&inventory);
     registerAModule(&chat);

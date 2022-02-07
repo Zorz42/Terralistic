@@ -5,7 +5,10 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     class RenderLiquidChunk {
         gfx::RectArray liquid_rects;
         int liquid_count = 0;
+        bool is_created = false;
     public:
+        bool isCreated() { return is_created; }
+        void create();
         bool has_update = true;
         void update(ClientLiquids* liquids, int x, int y);
         void render(ClientLiquids* liquids, int x, int y);

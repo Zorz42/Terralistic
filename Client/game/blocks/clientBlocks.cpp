@@ -100,8 +100,10 @@ void ClientBlocks::postInit() {
 
 void ClientBlocks::onEvent(BlockChangeEvent& event) {
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 5; i++) {
         scheduleBlockUpdate(coords[i][0], coords[i][1]);
+        updateState(coords[i][0], coords[i][1]);
+    }
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
@@ -156,15 +158,13 @@ void ClientBlocks::stop() {
     delete[] block_chunks;
 }
 
+void ClientBlocks::RenderBlockChunk::create() {
+    block_rects.resize(CHUNK_SIZE * CHUNK_SIZE);
+    is_created = true;
+}
+
 void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) {
-    block_count = 0;
-    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
-            if(blocks->getBlockType(x_, y_) != &blocks->air)
-                block_count++;
-    
-    block_rects.resize(block_count);
-    
+    has_update = false;
     int index = 0;
     for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
         for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
@@ -178,6 +178,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
                 block_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 index++;
             }
+    block_count = index;
 }
 
 void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
@@ -195,10 +196,11 @@ gfx::RectShape ClientBlocks::getBlockRectInAtlas(BlockType* type) {
 void ClientBlocks::render() {
     for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++) {
-            if(getRenderBlockChunk(x, y)->has_update) {
-                getRenderBlockChunk(x, y)->has_update = false;
-                getRenderBlockChunk(x, y)->update(this, x, y);
-            }
+            if(!getRenderBlockChunk(x, y)->isCreated())
+                getRenderBlockChunk(x, y)->create();
+            
+            if(getRenderBlockChunk(x, y)->has_update)
+                getRenderBlockChunk(x, y)->update(this, x, y); 
             
             getRenderBlockChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
             

@@ -12,7 +12,10 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     class RenderWallChunk {
         gfx::RectArray wall_rects;
         int wall_count;
+        bool is_created = false;
     public:
+        bool isCreated() { return is_created; }
+        void create();
         bool has_update = true;
         void update(ClientWalls* walls, int x, int y);
         void render(ClientWalls* walls, int x, int y);
