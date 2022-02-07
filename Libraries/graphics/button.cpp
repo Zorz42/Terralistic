@@ -15,8 +15,13 @@ bool gfx::Button::isHovered(int mouse_x, int mouse_y) const {
 
 void gfx::Button::render(int mouse_x, int mouse_y) {
     RectShape rect = getTranslatedRect();
-    int hover_progress_target = isHovered(mouse_x, mouse_y) ? (key_states[(int)Key::MOUSE_LEFT] ? 200 : 255) : 0;
-    hover_progress += float(hover_progress_target - hover_progress) / 3;
+    
+    if(timer.getTimeElapsed() > 14) {
+        timer.reset();
+        int hover_progress_target = isHovered(mouse_x, mouse_y) ? (key_states[(int)Key::MOUSE_LEFT] ? 200 : 255) : 0;
+        hover_progress += float(hover_progress_target - hover_progress) / 3;
+    }
+    
     Color button_color{
         (unsigned char)((int)hover_color.r * hover_progress / 255 + (int)def_color.r * float(255 - hover_progress) / 255),
         (unsigned char)((int)hover_color.g * hover_progress / 255 + (int)def_color.g * float(255 - hover_progress) / 255),

@@ -26,7 +26,10 @@ void Chat::init() {
 
 void Chat::update(float frame_length) {
     int target_width = chat_box.active ? 300 : 100;
-    chat_box.width += (target_width - (int)chat_box.width) / 3;
+    if(timer.getTimeElapsed() > 14) {
+        timer.reset();
+        chat_box.width += (target_width - (int)chat_box.width) / 3;
+    }
     
     for(int i = 0; i < chat_lines.size(); i++)
         chat_lines[i]->text_sprite.y += (chat_lines[i]->y_to_be - chat_lines[i]->text_sprite.y) / 2;

@@ -11,7 +11,7 @@ int approach(int object, int target, int smooth_factor) {
 void gfx::Rect::render() {
     first_time = false;
     
-    if(approach_timer.getTimeElapsed() > 10) {
+    if(approach_timer.getTimeElapsed() > 14) {
         x = approach(x, target_x, smooth_factor);
         y = approach(y, target_y, smooth_factor);
         width = approach(width, target_width, smooth_factor);

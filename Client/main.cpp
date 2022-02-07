@@ -110,6 +110,9 @@ int main(int argc, char **argv) {
     settings.removeSetting(&fps_setting);
     fps_setting.setting_change_event.removeListener(&fps_change_listener);
     
+    settings.removeSetting(&blur_setting);
+    blur_setting.setting_change_event.removeListener(&blur_change_listener);
+    
     gfx::quit();
 
     return 0;

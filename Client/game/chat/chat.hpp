@@ -13,6 +13,7 @@ class Chat : public ClientModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
     ClientNetworking* networking;
     std::vector<ChatLine*> chat_lines;
+    gfx::Timer timer;
     
     void init() override;
     void update(float frame_length) override;

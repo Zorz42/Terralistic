@@ -150,6 +150,7 @@ namespace gfx {
     };
 
     class Button : public Sprite {
+        gfx::Timer timer;
     public:
         int margin = GFX_DEFAULT_BUTTON_MARGIN;
 
