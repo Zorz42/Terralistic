@@ -48,10 +48,18 @@ void ServerBlocks::onEvent(BlockChangeEvent& event) {
 void ServerBlocks::onEvent(BlockUpdateEvent& event) {
     if(getBlockType(event.x, event.y)->width != 0) {
         int x_offset = getBlockXFromMain(event.x, event.y), y_offset = getBlockYFromMain(event.x, event.y);
-        if(x_offset + 1 < getBlockType(event.x, event.y)->width)
-            setBlockType(event.x + 1, event.y, getBlockType(event.x, event.y), x_offset + 1, y_offset);
-        if(y_offset + 1 < getBlockType(event.x, event.y)->height)
-            setBlockType(event.x, event.y + 1, getBlockType(event.x, event.y), x_offset, y_offset + 1);
+        
+        if((x_offset > 0 && y_offset == 0 && getBlockType(event.x - 1, event.y) != getBlockType(event.x, event.y)) ||
+           (y_offset > 0 && getBlockType(event.x, event.y - 1) != getBlockType(event.x, event.y))) {
+            setBlockType(event.x, event.y, &air);
+        } else {
+            if(x_offset + 1 < getBlockType(event.x, event.y)->width)
+                setBlockType(event.x + 1, event.y, getBlockType(event.x, event.y), x_offset + 1, y_offset);
+            if(y_offset + 1 < getBlockType(event.x, event.y)->height)
+                setBlockType(event.x, event.y + 1, getBlockType(event.x, event.y), x_offset, y_offset + 1);
+        }
+        
+        
     }
 }
 

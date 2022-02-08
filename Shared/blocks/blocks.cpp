@@ -128,10 +128,12 @@ int Blocks::getChunkBreakingBlocksCount(int x, int y) {
 }
 
 void Blocks::breakBlock(int x, int y) {
-    BlockBreakEvent event(x, y);
+    int transformed_x = x - getBlockXFromMain(x, y), transformed_y = y - getBlockYFromMain(x, y);
+    
+    BlockBreakEvent event(transformed_x, transformed_y);
     block_break_event.call(event);
     
-    setBlockType(x, y, &air);
+    setBlockType(transformed_x, transformed_y, &air);
 }
 
 int Blocks::getWidth() const {
