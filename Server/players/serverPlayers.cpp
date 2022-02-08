@@ -4,8 +4,16 @@
 
 void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
     BlockType* places_block = player->inventory.getSelectedSlot().type->places_block;
-    if(places_block != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
-        blocks->setBlockType(x, y, places_block);
+    if(places_block != &blocks->air) {
+        bool can_place = true;
+        for(int x_ = x; x_ < x + places_block->width; x_++)
+            for(int y_ = y; y_ < y + places_block->height; y_++)
+                if(blocks->getBlockType(x_, y_) != &blocks->air)
+                    can_place = false;
+        
+        if(can_place && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
+           blocks->setBlockType(x, y, places_block);
+    }
 }
 
 void ServerPlayers::init() {
