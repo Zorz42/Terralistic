@@ -39,6 +39,7 @@ bool Lights::isLightSource(int x, int y) {
 void Lights::setLightColor(int x, int y, LightColor color) {
     if(color.r == 0 && color.g == 0 && color.b == 0)
         getLight(x, y)->light_source = false;
+    
     if(getLight(x, y)->color != color) {
         getLight(x, y)->color = color;
         LightColorChangeEvent event(x, y);

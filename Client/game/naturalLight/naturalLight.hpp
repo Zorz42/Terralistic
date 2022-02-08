@@ -7,8 +7,7 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, Event
     ClientBlocks* blocks;
     Lights* lights;
     gfx::Timer timer, server_timer;
-    int server_time_on_join;
-    int curr_x_updating = 0;
+    float server_time_on_join;
     
     void init() override;
     void postInit() override;

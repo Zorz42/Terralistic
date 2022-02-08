@@ -46,14 +46,7 @@ void NaturalLight::update(float frame_length) {
     light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 
     for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
-        if(lights_arr[x] == -1)
-            updateLight(x);
-    
-    if(curr_x_updating < blocks->getBlocksExtendedViewBeginX() || curr_x_updating > blocks->getBlocksExtendedViewEndX())
-        curr_x_updating = blocks->getBlocksExtendedViewBeginX();
-    
-    updateLight(curr_x_updating);
-    curr_x_updating++;
+        updateLight(x);
 }
 
 void NaturalLight::setNaturalLight(int x, int power) {
@@ -63,6 +56,7 @@ void NaturalLight::setNaturalLight(int x, int power) {
         lights_arr[x] = power;
         for(int y = 0; y < blocks->getHeight(); y++)
             lights->updateLightEmitter(x, y);
+        
         for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++) {
             LightColor light_color = lights->getLightSourceColor(x, y);
             light_color.r = std::max(light_color.r, power);
