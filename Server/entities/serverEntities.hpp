@@ -4,6 +4,7 @@
 
 class ServerEntities : public ServerModule, public Entities, EventListener<EntityPositionChangeEvent>, EventListener<EntityVelocityChangeEvent>, EventListener<EntityDeletionEvent> {
     ServerNetworking* networking;
+    gfx::Timer timer;
     
     void onEvent(EntityPositionChangeEvent& event) override;
     void onEvent(EntityVelocityChangeEvent& event) override;

@@ -204,9 +204,9 @@ void gfx::Scene::onEvent(sf::Event event) {
 
 void gfx::Scene::run() {
     initialize();
-
+    
     while(running && window->isOpen()) {
-        int start = getTicks();
+        Timer frame_timer;
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
         mouse_y = sf::Mouse::getPosition(*window).y / global_scale;
@@ -227,10 +227,12 @@ void gfx::Scene::run() {
             global_update_functions[i]->update();
         
         window_texture.display();
-        window->draw(sf::Sprite(window_texture.getTexture()));
+        sf::Sprite window_sprite(window_texture.getTexture());
+        window_sprite.setPosition(0, 0);
+        window->draw(window_sprite);
         window->display();
         
-        frame_length = getTicks() - start;
+        frame_length = frame_timer.getTimeElapsed();
     }
     
     for(int i = 0; i < modules.size(); i++)

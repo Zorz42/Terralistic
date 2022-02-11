@@ -38,22 +38,15 @@ void NaturalLight::onEvent(BlockChangeEvent &event) {
 void NaturalLight::onEvent(WelcomePacketEvent &event) {
     if(event.packet_type == WelcomePacketType::TIME) {
         event.packet >> server_time_on_join;
-        started = gfx::getTicks();
+        server_timer.reset();
     }
 }
 
 void NaturalLight::update(float frame_length) {
     light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 
-    for(int x = blocks->getBlocksViewBeginX(); x <= blocks->getBlocksViewEndX(); x++)
-        if(lights_arr[x] == -1)
-            updateLight(x);
-    
-    if(curr_x_updating < blocks->getBlocksViewBeginX() || curr_x_updating > blocks->getBlocksViewEndX())
-        curr_x_updating = blocks->getBlocksViewBeginX();
-    
-    updateLight(curr_x_updating);
-    curr_x_updating++;
+    for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
+        updateLight(x);
 }
 
 void NaturalLight::setNaturalLight(int x, int power) {
@@ -63,6 +56,7 @@ void NaturalLight::setNaturalLight(int x, int power) {
         lights_arr[x] = power;
         for(int y = 0; y < blocks->getHeight(); y++)
             lights->updateLightEmitter(x, y);
+        
         for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++) {
             LightColor light_color = lights->getLightSourceColor(x, y);
             light_color.r = std::max(light_color.r, power);
@@ -82,7 +76,7 @@ void NaturalLight::removeNaturalLight(int x) {
 }
 
 int NaturalLight::getTime() const {
-    return server_time_on_join + gfx::getTicks() - started;
+    return server_time_on_join + server_timer.getTimeElapsed();
 }
 
 void NaturalLight::updateLight(int x) {

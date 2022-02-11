@@ -44,6 +44,15 @@ namespace gfx {
         int x, y;
     };
 
+    void sleep(int ms);
+
+    class Timer {
+        sf::Clock clock;
+    public:
+        float getTimeElapsed() const;
+        void reset();
+    };
+
     class Rect : public _CenteredObject {
         sf::RenderTexture* blur_texture = nullptr;
         using _CenteredObject::x;
@@ -51,10 +60,12 @@ namespace gfx {
         int width, height;
         
         int target_x = 0, target_y = 0, target_width = 0, target_height = 0;
+        Timer approach_timer, blur_timer;
         
         bool first_time = true;
 
         void updateBlurTextureSize();
+        void updateBlurTexture();
         
     public:
         int getWidth() const override;
@@ -139,6 +150,7 @@ namespace gfx {
     };
 
     class Button : public Sprite {
+        gfx::Timer timer;
     public:
         int margin = GFX_DEFAULT_BUTTON_MARGIN;
 
@@ -197,7 +209,6 @@ namespace gfx {
 
     class Scene : public SceneModule {
         void onEvent(sf::Event event);
-        float frame_length;
         std::vector<SceneModule*> modules;
         void onKeyDownCallback(Key key_);
         void onKeyUpCallback(Key key_);
@@ -234,13 +245,12 @@ namespace gfx {
 
     void setRenderTarget(Texture& tex);
     void resetRenderTarget();
-
-    int getTicks();
-    void sleep(int ms);
     
     void setGlobalScale(float scale);
     void setFpsLimit(int limit);
     void enableVsync(bool enabled);
 
     void loadIconFromFile(const std::string& path);
+
+    inline bool blur_enabled = true;
 };

@@ -11,6 +11,7 @@ public:
 class MenuBack : public BackgroundRect {
     gfx::Texture background;
     gfx::Rect back_rect;
+    gfx::Timer timer;
 public:
     void init();
     void renderBack() override;

@@ -6,8 +6,8 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, Event
     ClientNetworking* networking;
     ClientBlocks* blocks;
     Lights* lights;
-    int started = 0, server_time_on_join = 0;
-    int curr_x_updating = 0;
+    gfx::Timer timer, server_timer;
+    float server_time_on_join;
     
     void init() override;
     void postInit() override;

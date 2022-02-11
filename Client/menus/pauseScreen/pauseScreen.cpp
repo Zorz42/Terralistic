@@ -58,8 +58,9 @@ bool PauseScreen::onKeyUp(gfx::Key key) {
 }
 
 void PauseScreen::render() {
-    if(!returning_to_game)
-        back_rect.setWidth(quit_button.getWidth() + 2 * SPACING);
+    back_width = quit_button.getWidth() + 2 * SPACING;
+    back_rect.setWidth(back_width);
+    
     renderBackground();
     renderButtons();
 }
@@ -69,8 +70,9 @@ void PauseScreen::renderBackground() {
     back_rect.setHeight(gfx::getWindowHeight());
     fade_rect.setWidth(gfx::getWindowWidth());
     fade_rect.setHeight(gfx::getWindowHeight());
-    fade_rect.fill_color.a = float(back_rect.getWidth() + back_rect.getX() + 200) / (float)(back_rect.getWidth() + 200) * 70;
-    fade_rect.blur_intensity = float(back_rect.getWidth() + back_rect.getX() + 200) / (float)(back_rect.getWidth() + 200) * BLUR / 2;
+    int back_x = std::min(back_rect.getX(), 0);
+    fade_rect.fill_color.a = float(back_width + back_x + 200) / (float)(back_width + 200) * 70;
+    fade_rect.blur_intensity = float(back_width + back_x + 200) / (float)(back_width + 200) * BLUR / 2;
     if(fade_rect.blur_intensity < 0.5f)
         fade_rect.blur_intensity = 0;
     fade_rect.render();
@@ -88,7 +90,7 @@ void PauseScreen::renderButtons() {
     quit_button.render(getMouseX(), getMouseY());
     
     if(returning_to_game) {
-        if(back_rect.getX() == -back_rect.getWidth() - 200)
+        if(back_rect.getX() == -back_width - 200)
             returnFromScene();
     } else
         back_rect.setX(0);
@@ -96,7 +98,7 @@ void PauseScreen::renderButtons() {
 
 void PauseScreen::returnToGame() {
     returning_to_game = true;
-    back_rect.setX(-back_rect.getWidth() - 200);
+    back_rect.setX(-back_width - 200);
 }
 
 void PauseScreen::exitToMenu() {

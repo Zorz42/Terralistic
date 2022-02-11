@@ -9,20 +9,22 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
         int variation:8, state:8;
     };
 
-    class WallChunk {
+    class RenderWallChunk {
         gfx::RectArray wall_rects;
+        int wall_count;
         bool is_created = false;
     public:
         bool isCreated() { return is_created; }
-        void create(ClientWalls* walls, int x, int y);
+        void create();
+        bool has_update = true;
         void update(ClientWalls* walls, int x, int y);
         void render(ClientWalls* walls, int x, int y);
     };
     
     RenderWall* render_walls = nullptr;
-    WallChunk* wall_chunks = nullptr;
+    RenderWallChunk* wall_chunks = nullptr;
     RenderWall* getRenderWall(int x, int y);
-    WallChunk* getWallChunk(int x, int y);
+    RenderWallChunk* getRenderWallChunk(int x, int y);
     
     gfx::TextureAtlas walls_atlas;
     gfx::Texture breaking_texture;
@@ -43,6 +45,8 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     void updateOrientationUp(int x, int y);
     void updateOrientationLeft(int x, int y);
     void updateOrientationRight(int x, int y);
+    
+    void scheduleWallUpdate(int x, int y);
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;

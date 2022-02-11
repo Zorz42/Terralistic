@@ -7,6 +7,7 @@ class DebugMenu : public ClientModule {
     ClientPlayers* player_handler;
     int fps_count = 0;
     ClientBlocks* blocks;
+    gfx::Timer timer;
     
     void updateFpsText();
     void updateCoordsText();

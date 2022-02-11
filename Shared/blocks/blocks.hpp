@@ -4,6 +4,7 @@
 
 #define BLOCK_WIDTH 8
 #define UNBREAKABLE -1
+#define CHUNK_SIZE 16
 
 class BlockChangeEvent {
 public:
@@ -46,13 +47,15 @@ public:
     int break_time;
     int light_emission_r, light_emission_g, light_emission_b;
     int id;
+    int width = 0, height = 0;
 };
 
 class Blocks {
     class Block {
     public:
-        Block() : id(/*air*/0) {}
+        Block() : id(/*air*/0), x_from_main(0), y_from_main(0) {}
         int id:8;
+        int x_from_main:8, y_from_main:8;
     };
     
     class BreakingBlock {
@@ -62,7 +65,13 @@ class Blocks {
         int x, y;
     };
     
+    class BlockChunk {
+    public:
+        int breaking_blocks_count = 0;
+    };
+    
     Block *blocks = nullptr;
+    BlockChunk *chunks = nullptr;
     int width, height;
 
     std::vector<BreakingBlock> breaking_blocks;
@@ -70,6 +79,7 @@ class Blocks {
     std::vector<Tool*> tool_types;
     
     Block* getBlock(int x, int y);
+    BlockChunk* getChunk(int x, int y);
 public:
     Blocks();
     void create(int width, int height);
@@ -78,14 +88,17 @@ public:
     Tool hand;
     
     BlockType* getBlockType(int x, int y);
-    void setBlockType(int x, int y, BlockType* type);
+    void setBlockType(int x, int y, BlockType* type, int x_from_main=0, int y_from_main=0);
     void setBlockTypeSilently(int x, int y, BlockType* type);
+    int getBlockXFromMain(int x, int y);
+    int getBlockYFromMain(int x, int y);
     
     int getBreakProgress(int x, int y);
     int getBreakStage(int x, int y);
     void startBreakingBlock(int x, int y);
     void stopBreakingBlock(int x, int y);
     void updateBreakingBlocks(int frame_length);
+    int getChunkBreakingBlocksCount(int x, int y);
     
     void breakBlock(int x, int y);
     
