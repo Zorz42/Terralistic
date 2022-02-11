@@ -21,6 +21,13 @@ public:
     LeavesBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
 };
 
+class CanopyBehaviour : public BlockBehaviour {
+    void onUpdate(int x, int y) override;
+    BlockTypes* blocks_;
+public:
+    CanopyBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
+};
+
 class GrassBlockBehaviour : public BlockBehaviour {
     void onLeftClick(int x, int y, ServerPlayer* player) override;
     BlockTypes* blocks_;
@@ -50,12 +57,13 @@ public:
 class BlockTypes {
     WoodBehaviour wood_behaviour;
     LeavesBehaviour leaves_behaviour;
+    CanopyBehaviour canopy_behaviour;
     GrassBlockBehaviour grass_block_behaviour;
     SnowyGrassBlockBehaviour snowy_grass_block_behaviour;
     StoneBehaviour stone_behaviour;
     GrassBehaviour grass_behaviour;
     
-    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &testblock};
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch};
 public:
     BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
@@ -80,7 +88,6 @@ public:
     BlockType copper_ore{"copper_ore"};
     BlockType grass{"grass"};
     BlockType torch{"torch"};
-    BlockType testblock{"testblock"};
 };
 
 class WallTypes {
@@ -102,7 +109,7 @@ public:
 };
 
 class ItemTypes {
-    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &testblock};
+    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch};
 public:
     ItemTypes(Items* items);
     void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
@@ -118,7 +125,6 @@ public:
     ItemType dirt_wall{"dirt_wall"};
     ItemType hammer{"hammer"};
     ItemType torch{"torch"};
-    ItemType testblock{"testblock"};
 };
 
 class GameContent {
