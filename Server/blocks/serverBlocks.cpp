@@ -39,23 +39,26 @@ void ServerBlocks::onEvent(BlockChangeEvent& event) {
     
     int neighbours[5][2] = {{event.x, event.y}, {event.x - 1, event.y}, {event.x, event.y - 1}, {event.x + 1, event.y}, {event.x, event.y + 1}};
     for(int i = 0; i < 5; i++)
-        if(neighbours[i][0] >= 0 && neighbours[i][0] < getWidth() && neighbours[i][1] >= 0 && neighbours[i][1] < getHeight()) {
-            BlockUpdateEvent update_event(neighbours[i][0], neighbours[i][1]);
-            block_update_event.call(update_event);
-        }
+        if(neighbours[i][0] >= 0 && neighbours[i][0] < getWidth() && neighbours[i][1] >= 0 && neighbours[i][1] < getHeight())
+            updateBlock(neighbours[i][0], neighbours[i][1]);
+}
+
+void ServerBlocks::updateBlock(int x, int y) {
+    BlockUpdateEvent update_event(x, y);
+    block_update_event.call(update_event);
 }
 
 void ServerBlocks::onEvent(BlockUpdateEvent& event) {
     if(getBlockType(event.x, event.y)->width != 0) {
         int x_offset = getBlockXFromMain(event.x, event.y), y_offset = getBlockYFromMain(event.x, event.y);
         
-        if((x_offset > 0 && y_offset == 0 && getBlockType(event.x - 1, event.y) != getBlockType(event.x, event.y)) ||
-           (y_offset > 0 && getBlockType(event.x, event.y - 1) != getBlockType(event.x, event.y))) {
+        if((x_offset > 0 && y_offset == 0 && event.x != 0 && getBlockType(event.x - 1, event.y) != getBlockType(event.x, event.y)) ||
+           (y_offset > 0 && event.y != 0 && getBlockType(event.x, event.y - 1) != getBlockType(event.x, event.y))) {
             setBlockType(event.x, event.y, &air);
         } else {
-            if(x_offset + 1 < getBlockType(event.x, event.y)->width)
+            if(event.x < getWidth() - 1 && x_offset + 1 < getBlockType(event.x, event.y)->width)
                 setBlockType(event.x + 1, event.y, getBlockType(event.x, event.y), x_offset + 1, y_offset);
-            if(y_offset + 1 < getBlockType(event.x, event.y)->height)
+            if(event.y < getHeight() - 1 && y_offset + 1 < getBlockType(event.x, event.y)->height)
                 setBlockType(event.x, event.y + 1, getBlockType(event.x, event.y), x_offset, y_offset + 1);
         }
         

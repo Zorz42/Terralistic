@@ -27,5 +27,7 @@ class ServerBlocks : public ServerModule, public Blocks, EventListener<ServerCon
 public:
     ServerBlocks(ServerNetworking* networking, WorldSaver* world_saver) : networking(networking), world_saver(world_saver) {}
     
+    void updateBlock(int x, int y);
+    
     EventSender<BlockUpdateEvent> block_update_event;
 };

@@ -73,6 +73,10 @@ void Server::start() {
         modules[i]->postInit();
     
     content.blocks.addBlockBehaviour(&players);
+    
+    for(int x = 0; x < blocks.getWidth(); x++)
+        for(int y = 0; y < blocks.getHeight(); y++)
+            blocks.updateBlock(x, y);
 
     signal(SIGINT, onInterrupt);
 
