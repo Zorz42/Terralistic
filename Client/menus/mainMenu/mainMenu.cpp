@@ -6,23 +6,23 @@
 #include "modManager.hpp"
 
 void MainMenu::init() {
-    singleplayer_button.scale = 2.5;
+    singleplayer_button.scale = 3;
     singleplayer_button.loadFromText("Singleplayer");
     singleplayer_button.orientation = gfx::CENTER;
     
-    multiplayer_button.scale = 2.5;
+    multiplayer_button.scale = 3;
     multiplayer_button.loadFromText("Multiplayer");
     multiplayer_button.orientation = gfx::CENTER;
     
-    settings_button.scale = 2.5;
+    settings_button.scale = 3;
     settings_button.loadFromText("Settings");
     settings_button.orientation = gfx::CENTER;
     
-    mods_button.scale = 2.5;
+    mods_button.scale = 3;
     mods_button.loadFromText("Mods");
     mods_button.orientation = gfx::CENTER;
 
-    exit_button.scale = 2.5;
+    exit_button.scale = 3;
     exit_button.loadFromText("Exit");
     exit_button.orientation = gfx::CENTER;
     
@@ -34,17 +34,17 @@ void MainMenu::init() {
     
     debug_title.loadFromText("DEBUG MODE", GREY);
     debug_title.orientation = gfx::TOP;
-    debug_title.scale = 1.5;
-    debug_title.y = SPACING / 2;
+    debug_title.scale = 2;
+    debug_title.y = SPACING / 4;
     
     title.loadFromText("Terralistic");
-    title.scale = 3.5;
+    title.scale = 4;
     title.orientation = gfx::TOP;
-    title.y = debug_title.y + debug_title.getHeight() + SPACING;
+    title.y = debug_title.y + debug_title.getHeight() + SPACING / 2;
     
     version.loadFromText(CURR_VERSION_STR, GREY);
     version.orientation = gfx::BOTTOM;
-    version.scale = 1.5;
+    version.scale = 2;
     version.y = -5;
 }
 

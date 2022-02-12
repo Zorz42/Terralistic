@@ -15,7 +15,7 @@ void World::render(int position, int mouse_x, int mouse_y) {
     gfx::RectShape(render_x, render_y, render_width, render_height).render(back_color);
     
     icon.render(1, render_x + SPACING, render_y + SPACING);
-    title.render(2.5, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
+    title.render(3, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
     
     play_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
     play_button.y = render_y + render_height - play_button.getHeight() - SPACING;
@@ -25,23 +25,23 @@ void World::render(int position, int mouse_x, int mouse_y) {
     delete_button.y = render_y + render_height - play_button.getHeight() - SPACING;
     delete_button.render(mouse_x, mouse_y);
     
-    last_played.render(1.5, render_x + render_width - last_played.getTextureWidth() * 1.5 - SPACING, render_y + render_height - last_played.getTextureHeight() * 1.5 - SPACING);
+    last_played.render(2, render_x + render_width - last_played.getTextureWidth() * 2 - SPACING, render_y + render_height - last_played.getTextureHeight() * 2 - SPACING);
 }
 
 void SingleplayerSelector::init() {
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Worlds/");
     
-    title.scale = 2.5;
+    title.scale = 3;
     title.loadFromText("Select a world to play!");
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
-    back_button.scale = 2.5;
+    back_button.scale = 3;
     back_button.loadFromText("Back");
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
-    new_button.scale = 2.5;
+    new_button.scale = 3;
     new_button.loadFromText("New");
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;

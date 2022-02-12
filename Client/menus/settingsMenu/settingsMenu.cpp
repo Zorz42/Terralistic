@@ -22,7 +22,7 @@ void SettingsMenu::init() {
     }
     
     back_button.loadFromText("Back");
-    back_button.scale = 2.5;
+    back_button.scale = 3;
     back_button.orientation = gfx::BOTTOM;
     back_button.y = -SPACING;
 }
@@ -67,7 +67,7 @@ void SettingsMenu::render() {
 
 RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setting) {
     choice_text.loadFromText(setting->indent);
-    choice_text.scale = 2.5;
+    choice_text.scale = 3;
     choice_text.orientation = gfx::TOP;
     select_rect.border_color = GREY;
     select_rect.smooth_factor = 2;
@@ -75,7 +75,7 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
     for(int i = 0; i < setting->choices.size(); i++) {
         gfx::Button* button = new gfx::Button;
         button->loadFromText(setting->choices[i]);
-        button->scale = 1.5;
+        button->scale = 2;
         button->orientation = gfx::TOP;
         button->margin = 5;
         choice_buttons.push_back(button);
@@ -127,10 +127,10 @@ void RenderChoiceSetting::onMouseButtonUp(int x, int y) {
 
 RenderBooleanSetting::RenderBooleanSetting(BooleanSetting* setting) : setting(setting) {
     text.loadFromText(setting->indent);
-    text.scale = 2.5;
+    text.scale = 3;
     text.orientation = gfx::TOP;
     
-    toggle_button.scale = 1.5;
+    toggle_button.scale = 2;
     toggle_button.orientation = gfx::TOP;
     toggle_button.margin = 5;
     

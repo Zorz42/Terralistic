@@ -1,17 +1,17 @@
 #include "serverAdder.hpp"
 
 void ServerAdder::init() {
-    back_button.scale = 2.5;
+    back_button.scale = 3;
     back_button.loadFromText("Back");
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
     add_server_title.loadFromText("New server address:");
-    add_server_title.scale = 2.5;
+    add_server_title.scale = 3;
     add_server_title.y = SPACING;
     add_server_title.orientation = gfx::TOP;
     
-    add_button.scale = 2.5;
+    add_button.scale = 3;
     add_button.loadFromText("Add server");
     add_button.y = -SPACING;
     add_button.orientation = gfx::BOTTOM;
@@ -19,7 +19,7 @@ void ServerAdder::init() {
     back_button.x = (-add_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
     add_button.x = (add_button.getWidth() + back_button.getWidth() - add_button.getWidth() + SPACING) / 2;
 
-    server_ip_input.scale = 2.5;
+    server_ip_input.scale = 3;
     server_ip_input.orientation = gfx::CENTER;
     server_ip_input.setText("");
     server_ip_input.active = true;

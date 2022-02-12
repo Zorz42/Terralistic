@@ -3,19 +3,19 @@
 #include "modManager.hpp"
 
 void PauseScreen::init() {
-    resume_button.scale = 2.5;
+    resume_button.scale = 3;
     resume_button.loadFromText("Resume");
     resume_button.y = SPACING;
 
-    settings_button.scale = 2.5;
+    settings_button.scale = 3;
     settings_button.loadFromText("Settings");
     settings_button.y = resume_button.y + resume_button.getHeight() + SPACING;
     
-    mods_button.scale = 2.5;
+    mods_button.scale = 3;
     mods_button.loadFromText("Mods");
     mods_button.y = settings_button.y + settings_button.getHeight() + SPACING;
     
-    quit_button.scale = 2.5;
+    quit_button.scale = 3;
     quit_button.loadFromText("Leave Game");
     quit_button.y = mods_button.y + mods_button.getHeight() + SPACING;
     

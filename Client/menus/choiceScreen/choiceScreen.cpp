@@ -8,14 +8,14 @@ ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, cons
 }
 
 void ChoiceScreen::init() {
-    question_sprite.scale = 2.5;
+    question_sprite.scale = 3;
     question_sprite.loadFromText(question);
     question_sprite.orientation = gfx::CENTER;
     
     int combined_width = 0;
     
     for(int i = 0; i < buttons.size(); i++) {
-        buttons[i].gfx_button.scale = 2.5;
+        buttons[i].gfx_button.scale = 3;
         buttons[i].gfx_button.loadFromText(buttons[i].option);
         buttons[i].gfx_button.orientation = gfx::BOTTOM;
         buttons[i].gfx_button.y = -20;
