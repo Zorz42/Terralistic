@@ -17,7 +17,7 @@ GuiMod::GuiMod(const std::string& name) : name(name) {
 
 void GuiMod::renderTile() {
     Rect::render();
-    text.render(2, getTranslatedX() + getWidth() / 2 - text.getTextureWidth(), getTranslatedY() + SPACING / 2);
+    text.render(1.5, getTranslatedX() + getWidth() / 2 - text.getTextureWidth(), getTranslatedY() + SPACING / 2);
 }
 
 bool GuiMod::hoversPoint(int x, int y) {
@@ -52,20 +52,20 @@ void ModManager::init() {
     placeholder.smooth_factor = 3;
     
     enabled_text.loadFromText("Enabled");
-    enabled_text.scale = 3;
+    enabled_text.scale = 2.5;
     enabled_text.orientation = gfx::TOP;
     enabled_text.x = 200;
     enabled_text.y = SPACING;
     
     disabled_text.loadFromText("Disabled");
-    disabled_text.scale = 3;
+    disabled_text.scale = 2.5;
     disabled_text.orientation = gfx::TOP;
     disabled_text.x = -200;
     disabled_text.y = SPACING;
     
     back_button.loadFromText("Back");
     back_button.orientation = gfx::BOTTOM;
-    back_button.scale = 3;
+    back_button.scale = 2.5;
     back_button.y = -SPACING;
 }
 

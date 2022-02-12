@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     
     gfx::init(getResourcePath(argv[0]), 1130, 700);
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
-    gfx::loadFont("pixel_font.ttf", 8);
+    gfx::loadFont("font.ttf", 16);
 #ifndef __APPLE__
     gfx::loadIconFromFile(gfx::getResourcePath() + "icon.png");
 #endif

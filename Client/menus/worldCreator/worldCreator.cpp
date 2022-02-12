@@ -2,17 +2,17 @@
 #include "game.hpp"
 
 void WorldCreator::init() {
-    back_button.scale = 3;
+    back_button.scale = 2.5;
     back_button.loadFromText("Back");
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
     new_world_title.loadFromText("New world name:");
-    new_world_title.scale = 3;
+    new_world_title.scale = 2.5;
     new_world_title.y = SPACING;
     new_world_title.orientation = gfx::TOP;
     
-    create_button.scale = 3;
+    create_button.scale = 2.5;
     create_button.loadFromText("Create world");
     create_button.y = -SPACING;
     create_button.orientation = gfx::BOTTOM;
@@ -20,7 +20,7 @@ void WorldCreator::init() {
     back_button.x = (-create_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
     create_button.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + SPACING) / 2;
 
-    world_name.scale = 3;
+    world_name.scale = 2.5;
     world_name.orientation = gfx::CENTER;
     world_name.setText("");
     world_name.active = true;

@@ -15,20 +15,17 @@ void gfx::Texture::createBlankImage(int width, int height) {
 void gfx::Texture::loadFromText(const std::string& text, Color text_color) {
     sf::Text sf_text;
     sf_text.setFont(font);
-    sf_text.setString("|g");
+    sf_text.setString("§");
     sf_text.setFillColor({text_color.r, text_color.g, text_color.b, text_color.a});
     sf_text.setCharacterSize(font_size);
     int width_to_cut = sf_text.getLocalBounds().width;
-    sf_text.setString(std::string("|g") + text);
+    sf_text.setString(std::string("§") + text);
     
     sf::Rect text_rect = sf_text.getLocalBounds();
     sf_text.setOrigin(text_rect.left + text_rect.width / 2, text_rect.top  + text_rect.height / 2);
     sf_text.setPosition(sf::Vector2f(sf_text.getLocalBounds().width / 2 - width_to_cut, sf_text.getLocalBounds().height / 2));
     
-    int width = sf_text.getLocalBounds().width - width_to_cut;
-    if(!width)
-        width = 1;
-    createBlankImage(width, sf_text.getLocalBounds().height);
+    createBlankImage(std::max((int)sf_text.getLocalBounds().width - width_to_cut, 1), sf_text.getLocalBounds().height);
     sfml_render_texture->draw(sf_text);
     sfml_render_texture->display();
 }
