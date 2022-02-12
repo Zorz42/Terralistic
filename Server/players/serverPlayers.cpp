@@ -275,15 +275,15 @@ void ServerPlayers::update(float frame_length) {
             for(int i2 = 0; i2 < entities->getEntities().size(); i2++)
                 if(entities->getEntities()[i2]->type == EntityType::PLAYER) {
                     ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i2];
-                    int distance_x = abs(item->getX() + BLOCK_WIDTH - player->getX() - 14);
-                    int distance_y = abs(item->getY() + BLOCK_WIDTH - player->getY() - 25);
+                    int distance_x = item->getX() + ITEM_WIDTH / 2 - player->getX() - PLAYER_WIDTH / 2;
+                    int distance_y = item->getY() + ITEM_WIDTH / 2 - player->getY() - PLAYER_HEIGHT / 2;
                     
-                    if(distance_x < 50 && distance_y < 50) {
-                        entities->addVelocityX(item, (player->getX() - item->getX()) * frame_length / 200.f);
-                        entities->addVelocityY(item, (player->getY() - item->getY()) * frame_length / 70.f);
+                    if(abs(distance_x) < 50 && abs(distance_y) < 50) {
+                        entities->addVelocityX(item, -distance_x * frame_length / 200.f);
+                        entities->addVelocityY(item, -distance_y * frame_length / 50.f);
                     }
                     
-                    if(distance_x < 10 && distance_y < 10 && player->inventory.addItem(item->getType(), 1) != -1)
+                    if(abs(distance_x) < 10 && abs(distance_y) < PLAYER_HEIGHT / 2 && player->inventory.addItem(item->getType(), 1) != -1)
                         entities->removeEntity(item);
                 }
         }
@@ -392,8 +392,8 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             ItemType* dropped_item = event.player->inventory.getSelectedSlot().type;
             if(dropped_item != &items->nothing) {
                 event.player->inventory.decreaseStack(event.player->inventory.selected_slot, 1);
-                Item* dropped_item_instance = items->spawnItem(dropped_item, event.player->getX() + (event.player->flipped ? -1 : 1) * 10, event.player->getY());
-                entities->addVelocityX(dropped_item_instance, (event.player->flipped ? -1 : 1) * 50);
+                Item* dropped_item_instance = items->spawnItem(dropped_item, event.player->getX() + PLAYER_WIDTH / 2 + (event.player->flipped ? -1 : 1) * 10 - ITEM_WIDTH / 2, event.player->getY() + 10);
+                entities->addVelocityX(dropped_item_instance, (event.player->flipped ? -1 : 1) * 40);
             }
             break;
         }

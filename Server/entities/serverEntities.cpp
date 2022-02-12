@@ -39,6 +39,10 @@ void ServerEntities::update(float frame_length) {
             sf::Packet packet;
             packet << ServerPacketType::ENTITY_POSITION << getEntities()[i]->getX() << getEntities()[i]->getY() << getEntities()[i]->id;
             networking->sendToEveryone(packet);
+            
+            packet.clear();
+            packet << ServerPacketType::ENTITY_VELOCITY << getEntities()[i]->getVelocityX() << getEntities()[i]->getVelocityY() << getEntities()[i]->id;
+            networking->sendToEveryone(packet);
         }
     }
 }
