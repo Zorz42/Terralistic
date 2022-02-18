@@ -39,6 +39,7 @@ bool Lights::isLightSource(int x, int y) {
 void Lights::setLightColor(int x, int y, LightColor color) {
     if(color.r == 0 && color.g == 0 && color.b == 0)
         getLight(x, y)->light_source = false;
+    
     if(getLight(x, y)->color != color) {
         getLight(x, y)->color = color;
         LightColorChangeEvent event(x, y);
@@ -119,6 +120,10 @@ int Lights::getLightLevel(int x, int y) {
 
 LightColor Lights::getLightColor(int x, int y) {
     return getLight(x, y)->color;
+}
+
+LightColor Lights::getLightSourceColor(int x, int y) {
+    return getLight(x, y)->source_color;
 }
 
 void Lights::scheduleLightUpdate(int x, int y) {

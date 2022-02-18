@@ -25,8 +25,11 @@ int Camera::getTargetY() {
 }
 
 void Camera::update(float frame_length) {
-    x += (target_x - x) / 8;
-    y += (target_y - y) / 8;
+    if(timer.getTimeElapsed() > 14) {
+        timer.reset();
+        x += (target_x - x) / 8;
+        y += (target_y - y) / 8;
+    }
 }
 
 int Camera::getViewBeginX() {

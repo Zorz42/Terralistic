@@ -33,6 +33,7 @@ void GameContent::addRecipes(Recipes* recipes) {
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
     wood_behaviour(this, blocks, walls, liquids),
     leaves_behaviour(this, blocks, walls, liquids),
+    canopy_behaviour(this, blocks, walls, liquids),
     grass_block_behaviour(this, blocks, walls, liquids),
     snowy_grass_block_behaviour(this, blocks, walls, liquids),
     stone_behaviour(blocks, walls, liquids),
@@ -82,12 +83,18 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         block_type->light_emission_r = block_properties.getInt("light_emission_r");
         block_type->light_emission_g = block_properties.getInt("light_emission_g");
         block_type->light_emission_b = block_properties.getInt("light_emission_b");
+        
+        if(block_properties.keyExists("width") && block_properties.keyExists("height")) {
+            block_type->width = block_properties.getInt("width");
+            block_type->height = block_properties.getInt("height");
+        }
     }
 }
 
 void BlockTypes::addBlockBehaviour(ServerPlayers* players) {
     players->getBlockBehaviour(&wood) = &wood_behaviour;
     players->getBlockBehaviour(&leaves) = &leaves_behaviour;
+    players->getBlockBehaviour(&canopy) = &canopy_behaviour;
     players->getBlockBehaviour(&grass_block) = &grass_block_behaviour;
     players->getBlockBehaviour(&snowy_grass_block) = &snowy_grass_block_behaviour;
     players->getBlockBehaviour(&stone) = &stone_behaviour;
@@ -114,9 +121,12 @@ void WoodBehaviour::onUpdate(int x, int y) {
 }
 
 void LeavesBehaviour::onUpdate(int x, int y) {
-    if(!blocks_->isBlockWood(blocks, x, y + 1) &&
-       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x + 1, y) || blocks_->isBlockLeaves(blocks, x - 1, y)) &&
-       (!blocks_->isBlockLeaves(blocks, x, y - 1) || !blocks_->isBlockLeaves(blocks, x - 1, y) || blocks_->isBlockLeaves(blocks, x + 1, y)))
+    if(!blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y))
+        blocks->breakBlock(x, y);
+}
+
+void CanopyBehaviour::onUpdate(int x, int y) {
+    if(blocks->getBlockXFromMain(x, y) == 2 && blocks->getBlockYFromMain(x, y) == 4 && !blocks_->isBlockWood(blocks, x, y + 1))
         blocks->breakBlock(x, y);
 }
 

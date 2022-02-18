@@ -4,12 +4,20 @@
 
 void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
     BlockType* places_block = player->inventory.getSelectedSlot().type->places_block;
-    if(places_block != &blocks->air && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
-        blocks->setBlockType(x, y, places_block);
+    if(places_block != &blocks->air) {
+        bool can_place = true;
+        for(int x_ = x; x_ < x + places_block->width; x_++)
+            for(int y_ = y; y_ < y + places_block->height; y_++)
+                if(blocks->getBlockType(x_, y_) != &blocks->air)
+                    can_place = false;
+        
+        if(can_place && player->inventory.decreaseStack(player->inventory.selected_slot, 1))
+           blocks->setBlockType(x, y, places_block);
+    }
 }
 
 void ServerPlayers::init() {
-    blocks->block_change_event.addListener(this);
+    blocks->block_update_event.addListener(this);
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);
     packet_event.addListener(this);
@@ -27,7 +35,7 @@ void ServerPlayers::postInit() {
 }
 
 void ServerPlayers::stop() {
-    blocks->block_change_event.removeListener(this);
+    blocks->block_update_event.removeListener(this);
     networking->new_connection_event.removeListener(this);
     networking->connection_welcome_event.removeListener(this);
     packet_event.removeListener(this);
@@ -184,29 +192,8 @@ std::vector<char> ServerPlayers::toSerial() {
     return serial;
 }
 
-void ServerPlayers::onEvent(BlockChangeEvent& event) {
-    int neighbours[5][2] = {{event.x, event.y}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
-    
-    if(event.x != 0) {
-        neighbours[1][0] = event.x - 1;
-        neighbours[1][1] = event.y;
-    }
-    if(event.x != blocks->getWidth() - 1) {
-        neighbours[2][0] = event.x + 1;
-        neighbours[2][1] = event.y;
-    }
-    if(event.y != 0) {
-        neighbours[3][0] = event.x;
-        neighbours[3][1] = event.y - 1;
-    }
-    if(event.y != blocks->getHeight() - 1) {
-        neighbours[4][0] = event.x;
-        neighbours[4][1] = event.y + 1;
-    }
-    
-    for(int i = 0; i < 5; i++)
-        if(neighbours[i][0] != -1)
-            getBlockBehaviour(blocks->getBlockType(neighbours[i][0], neighbours[i][1]))->onUpdate(neighbours[i][0], neighbours[i][1]);
+void ServerPlayers::onEvent(BlockUpdateEvent& event) {
+    getBlockBehaviour(blocks->getBlockType(event.x, event.y))->onUpdate(event.x, event.y);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
@@ -248,6 +235,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     sf::Packet healthPacket;
     healthPacket << WelcomePacketType::HEALTH << player->health;
     event.connection->sendDirectly(healthPacket);
+    event.connection->send(std::vector<char>());
     
     sf::Packet packet;
     packet << WelcomePacketType::INVENTORY;
@@ -287,15 +275,15 @@ void ServerPlayers::update(float frame_length) {
             for(int i2 = 0; i2 < entities->getEntities().size(); i2++)
                 if(entities->getEntities()[i2]->type == EntityType::PLAYER) {
                     ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i2];
-                    int distance_x = abs(item->getX() + BLOCK_WIDTH - player->getX() - 14);
-                    int distance_y = abs(item->getY() + BLOCK_WIDTH - player->getY() - 25);
+                    int distance_x = item->getX() + ITEM_WIDTH / 2 - player->getX() - PLAYER_WIDTH / 2;
+                    int distance_y = item->getY() + ITEM_WIDTH / 2 - player->getY() - PLAYER_HEIGHT / 2;
                     
-                    if(distance_x < 50 && distance_y < 50) {
-                        entities->addVelocityX(item, (player->getX() - item->getX()) * frame_length / 200.f);
-                        entities->addVelocityY(item, (player->getY() - item->getY()) * frame_length / 70.f);
+                    if(abs(distance_x) < 50 && abs(distance_y) < 50) {
+                        entities->addVelocityX(item, -distance_x * frame_length / 200.f);
+                        entities->addVelocityY(item, -distance_y * frame_length / 50.f);
                     }
                     
-                    if(distance_x < 10 && distance_y < 10 && player->inventory.addItem(item->getType(), 1) != -1)
+                    if(abs(distance_x) < 10 && abs(distance_y) < PLAYER_HEIGHT / 2 && player->inventory.addItem(item->getType(), 1) != -1)
                         entities->removeEntity(item);
                 }
         }
@@ -404,8 +392,8 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             ItemType* dropped_item = event.player->inventory.getSelectedSlot().type;
             if(dropped_item != &items->nothing) {
                 event.player->inventory.decreaseStack(event.player->inventory.selected_slot, 1);
-                Item* dropped_item_instance = items->spawnItem(dropped_item, event.player->getX() + (event.player->flipped ? -1 : 1) * 10, event.player->getY());
-                entities->addVelocityX(dropped_item_instance, (event.player->flipped ? -1 : 1) * 50);
+                Item* dropped_item_instance = items->spawnItem(dropped_item, event.player->getX() + PLAYER_WIDTH / 2 + (event.player->flipped ? -1 : 1) * 10 - ITEM_WIDTH / 2, event.player->getY() + 10);
+                entities->addVelocityX(dropped_item_instance, (event.player->flipped ? -1 : 1) * 40);
             }
             break;
         }

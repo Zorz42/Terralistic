@@ -18,18 +18,16 @@ void ServerLiquids::init() {
     blocks->block_change_event.addListener(this);
     world_saver->world_load_event.addListener(this);
     world_saver->world_save_event.addListener(this);
+    
+    liquid_update_queue = std::priority_queue<LiquidUpdate, std::vector<LiquidUpdate>, bool(*)(LiquidUpdate&, LiquidUpdate&)>(cmpLiquidUpdates);
 }
 
 void ServerLiquids::postInit() {
-    liquid_update_queue = std::priority_queue<LiquidUpdate, std::vector<LiquidUpdate>, bool(*)(LiquidUpdate&, LiquidUpdate&)>(cmpLiquidUpdates);
-    
     liquid_schedules = new bool[getWidth() * getHeight()];
-    for(int i = 0; i < getWidth() * getHeight(); i++)
-        liquid_schedules[i] = false;
     
     for(int x = 0; x < getWidth(); x++)
         for(int y = 0; y < getHeight(); y++)
-            getLiquidSchedule(x, y) = false;
+            setLiquidSchedule(x, y, false);
     
     for(int x = 1; x < getWidth() - 1; x++)
         for(int y = 1; y < getHeight() - 1; y++)
@@ -44,32 +42,36 @@ void ServerLiquids::stop() {
     world_saver->world_save_event.removeListener(this);
 }
 
-bool& ServerLiquids::getLiquidSchedule(int x, int y) {
-    return liquid_schedules[y * getWidth() + x];
+void ServerLiquids::setLiquidSchedule(int x, int y, bool value) {
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("Liquid schedule is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    liquid_schedules[y * getWidth() + x] = value;
 }
 
 bool ServerLiquids::isLiquidScheduled(int x, int y) {
-    return getLiquidSchedule(x, y);
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+        throw Exception("Liquid schedule is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    return liquid_schedules[y * getWidth() + x];
 }
 
 void ServerLiquids::update(float frame_length) {
     int count = 0;
-    while(count < 300 && !liquid_update_queue.empty() && liquid_update_queue.top().time < gfx::getTicks()) {
+    while(count < 300 && !liquid_update_queue.empty() && liquid_update_queue.top().time < timer.getTimeElapsed()) {
         LiquidUpdate curr = liquid_update_queue.top();
         liquid_update_queue.pop();
         updateLiquid(curr.x, curr.y);
-        getLiquidSchedule(curr.x, curr.y) = false;
+        setLiquidSchedule(curr.x, curr.y, false);
         count++;
     }
 }
 
 void ServerLiquids::scheduleLiquidUpdate(int x, int y) {
     if(!isLiquidScheduled(x, y) && getLiquidType(x, y) != &empty) {
-        getLiquidSchedule(x, y) = true;
+        setLiquidSchedule(x, y, true);
         LiquidUpdate liquid_update;
         liquid_update.x = x;
         liquid_update.y = y;
-        liquid_update.time = gfx::getTicks() + getLiquidType(x, y)->flow_time;
+        liquid_update.time = timer.getTimeElapsed() + getLiquidType(x, y)->flow_time;
         liquid_update_queue.push(liquid_update);
     }
 }

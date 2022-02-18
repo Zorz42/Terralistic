@@ -1,20 +1,20 @@
 #pragma once
 #include "clientBlocks.hpp"
 
-#define LIQUID_CHUNK_SIZE 16
-
 class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent>, EventListener<LiquidChangeEvent> {
-    class LiquidChunk {
+    class RenderLiquidChunk {
         gfx::RectArray liquid_rects;
+        int liquid_count = 0;
         bool is_created = false;
     public:
         bool isCreated() { return is_created; }
-        void create(ClientLiquids* liquids, int x, int y);
+        void create();
+        bool has_update = true;
         void update(ClientLiquids* liquids, int x, int y);
         void render(ClientLiquids* liquids, int x, int y);
     };
     
-    LiquidChunk* liquid_chunks = nullptr;
+    RenderLiquidChunk* liquid_chunks = nullptr;
     
     gfx::TextureAtlas liquids_atlas;
     
@@ -23,7 +23,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     ClientNetworking* networking;
     Camera* camera;
     
-    LiquidChunk* getLiquidChunk(int x, int y);
+    RenderLiquidChunk* getRenderLiquidChunk(int x, int y);
     
     void onEvent(ClientPacketEvent& event) override;
     void onEvent(WelcomePacketEvent& event) override;
@@ -34,9 +34,8 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     void loadTextures() override;
     void render() override;
     void stop() override;
-    
-    bool* liquid_updates = nullptr;
-    bool& getLiquidUpdate(int x, int y);
+
+    void scheduleLiquidUpdate(int x, int y);
 public:
     ClientLiquids(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks), camera(camera) {}
     

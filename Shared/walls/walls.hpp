@@ -48,12 +48,19 @@ class Walls {
         int x, y;
     };
     
+    class WallChunk {
+    public:
+        int breaking_wall_count = 0;
+    };
+    
     Wall* walls = nullptr;
+    WallChunk* chunks = nullptr;
     Blocks* blocks;
     
     std::vector<BreakingWall> breaking_walls;
     std::vector<WallType*> wall_types;
     Wall* getWall(int x, int y);
+    WallChunk* getChunk(int x, int y);
     
     int curr_id = 0;
 public:
@@ -75,6 +82,7 @@ public:
     void startBreakingWall(int x, int y);
     void stopBreakingWall(int x, int y);
     void updateBreakingWalls(int frame_length);
+    int getChunkBreakingWallsCount(int x, int y);
     
     void breakWall(int x, int y);
     

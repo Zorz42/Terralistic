@@ -3,6 +3,7 @@
 #include "packetType.hpp"
 #include "events.hpp"
 #include "serverModule.hpp"
+#include "graphics.hpp"
 
 class Connection {
     sf::TcpSocket* socket;
@@ -54,6 +55,7 @@ class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
     sf::TcpListener listener;
     int port;
+    gfx::Timer timer;
 
     void postInit() override;
     void update(float frame_length) override;

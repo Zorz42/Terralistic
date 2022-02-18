@@ -3,6 +3,7 @@
 #include <map>
 #include "serverModule.hpp"
 #include "events.hpp"
+#include "graphics.hpp"
 
 class WorldSaveEvent {};
 class WorldLoadEvent {};
@@ -13,6 +14,7 @@ class WorldSaver : public ServerModule {
     std::string world_path;
     std::map<std::string, std::vector<char>> sections;
     int save_inverval = 0;
+    gfx::Timer timer;
 public:
     WorldSaver(const std::string& world_path) : world_path(world_path) {}
     

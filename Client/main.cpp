@@ -49,6 +49,15 @@ public:
     FpsChangeListener(ChoiceSetting* fps_setting) : fps_setting(fps_setting) {}
 };
 
+class BlurChangeListener : public EventListener<SettingChangeEvent> {
+    BooleanSetting* blur_setting;
+    void onEvent(SettingChangeEvent& event) override {
+        gfx::blur_enabled = blur_setting->getValue();
+    }
+public:
+    BlurChangeListener(BooleanSetting* blur_setting) : blur_setting(blur_setting) {}
+};
+
 
 int main(int argc, char **argv) {
     srand((int)time(0));
@@ -60,7 +69,7 @@ int main(int argc, char **argv) {
     
     gfx::init(getResourcePath(argv[0]), 1130, 700);
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
-    gfx::loadFont("pixel_font.ttf", 8);
+    gfx::loadFont("font.ttf", 16);
 #ifndef __APPLE__
     gfx::loadIconFromFile(gfx::getResourcePath() + "icon.png");
 #endif
@@ -80,6 +89,11 @@ int main(int argc, char **argv) {
     fps_setting.setting_change_event.addListener(&fps_change_listener);
     settings.addSetting(&fps_setting);
     
+    BooleanSetting blur_setting("Blur Effect", true);
+    BlurChangeListener blur_change_listener(&blur_setting);
+    blur_setting.setting_change_event.addListener(&blur_change_listener);
+    settings.addSetting(&blur_setting);
+    
     MenuBack menu_back;
     menu_back.init();
     
@@ -95,6 +109,9 @@ int main(int argc, char **argv) {
     
     settings.removeSetting(&fps_setting);
     fps_setting.setting_change_event.removeListener(&fps_change_listener);
+    
+    settings.removeSetting(&blur_setting);
+    blur_setting.setting_change_event.removeListener(&blur_change_listener);
     
     gfx::quit();
 

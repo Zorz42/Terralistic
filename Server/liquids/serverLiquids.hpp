@@ -14,6 +14,8 @@ class ServerLiquids : public ServerModule, public Liquids, EventListener<ServerC
     Blocks* blocks;
     WorldSaver* world_saver;
     
+    gfx::Timer timer;
+    
     void onEvent(ServerConnectionWelcomeEvent& event) override;
     void onEvent(LiquidChangeEvent& event) override;
     void onEvent(BlockChangeEvent& event) override;
@@ -23,7 +25,7 @@ class ServerLiquids : public ServerModule, public Liquids, EventListener<ServerC
     std::priority_queue<LiquidUpdate, std::vector<LiquidUpdate>, bool(*)(LiquidUpdate&, LiquidUpdate&)> liquid_update_queue;
     
     bool* liquid_schedules;
-    bool& getLiquidSchedule(int x, int y);
+    void setLiquidSchedule(int x, int y, bool value);
     bool isLiquidScheduled(int x, int y);
     
     void init() override;

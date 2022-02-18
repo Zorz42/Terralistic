@@ -96,7 +96,8 @@ void ClientNetworking::postInit() {
         if(type == WelcomePacketType::WELCOME)
             break;
         
-        WelcomePacketEvent event(packet, type);
+        std::vector<char> data = getData();
+        WelcomePacketEvent event(packet, type, data);
         welcome_packet_event.call(event);
     }
 }

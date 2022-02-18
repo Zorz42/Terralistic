@@ -22,7 +22,7 @@ void NaturalLight::init() {
 void NaturalLight::postInit() {
     lights_arr = new int[blocks->getWidth()];
     for(int x = 0; x < blocks->getWidth(); x++)
-        lights_arr[x] = 0;
+        lights_arr[x] = -1;
 }
 
 void NaturalLight::stop() {
@@ -38,7 +38,7 @@ void NaturalLight::onEvent(BlockChangeEvent &event) {
 void NaturalLight::onEvent(WelcomePacketEvent &event) {
     if(event.packet_type == WelcomePacketType::TIME) {
         event.packet >> server_time_on_join;
-        started = gfx::getTicks();
+        server_timer.reset();
     }
 }
 
@@ -47,7 +47,6 @@ void NaturalLight::update(float frame_length) {
 
     for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
         updateLight(x);
-
 }
 
 void NaturalLight::setNaturalLight(int x, int power) {
@@ -57,8 +56,14 @@ void NaturalLight::setNaturalLight(int x, int power) {
         lights_arr[x] = power;
         for(int y = 0; y < blocks->getHeight(); y++)
             lights->updateLightEmitter(x, y);
-        for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++)
-            lights->setLightSource(x, y, LightColor(power, power, power));
+        
+        for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++) {
+            LightColor light_color = lights->getLightSourceColor(x, y);
+            light_color.r = std::max(light_color.r, power);
+            light_color.g = std::max(light_color.g, power);
+            light_color.b = std::max(light_color.b, power);
+            lights->setLightSource(x, y, light_color);
+        }
     }
 }
 
@@ -71,11 +76,9 @@ void NaturalLight::removeNaturalLight(int x) {
 }
 
 int NaturalLight::getTime() const {
-    return server_time_on_join + gfx::getTicks() - started;
+    return server_time_on_join + server_timer.getTimeElapsed();
 }
 
 void NaturalLight::updateLight(int x) {
-    if(x < 0 || x >= blocks->getWidth())
-        throw Exception("Natural light x out of range");
     setNaturalLight(x, light_should_be);
 }

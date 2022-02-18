@@ -3,13 +3,13 @@
 #include "lights.hpp"
 #include "settings.hpp"
 
-#define LIGHT_CHUNK_SIZE 16
-
 class ClientLights : public Lights, public ClientModule, EventListener<LightColorChangeEvent> {
     class LightChunk {
         gfx::RectArray light_rects;
         bool is_created = false;
+        int lights_count;
     public:
+        bool has_update = true;
         bool isCreated() { return is_created; }
         void create(ClientLights* lights, int x, int y);
         void update(ClientLights* lights, int x, int y);
@@ -35,8 +35,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     
     LightChunk* getLightChunk(int x, int y);
     
-    bool* light_updates = nullptr;
-    bool& getLightUpdate(int x, int y);
+    void scheduleLightUpdate(int x, int y);
 public:
     ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
 };

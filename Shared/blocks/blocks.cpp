@@ -22,6 +22,7 @@ void Blocks::create(int width_, int height_) {
     width = width_;
     height = height_;
     blocks = new Block[width * height];
+    chunks = new BlockChunk[width / CHUNK_SIZE * height / CHUNK_SIZE];
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
@@ -38,7 +39,7 @@ void Blocks::setBlockTypeSilently(int x, int y, BlockType* type) {
     getBlock(x, y)->id = type->id;
 }
 
-void Blocks::setBlockType(int x, int y, BlockType* type) {
+void Blocks::setBlockType(int x, int y, BlockType* type, int x_from_main, int y_from_main) {
     if(type->id != getBlock(x, y)->id) {
         setBlockTypeSilently(x, y, type);
         
@@ -47,6 +48,9 @@ void Blocks::setBlockType(int x, int y, BlockType* type) {
                 breaking_blocks.erase(breaking_blocks.begin() + i);
                 break;
             }
+        
+        getBlock(x, y)->x_from_main = x_from_main;
+        getBlock(x, y)->y_from_main = y_from_main;
         
         BlockChangeEvent event(x, y);
         block_change_event.call(event);
@@ -94,8 +98,16 @@ void Blocks::startBreakingBlock(int x, int y) {
     
     breaking_block->is_breaking = true;
         
+    getChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->breaking_blocks_count++;
+    
     BlockStartedBreakingEvent event(x, y);
     block_started_breaking_event.call(event);
+}
+
+Blocks::BlockChunk* Blocks::getChunk(int x, int y) {
+    if(x < 0 || x >= width / CHUNK_SIZE || y < 0 || y >= height / CHUNK_SIZE)
+        throw Exception("Block chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    return &chunks[y * width / CHUNK_SIZE + x];
 }
 
 void Blocks::stopBreakingBlock(int x, int y) {
@@ -105,16 +117,23 @@ void Blocks::stopBreakingBlock(int x, int y) {
     for(int i = 0; i < breaking_blocks.size(); i++)
         if(breaking_blocks[i].x == x && breaking_blocks[i].y == y) {
             breaking_blocks[i].is_breaking = false;
+            getChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->breaking_blocks_count--;
             BlockStoppedBreakingEvent event(x, y);
             block_stopped_breaking_event.call(event);
         }
 }
 
+int Blocks::getChunkBreakingBlocksCount(int x, int y) {
+    return getChunk(x, y)->breaking_blocks_count;
+}
+
 void Blocks::breakBlock(int x, int y) {
-    BlockBreakEvent event(x, y);
+    int transformed_x = x - getBlockXFromMain(x, y), transformed_y = y - getBlockYFromMain(x, y);
+    
+    BlockBreakEvent event(transformed_x, transformed_y);
     block_break_event.call(event);
     
-    setBlockType(x, y, &air);
+    setBlockType(transformed_x, transformed_y, &air);
 }
 
 int Blocks::getWidth() const {
@@ -128,7 +147,7 @@ int Blocks::getHeight() const {
 std::vector<char> Blocks::toSerial() {
     std::vector<char> serial;
     unsigned long iter = 0;
-    serial.resize(serial.size() + width * height + 4);
+    serial.resize(serial.size() + width * height * 3 + 4);
     *(unsigned short*)&serial[iter] = width;
     iter += 2;
     *(unsigned short*)&serial[iter] = height;
@@ -136,6 +155,8 @@ std::vector<char> Blocks::toSerial() {
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
         serial[iter++] = (char)block->id;
+        serial[iter++] = (char)block->x_from_main;
+        serial[iter++] = (char)block->y_from_main;
         block++;
     }
     return compress(serial);
@@ -154,6 +175,8 @@ void Blocks::fromSerial(const std::vector<char>& serial) {
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
         block->id = *iter++;
+        block->x_from_main = *iter++;
+        block->y_from_main = *iter++;
         block++;
     }
 }
@@ -187,6 +210,14 @@ Tool* Blocks::getToolTypeByName(const std::string& name) {
 
 int Blocks::getNumBlockTypes() {
     return (int)block_types.size();
+}
+
+int Blocks::getBlockXFromMain(int x, int y) {
+    return getBlock(x, y)->x_from_main;
+}
+
+int Blocks::getBlockYFromMain(int x, int y) {
+    return getBlock(x, y)->y_from_main;
 }
 
 Blocks::~Blocks() {

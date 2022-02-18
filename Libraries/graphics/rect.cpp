@@ -11,28 +11,26 @@ int approach(int object, int target, int smooth_factor) {
 void gfx::Rect::render() {
     first_time = false;
     
-    x = approach(x, target_x, smooth_factor);
-    y = approach(y, target_y, smooth_factor);
-    width = approach(width, target_width, smooth_factor);
-    height = approach(height, target_height, smooth_factor);
+    if(approach_timer.getTimeElapsed() > 14) {
+        x = approach(x, target_x, smooth_factor);
+        y = approach(y, target_y, smooth_factor);
+        width = approach(width, target_width, smooth_factor);
+        height = approach(height, target_height, smooth_factor);
+        approach_timer.reset();
+    }
     
     RectShape rect = getTranslatedRect();
 
-    if(blur_intensity) {
+    if(blur_intensity && blur_enabled) {
         if(!blur_texture) {
             blur_texture = new sf::RenderTexture;
             updateBlurTextureSize();
         }
         
-        blur_texture->clear({0, 0, 0});
-        sf::Sprite back_sprite;
-        back_sprite.setTexture(render_target->getTexture());
-        back_sprite.setTextureRect({getTranslatedX() - x + target_x, getTranslatedY() - y + target_y, target_width, target_height});
-        blur_texture->draw(back_sprite);
-        blur_texture->display();
-        
-        blurTexture(*blur_texture, blur_intensity);
-        blur_texture->display();
+        if(blur_timer.getTimeElapsed() > 33) {
+            updateBlurTexture();
+            blur_timer.reset();
+        }
         
         sf::Sprite sprite;
         sprite.setTexture(blur_texture->getTexture());
@@ -97,10 +95,23 @@ void gfx::Rect::render() {
 }
 
 void gfx::Rect::updateBlurTextureSize() {
-    if(blur_texture && target_width && target_height) {
+    if(blur_texture && target_width && target_height && (blur_texture->getSize().x != target_width || blur_texture->getSize().y != target_height)) {
         if(!blur_texture->create(target_width, target_height))
             throw Exception("Could not create texture.");
+        updateBlurTexture();
     }
+}
+
+void gfx::Rect::updateBlurTexture() {
+    blur_texture->clear({0, 0, 0});
+    sf::Sprite back_sprite;
+    back_sprite.setTexture(render_target->getTexture());
+    back_sprite.setTextureRect({getTranslatedX() - x + target_x, getTranslatedY() - y + target_y, target_width, target_height});
+    blur_texture->draw(back_sprite);
+    blur_texture->display();
+    
+    blurTexture(*blur_texture, blur_intensity);
+    blur_texture->display();
 }
 
 int gfx::Rect::getWidth() const {

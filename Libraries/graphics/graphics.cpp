@@ -136,10 +136,6 @@ void gfx::resetRenderTarget() {
     render_target = &window_texture;
 }
 
-int gfx::getTicks() {
-    return global_clock.getElapsedTime().asMilliseconds();
-}
-
 void applyShader(const sf::Shader& shader, sf::RenderTexture& output) {
     output.generateMipmap(); // without that it doesn't work on smaller textures on some computers
     sf::Vector2f output_size = static_cast<sf::Vector2f>(output.getSize());
@@ -165,7 +161,6 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
     blur_intensity = std::pow(BLUR_QUALITY, blur_intensity);
     blur_shader.setUniform("source", texture.getTexture());
     
-    
     while(blur_intensity >= 1.f) {
         blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / texture.getSize().x, 0));
         applyShader(blur_shader, texture);
@@ -175,6 +170,14 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
         
         blur_intensity /= BLUR_QUALITY;
     }
+}
+
+float gfx::Timer::getTimeElapsed() const {
+    return clock.getElapsedTime().asMicroseconds() / 1000;
+}
+
+void gfx::Timer::reset() {
+    clock.restart();
 }
 
 void gfx::sleep(int ms) {

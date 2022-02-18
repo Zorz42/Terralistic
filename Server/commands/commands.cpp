@@ -151,7 +151,7 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
             try {
                 if(!commands[i]->onCommand(args, player))
                     chat->sendChat(player, commands[i]->usage);
-            } catch(Exception& e) {
+            } catch(const Exception& e) {
                 chat->sendChat(player, e.message);
             }
             return;

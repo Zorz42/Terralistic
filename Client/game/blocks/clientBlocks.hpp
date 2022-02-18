@@ -4,8 +4,6 @@
 #include "content.hpp"
 #include "camera.hpp"
 
-#define BLOCK_CHUNK_SIZE 16
-
 class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPacketEvent>, EventListener<BlockChangeEvent>, EventListener<WelcomePacketEvent> {
     class RenderBlock {
     public:
@@ -13,12 +11,14 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         int variation:8, state:8;
     };
 
-    class BlockChunk {
+    class RenderBlockChunk {
         gfx::RectArray block_rects;
+        int block_count;
         bool is_created = false;
     public:
         bool isCreated() { return is_created; }
-        void create(ClientBlocks* blocks, int x, int y);
+        void create();
+        bool has_update = true;
         void update(ClientBlocks* blocks, int x, int y);
         void render(ClientBlocks* blocks, int x, int y);
     };
@@ -28,9 +28,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void onEvent(WelcomePacketEvent& event) override;
     
     RenderBlock* render_blocks = nullptr;
-    BlockChunk* block_chunks = nullptr;
+    RenderBlockChunk* block_chunks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
-    BlockChunk* getBlockChunk(int x, int y);
+    RenderBlockChunk* getRenderBlockChunk(int x, int y);
     
     gfx::TextureAtlas blocks_atlas;
     gfx::Texture breaking_texture;
@@ -48,8 +48,9 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void updateOrientationLeft(int x, int y);
     void updateOrientationRight(int x, int y);
     
-    bool* block_updates = nullptr;
-    bool& getBlockUpdate(int x, int y);
+    void scheduleBlockUpdate(int x, int y);
+    
+    int view_begin_x, view_begin_y, view_end_x, view_end_y, extended_view_begin_x, extended_view_begin_y, extended_view_end_x, extended_view_end_y;
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;

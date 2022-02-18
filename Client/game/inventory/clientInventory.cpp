@@ -241,7 +241,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
 
 void ClientInventory::onEvent(WelcomePacketEvent &event) {
     if(event.packet_type == WelcomePacketType::INVENTORY)
-        inventory->fromSerial(networking->getData());
+        inventory->fromSerial(event.data);
 }
 
 const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {
