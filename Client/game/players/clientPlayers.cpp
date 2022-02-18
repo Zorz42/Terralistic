@@ -131,6 +131,14 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             entities->setY(main_player, y);
             break;
         }
+        case ServerPacketType::ENTITY_DELETION: {
+            int id;
+            event.packet >> id;
+
+            if(id == main_player->id)
+                main_player = nullptr;
+            break;
+        }
         default:;
     }
 }
