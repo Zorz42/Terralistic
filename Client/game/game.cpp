@@ -115,15 +115,20 @@ void Game::start() {
 }
 
 void Game::parallelUpdateLoop() {
-    gfx::Timer timer;
-    while(isRunning()) {
-        float frame_length = timer.getTimeElapsed();
-        timer.reset();
-        for(int i = 0; i < getModules().size(); i++)
-            if(getModules()[i] != this)
-                ((ClientModule*)getModules()[i])->updateParallel(frame_length);
-        if(timer.getTimeElapsed() < 16)
-            gfx::sleep(16 - timer.getTimeElapsed());
+    try {
+        gfx::Timer timer;
+        while(isRunning()) {
+            float frame_length = timer.getTimeElapsed();
+            timer.reset();
+            for(int i = 0; i < getModules().size(); i++)
+                if(getModules()[i] != this)
+                    ((ClientModule*)getModules()[i])->updateParallel(frame_length);
+            if(timer.getTimeElapsed() < 16)
+                gfx::sleep(16 - timer.getTimeElapsed());
+        }
+    } catch (const std::exception& exception) {
+        interrupt_message = exception.what();
+        interrupt = true;
     }
 }
 

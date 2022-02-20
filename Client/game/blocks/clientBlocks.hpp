@@ -50,7 +50,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     
     void scheduleBlockUpdate(int x, int y);
     
-    int view_begin_x, view_begin_y, view_end_x, view_end_y, extended_view_begin_x, extended_view_begin_y, extended_view_end_x, extended_view_end_y;
+    int view_begin_x = 0, view_begin_y = 0, view_end_x = 0, view_end_y = 0, extended_view_begin_x = 0, extended_view_begin_y = 0, extended_view_end_x = 0, extended_view_end_y = 0;
     
     ResourcePack* resource_pack;
     ClientNetworking* networking;

@@ -8,7 +8,7 @@ class ClientEntities : EventListener<ClientPacketEvent>, public ClientModule, pu
     void onEvent(ClientPacketEvent& event) override;
     
     void init() override;
-    void update(float frame_length) override;
+    void updateParallel(float frame_length) override;
     void stop() override;
 public:
     ClientEntities(Blocks* blocks, ClientNetworking* networking) : Entities(blocks), networking(networking) {}

@@ -205,7 +205,7 @@ void gfx::Scene::onEvent(sf::Event event) {
 void gfx::Scene::run() {
     initialize();
     
-    while(running && window->isOpen()) {
+    while(running) {
         Timer frame_timer;
         
         mouse_x = sf::Mouse::getPosition(*window).x / global_scale;
@@ -233,6 +233,9 @@ void gfx::Scene::run() {
         window->display();
         
         frame_length = frame_timer.getTimeElapsed();
+        
+        if(!window->isOpen())
+            running = false;
     }
     
     for(int i = 0; i < modules.size(); i++)

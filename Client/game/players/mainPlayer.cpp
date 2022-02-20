@@ -17,7 +17,7 @@ void ClientPlayers::stop() {
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 50
 
-void ClientPlayers::update(float frame_length) {
+void ClientPlayers::updateParallel(float frame_length) {
     if(main_player) {
         static int prev_x, prev_y;
         float vel_x_change = 0, vel_y_change = 0;
