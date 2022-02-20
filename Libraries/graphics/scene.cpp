@@ -255,3 +255,7 @@ void gfx::Scene::returnFromScene() {
 bool gfx::Scene::isInitialized() {
     return initialized;
 }
+
+bool gfx::Scene::isRunning() {
+    return running;
+}

@@ -103,12 +103,25 @@ void Game::start() {
         for(int i = 0; i < getModules().size(); i++)
             if(getModules()[i] != this)
                 ((ClientModule*)getModules()[i])->loadTextures();
+        std::thread parallel_update_thread(&Game::parallelUpdateLoop, this);
         run();
+        parallel_update_thread.join();
         if(interrupt)
             throw Exception(interrupt_message);
     } catch (const std::exception& exception) {
         ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
         switchToScene(choice_screen);
+    }
+}
+
+void Game::parallelUpdateLoop() {
+    gfx::Timer timer;
+    while(isRunning()) {
+        float frame_length = timer.getTimeElapsed();
+        timer.reset();
+        for(int i = 0; i < getModules().size(); i++)
+            if(getModules()[i] != this)
+                ((ClientModule*)getModules()[i])->updateParallel(frame_length);
     }
 }
 

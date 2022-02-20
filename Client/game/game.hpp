@@ -50,6 +50,8 @@ class Game : gfx::Scene, public BackgroundRect {
     BackgroundRect* background_rect;
     bool handshake_done = false;
     std::string kick_reason;
+    
+    void parallelUpdateLoop();
 public:
     Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port=33770);
     
