@@ -29,6 +29,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     void postInit() override;
     void render() override;
     void update(float frame_length) override;
+    void updateParallel(float frame_length) override;
     void stop() override;
     
     BooleanSetting light_enable_setting;

@@ -39,7 +39,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void postInit() override;
     void loadTextures() override;
     void render() override;
-    void update(float frame_length) override;
+    void updateParallel(float frame_length) override;
     void stop() override;
     
     bool updateOrientationSide(int x, int y, int side_x, int side_y);

@@ -33,6 +33,17 @@ void ClientLights::update(float frame_length) {
     }
 }
 
+void ClientLights::updateParallel(float frame_length) {
+    for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksExtendedViewEndX() / CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksExtendedViewEndY() / CHUNK_SIZE; y++) {
+            if(!getLightChunk(x, y)->isCreated())
+                getLightChunk(x, y)->create(this, x, y);
+            
+            if(getLightChunk(x, y)->has_update)
+                getLightChunk(x, y)->update(this, x, y);
+        }
+}
+
 void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     has_update = false;
     
@@ -97,18 +108,10 @@ void ClientLights::onEvent(LightColorChangeEvent& event) {
 }
 
 void ClientLights::render() {
-    for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksExtendedViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksExtendedViewEndY() / CHUNK_SIZE; y++) {
-            if(!getLightChunk(x, y)->isCreated())
-                getLightChunk(x, y)->create(this, x, y);
-            
-            if(getLightChunk(x, y)->has_update)
-                getLightChunk(x, y)->update(this, x, y);
-        }
-    
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
-            getLightChunk(x, y)->render(x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+            if(getLightChunk(x, y)->isCreated())
+                getLightChunk(x, y)->render(x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
 
 }
 

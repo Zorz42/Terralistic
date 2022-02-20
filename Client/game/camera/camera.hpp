@@ -4,8 +4,7 @@
 
 class Camera : public ClientModule {
     float x = 35200, y = 9600, target_x = 35200, target_y = 9600;
-    void update(float frame_length) override;
-    gfx::Timer timer;
+    void updateParallel(float frame_length) override;
 public:
     void setX(int x);
     void setY(int y);
