@@ -173,7 +173,7 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
 }
 
 float gfx::Timer::getTimeElapsed() const {
-    return (float)clock.getElapsedTime().asMicroseconds() / 1000;
+    return (long double)clock.getElapsedTime().asMicroseconds() / 1000;
 }
 
 void gfx::Timer::reset() {
