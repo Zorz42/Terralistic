@@ -61,7 +61,7 @@ void ClientLiquids::scheduleLiquidUpdate(int x, int y) {
     getRenderLiquidChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_update = true;
 }
 
-void ClientLiquids::render() {
+void ClientLiquids::updateParallel(float frame_length) {
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
             if(!getRenderLiquidChunk(x, y)->isCreated())
@@ -69,9 +69,13 @@ void ClientLiquids::render() {
             
             if(getRenderLiquidChunk(x, y)->has_update)
                 getRenderLiquidChunk(x, y)->update(this, x, y);
-            
-            getRenderLiquidChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
         }
+}
+
+void ClientLiquids::render() {
+    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+            getRenderLiquidChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
 }
 
 void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int y) {

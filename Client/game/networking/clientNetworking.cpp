@@ -7,7 +7,7 @@ void ClientNetworking::sendPacket(sf::Packet& packet) {
     socket.send(packet);
 }
 
-void ClientNetworking::update(float frame_length) {
+void ClientNetworking::updateParallel(float frame_length) {
     sf::Packet packet;
     
     while(true) {

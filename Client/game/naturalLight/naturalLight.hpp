@@ -11,7 +11,7 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, Event
     
     void init() override;
     void postInit() override;
-    void update(float frame_length) override;
+    void updateParallel(float frame_length) override;
     void stop() override;
     
     int getTime() const;

@@ -64,8 +64,16 @@ void ClientWalls::onEvent(WelcomePacketEvent& event) {
         fromSerial(event.data);
 }
 
-void ClientWalls::update(float frame_length) {
+void ClientWalls::updateParallel(float frame_length) {
     updateBreakingWalls(frame_length);
+    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
+            if(!getRenderWallChunk(x, y)->isCreated())
+                getRenderWallChunk(x, y)->create();
+            
+            if(getRenderWallChunk(x, y)->has_update)
+                getRenderWallChunk(x, y)->update(this, x, y);
+        }
 }
 
 void ClientWalls::onEvent(ClientPacketEvent& event) {
@@ -174,23 +182,18 @@ gfx::RectShape ClientWalls::getWallRectInAtlas(WallType* type) {
 
 void ClientWalls::render() {
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
-            if(!getRenderWallChunk(x, y)->isCreated())
-                getRenderWallChunk(x, y)->create();
-            
-            if(getRenderWallChunk(x, y)->has_update)
-                getRenderWallChunk(x, y)->update(this, x, y);
+        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+            if(getRenderWallChunk(x, y)->isCreated()) {
+                getRenderWallChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
                 
-            getRenderWallChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
-            
-            if(getChunkBreakingWallsCount(x, y) > 0) {
-                for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-                    for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
-                        if(getBreakStage(x_, y_)) {
-                            int block_x = x_ * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y_ * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
-                            breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x_, y_) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
-                        }
+                if(getChunkBreakingWallsCount(x, y) > 0) {
+                    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
+                        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+                            if(getBreakStage(x_, y_)) {
+                                int block_x = x_ * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y_ * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
+                                breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x_, y_) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
+                            }
+                }
             }
-        }
 }
 

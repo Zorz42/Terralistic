@@ -208,7 +208,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
             } else {
                 sf::Packet join_packet;
                 join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (int)curr_player->moving_type;
-                event.connection->sendDirectly(join_packet);
+                event.connection->send(join_packet);
             }
         }
     

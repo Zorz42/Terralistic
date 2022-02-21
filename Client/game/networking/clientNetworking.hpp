@@ -29,7 +29,7 @@ class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {
     void init() override;
     void postInit() override;
     void stop() override;
-    void update(float frame_length) override;
+    void updateParallel(float frame_length) override;
 public:
     ClientNetworking(const std::string& ip_address, int port, const std::string& username) : ip_address(ip_address), port(port), username(username) {}
     

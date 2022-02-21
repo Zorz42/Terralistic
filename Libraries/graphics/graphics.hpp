@@ -216,6 +216,7 @@ namespace gfx {
     public:
         void initialize();
         bool isInitialized();
+        bool isRunning();
         void run();
         void registerAModule(SceneModule* module);
         void switchToScene(Scene& scene);

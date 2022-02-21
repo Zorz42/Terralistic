@@ -42,7 +42,7 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
     }
 }
 
-void ClientEntities::update(float frame_length) {
+void ClientEntities::updateParallel(float frame_length) {
     updateAllEntities(frame_length);
 }
 

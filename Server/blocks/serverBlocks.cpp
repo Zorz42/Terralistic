@@ -29,7 +29,7 @@ void ServerBlocks::stop() {
     block_stopped_breaking_event.removeListener(this);
     world_saver->world_load_event.removeListener(this);
     world_saver->world_save_event.removeListener(this);
-    block_update_event.addListener(this);
+    block_update_event.removeListener(this);
 }
 
 void ServerBlocks::onEvent(BlockChangeEvent& event) {

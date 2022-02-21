@@ -49,7 +49,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     block_selector(&networking, &blocks, &players, &camera),
     inventory(&networking, &resource_pack, &items, &recipes),
     chat(&networking),
-    debug_menu(&players, &blocks),
+    debug_menu(&networking, &blocks, &players),
     content(&blocks, &walls, &liquids, &items),
     player_health(&networking, &resource_pack)
 {
@@ -103,12 +103,32 @@ void Game::start() {
         for(int i = 0; i < getModules().size(); i++)
             if(getModules()[i] != this)
                 ((ClientModule*)getModules()[i])->loadTextures();
+        std::thread parallel_update_thread(&Game::parallelUpdateLoop, this);
         run();
+        parallel_update_thread.join();
         if(interrupt)
             throw Exception(interrupt_message);
     } catch (const std::exception& exception) {
         ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
         switchToScene(choice_screen);
+    }
+}
+
+void Game::parallelUpdateLoop() {
+    try {
+        gfx::Timer timer;
+        while(isRunning()) {
+            float frame_length = timer.getTimeElapsed();
+            timer.reset();
+            for(int i = 0; i < getModules().size(); i++)
+                if(getModules()[i] != this && getModules()[i]->enabled)
+                    ((ClientModule*)getModules()[i])->updateParallel(frame_length);
+            if(timer.getTimeElapsed() < 16)
+                gfx::sleep(16 - timer.getTimeElapsed());
+        }
+    } catch (const std::exception& exception) {
+        interrupt_message = exception.what();
+        interrupt = true;
     }
 }
 

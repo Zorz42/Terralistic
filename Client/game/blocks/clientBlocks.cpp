@@ -133,7 +133,7 @@ void ClientBlocks::loadTextures() {
         delete block_textures[i - 1];
 }
 
-void ClientBlocks::update(float frame_length) {
+void ClientBlocks::updateParallel(float frame_length) {
     updateBreakingBlocks(frame_length);
     
     view_begin_x = std::max(camera->getViewBeginX() / (BLOCK_WIDTH * 2) - 2, 0);
@@ -147,6 +147,15 @@ void ClientBlocks::update(float frame_length) {
 
     extended_view_begin_y = std::max(camera->getViewBeginY() / (BLOCK_WIDTH * 2) - EXTENDED_VIEW_MARGIN, 0);
     extended_view_end_y = std::min(camera->getViewEndY() / (BLOCK_WIDTH * 2) + EXTENDED_VIEW_MARGIN, getHeight() - 1);
+    
+    for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
+        for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++) {
+            if(!getRenderBlockChunk(x, y)->isCreated())
+                getRenderBlockChunk(x, y)->create();
+            
+            if(getRenderBlockChunk(x, y)->has_update)
+                getRenderBlockChunk(x, y)->update(this, x, y);
+        }
 }
 
 void ClientBlocks::stop() {
@@ -202,24 +211,19 @@ gfx::RectShape ClientBlocks::getBlockRectInAtlas(BlockType* type) {
 
 void ClientBlocks::render() {
     for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++) {
-            if(!getRenderBlockChunk(x, y)->isCreated())
-                getRenderBlockChunk(x, y)->create();
-            
-            if(getRenderBlockChunk(x, y)->has_update)
-                getRenderBlockChunk(x, y)->update(this, x, y); 
-            
-            getRenderBlockChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
-            
-            if(getChunkBreakingBlocksCount(x, y) > 0) {
-                for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-                    for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
-                        if(getBreakStage(x_, y_)) {
-                            int block_x = x_ * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y_ * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
-                            breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x_, y_) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
-                        }
+        for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++)
+            if(getRenderBlockChunk(x, y)->isCreated()) {
+                getRenderBlockChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+                
+                if(getChunkBreakingBlocksCount(x, y) > 0) {
+                    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
+                        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+                            if(getBreakStage(x_, y_)) {
+                                int block_x = x_ * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, block_y = y_ * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2;
+                                breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x_, y_) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
+                            }
+                }
             }
-        }
 }
 
 int ClientBlocks::getBlocksViewBeginX() {
