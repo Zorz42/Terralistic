@@ -24,9 +24,12 @@ int Camera::getTargetY() {
     return target_y;
 }
 
-void Camera::updateParallel(float frame_length) {
-    x += (target_x - x) / 8;
-    y += (target_y - y) / 8;
+void Camera::update(float frame_length) {
+    if(timer.getTimeElapsed() > 14) {
+        timer.reset();
+        x += (target_x - x) / 8;
+        y += (target_y - y) / 8;
+    }
 }
 
 int Camera::getViewBeginX() {

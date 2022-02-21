@@ -32,7 +32,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     void init() override;
     void postInit() override;
     void loadTextures() override;
-    void update(float frame_length) override;
+    void updateParallel(float frame_length) override;
     void render() override;
     void stop() override;
 

@@ -147,9 +147,7 @@ void ClientBlocks::updateParallel(float frame_length) {
 
     extended_view_begin_y = std::max(camera->getViewBeginY() / (BLOCK_WIDTH * 2) - EXTENDED_VIEW_MARGIN, 0);
     extended_view_end_y = std::min(camera->getViewEndY() / (BLOCK_WIDTH * 2) + EXTENDED_VIEW_MARGIN, getHeight() - 1);
-}
-
-void ClientBlocks::update(float frame_length) {
+    
     for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++) {
             if(!getRenderBlockChunk(x, y)->isCreated())

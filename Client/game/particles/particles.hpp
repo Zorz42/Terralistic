@@ -48,6 +48,7 @@ class Particles : public ClientModule {
     void init() override;
     void stop() override;
     void update(float frame_length) override;
+    void updateParallel(float frame_length) override;
     void render() override;
     
     BooleanSetting particle_enable_setting;

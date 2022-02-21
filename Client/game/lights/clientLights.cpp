@@ -20,14 +20,6 @@ ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
 
 void ClientLights::update(float frame_length) {
     enabled = light_enable_setting.getValue();
-    for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksExtendedViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksExtendedViewEndY() / CHUNK_SIZE; y++) {
-            if(!getLightChunk(x, y)->isCreated())
-                getLightChunk(x, y)->create(this, x, y);
-            
-            if(getLightChunk(x, y)->has_update)
-                getLightChunk(x, y)->update(this, x, y);
-        }
 }
 
 void ClientLights::updateParallel(float frame_length) {
@@ -41,6 +33,15 @@ void ClientLights::updateParallel(float frame_length) {
                     finished = false;
                 }
     }
+    
+    for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksExtendedViewEndX() / CHUNK_SIZE; x++)
+        for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksExtendedViewEndY() / CHUNK_SIZE; y++) {
+            if(!getLightChunk(x, y)->isCreated())
+                getLightChunk(x, y)->create(this, x, y);
+            
+            if(getLightChunk(x, y)->has_update)
+                getLightChunk(x, y)->update(this, x, y);
+        }
 }
 
 void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {

@@ -121,7 +121,7 @@ void Game::parallelUpdateLoop() {
             float frame_length = timer.getTimeElapsed();
             timer.reset();
             for(int i = 0; i < getModules().size(); i++)
-                if(getModules()[i] != this)
+                if(getModules()[i] != this && getModules()[i]->enabled)
                     ((ClientModule*)getModules()[i])->updateParallel(frame_length);
             if(timer.getTimeElapsed() < 16)
                 gfx::sleep(16 - timer.getTimeElapsed());

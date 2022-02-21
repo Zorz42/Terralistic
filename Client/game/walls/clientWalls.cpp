@@ -66,9 +66,6 @@ void ClientWalls::onEvent(WelcomePacketEvent& event) {
 
 void ClientWalls::updateParallel(float frame_length) {
     updateBreakingWalls(frame_length);
-}
-
-void ClientWalls::update(float frame_length) {
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
             if(!getRenderWallChunk(x, y)->isCreated())

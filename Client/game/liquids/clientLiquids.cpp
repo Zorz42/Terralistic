@@ -61,7 +61,7 @@ void ClientLiquids::scheduleLiquidUpdate(int x, int y) {
     getRenderLiquidChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_update = true;
 }
 
-void ClientLiquids::update(float frame_length) {
+void ClientLiquids::updateParallel(float frame_length) {
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
             if(!getRenderLiquidChunk(x, y)->isCreated())
