@@ -52,7 +52,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - camera->getX();
     int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY();
     player_texture.render(2, player_x, player_y, {player_to_draw.texture_frame * PLAYER_WIDTH, 0, PLAYER_WIDTH, PLAYER_HEIGHT}, player_to_draw.flipped);
-    if(player_to_draw.name != "_") {
+    if(&player_to_draw != main_player) {
         int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getX() + PLAYER_WIDTH - camera->getX(),
         header_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY() - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
         gfx::RectShape(header_x - HEADER_PADDING, header_y - HEADER_PADDING, player_to_draw.name_text.getTextureWidth() + 2 * HEADER_PADDING, player_to_draw.name_text.getTextureHeight() + 2 * HEADER_PADDING).render(BLACK);
