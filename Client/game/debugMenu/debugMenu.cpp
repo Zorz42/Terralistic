@@ -1,59 +1,95 @@
 #include "debugMenu.hpp"
 
 void DebugMenu::init() {
-    fps_text.scale = 3;
-    fps_text.x = 10;
-    fps_text.y = 10;
-    fps_text.orientation = gfx::TOP_LEFT;
-    updateFpsText();
+    back_rect.orientation = gfx::BOTTOM_RIGHT;
+    back_rect.setY(-SPACING);
+    back_rect.fill_color = BLACK;
+    back_rect.border_color = BORDER_COLOR;
+    back_rect.fill_color.a = TRANSPARENCY;
+    back_rect.blur_intensity = BLUR;
+    back_rect.smooth_factor = 3;
     
-    coords_text.scale = 3;
-    coords_text.y = fps_text.y + fps_text.getHeight() + 10;
-    coords_text.x = 10;
-    coords_text.orientation = gfx::TOP_LEFT;
+    networking->packet_event.addListener(this);
+    
+    debug_lines = {&fps_line, &coords_line, &packets_line};
 }
 
 void DebugMenu::update(float frame_length) {
     fps_count++;
     if(timer.getTimeElapsed() > 1000) {
         timer.reset();
-        if(debug_menu_open)
-            updateFpsText();
+        fps_line.text = std::to_string(fps_count) + " fps";
         fps_count = 0;
+        
+        packets_line.text = std::to_string(packet_count) + " packets per second";
+        packet_count = 0;
     }
     
     if(debug_menu_open) {
         static int prev_x = 0, prev_y = 0;
-        int curr_x = player_handler->getMainPlayer()->getX() / (BLOCK_WIDTH * 2), curr_y = player_handler->getMainPlayer()->getY() / (BLOCK_WIDTH * 2);
+        int curr_x = players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2), curr_y = players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2);
         if(curr_x != prev_x || curr_y != prev_y) {
             prev_x = curr_x;
             prev_y = curr_y;
-            updateCoordsText();
+            coords_line.text = std::string("X: ") + std::to_string(int(players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2)));
         }
+    }
+    
+    for(int i = 0; i < debug_lines.size(); i++)
+        debug_lines[i]->update();
+}
+
+void DebugMenu::DebugLine::render(int x, int y) {
+    texture.render(2, x, y);
+}
+
+int DebugMenu::DebugLine::getWidth() {
+    return texture.getTextureWidth() * 2;
+}
+
+int DebugMenu::DebugLine::getHeight() {
+    return texture.getTextureHeight() * 2;
+}
+
+void DebugMenu::DebugLine::update() {
+    if(prev_text != text) {
+        prev_text = text;
+        texture.loadFromText(text);
     }
 }
 
 void DebugMenu::render() {
-    if(debug_menu_open) {
-        fps_text.render();
-        coords_text.render();
+    int back_width = 0, back_height = 0;
+    
+    for(int i = 0; i < debug_lines.size(); i++) {
+        back_width = std::max(debug_lines[i]->getWidth(), back_width);
+        back_height += debug_lines[i]->getHeight();
     }
+    
+    back_rect.setX(debug_menu_open ? -SPACING : back_rect.getWidth() + SPACING);
+    back_rect.setWidth(back_width + SPACING);
+    back_rect.setHeight(back_height + SPACING);
+    back_rect.render();
+    
+    int curr_y = gfx::getWindowHeight() + back_rect.getY() - back_rect.getHeight();
+    for(int i = 0; i < debug_lines.size(); i++) {
+        debug_lines[i]->render(gfx::getWindowWidth() + back_rect.getX() - back_rect.getWidth() + SPACING / 2, curr_y + SPACING / 2);
+        curr_y += debug_lines[i]->getHeight();
+    }
+}
+
+void DebugMenu::onEvent(ClientPacketEvent& event) {
+    packet_count++;
 }
 
 bool DebugMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::M) {
         debug_menu_open = !debug_menu_open;
-        if(debug_menu_open)
-            updateFpsText();
         return true;
     }
     return false;
 }
 
-void DebugMenu::updateFpsText() {
-    fps_text.loadFromText(std::to_string(fps_count) + " fps", BLACK);
-}
-
-void DebugMenu::updateCoordsText() {
-    coords_text.loadFromText(std::string("X: ") + std::to_string(int(player_handler->getMainPlayer()->getX() / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - player_handler->getMainPlayer()->getY() / (BLOCK_WIDTH * 2))), BLACK);
+void DebugMenu::stop() {
+    networking->packet_event.removeListener(this);
 }

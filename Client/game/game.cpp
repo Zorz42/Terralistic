@@ -49,7 +49,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     block_selector(&networking, &blocks, &players, &camera),
     inventory(&networking, &resource_pack, &items, &recipes),
     chat(&networking),
-    debug_menu(&players, &blocks),
+    debug_menu(&networking, &blocks, &players),
     content(&blocks, &walls, &liquids, &items),
     player_health(&networking, &resource_pack)
 {

@@ -38,6 +38,7 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     void loadTextures() override;
     void render() override;
     void updateParallel(float frame_length) override;
+    void update(float frame_length) override;
     void stop() override;
     
     bool updateOrientationSide(int x, int y, int side_x, int side_y);
