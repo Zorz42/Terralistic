@@ -34,6 +34,7 @@ BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
     wood_behaviour(this, blocks, walls, liquids),
     leaves_behaviour(this, blocks, walls, liquids),
     canopy_behaviour(this, blocks, walls, liquids),
+    branch_behaviour(this, blocks, walls, liquids),
     grass_block_behaviour(this, blocks, walls, liquids),
     snowy_grass_block_behaviour(this, blocks, walls, liquids),
     stone_behaviour(blocks, walls, liquids),
@@ -95,6 +96,7 @@ void BlockTypes::addBlockBehaviour(ServerPlayers* players) {
     players->getBlockBehaviour(&wood) = &wood_behaviour;
     players->getBlockBehaviour(&leaves) = &leaves_behaviour;
     players->getBlockBehaviour(&canopy) = &canopy_behaviour;
+    players->getBlockBehaviour(&branch) = &branch_behaviour;
     players->getBlockBehaviour(&grass_block) = &grass_block_behaviour;
     players->getBlockBehaviour(&snowy_grass_block) = &snowy_grass_block_behaviour;
     players->getBlockBehaviour(&stone) = &stone_behaviour;
@@ -106,17 +108,18 @@ bool BlockTypes::isBlockTree(Blocks* blocks, int x, int y) {
 }
 
 bool BlockTypes::isBlockWood(Blocks* blocks, int x, int y) {
-    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &wood;
-}
-
-bool BlockTypes::isBlockLeaves(Blocks* blocks, int x, int y) {
-    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && blocks->getBlockType(x, y) == &leaves;
+    return x >= 0 && y >= 0 && x < blocks->getWidth() && y < blocks->getHeight() && (blocks->getBlockType(x, y) == &wood || blocks->getBlockType(x, y) == &branch);
 }
 
 void WoodBehaviour::onUpdate(int x, int y) {
     if((y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &blocks->air &&
        (!blocks_->isBlockTree(blocks, x - 1, y) || !blocks_->isBlockTree(blocks, x + 1, y)))
        || (!blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y) && !blocks_->isBlockWood(blocks, x, y + 1) && !blocks_->isBlockWood(blocks, x, y - 1)))
+        blocks->breakBlock(x, y);
+}
+
+void BranchBehaviour::onUpdate(int x, int y) {
+    if(!blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y))
         blocks->breakBlock(x, y);
 }
 

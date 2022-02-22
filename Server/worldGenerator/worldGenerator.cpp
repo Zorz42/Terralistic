@@ -83,12 +83,12 @@ void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
                 if(checking_structure.name == "tree_") {
                     if(block_left != &blocks->air)
                         blocks->setBlockTypeSilently(x - 1, blocks->getHeight() - surface_heights[x] - 1, block_left);
-                    else if(blocks->getBlockType(x - 1, blocks->getHeight() - surface_heights[x])->transparent || blocks->getBlockType(x - 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.grass_block || blocks->getBlockType(x - 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.dirt)
+                    else if(blocks->getBlockType(x - 1, blocks->getHeight() - surface_heights[x])->transparent || blocks->getBlockType(x - 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.grass_block)
                         blocks->setBlockTypeSilently(x - 1, blocks->getHeight() - surface_heights[x] - 1, &blocks->air);
                     
                     if(block_right != &blocks->air)
                         blocks->setBlockTypeSilently(x + 1, blocks->getHeight() - surface_heights[x] - 1, block_right);
-                    else if(blocks->getBlockType(x + 1, blocks->getHeight() - surface_heights[x])->transparent || blocks->getBlockType(x + 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.grass_block || blocks->getBlockType(x + 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.dirt)
+                    else if(blocks->getBlockType(x + 1, blocks->getHeight() - surface_heights[x])->transparent || blocks->getBlockType(x + 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.grass_block)
                         blocks->setBlockTypeSilently(x + 1, blocks->getHeight() - surface_heights[x] - 1, &blocks->air);
                 }
                 

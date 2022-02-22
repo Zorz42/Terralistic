@@ -28,6 +28,13 @@ public:
     CanopyBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
 };
 
+class BranchBehaviour : public BlockBehaviour {
+    void onUpdate(int x, int y) override;
+    BlockTypes* blocks_;
+public:
+    BranchBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
+};
+
 class GrassBlockBehaviour : public BlockBehaviour {
     void onLeftClick(int x, int y, ServerPlayer* player) override;
     BlockTypes* blocks_;
@@ -58,12 +65,13 @@ class BlockTypes {
     WoodBehaviour wood_behaviour;
     LeavesBehaviour leaves_behaviour;
     CanopyBehaviour canopy_behaviour;
+    BranchBehaviour branch_behaviour;
     GrassBlockBehaviour grass_block_behaviour;
     SnowyGrassBlockBehaviour snowy_grass_block_behaviour;
     StoneBehaviour stone_behaviour;
     GrassBehaviour grass_behaviour;
     
-    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch};
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch};
 public:
     BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
@@ -71,7 +79,6 @@ public:
     
     bool isBlockTree(Blocks* blocks, int x, int y);
     bool isBlockWood(Blocks* blocks, int x, int y);
-    bool isBlockLeaves(Blocks* blocks, int x, int y);
     
     BlockType dirt{"dirt"};
     BlockType stone_block{"stone_block"};
@@ -80,6 +87,7 @@ public:
     BlockType wood{"wood"};
     BlockType leaves{"leaves"};
     BlockType canopy{"canopy"};
+    BlockType branch{"branch"};
     BlockType sand{"sand"};
     BlockType snowy_grass_block{"snowy_grass_block"};
     BlockType snow_block{"snow_block"};
