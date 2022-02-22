@@ -1,7 +1,7 @@
 ghost: true
 transparent: true
 break_time: 1000
-connects_to: grass_block leaves canopy
+connects_to: grass_block leaves canopy dirt
 drop: wood_planks
 drop_chance: 100
 effective_tool: axe

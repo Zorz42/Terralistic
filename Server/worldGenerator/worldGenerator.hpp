@@ -12,13 +12,6 @@ public:
     Structure(std::string cname, int x, int y, int offset, int* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(offset), blocks(cBlocks) {}
 };
 
-class StructurePosition {
-public:
-    std::string name;
-    int x, y;
-    StructurePosition(std::string cname, int cx, int cy) : name(std::move(cname)), x(cx), y(cy) {}
-};
-
 class WorldGenerator {
     Blocks* blocks;
     Walls* walls;
@@ -26,7 +19,6 @@ class WorldGenerator {
     Liquids* liquids;
     
     std::vector<Structure> structures;
-    std::vector<StructurePosition> structurePositions;
     
     void generateBiomes(int x, siv::PerlinNoise& noise);
     void calculateHeight(siv::PerlinNoise& noise);

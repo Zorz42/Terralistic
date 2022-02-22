@@ -69,11 +69,29 @@ void WorldGenerator::terrainGenerator(int x, siv::PerlinNoise& noise) {
 
 void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
     for(int x = 0; x < blocks->getWidth(); x++) {
-        for (auto &checking_structure: loaded_biomes[(int) biomes->biomes[x]].structure_chances) {
-            if ((noise.noise2D((float) x + 0.5, (float) surface_heights[x] + 0.5) + 1) * checking_structure.chance <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance) {
-                structurePositions.emplace_back(StructurePosition(checking_structure.name +
-                                                                  std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) surface_heights[x] - 0.5) + 1) / 2 * checking_structure.unique_structures)),
-                                                                  x, surface_heights[x] - 1));
+        for(auto &checking_structure : loaded_biomes[(int) biomes->biomes[x]].structure_chances) {
+            if((noise.noise2D((float) x + 0.5, (float) surface_heights[x] + 0.5) + 1) * checking_structure.chance <= 2 && x > checking_structure.x_of_last_instance + checking_structure.least_distance) {
+                
+                BlockType *block_left = nullptr, *block_right = nullptr;
+                if(checking_structure.name == "tree_") {
+                    block_left = blocks->getBlockType(x - 1, blocks->getHeight() - surface_heights[x] - 1);
+                    block_right = blocks->getBlockType(x + 1, blocks->getHeight() - surface_heights[x] - 1);
+                }
+                
+                generateStructure(checking_structure.name + std::to_string((int) ((noise.noise2D((float) x - 0.5, (float) surface_heights[x] - 0.5) + 1) / 2 * checking_structure.unique_structures)), x, surface_heights[x] - 1);
+                
+                if(checking_structure.name == "tree_") {
+                    if(block_left != &blocks->air)
+                        blocks->setBlockTypeSilently(x - 1, blocks->getHeight() - surface_heights[x] - 1, block_left);
+                    else if(blocks->getBlockType(x - 1, blocks->getHeight() - surface_heights[x])->transparent || blocks->getBlockType(x - 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.grass_block || blocks->getBlockType(x - 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.dirt)
+                        blocks->setBlockTypeSilently(x - 1, blocks->getHeight() - surface_heights[x] - 1, &blocks->air);
+                    
+                    if(block_right != &blocks->air)
+                        blocks->setBlockTypeSilently(x + 1, blocks->getHeight() - surface_heights[x] - 1, block_right);
+                    else if(blocks->getBlockType(x + 1, blocks->getHeight() - surface_heights[x])->transparent || blocks->getBlockType(x + 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.grass_block || blocks->getBlockType(x + 2, blocks->getHeight() - surface_heights[x] - 1) == &content->blocks.dirt)
+                        blocks->setBlockTypeSilently(x + 1, blocks->getHeight() - surface_heights[x] - 1, &blocks->air);
+                }
+                
                 checking_structure.x_of_last_instance = x;
             }
         }
@@ -364,11 +382,12 @@ void WorldGenerator::generateOre(BlockType* type, float chance, int blob_distanc
 
 void WorldGenerator::generateFoliage(std::mt19937& seeded_random) {
     for(int x = 0; x < blocks->getWidth(); x++) {
-        if(seeded_random() % 6 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_heights[x] - 1) == &liquids->empty)
-            blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_heights[x] - 1, &content->blocks.stone);
-
-        else if(seeded_random() % 3 == 0 && liquids->getLiquidType(x, blocks->getHeight() - surface_heights[x] - 1) == &liquids->empty)
-            blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_heights[x] - 1, &content->blocks.grass);
+        if(liquids->getLiquidType(x, blocks->getHeight() - surface_heights[x] - 1) == &liquids->empty && blocks->getBlockType(x, blocks->getHeight() - surface_heights[x] - 1) == &blocks->air) {
+            if(seeded_random() % 6 == 0)
+                blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_heights[x] - 1, &content->blocks.stone);
+            else if(seeded_random() % 3 == 0)
+                blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_heights[x] - 1, &content->blocks.grass);
+        }
     }
 }
 
@@ -441,7 +460,7 @@ void WorldGenerator::generateFlatTerrain() {
         for (int y = 0; y < blocks->getHeight(); y++) {
             if (y <= 324) {
                 blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, &content->blocks.dirt);
-            }else if(y == 325)
+            } else if(y == 325)
                 blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, &content->blocks.grass_block);
         }
     }
@@ -481,12 +500,8 @@ void WorldGenerator::generateDefaultWorld(siv::PerlinNoise& noise, std::mt19937&
     generateCaves(noise);
     generateCaveLakes(seeded_random);
     generateOres(noise, seeded_random);
-    generateFoliage(seeded_random);
     placeStructures(noise);
-
-    for (const StructurePosition& i : structurePositions) {
-        generateStructure(i.name, i.x, i.y);
-    }
+    generateFoliage(seeded_random);
 }
 
 void WorldGenerator::loadBiomes() {
