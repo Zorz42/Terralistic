@@ -12,6 +12,8 @@ void ClientLights::postInit() {
     create();
     light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
     updateAllLightEmitters();
+    
+    light_update_thread = std::thread(&ClientLights::lightUpdateLoop, this);
 }
 
 ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
@@ -23,17 +25,6 @@ void ClientLights::update(float frame_length) {
 }
 
 void ClientLights::updateParallel(float frame_length) {
-    bool finished = !enabled;
-    while(!finished) {
-        finished = true;
-        for(int y = blocks->getBlocksExtendedViewBeginY(); y <= blocks->getBlocksExtendedViewEndY(); y++)
-            for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
-                if(hasScheduledLightUpdate(x, y)) {
-                    updateLight(x, y);
-                    finished = false;
-                }
-    }
-    
     for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksExtendedViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksExtendedViewEndY() / CHUNK_SIZE; y++) {
             if(!getLightChunk(x, y)->isCreated())
@@ -42,6 +33,22 @@ void ClientLights::updateParallel(float frame_length) {
             if(getLightChunk(x, y)->has_update)
                 getLightChunk(x, y)->update(this, x, y);
         }
+}
+
+void ClientLights::lightUpdateLoop() {
+    while(running) {
+        bool finished = !enabled;
+        while(!finished) {
+            finished = true;
+            for(int y = blocks->getBlocksExtendedViewBeginY(); y <= blocks->getBlocksExtendedViewEndY(); y++)
+                for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
+                    if(hasScheduledLightUpdate(x, y)) {
+                        updateLight(x, y);
+                        finished = false;
+                    }
+        }
+        gfx::sleep(5);
+    }
 }
 
 void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
@@ -116,6 +123,8 @@ void ClientLights::render() {
 }
 
 void ClientLights::stop() {
+    running = false;
+    light_update_thread.join();
 #if DEVELOPER_MODE
     settings->removeSetting(&light_enable_setting);
 #endif

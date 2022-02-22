@@ -1,4 +1,5 @@
 #pragma once
+#include <thread>
 #include "clientBlocks.hpp"
 #include "lights.hpp"
 #include "settings.hpp"
@@ -21,6 +22,9 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     ResourcePack* resource_pack;
     Camera* camera;
     
+    bool running = true;
+    std::thread light_update_thread;
+    
     void onEvent(LightColorChangeEvent& event) override;
     
     LightChunk* light_chunks = nullptr;
@@ -31,6 +35,8 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     void update(float frame_length) override;
     void updateParallel(float frame_length) override;
     void stop() override;
+    
+    void lightUpdateLoop();
     
     BooleanSetting light_enable_setting;
     

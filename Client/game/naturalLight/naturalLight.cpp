@@ -1,6 +1,6 @@
 #include "naturalLight.hpp"
 
-#define SECONDS_PER_DAY (60 * 10)
+#define SECONDS_PER_DAY (10 * 60)
 
 float dayFunction(float a) {
     a -= (int)a;
@@ -23,9 +23,12 @@ void NaturalLight::postInit() {
     lights_arr = new int[blocks->getWidth()];
     for(int x = 0; x < blocks->getWidth(); x++)
         lights_arr[x] = -1;
+    natural_light_thread = std::thread(&NaturalLight::naturalLightUpdateLoop, this);
 }
 
 void NaturalLight::stop() {
+    running = false;
+    natural_light_thread.join();
     blocks->block_change_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
 }
@@ -42,11 +45,14 @@ void NaturalLight::onEvent(WelcomePacketEvent &event) {
     }
 }
 
-void NaturalLight::updateParallel(float frame_length) {
-    light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
+void NaturalLight::naturalLightUpdateLoop() {
+    while(running) {
+        light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 
-    for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
-        updateLight(x);
+        for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
+            updateLight(x);
+        gfx::sleep(5);
+    }
 }
 
 void NaturalLight::setNaturalLight(int x, int power) {

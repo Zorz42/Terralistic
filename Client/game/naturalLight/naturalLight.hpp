@@ -1,4 +1,5 @@
 #pragma once
+#include <thread>
 #include "clientBlocks.hpp"
 #include "lights.hpp"
 
@@ -9,9 +10,12 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, Event
     gfx::Timer timer, server_timer;
     float server_time_on_join;
     
+    bool running = true;
+    std::thread natural_light_thread;
+    
     void init() override;
     void postInit() override;
-    void updateParallel(float frame_length) override;
+    void naturalLightUpdateLoop();
     void stop() override;
     
     int getTime() const;
