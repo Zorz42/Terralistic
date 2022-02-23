@@ -280,7 +280,7 @@ void ServerPlayers::update(float frame_length) {
                     
                     if(abs(distance_x) < 50 && abs(distance_y) < 50) {
                         entities->addVelocityX(item, -distance_x * frame_length / 200.f);
-                        entities->addVelocityY(item, -distance_y * frame_length / 50.f);
+                        entities->addVelocityY(item, -distance_y * frame_length / 30.f);
                     }
                     
                     if(abs(distance_x) < 5 && abs(distance_y) < PLAYER_HEIGHT / 2 && player->inventory.addItem(item->getType(), 1) != -1)
