@@ -283,7 +283,7 @@ void ServerPlayers::update(float frame_length) {
                         entities->addVelocityY(item, -distance_y * frame_length / 50.f);
                     }
                     
-                    if(abs(distance_x) < 10 && abs(distance_y) < PLAYER_HEIGHT / 2 && player->inventory.addItem(item->getType(), 1) != -1)
+                    if(abs(distance_x) < 5 && abs(distance_y) < PLAYER_HEIGHT / 2 && player->inventory.addItem(item->getType(), 1) != -1)
                         entities->removeEntity(item);
                 }
         }

@@ -180,10 +180,10 @@ void gfx::Timer::reset() {
     clock.restart();
 }
 
-void gfx::sleep(int ms) {
+void gfx::sleep(float ms) {
     if(ms < 0)
         throw Exception("Milliseconds of sleep must be positive.");
-    sf::sleep(sf::milliseconds(ms));
+    sf::sleep(sf::microseconds(ms * 1000));
 }
 
 void gfx::setGlobalScale(float scale) {

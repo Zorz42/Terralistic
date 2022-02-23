@@ -44,7 +44,7 @@ namespace gfx {
         int x, y;
     };
 
-    void sleep(int ms);
+    void sleep(float ms);
 
     class Timer {
         sf::Clock clock;

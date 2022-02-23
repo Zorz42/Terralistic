@@ -123,8 +123,8 @@ void Game::parallelUpdateLoop() {
             for(int i = 0; i < getModules().size(); i++)
                 if(getModules()[i] != this && getModules()[i]->enabled)
                     ((ClientModule*)getModules()[i])->updateParallel(frame_length);
-            if(timer.getTimeElapsed() < 16)
-                gfx::sleep(16 - timer.getTimeElapsed());
+            if(timer.getTimeElapsed() < 10)
+                gfx::sleep(10 - timer.getTimeElapsed());
         }
     } catch (const std::exception& exception) {
         interrupt_message = exception.what();
