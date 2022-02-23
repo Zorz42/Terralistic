@@ -117,7 +117,7 @@ public:
 };
 
 class ItemTypes {
-    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch};
+    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &stick, &branch};
 public:
     ItemTypes(Items* items);
     void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
@@ -133,6 +133,8 @@ public:
     ItemType dirt_wall{"dirt_wall"};
     ItemType hammer{"hammer"};
     ItemType torch{"torch"};
+    ItemType stick{"stick"};
+    ItemType branch{"branch"};
 };
 
 class GameContent {

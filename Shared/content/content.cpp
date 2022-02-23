@@ -14,19 +14,26 @@ void GameContent::addRecipes(Recipes* recipes) {
     
     recipe = new Recipe;
     recipe->result = ItemStack(&items.hatchet, 1);
-    recipe->ingredients[&items.fiber] = 4;
+    recipe->ingredients[&items.fiber] = 2;
     recipe->ingredients[&items.stone] = 1;
+    recipe->ingredients[&items.stick] = 1;
     recipes->registerARecipe(recipe);
     
     recipe = new Recipe;
     recipe->result = ItemStack(&items.hammer, 1);
-    recipe->ingredients[&items.fiber] = 4;
+    recipe->ingredients[&items.fiber] = 2;
     recipe->ingredients[&items.stone] = 1;
+    recipe->ingredients[&items.stick] = 1;
     recipes->registerARecipe(recipe);
     
     recipe = new Recipe;
     recipe->result = ItemStack(&items.torch, 1);
     recipe->ingredients[&items.wood_planks] = 1;
+    recipes->registerARecipe(recipe);
+    
+    recipe = new Recipe;
+    recipe->result = ItemStack(&items.stick, 1);
+    recipe->ingredients[&items.branch] = 1;
     recipes->registerARecipe(recipe);
 }
 

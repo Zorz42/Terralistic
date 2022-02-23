@@ -2,8 +2,8 @@ ghost: true
 transparent: true
 break_time: 1000
 connects_to:
-drop: nothing
-drop_chance: 100
+drop: branch
+drop_chance: 70
 light_emission_r: 0
 light_emission_g: 0
 light_emission_b: 0
