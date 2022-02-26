@@ -8,7 +8,6 @@
 #include "content.hpp"
 #include "worldSaver.hpp"
 #include "serverWalls.hpp"
-#include "serverHealth.hpp"
 
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
@@ -23,7 +22,6 @@ class Server {
     WorldGenerator generator;
     ServerItems items;
     ServerPlayers players;
-    ServerHealth health;
     ServerChat chat;
     Commands commands;
     ServerEntities entities;

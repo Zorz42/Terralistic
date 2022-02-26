@@ -59,6 +59,10 @@ void ClientInventory::stop() {
     delete[] item_text_textures;
 }
 
+void ClientInventory::update(float frame_length) {
+    enabled = players->getMainPlayer() != nullptr;
+}
+
 void ClientInventory::render() {
     bool tooltip_active = false;
     

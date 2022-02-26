@@ -27,7 +27,6 @@ public:
     
     void setConnection(Connection* connection);
     Connection* getConnection();
-    void setPlayerHealth(int new_health);
 
     int health;
     bool breaking = false;
@@ -64,7 +63,7 @@ public:
     ServerPlayer* player;
 };
 
-class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent> {
+class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent>, EventListener<EntityAbsoluteVelocityChangeEvent> {
     Entities* entities;
     ServerBlocks* blocks;
     Walls* walls;
@@ -84,6 +83,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, Even
     void onEvent(ServerDisconnectEvent& event) override;
     void onEvent(WorldSaveEvent& event) override;
     void onEvent(WorldLoadEvent& event) override;
+    void onEvent(EntityAbsoluteVelocityChangeEvent& event) override;
     
     void leftClickEvent(ServerPlayer* player, int x, int y);
     void rightClickEvent(ServerPlayer* player, int x, int y);
@@ -107,6 +107,7 @@ public:
     ServerPlayer* addPlayer(const std::string& name);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
+    void setPlayerHealth(ServerPlayer* player, int health);
     
     std::vector<char> toSerial();
     void fromSerial(const std::vector<char>& serial);

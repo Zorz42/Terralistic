@@ -161,7 +161,7 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
     blur_intensity = std::pow(BLUR_QUALITY, blur_intensity);
     blur_shader.setUniform("source", texture.getTexture());
     
-    while(blur_intensity >= 1.f) {
+    while(blur_intensity > 1.f) {
         blur_shader.setUniform("offset", sf::Vector2f(blur_intensity / texture.getSize().x, 0));
         applyShader(blur_shader, texture);
         
@@ -170,6 +170,12 @@ void gfx::blurTexture(sf::RenderTexture& texture, float blur_intensity) {
         
         blur_intensity /= BLUR_QUALITY;
     }
+    
+    blur_shader.setUniform("offset", sf::Vector2f(1.f / texture.getSize().x, 0));
+    applyShader(blur_shader, texture);
+    
+    blur_shader.setUniform("offset", sf::Vector2f(0, 1.f / texture.getSize().y));
+    applyShader(blur_shader, texture);
 }
 
 float gfx::Timer::getTimeElapsed() const {

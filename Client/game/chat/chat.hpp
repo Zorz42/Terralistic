@@ -1,5 +1,6 @@
 #pragma once
 #include "clientNetworking.hpp"
+#include "clientPlayers.hpp"
 
 class ChatLine {
 public:
@@ -12,6 +13,7 @@ public:
 class Chat : public ClientModule, EventListener<ClientPacketEvent> {
     gfx::TextInput chat_box;
     ClientNetworking* networking;
+    ClientPlayers* players;
     std::vector<ChatLine*> chat_lines;
     gfx::Timer timer;
     
@@ -23,5 +25,5 @@ class Chat : public ClientModule, EventListener<ClientPacketEvent> {
 
     void onEvent(ClientPacketEvent& event) override;
 public:
-    Chat(ClientNetworking* networking) : networking(networking) {}
+    Chat(ClientNetworking* networking, ClientPlayers* players) : networking(networking), players(players) {}
 };

@@ -15,6 +15,9 @@ void ClientHealth::stop() {
     networking->welcome_packet_event.removeListener(this);
 }
 
+void ClientHealth::update(float frame_length) {
+    enabled = players->getMainPlayer() != nullptr;
+}
 
 void ClientHealth::render() {
     int offset = gfx::getWindowWidth() - (std::min(max_health / 4, 10) + 1) * 25 + 15;

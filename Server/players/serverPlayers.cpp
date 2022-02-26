@@ -27,6 +27,7 @@ void ServerPlayers::init() {
     networking->disconnect_event.addListener(this);
     world_saver->world_load_event.addListener(this);
     world_saver->world_save_event.addListener(this);
+    entities->entity_absolute_velocity_change_event.addListener(this);
 }
 
 void ServerPlayers::postInit() {
@@ -45,6 +46,7 @@ void ServerPlayers::stop() {
     networking->disconnect_event.removeListener(this);
     world_saver->world_load_event.removeListener(this);
     world_saver->world_save_event.removeListener(this);
+    entities->entity_absolute_velocity_change_event.removeListener(this);
     
     for(int i = 0; i < all_players.size(); i++)
         delete all_players[i];
@@ -414,6 +416,10 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             }
             break;
         }
+        case ClientPacketType::PLAYER_RESPAWN: {
+            setPlayerHealth(event.player, 40);
+            addPlayer(event.player->name);
+        }
         default:;
     }
 }
@@ -425,11 +431,17 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     connection->send(packet);
 }
 
-void ServerPlayer::setPlayerHealth(int new_health) {
-    health = new_health;
+void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
+    player->health = health;
     sf::Packet packet;
-    packet << ServerPacketType::HEALTH << new_health;
-    connection->send(packet);
+    packet << ServerPacketType::HEALTH << health;
+    player->getConnection()->send(packet);
+    
+    if(health <= 0) {
+        //empty inventory
+        savePlayer(player);
+        entities->removeEntity((Entity*)player);
+    }
 }
 
 BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
@@ -446,4 +458,14 @@ void ServerPlayers::onEvent(WorldSaveEvent &event) {
 
 void ServerPlayers::onEvent(WorldLoadEvent &event) {
     fromSerial(world_saver->getSectionData("players"));
+}
+
+void ServerPlayers::onEvent(EntityAbsoluteVelocityChangeEvent &event) {
+    ServerPlayer* player = (ServerPlayer*)event.entity;
+    int delta_vel_x = std::abs(player->getVelocityX() - event.old_vel_x);
+    int delta_vel_y = std::abs(player->getVelocityY() - event.old_vel_y);
+    if(delta_vel_x + delta_vel_y > 69) {
+        int health_decrease = delta_vel_x + delta_vel_y - 69;
+        setPlayerHealth(player, player->health - health_decrease);
+    }
 }

@@ -94,11 +94,11 @@ bool GiveCommand::onCommand(std::vector<std::string>& args, ServerPlayer* execut
 
 bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() == 1 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
-        executor->setPlayerHealth(std::stoi(args[0]));
+        players->setPlayerHealth(executor, std::stoi(args[0]));
         chat->sendChat(executor, "Set your health to " + args[0] + ".");
         return true;
     } else if(args.size() == 2 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
-        players->getPlayerByName(args[1])->setPlayerHealth(std::stoi(args[0]));
+        players->setPlayerHealth(players->getPlayerByName(args[1]), std::stoi(args[0]));
         chat->sendChat(executor, "Set " + args[1] + "'s health to " + args[0] + ".");
         return true;
     }

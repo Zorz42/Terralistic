@@ -15,28 +15,32 @@ void DebugMenu::init() {
 }
 
 void DebugMenu::update(float frame_length) {
-    fps_count++;
-    if(timer.getTimeElapsed() > 1000) {
-        timer.reset();
-        fps_line.text = std::to_string(fps_count) + " fps";
-        fps_count = 0;
-        
-        packets_line.text = std::to_string(packet_count) + " packets per second";
-        packet_count = 0;
-    }
+    enabled = players->getMainPlayer() != nullptr;
     
-    if(debug_menu_open) {
-        static int prev_x = 0, prev_y = 0;
-        int curr_x = players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2), curr_y = players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2);
-        if(curr_x != prev_x || curr_y != prev_y) {
-            prev_x = curr_x;
-            prev_y = curr_y;
-            coords_line.text = std::string("X: ") + std::to_string(int(players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2)));
+    if(enabled) {
+        fps_count++;
+        if(timer.getTimeElapsed() > 1000) {
+            timer.reset();
+            fps_line.text = std::to_string(fps_count) + " fps";
+            fps_count = 0;
+            
+            packets_line.text = std::to_string(packet_count) + " packets per second";
+            packet_count = 0;
         }
+        
+        if(debug_menu_open) {
+            static int prev_x = 0, prev_y = 0;
+            int curr_x = players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2), curr_y = players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2);
+            if(curr_x != prev_x || curr_y != prev_y) {
+                prev_x = curr_x;
+                prev_y = curr_y;
+                coords_line.text = std::string("X: ") + std::to_string(int(players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2)));
+            }
+        }
+        
+        for(int i = 0; i < debug_lines.size(); i++)
+            debug_lines[i]->update();
     }
-    
-    for(int i = 0; i < debug_lines.size(); i++)
-        debug_lines[i]->update();
 }
 
 void DebugMenu::DebugLine::render(int x, int y) {

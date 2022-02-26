@@ -47,11 +47,12 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     items(&resource_pack, &blocks, &entities, &networking, &camera),
     players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, &camera, username),
     block_selector(&networking, &blocks, &players, &camera),
-    inventory(&networking, &resource_pack, &items, &recipes),
-    chat(&networking),
+    inventory(&networking, &resource_pack, &items, &recipes, &players),
+    chat(&networking, &players),
+    player_health(&networking, &resource_pack, &players),
+    respawn_screen(&networking, &players),
     debug_menu(&networking, &blocks, &players),
-    content(&blocks, &walls, &liquids, &items),
-    player_health(&networking, &resource_pack)
+    content(&blocks, &walls, &liquids, &items)
 {
     registerAModule(&networking);
     registerAModule(&resource_pack);
@@ -70,6 +71,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&inventory);
     registerAModule(&chat);
     registerAModule(&player_health);
+    registerAModule(&respawn_screen);
     registerAModule(&debug_menu);
     
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");

@@ -27,7 +27,6 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     entities(&blocks, &networking),
     items(&entities, &blocks, &walls, &networking),
     players(&blocks, &walls, &liquids, &entities, &items, &networking, &recipes, &world_saver),
-    health(&players, &entities),
     chat(&players, &networking),
     commands(&blocks, &players, &items, &entities, &chat),
     world_path(world_path),
@@ -47,7 +46,6 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
         &players,
         &chat,
         &commands,
-        &health,
     };
 }
 

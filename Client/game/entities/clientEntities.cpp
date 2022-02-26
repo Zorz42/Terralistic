@@ -31,8 +31,9 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             break;
         }
         case ServerPacketType::ENTITY_DELETION: {
+            sf::Packet event_packet = event.packet;
             int id;
-            event.packet >> id;
+            event_packet >> id;
             
             Entity* entity = getEntityById(id);
             removeEntity(entity);

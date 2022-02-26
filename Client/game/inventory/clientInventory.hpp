@@ -3,6 +3,7 @@
 #include "resourcePack.hpp"
 #include "inventory.hpp"
 #include "clientItems.hpp"
+#include "clientPlayers.hpp"
 
 #define INVENTORY_SIZE 20
 #define INVENTORY_UI_SPACING 10
@@ -23,6 +24,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     
     void init() override;
     void loadTextures() override;
+    void update(float frame_length) override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;
     void onEvent(WelcomePacketEvent &event) override;
@@ -33,8 +35,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     ClientNetworking* networking;
     ClientItems* items;
     Recipes* recipes;
+    ClientPlayers* players;
 public:
-    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes) {}
+    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players) {}
     
     const gfx::Texture& getItemTextTexture(ItemType* type);
     
