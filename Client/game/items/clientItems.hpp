@@ -7,6 +7,7 @@ class ClientItems : public Items, public ClientModule, EventListener<ClientPacke
     ResourcePack* resource_pack;
     
     int item_count = 0;
+    bool item_count_changed = true;
     
     gfx::RectArray item_rects;
     gfx::TextureAtlas items_atlas;

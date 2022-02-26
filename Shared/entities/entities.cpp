@@ -35,7 +35,6 @@ Entity* Entities::getEntityById(int id) {
         if(entities[i]->id == id)
             return entities[i];
     throw Exception("Entity not found by id");
-    return nullptr;
 }
 
 void Entity::updateEntity(Blocks *blocks, float frame_length) {

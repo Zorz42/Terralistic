@@ -52,7 +52,8 @@ public:
 
 class SetHealthCommand : public Command {
 public:
-    SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "setHealth", "Possible invocations of this command:\n"
+    SetHealthCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "setHealth",
+                                                                                                         "Possible invocations of this command:\n"
                                                                                                          "setHealth [health] -> set your health to that number\n"
                                                                                                          "setHealth [health] [player_name] -> set that player's name to that number", "set player's health") {}
     bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
@@ -65,6 +66,16 @@ public:
                                                                                                     "Possible invocations of this command:\n"
                                                                                                     "help -> list all commands\n"
                                                                                                     "help [command] -> display help for specific command\n", "display this list") {}
+    bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
+class KillCommand : public Command {
+public:
+    KillCommand(Blocks* blocks, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat) : Command(blocks, entities, items, players, chat, "kill",
+                                                                                                         "Possible invocations of this command:\n"
+                                                                                                         "kill -> kill yourself\n"
+                                                                                                         "kill [player_name] -> kill someone else",
+                                                                                                                           "kill a player") {}
     bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
@@ -83,6 +94,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     SetHealthCommand health_command;
     HelpCommand help_command;
     FillCommand fill_command;
+    KillCommand kill_command;
     std::vector<Command*> commands;
 
     void init() override;
@@ -90,5 +102,5 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     
     void startCommand(std::string message, ServerPlayer* player);
 public:
-    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players, chat), tp_command(blocks, entities, items, players, chat), give_command(blocks, entities, items, players, chat), health_command(blocks, entities, items, players, chat), help_command(blocks, entities, items, players, chat, commands), fill_command(blocks, entities, items, players, chat) {}
+    Commands(Blocks* blocks, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat) : blocks(blocks), players(players), items(items), entities(entities), chat(chat), setblock_command(blocks, entities, items, players, chat), tp_command(blocks, entities, items, players, chat), give_command(blocks, entities, items, players, chat), health_command(blocks, entities, items, players, chat), help_command(blocks, entities, items, players, chat, commands), fill_command(blocks, entities, items, players, chat), kill_command(blocks, entities, items, players, chat) {}
 };

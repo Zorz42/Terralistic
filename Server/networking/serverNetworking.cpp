@@ -168,3 +168,7 @@ void ServerNetworking::removeConnection(Connection* connection) {
     delete connection;
     connections.erase(pos);
 }
+
+const std::vector<Connection*>& ServerNetworking::getConnections() {
+    return connections;
+}

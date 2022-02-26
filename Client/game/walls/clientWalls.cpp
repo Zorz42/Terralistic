@@ -164,7 +164,8 @@ void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
 }
 
 void ClientWalls::RenderWallChunk::render(ClientWalls* walls, int x, int y) {
-    wall_rects.render(wall_count, &walls->getWallsAtlasTexture(), x, y);
+    if(wall_count > 0)
+        wall_rects.render(wall_count, &walls->getWallsAtlasTexture(), x, y);
 }
 
 void ClientWalls::RenderWallChunk::create() {

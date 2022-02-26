@@ -108,6 +108,7 @@ public:
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
     void setPlayerHealth(ServerPlayer* player, int health);
+    void resetPlayer(ServerPlayer* player);
     
     std::vector<char> toSerial();
     void fromSerial(const std::vector<char>& serial);

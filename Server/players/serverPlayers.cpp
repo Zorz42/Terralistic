@@ -1,6 +1,7 @@
+#include <cstring>
+#include <random>
 #include "serverPlayers.hpp"
 #include "content.hpp"
-#include <cstring>
 
 void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
     BlockType* places_block = player->inventory.getSelectedSlot().type->places_block;
@@ -87,23 +88,40 @@ bool ServerPlayers::playerExists(const std::string& name) {
 ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     ServerPlayerData* player_data = getPlayerData(name);
     
+    bool has_to_reset = false;
     if(!player_data) {
-        int spawn_x = blocks->getWidth() / 2;
-        int spawn_y = 0;
-        while(blocks->getBlockType(spawn_x, spawn_y)->ghost && blocks->getBlockType(spawn_x + 1, spawn_y)->ghost)
-            spawn_y++;
+        has_to_reset = true;
 
         player_data = new ServerPlayerData(items, recipes);
         player_data->name = name;
-        player_data->x = spawn_x * BLOCK_WIDTH * 2;
-        player_data->y = spawn_y * BLOCK_WIDTH * 2 - PLAYER_HEIGHT * 2;
-        player_data->health = 100;
+        player_data->x = 0;
+        player_data->y = 0;
         all_players.emplace_back(player_data);
     }
     
     ServerPlayer* player = new ServerPlayer(*player_data);
+    
+    if(has_to_reset) {
+        resetPlayer(player);
+        player->health = 100;
+    }
+    
     entities->registerEntity(player);
+    
     return player;
+}
+
+void ServerPlayers::resetPlayer(ServerPlayer *player) {
+    int spawn_x = blocks->getWidth() / 2;
+    int spawn_y = 0;
+    while(blocks->getBlockType(spawn_x, spawn_y)->ghost && blocks->getBlockType(spawn_x + 1, spawn_y)->ghost)
+        spawn_y++;
+    
+    entities->setX(player, spawn_x * BLOCK_WIDTH * 2);
+    entities->setY(player, spawn_y * BLOCK_WIDTH * 2 - PLAYER_HEIGHT * 2);
+    
+    for(int i = 0; i < INVENTORY_SIZE; i++)
+        player->inventory.setItem(i, ItemStack(&items->nothing, 0));
 }
 
 void ServerPlayers::savePlayer(ServerPlayer* player) {
@@ -226,15 +244,13 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
 }
 
 void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
-    std::string player_name;
-    event.client_welcome_packet >> player_name;
-
-    if(playerExists(player_name)) {
-        ServerPlayer *already_joined_player = getPlayerByName(player_name);
-        networking->kickConnection(already_joined_player->getConnection(), "You logged in from another location!");
-    }
+    event.client_welcome_packet >> event.connection->player_name;
     
-    ServerPlayer* player = addPlayer(player_name);
+    for(int i = 0; i < networking->getConnections().size(); i++)
+        if(networking->getConnections()[i]->player_name == event.connection->player_name && networking->getConnections()[i] != event.connection)
+            networking->kickConnection(networking->getConnections()[i], "You logged in from another location!");
+    
+    ServerPlayer* player = addPlayer(event.connection->player_name);
     player->setConnection(event.connection);
 
     sf::Packet healthPacket;
@@ -273,7 +289,23 @@ void ServerPlayers::update(float frame_length) {
                 packet_event.call(event);
             }
         }
-        
+    
+    for(int i = 0; i < networking->getConnections().size(); i++)
+        if(networking->getConnections()[i]->hasPacketInBuffer()) {
+            auto packet_pair = networking->getConnections()[i]->getPacket();
+            if(packet_pair.second == ClientPacketType::PLAYER_RESPAWN) {
+                addPlayer(networking->getConnections()[i]->player_name);
+                ServerPlayer* player = getPlayerByName(networking->getConnections()[i]->player_name);
+                player->setConnection(networking->getConnections()[i]);
+                
+                sf::Packet join_packet;
+                join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
+                networking->sendToEveryone(join_packet);
+                
+                setPlayerHealth(player, 40);
+            }
+        }
+    
     for(int i = 0; i < entities->getEntities().size(); i++)
         if(entities->getEntities()[i]->type == EntityType::ITEM) {
             Item* item = (Item*)entities->getEntities()[i];
@@ -416,10 +448,6 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             }
             break;
         }
-        case ClientPacketType::PLAYER_RESPAWN: {
-            setPlayerHealth(event.player, 40);
-            addPlayer(event.player->name);
-        }
         default:;
     }
 }
@@ -438,7 +466,20 @@ void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
     player->getConnection()->send(packet);
     
     if(health <= 0) {
-        //empty inventory
+        for(int i = 0; i < INVENTORY_SIZE; i++) {
+            while(player->inventory.getItem(i).stack) {
+                static std::random_device device;
+                static std::mt19937 engine(device());
+                
+                Item* item = items->spawnItem(player->inventory.getItem(i).type, player->getX(), player->getY());
+                player->inventory.setItem(i, ItemStack(player->inventory.getItem(i).type, player->inventory.getItem(i).stack - 1));
+                
+                entities->addVelocityX(item, int(engine() % 40) - 20);
+                entities->addVelocityY(item, -int(engine() % 20) - 20);
+            }
+        }
+        
+        resetPlayer(player);
         savePlayer(player);
         entities->removeEntity((Entity*)player);
     }

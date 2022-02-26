@@ -28,19 +28,25 @@ void ClientItems::stop() {
 
 void ClientItems::onEvent(ItemCreationEvent& event) {
     item_count++;
-    item_rects.resize(item_count);
+    item_count_changed = true;
 }
 
 void ClientItems::onEvent(EntityDeletionEvent& event) {
     if(event.entity->type == EntityType::ITEM) {
         item_count--;
-        item_rects.resize(item_count);
+        item_count_changed = true;
     }
 }
 
 void ClientItems::render() {
+    int curr_item_count = item_count;
+    if(item_count_changed) {
+        item_rects.resize(item_count);
+        item_count_changed = false;
+    }
+    
     int item_index = 0;
-    for(int i = 0; i < entities->getEntities().size(); i++) {
+    for(int i = 0; i < entities->getEntities().size() && item_index < curr_item_count; i++) {
         if(entities->getEntities()[i]->type == EntityType::ITEM) {
             Item* item = (Item*)entities->getEntities()[i];
             gfx::RectShape rect = getItemRectInAtlas(item->getType());

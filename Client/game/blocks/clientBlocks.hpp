@@ -13,7 +13,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
 
     class RenderBlockChunk {
         gfx::RectArray block_rects;
-        int block_count;
+        int block_count = 0;
         bool is_created = false;
     public:
         bool isCreated() { return is_created; }

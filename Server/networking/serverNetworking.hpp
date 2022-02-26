@@ -28,6 +28,8 @@ public:
     bool hasPacketInBuffer();
     std::pair<sf::Packet, ClientPacketType> getPacket();
     
+    std::string player_name;
+    
     void flushPackets();
     ~Connection();
 };
@@ -68,6 +70,8 @@ public:
     
     void sendToEveryone(sf::Packet& packet);
     void kickConnection(Connection* connection, const std::string& reason);
+    
+    const std::vector<Connection*>& getConnections();
     
     bool is_private = false;
     

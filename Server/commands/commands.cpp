@@ -16,6 +16,7 @@ void Commands::init() {
     commands.push_back(&health_command);
     commands.push_back(&help_command);
     commands.push_back(&fill_command);
+    commands.push_back(&kill_command);
 }
 
 void Commands::stop() {
@@ -100,6 +101,19 @@ bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* e
     } else if(args.size() == 2 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
         players->setPlayerHealth(players->getPlayerByName(args[1]), std::stoi(args[0]));
         chat->sendChat(executor, "Set " + args[1] + "'s health to " + args[0] + ".");
+        return true;
+    }
+    return false;
+}
+
+bool KillCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 0) {
+        players->setPlayerHealth(executor, 0);
+        chat->sendChat(executor, "Killed yourself.");
+        return true;
+    } else if(args.size() == 1) {
+        players->setPlayerHealth(players->getPlayerByName(args[1]), 0);
+        chat->sendChat(executor, "Killed " + args[1] + ".");
         return true;
     }
     return false;
