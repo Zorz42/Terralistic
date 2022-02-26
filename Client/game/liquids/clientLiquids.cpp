@@ -95,7 +95,8 @@ void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int
 }
 
 void ClientLiquids::RenderLiquidChunk::render(ClientLiquids* liquids, int x, int y) {
-    liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y);
+    if(liquid_count > 0)
+        liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y);
 }
 
 void ClientLiquids::RenderLiquidChunk::create() {

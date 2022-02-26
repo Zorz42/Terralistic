@@ -17,7 +17,7 @@ void RespawnScreen::init() {
     respawn_button.loadFromText("Respawn"); // it only works twice for some reason
     respawn_button.loadFromText("Respawn");
     
-    back_rect.setWidth(respawn_button.getWidth() + 2 * SPACING);
+    back_rect.setWidth(respawn_button.getWidth() + 100);
     back_rect.setY(-2 * back_rect.getHeight());
 }
 
