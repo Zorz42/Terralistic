@@ -1,7 +1,6 @@
 #include "clientPlayers.hpp"
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
-    name_text.loadFromText(name, WHITE);
     friction = false;
 }
 
@@ -53,6 +52,10 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY();
     player_texture.render(2, player_x, player_y, {player_to_draw.texture_frame * PLAYER_WIDTH, 0, PLAYER_WIDTH, PLAYER_HEIGHT}, player_to_draw.flipped);
     if(&player_to_draw != main_player) {
+        if(!player_to_draw.has_created_text) {
+            player_to_draw.name_text.loadFromText(player_to_draw.name, WHITE);
+            player_to_draw.has_created_text = true;
+        }
         int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getX() + PLAYER_WIDTH - camera->getX(),
         header_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY() - player_to_draw.name_text.getTextureHeight() - HEADER_MARGIN;
         gfx::RectShape(header_x - HEADER_PADDING, header_y - HEADER_PADDING, player_to_draw.name_text.getTextureWidth() + 2 * HEADER_PADDING, player_to_draw.name_text.getTextureHeight() + 2 * HEADER_PADDING).render(BLACK);
@@ -92,7 +95,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             int id;
             int moving_type;
             event.packet >> moving_type >> id;
-            if(id != main_player->id) {
+            if(main_player && id != main_player->id) {
                 ClientPlayer* player = getPlayerById(id);
                 player->moving_type = (MovingType)moving_type;
             }
@@ -102,7 +105,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
         case ServerPacketType::PLAYER_JUMPED: {
             int id;
             event.packet >> id;
-            if(id != main_player->id) {
+            if(main_player && id != main_player->id) {
                 ClientPlayer* player = getPlayerById(id);
                 player->has_jumped = true;
             }
@@ -121,6 +124,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 packet << ClientPacketType::MAIN_PLAYER_POSITION << main_player->getX() << main_player->getY();
                 networking->sendPacket(packet);
             }
+
             break;
         }
         case ServerPacketType::MAIN_PLAYER_POSITION: {
@@ -136,7 +140,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             int id;
             event_packet >> id;
 
-            if(id == main_player->id)
+            if(main_player && id == main_player->id)
                 main_player = nullptr;
             break;
         }

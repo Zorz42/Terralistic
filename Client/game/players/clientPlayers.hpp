@@ -10,6 +10,7 @@ public:
     ClientPlayer(const std::string& name, int x, int y, int id);
     int texture_frame = 0;
     gfx::Texture name_text;
+    bool has_created_text = false;
     int started_moving;
     bool has_jumped = false;
 };

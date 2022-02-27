@@ -241,6 +241,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
     sf::Packet join_packet;
     join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
     networking->sendToEveryone(join_packet);
+    event.connection->send(join_packet);
 }
 
 void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
@@ -301,8 +302,6 @@ void ServerPlayers::update(float frame_length) {
                 sf::Packet join_packet;
                 join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
                 networking->sendToEveryone(join_packet);
-                
-                setPlayerHealth(player, 40);
             }
         }
     
@@ -337,11 +336,10 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
             }
         }
     
-    if(player == nullptr)
-        throw Exception("Could not find the player.");
-    
-    savePlayer(player);
-    entities->removeEntity(player);
+    if(player != nullptr) {
+        savePlayer(player);
+        entities->removeEntity(player);
+    }
 }
 
 void ServerPlayers::onEvent(ServerPacketEvent& event) {
@@ -453,10 +451,12 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 }
 
 void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
-    ItemStack item = inventory.getItem(event.item_pos);
-    sf::Packet packet;
-    packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (int)event.item_pos;
-    connection->send(packet);
+    if(connection) {
+        ItemStack item = inventory.getItem(event.item_pos);
+        sf::Packet packet;
+        packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (int)event.item_pos;
+        connection->send(packet);
+    }
 }
 
 void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
@@ -480,6 +480,7 @@ void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
         }
         
         resetPlayer(player);
+        setPlayerHealth(player, 40);
         savePlayer(player);
         entities->removeEntity((Entity*)player);
     }

@@ -15,6 +15,7 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
                 setVelocityX(entity, vel_x);
                 setVelocityY(entity, vel_y);
             }
+            
             break;
         }
         case ServerPacketType::ENTITY_POSITION: {

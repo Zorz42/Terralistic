@@ -131,10 +131,11 @@ void ServerNetworking::update(float frame_length) {
             sf::Packet welcome_packet;
             welcome_packet << WelcomePacketType::WELCOME;
             connections[i]->sendDirectly(welcome_packet);
-            connections[i]->greet();
             
             ServerNewConnectionEvent event2(connections[i]);
             new_connection_event.call(event2);
+            
+            connections[i]->greet();
         }
     }
 }

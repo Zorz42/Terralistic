@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     if(gui) {
         gfx::init(resource_path, 500, 300);
         gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
-        gfx::loadFont("pixel_font.ttf", 8);
+        gfx::loadFont("font.ttf", 16);
     }
     
     Server main_server(resource_path, data_folder + "world", 33770);
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 }
 
 void ServerScene::init() {
-    text.scale = 3;
+    text.scale = 4;
     text.orientation = gfx::CENTER;
     text.loadFromText("Server Running");
 }
