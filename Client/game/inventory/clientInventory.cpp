@@ -112,6 +112,7 @@ void ClientInventory::render() {
         
         hovered_recipe = -1;
         behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)inventory->getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
+        behind_crafting_rect.setY(inventory->getAvailableRecipes().empty() ? -100 : INVENTORY_UI_SPACING / 2);
         behind_crafting_rect.render();
         
         for(int i = 0; i < inventory->getAvailableRecipes().size(); i++) {
