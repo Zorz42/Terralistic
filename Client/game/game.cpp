@@ -110,7 +110,7 @@ void Game::start() {
         parallel_update_thread.join();
         if(interrupt)
             throw Exception(interrupt_message);
-    } catch (const std::exception& exception) {
+    } catch(const std::exception& exception) {
         ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
         switchToScene(choice_screen);
     }
@@ -128,7 +128,7 @@ void Game::parallelUpdateLoop() {
             if(timer.getTimeElapsed() < 10)
                 gfx::sleep(10 - timer.getTimeElapsed());
         }
-    } catch (const std::exception& exception) {
+    } catch(const std::exception& exception) {
         interrupt_message = exception.what();
         interrupt = true;
     }
