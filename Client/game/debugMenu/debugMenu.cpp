@@ -71,9 +71,9 @@ void DebugMenu::render() {
         back_height += debug_lines[i]->getHeight();
     }
     
-    back_rect.setX(debug_menu_open ? -SPACING : back_rect.getWidth() + SPACING);
     back_rect.setWidth(back_width + SPACING);
     back_rect.setHeight(back_height + SPACING);
+    back_rect.setX(debug_menu_open ? -SPACING : back_rect.getWidth() + SPACING);
     back_rect.render();
     
     int curr_y = gfx::getWindowHeight() + back_rect.getY() - back_rect.getHeight();
