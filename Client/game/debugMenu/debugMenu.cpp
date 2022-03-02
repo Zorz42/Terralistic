@@ -1,8 +1,10 @@
 #include "debugMenu.hpp"
+#include "iostream"
 
 void DebugMenu::init() {
     back_rect.orientation = gfx::BOTTOM_RIGHT;
     back_rect.setY(-SPACING);
+    back_rect.setY(230 + SPACING);
     back_rect.fill_color = BLACK;
     back_rect.border_color = BORDER_COLOR;
     back_rect.fill_color.a = TRANSPARENCY;
