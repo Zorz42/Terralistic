@@ -35,9 +35,9 @@ void RespawnScreen::render() {
     if(players->getMainPlayer())
         first_time = false;
     is_active = !players->getMainPlayer() && !first_time;
-    
-    back_rect.setY(is_active ? 0 : -2 * back_rect.getHeight());
+
     back_rect.setHeight(gfx::getWindowHeight());
+    back_rect.setY(is_active ? 0 : -2 * back_rect.getHeight());
     you_died_text.y = back_rect.getY() - you_died_text.getHeight() / 2 - SPACING / 2;
     respawn_button.y = back_rect.getY() + respawn_button.getHeight() / 2 + SPACING / 2;
     

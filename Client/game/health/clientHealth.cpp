@@ -32,9 +32,6 @@ void ClientHealth::onEvent(ClientPacketEvent &event) {
             break;
         default: break;
     }
-    if(health <= 0){
-        //death screen
-    }
 }
 
 void ClientHealth::onEvent(WelcomePacketEvent &event) {
