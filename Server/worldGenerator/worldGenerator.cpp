@@ -19,7 +19,7 @@ int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
     if(seed == 1000) {
         generateStructureWorld();
     } else {
-        generating_total = blocks->getWidth() * 3;
+        generating_total = blocks->getWidth() * 4;
         loadBiomes();
         generateDefaultWorld(noise, seeded_random);
     }
@@ -377,6 +377,8 @@ void WorldGenerator::generateOre(BlockType* type, float chance, int blob_distanc
                     blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, type);
             }
         }
+        if(x % 2)
+            generating_current++;
     }
 }
 
@@ -481,10 +483,14 @@ void WorldGenerator::generateStructuresForStrWorld() {
 }
 
 void WorldGenerator::placeWalls() {
-    for(int x = 0; x < blocks->getWidth(); x++)
-        for(int y = 1; y < blocks->getHeight() - 1; y++)
-            if(y > blocks->getHeight() - surface_heights[x - 1] && y > blocks->getHeight() - surface_heights[x] && y > blocks->getHeight() - surface_heights[x + 1])
+    for(int x = 0; x < blocks->getWidth(); x++) {
+        for (int y = 1; y < blocks->getHeight() - 1; y++)
+            if (y > blocks->getHeight() - surface_heights[x - 1] && y > blocks->getHeight() - surface_heights[x] &&
+                y > blocks->getHeight() - surface_heights[x + 1])
                 walls->setWallTypeSilently(x, y, &content->walls.dirt);
+        /*if(x % 8 == 0)
+            generating_current++;*/
+    }
 }
 
 void WorldGenerator::generateDefaultWorld(siv::PerlinNoise& noise, std::mt19937& seeded_random) {

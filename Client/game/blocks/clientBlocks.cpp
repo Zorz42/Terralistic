@@ -185,7 +185,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
                 int texture_x;
                 int texture_y;
                 if(blocks->getBlockType(x_, y_)->width == 0) {
-                    texture_x = (blocks->getRenderBlock(x_, y_)->variation) % (blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
+                    texture_x = abs(blocks->getRenderBlock(x_, y_)->variation) % (blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).w / BLOCK_WIDTH) * BLOCK_WIDTH;
                     texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).y + BLOCK_WIDTH * blocks->getRenderBlock(x_, y_)->state;
                 } else {
                     texture_x = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).x + blocks->getBlockXFromMain(x_, y_) * BLOCK_WIDTH;
