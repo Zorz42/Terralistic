@@ -19,9 +19,9 @@ public:
 class Item : public Entity {
     ItemType* type;
 public:
-    Item(ItemType* type, int x, int y, int id=0);
+    Item(ItemType* type, int x, int y, int entity_item_count = 1, int id=0);
     ItemType* getType() const;
-    
+    int entity_item_count;
     int getWidth() override { return ITEM_WIDTH * 2; }
     int getHeight() override { return ITEM_WIDTH * 2; }
 };

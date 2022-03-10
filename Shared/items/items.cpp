@@ -4,7 +4,7 @@ ItemType* Item::getType() const {
     return type;
 }
 
-Item::Item(ItemType* type, int x, int y, int id) : type(type), Entity(EntityType::ITEM, x, y, id) {}
+Item::Item(ItemType* type, int x, int y, int entity_item_count, int id) : type(type), entity_item_count(entity_item_count), Entity(EntityType::ITEM, x, y, id) {}
 
 Item* Items::spawnItem(ItemType* type, int x, int y) {
     Item* item = new Item(type, x, y);

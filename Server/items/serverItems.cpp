@@ -52,3 +52,24 @@ void ServerItems::onEvent(WallBreakEvent& event) {
         entities->addVelocityY(item, -int(engine() % 20) - 20);
     }
 }
+
+void ServerItems::update(float frame_length) {
+    for(int i = 0; i < entities->getEntities().size() - 1; i++){
+        if(entities->getEntities().at(i)->type == EntityType::ITEM){
+            Item* item_1 = (Item*)entities->getEntities()[i];
+            for(int j = i + 1; j < entities->getEntities().size(); j++){
+                if(entities->getEntities().at(j)->type == EntityType::ITEM){
+                    Item* item_2 = (Item*)entities->getEntities()[j];
+                    if(item_1->getType()->id == item_2->getType()->id &&
+                    abs(item_1->getX() - item_2->getX()) < 2 * BLOCK_WIDTH && abs(item_1->getY() - item_2->getY()) < 2 * BLOCK_WIDTH){
+                        if(item_1->entity_item_count + item_2->entity_item_count <= item_2->getType()->max_stack){
+                            item_2->entity_item_count += item_1->entity_item_count;
+                            entities->removeEntity(item_1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

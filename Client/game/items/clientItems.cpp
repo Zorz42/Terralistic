@@ -71,7 +71,7 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             int type;
             event.packet >> x >> y >> id >> type;
             
-            Item* item = new Item(getItemTypeById(type), x, y, id);
+            Item* item = new Item(getItemTypeById(type), x, y, 1, id);
             entities->registerEntity(item);
             
             ItemCreationEvent item_event(item);

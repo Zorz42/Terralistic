@@ -311,16 +311,23 @@ void ServerPlayers::update(float frame_length) {
             for(int i2 = 0; i2 < entities->getEntities().size(); i2++)
                 if(entities->getEntities()[i2]->type == EntityType::PLAYER) {
                     ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i2];
-                    int distance_x = item->getX() + ITEM_WIDTH / 2 - player->getX() - PLAYER_WIDTH / 2;
-                    int distance_y = item->getY() + ITEM_WIDTH / 2 - player->getY() - PLAYER_HEIGHT / 2;
-                    
-                    if(abs(distance_x) < 50 && abs(distance_y) < 50) {
-                        entities->addVelocityX(item, -distance_x * frame_length / 200.f);
-                        entities->addVelocityY(item, -distance_y * frame_length / 30.f);
+                    if(item->has_moved || player->has_moved) {
+                        int distance_x = item->getX() + ITEM_WIDTH / 2 - player->getX() - PLAYER_WIDTH / 2;
+                        int distance_y = item->getY() + ITEM_WIDTH / 2 - player->getY() - PLAYER_HEIGHT / 2;
+
+                        if (abs(distance_x) < 50 && abs(distance_y) < 50) {
+                            entities->addVelocityX(item, -distance_x * frame_length / 200.f);
+                            entities->addVelocityY(item, -distance_y * frame_length / 30.f);
+                        }
+                        if (abs(distance_x) < 5 && abs(distance_y) < PLAYER_HEIGHT / 2) {
+                            while (item->entity_item_count >= 1 &&
+                                   player->inventory.addItem(item->getType(), 1) != -1) {
+                                item->entity_item_count--;
+                            }
+                            if(item->entity_item_count < 1)
+                                entities->removeEntity(item);
+                        }
                     }
-                    
-                    if(abs(distance_x) < 5 && abs(distance_y) < PLAYER_HEIGHT / 2 && player->inventory.addItem(item->getType(), 1) != -1)
-                        entities->removeEntity(item);
                 }
         }
 }

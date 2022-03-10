@@ -15,6 +15,7 @@ class ServerItems : public ServerModule, public Items, EventListener<ItemCreatio
     void onEvent(WallBreakEvent& event) override;
     
     void init() override;
+    void update(float frame_length) override;
     void stop() override;
 public:
     ServerItems(Entities* entities, Blocks* blocks, Walls* walls, ServerNetworking* networking) : Items(entities, blocks), networking(networking), entities(entities), blocks(blocks), walls(walls) {}
