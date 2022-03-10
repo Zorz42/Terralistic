@@ -59,7 +59,10 @@ bool WorldCreator::onKeyUp(gfx::Key key) {
         returnFromScene();
         return true;
     } else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
-        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, settings, stoi(world_seed.getText()));
+        int formed_seed = rand();
+        if(!world_seed.getText().empty())
+            formed_seed = std::stoi(world_seed.getText());
+        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, settings, formed_seed);
         returnFromScene();
         return true;
     }
