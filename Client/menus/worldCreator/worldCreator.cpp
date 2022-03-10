@@ -31,10 +31,27 @@ void WorldCreator::init() {
             return '-';
         return '\0';
     };
-    
+
+    world_seed.scale = 3;
+    world_seed.orientation = gfx::CENTER;
+    world_seed.setText("");
+    world_seed.active = false;
+    world_seed.textProcessing = [](char c, int length) {
+        if(c >= '0' && c <= '9')
+            return c;
+        return '\0';
+    };
+
+    world_name.y = - 16 - world_name.getHeight() / 2;
+    world_seed.y = 16 + world_seed.getHeight() / 2;
+
+
+
+
     world_name.def_color.a = TRANSPARENCY;
-    
-    text_inputs = {&world_name};
+    world_seed.def_color.a = TRANSPARENCY;
+
+    text_inputs = {&world_name, &world_seed};
 }
 
 bool WorldCreator::onKeyUp(gfx::Key key) {
@@ -42,7 +59,7 @@ bool WorldCreator::onKeyUp(gfx::Key key) {
         returnFromScene();
         return true;
     } else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
-        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, settings, world_name.getText() == "StructureWorld");
+        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, settings, stoi(world_seed.getText()));
         returnFromScene();
         return true;
     }
@@ -61,4 +78,5 @@ void WorldCreator::render() {
     back_button.render(getMouseX(), getMouseY());
     new_world_title.render();
     world_name.render(getMouseX(), getMouseY());
+    world_seed.render(getMouseX(), getMouseY());
 }

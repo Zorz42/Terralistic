@@ -89,12 +89,11 @@ void startServer(Server* server, Game* game) {
     }
 }
 
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world) {
+void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed) {
     int port = rand() % (TO_PORT - FROM_PORT) + FROM_PORT;
     Server private_server(gfx::getResourcePath(), world_name, port);
     Game game(menu_back, settings, "_", "127.0.0.1", port);
-    if(structure_world)
-        private_server.seed = 1000;
+    private_server.seed = world_seed;
   
     private_server.setPrivate(true);
     std::thread server_thread = std::thread(startServer, &private_server, &game);

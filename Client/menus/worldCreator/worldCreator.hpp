@@ -7,6 +7,7 @@ class WorldCreator : public gfx::Scene {
     gfx::Button back_button, create_button;
     gfx::Sprite new_world_title;
     gfx::TextInput world_name;
+    gfx::TextInput world_seed;
     BackgroundRect* menu_back;
     Settings* settings;
     bool can_create = true;

@@ -16,7 +16,7 @@
 #include "clientWalls.hpp"
 #include "respawnScreen.hpp"
 
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, bool structure_world);
+void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed);
 
 class Game : gfx::Scene, public BackgroundRect {
     void init() override;
