@@ -125,7 +125,8 @@ namespace gfx {
         void loadFromResources(const std::string& path);
         void loadFromFile(const std::string& path);
         void setColor(Color color_);
-        
+
+
         ~Texture();
     };
 
