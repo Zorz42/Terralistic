@@ -32,7 +32,7 @@ enum class ServerPacketType {
     PLAYER_JOIN, PLAYER_MOVING_TYPE, PLAYER_JUMPED, MAIN_PLAYER_POSITION,
     
     // items
-    ITEM_CREATION,
+    ITEM_CREATION, ITEM_COUNT_CHANGE,
     
     // inventory
     INVENTORY,

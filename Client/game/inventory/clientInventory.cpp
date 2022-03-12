@@ -154,8 +154,8 @@ void ClientInventory::render() {
 
 void ClientInventory::renderItem(ItemStack item, int x, int y) {
     gfx::RectShape texture_rect = items->getItemRectInAtlas(item.type);
-    int offset = 16 - texture_rect.w;
-    items->getItemsAtlasTexture().render(2, x + INVENTORY_UI_SPACING / 2 + offset, y + INVENTORY_UI_SPACING / 2 + offset, texture_rect);
+    int offset = 16 - texture_rect.w / 2;
+    items->getItemsAtlasTexture().render(2, x + INVENTORY_UI_SPACING / 2 + offset, y + INVENTORY_UI_SPACING / 2 + offset, {texture_rect.x, texture_rect.y, texture_rect.w / 2, texture_rect.h});
     
     if(item.stack > 1) {
         int stack = item.stack, number_x = x + BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING / 2;

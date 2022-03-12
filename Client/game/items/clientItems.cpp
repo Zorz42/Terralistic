@@ -50,11 +50,14 @@ void ClientItems::render() {
         if(entities->getEntities()[i]->type == EntityType::ITEM) {
             Item* item = (Item*)entities->getEntities()[i];
             gfx::RectShape rect = getItemRectInAtlas(item->getType());
-            item_rects.setTextureCoords(item_index, rect);
+            if(item->entity_item_count == 1)
+                item_rects.setTextureCoords(item_index, {rect.x, rect.y, rect.w / 2, rect.h});
+            else
+                item_rects.setTextureCoords(item_index, {rect.x + rect.w / 2, rect.y, rect.w / 2, rect.h});
 
             int item_x = item->getX() - camera->getX() + gfx::getWindowWidth() / 2;
             int item_y = item->getY() - camera->getY() + gfx::getWindowHeight() / 2;
-            item_rects.setRect(item_index, {item_x + rect.w - 8, item_y - rect.h * 2 + 16, rect.h * 2, rect.w * 2});
+            item_rects.setRect(item_index, {item_x + rect.w - 8, item_y - rect.h * 2 + 16, rect.w, rect.h * 2});
             item_index++;
         }
     }
@@ -78,6 +81,12 @@ void ClientItems::onEvent(ClientPacketEvent& event) {
             item_creation_event.call(item_event);
             
             break;
+        }
+        case ServerPacketType::ITEM_COUNT_CHANGE:{
+            int id, entity_item_count;
+            event.packet >> id >> entity_item_count;
+            Item* item = (Item*)entities->getEntityById(id);
+            item->entity_item_count = entity_item_count;
         }
         default:;
     }

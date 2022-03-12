@@ -64,6 +64,10 @@ void ServerItems::update(float frame_length) {
                     abs(item_1->getX() - item_2->getX()) < 2 * BLOCK_WIDTH && abs(item_1->getY() - item_2->getY()) < 2 * BLOCK_WIDTH){
                         if(item_1->entity_item_count + item_2->entity_item_count <= item_2->getType()->max_stack){
                             item_2->entity_item_count += item_1->entity_item_count;
+
+                            sf::Packet packet;
+                            packet << ServerPacketType::ITEM_COUNT_CHANGE << item_2->id << item_2->entity_item_count;
+                            networking->sendToEveryone(packet);
                             entities->removeEntity(item_1);
                             break;
                         }
