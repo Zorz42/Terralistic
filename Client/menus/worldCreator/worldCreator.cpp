@@ -7,11 +7,11 @@ void WorldCreator::init() {
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
-    new_world_title.loadFromText("New world name:");
+    new_world_title.loadFromText("Create new world:");
     new_world_title.scale = 3;
     new_world_title.y = SPACING;
     new_world_title.orientation = gfx::TOP;
-    
+
     create_button.scale = 3;
     create_button.loadFromText("Create world");
     create_button.y = -SPACING;
@@ -46,6 +46,17 @@ void WorldCreator::init() {
     world_seed.y = 16 + world_seed.getHeight() / 2;
 
 
+    new_world_name.loadFromText("New world name");
+    new_world_name.scale = 3;
+    new_world_name.y = world_name.y;
+    new_world_name.x = -world_name.getWidth() / 2 + new_world_name.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_name.orientation = gfx::CENTER;
+
+    new_world_seed.loadFromText("New world seed");
+    new_world_seed.scale = 3;
+    new_world_seed.y = world_seed.y;
+    new_world_seed.x = -world_seed.getWidth() / 2 + new_world_seed.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_seed.orientation = gfx::CENTER;
 
 
     world_name.def_color.a = TRANSPARENCY;
@@ -79,7 +90,24 @@ void WorldCreator::render() {
     }
     create_button.render(getMouseX(), getMouseY());
     back_button.render(getMouseX(), getMouseY());
+    if(world_name.isHovered(getMouseX(), getMouseY()))
+        new_world_name.setColor({25, 25, 25});
+    else
+        new_world_name.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
+
+    if(world_seed.isHovered(getMouseX(), getMouseY())) {
+        new_world_seed.setColor({25, 25, 25});
+    }
+    else
+        new_world_seed.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
+
+
     new_world_title.render();
     world_name.render(getMouseX(), getMouseY());
     world_seed.render(getMouseX(), getMouseY());
+
+    if(world_name.getText().empty())
+        new_world_name.render();
+    if(world_seed.getText().empty())
+        new_world_seed.render();
 }

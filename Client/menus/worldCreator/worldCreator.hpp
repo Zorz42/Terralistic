@@ -6,6 +6,8 @@ class WorldCreator : public gfx::Scene {
     std::vector<std::string> worlds;
     gfx::Button back_button, create_button;
     gfx::Sprite new_world_title;
+    gfx::Sprite new_world_name;
+    gfx::Sprite new_world_seed;
     gfx::TextInput world_name;
     gfx::TextInput world_seed;
     BackgroundRect* menu_back;
