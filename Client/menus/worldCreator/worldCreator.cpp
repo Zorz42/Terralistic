@@ -90,17 +90,17 @@ void WorldCreator::render() {
     }
     create_button.render(getMouseX(), getMouseY());
     back_button.render(getMouseX(), getMouseY());
+
     if(world_name.isHovered(getMouseX(), getMouseY()))
-        new_world_name.setColor({25, 25, 25});
+        new_world_name.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});
     else
         new_world_name.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
 
     if(world_seed.isHovered(getMouseX(), getMouseY())) {
-        new_world_seed.setColor({25, 25, 25});
+        new_world_seed.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});
     }
     else
         new_world_seed.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
-
 
     new_world_title.render();
     world_name.render(getMouseX(), getMouseY());
