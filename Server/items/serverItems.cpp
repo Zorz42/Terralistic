@@ -54,9 +54,7 @@ void ServerItems::onEvent(WallBreakEvent& event) {
 }
 
 void ServerItems::update(float frame_length) {
-    if(entities->getEntities().size() < 2)
-        return;
-    for(int i = 0; i < entities->getEntities().size() - 1; i++){
+    for(int i = 0; i < (int)entities->getEntities().size() - 1; i++){
         if(entities->getEntities()[i]->type == EntityType::ITEM){
             Item* item_1 = (Item*)entities->getEntities()[i];
             for(int j = i + 1; j < entities->getEntities().size(); j++){
