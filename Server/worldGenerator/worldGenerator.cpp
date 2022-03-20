@@ -416,18 +416,17 @@ void WorldGenerator::loadAssets() {
             name += assetData[counter];
             counter++;
         }
-        int x_size = assetData[counter];
-        counter++;
-        int y_size = assetData[counter];
-        counter++;
-        int y_offset = assetData[counter];
-        counter++;
+        int x_size = (assetData[counter] << 8) + assetData[counter + 1];
+        counter += 2;
+        int y_size = (assetData[counter] << 8) + assetData[counter + 1];
+        counter += 2;
         int *blocks_ = new int[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {
-            blocks_[i] = assetData[counter];
-            counter++;
+            blocks_[i] = (assetData[counter] << 8) + assetData[counter + 1] - 1;
+            int curr_block_i = (assetData[counter] << 8) + assetData[counter + 1] - 1;
+            counter += 2;
         }
-        structures.emplace_back(name, x_size, y_size, y_offset, blocks_);
+        structures.emplace_back(name, x_size, y_size, blocks_);
         previousEnd = counter;
     }
 
@@ -439,7 +438,6 @@ void WorldGenerator::generateStructure(const std::string& name, int x, int y) {
     for (auto & structure : structures) {
         if (name == structure.name) {
             x -= structure.x_size / 2;
-            y += structure.y_offset;
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != -1)
                     blocks->setBlockTypeSilently(x + j % structure.x_size, blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size - structure.y_size - 1, blocks->getBlockTypeById(structure.blocks[j]));
@@ -531,7 +529,7 @@ void WorldGenerator::loadBiomes() {
     loaded_biomes.push_back(Biome(BiomeType::WARM_OCEAN, blocks->getHeight() / 3 * 2 - 50, 10,
                                   {}));
     loaded_biomes.push_back(Biome(BiomeType::DESERT, blocks->getHeight() / 6 * 4 + 22, 4,
-                                  {}));
+                                  {StructureChance("cactus_", 3, 5, 3)}));
     loaded_biomes.push_back(Biome(BiomeType::SAVANA, blocks->getHeight() / 3 * 2 + 26, 10,
                                   {}));
     loaded_biomes.push_back(Biome(BiomeType::SAVANA_MOUNTAINS, blocks->getHeight() / 3 * 2 + 50, 25,
