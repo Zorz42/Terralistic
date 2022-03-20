@@ -51,7 +51,7 @@ void gfx::init(const std::string& resource_path_, int window_width, int window_h
 
     shadow_texture.create(700, 700);
 
-    for (int i = 0; i < 2; i++) { // this is ugly but its the way i found working on linux
+    for (int i = 0; i < 2; i++) { // this is ugly, but it's the way I found working on linux
         sf::RenderTexture dummy;
         dummy.create(1, 1);
 

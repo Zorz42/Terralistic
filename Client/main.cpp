@@ -60,7 +60,7 @@ public:
 
 
 int main(int argc, char **argv) {
-    srand((int)time(0));
+    srand((int)time(nullptr));
     
     if(argc == 2 && (std::string)argv[1] == "version") {
         std::cout << CURR_VERSION_STR << std::endl;
