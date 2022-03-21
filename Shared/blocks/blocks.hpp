@@ -36,6 +36,8 @@ public:
     std::string name;
 };
 
+class Blocks;
+
 class BlockType {
 public:
     BlockType(std::string name);
@@ -48,6 +50,9 @@ public:
     int light_emission_r, light_emission_g, light_emission_b;
     int id;
     int width = 0, height = 0;
+    bool can_update_states;
+    
+    virtual int updateOrientation(Blocks* blocks, int x, int y);
 };
 
 class Blocks {
@@ -115,6 +120,8 @@ public:
     
     void registerNewToolType(Tool* tool);
     Tool* getToolTypeByName(const std::string& name);
+    
+    bool updateOrientationSide(int x, int y, int side_x, int side_y);
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;

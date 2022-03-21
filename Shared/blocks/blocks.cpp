@@ -4,6 +4,33 @@
 
 BlockType::BlockType(std::string name) : name(std::move(name)) {}
 
+bool Blocks::updateOrientationSide(int x, int y, int side_x, int side_y) {
+    return x + side_x >= getWidth() || x + side_x < 0 || y + side_y >= getHeight() || y + side_y < 0 ||
+    getBlockType(x + side_x, y + side_y) == getBlockType(x, y) ||
+    std::count(getBlockType(x, y)->connects_to.begin(), getBlockType(x, y)->connects_to.end(), getBlockType(x + side_x, y + side_y));
+}
+
+int BlockType::updateOrientation(Blocks* blocks, int x, int y) {
+    if(blocks->getBlockType(x, y) != &blocks->air && can_update_states) {
+        int state = 0;
+        
+        if(blocks->updateOrientationSide(x, y, 0, -1))
+            state += 1 << 0;
+        
+        if(blocks->updateOrientationSide(x, y, 1, 0))
+            state += 1 << 1;
+        
+        if(blocks->updateOrientationSide(x, y, 0, 1))
+            state += 1 << 2;
+        
+        if(blocks->updateOrientationSide(x, y, -1, 0))
+            state += 1 << 3;
+        
+        return state;
+    } else
+        return 0;
+}
+
 Blocks::Blocks() : air("air"), hand("hand") {
     air.ghost = true;
     air.transparent = true;
@@ -11,6 +38,7 @@ Blocks::Blocks() : air("air"), hand("hand") {
     air.light_emission_r = 0;
     air.light_emission_g = 0;
     air.light_emission_b = 0;
+    air.can_update_states = false;
     registerNewBlockType(&air);
     registerNewToolType(&hand);
 }

@@ -2,36 +2,6 @@
 
 #define EXTENDED_VIEW_MARGIN 100
 
-bool ClientBlocks::updateOrientationSide(int x, int y, int side_x, int side_y) {
-    return x + side_x >= getWidth() || x + side_x < 0 || y + side_y >= getHeight() || y + side_y < 0 ||
-    getBlockType(x + side_x, y + side_y) == getBlockType(x, y) ||
-    std::count(getBlockType(x, y)->connects_to.begin(), getBlockType(x, y)->connects_to.end(), getBlockType(x + side_x, y + side_y));
-}
-
-void ClientBlocks::updateOrientationDown(int x, int y) {
-    setState(x, y, getState(x, y) * 2);
-    if(updateOrientationSide(x, y, 0, 1))
-        setState(x, y, getState(x, y) + 1);
-}
-
-void ClientBlocks::updateOrientationUp(int x, int y) {
-    setState(x, y, getState(x, y) * 2);
-    if(updateOrientationSide(x, y, 0, -1))
-        setState(x, y, getState(x, y) + 1);
-}
-
-void ClientBlocks::updateOrientationLeft(int x, int y) {
-    setState(x, y, getState(x, y) * 2);
-    if(updateOrientationSide(x, y, -1, 0))
-        setState(x, y, getState(x, y) + 1);
-}
-
-void ClientBlocks::updateOrientationRight(int x, int y) {
-    setState(x, y, getState(x, y) * 2);
-    if(updateOrientationSide(x, y, 1, 0))
-        setState(x, y, getState(x, y) + 1);
-}
-
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::BLOCK: {
@@ -76,13 +46,7 @@ void ClientBlocks::scheduleBlockUpdate(int x, int y) {
 }
 
 void ClientBlocks::updateState(int x, int y) {
-    getRenderBlock(x, y)->state = 0;
-    if(getBlockType(x, y) != &air && getBlockRectInAtlas(getBlockType(x, y)).h != 8) {
-        updateOrientationLeft(x, y);
-        updateOrientationDown(x, y);
-        updateOrientationRight(x, y);
-        updateOrientationUp(x, y);
-    }
+    setState(x, y, getBlockType(x, y)->updateOrientation(this, x, y));
 }
 
 void ClientBlocks::setState(int x, int y, int state) {
