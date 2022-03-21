@@ -16,7 +16,7 @@ void MenuServer::render(int position, int mouse_x, int mouse_y) {
     gfx::RectShape(render_x, render_y, render_width, render_height).render(back_color);
     
     icon.render(1, render_x + SPACING, render_y + SPACING);
-    ip_texture.render(3, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
+    name_texture.render(3, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
     
     join_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
     join_button.y = render_y + render_height - join_button.getHeight() - SPACING;
@@ -34,16 +34,17 @@ void MultiplayerSelector::refresh() {
     
     scroll_limit = 0;
     
-    for(int i = 0; i < server_ips.size(); i++) {
-        servers.push_back(new MenuServer);
+    for(int i = 0; i < server_data.size(); i++) {
+        servers.push_back(new MenuServer(ServerData("", "")));
         MenuServer* server = servers.back();
         
         server->y = scroll_limit + TOP_HEIGHT;
         
         server->icon.loadFromResources("world_icon.png");
         
-        server->ip = server_ips[i];
-        server->ip_texture.loadFromText(server_ips[i]);
+        server->data.ip = server_data[i].ip;
+        server->data.name = server_data[i].name;
+        server->name_texture.loadFromText(server_data[i].name);
 
         server->join_button.loadFromResources("join_button.png");
         server->join_button.scale = 3;
@@ -85,13 +86,23 @@ void MultiplayerSelector::init() {
     bottom_rect.shadow_intensity = SHADOW_INTENSITY;
     bottom_rect.blur_intensity = BLUR;
     
-    std::string servers_str = config.getStr("servers"), curr_serv;
+    std::string servers_str = config.getStr("servers"), curr_serv_ip, curr_serv_name;
+    bool ip_name_switch = false;
     for(int i = 0; i < servers_str.size(); i++) {
-        if(servers_str[i] == ' ') {
-            server_ips.push_back(curr_serv);
-            curr_serv.clear();
-        } else
-            curr_serv.push_back(servers_str[i]);
+        if(!ip_name_switch) {
+            if (servers_str[i] == ' ') {
+                ip_name_switch = true;
+            } else
+                curr_serv_name.push_back(servers_str[i]);
+        }else{
+            if (servers_str[i] == ' ') {
+                server_data.emplace_back(curr_serv_name, curr_serv_ip);
+                curr_serv_ip.clear();
+                curr_serv_name.clear();
+                ip_name_switch = false;
+            } else
+                curr_serv_ip.push_back(servers_str[i]);
+        }
     }
     
     refresh();
@@ -105,25 +116,25 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
             ServerAdder server_adder(menu_back);
             switchToScene(server_adder);
             if(!server_adder.server_ip.empty())
-                server_ips.push_back(server_adder.server_ip);
+                server_data.emplace_back(server_adder.server_name, server_adder.server_ip);
             refresh();
         }
         else
             for(int i = 0; i < servers.size(); i++) {
                 if(servers[i]->join_button.isHovered(getMouseX(), getMouseY())) {
-                    NameChooser name_chooser(menu_back, settings, servers[i]->ip);
+                    NameChooser name_chooser(menu_back, settings, servers[i]->data.ip);
                     switchToScene(name_chooser);
                 } else if(servers[i]->remove_button.isHovered(getMouseX(), getMouseY())) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
                     else {
-                        ChoiceScreen choice_screen(menu_back, "Do you want to remove " + servers[i]->ip + "?", {"Yes", "No"}, &result);
+                        ChoiceScreen choice_screen(menu_back, "Do you want to remove " + servers[i]->data.ip + "?", {"Yes", "No"}, &result);
                         switchToScene(choice_screen);
                     }
 
                     if(result == "Yes") {
-                        server_ips.erase(server_ips.begin() + i);
+                        server_data.erase(server_data.begin() + i);
                         refresh();
                     }
                     break;
@@ -184,8 +195,10 @@ void MultiplayerSelector::render() {
 void MultiplayerSelector::stop() {
     ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     std::string servers_str;
-    for(int i = 0; i < server_ips.size(); i++) {
-        servers_str += server_ips[i];
+    for(int i = 0; i < server_data.size(); i++) {
+        servers_str += server_data[i].name;
+        servers_str.push_back(' ');
+        servers_str += server_data[i].ip;
         servers_str.push_back(' ');
     }
     config.setStr("servers", servers_str);

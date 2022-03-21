@@ -1,14 +1,24 @@
 #pragma once
+#include <utility>
+
 #include "menuBack.hpp"
 #include "settings.hpp"
 
-struct MenuServer {
+struct ServerData{
+    std::string name;
     std::string ip;
+    ServerData(std::string name, std::string ip) : name(std::move(name)), ip(std::move(ip)) {}
+};
+
+struct MenuServer {
+    ServerData data;
     gfx::Button join_button, remove_button;
-    gfx::Texture ip_texture, icon;
+    gfx::Texture name_texture, icon;
     void render(int position, int mouse_x, int mouse_y);
     int y;
+    MenuServer(ServerData data) : data(std::move(data)) {}
 };
+
 
 class MultiplayerSelector : public gfx::Scene {
     void init() override;
@@ -21,8 +31,8 @@ class MultiplayerSelector : public gfx::Scene {
     gfx::Button back_button, new_button;
     gfx::Rect top_rect, bottom_rect;
     float top_rect_visibility = 0;
-    
-    std::vector<std::string> server_ips;
+
+    std::vector<ServerData> server_data;
     std::vector<MenuServer*> servers;
     int scroll_limit = 0, position = 0;
     
