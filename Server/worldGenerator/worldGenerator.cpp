@@ -60,8 +60,8 @@ int WorldGenerator::heightGeneratorInt(int x, siv::PerlinNoise& noise) {
 void WorldGenerator::generateBiomes(int x, siv::PerlinNoise& noise) {
     int biome_heat = heatGeneratorInt(x, noise);
     int biome_height = heightGeneratorInt(x, noise);
-    //biomes->biomes[x] = (BiomeType)((biome_heat * 4) + biome_height);
-    biomes->biomes[x] = BiomeType::DESERT;
+    biomes->biomes[x] = (BiomeType)((biome_heat * 4) + biome_height);
+    //biomes->biomes[x] = BiomeType::DESERT;
 }
 
 void WorldGenerator::terrainGenerator(int x, siv::PerlinNoise& noise) {
