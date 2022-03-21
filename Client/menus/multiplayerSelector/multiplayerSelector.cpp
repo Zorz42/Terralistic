@@ -129,7 +129,7 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
                     else {
-                        ChoiceScreen choice_screen(menu_back, "Do you want to remove " + servers[i]->data.ip + "?", {"Yes", "No"}, &result);
+                        ChoiceScreen choice_screen(menu_back, "Do you want to remove " + servers[i]->data.name + "?", {"Yes", "No"}, &result);
                         switchToScene(choice_screen);
                     }
 
