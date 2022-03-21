@@ -42,12 +42,6 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     void updateParallel(float frame_length) override;
     void stop() override;
     
-    bool updateOrientationSide(int x, int y, int side_x, int side_y);
-    void updateOrientationDown(int x, int y);
-    void updateOrientationUp(int x, int y);
-    void updateOrientationLeft(int x, int y);
-    void updateOrientationRight(int x, int y);
-    
     void scheduleBlockUpdate(int x, int y);
     
     int view_begin_x = 0, view_begin_y = 0, view_end_x = 0, view_end_y = 0, extended_view_begin_x = 0, extended_view_begin_y = 0, extended_view_end_x = 0, extended_view_end_y = 0;

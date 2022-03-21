@@ -9,3 +9,4 @@ light_emission_g: 0
 light_emission_b: 0
 width: 5
 height: 5
+can_update_states: false

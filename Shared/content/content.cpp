@@ -61,6 +61,7 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         
         block_type->ghost = block_properties.getStr("ghost") == "true";
         block_type->transparent = block_properties.getStr("transparent") == "true";
+        block_type->can_update_states = block_properties.getStr("can_update_states") == "true";
         
         std::string connects_to = block_properties.getStr("connects_to");
         while(!connects_to.empty()) {
