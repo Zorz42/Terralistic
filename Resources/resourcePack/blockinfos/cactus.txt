@@ -1,7 +1,7 @@
 ghost: false
-transparent: false
+transparent: true
 break_time: 1000
-connects_to:
+connects_to: sand
 drop: nothing
 drop_chance: 100
 light_emission_r: 0

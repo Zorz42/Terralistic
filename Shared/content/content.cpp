@@ -39,6 +39,7 @@ void GameContent::addRecipes(Recipes* recipes) {
 
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
     wood_behaviour(this, blocks, walls, liquids),
+    cactus_behaviour(this, blocks, walls, liquids),
     leaves_behaviour(this, blocks, walls, liquids),
     canopy_behaviour(this, blocks, walls, liquids),
     branch_behaviour(this, blocks, walls, liquids),
@@ -102,6 +103,7 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
 
 void BlockTypes::addBlockBehaviour(ServerPlayers* players) {
     players->getBlockBehaviour(&wood) = &wood_behaviour;
+    players->getBlockBehaviour(&cactus) = &cactus_behaviour;
     players->getBlockBehaviour(&leaves) = &leaves_behaviour;
     players->getBlockBehaviour(&canopy) = &canopy_behaviour;
     players->getBlockBehaviour(&branch) = &branch_behaviour;
@@ -123,6 +125,14 @@ void WoodBehaviour::onUpdate(int x, int y) {
     if((y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1) == &blocks->air &&
        (!blocks_->isBlockTree(blocks, x - 1, y) || !blocks_->isBlockTree(blocks, x + 1, y)))
        || (!blocks_->isBlockWood(blocks, x + 1, y) && !blocks_->isBlockWood(blocks, x - 1, y) && !blocks_->isBlockWood(blocks, x, y + 1) && !blocks_->isBlockWood(blocks, x, y - 1)))
+        blocks->breakBlock(x, y);
+}
+
+void CactusBehaviour::onUpdate(int x, int y) {
+    if(!(y > 0 && y < blocks->getHeight() - 1 && x > 0 && x < blocks->getWidth() - 1) ||
+       !(blocks->getBlockType(x, y + 1)->id == blocks_->sand.id || blocks->getBlockType(x, y + 1)->id == blocks_->cactus.id ||
+        ((blocks->getBlockType(x + 1, y)->id == blocks_->sand.id || blocks->getBlockType(x + 1, y)->id == blocks_->cactus.id) && (blocks->getBlockType(x + 1, y + 1)->id == blocks_->sand.id || blocks->getBlockType(x + 1, y + 1)->id == blocks_->cactus.id)) ||
+        ((blocks->getBlockType(x - 1, y)->id == blocks_->sand.id || blocks->getBlockType(x - 1, y)->id == blocks_->cactus.id) && (blocks->getBlockType(x - 1, y + 1)->id == blocks_->sand.id || blocks->getBlockType(x - 1, y + 1)->id == blocks_->cactus.id))))
         blocks->breakBlock(x, y);
 }
 

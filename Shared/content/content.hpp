@@ -14,6 +14,13 @@ public:
     WoodBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
 };
 
+class CactusBehaviour : public BlockBehaviour {
+    void onUpdate(int x, int y) override;
+    BlockTypes* blocks_;
+public:
+    CactusBehaviour(BlockTypes* blocks_, Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
+};
+
 class LeavesBehaviour : public BlockBehaviour {
     void onUpdate(int x, int y) override;
     BlockTypes* blocks_;
@@ -63,6 +70,7 @@ public:
 
 class BlockTypes {
     WoodBehaviour wood_behaviour;
+    CactusBehaviour cactus_behaviour;
     LeavesBehaviour leaves_behaviour;
     CanopyBehaviour canopy_behaviour;
     BranchBehaviour branch_behaviour;
