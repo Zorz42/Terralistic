@@ -7,9 +7,9 @@
 class Structure {
 public:
     std::string name;
-    int x_size, y_size;
+    int x_size, y_size, y_offset;
     int* blocks;
-    Structure(std::string cname, int x, int y, int* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), blocks(cBlocks) {}
+    Structure(std::string cname, int x, int y, int y_offset, int* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(y_offset), blocks(cBlocks) {}
 };
 
 class WorldGenerator {

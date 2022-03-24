@@ -421,13 +421,15 @@ void WorldGenerator::loadAssets() {
         counter += 2;
         int y_size = (assetData[counter] << 8) + assetData[counter + 1];
         counter += 2;
+        int y_offset = (assetData[counter] << 8) + assetData[counter + 1];
+        counter += 2;
         int *blocks_ = new int[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {
             blocks_[i] = (assetData[counter] << 8) + assetData[counter + 1] - 1;
             int curr_block_i = (assetData[counter] << 8) + assetData[counter + 1] - 1;
             counter += 2;
         }
-        structures.emplace_back(name, x_size, y_size, blocks_);
+        structures.emplace_back(name, x_size, y_size, y_offset, blocks_);
         previousEnd = counter;
     }
 
@@ -441,7 +443,7 @@ void WorldGenerator::generateStructure(const std::string& name, int x, int y) {
             x -= structure.x_size / 2;
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != -1)
-                    blocks->setBlockTypeSilently(x + j % structure.x_size, blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size - structure.y_size - 1, blocks->getBlockTypeById(structure.blocks[j]));
+                    blocks->setBlockTypeSilently(x + j % structure.x_size, blocks->getHeight() - y + (j - j % structure.x_size) / structure.x_size - structure.y_size - 1 + structure.y_offset, blocks->getBlockTypeById(structure.blocks[j]));
             break;
         }
     }
@@ -471,7 +473,7 @@ void WorldGenerator::generateStructuresForStrWorld() {
     int x = 0;
     while(x < blocks->getWidth()){
         for (auto & structure : structures) {
-            if(structure.y_size + x >= blocks->getWidth())
+            if(structure.x_size + x >= blocks->getWidth())
                 return;
             for(int j = 0; j < structure.y_size * structure.x_size; j++)
                 if(structure.blocks[j] != -1)

@@ -12,3 +12,4 @@ venv/
 .idea/workspace.xml
 .idea/discord.xml
 .idea/scopes/default.xml
+copy_files.py
