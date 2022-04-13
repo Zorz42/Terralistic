@@ -13,6 +13,7 @@ void Commands::init() {
     commands.push_back(&tp_command);
     commands.push_back(&give_command);
     commands.push_back(&setblock_command);
+    commands.push_back(&setliquid_command);
     commands.push_back(&health_command);
     commands.push_back(&help_command);
     commands.push_back(&fill_command);
@@ -124,6 +125,22 @@ bool SetblockCommand::onCommand(std::vector<std::string>& args, ServerPlayer* ex
         int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
         blocks->setBlockType(x, -y + blocks->getHeight(), blocks->getBlockTypeByName(args[2]));
         chat->sendChat(executor, "Set block on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
+        return true;
+    }
+    return false;
+}
+
+bool SetliquidCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    int level = MAX_LIQUID_LEVEL;
+    if(args.size() == 4){
+        level = std::stoi(args[3]);
+        args.erase(args.end());
+    }
+    if(args.size() == 3 && isCoord(args[0]) && isCoord(args[1])) {
+        int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
+        liquids->setLiquidType(x, -y + blocks->getHeight(), liquids->getLiquidTypeByName(args[2]));
+        liquids->setLiquidLevel(x, -y + blocks->getHeight(), level);
+        chat->sendChat(executor, "Set liquid on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
         return true;
     }
     return false;

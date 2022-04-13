@@ -15,6 +15,13 @@ LiquidType* Liquids::getLiquidType(int x, int y) {
     return getLiquidTypeById(getLiquid(x, y)->id);
 }
 
+LiquidType* Liquids::getLiquidTypeByName(const std::string& name) {
+    for(LiquidType* type : liquid_types)
+        if(type->name == name)
+            return type;
+    return nullptr;
+}
+
 void Liquids::setLiquidTypeSilently(int x, int y, LiquidType* type) {
     getLiquid(x, y)->id = type->id;
 }
@@ -59,7 +66,7 @@ void Liquids::updateLiquid(int x, int y) {
     if(under_exists) {
         setLiquidType(x, y + 1, getLiquidType(x, y));
         
-        int liquid_sum = getLiquidLevel(x, y + 1) + getLiquidLevel(x, y);
+        float liquid_sum = getLiquidLevel(x, y + 1) + getLiquidLevel(x, y);
         if(liquid_sum > MAX_LIQUID_LEVEL) {
             setLiquidLevel(x, y + 1, MAX_LIQUID_LEVEL);
             setLiquidLevel(x, y, liquid_sum - MAX_LIQUID_LEVEL);
@@ -81,6 +88,7 @@ void Liquids::updateLiquid(int x, int y) {
     
     if(left_exists && right_exists && int(getLiquidLevel(x + 1, y)) != int(getLiquidLevel(x, y)) && int(getLiquidLevel(x - 1, y)) != int(getLiquidLevel(x, y))) {
         float avg = (getLiquidLevel(x, y) + getLiquidLevel(x + 1, y) + getLiquidLevel(x - 1, y)) / 3;
+
         setLiquidLevel(x - 1, y, avg);
         setLiquidLevel(x + 1, y, avg);
         setLiquidLevel(x, y, avg);
@@ -101,7 +109,7 @@ void Liquids::setLiquidLevelSilently(int x, int y, float level) {
     getLiquid(x, y)->level = level;
 }
 
-void Liquids::setLiquidLevel(int x, int y, int level) {
+void Liquids::setLiquidLevel(int x, int y, float level) {
     if(level != getLiquidLevel(x, y)) {
         setLiquidLevelSilently(x, y, level);
         if(level == 0)

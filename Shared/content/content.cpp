@@ -39,6 +39,7 @@ void GameContent::addRecipes(Recipes* recipes) {
 
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
     wood_behaviour(this, blocks, walls, liquids),
+    torch_behaviour(blocks, walls, liquids),
     cactus_behaviour(this, blocks, walls, liquids),
     leaves_behaviour(this, blocks, walls, liquids),
     canopy_behaviour(this, blocks, walls, liquids),
@@ -111,6 +112,7 @@ void BlockTypes::addBlockBehaviour(ServerPlayers* players) {
     players->getBlockBehaviour(&snowy_grass_block) = &snowy_grass_block_behaviour;
     players->getBlockBehaviour(&stone) = &stone_behaviour;
     players->getBlockBehaviour(&grass) = &grass_behaviour;
+    players->getBlockBehaviour(&torch) = &torch_behaviour;
 }
 
 bool BlockTypes::isBlockTree(Blocks* blocks, int x, int y) {
@@ -167,6 +169,37 @@ void StoneBehaviour::onUpdate(int x, int y) {
 void GrassBehaviour::onUpdate(int x, int y) {
     if(y < blocks->getHeight() - 1 && blocks->getBlockType(x, y + 1)->transparent)
         blocks->breakBlock(x, y);
+}
+
+void TorchBehaviour::onUpdate(int x, int y) {
+    if(liquids->getLiquidLevel(x, y) >= 50)
+        blocks->setBlockType(x, y, blocks->getBlockTypeById(18));
+}
+
+int WoodType::updateOrientation(Blocks* blocks, int x, int y){
+    int state = 0;
+
+    if(y - 1 >= blocks->getHeight() || y - 1 < 0 ||
+              blocks->getBlockType(x, y - 1) == blocks->getBlockType(x, y) ||
+              std::count(blocks->getBlockType(x, y)->connects_to.begin(), blocks->getBlockType(x, y)->connects_to.end(), blocks->getBlockType(x, y - 1))){
+        state += 1 << 0;
+    }
+    if(x + 1 >= blocks->getWidth() || x + 1 < 0 ||
+       blocks->getBlockType(x + 1, y) == blocks->getBlockType(x, y) ||
+       std::count(blocks->getBlockType(x, y)->connects_to.begin(), blocks->getBlockType(x, y)->connects_to.end(), blocks->getBlockType(x + 1, y))){
+        state += 1 << 1;
+    }
+    if(y + 1 >= blocks->getHeight() || y + 1 < 0 ||
+       blocks->getBlockType(x, y + 1) == blocks->getBlockType(x, y) ||
+       std::count(blocks->getBlockType(x, y)->connects_to.begin(), blocks->getBlockType(x, y)->connects_to.end(), blocks->getBlockType(x, y + 1))){
+        state += 1 << 2;
+    }
+    if(x - 1 >= blocks->getWidth() || x - 1 < 0 ||
+       blocks->getBlockType(x - 1, y) == blocks->getBlockType(x, y) ||
+       std::count(blocks->getBlockType(x, y)->connects_to.begin(), blocks->getBlockType(x, y)->connects_to.end(), blocks->getBlockType(x - 1, y))){
+        state += 1 << 3;
+    }
+    return state;
 }
 
 WallTypes::WallTypes(Walls* walls) :

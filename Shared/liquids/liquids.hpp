@@ -47,13 +47,14 @@ public:
     int getHeight() const;
     
     LiquidType* getLiquidType(int x, int y);
+    LiquidType* getLiquidTypeByName(const std::string& name);
     void setLiquidTypeSilently(int x, int y, LiquidType* type);
     void setLiquidType(int x, int y, LiquidType* type);
     
     void updateLiquid(int x, int y);
     
     float getLiquidLevel(int x, int y);
-    void setLiquidLevel(int x, int y, int level);
+    void setLiquidLevel(int x, int y, float level);
     void setLiquidLevelSilently(int x, int y, float level);
     
     std::vector<char> toSerial();

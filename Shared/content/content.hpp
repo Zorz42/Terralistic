@@ -68,6 +68,19 @@ public:
     GrassBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids) {}
 };
 
+class TorchBehaviour : public BlockBehaviour {
+    void onUpdate(int x, int y) override;
+    BlockTypes* blocks_;
+public:
+    TorchBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
+};
+
+class WoodType : public BlockType{
+public:
+    int updateOrientation(Blocks* blocks, int x, int y) override;
+    WoodType(const std::string& name) : BlockType(name){}
+};
+
 class BlockTypes {
     WoodBehaviour wood_behaviour;
     CactusBehaviour cactus_behaviour;
@@ -78,8 +91,9 @@ class BlockTypes {
     SnowyGrassBlockBehaviour snowy_grass_block_behaviour;
     StoneBehaviour stone_behaviour;
     GrassBehaviour grass_behaviour;
+    TorchBehaviour torch_behaviour;
     
-    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus};
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch};
 public:
     BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
@@ -92,7 +106,7 @@ public:
     BlockType stone_block{"stone_block"};
     BlockType grass_block{"grass_block"};
     BlockType stone{"stone"};
-    BlockType wood{"wood"};
+    WoodType wood{"wood"};
     BlockType leaves{"leaves"};
     BlockType canopy{"canopy"};
     BlockType branch{"branch"};
@@ -104,6 +118,7 @@ public:
     BlockType copper_ore{"copper_ore"};
     BlockType grass{"grass"};
     BlockType torch{"torch"};
+    BlockType unlit_torch{"unlit_torch"};
     BlockType cactus{"cactus"};
 };
 
