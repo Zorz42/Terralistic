@@ -42,6 +42,7 @@ public:
     Liquids* liquids;
     BlockBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : blocks(blocks), walls(walls), liquids(liquids) {}
     virtual void onUpdate(int x, int y) {}
+    virtual void onRandomTick(int x, int y) {}//{blocks->setBlockType(x, y, blocks->getBlockTypeById(17));}
     virtual void onRightClick(int x, int y, ServerPlayer* player) {}
     virtual void onLeftClick(int x, int y, ServerPlayer* player) {
         if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
@@ -63,7 +64,7 @@ public:
     ServerPlayer* player;
 };
 
-class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent>, EventListener<EntityAbsoluteVelocityChangeEvent> {
+class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, EventListener<BlockRandomTickEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent>, EventListener<EntityAbsoluteVelocityChangeEvent> {
     Entities* entities;
     ServerBlocks* blocks;
     Walls* walls;
@@ -77,6 +78,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, Even
     BlockBehaviour **blocks_behaviour = nullptr;
     
     void onEvent(BlockUpdateEvent& event) override;
+    void onEvent(BlockRandomTickEvent& event) override;
     void onEvent(ServerNewConnectionEvent& event) override;
     void onEvent(ServerConnectionWelcomeEvent& event) override;
     void onEvent(ServerPacketEvent& event) override;

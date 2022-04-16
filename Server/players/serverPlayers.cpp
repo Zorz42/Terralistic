@@ -22,6 +22,7 @@ void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
 
 void ServerPlayers::init() {
     blocks->block_update_event.addListener(this);
+    blocks->block_random_tick_event.addListener(this);
     networking->new_connection_event.addListener(this);
     networking->connection_welcome_event.addListener(this);
     packet_event.addListener(this);
@@ -29,6 +30,7 @@ void ServerPlayers::init() {
     world_saver->world_load_event.addListener(this);
     world_saver->world_save_event.addListener(this);
     entities->entity_absolute_velocity_change_event.addListener(this);
+    blocks->setPlayers(entities);
 }
 
 void ServerPlayers::postInit() {
@@ -41,6 +43,7 @@ void ServerPlayers::postInit() {
 
 void ServerPlayers::stop() {
     blocks->block_update_event.removeListener(this);
+    blocks->block_random_tick_event.removeListener(this);
     networking->new_connection_event.removeListener(this);
     networking->connection_welcome_event.removeListener(this);
     packet_event.removeListener(this);
@@ -217,6 +220,10 @@ std::vector<char> ServerPlayers::toSerial() {
 
 void ServerPlayers::onEvent(BlockUpdateEvent& event) {
     getBlockBehaviour(blocks->getBlockType(event.x, event.y))->onUpdate(event.x, event.y);
+}
+
+void ServerPlayers::onEvent(BlockRandomTickEvent& event){
+    getBlockBehaviour(blocks->getBlockType(event.x, event.y))->onRandomTick(event.x, event.y);
 }
 
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {

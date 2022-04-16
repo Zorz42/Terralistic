@@ -176,7 +176,7 @@ void TorchBehaviour::onUpdate(int x, int y) {
         blocks->setBlockType(x, y, blocks->getBlockTypeById(18));
 }
 
-int WoodType::updateOrientation(Blocks* blocks, int x, int y){
+int WoodType::updateState(Blocks* blocks, int x, int y){
     int state = 0;
 
     if(y - 1 >= blocks->getHeight() || y - 1 < 0 ||

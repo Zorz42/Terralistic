@@ -12,6 +12,12 @@ public:
     int x, y;
 };
 
+class BlockRandomTickEvent{
+public:
+    BlockRandomTickEvent(int x, int y): x(x), y(y){}
+    int x, y;
+};
+
 class BlockBreakEvent {
 public:
     BlockBreakEvent(int x, int y) : x(x), y(y) {}
@@ -52,7 +58,7 @@ public:
     int width = 0, height = 0;
     bool can_update_states;
     
-    virtual int updateOrientation(Blocks* blocks, int x, int y);
+    virtual int updateState(Blocks* blocks, int x, int y);
 };
 
 class Blocks {
@@ -121,7 +127,7 @@ public:
     void registerNewToolType(Tool* tool);
     Tool* getToolTypeByName(const std::string& name);
     
-    bool updateOrientationSide(int x, int y, int side_x, int side_y);
+    bool updateStateSide(int x, int y, int side_x, int side_y);
     
     EventSender<BlockChangeEvent> block_change_event;
     EventSender<BlockBreakEvent> block_break_event;

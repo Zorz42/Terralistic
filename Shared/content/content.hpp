@@ -77,7 +77,7 @@ public:
 
 class WoodType : public BlockType{
 public:
-    int updateOrientation(Blocks* blocks, int x, int y) override;
+    int updateState(Blocks* blocks, int x, int y) override;
     WoodType(const std::string& name) : BlockType(name){}
 };
 

@@ -1,4 +1,5 @@
 #include "serverBlocks.hpp"
+#include "serverPlayers.hpp"
 
 void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
     sf::Packet packet;
@@ -16,10 +17,24 @@ void ServerBlocks::init() {
     world_saver->world_load_event.addListener(this);
     world_saver->world_save_event.addListener(this);
     block_update_event.addListener(this);
+    std::random_device rd;
+    server_blocks_mt.seed(rd());
 }
 
 void ServerBlocks::update(float frame_length) {
     updateBreakingBlocks(frame_length);
+    for(int chunk_x = 0; chunk_x < getWidth(); chunk_x += 16) {
+        for (int chunk_y = 0; chunk_y < getHeight(); chunk_y += 16) {
+            for(Entity *entity : entities->getEntities()){
+                if(entity->type == EntityType::PLAYER && std::abs(entity->getX() / (BLOCK_WIDTH * 2) - chunk_x) < 16 * 10 && std::abs(entity->getY() / (BLOCK_WIDTH * 2) - chunk_y) < 16 * 10){
+                    int x = server_blocks_mt() % 16 + chunk_x;
+                    int y = server_blocks_mt() % 16 + chunk_y;
+                    BlockRandomTickEvent event(x, y);
+                    block_random_tick_event.call(event);
+                }
+            }
+        }
+    }
 }
 
 void ServerBlocks::stop() {

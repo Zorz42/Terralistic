@@ -46,7 +46,7 @@ void ClientBlocks::scheduleBlockUpdate(int x, int y) {
 }
 
 void ClientBlocks::updateState(int x, int y) {
-    setState(x, y, getBlockType(x, y)->updateOrientation(this, x, y));
+    setState(x, y, getBlockType(x, y)->updateState(this, x, y));
 }
 
 void ClientBlocks::setState(int x, int y, int state) {
@@ -64,9 +64,11 @@ void ClientBlocks::postInit() {
 
 void ClientBlocks::onEvent(BlockChangeEvent& event) {
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
-    for(int i = 0; i < 5; i++) {
-        scheduleBlockUpdate(coords[i][0], coords[i][1]);
-        updateState(coords[i][0], coords[i][1]);
+    for(auto & coord : coords) {
+        if(!(coord[0] < 0 || coord[1] < 0 || coord[0] >= getWidth() || coord[1] >= getHeight())) {
+            scheduleBlockUpdate(coord[0], coord[1]);
+            updateState(coord[0], coord[1]);
+        }
     }
 }
 
