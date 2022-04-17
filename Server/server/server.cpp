@@ -84,7 +84,7 @@ void Server::start() {
     int ms_per_tick = 1000 / TPS_LIMIT;
     
     float frame_length = 0;
-    
+    float frame_count = 0;
     while(running) {
         gfx::Timer timer;
         
@@ -94,6 +94,13 @@ void Server::start() {
         if(ms_per_tick > timer.getTimeElapsed())
             gfx::sleep(ms_per_tick - timer.getTimeElapsed());
         frame_length = timer.getTimeElapsed();
+        frame_count++;
+        if(frame_count == 100){
+            frame_count = 0;
+            sf::Packet packet;
+            packet << ServerPacketType::TPS << (int)(1000 / frame_length);
+            networking.sendToEveryone(packet);
+        }
     }
     
     state = ServerState::STOPPING;

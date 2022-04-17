@@ -5,6 +5,7 @@
 #define BLOCK_WIDTH 8
 #define UNBREAKABLE -1
 #define CHUNK_SIZE 16
+#define RANDOM_TICK_SPEED 10
 
 class BlockChangeEvent {
 public:

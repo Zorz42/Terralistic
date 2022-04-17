@@ -12,7 +12,7 @@ void DebugMenu::init() {
     
     networking->packet_event.addListener(this);
     
-    debug_lines = {&fps_line, &coords_line, &packets_line};
+    debug_lines = {&fps_line, &server_tps_line, &coords_line, &packets_line};
 }
 
 void DebugMenu::update(float frame_length) {
@@ -28,6 +28,7 @@ void DebugMenu::update(float frame_length) {
             packets_line.text = std::to_string(packet_count) + " packets per second";
             packet_count = 0;
         }
+        server_tps_line.text = std::to_string(server_tps) + " TPS on server";
         
         if(debug_menu_open) {
             static int prev_x = 0, prev_y = 0;
@@ -85,7 +86,14 @@ void DebugMenu::render() {
 
 void DebugMenu::onEvent(ClientPacketEvent& event) {
     packet_count++;
+    switch(event.packet_type) {
+        case ServerPacketType::TPS:
+            event.packet >> server_tps;
+            break;
+        default: break;
+    }
 }
+
 
 bool DebugMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::M) {

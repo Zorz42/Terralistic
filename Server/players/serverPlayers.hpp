@@ -42,7 +42,7 @@ public:
     Liquids* liquids;
     BlockBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : blocks(blocks), walls(walls), liquids(liquids) {}
     virtual void onUpdate(int x, int y) {}
-    virtual void onRandomTick(int x, int y) {}//{blocks->setBlockType(x, y, blocks->getBlockTypeById(17));}
+    virtual void onRandomTick(int x, int y) {}
     virtual void onRightClick(int x, int y, ServerPlayer* player) {}
     virtual void onLeftClick(int x, int y, ServerPlayer* player) {
         if(blocks->getBlockType(x, y)->break_time != UNBREAKABLE)
