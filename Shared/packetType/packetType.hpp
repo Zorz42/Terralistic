@@ -41,7 +41,7 @@ enum class ServerPacketType {
     HEALTH,
 
     // miscellaneous
-    KICK, CHAT,
+    KICK, CHAT, TPS,
     
     _END,
 };

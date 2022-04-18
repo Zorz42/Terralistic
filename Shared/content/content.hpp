@@ -70,9 +70,8 @@ public:
 
 class TorchBehaviour : public BlockBehaviour {
     void onUpdate(int x, int y) override;
-    BlockTypes* blocks_;
 public:
-    TorchBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids), blocks_(blocks_) {}
+    TorchBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids) {}
 };
 
 class WoodType : public BlockType{
