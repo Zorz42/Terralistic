@@ -42,6 +42,9 @@ enum class ServerPacketType {
 
     // miscellaneous
     KICK, CHAT,
+
+    // debug menu lines
+    TPS,
     
     _END,
 };
