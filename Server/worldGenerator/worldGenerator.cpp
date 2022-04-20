@@ -426,7 +426,7 @@ void WorldGenerator::loadAssets() {
         int *blocks_ = new int[x_size * y_size];
         for (int i = 0; i < x_size * y_size; i++) {
             blocks_[i] = (assetData[counter] << 8) + assetData[counter + 1] - 1;
-            int curr_block_i = (assetData[counter] << 8) + assetData[counter + 1] - 1;
+            //int curr_block_i = (assetData[counter] << 8) + assetData[counter + 1] - 1;
             counter += 2;
         }
         structures.emplace_back(name, x_size, y_size, y_offset, blocks_);
