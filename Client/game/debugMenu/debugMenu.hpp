@@ -20,6 +20,8 @@ class DebugMenu : public ClientModule, EventListener<ClientPacketEvent>{
     void onEvent(ClientPacketEvent& event) override;
     
     bool debug_menu_open = false;
+    bool recieved_ping_answer = true;
+    gfx::Timer ping_timer;
     int fps_count = 0;
     int server_tps = 0;
     int packet_count = 0;
@@ -27,7 +29,7 @@ class DebugMenu : public ClientModule, EventListener<ClientPacketEvent>{
     gfx::Rect back_rect;
     gfx::Timer timer;
     
-    DebugLine fps_line, server_tps_line, coords_line, packets_line;
+    DebugLine fps_line, server_tps_line, ping_line, coords_line, packets_line;
     
     void init() override;
     void update(float frame_length) override;

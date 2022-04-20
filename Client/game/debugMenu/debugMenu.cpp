@@ -12,12 +12,12 @@ void DebugMenu::init() {
     
     networking->packet_event.addListener(this);
     
-    debug_lines = {&fps_line, &server_tps_line, &coords_line, &packets_line};
+    debug_lines = {&fps_line, &server_tps_line, &ping_line, &coords_line, &packets_line};
 }
 
 void DebugMenu::update(float frame_length) {
     enabled = players->getMainPlayer() != nullptr;
-    
+
     if(enabled) {
         fps_count++;
         if(timer.getTimeElapsed() > 1000) {
@@ -27,9 +27,20 @@ void DebugMenu::update(float frame_length) {
             
             packets_line.text = std::to_string(packet_count) + " packets per second";
             packet_count = 0;
+            server_tps_line.text = std::to_string(server_tps) + " TPS on server";
+
+            if(recieved_ping_answer){
+                sf::Packet ping;
+                ping << ClientPacketType::PING;
+                networking->sendPacket(ping);
+                recieved_ping_answer = false;
+                ping_timer.reset();
+            }
+            if(ping_timer.getTimeElapsed() > 60000){
+                throw Exception("Server did not respond in 60 seconds. It has likely crashed");
+            }
         }
-        server_tps_line.text = std::to_string(server_tps) + " TPS on server";
-        
+
         if(debug_menu_open) {
             static int prev_x = 0, prev_y = 0;
             int curr_x = players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2), curr_y = players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2);
@@ -87,9 +98,14 @@ void DebugMenu::render() {
 void DebugMenu::onEvent(ClientPacketEvent& event) {
     packet_count++;
     switch(event.packet_type) {
-        case ServerPacketType::TPS:
+        case ServerPacketType::TPS: {
             event.packet >> server_tps;
             break;
+        }
+        case ServerPacketType::PING:{
+            ping_line.text = "Ping: " + std::to_string(ping_timer.getTimeElapsed() / 1000);
+            recieved_ping_answer = true;
+        }
         default: break;
     }
 }

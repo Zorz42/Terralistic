@@ -292,9 +292,14 @@ void ServerPlayers::update(float frame_length) {
             
             while(player->getConnection()->hasPacketInBuffer()) {
                 auto result = player->getConnection()->getPacket();
-                
-                ServerPacketEvent event(result.first, result.second, player);
-                packet_event.call(event);
+                if(result.second == ClientPacketType::PING){
+                    sf::Packet pong;
+                    pong << ServerPacketType::PING;
+                    player->getConnection()->send(pong);
+                }else {
+                    ServerPacketEvent event(result.first, result.second, player);
+                    packet_event.call(event);
+                }
             }
         }
     

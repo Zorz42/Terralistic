@@ -14,7 +14,7 @@ enum class ClientPacketType {
     RIGHT_CLICK, STARTED_BREAKING, STOPPED_BREAKING,
     
     // miscellaneous
-    CHAT,
+    CHAT, PING,
     
     _END,
 };
@@ -44,7 +44,7 @@ enum class ServerPacketType {
     KICK, CHAT,
 
     // debug menu lines
-    TPS,
+    TPS, PING,
     
     _END,
 };
