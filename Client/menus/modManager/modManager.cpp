@@ -79,6 +79,7 @@ bool ModManager::onKeyDown(gfx::Key key) {
                 holding_x = holding->getX();
                 holding_y = holding->getY();
                 holding->smooth_factor = 1;
+                changed_mods = true;
             }
         return true;
     }
@@ -187,4 +188,5 @@ void ModManager::stop() {
             mods_file << mods[i]->getName() << std::endl;
         delete mods[i];
     }
+
 }

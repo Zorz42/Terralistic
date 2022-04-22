@@ -39,5 +39,6 @@ class ModManager : public gfx::Scene {
     void stop() override;
     BackgroundRect* background;
 public:
+    bool changed_mods = false;
     explicit ModManager(BackgroundRect* background) : background(background) {}
 };

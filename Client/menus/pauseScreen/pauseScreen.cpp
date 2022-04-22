@@ -48,6 +48,8 @@ bool PauseScreen::onKeyUp(gfx::Key key) {
         } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
             ModManager mod_manager(this);
             switchToScene(mod_manager);
+            if(mod_manager.changed_mods)
+                changed_mods = true;
             return true;
         } else if(quit_button.isHovered(getMouseX(), getMouseY())) {
             exitToMenu();

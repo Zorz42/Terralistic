@@ -149,12 +149,24 @@ void Game::renderBack() {
     cycleModules();
 }
 
+
+
 bool Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
         PauseScreen pause_screen(this, settings);
         switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
+        //reloads resources
+        if(pause_screen.changed_mods) {
+            resource_pack.loadPaths();
+            for (int i = 0; i < getModules().size(); i++)
+                if (getModules()[i] != this)
+                    ((ClientModule *) getModules()[i])->loadTextures();
+            for (int i = 0; i < blocks.getWidth() / CHUNK_SIZE; i++)
+                for (int j = 0; j < blocks.getHeight() / CHUNK_SIZE; j++)
+                    blocks.getRenderBlockChunk(i, j)->has_update = true;
+        }
         return true;
     }
     return false;

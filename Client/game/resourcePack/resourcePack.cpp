@@ -13,7 +13,7 @@ std::string ResourcePack::getFile(const std::string& file_name) {
     throw Exception(file_name + " was not found.");
 }
 
-void ResourcePack::init() {
+void ResourcePack::loadPaths() {
     std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
         std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
@@ -21,7 +21,11 @@ void ResourcePack::init() {
         while(std::getline(active_mods_file, line))
             active_resource_packs.insert(active_resource_packs.begin(), sago::getDataHome() + "/Terralistic/Mods/" + line);
     }
-    
+
     paths = active_resource_packs;
+}
+
+void ResourcePack::init() {
+    loadPaths();
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Mods/");
 }

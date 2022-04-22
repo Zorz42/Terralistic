@@ -30,7 +30,6 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     RenderBlock* render_blocks = nullptr;
     RenderBlockChunk* block_chunks = nullptr;
     RenderBlock* getRenderBlock(int x, int y);
-    RenderBlockChunk* getRenderBlockChunk(int x, int y);
     
     gfx::TextureAtlas blocks_atlas;
     gfx::Texture breaking_texture;
@@ -55,6 +54,7 @@ public:
     
     const gfx::Texture& getBlocksAtlasTexture();
     gfx::RectShape getBlockRectInAtlas(BlockType* type);
+    RenderBlockChunk* getRenderBlockChunk(int x, int y);
     
     int getBlocksViewBeginX();
     int getBlocksViewEndX();
