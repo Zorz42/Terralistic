@@ -35,6 +35,13 @@ void GameContent::addRecipes(Recipes* recipes) {
     recipe->result = ItemStack(&items.stick, 1);
     recipe->ingredients[&items.branch] = 1;
     recipes->registerARecipe(recipe);
+
+    recipe = new Recipe;
+    recipe->result = ItemStack(&items.shovel, 1);
+    recipe->ingredients[&items.fiber] = 2;
+    recipe->ingredients[&items.stone] = 1;
+    recipe->ingredients[&items.stick] = 1;
+    recipes->registerARecipe(recipe);
 }
 
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
