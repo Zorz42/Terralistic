@@ -16,6 +16,7 @@ class Recipe {
 public:
     std::map<ItemType*, int> ingredients;
     ItemStack result;
+    BlockType* crafting_block = nullptr;
 };
 
 

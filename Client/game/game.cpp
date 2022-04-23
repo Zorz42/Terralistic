@@ -47,7 +47,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     items(&resource_pack, &blocks, &entities, &networking, &camera),
     players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, &camera, username),
     block_selector(&networking, &blocks, &players, &camera),
-    inventory(&networking, &resource_pack, &items, &recipes, &players),
+    inventory(&networking, &resource_pack, &items, &recipes, &players, &blocks),
     chat(&networking, &players),
     player_health(&networking, &resource_pack, &players),
     respawn_screen(&networking, &players),

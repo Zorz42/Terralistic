@@ -4,6 +4,7 @@
 #include "inventory.hpp"
 #include "clientItems.hpp"
 #include "clientPlayers.hpp"
+#include "clientBlocks.hpp"
 
 #define INVENTORY_SIZE 20
 #define INVENTORY_UI_SPACING 10
@@ -36,8 +37,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     ClientItems* items;
     Recipes* recipes;
     ClientPlayers* players;
+    ClientBlocks* blocks;
 public:
-    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players) {}
+    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players, ClientBlocks* blocks) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players), blocks(blocks) {}
     
     const gfx::Texture& getItemTextTexture(ItemType* type);
     

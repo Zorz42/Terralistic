@@ -105,17 +105,38 @@ void ClientInventory::render() {
         under_text_rect.render();
         text_texture->render(2, getMouseX() + 20, getMouseY() + 20);
     }
-    
+
     if(open) {
         if(inventory->getItem(-1).type != &items->nothing)
             renderItem(inventory->getItem(-1), getMouseX(), getMouseY());
-        
+
+        std::vector<const Recipe*> available_recipes;
+        for(auto recipe : inventory->getAvailableRecipes()){
+            if(recipe->crafting_block == nullptr){
+                available_recipes.push_back(recipe);
+            }else {
+                for (int i = players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2) - 3;
+                     i < players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2) + 3; i++) {
+                    for (int j = players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2) - 3;
+                         j < players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2) + 3; j++) {
+                        if (i >= 0 && j >= 0 && i < blocks->getWidth() && j < blocks->getHeight() &&
+                            blocks->getBlockType(i, j) == recipe->crafting_block) {
+                            available_recipes.push_back(recipe);
+                            goto new_recipe;
+                        }
+                    }
+                }
+            }
+            new_recipe:;
+        }
+
         hovered_recipe = -1;
-        behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)inventory->getAvailableRecipes().size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
-        behind_crafting_rect.setY(inventory->getAvailableRecipes().empty() ? -100 : INVENTORY_UI_SPACING / 2);
+        behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)available_recipes.size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
+        behind_crafting_rect.setY(available_recipes.empty() ? -100 : INVENTORY_UI_SPACING / 2);
         behind_crafting_rect.render();
-        
-        for(int i = 0; i < inventory->getAvailableRecipes().size(); i++) {
+
+
+        for(int i = 0; i < available_recipes.size(); i++) {
             int slot_x = 1.5 * INVENTORY_UI_SPACING;
             int slot_y = 1.5 * INVENTORY_UI_SPACING + i * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH * 2);
             
@@ -128,19 +149,19 @@ void ClientInventory::render() {
             
             back_rect.render(color);
             
-            renderItem(ItemStack(inventory->getAvailableRecipes()[i]->result.type, inventory->getAvailableRecipes()[i]->result.stack), slot_x, slot_y);
+            renderItem(ItemStack(available_recipes[i]->result.type, available_recipes[i]->result.stack), slot_x, slot_y);
         }
         
         if(hovered_recipe != -1) {
             tooltip_active = true;
             under_text_rect.setX(getMouseX());
             under_text_rect.setY(getMouseY());
-            under_text_rect.setWidth(SPACING / 2 + (int)inventory->getAvailableRecipes()[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
+            under_text_rect.setWidth(SPACING / 2 + (int)available_recipes[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
             under_text_rect.setHeight(INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING);
             under_text_rect.render();
             int x = getMouseX() + SPACING / 2;
             int y = getMouseY() + SPACING / 2;
-            for(auto ingredient : inventory->getAvailableRecipes()[hovered_recipe]->ingredients) {
+            for(auto ingredient : available_recipes[hovered_recipe]->ingredients) {
                 gfx::RectShape back_rect(x, y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
                 back_rect.render(GREY);
                 renderItem(ItemStack(ingredient.first, ingredient.second), x, y);
