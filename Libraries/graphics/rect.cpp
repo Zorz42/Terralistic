@@ -166,6 +166,14 @@ void gfx::Rect::setY(int y_) {
         y = y_;
 }
 
+int gfx::Rect::getTargetX() const {
+    return target_x;
+}
+
+int gfx::Rect::getTargetY() const {
+    return target_y;
+}
+
 gfx::Rect::~Rect() {
     delete blur_texture;
 }

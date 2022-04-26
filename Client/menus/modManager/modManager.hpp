@@ -17,6 +17,7 @@ public:
     using gfx::Rect::setX;
     using gfx::Rect::getY;
     using gfx::Rect::setY;
+    using gfx::Rect::getTargetY;
     using gfx::Rect::orientation;
     using gfx::Rect::getTranslatedX;
     using gfx::Rect::getTranslatedY;

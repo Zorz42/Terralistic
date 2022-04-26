@@ -79,7 +79,10 @@ namespace gfx {
         
         int getY() const;
         void setY(int y_);
-        
+
+        int getTargetX() const;
+        int getTargetY() const;
+
         int smooth_factor = 1;
         float blur_intensity = 0;
         unsigned char shadow_intensity = 0;
