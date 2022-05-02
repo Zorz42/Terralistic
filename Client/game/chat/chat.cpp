@@ -20,7 +20,8 @@ void Chat::init() {
     chat_box.setBlurIntensity(BLUR);
     chat_box.setBorderColor(BORDER_COLOR);
     chat_box.width = 100;
-    
+    chat_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
+
     text_inputs = {&chat_box};
 }
 
@@ -77,6 +78,10 @@ bool Chat::onKeyDown(gfx::Key key) {
             sf::Packet chat_packet;
             chat_packet << ClientPacketType::CHAT << chat_box.getText();
             networking->sendPacket(chat_packet);
+            saved_lines.insert(saved_lines.begin() + 1, chat_box.getText());
+            selected_saved_line = 0;
+            if(saved_lines.size() > 20)
+                saved_lines.erase(saved_lines.end());
             chat_box.setText("");
         }
         chat_box.active = false;
@@ -87,7 +92,22 @@ bool Chat::onKeyDown(gfx::Key key) {
         return true;
     } else if(key == gfx::Key::ESCAPE && chat_box.active) {
         chat_box.setText("");
+        selected_saved_line = 0;
         chat_box.active = false;
+        return true;
+    }
+    if(key == gfx::Key::ARROW_UP && chat_box.active) {
+        int i = 0;
+        if(selected_saved_line < saved_lines.size() - 1) {
+            selected_saved_line++;
+            chat_box.setText(saved_lines[selected_saved_line]);
+        }
+        return true;
+    } else if(key == gfx::Key::ARROW_DOWN && chat_box.active) {
+        if(selected_saved_line > 0){
+            selected_saved_line--;
+            chat_box.setText(saved_lines[selected_saved_line]);
+        }
         return true;
     }
     return false;

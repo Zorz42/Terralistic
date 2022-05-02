@@ -110,6 +110,8 @@ gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
         case sf::Keyboard::Key::RShift: return gfx::Key::SHIFT;
         case sf::Keyboard::Key::Backspace: return gfx::Key::BACKSPACE;
         case sf::Keyboard::Key::LControl: case sf::Keyboard::Key::RControl: return gfx::Key::CTRL;
+        case sf::Keyboard::Key::Up: return gfx::Key::ARROW_UP;
+        case sf::Keyboard::Key::Down: return gfx::Key::ARROW_DOWN;
         default: return gfx::Key::UNKNOWN;
     }
 }
@@ -152,11 +154,15 @@ void gfx::Scene::onEvent(sf::Event event) {
                     }
         }
         bool is_textbox_active = false;
-        for(int i = 0; i < modules.size(); i++)
-            if(modules[i]->enabled)
-                for(int i2 = 0; i2 < modules[i]->text_inputs.size(); i2++)
-                    if(modules[i]->text_inputs[i2]->active)
+        for(auto & module : modules)
+            if(module->enabled)
+                for(auto & text_input : module->text_inputs)
+                    if(text_input->active) {
                         is_textbox_active = true;
+                        std::vector<Key> input_passthrough_keys = text_input->getPassthroughKeys();
+                        if(std::count(input_passthrough_keys.begin(), input_passthrough_keys.end(), key))
+                            module->onKeyDown(key);
+                    }
         
         if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
             onKeyDownCallback(key);
