@@ -97,7 +97,6 @@ bool Chat::onKeyDown(gfx::Key key) {
         return true;
     }
     if(key == gfx::Key::ARROW_UP && chat_box.active) {
-        int i = 0;
         if(selected_saved_line < saved_lines.size() - 1) {
             selected_saved_line++;
             chat_box.setText(saved_lines[selected_saved_line]);
