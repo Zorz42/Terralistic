@@ -1,11 +1,12 @@
 #include "clientPlayers.hpp"
+#include "readOpa.hpp"
 
 void ClientPlayers::init() {
     networking->packet_event.addListener(this);
 }
 
 void ClientPlayers::loadTextures() {
-    player_texture.loadFromFile(resource_pack->getFile("/misc/player.png"));
+    loadOpa(player_texture, resource_pack->getFile("/misc/player.opa"));
 }
 
 void ClientPlayers::stop() {

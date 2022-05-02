@@ -1,4 +1,5 @@
 #include "clientLiquids.hpp"
+#include "readOpa.hpp"
 
 void ClientLiquids::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
@@ -37,7 +38,7 @@ void ClientLiquids::loadTextures() {
 
     for(int i = 1; i < getNumLiquidTypes(); i++) {
         liquid_textures[i - 1] = new gfx::Texture;
-        liquid_textures[i - 1]->loadFromFile(resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".png"));
+        loadOpa(*liquid_textures[i - 1], resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa"));
     }
     
     liquids_atlas.create(liquid_textures);
@@ -94,8 +95,8 @@ void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int
 }
 
 void ClientLiquids::RenderLiquidChunk::render(ClientLiquids* liquids, int x, int y) {
-    if(liquid_count > 0)
-        liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y);
+    //if(liquid_count > 0)
+        //liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y); // TODO: implement
 }
 
 void ClientLiquids::RenderLiquidChunk::create() {

@@ -1,4 +1,5 @@
 #include "clientWalls.hpp"
+#include "readOpa.hpp"
 
 bool ClientWalls::updateOrientationSide(int x, int y, int side_x, int side_y) {
     return x + side_x >= getWidth() || x + side_x < 0 || y + side_y >= getHeight() || y + side_y < 0 || getWallType(x + side_x, y + side_y) != &clear;
@@ -121,13 +122,13 @@ void ClientWalls::init() {
 }
 
 void ClientWalls::loadTextures() {
-    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    loadOpa(breaking_texture, resource_pack->getFile("/misc/breaking.opa"));
     
     std::vector<gfx::Texture*> wall_textures(getNumWallTypes() - 1);
 
     for(int i = 1; i < getNumWallTypes(); i++) {
         wall_textures[i - 1] = new gfx::Texture;
-        wall_textures[i - 1]->loadFromFile(resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".png"));
+        loadOpa(*wall_textures[i - 1], resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".opa"));
     }
     
     walls_atlas.create(wall_textures);
@@ -164,8 +165,8 @@ void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
 }
 
 void ClientWalls::RenderWallChunk::render(ClientWalls* walls, int x, int y) {
-    if(wall_count > 0)
-        wall_rects.render(wall_count, &walls->getWallsAtlasTexture(), x, y);
+    //if(wall_count > 0)
+        //wall_rects.render(wall_count, &walls->getWallsAtlasTexture(), x, y); // TODO: implement
 }
 
 void ClientWalls::RenderWallChunk::create() {

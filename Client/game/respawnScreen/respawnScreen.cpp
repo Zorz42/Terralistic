@@ -3,7 +3,7 @@
 void RespawnScreen::init() {
     back_rect.orientation = gfx::CENTER;
     back_rect.fill_color.a = TRANSPARENCY;
-    back_rect.blur_intensity = BLUR;
+    back_rect.blur_radius = BLUR;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = BORDER_COLOR;
     back_rect.smooth_factor = 3;

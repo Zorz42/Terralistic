@@ -2,6 +2,7 @@
 #include <filesystem>
 #include "resourcePack.hpp"
 #include "platform_folders.h"
+#include "resourcePath.hpp"
 
 std::string ResourcePack::getFile(const std::string& file_name) {
     std::string file;
@@ -14,7 +15,7 @@ std::string ResourcePack::getFile(const std::string& file_name) {
 }
 
 void ResourcePack::loadPaths() {
-    std::vector<std::string> active_resource_packs = {gfx::getResourcePath() + "resourcePack"};
+    std::vector<std::string> active_resource_packs = {resource_path + "resourcePack"};
     if(std::filesystem::exists(sago::getDataHome() + "/Terralistic/activeMods.txt")) {
         std::ifstream active_mods_file(sago::getDataHome() + "/Terralistic/activeMods.txt");
         std::string line;

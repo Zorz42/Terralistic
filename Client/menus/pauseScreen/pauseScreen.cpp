@@ -25,7 +25,7 @@ void PauseScreen::init() {
     back_rect.border_color.a = TRANSPARENCY;
     back_rect.setX(-(quit_button.getWidth() + 2 * SPACING) - 200);
     back_rect.smooth_factor = 3;
-    back_rect.blur_intensity = BLUR;
+    back_rect.blur_radius = BLUR;
 }
 
 bool PauseScreen::onKeyDown(gfx::Key key) {
@@ -74,9 +74,9 @@ void PauseScreen::renderBackground() {
     fade_rect.setHeight(gfx::getWindowHeight());
     int back_x = std::min(back_rect.getX(), 0);
     fade_rect.fill_color.a = float(back_width + back_x + 200) / (float)(back_width + 200) * 70;
-    fade_rect.blur_intensity = float(back_width + back_x + 200) / (float)(back_width + 200) * BLUR / 2;
-    if(fade_rect.blur_intensity < 0.5f)
-        fade_rect.blur_intensity = 0;
+    fade_rect.blur_radius = float(back_width + back_x + 200) / (float)(back_width + 200) * BLUR / 2;
+    if(fade_rect.blur_radius < 0.5f)
+        fade_rect.blur_radius = 0;
     fade_rect.render();
     back_rect.render();
 }

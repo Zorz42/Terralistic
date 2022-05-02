@@ -3,6 +3,7 @@
 #include "pauseScreen.hpp"
 #include "choiceScreen.hpp"
 #include "content.hpp"
+#include "resourcePath.hpp"
 
 class WorldJoiningScreen : public gfx::Scene {
     BackgroundRect* menu_back;
@@ -74,7 +75,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&respawn_screen);
     registerAModule(&debug_menu);
     
-    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
+    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
 }
 
 void Game::initialize() {

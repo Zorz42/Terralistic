@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <fstream>
 #include "mainMenu.hpp"
 #include "resourcePath.hpp"
 #include "versions.hpp"
@@ -9,13 +10,13 @@ class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     void onEvent(SettingChangeEvent& event) override {
         switch(scale_setting->getSelectedChoice()) {
             case 0:
-                gfx::setGlobalScale(0.5);
+                //gfx::setGlobalScale(0.5);  // TODO: implement
                 break;
             case 1:
-                gfx::setGlobalScale(1);
+                //gfx::setGlobalScale(1);  // TODO: implement
                 break;
             case 2:
-                gfx::setGlobalScale(2);
+                //gfx::setGlobalScale(2);  // TODO: implement
                 break;
         }
     }
@@ -28,20 +29,20 @@ class FpsChangeListener : public EventListener<SettingChangeEvent> {
     void onEvent(SettingChangeEvent& event) override {
         switch(fps_setting->getSelectedChoice()) {
             case 0:
-                gfx::enableVsync(true);
-                gfx::setFpsLimit(0);
+                //gfx::enableVsync(true); // TODO: implement
+                //gfx::setFpsLimit(0);  // TODO: implement
                 break;
             case 1:
-                gfx::enableVsync(false);
-                gfx::setFpsLimit(5);
+                //gfx::enableVsync(false);  // TODO: implement
+                //gfx::setFpsLimit(5);  // TODO: implement
                 break;
             case 2:
-                gfx::enableVsync(false);
-                gfx::setFpsLimit(60);
+                //gfx::enableVsync(false);  // TODO: implement
+                //gfx::setFpsLimit(60);  // TODO: implement
                 break;
             case 3:
-                gfx::enableVsync(false);
-                gfx::setFpsLimit(0);
+                //gfx::enableVsync(false);  // TODO: implement
+                //gfx::setFpsLimit(0);  // TODO: implement
                 break;
         }
     }
@@ -67,12 +68,18 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    gfx::init(getResourcePath(argv[0]), 1130, 700);
+    resource_path = getResourcePath(argv[0]);
+    gfx::init(1130, 700);
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
-    gfx::loadFont("font.ttf", 16);
-#ifndef __APPLE__
-    gfx::loadIconFromFile(gfx::getResourcePath() + "icon.png");
-#endif
+    
+    std::ifstream font_file(resource_path + "font.opa");
+    std::vector<unsigned char> data = std::vector<unsigned char>((std::istreambuf_iterator<char>(font_file)), std::istreambuf_iterator<char>());
+    data.erase(data.begin(), data.begin() + 8);
+    
+    gfx::loadFont(&data[0]);
+/*#ifndef __APPLE__
+    gfx::loadIconFromFile(gfx::getResourcePath() + "icon.opa"); // TODO: implement
+#endif*/
     
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
     

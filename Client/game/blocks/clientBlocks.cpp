@@ -1,4 +1,6 @@
 #include "clientBlocks.hpp"
+#include "readOpa.hpp"
+#include "resourcePath.hpp"
 
 #define EXTENDED_VIEW_MARGIN 100
 
@@ -84,13 +86,13 @@ void ClientBlocks::init() {
 }
 
 void ClientBlocks::loadTextures() {
-    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    loadOpa(breaking_texture, resource_pack->getFile("/misc/breaking.opa"));
     
     std::vector<gfx::Texture*> block_textures(getNumBlockTypes() - 1);
 
     for(int i = 1; i < getNumBlockTypes(); i++) {
         block_textures[i - 1] = new gfx::Texture;
-        block_textures[i - 1]->loadFromFile(resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".png"));
+        loadOpa(*block_textures[i - 1], resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".opa"));
     }
     
     blocks_atlas.create(block_textures);
@@ -164,8 +166,8 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
 }
 
 void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
-    if(block_count > 0)
-        block_rects.render(block_count, &blocks->getBlocksAtlasTexture(), x, y);
+    //if(block_count > 0)
+        //block_rects.render(block_count, &blocks->getBlocksAtlasTexture(), x, y); // TODO: implement
 }
 
 const gfx::Texture& ClientBlocks::getBlocksAtlasTexture() {

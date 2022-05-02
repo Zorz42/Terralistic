@@ -1,7 +1,8 @@
 #include "background.hpp"
+#include "readOpa.hpp"
 
 void Background::loadTextures() {
-    background.loadFromFile(resource_pack->getFile("/misc/background.png"));
+    loadOpa(background, resource_pack->getFile("/misc/background.opa"));
 }
 
 void Background::render() {

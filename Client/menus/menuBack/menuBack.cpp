@@ -1,11 +1,13 @@
 #include "menuBack.hpp"
+#include "resourcePath.hpp"
+#include "readOpa.hpp"
 
 void MenuBack::init() {
-    background.loadFromResources("background.png");
+    loadOpa(background, resource_path + "background.opa");
     
     back_rect.orientation = gfx::CENTER;
     back_rect.fill_color.a = TRANSPARENCY;
-    back_rect.blur_intensity = BLUR;
+    back_rect.blur_radius = BLUR;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = BORDER_COLOR;
     back_rect.smooth_factor = 3;
