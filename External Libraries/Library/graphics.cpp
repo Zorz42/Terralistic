@@ -361,8 +361,8 @@ void blurRect(gfx::RectShape rect, float offset_x, float offset_y) {
 void gfx::blurRectangle(RectShape rect, int radius) {
     glUseProgram(gfx::blur_shader_program);
     
-    float x1 = rect.x * gfx::window_width_reciprocal, y1 = rect.y * gfx::window_height_reciprocal, x2 = (rect.x + rect.w) * gfx::window_width_reciprocal, y2 = (rect.y + rect.h) * gfx::window_height_reciprocal;
-    glUniform4f(gfx::uniform_blur_limit, x2, y1, x1, -y2);
+    float x1 = (rect.x + 1) * gfx::window_width_reciprocal, y1 = (rect.y + 1) * gfx::window_height_reciprocal, x2 = (rect.x + rect.w) * gfx::window_width_reciprocal, y2 = (rect.y + rect.h) * gfx::window_height_reciprocal;
+    glUniform4f(gfx::uniform_blur_limit, x2, -y1, x1, -y2);
     
     glUniform1i(gfx::uniform_blur_texture_sampler, 0);
     
