@@ -1,17 +1,11 @@
 #include "graphics-internal.hpp"
 
-gfx::RectArray::RectArray(gfx::Texture* image_) {
-    image = image_;
-    
-    //glGenBuffers(1, &vertex_buffer); // TODO: implement
-    //glGenBuffers(1, &color_buffer);
-    //glGenBuffers(1, &texture_pos_buffer);
-}
-
 gfx::RectArray::~RectArray() {
-    glDeleteBuffers(1, &vertex_buffer);
-    glDeleteBuffers(1, &color_buffer);
-    glDeleteBuffers(1, &texture_pos_buffer);
+    if(vertex_buffer != -1) {
+        glDeleteBuffers(1, &vertex_buffer);
+        glDeleteBuffers(1, &color_buffer);
+        glDeleteBuffers(1, &texture_pos_buffer);
+    }
 }
 
 void gfx::RectArray::setVertex(int index, int x, int y) {
@@ -87,10 +81,16 @@ void gfx::RectArray::resize(int size) {
     length = size;
 }
 
-void gfx::RectArray::render(int x, int y, bool blend_multiply) {
+void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multiply) {
+    if(vertex_buffer == -1) {
+        glGenBuffers(1, &vertex_buffer);
+        glGenBuffers(1, &color_buffer);
+        glGenBuffers(1, &texture_pos_buffer);
+    }
+    
     glEnableVertexAttribArray(1);
     
-    glUniform1i(uniform_has_texture, 0);
+    glUniform1i(uniform_has_texture, 1);
     glUniform1i(uniform_has_color_buffer, 1);
     
     glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, normalization_transform.getArray());
@@ -114,6 +114,8 @@ void gfx::RectArray::render(int x, int y, bool blend_multiply) {
     
     glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
     glVertexAttribPointer(SHADER_COLOR_BUFFER, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    
+    glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->getNormalizationTransform().getArray());
     
     glDrawArrays(GL_TRIANGLES, 0, (int)vertex_array.size() / 2);
     

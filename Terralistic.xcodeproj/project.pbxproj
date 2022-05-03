@@ -709,7 +709,7 @@
 		167C03A926E13A620045FEA9 /* External Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				366D96E12820568400DEC292 /* Library */,
+				366D96E12820568400DEC292 /* graphics */,
 				1689687725E9607800D26060 /* sago */,
 				3677B5A827283E20000F4D77 /* perlinNoise.hpp */,
 			);
@@ -1299,7 +1299,7 @@
 			path = constantValues;
 			sourceTree = "<group>";
 		};
-		366D96E12820568400DEC292 /* Library */ = {
+		366D96E12820568400DEC292 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
 				366D96E52820568400DEC292 /* theme.hpp */,
@@ -1319,7 +1319,7 @@
 				366D9707282067FA00DEC292 /* timer.cpp */,
 				366D9706282067FA00DEC292 /* transformation.cpp */,
 			);
-			path = Library;
+			path = graphics;
 			sourceTree = "<group>";
 		};
 		366D96F4282059C600DEC292 /* readOpa */ = {

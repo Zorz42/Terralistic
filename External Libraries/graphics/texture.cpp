@@ -130,3 +130,7 @@ void gfx::Texture::loadFromText(const std::string& text, Color color) {
     }
     resetRenderTarget();
 }
+
+const gfx::Transformation& gfx::Texture::getNormalizationTransform() const {
+    return normalization_transform;
+}

@@ -24,7 +24,7 @@ void gfx::Transformation::translate(float x, float y) {
     applyMatrix(applied_matrix);
 }
 
-float* gfx::Transformation::getArray() {
+const float* gfx::Transformation::getArray() const {
     return &matrix[0][0];
 }
 

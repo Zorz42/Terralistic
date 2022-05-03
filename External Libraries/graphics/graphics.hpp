@@ -65,7 +65,7 @@ public:
     void translate(float x, float y);
     void stretch(float x, float y);
     void reset();
-    float* getArray();
+    const float* getArray() const;
     Transformation operator*(const Transformation& a);
 };
 
@@ -95,6 +95,7 @@ public:
     GLuint getGlTexture();
 
     void setRenderTarget();
+    const Transformation& getNormalizationTransform() const;
     
     ~Texture();
 };
@@ -104,8 +105,7 @@ class RectArray {
     std::vector<float> vertex_array;
     std::vector<float> color_array;
     std::vector<float> texture_pos_array;
-    GLuint vertex_buffer, color_buffer, texture_pos_buffer;
-    const Texture* image;
+    GLuint vertex_buffer = -1, color_buffer, texture_pos_buffer;
     bool update_vertex = true, update_color = true;
     
     void setVertex(int index, int x, int y);
@@ -113,13 +113,11 @@ class RectArray {
     void setVertexTextureCoord(int index, int x, int y);
     
 public:
-    RectArray(Texture* image_=nullptr);
-    
     void setRect(int index, RectShape rect);
     void setColor(int index, Color color);
     void setColor(int index, Color color1, Color color2, Color color3, Color color4);
     void setTextureCoords(int index, RectShape texture_coordinates);
-    void render(int x=0, int y=0, bool blend_multiply=false);
+    void render(const Texture* image=nullptr, int x=0, int y=0, bool blend_multiply=false);
     void resize(int size);
     ~RectArray();
 };
