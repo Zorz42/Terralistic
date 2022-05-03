@@ -22,7 +22,6 @@ void gfx::Texture::loadFromData(const unsigned char* data, int width_, int heigh
     glGenTextures(1, &gl_texture);
     glBindTexture(GL_TEXTURE_2D, gl_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gl_texture, 0);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -118,11 +117,11 @@ void gfx::resetRenderTarget() {
 #define TEXT_SPACING 1
 
 void gfx::Texture::loadFromText(const std::string& text, Color color) {
-    int width = 0;
+    int width_ = 0;
     for(int i = 0; i < text.size(); i++)
-        width += font_rects[(int)text[i]].w + TEXT_SPACING;
+        width_ += font_rects[(int)text[i]].w + TEXT_SPACING;
     
-    createBlankImage(width, 16);
+    createBlankImage(width_, 16);
     setRenderTarget();
     int x = 0;
     for(int i = 0; i < text.size(); i++) {

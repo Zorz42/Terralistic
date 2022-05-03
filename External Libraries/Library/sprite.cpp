@@ -32,7 +32,7 @@ void gfx::Sprite::loadFromData(const unsigned char* data, int width, int height)
     setSrcRect({0, 0, getTextureWidth(), getTextureHeight()});
 }
 
-void gfx::Sprite::loadFromText(const std::string &text, Color color) {
-    Texture::loadFromText(text, color);
+void gfx::Sprite::loadFromText(const std::string &text, Color color_) {
+    Texture::loadFromText(text, color_);
     setSrcRect({0, 0, getTextureWidth(), getTextureHeight()});
 }

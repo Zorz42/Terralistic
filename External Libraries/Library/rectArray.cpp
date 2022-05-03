@@ -3,9 +3,9 @@
 gfx::RectArray::RectArray(gfx::Texture* image_) {
     image = image_;
     
-    glGenBuffers(1, &vertex_buffer);
-    glGenBuffers(1, &color_buffer);
-    glGenBuffers(1, &texture_pos_buffer);
+    //glGenBuffers(1, &vertex_buffer); // TODO: implement
+    //glGenBuffers(1, &color_buffer);
+    //glGenBuffers(1, &texture_pos_buffer);
 }
 
 gfx::RectArray::~RectArray() {

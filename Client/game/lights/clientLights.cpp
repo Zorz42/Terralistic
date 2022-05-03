@@ -54,7 +54,7 @@ void ClientLights::lightUpdateLoop() {
 void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     has_update = false;
     
-    int index = 0;
+    /*int index = 0; // TODO: implement
     for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
         for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++) {
             int rel_x = x_ % CHUNK_SIZE, rel_y = y_ % CHUNK_SIZE;
@@ -95,7 +95,7 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
             }
         }
     
-    lights_count = index;
+    lights_count = index;*/
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
