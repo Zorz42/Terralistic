@@ -26,6 +26,9 @@ void DebugMenu::update(float frame_length) {
             fps_count = 0;
             
             packets_line.text = std::to_string(packet_count) + " packets per second";
+            if(packet_count == 0)
+                throw Exception("Connection timeout. Disconnected from server");
+
             packet_count = 0;
             server_tps_line.text = std::to_string(server_tps) + " TPS on server";
 
@@ -35,9 +38,6 @@ void DebugMenu::update(float frame_length) {
                 networking->sendPacket(ping);
                 recieved_ping_answer = false;
                 ping_timer.reset();
-            }
-            if(ping_timer.getTimeElapsed() > 60000){
-                throw Exception("Server did not respond in 60 seconds. It has likely crashed");
             }
         }
 
