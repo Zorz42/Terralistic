@@ -160,6 +160,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
                     texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).y + blocks->getBlockYFromMain(x_, y_) * BLOCK_WIDTH;
                 }
                 block_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
+                block_rects.setColor(index, {255, 255, 255});
                 index++;
             }
     block_count = index;

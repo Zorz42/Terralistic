@@ -26,7 +26,7 @@ void gfx::Texture::loadFromData(const unsigned char* data, int width_, int heigh
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
-    texture_normalization_transform.reset();
+    texture_normalization_transform = gfx::Transformation();
     texture_normalization_transform.translate(0.f, 1.f);
     texture_normalization_transform.stretch(1.f / width, -1.f / height);
 }
@@ -132,5 +132,9 @@ void gfx::Texture::loadFromText(const std::string& text, Color color) {
 }
 
 const gfx::Transformation& gfx::Texture::getNormalizationTransform() const {
-    return normalization_transform;
+    return texture_normalization_transform;
+}
+
+GLuint gfx::Texture::getGlTexture() const {
+    return gl_texture;
 }

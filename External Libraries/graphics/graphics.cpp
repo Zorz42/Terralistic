@@ -107,7 +107,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     gfx::window_height_reciprocal = 1.f / gfx::window_height;
     gfx::window_resized_counter++;
     
-    gfx::window_normalization_transform.reset();
+    gfx::window_normalization_transform = gfx::Transformation();
     gfx::window_normalization_transform.stretch(gfx::window_width_reciprocal * 2, -gfx::window_height_reciprocal * 2);
     gfx::window_normalization_transform.translate(-float(gfx::window_width) / 2, -float(gfx::window_height) / 2);
     
@@ -356,7 +356,7 @@ void blurRect(gfx::RectShape rect, float offset_x, float offset_y) {
     glUseProgram(gfx::shader_program);
 }
 
-#define BLUR_QUALITY 2
+#define BLUR_QUALITY 3
 
 void gfx::blurRectangle(RectShape rect, int radius) {
     glUseProgram(gfx::blur_shader_program);
@@ -372,7 +372,7 @@ void gfx::blurRectangle(RectShape rect, int radius) {
     
     glUniformMatrix3fv(gfx::uniform_blur_transform_matrix, 1, GL_FALSE, transform.getArray());
     
-    transform.reset();
+    transform = gfx::Transformation();
     transform.stretch(gfx::window_width_reciprocal, -gfx::window_height_reciprocal);
     transform.translate(rect.x, rect.y);
     transform.stretch(rect.w, rect.h);

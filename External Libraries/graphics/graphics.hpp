@@ -64,7 +64,6 @@ class Transformation {
 public:
     void translate(float x, float y);
     void stretch(float x, float y);
-    void reset();
     const float* getArray() const;
     Transformation operator*(const Transformation& a);
 };
@@ -96,6 +95,7 @@ public:
 
     void setRenderTarget();
     const Transformation& getNormalizationTransform() const;
+    GLuint getGlTexture() const;
     
     ~Texture();
 };
@@ -106,7 +106,7 @@ class RectArray {
     std::vector<float> color_array;
     std::vector<float> texture_pos_array;
     GLuint vertex_buffer = -1, color_buffer, texture_pos_buffer;
-    bool update_vertex = true, update_color = true;
+    bool update_vertex = true, update_color = true, update_texture_vertex = true;
     
     void setVertex(int index, int x, int y);
     void setVertexColor(int index, Color color);

@@ -73,7 +73,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     //registerAModule(&chat);
     //registerAModule(&player_health);
     //registerAModule(&respawn_screen);
-    //registerAModule(&debug_menu);
+    registerAModule(&debug_menu);
     
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
 }

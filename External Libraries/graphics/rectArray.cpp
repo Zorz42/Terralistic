@@ -69,6 +69,8 @@ void gfx::RectArray::setTextureCoords(int index, RectShape texture_coordinates) 
     setVertexTextureCoord(index * 6 + 3, x2, y1);
     setVertexTextureCoord(index * 6 + 4, x1, y2);
     setVertexTextureCoord(index * 6 + 5, x2, y2);
+    
+    update_texture_vertex = true;
 }
 
 void gfx::RectArray::resize(int size) {
@@ -89,11 +91,14 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
     }
     
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
     
-    glUniform1i(uniform_has_texture, 1);
+    glUniform1i(uniform_texture_sampler, 0);
     glUniform1i(uniform_has_color_buffer, 1);
     
-    glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, normalization_transform.getArray());
+    Transformation transform = normalization_transform;
+    transform.translate(x, y);
+    glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
     
     if(update_vertex) {
         glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -109,15 +114,34 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         update_color = false;
     }
     
+    if(update_texture_vertex) {
+        glBindBuffer(GL_ARRAY_BUFFER, texture_pos_buffer);
+        glBufferData(GL_ARRAY_BUFFER, texture_pos_array.size() * sizeof(float), &texture_pos_array[0], GL_STATIC_DRAW);
+        
+        update_texture_vertex = false;
+    }
+    
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     
     glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
     glVertexAttribPointer(SHADER_COLOR_BUFFER, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
     
-    glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->getNormalizationTransform().getArray());
+    if(image == nullptr)
+        glUniform1i(uniform_has_texture, 0);
+    else {
+        glUniform1i(uniform_has_texture, 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, image->getGlTexture());
+        
+        glBindBuffer(GL_ARRAY_BUFFER, texture_pos_buffer);
+        glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+        
+        glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->getNormalizationTransform().getArray());
+    }
     
     glDrawArrays(GL_TRIANGLES, 0, (int)vertex_array.size() / 2);
     
     glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }

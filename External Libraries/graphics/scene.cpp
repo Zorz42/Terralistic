@@ -259,12 +259,14 @@ bool gfx::Scene::isRunning() {
 
 void gfx::keyCallback(GLFWwindow* window, int key_, int scancode, int action, int mods) {
     gfx::Key key = translateKeyboardKey(key_);
-    curr_scene->onKeyboardButtonEvent(key, action == GLFW_PRESS);
+    if(action == GLFW_PRESS || action == GLFW_RELEASE)
+        curr_scene->onKeyboardButtonEvent(key, action == GLFW_PRESS);
 }
 
 void gfx::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     gfx::Key key = translateMouseKey(button);
-    curr_scene->onMouseButtonEvent(key, action == GLFW_PRESS);
+    if(action == GLFW_PRESS || action == GLFW_RELEASE)
+        curr_scene->onMouseButtonEvent(key, action == GLFW_PRESS);
 }
 
 void gfx::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {

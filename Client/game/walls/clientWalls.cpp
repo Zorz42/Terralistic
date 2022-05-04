@@ -159,14 +159,15 @@ void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
                 int texture_x = (walls->getRenderWall(x_, y_)->variation) % (walls->getWallRectInAtlas(walls->getWallType(x_, y_)).w / BLOCK_WIDTH / 3) * 3 * BLOCK_WIDTH;
                 int texture_y = walls->getWallRectInAtlas(walls->getWallType(x_, y_)).y + BLOCK_WIDTH * 3 * walls->getRenderWall(x_, y_)->state;
                 wall_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH * 3, BLOCK_WIDTH * 3});
+                wall_rects.setColor(index, {255, 255, 255});
                 index++;
             }
     wall_count = index;
 }
 
 void ClientWalls::RenderWallChunk::render(ClientWalls* walls, int x, int y) {
-    //if(wall_count > 0)
-        //wall_rects.render(wall_count, &walls->getWallsAtlasTexture(), x, y); // TODO: implement
+    if(wall_count > 0)
+        wall_rects.render(&walls->getWallsAtlasTexture(), x, y);
 }
 
 void ClientWalls::RenderWallChunk::create() {
@@ -183,7 +184,7 @@ gfx::RectShape ClientWalls::getWallRectInAtlas(WallType* type) {
 }
 
 void ClientWalls::render() {
-    /*for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
+    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
             if(getRenderWallChunk(x, y)->isCreated()) {
                 getRenderWallChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
@@ -196,6 +197,6 @@ void ClientWalls::render() {
                                 breaking_texture.render(2, block_x, block_y, gfx::RectShape(0, BLOCK_WIDTH * (getBreakStage(x_, y_) - 1), BLOCK_WIDTH, BLOCK_WIDTH));
                             }
                 }
-            }*/
+            }
 }
 

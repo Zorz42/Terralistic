@@ -28,15 +28,6 @@ const float* gfx::Transformation::getArray() const {
     return &matrix[0][0];
 }
 
-void gfx::Transformation::reset() {
-    const float identity_matrix[3][3] = {
-        {1.f, 0.f, 0.f},
-        {0.f, 1.f, 0.f},
-        {0.f, 0.f, 1.f},
-    };
-    memcpy(matrix, identity_matrix, sizeof(matrix));
-}
-
 gfx::Transformation gfx::Transformation::operator*(const Transformation& a) {
     Transformation result;
     for(int x = 0; x < 3; x++)

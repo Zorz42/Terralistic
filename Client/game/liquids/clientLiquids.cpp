@@ -89,14 +89,15 @@ void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int
                 liquid_rects.setTextureCoords(index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 int level = std::min((liquids->getLiquidLevel(x_, y_) * 1.02) / MAX_LIQUID_LEVEL, 1.0) * BLOCK_WIDTH * 2;
                 liquid_rects.setRect(index, {(x_ % CHUNK_SIZE) * BLOCK_WIDTH * 2, (y_ % CHUNK_SIZE) * BLOCK_WIDTH * 2 + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
+                liquid_rects.setColor(index, {255, 255, 255});
                 index++;
             }
     liquid_count = index;
 }
 
 void ClientLiquids::RenderLiquidChunk::render(ClientLiquids* liquids, int x, int y) {
-    //if(liquid_count > 0)
-        //liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y); // TODO: implement
+    if(liquid_count > 0)
+        liquid_rects.render(&liquids->getLiquidsAtlasTexture(), x, y);
 }
 
 void ClientLiquids::RenderLiquidChunk::create() {
