@@ -2,8 +2,6 @@
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
-    if(text.empty())
-        text = " ";
     loadFromText(text, text_color);
 }
 

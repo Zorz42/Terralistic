@@ -6,7 +6,6 @@ static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', 
 void Chat::init() {
     networking->packet_event.addListener(this);
     chat_box.scale = 2;
-    chat_box.setText("");
     chat_box.orientation = gfx::BOTTOM_LEFT;
     chat_box.y = -SPACING / 2;
     chat_box.x = SPACING / 2;

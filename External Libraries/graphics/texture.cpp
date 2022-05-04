@@ -121,6 +121,9 @@ void gfx::Texture::loadFromText(const std::string& text, Color color) {
     for(int i = 0; i < text.size(); i++)
         width_ += font_rects[(int)text[i]].w + TEXT_SPACING;
     
+    if(width_ == 0)
+        width_ = 1;
+    
     createBlankImage(width_, 16);
     setRenderTarget();
     int x = 0;

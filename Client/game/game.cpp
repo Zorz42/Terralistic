@@ -70,9 +70,9 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&natural_light);
     registerAModule(&block_selector);
     registerAModule(&inventory);
-    //registerAModule(&chat);
-    //registerAModule(&player_health);
-    //registerAModule(&respawn_screen);
+    registerAModule(&chat);
+    registerAModule(&player_health);
+    registerAModule(&respawn_screen);
     registerAModule(&debug_menu);
     
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
