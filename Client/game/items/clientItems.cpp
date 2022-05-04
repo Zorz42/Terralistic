@@ -63,8 +63,8 @@ void ClientItems::render() {
         }
     }
     
-    //if(item_index)
-        //item_rects.render(item_count, &getItemsAtlasTexture()); // TODO: implement
+    if(item_index)
+        item_rects.render(&getItemsAtlasTexture());
 }
 
 void ClientItems::onEvent(ClientPacketEvent& event) {

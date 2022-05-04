@@ -54,7 +54,7 @@ void ClientLights::lightUpdateLoop() {
 void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     has_update = false;
     
-    /*int index = 0; // TODO: implement
+    int index = 0;
     for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
         for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++) {
             int rel_x = x_ % CHUNK_SIZE, rel_y = y_ % CHUNK_SIZE;
@@ -70,36 +70,33 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
             if(color1 != LightColor(255, 255, 255) || color2 != LightColor(255, 255, 255) || color3 != LightColor(255, 255, 255) || color4 != LightColor(255, 255, 255)) {
                 light_rects.setRect(index, {rel_x * BLOCK_WIDTH * 2 + BLOCK_WIDTH - x_stretch, rel_y * BLOCK_WIDTH * 2 + BLOCK_WIDTH, BLOCK_WIDTH * 2 + x_stretch, BLOCK_WIDTH * 2});
                 
-                light_rects.setColor(index * 4, {
+                light_rects.setColor(index, {
                     (unsigned char)(255.0 / MAX_LIGHT * color1.r),
                     (unsigned char)(255.0 / MAX_LIGHT * color1.g),
                     (unsigned char)(255.0 / MAX_LIGHT * color1.b),
-                });
-                light_rects.setColor(index * 4 + 1, {
+                }, {
                     (unsigned char)(255.0 / MAX_LIGHT * color2.r),
                     (unsigned char)(255.0 / MAX_LIGHT * color2.g),
                     (unsigned char)(255.0 / MAX_LIGHT * color2.b),
-                });
-                light_rects.setColor(index * 4 + 2, {
-                    (unsigned char)(255.0 / MAX_LIGHT * color3.r),
-                    (unsigned char)(255.0 / MAX_LIGHT * color3.g),
-                    (unsigned char)(255.0 / MAX_LIGHT * color3.b),
-                });
-                light_rects.setColor(index * 4 + 3, {
+                }, {
                     (unsigned char)(255.0 / MAX_LIGHT * color4.r),
                     (unsigned char)(255.0 / MAX_LIGHT * color4.g),
                     (unsigned char)(255.0 / MAX_LIGHT * color4.b),
+                }, {
+                    (unsigned char)(255.0 / MAX_LIGHT * color3.r),
+                    (unsigned char)(255.0 / MAX_LIGHT * color3.g),
+                    (unsigned char)(255.0 / MAX_LIGHT * color3.b),
                 });
                 
                 index++;
             }
         }
     
-    lights_count = index;*/
+    lights_count = index;
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
-    //light_rects.render(lights_count, nullptr, x, y, /*blend_multiply*/true); // TODO: implement
+    //light_rects.render(nullptr, x, y, /*blend_multiply*/true);
 }
 
 void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {

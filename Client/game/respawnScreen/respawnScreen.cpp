@@ -10,12 +10,14 @@ void RespawnScreen::init() {
     
     you_died_text.scale = 4;
     you_died_text.orientation = gfx::CENTER;
-    //you_died_text.loadFromText("You Died");
     
     respawn_button.scale = 3;
     respawn_button.orientation = gfx::CENTER;
-    //respawn_button.loadFromText("Respawn"); // it only works twice for some reason
-    //respawn_button.loadFromText("Respawn");
+}
+
+void RespawnScreen::loadTextures() {
+    you_died_text.loadFromText("You Died");
+    respawn_button.loadFromText("Respawn");
     
     back_rect.setWidth(respawn_button.getWidth() + 100);
     back_rect.setY(-2 * back_rect.getHeight());

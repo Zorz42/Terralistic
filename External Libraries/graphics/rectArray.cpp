@@ -139,8 +139,8 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         
         glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->getNormalizationTransform().getArray());
     }
-    
-    glDrawArrays(GL_TRIANGLES, 0, (int)vertex_array.size() / 2);
+
+    glDrawArrays(GL_TRIANGLES, 0, length * 6);
     
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
