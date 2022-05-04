@@ -15,10 +15,14 @@ void MenuBack::init() {
 
 void MenuBack::renderBack() {
     float scale = (float)gfx::getWindowHeight() / (float)background.getTextureHeight();
-    int pos = int(timer.getTimeElapsed() / 30) % int(background.getTextureWidth() * scale);
-    background.render(scale, pos, 0);
-    background.render(scale, pos - background.getTextureWidth() * scale, 0);
+    int pos = int(timer.getTimeElapsed() * 1000 / 30 / gfx::getWindowWidth()) % int(background.getTextureWidth() * scale);
     
-    back_rect.setHeight(gfx::getWindowHeight());
+    for(int i = -1; i < gfx::getWindowWidth() / (background.getTextureWidth() * scale) + 2; i++)
+        background.render(scale, pos + i * background.getTextureWidth() * scale, 0);
+    
+    if(back_rect.getHeight() != gfx::getWindowHeight()) {
+        back_rect.setHeight(gfx::getWindowHeight());
+        back_rect.jumpToTarget();
+    }
     back_rect.render();
 }

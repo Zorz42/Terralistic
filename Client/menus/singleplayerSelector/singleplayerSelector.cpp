@@ -103,9 +103,7 @@ void SingleplayerSelector::refresh() {
         worlds[i]->delete_button.scale = 3;
         worlds[i]->delete_button.margin = 5;
         
-        //worlds[i]->last_played.setColor(GREY); // TODO: implement
-        
-        worlds[i]->last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"));
+        worlds[i]->last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY);
         
         scroll_limit += 116 + SPACING * 3;
     }

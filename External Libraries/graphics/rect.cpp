@@ -132,3 +132,10 @@ int gfx::Rect::getTargetX() const {
 int gfx::Rect::getTargetY() const {
     return target_y;
 }
+
+void gfx::Rect::jumpToTarget() {
+    y = target_y;
+    x = target_x;
+    width = target_width;
+    height = target_height;
+}

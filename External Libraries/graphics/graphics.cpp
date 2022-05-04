@@ -171,8 +171,6 @@ void gfx::init(int window_width_, int window_height_) {
     if(glewInit() != GLEW_OK)
         throw std::runtime_error("Failed to initialize GLEW");
     
-    //glfwSwapInterval(0); // this disabled vsync
-    
     glGenVertexArrays(1, &vertex_array_id);
     glBindVertexArray(vertex_array_id);
     
@@ -233,7 +231,14 @@ void gfx::init(int window_width_, int window_height_) {
     GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, DrawBuffers);
     
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(SHADER_VERTEX_BUFFER);
+}
+
+void gfx::enableVsync(bool enabled) {
+    if(enabled)
+        glfwSwapInterval(1);
+    else
+        glfwSwapInterval(0);
 }
 
 bool fontColEmpty(const unsigned char* data, int x, int y) {
@@ -307,7 +312,7 @@ void gfx::updateWindow() {
     glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
     glUniform4f(uniform_default_color, 1.f, 1.f, 1.f, 1.f);
 
-    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
     glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -317,7 +322,7 @@ void gfx::updateWindow() {
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
     
-    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glfwSwapBuffers(glfw_window);
     
@@ -338,9 +343,7 @@ void blurRect(gfx::RectShape rect, float offset_x, float offset_y) {
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
     
-    glDisableVertexAttribArray(2);
-    
-    
+    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gfx::window_texture, 0);
     
@@ -381,8 +384,6 @@ void gfx::blurRectangle(RectShape rect, int radius) {
     glBindBuffer(GL_ARRAY_BUFFER, gfx::rect_vertex_buffer);
     glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    
-    
     
     glUseProgram(gfx::shader_program);
     

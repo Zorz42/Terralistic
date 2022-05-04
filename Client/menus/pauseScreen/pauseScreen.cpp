@@ -69,7 +69,10 @@ void PauseScreen::render() {
 
 void PauseScreen::renderBackground() {
     background->renderBack();
-    back_rect.setHeight(gfx::getWindowHeight());
+    if(back_rect.getHeight() != gfx::getWindowHeight()) {
+        back_rect.setHeight(gfx::getWindowHeight());
+        back_rect.jumpToTarget();
+    }
     fade_rect.setWidth(gfx::getWindowWidth());
     fade_rect.setHeight(gfx::getWindowHeight());
     int back_x = std::min(back_rect.getX(), 0);

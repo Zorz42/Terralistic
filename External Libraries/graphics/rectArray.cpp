@@ -90,8 +90,7 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         glGenBuffers(1, &texture_pos_buffer);
     }
     
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(SHADER_COLOR_BUFFER);
     
     glUniform1i(uniform_texture_sampler, 0);
     glUniform1i(uniform_has_color_buffer, 1);
@@ -130,6 +129,8 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
     if(image == nullptr)
         glUniform1i(uniform_has_texture, 0);
     else {
+        glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+        
         glUniform1i(uniform_has_texture, 1);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, image->getGlTexture());
@@ -142,6 +143,7 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
 
     glDrawArrays(GL_TRIANGLES, 0, length * 6);
     
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(SHADER_COLOR_BUFFER);
+    if(image != nullptr)
+        glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
 }

@@ -79,7 +79,7 @@ void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool fl
     glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
     glUniform4f(uniform_default_color, color.r * (1 / 256.f), color.g * (1 / 256.f), color.b * (1 / 256.f), color.a * (1 / 256.f));
 
-    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
     glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -89,7 +89,7 @@ void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool fl
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
     
-    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
 }
 
 void gfx::Texture::render(float scale, int x, int y, bool flipped, Color color) const {

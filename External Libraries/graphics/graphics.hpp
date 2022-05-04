@@ -147,6 +147,8 @@ public:
     int getTargetX() const;
     int getTargetY() const;
     
+    void jumpToTarget();
+    
     int smooth_factor = 1;
     float blur_radius = 0;
     unsigned char shadow_intensity = 0;
