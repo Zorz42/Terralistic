@@ -30,19 +30,19 @@ class FpsChangeListener : public EventListener<SettingChangeEvent> {
         switch(fps_setting->getSelectedChoice()) {
             case 0:
                 gfx::enableVsync(true);
-                //gfx::setFpsLimit(0);  // TODO: implement
+                gfx::fps_limit = 0;
                 break;
             case 1:
                 gfx::enableVsync(false);
-                //gfx::setFpsLimit(5);  // TODO: implement
+                gfx::fps_limit = 5;
                 break;
             case 2:
                 gfx::enableVsync(false);
-                //gfx::setFpsLimit(60);  // TODO: implement
+                gfx::fps_limit = 60;
                 break;
             case 3:
                 gfx::enableVsync(false);
-                //gfx::setFpsLimit(0);  // TODO: implement
+                gfx::fps_limit = 0;
                 break;
         }
     }

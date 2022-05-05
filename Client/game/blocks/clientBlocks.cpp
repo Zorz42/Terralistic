@@ -196,8 +196,6 @@ void ClientBlocks::render() {
             }
 }
 
-
-
 int ClientBlocks::getBlocksViewBeginX() {
     return view_begin_x;
 }

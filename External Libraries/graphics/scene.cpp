@@ -196,6 +196,12 @@ void gfx::Scene::run() {
     while(running) {
         renderAll();
         
+        if(fps_limit) {
+            float ms_per_frame = 1000.f / fps_limit;
+            if(frame_length < ms_per_frame)
+                gfx::sleep(ms_per_frame - frame_length);
+        }
+            
         glfwPollEvents();
         
         if(glfwWindowShouldClose(glfw_window) != 0)
