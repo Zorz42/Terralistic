@@ -17,7 +17,7 @@ const char* vertex_shader_code =
 "uniform mat3 texture_transform_matrix;"
 "void main() {"
 "   gl_Position = vec4(transform_matrix * vec3(vertex_position.xy, 1), 1);"
-"   fragment_color = has_color_buffer * vertex_color + (1 - has_color_buffer) * default_color;"
+"   fragment_color = mix(default_color, vertex_color, has_color_buffer);"
 "   uv = (texture_transform_matrix * vec3(vertex_uv, 1)).xy;"
 "}";
 
@@ -29,7 +29,7 @@ const char* fragment_shader_code =
 "uniform sampler2D texture_sampler;"
 "uniform int has_texture;"
 "void main() {"
-"   color = (texture(texture_sampler, uv).rgba * has_texture + (1 - has_texture) * vec4(1.f, 1.f, 1.f, 1.f)) * fragment_color;"
+"   color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, uv).rgba, has_texture) * fragment_color;"
 "}";
 
 const char* blur_vertex_shader_code =
@@ -334,37 +334,27 @@ void gfx::sleep(float ms) {
 }
 
 void blurRect(gfx::RectShape rect, float offset_x, float offset_y) {
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gfx::window_texture_back, 0);
-    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gfx::window_texture);
-
-    glEnableVertexAttribArray(2);
-
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gfx::window_texture_back, 0);
+    glUniform2f(gfx::uniform_blur_offset, 0, offset_y);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    
-    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
-    
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gfx::window_texture, 0);
-    
-    glUseProgram(gfx::blur_shader_program);
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gfx::window_texture_back);
-    
-    glUniform2f(gfx::uniform_blur_offset, offset_x, offset_y);
-    
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gfx::window_texture, 0);
+    glUniform2f(gfx::uniform_blur_offset, offset_x, 0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-
-    glUseProgram(gfx::shader_program);
 }
 
 #define BLUR_QUALITY 3
 
 void gfx::blurRectangle(RectShape rect, int radius) {
+    glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+    
     glUseProgram(gfx::blur_shader_program);
     
-    float x1 = (rect.x + 1) * gfx::window_width_reciprocal, y1 = (rect.y + 1) * gfx::window_height_reciprocal, x2 = (rect.x + rect.w) * gfx::window_width_reciprocal, y2 = (rect.y + rect.h) * gfx::window_height_reciprocal;
+    float x1 = (rect.x + 1) * gfx::window_width_reciprocal, y1 = (rect.y + 1) * gfx::window_height_reciprocal, x2 = (rect.x + rect.w - 1) * gfx::window_width_reciprocal, y2 = (rect.y + rect.h - 1) * gfx::window_height_reciprocal;
     glUniform4f(gfx::uniform_blur_limit, x2, -y1, x1, -y2);
     
     glUniform1i(gfx::uniform_blur_texture_sampler, 0);
@@ -402,9 +392,14 @@ void gfx::blurRectangle(RectShape rect, int radius) {
     glUniformMatrix3fv(gfx::uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
     
     
+    glUseProgram(gfx::blur_shader_program);
+    
     while(radius > 10) {
-        blurRect(rect, window_width_reciprocal / 10 * radius, 0);
-        blurRect(rect, 0, window_height_reciprocal / 10 * radius);
+        blurRect(rect, window_width_reciprocal / 10 * radius, window_height_reciprocal / 10 * radius);
         radius = std::sqrt(radius) * BLUR_QUALITY;
     }
+    
+    glUseProgram(gfx::shader_program);
+    
+    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
 }
