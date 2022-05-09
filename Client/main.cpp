@@ -10,13 +10,16 @@ class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     void onEvent(SettingChangeEvent& event) override {
         switch(scale_setting->getSelectedChoice()) {
             case 0:
-                //gfx::setGlobalScale(0.5);  // TODO: implement
+                gfx::setGlobalScale(0);
                 break;
             case 1:
-                //gfx::setGlobalScale(1);  // TODO: implement
+                gfx::setGlobalScale(0.5);
                 break;
             case 2:
-                //gfx::setGlobalScale(2);  // TODO: implement
+                gfx::setGlobalScale(1);
+                break;
+            case 3:
+                gfx::setGlobalScale(2);
                 break;
         }
     }
@@ -86,7 +89,7 @@ int main(int argc, char **argv) {
     Settings settings;
     gfx::addAGlobalUpdateFunction(&settings);
     
-    ChoiceSetting scale_setting("Scale", {"Small", "Normal", "Large"}, 1);
+    ChoiceSetting scale_setting("Scale", {"Auto", "Small", "Normal", "Large"}, 0);
     ScaleChangeListener scale_change_listener(&scale_setting);
     scale_setting.setting_change_event.addListener(&scale_change_listener);
     settings.addSetting(&scale_setting);

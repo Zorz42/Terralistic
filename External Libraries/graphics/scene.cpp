@@ -218,8 +218,8 @@ void gfx::Scene::renderAll() {
     
     double mouse_x_normalized, mouse_y_normalized;
     glfwGetCursorPos(glfw_window, &mouse_x_normalized, &mouse_y_normalized);
-    mouse_x = mouse_x_normalized;
-    mouse_y = mouse_y_normalized;
+    mouse_x = mouse_x_normalized * gfx::system_scale_x / gfx::global_scale_x;
+    mouse_y = mouse_y_normalized * gfx::system_scale_y / gfx::global_scale_y;
     for(int i = 0; i < modules.size(); i++)
         if(modules[i]->enabled) {
             modules[i]->mouse_x = mouse_x;

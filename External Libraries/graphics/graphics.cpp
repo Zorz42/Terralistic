@@ -106,7 +106,11 @@ GLuint CompileShaders(const char* vertex_code, const char* fragment_code) {
     return program_id;
 }
 
+#include <iostream>
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+    std::cout << width << ", " << height << std::endl;
+    
     gfx::window_width = width / gfx::global_scale_x;
     gfx::window_height = height / gfx::global_scale_y;
     gfx::window_width_reciprocal = 1.f / gfx::window_width;
@@ -134,10 +138,24 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
-    gfx::global_scale_x = scale_x;
-    gfx::global_scale_y = scale_y;
+    if(gfx::global_scale == 0) {
+        gfx::global_scale_x = scale_x;
+        gfx::global_scale_y = scale_y;
+    } else {
+        gfx::global_scale_x = gfx::global_scale;
+        gfx::global_scale_y = gfx::global_scale;
+    }
     
-    framebufferSizeCallback(gfx::glfw_window, gfx::window_width * scale_x, gfx::window_height * scale_y);
+    gfx::system_scale_x = scale_x;
+    gfx::system_scale_y = scale_y;
+    
+    int window_width, window_height;
+    glfwGetWindowSize(gfx::glfw_window, &window_width, &window_height);
+    
+    gfx::Scene* temp_scene = gfx::curr_scene;
+    gfx::curr_scene = nullptr;
+    framebufferSizeCallback(gfx::glfw_window, window_width * gfx::system_scale_x, window_height * gfx::system_scale_y);
+    gfx::curr_scene = temp_scene;
 }
 
 void gfx::setMinimumWindowSize(int width, int height) {
@@ -412,4 +430,9 @@ void gfx::blurRectangle(RectShape rect, int radius) {
     glUseProgram(gfx::shader_program);
     
     glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+}
+
+void gfx::setGlobalScale(float scale) {
+    global_scale = scale;
+    windowContentScaleCallback(gfx::glfw_window, gfx::system_scale_x, gfx::system_scale_y);
 }

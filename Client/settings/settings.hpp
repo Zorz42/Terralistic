@@ -44,7 +44,6 @@ public:
 class Settings : public gfx::GlobalUpdateFunction, EventListener<SettingChangeEvent> {
     std::vector<Setting*> settings;
     ConfigFile config_file;
-    int count = 0;
     void update() override;
     void onEvent(SettingChangeEvent& event) override;
     bool is_loading = false;

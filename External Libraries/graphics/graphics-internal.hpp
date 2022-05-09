@@ -15,7 +15,7 @@ inline float window_width_reciprocal, window_height_reciprocal;
 
 inline std::vector<GlobalUpdateFunction*> global_update_functions;
 inline float frame_length;
-inline float global_scale_x = 1, global_scale_y = 1;
+inline float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_scale_y = 1;
 
 inline bool key_states[(int)gfx::Key::UNKNOWN];
 
@@ -26,6 +26,7 @@ uniform_blur_texture_transform_matrix, uniform_blur_texture_sampler,
 uniform_blur_offset, uniform_blur_limit;
 inline Transformation window_normalization_transform, normalization_transform;
 inline GLuint window_texture, window_texture_back, default_framebuffer;
+inline float global_scale = 0;
 
 inline GLuint rect_vertex_buffer, rect_outline_vertex_buffer;
 
