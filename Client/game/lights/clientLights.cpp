@@ -96,7 +96,7 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
-    //light_rects.render(nullptr, x, y, /*blend_multiply*/true);
+    light_rects.render(nullptr, x, y, /*blend_multiply*/true);
 }
 
 void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {

@@ -140,6 +140,19 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         
         glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->getNormalizationTransform().getArray());
     }
+    
+    
+    if(blend_multiply) {
+        glUniform1i(uniform_blend_multiply, 1);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, window_texture);
+        
+        transform.stretch(0.5, 0.5);
+        transform.translate(-x, -y);
+        glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, transform.getArray());
+    } else
+        glUniform1i(uniform_blend_multiply, 0);
 
     glDrawArrays(GL_TRIANGLES, 0, length * 6);
     

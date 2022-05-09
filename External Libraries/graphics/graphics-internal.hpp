@@ -19,7 +19,11 @@ inline float global_scale_x = 1, global_scale_y = 1;
 
 inline bool key_states[(int)gfx::Key::UNKNOWN];
 
-inline GLuint uniform_has_color_buffer, uniform_default_color, uniform_has_texture, uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_matrix, uniform_blur_transform_matrix, uniform_blur_texture_transform_matrix, uniform_blur_texture_sampler, uniform_blur_offset, uniform_blur_limit;
+inline GLuint uniform_has_color_buffer, uniform_default_color, uniform_has_texture,
+uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_matrix,
+uniform_back_texture_sampler, uniform_blend_multiply, uniform_blur_transform_matrix,
+uniform_blur_texture_transform_matrix, uniform_blur_texture_sampler,
+uniform_blur_offset, uniform_blur_limit;
 inline Transformation window_normalization_transform, normalization_transform;
 inline GLuint window_texture, window_texture_back, default_framebuffer;
 

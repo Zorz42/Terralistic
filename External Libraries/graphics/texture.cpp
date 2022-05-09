@@ -8,6 +8,9 @@ void gfx::Texture::createBlankImage(int width_, int height_) {
     memset(array, 0, width_ * height_ * 4);
     loadFromData(array, width_, height_);
     delete[] array;
+    
+    glBindTexture(GL_TEXTURE_2D, gl_texture);
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void gfx::Texture::loadFromData(const unsigned char* data, int width_, int height_) {
@@ -66,6 +69,7 @@ void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool fl
     
     glUniform1i(uniform_texture_sampler, 0);
     glUniform1i(uniform_has_texture, 1);
+    glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
     Transformation transform = normalization_transform;
     

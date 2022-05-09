@@ -1909,7 +1909,10 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-ffast-math",
+				);
 				OTHER_LDFLAGS = (
 					"-lGLEW",
 					"-lglfw",
@@ -1987,7 +1990,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-ffast-math",
+				);
 				OTHER_LDFLAGS = (
 					"-lGLEW",
 					"-lglfw",

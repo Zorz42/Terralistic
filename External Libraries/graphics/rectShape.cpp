@@ -13,6 +13,7 @@ void gfx::RectShape::render(Color color) const {
     glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     
     glUniform1i(uniform_has_texture, 0);
+    glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
     Transformation transform = normalization_transform;
     transform.translate(x, y);
@@ -33,6 +34,7 @@ void gfx::RectShape::renderOutline(Color color) const {
     glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     
     glUniform1i(uniform_has_texture, 0);
+    glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
     Transformation transform = normalization_transform;
     transform.translate(x, y);

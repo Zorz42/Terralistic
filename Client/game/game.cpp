@@ -158,7 +158,7 @@ bool Game::onKeyDown(gfx::Key key) {
         switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
-        //reloads resources
+        // reloads resources
         if(pause_screen.changed_mods) {
             resource_pack.loadPaths();
             for (int i = 0; i < getModules().size(); i++)
