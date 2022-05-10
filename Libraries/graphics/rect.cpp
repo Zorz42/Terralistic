@@ -22,63 +22,37 @@ void gfx::Rect::render() {
 
     if(blur_radius && blur_enabled)
         gfx::blurRectangle(rect, blur_radius, window_texture, window_texture_back, getWindowWidth(), getWindowHeight(), normalization_transform);
-
-    rect.render(fill_color);
-    rect.renderOutline(border_color);
     
-    /*if(shadow_intensity) {
-        sf::Sprite shadow_sprite(gfx::shadow_texture.getTexture());
-        shadow_sprite.setColor({255, 255, 255, shadow_intensity});
-        
+    if(shadow_intensity) {
         float temp_width = std::min(200.f + (float)width / 2, 350.f), temp_height = std::min(200.f + (float)height / 2, 350.f);
         
-        shadow_sprite.setTextureRect({0, 0, (int)std::floor(temp_width), (int)std::ceil(temp_height)});
-        shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() - 200);
-        render_target->draw(shadow_sprite);
-        
-        shadow_sprite.setTextureRect({700 - (int)std::ceil(temp_width), 0, (int)std::ceil(temp_width), (int)std::ceil(temp_height)});
-        shadow_sprite.setPosition(getTranslatedX() + width - std::ceil(temp_width) + 200, getTranslatedY() - 200);
-        render_target->draw(shadow_sprite);
-        
-        shadow_sprite.setTextureRect({0, 700 - (int)std::floor(temp_height), (int)std::floor(temp_width), (int)std::floor(temp_height)});
-        shadow_sprite.setPosition(getTranslatedX() - 200, getTranslatedY() + height - std::floor(temp_height) + 200);
-        render_target->draw(shadow_sprite);
-        
-        shadow_sprite.setTextureRect({700 - (int)std::ceil(temp_width), 700 - (int)std::floor(temp_height), (int)std::ceil(temp_width), (int)std::floor(temp_height)});
-        shadow_sprite.setPosition(getTranslatedX() + width - std::ceil(temp_width) + 200, getTranslatedY() + height - std::floor(temp_height) + 200);
-        render_target->draw(shadow_sprite);
+        shadow_texture.render(1, rect.x - 200, rect.y - 200, {0, 0, (int)std::floor(temp_width), (int)std::ceil(temp_height)}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture.render(1, rect.x + width - std::ceil(temp_width) + 200, rect.y - 200, {700 - (int)std::ceil(temp_width), 0, (int)std::ceil(temp_width), (int)std::ceil(temp_height)}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture.render(1, rect.x - 200, rect.y + height - std::floor(temp_height) + 200, {0, 700 - (int)std::floor(temp_height), (int)std::floor(temp_width), (int)std::floor(temp_height)}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture.render(1, rect.x + width - std::ceil(temp_width) + 200, rect.y + height - std::floor(temp_height) + 200, {700 - (int)std::ceil(temp_width), 700 - (int)std::floor(temp_height), (int)std::ceil(temp_width), (int)std::floor(temp_height)}, false, {255, 255, 255, shadow_intensity});
         
         if(temp_height == 350) {
-            sf::Sprite shadow_part_sprite_left(shadow_part_left.getTexture());
-            shadow_part_sprite_left.setTextureRect({0, 0, 200, height - 300});
-            shadow_part_sprite_left.setPosition(getTranslatedX() - 200, getTranslatedY() + 150);
-            shadow_part_sprite_left.setColor({255, 255, 255, shadow_intensity});
-            render_target->draw(shadow_part_sprite_left);
-            
-            sf::Sprite shadow_part_sprite_right(shadow_part_right.getTexture());
-            shadow_part_sprite_right.setTextureRect({0, 0, 200, height - 300});
-            shadow_part_sprite_right.setPosition(getTranslatedX() + width, getTranslatedY() + 150);
-            shadow_part_sprite_right.setColor({255, 255, 255, shadow_intensity});
-            render_target->draw(shadow_part_sprite_right);
+            int height_to_render = height - 300;
+            while(height_to_render > 0) {
+                shadow_texture.render(1, rect.x - 200, rect.y + height - 150 - height_to_render, {0, 300, 200, std::min(100, height_to_render)}, false, {255, 255, 255, shadow_intensity});
+                shadow_texture.render(1, rect.x + width, rect.y + height - 150 - height_to_render, {500, 300, 200, std::min(100, height_to_render)}, false, {255, 255, 255, shadow_intensity});
+                height_to_render -= 100;
+            }
         }
         
         if(temp_width == 350) {
-            sf::Sprite shadow_part_sprite_up(shadow_part_up.getTexture());
-            shadow_part_sprite_up.setTextureRect({0, 0, width - 300, 200});
-            shadow_part_sprite_up.setPosition(getTranslatedX() + 150, getTranslatedY() - 200);
-            shadow_part_sprite_up.setColor({255, 255, 255, shadow_intensity});
-            render_target->draw(shadow_part_sprite_up);
-            
-            sf::Sprite shadow_part_sprite_down(shadow_part_down.getTexture());
-            shadow_part_sprite_down.setTextureRect({0, 0, width - 300, 200});
-            shadow_part_sprite_down.setPosition(getTranslatedX() + 150, getTranslatedY() + height);
-            shadow_part_sprite_down.setColor({255, 255, 255, shadow_intensity});
-            render_target->draw(shadow_part_sprite_down);
+            int width_to_render = width - 300;
+            while(width_to_render > 0) {
+                shadow_texture.render(1, rect.x + width - 150 - width_to_render, rect.y - 200, {300, 0, std::min(100, width_to_render), 200}, false, {255, 255, 255, shadow_intensity});
+                shadow_texture.render(1, rect.x + width - 150 - width_to_render, rect.y + height, {300, 500, std::min(100, width_to_render), 200}, false, {255, 255, 255, shadow_intensity});
+                width_to_render -= 100;
+            }
         }
 
-    }*/
-    //rect.render(fill_color);
-    //rect.renderOutline(border_color);
+    }
+    
+    rect.render(fill_color);
+    rect.renderOutline(border_color);
 }
 
 int gfx::Rect::getWidth() const {

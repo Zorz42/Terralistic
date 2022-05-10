@@ -40,6 +40,8 @@ void updateWindow();
 inline Texture font_texture;
 inline RectShape font_rects[256];
 
+inline Texture shadow_texture;
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);

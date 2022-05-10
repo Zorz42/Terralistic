@@ -60,9 +60,9 @@ const char* blur_fragment_shader_code =
 "uniform mat3 texture_transform_matrix;"
 "float gauss[21] = float[](0.0012, 0.0015, 0.0038, 0.0087, 0.0180, 0.0332, 0.0547, 0.0807, 0.1065, 0.1258, 0.1330, 0.1258, 0.1065, 0.0807, 0.0547, 0.0332, 0.0180, 0.0087, 0.0038, 0.0015, 0.0012);"
 "void main() {"
-"   color = vec4(0, 0, 0, 1);"
+"   color = vec4(0, 0, 0, 0);"
 "   for(int i = 0; i < 21; i++)"
-"       color.rgb += texture(texture_sampler, max(min(uv + (i - 10.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))).rgb * gauss[i];"
+"       color += texture(texture_sampler, max(min(uv + (i - 10.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];"
 "}";
 
 void checkForError(GLuint id) {
@@ -254,6 +254,18 @@ void gfx::init(int window_width_, int window_height_) {
     glDrawBuffers(1, DrawBuffers);
     
     glEnableVertexAttribArray(SHADER_VERTEX_BUFFER);
+    
+    shadow_texture.createBlankImage(700, 700);
+    Texture shadow_texture_back;
+    shadow_texture_back.createBlankImage(700, 700);
+    shadow_texture.setRenderTarget();
+    RectShape(200, 200, 300, 300).render({0, 0, 0});
+    
+    Transformation shadow_transform = shadow_texture.getNormalizationTransform();
+    shadow_transform.translate(-700, 0);
+    shadow_transform.stretch(2, 2);
+    for(int i = 0; i < 10; i++)
+        blurRectangle(RectShape(0, 0, 700, 700), 100, shadow_texture.getGlTexture(), shadow_texture_back.getGlTexture(), 700, 700, shadow_transform);
 }
 
 void gfx::enableVsync(bool enabled) {
