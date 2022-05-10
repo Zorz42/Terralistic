@@ -709,7 +709,6 @@
 		167C03A926E13A620045FEA9 /* External Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				366D96E12820568400DEC292 /* graphics */,
 				1689687725E9607800D26060 /* sago */,
 				3677B5A827283E20000F4D77 /* perlinNoise.hpp */,
 			);
@@ -1002,6 +1001,7 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				366D96E12820568400DEC292 /* graphics */,
 				366D96F4282059C600DEC292 /* readOpa */,
 				36D26F2927352F6600F1F476 /* exception */,
 				36D31CD626DBE31D006F89B3 /* compress */,

@@ -356,41 +356,40 @@ void gfx::sleep(float ms) {
     std::this_thread::sleep_for(std::chrono::microseconds(int(ms * 1000)));
 }
 
-void blurRect(gfx::RectShape rect, float offset_x, float offset_y) {
+void blurRect(gfx::RectShape rect, float offset_x, float offset_y, GLuint texture, GLuint back_texture) {
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gfx::window_texture);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gfx::window_texture_back, 0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, back_texture, 0);
     glUniform2f(gfx::uniform_blur_offset, 0, offset_y);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gfx::window_texture_back);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gfx::window_texture, 0);
+    glBindTexture(GL_TEXTURE_2D, back_texture);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
     glUniform2f(gfx::uniform_blur_offset, offset_x, 0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 #define BLUR_QUALITY 3
 
-void gfx::blurRectangle(RectShape rect, int radius) {
+void gfx::blurRectangle(RectShape rect, int radius, GLuint texture, GLuint back_texture, float width, float height, Transformation texture_transform) {
     glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glUseProgram(gfx::blur_shader_program);
     
-    float x1 = (rect.x + 1) * gfx::window_width_reciprocal, y1 = (rect.y + 1) * gfx::window_height_reciprocal, x2 = (rect.x + rect.w - 1) * gfx::window_width_reciprocal, y2 = (rect.y + rect.h - 1) * gfx::window_height_reciprocal;
+    float x1 = (rect.x + 1) / width, y1 = (rect.y + 1) / height, x2 = (rect.x + rect.w - 1) / width, y2 = (rect.y + rect.h - 1) / height;
     glUniform4f(gfx::uniform_blur_limit, x2, -y1, x1, -y2);
     
     glUniform1i(gfx::uniform_blur_texture_sampler, 0);
     glUniform1i(gfx::uniform_back_texture_sampler, 0);
     
-    Transformation transform = gfx::normalization_transform;
+    Transformation transform = texture_transform;
     transform.translate(rect.x, rect.y);
     transform.stretch(rect.w, rect.h);
-    
     glUniformMatrix3fv(gfx::uniform_blur_transform_matrix, 1, GL_FALSE, transform.getArray());
     
     transform = gfx::Transformation();
-    transform.stretch(gfx::window_width_reciprocal, -gfx::window_height_reciprocal);
+    transform.stretch(1 / width, -1 / height);
     transform.translate(rect.x, rect.y);
     transform.stretch(rect.w, rect.h);
     glUniformMatrix3fv(gfx::uniform_blur_texture_transform_matrix, 1, GL_FALSE, transform.getArray());
@@ -399,27 +398,14 @@ void gfx::blurRectangle(RectShape rect, int radius) {
     glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     
-    glUseProgram(gfx::shader_program);
-    
     glUniform1i(gfx::uniform_texture_sampler, 0);
     glUniform1i(gfx::uniform_has_texture, 1);
     glUniform1i(gfx::uniform_has_color_buffer, 0);
-    transform = gfx::normalization_transform;
-    
-    transform.stretch(gfx::window_width, gfx::window_height);
-    
-    glUniformMatrix3fv(gfx::uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
-    glUniform4f(gfx::uniform_default_color, 1.f, 1.f, 1.f, 1.f);
-    
-    gfx::Transformation texture_transform = gfx::window_normalization_transform;
-    texture_transform.stretch(gfx::window_width * 0.5f, gfx::window_height * 0.5f);
-    glUniformMatrix3fv(gfx::uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
-    
     
     glUseProgram(gfx::blur_shader_program);
     
     while(radius > 10) {
-        blurRect(rect, window_width_reciprocal / 10 * radius, window_height_reciprocal / 10 * radius);
+        blurRect(rect, radius / width / 10, radius / height / 10, texture, back_texture);
         radius = std::sqrt(radius) * BLUR_QUALITY;
     }
     

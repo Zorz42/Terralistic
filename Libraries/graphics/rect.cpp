@@ -21,7 +21,7 @@ void gfx::Rect::render() {
     RectShape rect = getTranslatedRect();
 
     if(blur_radius && blur_enabled)
-        gfx::blurRectangle(rect, blur_radius);
+        gfx::blurRectangle(rect, blur_radius, window_texture, window_texture_back, getWindowWidth(), getWindowHeight(), normalization_transform);
 
     rect.render(fill_color);
     rect.renderOutline(border_color);

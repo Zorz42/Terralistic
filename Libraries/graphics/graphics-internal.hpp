@@ -33,7 +33,7 @@ inline GLuint rect_vertex_buffer, rect_outline_vertex_buffer;
 inline Scene* curr_scene = nullptr;
 inline int window_resized_counter = 0;
 
-void blurRectangle(RectShape rect, int radius);
+void blurRectangle(RectShape rect, int radius, GLuint texture, GLuint back_texture, float width, float height, Transformation texture_transform);
 
 void updateWindow();
 
