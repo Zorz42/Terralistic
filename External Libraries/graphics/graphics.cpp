@@ -106,11 +106,7 @@ GLuint CompileShaders(const char* vertex_code, const char* fragment_code) {
     return program_id;
 }
 
-#include <iostream>
-
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    std::cout << width << ", " << height << std::endl;
-    
     gfx::window_width = width / gfx::global_scale_x;
     gfx::window_height = height / gfx::global_scale_y;
     gfx::window_width_reciprocal = 1.f / gfx::window_width;
