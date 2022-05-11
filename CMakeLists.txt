@@ -52,6 +52,8 @@ message(${CMAKE_CXX_COMPILER})
 if(WIN32)
     SET(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
     SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib/)
+    SET(GLEW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glew-2.1.0/)
+    SET(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7.bin.WIN64/)
 
     set(SFML_DEPS flac freetype ogg openal32 vorbis vorbisenc vorbisfile)
     set(SFML_LIBS_RELEASE sfml-system sfml-graphics sfml-audio sfml-network sfml-window sfml-main)
@@ -83,13 +85,17 @@ if(WIN32)
     SET(ZLIB_LIB zlib)
     SET(ZLIB_DLL ${ZLIB_DIR}bin/zlib1.dll)
 
-    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/)
-    target_link_libraries(Terralistic Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB})
+    SET(GLFW_LIB glfw3 opengl32 kernel32 user32 gdi32 winspool shell32 ole32 oleaut32 uuid comdlg32 advapi32 glfw3)
 
-    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/)
-    target_link_libraries(Terralistic-server Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB})
+    SET(GLEW_LIB glew32 glew32s)
 
-    include_directories(Terralistic ${SFML_DIR}include/ ${ZLIB_DIR}include/)
+    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/x64/)
+    target_link_libraries(Terralistic Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB} ${GLFW_LIB} ${GLEW_LIB})
+
+    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/x64/)
+    target_link_libraries(Terralistic-server Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB} ${GLFW_LIB} ${GLEW_LIB})
+
+    include_directories(Terralistic ${SFML_DIR}include/ ${ZLIB_DIR}include/ ${GLEW_DIR}include/ ${GLFW_DIR}include/)
 
     file(COPY ${SFML_DLLS_TO_USE} ${ZLIB_DLL} DESTINATION .)
 else()
@@ -104,4 +110,3 @@ else()
 endif()
 
 file(COPY Resources DESTINATION .)
-file(COPY Resources/font.ttf DESTINATION .)
