@@ -53,7 +53,7 @@ if(WIN32)
     SET(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
     SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib/)
     SET(GLEW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glew-2.1.0/)
-    SET(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7.bin.WIN64/)
+    SET(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7.bin.WIN32/)
 
     set(SFML_DEPS flac freetype ogg openal32 vorbis vorbisenc vorbisfile)
     set(SFML_LIBS_RELEASE sfml-system sfml-graphics sfml-audio sfml-network sfml-window sfml-main)
@@ -74,6 +74,10 @@ if(WIN32)
             ${SFML_DIR}bin/sfml-window-d-2.dll
             )
 
+    SET(GLEW_DLL ${GLEW_DIR}bin/Release/Win32/glew32.dll)
+
+    SET(GLFW_DLL ${GLFW_DIR}lib-vc2022/glfw3.dll)
+
     if(IS_DEBUG)
         SET(SFML_LIBS_TO_USE ${SFML_LIBS_DEBUG} ${SFML_DEPS})
         SET(SFML_DLLS_TO_USE ${SFML_DLLS_DEBUG} ${SFML_DIR}bin/openal32.dll)
@@ -87,17 +91,17 @@ if(WIN32)
 
     SET(GLFW_LIB glfw3 opengl32 kernel32 user32 gdi32 winspool shell32 ole32 oleaut32 uuid comdlg32 advapi32 glfw3)
 
-    SET(GLEW_LIB glew32 glew32s)
+    SET(GLEW_LIB glew32 opengl32 Ws2_32 ole32 comctl32 gdi32 comdlg32 uuid)
 
-    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/x64/)
+    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/Win32/)
     target_link_libraries(Terralistic Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB} ${GLFW_LIB} ${GLEW_LIB})
 
-    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/x64/)
+    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/Win32/)
     target_link_libraries(Terralistic-server Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB} ${GLFW_LIB} ${GLEW_LIB})
 
     include_directories(Terralistic ${SFML_DIR}include/ ${ZLIB_DIR}include/ ${GLEW_DIR}include/ ${GLFW_DIR}include/)
 
-    file(COPY ${SFML_DLLS_TO_USE} ${ZLIB_DLL} DESTINATION .)
+    file(COPY ${SFML_DLLS_TO_USE} ${ZLIB_DLL} ${GLFW_DLL} ${GLEW_DLL} DESTINATION .)
 else()
     set(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
 

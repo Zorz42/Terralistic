@@ -12,7 +12,7 @@ public:
 };
 
 int main(int argc, char **argv) {
-    std::string data_folder = sago::getDataHome() + "/Terralistic-Server/";
+    /*std::string data_folder = sago::getDataHome() + "/Terralistic-Server/";
     
     bool gui = true;
     
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
         server_thread.join();
     } else {
         main_server.start();
-    }
+    }*/
 }
 
 void ServerScene::init() {

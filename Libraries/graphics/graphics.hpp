@@ -292,8 +292,6 @@ void setGlobalScale(float scale);
 void setFpsLimit(int limit);
 void enableVsync(bool enabled);
 
-void loadIconFromFile(const std::string& path);
-
 inline bool blur_enabled = true;
 inline int fps_limit = 0;
 

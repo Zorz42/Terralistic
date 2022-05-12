@@ -47,5 +47,5 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void characterCallback(GLFWwindow* window, unsigned int codepoint);
 
-//inline sf::RenderTexture shadow_texture, shadow_part_left, shadow_part_right, shadow_part_up, shadow_part_down;
+inline int window_width_min, window_height_min;
 }
