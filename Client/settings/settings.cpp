@@ -33,7 +33,7 @@ void ChoiceSetting::loadFromStr(std::string value) {
     setSelectedChoice(std::stoi(value));
 }
 
-int ChoiceSetting::getSelectedChoice() {
+int ChoiceSetting::getSelectedChoice() const {
     return selected_choice;
 }
 
@@ -52,7 +52,7 @@ void BooleanSetting::loadFromStr(std::string value_) {
     setValue(std::stoi(value_));
 }
 
-bool BooleanSetting::getValue() {
+bool BooleanSetting::getValue() const {
     return value;
 }
 
@@ -66,9 +66,9 @@ void BooleanSetting::setValue(bool new_value) {
 void Settings::reloadSettings() {
     is_loading = true;
     config_file.reloadFromDisk();
-    for(int i = 0; i < settings.size(); i++)
-        if(config_file.keyExists(settings[i]->indent))
-            settings[i]->loadFromStr(config_file.getStr(settings[i]->indent));
+    for(auto & setting : settings)
+        if(config_file.keyExists(setting->indent))
+            setting->loadFromStr(config_file.getStr(setting->indent));
     is_loading = false;
 }
 
@@ -83,8 +83,8 @@ void Settings::update() {
 
 void Settings::onEvent(SettingChangeEvent& event) {
     if(!is_loading) {
-        for(int i = 0; i < settings.size(); i++)
-            config_file.setStr(settings[i]->indent, settings[i]->exportToStr());
+        for(auto & setting : settings)
+            config_file.setStr(setting->indent, setting->exportToStr());
         config_file.saveConfig();
     }
 }

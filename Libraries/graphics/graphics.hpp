@@ -1,13 +1,11 @@
 #pragma once
 
-#define GL_SILENCE_DEPRECATION
 #include "theme.hpp"
+#include <utility>
 #include <vector>
 #include <string>
 #include <stdexcept>
 #include <chrono>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 namespace gfx {
 
@@ -18,8 +16,9 @@ public:
 
 class RectShape {
 public:
-    RectShape(int x = 0, int y = 0, int w = 0, int h = 0);
-    int x, y, w, h;
+    RectShape(int x, int y, int w, int h);
+    RectShape() = default;
+    int x = 0, y = 0, w = 0, h = 0;
     void render(Color color) const;
     void renderOutline(Color color) const;
 };
@@ -79,7 +78,7 @@ public:
 class Texture {
 protected:
     void freeTexture();
-    GLuint gl_texture = -1;
+    unsigned int gl_texture = -1;
     int width = 0, height = 0;
     Transformation texture_normalization_transform;
 public:
@@ -91,11 +90,10 @@ public:
     void createBlankImage(int width, int height);
     void loadFromData(const unsigned char* data, int width, int height);
     void loadFromText(const std::string& text, Color color={255, 255, 255});
-    GLuint getGlTexture();
 
     void setRenderTarget();
     const Transformation& getNormalizationTransform() const;
-    GLuint getGlTexture() const;
+    unsigned int getGlTexture() const;
     
     ~Texture();
 };
@@ -105,7 +103,7 @@ class RectArray {
     std::vector<float> vertex_array;
     std::vector<float> color_array;
     std::vector<float> texture_pos_array;
-    GLuint vertex_buffer = -1, color_buffer, texture_pos_buffer;
+    unsigned int vertex_buffer = -1, color_buffer, texture_pos_buffer;
     bool update_vertex = true, update_color = true, update_texture_vertex = true;
     
     void setVertex(int index, int x, int y);
@@ -128,7 +126,7 @@ class Rect : public _CenteredObject {
     int width, height;
     
     int target_x = 0, target_y = 0, target_width = 0, target_height = 0;
-    Timer approach_timer, blur_timer;
+    Timer approach_timer;
     
     bool first_time = true;
 public:
@@ -215,7 +213,7 @@ public:
     int getWidth() const override;
     void setText(const std::string& text);
     std::vector<Key> getPassthroughKeys() const { return passthrough_keys; }
-    void setPassthroughKeys(std::vector<Key> new_keys) { passthrough_keys = new_keys; };
+    void setPassthroughKeys(std::vector<Key> new_keys) { passthrough_keys = std::move(new_keys); };
 
     bool active = false, ignore_next_input = false;
     char (*textProcessing)(char c, int length) = nullptr;
@@ -282,14 +280,12 @@ void quit();
 void loadFont(const unsigned char* data);
 
 void setMinimumWindowSize(int width, int height);
-void setWindowSize(int width, int height);
 int getWindowWidth();
 int getWindowHeight();
 
 void resetRenderTarget();
 
 void setGlobalScale(float scale);
-void setFpsLimit(int limit);
 void enableVsync(bool enabled);
 
 inline bool blur_enabled = true;

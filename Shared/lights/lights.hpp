@@ -13,8 +13,8 @@ class LightColor {
 public:
     LightColor(int r, int g, int b) : r(r), g(g), b(b) {}
     int r:8, g:8, b:8;
-    bool operator==(LightColor color);
-    bool operator!=(LightColor color);
+    bool operator==(LightColor color) const;
+    bool operator!=(LightColor color) const;
 };
 
 class Lights : EventListener<BlockChangeEvent> {
@@ -35,7 +35,7 @@ class Lights : EventListener<BlockChangeEvent> {
     
     Blocks* blocks;
 public:
-    Lights(Blocks* blocks) : blocks(blocks) {}
+    explicit Lights(Blocks* blocks) : blocks(blocks) {}
     void create();
     void updateAllLightEmitters();
     
@@ -50,7 +50,6 @@ public:
     bool isLightSource(int x, int y);
     LightColor getLightColor(int x, int y);
     LightColor getLightSourceColor(int x, int y);
-    int getLightLevel(int x, int y);
     void scheduleLightUpdate(int x, int y);
     bool hasScheduledLightUpdate(int x, int y);
     void scheduleLightUpdateForNeighbors(int x, int y);

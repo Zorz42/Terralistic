@@ -4,11 +4,11 @@ const ParticleInfo* Particle::getInfo() {
     return info;
 }
 
-int Particle::getX() {
+int Particle::getX() const {
     return x;
 }
 
-int Particle::getY() {
+int Particle::getY() const {
     return y;
 }
 
@@ -16,7 +16,7 @@ int Particle::getTimeSpawned() {
     return timer.getTimeElapsed();
 }
 
-bool Particle::isColliding(Blocks* blocks) {
+bool Particle::isColliding(Blocks* blocks) const {
     return isColliding(blocks, x, y);
 }
 
@@ -39,7 +39,7 @@ bool Particle::isColliding(Blocks* blocks, float colliding_x, float colliding_y)
     return false;
 }
 
-bool Particle::isGrounded(Blocks* blocks) {
+bool Particle::isGrounded(Blocks* blocks) const {
     return isColliding(blocks, x, y + 1);
 }
 
@@ -106,8 +106,8 @@ void Particles::updateParallel(float frame_length) {
 }
 
 void Particles::render() {
-    for(int i = 0; i < particles.size(); i++)
-        particles[i].getInfo()->render(particles[i].getX() - camera->getX() + gfx::getWindowWidth() / 2, particles[i].getY() - camera->getY() + gfx::getWindowHeight() / 2);
+    for(auto & particle : particles)
+        particle.getInfo()->render(particle.getX() - camera->getX() + gfx::getWindowWidth() / 2, particle.getY() - camera->getY() + gfx::getWindowHeight() / 2);
 }
 
 void WalkParticle::render(int x, int y) const {

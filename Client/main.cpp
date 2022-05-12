@@ -24,7 +24,7 @@ class ScaleChangeListener : public EventListener<SettingChangeEvent> {
         }
     }
 public:
-    ScaleChangeListener(ChoiceSetting* scale_setting) : scale_setting(scale_setting) {}
+    explicit ScaleChangeListener(ChoiceSetting* scale_setting) : scale_setting(scale_setting) {}
 };
 
 class FpsChangeListener : public EventListener<SettingChangeEvent> {
@@ -50,7 +50,7 @@ class FpsChangeListener : public EventListener<SettingChangeEvent> {
         }
     }
 public:
-    FpsChangeListener(ChoiceSetting* fps_setting) : fps_setting(fps_setting) {}
+    explicit FpsChangeListener(ChoiceSetting* fps_setting) : fps_setting(fps_setting) {}
 };
 
 class BlurChangeListener : public EventListener<SettingChangeEvent> {
@@ -59,7 +59,7 @@ class BlurChangeListener : public EventListener<SettingChangeEvent> {
         gfx::blur_enabled = blur_setting->getValue();
     }
 public:
-    BlurChangeListener(BooleanSetting* blur_setting) : blur_setting(blur_setting) {}
+    explicit BlurChangeListener(BooleanSetting* blur_setting) : blur_setting(blur_setting) {}
 };
 
 

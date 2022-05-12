@@ -35,13 +35,13 @@ void ServerEntities::update(float frame_length) {
     
     if(timer.getTimeElapsed() > 1000) {
         timer.reset();
-        for(int i = 0; i < getEntities().size(); i++) {
+        for(auto i : getEntities()) {
             sf::Packet packet;
-            packet << ServerPacketType::ENTITY_POSITION << getEntities()[i]->getX() << getEntities()[i]->getY() << getEntities()[i]->id;
+            packet << ServerPacketType::ENTITY_POSITION << i->getX() << i->getY() << i->id;
             networking->sendToEveryone(packet);
             
             packet.clear();
-            packet << ServerPacketType::ENTITY_VELOCITY << getEntities()[i]->getVelocityX() << getEntities()[i]->getVelocityY() << getEntities()[i]->id;
+            packet << ServerPacketType::ENTITY_VELOCITY << i->getVelocityX() << i->getVelocityY() << i->id;
             networking->sendToEveryone(packet);
         }
     }

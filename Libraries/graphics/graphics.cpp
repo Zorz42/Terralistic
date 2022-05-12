@@ -1,7 +1,6 @@
 #include "graphics-internal.hpp"
 #include <fstream>
 #include <thread>
-#include <iostream>
 #include <cmath>
 
 const char* vertex_shader_code =
@@ -71,7 +70,7 @@ void checkForError(GLuint id) {
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &info_log_length);
     if(info_log_length > 0) {
         std::vector<char> error_message(info_log_length + 1);
-        glGetShaderInfoLog(id, info_log_length, NULL, &error_message[0]);
+        glGetShaderInfoLog(id, info_log_length, nullptr, &error_message[0]);
         throw std::runtime_error(&error_message[0]);
     }
 }
@@ -80,12 +79,12 @@ GLuint CompileShaders(const char* vertex_code, const char* fragment_code) {
     GLuint vertex_id = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
 
-    glShaderSource(vertex_id, 1, &vertex_code , NULL);
+    glShaderSource(vertex_id, 1, &vertex_code , nullptr);
     glCompileShader(vertex_id);
     
     checkForError(vertex_id);
 
-    glShaderSource(fragment_id, 1, &fragment_code , NULL);
+    glShaderSource(fragment_id, 1, &fragment_code , nullptr);
     glCompileShader(fragment_id);
 
     checkForError(fragment_id);
@@ -279,7 +278,7 @@ void gfx::init(int window_width_, int window_height_) {
     shadow_transform.translate(-700, 0);
     shadow_transform.stretch(2, 2);
     for(int i = 0; i < 10; i++)
-        blurRectangle(RectShape(0, 0, 700, 700), 100, shadow_texture.getGlTexture(), shadow_texture_back.getGlTexture(), 700, 700, shadow_transform);
+        blurRectangle(RectShape(0, 0, 700, 700), GFX_SHADOW_BLUR, shadow_texture.getGlTexture(), shadow_texture_back.getGlTexture(), 700, 700, shadow_transform);
 }
 
 void gfx::enableVsync(bool enabled) {
@@ -382,7 +381,7 @@ void gfx::sleep(float ms) {
     std::this_thread::sleep_for(std::chrono::microseconds(int(ms * 1000)));
 }
 
-void blurRect(gfx::RectShape rect, float offset_x, float offset_y, GLuint texture, GLuint back_texture) {
+void blurRect(float offset_x, float offset_y, GLuint texture, GLuint back_texture) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, back_texture, 0);
@@ -398,7 +397,7 @@ void blurRect(gfx::RectShape rect, float offset_x, float offset_y, GLuint textur
 
 #define BLUR_QUALITY 3
 
-void gfx::blurRectangle(RectShape rect, int radius, GLuint texture, GLuint back_texture, float width, float height, Transformation texture_transform) {
+void gfx::blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, Transformation texture_transform) {
     glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glUseProgram(gfx::blur_shader_program);
@@ -431,7 +430,7 @@ void gfx::blurRectangle(RectShape rect, int radius, GLuint texture, GLuint back_
     glUseProgram(gfx::blur_shader_program);
     
     while(radius > 10) {
-        blurRect(rect, radius / width / 10, radius / height / 10, texture, back_texture);
+        blurRect(radius / width / 10, radius / height / 10, texture, back_texture);
         radius = std::sqrt(radius) * BLUR_QUALITY;
     }
     

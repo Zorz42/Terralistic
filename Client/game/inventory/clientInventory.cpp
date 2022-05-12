@@ -2,8 +2,6 @@
 #include "resourcePack.hpp"
 
 void ClientInventory::init() {
-    inventory = new Inventory(items, recipes);
-    
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
     
@@ -76,7 +74,7 @@ void ClientInventory::render() {
     
     for(int i = 0; i < (open ? 20 : 10); i++) {
         int slot_x = (2 * (i - 5 - i / 10 * 10) + 1) * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING) + gfx::getWindowWidth() / 2 - INVENTORY_ITEM_BACK_RECT_WIDTH / 2;
-        int slot_y = 1.5 * INVENTORY_UI_SPACING + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH * 2);
+        int slot_y = int(1.5 * INVENTORY_UI_SPACING) + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH * 2);
         
         gfx::RectShape back_rect(slot_x, slot_y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
         gfx::Color color = GREY;
@@ -84,9 +82,9 @@ void ClientInventory::render() {
             color.a = TRANSPARENCY;
         else if(open) {
             hovered = i;
-            if(inventory->getItem(i).type != &items->nothing) {
+            if(inventory.getItem(i).type != &items->nothing) {
                 tooltip_active = true;
-                text_texture = &getItemTextTexture(inventory->getItem(i).type);
+                text_texture = &getItemTextTexture(inventory.getItem(i).type);
                 under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
                 under_text_rect.setX(getMouseX() + 20 - INVENTORY_UI_SPACING);
@@ -96,8 +94,8 @@ void ClientInventory::render() {
         
         back_rect.render(color);
         
-        if(inventory->getItem(i).type != &items->nothing)
-            renderItem(inventory->getItem(i), slot_x, slot_y);
+        if(inventory.getItem(i).type != &items->nothing)
+            renderItem(inventory.getItem(i), slot_x, slot_y);
     }
     
     if(text_texture) {
@@ -106,11 +104,11 @@ void ClientInventory::render() {
     }
 
     if(open) {
-        if(inventory->getItem(-1).type != &items->nothing)
-            renderItem(inventory->getItem(-1), getMouseX(), getMouseY());
+        if(inventory.getItem(-1).type != &items->nothing)
+            renderItem(inventory.getItem(-1), getMouseX(), getMouseY());
 
         std::vector<const Recipe*> available_recipes;
-        for(auto recipe : inventory->getAvailableRecipes()){
+        for(auto recipe : inventory.getAvailableRecipes()){
             if(recipe->crafting_block == nullptr){
                 available_recipes.push_back(recipe);
             }else {
@@ -198,10 +196,6 @@ void ClientInventory::selectSlot(int slot) {
     networking->sendPacket(packet);
 }
 
-void ClientInventory::loadFromSerial(const std::vector<char>& serial) {
-    return inventory->fromSerial(serial);
-}
-
 void ClientInventory::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::INVENTORY: {
@@ -210,7 +204,7 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             int pos;
             event.packet >> stack >> item_id >> pos;
             
-            inventory->setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));
+            inventory.setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));
             break;
         }
         default: break;
@@ -230,10 +224,14 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::NUM9: selectSlot(8); return true;
         case gfx::Key::NUM0: selectSlot(9); return true;
         case gfx::Key::E:
-            open = !open;
-            if(!open && inventory->getItem(-1).type != &items->nothing) {
-                int result = inventory->addItem(inventory->getItem(-1).type, inventory->getItem(-1).stack);
-                inventory->setItem(-1, ItemStack(&items->nothing, 0));
+            if(open)  // I know its ugly but if I do open = !open; for some reason clang-tidy thinks the variable not changing, and starts recommending weird optimizations.
+                open = false;
+            else
+                open = true;
+
+            if(!open && inventory.getItem(-1).type != &items->nothing) {
+                int result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
+                inventory.setItem(-1, ItemStack(&items->nothing, 0));
                 sf::Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << result;
                 networking->sendPacket(packet);
@@ -241,7 +239,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
             return true;
         case gfx::Key::MOUSE_LEFT: {
             if(hovered != -1) {
-                inventory->swapWithMouseItem(hovered);
+                inventory.swapWithMouseItem(hovered);
                 sf::Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << hovered;
                 networking->sendPacket(packet);
@@ -266,9 +264,11 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
 
 void ClientInventory::onEvent(WelcomePacketEvent &event) {
     if(event.packet_type == WelcomePacketType::INVENTORY)
-        inventory->fromSerial(event.data);
+        inventory.fromSerial(event.data);
 }
 
 const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {
+    if(item_text_textures == nullptr)
+        throw Exception("item_text_textures are null");
     return item_text_textures[type->id - 1];
 }

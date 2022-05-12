@@ -30,10 +30,14 @@ void ClientWalls::updateOrientationRight(int x, int y) {
 }
 
 ClientWalls::RenderWall* ClientWalls::getRenderWall(int x, int y) {
+    if(render_walls == nullptr)
+        throw Exception("render_walls are null");
     return &render_walls[y * getWidth() + x];
 }
 
 ClientWalls::RenderWallChunk* ClientWalls::getRenderWallChunk(int x, int y) {
+    if(wall_chunks == nullptr)
+        throw Exception("wall_chunks are null");
     return &wall_chunks[y * getWidth() / 16 + x];
 }
 
@@ -105,9 +109,9 @@ void ClientWalls::onEvent(ClientPacketEvent& event) {
 
 void ClientWalls::onEvent(WallChangeEvent& event) {
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
-    for(int i = 0; i < 5; i++) {
-        scheduleWallUpdate(coords[i][0], coords[i][1]);
-        updateState(coords[i][0], coords[i][1]);
+    for(auto & coord : coords) {
+        scheduleWallUpdate(coord[0], coord[1]);
+        updateState(coord[0], coord[1]);
     }
 }
 

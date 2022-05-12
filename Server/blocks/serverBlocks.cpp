@@ -51,9 +51,9 @@ void ServerBlocks::onEvent(BlockChangeEvent& event) {
     networking->sendToEveryone(packet);
     
     int neighbours[5][2] = {{event.x, event.y}, {event.x - 1, event.y}, {event.x, event.y - 1}, {event.x + 1, event.y}, {event.x, event.y + 1}};
-    for(int i = 0; i < 5; i++)
-        if(neighbours[i][0] >= 0 && neighbours[i][0] < getWidth() && neighbours[i][1] >= 0 && neighbours[i][1] < getHeight())
-            updateBlock(neighbours[i][0], neighbours[i][1]);
+    for(auto & neighbour : neighbours)
+        if(neighbour[0] >= 0 && neighbour[0] < getWidth() && neighbour[1] >= 0 && neighbour[1] < getHeight())
+            updateBlock(neighbour[0], neighbour[1]);
 }
 
 void ServerBlocks::updateBlock(int x, int y) {

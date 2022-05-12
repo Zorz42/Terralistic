@@ -31,9 +31,9 @@ void Entities::removeEntity(Entity* entity) {
 }
 
 Entity* Entities::getEntityById(int id) {
-    for(int i = 0; i < entities.size(); i++)
-        if(entities[i]->id == id)
-            return entities[i];
+    for(auto & entitie : entities)
+        if(entitie->id == id)
+            return entitie;
     throw Exception("Entity not found by id");
 }
 
@@ -164,6 +164,6 @@ void Entities::setY(Entity* entity, float y) {
 }
 
 Entities::~Entities() {
-    for(int i = 0; i < entities.size(); i++)
-        delete entities[i];
+    for(auto & entitie : entities)
+        delete entitie;
 }

@@ -1,9 +1,9 @@
 #include "choiceScreen.hpp"
 
 ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, const std::vector<std::string>& options, std::string* result) : menu_back(menu_back), question(std::move(question)), result(result) {
-    for(int i = 0; i < options.size(); i++) {
+    for(const auto & option : options) {
         buttons.emplace_back();
-        buttons.back().option = options[i];
+        buttons.back().option = option;
     }
 }
 
@@ -14,28 +14,28 @@ void ChoiceScreen::init() {
     
     int combined_width = 0;
     
-    for(int i = 0; i < buttons.size(); i++) {
-        buttons[i].gfx_button.scale = 3;
-        buttons[i].gfx_button.loadFromText(buttons[i].option);
-        buttons[i].gfx_button.orientation = gfx::BOTTOM;
-        buttons[i].gfx_button.y = -20;
-        combined_width += buttons[i].gfx_button.getWidth();
+    for(auto & button : buttons) {
+        button.gfx_button.scale = 3;
+        button.gfx_button.loadFromText(button.option);
+        button.gfx_button.orientation = gfx::BOTTOM;
+        button.gfx_button.y = -20;
+        combined_width += button.gfx_button.getWidth();
     }
     
     int curr_x = -combined_width / 2;
     
-    for(int i = 0; i < buttons.size(); i++) {
-        buttons[i].gfx_button.x = curr_x + buttons[i].gfx_button.getWidth() / 2;
-        curr_x += buttons[i].gfx_button.getWidth();
+    for(auto & button : buttons) {
+        button.gfx_button.x = curr_x + button.gfx_button.getWidth() / 2;
+        curr_x += button.gfx_button.getWidth();
     }
 }
 
 bool ChoiceScreen::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT)
-        for(int i = 0; i < buttons.size(); i++)
-            if(buttons[i].gfx_button.isHovered(getMouseX(), getMouseY())) {
+        for(auto & button : buttons)
+            if(button.gfx_button.isHovered(getMouseX(), getMouseY())) {
                 if(result)
-                    *result = buttons[i].option;
+                    *result = button.option;
                 returnFromScene();
                 return true;
             }
@@ -45,7 +45,7 @@ bool ChoiceScreen::onKeyUp(gfx::Key key) {
 void ChoiceScreen::render() {
     menu_back->setBackWidth(question_sprite.getWidth() + 100);
     menu_back->renderBack();
-    for(int i = 0; i < buttons.size(); i++)
-        buttons[i].gfx_button.render(getMouseX(), getMouseY());
+    for(auto & button : buttons)
+        button.gfx_button.render(getMouseX(), getMouseY());
     question_sprite.render();
 }

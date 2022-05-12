@@ -17,6 +17,8 @@ void ClientLights::postInit() {
 }
 
 ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
+    if(x < 0 || x >= getWidth() / 16 || y < 0 || y >= getHeight() / 16 || light_chunks == nullptr)
+        throw Exception("Light chunk out of bounds.");
     return &light_chunks[y * getWidth() / 16 + x];
 }
 
@@ -28,7 +30,7 @@ void ClientLights::updateParallel(float frame_length) {
     for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksExtendedViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksExtendedViewEndY() / CHUNK_SIZE; y++) {
             if(!getLightChunk(x, y)->isCreated())
-                getLightChunk(x, y)->create(this, x, y);
+                getLightChunk(x, y)->create();
             
             if(getLightChunk(x, y)->has_update)
                 getLightChunk(x, y)->update(this, x, y);
@@ -91,24 +93,22 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
                 index++;
             }
         }
-    
-    lights_count = index;
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
     light_rects.render(nullptr, x, y, /*blend_multiply*/true);
 }
 
-void ClientLights::LightChunk::create(ClientLights *lights, int x, int y) {
+void ClientLights::LightChunk::create() {
     light_rects.resize(CHUNK_SIZE * CHUNK_SIZE);
     is_created = true;
 }
 
 void ClientLights::onEvent(LightColorChangeEvent& event) {
-    scheduleLightUpdate(event.x, event.y);
-    scheduleLightUpdate(event.x - 1, event.y);
-    scheduleLightUpdate(event.x, event.y - 1);
-    scheduleLightUpdate(event.x - 1, event.y - 1);
+    scheduleClientLightUpdate(event.x, event.y);
+    scheduleClientLightUpdate(event.x - 1, event.y);
+    scheduleClientLightUpdate(event.x, event.y - 1);
+    scheduleClientLightUpdate(event.x - 1, event.y - 1);
 }
 
 void ClientLights::render() {
@@ -130,6 +130,6 @@ void ClientLights::stop() {
     delete[] light_chunks;
 }
 
-void ClientLights::scheduleLightUpdate(int x, int y) {
+void ClientLights::scheduleClientLightUpdate(int x, int y) {
     getLightChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_update = true;
 }

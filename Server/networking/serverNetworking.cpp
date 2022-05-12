@@ -27,7 +27,7 @@ sf::Socket::Status Connection::receive(sf::Packet& packet) {
     return socket->receive(packet);
 }
 
-bool Connection::hasBeenGreeted() {
+bool Connection::hasBeenGreeted() const {
     return greeted;
 }
 
@@ -85,9 +85,9 @@ void ServerNetworking::postInit() {
 }
 
 void ServerNetworking::sendToEveryone(sf::Packet& packet) {
-    for(int i = 0; i < connections.size(); i++)
-        if(connections[i]->hasBeenGreeted())
-            connections[i]->send(packet);
+    for(auto & connection : connections)
+        if(connection->hasBeenGreeted())
+            connection->send(packet);
 }
 
 void ServerNetworking::update(float frame_length) {
@@ -142,8 +142,8 @@ void ServerNetworking::update(float frame_length) {
 
 void ServerNetworking::stop() {
     if(!is_private)
-        for(int i = 0; i < connections.size(); i++)
-            kickConnection(connections[i], "Server stopped!");
+        while(!connections.empty())
+            kickConnection(connections[0], "Server stopped!");
     
     listener.close();
 }

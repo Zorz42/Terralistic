@@ -3,6 +3,8 @@
 #include <cstring>
 
 void Inventory::setItem(int pos, ItemStack item) {
+    if(item_counts == nullptr)
+        throw Exception("item_counts is null");
     item_counts[(int)getItem(pos).type->id] -= getItem(pos).stack;
     item_counts[(int)item.type->id] += item.stack;
     ItemStack& item_stack = pos == -1 ? mouse_item : inventory_arr[pos];
@@ -35,22 +37,22 @@ int Inventory::decreaseStack(int pos, int stack) {
 
 void Inventory::fromSerial(const std::vector<char>& serial) {
     const char* iter = &serial[0];
-    for(int i = 0; i < INVENTORY_SIZE; i++) {
-        inventory_arr[i].type = items->getItemTypeById((int)*iter++);
-        inventory_arr[i].stack = 0;
-        memcpy(&inventory_arr[i].stack, iter, sizeof(short));
+    for(auto & i : inventory_arr) {
+        i.type = items->getItemTypeById((int)*iter++);
+        i.stack = 0;
+        memcpy(&i.stack, iter, sizeof(short));
         iter += sizeof(short);
-        item_counts[(int)inventory_arr[i].type->id] += inventory_arr[i].stack;
+        item_counts[(int)i.type->id] += i.stack;
     }
     updateAvailableRecipes();
 }
 
 std::vector<char> Inventory::toSerial() const {
     std::vector<char> serial;
-    for(int i = 0; i < INVENTORY_SIZE; i++) {
-        serial.push_back((char)inventory_arr[i].type->id);
+    for(auto i : inventory_arr) {
+        serial.push_back((char)i.type->id);
         serial.insert(serial.end(), {0, 0});
-        memcpy(&serial[serial.size() - 2], &inventory_arr[i].stack, sizeof(short));
+        memcpy(&serial[serial.size() - 2], &i.stack, sizeof(short));
     }
     return serial;
 }
@@ -60,8 +62,8 @@ Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(rec
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = 0;
     
-    for(int i = 0; i < INVENTORY_SIZE; i++)
-        inventory_arr[i].type = &items->nothing;
+    for(auto & i : inventory_arr)
+        i.type = &items->nothing;
 }
 
 int Inventory::addItem(ItemType* id, int quantity) {
@@ -121,7 +123,11 @@ void Inventory::swapWithMouseItem(int pos) {
 }
 
 bool Inventory::hasIngredientsForRecipe(const Recipe* recipe) {
-    return std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){ return item_counts[(int)ingredient.first->id] >= ingredient.second; });
+    return std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){
+        if(item_counts == nullptr)
+            throw Exception("item_counts is null");
+        return item_counts[(int)ingredient.first->id] >= ingredient.second;
+    });
 }
 
 const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
@@ -130,9 +136,9 @@ const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
 
 void Inventory::updateAvailableRecipes() {
     available_recipes.clear();
-    for(int i = 0; i < recipes->getAllRecipes().size(); i++)
-        if(hasIngredientsForRecipe(recipes->getAllRecipes()[i]))
-            available_recipes.emplace_back(recipes->getAllRecipes()[i]);
+    for(auto i : recipes->getAllRecipes())
+        if(hasIngredientsForRecipe(i))
+            available_recipes.emplace_back(i);
 }
 
 void Recipes::registerARecipe(Recipe* recipe) {
@@ -143,7 +149,7 @@ const std::vector<Recipe*>& Recipes::getAllRecipes() {
     return recipes;
 }
 
-Inventory& Inventory::operator=(Inventory& inventory) {
+Inventory& Inventory::operator=(Inventory const& inventory) {
     items = inventory.items;
     recipes = inventory.recipes;
     

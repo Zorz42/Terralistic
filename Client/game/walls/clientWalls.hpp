@@ -14,7 +14,7 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
         int wall_count = 0;
         bool is_created = false;
     public:
-        bool isCreated() { return is_created; }
+        bool isCreated() const { return is_created; }
         void create();
         bool has_update = true;
         void update(ClientWalls* walls, int x, int y);

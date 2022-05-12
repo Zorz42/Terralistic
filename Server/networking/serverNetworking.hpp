@@ -11,13 +11,13 @@ class Connection {
     std::queue<std::pair<sf::Packet, ClientPacketType>> packet_buffer;
     bool greeted = false;
 public:
-    Connection(sf::TcpSocket* socket) : socket(socket) {}
+    explicit Connection(sf::TcpSocket* socket) : socket(socket) {}
     
     void send(sf::Packet& packet);
     void sendDirectly(sf::Packet& packet);
     void send(const std::vector<char>& data);
     
-    bool hasBeenGreeted();
+    bool hasBeenGreeted() const;
     void greet();
     
     sf::Socket::Status receive(sf::Packet& packet);
@@ -43,13 +43,13 @@ public:
 
 class ServerNewConnectionEvent {
 public:
-    ServerNewConnectionEvent(Connection* connection) : connection(connection) {}
+    explicit ServerNewConnectionEvent(Connection* connection) : connection(connection) {}
     Connection* connection;
 };
 
 class ServerDisconnectEvent {
 public:
-    ServerDisconnectEvent(Connection* connection) : connection(connection) {}
+    explicit ServerDisconnectEvent(Connection* connection) : connection(connection) {}
     Connection* connection;
 };
 
@@ -66,7 +66,7 @@ class ServerNetworking : public ServerModule {
     void removeConnection(Connection* connection);
     
 public:
-    ServerNetworking(int port);
+    explicit ServerNetworking(int port);
     
     void sendToEveryone(sf::Packet& packet);
     void kickConnection(Connection* connection, const std::string& reason);

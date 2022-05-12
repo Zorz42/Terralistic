@@ -32,13 +32,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 }
 
 ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
-    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight() || render_blocks == nullptr)
         throw Exception("RenderBlock is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &render_blocks[y * getWidth() + x];
 }
 
 ClientBlocks::RenderBlockChunk* ClientBlocks::getRenderBlockChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE)
+    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE || block_chunks == nullptr)
         throw Exception("Chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &block_chunks[y * getWidth() / CHUNK_SIZE + x];
 }
@@ -196,35 +196,35 @@ void ClientBlocks::render() {
             }
 }
 
-int ClientBlocks::getBlocksViewBeginX() {
+int ClientBlocks::getBlocksViewBeginX() const {
     return view_begin_x;
 }
 
-int ClientBlocks::getBlocksViewEndX() {
+int ClientBlocks::getBlocksViewEndX() const {
     return view_end_x;
 }
 
-int ClientBlocks::getBlocksViewBeginY() {
+int ClientBlocks::getBlocksViewBeginY() const {
     return view_begin_y;
 }
 
-int ClientBlocks::getBlocksViewEndY() {
+int ClientBlocks::getBlocksViewEndY() const {
     return view_end_y;
 }
 
-int ClientBlocks::getBlocksExtendedViewBeginX() {
+int ClientBlocks::getBlocksExtendedViewBeginX() const {
     return extended_view_begin_x;
 }
 
-int ClientBlocks::getBlocksExtendedViewEndX() {
+int ClientBlocks::getBlocksExtendedViewEndX() const {
     return extended_view_end_x;
 }
 
-int ClientBlocks::getBlocksExtendedViewBeginY() {
+int ClientBlocks::getBlocksExtendedViewBeginY() const {
     return extended_view_begin_y;
 }
 
-int ClientBlocks::getBlocksExtendedViewEndY() {
+int ClientBlocks::getBlocksExtendedViewEndY() const {
     return extended_view_end_y;
 }
 

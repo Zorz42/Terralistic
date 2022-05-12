@@ -100,7 +100,7 @@ void gfx::Texture::render(float scale, int x, int y, bool flipped, Color color) 
     render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped, color);
 }
 
-GLuint gfx::Texture::getGlTexture() {
+unsigned int gfx::Texture::getGlTexture() const {
     return gl_texture;
 }
 
@@ -122,8 +122,8 @@ void gfx::resetRenderTarget() {
 
 void gfx::Texture::loadFromText(const std::string& text, Color color) {
     int width_ = 0;
-    for(int i = 0; i < text.size(); i++)
-        width_ += font_rects[(int)text[i]].w + TEXT_SPACING;
+    for(char i : text)
+        width_ += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
     
     if(width_ == 0)
         width_ = 1;
@@ -131,17 +131,13 @@ void gfx::Texture::loadFromText(const std::string& text, Color color) {
     createBlankImage(width_, 16);
     setRenderTarget();
     int x = 0;
-    for(int i = 0; i < text.size(); i++) {
-        font_texture.render(1, x, 0, font_rects[(int)text[i]], false, color);
-        x += font_rects[(int)text[i]].w + TEXT_SPACING;
+    for(char i : text) {
+        font_texture.render(1, x, 0, font_rects[(int)(unsigned char)i], false, color);
+        x += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
     }
     resetRenderTarget();
 }
 
 const gfx::Transformation& gfx::Texture::getNormalizationTransform() const {
     return texture_normalization_transform;
-}
-
-GLuint gfx::Texture::getGlTexture() const {
-    return gl_texture;
 }

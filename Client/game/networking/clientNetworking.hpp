@@ -1,4 +1,6 @@
 #pragma once
+#include <utility>
+
 #include "events.hpp"
 #include "packetType.hpp"
 #include "clientModule.hpp"
@@ -31,7 +33,7 @@ class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {
     void stop() override;
     void updateParallel(float frame_length) override;
 public:
-    ClientNetworking(const std::string& ip_address, int port, const std::string& username) : ip_address(ip_address), port(port), username(username) {}
+    ClientNetworking(std::string  ip_address, int port, std::string  username) : ip_address(std::move(ip_address)), port(port), username(std::move(username)) {}
     
     void sendPacket(sf::Packet& packet);
     std::vector<char> getData();

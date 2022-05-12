@@ -17,14 +17,14 @@ public:
     Particle(const ParticleInfo* info, float x, float y) : info(info), x(x), y(y) {}
     const ParticleInfo* getInfo();
     
-    bool isGrounded(Blocks* blocks);
-    bool isColliding(Blocks* blocks, float colliding_x, float colliding_y);
-    bool isColliding(Blocks* blocks);
+    bool isGrounded(Blocks* blocks) const;
+    static bool isColliding(Blocks* blocks, float colliding_x, float colliding_y);
+    bool isColliding(Blocks* blocks) const;
     
     void update(Blocks* blocks, float frame_length);
     
-    int getX();
-    int getY();
+    int getX() const;
+    int getY() const;
     
     int getTimeSpawned();
     

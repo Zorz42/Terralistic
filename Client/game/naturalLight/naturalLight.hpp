@@ -8,7 +8,7 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, Event
     ClientBlocks* blocks;
     Lights* lights;
     gfx::Timer timer, server_timer;
-    float server_time_on_join;
+    float server_time_on_join = 0;
     
     bool running = true;
     std::thread natural_light_thread;

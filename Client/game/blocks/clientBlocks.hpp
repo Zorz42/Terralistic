@@ -16,7 +16,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         int block_count = 0;
         bool is_created = false;
     public:
-        bool isCreated() { return is_created; }
+        bool isCreated() const { return is_created; }
         void create();
         bool has_update = true;
         void update(ClientBlocks* blocks, int x, int y);
@@ -56,15 +56,15 @@ public:
     gfx::RectShape getBlockRectInAtlas(BlockType* type);
     RenderBlockChunk* getRenderBlockChunk(int x, int y);
     
-    int getBlocksViewBeginX();
-    int getBlocksViewEndX();
-    int getBlocksViewBeginY();
-    int getBlocksViewEndY();
+    int getBlocksViewBeginX() const;
+    int getBlocksViewEndX() const;
+    int getBlocksViewBeginY() const;
+    int getBlocksViewEndY() const;
     
-    int getBlocksExtendedViewBeginX();
-    int getBlocksExtendedViewEndX();
-    int getBlocksExtendedViewBeginY();
-    int getBlocksExtendedViewEndY();
+    int getBlocksExtendedViewBeginX() const;
+    int getBlocksExtendedViewEndX() const;
+    int getBlocksExtendedViewBeginY() const;
+    int getBlocksExtendedViewEndY() const;
     
     void updateState(int x, int y);
     void setState(int x, int y, int state);

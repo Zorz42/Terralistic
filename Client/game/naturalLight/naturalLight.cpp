@@ -58,6 +58,9 @@ void NaturalLight::naturalLightUpdateLoop() {
 void NaturalLight::setNaturalLight(int x, int power) {
     if(x < 0 || x >= blocks->getWidth())
         throw Exception("Natural light x out of range");
+    if(lights_arr == nullptr)
+        throw Exception("lights_arr is null");
+
     if(lights_arr[x] != power) {
         lights_arr[x] = power;
         for(int y = 0; y < blocks->getHeight(); y++)
@@ -76,6 +79,8 @@ void NaturalLight::setNaturalLight(int x, int power) {
 void NaturalLight::removeNaturalLight(int x) {
     if(x < 0 || x >= blocks->getWidth())
         throw Exception("Natural light x out of range");
+    if(lights_arr == nullptr)
+        throw Exception("lights_arr is null");
     lights_arr[x] = 0;
     for(int y = 0; y < blocks->getHeight(); y++)
         lights->setLightSource(x, y, LightColor(0, 0, 0));

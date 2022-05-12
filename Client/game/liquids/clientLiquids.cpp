@@ -114,5 +114,7 @@ gfx::RectShape ClientLiquids::getLiquidRectInAtlas(LiquidType* type) {
 }
 
 ClientLiquids::RenderLiquidChunk* ClientLiquids::getRenderLiquidChunk(int x, int y) {
+    if(liquid_chunks == nullptr)
+        throw Exception("Liquid chunks is null");
     return &liquid_chunks[y * getWidth() / 16 + x];
 }

@@ -1,7 +1,6 @@
 #include <cstring>
 #include <random>
 #include "serverPlayers.hpp"
-#include "content.hpp"
 
 void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
     BlockType* places_block = player->inventory.getSelectedSlot().type->places_block;
@@ -52,40 +51,20 @@ void ServerPlayers::stop() {
     world_saver->world_save_event.removeListener(this);
     entities->entity_absolute_velocity_change_event.removeListener(this);
     
-    for(int i = 0; i < all_players.size(); i++)
-        delete all_players[i];
+    for(auto & all_player : all_players)
+        delete all_player;
     
     delete[] blocks_behaviour;
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)i;
             if(player->name == name)
                 return player;
         }
     throw Exception("Could not find player by name");
-}
-
-ServerPlayer* ServerPlayers::getPlayerById(const int id) {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
-            if(player->id == id)
-                return player;
-        }
-    throw Exception("Could not find player by name");
-}
-
-bool ServerPlayers::playerExists(const std::string& name) {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
-            if(player->name == name)
-                return true;
-        }
-    return false;
 }
 
 ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
@@ -138,9 +117,9 @@ void ServerPlayers::savePlayer(ServerPlayer* player) {
 }
 
 ServerPlayerData* ServerPlayers::getPlayerData(const std::string& name) {
-    for(int i = 0; i < all_players.size(); i++)
-        if(all_players[i]->name == name)
-            return all_players[i];
+    for(auto & all_player : all_players)
+        if(all_player->name == name)
+            return all_player;
     return nullptr;
 }
 
@@ -194,26 +173,26 @@ void ServerPlayers::fromSerial(const std::vector<char> &serial) {
 }
 
 std::vector<char> ServerPlayers::toSerial() {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER)
-            savePlayer((ServerPlayer*)entities->getEntities()[i]);
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::PLAYER)
+            savePlayer((ServerPlayer*)i);
     
     std::vector<char> serial;
-    for(int i = 0; i < all_players.size(); i++) {
-        std::vector<char> inventory_serial = all_players[i]->inventory.toSerial();
+    for(auto & all_player : all_players) {
+        std::vector<char> inventory_serial = all_player->inventory.toSerial();
         serial.insert(serial.end(), inventory_serial.begin(), inventory_serial.end());
         
         serial.insert(serial.end(), {0, 0, 0, 0});
-        memcpy(&serial[serial.size() - 4], &all_players[i]->x, sizeof(int));
+        memcpy(&serial[serial.size() - 4], &all_player->x, sizeof(int));
         
         serial.insert(serial.end(), {0, 0, 0, 0});
-        memcpy(&serial[serial.size() - 4], &all_players[i]->y, sizeof(int));
+        memcpy(&serial[serial.size() - 4], &all_player->y, sizeof(int));
         
-        serial.insert(serial.end(), all_players[i]->name.begin(), all_players[i]->name.end());
+        serial.insert(serial.end(), all_player->name.begin(), all_player->name.end());
         serial.insert(serial.end(), 0);
 
         serial.insert(serial.end(), {0, 0, 0, 0});
-        memcpy(&serial[serial.size() - 4], &all_players[i]->health, sizeof(int));
+        memcpy(&serial[serial.size() - 4], &all_player->health, sizeof(int));
     }
     return serial;
 }
@@ -229,9 +208,9 @@ void ServerPlayers::onEvent(BlockRandomTickEvent& event){
 void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
     ServerPlayer* player = nullptr;
     
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ServerPlayer* curr_player = (ServerPlayer*)entities->getEntities()[i];
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::PLAYER) {
+            ServerPlayer* curr_player = (ServerPlayer*)i;
             if(curr_player->getConnection() == event.connection) {
                 player = curr_player;
                 break;
@@ -254,9 +233,11 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
 void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     event.client_welcome_packet >> event.connection->player_name;
     
-    for(int i = 0; i < networking->getConnections().size(); i++)
-        if(networking->getConnections()[i]->player_name == event.connection->player_name && networking->getConnections()[i] != event.connection)
-            networking->kickConnection(networking->getConnections()[i], "You logged in from another location!");
+    for(auto i : networking->getConnections())
+        if(i->player_name == event.connection->player_name && i != event.connection) {
+            networking->kickConnection(i, "You logged in from another location!");
+            break;
+        }
     
     ServerPlayer* player = addPlayer(event.connection->player_name);
     player->setConnection(event.connection);
@@ -284,9 +265,9 @@ Connection* ServerPlayer::getConnection() {
 }
 
 void ServerPlayers::update(float frame_length) {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)i;
             if(player->getVelocityX())
                 player->flipped = player->getVelocityX() < 0;
             
@@ -303,13 +284,13 @@ void ServerPlayers::update(float frame_length) {
             }
         }
     
-    for(int i = 0; i < networking->getConnections().size(); i++)
-        if(networking->getConnections()[i]->hasPacketInBuffer()) {
-            auto packet_pair = networking->getConnections()[i]->getPacket();
+    for(auto i : networking->getConnections())
+        if(i->hasPacketInBuffer()) {
+            auto packet_pair = i->getPacket();
             if(packet_pair.second == ClientPacketType::PLAYER_RESPAWN) {
-                addPlayer(networking->getConnections()[i]->player_name);
-                ServerPlayer* player = getPlayerByName(networking->getConnections()[i]->player_name);
-                player->setConnection(networking->getConnections()[i]);
+                addPlayer(i->player_name);
+                ServerPlayer* player = getPlayerByName(i->player_name);
+                player->setConnection(i);
                 
                 sf::Packet join_packet;
                 join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
@@ -346,9 +327,9 @@ void ServerPlayers::update(float frame_length) {
 
 void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
     ServerPlayer* player = nullptr;
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ServerPlayer* player_ = (ServerPlayer*)entities->getEntities()[i];
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::PLAYER) {
+            ServerPlayer* player_ = (ServerPlayer*)i;
             if(player_->getConnection() == event.connection) {
                 player = player_;
                 break;
@@ -506,6 +487,8 @@ void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
 }
 
 BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
+    if(blocks_behaviour == nullptr)
+        throw Exception("blocks_behavious is null");
     return blocks_behaviour[type->id];
 }
 

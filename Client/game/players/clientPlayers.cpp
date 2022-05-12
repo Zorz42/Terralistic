@@ -5,12 +5,12 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Play
 }
 
 void ClientPlayers::render() {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
-            ClientPlayer* player = (ClientPlayer*)entities->getEntities()[i];
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::PLAYER) {
+            ClientPlayer* player = (ClientPlayer*)i;
             render(*player);
             if(player->has_moved_x && player->isTouchingGround(blocks) && rand() % 100 < abs(player->getVelocityX()) * 2.5) {
-                Particle particle(&walk_particle, player->getX() + player->getWidth() / 2, player->getY() + player->getHeight());
+                Particle particle(&walk_particle, player->getX() + int(player->getWidth() / 2), player->getY() + player->getHeight());
                 particle.velocity_x = -player->getVelocityX() / 4 + rand() % int(std::abs(player->getVelocityX())) - std::abs(player->getVelocityX()) / 2;
                 particle.velocity_y = -rand() % int(std::abs(player->getVelocityX()) / 3 * 2) - std::abs(player->getVelocityX()) / 2;
                 particles->spawnParticle(particle);
@@ -64,9 +64,9 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
 }
 
 ClientPlayer* ClientPlayers::getPlayerById(int id) {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::PLAYER && entities->getEntities()[i]->id == id)
-            return (ClientPlayer*)entities->getEntities()[i];
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::PLAYER && i->id == id)
+            return (ClientPlayer*)i;
     throw Exception("Player not found by id");
 }
 

@@ -54,7 +54,7 @@ void Blocks::create(int width_, int height_) {
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
-    if(x < 0 || x >= width || y < 0 || y >= height)
+    if(x < 0 || x >= width || y < 0 || y >= height || blocks == nullptr)
         throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &blocks[y * width + x];
 }
@@ -86,9 +86,9 @@ void Blocks::setBlockType(int x, int y, BlockType* type, int x_from_main, int y_
 }
 
 int Blocks::getBreakProgress(int x, int y) {
-    for(int i = 0; i < breaking_blocks.size(); i++)
-        if(breaking_blocks[i].x == x && breaking_blocks[i].y == y)
-            return breaking_blocks[i].break_progress;
+    for(auto & breaking_block : breaking_blocks)
+        if(breaking_block.x == x && breaking_block.y == y)
+            return breaking_block.break_progress;
     return 0;
 }
 
@@ -112,9 +112,9 @@ void Blocks::startBreakingBlock(int x, int y) {
     
     BreakingBlock* breaking_block = nullptr;
     
-    for(int i = 0; i < breaking_blocks.size(); i++)
-        if(breaking_blocks[i].x == x && breaking_blocks[i].y == y)
-            breaking_block = &breaking_blocks[i];
+    for(auto & i : breaking_blocks)
+        if(i.x == x && i.y == y)
+            breaking_block = &i;
     
     if(!breaking_block) {
         BreakingBlock new_breaking_block;
@@ -133,7 +133,7 @@ void Blocks::startBreakingBlock(int x, int y) {
 }
 
 Blocks::BlockChunk* Blocks::getChunk(int x, int y) {
-    if(x < 0 || x >= width / CHUNK_SIZE || y < 0 || y >= height / CHUNK_SIZE)
+    if(x < 0 || x >= width / CHUNK_SIZE || y < 0 || y >= height / CHUNK_SIZE || chunks == nullptr)
         throw Exception("Block chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &chunks[y * width / CHUNK_SIZE + x];
 }
@@ -142,9 +142,9 @@ void Blocks::stopBreakingBlock(int x, int y) {
     if(x < 0 || x >= width || y < 0 || y >= height)
         throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     
-    for(int i = 0; i < breaking_blocks.size(); i++)
-        if(breaking_blocks[i].x == x && breaking_blocks[i].y == y) {
-            breaking_blocks[i].is_breaking = false;
+    for(auto & breaking_block : breaking_blocks)
+        if(breaking_block.x == x && breaking_block.y == y) {
+            breaking_block.is_breaking = false;
             getChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->breaking_blocks_count--;
             BlockStoppedBreakingEvent event(x, y);
             block_stopped_breaking_event.call(event);
@@ -202,9 +202,9 @@ void Blocks::fromSerial(const std::vector<char>& serial) {
     create(width_, height_);
     Block* block = blocks;
     for(int i = 0; i < width * height; i++) {
-        block->id = *iter++;
-        block->x_from_main = *iter++;
-        block->y_from_main = *iter++;
+        block->id = (unsigned char)*iter++;
+        block->x_from_main = (unsigned char)*iter++;
+        block->y_from_main = (unsigned char)*iter++;
         block++;
     }
 }
@@ -219,9 +219,9 @@ BlockType* Blocks::getBlockTypeById(int block_id) {
 }
 
 BlockType* Blocks::getBlockTypeByName(const std::string& name) {
-    for(int i = 0; i < block_types.size(); i++)
-        if(block_types[i]->name == name)
-            return block_types[i];
+    for(auto & block_type : block_types)
+        if(block_type->name == name)
+            return block_type;
     return nullptr;
 }
 
@@ -230,9 +230,9 @@ void Blocks::registerNewToolType(Tool* tool) {
 }
 
 Tool* Blocks::getToolTypeByName(const std::string& name) {
-    for(int i = 0; i < tool_types.size(); i++)
-        if(tool_types[i]->name == name)
-            return tool_types[i];
+    for(auto & tool_type : tool_types)
+        if(tool_type->name == name)
+            return tool_type;
     return nullptr;
 }
 
