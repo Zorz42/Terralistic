@@ -265,9 +265,9 @@ Connection* ServerPlayer::getConnection() {
 }
 
 void ServerPlayers::update(float frame_length) {
-    for(auto i : entities->getEntities())
-        if(i->type == EntityType::PLAYER) {
-            ServerPlayer* player = (ServerPlayer*)i;
+    for(int i = 0; i < entities->getEntities().size(); i++)
+        if(entities->getEntities()[i]->type == EntityType::PLAYER) {
+            ServerPlayer* player = (ServerPlayer*)entities->getEntities()[i];
             if(player->getVelocityX())
                 player->flipped = player->getVelocityX() < 0;
             
@@ -284,13 +284,13 @@ void ServerPlayers::update(float frame_length) {
             }
         }
     
-    for(auto i : networking->getConnections())
-        if(i->hasPacketInBuffer()) {
-            auto packet_pair = i->getPacket();
+    for(int i = 0; i < networking->getConnections().size(); i++)
+        if(networking->getConnections()[i]->hasPacketInBuffer()) {
+            auto packet_pair = networking->getConnections()[i]->getPacket();
             if(packet_pair.second == ClientPacketType::PLAYER_RESPAWN) {
-                addPlayer(i->player_name);
-                ServerPlayer* player = getPlayerByName(i->player_name);
-                player->setConnection(i);
+                addPlayer(networking->getConnections()[i]->player_name);
+                ServerPlayer* player = getPlayerByName(networking->getConnections()[i]->player_name);
+                player->setConnection(networking->getConnections()[i]);
                 
                 sf::Packet join_packet;
                 join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
