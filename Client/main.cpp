@@ -65,12 +65,12 @@ public:
 
 int main(int argc, char **argv) {
     srand((int)time(nullptr));
-    
+
     if(argc == 2 && (std::string)argv[1] == "version") {
         std::cout << CURR_VERSION_STR << std::endl;
         return 0;
     }
-    
+
     resource_path = getResourcePath(argv[0]);
     gfx::init(1130, 700);
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());

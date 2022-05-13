@@ -1,5 +1,6 @@
 #include "graphics-internal.hpp"
 #include <fstream>
+#include <iostream>
 #include <thread>
 #include <cmath>
 
@@ -64,44 +65,28 @@ const char* blur_fragment_shader_code =
 "       color += texture(texture_sampler, max(min(uv + (i - 10.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];"
 "}";
 
-void checkForError(GLuint id) {
-    int info_log_length;
-    
-    glGetShaderiv(id, GL_INFO_LOG_LENGTH, &info_log_length);
-    if(info_log_length > 0) {
-        std::vector<char> error_message(info_log_length + 1);
-        glGetShaderInfoLog(id, info_log_length, nullptr, &error_message[0]);
-        throw std::runtime_error(&error_message[0]);
-    }
-}
-
 GLuint CompileShaders(const char* vertex_code, const char* fragment_code) {
     GLuint vertex_id = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
 
-    glShaderSource(vertex_id, 1, &vertex_code , nullptr);
+    glShaderSource(vertex_id, 1, &vertex_code, nullptr);
     glCompileShader(vertex_id);
-    
-    checkForError(vertex_id);
 
-    glShaderSource(fragment_id, 1, &fragment_code , nullptr);
+    glShaderSource(fragment_id, 1, &fragment_code, nullptr);
     glCompileShader(fragment_id);
 
-    checkForError(fragment_id);
-
     GLuint program_id = glCreateProgram();
+
     glAttachShader(program_id, vertex_id);
     glAttachShader(program_id, fragment_id);
     glLinkProgram(program_id);
 
-    checkForError(program_id);
-    
     glDetachShader(program_id, vertex_id);
     glDetachShader(program_id, fragment_id);
-    
+
     glDeleteShader(vertex_id);
     glDeleteShader(fragment_id);
-    
+
     return program_id;
 }
 
@@ -174,17 +159,17 @@ void gfx::setMinimumWindowSize(int width, int height) {
 void gfx::init(int window_width_, int window_height_) {
     window_width = window_width_;
     window_height = window_height_;
-    
+
     glewExperimental = true;
     if(!glfwInit())
         throw std::runtime_error("Failed to initialize GLFW");
-    
+
     glfwWindowHint(GLFW_SAMPLES, 0);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
+
     glfw_window = glfwCreateWindow(window_width, window_height, "Test Window", nullptr, nullptr);
     glfwSetFramebufferSizeCallback(glfw_window, framebufferSizeCallback);
     glfwSetWindowContentScaleCallback(glfw_window, windowContentScaleCallback);
@@ -192,23 +177,23 @@ void gfx::init(int window_width_, int window_height_) {
     glfwSetScrollCallback(glfw_window, gfx::scrollCallback);
     glfwSetCharCallback(glfw_window, gfx::characterCallback);
     glfwSetMouseButtonCallback(glfw_window, gfx::mouseButtonCallback);
-    
+
     float scale_x, scale_y;
     glfwGetWindowContentScale(glfw_window, &scale_x, &scale_y);
-    
+
     if(!glfw_window)
         throw std::runtime_error("Failed to open GLFW window.");
-    
+
     glfwMakeContextCurrent(glfw_window);
     glewExperimental = true;
     if(glewInit() != GLEW_OK)
         throw std::runtime_error("Failed to initialize GLEW");
-    
+
     glGenVertexArrays(1, &vertex_array_id);
     glBindVertexArray(vertex_array_id);
-    
+
     glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
-    
+
     shader_program = CompileShaders(vertex_shader_code, fragment_shader_code);
     uniform_has_texture = glGetUniformLocation(shader_program, "has_texture");
     uniform_default_color = glGetUniformLocation(shader_program, "default_color");
@@ -218,15 +203,14 @@ void gfx::init(int window_width_, int window_height_) {
     uniform_texture_transform_matrix = glGetUniformLocation(shader_program, "texture_transform_matrix");
     uniform_back_texture_sampler = glGetUniformLocation(shader_program, "back_texture_sampler");
     uniform_blend_multiply = glGetUniformLocation(shader_program, "blend_multiply");
-    
+
     blur_shader_program = CompileShaders(blur_vertex_shader_code, blur_fragment_shader_code);
-    
     uniform_blur_transform_matrix = glGetUniformLocation(blur_shader_program, "transform_matrix");
     uniform_blur_texture_transform_matrix = glGetUniformLocation(blur_shader_program, "texture_transform_matrix");
     uniform_blur_texture_sampler = glGetUniformLocation(blur_shader_program, "texture_sampler");
     uniform_blur_offset = glGetUniformLocation(blur_shader_program, "blur_offset");
     uniform_blur_limit = glGetUniformLocation(blur_shader_program, "limit");
-    
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
@@ -236,9 +220,9 @@ void gfx::init(int window_width_, int window_height_) {
     glGenTextures(1, &window_texture_back);
     glGenFramebuffers(1, &default_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
-    
+
     windowContentScaleCallback(glfw_window, scale_x, scale_y);
-    
+
     GLfloat rect_outline_vertex_array[] = {
         0.f, 0.f,
         1.f, 0.f,

@@ -161,8 +161,8 @@ elif sys.platform == "win32":
     if os.path.exists(f"{project_path}Output/Windows/Terralistic/Resources/"):
         shutil.rmtree(f"{project_path}Output/Windows/Terralistic/Resources/")
     shutil.move(f"{project_path}Build/Resources/", f"{project_path}Output/Windows/Terralistic/Resources/")
-    shutil.copy(f"{project_path}Build/Structures.asset", f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
-    shutil.copy(f"{project_path}Build/pixel_font.ttf", f"{project_path}Output/Windows/Terralistic-server/pixel_font.ttf")
+    shutil.copy(f"{project_path}Resources/resourcePack/misc/Structures.asset", f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
+    shutil.copy(f"{project_path}Resources/font.opa", f"{project_path}Output/Windows/Terralistic-server/font.opa")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
         os.system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")
