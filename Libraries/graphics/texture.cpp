@@ -10,7 +10,6 @@ void gfx::Texture::createBlankImage(int width_, int height_) {
     delete[] array;
     
     glBindTexture(GL_TEXTURE_2D, gl_texture);
-    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void gfx::Texture::loadFromData(const unsigned char* data, int width_, int height_) {

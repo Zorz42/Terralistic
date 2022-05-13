@@ -2,7 +2,7 @@
 #include "graphics.hpp"
 
 #define GL_SILENCE_DEPRECATION
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #define SHADER_VERTEX_BUFFER 0

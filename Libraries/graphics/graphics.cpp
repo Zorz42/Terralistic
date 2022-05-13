@@ -160,7 +160,6 @@ void gfx::init(int window_width_, int window_height_) {
     window_width = window_width_;
     window_height = window_height_;
 
-    glewExperimental = true;
     if(!glfwInit())
         throw std::runtime_error("Failed to initialize GLFW");
 
@@ -185,10 +184,10 @@ void gfx::init(int window_width_, int window_height_) {
         throw std::runtime_error("Failed to open GLFW window.");
 
     glfwMakeContextCurrent(glfw_window);
-    glewExperimental = true;
-    if(glewInit() != GLEW_OK)
-        throw std::runtime_error("Failed to initialize GLEW");
-
+    
+    if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+        throw std::runtime_error("Failed to initialize OpenGL context");
+    
     glGenVertexArrays(1, &vertex_array_id);
     glBindVertexArray(vertex_array_id);
 
