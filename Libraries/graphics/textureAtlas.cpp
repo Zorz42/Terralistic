@@ -2,9 +2,9 @@
 
 void gfx::TextureAtlas::create(const std::vector<Texture*>& textures) {
     int width = 0, height = 0;
-    for(auto texture : textures) {
-        height += texture->getTextureHeight();
-        width = std::max(width, texture->getTextureWidth());
+    for(auto tex : textures) {
+        height += tex->getTextureHeight();
+        width = std::max(width, tex->getTextureWidth());
     }
     texture.createBlankImage(width, height);
     texture.setRenderTarget();
