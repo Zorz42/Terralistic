@@ -31,6 +31,21 @@ if sys.platform == "darwin":
             sfml_tar.extractall(project_path + "Dependencies/")
 
         os.remove(sfml_file)
+        
+    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
+        print("Downloading glfw library")
+
+        glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.MACOS.zip"
+        glfw_file = project_path + "glfw.tar.gz"
+
+        with urllib.request.urlopen(glfw_url) as glfw_request:
+            with open(glfw_file, 'wb') as glfw_download:
+                glfw_download.write(glfw_request.read())
+
+        with zipfile.ZipFile(glfw_file, "r") as glfw_zip:
+            glfw_zip.extractall(f"{project_path}Dependencies/")
+
+        os.remove(glfw_file)
     
     os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic archive -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic.xcarchive")
     os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server archive -configuration release -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic-server.xcarchive")
