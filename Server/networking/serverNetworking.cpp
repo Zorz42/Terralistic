@@ -8,22 +8,18 @@ void Connection::send(sf::Packet& packet) {
 }
 
 void Connection::sendDirectly(sf::Packet& packet) {
-    if(!socket->isBlocking())
-        socket->setBlocking(true);
+    socket->setBlocking(true);
     socket->send(packet);
 }
 
-
 void Connection::flushPackets() {
-    if(!socket->isBlocking())
-        socket->setBlocking(true);
+    socket->setBlocking(true);
     socket->send(master_packet);
     master_packet.clear();
 }
 
 sf::Socket::Status Connection::receive(sf::Packet& packet) {
-    if(socket->isBlocking())
-        socket->setBlocking(false);
+    socket->setBlocking(false);
     return socket->receive(packet);
 }
 
@@ -44,8 +40,7 @@ Connection::~Connection() {
 }
 
 void Connection::send(const std::vector<char>& data) {
-    if(!socket->isBlocking())
-        socket->setBlocking(true);
+    socket->setBlocking(true);
     
     sf::Packet packet;
     packet << (int)data.size();
