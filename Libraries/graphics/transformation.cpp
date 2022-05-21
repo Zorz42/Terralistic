@@ -1,3 +1,4 @@
+#include <cstring>
 #include "graphics-internal.hpp"
 
 void gfx::Transformation::applyMatrix(float applied_matrix[3][3]) {

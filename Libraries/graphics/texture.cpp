@@ -1,3 +1,4 @@
+#include <cstring>
 #include "graphics-internal.hpp"
 
 void gfx::Texture::createBlankImage(int width_, int height_) {

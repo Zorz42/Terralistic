@@ -118,7 +118,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
-#ifdef WIN32
+#ifndef __APPLE__
     scale_x = 1;
     scale_y = 1;
 #endif
@@ -140,7 +140,7 @@ void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y
     gfx::Scene* temp_scene = gfx::curr_scene;
     gfx::curr_scene = nullptr;
     framebufferSizeCallback(gfx::glfw_window, window_width * gfx::system_scale_x, window_height * gfx::system_scale_y);
-#ifdef WIN32
+#ifndef __APPLE__
     gfx::setMinimumWindowSize(gfx::window_width_min, gfx::window_height_min);
 #endif
     gfx::curr_scene = temp_scene;
@@ -150,7 +150,7 @@ void gfx::setMinimumWindowSize(int width, int height) {
     window_width_min = width;
     window_height_min = height;
     float scale = 1;
-#ifdef WIN32
+#ifndef __APPLE__
     scale = gfx::global_scale;
 #endif
     glfwSetWindowSizeLimits(glfw_window, width * scale, height * scale, -1, -1);

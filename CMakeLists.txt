@@ -97,13 +97,15 @@ if(WIN32)
     file(COPY ${SFML_DLLS_TO_USE} ${ZLIB_DLL} ${GLFW_DLL} ${GLEW_DLL} DESTINATION .)
 else()
     set(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
+    set(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7/)
 
-    include_directories(${SFML_DIR}include/)
-    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/)
-    target_link_libraries(Terralistic z sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
+    include_directories(${SFML_DIR}include/ ${GLFW_DIR}include/ ${CMAKE_SOURCE_DIR}/External\ Libraries/glad/include/)
 
-    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/)
-    target_link_libraries(Terralistic-server z sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
+    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${GLFW_DIR}build/src/)
+    target_link_libraries(Terralistic z sfml-system sfml-network glfw3 X11)
+
+    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/ ${GLFW_DIR}build/src/)
+    target_link_libraries(Terralistic-server z sfml-system sfml-network glfw3 X11)
 endif()
 
 file(COPY Resources DESTINATION .)
