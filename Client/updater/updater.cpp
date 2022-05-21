@@ -1,6 +1,6 @@
-#include <SFML/Network.hpp>
 #include <fstream>
 #include <filesystem>
+#include "networking.hpp"
 #include "updater.hpp"
 #include "versions.hpp"
 #include "platform_folders.h"
@@ -19,14 +19,14 @@
 
 void UpdateChecker::checkForUpdates() {
     update_state = UpdateState::CHECKING;
-    sf::TcpSocket server_socket;
-    if(server_socket.connect("jakob.zorz.si", 65431) == sf::Socket::Done) {
+    TcpSocket server_socket;
+    if(server_socket.connect("jakob.zorz.si", 65431) == SocketStatus::Done) {
         server_socket.send(PATCH_REQEUST_VERSION.c_str(), PATCH_REQEUST_VERSION.size());
 
         std::string buffer;
         char temp_buffer[1024];
         std::size_t received;
-        while(server_socket.receive(temp_buffer, 1024, received) == sf::Socket::Done) {
+        while(server_socket.receive(temp_buffer, 1024, received) == SocketStatus::Done) {
             update_state = UpdateState::DOWNLOADING;
             buffer.insert(buffer.end(), &temp_buffer[0], &temp_buffer[0] + received);
         }

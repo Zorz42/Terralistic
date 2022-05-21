@@ -6,27 +6,27 @@
 #include "graphics.hpp"
 
 class Connection {
-    sf::TcpSocket* socket;
-    sf::Packet master_packet;
-    std::queue<std::pair<sf::Packet, ClientPacketType>> packet_buffer;
+    TcpSocket* socket;
+    Packet master_packet;
+    std::queue<std::pair<Packet, ClientPacketType>> packet_buffer;
     bool greeted = false;
 public:
-    explicit Connection(sf::TcpSocket* socket) : socket(socket) {}
+    explicit Connection(TcpSocket* socket) : socket(socket) {}
     
-    void send(sf::Packet& packet);
-    void sendDirectly(sf::Packet& packet);
+    void send(Packet& packet);
+    void sendDirectly(Packet& packet);
     void send(const std::vector<char>& data);
     
     bool hasBeenGreeted() const;
     void greet();
     
-    sf::Socket::Status receive(sf::Packet& packet);
+    SocketStatus receive(Packet& packet);
     
     std::string getIpAddress();
     
-    void pushPacket(sf::Packet& packet, ClientPacketType type);
+    void pushPacket(Packet& packet, ClientPacketType type);
     bool hasPacketInBuffer();
-    std::pair<sf::Packet, ClientPacketType> getPacket();
+    std::pair<Packet, ClientPacketType> getPacket();
     
     std::string player_name;
     
@@ -36,9 +36,9 @@ public:
 
 class ServerConnectionWelcomeEvent {
 public:
-    ServerConnectionWelcomeEvent(Connection* connection, sf::Packet& client_welcome_packet) : connection(connection), client_welcome_packet(client_welcome_packet) {}
+    ServerConnectionWelcomeEvent(Connection* connection, Packet& client_welcome_packet) : connection(connection), client_welcome_packet(client_welcome_packet) {}
     Connection* connection;
-    sf::Packet& client_welcome_packet;
+    Packet& client_welcome_packet;
 };
 
 class ServerNewConnectionEvent {
@@ -55,7 +55,7 @@ public:
 
 class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
-    sf::TcpListener listener;
+    TcpListener listener;
     int port;
     gfx::Timer timer;
 
@@ -68,7 +68,7 @@ class ServerNetworking : public ServerModule {
 public:
     explicit ServerNetworking(int port);
     
-    void sendToEveryone(sf::Packet& packet);
+    void sendToEveryone(Packet& packet);
     void kickConnection(Connection* connection, const std::string& reason);
     
     const std::vector<Connection*>& getConnections();

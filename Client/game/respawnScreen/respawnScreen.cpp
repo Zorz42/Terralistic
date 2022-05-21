@@ -25,7 +25,7 @@ void RespawnScreen::loadTextures() {
 
 bool RespawnScreen::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && respawn_button.isHovered(getMouseX(), getMouseY())) {
-        sf::Packet packet;
+        Packet packet;
         packet << ClientPacketType::PLAYER_RESPAWN;
         networking->sendPacket(packet);
         return true;

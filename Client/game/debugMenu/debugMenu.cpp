@@ -30,7 +30,7 @@ void DebugMenu::update(float frame_length) {
             server_tps_line.text = std::to_string(server_tps) + " TPS on server";
 
             if(received_ping_answer){
-                sf::Packet ping;
+                Packet ping;
                 ping << ClientPacketType::PING;
                 networking->sendPacket(ping);
                 received_ping_answer = false;

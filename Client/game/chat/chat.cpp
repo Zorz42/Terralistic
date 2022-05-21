@@ -74,7 +74,7 @@ void Chat::render() {
 bool Chat::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
-            sf::Packet chat_packet;
+            Packet chat_packet;
             chat_packet << ClientPacketType::CHAT << chat_box.getText();
             networking->sendPacket(chat_packet);
             saved_lines.insert(saved_lines.begin() + 1, chat_box.getText());

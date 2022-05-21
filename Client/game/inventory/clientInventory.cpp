@@ -191,7 +191,7 @@ void ClientInventory::selectSlot(int slot) {
         throw Exception("Inventory slot is out of range");
     
     selected_slot = slot;
-    sf::Packet packet;
+    Packet packet;
     packet << ClientPacketType::HOTBAR_SELECTION << selected_slot;
     networking->sendPacket(packet);
 }
@@ -232,7 +232,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
             if(!open && inventory.getItem(-1).type != &items->nothing) {
                 int result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
                 inventory.setItem(-1, ItemStack(&items->nothing, 0));
-                sf::Packet packet;
+                Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << result;
                 networking->sendPacket(packet);
             }
@@ -240,12 +240,12 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::MOUSE_LEFT: {
             if(hovered != -1) {
                 inventory.swapWithMouseItem(hovered);
-                sf::Packet packet;
+                Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << hovered;
                 networking->sendPacket(packet);
                 return true;
             } else if(hovered_recipe != -1) {
-                sf::Packet packet;
+                Packet packet;
                 packet << ClientPacketType::CRAFT << hovered_recipe;
                 networking->sendPacket(packet);
                 return true;
@@ -253,7 +253,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
             return false;
         }
         case gfx::Key::Q: {
-            sf::Packet packet;
+            Packet packet;
             packet << ClientPacketType::ITEM_DROP;
             networking->sendPacket(packet);
             return true;

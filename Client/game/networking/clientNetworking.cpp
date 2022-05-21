@@ -1,6 +1,6 @@
 #include "clientNetworking.hpp"
 
-void ClientNetworking::sendPacket(sf::Packet& packet) {
+void ClientNetworking::sendPacket(Packet& packet) {
     if(!socket.isBlocking())
         socket.setBlocking(true);
     
@@ -8,15 +8,15 @@ void ClientNetworking::sendPacket(sf::Packet& packet) {
 }
 
 void ClientNetworking::updateParallel(float frame_length) {
-    sf::Packet packet;
+    Packet packet;
     
     while(true) {
         if(socket.isBlocking())
             socket.setBlocking(false);
-        sf::Socket::Status status = socket.receive(packet);
-        if(status != sf::Socket::NotReady && status != sf::Socket::Disconnected) {
+        SocketStatus status = socket.receive(packet);
+        if(status != SocketStatus::NotReady && status != SocketStatus::Disconnected) {
             while(!packet.endOfPacket()) {
-                sf::Packet sub_packet;
+                Packet sub_packet;
                 int size;
                 packet >> size;
                 for(int i = 0; i < size; i++) {
@@ -37,7 +37,7 @@ void ClientNetworking::updateParallel(float frame_length) {
 
 void ClientNetworking::init() {
     packet_event.addListener(this);
-    if(socket.connect(ip_address, port) != sf::Socket::Done)
+    if(socket.connect(ip_address, port) != SocketStatus::Done)
         throw Exception("Could not connect to the server with ip " + ip_address);
 }
 
@@ -46,11 +46,11 @@ void ClientNetworking::stop() {
     socket.disconnect();
 }
 
-sf::Packet ClientNetworking::getPacket() {
+Packet ClientNetworking::getPacket() {
     if(!socket.isBlocking())
         socket.setBlocking(true);
     
-    sf::Packet packet;
+    Packet packet;
     socket.receive(packet);
     return packet;
 }
@@ -59,7 +59,7 @@ std::vector<char> ClientNetworking::getData() {
     if(!socket.isBlocking())
         socket.setBlocking(true);
     
-    sf::Packet packet;
+    Packet packet;
     socket.receive(packet);
     int size;
     packet >> size;
@@ -85,12 +85,12 @@ void ClientNetworking::onEvent(ClientPacketEvent& event) {
 }
 
 void ClientNetworking::postInit() {
-    sf::Packet join_packet;
+    Packet join_packet;
     join_packet << username;
     sendPacket(join_packet);
     
     while(true) {
-        sf::Packet packet = getPacket();
+        Packet packet = getPacket();
         WelcomePacketType type;
         packet >> type;
         if(type == WelcomePacketType::WELCOME)

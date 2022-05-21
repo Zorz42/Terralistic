@@ -58,8 +58,8 @@ public:
 
 class ServerPacketEvent {
 public:
-    ServerPacketEvent(sf::Packet& packet, ClientPacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
-    sf::Packet& packet;
+    ServerPacketEvent(Packet& packet, ClientPacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
+    Packet& packet;
     ClientPacketType packet_type;
     ServerPlayer* player;
 };

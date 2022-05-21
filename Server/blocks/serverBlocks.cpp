@@ -2,7 +2,7 @@
 #include "serverPlayers.hpp"
 
 void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << WelcomePacketType::BLOCKS;
     event.connection->sendDirectly(packet);
     
@@ -46,7 +46,7 @@ void ServerBlocks::stop() {
 }
 
 void ServerBlocks::onEvent(BlockChangeEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y)->id << (unsigned char)getBlockXFromMain(event.x, event.y) << (unsigned char)getBlockYFromMain(event.x, event.y);
     networking->sendToEveryone(packet);
     
@@ -80,13 +80,13 @@ void ServerBlocks::onEvent(BlockUpdateEvent& event) {
 }
 
 void ServerBlocks::onEvent(BlockStartedBreakingEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::BLOCK_STARTED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }
 
 void ServerBlocks::onEvent(BlockStoppedBreakingEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::BLOCK_STOPPED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }

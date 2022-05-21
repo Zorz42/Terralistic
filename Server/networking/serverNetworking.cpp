@@ -2,12 +2,12 @@
 #include "print.hpp"
 #include "graphics.hpp"
 
-void Connection::send(sf::Packet& packet) {
+void Connection::send(Packet& packet) {
     master_packet << (int)packet.getDataSize();
     master_packet.append(packet.getData(), packet.getDataSize());
 }
 
-void Connection::sendDirectly(sf::Packet& packet) {
+void Connection::sendDirectly(Packet& packet) {
     socket->setBlocking(true);
     socket->send(packet);
 }
@@ -18,7 +18,7 @@ void Connection::flushPackets() {
     master_packet.clear();
 }
 
-sf::Socket::Status Connection::receive(sf::Packet& packet) {
+SocketStatus Connection::receive(Packet& packet) {
     socket->setBlocking(false);
     return socket->receive(packet);
 }
@@ -42,7 +42,7 @@ Connection::~Connection() {
 void Connection::send(const std::vector<char>& data) {
     socket->setBlocking(true);
     
-    sf::Packet packet;
+    Packet packet;
     packet << (int)data.size();
     sendDirectly(packet);
     
@@ -54,7 +54,7 @@ void Connection::send(const std::vector<char>& data) {
     }
 }
 
-void Connection::pushPacket(sf::Packet& packet, ClientPacketType type) {
+void Connection::pushPacket(Packet& packet, ClientPacketType type) {
     packet_buffer.push({packet, type});
 }
 
@@ -62,7 +62,7 @@ bool Connection::hasPacketInBuffer() {
     return !packet_buffer.empty();
 }
 
-std::pair<sf::Packet, ClientPacketType> Connection::getPacket() {
+std::pair<Packet, ClientPacketType> Connection::getPacket() {
     auto result = packet_buffer.front();
     packet_buffer.pop();
     return result;
@@ -79,43 +79,43 @@ void ServerNetworking::postInit() {
     timer.reset();
 }
 
-void ServerNetworking::sendToEveryone(sf::Packet& packet) {
+void ServerNetworking::sendToEveryone(Packet& packet) {
     for(auto & connection : connections)
         if(connection->hasBeenGreeted())
             connection->send(packet);
 }
 
 void ServerNetworking::update(float frame_length) {
-    static sf::TcpSocket *socket = new sf::TcpSocket;
-    while(listener.accept(*socket) != sf::Socket::NotReady)
+    static TcpSocket *socket = new TcpSocket;
+    while(listener.accept(*socket) != SocketStatus::NotReady)
         if(!is_private || socket->getRemoteAddress().toString() == "127.0.0.1") {
             Connection* connection = new Connection(socket);
             connections.push_back(connection);
-            socket = new sf::TcpSocket;
+            socket = new TcpSocket;
         }
     
-    sf::Packet packet;
+    Packet packet;
     for(int i = 0; i < connections.size(); i++) {
         if(connections[i]->hasBeenGreeted()) {
             connections[i]->flushPackets();
             while(true) {
-                sf::Socket::Status status = connections[i]->receive(packet);
+                SocketStatus status = connections[i]->receive(packet);
                 
-                if(status == sf::Socket::NotReady)
+                if(status == SocketStatus::NotReady)
                     break;
-                else if(status == sf::Socket::Disconnected) {
+                else if(status == SocketStatus::Disconnected) {
                     removeConnection(connections[i]);
                     
                     break;
-                } else if(status == sf::Socket::Done) {
+                } else if(status == SocketStatus::Done) {
                     int packet_type;
                     packet >> packet_type;
                     
                     connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
                 }
             }
-        } else if(connections[i]->receive(packet) != sf::Socket::NotReady) {
-            sf::Packet time_packet;
+        } else if(connections[i]->receive(packet) != SocketStatus::NotReady) {
+            Packet time_packet;
             time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
             connections[i]->sendDirectly(time_packet);
             connections[i]->send(std::vector<char>());
@@ -123,7 +123,7 @@ void ServerNetworking::update(float frame_length) {
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);
             
-            sf::Packet welcome_packet;
+            Packet welcome_packet;
             welcome_packet << WelcomePacketType::WELCOME;
             connections[i]->sendDirectly(welcome_packet);
             
@@ -144,7 +144,7 @@ void ServerNetworking::stop() {
 }
 
 void ServerNetworking::kickConnection(Connection* connection, const std::string& reason) {
-    sf::Packet kick_packet;
+    Packet kick_packet;
     kick_packet << ServerPacketType::KICK << reason;
     connection->send(kick_packet);
     

@@ -215,7 +215,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
                 player = curr_player;
                 break;
             } else {
-                sf::Packet join_packet;
+                Packet join_packet;
                 join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (int)curr_player->moving_type;
                 event.connection->send(join_packet);
             }
@@ -224,7 +224,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
     if(player == nullptr)
         throw Exception("Could not find the player.");
     
-    sf::Packet join_packet;
+    Packet join_packet;
     join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
     networking->sendToEveryone(join_packet);
     event.connection->send(join_packet);
@@ -242,12 +242,12 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     ServerPlayer* player = addPlayer(event.connection->player_name);
     player->setConnection(event.connection);
 
-    sf::Packet healthPacket;
+    Packet healthPacket;
     healthPacket << WelcomePacketType::HEALTH << player->health;
     event.connection->sendDirectly(healthPacket);
     event.connection->send(std::vector<char>());
     
-    sf::Packet packet;
+    Packet packet;
     packet << WelcomePacketType::INVENTORY;
     event.connection->sendDirectly(packet);
     
@@ -274,7 +274,7 @@ void ServerPlayers::update(float frame_length) {
             while(player->getConnection()->hasPacketInBuffer()) {
                 auto result = player->getConnection()->getPacket();
                 if(result.second == ClientPacketType::PING){
-                    sf::Packet pong;
+                    Packet pong;
                     pong << ServerPacketType::PING;
                     player->getConnection()->send(pong);
                 }else {
@@ -292,7 +292,7 @@ void ServerPlayers::update(float frame_length) {
                 ServerPlayer* player = getPlayerByName(networking->getConnections()[i]->player_name);
                 player->setConnection(networking->getConnections()[i]);
                 
-                sf::Packet join_packet;
+                Packet join_packet;
                 join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
                 networking->sendToEveryone(join_packet);
             }
@@ -410,14 +410,14 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             int moving_type;
             event.packet >> moving_type;
             event.player->moving_type = (MovingType)moving_type;
-            sf::Packet moving_packet;
+            Packet moving_packet;
             moving_packet << ServerPacketType::PLAYER_MOVING_TYPE << moving_type << event.player->id;
             networking->sendToEveryone(moving_packet);
             break;
         }
 
         case ClientPacketType::PLAYER_JUMPED: {
-            sf::Packet jumped_packet;
+            Packet jumped_packet;
             jumped_packet << ServerPacketType::PLAYER_JUMPED << event.player->id;
             networking->sendToEveryone(jumped_packet);
             break;
@@ -437,7 +437,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             event.packet >> x >> y;
             
             if(abs(event.player->getX() - x) + abs(event.player->getY() - y) > 50) {
-                sf::Packet packet;
+                Packet packet;
                 packet << ServerPacketType::MAIN_PLAYER_POSITION << event.player->getX() << event.player->getY();
                 event.player->getConnection()->send(packet);
             } else {
@@ -453,7 +453,7 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
 void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     if(connection) {
         ItemStack item = inventory.getItem(event.item_pos);
-        sf::Packet packet;
+        Packet packet;
         packet << ServerPacketType::INVENTORY << item.stack << item.type->id << (int)event.item_pos;
         connection->send(packet);
     }
@@ -461,7 +461,7 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
 
 void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
     player->health = health;
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::HEALTH << health;
     player->getConnection()->send(packet);
     

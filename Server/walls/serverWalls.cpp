@@ -31,7 +31,7 @@ void ServerWalls::onEvent(WorldLoadEvent &event) {
 }
 
 void ServerWalls::onEvent(ServerConnectionWelcomeEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << WelcomePacketType::WALLS;
     event.connection->sendDirectly(packet);
     
@@ -39,19 +39,19 @@ void ServerWalls::onEvent(ServerConnectionWelcomeEvent& event) {
 }
 
 void ServerWalls::onEvent(WallChangeEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::WALL << event.x << event.y << getWallType(event.x, event.y)->id;
     networking->sendToEveryone(packet);
 }
 
 void ServerWalls::onEvent(WallStartedBreakingEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::WALL_STARTED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }
 
 void ServerWalls::onEvent(WallStoppedBreakingEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::WALL_STOPPED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }
