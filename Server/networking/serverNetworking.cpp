@@ -13,9 +13,11 @@ void Connection::sendDirectly(Packet& packet) {
 }
 
 void Connection::flushPackets() {
-    socket->setBlocking(true);
-    socket->send(master_packet);
-    master_packet.clear();
+    if(master_packet.getDataSize() != 0) {
+        socket->setBlocking(true);
+        socket->send(master_packet);
+        master_packet.clear();
+    }
 }
 
 SocketStatus Connection::receive(Packet& packet) {

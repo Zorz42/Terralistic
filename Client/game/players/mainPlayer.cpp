@@ -147,5 +147,12 @@ void ClientPlayers::updateParallel(float frame_length) {
         
         prev_x = main_player->getX();
         prev_y = main_player->getY();
+    } else {
+        walking_left = false;
+        walking_right = false;
+        sneaking_left = false;
+        sneaking_right = false;
+        running_left = false;
+        running_right = false;
     }
 }
