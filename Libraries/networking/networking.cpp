@@ -10,8 +10,8 @@ SocketStatus convertStatus(sf::Socket::Status status) {
     return SocketStatus::Error;
 }
 
-SocketStatus TcpSocket::send(const void* data, std::size_t size, std::size_t& sent) {
-    sent = 0;
+SocketStatus TcpSocket::send(const void* data, std::size_t size) {
+    std::size_t sent = 0;
     
     while(sent < size) {
         std::size_t curr_sent;
@@ -28,11 +28,6 @@ SocketStatus TcpSocket::send(const void* data, std::size_t size, std::size_t& se
     return SocketStatus::Done;
 }
 
-SocketStatus TcpSocket::send(const void* data, std::size_t size) {
-    std::size_t unused;
-    return send(data, size, unused);
-}
-
 SocketStatus TcpSocket::send(Packet& packet) {
     unsigned int size = (unsigned int)packet.getDataSize();
     unsigned char* data = new unsigned char[size + 4];
@@ -43,8 +38,8 @@ SocketStatus TcpSocket::send(Packet& packet) {
     return status;
 }
 
-SocketStatus TcpSocket::receive(void* data, std::size_t size, std::size_t& received) {
-    received = 0;
+SocketStatus TcpSocket::receive(void* data, std::size_t size) {
+    std::size_t received = 0;
     while(received < size) {
         std::size_t curr_received;
         sf::Socket::Status result = sf::TcpSocket::receive(data, size - received, curr_received);
@@ -57,11 +52,6 @@ SocketStatus TcpSocket::receive(void* data, std::size_t size, std::size_t& recei
         received += curr_received;
     }
     return SocketStatus::Done;
-}
-
-SocketStatus TcpSocket::receive(void* data, std::size_t size) {
-    std::size_t unused;
-    return receive(data, size, unused);
 }
 
 SocketStatus TcpSocket::receive(Packet& packet) {

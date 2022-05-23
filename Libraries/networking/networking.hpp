@@ -7,10 +7,8 @@ enum class SocketStatus {Done, NotReady, Disconnected, Error};
 
 class TcpSocket : public sf::TcpSocket {
 public:
-    SocketStatus send(const void* data, std::size_t size, std::size_t& sent);
     SocketStatus send(const void* data, std::size_t size);
     SocketStatus send(Packet& packet);
-    SocketStatus receive(void* data, std::size_t size, std::size_t& received);
     SocketStatus receive(void* data, std::size_t size);
     SocketStatus receive(Packet& packet);
     SocketStatus connect(const std::string& ip, unsigned short port);
