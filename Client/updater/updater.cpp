@@ -25,10 +25,9 @@ void UpdateChecker::checkForUpdates() {
 
         std::string buffer;
         char temp_buffer[1024];
-        std::size_t received;
-        while(server_socket.receive(temp_buffer, 1024, received) == SocketStatus::Done) {
+        while(server_socket.receive(temp_buffer, 1024) == SocketStatus::Done) {
             update_state = UpdateState::DOWNLOADING;
-            buffer.insert(buffer.end(), &temp_buffer[0], &temp_buffer[0] + received);
+            buffer.insert(buffer.end(), &temp_buffer[0], &temp_buffer[0] + 1024);
         }
         
         if(!buffer.empty()) {
