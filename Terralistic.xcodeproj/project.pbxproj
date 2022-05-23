@@ -703,7 +703,6 @@
 				1695428D2680B5B400F1F4FE /* versions.hpp */,
 				1682944126A16D5C0017E2FD /* packetType */,
 				16BF6958269D7F3E00CFE175 /* resourcePath */,
-				369E17CB2839466900D37108 /* networking */,
 				169AD3A027023B590096D80D /* blocks */,
 				3605ED55276E90E600ECCA08 /* walls */,
 				1674225C2702F35800D6D8F2 /* liquids */,
@@ -990,6 +989,7 @@
 				36D31CD626DBE31D006F89B3 /* compress */,
 				1676E9F62699BF8600034070 /* events */,
 				1675E71A26611B6300B620F4 /* configManager */,
+				369E17CB2839466900D37108 /* networking */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
