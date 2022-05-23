@@ -48,12 +48,7 @@ void Connection::send(const std::vector<char>& data) {
     packet << (int)data.size();
     sendDirectly(packet);
     
-    size_t sent;
-    int bytes_sent = 0;
-    while(bytes_sent < data.size()) {
-        socket->send(&data[bytes_sent], (int)data.size() - bytes_sent, sent);
-        bytes_sent += sent;
-    }
+    socket->send(&data[0], (int)data.size());
 }
 
 void Connection::pushPacket(Packet& packet, ClientPacketType type) {
@@ -120,7 +115,7 @@ void ServerNetworking::update(float frame_length) {
             Packet time_packet;
             time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
             connections[i]->sendDirectly(time_packet);
-            connections[i]->send(std::vector<char>());
+            connections[i]->send(std::vector<char>(1));
             
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);

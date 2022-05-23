@@ -245,7 +245,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     Packet healthPacket;
     healthPacket << WelcomePacketType::HEALTH << player->health;
     event.connection->sendDirectly(healthPacket);
-    event.connection->send(std::vector<char>());
+    event.connection->send(std::vector<char>(1));
     
     Packet packet;
     packet << WelcomePacketType::INVENTORY;

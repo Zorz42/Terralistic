@@ -29,16 +29,16 @@ void DebugMenu::update(float frame_length) {
             packet_count = 0;
             server_tps_line.text = std::to_string(server_tps) + " TPS on server";
 
-            if(received_ping_answer){
+            if(received_ping_answer) {
                 Packet ping;
                 ping << ClientPacketType::PING;
                 networking->sendPacket(ping);
                 received_ping_answer = false;
                 ping_timer.reset();
             }
-            if(ping_timer.getTimeElapsed() > 60000){
+            
+            if(ping_timer.getTimeElapsed() > 60000)
                 throw Exception("Server did not respond in 60 seconds. It has likely crashed");
-            }
         }
 
         if(debug_menu_open) {
@@ -102,7 +102,7 @@ void DebugMenu::onEvent(ClientPacketEvent& event) {
             event.packet >> server_tps;
             break;
         }
-        case ServerPacketType::PING:{
+        case ServerPacketType::PING: {
             ping_line.text = "Ping: " + std::to_string(ping_timer.getTimeElapsed() / 1000);
             received_ping_answer = true;
         }

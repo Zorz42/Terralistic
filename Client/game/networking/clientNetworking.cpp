@@ -1,8 +1,7 @@
 #include "clientNetworking.hpp"
 
 void ClientNetworking::sendPacket(Packet& packet) {
-    if(!socket.isBlocking())
-        socket.setBlocking(true);
+    socket.setBlocking(true);
     
     socket.send(packet);
 }
@@ -47,8 +46,7 @@ void ClientNetworking::stop() {
 }
 
 Packet ClientNetworking::getPacket() {
-    if(!socket.isBlocking())
-        socket.setBlocking(true);
+    socket.setBlocking(true);
     
     Packet packet;
     socket.receive(packet);
@@ -56,21 +54,16 @@ Packet ClientNetworking::getPacket() {
 }
 
 std::vector<char> ClientNetworking::getData() {
-    if(!socket.isBlocking())
-        socket.setBlocking(true);
+    socket.setBlocking(true);
     
     Packet packet;
     socket.receive(packet);
     int size;
     packet >> size;
     
-    size_t received;
+
     std::vector<char> data(size);
-    int bytes_received = 0;
-    while(bytes_received < size) {
-        socket.receive(&data[bytes_received], size - bytes_received, received);
-        bytes_received += received;
-    }
+    socket.receive(&data[0], size);
         
     return data;
 }
