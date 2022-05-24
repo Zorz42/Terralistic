@@ -35,6 +35,7 @@ SocketStatus TcpSocket::send(Packet& packet) {
     memcpy(&data[sizeof(unsigned int)], packet.getData(), size);
     SocketStatus status = send(data, size + 4);
     delete[] data;
+    
     return status;
 }
 
@@ -55,14 +56,16 @@ SocketStatus TcpSocket::receive(void* data, std::size_t size) {
 }
 
 SocketStatus TcpSocket::receive(Packet& packet) {
-    unsigned int size; 
+    unsigned int size;
     SocketStatus status = receive(&size, sizeof(unsigned int));
     if(status != SocketStatus::Done)
         return status;
     unsigned char* data = new unsigned char[size];
     status = receive(data, size);
+    packet.clear();
     packet.append(data, size);
     delete[] data;
+    
     return status;
 }
 
