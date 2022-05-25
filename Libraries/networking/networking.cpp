@@ -7,17 +7,17 @@
 #include <fcntl.h>
 #include <stdexcept>
 
-void fdSetBlocking(int file_descriptor, bool blocking) {
+void socketSetBlocking(int socket_handle, bool blocking) {
 #ifdef _WIN32
     unsigned long mode = blocking ? 0 : 1;
-    if(ioctlsocket(fd, FIONBIO, &mode) != 0)
+    if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0)
         throw std::runtime_error("Could not set socket to blocking");
 #else
-    int flags = fcntl(file_descriptor, F_GETFL, 0);
+    int flags = fcntl(socket_handle, F_GETFL, 0);
     if(flags == -1)
         throw std::runtime_error("Could not set socket to blocking");
     flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
-    if(fcntl(file_descriptor, F_SETFL, flags) != 0)
+    if(fcntl(socket_handle, F_SETFL, flags) != 0)
         throw std::runtime_error("Could not set socket to blocking");
 #endif
 }
@@ -112,15 +112,14 @@ SocketStatus TcpSocket::connect(const std::string& ip, unsigned short port) {
     if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) <= 0)
         return SocketStatus::Error;
  
-    file_descriptor = ::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-    if(file_descriptor < 0)
+    if(::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
         return SocketStatus::Error;
     
     return SocketStatus::Done;
 }
 
 void TcpSocket::setBlocking(bool blocking) {
-    fdSetBlocking(file_descriptor, blocking);
+    socketSetBlocking(socket_handle, blocking);
 }
 
 std::string TcpSocket::getIpAddress() {
@@ -128,7 +127,7 @@ std::string TcpSocket::getIpAddress() {
 }
 
 void TcpSocket::disconnect() {
-    close(file_descriptor);
+    close(socket_handle);
 }
 
 TcpListener::TcpListener() {
