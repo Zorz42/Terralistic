@@ -6,6 +6,8 @@ typedef sf::Packet Packet;
 enum class SocketStatus {Done, NotReady, Disconnected, Error};
 
 class TcpSocket {
+protected:
+    friend class TcpListener;
     int socket_handle;
     std::string ip_address;
 public:
@@ -27,6 +29,7 @@ public:
 };
 
 class TcpListener {
+    int listener_handle;
 public:
     TcpListener();
     
