@@ -32,7 +32,7 @@ void Connection::greet() {
 }
 
 std::string Connection::getIpAddress() {
-    return socket->getRemoteAddress().toString();
+    return socket->getIpAddress();
 }
 
 Connection::~Connection() {
@@ -81,7 +81,7 @@ void ServerNetworking::sendToEveryone(Packet& packet) {
 void ServerNetworking::update(float frame_length) {
     static TcpSocket *socket = new TcpSocket;
     while(listener.accept(*socket) != SocketStatus::NotReady)
-        if(!is_private || socket->getRemoteAddress().toString() == "127.0.0.1") {
+        if(!is_private || socket->getIpAddress() == "127.0.0.1") {
             Connection* connection = new Connection(socket);
             connections.push_back(connection);
             socket = new TcpSocket;

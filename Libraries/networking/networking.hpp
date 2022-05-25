@@ -5,18 +5,35 @@ typedef sf::Packet Packet;
 
 enum class SocketStatus {Done, NotReady, Disconnected, Error};
 
-class TcpSocket : public sf::TcpSocket {
+class TcpSocket {
+    int socket_handle;
 public:
-    SocketStatus send(const void* data, std::size_t size);
+    TcpSocket();
+    
+    SocketStatus send(const void* data, unsigned int size);
     SocketStatus send(Packet& packet);
     
-    SocketStatus receive(void* data, std::size_t size);
+    SocketStatus receive(void* data, unsigned int size);
     SocketStatus receive(Packet& packet);
     
     SocketStatus connect(const std::string& ip, unsigned short port);
+    void disconnect();
+    
+    void setBlocking(bool blocking);
+    std::string getIpAddress();
+    
+    ~TcpSocket();
 };
 
-class TcpListener : public sf::TcpListener {
+class TcpListener {
 public:
+    TcpListener();
+    
+    void setBlocking(bool blocking);
+    
+    void listen(unsigned short port);
     SocketStatus accept(TcpSocket& socket);
+    void close();
+    
+    ~TcpListener();
 };
