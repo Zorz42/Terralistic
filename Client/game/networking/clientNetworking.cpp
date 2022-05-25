@@ -1,8 +1,6 @@
 #include "clientNetworking.hpp"
 
 void ClientNetworking::sendPacket(Packet& packet) {
-    socket.setBlocking(true);
-    
     socket.send(packet);
 }
 
@@ -10,8 +8,6 @@ void ClientNetworking::updateParallel(float frame_length) {
     Packet packet;
     
     while(true) {
-        if(socket.isBlocking())
-            socket.setBlocking(false);
         SocketStatus status = socket.receive(packet);
         if(status != SocketStatus::NotReady && status != SocketStatus::Disconnected) {
             while(!packet.endOfPacket()) {
@@ -46,16 +42,12 @@ void ClientNetworking::stop() {
 }
 
 Packet ClientNetworking::getPacket() {
-    socket.setBlocking(true);
-    
     Packet packet;
     socket.receive(packet);
     return packet;
 }
 
 std::vector<char> ClientNetworking::getData() {
-    socket.setBlocking(true);
-    
     Packet packet;
     socket.receive(packet);
     int size;
@@ -93,4 +85,6 @@ void ClientNetworking::postInit() {
         WelcomePacketEvent event(packet, type, data);
         welcome_packet_event.call(event);
     }
+    
+    socket.setBlocking(false);
 }

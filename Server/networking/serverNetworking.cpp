@@ -8,20 +8,17 @@ void Connection::send(Packet& packet) {
 }
 
 void Connection::sendDirectly(Packet& packet) {
-    socket->setBlocking(true);
     socket->send(packet);
 }
 
 void Connection::flushPackets() {
     if(master_packet.getDataSize() != 0) {
-        socket->setBlocking(true);
         socket->send(master_packet);
         master_packet.clear();
     }
 }
 
 SocketStatus Connection::receive(Packet& packet) {
-    socket->setBlocking(false);
     return socket->receive(packet);
 }
 
@@ -30,6 +27,7 @@ bool Connection::hasBeenGreeted() const {
 }
 
 void Connection::greet() {
+    socket->setBlocking(false);
     greeted = true;
 }
 
@@ -42,8 +40,6 @@ Connection::~Connection() {
 }
 
 void Connection::send(const std::vector<char>& data) {
-    socket->setBlocking(true);
-    
     Packet packet;
     packet << (int)data.size();
     sendDirectly(packet);
