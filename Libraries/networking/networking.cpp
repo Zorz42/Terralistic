@@ -4,7 +4,33 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-SocketStatus getSocketStatus() {
+#include <fcntl.h>
+#include <stdexcept>
+
+void fdSetBlocking(int file_descriptor, bool blocking) {
+#ifdef _WIN32
+    unsigned long mode = blocking ? 0 : 1;
+    if(ioctlsocket(fd, FIONBIO, &mode) != 0)
+        throw std::runtime_error("Could not set socket to blocking");
+#else
+    int flags = fcntl(file_descriptor, F_GETFL, 0);
+    if(flags == -1)
+        throw std::runtime_error("Could not set socket to blocking");
+    flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
+    if(fcntl(file_descriptor, F_SETFL, flags) != 0)
+        throw std::runtime_error("Could not set socket to blocking");
+#endif
+}
+
+TcpSocket::TcpSocket() {
+    
+}
+
+TcpSocket::~TcpSocket() {
+    
+}
+
+SocketStatus getErrorStatus() {
     if ((errno == EAGAIN) || (errno == EINPROGRESS))
         return SocketStatus::NotReady;
 
@@ -20,23 +46,18 @@ SocketStatus getSocketStatus() {
     }
 }
 
-/*SocketStatus TcpSocket::send(const void* data, unsigned int size) {
+SocketStatus TcpSocket::send(const void* data, unsigned int size) {
     unsigned int sent = 0;
-    
     while(sent < size) {
-        std::size_t curr_sent;
-        sf::Socket::Status result = sf::TcpSocket::send(data, size - sent, curr_sent);
-        if(result == sf::Socket::Disconnected)
-            return SocketStatus::Disconnected;
-        else if(result == sf::Socket::Error)
-            return SocketStatus::Error;
-        else if(result == sf::Socket::NotReady)
-            return SocketStatus::NotReady;
+        unsigned int curr_sent = (int)::send(socket_handle, (void*)((unsigned long)data + sent), size - sent, 0);
         sent += curr_sent;
+        
+        if(curr_sent < 0)
+            return getErrorStatus();
     }
     
     return SocketStatus::Done;
-}*/
+}
 
 SocketStatus TcpSocket::send(Packet& packet) {
     unsigned int size = (unsigned int)packet.getDataSize();
@@ -49,21 +70,20 @@ SocketStatus TcpSocket::send(Packet& packet) {
     return status;
 }
 
-/*SocketStatus TcpSocket::receive(void* data, unsigned int size) {
- unsigned int received = 0;
+SocketStatus TcpSocket::receive(void* data, unsigned int size) {
+    unsigned int received = 0;
     while(received < size) {
-        std::size_t curr_received;
-        sf::Socket::Status result = sf::TcpSocket::receive(data, size - received, curr_received);
-        if(result == sf::Socket::Disconnected)
-            return SocketStatus::Disconnected;
-        else if(result == sf::Socket::Error)
-            return SocketStatus::Error;
-        else if(result == sf::Socket::NotReady)
-            return SocketStatus::NotReady;
+        unsigned int curr_received = (int)::send(socket_handle, (void*)((unsigned long)data + received), size - received, 0);
         received += curr_received;
+        
+        if(curr_received == 0)
+            return SocketStatus::Disconnected;
+        else if(curr_received < 0)
+            return getErrorStatus();
     }
+    
     return SocketStatus::Done;
-}*/
+}
 
 SocketStatus TcpSocket::receive(Packet& packet) {
     unsigned int size;
@@ -80,7 +100,6 @@ SocketStatus TcpSocket::receive(Packet& packet) {
 }
 
 SocketStatus TcpSocket::connect(const std::string& ip, unsigned short port) {
-    int file_descriptor;
     sockaddr_in serv_addr;
     
     socket_handle = socket(AF_INET, SOCK_STREAM, 0);
@@ -100,7 +119,39 @@ SocketStatus TcpSocket::connect(const std::string& ip, unsigned short port) {
     return SocketStatus::Done;
 }
 
-/*SocketStatus TcpListener::accept(TcpSocket& socket) {
-    sf::Socket::Status result = sf::TcpListener::accept(socket);
-    return convertStatus(result);
-}*/
+void TcpSocket::setBlocking(bool blocking) {
+    fdSetBlocking(file_descriptor, blocking);
+}
+
+std::string TcpSocket::getIpAddress() {
+    return ip_address;
+}
+
+void TcpSocket::disconnect() {
+    close(file_descriptor);
+}
+
+TcpListener::TcpListener() {
+    
+}
+
+TcpListener::~TcpListener() {
+    
+}
+
+void TcpListener::setBlocking(bool blocking) { // implement
+    
+}
+
+void TcpListener::listen(unsigned short port) { // implement
+    
+}
+
+SocketStatus TcpListener::accept(TcpSocket& socket) { // implement
+    return SocketStatus::Done;
+}
+
+void TcpListener::close() { // implement
+    
+}
+

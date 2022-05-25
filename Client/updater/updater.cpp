@@ -21,7 +21,7 @@ void UpdateChecker::checkForUpdates() {
     update_state = UpdateState::CHECKING;
     TcpSocket server_socket;
     if(server_socket.connect("jakob.zorz.si", 65431) == SocketStatus::Done) {
-        server_socket.send(PATCH_REQEUST_VERSION.c_str(), PATCH_REQEUST_VERSION.size());
+        server_socket.send(PATCH_REQEUST_VERSION.c_str(), (int)PATCH_REQEUST_VERSION.size());
 
         std::string buffer;
         char temp_buffer[1024];

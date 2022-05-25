@@ -6,7 +6,8 @@ typedef sf::Packet Packet;
 enum class SocketStatus {Done, NotReady, Disconnected, Error};
 
 class TcpSocket {
-    int socket_handle;
+    int socket_handle, file_descriptor;
+    std::string ip_address;
 public:
     TcpSocket();
     
