@@ -70,7 +70,7 @@ SocketStatus TcpSocket::send(Packet& packet) {
 SocketStatus TcpSocket::receive(void* data, unsigned int size) {
     unsigned int received = 0;
     while(received < size) {
-        unsigned int curr_received = (int)::send(socket_handle, (void*)((unsigned long)data + received), size - received, 0);
+        unsigned int curr_received = (int)::read(socket_handle, (void*)((unsigned long)data + received), size - received);
         received += curr_received;
         
         if(curr_received == 0)

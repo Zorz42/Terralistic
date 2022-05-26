@@ -62,7 +62,6 @@ public:
     explicit BlurChangeListener(BooleanSetting* blur_setting) : blur_setting(blur_setting) {}
 };
 
-
 int main(int argc, char **argv) {
     srand((int)time(nullptr));
 
