@@ -80,7 +80,7 @@ void ServerNetworking::sendToEveryone(Packet& packet) {
 
 void ServerNetworking::update(float frame_length) {
     static TcpSocket *socket = new TcpSocket;
-    while(listener.accept(*socket) != SocketStatus::NotReady)
+    while(listener.accept(*socket) == SocketStatus::Done)
         if(!is_private || socket->getIpAddress() == "127.0.0.1") {
             Connection* connection = new Connection(socket);
             connections.push_back(connection);
@@ -107,7 +107,9 @@ void ServerNetworking::update(float frame_length) {
                     connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
                 }
             }
-        } else if(connections[i]->receive(packet) != SocketStatus::NotReady) {
+        } else if(connections[i]->receive(packet) == SocketStatus::Done) {
+            print::info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
+            
             Packet time_packet;
             time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
             connections[i]->sendDirectly(time_packet);
@@ -152,7 +154,7 @@ void ServerNetworking::removeConnection(Connection* connection) {
     ServerDisconnectEvent event(connection);
     disconnect_event.call(event);
     
-    print::info(connection->getIpAddress() + " disconnected (" + std::to_string(connections.size()) + " players online)");
+    print::info(connection->getIpAddress() + " disconnected (" + std::to_string(connections.size() - 1) + " players online)");
     
     delete connection;
     connections.erase(pos);
