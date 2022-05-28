@@ -16,21 +16,6 @@ def createDir(path):
 
 if sys.platform == "darwin":
     createDir(project_path + "Dependencies/")
-
-    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1-macos-clang/"):
-        print("Downloading SFML library")
-
-        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-macOS-clang.tar.gz"
-        sfml_file = project_path + "sfml.tar.gz"
-
-        with urllib.request.urlopen(sfml_url) as sfml_request:
-            with open(sfml_file, 'wb') as sfml_download:
-                sfml_download.write(sfml_request.read())
-
-        with tarfile.open(sfml_file, "r:gz") as sfml_tar:
-            sfml_tar.extractall(project_path + "Dependencies/")
-
-        os.remove(sfml_file)
         
     if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
         print("Downloading glfw library")
@@ -69,21 +54,6 @@ if sys.platform == "darwin":
 elif sys.platform == "linux":
     createDir("Dependencies/")
 
-    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
-        print("Downloading SFML library")
-
-        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz"
-        sfml_file = project_path + "sfml.tar.gz"
-
-        with urllib.request.urlopen(sfml_url) as sfml_request:
-            with open(sfml_file, 'wb') as sfml_download:
-                sfml_download.write(sfml_request.read())
-
-        with tarfile.open(sfml_file, "r") as sfml_tar:
-            sfml_tar.extractall(project_path + "Dependencies/")
-
-        os.remove(sfml_file)
-
     if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
         print("Downloading glfw library")
 
@@ -121,21 +91,6 @@ elif sys.platform == "linux":
 
 elif sys.platform == "win32":
     createDir("Dependencies/")
-
-    if not os.path.exists(project_path + "Dependencies/SFML-2.5.1/"):
-        print("Downloading SFML library")
-
-        sfml_url = "https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip"
-        sfml_file = project_path + "sfml.zip"
-
-        with urllib.request.urlopen(sfml_url) as sfml_request:
-            with open(sfml_file, 'wb') as sfml_download:
-                sfml_download.write(sfml_request.read())
-
-        with zipfile.ZipFile(sfml_file, "r") as sfml_zip:
-            sfml_zip.extractall(f"{project_path}Dependencies/")
-
-        os.remove(sfml_file)
 
     if not os.path.exists(project_path + "Dependencies/zlib/"):
         print("Downloading zlib library")

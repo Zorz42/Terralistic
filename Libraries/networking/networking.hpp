@@ -6,33 +6,38 @@
 enum class SocketStatus {Done, NotReady, Disconnected, Error};
 
 class Packet {
-    std::vector<unsigned char> data;
+    std::vector<char> data;
     unsigned int read_pos = 0;
 public:
     unsigned int getDataSize();
     void* getData();
-    void append(void* data_ptr, unsigned int size);
+    void append(const void* data_ptr, unsigned int size);
     
     void clear();
     
-    template<class T>
-    Packet& operator<<(T obj) {
-        append(&obj, sizeof(obj));
-        return *this;
-    }
+    Packet& operator>>(char& obj);
+    Packet& operator>>(unsigned char& obj);
+    Packet& operator>>(short& obj);
+    Packet& operator>>(unsigned short& obj);
+    Packet& operator>>(int& obj);
+    Packet& operator>>(unsigned int& obj);
+    Packet& operator>>(long long& obj);
+    Packet& operator>>(unsigned long long& obj);
+    Packet& operator>>(float& obj);
+    Packet& operator>>(double& obj);
+    Packet& operator>>(std::string& obj);
     
-    template<class T>
-    Packet& operator>>(T& obj) {
-        if(sizeof(obj) + read_pos > data.size())
-            throw Exception("Reading out of packet data bounds.");
-        
-        obj = *(T*)&data[read_pos];
-        read_pos += sizeof(T);
-        return *this;
-    }
-    
-    Packet& operator<<(std::string str);
-    Packet& operator>>(std::string& str);
+    Packet& operator<<(char obj);
+    Packet& operator<<(unsigned char obj);
+    Packet& operator<<(short obj);
+    Packet& operator<<(unsigned short obj);
+    Packet& operator<<(int obj);
+    Packet& operator<<(unsigned int obj);
+    Packet& operator<<(long long obj);
+    Packet& operator<<(unsigned long long obj);
+    Packet& operator<<(float obj);
+    Packet& operator<<(double obj);
+    Packet& operator<<(const std::string& obj);
     
     bool endOfPacket();
 };

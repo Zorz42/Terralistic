@@ -12,7 +12,7 @@ void* Packet::getData() {
     return data.data();
 }
 
-void Packet::append(void* data_ptr, unsigned int size) {
+void Packet::append(const void* data_ptr, unsigned int size) {
     unsigned int old_size = (int)data.size();
     data.resize(old_size + size);
     std::memcpy(&data[old_size], data_ptr, size);
@@ -27,267 +27,191 @@ void Packet::clear() {
     read_pos = 0;
 }
 
-Packet& Packet::operator>>(char& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(char& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(unsigned char& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(unsigned char& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(short& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        data = static_cast<Int16>(ntohs(static_cast<uint16_t>(data)));
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(short& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    obj = ntohs(uint32_t(obj));
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(unsigned short& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        data = ntohs(data);
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(unsigned short& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    obj = ntohs(obj);
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(int& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        data = static_cast<Int32>(ntohl(static_cast<uint32_t>(data)));
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(int& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    obj = ntohl(uint32_t(obj));
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(unsigned int& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        data = ntohl(data);
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(unsigned int& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    obj = ntohl(obj);
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(long long& data) {
-    if (checkSize(sizeof(data)))
-    {
-        // Since ntohll is not available everywhere, we have to convert
-        // to network byte order (big endian) manually
-        Uint8 bytes[sizeof(data)];
-        std::memcpy(bytes, &m_data[m_readPos], sizeof(data));
-        data = (static_cast<Int64>(bytes[0]) << 56) |
-               (static_cast<Int64>(bytes[1]) << 48) |
-               (static_cast<Int64>(bytes[2]) << 40) |
-               (static_cast<Int64>(bytes[3]) << 32) |
-               (static_cast<Int64>(bytes[4]) << 24) |
-               (static_cast<Int64>(bytes[5]) << 16) |
-               (static_cast<Int64>(bytes[6]) <<  8) |
-               (static_cast<Int64>(bytes[7])      );
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(long long& obj) {
+    unsigned char bytes[sizeof(obj)];
+    std::memcpy(bytes, &data[read_pos], sizeof(obj));
+    obj = ((unsigned long long)(bytes[0]) << 56) |
+           ((unsigned long long)(bytes[1]) << 48) |
+           ((unsigned long long)(bytes[2]) << 40) |
+           ((unsigned long long)(bytes[3]) << 32) |
+           ((unsigned long long)(bytes[4]) << 24) |
+           ((unsigned long long)(bytes[5]) << 16) |
+           ((unsigned long long)(bytes[6]) <<  8) |
+           ((unsigned long long)(bytes[7])      );
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(unsigned long long& data) {
-    if (checkSize(sizeof(data)))
-    {
-        // Since ntohll is not available everywhere, we have to convert
-        // to network byte order (big endian) manually
-        Uint8 bytes[sizeof(data)];
-        std::memcpy(bytes, &m_data[m_readPos], sizeof(data));
-        data = (static_cast<Uint64>(bytes[0]) << 56) |
-               (static_cast<Uint64>(bytes[1]) << 48) |
-               (static_cast<Uint64>(bytes[2]) << 40) |
-               (static_cast<Uint64>(bytes[3]) << 32) |
-               (static_cast<Uint64>(bytes[4]) << 24) |
-               (static_cast<Uint64>(bytes[5]) << 16) |
-               (static_cast<Uint64>(bytes[6]) <<  8) |
-               (static_cast<Uint64>(bytes[7])      );
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(unsigned long long& obj) {
+    unsigned char bytes[sizeof(obj)];
+    std::memcpy(bytes, &data[read_pos], sizeof(obj));
+    obj = ((unsigned long long)(bytes[0]) << 56) |
+           ((unsigned long long)(bytes[1]) << 48) |
+           ((unsigned long long)(bytes[2]) << 40) |
+           ((unsigned long long)(bytes[3]) << 32) |
+           ((unsigned long long)(bytes[4]) << 24) |
+           ((unsigned long long)(bytes[5]) << 16) |
+           ((unsigned long long)(bytes[6]) <<  8) |
+           ((unsigned long long)(bytes[7])      );
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(float& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(float& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(double& data) {
-    if (checkSize(sizeof(data)))
-    {
-        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
-        m_readPos += sizeof(data);
-    }
+Packet& Packet::operator>>(double& obj) {
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    read_pos += sizeof(obj);
 
     return *this;
 }
 
-Packet& Packet::operator>>(char* data) {
-    // First extract string length
-    Uint32 length = 0;
+Packet& Packet::operator>>(std::string& obj) {
+    unsigned int length = 0;
     *this >> length;
 
-    if ((length > 0) && checkSize(length))
-    {
-        // Then extract characters
-        std::memcpy(data, &m_data[m_readPos], length);
-        data[length] = '\0';
-
-        // Update reading position
-        m_readPos += length;
+    obj.clear();
+    if(length > 0) {
+        obj.assign(&data[read_pos], length);
+        read_pos += length;
     }
 
     return *this;
 }
 
-Packet& Packet::operator>>(std::string& data) {
-    // First extract string length
-    Uint32 length = 0;
-    *this >> length;
-
-    data.clear();
-    if ((length > 0) && checkSize(length))
-    {
-        // Then extract characters
-        data.assign(&m_data[m_readPos], length);
-
-        // Update reading position
-        m_readPos += length;
-    }
-
+Packet& Packet::operator<<(char obj){
+    append(&obj, sizeof(obj));
     return *this;
 }
 
-Packet& Packet::operator<<(char data){
-    append(&data, sizeof(data));
+Packet& Packet::operator<<(unsigned char obj){
+    append(&obj, sizeof(obj));
     return *this;
 }
 
-Packet& Packet::operator<<(unsigned char data){
-    append(&data, sizeof(data));
+Packet& Packet::operator<<(short obj) {
+    short to_write = htons(uint16_t(obj));
+    append(&to_write, sizeof(to_write));
     return *this;
 }
 
-Packet& Packet::operator<<(short data) {
-    auto toWrite = static_cast<Int16>(htons(static_cast<uint16_t>(data)));
-    append(&toWrite, sizeof(toWrite));
+Packet& Packet::operator<<(unsigned short obj) {
+    unsigned short to_write = htons(obj);
+    append(&to_write, sizeof(to_write));
     return *this;
 }
 
-Packet& Packet::operator<<(unsigned short data) {
-    Uint16 toWrite = htons(data);
-    append(&toWrite, sizeof(toWrite));
+Packet& Packet::operator<<(int obj) {
+    int to_write = htonl(uint32_t(obj));
+    append(&to_write, sizeof(to_write));
     return *this;
 }
 
-Packet& Packet::operator<<(int data) {
-    Int32 toWrite = static_cast<Int32>(htonl(static_cast<uint32_t>(data)));
-    append(&toWrite, sizeof(toWrite));
+Packet& Packet::operator<<(unsigned int obj) {
+    unsigned int to_write = htonl(obj);
+    append(&to_write, sizeof(to_write));
     return *this;
 }
 
-Packet& Packet::operator<<(unsigned int data) {
-    Uint32 toWrite = htonl(data);
-    append(&toWrite, sizeof(toWrite));
-    return *this;
-}
-
-Packet& Packet::operator<<(long long data) {
-    // Since htonll is not available everywhere, we have to convert
-    // to network byte order (big endian) manually
-    Uint8 toWrite[] =
-    {
-        static_cast<Uint8>((data >> 56) & 0xFF),
-        static_cast<Uint8>((data >> 48) & 0xFF),
-        static_cast<Uint8>((data >> 40) & 0xFF),
-        static_cast<Uint8>((data >> 32) & 0xFF),
-        static_cast<Uint8>((data >> 24) & 0xFF),
-        static_cast<Uint8>((data >> 16) & 0xFF),
-        static_cast<Uint8>((data >>  8) & 0xFF),
-        static_cast<Uint8>((data      ) & 0xFF)
+Packet& Packet::operator<<(long long obj) {
+    unsigned char to_write[] = {
+        (unsigned char)((obj >> 56) & 0xFF),
+        (unsigned char)((obj >> 48) & 0xFF),
+        (unsigned char)((obj >> 40) & 0xFF),
+        (unsigned char)((obj >> 32) & 0xFF),
+        (unsigned char)((obj >> 24) & 0xFF),
+        (unsigned char)((obj >> 16) & 0xFF),
+        (unsigned char)((obj >>  8) & 0xFF),
+        (unsigned char)((obj      ) & 0xFF)
     };
-    append(&toWrite, sizeof(toWrite));
+    append(&to_write, sizeof(to_write));
     return *this;
 }
 
-Packet& Packet::operator<<(unsigned long long data) {
-    // Since htonll is not available everywhere, we have to convert
-    // to network byte order (big endian) manually
-    Uint8 toWrite[] =
-    {
-        static_cast<Uint8>((data >> 56) & 0xFF),
-        static_cast<Uint8>((data >> 48) & 0xFF),
-        static_cast<Uint8>((data >> 40) & 0xFF),
-        static_cast<Uint8>((data >> 32) & 0xFF),
-        static_cast<Uint8>((data >> 24) & 0xFF),
-        static_cast<Uint8>((data >> 16) & 0xFF),
-        static_cast<Uint8>((data >>  8) & 0xFF),
-        static_cast<Uint8>((data      ) & 0xFF)
+Packet& Packet::operator<<(unsigned long long obj) {
+    unsigned int to_write[] = {
+        (unsigned char)((obj >> 56) & 0xFF),
+        (unsigned char)((obj >> 48) & 0xFF),
+        (unsigned char)((obj >> 40) & 0xFF),
+        (unsigned char)((obj >> 32) & 0xFF),
+        (unsigned char)((obj >> 24) & 0xFF),
+        (unsigned char)((obj >> 16) & 0xFF),
+        (unsigned char)((obj >>  8) & 0xFF),
+        (unsigned char)((obj      ) & 0xFF)
     };
-    append(&toWrite, sizeof(toWrite));
+    append(&to_write, sizeof(to_write));
     return *this;
 }
 
-Packet& Packet::operator<<(float data) {
-    append(&data, sizeof(data));
+Packet& Packet::operator<<(float obj) {
+    append(&obj, sizeof(obj));
     return *this;
 }
 
-Packet& Packet::operator<<(double data) {
-    append(&data, sizeof(data));
+Packet& Packet::operator<<(double obj) {
+    append(&obj, sizeof(obj));
     return *this;
 }
 
-Packet& Packet::operator<<(const char* data) {
-    // First insert string length
-    auto length = static_cast<Uint32>(std::strlen(data));
+Packet& Packet::operator<<(const std::string& obj) {
+    unsigned int length = (unsigned int)obj.size();
     *this << length;
 
-    // Then insert characters
-    append(data, length * sizeof(char));
-
-    return *this;
-}
-
-Packet& Packet::operator<<(const std::string& data) {
-    // First insert string length
-    auto length = static_cast<Uint32>(data.size());
-    *this << length;
-
-    // Then insert characters
     if (length > 0)
-        append(data.c_str(), length * sizeof(std::string::value_type));
+        append(obj.c_str(), length * sizeof(std::string::value_type));
 
     return *this;
 }
@@ -324,10 +248,10 @@ SocketStatus getErrorStatus() {
     }
 }
 
-SocketStatus TcpSocket::send(const void* data, unsigned int size) {
+SocketStatus TcpSocket::send(const void* obj, unsigned int size) {
     unsigned int sent = 0;
     while(sent < size) {
-        int curr_sent = (int)::send(socket_handle, (void*)((unsigned long)data + sent), std::min(size - sent, 65536u), 0);
+        int curr_sent = (int)::send(socket_handle, (void*)((unsigned long)obj + sent), std::min(size - sent, 65536u), 0);
         sent += curr_sent;
         
         if(curr_sent < 0)
@@ -339,19 +263,19 @@ SocketStatus TcpSocket::send(const void* data, unsigned int size) {
 
 SocketStatus TcpSocket::send(Packet& packet) {
     unsigned int size = (unsigned int)packet.getDataSize();
-    unsigned char* data = new unsigned char[size + 4];
-    *(unsigned int*)data = size;
-    memcpy(&data[sizeof(unsigned int)], packet.getData(), size);
-    SocketStatus status = send(data, size + 4);
-    delete[] data;
+    unsigned char* obj = new unsigned char[size + 4];
+    *(unsigned int*)obj = size;
+    memcpy(&obj[sizeof(unsigned int)], packet.getData(), size);
+    SocketStatus status = send(obj, size + 4);
+    delete[] obj;
     
     return status;
 }
 
-SocketStatus TcpSocket::receive(void* data, unsigned int size) {
+SocketStatus TcpSocket::receive(void* obj, unsigned int size) {
     unsigned int received = 0;
     while(received < size) {
-        int curr_received = (int)::read(socket_handle, (void*)((unsigned long)data + received), std::min(size - received, 65536u));
+        int curr_received = (int)::read(socket_handle, (void*)((unsigned long)obj + received), std::min(size - received, 65536u));
         received += curr_received;
         
         if(curr_received == 0)
@@ -369,14 +293,14 @@ SocketStatus TcpSocket::receive(Packet& packet) {
     if(status != SocketStatus::Done)
         return status;
     
-    unsigned char* data = new unsigned char[size];
-    status = receive(data, size);
+    unsigned char* obj = new unsigned char[size];
+    status = receive(obj, size);
     if(status != SocketStatus::Done)
         return status;
     
     packet.clear();
-    packet.append(data, size);
-    delete[] data;
+    packet.append(obj, size);
+    delete[] obj;
     
     return SocketStatus::Done;
 }

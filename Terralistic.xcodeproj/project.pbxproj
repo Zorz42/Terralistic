@@ -110,8 +110,6 @@
 		3666D91F274A5AA500C23231 /* constantValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D91D274A5AA500C23231 /* constantValues.cpp */; };
 		366D96F7282059DB00DEC292 /* readOpa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D96F5282059DB00DEC292 /* readOpa.cpp */; };
 		366D96F8282059DB00DEC292 /* readOpa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D96F5282059DB00DEC292 /* readOpa.cpp */; };
-		366D96FA282067B400DEC292 /* sfml-network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; };
-		366D96FB282067B400DEC292 /* sfml-network.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF695D269D853100CFE175 /* sfml-network.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		366D970A282067FA00DEC292 /* sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D96FD282067F900DEC292 /* sprite.cpp */; };
 		366D970B282067FA00DEC292 /* sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D96FD282067F900DEC292 /* sprite.cpp */; };
 		366D970C282067FA00DEC292 /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D96FE282067F900DEC292 /* rect.cpp */; };
@@ -138,8 +136,6 @@
 		366D9721282067FA00DEC292 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9708282067FA00DEC292 /* button.cpp */; };
 		366D9722282067FA00DEC292 /* centeredObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* centeredObject.cpp */; };
 		366D9723282067FA00DEC292 /* centeredObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* centeredObject.cpp */; };
-		366D97242820683400DEC292 /* sfml-system.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; };
-		366D97252820683400DEC292 /* sfml-system.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16BF6962269D853100CFE175 /* sfml-system.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		366D972E282068D100DEC292 /* play_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D9726282068D100DEC292 /* play_button.opa */; };
 		366D972F282068D100DEC292 /* play_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D9726282068D100DEC292 /* play_button.opa */; };
 		366D9730282068D100DEC292 /* remove_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D9727282068D100DEC292 /* remove_button.opa */; };
@@ -222,9 +218,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				366D96FB282067B400DEC292 /* sfml-network.framework in Embed Frameworks */,
 				36BFB230282EE11C008A462A /* libglfw.3.dylib in Embed Frameworks */,
-				366D97252820683400DEC292 /* sfml-system.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -449,8 +443,6 @@
 			files = (
 				3672919B26FE225900786856 /* libz.tbd in Frameworks */,
 				36BFB22F282EE11C008A462A /* libglfw.3.dylib in Frameworks */,
-				366D97242820683400DEC292 /* sfml-system.framework in Frameworks */,
-				366D96FA282067B400DEC292 /* sfml-network.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
