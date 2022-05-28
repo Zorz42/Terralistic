@@ -4,6 +4,295 @@
 #include <fcntl.h>
 #include "exception.hpp"
 
+unsigned int Packet::getDataSize() {
+    return (int)data.size();
+}
+
+void* Packet::getData() {
+    return data.data();
+}
+
+void Packet::append(void* data_ptr, unsigned int size) {
+    unsigned int old_size = (int)data.size();
+    data.resize(old_size + size);
+    std::memcpy(&data[old_size], data_ptr, size);
+}
+
+bool Packet::endOfPacket() {
+    return read_pos == data.size();
+}
+
+void Packet::clear() {
+    data.clear();
+    read_pos = 0;
+}
+
+Packet& Packet::operator>>(char& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(unsigned char& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(short& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        data = static_cast<Int16>(ntohs(static_cast<uint16_t>(data)));
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(unsigned short& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        data = ntohs(data);
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(int& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        data = static_cast<Int32>(ntohl(static_cast<uint32_t>(data)));
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(unsigned int& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        data = ntohl(data);
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(long long& data) {
+    if (checkSize(sizeof(data)))
+    {
+        // Since ntohll is not available everywhere, we have to convert
+        // to network byte order (big endian) manually
+        Uint8 bytes[sizeof(data)];
+        std::memcpy(bytes, &m_data[m_readPos], sizeof(data));
+        data = (static_cast<Int64>(bytes[0]) << 56) |
+               (static_cast<Int64>(bytes[1]) << 48) |
+               (static_cast<Int64>(bytes[2]) << 40) |
+               (static_cast<Int64>(bytes[3]) << 32) |
+               (static_cast<Int64>(bytes[4]) << 24) |
+               (static_cast<Int64>(bytes[5]) << 16) |
+               (static_cast<Int64>(bytes[6]) <<  8) |
+               (static_cast<Int64>(bytes[7])      );
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(unsigned long long& data) {
+    if (checkSize(sizeof(data)))
+    {
+        // Since ntohll is not available everywhere, we have to convert
+        // to network byte order (big endian) manually
+        Uint8 bytes[sizeof(data)];
+        std::memcpy(bytes, &m_data[m_readPos], sizeof(data));
+        data = (static_cast<Uint64>(bytes[0]) << 56) |
+               (static_cast<Uint64>(bytes[1]) << 48) |
+               (static_cast<Uint64>(bytes[2]) << 40) |
+               (static_cast<Uint64>(bytes[3]) << 32) |
+               (static_cast<Uint64>(bytes[4]) << 24) |
+               (static_cast<Uint64>(bytes[5]) << 16) |
+               (static_cast<Uint64>(bytes[6]) <<  8) |
+               (static_cast<Uint64>(bytes[7])      );
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(float& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(double& data) {
+    if (checkSize(sizeof(data)))
+    {
+        std::memcpy(&data, &m_data[m_readPos], sizeof(data));
+        m_readPos += sizeof(data);
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(char* data) {
+    // First extract string length
+    Uint32 length = 0;
+    *this >> length;
+
+    if ((length > 0) && checkSize(length))
+    {
+        // Then extract characters
+        std::memcpy(data, &m_data[m_readPos], length);
+        data[length] = '\0';
+
+        // Update reading position
+        m_readPos += length;
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator>>(std::string& data) {
+    // First extract string length
+    Uint32 length = 0;
+    *this >> length;
+
+    data.clear();
+    if ((length > 0) && checkSize(length))
+    {
+        // Then extract characters
+        data.assign(&m_data[m_readPos], length);
+
+        // Update reading position
+        m_readPos += length;
+    }
+
+    return *this;
+}
+
+Packet& Packet::operator<<(char data){
+    append(&data, sizeof(data));
+    return *this;
+}
+
+Packet& Packet::operator<<(unsigned char data){
+    append(&data, sizeof(data));
+    return *this;
+}
+
+Packet& Packet::operator<<(short data) {
+    auto toWrite = static_cast<Int16>(htons(static_cast<uint16_t>(data)));
+    append(&toWrite, sizeof(toWrite));
+    return *this;
+}
+
+Packet& Packet::operator<<(unsigned short data) {
+    Uint16 toWrite = htons(data);
+    append(&toWrite, sizeof(toWrite));
+    return *this;
+}
+
+Packet& Packet::operator<<(int data) {
+    Int32 toWrite = static_cast<Int32>(htonl(static_cast<uint32_t>(data)));
+    append(&toWrite, sizeof(toWrite));
+    return *this;
+}
+
+Packet& Packet::operator<<(unsigned int data) {
+    Uint32 toWrite = htonl(data);
+    append(&toWrite, sizeof(toWrite));
+    return *this;
+}
+
+Packet& Packet::operator<<(long long data) {
+    // Since htonll is not available everywhere, we have to convert
+    // to network byte order (big endian) manually
+    Uint8 toWrite[] =
+    {
+        static_cast<Uint8>((data >> 56) & 0xFF),
+        static_cast<Uint8>((data >> 48) & 0xFF),
+        static_cast<Uint8>((data >> 40) & 0xFF),
+        static_cast<Uint8>((data >> 32) & 0xFF),
+        static_cast<Uint8>((data >> 24) & 0xFF),
+        static_cast<Uint8>((data >> 16) & 0xFF),
+        static_cast<Uint8>((data >>  8) & 0xFF),
+        static_cast<Uint8>((data      ) & 0xFF)
+    };
+    append(&toWrite, sizeof(toWrite));
+    return *this;
+}
+
+Packet& Packet::operator<<(unsigned long long data) {
+    // Since htonll is not available everywhere, we have to convert
+    // to network byte order (big endian) manually
+    Uint8 toWrite[] =
+    {
+        static_cast<Uint8>((data >> 56) & 0xFF),
+        static_cast<Uint8>((data >> 48) & 0xFF),
+        static_cast<Uint8>((data >> 40) & 0xFF),
+        static_cast<Uint8>((data >> 32) & 0xFF),
+        static_cast<Uint8>((data >> 24) & 0xFF),
+        static_cast<Uint8>((data >> 16) & 0xFF),
+        static_cast<Uint8>((data >>  8) & 0xFF),
+        static_cast<Uint8>((data      ) & 0xFF)
+    };
+    append(&toWrite, sizeof(toWrite));
+    return *this;
+}
+
+Packet& Packet::operator<<(float data) {
+    append(&data, sizeof(data));
+    return *this;
+}
+
+Packet& Packet::operator<<(double data) {
+    append(&data, sizeof(data));
+    return *this;
+}
+
+Packet& Packet::operator<<(const char* data) {
+    // First insert string length
+    auto length = static_cast<Uint32>(std::strlen(data));
+    *this << length;
+
+    // Then insert characters
+    append(data, length * sizeof(char));
+
+    return *this;
+}
+
+Packet& Packet::operator<<(const std::string& data) {
+    // First insert string length
+    auto length = static_cast<Uint32>(data.size());
+    *this << length;
+
+    // Then insert characters
+    if (length > 0)
+        append(data.c_str(), length * sizeof(std::string::value_type));
+
+    return *this;
+}
+
+
 void socketSetBlocking(int socket_handle, bool blocking) {
 #ifdef _WIN32
     unsigned long mode = blocking ? 0 : 1;
@@ -17,14 +306,6 @@ void socketSetBlocking(int socket_handle, bool blocking) {
     if(fcntl(socket_handle, F_SETFL, flags) != 0)
         throw Exception("Could not set socket to blocking");
 #endif
-}
-
-TcpSocket::TcpSocket() {
-    
-}
-
-TcpSocket::~TcpSocket() {
-    
 }
 
 SocketStatus getErrorStatus() {
@@ -129,14 +410,6 @@ std::string TcpSocket::getIpAddress() {
 
 void TcpSocket::disconnect() {
     close(socket_handle);
-}
-
-TcpListener::TcpListener() {
-    
-}
-
-TcpListener::~TcpListener() {
-    
 }
 
 void TcpListener::setBlocking(bool blocking) {
