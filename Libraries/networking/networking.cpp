@@ -46,7 +46,7 @@ SocketStatus getErrorStatus() {
 SocketStatus TcpSocket::send(const void* data, unsigned int size) {
     unsigned int sent = 0;
     while(sent < size) {
-        unsigned int curr_sent = (int)::send(socket_handle, (void*)((unsigned long)data + sent), size - sent, 0);
+        unsigned int curr_sent = (int)::send(socket_handle, (void*)((unsigned long)data + sent), std::min(size - sent, 65536u), 0);
         sent += curr_sent;
         
         if(curr_sent < 0)
@@ -70,7 +70,7 @@ SocketStatus TcpSocket::send(Packet& packet) {
 SocketStatus TcpSocket::receive(void* data, unsigned int size) {
     unsigned int received = 0;
     while(received < size) {
-        unsigned int curr_received = (int)::read(socket_handle, (void*)((unsigned long)data + received), size - received);
+        unsigned int curr_received = (int)::read(socket_handle, (void*)((unsigned long)data + received), std::min(size - received, 65536u));
         received += curr_received;
         
         if(curr_received == 0)
