@@ -45,56 +45,31 @@ LIST(REMOVE_DUPLICATES INCLUDES)
 
 include_directories(Terralistic ${INCLUDES})
 include_directories(Terralistic-server ${INCLUDES})
+include_directories(Terralistic SYSTEM "External Libraries/glad/include/")
+include_directories(Terralistic-server SYSTEM "External Libraries/glad/include/")
 
 message(${CMAKE_CXX_COMPILER})
 
 if(WIN32)
-    SET(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
-    SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib/)
-    SET(GLEW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glew-2.1.0/)
+    SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib-master/)
     SET(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7.bin.WIN32/)
-
-    set(SFML_LIBS_RELEASE sfml-system sfml-network sfml-main)
-    set(SFML_LIBS_DEBUG sfml-system-d sfml-network-d sfml-main-d)
-
-    SET(SFML_DLLS_RELEASE
-            ${SFML_DIR}bin/sfml-network-2.dll
-            ${SFML_DIR}bin/sfml-system-2.dll
-            )
-
-    SET(SFML_DLLS_DEBUG
-            ${SFML_DIR}bin/sfml-network-d-2.dll
-            ${SFML_DIR}bin/sfml-system-d-2.dll
-            )
-
-    SET(GLEW_DLL ${GLEW_DIR}bin/Release/Win32/glew32.dll)
 
     SET(GLFW_DLL ${GLFW_DIR}lib-vc2022/glfw3.dll)
 
-    if(IS_DEBUG)
-        SET(SFML_LIBS_TO_USE ${SFML_LIBS_DEBUG})
-        SET(SFML_DLLS_TO_USE ${SFML_DLLS_DEBUG})
-    else()
-        SET(SFML_LIBS_TO_USE ${SFML_LIBS_RELEASE})
-        SET(SFML_DLLS_TO_USE ${SFML_DLLS_RELEASE})
-    endif()
-
     SET(ZLIB_LIB zlib)
-    SET(ZLIB_DLL ${ZLIB_DIR}bin/zlib1.dll)
+    SET(ZLIB_DLL ${ZLIB_DIR}bin/zlib.dll)
 
     SET(GLFW_LIB glfw3 opengl32)
 
-    SET(GLEW_LIB glew32)
+    target_link_directories(Terralistic PUBLIC ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/)
+    target_link_libraries(Terralistic Ws2_32.lib ${ZLIB_LIB} ${GLFW_LIB})
 
-    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/Win32/)
-    target_link_libraries(Terralistic Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB} ${GLFW_LIB} ${GLEW_LIB})
+    target_link_directories(Terralistic-server PUBLIC ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/)
+    target_link_libraries(Terralistic-server Ws2_32.lib ${ZLIB_LIB} ${GLFW_LIB})
 
-    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/ ${GLFW_DIR}lib-vc2022/ ${GLEW_DIR}/lib/Release/Win32/)
-    target_link_libraries(Terralistic-server Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB} ${GLFW_LIB} ${GLEW_LIB})
+    include_directories(Terralistic ${ZLIB_DIR}include/ ${GLFW_DIR}include/)
 
-    include_directories(Terralistic ${SFML_DIR}include/ ${ZLIB_DIR}include/ ${GLEW_DIR}include/ ${GLFW_DIR}include/)
-
-    file(COPY ${SFML_DLLS_TO_USE} ${ZLIB_DLL} ${GLFW_DLL} ${GLEW_DLL} DESTINATION .)
+    file(COPY ${ZLIB_DLL} ${GLFW_DLL} DESTINATION .)
 else()
     set(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
     set(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7/)

@@ -92,12 +92,10 @@ elif sys.platform == "linux":
 elif sys.platform == "win32":
     createDir("Dependencies/")
 
-    if not os.path.exists(project_path + "Dependencies/zlib/"):
+    if not os.path.exists(project_path + "Dependencies/zlib-master/"):
         print("Downloading zlib library")
 
-        os.mkdir(project_path + "Dependencies/zlib/")
-
-        zlib_url = "https://deac-riga.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip"
+        zlib_url = "https://github.com/madler/zlib/archive/refs/heads/master.zip"
         zlib_file = project_path + "zlib.zip"
 
         with urllib.request.urlopen(zlib_url) as zlib_request:
@@ -105,27 +103,32 @@ elif sys.platform == "win32":
                 zlib_download.write(zlib_request.read())
 
         with zipfile.ZipFile(zlib_file, "r") as zlib_zip:
-            zlib_zip.extractall(f"{project_path}Dependencies/zlib/")
+            zlib_zip.extractall(f"{project_path}Dependencies/")
 
         os.remove(zlib_file)
+
+        os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 16 2019\" . && cmake --build . --config Release --target install /m\"")
         
-        zlib_url = "https://netix.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip"
-        zlib_file = project_path + "zlib.zip"
+        #with open(project_path + "Dependencies/zlib/include/zconf.h", "r") as header:
+        #    lines = header.readlines()
+        #lines[286] = "#if 0\n"
+        #with open(project_path + "Dependencies/zlib/include/zconf.h", "w") as header:
+        #    header.writelines(lines)
 
-        with urllib.request.urlopen(zlib_url) as zlib_request:
-            with open(zlib_file, 'wb') as zlib_download:
-                zlib_download.write(zlib_request.read())
+    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.WIN32/"):
+        print("Downloading glfw library")
 
-        with zipfile.ZipFile(zlib_file, "r") as zlib_zip:
-            zlib_zip.extractall(f"{project_path}Dependencies/zlib/")
+        glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN32.zip"
+        glfw_file = project_path + "glfw.tar.gz"
 
-        os.remove(zlib_file)
-        
-        with open(project_path + "Dependencies/zlib/include/zconf.h", "r") as header:
-            lines = header.readlines()
-        lines[286] = "#if 0\n"
-        with open(project_path + "Dependencies/zlib/include/zconf.h", "w") as header:
-            header.writelines(lines)
+        with urllib.request.urlopen(glfw_url) as glfw_request:
+            with open(glfw_file, 'wb') as glfw_download:
+                glfw_download.write(glfw_request.read())
+
+        with zipfile.ZipFile(glfw_file, "r") as glfw_zip:
+            glfw_zip.extractall(f"{project_path}Dependencies/")
+
+        os.remove(glfw_file)
 
     createDir("Build/")
 
