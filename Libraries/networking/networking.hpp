@@ -4,16 +4,16 @@
 #include "exception.hpp"
 
 class Packet {
+    friend class TcpSocket;
+    friend class TcpListener;
     std::vector<char> data;
     unsigned int read_pos = 0;
     void checkReadSize(unsigned int read_size);
-public:
+    
     unsigned int getDataSize();
     void* getData();
     void append(const void* data_ptr, unsigned int size);
-    
-    void clear();
-    
+public:
     Packet& operator>>(char& obj);
     Packet& operator>>(unsigned char& obj);
     Packet& operator>>(short& obj);
@@ -41,13 +41,12 @@ public:
     Packet& operator<<(const std::string& obj);
     Packet& operator<<(const std::vector<char>& obj);
     Packet& operator<<(const std::vector<unsigned char>& obj);
-    
-    bool endOfPacket();
 };
 
 class TcpSocket {
     friend class TcpListener;
-    std::vector<char> packet_buffer;
+    std::vector<char> packet_buffer_out;
+    std::vector<Packet> packet_buffer_in;
     int socket_handle;
     std::string ip_address;
     
@@ -55,6 +54,8 @@ class TcpSocket {
     bool receive(void* data, unsigned int size);
     
     void handleError();
+    
+    bool receivePacket();
     
     bool disconnected = false;
 public:

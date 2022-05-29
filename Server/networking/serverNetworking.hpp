@@ -13,7 +13,6 @@ public:
     explicit Connection(TcpSocket* socket) : socket(socket) {}
     
     void send(Packet& packet);
-    void sendDirectly(Packet& packet);
     
     bool hasBeenGreeted() const;
     void greet();

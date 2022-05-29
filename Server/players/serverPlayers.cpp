@@ -244,11 +244,11 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
 
     Packet healthPacket;
     healthPacket << WelcomePacketType::HEALTH << player->health;
-    event.connection->sendDirectly(healthPacket);
+    event.connection->send(healthPacket);
     
     Packet packet;
     packet << WelcomePacketType::INVENTORY << player->inventory.toSerial();
-    event.connection->sendDirectly(packet);
+    event.connection->send(packet);
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {

@@ -50,12 +50,12 @@ void TcpSocket::send(const void* obj, unsigned int size) {
 
 void TcpSocket::send(Packet& packet) {
     unsigned int size = (unsigned int)packet.getDataSize();
-    unsigned int prev_buffer_size = (unsigned int)packet_buffer.size();
-    packet_buffer.resize(packet_buffer.size() + sizeof(unsigned int) + size);
-    std::memcpy(&packet_buffer[prev_buffer_size], &size, sizeof(unsigned int));
-    std::memcpy(&packet_buffer[prev_buffer_size + sizeof(unsigned int)], packet.getData(), size);
+    unsigned int prev_buffer_size = (unsigned int)packet_buffer_out.size();
+    packet_buffer_out.resize(packet_buffer_out.size() + sizeof(unsigned int) + size);
+    std::memcpy(&packet_buffer_out[prev_buffer_size], &size, sizeof(unsigned int));
+    std::memcpy(&packet_buffer_out[prev_buffer_size + sizeof(unsigned int)], packet.getData(), size);
     
-    if(packet_buffer.size() > 65536)
+    if(packet_buffer_out.size() > 65536)
         flushPacketBuffer();
 }
 
@@ -78,6 +78,19 @@ bool TcpSocket::receive(void* obj, unsigned int size) {
 }
 
 bool TcpSocket::receive(Packet& packet) {
+    //while(receivePacket());
+    receivePacket();
+    
+    if(packet_buffer_in.empty())
+        return false;
+    
+    packet = packet_buffer_in[0];
+    packet_buffer_in.erase(packet_buffer_in.begin());
+    
+    return true;
+}
+
+bool TcpSocket::receivePacket() {
     unsigned int size;
     if(!receive(&size, sizeof(unsigned int)))
         return false;
@@ -86,9 +99,11 @@ bool TcpSocket::receive(Packet& packet) {
     if(!receive(obj, size))
         return false;
     
-    packet.clear();
+    Packet packet;
     packet.append(obj, size);
     delete[] obj;
+    
+    packet_buffer_in.push_back(packet);
     
     return true;
 }
@@ -133,8 +148,8 @@ bool TcpSocket::hasDisconnected() {
 }
 
 void TcpSocket::flushPacketBuffer() {
-    if(!packet_buffer.empty()) {
-        send(packet_buffer.data(), (unsigned int)packet_buffer.size());
-        packet_buffer.clear();
+    if(!packet_buffer_out.empty()) {
+        send(packet_buffer_out.data(), (unsigned int)packet_buffer_out.size());
+        packet_buffer_out.clear();
     }
 }

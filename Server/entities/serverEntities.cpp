@@ -40,7 +40,7 @@ void ServerEntities::update(float frame_length) {
             packet << ServerPacketType::ENTITY_POSITION << i->getX() << i->getY() << i->id;
             networking->sendToEveryone(packet);
             
-            packet.clear();
+            packet = Packet();
             packet << ServerPacketType::ENTITY_VELOCITY << i->getVelocityX() << i->getVelocityY() << i->id;
             networking->sendToEveryone(packet);
         }

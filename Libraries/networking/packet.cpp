@@ -14,15 +14,6 @@ void Packet::append(const void* data_ptr, unsigned int size) {
     std::memcpy(&data[old_size], data_ptr, size);
 }
 
-bool Packet::endOfPacket() {
-    return read_pos == data.size();
-}
-
-void Packet::clear() {
-    data.clear();
-    read_pos = 0;
-}
-
 void Packet::checkReadSize(unsigned int read_size) {
     if(read_pos + read_size > data.size())
         throw Exception("Reading packet out of bounds");

@@ -4,7 +4,7 @@
 void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
     Packet packet;
     packet << WelcomePacketType::BLOCKS << toSerial();
-    event.connection->sendDirectly(packet);
+    event.connection->send(packet);
 }
 
 void ServerBlocks::init() {    

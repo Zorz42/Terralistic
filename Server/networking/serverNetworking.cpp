@@ -4,12 +4,6 @@
 
 void Connection::send(Packet& packet) {
     socket->send(packet);
-    socket->flushPacketBuffer();
-}
-
-void Connection::sendDirectly(Packet& packet) {
-    socket->send(packet);
-    socket->flushPacketBuffer();
 }
 
 bool Connection::hasDisconnected() {
@@ -29,6 +23,7 @@ bool Connection::hasBeenGreeted() const {
 }
 
 void Connection::greet() {
+    flushPackets();
     socket->setBlocking(false);
     greeted = true;
 }
@@ -103,14 +98,14 @@ void ServerNetworking::update(float frame_length) {
             
             Packet time_packet;
             time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
-            connections[i]->sendDirectly(time_packet);
+            connections[i]->send(time_packet);
             
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);
             
             Packet welcome_packet;
             welcome_packet << WelcomePacketType::WELCOME;
-            connections[i]->sendDirectly(welcome_packet);
+            connections[i]->send(welcome_packet);
             
             ServerNewConnectionEvent event2(connections[i]);
             new_connection_event.call(event2);
