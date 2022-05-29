@@ -8,14 +8,11 @@ void ClientNetworking::sendPacket(Packet& packet) {
 void ClientNetworking::updateParallel(float frame_length) {
     Packet packet;
     
-    while(true) {
-        if(socket.receive(packet)) {
-            ServerPacketType packet_type;
-            packet >> packet_type;
-            ClientPacketEvent event(packet, packet_type);
-            packet_event.call(event);
-        } else
-            break;
+    while(socket.receive(packet)) {
+        ServerPacketType packet_type;
+        packet >> packet_type;
+        ClientPacketEvent event(packet, packet_type);
+        packet_event.call(event);
     }
 }
 
