@@ -1,5 +1,9 @@
 #include "networking.hpp"
 
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
 unsigned int Packet::getDataSize() {
     return (int)data.size();
 }

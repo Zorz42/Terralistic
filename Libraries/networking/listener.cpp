@@ -1,8 +1,12 @@
 #include "networking.hpp"
+#include "exception.hpp"
+#ifdef WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "exception.hpp"
+#endif
 
 void TcpListener::handleError() {
     if(errno == EAGAIN || errno == EINPROGRESS)

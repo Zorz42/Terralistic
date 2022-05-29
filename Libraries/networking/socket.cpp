@@ -1,8 +1,13 @@
 #include "networking.hpp"
+#include "exception.hpp"
+
+#ifdef WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "exception.hpp"
+#endif
 
 void _socketDisableBlocking(int socket_handle) {
 #ifdef _WIN32
