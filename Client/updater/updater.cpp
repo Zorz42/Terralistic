@@ -18,7 +18,7 @@
 #endif
 
 void UpdateChecker::checkForUpdates() {
-    update_state = UpdateState::CHECKING;
+    /*update_state = UpdateState::CHECKING; // TODO: implement
     TcpSocket server_socket;
     if(server_socket.connect("jakob.zorz.si", 65431) == SocketStatus::Done) {
         server_socket.send(PATCH_REQEUST_VERSION.c_str(), (int)PATCH_REQEUST_VERSION.size());
@@ -54,7 +54,7 @@ void UpdateChecker::checkForUpdates() {
 #endif
         std::filesystem::remove(sago::getDataHome() + "/Terralistic/update.patch");
         has_updated = true;
-    }
+    }*/
     
     update_state = UpdateState::FINISHED;
 }

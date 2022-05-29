@@ -8,8 +8,7 @@ void ClientNetworking::updateParallel(float frame_length) {
     Packet packet;
     
     while(true) {
-        SocketStatus status = socket.receive(packet);
-        if(status != SocketStatus::NotReady && status != SocketStatus::Disconnected) {
+        if(socket.receive(packet)) {
             while(!packet.endOfPacket()) {
                 Packet sub_packet;
                 int size;
@@ -32,7 +31,7 @@ void ClientNetworking::updateParallel(float frame_length) {
 
 void ClientNetworking::init() {
     packet_event.addListener(this);
-    if(socket.connect(ip_address, port) != SocketStatus::Done)
+    if(!socket.connect(ip_address, port))
         throw Exception("Could not connect to the server with ip " + ip_address);
 }
 

@@ -11,6 +11,10 @@ void Connection::sendDirectly(Packet& packet) {
     socket->send(packet);
 }
 
+bool Connection::hasDisconnected() {
+    return socket->hasDisconnected();
+}
+
 void Connection::flushPackets() {
     if(master_packet.getDataSize() != 0) {
         socket->send(master_packet);
@@ -18,7 +22,7 @@ void Connection::flushPackets() {
     }
 }
 
-SocketStatus Connection::receive(Packet& packet) {
+bool Connection::receive(Packet& packet) {
     return socket->receive(packet);
 }
 
@@ -72,7 +76,7 @@ void ServerNetworking::sendToEveryone(Packet& packet) {
 
 void ServerNetworking::update(float frame_length) {
     static TcpSocket *socket = new TcpSocket;
-    while(listener.accept(*socket) == SocketStatus::Done)
+    while(listener.accept(*socket))
         if(!is_private || socket->getIpAddress() == "127.0.0.1") {
             Connection* connection = new Connection(socket);
             connections.push_back(connection);
@@ -84,22 +88,19 @@ void ServerNetworking::update(float frame_length) {
         if(connections[i]->hasBeenGreeted()) {
             connections[i]->flushPackets();
             while(true) {
-                SocketStatus status = connections[i]->receive(packet);
-                
-                if(status == SocketStatus::NotReady)
-                    break;
-                else if(status == SocketStatus::Disconnected) {
+                if(connections[i]->receive(packet)) {
+                   int packet_type;
+                   packet >> packet_type;
+                   
+                   connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
+                } else if(connections[i]->hasDisconnected()) {
                     removeConnection(connections[i]);
                     
                     break;
-                } else if(status == SocketStatus::Done) {
-                    int packet_type;
-                    packet >> packet_type;
-                    
-                    connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
-                }
+                } else
+                    break;
             }
-        } else if(connections[i]->receive(packet) == SocketStatus::Done) {
+        } else if(connections[i]->receive(packet)) {
             print::info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
             
             Packet time_packet;

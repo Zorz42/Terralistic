@@ -19,7 +19,7 @@ public:
     bool hasBeenGreeted() const;
     void greet();
     
-    SocketStatus receive(Packet& packet);
+    bool receive(Packet& packet);
     
     std::string getIpAddress();
     
@@ -28,6 +28,8 @@ public:
     std::pair<Packet, ClientPacketType> getPacket();
     
     std::string player_name;
+    
+    bool hasDisconnected();
     
     void flushPackets();
     ~Connection();

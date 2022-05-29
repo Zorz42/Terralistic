@@ -4,6 +4,22 @@
 #include <fcntl.h>
 #include "exception.hpp"
 
+void TcpListener::handleError() {
+    if(errno == EAGAIN || errno == EINPROGRESS)
+        return;
+
+    switch(errno) {
+        case EWOULDBLOCK:  return;
+        case ECONNABORTED: return;
+        case ECONNRESET:   return;
+        case ETIMEDOUT:    return;
+        case ENETRESET:    return;
+        case ENOTCONN:     return;
+        case EPIPE:        return;
+        default:           throw Exception("Listener error");
+    }
+}
+
 void TcpListener::setBlocking(bool blocking) {
     _socketSetBlocking(listener_handle, blocking);
 }
@@ -30,16 +46,18 @@ void TcpListener::listen(unsigned short port) {
         throw Exception("Cannot listen to socket");
 }
 
-SocketStatus TcpListener::accept(TcpSocket& socket) {
+bool TcpListener::accept(TcpSocket& socket) {
     sockaddr_in address;
     int addrlen = sizeof(address);
     socket.socket_handle = ::accept(listener_handle, (struct sockaddr*)&address, (socklen_t*)&addrlen);
-    if(socket.socket_handle < 0)
-        return _getErrorStatus();
+    if(socket.socket_handle < 0) {
+        handleError();
+        return false;
+    }
     
     socket.ip_address = inet_ntoa(address.sin_addr);
     
-    return SocketStatus::Done;
+    return true;
 }
 
 void TcpListener::close() {

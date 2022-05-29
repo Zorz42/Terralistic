@@ -3,8 +3,6 @@
 #include <vector>
 #include "exception.hpp"
 
-enum class SocketStatus {Done, NotReady, Disconnected, Error};
-
 class Packet {
     std::vector<char> data;
     unsigned int read_pos = 0;
@@ -48,33 +46,40 @@ public:
 };
 
 class TcpSocket {
-protected:
     friend class TcpListener;
+    std::vector<char> packet_buffer;
     int socket_handle;
     std::string ip_address;
+    
+    void send(const void* data, unsigned int size);
+    bool receive(void* data, unsigned int size);
+    
+    void handleError();
+    
+    bool disconnected = false;
 public:
-    SocketStatus send(const void* data, unsigned int size);
-    SocketStatus send(Packet& packet);
+    void send(Packet& packet);
+    bool receive(Packet& packet);
+    void flushPacketBuffer();
     
-    SocketStatus receive(void* data, unsigned int size);
-    SocketStatus receive(Packet& packet);
-    
-    SocketStatus connect(const std::string& ip, unsigned short port);
+    bool connect(const std::string& ip, unsigned short port);
+    std::string getIpAddress();
     void disconnect();
     
     void setBlocking(bool blocking);
-    std::string getIpAddress();
+    bool hasDisconnected();
 };
 
 class TcpListener {
     int listener_handle;
+    
+    void handleError();
 public:
     void setBlocking(bool blocking);
     
     void listen(unsigned short port);
-    SocketStatus accept(TcpSocket& socket);
+    bool accept(TcpSocket& socket);
     void close();
 };
 
 void _socketSetBlocking(int socket_handle, bool blocking);
-SocketStatus _getErrorStatus();
