@@ -14,10 +14,9 @@ public:
 
 class WelcomePacketEvent {
 public:
-    WelcomePacketEvent(Packet& packet, WelcomePacketType packet_type, const std::vector<char>& data) : packet(packet), packet_type(packet_type), data(data) {}
+    WelcomePacketEvent(Packet& packet, WelcomePacketType packet_type) : packet(packet), packet_type(packet_type) {}
     Packet& packet;
     WelcomePacketType packet_type;
-    const std::vector<char>& data;
 };
 
 class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {
@@ -36,7 +35,6 @@ public:
     ClientNetworking(std::string  ip_address, int port, std::string  username) : ip_address(std::move(ip_address)), port(port), username(std::move(username)) {}
     
     void sendPacket(Packet& packet);
-    std::vector<char> getData();
     Packet getPacket();
     
     EventSender<ClientPacketEvent> packet_event;

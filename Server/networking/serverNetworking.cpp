@@ -39,14 +39,6 @@ Connection::~Connection() {
     delete socket;
 }
 
-void Connection::send(const std::vector<char>& data) {
-    Packet packet;
-    packet << (int)data.size();
-    sendDirectly(packet);
-    
-    socket->send(&data[0], (int)data.size());
-}
-
 void Connection::pushPacket(Packet& packet, ClientPacketType type) {
     packet_buffer.push({packet, type});
 }
@@ -113,7 +105,6 @@ void ServerNetworking::update(float frame_length) {
             Packet time_packet;
             time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
             connections[i]->sendDirectly(time_packet);
-            connections[i]->send(std::vector<char>(1));
             
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);

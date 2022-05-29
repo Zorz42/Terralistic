@@ -8,6 +8,7 @@ enum class SocketStatus {Done, NotReady, Disconnected, Error};
 class Packet {
     std::vector<char> data;
     unsigned int read_pos = 0;
+    void checkReadSize(unsigned int read_size);
 public:
     unsigned int getDataSize();
     void* getData();
@@ -26,6 +27,8 @@ public:
     Packet& operator>>(float& obj);
     Packet& operator>>(double& obj);
     Packet& operator>>(std::string& obj);
+    Packet& operator>>(std::vector<char>& obj);
+    Packet& operator>>(std::vector<unsigned char>& obj);
     
     Packet& operator<<(char obj);
     Packet& operator<<(unsigned char obj);
@@ -38,6 +41,8 @@ public:
     Packet& operator<<(float obj);
     Packet& operator<<(double obj);
     Packet& operator<<(const std::string& obj);
+    Packet& operator<<(const std::vector<char>& obj);
+    Packet& operator<<(const std::vector<unsigned char>& obj);
     
     bool endOfPacket();
 };
@@ -70,3 +75,6 @@ public:
     SocketStatus accept(TcpSocket& socket);
     void close();
 };
+
+void _socketSetBlocking(int socket_handle, bool blocking);
+SocketStatus _getErrorStatus();

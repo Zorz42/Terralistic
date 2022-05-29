@@ -15,7 +15,6 @@ public:
     
     void send(Packet& packet);
     void sendDirectly(Packet& packet);
-    void send(const std::vector<char>& data);
     
     bool hasBeenGreeted() const;
     void greet();

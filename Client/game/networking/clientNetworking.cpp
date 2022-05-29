@@ -47,19 +47,6 @@ Packet ClientNetworking::getPacket() {
     return packet;
 }
 
-std::vector<char> ClientNetworking::getData() {
-    Packet packet;
-    socket.receive(packet);
-    int size;
-    packet >> size;
-    
-
-    std::vector<char> data(size);
-    socket.receive(&data[0], size);
-        
-    return data;
-}
-
 void ClientNetworking::onEvent(ClientPacketEvent& event) {
     if(event.packet_type == ServerPacketType::KICK) {
         std::string kick_message;
@@ -81,8 +68,7 @@ void ClientNetworking::postInit() {
         if(type == WelcomePacketType::WELCOME)
             break;
         
-        std::vector<char> data = getData();
-        WelcomePacketEvent event(packet, type, data);
+        WelcomePacketEvent event(packet, type);
         welcome_packet_event.call(event);
     }
     

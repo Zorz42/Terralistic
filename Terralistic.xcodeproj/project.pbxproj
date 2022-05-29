@@ -161,11 +161,15 @@
 		368779712837EBCF00AA5943 /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779722837EC4C00AA5943 /* glad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36BFB23E282EE702008A462A /* glad.cpp */; };
 		3692C14F26E509F100F9DD71 /* entities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entities.cpp */; };
+		369311272843463300C4DF00 /* packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311262843463300C4DF00 /* packet.cpp */; };
+		369311282843463300C4DF00 /* packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311262843463300C4DF00 /* packet.cpp */; };
+		3693112A2843464A00C4DF00 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311292843464A00C4DF00 /* socket.cpp */; };
+		3693112B2843464A00C4DF00 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311292843464A00C4DF00 /* socket.cpp */; };
+		3693112D2843466000C4DF00 /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693112C2843466000C4DF00 /* listener.cpp */; };
+		3693112E2843466000C4DF00 /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693112C2843466000C4DF00 /* listener.cpp */; };
 		3693E4FE274A95B900939213 /* variables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E4FC274A95B900939213 /* variables.cpp */; };
 		3693E502274AC5F900939213 /* virtualMachine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E500274AC5F900939213 /* virtualMachine.cpp */; };
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
-		369E17CE2839467E00D37108 /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369E17CC2839467E00D37108 /* networking.cpp */; };
-		369E17CF2839467E00D37108 /* networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369E17CC2839467E00D37108 /* networking.cpp */; };
 		36A52164279D667700C1F8CB /* TestException.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52163279D667700C1F8CB /* TestException.mm */; };
 		36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* TestEvent.mm */; };
 		36BFB22F282EE11C008A462A /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE1A282EE02F00C36DE5 /* libglfw.3.dylib */; };
@@ -420,12 +424,14 @@
 		3677B5A827283E20000F4D77 /* perlinNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
 		3692C14D26E509F100F9DD71 /* entities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = entities.cpp; sourceTree = "<group>"; };
 		3692C14E26E509F100F9DD71 /* entities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = entities.hpp; sourceTree = "<group>"; };
+		369311262843463300C4DF00 /* packet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packet.cpp; sourceTree = "<group>"; };
+		369311292843464A00C4DF00 /* socket.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = socket.cpp; sourceTree = "<group>"; };
+		3693112C2843466000C4DF00 /* listener.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = listener.cpp; sourceTree = "<group>"; };
 		3693E4FC274A95B900939213 /* variables.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = variables.cpp; sourceTree = "<group>"; };
 		3693E4FD274A95B900939213 /* variables.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = variables.hpp; sourceTree = "<group>"; };
 		3693E500274AC5F900939213 /* virtualMachine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = virtualMachine.cpp; sourceTree = "<group>"; };
 		3693E501274AC5F900939213 /* virtualMachine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = virtualMachine.hpp; sourceTree = "<group>"; };
 		369981F0277CCAD500FA3F72 /* privateWorld.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = privateWorld.cpp; sourceTree = "<group>"; };
-		369E17CC2839467E00D37108 /* networking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = networking.cpp; sourceTree = "<group>"; };
 		369E17CD2839467E00D37108 /* networking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = networking.hpp; sourceTree = "<group>"; };
 		36A52163279D667700C1F8CB /* TestException.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestException.mm; sourceTree = "<group>"; };
 		36A52165279D684F00C1F8CB /* TestEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestEvent.mm; sourceTree = "<group>"; };
@@ -1355,7 +1361,9 @@
 			isa = PBXGroup;
 			children = (
 				369E17CD2839467E00D37108 /* networking.hpp */,
-				369E17CC2839467E00D37108 /* networking.cpp */,
+				369311262843463300C4DF00 /* packet.cpp */,
+				369311292843464A00C4DF00 /* socket.cpp */,
+				3693112C2843466000C4DF00 /* listener.cpp */,
 			);
 			path = networking;
 			sourceTree = "<group>";
@@ -1551,11 +1559,11 @@
 				366D96F7282059DB00DEC292 /* readOpa.cpp in Sources */,
 				169B87D2270F5238006023B8 /* chat.cpp in Sources */,
 				3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */,
+				369311272843463300C4DF00 /* packet.cpp in Sources */,
 				366D971E282067FA00DEC292 /* timer.cpp in Sources */,
 				169D0DFA271C10A700F1D484 /* particles.cpp in Sources */,
 				1679DA322733DA050005C4FB /* content.cpp in Sources */,
 				361702D4272EF9E600FFA390 /* settings.cpp in Sources */,
-				369E17CE2839467E00D37108 /* networking.cpp in Sources */,
 				36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */,
 				3657222426D07181005AB3CC /* menuBack.cpp in Sources */,
 				3605ED54276A1ED000ECCA08 /* background.cpp in Sources */,
@@ -1597,6 +1605,7 @@
 				366D970A282067FA00DEC292 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
 				366399D427775F10007C944E /* clientWalls.cpp in Sources */,
+				3693112D2843466000C4DF00 /* listener.cpp in Sources */,
 				3692C14F26E509F100F9DD71 /* entities.cpp in Sources */,
 				3665490327CA434F00D156D3 /* respawnScreen.cpp in Sources */,
 				3605ED50276A0A0A00ECCA08 /* camera.cpp in Sources */,
@@ -1621,6 +1630,7 @@
 				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				3657222326D07181005AB3CC /* singleplayerSelector.cpp in Sources */,
 				366D9720282067FA00DEC292 /* button.cpp in Sources */,
+				3693112A2843464A00C4DF00 /* socket.cpp in Sources */,
 				36D31CD926DBE330006F89B3 /* compress.cpp in Sources */,
 				169990A92700E25300224E11 /* naturalLight.cpp in Sources */,
 				167513C426A498DA00E21C68 /* biomes.cpp in Sources */,
@@ -1652,6 +1662,7 @@
 				366D9711282067FA00DEC292 /* scene.cpp in Sources */,
 				167B53CE270A26EC000089B3 /* serverItems.cpp in Sources */,
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
+				3693112B2843464A00C4DF00 /* socket.cpp in Sources */,
 				366399D027775E17007C944E /* serverWalls.cpp in Sources */,
 				366D9713282067FA00DEC292 /* texture.cpp in Sources */,
 				16A13D152709A10D009DEE40 /* serverBlocks.cpp in Sources */,
@@ -1666,6 +1677,7 @@
 				16C9470627109EC100A51E81 /* player.cpp in Sources */,
 				3605ED642773B91400ECCA08 /* worldSaver.cpp in Sources */,
 				1676AF3827044CD100321C8B /* lights.cpp in Sources */,
+				3693112E2843466000C4DF00 /* listener.cpp in Sources */,
 				361DD1A326F7478900129191 /* resourcePath.cpp in Sources */,
 				3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */,
 				169B87D1270F5036006023B8 /* serverChat.cpp in Sources */,
@@ -1680,7 +1692,6 @@
 				361DD1AB26F7478900129191 /* print.cpp in Sources */,
 				366D96F8282059DB00DEC292 /* readOpa.cpp in Sources */,
 				361DD1B126F7478900129191 /* server.cpp in Sources */,
-				369E17CF2839467E00D37108 /* networking.cpp in Sources */,
 				361DD1B426F7478900129191 /* sago.cpp in Sources */,
 				366D970B282067FA00DEC292 /* sprite.cpp in Sources */,
 				366D9719282067FA00DEC292 /* textureAtlas.cpp in Sources */,
@@ -1689,6 +1700,7 @@
 				361DD1BC26F7478900129191 /* compress.cpp in Sources */,
 				366D971D282067FA00DEC292 /* transformation.cpp in Sources */,
 				167B53D2270A271D000089B3 /* serverEntities.cpp in Sources */,
+				369311282843463300C4DF00 /* packet.cpp in Sources */,
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
 				167422602702F48B00D6D8F2 /* liquids.cpp in Sources */,
 				361DD1C226F7478900129191 /* configManager.cpp in Sources */,
@@ -1857,11 +1869,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1939,11 +1947,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
@@ -2064,11 +2068,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2143,11 +2143,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/Frameworks",
-					"$(PROJECT_DIR)/Dependencies/SFML-2.5.1-macos-clang/extlibs",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;

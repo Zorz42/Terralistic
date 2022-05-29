@@ -65,8 +65,11 @@ void ClientWalls::postInit() {
 }
 
 void ClientWalls::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::WALLS)
-        fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::WALLS) {
+        std::vector<char> data;
+        event.packet >> data;
+        fromSerial(data);
+    }
 }
 
 void ClientWalls::updateParallel(float frame_length) {

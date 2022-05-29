@@ -263,8 +263,11 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
 }
 
 void ClientInventory::onEvent(WelcomePacketEvent &event) {
-    if(event.packet_type == WelcomePacketType::INVENTORY)
-        inventory.fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::INVENTORY) {
+        std::vector<char> data;
+        event.packet >> data;
+        inventory.fromSerial(data);
+    }
 }
 
 const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {

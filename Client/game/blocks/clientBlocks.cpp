@@ -75,8 +75,11 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::BLOCKS)
-        fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::BLOCKS) {
+        std::vector<char> data;
+        event.packet >> data;
+        fromSerial(data);
+    }
 }
 
 void ClientBlocks::init() {

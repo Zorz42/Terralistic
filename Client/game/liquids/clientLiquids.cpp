@@ -19,8 +19,11 @@ void ClientLiquids::onEvent(ClientPacketEvent &event) {
 }
 
 void ClientLiquids::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::LIQUIDS)
-        fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::LIQUIDS) {
+        std::vector<char> data;
+        event.packet >> data;
+        fromSerial(data);
+    }
 }
 
 void ClientLiquids::onEvent(LiquidChangeEvent& event) {

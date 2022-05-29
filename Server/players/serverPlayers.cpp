@@ -245,13 +245,10 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     Packet healthPacket;
     healthPacket << WelcomePacketType::HEALTH << player->health;
     event.connection->sendDirectly(healthPacket);
-    event.connection->send(std::vector<char>(1));
     
     Packet packet;
-    packet << WelcomePacketType::INVENTORY;
+    packet << WelcomePacketType::INVENTORY << player->inventory.toSerial();
     event.connection->sendDirectly(packet);
-    
-    event.connection->send(player->inventory.toSerial());
 }
 
 void ServerPlayer::setConnection(Connection* connection_) {
