@@ -14,10 +14,6 @@ void Connection::flushPackets() {
     socket->flushPacketBuffer();
 }
 
-bool Connection::receive(Packet& packet) {
-    return socket->receive(packet);
-}
-
 bool Connection::hasBeenGreeted() const {
     return greeted;
 }
@@ -35,18 +31,16 @@ Connection::~Connection() {
     delete socket;
 }
 
-void Connection::pushPacket(Packet& packet, ClientPacketType type) {
-    packet_buffer.push({packet, type});
+Packet Connection::getPacket() {
+    Packet result;
+    if(!socket->receive(result))
+        throw Exception("No packets to get");
+    
+    return result;
 }
 
 bool Connection::hasPacketInBuffer() {
-    return !packet_buffer.empty();
-}
-
-std::pair<Packet, ClientPacketType> Connection::getPacket() {
-    auto result = packet_buffer.front();
-    packet_buffer.pop();
-    return result;
+    return socket->isPacketAvailable();
 }
 
 ServerNetworking::ServerNetworking(int port) : port(port) {
@@ -74,24 +68,14 @@ void ServerNetworking::update(float frame_length) {
             socket = new TcpSocket;
         }
     
-    Packet packet;
     for(int i = 0; i < connections.size(); i++) {
         if(connections[i]->hasBeenGreeted()) {
             connections[i]->flushPackets();
-            while(true) {
-                if(connections[i]->receive(packet)) {
-                   int packet_type;
-                   packet >> packet_type;
-                   
-                   connections[i]->pushPacket(packet, (ClientPacketType)packet_type);
-                } else if(connections[i]->hasDisconnected()) {
-                    removeConnection(connections[i]);
-                    
-                    break;
-                } else
-                    break;
-            }
-        } else if(connections[i]->receive(packet)) {
+            if(connections[i]->hasDisconnected())
+                removeConnection(connections[i]);
+            
+        } else if(connections[i]->hasPacketInBuffer()) {
+            Packet packet = connections[i]->getPacket();
             print::info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
             
             Packet time_packet;

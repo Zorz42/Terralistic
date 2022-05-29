@@ -269,13 +269,15 @@ void ServerPlayers::update(float frame_length) {
                 player->flipped = player->getVelocityX() < 0;
             
             while(player->getConnection()->hasPacketInBuffer()) {
-                auto result = player->getConnection()->getPacket();
-                if(result.second == ClientPacketType::PING){
+                Packet packet = player->getConnection()->getPacket();
+                ClientPacketType type;
+                packet >> type;
+                if(type == ClientPacketType::PING) {
                     Packet pong;
                     pong << ServerPacketType::PING;
                     player->getConnection()->send(pong);
-                }else {
-                    ServerPacketEvent event(result.first, result.second, player);
+                } else {
+                    ServerPacketEvent event(packet, type, player);
                     packet_event.call(event);
                 }
             }
@@ -283,8 +285,10 @@ void ServerPlayers::update(float frame_length) {
     
     for(int i = 0; i < networking->getConnections().size(); i++)
         if(networking->getConnections()[i]->hasPacketInBuffer()) {
-            auto packet_pair = networking->getConnections()[i]->getPacket();
-            if(packet_pair.second == ClientPacketType::PLAYER_RESPAWN) {
+            Packet packet = networking->getConnections()[i]->getPacket();
+            ClientPacketType type;
+            packet >> type;
+            if(type == ClientPacketType::PLAYER_RESPAWN) {
                 addPlayer(networking->getConnections()[i]->player_name);
                 ServerPlayer* player = getPlayerByName(networking->getConnections()[i]->player_name);
                 player->setConnection(networking->getConnections()[i]);

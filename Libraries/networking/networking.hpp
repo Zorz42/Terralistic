@@ -62,6 +62,7 @@ public:
     void send(Packet& packet);
     bool receive(Packet& packet);
     void flushPacketBuffer();
+    bool isPacketAvailable();
     
     bool connect(const std::string& ip, unsigned short port);
     std::string getIpAddress();

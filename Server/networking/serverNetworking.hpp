@@ -7,7 +7,6 @@
 
 class Connection {
     TcpSocket* socket;
-    std::queue<std::pair<Packet, ClientPacketType>> packet_buffer;
     bool greeted = false;
 public:
     explicit Connection(TcpSocket* socket) : socket(socket) {}
@@ -17,13 +16,10 @@ public:
     bool hasBeenGreeted() const;
     void greet();
     
-    bool receive(Packet& packet);
-    
     std::string getIpAddress();
     
-    void pushPacket(Packet& packet, ClientPacketType type);
     bool hasPacketInBuffer();
-    std::pair<Packet, ClientPacketType> getPacket();
+    Packet getPacket();
     
     std::string player_name;
     
