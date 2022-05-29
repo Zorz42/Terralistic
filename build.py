@@ -107,13 +107,7 @@ elif sys.platform == "win32":
 
         os.remove(zlib_file)
 
-        os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 16 2019\" . && cmake --build . --config Release --target install /m\"")
-        
-        #with open(project_path + "Dependencies/zlib/include/zconf.h", "r") as header:
-        #    lines = header.readlines()
-        #lines[286] = "#if 0\n"
-        #with open(project_path + "Dependencies/zlib/include/zconf.h", "w") as header:
-        #    header.writelines(lines)
+        os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 16 2019\" -A Win32 . && cmake --build . --config Release --target install /m\"")
 
     if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.WIN32/"):
         print("Downloading glfw library")

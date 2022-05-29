@@ -31,8 +31,8 @@ void TcpListener::listen(unsigned short port) {
     listener_handle = socket(AF_INET, SOCK_STREAM, 0);
     if(listener_handle == 0)
         throw Exception("Socket failed");
- 
-    if(setsockopt(listener_handle, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
+
+    if(setsockopt(listener_handle, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)))
         throw Exception("Setsockopt failed");
     
     address.sin_family = AF_INET;
@@ -51,7 +51,7 @@ void TcpListener::listen(unsigned short port) {
 bool TcpListener::accept(TcpSocket& socket) {
     sockaddr_in address;
     int addrlen = sizeof(address);
-    socket.socket_handle = ::accept(listener_handle, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+    socket.socket_handle = ::accept(listener_handle, (struct sockaddr*)&address, (int*)&addrlen);
     if(socket.socket_handle < 0) {
         handleError();
         return false;
@@ -63,5 +63,9 @@ bool TcpListener::accept(TcpSocket& socket) {
 }
 
 void TcpListener::close() {
+#ifdef WIN32
+    closesocket(listener_handle);
+#else
     shutdown(listener_handle, SHUT_RDWR);
+#endif
 }

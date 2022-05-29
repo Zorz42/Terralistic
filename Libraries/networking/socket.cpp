@@ -2,7 +2,7 @@
 #include "exception.hpp"
 
 #ifdef WIN32
-#include <winsock.h>
+#include <Ws2tcpip.h>
 #else
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -42,7 +42,7 @@ void TcpSocket::handleError() {
 void TcpSocket::send(const void* obj, unsigned int size) {
     unsigned int sent = 0;
     while(sent < size) {
-        int curr_sent = (int)::send(socket_handle, (void*)((unsigned long)obj + sent), size - sent, 0);
+        int curr_sent = (int)::send(socket_handle, (const char*)((unsigned long)obj + sent), size - sent, 0);
         sent += curr_sent;
         
         if(curr_sent < 0) {
@@ -66,7 +66,7 @@ void TcpSocket::send(Packet& packet) {
 bool TcpSocket::receive(void* obj, unsigned int size) {
     unsigned int received = 0;
     while(received < size) {
-        int curr_received = (int)::read(socket_handle, (void*)((unsigned long)obj + received), size - received);
+        int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, 0);
         received += curr_received;
         
         if(curr_received == 0) {
@@ -141,7 +141,11 @@ std::string TcpSocket::getIpAddress() {
 }
 
 void TcpSocket::disconnect() {
+#ifdef WIN32
+    closesocket(socket_handle);
+#else
     close(socket_handle);
+#endif
 }
 
 bool TcpSocket::hasDisconnected() {
@@ -154,3 +158,18 @@ void TcpSocket::flushPacketBuffer() {
         packet_buffer_out.clear();
     }
 }
+
+#ifdef WIN32
+struct SocketInitializer {
+    SocketInitializer() {
+        WSADATA init;
+        WSAStartup(MAKEWORD(2, 2), &init);
+    }
+
+    ~SocketInitializer() {
+        WSACleanup();
+    }
+};
+
+SocketInitializer socket_initializer;
+#endif
