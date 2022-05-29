@@ -2,6 +2,7 @@
 
 void ClientNetworking::sendPacket(Packet& packet) {
     socket.send(packet);
+    socket.flushPacketBuffer();
 }
 
 void ClientNetworking::updateParallel(float frame_length) {
@@ -9,21 +10,10 @@ void ClientNetworking::updateParallel(float frame_length) {
     
     while(true) {
         if(socket.receive(packet)) {
-            while(!packet.endOfPacket()) {
-                Packet sub_packet;
-                int size;
-                packet >> size;
-                for(int i = 0; i < size; i++) {
-                    unsigned char c;
-                    packet >> c;
-                    sub_packet << c;
-                }
-                
-                ServerPacketType packet_type;
-                sub_packet >> packet_type;
-                ClientPacketEvent event(sub_packet, packet_type);
-                packet_event.call(event);
-            }
+            ServerPacketType packet_type;
+            packet >> packet_type;
+            ClientPacketEvent event(packet, packet_type);
+            packet_event.call(event);
         } else
             break;
     }

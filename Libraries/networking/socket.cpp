@@ -49,21 +49,14 @@ void TcpSocket::send(const void* obj, unsigned int size) {
 }
 
 void TcpSocket::send(Packet& packet) {
-    /*unsigned int size = (unsigned int)packet.getDataSize();
+    unsigned int size = (unsigned int)packet.getDataSize();
     unsigned int prev_buffer_size = (unsigned int)packet_buffer.size();
     packet_buffer.resize(packet_buffer.size() + sizeof(unsigned int) + size);
     std::memcpy(&packet_buffer[prev_buffer_size], &size, sizeof(unsigned int));
-    std::memcpy(&packet_buffer[prev_buffer_size + sizeof(unsigned int)], packet.getData(), size);*/
+    std::memcpy(&packet_buffer[prev_buffer_size + sizeof(unsigned int)], packet.getData(), size);
     
-    
-    unsigned int size = (unsigned int)packet.getDataSize();
-    unsigned char* obj = new unsigned char[size + 4];
-    *(unsigned int*)obj = size;
-    memcpy(&obj[sizeof(unsigned int)], packet.getData(), size);
-    send(obj, size + 4);
-    delete[] obj;
-    
-    
+    if(packet_buffer.size() > 65536)
+        flushPacketBuffer();
 }
 
 bool TcpSocket::receive(void* obj, unsigned int size) {
@@ -137,4 +130,11 @@ void TcpSocket::disconnect() {
 
 bool TcpSocket::hasDisconnected() {
     return disconnected;
+}
+
+void TcpSocket::flushPacketBuffer() {
+    if(!packet_buffer.empty()) {
+        send(packet_buffer.data(), (unsigned int)packet_buffer.size());
+        packet_buffer.clear();
+    }
 }

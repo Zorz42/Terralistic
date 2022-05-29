@@ -3,12 +3,13 @@
 #include "graphics.hpp"
 
 void Connection::send(Packet& packet) {
-    master_packet << (int)packet.getDataSize();
-    master_packet.append(packet.getData(), packet.getDataSize());
+    socket->send(packet);
+    socket->flushPacketBuffer();
 }
 
 void Connection::sendDirectly(Packet& packet) {
     socket->send(packet);
+    socket->flushPacketBuffer();
 }
 
 bool Connection::hasDisconnected() {
@@ -16,10 +17,7 @@ bool Connection::hasDisconnected() {
 }
 
 void Connection::flushPackets() {
-    if(master_packet.getDataSize() != 0) {
-        socket->send(master_packet);
-        master_packet.clear();
-    }
+    socket->flushPacketBuffer();
 }
 
 bool Connection::receive(Packet& packet) {

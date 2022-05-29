@@ -7,7 +7,6 @@
 
 class Connection {
     TcpSocket* socket;
-    Packet master_packet;
     std::queue<std::pair<Packet, ClientPacketType>> packet_buffer;
     bool greeted = false;
 public:
