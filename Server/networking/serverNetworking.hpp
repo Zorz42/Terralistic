@@ -5,28 +5,13 @@
 #include "serverModule.hpp"
 #include "graphics.hpp"
 
-class Connection {
-    TcpSocket* socket;
+class Connection : public TcpSocket {
     bool greeted = false;
 public:
-    explicit Connection(TcpSocket* socket) : socket(socket) {}
-    
-    void send(Packet& packet);
-    
     bool hasBeenGreeted() const;
     void greet();
     
-    std::string getIpAddress();
-    
-    bool hasPacketInBuffer();
-    Packet getPacket();
-    
     std::string player_name;
-    
-    bool hasDisconnected();
-    
-    void flushPackets();
-    ~Connection();
 };
 
 class ServerConnectionWelcomeEvent {

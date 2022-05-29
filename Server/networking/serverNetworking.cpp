@@ -2,45 +2,13 @@
 #include "print.hpp"
 #include "graphics.hpp"
 
-void Connection::send(Packet& packet) {
-    socket->send(packet);
-}
-
-bool Connection::hasDisconnected() {
-    return socket->hasDisconnected();
-}
-
-void Connection::flushPackets() {
-    socket->flushPacketBuffer();
-}
-
 bool Connection::hasBeenGreeted() const {
     return greeted;
 }
 
 void Connection::greet() {
-    flushPackets();
+    flushPacketBuffer();
     greeted = true;
-}
-
-std::string Connection::getIpAddress() {
-    return socket->getIpAddress();
-}
-
-Connection::~Connection() {
-    delete socket;
-}
-
-Packet Connection::getPacket() {
-    Packet result;
-    if(!socket->receive(result))
-        throw Exception("No packets to get");
-    
-    return result;
-}
-
-bool Connection::hasPacketInBuffer() {
-    return socket->isPacketAvailable();
 }
 
 ServerNetworking::ServerNetworking(int port) : port(port) {
@@ -60,22 +28,21 @@ void ServerNetworking::sendToEveryone(Packet& packet) {
 }
 
 void ServerNetworking::update(float frame_length) {
-    static TcpSocket *socket = new TcpSocket;
-    while(listener.accept(*socket))
-        if(!is_private || socket->getIpAddress() == "127.0.0.1") {
-            Connection* connection = new Connection(socket);
+    static Connection *connection = new Connection;
+    while(listener.accept(*connection))
+        if(!is_private || connection->getIpAddress() == "127.0.0.1") {
             connections.push_back(connection);
-            socket = new TcpSocket;
+            connection = new Connection;
         }
     
+    Packet packet;
     for(int i = 0; i < connections.size(); i++) {
         if(connections[i]->hasBeenGreeted()) {
-            connections[i]->flushPackets();
+            connections[i]->flushPacketBuffer();
             if(connections[i]->hasDisconnected())
                 removeConnection(connections[i]);
             
-        } else if(connections[i]->hasPacketInBuffer()) {
-            Packet packet = connections[i]->getPacket();
+        } else if(connections[i]->receive(packet)) {
             print::info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
             
             Packet time_packet;

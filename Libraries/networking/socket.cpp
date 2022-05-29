@@ -106,12 +106,6 @@ bool TcpSocket::receivePacket() {
     return true;
 }
 
-bool TcpSocket::isPacketAvailable() {
-    while(receivePacket());
-    
-    return !packet_buffer_in.empty();
-}
-
 bool TcpSocket::connect(const std::string& ip, unsigned short port) {
     sockaddr_in serv_addr;
     

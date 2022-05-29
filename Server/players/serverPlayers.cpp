@@ -268,8 +268,8 @@ void ServerPlayers::update(float frame_length) {
             if(player->getVelocityX())
                 player->flipped = player->getVelocityX() < 0;
             
-            while(player->getConnection()->hasPacketInBuffer()) {
-                Packet packet = player->getConnection()->getPacket();
+            Packet packet;
+            while(player->getConnection()->receive(packet)) {
                 ClientPacketType type;
                 packet >> type;
                 if(type == ClientPacketType::PING) {
@@ -283,9 +283,9 @@ void ServerPlayers::update(float frame_length) {
             }
         }
     
-    for(int i = 0; i < networking->getConnections().size(); i++)
-        if(networking->getConnections()[i]->hasPacketInBuffer()) {
-            Packet packet = networking->getConnections()[i]->getPacket();
+    for(int i = 0; i < networking->getConnections().size(); i++) {
+        Packet packet;
+        if(networking->getConnections()[i]->receive(packet)) {
             ClientPacketType type;
             packet >> type;
             if(type == ClientPacketType::PLAYER_RESPAWN) {
@@ -298,6 +298,7 @@ void ServerPlayers::update(float frame_length) {
                 networking->sendToEveryone(join_packet);
             }
         }
+    }
     
     for(int i = 0; i < entities->getEntities().size(); i++)
         if(entities->getEntities()[i]->type == EntityType::ITEM) {
