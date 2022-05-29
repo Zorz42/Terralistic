@@ -24,7 +24,6 @@ bool Connection::hasBeenGreeted() const {
 
 void Connection::greet() {
     flushPackets();
-    socket->setBlocking(false);
     greeted = true;
 }
 
@@ -57,7 +56,6 @@ ServerNetworking::ServerNetworking(int port) : port(port) {
 
 void ServerNetworking::postInit() {
     listener.listen(port);
-    listener.setBlocking(false);
     timer.reset();
 }
 

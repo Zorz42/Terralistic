@@ -4,17 +4,16 @@
 #include <fcntl.h>
 #include "exception.hpp"
 
-void _socketSetBlocking(int socket_handle, bool blocking) {
+void _socketDisableBlocking(int socket_handle) {
 #ifdef _WIN32
-    unsigned long mode = blocking ? 0 : 1;
+    unsigned long mode = 1;
     if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0)
         throw Exception("Could not set socket to blocking");
 #else
     int flags = fcntl(socket_handle, F_GETFL, 0);
     if(flags == -1)
         throw Exception("Could not set socket to blocking");
-    flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
-    if(fcntl(socket_handle, F_SETFL, flags) != 0)
+    if(fcntl(socket_handle, F_SETFL, flags | O_NONBLOCK) != 0)
         throw Exception("Could not set socket to blocking");
 #endif
 }
@@ -78,8 +77,7 @@ bool TcpSocket::receive(void* obj, unsigned int size) {
 }
 
 bool TcpSocket::receive(Packet& packet) {
-    //while(receivePacket());
-    receivePacket();
+    while(receivePacket());
     
     if(packet_buffer_in.empty())
         return false;
@@ -128,11 +126,9 @@ bool TcpSocket::connect(const std::string& ip, unsigned short port) {
     if(::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
         return false;
     
+    _socketDisableBlocking(socket_handle);
+    
     return true;
-}
-
-void TcpSocket::setBlocking(bool blocking) {
-    _socketSetBlocking(socket_handle, blocking);
 }
 
 std::string TcpSocket::getIpAddress() {

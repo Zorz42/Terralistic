@@ -20,10 +20,6 @@ void TcpListener::handleError() {
     }
 }
 
-void TcpListener::setBlocking(bool blocking) {
-    _socketSetBlocking(listener_handle, blocking);
-}
-
 void TcpListener::listen(unsigned short port) {
     struct sockaddr_in address;
     int opt = 1;
@@ -44,6 +40,8 @@ void TcpListener::listen(unsigned short port) {
     
     if(::listen(listener_handle, 3) < 0)
         throw Exception("Cannot listen to socket");
+    
+    _socketDisableBlocking(listener_handle);
 }
 
 bool TcpListener::accept(TcpSocket& socket) {

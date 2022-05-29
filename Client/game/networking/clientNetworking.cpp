@@ -32,7 +32,8 @@ void ClientNetworking::stop() {
 
 Packet ClientNetworking::getPacket() {
     Packet packet;
-    socket.receive(packet);
+    while(!socket.receive(packet))
+        gfx::sleep(1);
     return packet;
 }
 
@@ -60,6 +61,4 @@ void ClientNetworking::postInit() {
         WelcomePacketEvent event(packet, type);
         welcome_packet_event.call(event);
     }
-    
-    socket.setBlocking(false);
 }

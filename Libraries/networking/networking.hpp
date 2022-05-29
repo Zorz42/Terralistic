@@ -58,7 +58,7 @@ class TcpSocket {
     bool receivePacket();
     
     bool disconnected = false;
-public:
+public:    
     void send(Packet& packet);
     bool receive(Packet& packet);
     void flushPacketBuffer();
@@ -67,7 +67,6 @@ public:
     std::string getIpAddress();
     void disconnect();
     
-    void setBlocking(bool blocking);
     bool hasDisconnected();
 };
 
@@ -76,11 +75,9 @@ class TcpListener {
     
     void handleError();
 public:
-    void setBlocking(bool blocking);
-    
     void listen(unsigned short port);
     bool accept(TcpSocket& socket);
     void close();
 };
 
-void _socketSetBlocking(int socket_handle, bool blocking);
+void _socketDisableBlocking(int socket_handle);
