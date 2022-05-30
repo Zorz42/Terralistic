@@ -172,4 +172,5 @@ struct SocketInitializer {
     }
 };
 
-SocketInitializer 
+SocketInitializer socket_initializer;
+#endif
