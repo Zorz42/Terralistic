@@ -1,7 +1,10 @@
+#include <cstring>
 #include "networking.hpp"
 
 #ifdef WIN32
 #include <winsock.h>
+#else
+#include <arpa/inet.h>
 #endif
 
 unsigned int Packet::getDataSize() {

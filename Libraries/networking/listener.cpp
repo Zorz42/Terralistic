@@ -13,12 +13,12 @@ void TcpListener::handleError() {
         return;
 
     switch(errno) {
-        case EWOULDBLOCK:  return;
-        case ECONNABORTED: return;
-        case ECONNRESET:   return;
-        case ETIMEDOUT:    return;
-        case ENETRESET:    return;
-        case ENOTCONN:     return;
+        case EWOULDBLOCK:
+        case ECONNABORTED:
+        case ECONNRESET:
+        case ETIMEDOUT:
+        case ENETRESET:
+        case ENOTCONN:
         case EPIPE:        return;
         default:           throw Exception("Listener error");
     }
@@ -51,7 +51,11 @@ void TcpListener::listen(unsigned short port) {
 bool TcpListener::accept(TcpSocket& socket) {
     sockaddr_in address;
     int addrlen = sizeof(address);
+#ifdef WIN32
     socket.socket_handle = ::accept(listener_handle, (struct sockaddr*)&address, (int*)&addrlen);
+#else
+    socket.socket_handle = ::accept(listener_handle, (struct sockaddr*)&address, (socklen_t *)&addrlen);
+#endif
     if(socket.socket_handle < 0) {
         handleError();
         return false;

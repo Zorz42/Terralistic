@@ -1,3 +1,4 @@
+#include <cstring>
 #include "networking.hpp"
 #include "exception.hpp"
 
@@ -29,11 +30,11 @@ void TcpSocket::handleError() {
 
     switch(errno) {
         case EWOULDBLOCK:  return;
-        case ECONNABORTED: disconnected = true; return;
-        case ECONNRESET:   disconnected = true; return;
-        case ETIMEDOUT:    disconnected = true; return;
-        case ENETRESET:    disconnected = true; return;
-        case ENOTCONN:     disconnected = true; return;
+        case ECONNABORTED:
+        case ECONNRESET:
+        case ETIMEDOUT:
+        case ENETRESET:
+        case ENOTCONN:
         case EPIPE:        disconnected = true; return;
         default:           throw Exception("Socket error");
     }
@@ -58,7 +59,7 @@ void TcpSocket::send(Packet& packet) {
     packet_buffer_out.resize(packet_buffer_out.size() + sizeof(unsigned int) + size);
     std::memcpy(&packet_buffer_out[prev_buffer_size], &size, sizeof(unsigned int));
     std::memcpy(&packet_buffer_out[prev_buffer_size + sizeof(unsigned int)], packet.getData(), size);
-    
+
     if(packet_buffer_out.size() > 65536)
         flushPacketBuffer();
 }

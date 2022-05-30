@@ -4,10 +4,16 @@ import os
 import sys
 import shutil
 import urllib.request
-import tarfile
 import zipfile
 
 project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
+
+
+def system(command: str):
+    result = os.system(command)
+    if result != 0:
+        print(f"Command: \"{command}\" exited with exit code {result}. Aborting.")
+        exit(result)
 
 
 def createDir(path):
@@ -16,7 +22,7 @@ def createDir(path):
 
 if sys.platform == "darwin":
     createDir(project_path + "Dependencies/")
-        
+
     if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
         print("Downloading glfw library")
 
@@ -31,19 +37,24 @@ if sys.platform == "darwin":
             glfw_zip.extractall(f"{project_path}Dependencies/")
 
         os.remove(glfw_file)
-    
-    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic archive -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic.xcarchive")
-    os.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server archive -configuration release -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic-server.xcarchive")
+
+    system(
+        f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic archive -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic.xcarchive")
+    system(
+        f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server archive -configuration release -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic-server.xcarchive")
 
     createDir("Output/MacOS/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
-    os.system(f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic.xcarchive -exportPath {project_path}Terralistic.app/ -exportOptionsPlist {project_path}exportOptions.plist")
+    system(
+        f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic.xcarchive -exportPath {project_path}Terralistic.app/ -exportOptionsPlist {project_path}exportOptions.plist")
     shutil.copytree(f"{project_path}Terralistic.app/Terralistic.app/", f"{project_path}Output/MacOS/Terralistic.app/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic-server.app/", ignore_errors=True)
-    os.system(f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic-server.xcarchive -exportPath {project_path}Terralistic-server.app/ -exportOptionsPlist {project_path}exportOptions.plist")
-    shutil.copytree(f"{project_path}Terralistic-server.app/Terralistic-server.app/", f"{project_path}Output/MacOS/Terralistic-server.app/")
+    system(
+        f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic-server.xcarchive -exportPath {project_path}Terralistic-server.app/ -exportOptionsPlist {project_path}exportOptions.plist")
+    shutil.copytree(f"{project_path}Terralistic-server.app/Terralistic-server.app/",
+                    f"{project_path}Output/MacOS/Terralistic-server.app/")
 
     shutil.rmtree(project_path + "Terralistic.xcarchive/")
     shutil.rmtree(project_path + "Terralistic-server.xcarchive/")
@@ -54,7 +65,7 @@ if sys.platform == "darwin":
 elif sys.platform == "linux":
     createDir("Dependencies/")
 
-    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
+    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7/"):
         print("Downloading glfw library")
 
         glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.zip"
@@ -69,10 +80,10 @@ elif sys.platform == "linux":
 
         os.remove(glfw_file)
 
-        os.system(f"cd {project_path}Dependencies/glfw-3.3.7/ && cmake -B build && cd build && make")
+        system(f"cd {project_path}Dependencies/glfw-3.3.7/ && cmake -B build && cd build && make")
 
     createDir("Build/")
-    os.system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
+    system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
 
     createDir("Output/Linux/Terralistic")
     if os.path.exists(project_path + "Output/Linux/Terralistic/"):
@@ -84,10 +95,11 @@ elif sys.platform == "linux":
     if os.path.exists(project_path + "Output/Linux/Terralistic-server/"):
         shutil.rmtree(project_path + "Output/Linux/Terralistic-server/")
     shutil.copytree(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic-server/Resources/")
-    shutil.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic-server/Terralistic-server")
+    shutil.copy(project_path + "Build/Terralistic-server",
+                project_path + "Output/Linux/Terralistic-server/Terralistic-server")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
-        os.system(project_path + "Output/Linux/Terralistic/Terralistic")
+        system(project_path + "Output/Linux/Terralistic/Terralistic")
 
 elif sys.platform == "win32":
     createDir("Dependencies/")
@@ -107,7 +119,8 @@ elif sys.platform == "win32":
 
         os.remove(zlib_file)
 
-        os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 16 2019\" -A Win32 . && cmake --build . --config Release --target install /m\"")
+        system(
+            f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 16 2019\" -A Win32 . && cmake --build . --config Release --target install /m\"")
 
     if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.WIN32/"):
         print("Downloading glfw library")
@@ -126,13 +139,15 @@ elif sys.platform == "win32":
 
     createDir("Build/")
 
-    os.system(f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build . /m\"")
+    system(
+        f"\"\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build . /m\"")
 
     createDir("Output/Windows/Terralistic/")
     shutil.copy(f"{project_path}Build/Terralistic.exe", f"{project_path}Output/Windows/Terralistic/Terralistic.exe")
 
     createDir("Output/Windows/Terralistic-server/")
-    shutil.copy(f"{project_path}Build/Terralistic-server.exe", f"{project_path}Output/Windows/Terralistic-server/Terralistic-server.exe")
+    shutil.copy(f"{project_path}Build/Terralistic-server.exe",
+                f"{project_path}Output/Windows/Terralistic-server/Terralistic-server.exe")
 
     for file in os.listdir(project_path + "Build/"):
         if file.endswith(".dll"):
@@ -145,10 +160,11 @@ elif sys.platform == "win32":
     if os.path.exists(f"{project_path}Output/Windows/Terralistic/Resources/"):
         shutil.rmtree(f"{project_path}Output/Windows/Terralistic/Resources/")
     shutil.move(f"{project_path}Build/Resources/", f"{project_path}Output/Windows/Terralistic/Resources/")
-    shutil.copy(f"{project_path}Resources/resourcePack/misc/Structures.asset", f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
+    shutil.copy(f"{project_path}Resources/resourcePack/misc/Structures.asset",
+                f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
     shutil.copy(f"{project_path}Resources/font.opa", f"{project_path}Output/Windows/Terralistic-server/font.opa")
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
-        os.system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")
+        system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")
 else:
     print("Your current platform is not yet supported by this build script!")
