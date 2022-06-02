@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <queue>
 #include "exception.hpp"
 
 class Packet {
@@ -46,7 +47,7 @@ public:
 class TcpSocket {
     friend class TcpListener;
     std::vector<char> packet_buffer_out;
-    std::vector<Packet> packet_buffer_in;
+    std::queue<Packet> packet_buffer_in;
     int socket_handle;
     std::string ip_address;
     

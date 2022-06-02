@@ -88,8 +88,8 @@ bool TcpSocket::receive(Packet& packet) {
     if(packet_buffer_in.empty())
         return false;
     
-    packet = packet_buffer_in[0];
-    packet_buffer_in.erase(packet_buffer_in.begin());
+    packet = packet_buffer_in.front();
+    packet_buffer_in.pop();
     
     return true;
 }
@@ -107,7 +107,7 @@ bool TcpSocket::receivePacket() {
     packet.append(obj, size);
     delete[] obj;
     
-    packet_buffer_in.push_back(packet);
+    packet_buffer_in.push(packet);
     
     return true;
 }
