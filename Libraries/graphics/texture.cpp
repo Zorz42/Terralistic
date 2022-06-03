@@ -1,6 +1,8 @@
 #include <cstring>
 #include "graphics-internal.hpp"
 
+#include <iostream>
+
 void gfx::Texture::createBlankImage(int width_, int height_) {
     if(width_ <= 0 || height_ <= 0)
         throw std::runtime_error("Width and Height of a texture size must be positive.");
@@ -132,7 +134,7 @@ void gfx::Texture::loadFromText(const std::string& text, Color color) {
     setRenderTarget();
     int x = 0;
     for(char i : text) {
-        font_texture.render(1, x, 0, font_rects[(int)(unsigned char)i], false, color);
+        font_texture->render(1, x, 0, font_rects[(int)(unsigned char)i], false, color);
         x += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
     }
     resetRenderTarget();

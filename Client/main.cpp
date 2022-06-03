@@ -65,6 +65,20 @@ public:
 };
 
 int main(int argc, char **argv) {
+    TcpSocket s_socket, c_socket;
+    TcpListener listener;
+
+    listener.listen(12345);
+    c_socket.connect("127.0.0.1", 12345);
+    listener.accept(s_socket);
+
+
+
+    c_socket.disconnect();
+    s_socket.disconnect();
+    listener.close();
+
+
     srand((int)time(nullptr));
 
     if(argc == 2 && (std::string)argv[1] == "version") {
@@ -104,26 +118,29 @@ int main(int argc, char **argv) {
     BlurChangeListener blur_change_listener(&blur_setting);
     blur_setting.setting_change_event.addListener(&blur_change_listener);
     settings.addSetting(&blur_setting);
-    
-    MenuBack menu_back;
-    menu_back.init();
+
+    MenuBack* menu_back = new MenuBack;
+    menu_back->init();
     
 #ifndef DEVELOPER_MODE
     UpdateChecker update_checker(&menu_back, argv[0]);
     update_checker.run();
 #endif
-    
-    MainMenu(&menu_back, &settings).run();
-    
+    MainMenu* main_menu = new MainMenu(menu_back, &settings);
+    main_menu->run();
+
+    delete main_menu;
+    delete menu_back;
+
     settings.removeSetting(&scale_setting);
     scale_setting.setting_change_event.removeListener(&scale_change_listener);
-    
+
     settings.removeSetting(&fps_setting);
     fps_setting.setting_change_event.removeListener(&fps_change_listener);
-    
+
     settings.removeSetting(&blur_setting);
     blur_setting.setting_change_event.removeListener(&blur_change_listener);
-    
+
     gfx::quit();
 
     return 0;

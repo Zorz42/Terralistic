@@ -1,6 +1,5 @@
 #include "graphics-internal.hpp"
 #include <fstream>
-#include <iostream>
 #include <thread>
 #include <cmath>
 
@@ -250,18 +249,19 @@ void gfx::init(int window_width_, int window_height_) {
     glDrawBuffers(1, DrawBuffers);
     
     glEnableVertexAttribArray(SHADER_VERTEX_BUFFER);
-    
-    shadow_texture.createBlankImage(700, 700);
+
+    shadow_texture = new Texture;
+    shadow_texture->createBlankImage(700, 700);
     Texture shadow_texture_back;
     shadow_texture_back.createBlankImage(700, 700);
-    shadow_texture.setRenderTarget();
+    shadow_texture->setRenderTarget();
     RectShape(200, 200, 300, 300).render({0, 0, 0});
     
-    Transformation shadow_transform = shadow_texture.getNormalizationTransform();
+    Transformation shadow_transform = shadow_texture->getNormalizationTransform();
     shadow_transform.translate(-700, 0);
     shadow_transform.stretch(2, 2);
     for(int i = 0; i < 10; i++)
-        blurRectangle(RectShape(0, 0, 700, 700), GFX_SHADOW_BLUR, shadow_texture.getGlTexture(), shadow_texture_back.getGlTexture(), 700, 700, shadow_transform);
+        blurRectangle(RectShape(0, 0, 700, 700), GFX_SHADOW_BLUR, shadow_texture->getGlTexture(), shadow_texture_back.getGlTexture(), 700, 700, shadow_transform);
 }
 
 void gfx::enableVsync(bool enabled) {
@@ -283,7 +283,8 @@ bool fontColEmpty(const unsigned char* data, int x, int y) {
 }
 
 void gfx::loadFont(const unsigned char* data) {
-    font_texture.loadFromData(data, 256, 256);
+    font_texture = new Texture;
+    font_texture->loadFromData(data, 256, 256);
     for(int y = 0; y < 16; y++)
         for(int x = 0; x < 16; x++) {
             RectShape rect(x * 16, y * 16, 16, 16);
@@ -306,6 +307,8 @@ void gfx::loadFont(const unsigned char* data) {
 }
 
 void gfx::quit() {
+    delete font_texture;
+    delete shadow_texture;
     glfwTerminate();
 }
 

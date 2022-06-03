@@ -26,23 +26,23 @@ void gfx::Rect::render() {
     if(shadow_intensity) {
         float temp_width = std::min(200.f + (float)width / 2, 350.f), temp_height = std::min(200.f + (float)height / 2, 350.f);
         
-        shadow_texture.render(1, rect.x - 200, rect.y - 200, {0, 0, (int)std::floor(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
-        shadow_texture.render(1, rect.x - 200, rect.y, {0, 200, 200, (int)std::ceil(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
-        
-        shadow_texture.render(1, rect.x + width - std::ceil(temp_width) + 200, rect.y - 200, {700 - (int)std::ceil(temp_width), 0, (int)std::ceil(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
-        shadow_texture.render(1, rect.x + width, rect.y, {500, 200, 200, (int)std::ceil(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
-        
-        shadow_texture.render(1, rect.x - 200, rect.y + height - std::floor(temp_height) + 200, {0, 700 - (int)std::floor(temp_height), 200, (int)std::floor(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
-        shadow_texture.render(1, rect.x - 200, rect.y + height, {0, 500, (int)std::floor(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
-        
-        shadow_texture.render(1, rect.x + width, rect.y + height - std::floor(temp_height) + 200, {500, 700 - (int)std::floor(temp_height), 200, (int)std::floor(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
-        shadow_texture.render(1, rect.x + width - std::ceil(temp_width) + 200, rect.y + height, {700 - (int)std::ceil(temp_width), 500, (int)std::ceil(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture->render(1, rect.x - 200, rect.y - 200, {0, 0, (int)std::floor(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture->render(1, rect.x - 200, rect.y, {0, 200, 200, (int)std::ceil(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
+
+        shadow_texture->render(1, rect.x + width - std::ceil(temp_width) + 200, rect.y - 200, {700 - (int)std::ceil(temp_width), 0, (int)std::ceil(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture->render(1, rect.x + width, rect.y, {500, 200, 200, (int)std::ceil(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
+
+        shadow_texture->render(1, rect.x - 200, rect.y + height - std::floor(temp_height) + 200, {0, 700 - (int)std::floor(temp_height), 200, (int)std::floor(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture->render(1, rect.x - 200, rect.y + height, {0, 500, (int)std::floor(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
+
+        shadow_texture->render(1, rect.x + width, rect.y + height - std::floor(temp_height) + 200, {500, 700 - (int)std::floor(temp_height), 200, (int)std::floor(temp_height) - 200}, false, {255, 255, 255, shadow_intensity});
+        shadow_texture->render(1, rect.x + width - std::ceil(temp_width) + 200, rect.y + height, {700 - (int)std::ceil(temp_width), 500, (int)std::ceil(temp_width), 200}, false, {255, 255, 255, shadow_intensity});
         
         if(temp_height == 350) {
             int height_to_render = height - 300;
             while(height_to_render > 0) {
-                shadow_texture.render(1, rect.x - 200, rect.y + height - 150 - height_to_render, {0, 300, 200, std::min(100, height_to_render)}, false, {255, 255, 255, shadow_intensity});
-                shadow_texture.render(1, rect.x + width, rect.y + height - 150 - height_to_render, {500, 300, 200, std::min(100, height_to_render)}, false, {255, 255, 255, shadow_intensity});
+                shadow_texture->render(1, rect.x - 200, rect.y + height - 150 - height_to_render, {0, 300, 200, std::min(100, height_to_render)}, false, {255, 255, 255, shadow_intensity});
+                shadow_texture->render(1, rect.x + width, rect.y + height - 150 - height_to_render, {500, 300, 200, std::min(100, height_to_render)}, false, {255, 255, 255, shadow_intensity});
                 height_to_render -= 100;
             }
         }
@@ -50,8 +50,8 @@ void gfx::Rect::render() {
         if(temp_width == 350) {
             int width_to_render = width - 300;
             while(width_to_render > 0) {
-                shadow_texture.render(1, rect.x + width - 150 - width_to_render, rect.y - 200, {300, 0, std::min(100, width_to_render), 200}, false, {255, 255, 255, shadow_intensity});
-                shadow_texture.render(1, rect.x + width - 150 - width_to_render, rect.y + height, {300, 500, std::min(100, width_to_render), 200}, false, {255, 255, 255, shadow_intensity});
+                shadow_texture->render(1, rect.x + width - 150 - width_to_render, rect.y - 200, {300, 0, std::min(100, width_to_render), 200}, false, {255, 255, 255, shadow_intensity});
+                shadow_texture->render(1, rect.x + width - 150 - width_to_render, rect.y + height, {300, 500, std::min(100, width_to_render), 200}, false, {255, 255, 255, shadow_intensity});
                 width_to_render -= 100;
             }
         }

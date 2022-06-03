@@ -41,10 +41,10 @@ void blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned in
 
 void updateWindow();
 
-inline Texture font_texture;
+inline Texture* font_texture = nullptr;
 inline RectShape font_rects[256];
 
-inline Texture shadow_texture;
+inline Texture* shadow_texture = nullptr;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
