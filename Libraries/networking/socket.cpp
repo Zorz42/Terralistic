@@ -23,6 +23,21 @@ void _socketDisableBlocking(int socket_handle) {
 #endif
 }
 
+#ifdef WIN32
+void TcpSocket::handleError() {
+    switch (WSAGetLastError()) {
+        case WSAEWOULDBLOCK:
+        case WSAEALREADY: return;
+        case WSAECONNABORTED:
+        case WSAECONNRESET:
+        case WSAETIMEDOUT:
+        case WSAENETRESET:
+        case WSAENOTCONN: disconnected = true; return;
+        case WSAEISCONN: return;
+        default: throw Exception("Socket error");
+    }
+}
+#else
 void TcpSocket::handleError() {
     if(errno == EAGAIN || errno == EINPROGRESS)
         return;
@@ -38,6 +53,7 @@ void TcpSocket::handleError() {
         default:           throw Exception("Socket error");
     }
 }
+#endif
 
 void TcpSocket::send(const void* obj, unsigned int size) {
     unsigned int sent = 0;

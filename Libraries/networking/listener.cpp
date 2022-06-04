@@ -7,6 +7,21 @@
 #include <cstring>
 #endif
 
+#ifdef WIN32
+void TcpListener::handleError() {
+    switch (WSAGetLastError()) {
+        case WSAEWOULDBLOCK:
+        case WSAEALREADY:
+        case WSAECONNABORTED:
+        case WSAECONNRESET:
+        case WSAETIMEDOUT:
+        case WSAENETRESET:
+        case WSAENOTCONN:
+        case WSAEISCONN: return;
+        default: throw Exception("Listener error");
+    }
+}
+#else
 void TcpListener::handleError() {
     if(errno == EAGAIN || errno == EINPROGRESS)
         return;
@@ -18,10 +33,11 @@ void TcpListener::handleError() {
         case ETIMEDOUT:
         case ENETRESET:
         case ENOTCONN:
-        case EPIPE:        return;
-        default:           throw Exception("Listener error");
+        case EPIPE: return;
+        default: throw Exception("Listener error");
     }
 }
+#endif
 
 void TcpListener::listen(unsigned short port) {
     sockaddr_in address{};
