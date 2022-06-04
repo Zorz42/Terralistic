@@ -59,6 +59,8 @@ class TcpSocket {
     bool receivePacket();
     
     bool disconnected = false;
+
+    void create(int handle, const std::string& address);
 public:    
     void send(Packet& packet);
     bool receive(Packet& packet);
@@ -72,13 +74,13 @@ public:
 };
 
 class TcpListener {
-    int listener_handle;
+    TcpSocket listener_socket;
     
-    void handleError();
+    static void handleError();
 public:
     void listen(unsigned short port);
-    bool accept(TcpSocket& socket);
-    void close();
+    bool accept(TcpSocket& socket) const;
+    void close() const;
 };
 
 void _socketDisableBlocking(int socket_handle);

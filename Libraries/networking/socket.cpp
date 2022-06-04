@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <netinet/tcp.h>
 #endif
 
 void _socketDisableBlocking(int socket_handle) {
@@ -16,11 +17,9 @@ void _socketDisableBlocking(int socket_handle) {
     if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0)
         throw Exception("Could not set socket to blocking");
 #else
-    int flags = fcntl(socket_handle, F_GETFL, 0);
-    if(flags == -1)
-        throw Exception("Could not set socket to blocking");
-    if(fcntl(socket_handle, F_SETFL, flags | O_NONBLOCK) != 0)
-        throw Exception("Could not set socket to blocking");
+    int status = fcntl(socket_handle, F_GETFL);
+    if (fcntl(socket_handle, F_SETFL, status | O_NONBLOCK) == -1)
+        throw Exception("Failed to set file status flags: " + std::to_string(errno));
 #endif
 }
 
@@ -67,7 +66,7 @@ void TcpSocket::send(Packet& packet) {
 bool TcpSocket::receive(void* obj, unsigned int size) {
     unsigned int received = 0;
     while(received < size) {
-        int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, 0);
+        int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, MSG_DONTWAIT);
         received += curr_received;
         
         if(curr_received == 0) {
@@ -115,11 +114,13 @@ bool TcpSocket::receivePacket() {
 bool TcpSocket::connect(const std::string& ip, unsigned short port) {
     sockaddr_in serv_addr;
     
-    socket_handle = socket(AF_INET, SOCK_STREAM, 0);
-    if(socket_handle < 0) {
+    int handle = socket(AF_INET, SOCK_STREAM, 0);
+    if(handle < 0) {
         handleError();
         return false;
     }
+
+    create(handle, ip);
  
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
@@ -158,6 +159,18 @@ void TcpSocket::flushPacketBuffer() {
         send(packet_buffer_out.data(), (unsigned int)packet_buffer_out.size());
         packet_buffer_out.clear();
     }
+}
+
+void TcpSocket::create(int handle, const std::string& address) {
+    socket_handle = handle;
+    ip_address = address;
+
+    int opt = 1;
+    if(setsockopt(socket_handle, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt, sizeof(opt)))
+        throw Exception("Setsockopt failed");
+
+    if(setsockopt(socket_handle, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)))
+        throw Exception("Setsockopt failed");
 }
 
 #ifdef WIN32

@@ -4,8 +4,7 @@
 #include <winsock.h>
 #else
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include <cstring>
 #endif
 
 void TcpListener::handleError() {
@@ -25,51 +24,53 @@ void TcpListener::handleError() {
 }
 
 void TcpListener::listen(unsigned short port) {
-    struct sockaddr_in address;
-    int opt = 1;
+    sockaddr_in address{};
     
-    listener_handle = socket(AF_INET, SOCK_STREAM, 0);
+    int listener_handle = socket(AF_INET, SOCK_STREAM, 0);
     if(listener_handle == 0)
         throw Exception("Socket failed");
+    listener_socket.create(listener_handle, "127.0.0.1");
 
-    if(setsockopt(listener_handle, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)))
-        throw Exception("Setsockopt failed");
-    
+    std::memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
+
+#ifdef __APPLE__
+    address.sin_len = sizeof(address);
+#endif
  
     if(bind(listener_handle, (struct sockaddr*)&address, sizeof(address)) < 0)
         throw Exception("Cannot bind to socket");
     
-    if(::listen(listener_handle, 3) < 0)
+    if(::listen(listener_handle, SOMAXCONN) < 0)
         throw Exception("Cannot listen to socket");
     
     _socketDisableBlocking(listener_handle);
 }
 
-bool TcpListener::accept(TcpSocket& socket) {
-    sockaddr_in address;
+bool TcpListener::accept(TcpSocket& socket) const {
+    sockaddr_in address{};
     int addrlen = sizeof(address);
 #ifdef WIN32
-    socket.socket_handle = ::accept(listener_handle, (struct sockaddr*)&address, (int*)&addrlen);
+    int socket_handle = ::accept(listener_socket.socket_handle, (struct sockaddr*)&address, (int*)&addrlen);
 #else
-    socket.socket_handle = ::accept(listener_handle, (struct sockaddr*)&address, (socklen_t *)&addrlen);
+    int socket_handle = ::accept(listener_socket.socket_handle, (struct sockaddr*)&address, (socklen_t *)&addrlen);
 #endif
-    if(socket.socket_handle < 0) {
+    if(socket_handle < 0) {
         handleError();
         return false;
     }
-    
-    socket.ip_address = inet_ntoa(address.sin_addr);
-    
+
+    socket.create(socket_handle, inet_ntoa(address.sin_addr));
+
     return true;
 }
 
-void TcpListener::close() {
+void TcpListener::close() const {
 #ifdef WIN32
-    closesocket(listener_handle);
+    closesocket(listener_socket.socket_handle);
 #else
-    shutdown(listener_handle, SHUT_RDWR);
+    shutdown(listener_socket.socket_handle, SHUT_RDWR);
 #endif
 }

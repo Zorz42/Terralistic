@@ -65,20 +65,6 @@ public:
 };
 
 int main(int argc, char **argv) {
-    TcpSocket s_socket, c_socket;
-    TcpListener listener;
-
-    listener.listen(12345);
-    c_socket.connect("127.0.0.1", 12345);
-    listener.accept(s_socket);
-
-
-
-    c_socket.disconnect();
-    s_socket.disconnect();
-    listener.close();
-
-
     srand((int)time(nullptr));
 
     if(argc == 2 && (std::string)argv[1] == "version") {
