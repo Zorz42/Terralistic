@@ -66,7 +66,11 @@ void TcpSocket::send(Packet& packet) {
 bool TcpSocket::receive(void* obj, unsigned int size) {
     unsigned int received = 0;
     while(received < size) {
+#ifdef WIN32
+        int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, 0);
+#else
         int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, MSG_DONTWAIT);
+#endif
         received += curr_received;
         
         if(curr_received == 0) {

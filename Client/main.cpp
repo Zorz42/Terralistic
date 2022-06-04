@@ -5,7 +5,6 @@
 #include "versions.hpp"
 #include "updater.hpp"
 #include "networking.hpp"
-#include "packetType.hpp"
 
 class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     ChoiceSetting* scale_setting;

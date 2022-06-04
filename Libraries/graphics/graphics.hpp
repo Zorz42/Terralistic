@@ -252,8 +252,8 @@ class Scene : public SceneModule {
     bool running = true, initialized = false;
 public:
     void initialize();
-    bool isInitialized();
-    bool isRunning();
+    bool isInitialized() const;
+    bool isRunning() const;
     void run();
     void registerAModule(SceneModule* module);
     void switchToScene(Scene& scene);

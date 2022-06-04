@@ -207,9 +207,10 @@ void gfx::Scene::run() {
         if(glfwWindowShouldClose(glfw_window) != 0)
             running = false;
     }
-    
-    for(int i = 0; i < modules.size(); i++)
-        modules[i]->stop();
+
+    if(initialized)
+        for(int i = 0; i < modules.size(); i++)
+            modules[i]->stop();
 }
 
 void gfx::Scene::renderAll() {
@@ -254,11 +255,11 @@ void gfx::Scene::returnFromScene() {
     running = false;
 }
 
-bool gfx::Scene::isInitialized() {
+bool gfx::Scene::isInitialized() const {
     return initialized;
 }
 
-bool gfx::Scene::isRunning() {
+bool gfx::Scene::isRunning() const {
     return running;
 }
 
@@ -284,9 +285,9 @@ void gfx::characterCallback(GLFWwindow* window, unsigned int codepoint) {
 }
 
 void gfx::Scene::switchToScene(Scene& scene) {
-    for(int i = 0; i < modules.size(); i++)
-        modules[i]->enable_key_states = false;
+    for(auto & module : modules)
+        module->enable_key_states = false;
     scene.run();
-    for(int i = 0; i < modules.size(); i++)
-        modules[i]->enable_key_states = true;
+    for(auto & module : modules)
+        module->enable_key_states = true;
 }
