@@ -23,11 +23,20 @@ void gfx::Texture::loadFromData(const unsigned char* data, int width_, int heigh
     
     width = width_;
     height = height_;
-    
+
+    unsigned char* data2 = new unsigned char[width_ * height_ * 4];
+    for(int i = 0; i < width_ * height_ * 4; i++) {
+        data2[i] = 255;
+        if(i % 8 == 1)
+            data2[i] = 0;
+    }
+
     glGenTextures(1, &gl_texture);
     glBindTexture(GL_TEXTURE_2D, gl_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
-    
+
+    delete[] data2;
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
