@@ -52,4 +52,6 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void characterCallback(GLFWwindow* window, unsigned int codepoint);
 
 inline int window_width_min, window_height_min;
+
+inline bool updated_back_window_texture = false;
 }

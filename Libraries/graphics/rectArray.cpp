@@ -89,7 +89,46 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         glGenBuffers(1, &color_buffer);
         glGenBuffers(1, &texture_pos_buffer);
     }
-    
+
+    if(blend_multiply && !updated_back_window_texture) {
+        updated_back_window_texture = true;
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, window_texture_back, 0);
+        glViewport(0, 0, window_width, window_height);
+        normalization_transform = window_normalization_transform;
+
+        Transformation texture_transform = window_normalization_transform;
+        texture_transform.stretch(window_width, window_height);
+        glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, window_texture);
+
+        glUniform1i(uniform_texture_sampler, 0);
+        glUniform1i(uniform_has_texture, 1);
+        glUniform1i(uniform_blend_multiply, 0);
+        glUniform1i(uniform_has_color_buffer, 0);
+        Transformation transform = normalization_transform;
+
+        transform.stretch(window_width, window_height);
+
+        glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
+        glUniform4f(uniform_default_color, 1, 1, 1, 1);
+
+        glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+
+        glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
+        glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
+        glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+
+        resetRenderTarget();
+    }
+
     glEnableVertexAttribArray(SHADER_COLOR_BUFFER);
     
     glUniform1i(uniform_texture_sampler, 0);
