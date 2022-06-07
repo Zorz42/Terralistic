@@ -1,5 +1,4 @@
 #include "graphics-internal.hpp"
-#include <fstream>
 #include <thread>
 #include <cmath>
 

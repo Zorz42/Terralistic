@@ -37,8 +37,8 @@ void gfx::RectShape::renderOutline(Color color) const {
     glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
     Transformation transform = normalization_transform;
-    transform.translate(x, y);
-    transform.stretch(w, h);
+    transform.translate(x, y - 1);
+    transform.stretch(w, h + 1);
     
     glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
     
