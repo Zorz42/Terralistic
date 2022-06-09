@@ -7,7 +7,7 @@
 
 void loadOpa(gfx::Texture& texture, const std::string& path) {
     std::ifstream opa_file(path, std::ios::binary);
-    if(!opa_file.is_open() || opa_file.eof() && opa_file.fail())
+    if(!opa_file.is_open() || (opa_file.eof() && opa_file.fail()))
         throw Exception("Could not open file: " + path);
 
     opa_file.seekg(0, std::ios_base::end);
