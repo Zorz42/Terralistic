@@ -1,18 +1,29 @@
 #pragma once
 
-#include "theme.hpp"
 #include <utility>
 #include <vector>
 #include <string>
 #include <stdexcept>
 #include <chrono>
 
-namespace gfx {
+#include "theme.hpp"
 
-class Color {
-public:
-    unsigned char r = 0, g = 0, b = 0, a = 255;
-};
+#include "color.hpp"
+#include "rectShape.hpp"
+#include "orientation.hpp"
+#include "centeredObject.hpp"
+#include "transformation.hpp"
+#include "timer.hpp"
+#include "texture.hpp"
+#include "rectArray.hpp"
+#include "rect.hpp"
+#include "textureAtlas.hpp"
+#include "sprite.hpp"
+#include "button.hpp"
+#include "textInput.hpp"
+#include "scene.hpp"
+
+namespace gfx {
 
 class RectShape {
 public:
