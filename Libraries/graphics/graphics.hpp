@@ -53,7 +53,7 @@ public:
 
 void sleep(float ms);
 
-class Transformation {
+class _Transformation {
     float matrix[3][3] = {
         {1.f, 0.f, 0.f},
         {0.f, 1.f, 0.f},
@@ -64,7 +64,7 @@ public:
     void translate(float x, float y);
     void stretch(float x, float y);
     const float* getArray() const;
-    Transformation operator*(const Transformation& a);
+    _Transformation operator*(const _Transformation& a);
 };
 
 class Timer {
@@ -80,7 +80,7 @@ protected:
     void freeTexture();
     unsigned int gl_texture = -1;
     int width = 0, height = 0;
-    Transformation texture_normalization_transform;
+    _Transformation texture_normalization_transform;
 public:
     void render(float scale, int x, int y, bool flipped=false, Color color={255, 255, 255}) const;
     void render(float scale, int x, int y, RectShape src_rect, bool flipped=false, Color color={255, 255, 255}) const;
@@ -92,7 +92,7 @@ public:
     void loadFromText(const std::string& text, Color color={255, 255, 255});
 
     void setRenderTarget();
-    const Transformation& getNormalizationTransform() const;
+    const _Transformation& getNormalizationTransform() const;
     unsigned int getGlTexture() const;
     
     ~Texture();

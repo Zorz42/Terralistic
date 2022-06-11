@@ -95,7 +95,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     gfx::window_height_reciprocal = 1.f / gfx::window_height;
     gfx::window_resized_counter++;
     
-    gfx::window_normalization_transform = gfx::Transformation();
+    gfx::window_normalization_transform = gfx::_Transformation();
     gfx::window_normalization_transform.stretch(gfx::window_width_reciprocal * 2, -gfx::window_height_reciprocal * 2);
     gfx::window_normalization_transform.translate(-float(gfx::window_width) / 2, -float(gfx::window_height) / 2);
     
@@ -256,7 +256,7 @@ void gfx::init(int window_width_, int window_height_) {
     shadow_texture->setRenderTarget();
     RectShape(200, 200, 300, 300).render({0, 0, 0});
     
-    Transformation shadow_transform = shadow_texture->getNormalizationTransform();
+    _Transformation shadow_transform = shadow_texture->getNormalizationTransform();
     shadow_transform.translate(-700, 0);
     shadow_transform.stretch(2, 2);
     for(int i = 0; i < 10; i++)
@@ -327,7 +327,7 @@ void gfx::updateWindow() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, window_width * global_scale_x, window_height * global_scale_y);
     
-    Transformation texture_transform = window_normalization_transform;
+    _Transformation texture_transform = window_normalization_transform;
     texture_transform.stretch(window_width * 0.5f, window_height * 0.5f);
     glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
     
@@ -338,7 +338,7 @@ void gfx::updateWindow() {
     glUniform1i(uniform_has_texture, 1);
     glUniform1i(uniform_has_color_buffer, 0);
     glUniform1i(uniform_blend_multiply, 0);
-    Transformation transform = normalization_transform;
+    _Transformation transform = normalization_transform;
     
     transform.stretch(window_width, window_height);
     
@@ -382,7 +382,7 @@ void blurRect(float offset_x, float offset_y, GLuint texture, GLuint back_textur
 
 #define BLUR_QUALITY 3
 
-void gfx::blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, Transformation texture_transform) {
+void gfx::blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, _Transformation texture_transform) {
     updated_back_window_texture = false;
     glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
@@ -394,12 +394,12 @@ void gfx::blurRectangle(RectShape rect, int radius, unsigned int texture, unsign
     glUniform1i(gfx::uniform_blur_texture_sampler, 0);
     glUniform1i(gfx::uniform_back_texture_sampler, 0);
     
-    Transformation transform = texture_transform;
+    _Transformation transform = texture_transform;
     transform.translate(rect.x, rect.y);
     transform.stretch(rect.w, rect.h);
     glUniformMatrix3fv(gfx::uniform_blur_transform_matrix, 1, GL_FALSE, transform.getArray());
     
-    transform = gfx::Transformation();
+    transform = gfx::_Transformation();
     transform.stretch(1 / width, -1 / height);
     transform.translate(rect.x, rect.y);
     transform.stretch(rect.w, rect.h);

@@ -96,7 +96,7 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         glViewport(0, 0, window_width, window_height);
         normalization_transform = window_normalization_transform;
 
-        Transformation texture_transform = window_normalization_transform;
+        _Transformation texture_transform = window_normalization_transform;
         texture_transform.stretch(window_width, window_height);
         glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
 
@@ -107,7 +107,7 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         glUniform1i(uniform_has_texture, 1);
         glUniform1i(uniform_blend_multiply, 0);
         glUniform1i(uniform_has_color_buffer, 0);
-        Transformation transform = normalization_transform;
+        _Transformation transform = normalization_transform;
 
         transform.stretch(window_width, window_height);
 
@@ -134,7 +134,7 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
     glUniform1i(uniform_texture_sampler, 0);
     glUniform1i(uniform_has_color_buffer, 1);
     
-    Transformation transform = normalization_transform;
+    _Transformation transform = normalization_transform;
     transform.translate(x, y);
     glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
     

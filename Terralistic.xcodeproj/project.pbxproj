@@ -1279,18 +1279,7 @@
 				366D96E62820568400DEC292 /* graphics.hpp */,
 				366D96EF2820568500DEC292 /* graphics-internal.hpp */,
 				366D9703282067FA00DEC292 /* graphics.cpp */,
-				366D9708282067FA00DEC292 /* button.cpp */,
-				366D9709282067FA00DEC292 /* centeredObject.cpp */,
-				366D96FE282067F900DEC292 /* rect.cpp */,
-				366D9705282067FA00DEC292 /* rectArray.cpp */,
-				366D96FF282067F900DEC292 /* rectShape.cpp */,
-				366D9700282067FA00DEC292 /* scene.cpp */,
-				366D96FD282067F900DEC292 /* sprite.cpp */,
-				366D9702282067FA00DEC292 /* textInput.cpp */,
-				366D9701282067FA00DEC292 /* texture.cpp */,
-				366D9704282067FA00DEC292 /* textureAtlas.cpp */,
-				366D9707282067FA00DEC292 /* timer.cpp */,
-				366D9706282067FA00DEC292 /* transformation.cpp */,
+				368F706D2854FBBA00C6FF6B /* classes */,
 			);
 			path = graphics;
 			sourceTree = "<group>";
@@ -1320,6 +1309,25 @@
 				3672B162277C885D001293B5 /* nameChooser.cpp */,
 			);
 			path = nameChooser;
+			sourceTree = "<group>";
+		};
+		368F706D2854FBBA00C6FF6B /* classes */ = {
+			isa = PBXGroup;
+			children = (
+				366D9706282067FA00DEC292 /* transformation.cpp */,
+				366D9707282067FA00DEC292 /* timer.cpp */,
+				366D9704282067FA00DEC292 /* textureAtlas.cpp */,
+				366D9701282067FA00DEC292 /* texture.cpp */,
+				366D9702282067FA00DEC292 /* textInput.cpp */,
+				366D96FD282067F900DEC292 /* sprite.cpp */,
+				366D9700282067FA00DEC292 /* scene.cpp */,
+				366D96FF282067F900DEC292 /* rectShape.cpp */,
+				366D9705282067FA00DEC292 /* rectArray.cpp */,
+				366D96FE282067F900DEC292 /* rect.cpp */,
+				366D9709282067FA00DEC292 /* centeredObject.cpp */,
+				366D9708282067FA00DEC292 /* button.cpp */,
+			);
+			path = classes;
 			sourceTree = "<group>";
 		};
 		3692C14C26E506A100F9DD71 /* entities */ = {

@@ -15,7 +15,7 @@ void gfx::RectShape::render(Color color) const {
     glUniform1i(uniform_has_texture, 0);
     glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
-    Transformation transform = normalization_transform;
+    _Transformation transform = normalization_transform;
     transform.translate(x, y);
     transform.stretch(w, h);
     
@@ -36,7 +36,7 @@ void gfx::RectShape::renderOutline(Color color) const {
     glUniform1i(uniform_has_texture, 0);
     glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
-    Transformation transform = normalization_transform;
+    _Transformation transform = normalization_transform;
 #ifdef __linux__
     transform.translate(x, y - 1);
     transform.stretch(w, h + 1);

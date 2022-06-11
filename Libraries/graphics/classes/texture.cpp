@@ -40,7 +40,7 @@ void gfx::Texture::loadFromData(const unsigned char* data, int width_, int heigh
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
-    texture_normalization_transform = gfx::Transformation();
+    texture_normalization_transform = gfx::_Transformation();
     texture_normalization_transform.translate(0.f, 1.f);
     texture_normalization_transform.stretch(1.f / width, -1.f / height);
 }
@@ -70,7 +70,7 @@ void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool fl
     if(scale <= 0)
         throw std::runtime_error("Texture scale must be positive.");
     
-    Transformation texture_transform = texture_normalization_transform;
+    _Transformation texture_transform = texture_normalization_transform;
     texture_transform.translate(src_rect.x, src_rect.y);
     texture_transform.stretch(src_rect.w, src_rect.h);
     glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
@@ -82,7 +82,7 @@ void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool fl
     glUniform1i(uniform_has_texture, 1);
     glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
-    Transformation transform = normalization_transform;
+    _Transformation transform = normalization_transform;
     
     if(flipped) {
         transform.translate(src_rect.w * scale + x * 2, 0);
@@ -149,6 +149,6 @@ void gfx::Texture::loadFromText(const std::string& text, Color color) {
     resetRenderTarget();
 }
 
-const gfx::Transformation& gfx::Texture::getNormalizationTransform() const {
+const gfx::_Transformation& gfx::Texture::getNormalizationTransform() const {
     return texture_normalization_transform;
 }

@@ -28,7 +28,7 @@ uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_mat
 uniform_back_texture_sampler, uniform_blend_multiply, uniform_blur_transform_matrix,
 uniform_blur_texture_transform_matrix, uniform_blur_texture_sampler,
 uniform_blur_offset, uniform_blur_limit;
-inline Transformation window_normalization_transform, normalization_transform;
+inline _Transformation window_normalization_transform, normalization_transform;
 inline unsigned int window_texture, window_texture_back, default_framebuffer;
 inline float global_scale = 0;
 
@@ -37,7 +37,7 @@ inline unsigned int rect_vertex_buffer, rect_outline_vertex_buffer;
 inline Scene* curr_scene = nullptr;
 inline int window_resized_counter = 0;
 
-void blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, Transformation texture_transform);
+void blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, _Transformation texture_transform);
 
 void updateWindow();
 
