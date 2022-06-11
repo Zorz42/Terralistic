@@ -108,8 +108,8 @@ int main(int argc, char **argv) {
     menu_back->init();
     
 #ifndef DEVELOPER_MODE
-    UpdateChecker update_checker(&menu_back, argv[0]);
-    update_checker.run();
+    //UpdateChecker update_checker(&menu_back, argv[0]);
+    //update_checker.run();
 #endif
     MainMenu* main_menu = new MainMenu(menu_back, &settings);
     main_menu->run();
