@@ -1,3 +1,4 @@
+#include "glfwAbstraction.hpp"
 #include "graphics-internal.hpp"
 
 gfx::RectArray::~RectArray() {

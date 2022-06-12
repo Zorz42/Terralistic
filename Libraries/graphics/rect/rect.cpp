@@ -1,4 +1,5 @@
 #include <cmath>
+#include "glfwAbstraction.hpp"
 #include "graphics-internal.hpp"
 
 int approach(int object, int target, int smooth_factor) {

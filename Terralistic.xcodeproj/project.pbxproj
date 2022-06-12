@@ -156,6 +156,8 @@
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368779712837EBCF00AA5943 /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779722837EC4C00AA5943 /* glad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36BFB23E282EE702008A462A /* glad.cpp */; };
+		368C34AE2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */; };
+		368C34AF2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */; };
 		3692C14F26E509F100F9DD71 /* entities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entities.cpp */; };
 		369311272843463300C4DF00 /* packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311262843463300C4DF00 /* packet.cpp */; };
 		369311282843463300C4DF00 /* packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311262843463300C4DF00 /* packet.cpp */; };
@@ -416,6 +418,8 @@
 		3672B162277C885D001293B5 /* nameChooser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nameChooser.cpp; sourceTree = "<group>"; };
 		3672B163277C885D001293B5 /* nameChooser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = nameChooser.hpp; sourceTree = "<group>"; };
 		3677B5A827283E20000F4D77 /* perlinNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
+		368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glfwAbstraction.cpp; sourceTree = "<group>"; };
+		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
 		368F70802854FDCD00C6FF6B /* rectShape.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = rectShape.hpp; sourceTree = "<group>"; };
 		368F70812854FDCE00C6FF6B /* orientation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = orientation.hpp; sourceTree = "<group>"; };
@@ -1294,10 +1298,11 @@
 				366D96EF2820568500DEC292 /* graphics-internal.hpp */,
 				366D9703282067FA00DEC292 /* graphics.cpp */,
 				368F706E2854FC8500C6FF6B /* color */,
+				368F70762854FD0000C6FF6B /* transformation */,
+				368C34AB2855DB6700DA7569 /* glfwAbstraction */,
 				368F70732854FCEB00C6FF6B /* rectShape */,
 				368F70742854FCF200C6FF6B /* orientation */,
 				368F70752854FCF900C6FF6B /* centeredObject */,
-				368F70762854FD0000C6FF6B /* transformation */,
 				368F70772854FD0900C6FF6B /* timer */,
 				368F70782854FD0F00C6FF6B /* texture */,
 				368F70792854FD1400C6FF6B /* rectArray */,
@@ -1336,6 +1341,15 @@
 				3672B162277C885D001293B5 /* nameChooser.cpp */,
 			);
 			path = nameChooser;
+			sourceTree = "<group>";
+		};
+		368C34AB2855DB6700DA7569 /* glfwAbstraction */ = {
+			isa = PBXGroup;
+			children = (
+				368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */,
+				368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */,
+			);
+			path = glfwAbstraction;
 			sourceTree = "<group>";
 		};
 		368F706E2854FC8500C6FF6B /* color */ = {
@@ -1736,6 +1750,7 @@
 				3672B160277C8431001293B5 /* serverAdder.cpp in Sources */,
 				366D970A282067FA00DEC292 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
+				368C34AE2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */,
 				366399D427775F10007C944E /* clientWalls.cpp in Sources */,
 				3693112D2843466000C4DF00 /* listener.cpp in Sources */,
 				3692C14F26E509F100F9DD71 /* entities.cpp in Sources */,
@@ -1836,6 +1851,7 @@
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
 				167422602702F48B00D6D8F2 /* liquids.cpp in Sources */,
 				361DD1C226F7478900129191 /* configManager.cpp in Sources */,
+				368C34AF2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */,
 				366D9715282067FA00DEC292 /* textInput.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

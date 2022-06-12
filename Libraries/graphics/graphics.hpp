@@ -8,7 +8,9 @@
 
 #include "theme.hpp"
 
+#define GRAPHICS_PUBLIC
 #include "color.hpp"
+#include "glfwAbstraction.hpp"
 #include "rectShape.hpp"
 #include "orientation.hpp"
 #include "centeredObject.hpp"
@@ -25,30 +27,6 @@
 
 namespace gfx {
 
-class RectShape {
-public:
-    RectShape(int x, int y, int w, int h);
-    RectShape() = default;
-    int x = 0, y = 0, w = 0, h = 0;
-    void render(Color color) const;
-    void renderOutline(Color color) const;
-};
-
-class Orientation {
-public:
-    float x, y;
-};
-
-inline const Orientation TOP_LEFT =     {0 , 0 };
-inline const Orientation TOP =          {.5, 0 };
-inline const Orientation TOP_RIGHT =    {1 , 0 };
-inline const Orientation LEFT =         {0 , .5};
-inline const Orientation CENTER =       {.5, .5};
-inline const Orientation RIGHT =        {1 , .5};
-inline const Orientation BOTTOM_LEFT =  {0 , 1 };
-inline const Orientation BOTTOM =       {.5, 1 };
-inline const Orientation BOTTOM_RIGHT = {1 , 1 };
-
 class _CenteredObject {
 public:
     explicit _CenteredObject(int x = 0, int y = 0, Orientation orientation = TOP_LEFT);
@@ -63,20 +41,6 @@ public:
 };
 
 void sleep(float ms);
-
-class _Transformation {
-    float matrix[3][3] = {
-        {1.f, 0.f, 0.f},
-        {0.f, 1.f, 0.f},
-        {0.f, 0.f, 1.f},
-    };
-    void applyMatrix(float applied_matrix[3][3]);
-public:
-    void translate(float x, float y);
-    void stretch(float x, float y);
-    const float* getArray() const;
-    _Transformation operator*(const _Transformation& a);
-};
 
 class Timer {
     std::chrono::time_point<std::chrono::steady_clock> start_time;
@@ -290,14 +254,7 @@ void quit();
 
 void loadFont(const unsigned char* data);
 
-void setMinimumWindowSize(int width, int height);
-int getWindowWidth();
-int getWindowHeight();
-
 void resetRenderTarget();
-
-void setGlobalScale(float scale);
-void enableVsync(bool enabled);
 
 inline bool blur_enabled = true;
 inline int fps_limit = 0;

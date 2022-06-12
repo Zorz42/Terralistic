@@ -1,4 +1,5 @@
 #include <cstring>
+#include "glfwAbstraction.hpp"
 #include "graphics-internal.hpp"
 
 #include <iostream>

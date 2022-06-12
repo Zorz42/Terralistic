@@ -1,4 +1,7 @@
-#include "graphics-internal.hpp"
+#include "rectShape.hpp"
+#include "glfwAbstraction.hpp"
+#include "transformation.hpp"
+#include <stdexcept>
 
 gfx::RectShape::RectShape(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {
     if(w < 0 || h < 0)
