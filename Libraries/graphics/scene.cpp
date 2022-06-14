@@ -194,8 +194,13 @@ void gfx::Scene::onEvent(sf::Event event) {
                         if (!i->ignore_next_input) {
                             if (i->textProcessing)
                                 result = i->textProcessing(result, (int)i->getText().size());
-                            if (result)
-                                i->setText(i->getText() + result);
+                            if (result) {
+                                std::string new_text = i->getText();
+                                new_text.erase(i->getCursorBegin(), i->getCursorEnd() - i->getCursorBegin());
+                                new_text.insert(new_text.begin() + i->getCursorBegin(), result);
+                                i->setCursor(i->getCursorBegin() + 1, i->getCursorBegin() + 1);
+                                i->setText(new_text);
+                            }
                         }
                         i->ignore_next_input = false;
                     }
