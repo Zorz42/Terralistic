@@ -168,9 +168,10 @@ namespace gfx {
         void render(int mouse_x, int mouse_y);
     };
 
-    enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, CTRL, ARROW_UP, ARROW_DOWN, UNKNOWN};
+    enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, CTRL, ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, UNKNOWN};
 
     class TextInput : public Button {
+        bool cursor_end_active = false;
         int cursor[2] = {0, 0};
         std::string text;
         Rect back_rect;
@@ -183,6 +184,7 @@ namespace gfx {
         int getWidth() const override;
         void setText(const std::string& text);
         void setCursor(int begin, int end){cursor[0] = begin; cursor[1] = end;}
+        void setCursor(int pos){cursor[0] = pos; cursor[1] = pos;}
         int getCursorBegin(){return cursor[0];}
         int getCursorEnd(){return cursor[1];}
         std::vector<Key> getPassthroughKeys() const {return passthrough_keys;}

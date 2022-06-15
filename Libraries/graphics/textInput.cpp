@@ -43,11 +43,27 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
         x = 0;
         w = rect.w / scale;
     }
-    
+    if (active) {
+        sf::Text sf_text;
+        sf_text.setFont(font);
+        sf_text.setString("|g");
+        sf_text.setCharacterSize(font_size);
+        int width_to_cut = sf_text.getLocalBounds().width;
+        sf_text.setString(std::string("|g") + text.substr(0, cursor[0]));
+        int width_before = sf_text.getLocalBounds().width - width_to_cut;
+        sf_text.setString(std::string("|g") + text.substr(cursor[0], cursor[1] - cursor[0]));
+        int width_of_selection = sf_text.getLocalBounds().width - width_to_cut;
+
+        if(!width_before)
+            width_before = 1;
+        if(!width_of_selection)
+            width_of_selection = 1;
+        Color box_color = width_of_selection == 1 ? Color{255, 255, 255} : Color{230, 230, 230, 150};
+
+        RectShape(rect.x + width_before * scale, rect.y, scale * width_of_selection, rect.h).render(box_color);
+    }
+
     Texture::render(scale, rect.x, rect.y, {x, 0, w, int(rect.h / scale)});
-    if (active)
-        RectShape(rect.x + (rect.w > width * scale ? width * scale : rect.w ), rect.y, scale, rect.h).render(text_color);
-        
 }
 
 void gfx::TextInput::setBorderColor(Color color) {

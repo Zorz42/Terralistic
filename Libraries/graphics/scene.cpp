@@ -112,6 +112,8 @@ gfx::Key translateKeyboardKey(sf::Keyboard::Key sfml_button) {
         case sf::Keyboard::Key::LControl: case sf::Keyboard::Key::RControl: return gfx::Key::CTRL;
         case sf::Keyboard::Key::Up: return gfx::Key::ARROW_UP;
         case sf::Keyboard::Key::Down: return gfx::Key::ARROW_DOWN;
+        case sf::Keyboard::Key::Right: return gfx::Key::ARROW_RIGHT;
+        case sf::Keyboard::Key::Left: return gfx::Key::ARROW_LEFT;
         default: return gfx::Key::UNKNOWN;
     }
 }
@@ -149,10 +151,48 @@ void gfx::Scene::onEvent(sf::Event event) {
                 for (TextInput* i : module->text_inputs)
                     if (i->active && !i->getText().empty()) {
                         std::string str = i->getText();
-                        str.pop_back();
+                        if(i->getCursorBegin() != i->getCursorEnd()) {
+                            str.erase(i->getCursorBegin(), i->getCursorEnd() - i->getCursorBegin());
+                            i->setCursor(i->getCursorBegin());
+                        }else{
+                            str.pop_back();
+                            i->setCursor(i->getCursorBegin() - 1);
+                        }
                         i->setText(str);
                     }
         }
+
+        if(key == Key::A && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)){
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active)
+                            text_input->setCursor(0, text_input->getText().size());
+        }
+
+        if(key == Key::ARROW_LEFT){
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active)
+                            if(text_input->getCursorBegin() == text_input->getCursorEnd())
+                                text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1));
+                            else
+                                text_input->setCursor(text_input->getCursorBegin());
+        }
+
+        if(key == Key::ARROW_RIGHT){
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active)
+                            if(text_input->getCursorBegin() == text_input->getCursorEnd())
+                                text_input->setCursor(std::min((int)text_input->getText().size(), text_input->getCursorBegin() + 1));
+                            else
+                                text_input->setCursor(text_input->getCursorEnd());
+        }
+
+
         bool is_textbox_active = false;
         for(auto & module : modules)
             if(module->enabled)
