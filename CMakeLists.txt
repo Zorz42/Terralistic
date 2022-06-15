@@ -81,7 +81,7 @@ if(WIN32)
     endif()
 
     SET(ZLIB_LIB zlib)
-    SET(ZLIB_DLL ${ZLIB_DIR}bin/zlibd.dll)
+    SET(ZLIB_DLL ${ZLIB_DIR}bin/zlib1.dll)
 
     target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/)
     target_link_libraries(Terralistic Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB})
