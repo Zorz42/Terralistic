@@ -155,8 +155,10 @@ void gfx::Scene::onEvent(sf::Event event) {
                             str.erase(i->getCursorBegin(), i->getCursorEnd() - i->getCursorBegin());
                             i->setCursor(i->getCursorBegin());
                         }else{
-                            str.pop_back();
-                            i->setCursor(i->getCursorBegin() - 1);
+                            if(i->getCursorBegin() != 0) {
+                                str.erase(i->getCursorBegin() - 1, 1);
+                                i->setCursor(i->getCursorBegin() - 1);
+                            }
                         }
                         i->setText(str);
                     }
@@ -175,10 +177,23 @@ void gfx::Scene::onEvent(sf::Event event) {
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
                         if(text_input->active)
-                            if(text_input->getCursorBegin() == text_input->getCursorEnd())
-                                text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1));
-                            else
-                                text_input->setCursor(text_input->getCursorBegin());
+                            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift)){
+                                if(text_input->getCursorBegin() == text_input->getCursorEnd()){
+                                    text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1), text_input->getCursorBegin());
+                                    text_input->setCursorEndActive(false);
+                                }
+                                else{
+                                    if(text_input->getCursorEndActive())
+                                        text_input->setCursor(text_input->getCursorBegin(), text_input->getCursorEnd() - 1);
+                                    else
+                                        text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1), text_input->getCursorEnd());
+                                }
+                            }else {
+                                if(text_input->getCursorBegin() == text_input->getCursorEnd())
+                                    text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1));
+                                else
+                                    text_input->setCursor(text_input->getCursorBegin());
+                            }
         }
 
         if(key == Key::ARROW_RIGHT){
@@ -186,10 +201,23 @@ void gfx::Scene::onEvent(sf::Event event) {
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
                         if(text_input->active)
-                            if(text_input->getCursorBegin() == text_input->getCursorEnd())
-                                text_input->setCursor(std::min((int)text_input->getText().size(), text_input->getCursorBegin() + 1));
-                            else
-                                text_input->setCursor(text_input->getCursorEnd());
+                            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift)){
+                                if(text_input->getCursorBegin() == text_input->getCursorEnd()){
+                                    text_input->setCursor(text_input->getCursorBegin(), std::min((int) text_input->getText().size(), text_input->getCursorBegin() + 1));
+                                    text_input->setCursorEndActive(true);
+                                }
+                                else{
+                                    if(text_input->getCursorEndActive())
+                                        text_input->setCursor(text_input->getCursorBegin(), std::min((int) text_input->getText().size(), text_input->getCursorEnd() + 1));
+                                    else
+                                        text_input->setCursor(text_input->getCursorBegin() + 1, text_input->getCursorEnd());
+                                }
+                            }else {
+                                if (text_input->getCursorBegin() == text_input->getCursorEnd())
+                                    text_input->setCursor(std::min((int) text_input->getText().size(), text_input->getCursorBegin() + 1));
+                                else
+                                    text_input->setCursor(text_input->getCursorEnd());
+                            }
         }
 
 

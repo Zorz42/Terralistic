@@ -185,6 +185,8 @@ namespace gfx {
         void setText(const std::string& text);
         void setCursor(int begin, int end){cursor[0] = begin; cursor[1] = end;}
         void setCursor(int pos){cursor[0] = pos; cursor[1] = pos;}
+        void setCursorEndActive(bool active){cursor_end_active = active;}
+        bool getCursorEndActive(){return cursor_end_active;}
         int getCursorBegin(){return cursor[0];}
         int getCursorEnd(){return cursor[1];}
         std::vector<Key> getPassthroughKeys() const {return passthrough_keys;}
