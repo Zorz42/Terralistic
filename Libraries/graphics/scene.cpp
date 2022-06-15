@@ -152,15 +152,14 @@ void gfx::Scene::onEvent(sf::Event event) {
                     if (i->active && !i->getText().empty()) {
                         std::string str = i->getText();
                         if(i->getCursorBegin() != i->getCursorEnd()) {
-                            str.erase(i->getCursorBegin(), i->getCursorEnd() - i->getCursorBegin());
-                            i->setCursor(i->getCursorBegin());
+                            i->eraseSelected();
                         }else{
                             if(i->getCursorBegin() != 0) {
                                 str.erase(i->getCursorBegin() - 1, 1);
                                 i->setCursor(i->getCursorBegin() - 1);
+                                i->setText(str);
                             }
                         }
-                        i->setText(str);
                     }
         }
 
@@ -170,6 +169,37 @@ void gfx::Scene::onEvent(sf::Event event) {
                     for(auto & text_input : module->text_inputs)
                         if(text_input->active)
                             text_input->setCursor(0, text_input->getText().size());
+        }
+
+        if(key == Key::C && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)){
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active)
+                            text_input->clipboard.setString(text_input->getText().substr(text_input->getCursorBegin(), text_input->getCursorEnd() - text_input->getCursorBegin()));
+        }
+
+        if(key == Key::X && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)){
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active) {
+                            text_input->clipboard.setString(text_input->getText().substr(text_input->getCursorBegin(), text_input->getCursorEnd() - text_input->getCursorBegin()));
+                            text_input->eraseSelected();
+                        }
+        }
+
+        if(key == Key::V && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)){
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active) {
+                            text_input->eraseSelected();
+                            std::string temp_str = text_input->getText();
+                            temp_str.insert(text_input->getCursorBegin(), text_input->clipboard.getString());
+                            text_input->setText(temp_str);
+                            text_input->setCursor(text_input->getCursorBegin() + text_input->clipboard.getString().getSize());
+                        }
         }
 
         if(key == Key::ARROW_LEFT){
@@ -263,8 +293,8 @@ void gfx::Scene::onEvent(sf::Event event) {
                             if (i->textProcessing)
                                 result = i->textProcessing(result, (int)i->getText().size());
                             if (result) {
+                                i->eraseSelected();
                                 std::string new_text = i->getText();
-                                new_text.erase(i->getCursorBegin(), i->getCursorEnd() - i->getCursorBegin());
                                 new_text.insert(new_text.begin() + i->getCursorBegin(), result);
                                 i->setCursor(i->getCursorBegin() + 1, i->getCursorBegin() + 1);
                                 i->setText(new_text);

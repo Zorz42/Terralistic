@@ -182,6 +182,7 @@ namespace gfx {
 
         std::string getText() const { return text; }
         int getWidth() const override;
+        void eraseSelected();
         void setText(const std::string& text);
         void setCursor(int begin, int end){cursor[0] = begin; cursor[1] = end;}
         void setCursor(int pos){cursor[0] = pos; cursor[1] = pos;}
@@ -192,7 +193,7 @@ namespace gfx {
         std::vector<Key> getPassthroughKeys() const {return passthrough_keys;}
         void setPassthroughKeys(std::vector<Key> new_keys) {passthrough_keys = new_keys;};
 
-
+        sf::Clipboard clipboard;
         bool active = false, ignore_next_input = false;
         char (*textProcessing)(char c, int length) = nullptr;
         int width = GFX_DEFAULT_TEXT_INPUT_WIDTH;

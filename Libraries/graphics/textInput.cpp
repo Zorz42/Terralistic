@@ -6,6 +6,12 @@ void gfx::TextInput::setText(const std::string& text_) {
     loadFromText(text, text_color);
 }
 
+void gfx::TextInput::eraseSelected() {
+    text.erase(cursor[0], cursor[1] - cursor[0]);
+    cursor[1] = cursor[0];
+    loadFromText(text, text_color);
+}
+
 int gfx::TextInput::getWidth() const {
     return (width + 2 * margin) * scale;
 }
