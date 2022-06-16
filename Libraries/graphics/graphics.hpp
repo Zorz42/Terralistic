@@ -183,6 +183,8 @@ namespace gfx {
         std::string getText() const { return text; }
         int getWidth() const override;
         void eraseSelected();
+        int findLeftMove(int curr_pos);
+        int findRightMove(int curr_pos);
         void setText(const std::string& text);
         void setCursor(int begin, int end){cursor[0] = begin; cursor[1] = end;}
         void setCursor(int pos){cursor[0] = pos; cursor[1] = pos;}

@@ -12,6 +12,22 @@ void gfx::TextInput::eraseSelected() {
     loadFromText(text, text_color);
 }
 
+int gfx::TextInput::findLeftMove(int curr_pos) {
+    int new_pos = std::max(0, curr_pos - 1);
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+        while(new_pos != 0 && cursor[0] != new_pos && text[new_pos - 1] != ' ' && text[new_pos - 1] != '-')
+            new_pos--;
+    return new_pos;
+}
+
+int gfx::TextInput::findRightMove(int curr_pos) {
+    int new_pos = std::min((int)text.size(), curr_pos + 1);
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+        while(new_pos != text.size() && new_pos != cursor[1] && text[new_pos] != ' ' && text[new_pos] != '-')
+            new_pos++;
+    return new_pos;
+}
+
 int gfx::TextInput::getWidth() const {
     return (width + 2 * margin) * scale;
 }

@@ -209,18 +209,18 @@ void gfx::Scene::onEvent(sf::Event event) {
                         if(text_input->active)
                             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift)){
                                 if(text_input->getCursorBegin() == text_input->getCursorEnd()){
-                                    text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1), text_input->getCursorBegin());
+                                    text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()), text_input->getCursorEnd());
                                     text_input->setCursorEndActive(false);
                                 }
                                 else{
                                     if(text_input->getCursorEndActive())
-                                        text_input->setCursor(text_input->getCursorBegin(), text_input->getCursorEnd() - 1);
+                                        text_input->setCursor(text_input->getCursorBegin(), text_input->findLeftMove(text_input->getCursorEnd()));
                                     else
-                                        text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1), text_input->getCursorEnd());
+                                        text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()), text_input->getCursorEnd());
                                 }
                             }else {
                                 if(text_input->getCursorBegin() == text_input->getCursorEnd())
-                                    text_input->setCursor(std::max(0, text_input->getCursorBegin() - 1));
+                                    text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()));
                                 else
                                     text_input->setCursor(text_input->getCursorBegin());
                             }
@@ -233,18 +233,18 @@ void gfx::Scene::onEvent(sf::Event event) {
                         if(text_input->active)
                             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift)){
                                 if(text_input->getCursorBegin() == text_input->getCursorEnd()){
-                                    text_input->setCursor(text_input->getCursorBegin(), std::min((int) text_input->getText().size(), text_input->getCursorBegin() + 1));
+                                    text_input->setCursor(text_input->getCursorBegin(), text_input->findRightMove(text_input->getCursorBegin()));
                                     text_input->setCursorEndActive(true);
                                 }
                                 else{
                                     if(text_input->getCursorEndActive())
-                                        text_input->setCursor(text_input->getCursorBegin(), std::min((int) text_input->getText().size(), text_input->getCursorEnd() + 1));
+                                        text_input->setCursor(text_input->getCursorBegin(), text_input->findRightMove(text_input->getCursorEnd()));
                                     else
-                                        text_input->setCursor(text_input->getCursorBegin() + 1, text_input->getCursorEnd());
+                                        text_input->setCursor(text_input->findRightMove(text_input->getCursorBegin()), text_input->getCursorEnd());
                                 }
                             }else {
                                 if (text_input->getCursorBegin() == text_input->getCursorEnd())
-                                    text_input->setCursor(std::min((int) text_input->getText().size(), text_input->getCursorBegin() + 1));
+                                    text_input->setCursor(text_input->findRightMove(text_input->getCursorBegin()));
                                 else
                                     text_input->setCursor(text_input->getCursorEnd());
                             }
