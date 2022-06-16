@@ -196,9 +196,15 @@ void gfx::Scene::onEvent(sf::Event event) {
                         if(text_input->active) {
                             text_input->eraseSelected();
                             std::string temp_str = text_input->getText();
-                            temp_str.insert(text_input->getCursorBegin(), text_input->clipboard.getString());
+                            std::string clipboard_str = text_input->clipboard.getString();
+                            for(auto letter : clipboard_str){
+                                char result = text_input->textProcessing(letter, (int)text_input->getText().size());
+                                if(result != '\0'){
+                                    temp_str.insert(text_input->getCursorBegin(), 1, result);
+                                    text_input->setCursor(text_input->getCursorBegin() + 1);
+                                }
+                            }
                             text_input->setText(temp_str);
-                            text_input->setCursor(text_input->getCursorBegin() + text_input->clipboard.getString().getSize());
                         }
         }
 
