@@ -1,6 +1,5 @@
 #include <stdexcept>
 #include "glfwAbstraction.hpp"
-#include "graphics-internal.hpp"
 
 const char* vertex_shader_code =
 "#version 330 core\n"
@@ -83,13 +82,13 @@ void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y
     int window_width, window_height;
     glfwGetWindowSize(gfx::glfw_window, &window_width, &window_height);
     
-    gfx::Scene* temp_scene = gfx::curr_scene;
-    gfx::curr_scene = nullptr;
+    //gfx::Scene* temp_scene = gfx::curr_scene;
+    //gfx::curr_scene = nullptr;
     framebufferSizeCallback(gfx::glfw_window, window_width * gfx::system_scale_x, window_height * gfx::system_scale_y);
 #ifndef __APPLE__
     gfx::setMinimumWindowSize(gfx::window_width_min, gfx::window_height_min);
 #endif
-    gfx::curr_scene = temp_scene;
+    //gfx::curr_scene = temp_scene;
 }
 
 void gfx::initGlfw(int window_width_, int window_height_) {
