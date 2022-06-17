@@ -2,7 +2,7 @@
 #include "glfwAbstraction.hpp"
 #include "graphics-internal.hpp"
 
-const char* vertex_shader_code =
+static const char* vertex_shader_code =
 "#version 330 core\n"
 "layout(location = 0) in vec2 vertex_position;"
 "layout(location = 1) in vec4 vertex_color;"
@@ -21,7 +21,7 @@ const char* vertex_shader_code =
 "   back_uv = (texture_transform_matrix * vec3(vertex_position, 1)).xy;"
 "}";
 
-const char* fragment_shader_code =
+static const char* fragment_shader_code =
 "#version 330 core\n"
 "in vec4 fragment_color;"
 "in vec2 uv;"
@@ -36,7 +36,7 @@ const char* fragment_shader_code =
 "   color = mix(color, vec4(texture(back_texture_sampler, back_uv).rgb * color.rgb, 1), blend_multiply);"
 "}";
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     gfx::window_width = width / gfx::global_scale_x;
     gfx::window_height = height / gfx::global_scale_y;
     gfx::window_width_reciprocal = 1.f / gfx::window_width;
@@ -63,7 +63,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     //    gfx::curr_scene->renderAll(); // TODO: implement
 }
 
-void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
+static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
 #ifndef __APPLE__
     scale_x = 1;
     scale_y = 1;
@@ -92,6 +92,16 @@ void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y
     gfx::curr_scene = temp_scene;
 }
 
+void gfx::setMinimumWindowSize(int width, int height) {
+    window_width_min = width;
+    window_height_min = height;
+    float scale = 1;
+#ifndef __APPLE__
+    scale = gfx::global_scale;
+#endif
+    glfwSetWindowSizeLimits(glfw_window, width * scale, height * scale, -1, -1);
+}
+
 void gfx::initGlfw(int window_width_, int window_height_) {
     window_width = window_width_;
     window_height = window_height_;
@@ -105,9 +115,13 @@ void gfx::initGlfw(int window_width_, int window_height_) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfw_window = glfwCreateWindow(window_width, window_height, "Test Window", nullptr, nullptr);
+    glfw_window = glfwCreateWindow(window_width, window_height, "Terralistic", nullptr, nullptr);
     glfwSetFramebufferSizeCallback(glfw_window, framebufferSizeCallback);
     glfwSetWindowContentScaleCallback(glfw_window, windowContentScaleCallback);
+    glfwSetKeyCallback(glfw_window, gfx::keyCallback);
+    glfwSetScrollCallback(glfw_window, gfx::scrollCallback);
+    glfwSetCharCallback(glfw_window, gfx::characterCallback);
+    glfwSetMouseButtonCallback(glfw_window, gfx::mouseButtonCallback);
 
     float scale_x, scale_y;
     glfwGetWindowContentScale(glfw_window, &scale_x, &scale_y);
@@ -119,6 +133,9 @@ void gfx::initGlfw(int window_width_, int window_height_) {
     
     if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
         throw std::runtime_error("Failed to initialize OpenGL context");
+    
+    glGenVertexArrays(1, &vertex_array_id);
+    glBindVertexArray(vertex_array_id);
 
     glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
 
@@ -131,7 +148,7 @@ void gfx::initGlfw(int window_width_, int window_height_) {
     uniform_texture_transform_matrix = glGetUniformLocation(shader_program, "texture_transform_matrix");
     uniform_back_texture_sampler = glGetUniformLocation(shader_program, "back_texture_sampler");
     uniform_blend_multiply = glGetUniformLocation(shader_program, "blend_multiply");
-    
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
@@ -170,6 +187,8 @@ void gfx::initGlfw(int window_width_, int window_height_) {
     
     GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, DrawBuffers);
+    
+    glEnableVertexAttribArray(SHADER_VERTEX_BUFFER);
 }
 
 void gfx::setGlobalScale(float scale) {
@@ -200,4 +219,58 @@ unsigned int gfx::CompileShaders(const char* vertex_code, const char* fragment_c
     glDeleteShader(fragment_id);
 
     return program_id;
+}
+
+void gfx::enableVsync(bool enabled) {
+    if(enabled)
+        glfwSwapInterval(1);
+    else
+        glfwSwapInterval(0);
+}
+
+int gfx::getWindowWidth() {
+    return window_width;
+}
+
+int gfx::getWindowHeight() {
+    return window_height;
+}
+
+void gfx::updateWindow() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, window_width * global_scale_x, window_height * global_scale_y);
+    
+    _Transformation texture_transform = window_normalization_transform;
+    texture_transform.stretch(window_width * 0.5f, window_height * 0.5f);
+    glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, window_texture);
+    
+    glUniform1i(uniform_texture_sampler, 0);
+    glUniform1i(uniform_has_texture, 1);
+    glUniform1i(uniform_has_color_buffer, 0);
+    glUniform1i(uniform_blend_multiply, 0);
+    _Transformation transform = normalization_transform;
+    
+    transform.stretch(window_width, window_height);
+    
+    glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
+    glUniform4f(uniform_default_color, 1.f, 1.f, 1.f, 1.f);
+
+    glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
+    glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
+    glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+    
+    glfwSwapBuffers(glfw_window);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
 }

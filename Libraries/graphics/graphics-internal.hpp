@@ -13,6 +13,7 @@ namespace gfx {
 
 inline std::vector<GlobalUpdateFunction*> global_update_functions;
 inline float frame_length;
+inline unsigned int vertex_array_id;
 
 inline bool key_states[(int)gfx::Key::UNKNOWN];
 

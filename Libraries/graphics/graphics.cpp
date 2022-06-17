@@ -3,7 +3,7 @@
 #include <thread>
 #include <cmath>
 
-const char* blur_vertex_shader_code =
+static const char* blur_vertex_shader_code =
 "#version 330 core\n"
 "layout(location = 0) in vec2 vertex_position;"
 "out vec2 uv;"
@@ -14,7 +14,7 @@ const char* blur_vertex_shader_code =
 "   uv = (texture_transform_matrix * vec3(vertex_position.xy, 1)).xy;"
 "}";
 
-const char* blur_fragment_shader_code =
+static const char* blur_fragment_shader_code =
 "#version 330 core\n"
 "in vec2 uv;"
 "layout(location = 0) out vec4 color;"
@@ -30,24 +30,9 @@ const char* blur_fragment_shader_code =
 "       color += texture(texture_sampler, max(min(uv + (i - 10.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];"
 "}";
 
-void gfx::setMinimumWindowSize(int width, int height) {
-    window_width_min = width;
-    window_height_min = height;
-    float scale = 1;
-#ifndef __APPLE__
-    scale = gfx::global_scale;
-#endif
-    glfwSetWindowSizeLimits(glfw_window, width * scale, height * scale, -1, -1);
-}
-
 void gfx::init(int window_width_, int window_height_) {
     initGlfw(window_width_, window_height_);
     
-    glfwSetKeyCallback(glfw_window, gfx::keyCallback);
-    glfwSetScrollCallback(glfw_window, gfx::scrollCallback);
-    glfwSetCharCallback(glfw_window, gfx::characterCallback);
-    glfwSetMouseButtonCallback(glfw_window, gfx::mouseButtonCallback);
-
     blur_shader_program = CompileShaders(blur_vertex_shader_code, blur_fragment_shader_code);
     uniform_blur_transform_matrix = glGetUniformLocation(blur_shader_program, "transform_matrix");
     uniform_blur_texture_transform_matrix = glGetUniformLocation(blur_shader_program, "texture_transform_matrix");
@@ -55,8 +40,6 @@ void gfx::init(int window_width_, int window_height_) {
     uniform_blur_offset = glGetUniformLocation(blur_shader_program, "blur_offset");
     uniform_blur_limit = glGetUniformLocation(blur_shader_program, "limit");
     
-    glEnableVertexAttribArray(SHADER_VERTEX_BUFFER);
-
     shadow_texture = new Texture;
     shadow_texture->createBlankImage(700, 700);
     Texture shadow_texture_back;
@@ -69,13 +52,6 @@ void gfx::init(int window_width_, int window_height_) {
     shadow_transform.stretch(2, 2);
     for(int i = 0; i < 10; i++)
         blurRectangle(RectShape(0, 0, 700, 700), GFX_SHADOW_BLUR, shadow_texture->getGlTexture(), shadow_texture_back.getGlTexture(), 700, 700, shadow_transform);
-}
-
-void gfx::enableVsync(bool enabled) {
-    if(enabled)
-        glfwSwapInterval(1);
-    else
-        glfwSwapInterval(0);
 }
 
 bool fontColEmpty(const unsigned char* data, int x, int y) {
@@ -121,53 +97,6 @@ void gfx::quit() {
 
 void gfx::addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function) {
     global_update_functions.push_back(global_update_function);
-}
-
-int gfx::getWindowWidth() {
-    return window_width;
-}
-
-int gfx::getWindowHeight() {
-    return window_height;
-}
-
-void gfx::updateWindow() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, window_width * global_scale_x, window_height * global_scale_y);
-    
-    _Transformation texture_transform = window_normalization_transform;
-    texture_transform.stretch(window_width * 0.5f, window_height * 0.5f);
-    glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, window_texture);
-    
-    glUniform1i(uniform_texture_sampler, 0);
-    glUniform1i(uniform_has_texture, 1);
-    glUniform1i(uniform_has_color_buffer, 0);
-    glUniform1i(uniform_blend_multiply, 0);
-    _Transformation transform = normalization_transform;
-    
-    transform.stretch(window_width, window_height);
-    
-    glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
-    glUniform4f(uniform_default_color, 1.f, 1.f, 1.f, 1.f);
-
-    glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
-    glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
-    glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    
-    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
-    
-    glfwSwapBuffers(glfw_window);
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
 }
 
 void gfx::sleep(float ms) {
