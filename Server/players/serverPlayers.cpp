@@ -415,12 +415,20 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             
         case ClientPacketType::CRAFT: {
             int craft_index;
-            event.packet >> craft_index;
-            const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[(int)craft_index];
-            
-            for(auto ingredient : recipe_crafted->ingredients)
+            bool craft_all;
+            event.packet >> craft_index >> craft_all;
+            const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[craft_index];
+
+            for (auto ingredient: recipe_crafted->ingredients)
                 event.player->inventory.removeItem(ingredient.first, ingredient.second);
             event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+
+            if(craft_all)
+                while(craft_index < event.player->inventory.getAvailableRecipes().size() && recipe_crafted == event.player->inventory.getAvailableRecipes()[craft_index]) {
+                    for (auto ingredient: recipe_crafted->ingredients)
+                        event.player->inventory.removeItem(ingredient.first, ingredient.second);
+                    event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+                }
             
             break;
         }

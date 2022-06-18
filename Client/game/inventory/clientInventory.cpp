@@ -249,7 +249,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 return true;
             } else if(hovered_recipe != -1) {
                 sf::Packet packet;
-                packet << ClientPacketType::CRAFT << hovered_recipe;
+                packet << ClientPacketType::CRAFT << hovered_recipe << sf::Keyboard::isKeyPressed(sf::Keyboard::LShift);
                 networking->sendPacket(packet);
                 return true;
             }
