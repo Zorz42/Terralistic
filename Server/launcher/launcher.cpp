@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     resource_path = getResourcePath(argv[0]);
     
     if(gui) {
-        gfx::init(800, 500);
+        gfx::init(800, 500, "Terralistic Server");
         gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
         
         std::ifstream font_file(resource_path + "font.opa");
