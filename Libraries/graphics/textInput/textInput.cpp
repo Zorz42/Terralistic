@@ -1,4 +1,6 @@
 #include "textInput.hpp"
+#include "font.hpp"
+#include "scene.hpp"
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
@@ -13,7 +15,7 @@ void gfx::TextInput::eraseSelected() {
 
 int gfx::TextInput::findLeftMove(int curr_pos) {
     int new_pos = std::max(0, curr_pos - 1);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+    if(key_states[(int)Key::CTRL])
         while(new_pos != 0 && cursor[0] != new_pos && text[new_pos - 1] != ' ' && text[new_pos - 1] != '-')
             new_pos--;
     return new_pos;
@@ -21,7 +23,7 @@ int gfx::TextInput::findLeftMove(int curr_pos) {
 
 int gfx::TextInput::findRightMove(int curr_pos) {
     int new_pos = std::min((int)text.size(), curr_pos + 1);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+    if(key_states[(int)Key::CTRL])
         while(new_pos != text.size() && new_pos != cursor[1] && text[new_pos] != ' ' && text[new_pos] != '-')
             new_pos++;
     return new_pos;
@@ -42,6 +44,8 @@ void gfx::TextInput::setBlurIntensity(float blur_intensity) {
         throw std::runtime_error("Blur intensity must be positive.");
     back_rect.blur_radius = blur_intensity;
 }
+
+#define TEXT_SPACING 1
 
 void gfx::TextInput::render(int mouse_x, int mouse_y) {
     RectShape rect = getTranslatedRect();
@@ -65,21 +69,22 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
         x = 0;
         w = rect.w / scale;
     }
+    
     if (active) {
-        sf::Text sf_text;
-        sf_text.setFont(font);
-        sf_text.setString("|g");
-        sf_text.setCharacterSize(font_size);
-        int width_to_cut = sf_text.getLocalBounds().width;
-        sf_text.setString(std::string("|g") + text.substr(0, cursor[0]));
-        int width_before = sf_text.getLocalBounds().width - width_to_cut;
-        sf_text.setString(std::string("|g") + text.substr(cursor[0], cursor[1] - cursor[0]));
-        int width_of_selection = sf_text.getLocalBounds().width - width_to_cut;
+        int width_before = 0;
+        for(char i : text.substr(0, cursor[0]))
+            width_before += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
+        
+        int width_of_selection = 0;
+        for(char i : text.substr(cursor[0], cursor[1] - cursor[0]))
+            width_of_selection += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
 
-        if(!width_before)
-            width_before = 1;
+
+        //if(!width_before)
+            //width_before = 1;
         if(!width_of_selection)
             width_of_selection = 1;
+        
         Color box_color = width_of_selection == 1 ? Color{255, 255, 255} : Color{230, 230, 230, 150};
 
         RectShape(rect.x + width_before * scale, rect.y, scale * width_of_selection, rect.h).render(box_color);

@@ -275,3 +275,11 @@ void gfx::updateWindow() {
 void gfx::quitGlfw() {
     glfwTerminate();
 }
+
+std::string gfx::getClipboard() {
+    return glfwGetClipboardString(glfw_window);
+}
+
+void gfx::setClipboard(const std::string& data) {
+    glfwSetClipboardString(glfw_window, data.c_str());
+}

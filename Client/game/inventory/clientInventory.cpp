@@ -1,3 +1,4 @@
+#include <limits.h>
 #include "clientInventory.hpp"
 #include "resourcePack.hpp"
 
@@ -40,14 +41,14 @@ void ClientInventory::init() {
 int ClientInventory::countItems(int item_id) {
     int result = 0;
     for(int i = 0; i < 20; i++){
-        if(inventory->getItem(i).type->id == item_id)
-            result += inventory->getItem(i).stack;
+        if(inventory.getItem(i).type->id == item_id)
+            result += inventory.getItem(i).stack;
     }
     return result;
 }
 
 int ClientInventory::countMaxCraftNumber(const Recipe *recipe) {
-    int max_number = 1215752191;
+    int max_number = INT_MAX;
     for(auto ingredient : recipe->ingredients){
         max_number = std::min(max_number, countItems(ingredient.first->id) / ingredient.second);
     }
@@ -162,7 +163,7 @@ void ClientInventory::render() {
                 hovered_recipe = i;
             
             back_rect.render(color);
-            int num_to_multiply = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? countMaxCraftNumber(available_recipes[i]) : 1;
+            int num_to_multiply = getKeyState(gfx::Key::SHIFT) ? countMaxCraftNumber(available_recipes[i]) : 1;
             renderItem(ItemStack(available_recipes[i]->result.type, available_recipes[i]->result.stack * num_to_multiply), slot_x, slot_y);
         }
         
@@ -175,7 +176,7 @@ void ClientInventory::render() {
             under_text_rect.render();
             int x = getMouseX() + SPACING / 2;
             int y = getMouseY() + SPACING / 2;
-            int num_to_multiply = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? countMaxCraftNumber(available_recipes[hovered_recipe]) : 1;
+            int num_to_multiply = getKeyState(gfx::Key::SHIFT) ? countMaxCraftNumber(available_recipes[hovered_recipe]) : 1;
             for(auto ingredient : available_recipes[hovered_recipe]->ingredients) {
                 gfx::RectShape back_rect(x, y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
                 back_rect.render(GREY);
@@ -264,7 +265,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 return true;
             } else if(hovered_recipe != -1) {
                 Packet packet;
-                packet << ClientPacketType::CRAFT << hovered_recipe << sf::Keyboard::isKeyPressed(sf::Keyboard::LShift);
+                packet << ClientPacketType::CRAFT << hovered_recipe << getKeyState(gfx::Key::SHIFT);
                 
                 networking->sendPacket(packet);
                 return true;

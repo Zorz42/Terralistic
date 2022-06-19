@@ -61,6 +61,10 @@ void characterCallback(GLFWwindow* window, unsigned int codepoint);
 void updateWindow();
 
 inline bool updated_back_window_texture = false;
+
+std::string getClipboard();
+void setClipboard(const std::string& data);
+
 };
 
 #endif

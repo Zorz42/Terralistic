@@ -26,6 +26,14 @@ void Packet::checkReadSize(unsigned int read_size) {
         throw Exception("Reading packet out of bounds");
 }
 
+Packet& Packet::operator>>(bool& obj) {
+    checkReadSize(sizeof(obj));
+    std::memcpy(&obj, &data[read_pos], sizeof(obj));
+    read_pos += sizeof(obj);
+
+    return *this;
+}
+
 Packet& Packet::operator>>(char& obj) {
     checkReadSize(sizeof(obj));
     std::memcpy(&obj, &data[read_pos], sizeof(obj));
@@ -164,12 +172,17 @@ Packet& Packet::operator>>(std::vector<unsigned char>& obj) {
     return *this;
 }
 
-Packet& Packet::operator<<(char obj){
+Packet& Packet::operator<<(bool obj) {
     append(&obj, sizeof(obj));
     return *this;
 }
 
-Packet& Packet::operator<<(unsigned char obj){
+Packet& Packet::operator<<(char obj) {
+    append(&obj, sizeof(obj));
+    return *this;
+}
+
+Packet& Packet::operator<<(unsigned char obj) {
     append(&obj, sizeof(obj));
     return *this;
 }

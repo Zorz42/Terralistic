@@ -98,6 +98,8 @@ gfx::Key translateKeyboardKey(int glfw_button) {
         case GLFW_KEY_LEFT_SHIFT: case GLFW_KEY_RIGHT_SHIFT: return gfx::Key::SHIFT;
         case GLFW_KEY_BACKSPACE: return gfx::Key::BACKSPACE;
         case GLFW_KEY_LEFT_CONTROL: case GLFW_KEY_RIGHT_CONTROL: return gfx::Key::CTRL;
+        case GLFW_KEY_RIGHT: return gfx::Key::ARROW_RIGHT;
+        case GLFW_KEY_LEFT: return gfx::Key::ARROW_LEFT;
         default: return gfx::Key::UNKNOWN;
     }
 }
@@ -140,9 +142,105 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                 for (TextInput* i : module->text_inputs)
                     if (i->active && !i->getText().empty()) {
                         std::string str = i->getText();
-                        str.pop_back();
+                        if(i->getCursorBegin() != i->getCursorEnd())
+                            i->eraseSelected();
+                        else if(i->getCursorBegin() != 0)
+                            i->setText(str);
                         i->setText(str);
                     }
+        }
+        
+        if(key == Key::A && getKeyState(Key::CTRL)) {
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active)
+                            text_input->setCursor(0, (int)text_input->getText().size());
+        }
+        
+        if(key == Key::C && getKeyState(Key::CTRL)) {
+             for(auto & module : modules)
+                 if(module->enabled)
+                     for(auto & text_input : module->text_inputs)
+                         if(text_input->active)
+                             setClipboard(text_input->getText().substr(text_input->getCursorBegin(), text_input->getCursorEnd() - text_input->getCursorBegin()));
+         }
+
+         if(key == Key::X && getKeyState(Key::CTRL)) {
+             for(auto & module : modules)
+                 if(module->enabled)
+                     for(auto & text_input : module->text_inputs)
+                         if(text_input->active) {
+                             setClipboard(text_input->getText().substr(text_input->getCursorBegin(), text_input->getCursorEnd() - text_input->getCursorBegin()));
+                             text_input->eraseSelected();
+                         }
+         }
+
+        if(key == Key::V && getKeyState(Key::CTRL)) {
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active) {
+                            text_input->eraseSelected();
+                            std::string temp_str = text_input->getText();
+                            std::string clipboard_str = getClipboard();
+                            for(auto letter : clipboard_str) {
+                                char result = text_input->textProcessing(letter, (int)text_input->getText().size());
+                                if(result != '\0') {
+                                    temp_str.insert(text_input->getCursorBegin(), 1, result);
+                                    text_input->setCursor(text_input->getCursorBegin() + 1);
+                                }
+                            }
+                            text_input->setText(temp_str);
+                        }
+        }
+
+        if(key == Key::ARROW_LEFT) {
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active) {
+                            if(getKeyState(Key::SHIFT)) {
+                                if(text_input->getCursorBegin() == text_input->getCursorEnd()) {
+                                    text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()), text_input->getCursorEnd());
+                                    text_input->setCursorEndActive(false);
+                                } else {
+                                    if(text_input->getCursorEndActive())
+                                        text_input->setCursor(text_input->getCursorBegin(), text_input->findLeftMove(text_input->getCursorEnd()));
+                                    else
+                                        text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()), text_input->getCursorEnd());
+                                }
+                            } else {
+                                if(text_input->getCursorBegin() == text_input->getCursorEnd())
+                                    text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()));
+                                else
+                                    text_input->setCursor(text_input->getCursorBegin());
+                            }
+                        }
+        }
+
+        if(key == Key::ARROW_RIGHT) {
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        if(text_input->active) {
+                            if(getKeyState(Key::SHIFT)) {
+                                if(text_input->getCursorBegin() == text_input->getCursorEnd()) {
+                                    text_input->setCursor(text_input->getCursorBegin(), text_input->findRightMove(text_input->getCursorBegin()));
+                                    text_input->setCursorEndActive(true);
+                                } else {
+                                    if(text_input->getCursorEndActive())
+                                        text_input->setCursor(text_input->getCursorBegin(), text_input->findRightMove(text_input->getCursorEnd()));
+                                    else
+                                        text_input->setCursor(text_input->findRightMove(text_input->getCursorBegin()), text_input->getCursorEnd());
+                                }
+                            } else {
+                                if (text_input->getCursorBegin() == text_input->getCursorEnd())
+                                    text_input->setCursor(text_input->findRightMove(text_input->getCursorBegin()));
+                                else
+                                    text_input->setCursor(text_input->getCursorEnd());
+                            }
+                        }
         }
         
         bool is_textbox_active = false;
@@ -177,16 +275,21 @@ void gfx::Scene::onTextEnteredEvent(char c) {
     if(c == '\b')
         return;
 
-    for (SceneModule* module : modules)
+    for(SceneModule* module : modules)
         if(module->enabled)
             for (TextInput* i : module->text_inputs)
-                if (i->active) {
+                if(i->active) {
                     char result = c;
-                    if (!i->ignore_next_input) {
-                        if (i->textProcessing)
+                    if(!i->ignore_next_input) {
+                        if(i->textProcessing)
                             result = i->textProcessing(result, (int)i->getText().size());
-                        if (result)
-                            i->setText(i->getText() + result);
+                        if(result) {
+                            i->eraseSelected();
+                            std::string new_text = i->getText();
+                            new_text.insert(new_text.begin() + i->getCursorBegin(), result);
+                            i->setCursor(i->getCursorBegin() + 1, i->getCursorBegin() + 1);
+                            i->setText(new_text);
+                         }
                     }
                     i->ignore_next_input = false;
                 }

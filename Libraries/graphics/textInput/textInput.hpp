@@ -7,6 +7,8 @@
 namespace gfx {
 
 class TextInput : public Button {
+    bool cursor_end_active = false;
+    int cursor[2] = {0, 0};
     std::string text;
     Rect back_rect;
     std::vector<Key> passthrough_keys = {};
@@ -16,7 +18,16 @@ public:
 
     std::string getText() const { return text; }
     int getWidth() const override;
+    void eraseSelected();
+    int findLeftMove(int curr_pos);
+    int findRightMove(int curr_pos);
     void setText(const std::string& text);
+    void setCursor(int begin, int end) { cursor[0] = begin; cursor[1] = end; }
+    void setCursor(int pos) { cursor[0] = pos; cursor[1] = pos; }
+    void setCursorEndActive(bool active_) { cursor_end_active = active_; }
+    bool getCursorEndActive() { return cursor_end_active; }
+    int getCursorBegin() { return cursor[0]; }
+    int getCursorEnd() { return cursor[1]; }
     std::vector<Key> getPassthroughKeys() const { return passthrough_keys; }
     void setPassthroughKeys(std::vector<Key> new_keys) { passthrough_keys = std::move(new_keys); };
 

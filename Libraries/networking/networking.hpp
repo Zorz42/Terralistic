@@ -15,6 +15,7 @@ class Packet {
     void* getData();
     void append(const void* data_ptr, unsigned int size);
 public:
+    Packet& operator>>(bool& obj);
     Packet& operator>>(char& obj);
     Packet& operator>>(unsigned char& obj);
     Packet& operator>>(short& obj);
@@ -29,6 +30,7 @@ public:
     Packet& operator>>(std::vector<char>& obj);
     Packet& operator>>(std::vector<unsigned char>& obj);
     
+    Packet& operator<<(bool obj);
     Packet& operator<<(char obj);
     Packet& operator<<(unsigned char obj);
     Packet& operator<<(short obj);
