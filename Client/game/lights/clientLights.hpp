@@ -8,7 +8,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     class LightChunk {
         gfx::RectArray light_rects;
         bool is_created = false;
-        int lights_count;
+        int lights_count = 0;
     public:
         bool has_update = true;
         bool isCreated() { return is_created; }
