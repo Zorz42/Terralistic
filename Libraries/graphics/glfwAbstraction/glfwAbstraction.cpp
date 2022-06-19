@@ -233,8 +233,6 @@ int gfx::getWindowHeight() {
     return height / global_scale_y * 2;
 }
 
-#include <iostream>
-
 void gfx::updateWindow() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y);
@@ -272,4 +270,8 @@ void gfx::updateWindow() {
     glfwSwapBuffers(glfw_window);
     
     glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
+}
+
+void gfx::quitGlfw() {
+    glfwTerminate();
 }

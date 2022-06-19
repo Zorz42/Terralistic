@@ -1,4 +1,8 @@
 #pragma once
+#include "color.hpp"
+#include "rectShape.hpp"
+#include "centeredObject.hpp"
+#include "texture.hpp"
 
 namespace gfx {
 

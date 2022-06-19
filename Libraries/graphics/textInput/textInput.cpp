@@ -1,4 +1,4 @@
-#include "graphics-internal.hpp"
+#include "textInput.hpp"
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;

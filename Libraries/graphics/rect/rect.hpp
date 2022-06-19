@@ -1,4 +1,6 @@
 #pragma once
+#include "centeredObject.hpp"
+#include "timer.hpp"
 
 namespace gfx {
 

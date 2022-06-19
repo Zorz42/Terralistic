@@ -2,8 +2,6 @@
 #include "glfwAbstraction.hpp"
 #include "exception.hpp"
 
-static bool updated_back_window_texture = false;
-
 gfx::RectArray::~RectArray() {
     if(vertex_buffer != -1) {
         glDeleteBuffers(1, &vertex_buffer);

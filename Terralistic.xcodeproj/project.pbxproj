@@ -153,6 +153,12 @@
 		3672B160277C8431001293B5 /* serverAdder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B15E277C8431001293B5 /* serverAdder.cpp */; };
 		3672B164277C885D001293B5 /* nameChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B162277C885D001293B5 /* nameChooser.cpp */; };
 		367503DB276019D700B3A468 /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 365721CC26D07147005AB3CC /* resourcePack */; };
+		367F362D285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
+		367F362E285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
+		367F3632285F716000319AD2 /* shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3630285F716000319AD2 /* shadow.cpp */; };
+		367F3633285F716000319AD2 /* shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3630285F716000319AD2 /* shadow.cpp */; };
+		367F3637285F751800319AD2 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3635285F751800319AD2 /* font.cpp */; };
+		367F3638285F751800319AD2 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3635285F751800319AD2 /* font.cpp */; };
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368779712837EBCF00AA5943 /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779722837EC4C00AA5943 /* glad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36BFB23E282EE702008A462A /* glad.cpp */; };
@@ -383,7 +389,6 @@
 		3666D91E274A5AA500C23231 /* constantValues.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = constantValues.hpp; sourceTree = "<group>"; };
 		366D96E52820568400DEC292 /* theme.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = theme.hpp; sourceTree = "<group>"; };
 		366D96E62820568400DEC292 /* graphics.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics.hpp; sourceTree = "<group>"; };
-		366D96EF2820568500DEC292 /* graphics-internal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "graphics-internal.hpp"; sourceTree = "<group>"; };
 		366D96F2282056A600DEC292 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		366D96F5282059DB00DEC292 /* readOpa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = readOpa.cpp; sourceTree = "<group>"; };
 		366D96F6282059DB00DEC292 /* readOpa.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = readOpa.hpp; sourceTree = "<group>"; };
@@ -418,6 +423,12 @@
 		3672B162277C885D001293B5 /* nameChooser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nameChooser.cpp; sourceTree = "<group>"; };
 		3672B163277C885D001293B5 /* nameChooser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = nameChooser.hpp; sourceTree = "<group>"; };
 		3677B5A827283E20000F4D77 /* perlinNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
+		367F362B285F70C900319AD2 /* blur.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blur.cpp; sourceTree = "<group>"; };
+		367F362C285F70C900319AD2 /* blur.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blur.hpp; sourceTree = "<group>"; };
+		367F3630285F716000319AD2 /* shadow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shadow.cpp; sourceTree = "<group>"; };
+		367F3631285F716000319AD2 /* shadow.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = shadow.hpp; sourceTree = "<group>"; };
+		367F3635285F751800319AD2 /* font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = font.cpp; sourceTree = "<group>"; };
+		367F3636285F751800319AD2 /* font.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = font.hpp; sourceTree = "<group>"; };
 		368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glfwAbstraction.cpp; sourceTree = "<group>"; };
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
@@ -1295,15 +1306,17 @@
 			children = (
 				366D96E52820568400DEC292 /* theme.hpp */,
 				366D96E62820568400DEC292 /* graphics.hpp */,
-				366D96EF2820568500DEC292 /* graphics-internal.hpp */,
 				366D9703282067FA00DEC292 /* graphics.cpp */,
 				368F706E2854FC8500C6FF6B /* color */,
 				368F70762854FD0000C6FF6B /* transformation */,
 				368C34AB2855DB6700DA7569 /* glfwAbstraction */,
+				367F362A285F70B100319AD2 /* blur */,
+				367F362F285F715300319AD2 /* shadow */,
 				368F70732854FCEB00C6FF6B /* rectShape */,
 				368F70742854FCF200C6FF6B /* orientation */,
 				368F70752854FCF900C6FF6B /* centeredObject */,
 				368F70772854FD0900C6FF6B /* timer */,
+				367F3634285F750700319AD2 /* font */,
 				368F70782854FD0F00C6FF6B /* texture */,
 				368F70792854FD1400C6FF6B /* rectArray */,
 				368F707A2854FD1C00C6FF6B /* rect */,
@@ -1341,6 +1354,33 @@
 				3672B162277C885D001293B5 /* nameChooser.cpp */,
 			);
 			path = nameChooser;
+			sourceTree = "<group>";
+		};
+		367F362A285F70B100319AD2 /* blur */ = {
+			isa = PBXGroup;
+			children = (
+				367F362C285F70C900319AD2 /* blur.hpp */,
+				367F362B285F70C900319AD2 /* blur.cpp */,
+			);
+			path = blur;
+			sourceTree = "<group>";
+		};
+		367F362F285F715300319AD2 /* shadow */ = {
+			isa = PBXGroup;
+			children = (
+				367F3631285F716000319AD2 /* shadow.hpp */,
+				367F3630285F716000319AD2 /* shadow.cpp */,
+			);
+			path = shadow;
+			sourceTree = "<group>";
+		};
+		367F3634285F750700319AD2 /* font */ = {
+			isa = PBXGroup;
+			children = (
+				367F3636285F751800319AD2 /* font.hpp */,
+				367F3635285F751800319AD2 /* font.cpp */,
+			);
+			path = font;
 			sourceTree = "<group>";
 		};
 		368C34AB2855DB6700DA7569 /* glfwAbstraction */ = {
@@ -1702,6 +1742,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				367F3632285F716000319AD2 /* shadow.cpp in Sources */,
 				366D96F7282059DB00DEC292 /* readOpa.cpp in Sources */,
 				169B87D2270F5238006023B8 /* chat.cpp in Sources */,
 				3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */,
@@ -1711,6 +1752,7 @@
 				1679DA322733DA050005C4FB /* content.cpp in Sources */,
 				361702D4272EF9E600FFA390 /* settings.cpp in Sources */,
 				36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */,
+				367F3637285F751800319AD2 /* font.cpp in Sources */,
 				3657222426D07181005AB3CC /* menuBack.cpp in Sources */,
 				3605ED54276A1ED000ECCA08 /* background.cpp in Sources */,
 				3657221C26D07181005AB3CC /* game.cpp in Sources */,
@@ -1776,6 +1818,7 @@
 				36BFB23F282EE702008A462A /* glad.cpp in Sources */,
 				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				3657222326D07181005AB3CC /* singleplayerSelector.cpp in Sources */,
+				367F362D285F70C900319AD2 /* blur.cpp in Sources */,
 				366D9720282067FA00DEC292 /* button.cpp in Sources */,
 				3693112A2843464A00C4DF00 /* socket.cpp in Sources */,
 				36D31CD926DBE330006F89B3 /* compress.cpp in Sources */,
@@ -1810,12 +1853,14 @@
 				167B53CE270A26EC000089B3 /* serverItems.cpp in Sources */,
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
 				3693112B2843464A00C4DF00 /* socket.cpp in Sources */,
+				367F3633285F716000319AD2 /* shadow.cpp in Sources */,
 				366399D027775E17007C944E /* serverWalls.cpp in Sources */,
 				366D9713282067FA00DEC292 /* texture.cpp in Sources */,
 				16A13D152709A10D009DEE40 /* serverBlocks.cpp in Sources */,
 				16A61F612708DA3300738C61 /* entities.cpp in Sources */,
 				1676AF392704595400321C8B /* blocks.cpp in Sources */,
 				361DD1ED26F7481200129191 /* launcher.cpp in Sources */,
+				367F362E285F70C900319AD2 /* blur.cpp in Sources */,
 				366D9717282067FA00DEC292 /* graphics.cpp in Sources */,
 				366D971F282067FA00DEC292 /* timer.cpp in Sources */,
 				366D970D282067FA00DEC292 /* rect.cpp in Sources */,
@@ -1829,6 +1874,7 @@
 				3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */,
 				169B87D1270F5036006023B8 /* serverChat.cpp in Sources */,
 				361DD1A426F7478900129191 /* items.cpp in Sources */,
+				367F3638285F751800319AD2 /* font.cpp in Sources */,
 				16A3C01226FF871C001B9E4E /* commands.cpp in Sources */,
 				366D9723282067FA00DEC292 /* centeredObject.cpp in Sources */,
 				167581902707687E00422C07 /* inventory.cpp in Sources */,

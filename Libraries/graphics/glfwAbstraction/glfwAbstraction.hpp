@@ -28,6 +28,7 @@ void setGlobalScale(float scale);
 namespace gfx {
 
 void initGlfw(int window_width, int window_height, const std::string& window_title);
+void quitGlfw();
 
 inline GLFWwindow* glfw_window;
 
@@ -58,6 +59,8 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void characterCallback(GLFWwindow* window, unsigned int codepoint);
 
 void updateWindow();
+
+inline bool updated_back_window_texture = false;
 };
 
 #endif

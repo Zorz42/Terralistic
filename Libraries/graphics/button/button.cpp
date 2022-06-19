@@ -1,4 +1,4 @@
-#include "graphics-internal.hpp"
+#include "button.hpp"
 
 int gfx::Button::getWidth() const {
     return (getTextureWidth() + margin * 2) * scale;

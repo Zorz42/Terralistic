@@ -2,6 +2,7 @@
 #include "transformation.hpp"
 #include "color.hpp"
 #include "rectShape.hpp"
+#include <string>
 
 namespace gfx {
 
@@ -29,8 +30,5 @@ public:
 };
 
 void resetRenderTarget();
-
-inline Texture* font_texture = nullptr;
-inline RectShape font_rects[256];
 
 };

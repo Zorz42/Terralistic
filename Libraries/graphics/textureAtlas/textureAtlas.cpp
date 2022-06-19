@@ -1,4 +1,4 @@
-#include "graphics-internal.hpp"
+#include "textureAtlas.hpp"
 
 void gfx::TextureAtlas::create(const std::vector<Texture*>& textures) {
     int width = 0, height = 0;

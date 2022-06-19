@@ -2,6 +2,7 @@
 #include "glfwAbstraction.hpp"
 #include "exception.hpp"
 #include "texture.hpp"
+#include "font.hpp"
 
 void gfx::Texture::createBlankImage(int width_, int height_) {
     if(width_ <= 0 || height_ <= 0)

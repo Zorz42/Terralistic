@@ -1,6 +1,15 @@
 #pragma once
+#include <vector>
+#include "textInput.hpp"
 
 namespace gfx {
+
+class GlobalUpdateFunction {
+public:
+    virtual void update() = 0;
+};
+
+void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
 
 class Scene;
 
@@ -46,11 +55,18 @@ public:
     void onMouseWheelScrollEvent(int delta);
 };
 
+inline int fps_limit = 0;
+
 };
 
 #ifndef GRAPHICS_PUBLIC
 
 namespace gfx {
+
+inline std::vector<GlobalUpdateFunction*> global_update_functions;
+inline float frame_length;
+
+inline Scene* curr_scene = nullptr;
 
 };
 

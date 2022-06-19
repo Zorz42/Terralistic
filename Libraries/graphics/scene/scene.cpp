@@ -1,5 +1,10 @@
 #include "glfwAbstraction.hpp"
-#include "graphics-internal.hpp"
+#include "scene.hpp"
+#include "button.hpp"
+
+void gfx::addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function) {
+    global_update_functions.push_back(global_update_function);
+}
 
 void gfx::Scene::initialize() {
     if(!initialized) {

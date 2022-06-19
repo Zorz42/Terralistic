@@ -1,3 +1,4 @@
+#include <thread>
 #include "timer.hpp"
 
 gfx::Timer::Timer() {
@@ -10,4 +11,8 @@ float gfx::Timer::getTimeElapsed() const {
 
 void gfx::Timer::reset() {
     start_time = std::chrono::steady_clock::now();
+}
+
+void gfx::sleep(float ms) {
+    std::this_thread::sleep_for(std::chrono::microseconds(int(ms * 1000)));
 }

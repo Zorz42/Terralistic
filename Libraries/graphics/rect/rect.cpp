@@ -1,7 +1,9 @@
 #include <cmath>
+#include "rect.hpp"
 #include "glfwAbstraction.hpp"
-#include "graphics-internal.hpp"
 #include "exception.hpp"
+#include "blur.hpp"
+#include "shadow.hpp"
 
 int approach(int object, int target, int smooth_factor) {
     if(std::abs(target - object) < smooth_factor)

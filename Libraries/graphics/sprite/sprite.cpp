@@ -1,4 +1,4 @@
-#include "graphics-internal.hpp"
+#include "sprite.hpp"
 
 gfx::Sprite::Sprite() : _CenteredObject(0, 0) {}
 

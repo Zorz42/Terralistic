@@ -1,6 +1,11 @@
 #pragma once
+#include "sprite.hpp"
+#include "timer.hpp"
+#include "theme.hpp"
 
 namespace gfx {
+
+enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, CTRL, ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, UNKNOWN};
 
 class Button : public Sprite {
     gfx::Timer timer;
@@ -18,3 +23,13 @@ public:
 };
 
 };
+
+#ifndef GRAPHICS_PUBLIC
+
+namespace gfx {
+
+inline bool key_states[(int)gfx::Key::UNKNOWN];
+
+}
+
+#endif
