@@ -27,12 +27,11 @@ void setGlobalScale(float scale);
 
 namespace gfx {
 
-void initGlfw(int window_width_, int window_height_, const std::string& window_title);
+void initGlfw(int window_width, int window_height, const std::string& window_title);
 
 inline GLFWwindow* glfw_window;
-inline unsigned int shader_program, blur_shader_program;
-inline int window_width, window_height;
-inline float window_width_reciprocal, window_height_reciprocal;
+
+inline unsigned int shader_program;
 
 inline int uniform_has_color_buffer, uniform_default_color, uniform_has_texture,
 uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_matrix,

@@ -1,4 +1,7 @@
 #pragma once
+#include <vector>
+#include "color.hpp"
+#include "texture.hpp"
 
 namespace gfx {
 

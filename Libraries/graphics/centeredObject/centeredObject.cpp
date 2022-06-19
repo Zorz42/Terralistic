@@ -1,4 +1,5 @@
-#include "graphics-internal.hpp"
+#include "glfwAbstraction.hpp"
+#include "centeredObject.hpp"
 
 gfx::_CenteredObject::_CenteredObject(int x, int y, Orientation orientation) : orientation(orientation), x(x), y(y) {}
 

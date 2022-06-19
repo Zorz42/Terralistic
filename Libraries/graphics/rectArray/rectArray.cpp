@@ -1,6 +1,8 @@
+#include "rectArray.hpp"
 #include "glfwAbstraction.hpp"
-#include "graphics-internal.hpp"
 #include "exception.hpp"
+
+static bool updated_back_window_texture = false;
 
 gfx::RectArray::~RectArray() {
     if(vertex_buffer != -1) {
@@ -95,11 +97,11 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
     if(blend_multiply && !updated_back_window_texture) {
         updated_back_window_texture = true;
         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, window_texture_back, 0);
-        glViewport(0, 0, window_width, window_height);
+        glViewport(0, 0, getWindowWidth(), getWindowHeight());
         normalization_transform = window_normalization_transform;
 
         _Transformation texture_transform = window_normalization_transform;
-        texture_transform.stretch(window_width, window_height);
+        texture_transform.stretch(getWindowWidth(), getWindowHeight());
         glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
 
         glActiveTexture(GL_TEXTURE0);
@@ -111,7 +113,7 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         glUniform1i(uniform_has_color_buffer, 0);
         _Transformation transform = normalization_transform;
 
-        transform.stretch(window_width, window_height);
+        transform.stretch(getWindowWidth(), getWindowHeight());
 
         glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
         glUniform4f(uniform_default_color, 1, 1, 1, 1);

@@ -1,4 +1,7 @@
 #pragma once
+#include "transformation.hpp"
+#include "color.hpp"
+#include "rectShape.hpp"
 
 namespace gfx {
 
@@ -24,5 +27,10 @@ public:
     
     ~Texture();
 };
+
+void resetRenderTarget();
+
+inline Texture* font_texture = nullptr;
+inline RectShape font_rects[256];
 
 };

@@ -1,7 +1,7 @@
 #include <cstring>
 #include "glfwAbstraction.hpp"
-#include "graphics-internal.hpp"
 #include "exception.hpp"
+#include "texture.hpp"
 
 void gfx::Texture::createBlankImage(int width_, int height_) {
     if(width_ <= 0 || height_ <= 0)
@@ -125,7 +125,7 @@ void gfx::Texture::setRenderTarget() {
 
 void gfx::resetRenderTarget() {
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, window_texture, 0);
-    glViewport(0, 0, window_width, window_height);
+    glViewport(0, 0, getWindowWidth(), getWindowHeight());
     normalization_transform = window_normalization_transform;
 }
 

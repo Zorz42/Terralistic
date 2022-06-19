@@ -231,7 +231,7 @@ void gfx::Scene::renderAll() {
     glClear(GL_COLOR_BUFFER_BIT);
     
     resetRenderTarget();
-    RectShape(0, 0, window_width, window_height).render({0, 0, 0});
+    RectShape(0, 0, getWindowWidth(), getWindowHeight()).render({0, 0, 0});
     
     cycleModules();
     

@@ -1,5 +1,4 @@
-#include "graphics-internal.hpp"
-#include <chrono>
+#include "timer.hpp"
 
 gfx::Timer::Timer() {
     reset();

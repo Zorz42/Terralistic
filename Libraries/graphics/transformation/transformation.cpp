@@ -1,9 +1,9 @@
 #include <cstring>
-#include "graphics-internal.hpp"
+#include "transformation.hpp"
 
 void gfx::_Transformation::applyMatrix(float applied_matrix[3][3]) {
     _Transformation applied_transformation;
-    memcpy(applied_transformation.matrix, applied_matrix, sizeof(matrix));
+    std::memcpy(applied_transformation.matrix, applied_matrix, sizeof(matrix));
     *this = *this * applied_transformation;
 }
 

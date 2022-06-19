@@ -36,24 +36,20 @@ static const char* fragment_shader_code =
 "}";
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    gfx::window_width = width / gfx::global_scale_x;
-    gfx::window_height = height / gfx::global_scale_y;
-    gfx::window_width_reciprocal = 1.f / gfx::window_width;
-    gfx::window_height_reciprocal = 1.f / gfx::window_height;
     gfx::window_resized_counter++;
     
     gfx::window_normalization_transform = gfx::_Transformation();
-    gfx::window_normalization_transform.stretch(gfx::window_width_reciprocal * 2, -gfx::window_height_reciprocal * 2);
-    gfx::window_normalization_transform.translate(-float(gfx::window_width) / 2, -float(gfx::window_height) / 2);
+    gfx::window_normalization_transform.stretch(1.f / gfx::getWindowWidth() * 2, -1.f / gfx::getWindowHeight() * 2);
+    gfx::window_normalization_transform.translate(-float(gfx::getWindowWidth()) / 2, -float(gfx::getWindowHeight()) / 2);
     
     glBindTexture(GL_TEXTURE_2D, gfx::window_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx::window_width, gfx::window_height, 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx::getWindowWidth(), gfx::getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
     glBindTexture(GL_TEXTURE_2D, gfx::window_texture_back);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx::window_width, gfx::window_height, 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx::getWindowWidth(), gfx::getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -79,12 +75,12 @@ static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float 
     gfx::system_scale_x = scale_x;
     gfx::system_scale_y = scale_y;
     
-    int window_width, window_height;
-    glfwGetWindowSize(gfx::glfw_window, &window_width, &window_height);
+    int window_width_, window_height_;
+    glfwGetWindowSize(gfx::glfw_window, &window_width_, &window_height_);
     
     //gfx::Scene* temp_scene = gfx::curr_scene;
     //gfx::curr_scene = nullptr;
-    framebufferSizeCallback(gfx::glfw_window, window_width * gfx::system_scale_x, window_height * gfx::system_scale_y);
+    framebufferSizeCallback(gfx::glfw_window, window_width_ * gfx::system_scale_x, window_height_ * gfx::system_scale_y);
 #ifndef __APPLE__
     gfx::setMinimumWindowSize(gfx::window_width_min, gfx::window_height_min);
 #endif
@@ -102,9 +98,6 @@ void gfx::setMinimumWindowSize(int width, int height) {
 }
 
 void gfx::initGlfw(int window_width_, int window_height_, const std::string& window_title) {
-    window_width = window_width_;
-    window_height = window_height_;
-
     if(!glfwInit())
         throw Exception("Failed to initialize GLFW");
 
@@ -114,7 +107,7 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfw_window = glfwCreateWindow(window_width, window_height, window_title.c_str(), nullptr, nullptr);
+    glfw_window = glfwCreateWindow(window_width_, window_height_, window_title.c_str(), nullptr, nullptr);
     glfwSetFramebufferSizeCallback(glfw_window, framebufferSizeCallback);
     glfwSetWindowContentScaleCallback(glfw_window, windowContentScaleCallback);
     glfwSetKeyCallback(glfw_window, gfx::keyCallback);
@@ -229,19 +222,25 @@ void gfx::enableVsync(bool enabled) {
 }
 
 int gfx::getWindowWidth() {
-    return window_width;
+    int width;
+    glfwGetWindowSize(gfx::glfw_window, &width, nullptr);
+    return width / global_scale_x * 2;
 }
 
 int gfx::getWindowHeight() {
-    return window_height;
+    int height;
+    glfwGetWindowSize(gfx::glfw_window, nullptr, &height);
+    return height / global_scale_y * 2;
 }
+
+#include <iostream>
 
 void gfx::updateWindow() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, window_width * global_scale_x, window_height * global_scale_y);
+    glViewport(0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y);
     
     _Transformation texture_transform = window_normalization_transform;
-    texture_transform.stretch(window_width * 0.5f, window_height * 0.5f);
+    texture_transform.stretch(getWindowWidth() * 0.5f, getWindowHeight() * 0.5f);
     glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
     
     glActiveTexture(GL_TEXTURE0);
@@ -253,7 +252,7 @@ void gfx::updateWindow() {
     glUniform1i(uniform_blend_multiply, 0);
     _Transformation transform = normalization_transform;
     
-    transform.stretch(window_width, window_height);
+    transform.stretch(getWindowWidth(), getWindowHeight());
     
     glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
     glUniform4f(uniform_default_color, 1.f, 1.f, 1.f, 1.f);

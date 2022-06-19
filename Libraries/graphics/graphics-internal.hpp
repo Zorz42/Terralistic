@@ -16,6 +16,8 @@ inline float frame_length;
 
 inline bool key_states[(int)gfx::Key::UNKNOWN];
 
+inline unsigned int blur_shader_program;
+
 inline int uniform_blur_transform_matrix,
 uniform_blur_texture_transform_matrix, uniform_blur_texture_sampler,
 uniform_blur_offset, uniform_blur_limit;
@@ -24,10 +26,5 @@ inline Scene* curr_scene = nullptr;
 
 void blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, _Transformation texture_transform);
 
-inline Texture* font_texture = nullptr;
-inline RectShape font_rects[256];
-
 inline Texture* shadow_texture = nullptr;
-
-inline bool updated_back_window_texture = false;
 }

@@ -1,4 +1,6 @@
 #pragma once
+#include "orientation.hpp"
+#include "rectShape.hpp"
 
 namespace gfx {
 

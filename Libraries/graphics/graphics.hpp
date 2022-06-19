@@ -34,12 +34,10 @@ public:
 
 void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
 
-void init(int window_width_, int window_height_, const std::string& window_title);
+void init(int window_width, int window_height, const std::string& window_title);
 void quit();
 
 void loadFont(const unsigned char* data);
-
-void resetRenderTarget();
 
 inline bool blur_enabled = true;
 inline int fps_limit = 0;
