@@ -37,6 +37,23 @@ void ClientInventory::init() {
     selected_slot = 0;
 }
 
+int ClientInventory::countItems(int item_id) {
+    int result = 0;
+    for(int i = 0; i < 20; i++){
+        if(inventory->getItem(i).type->id == item_id)
+            result += inventory->getItem(i).stack;
+    }
+    return result;
+}
+
+int ClientInventory::countMaxCraftNumber(const Recipe *recipe) {
+    int max_number = 1215752191;
+    for(auto ingredient : recipe->ingredients){
+        max_number = std::min(max_number, countItems(ingredient.first->id) / ingredient.second);
+    }
+    return max_number;
+}
+
 void ClientInventory::loadTextures() {
     for(int i = 0; i < 10; i++) {
         std::string text = "0";
@@ -145,8 +162,8 @@ void ClientInventory::render() {
                 hovered_recipe = i;
             
             back_rect.render(color);
-            
-            renderItem(ItemStack(available_recipes[i]->result.type, available_recipes[i]->result.stack), slot_x, slot_y);
+            int num_to_multiply = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? countMaxCraftNumber(available_recipes[i]) : 1;
+            renderItem(ItemStack(available_recipes[i]->result.type, available_recipes[i]->result.stack * num_to_multiply), slot_x, slot_y);
         }
         
         if(hovered_recipe != -1) {
@@ -158,10 +175,11 @@ void ClientInventory::render() {
             under_text_rect.render();
             int x = getMouseX() + SPACING / 2;
             int y = getMouseY() + SPACING / 2;
+            int num_to_multiply = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? countMaxCraftNumber(available_recipes[hovered_recipe]) : 1;
             for(auto ingredient : available_recipes[hovered_recipe]->ingredients) {
                 gfx::RectShape back_rect(x, y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
                 back_rect.render(GREY);
-                renderItem(ItemStack(ingredient.first, ingredient.second), x, y);
+                renderItem(ItemStack(ingredient.first, ingredient.second * num_to_multiply), x, y);
                 x += INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2;
             }
         }
@@ -246,7 +264,8 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 return true;
             } else if(hovered_recipe != -1) {
                 Packet packet;
-                packet << ClientPacketType::CRAFT << hovered_recipe;
+                packet << ClientPacketType::CRAFT << hovered_recipe << sf::Keyboard::isKeyPressed(sf::Keyboard::LShift);
+                
                 networking->sendPacket(packet);
                 return true;
             }

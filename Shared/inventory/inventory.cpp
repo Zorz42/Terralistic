@@ -135,10 +135,14 @@ const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
 }
 
 void Inventory::updateAvailableRecipes() {
-    available_recipes.clear();
-    for(auto i : recipes->getAllRecipes())
-        if(hasIngredientsForRecipe(i))
-            available_recipes.emplace_back(i);
+    for(int i = 0; i < available_recipes.size(); i++){
+        if(!hasIngredientsForRecipe(available_recipes[i]))
+            available_recipes.erase(available_recipes.begin() + i);
+    }
+
+    for(int i = 0; i < recipes->getAllRecipes().size(); i++)
+        if(hasIngredientsForRecipe(recipes->getAllRecipes()[i]) && !std::count(available_recipes.begin(), available_recipes.end(), recipes->getAllRecipes()[i]))
+            available_recipes.emplace_back(recipes->getAllRecipes()[i]);
 }
 
 void Recipes::registerARecipe(Recipe* recipe) {

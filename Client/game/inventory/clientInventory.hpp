@@ -22,7 +22,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     
     void selectSlot(int slot);
     void renderItem(ItemStack item, int x, int y);
-    
+    int countMaxCraftNumber(const Recipe *recipe);
+    int countItems(int item_id);
+
     void init() override;
     void loadTextures() override;
     void update(float frame_length) override;
