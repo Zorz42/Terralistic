@@ -9,15 +9,15 @@ class Camera : public ClientModule {
 public:
     void setX(int x);
     void setY(int y);
-    int getX();
-    int getY();
-    int getTargetX();
-    int getTargetY();
+    int getX() const;
+    int getY() const;
+    int getTargetX() const;
+    int getTargetY() const;
     
     void jumpToTarget();
     
-    int getViewBeginX();
-    int getViewEndX();
-    int getViewBeginY();
-    int getViewEndY();
+    int getViewBeginX() const;
+    int getViewEndX() const;
+    int getViewBeginY() const;
+    int getViewEndY() const;
 };

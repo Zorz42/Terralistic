@@ -6,7 +6,7 @@ void Liquids::create() {
 }
 
 Liquids::Liquid* Liquids::getLiquid(int x, int y) {
-    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight())
+    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight() || liquids == nullptr)
         throw Exception("Liquid is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &liquids[y * blocks->getWidth() + x];
 }
@@ -74,8 +74,6 @@ void Liquids::updateLiquid(int x, int y) {
             setLiquidType(x, y, &empty);
             setLiquidLevel(x, y + 1, liquid_sum);
         }
-        
-        getLiquid(x, y + 1)->flow_direction = FlowDirection::NONE;
     }
     
     if(getLiquidLevel(x, y) == 0)
@@ -148,7 +146,7 @@ void Liquids::fromSerial(const std::vector<char>& serial) {
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
-                liquid->id = *iter++;
+                liquid->id = (unsigned char)*iter++;
                 if(liquid->id != empty.id)
                     liquid->level = *iter++;
             }

@@ -10,8 +10,6 @@ class ServerEntities : public ServerModule, public Entities, EventListener<Entit
     void onEvent(EntityVelocityChangeEvent& event) override;
     void onEvent(EntityDeletionEvent& event) override;
     
-    int seconds = 0;
-    
     void init() override;
     void update(float frame_length) override;
     void stop() override;

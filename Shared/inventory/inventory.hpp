@@ -22,7 +22,7 @@ public:
 
 class InventoryItemChangeEvent {
 public:
-    InventoryItemChangeEvent(int item_pos) : item_pos(item_pos) {}
+    explicit InventoryItemChangeEvent(int item_pos) : item_pos(item_pos) {}
     int item_pos;
 };
 
@@ -66,7 +66,7 @@ public:
     std::vector<char> toSerial() const;
     void fromSerial(const std::vector<char>& serial);
     
-    Inventory& operator=(Inventory& inventory);
+    Inventory& operator=(Inventory const& inventory);
     
     EventSender<InventoryItemChangeEvent> item_change_event;
     

@@ -3,6 +3,7 @@
 #include "pauseScreen.hpp"
 #include "choiceScreen.hpp"
 #include "content.hpp"
+#include "resourcePath.hpp"
 
 class WorldJoiningScreen : public gfx::Scene {
     BackgroundRect* menu_back;
@@ -74,10 +75,10 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&respawn_screen);
     registerAModule(&debug_menu);
     
-    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
+    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
 }
 
-void Game::initialize() {
+void Game::initializeGame() {
     try {
         if(interrupt)
             throw Exception(interrupt_message);
@@ -95,16 +96,16 @@ void Game::start() {
         if(interrupt)
             throw Exception(interrupt_message);
         
-        std::thread init_thread(&Game::initialize, this);
+        std::thread init_thread(&Game::initializeGame, this);
         WorldJoiningScreen(background_rect, this).run();
         init_thread.join();
         
         if(interrupt)
             throw Exception(interrupt_message);
         
-        for(int i = 0; i < getModules().size(); i++)
-            if(getModules()[i] != this)
-                ((ClientModule*)getModules()[i])->loadTextures();
+        for(auto i : getModules())
+            if(i != this)
+                ((ClientModule*)i)->loadTextures();
         std::thread parallel_update_thread(&Game::parallelUpdateLoop, this);
         run();
         parallel_update_thread.join();
@@ -122,9 +123,9 @@ void Game::parallelUpdateLoop() {
         while(isRunning()) {
             float frame_length = timer.getTimeElapsed();
             timer.reset();
-            for(int i = 0; i < getModules().size(); i++)
-                if(getModules()[i] != this && getModules()[i]->enabled)
-                    ((ClientModule*)getModules()[i])->updateParallel(frame_length);
+            for(auto i : getModules())
+                if(i != this && i->enabled)
+                    ((ClientModule*)i)->updateParallel(frame_length);
             if(timer.getTimeElapsed() < 10)
                 gfx::sleep(10 - timer.getTimeElapsed());
         }
@@ -135,9 +136,9 @@ void Game::parallelUpdateLoop() {
 }
 
 void Game::init() {
-    for(int i = 0; i < getModules().size(); i++)
-        if(getModules()[i] != this)
-            ((ClientModule*)getModules()[i])->postInit();
+    for(auto i : getModules())
+        if(i != this)
+            ((ClientModule*)i)->postInit();
 }
 
 void Game::render() {
@@ -157,12 +158,12 @@ bool Game::onKeyDown(gfx::Key key) {
         switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
-        //reloads resources
+        // reloads resources
         if(pause_screen.changed_mods) {
             resource_pack.loadPaths();
-            for (int i = 0; i < getModules().size(); i++)
-                if (getModules()[i] != this)
-                    ((ClientModule *) getModules()[i])->loadTextures();
+            for (auto i : getModules())
+                if (i != this)
+                    ((ClientModule *) i)->loadTextures();
             for (int i = 0; i < blocks.getWidth() / CHUNK_SIZE; i++)
                 for (int j = 0; j < blocks.getHeight() / CHUNK_SIZE; j++)
                     blocks.getRenderBlockChunk(i, j)->has_update = true;

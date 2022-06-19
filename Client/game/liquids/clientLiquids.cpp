@@ -1,4 +1,5 @@
 #include "clientLiquids.hpp"
+#include "readOpa.hpp"
 
 void ClientLiquids::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
@@ -18,8 +19,11 @@ void ClientLiquids::onEvent(ClientPacketEvent &event) {
 }
 
 void ClientLiquids::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::LIQUIDS)
-        fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::LIQUIDS) {
+        std::vector<char> data;
+        event.packet >> data;
+        fromSerial(data);
+    }
 }
 
 void ClientLiquids::onEvent(LiquidChangeEvent& event) {
@@ -37,7 +41,7 @@ void ClientLiquids::loadTextures() {
 
     for(int i = 1; i < getNumLiquidTypes(); i++) {
         liquid_textures[i - 1] = new gfx::Texture;
-        liquid_textures[i - 1]->loadFromFile(resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".png"));
+        loadOpa(*liquid_textures[i - 1], resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa"));
     }
     
     liquids_atlas.create(liquid_textures);
@@ -88,6 +92,7 @@ void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int
                 liquid_rects.setTextureCoords(index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
                 int level = std::min((liquids->getLiquidLevel(x_, y_) * 1.02) / MAX_LIQUID_LEVEL, 1.0) * BLOCK_WIDTH * 2;
                 liquid_rects.setRect(index, {(x_ % CHUNK_SIZE) * BLOCK_WIDTH * 2, (y_ % CHUNK_SIZE) * BLOCK_WIDTH * 2 + BLOCK_WIDTH * 2 - level, BLOCK_WIDTH * 2, level});
+                liquid_rects.setColor(index, {255, 255, 255});
                 index++;
             }
     liquid_count = index;
@@ -95,7 +100,7 @@ void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int
 
 void ClientLiquids::RenderLiquidChunk::render(ClientLiquids* liquids, int x, int y) {
     if(liquid_count > 0)
-        liquid_rects.render(liquid_count, &liquids->getLiquidsAtlasTexture(), x, y);
+        liquid_rects.render(&liquids->getLiquidsAtlasTexture(), x, y);
 }
 
 void ClientLiquids::RenderLiquidChunk::create() {
@@ -112,5 +117,7 @@ gfx::RectShape ClientLiquids::getLiquidRectInAtlas(LiquidType* type) {
 }
 
 ClientLiquids::RenderLiquidChunk* ClientLiquids::getRenderLiquidChunk(int x, int y) {
+    if(liquid_chunks == nullptr)
+        throw Exception("Liquid chunks is null");
     return &liquid_chunks[y * getWidth() / 16 + x];
 }

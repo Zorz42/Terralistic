@@ -7,7 +7,7 @@
 GuiMod::GuiMod(const std::string& name) : name(name) {
     fill_color = BLACK;
     fill_color.a = TRANSPARENCY;
-    blur_intensity = BLUR;
+    blur_radius = BLUR;
     shadow_intensity = SHADOW_INTENSITY;
     text.loadFromText(name);
     setWidth(300);

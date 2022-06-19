@@ -1,4 +1,6 @@
 #pragma once
+#include <utility>
+
 #include "events.hpp"
 #include "graphics.hpp"
 
@@ -39,7 +41,7 @@ public:
 
 class Tool {
 public:
-    Tool(const std::string& name) : name(name) {}
+    explicit Tool(std::string  name) : name(std::move(name)) {}
     std::string name;
 };
 
@@ -47,17 +49,17 @@ class Blocks;
 
 class BlockType {
 public:
-    BlockType(std::string name);
-    Tool* effective_tool;
-    int required_tool_power;
-    bool ghost, transparent;
+    explicit BlockType(std::string name);
+    Tool* effective_tool = nullptr;
+    int required_tool_power = 0;
+    bool ghost = false, transparent = false;
     std::string name;
     std::vector<BlockType*> connects_to;
-    int break_time;
-    int light_emission_r, light_emission_g, light_emission_b;
-    int id;
+    int break_time = 0;
+    int light_emission_r = 0, light_emission_g = 0, light_emission_b = 0;
+    int id = 0;
     int width = 0, height = 0;
-    bool can_update_states;
+    bool can_update_states = false;
     
     virtual int updateState(Blocks* blocks, int x, int y);
 };
@@ -74,7 +76,7 @@ class Blocks {
     public:
         int break_progress = 0;
         bool is_breaking = true;
-        int x, y;
+        int x = 0, y = 0;
     };
     
     class BlockChunk {
@@ -84,7 +86,7 @@ class Blocks {
     
     Block *blocks = nullptr;
     BlockChunk *chunks = nullptr;
-    int width, height;
+    int width = 0, height = 0;
 
     std::vector<BreakingBlock> breaking_blocks;
     std::vector<BlockType*> block_types;

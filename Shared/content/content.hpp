@@ -77,7 +77,7 @@ public:
 class WoodType : public BlockType{
 public:
     int updateState(Blocks* blocks, int x, int y) override;
-    WoodType(const std::string& name) : BlockType(name){}
+    explicit WoodType(const std::string& name) : BlockType(name){}
 };
 
 class BlockTypes {
@@ -124,7 +124,7 @@ public:
 class WallTypes {
     std::vector<WallType*> wall_types = {&dirt};
 public:
-    WallTypes(Walls* walls);
+    explicit WallTypes(Walls* walls);
     void loadContent(Walls* walls, Items* items, const std::string& resource_path);
     
     WallType dirt;
@@ -133,7 +133,7 @@ public:
 class LiquidTypes {
     std::vector<LiquidType*> liquid_types = {&water};
 public:
-    LiquidTypes(Liquids* liquids);
+    explicit LiquidTypes(Liquids* liquids);
     void loadContent(Liquids* liquids, const std::string& resource_path);
     
     LiquidType water;
@@ -142,7 +142,7 @@ public:
 class ItemTypes {
     std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &stick, &branch, &shovel};
 public:
-    ItemTypes(Items* items);
+    explicit ItemTypes(Items* items);
     void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
     
     ItemType stone{"stone"};

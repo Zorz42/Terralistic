@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 #include <vector>
 #include <map>
 #include "serverModule.hpp"
@@ -13,10 +14,9 @@ class WorldSaver : public ServerModule {
     
     std::string world_path;
     std::map<std::string, std::vector<char>> sections;
-    int save_inverval = 0;
     gfx::Timer timer;
 public:
-    WorldSaver(const std::string& world_path) : world_path(world_path) {}
+    explicit WorldSaver(std::string  world_path) : world_path(std::move(world_path)) {}
     
     void setSectionData(const std::string& name, const std::vector<char>& data);
     const std::vector<char>& getSectionData(const std::string& name);

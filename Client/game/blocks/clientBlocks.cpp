@@ -1,4 +1,6 @@
 #include "clientBlocks.hpp"
+#include "readOpa.hpp"
+#include "resourcePath.hpp"
 
 #define EXTENDED_VIEW_MARGIN 100
 
@@ -30,13 +32,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 }
 
 ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
-    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight() || render_blocks == nullptr)
         throw Exception("RenderBlock is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &render_blocks[y * getWidth() + x];
 }
 
 ClientBlocks::RenderBlockChunk* ClientBlocks::getRenderBlockChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE)
+    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE || block_chunks == nullptr)
         throw Exception("Chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &block_chunks[y * getWidth() / CHUNK_SIZE + x];
 }
@@ -73,8 +75,11 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::BLOCKS)
-        fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::BLOCKS) {
+        std::vector<char> data;
+        event.packet >> data;
+        fromSerial(data);
+    }
 }
 
 void ClientBlocks::init() {
@@ -84,13 +89,13 @@ void ClientBlocks::init() {
 }
 
 void ClientBlocks::loadTextures() {
-    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    loadOpa(breaking_texture, resource_pack->getFile("/misc/breaking.opa"));
     
     std::vector<gfx::Texture*> block_textures(getNumBlockTypes() - 1);
 
     for(int i = 1; i < getNumBlockTypes(); i++) {
         block_textures[i - 1] = new gfx::Texture;
-        block_textures[i - 1]->loadFromFile(resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".png"));
+        loadOpa(*block_textures[i - 1], resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".opa"));
     }
     
     blocks_atlas.create(block_textures);
@@ -158,6 +163,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
                     texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).y + blocks->getBlockYFromMain(x_, y_) * BLOCK_WIDTH;
                 }
                 block_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
+                block_rects.setColor(index, {255, 255, 255});
                 index++;
             }
     block_count = index;
@@ -165,7 +171,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
 
 void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
     if(block_count > 0)
-        block_rects.render(block_count, &blocks->getBlocksAtlasTexture(), x, y);
+        block_rects.render(&blocks->getBlocksAtlasTexture(), x, y);
 }
 
 const gfx::Texture& ClientBlocks::getBlocksAtlasTexture() {
@@ -193,37 +199,35 @@ void ClientBlocks::render() {
             }
 }
 
-
-
-int ClientBlocks::getBlocksViewBeginX() {
+int ClientBlocks::getBlocksViewBeginX() const {
     return view_begin_x;
 }
 
-int ClientBlocks::getBlocksViewEndX() {
+int ClientBlocks::getBlocksViewEndX() const {
     return view_end_x;
 }
 
-int ClientBlocks::getBlocksViewBeginY() {
+int ClientBlocks::getBlocksViewBeginY() const {
     return view_begin_y;
 }
 
-int ClientBlocks::getBlocksViewEndY() {
+int ClientBlocks::getBlocksViewEndY() const {
     return view_end_y;
 }
 
-int ClientBlocks::getBlocksExtendedViewBeginX() {
+int ClientBlocks::getBlocksExtendedViewBeginX() const {
     return extended_view_begin_x;
 }
 
-int ClientBlocks::getBlocksExtendedViewEndX() {
+int ClientBlocks::getBlocksExtendedViewEndX() const {
     return extended_view_end_x;
 }
 
-int ClientBlocks::getBlocksExtendedViewBeginY() {
+int ClientBlocks::getBlocksExtendedViewBeginY() const {
     return extended_view_begin_y;
 }
 
-int ClientBlocks::getBlocksExtendedViewEndY() {
+int ClientBlocks::getBlocksExtendedViewEndY() const {
     return extended_view_end_y;
 }
 

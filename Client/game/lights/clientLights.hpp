@@ -8,11 +8,10 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     class LightChunk {
         gfx::RectArray light_rects;
         bool is_created = false;
-        int lights_count = 0;
     public:
         bool has_update = true;
-        bool isCreated() { return is_created; }
-        void create(ClientLights* lights, int x, int y);
+        bool isCreated() const { return is_created; }
+        void create();
         void update(ClientLights* lights, int x, int y);
         void render(int x, int y);
     };
@@ -42,7 +41,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     
     LightChunk* getLightChunk(int x, int y);
     
-    void scheduleLightUpdate(int x, int y);
+    void scheduleClientLightUpdate(int x, int y);
 public:
     ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
 };

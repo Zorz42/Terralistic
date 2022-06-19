@@ -9,7 +9,7 @@ void BlockSelector::init() {
 void BlockSelector::render() {
     if(!getKeyState(gfx::Key::MOUSE_LEFT) && is_left_button_pressed) {
         is_left_button_pressed = false;
-        sf::Packet packet;
+        Packet packet;
         packet << ClientPacketType::STOPPED_BREAKING;
         networking->sendPacket(packet);
         prev_selected_x = blocks->getWidth();
@@ -19,7 +19,7 @@ void BlockSelector::render() {
     selected_block_x = (int)((getMouseX() + camera->getX() - gfx::getWindowWidth() / 2) / (BLOCK_WIDTH * 2));
     selected_block_y = (int)((getMouseY() + camera->getY() - gfx::getWindowHeight() / 2) / (BLOCK_WIDTH * 2));
     if((selected_block_x != prev_selected_x || selected_block_y != prev_selected_y) && is_left_button_pressed) {
-        sf::Packet packet;
+        Packet packet;
         packet << ClientPacketType::STARTED_BREAKING << selected_block_x << selected_block_y;
         networking->sendPacket(packet);
         
@@ -40,7 +40,7 @@ bool BlockSelector::onKeyDown(gfx::Key key) {
         int ending_y = (player_handler->getMainPlayer()->getY() + PLAYER_HEIGHT * 2 - 1) / (BLOCK_WIDTH * 2);
 
         if(selected_block_x < starting_x || selected_block_x > ending_x || selected_block_y < starting_y || selected_block_y > ending_y) {
-            sf::Packet packet;
+            Packet packet;
             packet << ClientPacketType::RIGHT_CLICK << selected_block_x << selected_block_y;
             networking->sendPacket(packet);
         }

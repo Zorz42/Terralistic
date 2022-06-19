@@ -1,5 +1,6 @@
 #pragma once
 #include <thread>
+#include <utility>
 #include "menuBack.hpp"
 
 enum class UpdateState {NEUTRAL, CHECKING, DOWNLOADING, APPLYING, FINISHED};
@@ -15,6 +16,5 @@ class UpdateChecker : public gfx::Scene {
     void render() override;
     MenuBack* menu_back;
 public:
-    UpdateChecker(MenuBack* menu_back, std::string exec_path) : menu_back(menu_back), exec_path(exec_path) {}
-    bool hasUpdated() { return has_updated; }
+    UpdateChecker(MenuBack* menu_back, std::string exec_path) : menu_back(menu_back), exec_path(std::move(exec_path)) {}
 };

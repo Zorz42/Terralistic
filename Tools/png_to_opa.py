@@ -1,5 +1,6 @@
 # opa - ordered pixel array
 import sys
+import os
 import cv2
 
 
@@ -32,7 +33,10 @@ def convert(input_file: str, output_file: str):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage png_to_opa.py [input_file.png] [output_file.opa]")
-    else:
+    if len(sys.argv) == 3:
         convert(sys.argv[1], sys.argv[2])
+    elif len(sys.argv) == 2 and sys.argv[1].endswith(".png"):
+        convert(sys.argv[1], sys.argv[1][0:-4] + ".opa")
+        os.remove(sys.argv[1])
+    else:
+        print("Usage png_to_opa.py [input_file.png] [output_file.opa]")

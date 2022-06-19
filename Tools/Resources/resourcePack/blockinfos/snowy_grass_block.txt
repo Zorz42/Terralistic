@@ -1,0 +1,10 @@
+ghost: false
+transparent: false
+break_time: 1000
+connects_to: dirt grass_block
+drop: nothing
+drop_chance: 100
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0
+can_update_states: true

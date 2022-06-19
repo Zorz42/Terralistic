@@ -54,8 +54,8 @@ TileDrop Items::getWallDrop(WallType* wall_type) {
 }
 
 ItemType* Items::getItemTypeByName(const std::string& name) {
-    for(int i = 0; i < item_types.size(); i++)
-        if(item_types[i]->name == name)
-            return item_types[i];
+    for(auto & item_type : item_types)
+        if(item_type->name == name)
+            return item_type;
     throw Exception("Could not find item by name");
 }

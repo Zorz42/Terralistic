@@ -2,11 +2,9 @@
 #include "serverPlayers.hpp"
 
 void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
-    sf::Packet packet;
-    packet << WelcomePacketType::BLOCKS;
-    event.connection->sendDirectly(packet);
-    
-    event.connection->send(toSerial());
+    Packet packet;
+    packet << WelcomePacketType::BLOCKS << toSerial();
+    event.connection->send(packet);
 }
 
 void ServerBlocks::init() {    
@@ -46,14 +44,14 @@ void ServerBlocks::stop() {
 }
 
 void ServerBlocks::onEvent(BlockChangeEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y)->id << (unsigned char)getBlockXFromMain(event.x, event.y) << (unsigned char)getBlockYFromMain(event.x, event.y);
     networking->sendToEveryone(packet);
     
     int neighbours[5][2] = {{event.x, event.y}, {event.x - 1, event.y}, {event.x, event.y - 1}, {event.x + 1, event.y}, {event.x, event.y + 1}};
-    for(int i = 0; i < 5; i++)
-        if(neighbours[i][0] >= 0 && neighbours[i][0] < getWidth() && neighbours[i][1] >= 0 && neighbours[i][1] < getHeight())
-            updateBlock(neighbours[i][0], neighbours[i][1]);
+    for(auto & neighbour : neighbours)
+        if(neighbour[0] >= 0 && neighbour[0] < getWidth() && neighbour[1] >= 0 && neighbour[1] < getHeight())
+            updateBlock(neighbour[0], neighbour[1]);
 }
 
 void ServerBlocks::updateBlock(int x, int y) {
@@ -80,13 +78,13 @@ void ServerBlocks::onEvent(BlockUpdateEvent& event) {
 }
 
 void ServerBlocks::onEvent(BlockStartedBreakingEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::BLOCK_STARTED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }
 
 void ServerBlocks::onEvent(BlockStoppedBreakingEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::BLOCK_STOPPED_BREAKING << event.x << event.y;
     networking->sendToEveryone(packet);
 }

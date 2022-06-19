@@ -1,0 +1,10 @@
+ghost: true
+transparent: false
+break_time: UNBREAKABLE
+connects_to:
+drop: nothing
+drop_chance: 100
+light_emission_r: 0
+light_emission_g: 0
+light_emission_b: 0
+can_update_states: false

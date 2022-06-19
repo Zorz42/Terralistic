@@ -1,8 +1,6 @@
 #pragma once
 #include "blocks.hpp"
 
-enum class FlowDirection {NONE, LEFT, RIGHT};
-
 #define MAX_LIQUID_LEVEL 100
 
 class LiquidChangeEvent {
@@ -26,7 +24,6 @@ class Liquids {
     public:
         Liquid() : id(/*empty*/0), level(0) {}
         int id:8;
-        FlowDirection flow_direction:8;
         float level;
     };
     
@@ -37,7 +34,7 @@ class Liquids {
     
     Blocks* blocks;
 public:
-    Liquids(Blocks* blocks) : blocks(blocks), empty("empty") { empty.flow_time = 0; empty.speed_multiplier = 1; registerNewLiquidType(&empty); }
+    explicit Liquids(Blocks* blocks) : blocks(blocks), empty("empty") { empty.flow_time = 0; empty.speed_multiplier = 1; registerNewLiquidType(&empty); }
     
     void create();
     

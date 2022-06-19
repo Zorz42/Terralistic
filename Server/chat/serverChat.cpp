@@ -15,7 +15,7 @@ void ServerChat::onEvent(ServerPacketEvent &event) {
         std::string chat_format = (event.player->name == "_" ? "Protagonist" : event.player->name) + ": " + message;
         print::info(chat_format);
         
-        sf::Packet chat_packet;
+        Packet chat_packet;
         chat_packet << ServerPacketType::CHAT << chat_format;
         networking->sendToEveryone(chat_packet);
     }
@@ -26,7 +26,7 @@ void ServerChat::init() {
 }
 
 void ServerChat::sendChat(ServerPlayer* player, const std::string& message) {
-    sf::Packet chat_packet;
+    Packet chat_packet;
     chat_packet << ServerPacketType::CHAT << message;
     player->getConnection()->send(chat_packet);
 }

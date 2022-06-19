@@ -1,9 +1,11 @@
 #pragma once
+#include <utility>
+
 #include "serverPlayers.hpp"
 
 class ServerChatEvent {
 public:
-    ServerChatEvent(ServerPlayer* sender, std::string message) : sender(sender), message(message) {}
+    ServerChatEvent(ServerPlayer* sender, std::string message) : sender(sender), message(std::move(message)) {}
     ServerPlayer* sender;
     std::string message;
     bool cancelled = false;
@@ -19,7 +21,7 @@ class ServerChat : public ServerModule, EventListener<ServerPacketEvent> {
 public:
     ServerChat(ServerPlayers* players, ServerNetworking* networking) : players(players), networking(networking) {}
     
-    void sendChat(ServerPlayer* player, const std::string& message);
+    static void sendChat(ServerPlayer* player, const std::string& message);
     
     EventSender<ServerChatEvent> chat_event;
 };

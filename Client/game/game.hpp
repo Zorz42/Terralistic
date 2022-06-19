@@ -23,7 +23,7 @@ class Game : gfx::Scene, public BackgroundRect {
     bool onKeyDown(gfx::Key key) override;
     void render() override;
     
-    void initialize();
+    void initializeGame();
     std::string username;
     
     ClientNetworking networking;

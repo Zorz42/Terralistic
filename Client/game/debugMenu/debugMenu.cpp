@@ -7,7 +7,7 @@ void DebugMenu::init() {
     back_rect.fill_color = BLACK;
     back_rect.border_color = BORDER_COLOR;
     back_rect.fill_color.a = TRANSPARENCY;
-    back_rect.blur_intensity = BLUR;
+    back_rect.blur_radius = BLUR;
     back_rect.smooth_factor = 3;
     
     networking->packet_event.addListener(this);
@@ -32,13 +32,15 @@ void DebugMenu::update(float frame_length) {
             packet_count = 0;
             server_tps_line.text = std::to_string(server_tps) + " TPS on server";
 
-            if(recieved_ping_answer){
-                sf::Packet ping;
+            if(received_ping_answer) {
+                Packet ping;
                 ping << ClientPacketType::PING;
                 networking->sendPacket(ping);
-                recieved_ping_answer = false;
+                received_ping_answer = false;
                 ping_timer.reset();
             }
+            if(ping_timer.getTimeElapsed() > 60000)
+                throw Exception("Server did not respond in 60 seconds. It has likely crashed");
         }
 
         if(debug_menu_open) {
@@ -50,9 +52,9 @@ void DebugMenu::update(float frame_length) {
                 coords_line.text = std::string("X: ") + std::to_string(int(players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(blocks->getHeight() - players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2)));
             }
         }
-        
-        for(int i = 0; i < debug_lines.size(); i++)
-            debug_lines[i]->update();
+
+        for(auto & debug_line : debug_lines)
+            debug_line->update();
     }
 }
 
@@ -78,9 +80,9 @@ void DebugMenu::DebugLine::update() {
 void DebugMenu::render() {
     int back_width = 0, back_height = 0;
     
-    for(int i = 0; i < debug_lines.size(); i++) {
-        back_width = std::max(debug_lines[i]->getWidth(), back_width);
-        back_height += debug_lines[i]->getHeight();
+    for(auto & debug_line : debug_lines) {
+        back_width = std::max(debug_line->getWidth(), back_width);
+        back_height += debug_line->getHeight();
     }
     
     back_rect.setWidth(back_width + SPACING);
@@ -89,9 +91,9 @@ void DebugMenu::render() {
     back_rect.render();
     
     int curr_y = gfx::getWindowHeight() + back_rect.getY() - back_rect.getHeight();
-    for(int i = 0; i < debug_lines.size(); i++) {
-        debug_lines[i]->render(gfx::getWindowWidth() + back_rect.getX() - back_rect.getWidth() + SPACING / 2, curr_y + SPACING / 2);
-        curr_y += debug_lines[i]->getHeight();
+    for(auto & debug_line : debug_lines) {
+        debug_line->render(gfx::getWindowWidth() + back_rect.getX() - back_rect.getWidth() + SPACING / 2, curr_y + SPACING / 2);
+        curr_y += debug_line->getHeight();
     }
 }
 
@@ -102,9 +104,9 @@ void DebugMenu::onEvent(ClientPacketEvent& event) {
             event.packet >> server_tps;
             break;
         }
-        case ServerPacketType::PING:{
+        case ServerPacketType::PING: {
             ping_line.text = "Ping: " + std::to_string(ping_timer.getTimeElapsed() / 1000);
-            recieved_ping_answer = true;
+            received_ping_answer = true;
         }
         default: break;
     }
@@ -113,7 +115,10 @@ void DebugMenu::onEvent(ClientPacketEvent& event) {
 
 bool DebugMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::M) {
-        debug_menu_open = !debug_menu_open;
+        if(!debug_menu_open) // I know its ugly but if I do debug_menu_open = !debug_menu_open; for some reason clang-tidy thinks the variable not changing, and starts recommending weird optimizations.
+            debug_menu_open = true;
+        else
+            debug_menu_open = false;
         return true;
     }
     return false;

@@ -1,4 +1,6 @@
 #pragma once
+#include <utility>
+
 #include "entities.hpp"
 
 #define PLAYER_HEIGHT 24
@@ -9,7 +11,7 @@ enum class MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING};
 class Player : public Entity {
     bool isColliding(Blocks* blocks) override;
 public:
-    Player(int x, int y, const std::string& name, int id=0) : Entity(EntityType::PLAYER, x, y, id), name(name) {}
+    Player(int x, int y, std::string  name, int id=0) : Entity(EntityType::PLAYER, x, y, id), name(std::move(name)) {}
     
     int getWidth() override;
     int getHeight() override;

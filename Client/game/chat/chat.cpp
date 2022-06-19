@@ -6,7 +6,6 @@ static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', 
 void Chat::init() {
     networking->packet_event.addListener(this);
     chat_box.scale = 2;
-    chat_box.setText("");
     chat_box.orientation = gfx::BOTTOM_LEFT;
     chat_box.y = -SPACING / 2;
     chat_box.x = SPACING / 2;
@@ -35,38 +34,38 @@ void Chat::update(float frame_length) {
             chat_box.width += (target_width - (int)chat_box.width) / 3;
         }
         
-        for(int i = 0; i < chat_lines.size(); i++)
-            chat_lines[i]->text_sprite.y += (chat_lines[i]->y_to_be - chat_lines[i]->text_sprite.y) / 2;
+        for(auto & chat_line : chat_lines)
+            chat_line->text_sprite.y += (chat_line->y_to_be - chat_line->text_sprite.y) / 2;
     }
 }
 
 void Chat::render() {
     chat_box.render(getMouseX(), getMouseY());
     
-    for(int i = 0; i < chat_lines.size(); i++) {
-        if(!chat_lines[i]->text.empty()) {
-            chat_lines[i]->text_sprite.loadFromText(chat_lines[i]->text);
-            chat_lines[i]->text_sprite.scale = 2;
-            chat_lines[i]->text_sprite.y = chat_box.y;
-            chat_lines[i]->text_sprite.x = SPACING / 2;
-            chat_lines[i]->text_sprite.orientation = gfx::BOTTOM_LEFT;
-            chat_lines[i]->y_to_be = chat_box.y - chat_box.getHeight();
-            chat_lines[i]->text.clear();
-            chat_lines[i]->text.shrink_to_fit();
+    for(auto & chat_line : chat_lines) {
+        if(!chat_line->text.empty()) {
+            chat_line->text_sprite.loadFromText(chat_line->text);
+            chat_line->text_sprite.scale = 2;
+            chat_line->text_sprite.y = chat_box.y;
+            chat_line->text_sprite.x = SPACING / 2;
+            chat_line->text_sprite.orientation = gfx::BOTTOM_LEFT;
+            chat_line->y_to_be = chat_box.y - chat_box.getHeight();
+            chat_line->text.clear();
+            chat_line->text.shrink_to_fit();
             
-            for(int i2 = 0; i2 < chat_lines.size(); i2++)
-                if(chat_lines[i2] != chat_lines[i])
-                    chat_lines[i2]->y_to_be -= chat_lines[i]->text_sprite.getHeight();
+            for(auto & i2 : chat_lines)
+                if(i2 != chat_line)
+                    i2->y_to_be -= chat_line->text_sprite.getHeight();
         }
         
-        if(chat_lines[i]->timer.getTimeElapsed() < 10000 || chat_box.active) {
-            float alpha = 10000 - chat_lines[i]->timer.getTimeElapsed();
+        if(chat_line->timer.getTimeElapsed() < 10000 || chat_box.active) {
+            float alpha = 10000 - chat_line->timer.getTimeElapsed();
             if(alpha >= 500 || chat_box.active)
                 alpha = 500;
             
             if(alpha > 0) {
-                chat_lines[i]->text_sprite.setColor({255, 255, 255, (unsigned char)(alpha / 500 * 255)});
-                chat_lines[i]->text_sprite.render();
+                chat_line->text_sprite.setColor({255, 255, 255, (unsigned char)(alpha / 500 * 255)});
+                chat_line->text_sprite.render();
             }
         }
     }
@@ -75,7 +74,7 @@ void Chat::render() {
 bool Chat::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && chat_box.active) {
         if(!chat_box.getText().empty()) {
-            sf::Packet chat_packet;
+            Packet chat_packet;
             chat_packet << ClientPacketType::CHAT << chat_box.getText();
             networking->sendPacket(chat_packet);
             saved_lines.insert(saved_lines.begin() + 1, chat_box.getText());
@@ -136,8 +135,8 @@ void Chat::onEvent(ClientPacketEvent &event) {
 }
 
 void Chat::stop() {
-    for(int i = 0; i < chat_lines.size(); i++)
-        delete chat_lines[i];
+    for(auto & chat_line : chat_lines)
+        delete chat_line;
     
     networking->packet_event.removeListener(this);
 }

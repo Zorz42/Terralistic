@@ -1,4 +1,5 @@
 #include "clientWalls.hpp"
+#include "readOpa.hpp"
 
 bool ClientWalls::updateOrientationSide(int x, int y, int side_x, int side_y) {
     return x + side_x >= getWidth() || x + side_x < 0 || y + side_y >= getHeight() || y + side_y < 0 || getWallType(x + side_x, y + side_y) != &clear;
@@ -29,10 +30,14 @@ void ClientWalls::updateOrientationRight(int x, int y) {
 }
 
 ClientWalls::RenderWall* ClientWalls::getRenderWall(int x, int y) {
+    if(render_walls == nullptr)
+        throw Exception("render_walls are null");
     return &render_walls[y * getWidth() + x];
 }
 
 ClientWalls::RenderWallChunk* ClientWalls::getRenderWallChunk(int x, int y) {
+    if(wall_chunks == nullptr)
+        throw Exception("wall_chunks are null");
     return &wall_chunks[y * getWidth() / 16 + x];
 }
 
@@ -60,8 +65,11 @@ void ClientWalls::postInit() {
 }
 
 void ClientWalls::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::WALLS)
-        fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::WALLS) {
+        std::vector<char> data;
+        event.packet >> data;
+        fromSerial(data);
+    }
 }
 
 void ClientWalls::updateParallel(float frame_length) {
@@ -104,9 +112,9 @@ void ClientWalls::onEvent(ClientPacketEvent& event) {
 
 void ClientWalls::onEvent(WallChangeEvent& event) {
     int coords[5][2] = {{event.x, event.y}, {event.x + 1, event.y}, {event.x - 1, event.y}, {event.x, event.y + 1}, {event.x, event.y - 1}};
-    for(int i = 0; i < 5; i++) {
-        scheduleWallUpdate(coords[i][0], coords[i][1]);
-        updateState(coords[i][0], coords[i][1]);
+    for(auto & coord : coords) {
+        scheduleWallUpdate(coord[0], coord[1]);
+        updateState(coord[0], coord[1]);
     }
 }
 
@@ -121,13 +129,13 @@ void ClientWalls::init() {
 }
 
 void ClientWalls::loadTextures() {
-    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    loadOpa(breaking_texture, resource_pack->getFile("/misc/breaking.opa"));
     
     std::vector<gfx::Texture*> wall_textures(getNumWallTypes() - 1);
 
     for(int i = 1; i < getNumWallTypes(); i++) {
         wall_textures[i - 1] = new gfx::Texture;
-        wall_textures[i - 1]->loadFromFile(resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".png"));
+        loadOpa(*wall_textures[i - 1], resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".opa"));
     }
     
     walls_atlas.create(wall_textures);
@@ -158,6 +166,7 @@ void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
                 int texture_x = (walls->getRenderWall(x_, y_)->variation) % (walls->getWallRectInAtlas(walls->getWallType(x_, y_)).w / BLOCK_WIDTH / 3) * 3 * BLOCK_WIDTH;
                 int texture_y = walls->getWallRectInAtlas(walls->getWallType(x_, y_)).y + BLOCK_WIDTH * 3 * walls->getRenderWall(x_, y_)->state;
                 wall_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH * 3, BLOCK_WIDTH * 3});
+                wall_rects.setColor(index, {255, 255, 255});
                 index++;
             }
     wall_count = index;
@@ -165,7 +174,7 @@ void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
 
 void ClientWalls::RenderWallChunk::render(ClientWalls* walls, int x, int y) {
     if(wall_count > 0)
-        wall_rects.render(wall_count, &walls->getWallsAtlasTexture(), x, y);
+        wall_rects.render(&walls->getWallsAtlasTexture(), x, y);
 }
 
 void ClientWalls::RenderWallChunk::create() {

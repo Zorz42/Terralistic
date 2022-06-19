@@ -16,16 +16,16 @@ void ServerItems::stop() {
 }
 
 void ServerItems::onEvent(ItemCreationEvent &event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::ITEM_CREATION << (int)event.item->getX() << (int)event.item->getY() << event.item->id << event.item->getType()->id;
     networking->sendToEveryone(packet);
 }
 
 void ServerItems::onEvent(ServerNewConnectionEvent& event) {
-    for(int i = 0; i < entities->getEntities().size(); i++)
-        if(entities->getEntities()[i]->type == EntityType::ITEM) {
-            Item* item = (Item*)entities->getEntities()[i];
-            sf::Packet item_packet;
+    for(auto i : entities->getEntities())
+        if(i->type == EntityType::ITEM) {
+            Item* item = (Item*)i;
+            Packet item_packet;
             item_packet << ServerPacketType::ITEM_CREATION << item->getX() << item->getY() << item->id << item->getType()->id;
             event.connection->send(item_packet);
         }
@@ -65,7 +65,7 @@ void ServerItems::update(float frame_length) {
                         if(item_1->entity_item_count + item_2->entity_item_count <= item_2->getType()->max_stack){
                             item_2->entity_item_count += item_1->entity_item_count;
 
-                            sf::Packet packet;
+                            Packet packet;
                             packet << ServerPacketType::ITEM_COUNT_CHANGE << item_2->id << item_2->entity_item_count;
                             networking->sendToEveryone(packet);
                             entities->removeEntity(item_1);
