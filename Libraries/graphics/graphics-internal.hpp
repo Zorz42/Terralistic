@@ -13,7 +13,6 @@ namespace gfx {
 
 inline std::vector<GlobalUpdateFunction*> global_update_functions;
 inline float frame_length;
-inline unsigned int vertex_array_id;
 
 inline bool key_states[(int)gfx::Key::UNKNOWN];
 
@@ -25,17 +24,10 @@ inline Scene* curr_scene = nullptr;
 
 void blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, _Transformation texture_transform);
 
-void updateWindow();
-
 inline Texture* font_texture = nullptr;
 inline RectShape font_rects[256];
 
 inline Texture* shadow_texture = nullptr;
-
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-void characterCallback(GLFWwindow* window, unsigned int codepoint);
 
 inline bool updated_back_window_texture = false;
 }

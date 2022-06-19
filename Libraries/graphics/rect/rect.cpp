@@ -1,6 +1,7 @@
 #include <cmath>
 #include "glfwAbstraction.hpp"
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 int approach(int object, int target, int smooth_factor) {
     if(std::abs(target - object) < smooth_factor)
@@ -69,7 +70,7 @@ int gfx::Rect::getWidth() const {
 
 void gfx::Rect::setWidth(int width_) {
     if(width_ < 0)
-        throw std::runtime_error("Width must be positive.");
+        throw Exception("Width must be positive.");
     target_width = width_;
     if(first_time)
         width = width_;
@@ -81,7 +82,7 @@ int gfx::Rect::getHeight() const {
 
 void gfx::Rect::setHeight(int height_) {
     if(height_ < 0)
-        throw std::runtime_error("Height must be positive.");
+        throw Exception("Height must be positive.");
     target_height = height_;
     if(first_time)
         height = height_;

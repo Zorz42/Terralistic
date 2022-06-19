@@ -1,5 +1,6 @@
 #include "glfwAbstraction.hpp"
 #include "graphics-internal.hpp"
+#include "exception.hpp"
 
 gfx::RectArray::~RectArray() {
     if(vertex_buffer != -1) {
@@ -28,7 +29,7 @@ void gfx::RectArray::setVertexTextureCoord(int index, int x, int y) {
 
 void gfx::RectArray::setRect(int index, RectShape rect) {
     if(index < 0 || index >= length)
-        throw std::runtime_error("Rect index must be positive and in bounds.");
+        throw Exception("Rect index must be positive and in bounds.");
     
     int x1 = rect.x, y1 = rect.y, x2 = rect.x + rect.w, y2 = rect.y + rect.h;
     setVertex(index * 6, x1, y1);
@@ -47,7 +48,7 @@ void gfx::RectArray::setColor(int index, Color color) {
 
 void gfx::RectArray::setColor(int index, Color color1, Color color2, Color color3, Color color4) {
     if(index < 0 || index >= length)
-        throw std::runtime_error("Color index must be positive and in bounds.");
+        throw Exception("Color index must be positive and in bounds.");
     
     setVertexColor(index * 6, color1);
     setVertexColor(index * 6 + 1, color2);
@@ -61,7 +62,7 @@ void gfx::RectArray::setColor(int index, Color color1, Color color2, Color color
 
 void gfx::RectArray::setTextureCoords(int index, RectShape texture_coordinates) {
     if(index < 0 || index >= length)
-        throw std::runtime_error("Texture coord index must be positive and in bounds.");
+        throw Exception("Texture coord index must be positive and in bounds.");
     
     int x1 = texture_coordinates.x, y1 = texture_coordinates.y, x2 = texture_coordinates.x + texture_coordinates.w, y2 = texture_coordinates.y + texture_coordinates.h;
     setVertexTextureCoord(index * 6, x1, y1);
@@ -76,7 +77,7 @@ void gfx::RectArray::setTextureCoords(int index, RectShape texture_coordinates) 
 
 void gfx::RectArray::resize(int size) {
     if(size < 0)
-        throw std::runtime_error("RectArray size must be positive.");
+        throw Exception("RectArray size must be positive.");
     
     vertex_array.resize(size * 6 * 2);
     color_array.resize(size * 6 * 4);

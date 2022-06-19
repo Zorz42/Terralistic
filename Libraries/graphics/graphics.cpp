@@ -30,8 +30,8 @@ static const char* blur_fragment_shader_code =
 "       color += texture(texture_sampler, max(min(uv + (i - 10.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];"
 "}";
 
-void gfx::init(int window_width_, int window_height_) {
-    initGlfw(window_width_, window_height_);
+void gfx::init(int window_width_, int window_height_, const std::string& window_title) {
+    initGlfw(window_width_, window_height_, window_title);
     
     blur_shader_program = CompileShaders(blur_vertex_shader_code, blur_fragment_shader_code);
     uniform_blur_transform_matrix = glGetUniformLocation(blur_shader_program, "transform_matrix");

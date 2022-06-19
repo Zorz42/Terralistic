@@ -1,6 +1,5 @@
-#include <stdexcept>
+#include "exception.hpp"
 #include "glfwAbstraction.hpp"
-#include "graphics-internal.hpp"
 
 static const char* vertex_shader_code =
 "#version 330 core\n"
@@ -83,13 +82,13 @@ static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float 
     int window_width, window_height;
     glfwGetWindowSize(gfx::glfw_window, &window_width, &window_height);
     
-    gfx::Scene* temp_scene = gfx::curr_scene;
-    gfx::curr_scene = nullptr;
+    //gfx::Scene* temp_scene = gfx::curr_scene;
+    //gfx::curr_scene = nullptr;
     framebufferSizeCallback(gfx::glfw_window, window_width * gfx::system_scale_x, window_height * gfx::system_scale_y);
 #ifndef __APPLE__
     gfx::setMinimumWindowSize(gfx::window_width_min, gfx::window_height_min);
 #endif
-    gfx::curr_scene = temp_scene;
+    //gfx::curr_scene = temp_scene;
 }
 
 void gfx::setMinimumWindowSize(int width, int height) {
@@ -102,12 +101,12 @@ void gfx::setMinimumWindowSize(int width, int height) {
     glfwSetWindowSizeLimits(glfw_window, width * scale, height * scale, -1, -1);
 }
 
-void gfx::initGlfw(int window_width_, int window_height_) {
+void gfx::initGlfw(int window_width_, int window_height_, const std::string& window_title) {
     window_width = window_width_;
     window_height = window_height_;
 
     if(!glfwInit())
-        throw std::runtime_error("Failed to initialize GLFW");
+        throw Exception("Failed to initialize GLFW");
 
     glfwWindowHint(GLFW_SAMPLES, 0);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -115,7 +114,7 @@ void gfx::initGlfw(int window_width_, int window_height_) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfw_window = glfwCreateWindow(window_width, window_height, "Terralistic", nullptr, nullptr);
+    glfw_window = glfwCreateWindow(window_width, window_height, window_title.c_str(), nullptr, nullptr);
     glfwSetFramebufferSizeCallback(glfw_window, framebufferSizeCallback);
     glfwSetWindowContentScaleCallback(glfw_window, windowContentScaleCallback);
     glfwSetKeyCallback(glfw_window, gfx::keyCallback);
@@ -127,13 +126,14 @@ void gfx::initGlfw(int window_width_, int window_height_) {
     glfwGetWindowContentScale(glfw_window, &scale_x, &scale_y);
 
     if(!glfw_window)
-        throw std::runtime_error("Failed to open GLFW window.");
+        throw Exception("Failed to open GLFW window.");
 
     glfwMakeContextCurrent(glfw_window);
     
     if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
-        throw std::runtime_error("Failed to initialize OpenGL context");
+        throw Exception("Failed to initialize OpenGL context");
     
+    unsigned int vertex_array_id;
     glGenVertexArrays(1, &vertex_array_id);
     glBindVertexArray(vertex_array_id);
 

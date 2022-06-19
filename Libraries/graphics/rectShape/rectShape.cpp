@@ -1,11 +1,11 @@
 #include "rectShape.hpp"
 #include "glfwAbstraction.hpp"
 #include "transformation.hpp"
-#include <stdexcept>
+#include "exception.hpp"
 
 gfx::RectShape::RectShape(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {
     if(w < 0 || h < 0)
-        throw std::runtime_error("RectShape width and height must be positive.");
+        throw Exception("RectShape width and height must be positive.");
 }
 
 void gfx::RectShape::render(Color color) const {

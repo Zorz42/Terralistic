@@ -1,8 +1,7 @@
 #include <cstring>
 #include "glfwAbstraction.hpp"
 #include "graphics-internal.hpp"
-
-#include <iostream>
+#include "exception.hpp"
 
 void gfx::Texture::createBlankImage(int width_, int height_) {
     if(width_ <= 0 || height_ <= 0)

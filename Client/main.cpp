@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
     }
 
     resource_path = getResourcePath(argv[0]);
-    gfx::init(1130, 700);
+    gfx::init(1130, 700, "Terralistic");
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
     std::ifstream font_file(resource_path + "font.opa");

@@ -18,19 +18,21 @@ void setGlobalScale(float scale);
 
 #ifndef GRAPHICS_PUBLIC
 
+#include <string>
+#include "transformation.hpp"
+
 #define SHADER_VERTEX_BUFFER 0
 #define SHADER_COLOR_BUFFER 1
 #define SHADER_TEXTURE_COORD_BUFFER 2
-#include "transformation.hpp"
 
 namespace gfx {
+
+void initGlfw(int window_width_, int window_height_, const std::string& window_title);
 
 inline GLFWwindow* glfw_window;
 inline unsigned int shader_program, blur_shader_program;
 inline int window_width, window_height;
 inline float window_width_reciprocal, window_height_reciprocal;
-
-void initGlfw(int window_width_, int window_height_);
 
 inline int uniform_has_color_buffer, uniform_default_color, uniform_has_texture,
 uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_matrix,
@@ -50,6 +52,13 @@ inline int window_width_min, window_height_min;
 inline int window_resized_counter = 0;
 
 unsigned int CompileShaders(const char* vertex_code, const char* fragment_code);
+
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+void characterCallback(GLFWwindow* window, unsigned int codepoint);
+
+void updateWindow();
 };
 
 #endif

@@ -249,7 +249,7 @@ public:
 
 void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
 
-void init(int window_width_, int window_height_);
+void init(int window_width_, int window_height_, const std::string& window_title);
 void quit();
 
 void loadFont(const unsigned char* data);
