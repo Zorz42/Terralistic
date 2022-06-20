@@ -224,13 +224,21 @@ void gfx::enableVsync(bool enabled) {
 int gfx::getWindowWidth() {
     int width;
     glfwGetWindowSize(gfx::glfw_window, &width, nullptr);
+#ifdef __APPLE__
     return width / global_scale_x * 2;
+#else
+    return width / global_scale_x;
+#endif
 }
 
 int gfx::getWindowHeight() {
     int height;
     glfwGetWindowSize(gfx::glfw_window, nullptr, &height);
+#ifdef __APPLE__
     return height / global_scale_y * 2;
+#else
+    return height / global_scale_y;
+#endif
 }
 
 void gfx::updateWindow() {
