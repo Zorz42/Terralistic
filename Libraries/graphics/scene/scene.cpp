@@ -144,9 +144,11 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                         std::string str = i->getText();
                         if(i->getCursorBegin() != i->getCursorEnd())
                             i->eraseSelected();
-                        else if(i->getCursorBegin() != 0)
+                        else if(i->getCursorBegin() != 0) {
+                            str.erase(i->getCursorBegin() - 1, 1);
+                            i->setCursor(i->getCursorBegin() - 1);
                             i->setText(str);
-                        i->setText(str);
+                        }
                     }
         }
         
