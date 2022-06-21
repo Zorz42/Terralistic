@@ -82,6 +82,7 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
 
         //if(!width_before)
             //width_before = 1;
+        
         if(!width_of_selection)
             width_of_selection = 1;
         
