@@ -159,6 +159,8 @@
 		367F3633285F716000319AD2 /* shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3630285F716000319AD2 /* shadow.cpp */; };
 		367F3637285F751800319AD2 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3635285F751800319AD2 /* font.cpp */; };
 		367F3638285F751800319AD2 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3635285F751800319AD2 /* font.cpp */; };
+		368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
+		368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368779712837EBCF00AA5943 /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779722837EC4C00AA5943 /* glad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36BFB23E282EE702008A462A /* glad.cpp */; };
@@ -176,8 +178,6 @@
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
 		36A52164279D667700C1F8CB /* TestException.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52163279D667700C1F8CB /* TestException.mm */; };
 		36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* TestEvent.mm */; };
-		36BFB22F282EE11C008A462A /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE1A282EE02F00C36DE5 /* libglfw.3.dylib */; };
-		36BFB230282EE11C008A462A /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE1A282EE02F00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		36BFB23F282EE702008A462A /* glad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36BFB23E282EE702008A462A /* glad.cpp */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
@@ -218,15 +218,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		366D96FC282067B400DEC292 /* Embed Frameworks */ = {
+		368296C428631C6100AD2176 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				36BFB230282EE11C008A462A /* libglfw.3.dylib in Embed Frameworks */,
+				368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */,
 			);
-			name = "Embed Frameworks";
+			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -471,7 +471,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3672919B26FE225900786856 /* libz.tbd in Frameworks */,
-				36BFB22F282EE11C008A462A /* libglfw.3.dylib in Frameworks */,
+				368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1589,7 +1589,7 @@
 				1689685225E95FD000D26060 /* Sources */,
 				1689685325E95FD000D26060 /* Frameworks */,
 				1689685425E95FD000D26060 /* Resources */,
-				366D96FC282067B400DEC292 /* Embed Frameworks */,
+				368296C428631C6100AD2176 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
