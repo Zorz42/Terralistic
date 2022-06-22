@@ -20,8 +20,8 @@ def createDir(path):
     os.makedirs(project_path + path, exist_ok=True)
 
 
-if sys.platform == "darwin":
-    createDir(project_path + "Dependencies/")
+def buildForMacOS():
+    createDir("Dependencies/")
 
     if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
         print("Downloading glfw library")
@@ -47,12 +47,12 @@ if sys.platform == "darwin":
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic.app/", ignore_errors=True)
     system(
-        f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic.xcarchive -exportPath {project_path}Terralistic.app/ -exportOptionsPlist {project_path}exportOptions.plist")
+        f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic.xcarchive -exportPath {project_path}Terralistic.app/ -exportOptionsPlist {project_path}Terralistic.xcodeproj/exportOptions.plist")
     shutil.copytree(f"{project_path}Terralistic.app/Terralistic.app/", f"{project_path}Output/MacOS/Terralistic.app/")
 
     shutil.rmtree(project_path + "Output/MacOS/Terralistic-server.app/", ignore_errors=True)
     system(
-        f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic-server.xcarchive -exportPath {project_path}Terralistic-server.app/ -exportOptionsPlist {project_path}exportOptions.plist")
+        f"xcodebuild -exportArchive -quiet -archivePath {project_path}Terralistic-server.xcarchive -exportPath {project_path}Terralistic-server.app/ -exportOptionsPlist {project_path}Terralistic.xcodeproj/exportOptions.plist")
     shutil.copytree(f"{project_path}Terralistic-server.app/Terralistic-server.app/",
                     f"{project_path}Output/MacOS/Terralistic-server.app/")
 
@@ -61,47 +61,9 @@ if sys.platform == "darwin":
 
     shutil.rmtree(project_path + "Terralistic.app/")
     shutil.rmtree(project_path + "Terralistic-server.app/")
-
-elif sys.platform == "linux":
-    createDir("Dependencies/")
-
-    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7/"):
-        print("Downloading glfw library")
-
-        glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.zip"
-        glfw_file = project_path + "glfw.tar.gz"
-
-        with urllib.request.urlopen(glfw_url) as glfw_request:
-            with open(glfw_file, 'wb') as glfw_download:
-                glfw_download.write(glfw_request.read())
-
-        with zipfile.ZipFile(glfw_file, "r") as glfw_zip:
-            glfw_zip.extractall(f"{project_path}Dependencies/")
-
-        os.remove(glfw_file)
-
-        system(f"cd {project_path}Dependencies/glfw-3.3.7/ && cmake -B build && cd build && make")
-
-    createDir("Build/")
-    system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
-
-    createDir("Output/Linux/Terralistic")
-    if os.path.exists(project_path + "Output/Linux/Terralistic/"):
-        shutil.rmtree(project_path + "Output/Linux/Terralistic/")
-    shutil.copytree(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic/Resources/")
-    shutil.copy(project_path + "Build/Terralistic", project_path + "Output/Linux/Terralistic/Terralistic")
-
-    createDir("Output/Linux/Terralistic-server")
-    if os.path.exists(project_path + "Output/Linux/Terralistic-server/"):
-        shutil.rmtree(project_path + "Output/Linux/Terralistic-server/")
-    shutil.copytree(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic-server/Resources/")
-    shutil.copy(project_path + "Build/Terralistic-server",
-                project_path + "Output/Linux/Terralistic-server/Terralistic-server")
-
-    if len(sys.argv) != 1 and sys.argv[1] == "run":
-        system(project_path + "Output/Linux/Terralistic/Terralistic")
-
-elif sys.platform == "win32":
+    
+    
+def buildForWindows():
     createDir("Dependencies/")
 
     if not os.path.exists(project_path + "Dependencies/zlib-master/"):
@@ -166,5 +128,53 @@ elif sys.platform == "win32":
 
     if len(sys.argv) != 1 and sys.argv[1] == "run":
         system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")
+    
+
+def buildForLinux():
+    createDir("Dependencies/")
+
+    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7/"):
+        print("Downloading glfw library")
+
+        glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.zip"
+        glfw_file = project_path + "glfw.tar.gz"
+
+        with urllib.request.urlopen(glfw_url) as glfw_request:
+            with open(glfw_file, 'wb') as glfw_download:
+                glfw_download.write(glfw_request.read())
+
+        with zipfile.ZipFile(glfw_file, "r") as glfw_zip:
+            glfw_zip.extractall(f"{project_path}Dependencies/")
+
+        os.remove(glfw_file)
+
+        system(f"cd {project_path}Dependencies/glfw-3.3.7/ && cmake -B build && cd build && make")
+
+    createDir("Build/")
+    system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
+
+    createDir("Output/Linux/Terralistic")
+    if os.path.exists(project_path + "Output/Linux/Terralistic/"):
+        shutil.rmtree(project_path + "Output/Linux/Terralistic/")
+    shutil.copytree(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic/Resources/")
+    shutil.copy(project_path + "Build/Terralistic", project_path + "Output/Linux/Terralistic/Terralistic")
+
+    createDir("Output/Linux/Terralistic-server")
+    if os.path.exists(project_path + "Output/Linux/Terralistic-server/"):
+        shutil.rmtree(project_path + "Output/Linux/Terralistic-server/")
+    shutil.copytree(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic-server/Resources/")
+    shutil.copy(project_path + "Build/Terralistic-server",
+                project_path + "Output/Linux/Terralistic-server/Terralistic-server")
+
+    if len(sys.argv) != 1 and sys.argv[1] == "run":
+        system(project_path + "Output/Linux/Terralistic/Terralistic")
+
+
+if sys.platform == "darwin":
+    buildForMacOS()
+elif sys.platform == "linux":
+    buildForLinux()
+elif sys.platform == "win32":
+    buildForWindows()
 else:
     print("Your current platform is not yet supported by this build script!")

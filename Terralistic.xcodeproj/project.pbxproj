@@ -142,8 +142,6 @@
 		366D9735282068D100DEC292 /* background.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D9729282068D100DEC292 /* background.opa */; };
 		366D9736282068D100DEC292 /* world_icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D972A282068D100DEC292 /* world_icon.opa */; };
 		366D9737282068D100DEC292 /* world_icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D972A282068D100DEC292 /* world_icon.opa */; };
-		366D9738282068D100DEC292 /* icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D972B282068D100DEC292 /* icon.opa */; };
-		366D9739282068D100DEC292 /* icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D972B282068D100DEC292 /* icon.opa */; };
 		366D973A282068D100DEC292 /* join_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D972C282068D100DEC292 /* join_button.opa */; };
 		366D973B282068D100DEC292 /* join_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D972C282068D100DEC292 /* join_button.opa */; };
 		366D973C282068D100DEC292 /* delete_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 366D972D282068D100DEC292 /* delete_button.opa */; };
@@ -410,7 +408,6 @@
 		366D9728282068D100DEC292 /* font.opa */ = {isa = PBXFileReference; lastKnownFileType = file; path = font.opa; sourceTree = "<group>"; };
 		366D9729282068D100DEC292 /* background.opa */ = {isa = PBXFileReference; lastKnownFileType = file; path = background.opa; sourceTree = "<group>"; };
 		366D972A282068D100DEC292 /* world_icon.opa */ = {isa = PBXFileReference; lastKnownFileType = file; path = world_icon.opa; sourceTree = "<group>"; };
-		366D972B282068D100DEC292 /* icon.opa */ = {isa = PBXFileReference; lastKnownFileType = file; path = icon.opa; sourceTree = "<group>"; };
 		366D972C282068D100DEC292 /* join_button.opa */ = {isa = PBXFileReference; lastKnownFileType = file; path = join_button.opa; sourceTree = "<group>"; };
 		366D972D282068D100DEC292 /* delete_button.opa */ = {isa = PBXFileReference; lastKnownFileType = file; path = delete_button.opa; sourceTree = "<group>"; };
 		366EBE0D282EDD0E00C36DE5 /* libGLEW.2.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.2.2.0.dylib; path = "Dependencies/glew-2.2.0/lib/libGLEW.2.2.0.dylib"; sourceTree = "<group>"; };
@@ -1019,7 +1016,6 @@
 				366D9729282068D100DEC292 /* background.opa */,
 				366D972D282068D100DEC292 /* delete_button.opa */,
 				366D9728282068D100DEC292 /* font.opa */,
-				366D972B282068D100DEC292 /* icon.opa */,
 				366D972C282068D100DEC292 /* join_button.opa */,
 				366D9726282068D100DEC292 /* play_button.opa */,
 				366D9727282068D100DEC292 /* remove_button.opa */,
@@ -1706,7 +1702,6 @@
 				366D9734282068D100DEC292 /* background.opa in Resources */,
 				366D9736282068D100DEC292 /* world_icon.opa in Resources */,
 				366D9732282068D100DEC292 /* font.opa in Resources */,
-				366D9738282068D100DEC292 /* icon.opa in Resources */,
 				366D973C282068D100DEC292 /* delete_button.opa in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1730,7 +1725,6 @@
 				366D9735282068D100DEC292 /* background.opa in Resources */,
 				366D9737282068D100DEC292 /* world_icon.opa in Resources */,
 				366D9733282068D100DEC292 /* font.opa in Resources */,
-				366D9739282068D100DEC292 /* icon.opa in Resources */,
 				366D973D282068D100DEC292 /* delete_button.opa in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
