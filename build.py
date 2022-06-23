@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
-import urllib.request
-import zipfile
-
 import Scripts.utils as utils
+import Scripts.dependencies as dependencies
 
 project_path = utils.getDir(__file__)
 
@@ -12,20 +10,7 @@ project_path = utils.getDir(__file__)
 def buildForMacOS():
     utils.createDir(project_path + "Dependencies/")
 
-    if not utils.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
-        print("Downloading glfw library")
-
-        glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.MACOS.zip"
-        glfw_file = project_path + "glfw.tar.gz"
-
-        with urllib.request.urlopen(glfw_url) as glfw_request:
-            with open(glfw_file, 'wb') as glfw_download:
-                glfw_download.write(glfw_request.read())
-
-        with zipfile.ZipFile(glfw_file, "r") as glfw_zip:
-            glfw_zip.extractall(f"{project_path}Dependencies/")
-
-        utils.remove(glfw_file)
+    dependencies.installDependency("https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.MACOS.zip", project_path + "Dependencies/glfw-3.3.7.bin.MACOS/", "glfw")
 
     utils.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic archive -configuration release -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic.xcarchive")
     utils.system(f"xcodebuild build -quiet -project {project_path}Terralistic.xcodeproj -scheme Terralistic-server archive -configuration release -jobs $(sysctl -n hw.ncpu) -archivePath {project_path}Terralistic-server.xcarchive")
@@ -50,37 +35,9 @@ def buildForMacOS():
 def buildForWindows():
     utils.createDir(project_path + "Dependencies/")
 
-    if not utils.exists(project_path + "Dependencies/zlib-master/"):
-        print("Downloading zlib library")
+    dependencies.installDependency("https://github.com/madler/zlib/archive/refs/heads/master.zip", project_path + "Dependencies/zlib-master/", "zlib", f"\"\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 17 2022\" -A Win32 . && cmake --build . --config Release --target install\"")
 
-        zlib_url = "https://github.com/madler/zlib/archive/refs/heads/master.zip"
-        zlib_file = project_path + "zlib.zip"
-
-        with urllib.request.urlopen(zlib_url) as zlib_request:
-            with open(zlib_file, 'wb') as zlib_download:
-                zlib_download.write(zlib_request.read())
-
-        with zipfile.ZipFile(zlib_file, "r") as zlib_zip:
-            zlib_zip.extractall(f"{project_path}Dependencies/")
-
-        utils.remove(zlib_file)
-
-        utils.system(f"\"\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 17 2022\" -A Win32 . && cmake --build . --config Release --target install\"")
-
-    if not utils.exists(project_path + "Dependencies/glfw-3.3.7.bin.WIN32/"):
-        print("Downloading glfw library")
-
-        glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN32.zip"
-        glfw_file = project_path + "glfw.tar.gz"
-
-        with urllib.request.urlopen(glfw_url) as glfw_request:
-            with open(glfw_file, 'wb') as glfw_download:
-                glfw_download.write(glfw_request.read())
-
-        with zipfile.ZipFile(glfw_file, "r") as glfw_zip:
-            glfw_zip.extractall(f"{project_path}Dependencies/")
-
-        utils.remove(glfw_file)
+    dependencies.installDependency("https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN32.zip", project_path + "Dependencies/glfw-3.3.7.bin.WIN32/", "glfw")
 
     utils.createDir(project_path + "Build/")
 
@@ -113,22 +70,7 @@ def buildForWindows():
 def buildForLinux():
     utils.createDir(project_path + "Dependencies/")
 
-    if not utils.exists(project_path + "Dependencies/glfw-3.3.7/"):
-        print("Downloading glfw library")
-
-        glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.zip"
-        glfw_file = project_path + "glfw.tar.gz"
-
-        with urllib.request.urlopen(glfw_url) as glfw_request:
-            with open(glfw_file, 'wb') as glfw_download:
-                glfw_download.write(glfw_request.read())
-
-        with zipfile.ZipFile(glfw_file, "r") as glfw_zip:
-            glfw_zip.extractall(f"{project_path}Dependencies/")
-
-        utils.remove(glfw_file)
-
-        utils.system(f"cd {project_path}Dependencies/glfw-3.3.7/ && cmake -B build && cd build && make")
+    dependencies.installDependency("https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.zip", project_path + "Dependencies/glfw-3.3.7/", "glfw", f"cd {project_path}Dependencies/glfw-3.3.7/ && cmake -B build && cd build && make")
 
     utils.createDir(project_path + "Build/")
     utils.system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
