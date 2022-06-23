@@ -1,5 +1,6 @@
 #include "configManager.hpp"
 #include "content.hpp"
+#include "blockData.hpp"
 
 void GameContent::loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
     blocks.loadContent(blocks_, items_, &items, resource_path);
@@ -60,6 +61,8 @@ BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
 }
 
 void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path) {
+    auto block_data_deliverer = new dataDeliverer;
+    blocks->setDataDeliverer(block_data_deliverer);
     for(BlockType* block_type : block_types) {
         ConfigFile block_properties(resource_path + "blockinfos/" + block_type->name + ".txt");
         
@@ -105,6 +108,15 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         if(block_properties.keyExists("width") && block_properties.keyExists("height")) {
             block_type->width = block_properties.getInt("width");
             block_type->height = block_properties.getInt("height");
+        }
+
+        if(block_properties.keyExists("additional_data_type")){
+            std::string data_type = block_properties.getStr("additional_data_type");
+            for(int i = 0; i < block_data_deliverer->names.size(); i++){
+                if(block_data_deliverer->names[i] == data_type){
+                    block_type->block_data_index = i;
+                }
+            }
         }
     }
 }

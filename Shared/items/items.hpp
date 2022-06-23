@@ -26,6 +26,14 @@ public:
     int getHeight() override { return ITEM_WIDTH * 2; }
 };
 
+class ItemStack {
+public:
+    ItemStack(ItemType* type, int stack) : type(type), stack(stack) {}
+    ItemStack() = default;
+    ItemType* type = nullptr;
+    int stack = 0;
+};
+
 class ItemCreationEvent {
 public:
     ItemCreationEvent(const Item* item) : item(item) {}

@@ -43,6 +43,13 @@ public:
     std::string name;
 };
 
+class defaultData{ ;
+public:
+    virtual ~defaultData(){}
+};
+
+struct dataDeliverer;
+
 class Blocks;
 
 class BlockType {
@@ -58,6 +65,7 @@ public:
     int id;
     int width = 0, height = 0;
     bool can_update_states;
+    int block_data_index = 0;
     
     virtual int updateState(Blocks* blocks, int x, int y);
 };
@@ -68,6 +76,7 @@ class Blocks {
         Block() : id(/*air*/0), x_from_main(0), y_from_main(0) {}
         int id:8;
         int x_from_main:8, y_from_main:8;
+        defaultData* additional_block_data;
     };
     
     class BreakingBlock {
@@ -85,7 +94,7 @@ class Blocks {
     Block *blocks = nullptr;
     BlockChunk *chunks = nullptr;
     int width, height;
-
+    dataDeliverer* data_deliverer;
     std::vector<BreakingBlock> breaking_blocks;
     std::vector<BlockType*> block_types;
     std::vector<Tool*> tool_types;
@@ -104,6 +113,7 @@ public:
     void setBlockTypeSilently(int x, int y, BlockType* type);
     int getBlockXFromMain(int x, int y);
     int getBlockYFromMain(int x, int y);
+    defaultData* getBlockData(int x, int y);
     
     int getBreakProgress(int x, int y);
     int getBreakStage(int x, int y);
@@ -124,7 +134,9 @@ public:
     BlockType* getBlockTypeById(int block_id);
     BlockType* getBlockTypeByName(const std::string& name);
     int getNumBlockTypes();
-    
+    dataDeliverer* getDataDeliverer() const{return data_deliverer;};
+    void setDataDeliverer(dataDeliverer* c_data_deliverer) {data_deliverer = c_data_deliverer;};
+
     void registerNewToolType(Tool* tool);
     Tool* getToolTypeByName(const std::string& name);
     

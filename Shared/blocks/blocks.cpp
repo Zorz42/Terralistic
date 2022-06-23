@@ -1,6 +1,8 @@
 #include "blocks.hpp"
 #include "exception.hpp"
 #include "compress.hpp"
+#include "blockData.hpp"
+
 
 BlockType::BlockType(std::string name) : name(std::move(name)) {}
 
@@ -11,6 +13,10 @@ bool Blocks::updateStateSide(int x, int y, int side_x, int side_y) {
 }
 
 int BlockType::updateState(Blocks* blocks, int x, int y) {
+    if(blocks->getBlockData(x, y) != nullptr){
+        furnaceData* furnace_data = (furnaceData*)blocks->getBlockData(x, y);
+        return furnace_data->rand_int % 16;
+    }
     if(blocks->getBlockType(x, y) != &blocks->air && can_update_states) {
         int state = 0;
         
@@ -64,7 +70,10 @@ BlockType* Blocks::getBlockType(int x, int y) {
 }
 
 void Blocks::setBlockTypeSilently(int x, int y, BlockType* type) {
+    delete getBlock(x, y)->additional_block_data;
     getBlock(x, y)->id = type->id;
+    if(type->id != 0)
+        getBlock(x, y)->additional_block_data = getDataDeliverer()->functions[type->block_data_index]();
 }
 
 void Blocks::setBlockType(int x, int y, BlockType* type, int x_from_main, int y_from_main) {
@@ -246,6 +255,10 @@ int Blocks::getBlockXFromMain(int x, int y) {
 
 int Blocks::getBlockYFromMain(int x, int y) {
     return getBlock(x, y)->y_from_main;
+}
+
+defaultData* Blocks::getBlockData(int x, int y){
+    return getBlock(x, y)->additional_block_data;
 }
 
 Blocks::~Blocks() {
