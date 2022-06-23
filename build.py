@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
-import os
 import sys
 import urllib.request
 import zipfile
 
 import Scripts.utils as utils
 
-project_path = os.path.dirname(os.path.realpath(__file__)) + "/"
+project_path = utils.getDir(__file__)
 
 
 def buildForMacOS():
     utils.createDir(project_path + "Dependencies/")
 
-    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
+    if not utils.exists(project_path + "Dependencies/glfw-3.3.7.bin.MACOS/"):
         print("Downloading glfw library")
 
         glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.MACOS.zip"
@@ -51,7 +50,7 @@ def buildForMacOS():
 def buildForWindows():
     utils.createDir(project_path + "Dependencies/")
 
-    if not os.path.exists(project_path + "Dependencies/zlib-master/"):
+    if not utils.exists(project_path + "Dependencies/zlib-master/"):
         print("Downloading zlib library")
 
         zlib_url = "https://github.com/madler/zlib/archive/refs/heads/master.zip"
@@ -68,7 +67,7 @@ def buildForWindows():
 
         utils.system(f"\"\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 17 2022\" -A Win32 . && cmake --build . --config Release --target install\"")
 
-    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7.bin.WIN32/"):
+    if not utils.exists(project_path + "Dependencies/glfw-3.3.7.bin.WIN32/"):
         print("Downloading glfw library")
 
         glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN32.zip"
@@ -93,7 +92,7 @@ def buildForWindows():
     utils.createDir(project_path + "Output/Windows/Terralistic-server/")
     utils.copy(f"{project_path}Build/Terralistic-server.exe", f"{project_path}Output/Windows/Terralistic-server/Terralistic-server.exe")
 
-    for file in os.listdir(project_path + "Build/"):
+    for file in utils.listDir(project_path + "Build/"):
         if file.endswith(".dll"):
             utils.copy(f"{project_path}Build/{file}", f"{project_path}Output/Windows/Terralistic/")
             utils.copy(f"{project_path}Build/{file}", f"{project_path}Output/Windows/Terralistic-server/")
@@ -101,7 +100,7 @@ def buildForWindows():
     utils.copy("C:/Program Files/Git/usr/bin/patch.exe", f"{project_path}Output/Windows/Terralistic/patch.exe")
     utils.copy("C:/Program Files/Git/usr/bin/msys-2.0.dll", f"{project_path}Output/Windows/Terralistic/msys-2.0.dll")
 
-    if os.path.exists(f"{project_path}Output/Windows/Terralistic/Resources/"):
+    if utils.exists(f"{project_path}Output/Windows/Terralistic/Resources/"):
         utils.remove(f"{project_path}Output/Windows/Terralistic/Resources/")
     utils.move(f"{project_path}Build/Resources/", f"{project_path}Output/Windows/Terralistic/Resources/")
     utils.copy(f"{project_path}Resources/resourcePack/misc/Structures.asset", f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
@@ -114,7 +113,7 @@ def buildForWindows():
 def buildForLinux():
     utils.createDir(project_path + "Dependencies/")
 
-    if not os.path.exists(project_path + "Dependencies/glfw-3.3.7/"):
+    if not utils.exists(project_path + "Dependencies/glfw-3.3.7/"):
         print("Downloading glfw library")
 
         glfw_url = "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.zip"
@@ -135,13 +134,13 @@ def buildForLinux():
     utils.system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
 
     utils.createDir(project_path + "Output/Linux/Terralistic")
-    if os.path.exists(project_path + "Output/Linux/Terralistic/"):
+    if utils.exists(project_path + "Output/Linux/Terralistic/"):
         utils.remove(project_path + "Output/Linux/Terralistic/")
     utils.copy(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic/Resources/")
     utils.copy(project_path + "Build/Terralistic", project_path + "Output/Linux/Terralistic/Terralistic")
 
     utils.createDir(project_path + "Output/Linux/Terralistic-server")
-    if os.path.exists(project_path + "Output/Linux/Terralistic-server/"):
+    if utils.exists(project_path + "Output/Linux/Terralistic-server/"):
         utils.remove(project_path + "Output/Linux/Terralistic-server/")
     utils.copy(project_path + "Build/Resources/", project_path + "Output/Linux/Terralistic-server/Resources/")
     utils.copy(project_path + "Build/Terralistic-server", project_path + "Output/Linux/Terralistic-server/Terralistic-server")
@@ -157,4 +156,4 @@ elif sys.platform == "linux":
 elif sys.platform == "win32":
     buildForWindows()
 else:
-    print("Your current platform is not yet supported by this build script!")
+    print(f"{sys.platform} is not supported by this build script!")

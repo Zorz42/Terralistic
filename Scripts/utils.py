@@ -39,3 +39,15 @@ def move(source, dest):
     else:
         print(f"Moving file from \"{source}\" to \"{dest}\"")
     shutil.move(source, dest)
+
+
+def exists(path):
+    return os.path.exists(path)
+
+
+def getDir(path):
+    return os.path.dirname(os.path.realpath(path)) + "/"
+
+
+def listDir(path):
+    return os.listdir(path)
