@@ -2092,6 +2092,7 @@
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2103,6 +2104,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"External\\ Libraries/glad/include/",
@@ -2181,6 +2183,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"External\\ Libraries/glad/include/",
@@ -2300,6 +2303,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"External\\ Libraries/glad/include/",
@@ -2374,6 +2378,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.Terralistic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"External\\ Libraries/glad/include/",
