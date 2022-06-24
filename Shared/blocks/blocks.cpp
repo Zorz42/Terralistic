@@ -70,7 +70,8 @@ BlockType* Blocks::getBlockType(int x, int y) {
 }
 
 void Blocks::setBlockTypeSilently(int x, int y, BlockType* type) {
-    delete getBlock(x, y)->additional_block_data;
+    if(getBlock(x, y)->id != 0)
+        delete getBlock(x, y)->additional_block_data;
     getBlock(x, y)->id = type->id;
     if(type->id != 0)
         getBlock(x, y)->additional_block_data = getDataDeliverer()->functions[type->block_data_index]();
