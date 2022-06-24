@@ -75,6 +75,8 @@ def buildForLinux():
     utils.createDir(project_path + "Build/")
     utils.system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
 
+    utils.createDir(project_path + "Output/")
+    utils.createDir(project_path + "Output/Linux/")
     utils.createDir(project_path + "Output/Linux/Terralistic")
     if utils.exists(project_path + "Output/Linux/Terralistic/"):
         utils.remove(project_path + "Output/Linux/Terralistic/")
