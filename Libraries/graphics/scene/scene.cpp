@@ -1,6 +1,7 @@
 #include "glfwAbstraction.hpp"
 #include "scene.hpp"
 #include "button.hpp"
+#include <algorithm>
 
 void gfx::addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function) {
     global_update_functions.push_back(global_update_function);
