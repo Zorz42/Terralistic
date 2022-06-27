@@ -13,10 +13,6 @@ bool Blocks::updateStateSide(int x, int y, int side_x, int side_y) {
 }
 
 int BlockType::updateState(Blocks* blocks, int x, int y) {
-    if(blocks->getBlockData(x, y) != nullptr){
-        furnaceData* furnace_data = (furnaceData*)blocks->getBlockData(x, y);
-        return furnace_data->rand_int % 16;
-    }
     if(blocks->getBlockType(x, y) != &blocks->air && can_update_states) {
         int state = 0;
         
