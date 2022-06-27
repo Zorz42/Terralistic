@@ -27,7 +27,7 @@ class Liquids {
         Liquid() : id(/*empty*/0), level(0) {}
         int id:8;
         FlowDirection flow_direction:8;
-        float level;
+        float level = 0;
     };
     
     std::vector<LiquidType*> liquid_types;

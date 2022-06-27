@@ -10,8 +10,10 @@ class furnaceData : defaultData{
     ItemStack fuel = {nullptr, 0};
     ItemStack heated_items = {nullptr, 0};
 public:
-    int rand_int = rand();
-    virtual ~furnaceData(){};
+    ~furnaceData() override{};
+    void save(std::vector<char>& data, unsigned long& index) override;
+    void load(const char*& iter) override;
+    int getSavedSize() override{return 24;}
 };
 
 

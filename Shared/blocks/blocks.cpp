@@ -70,10 +70,10 @@ BlockType* Blocks::getBlockType(int x, int y) {
 }
 
 void Blocks::setBlockTypeSilently(int x, int y, BlockType* type) {
-    if(getBlock(x, y)->id != 0)
+    if(block_types[getBlock(x, y)->id]->block_data_index != 0)
         delete getBlock(x, y)->additional_block_data;
     getBlock(x, y)->id = type->id;
-    if(type->id != 0)
+    if(type->block_data_index != 0)
         getBlock(x, y)->additional_block_data = getDataDeliverer()->functions[type->block_data_index]();
 }
 
@@ -185,16 +185,25 @@ int Blocks::getHeight() const {
 std::vector<char> Blocks::toSerial() {
     std::vector<char> serial;
     unsigned long iter = 0;
-    serial.resize(serial.size() + width * height * 3 + 4);
+    int size = 0;
+    Block* block = blocks;
+    for(int i = 0; i < width * height; i++){
+        if(block_types[block->id]->block_data_index != 0)
+            size += block->additional_block_data->getSavedSize();
+        block++;
+    }
+    serial.resize(serial.size() + width * height * 3 + 4 + size);
     *(unsigned short*)&serial[iter] = width;
     iter += 2;
     *(unsigned short*)&serial[iter] = height;
     iter += 2;
-    Block* block = blocks;
+    block = blocks;
     for(int i = 0; i < width * height; i++) {
         serial[iter++] = (char)block->id;
         serial[iter++] = (char)block->x_from_main;
         serial[iter++] = (char)block->y_from_main;
+        if(block_types[block->id]->block_data_index != 0)
+            block->additional_block_data->save(serial, iter);
         block++;
     }
     return compress(serial);
@@ -215,6 +224,10 @@ void Blocks::fromSerial(const std::vector<char>& serial) {
         block->id = *iter++;
         block->x_from_main = *iter++;
         block->y_from_main = *iter++;
+        if(block_types[block->id]->block_data_index != 0){
+            block->additional_block_data = getDataDeliverer()->functions[block_types[block->id]->block_data_index]();
+            block->additional_block_data->load(iter);
+        }
         block++;
     }
 }
