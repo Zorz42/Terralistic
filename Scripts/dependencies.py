@@ -3,7 +3,7 @@ import zipfile
 import Scripts.utils as utils
 
 
-def installDependency(url, directory, name, command=None):
+def installDependency(url, directory, name, command=None, create_dir=False):
     if not utils.exists(directory):
         print(f"Downloading {name}")
 
@@ -12,9 +12,15 @@ def installDependency(url, directory, name, command=None):
         with urllib.request.urlopen(url) as request:
             with open(file, 'wb') as download:
                 download.write(request.read())
+	
+        if create_dir:
+            utils.createDir(directory)
 
+        dir_to_extract = directory
+        if not create_dir:
+            dir_to_extract = utils.getDir(directory)
         with zipfile.ZipFile(file, "r") as zip_file:
-            zip_file.extractall(utils.getDir(directory))
+            zip_file.extractall(dir_to_extract)
 
         utils.remove(file)
 
