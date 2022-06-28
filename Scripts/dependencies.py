@@ -12,7 +12,7 @@ def installDependency(url, directory, name, command=None, create_dir=False):
         with urllib.request.urlopen(url) as request:
             with open(file, 'wb') as download:
                 download.write(request.read())
-	
+
         if create_dir:
             utils.createDir(directory)
 
