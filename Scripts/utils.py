@@ -10,6 +10,9 @@ def system(command: str):
 
 
 def createDir(path):
+    if not os.path.isdir(getParentDir(path)):
+        createDir(getParentDir(path))
+
     if not os.path.isdir(path):
         print(f"Creating directory \"{path}\"")
         os.mkdir(path)
@@ -45,7 +48,7 @@ def exists(path):
     return os.path.exists(path)
 
 
-def getDir(path):
+def getParentDir(path):
     return os.path.dirname(os.path.realpath(path)) + "/"
 
 

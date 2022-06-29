@@ -4,7 +4,7 @@ import sys
 import Scripts.utils as utils
 import Scripts.dependencies as dependencies
 
-project_path = utils.getDir(__file__)
+project_path = utils.getParentDir(__file__)
 
 
 def buildForMacOS():
@@ -43,9 +43,7 @@ def buildForWindows():
 
     utils.system(f"\"\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Build/ && cmake -DCMAKE_BUILD_TYPE=Release -G \"CodeBlocks - NMake Makefiles\" .. && cmake --build .\"")
 
-    utils.createDir(project_path + "Output/")
-    utils.createDir(project_path + "Output/Linux/")
-    utils.createDir(project_path + "Output/Linux/Terralistic")
+    utils.createDir(project_path + "Output/Windows/Terralistic")
     utils.copy(f"{project_path}Build/Terralistic.exe", f"{project_path}Output/Windows/Terralistic/Terralistic.exe")
 
     utils.createDir(project_path + "Output/Windows/Terralistic-server/")
@@ -76,8 +74,6 @@ def buildForLinux():
     utils.createDir(project_path + "Build/")
     utils.system(f"cd {project_path}Build/ && cmake .. && make -j$(nproc)")
 
-    utils.createDir(project_path + "Output/")
-    utils.createDir(project_path + "Output/Linux/")
     utils.createDir(project_path + "Output/Linux/Terralistic")
     if utils.exists(project_path + "Output/Linux/Terralistic/"):
         utils.remove(project_path + "Output/Linux/Terralistic/")
