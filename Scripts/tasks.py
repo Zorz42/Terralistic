@@ -22,6 +22,10 @@ class Task(abc.ABC):
         self.required_commands.append(command)
 
 
+ANSI_COLOR = "\033[1;92m"
+ANSI_RESET = "\033[0;0m"
+
+
 class TaskManager:
     def __init__(self):
         self.tasks = []
@@ -31,7 +35,7 @@ class TaskManager:
         
     def run(self):
         required_commands = set()
-        print("Checking dependencies...")
+        print(f"{ANSI_COLOR}Checking dependencies...{ANSI_RESET}")
         for task in self.tasks:
             task.checkForDependencies()
             for command in task.required_commands:
@@ -42,5 +46,5 @@ class TaskManager:
                 raise DependencyError(f"Command {command} is not present on this system")
 
         for i, task in enumerate(self.tasks):
-            print(f"[{i + 1}/{len(self.tasks)}] Executing step {task.__class__.__name__}")
+            print(f"{ANSI_COLOR}[{i + 1}/{len(self.tasks)}] Executing step {task.__class__.__name__}{ANSI_RESET}")
             task.execute()

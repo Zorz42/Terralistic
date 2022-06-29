@@ -5,8 +5,10 @@ from Scripts.windows import buildForWindows
 from Scripts.linux import buildForLinux
 import Scripts.utils as utils
 import sys
+import os
 
 project_path = utils.getParentDir(__file__)
+os.system("")  # Enables ansi escape codes
 
 if sys.platform == "darwin":
     buildForMacOS(project_path)
