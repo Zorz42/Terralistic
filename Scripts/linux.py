@@ -1,5 +1,5 @@
-import utils
-import dependencies
+from Scripts import utils
+from Scripts import dependencies
 import sys
 
 
