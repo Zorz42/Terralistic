@@ -64,15 +64,16 @@ class UnpackServer(tasks.Task):
         utils.remove(self.project_path + "Terralistic-server.app/")
 
 
-def buildForMacOS(project_path):
+def buildForMacOS(project_path, arg):
     task_manager = tasks.TaskManager()
 
     task_manager.registerTask(CreateDirs(project_path))
     task_manager.registerTask(InstallGlfw(project_path))
     task_manager.registerTask(CompileResourcePack(project_path))
-    # task_manager.registerTask(BuildClient(project_path))
-    # task_manager.registerTask(BuildServer(project_path))
-    # task_manager.registerTask(UnpackClient(project_path))
-    # task_manager.registerTask(UnpackServer(project_path))
+    if arg != "nobuild":
+        task_manager.registerTask(BuildClient(project_path))
+        task_manager.registerTask(BuildServer(project_path))
+        task_manager.registerTask(UnpackClient(project_path))
+        task_manager.registerTask(UnpackServer(project_path))
 
     task_manager.run()

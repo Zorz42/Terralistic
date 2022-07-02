@@ -1,9 +1,8 @@
 from Scripts import utils
 from Scripts import dependencies
-import sys
 
 
-def buildForWindows(project_path):
+def buildForWindows(project_path, arg):
     utils.createDir(project_path + "Dependencies/")
 
     dependencies.installDependency("https://github.com/madler/zlib/archive/refs/heads/master.zip", project_path + "Dependencies/zlib-master/", "zlib", f"\"\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat\" && cd {project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 17 2022\" -A Win32 . && cmake --build . --config Release --target install\"")
@@ -33,5 +32,5 @@ def buildForWindows(project_path):
     utils.copy(f"{project_path}Resources/resourcePack/misc/Structures.asset", f"{project_path}Output/Windows/Terralistic-server/Structures.asset")
     utils.copy(f"{project_path}Resources/font.opa", f"{project_path}Output/Windows/Terralistic-server/font.opa")
 
-    if len(sys.argv) != 1 and sys.argv[1] == "run":
+    if arg == "run":
         utils.system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")

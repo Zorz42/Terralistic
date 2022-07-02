@@ -5,7 +5,7 @@ import Scripts.utils as utils
 
 def installDependency(url, directory, name, command=None, create_dir=False):
     if not utils.exists(directory):
-        print(f"Downloading {name}")
+        print(f"Downloading dependency \"{name}\"")
 
         file = f"{name}.zip"
 
@@ -26,3 +26,5 @@ def installDependency(url, directory, name, command=None, create_dir=False):
 
         if command is not None:
             utils.system(command)
+    else:
+        print(f"Dependency \"{name}\" is already installed.")
