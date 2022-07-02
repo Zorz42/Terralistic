@@ -14,16 +14,10 @@ You will need to have installed to build:
 - cmake
 - make
 - gcc
-- zlib
-
-All of those will be installed on MacOS with XCode Developer Tools.
-
-GLFW will be installed by build.py.
+- glad
 
 If you want to edit code use:
 - Windows: CLion
 - MacOS: XCode
 - Linux: CLion
-
-Before you edit code, you should run build.py, so that all dependencies download.
 
