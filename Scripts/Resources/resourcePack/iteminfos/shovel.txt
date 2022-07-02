@@ -1,6 +1,0 @@
-display_name: Shovel
-max_stack: 1
-places_block: air
-places_wall: clear
-required_tool_power:
-tool_properties: shovel 100
