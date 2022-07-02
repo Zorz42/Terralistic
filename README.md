@@ -1,6 +1,8 @@
 
 # Terralistic
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6fbd242712994a07b9ec448ab36d6cc0)](https://app.codacy.com/gh/Zorz42/Terralistic?utm_source=github.com&utm_medium=referral&utm_content=Zorz42/Terralistic&utm_campaign=Badge_Grade_Settings)
+
 Discord server: https://discord.gg/dSStXTucCc
 
 To build, just run:
