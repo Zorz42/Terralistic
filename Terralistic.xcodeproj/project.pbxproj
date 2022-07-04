@@ -1731,7 +1731,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python3 -m build_project nobuild\n";
+			shellScript = "/usr/bin/env python3.9 -m build_project nobuild\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
