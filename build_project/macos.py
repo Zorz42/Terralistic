@@ -30,9 +30,6 @@ class GenerateGlad(tasks.Task):
 
 
 class InstallPlatformFolders(tasks.Task):
-    def checkForDependencies(self):
-        self.requireCommand("cmake")
-
     def execute(self):
         dependencies.installDependency("https://github.com/sago007/PlatformFolders/archive/refs/tags/4.2.0.zip", self.project_path + "Dependencies/PlatformFolders-4.2.0/", "platform folders")
 
