@@ -90,7 +90,6 @@
 		362403832872F37400598B0C /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 362403722872F37400598B0C /* icon.icns */; };
 		362403842872F37400598B0C /* world_icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403732872F37400598B0C /* world_icon.opa */; };
 		362403852872F37400598B0C /* world_icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403732872F37400598B0C /* world_icon.opa */; };
-		362403862872F38800598B0C /* libplatform_folders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 362403672872F27A00598B0C /* libplatform_folders.a */; };
 		3657220D26D07181005AB3CC /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D226D07180005AB3CC /* clientNetworking.cpp */; };
 		3657220F26D07181005AB3CC /* clientInventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D826D07180005AB3CC /* clientInventory.cpp */; };
 		3657221126D07181005AB3CC /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721DC26D07180005AB3CC /* debugMenu.cpp */; };
@@ -483,7 +482,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */,
-				362403862872F38800598B0C /* libplatform_folders.a in Frameworks */,
 				3672919C26FE226400786856 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2093,7 +2091,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
-					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2174,7 +2171,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
-					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
@@ -2301,7 +2297,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
-					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2378,7 +2373,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
-					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
