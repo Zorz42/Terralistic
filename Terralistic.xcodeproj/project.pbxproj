@@ -151,6 +151,8 @@
 		3672B164277C885D001293B5 /* nameChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B162277C885D001293B5 /* nameChooser.cpp */; };
 		367E42212873040A006EBD84 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 367E42202873040A006EBD84 /* glad.c */; };
 		367E422528730434006EBD84 /* platform_folders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367E422428730434006EBD84 /* platform_folders.cpp */; };
+		367E422728730A72006EBD84 /* platform_folders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367E422428730434006EBD84 /* platform_folders.cpp */; };
+		367E422828730A72006EBD84 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 367E42202873040A006EBD84 /* glad.c */; };
 		367F362D285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
 		367F362E285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
 		367F3632285F716000319AD2 /* shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3630285F716000319AD2 /* shadow.cpp */; };
@@ -1845,6 +1847,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				367E422728730A72006EBD84 /* platform_folders.cpp in Sources */,
+				367E422828730A72006EBD84 /* glad.c in Sources */,
 				366D9711282067FA00DEC292 /* scene.cpp in Sources */,
 				167B53CE270A26EC000089B3 /* serverItems.cpp in Sources */,
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
