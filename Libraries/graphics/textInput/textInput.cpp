@@ -1,6 +1,6 @@
+#include <stdexcept>
 #include "textInput.hpp"
 #include "font.hpp"
-#include "scene.hpp"
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;

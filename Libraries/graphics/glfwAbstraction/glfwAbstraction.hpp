@@ -1,7 +1,9 @@
 #pragma once
 
 #define GL_SILENCE_DEPRECATION
+extern "C" {
 #include <glad/glad.h>
+}
 #include <GLFW/glfw3.h>
 
 namespace gfx {

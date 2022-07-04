@@ -58,7 +58,7 @@ void TcpSocket::handleError() {
 void TcpSocket::send(const void* obj, unsigned int size) {
     unsigned int sent = 0;
     while(sent < size) {
-        int curr_sent = (int)::send(socket_handle, (const char*)((unsigned long)obj + sent), size - sent, 0);
+        int curr_sent = (int)::send(socket_handle, (const char*)((unsigned long)(intptr_t)obj + sent), size - sent, 0);
         sent += curr_sent;
         
         if(curr_sent < 0) {
@@ -83,7 +83,7 @@ bool TcpSocket::receive(void* obj, unsigned int size) {
     unsigned int received = 0;
     while(received < size) {
 #ifdef WIN32
-        int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, 0);
+        int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)(intptr_t)obj + received), size - received, 0);
 #else
         int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, MSG_DONTWAIT);
 #endif

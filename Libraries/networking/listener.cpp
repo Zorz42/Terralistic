@@ -1,3 +1,4 @@
+#include <cstring>
 #include "networking.hpp"
 #include "exception.hpp"
 #ifdef WIN32

@@ -45,8 +45,13 @@ SET(PF_DIR ${CMAKE_SOURCE_DIR}/Dependencies/PlatformFolders-4.2.0/)
 SET(PF_INCLUDE_DIR ${PF_DIR}/sago/)
 SET(PF_SOURCES ${PF_DIR}/sago/platform_folders.cpp)
 
+SET(PN_DIR ${CMAKE_SOURCE_DIR}/Dependencies/PerlinNoise-3.0.0/)
+SET(PN_INCLUDE_DIR ${PN_DIR})
+
 add_executable(Terralistic ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER} ${PF_SOURCES} ${GLAD_SOURCES})
 add_executable(Terralistic-server ${SRC_LIBRARIES} ${SRC_SERVER} ${PF_SOURCES} ${GLAD_SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp ${CMAKE_CURRENT_SOURCE_DIR})
+
+set_source_files_properties(${GLAD_SOURCES} PROPERTIES LANGUAGE CXX)
 
 FILE(GLOB_RECURSE HEADER_LIST Client/*.hpp Libraries/*.hpp "External Libraries/*.hpp" "External Libraries/*.h" Server/*.hpp Shared/*.hpp)
 SET(INCLUDES "")
@@ -58,8 +63,8 @@ LIST(REMOVE_DUPLICATES INCLUDES)
 
 include_directories(Terralistic ${INCLUDES})
 include_directories(Terralistic-server ${INCLUDES})
-include_directories(Terralistic SYSTEM ${GLAD_INCLUDE_DIR} ${PF_INCLUDE_DIR})
-include_directories(Terralistic-server SYSTEM ${GLAD_INCLUDE_DIR} ${PF_INCLUDE_DIR})
+include_directories(Terralistic SYSTEM ${GLAD_INCLUDE_DIR} ${PF_INCLUDE_DIR} ${PN_INCLUDE_DIR})
+include_directories(Terralistic-server SYSTEM ${GLAD_INCLUDE_DIR} ${PF_INCLUDE_DIR} ${PN_INCLUDE_DIR})
 
 if(WIN32)
     SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib-master/)
@@ -80,7 +85,7 @@ if(WIN32)
     target_link_directories(Terralistic-server PUBLIC ${ZLIB_LIB_DIR} ${GLFW_LIB_DIR})
     target_link_libraries(Terralistic-server Ws2_32.lib ${ZLIB_LIB} ${GLFW_LIB})
 
-    include_directories(Terralistic ${ZLIB_INCLUDE_DIR}include/ ${GLFW_INCLUDE_DIR})
+    include_directories(Terralistic SYSTEM ${ZLIB_INCLUDE_DIR} ${GLFW_INCLUDE_DIR})
 
     file(COPY ${ZLIB_DLL} ${GLFW_DLL} DESTINATION .)
 else()
