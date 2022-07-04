@@ -1,5 +1,5 @@
-from Scripts import utils
-from Scripts import dependencies
+from . import utils
+from . import dependencies
 
 
 def buildForLinux(project_path, arg):

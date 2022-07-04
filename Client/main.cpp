@@ -76,13 +76,12 @@ int main(int argc, char **argv) {
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
     std::ifstream font_file(resource_path + "font.opa");
+    if(!font_file.is_open())
+        throw Exception("Could not open font file");
     std::vector<unsigned char> data = std::vector<unsigned char>((std::istreambuf_iterator<char>(font_file)), std::istreambuf_iterator<char>());
     data.erase(data.begin(), data.begin() + 8);
     
     gfx::loadFont(&data[0]);
-/*#ifndef __APPLE__
-    gfx::loadIconFromFile(gfx::getResourcePath() + "icon.opa"); // TODO: implement
-#endif*/
     
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
     

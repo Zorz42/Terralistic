@@ -6,7 +6,7 @@ Discord server: https://discord.gg/dSStXTucCc
 To build, just run:
 
 ```
-python3 build.py
+python3 -m build_project
 ```
 
 You will need to have installed to build:

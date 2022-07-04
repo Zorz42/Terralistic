@@ -9,7 +9,7 @@ def system(command: str):
         raise Exception(f"Command: \"{command}\" exited with exit code {result}. Aborting.")
 
 
-def createDir(path):
+def createDir(path: str):
     if not os.path.isdir(getParentDir(path)):
         createDir(getParentDir(path))
 
@@ -18,7 +18,7 @@ def createDir(path):
         os.mkdir(path)
 
 
-def remove(path):
+def remove(path: str):
     if os.path.isdir(path):
         print(f"Removing directory \"{path}\"")
         shutil.rmtree(path)
@@ -27,7 +27,7 @@ def remove(path):
         os.remove(path)
 
 
-def copy(source, dest):
+def copy(source: str, dest: str):
     if os.path.isdir(source):
         print(f"Copying directory from \"{source}\" to \"{dest}\"")
         shutil.copytree(source, dest)
@@ -36,7 +36,7 @@ def copy(source, dest):
         shutil.copy(source, dest)
 
 
-def move(source, dest):
+def move(source: str, dest: str):
     if os.path.isdir(source):
         print(f"Moving directory from \"{source}\" to \"{dest}\"")
     else:
@@ -44,13 +44,13 @@ def move(source, dest):
     shutil.move(source, dest)
 
 
-def exists(path):
+def exists(path: str):
     return os.path.exists(path)
 
 
-def getParentDir(path):
+def getParentDir(path: str):
     return os.path.dirname(os.path.realpath(path)) + "/"
 
 
-def listDir(path):
+def listDir(path: str):
     return os.listdir(path)

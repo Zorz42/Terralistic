@@ -1,6 +1,8 @@
-from Scripts import dependencies
-from Scripts import utils
-from Scripts import tasks
+from . import dependencies
+from . import utils
+from . import tasks
+from . import compileResourcePack
+import importlib
 
 
 class CreateDirs(tasks.Task):
@@ -14,11 +16,10 @@ class InstallGlfw(tasks.Task):
         dependencies.installDependency("https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.MACOS.zip", self.project_path + "Dependencies/glfw-3.3.7.bin.MACOS/", "glfw")
 
 
-class InstallGlad(tasks.Task):
+class GenerateGlad(tasks.Task):
     def checkForDependencies(self):
-        try:
-            import glad
-        except ImportError:
+        glad_spec = importlib.util.find_spec("glad")
+        if glad_spec is None:
             raise Exception("Glad needs to be installed as a python package, you can install it via pip")
 
     def execute(self):
@@ -43,11 +44,8 @@ class InstallPerlinNoise(tasks.Task):
 
 
 class CompileResourcePack(tasks.Task):
-    def checkForDependencies(self):
-        pass
-
     def execute(self):
-        pass
+        compileResourcePack.compileResourcePack(self.project_path + "Resources", self.project_path + "Build/Resources/")
 
 
 class BuildClient(tasks.Task):
@@ -92,12 +90,12 @@ class UnpackServer(tasks.Task):
         utils.remove(self.project_path + "Terralistic-server.app/")
 
 
-def buildForMacOS(project_path, arg):
+def buildForMacOS(project_path: str, arg: str):
     task_manager = tasks.TaskManager()
 
     task_manager.registerTask(CreateDirs(project_path))
     task_manager.registerTask(InstallGlfw(project_path))
-    task_manager.registerTask(InstallGlad(project_path))
+    task_manager.registerTask(GenerateGlad(project_path))
     task_manager.registerTask(InstallPlatformFolders(project_path))
     task_manager.registerTask(InstallPerlinNoise(project_path))
     task_manager.registerTask(CompileResourcePack(project_path))

@@ -1,9 +1,9 @@
 import urllib.request
 import zipfile
-import Scripts.utils as utils
+from . import utils
 
 
-def installDependency(url, directory, name, command=None, create_dir=False):
+def installDependency(url: str, directory: str, name: str, command: str = "", create_dir: bool = False):
     if not utils.exists(directory):
         print(f"Downloading dependency \"{name}\"")
 
@@ -24,7 +24,7 @@ def installDependency(url, directory, name, command=None, create_dir=False):
 
         utils.remove(file)
 
-        if command is not None:
+        if command:
             utils.system(command)
     else:
         print(f"Dependency \"{name}\" is already installed.")

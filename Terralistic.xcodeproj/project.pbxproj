@@ -28,7 +28,6 @@
 		167B53D1270A271D000089B3 /* serverEntities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B53CF270A271D000089B3 /* serverEntities.cpp */; };
 		167B53D2270A271D000089B3 /* serverEntities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B53CF270A271D000089B3 /* serverEntities.cpp */; };
 		1682944326A16D780017E2FD /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
-		169124E825F6BCD400F7EB4F /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		169990A92700E25300224E11 /* naturalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169990A72700E25300224E11 /* naturalLight.cpp */; };
 		169AD3A327023B690096D80D /* blocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169AD3A127023B690096D80D /* blocks.cpp */; };
 		169B87D0270F5036006023B8 /* serverChat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169B87CE270F5035006023B8 /* serverChat.cpp */; };
@@ -68,12 +67,33 @@
 		361DD1AA26F7478900129191 /* serverNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1673274A26A80EF40063281A /* serverNetworking.cpp */; };
 		361DD1AB26F7478900129191 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		361DD1B126F7478900129191 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
-		361DD1B426F7478900129191 /* sago.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1689687925E9607800D26060 /* sago.cpp */; };
 		361DD1B926F7478900129191 /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		361DD1BC26F7478900129191 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		361DD1C026F7478900129191 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		361DD1C226F7478900129191 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		361DD1ED26F7481200129191 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
+		362403682872F29A00598B0C /* libplatform_folders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 362403672872F27A00598B0C /* libplatform_folders.a */; };
+		3624036A2872F2CB00598B0C /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 362403692872F2CB00598B0C /* glad.c */; };
+		362403742872F37400598B0C /* font.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036B2872F37300598B0C /* font.opa */; };
+		362403752872F37400598B0C /* font.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036B2872F37300598B0C /* font.opa */; };
+		362403762872F37400598B0C /* background.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036C2872F37300598B0C /* background.opa */; };
+		362403772872F37400598B0C /* background.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036C2872F37300598B0C /* background.opa */; };
+		362403782872F37400598B0C /* play_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036D2872F37300598B0C /* play_button.opa */; };
+		362403792872F37400598B0C /* play_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036D2872F37300598B0C /* play_button.opa */; };
+		3624037A2872F37400598B0C /* join_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036E2872F37300598B0C /* join_button.opa */; };
+		3624037B2872F37400598B0C /* join_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036E2872F37300598B0C /* join_button.opa */; };
+		3624037C2872F37400598B0C /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 3624036F2872F37300598B0C /* resourcePack */; };
+		3624037D2872F37400598B0C /* resourcePack in Resources */ = {isa = PBXBuildFile; fileRef = 3624036F2872F37300598B0C /* resourcePack */; };
+		3624037E2872F37400598B0C /* delete_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403702872F37400598B0C /* delete_button.opa */; };
+		3624037F2872F37400598B0C /* delete_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403702872F37400598B0C /* delete_button.opa */; };
+		362403802872F37400598B0C /* remove_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403712872F37400598B0C /* remove_button.opa */; };
+		362403812872F37400598B0C /* remove_button.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403712872F37400598B0C /* remove_button.opa */; };
+		362403822872F37400598B0C /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 362403722872F37400598B0C /* icon.icns */; };
+		362403832872F37400598B0C /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 362403722872F37400598B0C /* icon.icns */; };
+		362403842872F37400598B0C /* world_icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403732872F37400598B0C /* world_icon.opa */; };
+		362403852872F37400598B0C /* world_icon.opa in Resources */ = {isa = PBXBuildFile; fileRef = 362403732872F37400598B0C /* world_icon.opa */; };
+		362403862872F38800598B0C /* libplatform_folders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 362403672872F27A00598B0C /* libplatform_folders.a */; };
+		362403872872F75E00598B0C /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 362403692872F2CB00598B0C /* glad.c */; };
 		3657220D26D07181005AB3CC /* clientNetworking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D226D07180005AB3CC /* clientNetworking.cpp */; };
 		3657220F26D07181005AB3CC /* clientInventory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721D826D07180005AB3CC /* clientInventory.cpp */; };
 		3657221126D07181005AB3CC /* debugMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 365721DC26D07180005AB3CC /* debugMenu.cpp */; };
@@ -143,7 +163,6 @@
 		368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368779712837EBCF00AA5943 /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		368779722837EC4C00AA5943 /* glad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36BFB23E282EE702008A462A /* glad.cpp */; };
 		368C34AE2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */; };
 		368C34AF2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */; };
 		3692C14F26E509F100F9DD71 /* entities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3692C14D26E509F100F9DD71 /* entities.cpp */; };
@@ -158,7 +177,6 @@
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
 		36A52164279D667700C1F8CB /* TestException.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52163279D667700C1F8CB /* TestException.mm */; };
 		36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* TestEvent.mm */; };
-		36BFB23F282EE702008A462A /* glad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36BFB23E282EE702008A462A /* glad.cpp */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
@@ -251,8 +269,6 @@
 		1682944226A16D780017E2FD /* packetType.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = packetType.cpp; sourceTree = "<group>"; };
 		168600DE2681DB7300763775 /* serverPlayers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverPlayers.cpp; sourceTree = "<group>"; };
 		168600DF2681DB7300763775 /* serverPlayers.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverPlayers.hpp; sourceTree = "<group>"; };
-		1689687825E9607800D26060 /* platform_folders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_folders.h; sourceTree = "<group>"; };
-		1689687925E9607800D26060 /* sago.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sago.cpp; sourceTree = "<group>"; };
 		1690693A26D1A1C80057345A /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game.hpp; sourceTree = "<group>"; };
 		1690D7D626BA869F0007755C /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -314,6 +330,17 @@
 		3618C93527A2F8D000A23335 /* clientHealth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientHealth.cpp; sourceTree = "<group>"; };
 		3618C93627A2F8D000A23335 /* clientHealth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientHealth.hpp; sourceTree = "<group>"; };
 		361DD1EB26F7478900129191 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		362403672872F27A00598B0C /* libplatform_folders.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libplatform_folders.a; path = "Dependencies/PlatformFolders-4.2.0/build/libplatform_folders.a"; sourceTree = "<group>"; };
+		362403692872F2CB00598B0C /* glad.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = glad.c; path = Dependencies/glad/src/glad.c; sourceTree = "<group>"; };
+		3624036B2872F37300598B0C /* font.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.opa; path = Build/Resources/font.opa; sourceTree = SOURCE_ROOT; };
+		3624036C2872F37300598B0C /* background.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = background.opa; path = Build/Resources/background.opa; sourceTree = SOURCE_ROOT; };
+		3624036D2872F37300598B0C /* play_button.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = play_button.opa; path = Build/Resources/play_button.opa; sourceTree = SOURCE_ROOT; };
+		3624036E2872F37300598B0C /* join_button.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = join_button.opa; path = Build/Resources/join_button.opa; sourceTree = SOURCE_ROOT; };
+		3624036F2872F37300598B0C /* resourcePack */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = resourcePack; path = Build/Resources/resourcePack; sourceTree = SOURCE_ROOT; };
+		362403702872F37400598B0C /* delete_button.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = delete_button.opa; path = Build/Resources/delete_button.opa; sourceTree = SOURCE_ROOT; };
+		362403712872F37400598B0C /* remove_button.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = remove_button.opa; path = Build/Resources/remove_button.opa; sourceTree = SOURCE_ROOT; };
+		362403722872F37400598B0C /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = Build/Resources/icon.icns; sourceTree = SOURCE_ROOT; };
+		362403732872F37400598B0C /* world_icon.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = world_icon.opa; path = Build/Resources/world_icon.opa; sourceTree = SOURCE_ROOT; };
 		365721D126D07180005AB3CC /* clientNetworking.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientNetworking.hpp; sourceTree = "<group>"; };
 		365721D226D07180005AB3CC /* clientNetworking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientNetworking.cpp; sourceTree = "<group>"; };
 		365721D426D07180005AB3CC /* chat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chat.cpp; sourceTree = "<group>"; };
@@ -392,7 +419,6 @@
 		3672B15F277C8431001293B5 /* serverAdder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverAdder.hpp; sourceTree = "<group>"; };
 		3672B162277C885D001293B5 /* nameChooser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nameChooser.cpp; sourceTree = "<group>"; };
 		3672B163277C885D001293B5 /* nameChooser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = nameChooser.hpp; sourceTree = "<group>"; };
-		3677B5A827283E20000F4D77 /* perlinNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = perlinNoise.hpp; sourceTree = "<group>"; };
 		367F362B285F70C900319AD2 /* blur.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blur.cpp; sourceTree = "<group>"; };
 		367F362C285F70C900319AD2 /* blur.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blur.hpp; sourceTree = "<group>"; };
 		367F3630285F716000319AD2 /* shadow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shadow.cpp; sourceTree = "<group>"; };
@@ -429,7 +455,6 @@
 		36A52163279D667700C1F8CB /* TestException.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestException.mm; sourceTree = "<group>"; };
 		36A52165279D684F00C1F8CB /* TestEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestEvent.mm; sourceTree = "<group>"; };
 		36BFB22D282EE0F3008A462A /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = "Dependencies/glfw-3.3.7.bin.MACOS/lib-x86_64/libglfw3.a"; sourceTree = "<group>"; };
-		36BFB23E282EE702008A462A /* glad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glad.cpp; path = glad/src/glad.cpp; sourceTree = "<group>"; };
 		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
@@ -441,6 +466,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3672919B26FE225900786856 /* libz.tbd in Frameworks */,
+				362403682872F29A00598B0C /* libplatform_folders.a in Frameworks */,
 				368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,6 +484,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */,
+				362403862872F38800598B0C /* libplatform_folders.a in Frameworks */,
 				3672919C26FE226400786856 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -483,6 +510,7 @@
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				362403672872F27A00598B0C /* libplatform_folders.a */,
 				36BFB22D282EE0F3008A462A /* libglfw3.a */,
 				366EBE1A282EE02F00C36DE5 /* libglfw.3.dylib */,
 				366EBE16282EDF2B00C36DE5 /* libglfw3.a */,
@@ -676,16 +704,6 @@
 			path = server;
 			sourceTree = "<group>";
 		};
-		167C03A926E13A620045FEA9 /* External Libraries */ = {
-			isa = PBXGroup;
-			children = (
-				1689687725E9607800D26060 /* sago */,
-				36BFB23E282EE702008A462A /* glad.cpp */,
-				3677B5A827283E20000F4D77 /* perlinNoise.hpp */,
-			);
-			path = "External Libraries";
-			sourceTree = "<group>";
-		};
 		167C03AA26E13AE00045FEA9 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
@@ -726,9 +744,9 @@
 		1689684D25E95FD000D26060 = {
 			isa = PBXGroup;
 			children = (
+				362403692872F2CB00598B0C /* glad.c */,
 				3666D9052748FEC500C23231 /* Jaclang */,
 				3657217526D0710E005AB3CC /* Resources */,
-				167C03A926E13A620045FEA9 /* External Libraries */,
 				3619ACED26173D7000BA4EAF /* Libraries */,
 				167C03AA26E13AE00045FEA9 /* Shared */,
 				1689699C25E9653E00D26060 /* Client */,
@@ -737,15 +755,6 @@
 				1661654A25EA2CC8002A3815 /* Frameworks */,
 				1661662B25EA3873002A3815 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		1689687725E9607800D26060 /* sago */ = {
-			isa = PBXGroup;
-			children = (
-				1689687825E9607800D26060 /* platform_folders.h */,
-				1689687925E9607800D26060 /* sago.cpp */,
-			);
-			path = sago;
 			sourceTree = "<group>";
 		};
 		1689699C25E9653E00D26060 /* Client */ = {
@@ -986,6 +995,15 @@
 		3657217526D0710E005AB3CC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				3624036C2872F37300598B0C /* background.opa */,
+				362403702872F37400598B0C /* delete_button.opa */,
+				3624036B2872F37300598B0C /* font.opa */,
+				362403722872F37400598B0C /* icon.icns */,
+				3624036E2872F37300598B0C /* join_button.opa */,
+				3624036D2872F37300598B0C /* play_button.opa */,
+				362403712872F37400598B0C /* remove_button.opa */,
+				3624036F2872F37300598B0C /* resourcePack */,
+				362403732872F37400598B0C /* world_icon.opa */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1658,6 +1676,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				362403802872F37400598B0C /* remove_button.opa in Resources */,
+				3624037A2872F37400598B0C /* join_button.opa in Resources */,
+				362403762872F37400598B0C /* background.opa in Resources */,
+				3624037C2872F37400598B0C /* resourcePack in Resources */,
+				3624037E2872F37400598B0C /* delete_button.opa in Resources */,
+				362403822872F37400598B0C /* icon.icns in Resources */,
+				362403782872F37400598B0C /* play_button.opa in Resources */,
+				362403742872F37400598B0C /* font.opa in Resources */,
+				362403842872F37400598B0C /* world_icon.opa in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1672,6 +1699,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				362403812872F37400598B0C /* remove_button.opa in Resources */,
+				3624037B2872F37400598B0C /* join_button.opa in Resources */,
+				362403772872F37400598B0C /* background.opa in Resources */,
+				3624037D2872F37400598B0C /* resourcePack in Resources */,
+				3624037F2872F37400598B0C /* delete_button.opa in Resources */,
+				362403832872F37400598B0C /* icon.icns in Resources */,
+				362403792872F37400598B0C /* play_button.opa in Resources */,
+				362403752872F37400598B0C /* font.opa in Resources */,
+				362403852872F37400598B0C /* world_icon.opa in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1682,6 +1718,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3624036A2872F2CB00598B0C /* glad.c in Sources */,
 				367F3632285F716000319AD2 /* shadow.cpp in Sources */,
 				366D96F7282059DB00DEC292 /* readOpa.cpp in Sources */,
 				169B87D2270F5238006023B8 /* chat.cpp in Sources */,
@@ -1741,7 +1778,6 @@
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
 				3657221F26D07181005AB3CC /* multiplayerSelector.cpp in Sources */,
 				16670CE026DDFAA90057AA41 /* settingsMenu.cpp in Sources */,
-				169124E825F6BCD400F7EB4F /* sago.cpp in Sources */,
 				169AD3A327023B690096D80D /* blocks.cpp in Sources */,
 				169B87D0270F5036006023B8 /* serverChat.cpp in Sources */,
 				167B53CD270A26EC000089B3 /* serverItems.cpp in Sources */,
@@ -1755,7 +1791,6 @@
 				366D970E282067FA00DEC292 /* rectShape.cpp in Sources */,
 				3605ED58276E90FA00ECCA08 /* walls.cpp in Sources */,
 				3672B164277C885D001293B5 /* nameChooser.cpp in Sources */,
-				36BFB23F282EE702008A462A /* glad.cpp in Sources */,
 				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				3657222326D07181005AB3CC /* singleplayerSelector.cpp in Sources */,
 				367F362D285F70C900319AD2 /* blur.cpp in Sources */,
@@ -1788,7 +1823,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				368779722837EC4C00AA5943 /* glad.cpp in Sources */,
+				362403872872F75E00598B0C /* glad.c in Sources */,
 				366D9711282067FA00DEC292 /* scene.cpp in Sources */,
 				167B53CE270A26EC000089B3 /* serverItems.cpp in Sources */,
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
@@ -1825,7 +1860,6 @@
 				361DD1AB26F7478900129191 /* print.cpp in Sources */,
 				366D96F8282059DB00DEC292 /* readOpa.cpp in Sources */,
 				361DD1B126F7478900129191 /* server.cpp in Sources */,
-				361DD1B426F7478900129191 /* sago.cpp in Sources */,
 				366D970B282067FA00DEC292 /* sprite.cpp in Sources */,
 				366D9719282067FA00DEC292 /* textureAtlas.cpp in Sources */,
 				1679DA332733DA050005C4FB /* content.cpp in Sources */,
@@ -2036,6 +2070,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2052,8 +2087,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
+					"Dependencies/PerlinNoise-3.0.0",
+					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
-					"External\\ Libraries/glad/include/",
+					"Dependencies/PlatformFolders-4.2.0/sago",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
@@ -2114,6 +2151,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
@@ -2131,8 +2169,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
+					"Dependencies/PerlinNoise-3.0.0",
+					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
-					"External\\ Libraries/glad/include/",
+					"Dependencies/PlatformFolders-4.2.0/sago",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
@@ -2238,6 +2278,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2251,8 +2292,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
+					"Dependencies/PerlinNoise-3.0.0",
+					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
-					"External\\ Libraries/glad/include/",
+					"Dependencies/PlatformFolders-4.2.0/sago",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
@@ -2312,6 +2355,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2326,8 +2370,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYSTEM_HEADER_SEARCH_PATHS = (
+					"Dependencies/PerlinNoise-3.0.0",
+					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
-					"External\\ Libraries/glad/include/",
+					"Dependencies/PlatformFolders-4.2.0/sago",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
