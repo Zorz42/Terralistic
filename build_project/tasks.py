@@ -48,3 +48,5 @@ class TaskManager:
         for i, task in enumerate(self.tasks):
             print(f"{ANSI_COLOR}[{i + 1}/{len(self.tasks)}] Executing step {task.__class__.__name__}{ANSI_RESET}")
             task.execute()
+
+        print(f"{ANSI_COLOR}Done! {ANSI_RESET}")

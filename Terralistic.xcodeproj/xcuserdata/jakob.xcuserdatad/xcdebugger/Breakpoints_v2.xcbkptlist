@@ -20,34 +20,34 @@
             landmarkType = "3">
             <Locations>
                <Location
-                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 8ae73ce30d93ef5e"
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ff0586471c6d6793"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "Exception::Exception(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;)"
-                  moduleName = "Terralistic-server"
+                  moduleName = "Terralistic"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "8"
                   endingLineNumber = "8"
-                  offsetFromSymbolStart = "16">
+                  offsetFromSymbolStart = "76">
                </Location>
                <Location
-                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - 8ae73ce30d93ef5e"
+                  uuid = "1C3F0F7F-96DB-4C74-9E48-D7E8C6A0B3B3 - ff0586471c6d6793"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "Exception::Exception(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;)"
-                  moduleName = "Terralistic-server"
+                  moduleName = "Terralistic"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/jakob/Terralistic/Libraries/exception/exception.hpp"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "8"
                   endingLineNumber = "8"
-                  offsetFromSymbolStart = "24">
+                  offsetFromSymbolStart = "72">
                </Location>
             </Locations>
          </BreakpointContent>

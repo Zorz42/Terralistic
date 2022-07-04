@@ -34,8 +34,7 @@ class InstallPlatformFolders(tasks.Task):
         self.requireCommand("cmake")
 
     def execute(self):
-        dependencies.installDependency("https://github.com/sago007/PlatformFolders/archive/refs/tags/4.2.0.zip", self.project_path + "Dependencies/PlatformFolders-4.2.0/", "platform folders",
-                                       f"cd {self.project_path}Dependencies/PlatformFolders-4.2.0/ && mkdir -p build && cd build && cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release .. && cmake --build .")
+        dependencies.installDependency("https://github.com/sago007/PlatformFolders/archive/refs/tags/4.2.0.zip", self.project_path + "Dependencies/PlatformFolders-4.2.0/", "platform folders")
 
 
 class InstallPerlinNoise(tasks.Task):

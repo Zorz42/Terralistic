@@ -18,6 +18,9 @@ def compileResourcePack(input_resource_pack, output_resource_pack):
     for file in os.listdir(input_resource_pack):
         input_file = input_resource_pack + file
 
+        if file == ".DS_Store":
+            continue
+
         if file.endswith(".png"):
             if file.startswith(TEMPLATE_PREFIX):
                 output_file = output_resource_pack + file[len(TEMPLATE_PREFIX):-4] + ".opa"
@@ -25,6 +28,9 @@ def compileResourcePack(input_resource_pack, output_resource_pack):
                 output_file = output_resource_pack + file[0:-4] + ".opa"
         else:
             output_file = output_resource_pack + file
+
+        if os.path.exists(output_file) and os.path.getmtime(input_file) <= os.path.getmtime(output_file):
+            continue
 
         if os.path.isdir(input_file):
             compileResourcePack(input_file, output_file)
