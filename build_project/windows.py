@@ -18,7 +18,7 @@ class InstallZlib(tasks.Task):
             raise Exception("C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat is needed for build. It is installed alongside visual studio 2022")
 
     def execute(self):
-        dependencies.installDependency("https://github.com/madler/zlib/archive/refs/heads/master.zip", self.project_path + "Dependencies/zlib-master/", "zlib", f"\"\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat\" && cd {self.project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G \"Visual Studio 17 2022\" -A Win32 . && cmake --build . --config Release --target install\"")
+        dependencies.installDependency("https://github.com/madler/zlib/archive/refs/heads/master.zip", self.project_path + "Dependencies/zlib-master/", "zlib", f"\"\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat\" && cd {self.project_path}Dependencies/zlib-master/ && cmake -DCMAKE_INSTALL_PREFIX=. -G Ninja -A Win32 . && cmake --build . --config Release --target install -j{multiprocessing.cpu_count()}\"")
 
 
 class InstallGlfw(tasks.Task):

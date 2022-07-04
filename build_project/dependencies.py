@@ -4,8 +4,11 @@ from . import utils
 
 
 def installDependency(url: str, directory: str, name: str, command: str = "", create_dir: bool = False):
-    if not utils.exists(directory):
+    if not utils.exists(directory + "/.done"):
         print(f"Downloading dependency \"{name}\"")
+        
+        if utils.exists(directory):
+            utils.remove(directory)
 
         file = f"{name}.zip"
 
@@ -26,5 +29,8 @@ def installDependency(url: str, directory: str, name: str, command: str = "", cr
 
         if command:
             utils.system(command)
+            
+        with open(directory + "/.done", 'w') as _:
+            pass
     else:
         print(f"Dependency \"{name}\" is already installed.")
