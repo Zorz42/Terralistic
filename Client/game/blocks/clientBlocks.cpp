@@ -1,3 +1,4 @@
+#include <cstring>
 #include "clientBlocks.hpp"
 
 #define EXTENDED_VIEW_MARGIN 100
@@ -24,6 +25,23 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             event.packet >> x >> y;
             stopBreakingBlock(x, y);
             break;
+        }
+        case ServerPacketType::BLOCK_DATA_UPDATE:{
+            std::vector<char> memdata;
+            memdata.resize(event.packet.getDataSize());
+            memcpy(&memdata[0], event.packet.getData(), event.packet.getDataSize());
+            memdata.erase(memdata.begin(), memdata.begin() + 15);
+
+            int x, y;
+            event.packet >> x >> y;
+            char data[getBlockData(x, y)->getSavedSize()];
+            for(int i = 0; i < getBlockData(x, y)->getSavedSize(); i++){
+                data[i] = memdata[4 * i];
+            }
+            const char *iter = &data[0];
+            getBlockData(x, y)->load(iter);
+            updateState(x, y);
+            scheduleBlockUpdate(x, y);
         }
         default:;
     }

@@ -25,6 +25,7 @@ class ServerBlocks : public ServerModule, public Blocks, EventListener<ServerCon
     void onEvent(BlockStoppedBreakingEvent& event) override;
     void onEvent(WorldSaveEvent& event) override;
     void onEvent(WorldLoadEvent& event) override;
+    void syncBlockData(int x, int y);
     
     void init() override;
     void update(float frame_length) override;

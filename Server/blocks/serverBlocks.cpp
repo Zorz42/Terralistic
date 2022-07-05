@@ -1,5 +1,6 @@
 #include "serverBlocks.hpp"
 #include "serverPlayers.hpp"
+#include "blockData.hpp"
 
 void ServerBlocks::onEvent(ServerConnectionWelcomeEvent& event) {
     sf::Packet packet;
@@ -49,11 +50,25 @@ void ServerBlocks::onEvent(BlockChangeEvent& event) {
     sf::Packet packet;
     packet << ServerPacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y)->id << (unsigned char)getBlockXFromMain(event.x, event.y) << (unsigned char)getBlockYFromMain(event.x, event.y);
     networking->sendToEveryone(packet);
-    
+    if(getBlockType(event.x, event.y)->block_data_index != 0)
+        syncBlockData(event.x, event.y);
     int neighbours[5][2] = {{event.x, event.y}, {event.x - 1, event.y}, {event.x, event.y - 1}, {event.x + 1, event.y}, {event.x, event.y + 1}};
     for(int i = 0; i < 5; i++)
         if(neighbours[i][0] >= 0 && neighbours[i][0] < getWidth() && neighbours[i][1] >= 0 && neighbours[i][1] < getHeight())
             updateBlock(neighbours[i][0], neighbours[i][1]);
+}
+
+void ServerBlocks::syncBlockData(int x, int y) {
+    sf::Packet packet;
+    std::vector<char> data;
+    data.resize(getBlockData(x, y)->getSavedSize());
+    unsigned long index = 0;
+    getBlockData(x, y)->save(data, index);
+    packet << ServerPacketType::BLOCK_DATA_UPDATE << x << y;
+    for (auto character: data) {
+        packet << character;
+    }
+    networking->sendToEveryone(packet);
 }
 
 void ServerBlocks::updateBlock(int x, int y) {
@@ -74,9 +89,9 @@ void ServerBlocks::onEvent(BlockUpdateEvent& event) {
             if(event.y < getHeight() - 1 && y_offset + 1 < getBlockType(event.x, event.y)->height)
                 setBlockType(event.x, event.y + 1, getBlockType(event.x, event.y), x_offset, y_offset + 1);
         }
-        
-        
     }
+    if(getBlockType(event.x, event.y)->block_data_index != 0)
+        syncBlockData(event.x, event.y);
 }
 
 void ServerBlocks::onEvent(BlockStartedBreakingEvent& event) {
