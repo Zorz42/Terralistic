@@ -22,7 +22,7 @@ public:
     void setColor(int index, Color color);
     void setColor(int index, Color color1, Color color2, Color color3, Color color4);
     void setTextureCoords(int index, RectShape texture_coordinates);
-    void render(const Texture* image=nullptr, int x=0, int y=0, bool blend_multiply=false);
+    void render(const Texture* image=nullptr, int x=0, int y=0, bool blend_multiply=false, int num_rects=-1);
     void resize(int size);
     ~RectArray();
 };

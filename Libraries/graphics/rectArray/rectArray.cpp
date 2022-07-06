@@ -85,12 +85,15 @@ void gfx::RectArray::resize(int size) {
     length = size;
 }
 
-void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multiply) {
+void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multiply, int num_rects) {
     if(vertex_buffer == -1) {
         glGenBuffers(1, &vertex_buffer);
         glGenBuffers(1, &color_buffer);
         glGenBuffers(1, &texture_pos_buffer);
     }
+    
+    if(num_rects == -1)
+        num_rects = length;
 
     if(blend_multiply && !updated_back_window_texture) {
         updated_back_window_texture = true;
@@ -195,7 +198,7 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
     } else
         glUniform1i(uniform_blend_multiply, 0);
 
-    glDrawArrays(GL_TRIANGLES, 0, length * 6);
+    glDrawArrays(GL_TRIANGLES, 0, num_rects * 6);
     
     glDisableVertexAttribArray(SHADER_COLOR_BUFFER);
     if(image != nullptr)
