@@ -1,4 +1,4 @@
-ghost: false
+ghost: true
 transparent: true
 break_time: 1000
 connects_to: sand
