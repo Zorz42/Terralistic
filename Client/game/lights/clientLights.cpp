@@ -93,10 +93,12 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
                 index++;
             }
         }
+    light_count = index;
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
-    light_rects.render(nullptr, x, y, /*blend_multiply*/true);
+    if(light_count > 0)
+        light_rects.render(nullptr, x, y, /*blend_multiply*/true, light_count);
 }
 
 void ClientLights::LightChunk::create() {
