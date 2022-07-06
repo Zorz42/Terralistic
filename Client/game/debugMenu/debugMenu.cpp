@@ -10,13 +10,13 @@ void DebugMenu::init() {
     back_rect.blur_radius = BLUR;
     back_rect.smooth_factor = 3;
     
-    networking->packet_event.addListener(this);
+    //networking->packet_event.addListener(this);
     
-    debug_lines = {&fps_line, &server_tps_line, &ping_line, &coords_line, &packets_line};
+    //debug_lines = {&fps_line, &server_tps_line, &ping_line, &coords_line, &packets_line};
 }
 
 void DebugMenu::update(float frame_length) {
-    enabled = players->getMainPlayer() != nullptr;
+    /*enabled = players->getMainPlayer() != nullptr;
 
     if(enabled) {
         fps_count++;
@@ -55,22 +55,26 @@ void DebugMenu::update(float frame_length) {
 
         for(auto & debug_line : debug_lines)
             debug_line->update();
-    }
+    }*/
+    
+    if(debug_menu_open)
+        for(DebugLine* debug_line : debug_lines)
+            debug_line->update();
 }
 
-void DebugMenu::DebugLine::render(int x, int y) {
+void DebugLine::render(int x, int y) {
     texture.render(2, x, y);
 }
 
-int DebugMenu::DebugLine::getWidth() {
+int DebugLine::getWidth() {
     return texture.getTextureWidth() * 2;
 }
 
-int DebugMenu::DebugLine::getHeight() {
+int DebugLine::getHeight() {
     return texture.getTextureHeight() * 2;
 }
 
-void DebugMenu::DebugLine::update() {
+void DebugLine::update() {
     if(prev_text != text) {
         prev_text = text;
         texture.loadFromText(text);
@@ -97,7 +101,7 @@ void DebugMenu::render() {
     }
 }
 
-void DebugMenu::onEvent(ClientPacketEvent& event) {
+/*void DebugMenu::onEvent(ClientPacketEvent& event) {
     packet_count++;
     switch(event.packet_type) {
         case ServerPacketType::TPS: {
@@ -110,7 +114,7 @@ void DebugMenu::onEvent(ClientPacketEvent& event) {
         }
         default: break;
     }
-}
+}*/
 
 
 bool DebugMenu::onKeyDown(gfx::Key key) {
@@ -125,5 +129,9 @@ bool DebugMenu::onKeyDown(gfx::Key key) {
 }
 
 void DebugMenu::stop() {
-    networking->packet_event.removeListener(this);
+    //networking->packet_event.removeListener(this);
+}
+
+void DebugMenu::registerDebugLine(DebugLine* debug_line) {
+    debug_lines.push_back(debug_line);
 }

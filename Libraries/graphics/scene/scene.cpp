@@ -349,6 +349,8 @@ void gfx::Scene::renderAll() {
     for(int i = 0; i < global_update_functions.size(); i++)
         global_update_functions[i]->update();
     
+    render_time = frame_timer.getTimeElapsed();
+    
     updateWindow();
     
     frame_length = frame_timer.getTimeElapsed();
@@ -402,4 +404,8 @@ void gfx::Scene::switchToScene(Scene& scene) {
     scene.run();
     for(auto & module : modules)
         module->enable_key_states = true;
+}
+
+float gfx::Scene::getRenderTime() {
+    return render_time;
 }

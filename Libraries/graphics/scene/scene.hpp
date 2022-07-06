@@ -38,6 +38,7 @@ class Scene : public SceneModule {
     void onKeyDownCallback(Key key_);
     void onKeyUpCallback(Key key_);
     bool running = true, initialized = false;
+    float render_time;
 public:
     void initialize();
     bool isInitialized() const;
@@ -53,6 +54,7 @@ public:
     void onKeyboardButtonEvent(gfx::Key key, bool pressed);
     void onTextEnteredEvent(char c);
     void onMouseWheelScrollEvent(int delta);
+    float getRenderTime();
 };
 
 inline int fps_limit = 0;

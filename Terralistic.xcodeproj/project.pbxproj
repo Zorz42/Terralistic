@@ -1012,6 +1012,7 @@
 			isa = PBXGroup;
 			children = (
 				36D26F282734635E00F1F476 /* clientModule */,
+				365721DB26D07180005AB3CC /* debugMenu */,
 				365721D026D07180005AB3CC /* networking */,
 				365721E426D07180005AB3CC /* resourcePack */,
 				3605ED4D276A09E900ECCA08 /* camera */,
@@ -1030,7 +1031,6 @@
 				365721D726D07180005AB3CC /* inventory */,
 				365721D326D07180005AB3CC /* chat */,
 				3665490027CA433700D156D3 /* respawnScreen */,
-				365721DB26D07180005AB3CC /* debugMenu */,
 				1690693A26D1A1C80057345A /* game.hpp */,
 				365721F426D07180005AB3CC /* game.cpp */,
 				369981F0277CCAD500FA3F72 /* privateWorld.cpp */,

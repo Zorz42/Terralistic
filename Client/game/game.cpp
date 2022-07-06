@@ -36,7 +36,10 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     background_rect(background_rect),
     settings(settings),
     
-    networking(ip_address, port, username),
+    debug_menu(),
+    networking(&debug_menu, ip_address, port, username),
+    camera(&debug_menu),
+    resource_pack(),
     background(&camera, &resource_pack),
     blocks(&resource_pack, &networking, &camera),
     walls(&blocks, &resource_pack, &networking, &camera),
@@ -52,7 +55,6 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     chat(&networking, &players),
     player_health(&networking, &resource_pack, &players),
     respawn_screen(&networking, &players),
-    debug_menu(&networking, &blocks, &players),
     content(&blocks, &walls, &liquids, &items)
 {
     registerAModule(&networking);
@@ -126,8 +128,8 @@ void Game::parallelUpdateLoop() {
             for(auto i : getModules())
                 if(i != this && i->enabled)
                     ((ClientModule*)i)->updateParallel(frame_length);
-            if(timer.getTimeElapsed() < 10)
-                gfx::sleep(10 - timer.getTimeElapsed());
+            if(timer.getTimeElapsed() < 5)
+                gfx::sleep(5 - timer.getTimeElapsed());
         }
     } catch(const std::exception& exception) {
         interrupt_message = exception.what();
@@ -139,11 +141,26 @@ void Game::init() {
     for(auto i : getModules())
         if(i != this)
             ((ClientModule*)i)->postInit();
+    
+    debug_menu.registerDebugLine(&fps_debug_line);
+    debug_menu.registerDebugLine(&frame_length_line);
 }
 
-void Game::render() {
+void Game::update(float frame_length) {
     if(interrupt)
         throw Exception(interrupt_message);
+    
+    fps_count++;
+    frame_length_sum += getRenderTime();
+    if(line_refresh_counter.getTimeElapsed() >= 1000) {
+        frame_length_line.text = std::to_string(frame_length_sum / fps_count) + "ms per render";
+        frame_length_sum = 0;
+        
+        fps_debug_line.text = std::to_string(fps_count) + " FPS";
+        fps_count = 0;
+        
+        line_refresh_counter.reset();
+    }
 }
 
 void Game::renderBack() {

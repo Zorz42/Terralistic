@@ -1,4 +1,9 @@
 #include "camera.hpp"
+#include "blocks.hpp"
+
+void Camera::init() {
+    debug_menu->registerDebugLine(&coords_debug_line);
+}
 
 void Camera::setX(int x_) {
     target_x = x_;
@@ -30,6 +35,8 @@ void Camera::update(float frame_length) {
         x += (target_x - x) / 8;
         y += (target_y - y) / 8;
     }
+    
+    coords_debug_line.text = std::string("X: ") + std::to_string(int(x / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(y / (BLOCK_WIDTH * 2)));
 }
 
 int Camera::getViewBeginX() const {
