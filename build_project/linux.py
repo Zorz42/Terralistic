@@ -32,8 +32,7 @@ class InstallGlfw(tasks.Task):
 
 class InstallPatch(tasks.Task):
     def execute(self):
-        dependencies.installDependency(
-            "https://netix.dl.sourceforge.net/project/gnuwin32/patch/2.5.9-7/patch-2.5.9-7-bin.zip", self.project_path + "Dependencies/patch-2.5.9-7-bin/", "patch", create_dir=True)
+        dependencies.installDependency("https://netix.dl.sourceforge.net/project/gnuwin32/patch/2.5.9-7/patch-2.5.9-7-bin.zip", self.project_path + "Dependencies/patch-2.5.9-7-bin/", "patch", create_dir=True)
 
 
 class GenerateGlad(tasks.Task):
@@ -66,8 +65,8 @@ class CompileResourcePack(tasks.Task):
 
 class Build(tasks.Task):
     def checkForDependencies(self):
-        if not utils.exists("C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat"):
-            raise Exception("C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/VsDevCmd.bat is needed for build. It is installed alongside visual studio 2022")
+        self.requireCommand("make")
+        self.requireCommand("cmake")
 
     def execute(self):
         utils.system(f"cd {self.project_path}Build/ && cmake .. && make -j{multiprocessing.cpu_count()}")
