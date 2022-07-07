@@ -25,6 +25,12 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
     
     RenderLiquidChunk* getRenderLiquidChunk(int x, int y);
     
+    DebugMenu* debug_menu;
+    gfx::Timer line_refresh_timer;
+    int fps_count = 0;
+    float render_time_sum = 0;
+    DebugLine render_time_line;
+    
     void onEvent(ClientPacketEvent& event) override;
     void onEvent(WelcomePacketEvent& event) override;
     void onEvent(LiquidChangeEvent& event) override;
@@ -38,7 +44,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
 
     void scheduleLiquidUpdate(int x, int y);
 public:
-    ClientLiquids(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks), camera(camera) {}
+    ClientLiquids(DebugMenu* debug_menu, ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : debug_menu(debug_menu), Liquids(blocks), resource_pack(resource_pack), networking(networking), blocks(blocks), camera(camera) {}
     
     const gfx::Texture& getLiquidsAtlasTexture();
     gfx::RectShape getLiquidRectInAtlas(LiquidType* type);

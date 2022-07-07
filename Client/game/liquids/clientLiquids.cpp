@@ -34,6 +34,7 @@ void ClientLiquids::init() {
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
     liquid_change_event.addListener(this);
+    debug_menu->registerDebugLine(&render_time_line);
 }
 
 void ClientLiquids::loadTextures() {
@@ -77,9 +78,20 @@ void ClientLiquids::updateParallel(float frame_length) {
 }
 
 void ClientLiquids::render() {
+    gfx::Timer render_timer;
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
             getRenderLiquidChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
+    
+    render_time_sum += render_timer.getTimeElapsed();
+    fps_count++;
+    if(line_refresh_timer.getTimeElapsed() >= 1000) {
+        render_time_line.text = std::to_string(render_time_sum / fps_count) + "ms liquids render";
+        
+        fps_count = 0;
+        render_time_sum = 0;
+        line_refresh_timer.reset();
+    }
 }
 
 void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int y) {

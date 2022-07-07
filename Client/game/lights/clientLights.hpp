@@ -29,6 +29,12 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     
     LightChunk* light_chunks = nullptr;
     
+    DebugMenu* debug_menu;
+    gfx::Timer line_refresh_timer;
+    int fps_count = 0;
+    float render_time_sum = 0;
+    DebugLine render_time_line;
+    
     void init() override;
     void postInit() override;
     void render() override;
@@ -44,5 +50,5 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     
     void scheduleClientLightUpdate(int x, int y);
 public:
-    ClientLights(Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
+    ClientLights(DebugMenu* debug_menu, Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : debug_menu(debug_menu), Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
 };

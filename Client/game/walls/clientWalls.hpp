@@ -48,13 +48,19 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     
     void scheduleWallUpdate(int x, int y);
     
+    DebugMenu* debug_menu;
+    gfx::Timer line_refresh_timer;
+    int fps_count = 0;
+    float render_time_sum = 0;
+    DebugLine render_time_line;
+    
     ResourcePack* resource_pack;
     ClientNetworking* networking;
     Camera* camera;
     ClientBlocks* blocks;
 
 public:
-    ClientWalls(ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : Walls(blocks), blocks(blocks), resource_pack(resource_pack), networking(networking), camera(camera) {}
+    ClientWalls(DebugMenu* debug_menu, ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : debug_menu(debug_menu), Walls(blocks), blocks(blocks), resource_pack(resource_pack), networking(networking), camera(camera) {}
     
     const gfx::Texture& getWallsAtlasTexture();
     gfx::RectShape getWallRectInAtlas(WallType* type);

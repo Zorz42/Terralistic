@@ -126,6 +126,7 @@ void ClientWalls::init() {
     networking->welcome_packet_event.addListener(this);
     networking->packet_event.addListener(this);
     wall_change_event.addListener(this);
+    debug_menu->registerDebugLine(&render_time_line);
 }
 
 void ClientWalls::loadTextures() {
@@ -191,6 +192,7 @@ gfx::RectShape ClientWalls::getWallRectInAtlas(WallType* type) {
 }
 
 void ClientWalls::render() {
+    gfx::Timer render_timer;
     for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
             if(getRenderWallChunk(x, y)->isCreated()) {
@@ -205,5 +207,15 @@ void ClientWalls::render() {
                             }
                 }
             }
+    
+    render_time_sum += render_timer.getTimeElapsed();
+    fps_count++;
+    if(line_refresh_timer.getTimeElapsed() >= 1000) {
+        render_time_line.text = std::to_string(render_time_sum / fps_count) + "ms walls render";
+        
+        fps_count = 0;
+        render_time_sum = 0;
+        line_refresh_timer.reset();
+    }
 }
 

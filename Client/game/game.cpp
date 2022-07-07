@@ -41,11 +41,11 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     camera(&debug_menu),
     resource_pack(),
     background(&camera, &resource_pack),
-    blocks(&resource_pack, &networking, &camera),
-    walls(&blocks, &resource_pack, &networking, &camera),
+    blocks(&debug_menu, &resource_pack, &networking, &camera),
+    walls(&debug_menu, &blocks, &resource_pack, &networking, &camera),
     particles(settings, &blocks, &camera),
-    liquids(&blocks, &resource_pack, &networking, &camera),
-    lights(settings, &blocks, &resource_pack, &camera),
+    liquids(&debug_menu, &blocks, &resource_pack, &networking, &camera),
+    lights(&debug_menu, settings, &blocks, &resource_pack, &camera),
     natural_light(&networking, &blocks, &lights),
     entities(&blocks, &networking),
     items(&resource_pack, &blocks, &entities, &networking, &camera),
@@ -78,6 +78,9 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&debug_menu);
     
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
+    
+    debug_menu.registerDebugLine(&fps_debug_line);
+    debug_menu.registerDebugLine(&frame_length_line);
 }
 
 void Game::initializeGame() {
@@ -141,9 +144,6 @@ void Game::init() {
     for(auto i : getModules())
         if(i != this)
             ((ClientModule*)i)->postInit();
-    
-    debug_menu.registerDebugLine(&fps_debug_line);
-    debug_menu.registerDebugLine(&frame_length_line);
 }
 
 void Game::update(float frame_length) {

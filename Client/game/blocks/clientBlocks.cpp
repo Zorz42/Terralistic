@@ -86,6 +86,7 @@ void ClientBlocks::init() {
     block_change_event.addListener(this);
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
+    debug_menu->registerDebugLine(&render_time_line);
 }
 
 void ClientBlocks::loadTextures() {
@@ -183,6 +184,7 @@ gfx::RectShape ClientBlocks::getBlockRectInAtlas(BlockType* type) {
 }
 
 void ClientBlocks::render() {
+    gfx::Timer render_timer;
     for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
         for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++)
             if(getRenderBlockChunk(x, y)->isCreated()) {
@@ -197,6 +199,16 @@ void ClientBlocks::render() {
                             }
                 }
             }
+    
+    render_time_sum += render_timer.getTimeElapsed();
+    fps_count++;
+    if(line_refresh_timer.getTimeElapsed() >= 1000) {
+        render_time_line.text = std::to_string(render_time_sum / fps_count) + "ms blocks render";
+        
+        fps_count = 0;
+        render_time_sum = 0;
+        line_refresh_timer.reset();
+    }
 }
 
 int ClientBlocks::getBlocksViewBeginX() const {
