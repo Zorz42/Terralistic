@@ -13,7 +13,6 @@ public:
 };
 
 class DebugMenu : public ClientModule {
-    
     bool debug_menu_open = false;
     std::vector<DebugLine*> debug_lines;
     gfx::Rect back_rect;
