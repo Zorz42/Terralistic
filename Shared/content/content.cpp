@@ -221,6 +221,23 @@ int WoodType::updateState(Blocks* blocks, int x, int y){
     return state;
 }
 
+int FurnaceType::updateState(Blocks *blocks, int x, int y) {
+    int state = 0;
+    auto data = (FurnaceData*)blocks->getBlockData(x, y);
+    if(data->fuel.stack > 0)
+        state++;
+    if(data->heated_items.stack > 0)
+        state += 2;
+}
+
+void FurnaceBehaviour::onRightClick(int x, int y, ServerPlayer *player) {
+    //open ui somehow
+    //make inventory change functions
+    //when done and if anything changed call:
+    BlockUpdateEvent event(x, y);
+    blocks->block_update_event.call(event);
+}
+
 WallTypes::WallTypes(Walls* walls) :
 dirt("dirt")
 {

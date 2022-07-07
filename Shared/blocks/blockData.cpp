@@ -7,7 +7,7 @@ dataDeliverer::dataDeliverer() {
     names.emplace_back("furnace");
 }
 
-void furnaceData::save(std::vector<char>& data, unsigned long& index) {
+void FurnaceData::save(std::vector<char>& data, unsigned long& index) {
     *(int*)&data[index] = burn_time;
     index += 4;
     *(int*)&data[index] = heat;
@@ -22,7 +22,7 @@ void furnaceData::save(std::vector<char>& data, unsigned long& index) {
     index += 4;
 }
 
-void furnaceData::load(const char*& iter) {
+void FurnaceData::load(const char*& iter) {
     burn_time = *(int*)iter;
     iter += 4;
     heat = *(int*)iter;

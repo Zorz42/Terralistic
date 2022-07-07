@@ -267,7 +267,7 @@ int Blocks::getBlockYFromMain(int x, int y) {
     return getBlock(x, y)->y_from_main;
 }
 
-defaultData* Blocks::getBlockData(int x, int y){
+DefaultData* Blocks::getBlockData(int x, int y){
     return getBlock(x, y)->additional_block_data;
 }
 

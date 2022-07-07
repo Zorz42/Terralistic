@@ -80,6 +80,19 @@ public:
     WoodType(const std::string& name) : BlockType(name){}
 };
 
+class FurnaceType : public BlockType{
+public:
+    int updateState(Blocks* blocks, int x, int y) override;
+    FurnaceType(const std::string& name) : BlockType(name){}
+};
+
+class FurnaceBehaviour : public BlockBehaviour{
+    void onRightClick(int x, int y, ServerPlayer* player) override;
+public:
+    FurnaceBehaviour(Blocks* blocks, Walls* walls, Liquids* liquids) : BlockBehaviour(blocks, walls, liquids) {}
+};
+
+
 class BlockTypes {
     WoodBehaviour wood_behaviour;
     CactusBehaviour cactus_behaviour;
@@ -92,7 +105,7 @@ class BlockTypes {
     GrassBehaviour grass_behaviour;
     TorchBehaviour torch_behaviour;
     
-    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch};
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch, &furnace};
 public:
     BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
@@ -119,6 +132,7 @@ public:
     BlockType torch{"torch"};
     BlockType unlit_torch{"unlit_torch"};
     BlockType cactus{"cactus"};
+    FurnaceType furnace{"furnace"};
 };
 
 class WallTypes {

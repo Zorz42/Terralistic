@@ -49,9 +49,8 @@ public:
     std::string name;
 };
 
-class defaultData{ ;
-public:
-    virtual ~defaultData(){}
+struct DefaultData{
+    virtual ~DefaultData(){}
     virtual void save(std::vector<char>& data, unsigned long& index){}
     virtual void load(const char*& iter){}
     virtual int getSavedSize(){return 0;}
@@ -85,7 +84,7 @@ class Blocks {
         Block() : id(/*air*/0), x_from_main(0), y_from_main(0) {}
         int id:8;
         int x_from_main:8, y_from_main:8;
-        defaultData* additional_block_data;
+        DefaultData* additional_block_data;
     };
     
     class BreakingBlock {
@@ -122,7 +121,7 @@ public:
     void setBlockTypeSilently(int x, int y, BlockType* type);
     int getBlockXFromMain(int x, int y);
     int getBlockYFromMain(int x, int y);
-    defaultData* getBlockData(int x, int y);
+    DefaultData* getBlockData(int x, int y);
     
     int getBreakProgress(int x, int y);
     int getBreakStage(int x, int y);
