@@ -37,6 +37,12 @@ public:
     int x, y;
 };
 
+class BlockUpdateEvent {
+public:
+    BlockUpdateEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
+};
+
 class Tool {
 public:
     Tool(const std::string& name) : name(name) {}
@@ -149,6 +155,7 @@ public:
     EventSender<BlockBreakEvent> block_break_event;
     EventSender<BlockStartedBreakingEvent> block_started_breaking_event;
     EventSender<BlockStoppedBreakingEvent> block_stopped_breaking_event;
+    EventSender<BlockUpdateEvent> block_update_event;
     
     ~Blocks();
 };

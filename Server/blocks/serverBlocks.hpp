@@ -6,11 +6,7 @@
 
 class ServerPlayerData;
 class Entities;
-class BlockUpdateEvent {
-public:
-    BlockUpdateEvent(int x, int y) : x(x), y(y) {}
-    int x, y;
-};
+
 
 class ServerBlocks : public ServerModule, public Blocks, EventListener<ServerConnectionWelcomeEvent>, EventListener<BlockUpdateEvent>, EventListener<BlockChangeEvent>, EventListener<BlockStartedBreakingEvent>, EventListener<BlockStoppedBreakingEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent> {
     ServerNetworking* networking;
@@ -36,6 +32,6 @@ public:
     void updateBlock(int x, int y);
     void setPlayers(Entities* all_entities){entities = all_entities;};
 
-    EventSender<BlockUpdateEvent> block_update_event;
+
     EventSender<BlockRandomTickEvent> block_random_tick_event;
 };
