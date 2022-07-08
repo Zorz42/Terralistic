@@ -67,8 +67,8 @@ void ClientLiquids::scheduleLiquidUpdate(int x, int y) {
 }
 
 void ClientLiquids::updateParallel(float frame_length) {
-    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
+    for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+        for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++) {
             if(!getRenderLiquidChunk(x, y)->isCreated())
                 getRenderLiquidChunk(x, y)->create();
             
@@ -79,8 +79,8 @@ void ClientLiquids::updateParallel(float frame_length) {
 
 void ClientLiquids::render() {
     gfx::Timer render_timer;
-    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+    for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+        for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
             getRenderLiquidChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
     
     render_time_sum += render_timer.getTimeElapsed();
@@ -97,8 +97,8 @@ void ClientLiquids::render() {
 void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int y) {
     has_update = false;
     int index = 0;
-    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+    for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+        for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
             if(liquids->getLiquidType(x_, y_) != &liquids->empty) {
                 int texture_y = liquids->getLiquidRectInAtlas(liquids->getLiquidType(x_, y_)).y * 2;
                 liquid_rects.setTextureCoords(index, {0, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});

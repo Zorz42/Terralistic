@@ -74,8 +74,8 @@ void ClientWalls::onEvent(WelcomePacketEvent& event) {
 
 void ClientWalls::updateParallel(float frame_length) {
     updateBreakingWalls(frame_length);
-    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++) {
+    for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+        for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++) {
             if(!getRenderWallChunk(x, y)->isCreated())
                 getRenderWallChunk(x, y)->create();
             
@@ -157,8 +157,8 @@ void ClientWalls::stop() {
 void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
     has_update = false;
     int index = 0;
-    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+    for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+        for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
             if(walls->getWallType(x_, y_) != &walls->clear) {
                 if(walls->getState(x_, y_) == 16)
                     walls->updateState(x_, y_);
@@ -193,8 +193,8 @@ gfx::RectShape ClientWalls::getWallRectInAtlas(WallType* type) {
 
 void ClientWalls::render() {
     gfx::Timer render_timer;
-    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+    for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+        for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
             if(getRenderWallChunk(x, y)->isCreated()) {
                 getRenderWallChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
                 

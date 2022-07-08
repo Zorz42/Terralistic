@@ -58,8 +58,8 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
     has_update = false;
     
     int index = 0;
-    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++) {
+    for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+        for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++) {
             int rel_x = x_ % CHUNK_SIZE, rel_y = y_ % CHUNK_SIZE;
             int x_stretch = x_ == 0 ? BLOCK_WIDTH : 0;
             int low_x = x_ == lights->getWidth() - 1 ? x_ : x_ + 1, low_y = y_ == lights->getHeight() - 1 ? y_ : y_ + 1;
@@ -116,8 +116,8 @@ void ClientLights::onEvent(LightColorChangeEvent& event) {
 
 void ClientLights::render() {
     gfx::Timer render_timer;
-    for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+    for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
+        for(int x = blocks->getBlocksViewBeginX() / CHUNK_SIZE; x <= blocks->getBlocksViewEndX() / CHUNK_SIZE; x++)
             if(getLightChunk(x, y)->isCreated())
                 getLightChunk(x, y)->render(x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
     

@@ -41,7 +41,7 @@ void TcpSocket::handleError() {
 void TcpSocket::handleError() {
     if(errno == EAGAIN || errno == EINPROGRESS)
         return;
-
+    
     switch(errno) {
         case EWOULDBLOCK:  return;
         case ECONNABORTED:
