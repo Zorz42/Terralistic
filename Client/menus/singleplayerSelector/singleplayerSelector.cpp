@@ -3,6 +3,8 @@
 #include "game.hpp"
 #include "worldCreator.hpp"
 #include "choiceScreen.hpp"
+#include "readOpa.hpp"
+#include "resourcePath.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
@@ -53,7 +55,7 @@ void SingleplayerSelector::init() {
     bottom_rect.setHeight(BOTTOM_HEIGHT);
     bottom_rect.fill_color.a = TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = SHADOW_INTENSITY;
-    bottom_rect.blur_intensity = BLUR;
+    bottom_rect.blur_radius = BLUR;
     
     refresh();
 }
@@ -89,21 +91,19 @@ void SingleplayerSelector::refresh() {
     for(int i = 0; i < worlds.size(); i++) {
         worlds[i]->y = scroll_limit + TOP_HEIGHT;
         
-        worlds[i]->icon.loadFromResources("world_icon.png");
+        loadOpa(worlds[i]->icon, resource_path + "world_icon.opa");
         
         worlds[i]->title.loadFromText(worlds[i]->name);
 
-        worlds[i]->play_button.loadFromResources("play_button.png");
+        loadOpa(worlds[i]->play_button, resource_path + "play_button.opa");
         worlds[i]->play_button.scale = 3;
         worlds[i]->play_button.margin = 5;
         
-        worlds[i]->delete_button.loadFromResources("delete_button.png");
+        loadOpa(worlds[i]->delete_button, resource_path + "delete_button.opa");
         worlds[i]->delete_button.scale = 3;
         worlds[i]->delete_button.margin = 5;
-
-        worlds[i]->last_played.setColor(GREY);
         
-        worlds[i]->last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"));
+        worlds[i]->last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY);
         
         scroll_limit += 116 + SPACING * 3;
     }
@@ -178,7 +178,7 @@ void SingleplayerSelector::render() {
     if(top_rect_visibility > 0.99f)
         top_rect_visibility = 1;
     top_rect.fill_color.a = top_rect_visibility * TRANSPARENCY / 2;
-    top_rect.blur_intensity = top_rect_visibility * BLUR;
+    top_rect.blur_radius = top_rect_visibility * BLUR;
     top_rect.shadow_intensity = top_rect_visibility * SHADOW_INTENSITY;
     if(top_rect_visibility)
         top_rect.render();

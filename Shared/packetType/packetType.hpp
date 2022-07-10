@@ -1,5 +1,5 @@
 #pragma once
-#include <SFML/Network.hpp>
+#include "networking.hpp"
 
 enum class ClientPacketType {
     _START,
@@ -53,11 +53,11 @@ enum class WelcomePacketType {
     _START, WELCOME, BLOCKS, WALLS, LIQUIDS, INVENTORY, TIME, HEALTH, _END,
 };
 
-sf::Packet& operator<<(sf::Packet& packet, ClientPacketType packet_type);
-sf::Packet& operator>>(sf::Packet& packet, ClientPacketType& packet_type);
+Packet& operator<<(Packet& packet, ClientPacketType packet_type);
+Packet& operator>>(Packet& packet, ClientPacketType& packet_type);
 
-sf::Packet& operator<<(sf::Packet& packet, ServerPacketType packet_type);
-sf::Packet& operator>>(sf::Packet& packet, ServerPacketType& packet_type);
+Packet& operator<<(Packet& packet, ServerPacketType packet_type);
+Packet& operator>>(Packet& packet, ServerPacketType& packet_type);
 
-sf::Packet& operator<<(sf::Packet& packet, WelcomePacketType packet_type);
-sf::Packet& operator>>(sf::Packet& packet, WelcomePacketType& packet_type);
+Packet& operator<<(Packet& packet, WelcomePacketType packet_type);
+Packet& operator>>(Packet& packet, WelcomePacketType& packet_type);

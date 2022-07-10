@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include "server.hpp"
 #include "choiceScreen.hpp"
+#include "resourcePath.hpp"
 
 #define FROM_PORT 49152
 #define TO_PORT 65535
@@ -92,7 +93,7 @@ void startServer(Server* server, Game* game) {
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed) {
 
     int port = rand() % (TO_PORT - FROM_PORT) + FROM_PORT;
-    Server private_server(gfx::getResourcePath(), world_name, port);
+    Server private_server(resource_path, world_name, port);
     Game game(menu_back, settings, "_", "127.0.0.1", port);
     private_server.seed = world_seed;
   

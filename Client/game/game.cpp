@@ -3,6 +3,7 @@
 #include "pauseScreen.hpp"
 #include "choiceScreen.hpp"
 #include "content.hpp"
+#include "resourcePath.hpp"
 
 class WorldJoiningScreen : public gfx::Scene {
     BackgroundRect* menu_back;
@@ -35,13 +36,16 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     background_rect(background_rect),
     settings(settings),
     
-    networking(ip_address, port, username),
+    debug_menu(),
+    networking(&debug_menu, ip_address, port, username),
+    camera(&debug_menu),
+    resource_pack(),
     background(&camera, &resource_pack),
-    blocks(&resource_pack, &networking, &camera),
-    walls(&blocks, &resource_pack, &networking, &camera),
+    blocks(&debug_menu, &resource_pack, &networking, &camera),
+    walls(&debug_menu, &blocks, &resource_pack, &networking, &camera),
     particles(settings, &blocks, &camera),
-    liquids(&blocks, &resource_pack, &networking, &camera),
-    lights(settings, &blocks, &resource_pack, &camera),
+    liquids(&debug_menu, &blocks, &resource_pack, &networking, &camera),
+    lights(&debug_menu, settings, &blocks, &resource_pack, &camera),
     natural_light(&networking, &blocks, &lights),
     entities(&blocks, &networking),
     items(&resource_pack, &blocks, &entities, &networking, &camera),
@@ -51,7 +55,6 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     chat(&networking, &players),
     player_health(&networking, &resource_pack, &players),
     respawn_screen(&networking, &players),
-    debug_menu(&networking, &blocks, &players),
     content(&blocks, &walls, &liquids, &items)
 {
     registerAModule(&networking);
@@ -74,10 +77,13 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     registerAModule(&respawn_screen);
     registerAModule(&debug_menu);
     
-    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, gfx::getResourcePath() + "resourcePack/");
+    content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
+    
+    debug_menu.registerDebugLine(&fps_debug_line);
+    debug_menu.registerDebugLine(&frame_length_line);
 }
 
-void Game::initialize() {
+void Game::initializeGame() {
     try {
         if(interrupt)
             throw Exception(interrupt_message);
@@ -95,16 +101,16 @@ void Game::start() {
         if(interrupt)
             throw Exception(interrupt_message);
         
-        std::thread init_thread(&Game::initialize, this);
+        std::thread init_thread(&Game::initializeGame, this);
         WorldJoiningScreen(background_rect, this).run();
         init_thread.join();
         
         if(interrupt)
             throw Exception(interrupt_message);
         
-        for(int i = 0; i < getModules().size(); i++)
-            if(getModules()[i] != this)
-                ((ClientModule*)getModules()[i])->loadTextures();
+        for(auto i : getModules())
+            if(i != this)
+                ((ClientModule*)i)->loadTextures();
         std::thread parallel_update_thread(&Game::parallelUpdateLoop, this);
         run();
         parallel_update_thread.join();
@@ -122,11 +128,11 @@ void Game::parallelUpdateLoop() {
         while(isRunning()) {
             float frame_length = timer.getTimeElapsed();
             timer.reset();
-            for(int i = 0; i < getModules().size(); i++)
-                if(getModules()[i] != this && getModules()[i]->enabled)
-                    ((ClientModule*)getModules()[i])->updateParallel(frame_length);
-            if(timer.getTimeElapsed() < 10)
-                gfx::sleep(10 - timer.getTimeElapsed());
+            for(auto i : getModules())
+                if(i != this && i->enabled)
+                    ((ClientModule*)i)->updateParallel(frame_length);
+            if(timer.getTimeElapsed() < 5)
+                gfx::sleep(5 - timer.getTimeElapsed());
         }
     } catch(const std::exception& exception) {
         interrupt_message = exception.what();
@@ -135,14 +141,26 @@ void Game::parallelUpdateLoop() {
 }
 
 void Game::init() {
-    for(int i = 0; i < getModules().size(); i++)
-        if(getModules()[i] != this)
-            ((ClientModule*)getModules()[i])->postInit();
+    for(auto i : getModules())
+        if(i != this)
+            ((ClientModule*)i)->postInit();
 }
 
-void Game::render() {
+void Game::update(float frame_length) {
     if(interrupt)
         throw Exception(interrupt_message);
+    
+    fps_count++;
+    frame_length_sum += getRenderTime();
+    if(line_refresh_counter.getTimeElapsed() >= 1000) {
+        frame_length_line.text = std::to_string(frame_length_sum / fps_count) + "ms per render";
+        frame_length_sum = 0;
+        
+        fps_debug_line.text = std::to_string(fps_count) + " FPS";
+        fps_count = 0;
+        
+        line_refresh_counter.reset();
+    }
 }
 
 void Game::renderBack() {
@@ -157,12 +175,12 @@ bool Game::onKeyDown(gfx::Key key) {
         switchToScene(pause_screen);
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
-        //reloads resources
+        // reloads resources
         if(pause_screen.changed_mods) {
             resource_pack.loadPaths();
-            for (int i = 0; i < getModules().size(); i++)
-                if (getModules()[i] != this)
-                    ((ClientModule *) getModules()[i])->loadTextures();
+            for (auto i : getModules())
+                if (i != this)
+                    ((ClientModule *) i)->loadTextures();
             for (int i = 0; i < blocks.getWidth() / CHUNK_SIZE; i++)
                 for (int j = 0; j < blocks.getHeight() / CHUNK_SIZE; j++)
                     blocks.getRenderBlockChunk(i, j)->has_update = true;

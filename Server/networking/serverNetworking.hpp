@@ -5,57 +5,37 @@
 #include "serverModule.hpp"
 #include "graphics.hpp"
 
-class Connection {
-    sf::TcpSocket* socket;
-    sf::Packet master_packet;
-    std::queue<std::pair<sf::Packet, ClientPacketType>> packet_buffer;
+class Connection : public TcpSocket {
     bool greeted = false;
 public:
-    Connection(sf::TcpSocket* socket) : socket(socket) {}
-    
-    void send(sf::Packet& packet);
-    void sendDirectly(sf::Packet& packet);
-    void send(const std::vector<char>& data);
-    
-    bool hasBeenGreeted();
+    bool hasBeenGreeted() const;
     void greet();
     
-    sf::Socket::Status receive(sf::Packet& packet);
-    
-    std::string getIpAddress();
-    
-    void pushPacket(sf::Packet& packet, ClientPacketType type);
-    bool hasPacketInBuffer();
-    std::pair<sf::Packet, ClientPacketType> getPacket();
-    
     std::string player_name;
-    
-    void flushPackets();
-    ~Connection();
 };
 
 class ServerConnectionWelcomeEvent {
 public:
-    ServerConnectionWelcomeEvent(Connection* connection, sf::Packet& client_welcome_packet) : connection(connection), client_welcome_packet(client_welcome_packet) {}
+    ServerConnectionWelcomeEvent(Connection* connection, Packet& client_welcome_packet) : connection(connection), client_welcome_packet(client_welcome_packet) {}
     Connection* connection;
-    sf::Packet& client_welcome_packet;
+    Packet& client_welcome_packet;
 };
 
 class ServerNewConnectionEvent {
 public:
-    ServerNewConnectionEvent(Connection* connection) : connection(connection) {}
+    explicit ServerNewConnectionEvent(Connection* connection) : connection(connection) {}
     Connection* connection;
 };
 
 class ServerDisconnectEvent {
 public:
-    ServerDisconnectEvent(Connection* connection) : connection(connection) {}
+    explicit ServerDisconnectEvent(Connection* connection) : connection(connection) {}
     Connection* connection;
 };
 
 class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
-    sf::TcpListener listener;
+    TcpListener listener;
     int port;
     gfx::Timer timer;
 
@@ -66,9 +46,9 @@ class ServerNetworking : public ServerModule {
     void removeConnection(Connection* connection);
     
 public:
-    ServerNetworking(int port);
+    explicit ServerNetworking(int port);
     
-    void sendToEveryone(sf::Packet& packet);
+    void sendToEveryone(Packet& packet);
     void kickConnection(Connection* connection, const std::string& reason);
     
     const std::vector<Connection*>& getConnections();

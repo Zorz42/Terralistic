@@ -1,4 +1,6 @@
 #pragma once
+#include <utility>
+
 #include "blocks.hpp"
 
 class WallChangeEvent {
@@ -27,11 +29,11 @@ public:
 
 class WallType {
 public:
-    WallType(std::string name) : name(name) {}
+    explicit WallType(std::string name) : name(std::move(name)) {}
     
     std::string name;
-    int break_time;
-    int id;
+    int break_time = 0;
+    int id = 0;
 };
 
 class Walls {
@@ -45,7 +47,7 @@ class Walls {
     public:
         int break_progress = 0;
         bool is_breaking = true;
-        int x, y;
+        int x = 0, y = 0;
     };
     
     class WallChunk {
@@ -64,7 +66,7 @@ class Walls {
     
     int curr_id = 0;
 public:
-    Walls(Blocks* blocks) : blocks(blocks), clear("clear"), hammer("hammer") { registerNewWallType(&clear); blocks->registerNewToolType(&hammer); clear.break_time = UNBREAKABLE; }
+    explicit Walls(Blocks* blocks) : blocks(blocks), clear("clear"), hammer("hammer") { registerNewWallType(&clear); blocks->registerNewToolType(&hammer); clear.break_time = UNBREAKABLE; }
     void create();
 
     WallType clear;

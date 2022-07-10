@@ -13,19 +13,19 @@ void ServerEntities::stop() {
 }
 
 void ServerEntities::onEvent(EntityDeletionEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::ENTITY_DELETION << event.entity->id;
     networking->sendToEveryone(packet);
 }
 
 void ServerEntities::onEvent(EntityVelocityChangeEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::ENTITY_VELOCITY << event.entity->getVelocityX() <<  event.entity->getVelocityY() << event.entity->id;
     networking->sendToEveryone(packet);
 }
 
 void ServerEntities::onEvent(EntityPositionChangeEvent& event) {
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::ENTITY_POSITION << event.entity->getX() << event.entity->getY() << event.entity->id;
     networking->sendToEveryone(packet);
 }
@@ -35,13 +35,13 @@ void ServerEntities::update(float frame_length) {
     
     if(timer.getTimeElapsed() > 1000) {
         timer.reset();
-        for(int i = 0; i < getEntities().size(); i++) {
-            sf::Packet packet;
-            packet << ServerPacketType::ENTITY_POSITION << getEntities()[i]->getX() << getEntities()[i]->getY() << getEntities()[i]->id;
+        for(auto i : getEntities()) {
+            Packet packet;
+            packet << ServerPacketType::ENTITY_POSITION << i->getX() << i->getY() << i->id;
             networking->sendToEveryone(packet);
             
-            packet.clear();
-            packet << ServerPacketType::ENTITY_VELOCITY << getEntities()[i]->getVelocityX() << getEntities()[i]->getVelocityY() << getEntities()[i]->id;
+            packet = Packet();
+            packet << ServerPacketType::ENTITY_VELOCITY << i->getVelocityX() << i->getVelocityY() << i->id;
             networking->sendToEveryone(packet);
         }
     }

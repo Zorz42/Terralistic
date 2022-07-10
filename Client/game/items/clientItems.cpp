@@ -1,4 +1,5 @@
 #include "clientItems.hpp"
+#include "readOpa.hpp"
 
 void ClientItems::init() {
     networking->packet_event.addListener(this);
@@ -11,7 +12,7 @@ void ClientItems::loadTextures() {
 
     for(int i = 1; i < getNumItemTypes(); i++) {
         item_textures[i - 1] = new gfx::Texture;
-        item_textures[i - 1]->loadFromFile(resource_pack->getFile("/items/" + getItemTypeById(i)->name + ".png"));
+        loadOpa(*item_textures[i - 1], resource_pack->getFile("/items/" + getItemTypeById(i)->name + ".opa"));
     }
 
     items_atlas.create(item_textures);
@@ -63,7 +64,7 @@ void ClientItems::render() {
     }
     
     if(item_index)
-        item_rects.render(item_count, &getItemsAtlasTexture());
+        item_rects.render(&getItemsAtlasTexture());
 }
 
 void ClientItems::onEvent(ClientPacketEvent& event) {

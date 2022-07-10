@@ -1,5 +1,5 @@
 #pragma once
-#include "perlinNoise.hpp"
+#include <PerlinNoise.hpp>
 #include "biomes.hpp"
 #include "liquids.hpp"
 #include "content.hpp"

@@ -1,8 +1,8 @@
 **/.DS_Store
 **.png~
 **/UserInterfaceState.xcuserstate
-x64/
-.vs/Terralistic/
+**/__pycache__
+.vs/
 Debug/
 Build/
 Dependencies/
@@ -10,4 +10,4 @@ Output/
 cmake-build-debug/
 venv/
 .idea/
-copy_files.py
+Terralistic.xcarchive/

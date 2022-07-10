@@ -1,5 +1,5 @@
 #include "clientHealth.hpp"
-
+#include "readOpa.hpp"
 
 void ClientHealth::init() {
     networking->packet_event.addListener(this);
@@ -7,7 +7,7 @@ void ClientHealth::init() {
 }
 
 void ClientHealth::loadTextures() {
-    heart_texture.loadFromFile(resource_pack->getFile("/misc/hearts.png"));
+    loadOpa(heart_texture, resource_pack->getFile("/misc/hearts.opa"));
 }
 
 void ClientHealth::stop() {

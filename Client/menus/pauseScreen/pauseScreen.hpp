@@ -12,7 +12,7 @@ class PauseScreen : public gfx::Scene, public BackgroundRect {
     bool returning_to_game = false, exited_to_menu = false;
     void renderBackground();
     void renderButtons();
-    int back_width;
+    int back_width = 0;
     
     void init() override;
     bool onKeyDown(gfx::Key key) override;

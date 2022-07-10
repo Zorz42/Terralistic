@@ -16,7 +16,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
         int block_count = 0;
         bool is_created = false;
     public:
-        bool isCreated() { return is_created; }
+        bool isCreated() const { return is_created; }
         void create();
         bool has_update = true;
         void update(ClientBlocks* blocks, int x, int y);
@@ -45,26 +45,32 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     
     int view_begin_x = 0, view_begin_y = 0, view_end_x = 0, view_end_y = 0, extended_view_begin_x = 0, extended_view_begin_y = 0, extended_view_end_x = 0, extended_view_end_y = 0;
     
+    DebugMenu* debug_menu;
+    gfx::Timer line_refresh_timer;
+    int fps_count = 0;
+    float render_time_sum = 0;
+    DebugLine render_time_line;
+    
     ResourcePack* resource_pack;
     ClientNetworking* networking;
     Camera* camera;
     
 public:
-    ClientBlocks(ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : resource_pack(resource_pack), networking(networking), camera(camera) {}
+    ClientBlocks(DebugMenu* debug_menu, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : debug_menu(debug_menu), resource_pack(resource_pack), networking(networking), camera(camera) {}
     
     const gfx::Texture& getBlocksAtlasTexture();
     gfx::RectShape getBlockRectInAtlas(BlockType* type);
     RenderBlockChunk* getRenderBlockChunk(int x, int y);
     
-    int getBlocksViewBeginX();
-    int getBlocksViewEndX();
-    int getBlocksViewBeginY();
-    int getBlocksViewEndY();
+    int getBlocksViewBeginX() const;
+    int getBlocksViewEndX() const;
+    int getBlocksViewBeginY() const;
+    int getBlocksViewEndY() const;
     
-    int getBlocksExtendedViewBeginX();
-    int getBlocksExtendedViewEndX();
-    int getBlocksExtendedViewBeginY();
-    int getBlocksExtendedViewEndY();
+    int getBlocksExtendedViewBeginX() const;
+    int getBlocksExtendedViewEndX() const;
+    int getBlocksExtendedViewBeginY() const;
+    int getBlocksExtendedViewEndY() const;
     
     void updateState(int x, int y);
     void setState(int x, int y, int state);

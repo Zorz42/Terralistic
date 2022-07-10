@@ -1,16 +1,16 @@
 #include "settingsMenu.hpp"
 
 void SettingsMenu::init() {
-    for(int i = 0; i < settings->getSettings().size(); i++) {
-        switch(settings->getSettings()[i]->type) {
+    for(auto i : settings->getSettings()) {
+        switch(i->type) {
             case SettingType::CHOICE_SETTING: {
-                ChoiceSetting* choice_setting = (ChoiceSetting*)settings->getSettings()[i];
+                ChoiceSetting* choice_setting = (ChoiceSetting*)i;
                 RenderChoiceSetting* render_choice_setting = new RenderChoiceSetting(choice_setting);
                 render_settings.push_back(render_choice_setting);
                 break;
             }
             case SettingType::BOOLEAN_SETTING: {
-                BooleanSetting* boolean_setting = (BooleanSetting*)settings->getSettings()[i];
+                BooleanSetting* boolean_setting = (BooleanSetting*)i;
                 RenderBooleanSetting* render_boolean_setting = new RenderBooleanSetting(boolean_setting);
                 render_settings.push_back(render_boolean_setting);
                 break;
@@ -28,16 +28,16 @@ void SettingsMenu::init() {
 }
 
 void SettingsMenu::stop() {
-    for(int i = 0; i < render_settings.size(); i++)
-        delete render_settings[i];
+    for(auto & render_setting : render_settings)
+        delete render_setting;
 }
 
 bool SettingsMenu::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         if(back_button.isHovered(getMouseX(), getMouseY()))
             returnFromScene();
-        for(int i = 0; i < render_settings.size(); i++)
-            render_settings[i]->onMouseButtonUp(getMouseX(), getMouseY());
+        for(auto & render_setting : render_settings)
+            render_setting->onMouseButtonUp(getMouseX(), getMouseY());
         return true;
     }
     return false;
@@ -48,15 +48,15 @@ void SettingsMenu::render() {
     background->renderBack();
     
     int y = 0;
-    for(int i = 0; i < render_settings.size(); i++) {
-        int width = required_width, height = render_settings[i]->getHeight();
+    for(auto & render_setting : render_settings) {
+        int width = required_width, height = render_setting->getHeight();
         y += SPACING;
         
         gfx::Color c = BLACK;
         c.a = TRANSPARENCY;
         gfx::RectShape(gfx::getWindowWidth() / 2 - width / 2, y, width, height).render(c);
         
-        render_settings[i]->render(y, required_width, getMouseX(), getMouseY());
+        render_setting->render(y, required_width, getMouseX(), getMouseY());
         
         y += height;
     }
@@ -72,9 +72,9 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
     select_rect.border_color = GREY;
     select_rect.smooth_factor = 2;
     select_rect.orientation = gfx::TOP;
-    for(int i = 0; i < setting->choices.size(); i++) {
+    for(const auto & choice : setting->choices) {
         gfx::Button* button = new gfx::Button;
-        button->loadFromText(setting->choices[i]);
+        button->loadFromText(choice);
         button->scale = 2;
         button->orientation = gfx::TOP;
         button->margin = 5;
@@ -114,8 +114,8 @@ int RenderChoiceSetting::getHeight() {
 
 int RenderChoiceSetting::getWidth() {
     int width = choice_text.getWidth() + 3 * SPACING;
-    for(int i = 0; i < choice_buttons.size(); i++)
-        width += choice_buttons[i]->getWidth();
+    for(auto & choice_button : choice_buttons)
+        width += choice_button->getWidth();
     return width;
 }
 

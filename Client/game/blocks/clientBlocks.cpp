@@ -1,5 +1,7 @@
 #include <cstring>
 #include "clientBlocks.hpp"
+#include "readOpa.hpp"
+#include "resourcePath.hpp"
 
 #define EXTENDED_VIEW_MARGIN 100
 
@@ -48,13 +50,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 }
 
 ClientBlocks::RenderBlock* ClientBlocks::getRenderBlock(int x, int y) {
-    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight() || render_blocks == nullptr)
         throw Exception("RenderBlock is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &render_blocks[y * getWidth() + x];
 }
 
 ClientBlocks::RenderBlockChunk* ClientBlocks::getRenderBlockChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE)
+    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE || block_chunks == nullptr)
         throw Exception("Chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &block_chunks[y * getWidth() / CHUNK_SIZE + x];
 }
@@ -91,24 +93,28 @@ void ClientBlocks::onEvent(BlockChangeEvent& event) {
 }
 
 void ClientBlocks::onEvent(WelcomePacketEvent& event) {
-    if(event.packet_type == WelcomePacketType::BLOCKS)
-        fromSerial(event.data);
+    if(event.packet_type == WelcomePacketType::BLOCKS) {
+        std::vector<char> data;
+        event.packet >> data;
+        fromSerial(data);
+    }
 }
 
 void ClientBlocks::init() {
     block_change_event.addListener(this);
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
+    debug_menu->registerDebugLine(&render_time_line);
 }
 
 void ClientBlocks::loadTextures() {
-    breaking_texture.loadFromFile(resource_pack->getFile("/misc/breaking.png"));
+    loadOpa(breaking_texture, resource_pack->getFile("/misc/breaking.opa"));
     
     std::vector<gfx::Texture*> block_textures(getNumBlockTypes() - 1);
 
     for(int i = 1; i < getNumBlockTypes(); i++) {
         block_textures[i - 1] = new gfx::Texture;
-        block_textures[i - 1]->loadFromFile(resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".png"));
+        loadOpa(*block_textures[i - 1], resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".opa"));
     }
     
     blocks_atlas.create(block_textures);
@@ -132,8 +138,8 @@ void ClientBlocks::updateParallel(float frame_length) {
     extended_view_begin_y = std::max(camera->getViewBeginY() / (BLOCK_WIDTH * 2) - EXTENDED_VIEW_MARGIN, 0);
     extended_view_end_y = std::min(camera->getViewEndY() / (BLOCK_WIDTH * 2) + EXTENDED_VIEW_MARGIN, getHeight() - 1);
     
-    for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++) {
+    for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++)
+        for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++) {
             if(!getRenderBlockChunk(x, y)->isCreated())
                 getRenderBlockChunk(x, y)->create();
             
@@ -159,8 +165,8 @@ void ClientBlocks::RenderBlockChunk::create() {
 void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) {
     has_update = false;
     int index = 0;
-    for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
-        for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+    for(int y_ = y * CHUNK_SIZE; y_ < (y + 1) * CHUNK_SIZE; y_++)
+        for(int x_ = x * CHUNK_SIZE; x_ < (x + 1) * CHUNK_SIZE; x_++)
             if(blocks->getBlockType(x_, y_) != &blocks->air) {
                 if(blocks->getState(x_, y_) == 16)
                     blocks->updateState(x_, y_);
@@ -176,6 +182,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
                     texture_y = blocks->getBlockRectInAtlas(blocks->getBlockType(x_, y_)).y + blocks->getBlockYFromMain(x_, y_) * BLOCK_WIDTH;
                 }
                 block_rects.setTextureCoords(index, {texture_x, texture_y, BLOCK_WIDTH, BLOCK_WIDTH});
+                block_rects.setColor(index, {255, 255, 255});
                 index++;
             }
     block_count = index;
@@ -183,7 +190,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
 
 void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
     if(block_count > 0)
-        block_rects.render(block_count, &blocks->getBlocksAtlasTexture(), x, y);
+        block_rects.render(&blocks->getBlocksAtlasTexture(), x, y, false, block_count);
 }
 
 const gfx::Texture& ClientBlocks::getBlocksAtlasTexture() {
@@ -195,8 +202,9 @@ gfx::RectShape ClientBlocks::getBlockRectInAtlas(BlockType* type) {
 }
 
 void ClientBlocks::render() {
-    for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
-        for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++)
+    gfx::Timer render_timer;
+    for(int y = getBlocksViewBeginY() / CHUNK_SIZE; y <= getBlocksViewEndY() / CHUNK_SIZE; y++)
+        for(int x = getBlocksViewBeginX() / CHUNK_SIZE; x <= getBlocksViewEndX() / CHUNK_SIZE; x++)
             if(getRenderBlockChunk(x, y)->isCreated()) {
                 getRenderBlockChunk(x, y)->render(this, x * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getX() + gfx::getWindowWidth() / 2, y * CHUNK_SIZE * BLOCK_WIDTH * 2 - camera->getY() + gfx::getWindowHeight() / 2);
                 
@@ -209,39 +217,47 @@ void ClientBlocks::render() {
                             }
                 }
             }
+    
+    render_time_sum += render_timer.getTimeElapsed();
+    fps_count++;
+    if(line_refresh_timer.getTimeElapsed() >= 1000) {
+        render_time_line.text = std::to_string(render_time_sum / fps_count) + "ms blocks render";
+        
+        fps_count = 0;
+        render_time_sum = 0;
+        line_refresh_timer.reset();
+    }
 }
 
-
-
-int ClientBlocks::getBlocksViewBeginX() {
+int ClientBlocks::getBlocksViewBeginX() const {
     return view_begin_x;
 }
 
-int ClientBlocks::getBlocksViewEndX() {
+int ClientBlocks::getBlocksViewEndX() const {
     return view_end_x;
 }
 
-int ClientBlocks::getBlocksViewBeginY() {
+int ClientBlocks::getBlocksViewBeginY() const {
     return view_begin_y;
 }
 
-int ClientBlocks::getBlocksViewEndY() {
+int ClientBlocks::getBlocksViewEndY() const {
     return view_end_y;
 }
 
-int ClientBlocks::getBlocksExtendedViewBeginX() {
+int ClientBlocks::getBlocksExtendedViewBeginX() const {
     return extended_view_begin_x;
 }
 
-int ClientBlocks::getBlocksExtendedViewEndX() {
+int ClientBlocks::getBlocksExtendedViewEndX() const {
     return extended_view_end_x;
 }
 
-int ClientBlocks::getBlocksExtendedViewBeginY() {
+int ClientBlocks::getBlocksExtendedViewBeginY() const {
     return extended_view_begin_y;
 }
 
-int ClientBlocks::getBlocksExtendedViewEndY() {
+int ClientBlocks::getBlocksExtendedViewEndY() const {
     return extended_view_end_y;
 }
 

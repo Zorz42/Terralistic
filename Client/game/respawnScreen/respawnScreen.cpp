@@ -3,18 +3,20 @@
 void RespawnScreen::init() {
     back_rect.orientation = gfx::CENTER;
     back_rect.fill_color.a = TRANSPARENCY;
-    back_rect.blur_intensity = BLUR;
+    back_rect.blur_radius = BLUR;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = BORDER_COLOR;
     back_rect.smooth_factor = 3;
     
     you_died_text.scale = 4;
     you_died_text.orientation = gfx::CENTER;
-    you_died_text.loadFromText("You Died");
     
     respawn_button.scale = 3;
     respawn_button.orientation = gfx::CENTER;
-    respawn_button.loadFromText("Respawn"); // it only works twice for some reason
+}
+
+void RespawnScreen::loadTextures() {
+    you_died_text.loadFromText("You Died");
     respawn_button.loadFromText("Respawn");
     
     back_rect.setWidth(respawn_button.getWidth() + 100);
@@ -23,7 +25,7 @@ void RespawnScreen::init() {
 
 bool RespawnScreen::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT && respawn_button.isHovered(getMouseX(), getMouseY())) {
-        sf::Packet packet;
+        Packet packet;
         packet << ClientPacketType::PLAYER_RESPAWN;
         networking->sendPacket(packet);
         return true;

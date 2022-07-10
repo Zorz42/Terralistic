@@ -1,41 +1,54 @@
-cmake_minimum_required(VERSION 3.10)
-set(CMAKE_CXX_STANDARD 20)
-project(Terralistic-server CXX)
-project(Terralistic CXX)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+SET(CMAKE_CXX_STANDARD 20)
 
+PROJECT(Terralistic-server CXX)
+PROJECT(Terralistic CXX)
 
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    set(IS_DEBUG TRUE)
-    set(IS_RELEASE FALSE)
+EXECUTE_PROCESS(COMMAND py -m build_project nobuild WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+ADD_CUSTOM_COMMAND(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/Build/Resources/" COMMAND "py -m build_project nobuild")
+
+IF(UNIX)
+    SET(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -lpthread")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+ENDIF()
+
+IF(CMAKE_BUILD_TYPE STREQUAL Debug)
+    ADD_COMPILE_DEFINITIONS(DEVELOPER_MODE NDEBUG)
 else()
-    set(IS_DEBUG FALSE)
-    set(IS_RELEASE TRUE)
-endif()
+    IF(WIN32)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
+    ELSE()
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
+    ENDIF()
+ENDIF()
 
-if(UNIX)
-    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -lpthread")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-endif()
+SET(LAUNCHER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
 
-if(IS_DEBUG)
-    add_compile_definitions(DEVELOPER_MODE NDEBUG)
-else()
-    if(WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
-    else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
-    endif()    
-endif()
+FILE(GLOB_RECURSE SRC_LIBRARIES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/*.cpp "${CMAKE_CURRENT_SOURCE_DIR}/External Libraries/*.cpp" ${CMAKE_CURRENT_SOURCE_DIR}/Shared/*.cpp)
+FILE(GLOB_RECURSE SRC_CLIENT CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Client/*.cpp)
+FILE(GLOB_RECURSE SRC_SERVER CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Server/*.cpp)
+LIST(REMOVE_ITEM SRC_SERVER ${LAUNCHER_FILE})
 
-file(GLOB_RECURSE SRC_LIBRARIES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/*.cpp "${CMAKE_CURRENT_SOURCE_DIR}/External Libraries/*.cpp" ${CMAKE_CURRENT_SOURCE_DIR}/Shared/*.cpp)
-file(GLOB_RECURSE SRC_CLIENT CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Client/*.cpp)
-file(GLOB_RECURSE SRC_SERVER CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Server/*.cpp)
-list(REMOVE_ITEM SRC_SERVER ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp)
+# GLAD variables
+SET(GLAD_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glad/)
+SET(GLAD_INCLUDE_DIR ${GLAD_DIR}/include/)
+SET(GLAD_SOURCES ${GLAD_DIR}/src/glad.c)
+SET_SOURCE_FILES_PROPERTIES(${GLAD_SOURCES} PROPERTIES LANGUAGE CXX)
 
-add_executable(Terralistic WIN32 ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER})
-add_executable(Terralistic-server ${SRC_LIBRARIES} ${SRC_SERVER} ${CMAKE_CURRENT_SOURCE_DIR}/Server/launcher/launcher.cpp ${CMAKE_CURRENT_SOURCE_DIR})
+# PlatformFolders variables
+SET(PF_DIR ${CMAKE_SOURCE_DIR}/Dependencies/PlatformFolders-4.2.0/)
+SET(PF_INCLUDE_DIR ${PF_DIR}/sago/)
+SET(PF_SOURCES ${PF_DIR}/sago/platform_folders.cpp)
 
+# PerlinNoise variables
+SET(PN_DIR ${CMAKE_SOURCE_DIR}/Dependencies/PerlinNoise-3.0.0/)
+SET(PN_INCLUDE_DIR ${PN_DIR})
 
+ADD_EXECUTABLE(Terralistic ${SRC_LIBRARIES} ${SRC_CLIENT} ${SRC_SERVER} ${PF_SOURCES} ${GLAD_SOURCES})
+ADD_EXECUTABLE(Terralistic-server ${SRC_LIBRARIES} ${SRC_SERVER} ${PF_SOURCES} ${GLAD_SOURCES} ${LAUNCHER_FILE})
+
+# Search for headers and add include dir there
 FILE(GLOB_RECURSE HEADER_LIST Client/*.hpp Libraries/*.hpp "External Libraries/*.hpp" "External Libraries/*.h" Server/*.hpp Shared/*.hpp)
 SET(INCLUDES "")
 FOREACH(FILE_PATH ${HEADER_LIST})
@@ -44,64 +57,51 @@ FOREACH(FILE_PATH ${HEADER_LIST})
 ENDFOREACH()
 LIST(REMOVE_DUPLICATES INCLUDES)
 
-include_directories(Terralistic ${INCLUDES})
-include_directories(Terralistic-server ${INCLUDES})
+INCLUDE_DIRECTORIES(Terralistic ${INCLUDES})
+INCLUDE_DIRECTORIES(Terralistic-server ${INCLUDES})
+INCLUDE_DIRECTORIES(Terralistic SYSTEM ${GLAD_INCLUDE_DIR} ${PF_INCLUDE_DIR} ${PN_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(Terralistic-server SYSTEM ${GLAD_INCLUDE_DIR} ${PF_INCLUDE_DIR} ${PN_INCLUDE_DIR})
 
-message(${CMAKE_CXX_COMPILER})
-
-if(WIN32)
-    SET(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
-    SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib/)
-
-    set(SFML_DEPS flac freetype ogg openal32 vorbis vorbisenc vorbisfile)
-    set(SFML_LIBS_RELEASE sfml-system sfml-graphics sfml-audio sfml-network sfml-window sfml-main)
-    set(SFML_LIBS_DEBUG sfml-system-d sfml-graphics-d sfml-audio-d sfml-network-d sfml-window-d sfml-main-d)
-
-    SET(SFML_DLLS_RELEASE
-            ${SFML_DIR}bin/sfml-audio-2.dll
-            ${SFML_DIR}bin/sfml-graphics-2.dll
-            ${SFML_DIR}bin/sfml-network-2.dll
-            ${SFML_DIR}bin/sfml-system-2.dll
-            ${SFML_DIR}bin/sfml-window-2.dll
-            )
-    SET(SFML_DLLS_DEBUG
-            ${SFML_DIR}bin/sfml-audio-d-2.dll
-            ${SFML_DIR}bin/sfml-graphics-d-2.dll
-            ${SFML_DIR}bin/sfml-network-d-2.dll
-            ${SFML_DIR}bin/sfml-system-d-2.dll
-            ${SFML_DIR}bin/sfml-window-d-2.dll
-            )
-
-    if(IS_DEBUG)
-        SET(SFML_LIBS_TO_USE ${SFML_LIBS_DEBUG} ${SFML_DEPS})
-        SET(SFML_DLLS_TO_USE ${SFML_DLLS_DEBUG} ${SFML_DIR}bin/openal32.dll)
-    else()
-        SET(SFML_LIBS_TO_USE ${SFML_LIBS_RELEASE} ${SFML_DEPS})
-        SET(SFML_DLLS_TO_USE ${SFML_DLLS_RELEASE} ${SFML_DIR}bin/openal32.dll)
-    endif()
-
+IF(WIN32)
+    SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib-master/)
     SET(ZLIB_LIB zlib)
-    SET(ZLIB_DLL ${ZLIB_DIR}bin/zlib1.dll)
+    SET(ZLIB_LIB_DIR ${ZLIB_DIR}lib/)
+    SET(ZLIB_DLL ${ZLIB_DIR}bin/zlib.dll)
+    SET(ZLIB_INCLUDE_DIR ${ZLIB_DIR}include/)
 
-    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/)
-    target_link_libraries(Terralistic Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB})
+    SET(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7.bin.WIN32/)
+    SET(GLFW_DLL ${GLFW_DIR}lib-vc2022/glfw3.dll)
+    SET(GLFW_LIB glfw3 opengl32)
+    SET(GLFW_LIB_DIR ${GLFW_DIR}lib-vc2022/)
+    SET(GLFW_INCLUDE_DIR ${GLFW_DIR}include/)
 
-    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/ ${ZLIB_DIR}lib/)
-    target_link_libraries(Terralistic-server Ws2_32.lib ${SFML_LIBS_TO_USE} ${ZLIB_LIB})
+    TARGET_LINK_DIRECTORIES(Terralistic PUBLIC ${ZLIB_LIB_DIR} ${GLFW_LIB_DIR})
+    TARGET_LINK_LIBRARIES(Terralistic Ws2_32.lib ${ZLIB_LIB} ${GLFW_LIB})
 
-    include_directories(Terralistic ${SFML_DIR}include/ ${ZLIB_DIR}include/)
+    TARGET_LINK_DIRECTORIES(Terralistic-server PUBLIC ${ZLIB_LIB_DIR} ${GLFW_LIB_DIR})
+    TARGET_LINK_LIBRARIES(Terralistic-server Ws2_32.lib ${ZLIB_LIB} ${GLFW_LIB})
 
-    file(COPY ${SFML_DLLS_TO_USE} ${ZLIB_DLL} DESTINATION .)
-else()
-    set(SFML_DIR ${CMAKE_SOURCE_DIR}/Dependencies/SFML-2.5.1/)
+    INCLUDE_DIRECTORIES(Terralistic SYSTEM ${ZLIB_INCLUDE_DIR} ${GLFW_INCLUDE_DIR})
 
-    include_directories(${SFML_DIR}include/)
-    target_link_directories(Terralistic PUBLIC ${SFML_DIR}lib/)
-    target_link_libraries(Terralistic z sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
+    FILE(COPY ${ZLIB_DLL} ${GLFW_DLL} DESTINATION .)
+ELSE()
+    SET(ZLIB_DIR ${CMAKE_SOURCE_DIR}/Dependencies/zlib-master/)
+    SET(ZLIB_LIB z)
+    SET(ZLIB_LIB_DIR ${ZLIB_DIR}lib/)
+    SET(ZLIB_INCLUDE_DIR ${ZLIB_DIR}include/)
 
-    target_link_directories(Terralistic-server PUBLIC ${SFML_DIR}lib/)
-    target_link_libraries(Terralistic-server z sfml-system sfml-graphics sfml-audio sfml-network sfml-window)
-endif()
+    SET(GLFW_DIR ${CMAKE_SOURCE_DIR}/Dependencies/glfw-3.3.7/)
+    SET(GLFW_LIB glfw3)
+    SET(GLFW_LIB_DIR ${GLFW_DIR}build/src/)
+    SET(GLFW_INCLUDE_DIR ${GLFW_DIR}include/)
 
-file(COPY Resources DESTINATION .)
-file(COPY Resources/font.ttf DESTINATION .)
+    TARGET_LINK_DIRECTORIES(Terralistic PUBLIC ${ZLIB_LIB_DIR} ${GLFW_LIB_DIR})
+    TARGET_LINK_LIBRARIES(Terralistic ${ZLIB_LIB} ${GLFW_LIB} X11)
+
+    TARGET_LINK_DIRECTORIES(Terralistic-server PUBLIC ${ZLIB_LIB_DIR} ${GLFW_LIB_DIR})
+    TARGET_LINK_LIBRARIES(Terralistic-server ${ZLIB_LIB} ${GLFW_LIB} X11)
+
+    INCLUDE_DIRECTORIES(Terralistic SYSTEM ${ZLIB_INCLUDE_DIR} ${GLFW_INCLUDE_DIR})
+ENDIF()
+
+FILE(COPY Build/Resources DESTINATION .)

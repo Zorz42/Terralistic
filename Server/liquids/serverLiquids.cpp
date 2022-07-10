@@ -5,11 +5,9 @@ bool cmpLiquidUpdates(LiquidUpdate& a, LiquidUpdate& b) {
 }
 
 void ServerLiquids::onEvent(ServerConnectionWelcomeEvent &event) {
-    sf::Packet packet;
-    packet << WelcomePacketType::LIQUIDS;
-    event.connection->sendDirectly(packet);
-    
-    event.connection->send(toSerial());
+    Packet packet;
+    packet << WelcomePacketType::LIQUIDS << toSerial();
+    event.connection->send(packet);
 }
 
 void ServerLiquids::init() {
@@ -91,7 +89,7 @@ void ServerLiquids::scheduleLiquidUpdateForNeighbours(int x, int y) {
 void ServerLiquids::onEvent(LiquidChangeEvent& event) {
     scheduleLiquidUpdateForNeighbours(event.x, event.y);
     
-    sf::Packet packet;
+    Packet packet;
     packet << ServerPacketType::LIQUID << event.x << event.y << getLiquidType(event.x, event.y)->id << getLiquidLevel(event.x, event.y);
     networking->sendToEveryone(packet);
 }

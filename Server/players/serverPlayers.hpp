@@ -11,8 +11,8 @@ public:
     ServerPlayerData(Items* items, Recipes* recipes) : inventory(items, recipes) {}
     
     std::string name;
-    int x, y;
-    int health;
+    int x = 0, y = 0;
+    int health = 0;
     Inventory inventory;
 };
 
@@ -21,7 +21,7 @@ class ServerPlayer : public Player, EventListener<InventoryItemChangeEvent> {
     
     void onEvent(InventoryItemChangeEvent& event) override;
 public:
-    ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) { friction = false; inventory.item_change_event.addListener(this); }
+    explicit ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) { friction = false; inventory.item_change_event.addListener(this); }
 
     Inventory inventory;
     
@@ -32,7 +32,7 @@ public:
     bool breaking = false;
     int breaking_x = 0, breaking_y = 0;
     
-    ~ServerPlayer();
+    ~ServerPlayer() override;
 };
 
 class BlockBehaviour {
@@ -58,8 +58,8 @@ public:
 
 class ServerPacketEvent {
 public:
-    ServerPacketEvent(sf::Packet& packet, ClientPacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
-    sf::Packet& packet;
+    ServerPacketEvent(Packet& packet, ClientPacketType packet_type, ServerPlayer* player) : packet(packet), packet_type(packet_type), player(player) {}
+    Packet& packet;
     ClientPacketType packet_type;
     ServerPlayer* player;
 };
@@ -101,11 +101,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, Even
 public:
     ServerPlayers(ServerBlocks* blocks, Walls* walls, Liquids* liquids, Entities* entities, Items* items, ServerNetworking* networking, Recipes* recipes, WorldSaver* world_saver) : blocks(blocks), walls(walls), entities(entities), items(items), networking(networking), recipes(recipes), world_saver(world_saver), default_behaviour(blocks, walls, liquids), air_behaviour(blocks, walls, liquids) {}
     
-    const std::vector<ServerPlayerData*>& getAllPlayers() { return all_players; }
-    
     ServerPlayer* getPlayerByName(const std::string& name);
-    ServerPlayer* getPlayerById(const int id);
-    bool playerExists(const std::string& name);
     ServerPlayer* addPlayer(const std::string& name);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);

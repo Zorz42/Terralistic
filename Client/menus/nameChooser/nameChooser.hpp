@@ -1,4 +1,6 @@
 #pragma once
+#include <utility>
+
 #include "menuBack.hpp"
 #include "settings.hpp"
 
@@ -15,5 +17,5 @@ class NameChooser : public gfx::Scene {
     void render() override;
     void stop() override;
 public:
-    NameChooser(BackgroundRect* menu_back, Settings* settings, const std::string& server_ip) : menu_back(menu_back), settings(settings), server_ip(server_ip) {}
+    NameChooser(BackgroundRect* menu_back, Settings* settings, std::string server_ip) : menu_back(menu_back), settings(settings), server_ip(std::move(server_ip)) {}
 };

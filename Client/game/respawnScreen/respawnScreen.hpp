@@ -6,6 +6,7 @@ class RespawnScreen : public ClientModule {
     void init() override;
     bool onKeyUp(gfx::Key key) override;
     void render() override;
+    void loadTextures() override;
     
     ClientNetworking* networking;
     ClientPlayers* players;

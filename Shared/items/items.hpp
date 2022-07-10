@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include "entities.hpp"
 #include "walls.hpp"
 
@@ -6,14 +7,14 @@
 
 class ItemType {
 public:
-    ItemType(std::string name) : name(std::move(name)) {}
+    explicit ItemType(std::string name) : name(std::move(name)) {}
     
     std::string name, display_name;
-    int max_stack;
-    BlockType* places_block;
-    WallType* places_wall;
+    int max_stack = 0;
+    BlockType* places_block = nullptr;
+    WallType* places_wall = nullptr;
     std::map<Tool*, int> tool_powers;
-    int id;
+    int id = 0;
 };
 
 class Item : public Entity {
@@ -36,7 +37,7 @@ public:
 
 class ItemCreationEvent {
 public:
-    ItemCreationEvent(const Item* item) : item(item) {}
+    explicit ItemCreationEvent(const Item* item) : item(item) {}
     const Item* item;
 };
 
@@ -45,7 +46,7 @@ public:
     TileDrop() : drop(nullptr) {}
     explicit TileDrop(ItemType* drop, float chance=1) : drop(drop), chance(chance) {}
     ItemType* drop;
-    float chance;
+    float chance = 0;
 };
 
 class Items {

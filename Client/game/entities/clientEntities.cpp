@@ -19,7 +19,7 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             break;
         }
         case ServerPacketType::ENTITY_POSITION: {
-            sf::Packet event_packet = event.packet;
+            Packet event_packet = event.packet;
             int id;
             int x, y;
             event_packet >> x >> y >> id;
@@ -32,7 +32,7 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             break;
         }
         case ServerPacketType::ENTITY_DELETION: {
-            sf::Packet event_packet = event.packet;
+            Packet event_packet = event.packet;
             int id;
             event_packet >> id;
             

@@ -21,9 +21,9 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
 class Game : gfx::Scene, public BackgroundRect {
     void init() override;
     bool onKeyDown(gfx::Key key) override;
-    void render() override;
+    void update(float frame_length) override;
     
-    void initialize();
+    void initializeGame();
     std::string username;
     
     ClientNetworking networking;
@@ -52,6 +52,11 @@ class Game : gfx::Scene, public BackgroundRect {
     BackgroundRect* background_rect;
     bool handshake_done = false;
     std::string kick_reason;
+    
+    DebugLine fps_debug_line, frame_length_line;
+    int fps_count = 0;
+    float frame_length_sum = 0;
+    gfx::Timer line_refresh_counter;
     
     void parallelUpdateLoop();
 public:

@@ -10,8 +10,8 @@ class StructureChance;
 class Biome {
 public:
     BiomeType type;
-    int height;
-    int height_variation;
+    int height = 0;
+    int height_variation = 0;
     std::vector <StructureChance> structure_chances;
     Biome(BiomeType type, int height, int height_variation, std::vector<StructureChance> structure_chances);
     Biome() = default;
@@ -39,5 +39,5 @@ class Biomes : public ServerModule, EventListener<WorldLoadEvent> {
 public:
     Biomes(Blocks* blocks, WorldSaver* world_saver) : blocks(blocks), world_saver(world_saver) {}
     void create();
-    BiomeType* biomes;
+    BiomeType* biomes = nullptr;
 };

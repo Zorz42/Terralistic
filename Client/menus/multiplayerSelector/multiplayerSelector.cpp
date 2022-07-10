@@ -4,6 +4,8 @@
 #include "choiceScreen.hpp"
 #include "serverAdder.hpp"
 #include "nameChooser.hpp"
+#include "readOpa.hpp"
+#include "resourcePath.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
@@ -40,17 +42,17 @@ void MultiplayerSelector::refresh() {
         
         server->y = scroll_limit + TOP_HEIGHT;
         
-        server->icon.loadFromResources("world_icon.png");
+        loadOpa(server->icon, resource_path + "world_icon.opa");
         
         server->data.ip = server_data[i].ip;
         server->data.name = server_data[i].name;
         server->name_texture.loadFromText(server_data[i].name);
 
-        server->join_button.loadFromResources("join_button.png");
+        loadOpa(server->join_button, resource_path + "join_button.opa");
         server->join_button.scale = 3;
         server->join_button.margin = 5;
         
-        server->remove_button.loadFromResources("remove_button.png");
+        loadOpa(server->remove_button, resource_path + "remove_button.opa");
         server->remove_button.scale = 3;
         server->remove_button.margin = 5;
         
@@ -84,7 +86,7 @@ void MultiplayerSelector::init() {
     bottom_rect.setHeight(BOTTOM_HEIGHT);
     bottom_rect.fill_color.a = TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = SHADOW_INTENSITY;
-    bottom_rect.blur_intensity = BLUR;
+    bottom_rect.blur_radius = BLUR;
     
     std::string servers_str = config.getStr("servers"), curr_serv_ip, curr_serv_name;
     bool ip_name_switch = false;
@@ -175,7 +177,7 @@ void MultiplayerSelector::render() {
     if(top_rect_visibility > 0.99f)
         top_rect_visibility = 1;
     top_rect.fill_color.a = top_rect_visibility * TRANSPARENCY / 2;
-    top_rect.blur_intensity = top_rect_visibility * BLUR;
+    top_rect.blur_radius = top_rect_visibility * BLUR;
     top_rect.shadow_intensity = top_rect_visibility * SHADOW_INTENSITY;
     if(top_rect_visibility)
         top_rect.render();

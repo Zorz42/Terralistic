@@ -374,7 +374,7 @@ void WorldGenerator::generateOre(BlockType* type, float chance, int blob_distanc
     for(int x = 0; x < blocks->getWidth(); x++){
         for(int y = 0; y < blocks->getHeight(); y++){
             if(blocks->getBlockType(x, blocks->getHeight() - y - 1) == &content->blocks.stone_block &&
-               noise.noise2D_0_1((float)x / blob_distance + offset_x, (float)y / blob_distance + offset_y) > chance){
+               noise.noise2D_01((float)x / blob_distance + offset_x, (float)y / blob_distance + offset_y) > chance){
                     blocks->setBlockTypeSilently(x, blocks->getHeight() - y - 1, type);
             }
         }

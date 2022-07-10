@@ -1,8 +1,10 @@
 #include <filesystem>
 #include <thread>
+#include <fstream>
 #include "server.hpp"
 #include "platform_folders.h"
 #include "resourcePath.hpp"
+#include "readOpa.hpp"
 
 class ServerScene : public gfx::Scene {
     gfx::Sprite text;
@@ -22,12 +24,17 @@ int main(int argc, char **argv) {
     if(!std::filesystem::exists(data_folder))
         std::filesystem::create_directory(data_folder);
     
-    std::string resource_path = getResourcePath(argv[0]);
+    resource_path = getResourcePath(argv[0]);
     
     if(gui) {
-        gfx::init(resource_path, 500, 300);
+        gfx::init(800, 500, "Terralistic Server");
         gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
-        gfx::loadFont("font.ttf", 16);
+        
+        std::ifstream font_file(resource_path + "font.opa");
+        std::vector<unsigned char> data = std::vector<unsigned char>((std::istreambuf_iterator<char>(font_file)), std::istreambuf_iterator<char>());
+        data.erase(data.begin(), data.begin() + 8);
+        
+        gfx::loadFont(&data[0]);
     }
     
     Server main_server(resource_path, data_folder + "world", 33770);
@@ -43,7 +50,7 @@ int main(int argc, char **argv) {
 }
 
 void ServerScene::init() {
-    text.scale = 4;
+    text.scale = 3;
     text.orientation = gfx::CENTER;
     text.loadFromText("Server Running");
 }

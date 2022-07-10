@@ -2,13 +2,13 @@
 #include "compress.hpp"
 
 Walls::Wall* Walls::getWall(int x, int y) {
-    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight() || walls == nullptr)
         throw Exception("Wall is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &walls[y * getWidth() + x];
 }
 
 Walls::WallChunk* Walls::getChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE)
+    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE || chunks == nullptr)
         throw Exception("Wall chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &chunks[y * getWidth() / CHUNK_SIZE + x];
 }
@@ -67,7 +67,7 @@ void Walls::fromSerial(const std::vector<char>& serial) {
     create();
     Wall* wall = walls;
     for(int i = 0; i < getWidth() * getHeight(); i++) {
-        wall->id = *iter++;
+        wall->id = (unsigned char)*iter++;
         wall++;
     }
 }
@@ -82,9 +82,9 @@ WallType* Walls::getWallTypeById(int wall_id) {
 }
 
 WallType* Walls::getWallTypeByName(const std::string& name) {
-    for(int i = 0; i < wall_types.size(); i++)
-        if(wall_types[i]->name == name)
-            return wall_types[i];
+    for(auto & wall_type : wall_types)
+        if(wall_type->name == name)
+            return wall_type;
     return nullptr;
 }
 
@@ -93,9 +93,9 @@ int Walls::getNumWallTypes() {
 }
 
 int Walls::getBreakProgress(int x, int y) {
-    for(int i = 0; i < breaking_walls.size(); i++)
-        if(breaking_walls[i].x == x && breaking_walls[i].y == y)
-            return breaking_walls[i].break_progress;
+    for(auto & breaking_wall : breaking_walls)
+        if(breaking_wall.x == x && breaking_wall.y == y)
+            return breaking_wall.break_progress;
     return 0;
 }
 
@@ -119,9 +119,9 @@ void Walls::startBreakingWall(int x, int y) {
     
     BreakingWall* breaking_wall = nullptr;
     
-    for(int i = 0; i < breaking_walls.size(); i++)
-        if(breaking_walls[i].x == x && breaking_walls[i].y == y)
-            breaking_wall = &breaking_walls[i];
+    for(auto & i : breaking_walls)
+        if(i.x == x && i.y == y)
+            breaking_wall = &i;
     
     if(!breaking_wall) {
         BreakingWall new_breaking_wall;

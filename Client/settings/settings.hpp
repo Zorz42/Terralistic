@@ -23,7 +23,7 @@ class ChoiceSetting : public Setting {
 public:
     ChoiceSetting(const std::string& indent, const std::vector<std::string>& choices, int default_value) : Setting(indent), choices(choices), selected_choice(default_value) { type = SettingType::CHOICE_SETTING; };
     const std::vector<std::string> choices;
-    int getSelectedChoice();
+    int getSelectedChoice() const;
     void setSelectedChoice(int choice);
     
     std::string exportToStr() override;
@@ -34,7 +34,7 @@ class BooleanSetting : public Setting {
     bool value;
 public:
     BooleanSetting(const std::string& indent, bool default_value) : Setting(indent), value(default_value) { type = SettingType::BOOLEAN_SETTING; };
-    bool getValue();
+    bool getValue() const;
     void setValue(bool new_value);
     
     std::string exportToStr() override;
@@ -44,7 +44,6 @@ public:
 class Settings : public gfx::GlobalUpdateFunction, EventListener<SettingChangeEvent> {
     std::vector<Setting*> settings;
     ConfigFile config_file;
-    int count = 0;
     void update() override;
     void onEvent(SettingChangeEvent& event) override;
     bool is_loading = false;

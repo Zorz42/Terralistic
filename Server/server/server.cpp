@@ -7,7 +7,7 @@
 #include "compress.hpp"
 #include "content.hpp"
 
-#define TPS_LIMIT 100
+#define TPS_LIMIT 200
 
 Server* curr_server = nullptr;
 
@@ -97,7 +97,7 @@ void Server::start() {
         frame_count++;
         if(frame_count == 100){
             frame_count = 0;
-            sf::Packet packet;
+            Packet packet;
             packet << ServerPacketType::TPS << (int)(1000 / frame_length);
             networking.sendToEveryone(packet);
         }

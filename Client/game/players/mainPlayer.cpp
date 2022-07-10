@@ -1,11 +1,12 @@
 #include "clientPlayers.hpp"
+#include "readOpa.hpp"
 
 void ClientPlayers::init() {
     networking->packet_event.addListener(this);
 }
 
 void ClientPlayers::loadTextures() {
-    player_texture.loadFromFile(resource_pack->getFile("/misc/player.png"));
+    loadOpa(player_texture, resource_pack->getFile("/misc/player.opa"));
 }
 
 void ClientPlayers::stop() {
@@ -101,7 +102,7 @@ void ClientPlayers::updateParallel(float frame_length) {
         if(getKeyState(gfx::Key::SPACE) && main_player->isTouchingGround(blocks)) {
             vel_y_change -= JUMP_VELOCITY;
             main_player->has_jumped = true;
-            sf::Packet packet;
+            Packet packet;
             packet << ClientPacketType::PLAYER_JUMPED;
             networking->sendPacket(packet);
         }
@@ -133,18 +134,25 @@ void ClientPlayers::updateParallel(float frame_length) {
             entities->addVelocityX(main_player, vel_x_change);
             entities->addVelocityY(main_player, vel_y_change);
             
-            sf::Packet packet;
+            Packet packet;
             packet << ClientPacketType::PLAYER_VELOCITY << main_player->getVelocityX() << main_player->getVelocityY();
             networking->sendPacket(packet);
         }
         
         if(prev_moving_type != main_player->moving_type) {
-            sf::Packet packet;
+            Packet packet;
             packet << ClientPacketType::PLAYER_MOVING_TYPE << (int)main_player->moving_type;
             networking->sendPacket(packet);
         }
         
         prev_x = main_player->getX();
         prev_y = main_player->getY();
+    } else {
+        walking_left = false;
+        walking_right = false;
+        sneaking_left = false;
+        sneaking_right = false;
+        running_left = false;
+        running_right = false;
     }
 }

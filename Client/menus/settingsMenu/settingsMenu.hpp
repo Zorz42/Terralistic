@@ -8,7 +8,7 @@ public:
     virtual int getHeight() = 0;
     virtual int getWidth() = 0;
     virtual void onMouseButtonUp(int x, int y) = 0;
-    virtual ~RenderSetting() {}
+    virtual ~RenderSetting() = default;
 };
 
 class RenderChoiceSetting : public RenderSetting {
@@ -18,7 +18,7 @@ class RenderChoiceSetting : public RenderSetting {
     gfx::Rect select_rect;
     void onMouseButtonUp(int x, int y) override;
 public:
-    RenderChoiceSetting(ChoiceSetting* setting);
+    explicit RenderChoiceSetting(ChoiceSetting* setting);
     
     void render(int y, int width, int mouse_x, int mouse_y) override;
     int getHeight() override;
@@ -32,7 +32,7 @@ class RenderBooleanSetting : public RenderSetting {
     void onMouseButtonUp(int x, int y) override;
     void updateButtonText();
 public:
-    RenderBooleanSetting(BooleanSetting* setting);
+    explicit RenderBooleanSetting(BooleanSetting* setting);
     
     void render(int y, int width, int mouse_x, int mouse_y) override;
     int getHeight() override;

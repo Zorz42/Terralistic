@@ -12,7 +12,7 @@
 
 class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
     gfx::Texture numbers[10];
-    Inventory *inventory = nullptr;
+    Inventory inventory;
     bool open = false;
     int selected_slot = 0;
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
@@ -22,7 +22,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     
     void selectSlot(int slot);
     void renderItem(ItemStack item, int x, int y);
-    
+    int countMaxCraftNumber(const Recipe *recipe);
+    int countItems(int item_id);
+
     void init() override;
     void loadTextures() override;
     void update(float frame_length) override;
@@ -39,9 +41,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     ClientPlayers* players;
     ClientBlocks* blocks;
 public:
-    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players, ClientBlocks* blocks) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players), blocks(blocks) {}
+    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players, ClientBlocks* blocks) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players), blocks(blocks), inventory(items, recipes) {}
     
     const gfx::Texture& getItemTextTexture(ItemType* type);
-    
-    void loadFromSerial(const std::vector<char>& serial);
 };
