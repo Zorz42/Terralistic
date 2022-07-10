@@ -57,7 +57,7 @@ void ServerBlocks::onEvent(BlockChangeEvent& event) {
 }
 
 void ServerBlocks::syncBlockData(int x, int y) {
-    sf::Packet packet;
+    Packet packet;
     std::vector<char> data;
     data.resize(getBlockData(x, y)->getSavedSize());
     unsigned long index = 0;

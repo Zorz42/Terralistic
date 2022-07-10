@@ -220,9 +220,10 @@ void Blocks::fromSerial(const std::vector<char>& serial) {
         block->id = (unsigned char)*iter++;
         block->x_from_main = (unsigned char)*iter++;
         block->y_from_main = (unsigned char)*iter++;
-        if(block_types[block->id]->block_data_index != 0){
+        if(block_types[block->id]->block_data_index != 0) {
             block->additional_block_data = getDataDeliverer()->functions[block_types[block->id]->block_data_index]();
             block->additional_block_data->load(iter);
+        }
         block++;
     }
 }

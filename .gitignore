@@ -11,3 +11,4 @@ cmake-build-debug/
 venv/
 .idea/
 Terralistic.xcarchive/
+copy_files.py
