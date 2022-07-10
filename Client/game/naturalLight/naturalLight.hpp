@@ -28,7 +28,7 @@ class NaturalLight : public ClientModule, EventListener<BlockChangeEvent>, Event
     void setNaturalLight(int x, int power);
     void removeNaturalLight(int x);
 public:
-    NaturalLight(ClientNetworking* networking, ClientBlocks* blocks, Lights* lights) : networking(networking), blocks(blocks), lights(lights) {}
+    NaturalLight(ClientNetworking* networking, ClientBlocks* blocks, Lights* lights) : ClientModule("NaturalLight"), networking(networking), blocks(blocks), lights(lights) {}
     
     void updateLight(int x);
 };

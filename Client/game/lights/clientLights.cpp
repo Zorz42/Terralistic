@@ -130,7 +130,6 @@ void ClientLights::render() {
         render_time_sum = 0;
         line_refresh_timer.reset();
     }
-
 }
 
 void ClientLights::stop() {

@@ -21,7 +21,7 @@ class PauseScreen : public gfx::Scene, public BackgroundRect {
     BackgroundRect* background;
 public:
     bool changed_mods = false;
-    explicit PauseScreen(BackgroundRect* background, Settings* settings) : background(background), settings(settings) {}
+    explicit PauseScreen(BackgroundRect* background, Settings* settings) : gfx::Scene("PauseScreen"), background(background), settings(settings) {}
     bool hasExitedToMenu() const;
     
     void renderBack() override;

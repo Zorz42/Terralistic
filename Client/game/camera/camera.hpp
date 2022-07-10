@@ -13,7 +13,7 @@ class Camera : public ClientModule {
     
     DebugLine coords_debug_line;
 public:
-    Camera(DebugMenu* debug_menu) : debug_menu(debug_menu) {}
+    Camera(DebugMenu* debug_menu) : ClientModule("Camera"), debug_menu(debug_menu) {}
     
     void setX(int x);
     void setY(int y);

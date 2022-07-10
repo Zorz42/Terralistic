@@ -16,7 +16,7 @@ class WorldStartingScreen : public gfx::Scene {
     Server* server;
     ServerState prev_server_state = ServerState::NEUTRAL;
 public:
-    WorldStartingScreen(BackgroundRect* menu_back, Server* server) : menu_back(menu_back), server(server) {}
+    WorldStartingScreen(BackgroundRect* menu_back, Server* server) : gfx::Scene("WorldStartingScreen"), menu_back(menu_back), server(server) {}
 };
 
 class AutosaveChangeListener : public EventListener<SettingChangeEvent> {

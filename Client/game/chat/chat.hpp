@@ -27,5 +27,5 @@ class Chat : public ClientModule, EventListener<ClientPacketEvent> {
 
     void onEvent(ClientPacketEvent& event) override;
 public:
-    Chat(ClientNetworking* networking, ClientPlayers* players) : networking(networking), players(players) {}
+    Chat(ClientNetworking* networking, ClientPlayers* players) : ClientModule("Chat"), networking(networking), players(players) {}
 };

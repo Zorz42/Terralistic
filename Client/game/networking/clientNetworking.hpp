@@ -44,7 +44,7 @@ class ClientNetworking : public ClientModule, EventListener<ClientPacketEvent> {
     void update(float frame_length) override;
     void updateParallel(float frame_length) override;
 public:
-    ClientNetworking(DebugMenu* debug_menu, std::string ip_address, int port, std::string username) : debug_menu(debug_menu), ip_address(std::move(ip_address)), port(port), username(std::move(username)) {}
+    ClientNetworking(DebugMenu* debug_menu, std::string ip_address, int port, std::string username) : ClientModule("ClientNetworking"), debug_menu(debug_menu), ip_address(std::move(ip_address)), port(port), username(std::move(username)) {}
     
     void sendPacket(Packet& packet);
     Packet getPacket();

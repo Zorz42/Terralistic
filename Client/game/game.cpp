@@ -12,7 +12,7 @@ class WorldJoiningScreen : public gfx::Scene {
     void render() override;
     Game* game;
 public:
-    WorldJoiningScreen(BackgroundRect* menu_back, Game* game) : menu_back(menu_back), game(game) {}
+    WorldJoiningScreen(BackgroundRect* menu_back, Game* game) : gfx::Scene("WorldJoiningScreen"), menu_back(menu_back), game(game) {}
 };
 
 void WorldJoiningScreen::init() {
@@ -32,6 +32,7 @@ void WorldJoiningScreen::render() {
 }
 
 Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port) :
+    gfx::Scene("Game"),
     username(username),
     background_rect(background_rect),
     settings(settings),

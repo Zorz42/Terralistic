@@ -9,7 +9,7 @@ class MainMenu : public gfx::Scene {
     Settings* settings;
     gfx::Sprite debug_title;
 public:
-    MainMenu(MenuBack* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
+    MainMenu(MenuBack* menu_back, Settings* settings) : gfx::Scene("MainMenu"), menu_back(menu_back), settings(settings) {}
     void init() override;
     bool onKeyUp(gfx::Key key) override;
     void render() override;

@@ -1,6 +1,6 @@
 #include "choiceScreen.hpp"
 
-ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, const std::vector<std::string>& options, std::string* result) : menu_back(menu_back), question(std::move(question)), result(result) {
+ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, const std::vector<std::string>& options, std::string* result) : gfx::Scene("ChoiceScreen"), menu_back(menu_back), question(std::move(question)), result(result) {
     for(const auto & option : options) {
         buttons.emplace_back();
         buttons.back().option = option;

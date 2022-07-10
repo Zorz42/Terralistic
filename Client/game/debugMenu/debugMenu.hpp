@@ -22,5 +22,6 @@ class DebugMenu : public ClientModule {
     void render() override;
     bool onKeyDown(gfx::Key key) override;
 public:
+    DebugMenu() : ClientModule("DebugMenu") {}
     void registerDebugLine(DebugLine* debug_line);
 };

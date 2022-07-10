@@ -56,7 +56,7 @@ class ClientBlocks : public Blocks, public ClientModule, EventListener<ClientPac
     Camera* camera;
     
 public:
-    ClientBlocks(DebugMenu* debug_menu, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : debug_menu(debug_menu), resource_pack(resource_pack), networking(networking), camera(camera) {}
+    ClientBlocks(DebugMenu* debug_menu, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : ClientModule("ClientBlocks"), debug_menu(debug_menu), resource_pack(resource_pack), networking(networking), camera(camera) {}
     
     const gfx::Texture& getBlocksAtlasTexture();
     gfx::RectShape getBlockRectInAtlas(BlockType* type);
