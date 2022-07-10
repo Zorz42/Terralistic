@@ -241,39 +241,12 @@ int gfx::getWindowHeight() {
 #endif
 }
 
-void gfx::updateWindow() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y);
+void gfx::updateWindow() {    
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, default_framebuffer);
+    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, window_texture, 0);
     
-    _Transformation texture_transform = window_normalization_transform;
-    texture_transform.stretch(getWindowWidth() * 0.5f, getWindowHeight() * 0.5f);
-    glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, texture_transform.getArray());
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, window_texture);
-    
-    glUniform1i(uniform_texture_sampler, 0);
-    glUniform1i(uniform_has_texture, 1);
-    glUniform1i(uniform_has_color_buffer, 0);
-    glUniform1i(uniform_blend_multiply, 0);
-    _Transformation transform = normalization_transform;
-    
-    transform.stretch(getWindowWidth(), getWindowHeight());
-    
-    glUniformMatrix3fv(uniform_transform_matrix, 1, GL_FALSE, transform.getArray());
-    glUniform4f(uniform_default_color, 1.f, 1.f, 1.f, 1.f);
-
-    glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
-    glVertexAttribPointer(SHADER_VERTEX_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, rect_vertex_buffer);
-    glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    
-    glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, getWindowWidth(), getWindowHeight(), 0, 0, getWindowWidth() * gfx::global_scale_x, getWindowHeight() * gfx::global_scale_y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     
     glfwSwapBuffers(glfw_window);
     
