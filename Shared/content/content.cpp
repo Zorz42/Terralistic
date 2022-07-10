@@ -48,6 +48,7 @@ void GameContent::addRecipes(Recipes* recipes) {
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
     wood_behaviour(this, blocks, walls, liquids),
     torch_behaviour(blocks, walls, liquids),
+    furnace_behaviour(blocks, walls, liquids),
     cactus_behaviour(this, blocks, walls, liquids),
     leaves_behaviour(this, blocks, walls, liquids),
     canopy_behaviour(this, blocks, walls, liquids),
@@ -132,6 +133,7 @@ void BlockTypes::addBlockBehaviour(ServerPlayers* players) {
     players->getBlockBehaviour(&stone) = &stone_behaviour;
     players->getBlockBehaviour(&grass) = &grass_behaviour;
     players->getBlockBehaviour(&torch) = &torch_behaviour;
+    players->getBlockBehaviour(&furnace) = &furnace_behaviour;
 }
 
 bool BlockTypes::isBlockTree(Blocks* blocks, int x, int y) {
@@ -224,15 +226,22 @@ int WoodType::updateState(Blocks* blocks, int x, int y){
 int FurnaceType::updateState(Blocks *blocks, int x, int y) {
     int state = 0;
     auto data = (FurnaceData*)blocks->getBlockData(x, y);
-    if(data->fuel.stack > 0)
-        state++;
-    if(data->heated_items.stack > 0)
-        state += 2;
+    if(data != nullptr) {
+        if (data->fuel.stack > 0)
+            state++;
+        if (data->heated_items.stack > 0)
+            state += 2;
+    }
+    return state;
 }
 
 void FurnaceBehaviour::onRightClick(int x, int y, ServerPlayer *player) {
+    auto data = (FurnaceData*)blocks->getBlockData(x, y);
+    data->fuel.stack++;
     //open ui somehow
-    //make inventory change functions
+    //make inventory change functions ->
+        //fuel.type and heated_items.type should be nullptr when empty, otherwise a pointer to item type
+        //fuel.stack and heated_items.stack should obviously be 0 when empty
     //when done and if anything changed call:
     BlockUpdateEvent event(x, y);
     blocks->block_update_event.call(event);

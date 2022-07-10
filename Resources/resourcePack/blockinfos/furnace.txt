@@ -8,4 +8,4 @@ light_emission_r: 0
 light_emission_g: 0
 light_emission_b: 0
 can_update_states: true
-additional_block_data: furnace
+additional_data_type: furnace

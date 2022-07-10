@@ -14,11 +14,17 @@ void FurnaceData::save(std::vector<char>& data, unsigned long& index) {
     index += 4;
     *(int*)&data[index] = heated_items.stack;
     index += 4;
-    *(int*)&data[index] = heated_items.type->id;
+    if(heated_items.type != nullptr)
+        *(int*)&data[index] = heated_items.type->id;
+    else
+        *(int*)&data[index] = -1;
     index += 4;
     *(int*)&data[index] = fuel.stack;
     index += 4;
-    *(int*)&data[index] = fuel.type->id;
+    if(fuel.type != nullptr)
+        *(int*)&data[index] = fuel.type->id;
+    else
+        *(int*)&data[index] = -1;
     index += 4;
 }
 
@@ -29,10 +35,16 @@ void FurnaceData::load(const char*& iter) {
     iter += 4;
     heated_items.stack = *(int*)iter;
     iter += 4;
-    heated_items.type->id = *(int*)iter;
+    if(*(int*)iter == -1)
+        heated_items.type = nullptr;
+    else
+        heated_items.type->id = *(int*)iter;
     iter += 4;
     fuel.stack = *(int*)iter;
     iter += 4;
-    fuel.type->id = *(int*)iter;
+    if(*(int*)iter == -1)
+        fuel.type = nullptr;
+    else
+        fuel.type->id = *(int*)iter;
     iter += 4;
 }

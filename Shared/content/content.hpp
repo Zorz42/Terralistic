@@ -104,6 +104,7 @@ class BlockTypes {
     StoneBehaviour stone_behaviour;
     GrassBehaviour grass_behaviour;
     TorchBehaviour torch_behaviour;
+    FurnaceBehaviour furnace_behaviour;
     
     std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch, &furnace};
 public:
