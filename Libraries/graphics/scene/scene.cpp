@@ -322,9 +322,12 @@ void gfx::Scene::run() {
             running = false;
     }
 
-    if(initialized)
+    if(initialized) {
+        stop();
         for(int i = 0; i < modules.size(); i++)
-            modules[i]->stop();
+            if(modules[i] != this)
+                modules[i]->stop();
+    }
 }
 
 void gfx::Scene::renderAll() {

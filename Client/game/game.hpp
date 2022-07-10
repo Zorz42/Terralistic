@@ -50,7 +50,7 @@ class Game : gfx::Scene, public BackgroundRect {
     
     Settings* settings;
     BackgroundRect* background_rect;
-    bool handshake_done = false;
+    bool handshake_done = false, parallel_update_loop_running = false;
     std::string kick_reason;
     
     DebugLine fps_debug_line, frame_length_line;
@@ -59,6 +59,7 @@ class Game : gfx::Scene, public BackgroundRect {
     gfx::Timer line_refresh_counter;
     
     void parallelUpdateLoop();
+    void stop() override;
 public:
     Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port=33770);
     

@@ -125,20 +125,22 @@ void Game::start() {
 
 void Game::parallelUpdateLoop() {
     try {
+        parallel_update_loop_running = true;
         gfx::Timer timer;
         while(isRunning()) {
             float frame_length = timer.getTimeElapsed();
             timer.reset();
             for(auto i : getModules())
-                if(i != this && i->enabled)
+                if(i != this && i->enabled && isRunning())
                     ((ClientModule*)i)->updateParallel(frame_length);
-            if(timer.getTimeElapsed() < 5)
+            if(timer.getTimeElapsed() < 5 && isRunning())
                 gfx::sleep(5 - timer.getTimeElapsed());
         }
     } catch(const std::exception& exception) {
         interrupt_message = exception.what();
         interrupt = true;
     }
+    parallel_update_loop_running = false;
 }
 
 void Game::init() {
@@ -168,8 +170,6 @@ void Game::renderBack() {
     cycleModules();
 }
 
-
-
 bool Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
         PauseScreen pause_screen(this, settings);
@@ -189,4 +189,9 @@ bool Game::onKeyDown(gfx::Key key) {
         return true;
     }
     return false;
+}
+
+void Game::stop() {
+    while(parallel_update_loop_running)
+        gfx::sleep(1);
 }
