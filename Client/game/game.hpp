@@ -1,4 +1,5 @@
 #pragma once
+#include <thread>
 #include "clientItems.hpp"
 #include "menuBack.hpp"
 #include "clientEntities.hpp"
@@ -50,13 +51,14 @@ class Game : gfx::Scene, public BackgroundRect {
     
     Settings* settings;
     BackgroundRect* background_rect;
-    bool handshake_done = false, parallel_update_loop_running = false;
     std::string kick_reason;
     
     DebugLine fps_debug_line, frame_length_line;
     int fps_count = 0;
     float frame_length_sum = 0;
     gfx::Timer line_refresh_counter;
+    
+    std::thread parallel_update_thread;
     
     void parallelUpdateLoop();
     void stop() override;

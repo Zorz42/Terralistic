@@ -112,9 +112,7 @@ void Game::start() {
         for(auto i : getModules())
             if(i != this)
                 ((ClientModule*)i)->loadTextures();
-        std::thread parallel_update_thread(&Game::parallelUpdateLoop, this);
         run();
-        parallel_update_thread.join();
         if(interrupt)
             throw Exception(interrupt_message);
     } catch(const std::exception& exception) {
@@ -125,7 +123,6 @@ void Game::start() {
 
 void Game::parallelUpdateLoop() {
     try {
-        parallel_update_loop_running = true;
         gfx::Timer timer;
         while(isRunning()) {
             float frame_length = timer.getTimeElapsed();
@@ -140,13 +137,13 @@ void Game::parallelUpdateLoop() {
         interrupt_message = exception.what();
         interrupt = true;
     }
-    parallel_update_loop_running = false;
 }
 
 void Game::init() {
     for(auto i : getModules())
         if(i != this)
             ((ClientModule*)i)->postInit();
+    parallel_update_thread = std::thread(&Game::parallelUpdateLoop, this);
 }
 
 void Game::update(float frame_length) {
@@ -192,6 +189,5 @@ bool Game::onKeyDown(gfx::Key key) {
 }
 
 void Game::stop() {
-    while(parallel_update_loop_running)
-        gfx::sleep(1);
+    parallel_update_thread.join();
 }

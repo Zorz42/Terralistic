@@ -23,7 +23,7 @@ void ServerNetworking::postInit() {
 
 void ServerNetworking::sendToEveryone(Packet& packet) {
     for(auto & connection : connections)
-        if(connection->hasBeenGreeted())
+        if(connection->hasBeenGreeted() && connection->isConnected())
             connection->send(packet);
 }
 
@@ -38,10 +38,10 @@ void ServerNetworking::update(float frame_length) {
     Packet packet;
     for(int i = 0; i < connections.size(); i++) {
         if(connections[i]->hasBeenGreeted()) {
-            connections[i]->flushPacketBuffer();
-            if(connections[i]->hasDisconnected())
+            if(!connections[i]->isConnected())
                 removeConnection(connections[i]);
-            
+            else
+                connections[i]->flushPacketBuffer();
         } else if(connections[i]->receive(packet)) {
             print::info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
             
