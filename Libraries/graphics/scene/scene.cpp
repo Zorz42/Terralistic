@@ -344,10 +344,7 @@ void gfx::Scene::renderAll() {
             modules[i]->mouse_y = mouse_y;
         }
     
-    //glClear(GL_COLOR_BUFFER_BIT);
-    
     resetRenderTarget();
-    //RectShape(0, 0, getWindowWidth(), getWindowHeight()).render({0, 0, 0});
     
     cycleModules();
     
