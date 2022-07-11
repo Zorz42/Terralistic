@@ -382,6 +382,10 @@ void gfx::Scene::cycleModules() {
     if(print_render_data_timer.getTimeElapsed() > 1000) {
         print_render_data_timer.reset();
         
+#ifdef ENABLE_DEBUG_PRINT
+        std::cout << "---> Render Times for: " << module_name << std::endl;
+#endif
+        
         for(int i = 0; i < modules.size(); i++) {
 #ifdef ENABLE_DEBUG_PRINT
             if(modules[i]->enabled)
@@ -409,7 +413,6 @@ bool gfx::Scene::isInitialized() const {
 bool gfx::Scene::isRunning() const {
     return running;
 }
-
 
 void gfx::keyCallback(GLFWwindow* window, int key_, int scancode, int action, int mods) {
     gfx::Key key = translateKeyboardKey(key_);
