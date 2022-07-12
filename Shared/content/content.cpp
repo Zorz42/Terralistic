@@ -42,6 +42,7 @@ void GameContent::addRecipes(Recipes* recipes) {
     recipe->ingredients[&items.fiber] = 2;
     recipe->ingredients[&items.stone] = 1;
     recipe->ingredients[&items.stick] = 1;
+    recipe->crafting_block = &blocks.branch;
     recipes->registerARecipe(recipe);
 }
 

@@ -8,7 +8,7 @@
 
 class ServerPlayerData {
 public:
-    ServerPlayerData(Items* items, Recipes* recipes) : inventory(items, recipes) {}
+    ServerPlayerData(Items* items, Recipes* recipes, Blocks* blocks) : inventory(items, recipes, blocks) {}
     
     std::string name;
     int x = 0, y = 0;

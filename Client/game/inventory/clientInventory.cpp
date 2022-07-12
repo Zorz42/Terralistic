@@ -125,25 +125,7 @@ void ClientInventory::render() {
         if(inventory.getItem(-1).type != &items->nothing)
             renderItem(inventory.getItem(-1), getMouseX(), getMouseY());
 
-        std::vector<const Recipe*> available_recipes;
-        for(auto recipe : inventory.getAvailableRecipes()){
-            if(recipe->crafting_block == nullptr){
-                available_recipes.push_back(recipe);
-            }else {
-                for (int i = players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2) - 3;
-                     i < players->getMainPlayer()->getX() / (BLOCK_WIDTH * 2) + 3; i++) {
-                    for (int j = players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2) - 3;
-                         j < players->getMainPlayer()->getY() / (BLOCK_WIDTH * 2) + 3; j++) {
-                        if (i >= 0 && j >= 0 && i < blocks->getWidth() && j < blocks->getHeight() &&
-                            blocks->getBlockType(i, j) == recipe->crafting_block) {
-                            available_recipes.push_back(recipe);
-                            goto new_recipe;
-                        }
-                    }
-                }
-            }
-            new_recipe:;
-        }
+        std::vector<const Recipe*> available_recipes = inventory.getAvailableRecipes();
 
         hovered_recipe = -1;
         behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)available_recipes.size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
