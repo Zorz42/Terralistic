@@ -127,7 +127,6 @@ bool Inventory::canCraftRecipe(const Recipe* recipe) {
     if(std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){
         if(item_counts == nullptr)
             throw Exception("item_counts is null");
-        std::cout << ingredient.first->display_name << " " << item_counts[(int)ingredient.first->id] << "\n";
         return item_counts[(int)ingredient.first->id] >= ingredient.second;
     })) {
         if (recipe->crafting_block == nullptr) {
