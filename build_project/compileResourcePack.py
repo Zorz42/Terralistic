@@ -29,7 +29,7 @@ def compileResourcePack(input_resource_pack, output_resource_pack):
         else:
             output_file = output_resource_pack + file
 
-        if os.path.exists(output_file) and os.path.getmtime(input_file) <= os.path.getmtime(output_file):
+        if os.path.exists(output_file) and not os.path.isdir(output_file) and os.path.getmtime(input_file) <= os.path.getmtime(output_file):
             continue
 
         if os.path.isdir(input_file):

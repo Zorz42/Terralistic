@@ -149,6 +149,8 @@
 		3672919C26FE226400786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672B160277C8431001293B5 /* serverAdder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B15E277C8431001293B5 /* serverAdder.cpp */; };
 		3672B164277C885D001293B5 /* nameChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B162277C885D001293B5 /* nameChooser.cpp */; };
+		3672D2CF287DEF2D000FD606 /* blockData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672D2CD287DEF2D000FD606 /* blockData.cpp */; };
+		3672D2D0287DEF2D000FD606 /* blockData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672D2CD287DEF2D000FD606 /* blockData.cpp */; };
 		367E42212873040A006EBD84 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 367E42202873040A006EBD84 /* glad.c */; };
 		367E422528730434006EBD84 /* platform_folders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367E422428730434006EBD84 /* platform_folders.cpp */; };
 		367E422728730A72006EBD84 /* platform_folders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367E422428730434006EBD84 /* platform_folders.cpp */; };
@@ -418,6 +420,8 @@
 		3672B15F277C8431001293B5 /* serverAdder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverAdder.hpp; sourceTree = "<group>"; };
 		3672B162277C885D001293B5 /* nameChooser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nameChooser.cpp; sourceTree = "<group>"; };
 		3672B163277C885D001293B5 /* nameChooser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = nameChooser.hpp; sourceTree = "<group>"; };
+		3672D2CD287DEF2D000FD606 /* blockData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockData.cpp; sourceTree = "<group>"; };
+		3672D2CE287DEF2D000FD606 /* blockData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockData.hpp; sourceTree = "<group>"; };
 		367E42202873040A006EBD84 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glad.c; path = Dependencies/glad/src/glad.c; sourceTree = SOURCE_ROOT; };
 		367E422428730434006EBD84 /* platform_folders.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = platform_folders.cpp; path = "Dependencies/PlatformFolders-4.2.0/sago/platform_folders.cpp"; sourceTree = SOURCE_ROOT; };
 		367F362B285F70C900319AD2 /* blur.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blur.cpp; sourceTree = "<group>"; };
@@ -779,6 +783,8 @@
 		169AD3A027023B590096D80D /* blocks */ = {
 			isa = PBXGroup;
 			children = (
+				3672D2CE287DEF2D000FD606 /* blockData.hpp */,
+				3672D2CD287DEF2D000FD606 /* blockData.cpp */,
 				169AD3A227023B690096D80D /* blocks.hpp */,
 				169AD3A127023B690096D80D /* blocks.cpp */,
 			);
@@ -1793,6 +1799,7 @@
 				3672B160277C8431001293B5 /* serverAdder.cpp in Sources */,
 				366D970A282067FA00DEC292 /* sprite.cpp in Sources */,
 				3657222026D07181005AB3CC /* choiceScreen.cpp in Sources */,
+				3672D2CF287DEF2D000FD606 /* blockData.cpp in Sources */,
 				368C34AE2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */,
 				366399D427775F10007C944E /* clientWalls.cpp in Sources */,
 				3693112D2843466000C4DF00 /* listener.cpp in Sources */,
@@ -1854,6 +1861,7 @@
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
 				3693112B2843464A00C4DF00 /* socket.cpp in Sources */,
 				367F3633285F716000319AD2 /* shadow.cpp in Sources */,
+				3672D2D0287DEF2D000FD606 /* blockData.cpp in Sources */,
 				366399D027775E17007C944E /* serverWalls.cpp in Sources */,
 				366D9713282067FA00DEC292 /* texture.cpp in Sources */,
 				16A13D152709A10D009DEE40 /* serverBlocks.cpp in Sources */,
