@@ -2,7 +2,7 @@
 #include "items.hpp"
 
 #define INVENTORY_SIZE 20
-
+class Player;
 
 class Recipe {
 public:
@@ -30,14 +30,15 @@ public:
 class Inventory {
     Items* items;
     Recipes* recipes;
-    
+    Player* player;
+    Blocks* blocks;
     ItemStack mouse_item;
     int *item_counts = nullptr;
     std::vector<const Recipe*> available_recipes;
     ItemStack inventory_arr[INVENTORY_SIZE];
-    bool hasIngredientsForRecipe(const Recipe* recipe);
+    bool canCraftRecipe(const Recipe* recipe);
 public:
-    Inventory(Items* items, Recipes* recipes);
+    Inventory(Items* items, Recipes* recipes, Blocks* blocks);
     
     int selected_slot = 0;
     
@@ -57,6 +58,7 @@ public:
     
     std::vector<char> toSerial() const;
     void fromSerial(const std::vector<char>& serial);
+    void setPlayer(Player* cplayer){player = cplayer;}
     
     Inventory& operator=(Inventory const& inventory);
     

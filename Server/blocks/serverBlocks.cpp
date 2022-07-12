@@ -48,8 +48,6 @@ void ServerBlocks::onEvent(BlockChangeEvent& event) {
     Packet packet;
     packet << ServerPacketType::BLOCK << event.x << event.y << (unsigned char)getBlockType(event.x, event.y)->id << (unsigned char)getBlockXFromMain(event.x, event.y) << (unsigned char)getBlockYFromMain(event.x, event.y);
     networking->sendToEveryone(packet);
-    if(getBlockType(event.x, event.y)->block_data_index != 0)
-        syncBlockData(event.x, event.y);
     int neighbours[5][2] = {{event.x, event.y}, {event.x - 1, event.y}, {event.x, event.y - 1}, {event.x + 1, event.y}, {event.x, event.y + 1}};
     for(auto & neighbour : neighbours)
         if(neighbour[0] >= 0 && neighbour[0] < getWidth() && neighbour[1] >= 0 && neighbour[1] < getHeight())

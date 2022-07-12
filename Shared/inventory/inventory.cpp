@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "inventory.hpp"
 #include <cstring>
+#include "player.hpp"
 
 void Inventory::setItem(int pos, ItemStack item) {
     if(item_counts == nullptr)
@@ -57,7 +58,7 @@ std::vector<char> Inventory::toSerial() const {
     return serial;
 }
 
-Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes), mouse_item(&items->nothing, 0) {
+Inventory::Inventory(Items* items, Recipes* recipes, Blocks* blocks) : items(items), recipes(recipes), blocks(blocks), mouse_item(&items->nothing, 0) {
     item_counts = new int[items->getNumItemTypes()];
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = 0;
@@ -122,12 +123,30 @@ void Inventory::swapWithMouseItem(int pos) {
     inventory_arr[pos] = temp;
 }
 
-bool Inventory::hasIngredientsForRecipe(const Recipe* recipe) {
-    return std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){
+bool Inventory::canCraftRecipe(const Recipe* recipe) {
+    if(std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){
         if(item_counts == nullptr)
             throw Exception("item_counts is null");
         return item_counts[(int)ingredient.first->id] >= ingredient.second;
-    });
+    })) {
+        if (recipe->crafting_block == nullptr) {
+            goto add_recipe;
+        } else {
+            for (int i = player->getX() / (BLOCK_WIDTH * 2) - 3;
+                 i < player->getX() / (BLOCK_WIDTH * 2) + 3; i++) {
+                for (int j = player->getY() / (BLOCK_WIDTH * 2) - 3;
+                     j < player->getY() / (BLOCK_WIDTH * 2) + 3; j++) {
+                    if (i >= 0 && j >= 0 && i < blocks->getWidth() && j < blocks->getHeight() &&
+                        blocks->getBlockType(i, j) == recipe->crafting_block) {
+                        goto add_recipe;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    add_recipe:
+    return true;
 }
 
 const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
@@ -136,12 +155,12 @@ const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
 
 void Inventory::updateAvailableRecipes() {
     for(int i = 0; i < available_recipes.size(); i++){
-        if(!hasIngredientsForRecipe(available_recipes[i]))
+        if(!canCraftRecipe(available_recipes[i]))
             available_recipes.erase(available_recipes.begin() + i);
     }
 
     for(int i = 0; i < recipes->getAllRecipes().size(); i++)
-        if(hasIngredientsForRecipe(recipes->getAllRecipes()[i]) && !std::count(available_recipes.begin(), available_recipes.end(), recipes->getAllRecipes()[i]))
+        if(canCraftRecipe(recipes->getAllRecipes()[i]) && !std::count(available_recipes.begin(), available_recipes.end(), recipes->getAllRecipes()[i]))
             available_recipes.emplace_back(recipes->getAllRecipes()[i]);
 }
 

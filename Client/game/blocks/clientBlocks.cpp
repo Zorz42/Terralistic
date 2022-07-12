@@ -28,17 +28,13 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             stopBreakingBlock(x, y);
             break;
         }
-        case ServerPacketType::BLOCK_DATA_UPDATE: {
-            std::vector<char> memdata;
-            memdata.resize(event.packet.getDataSize());
-            memcpy(&memdata[0], event.packet.getData(), event.packet.getDataSize());
-            memdata.erase(memdata.begin(), memdata.begin() + 15);
+        case ServerPacketType::BLOCK_DATA_UPDATE:{
 
             int x, y;
             event.packet >> x >> y;
             char* data = new char[getBlockData(x, y)->getSavedSize()];
             for(int i = 0; i < getBlockData(x, y)->getSavedSize(); i++){
-                data[i] = memdata[4 * i];
+                event.packet >> data[i];
             }
             const char *iter = data;
             getBlockData(x, y)->load(iter);

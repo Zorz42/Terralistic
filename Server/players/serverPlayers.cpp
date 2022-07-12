@@ -74,7 +74,7 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     if(!player_data) {
         has_to_reset = true;
 
-        player_data = new ServerPlayerData(items, recipes);
+        player_data = new ServerPlayerData(items, recipes, blocks);
         player_data->name = name;
         player_data->x = 0;
         player_data->y = 0;
@@ -82,7 +82,8 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     }
     
     ServerPlayer* player = new ServerPlayer(*player_data);
-    
+
+    player->inventory.setPlayer((Player*)player);
     if(has_to_reset) {
         resetPlayer(player);
         player->health = 100;
@@ -149,7 +150,8 @@ void ServerPlayers::rightClickEvent(ServerPlayer* player, int x, int y) {
 void ServerPlayers::fromSerial(const std::vector<char> &serial) {
     int iter = 0;
     while(iter < serial.size()) {
-        ServerPlayerData* new_player = new ServerPlayerData(items, recipes);
+        ServerPlayerData* new_player = new ServerPlayerData(items, recipes, blocks);
+        new_player->inventory.setPlayer((Player*)new_player);
         
         int inventory_serial_size = 3 * INVENTORY_SIZE;
         new_player->inventory.fromSerial(std::vector<char>(serial.begin() + iter, serial.begin() + iter + inventory_serial_size));
