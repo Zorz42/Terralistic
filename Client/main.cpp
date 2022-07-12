@@ -5,6 +5,7 @@
 #include "versions.hpp"
 #include "updater.hpp"
 #include "networking.hpp"
+#include "testing.hpp"
 
 class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     ChoiceSetting* scale_setting;
@@ -68,6 +69,11 @@ int main(int argc, char **argv) {
 
     if(argc == 2 && (std::string)argv[1] == "version") {
         std::cout << CURR_VERSION_STR << std::endl;
+        return 0;
+    }
+    
+    if(argc == 2 && (std::string)argv[1] == "test") {
+        performTests();
         return 0;
     }
 

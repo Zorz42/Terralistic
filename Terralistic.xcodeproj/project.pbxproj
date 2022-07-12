@@ -176,6 +176,8 @@
 		3693112E2843466000C4DF00 /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693112C2843466000C4DF00 /* listener.cpp */; };
 		3693E4FE274A95B900939213 /* variables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E4FC274A95B900939213 /* variables.cpp */; };
 		3693E502274AC5F900939213 /* virtualMachine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E500274AC5F900939213 /* virtualMachine.cpp */; };
+		369693C6287E33B100D39F1B /* testing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369693C4287E33B100D39F1B /* testing.cpp */; };
+		369693C7287E33B100D39F1B /* testing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369693C4287E33B100D39F1B /* testing.cpp */; };
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
 		36A52164279D667700C1F8CB /* TestException.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52163279D667700C1F8CB /* TestException.mm */; };
 		36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* TestEvent.mm */; };
@@ -455,6 +457,8 @@
 		3693E4FD274A95B900939213 /* variables.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = variables.hpp; sourceTree = "<group>"; };
 		3693E500274AC5F900939213 /* virtualMachine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = virtualMachine.cpp; sourceTree = "<group>"; };
 		3693E501274AC5F900939213 /* virtualMachine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = virtualMachine.hpp; sourceTree = "<group>"; };
+		369693C4287E33B100D39F1B /* testing.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = testing.cpp; sourceTree = "<group>"; };
+		369693C5287E33B100D39F1B /* testing.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = testing.hpp; sourceTree = "<group>"; };
 		369981F0277CCAD500FA3F72 /* privateWorld.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = privateWorld.cpp; sourceTree = "<group>"; };
 		369E17CD2839467E00D37108 /* networking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = networking.hpp; sourceTree = "<group>"; };
 		36A52163279D667700C1F8CB /* TestException.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestException.mm; sourceTree = "<group>"; };
@@ -987,9 +991,10 @@
 			children = (
 				367E422428730434006EBD84 /* platform_folders.cpp */,
 				367E42202873040A006EBD84 /* glad.c */,
+				36D26F2927352F6600F1F476 /* exception */,
+				369693C3287E339200D39F1B /* testing */,
 				366D96E12820568400DEC292 /* graphics */,
 				366D96F4282059C600DEC292 /* readOpa */,
-				36D26F2927352F6600F1F476 /* exception */,
 				36D31CD626DBE31D006F89B3 /* compress */,
 				1676E9F62699BF8600034070 /* events */,
 				1675E71A26611B6300B620F4 /* configManager */,
@@ -1527,6 +1532,15 @@
 			path = virtualMachine;
 			sourceTree = "<group>";
 		};
+		369693C3287E339200D39F1B /* testing */ = {
+			isa = PBXGroup;
+			children = (
+				369693C5287E33B100D39F1B /* testing.hpp */,
+				369693C4287E33B100D39F1B /* testing.cpp */,
+			);
+			path = testing;
+			sourceTree = "<group>";
+		};
 		369E17CB2839466900D37108 /* networking */ = {
 			isa = PBXGroup;
 			children = (
@@ -1813,6 +1827,7 @@
 				169B87D0270F5036006023B8 /* serverChat.cpp in Sources */,
 				167B53CD270A26EC000089B3 /* serverItems.cpp in Sources */,
 				3605ED632773B91400ECCA08 /* worldSaver.cpp in Sources */,
+				369693C6287E33B100D39F1B /* testing.cpp in Sources */,
 				3657221626D07181005AB3CC /* mainPlayer.cpp in Sources */,
 				366D971A282067FA00DEC292 /* rectArray.cpp in Sources */,
 				366D9718282067FA00DEC292 /* textureAtlas.cpp in Sources */,
@@ -1875,6 +1890,7 @@
 				361DD18E26F7478900129191 /* worldGenerator.cpp in Sources */,
 				366D9721282067FA00DEC292 /* button.cpp in Sources */,
 				16C9470627109EC100A51E81 /* player.cpp in Sources */,
+				369693C7287E33B100D39F1B /* testing.cpp in Sources */,
 				3605ED642773B91400ECCA08 /* worldSaver.cpp in Sources */,
 				1676AF3827044CD100321C8B /* lights.cpp in Sources */,
 				3693112E2843466000C4DF00 /* listener.cpp in Sources */,
