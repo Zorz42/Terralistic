@@ -41,5 +41,5 @@ class MultiplayerSelector : public gfx::Scene {
     BackgroundRect* menu_back;
     Settings* settings;
 public:
-    MultiplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
+    MultiplayerSelector(BackgroundRect* menu_back, Settings* settings) : gfx::Scene("MultiplayerSelector"), menu_back(menu_back), settings(settings) {}
 };

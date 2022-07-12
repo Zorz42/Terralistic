@@ -287,7 +287,7 @@ void ServerPlayers::update(float frame_length) {
     
     for(int i = 0; i < networking->getConnections().size(); i++) {
         Packet packet;
-        if(networking->getConnections()[i]->receive(packet)) {
+        if(networking->getConnections()[i]->isConnected() && networking->getConnections()[i]->receive(packet)) {
             ClientPacketType type;
             packet >> type;
             if(type == ClientPacketType::PLAYER_RESPAWN) {

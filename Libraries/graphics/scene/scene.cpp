@@ -1,7 +1,9 @@
 #include "glfwAbstraction.hpp"
 #include "scene.hpp"
 #include "button.hpp"
+#include <iostream>
 #include <algorithm>
+#include <iomanip>
 
 void gfx::addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function) {
     global_update_functions.push_back(global_update_function);
@@ -320,9 +322,12 @@ void gfx::Scene::run() {
             running = false;
     }
 
-    if(initialized)
+    if(initialized) {
+        stop();
         for(int i = 0; i < modules.size(); i++)
-            modules[i]->stop();
+            if(modules[i] != this)
+                modules[i]->stop();
+    }
 }
 
 void gfx::Scene::renderAll() {
@@ -339,10 +344,7 @@ void gfx::Scene::renderAll() {
             modules[i]->mouse_y = mouse_y;
         }
     
-    glClear(GL_COLOR_BUFFER_BIT);
-    
     resetRenderTarget();
-    RectShape(0, 0, getWindowWidth(), getWindowHeight()).render({0, 0, 0});
     
     cycleModules();
     
@@ -356,13 +358,45 @@ void gfx::Scene::renderAll() {
     frame_length = frame_timer.getTimeElapsed();
 }
 
+//#define ENABLE_DEBUG_PRINT
+
 void gfx::Scene::cycleModules() {
-    for(int i = 0; i < modules.size(); i++)
+    for(int i = 0; i < modules.size(); i++) {
+        Timer timer;
         modules[i]->update(frame_length);
+        modules[i]->update_time_sum += timer.getTimeElapsed();
+    }
     
     for(int i = 0; i < modules.size(); i++)
-        if(modules[i]->enabled)
+        if(modules[i]->enabled) {
+            Timer timer;
             modules[i]->render();
+            modules[i]->render_time_sum += timer.getTimeElapsed();
+        }
+    
+    frame_count++;
+    render_time_sum += render_time;
+    if(print_render_data_timer.getTimeElapsed() > 1000) {
+        print_render_data_timer.reset();
+        
+#ifdef ENABLE_DEBUG_PRINT
+        std::cout << "---> Render Times for: " << module_name << std::endl;
+#endif
+        
+        for(int i = 0; i < modules.size(); i++) {
+#ifdef ENABLE_DEBUG_PRINT
+            if(modules[i]->enabled)
+                std::cout << std::fixed << std::setprecision(3) << modules[i]->module_name << std::setw(30 - (int)modules[i]->module_name.length()) << " Update: " << modules[i]->update_time_sum / frame_count << " Render: " << modules[i]->render_time_sum / frame_count << std::endl;
+            else
+                std::cout << std::fixed << std::setprecision(3) << modules[i]->module_name << " (Disabled)" << std::endl;
+#endif
+                
+            modules[i]->update_time_sum = 0;
+            modules[i]->render_time_sum = 0;
+        }
+        
+        frame_count = 0;
+    }
 }
 
 void gfx::Scene::returnFromScene() {
@@ -376,7 +410,6 @@ bool gfx::Scene::isInitialized() const {
 bool gfx::Scene::isRunning() const {
     return running;
 }
-
 
 void gfx::keyCallback(GLFWwindow* window, int key_, int scancode, int action, int mods) {
     gfx::Key key = translateKeyboardKey(key_);

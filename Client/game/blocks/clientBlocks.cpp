@@ -32,14 +32,15 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 
             int x, y;
             event.packet >> x >> y;
-            char data[getBlockData(x, y)->getSavedSize()];
+            char* data = new char[getBlockData(x, y)->getSavedSize()];
             for(int i = 0; i < getBlockData(x, y)->getSavedSize(); i++){
                 event.packet >> data[i];
             }
-            const char *iter = &data[0];
+            const char *iter = data;
             getBlockData(x, y)->load(iter);
             updateState(x, y);
             scheduleBlockUpdate(x, y);
+            delete[] data;
         }
         default:;
     }

@@ -52,5 +52,5 @@ class SettingsMenu : public gfx::Scene {
     Settings* settings;
     int required_width = 0;
 public:
-    explicit SettingsMenu(BackgroundRect* background, Settings* settings) : background(background), settings(settings) {}
+    explicit SettingsMenu(BackgroundRect* background, Settings* settings) : gfx::Scene("SettingsMenu"), background(background), settings(settings) {}
 };

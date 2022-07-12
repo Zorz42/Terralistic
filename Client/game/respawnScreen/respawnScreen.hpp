@@ -17,5 +17,5 @@ class RespawnScreen : public ClientModule {
     
     bool first_time = true, is_active = false;
 public:
-    RespawnScreen(ClientNetworking* networking, ClientPlayers* players) : players(players), networking(networking) {}
+    RespawnScreen(ClientNetworking* networking, ClientPlayers* players) : ClientModule("RespawnScreen"), players(players), networking(networking) {}
 };

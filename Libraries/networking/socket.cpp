@@ -32,7 +32,7 @@ void TcpSocket::handleError() {
         case WSAECONNRESET:
         case WSAETIMEDOUT:
         case WSAENETRESET:
-        case WSAENOTCONN: disconnected = true; return;
+        case WSAENOTCONN: connected = false; return;
         case WSAEISCONN: return;
         default: throw Exception("Socket error");
     }
@@ -49,7 +49,7 @@ void TcpSocket::handleError() {
         case ETIMEDOUT:
         case ENETRESET:
         case ENOTCONN:
-        case EPIPE:        disconnected = true; return;
+        case EPIPE:        connected = false; return;
         default:           throw Exception("Socket error");
     }
 }
@@ -69,6 +69,9 @@ void TcpSocket::send(const void* obj, unsigned int size) {
 }
 
 void TcpSocket::send(Packet& packet) {
+    if(!connected)
+        throw Exception("Not connected!");
+    
     unsigned int size = (unsigned int)packet.getDataSize();
     unsigned int prev_buffer_size = (unsigned int)packet_buffer_out.size();
     packet_buffer_out.resize(packet_buffer_out.size() + sizeof(unsigned int) + size);
@@ -80,6 +83,9 @@ void TcpSocket::send(Packet& packet) {
 }
 
 bool TcpSocket::receive(void* obj, unsigned int size) {
+    if(!connected)
+        throw Exception("Not connected!");
+    
     unsigned int received = 0;
     while(received < size) {
 #ifdef WIN32
@@ -90,7 +96,7 @@ bool TcpSocket::receive(void* obj, unsigned int size) {
         received += curr_received;
         
         if(curr_received == 0) {
-            disconnected = true;
+            connected = false;
             return false;
         } else if(curr_received < 0) {
             handleError();
@@ -132,6 +138,8 @@ bool TcpSocket::receivePacket() {
 }
 
 bool TcpSocket::connect(const std::string& ip, unsigned short port) {
+    if(connected)
+        throw Exception("Already connected!");
     sockaddr_in serv_addr;
     
     int handle = socket(AF_INET, SOCK_STREAM, 0);
@@ -163,6 +171,8 @@ std::string TcpSocket::getIpAddress() {
 }
 
 void TcpSocket::disconnect() {
+    if(!connected)
+        throw Exception("Not connected!");
 #ifdef WIN32
     closesocket(socket_handle);
 #else
@@ -170,11 +180,13 @@ void TcpSocket::disconnect() {
 #endif
 }
 
-bool TcpSocket::hasDisconnected() {
-    return disconnected;
+bool TcpSocket::isConnected() {
+    return connected;
 }
 
 void TcpSocket::flushPacketBuffer() {
+    if(!connected)
+        throw Exception("Not connected!");
     if(!packet_buffer_out.empty()) {
         send(packet_buffer_out.data(), (unsigned int)packet_buffer_out.size());
         packet_buffer_out.clear();
@@ -182,6 +194,9 @@ void TcpSocket::flushPacketBuffer() {
 }
 
 void TcpSocket::create(int handle, const std::string& address) {
+    if(connected)
+        throw Exception("Already connected!");
+    
     socket_handle = handle;
     ip_address = address;
 
@@ -191,6 +206,8 @@ void TcpSocket::create(int handle, const std::string& address) {
 
     if(setsockopt(socket_handle, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)))
         throw Exception("Setsockopt failed");
+    
+    connected = true;
 }
 
 #ifdef WIN32

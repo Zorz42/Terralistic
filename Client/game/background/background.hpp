@@ -11,5 +11,5 @@ class Background : public ClientModule {
     Camera* camera;
     ResourcePack* resource_pack;
 public:
-    Background(Camera* camera, ResourcePack* resource_pack) : camera(camera), resource_pack(resource_pack) {}
+    Background(Camera* camera, ResourcePack* resource_pack) : ClientModule("Background"), camera(camera), resource_pack(resource_pack) {}
 };

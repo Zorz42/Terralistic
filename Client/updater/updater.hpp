@@ -16,5 +16,5 @@ class UpdateChecker : public gfx::Scene {
     void render() override;
     MenuBack* menu_back;
 public:
-    UpdateChecker(MenuBack* menu_back, std::string exec_path) : menu_back(menu_back), exec_path(std::move(exec_path)) {}
+    UpdateChecker(MenuBack* menu_back, std::string exec_path) : gfx::Scene("UpdateChecker"), menu_back(menu_back), exec_path(std::move(exec_path)) {}
 };

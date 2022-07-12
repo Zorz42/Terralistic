@@ -50,5 +50,5 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     
     void scheduleClientLightUpdate(int x, int y);
 public:
-    ClientLights(DebugMenu* debug_menu, Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : debug_menu(debug_menu), Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
+    ClientLights(DebugMenu* debug_menu, Settings* settings, ClientBlocks* blocks, ResourcePack* resource_pack, Camera* camera) : ClientModule("ClientLights"), debug_menu(debug_menu), Lights(blocks), settings(settings), blocks(blocks), resource_pack(resource_pack), camera(camera), light_enable_setting("Light", true) {}
 };

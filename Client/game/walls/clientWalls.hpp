@@ -60,7 +60,7 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
     ClientBlocks* blocks;
 
 public:
-    ClientWalls(DebugMenu* debug_menu, ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : debug_menu(debug_menu), Walls(blocks), blocks(blocks), resource_pack(resource_pack), networking(networking), camera(camera) {}
+    ClientWalls(DebugMenu* debug_menu, ClientBlocks* blocks, ResourcePack* resource_pack, ClientNetworking* networking, Camera* camera) : ClientModule("ClientWalls"), debug_menu(debug_menu), Walls(blocks), blocks(blocks), resource_pack(resource_pack), networking(networking), camera(camera) {}
     
     const gfx::Texture& getWallsAtlasTexture();
     gfx::RectShape getWallRectInAtlas(WallType* type);

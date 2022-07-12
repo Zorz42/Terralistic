@@ -12,7 +12,7 @@ class WorldJoiningScreen : public gfx::Scene {
     void render() override;
     Game* game;
 public:
-    WorldJoiningScreen(BackgroundRect* menu_back, Game* game) : menu_back(menu_back), game(game) {}
+    WorldJoiningScreen(BackgroundRect* menu_back, Game* game) : gfx::Scene("WorldJoiningScreen"), menu_back(menu_back), game(game) {}
 };
 
 void WorldJoiningScreen::init() {
@@ -32,6 +32,7 @@ void WorldJoiningScreen::render() {
 }
 
 Game::Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port) :
+    gfx::Scene("Game"),
     username(username),
     background_rect(background_rect),
     settings(settings),
@@ -111,9 +112,7 @@ void Game::start() {
         for(auto i : getModules())
             if(i != this)
                 ((ClientModule*)i)->loadTextures();
-        std::thread parallel_update_thread(&Game::parallelUpdateLoop, this);
         run();
-        parallel_update_thread.join();
         if(interrupt)
             throw Exception(interrupt_message);
     } catch(const std::exception& exception) {
@@ -129,9 +128,9 @@ void Game::parallelUpdateLoop() {
             float frame_length = timer.getTimeElapsed();
             timer.reset();
             for(auto i : getModules())
-                if(i != this && i->enabled)
+                if(i != this && i->enabled && isRunning())
                     ((ClientModule*)i)->updateParallel(frame_length);
-            if(timer.getTimeElapsed() < 5)
+            if(timer.getTimeElapsed() < 5 && isRunning())
                 gfx::sleep(5 - timer.getTimeElapsed());
         }
     } catch(const std::exception& exception) {
@@ -144,6 +143,7 @@ void Game::init() {
     for(auto i : getModules())
         if(i != this)
             ((ClientModule*)i)->postInit();
+    parallel_update_thread = std::thread(&Game::parallelUpdateLoop, this);
 }
 
 void Game::update(float frame_length) {
@@ -167,8 +167,6 @@ void Game::renderBack() {
     cycleModules();
 }
 
-
-
 bool Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
         PauseScreen pause_screen(this, settings);
@@ -188,4 +186,8 @@ bool Game::onKeyDown(gfx::Key key) {
         return true;
     }
     return false;
+}
+
+void Game::stop() {
+    parallel_update_thread.join();
 }

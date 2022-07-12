@@ -40,7 +40,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     Recipes* recipes;
     ClientPlayers* players;
 public:
-    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players, ClientBlocks* blocks) : networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players), inventory(items, recipes, blocks) {inventory.setPlayer((Player*)players->getMainPlayer());}
+    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players, ClientBlocks* blocks) : ClientModule("ClientInventory"), networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players), inventory(items, recipes, blocks) {inventory.setPlayer((Player*)players->getMainPlayer());}
     
     const gfx::Texture& getItemTextTexture(ItemType* type);
 };

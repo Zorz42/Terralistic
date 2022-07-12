@@ -61,7 +61,7 @@ class TcpSocket {
     
     bool receivePacket();
     
-    bool disconnected = false;
+    bool connected = false;
 
     void create(int handle, const std::string& address);
 public:    
@@ -73,7 +73,7 @@ public:
     std::string getIpAddress();
     void disconnect();
     
-    bool hasDisconnected();
+    bool isConnected();
 };
 
 class TcpListener {

@@ -14,7 +14,7 @@ class ServerAdder : public gfx::Scene {
     bool onKeyUp(gfx::Key key) override;
     void render() override;
 public:
-    explicit ServerAdder(BackgroundRect* menu_back) : menu_back(menu_back) {}
+    explicit ServerAdder(BackgroundRect* menu_back) : gfx::Scene("ServerAdder"), menu_back(menu_back) {}
     std::string server_ip;
     std::string server_name;
 };

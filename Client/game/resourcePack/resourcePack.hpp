@@ -8,6 +8,7 @@ class ResourcePack : public ClientModule {
     
     void init() override;
 public:
+    ResourcePack() : ClientModule("ResourcePack") {}
     void loadPaths();
     std::string getFile(const std::string& file_name);
 };

@@ -41,5 +41,5 @@ class ModManager : public gfx::Scene {
     BackgroundRect* background;
 public:
     bool changed_mods = false;
-    explicit ModManager(BackgroundRect* background) : background(background) {}
+    explicit ModManager(BackgroundRect* background) : gfx::Scene("ModManager"), background(background) {}
 };

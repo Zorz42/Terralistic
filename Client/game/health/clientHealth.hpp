@@ -18,5 +18,5 @@ class ClientHealth : public ClientModule, EventListener<ClientPacketEvent>, Even
     ClientNetworking* networking;
     ClientPlayers* players;
 public:
-    ClientHealth(ClientNetworking* networking, ResourcePack* resource_pack, ClientPlayers* players) : networking(networking), resource_pack(resource_pack), players(players) {}
+    ClientHealth(ClientNetworking* networking, ResourcePack* resource_pack, ClientPlayers* players) : ClientModule("ClientHealth"), networking(networking), resource_pack(resource_pack), players(players) {}
 };

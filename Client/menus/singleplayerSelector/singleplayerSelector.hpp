@@ -28,5 +28,5 @@ class SingleplayerSelector : public gfx::Scene {
     BackgroundRect* menu_back;
     Settings* settings;
 public:
-    explicit SingleplayerSelector(BackgroundRect* menu_back, Settings* settings) : menu_back(menu_back), settings(settings) {}
+    explicit SingleplayerSelector(BackgroundRect* menu_back, Settings* settings) : gfx::Scene("SinglelpayerSelector"), menu_back(menu_back), settings(settings) {}
 };
