@@ -6,11 +6,7 @@
 
 class ServerPlayerData;
 class Entities;
-class BlockUpdateEvent {
-public:
-    BlockUpdateEvent(int x, int y) : x(x), y(y) {}
-    int x, y;
-};
+
 
 class ServerBlocks : public ServerModule, public Blocks, EventListener<ServerConnectionWelcomeEvent>, EventListener<BlockUpdateEvent>, EventListener<BlockChangeEvent>, EventListener<BlockStartedBreakingEvent>, EventListener<BlockStoppedBreakingEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent> {
     ServerNetworking* networking;
@@ -25,6 +21,7 @@ class ServerBlocks : public ServerModule, public Blocks, EventListener<ServerCon
     void onEvent(BlockStoppedBreakingEvent& event) override;
     void onEvent(WorldSaveEvent& event) override;
     void onEvent(WorldLoadEvent& event) override;
+    void syncBlockData(int x, int y);
     
     void init() override;
     void update(float frame_length) override;
@@ -35,6 +32,6 @@ public:
     void updateBlock(int x, int y);
     void setPlayers(Entities* all_entities) { entities = all_entities; };
 
-    EventSender<BlockUpdateEvent> block_update_event;
+
     EventSender<BlockRandomTickEvent> block_random_tick_event;
 };

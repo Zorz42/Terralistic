@@ -3,14 +3,6 @@
 
 #define INVENTORY_SIZE 20
 
-class ItemStack {
-public:
-    ItemStack(ItemType* type, int stack) : type(type), stack(stack) {}
-    ItemStack() = default;
-    ItemType* type = nullptr;
-    int stack = 0;
-};
-
 
 class Recipe {
 public:

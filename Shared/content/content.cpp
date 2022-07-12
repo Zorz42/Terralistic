@@ -1,5 +1,6 @@
 #include "configManager.hpp"
 #include "content.hpp"
+#include "blockData.hpp"
 
 void GameContent::loadContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_, Recipes* recipes, const std::string& resource_path) {
     blocks.loadContent(blocks_, items_, &items, resource_path);
@@ -47,6 +48,7 @@ void GameContent::addRecipes(Recipes* recipes) {
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
     wood_behaviour(this, blocks, walls, liquids),
     torch_behaviour(blocks, walls, liquids),
+    furnace_behaviour(blocks, walls, liquids),
     cactus_behaviour(this, blocks, walls, liquids),
     leaves_behaviour(this, blocks, walls, liquids),
     canopy_behaviour(this, blocks, walls, liquids),
@@ -60,6 +62,8 @@ BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
 }
 
 void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path) {
+    auto block_data_deliverer = new dataDeliverer;
+    blocks->setDataDeliverer(block_data_deliverer);
     for(BlockType* block_type : block_types) {
         ConfigFile block_properties(resource_path + "blockinfos/" + block_type->name + ".txt");
         
@@ -106,6 +110,15 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
             block_type->width = block_properties.getInt("width");
             block_type->height = block_properties.getInt("height");
         }
+
+        if(block_properties.keyExists("additional_data_type")){
+            std::string data_type = block_properties.getStr("additional_data_type");
+            for(int i = 0; i < block_data_deliverer->names.size(); i++){
+                if(block_data_deliverer->names[i] == data_type){
+                    block_type->block_data_index = i;
+                }
+            }
+        }
     }
 }
 
@@ -120,6 +133,7 @@ void BlockTypes::addBlockBehaviour(ServerPlayers* players) {
     players->getBlockBehaviour(&stone) = &stone_behaviour;
     players->getBlockBehaviour(&grass) = &grass_behaviour;
     players->getBlockBehaviour(&torch) = &torch_behaviour;
+    players->getBlockBehaviour(&furnace) = &furnace_behaviour;
 }
 
 bool BlockTypes::isBlockTree(Blocks* blocks, int x, int y) {
@@ -207,6 +221,30 @@ int WoodType::updateState(Blocks* blocks, int x, int y){
         state += 1 << 3;
     }
     return state;
+}
+
+int FurnaceType::updateState(Blocks *blocks, int x, int y) {
+    int state = 0;
+    auto data = (FurnaceData*)blocks->getBlockData(x, y);
+    if(data != nullptr) {
+        if (data->fuel.stack > 0)
+            state++;
+        if (data->heated_items.stack > 0)
+            state += 2;
+    }
+    return state;
+}
+
+void FurnaceBehaviour::onRightClick(int x, int y, ServerPlayer *player) {
+    auto data = (FurnaceData*)blocks->getBlockData(x, y);
+    data->fuel.stack++;
+    //open ui somehow
+    //make inventory change functions ->
+        //fuel.type and heated_items.type should be nullptr when empty, otherwise a pointer to item type
+        //fuel.stack and heated_items.stack should obviously be 0 when empty
+    //when done and if anything changed call:
+    BlockUpdateEvent event(x, y);
+    blocks->block_update_event.call(event);
 }
 
 WallTypes::WallTypes(Walls* walls) :

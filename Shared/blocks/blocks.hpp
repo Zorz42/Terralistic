@@ -39,11 +39,26 @@ public:
     int x, y;
 };
 
+class BlockUpdateEvent {
+public:
+    BlockUpdateEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
+};
+
 class Tool {
 public:
     explicit Tool(std::string  name) : name(std::move(name)) {}
     std::string name;
 };
+
+struct DefaultData{
+    virtual ~DefaultData(){}
+    virtual void save(std::vector<char>& data, unsigned long& index){}
+    virtual void load(const char*& iter){}
+    virtual int getSavedSize(){return 0;}
+};
+
+struct dataDeliverer;
 
 class Blocks;
 
@@ -59,6 +74,7 @@ public:
     int light_emission_r = 0, light_emission_g = 0, light_emission_b = 0;
     int id = 0;
     int width = 0, height = 0;
+    int block_data_index = 0;
     bool can_update_states = false;
     
     virtual int updateState(Blocks* blocks, int x, int y);
@@ -70,6 +86,7 @@ class Blocks {
         Block() : id(/*air*/0), x_from_main(0), y_from_main(0) {}
         int id:8;
         int x_from_main:8, y_from_main:8;
+        DefaultData* additional_block_data;
     };
     
     class BreakingBlock {
@@ -86,8 +103,8 @@ class Blocks {
     
     Block *blocks = nullptr;
     BlockChunk *chunks = nullptr;
+    dataDeliverer* data_deliverer;
     int width = 0, height = 0;
-
     std::vector<BreakingBlock> breaking_blocks;
     std::vector<BlockType*> block_types;
     std::vector<Tool*> tool_types;
@@ -106,6 +123,7 @@ public:
     void setBlockTypeSilently(int x, int y, BlockType* type);
     int getBlockXFromMain(int x, int y);
     int getBlockYFromMain(int x, int y);
+    DefaultData* getBlockData(int x, int y);
     
     int getBreakProgress(int x, int y);
     int getBreakStage(int x, int y);
@@ -126,7 +144,9 @@ public:
     BlockType* getBlockTypeById(int block_id);
     BlockType* getBlockTypeByName(const std::string& name);
     int getNumBlockTypes();
-    
+    dataDeliverer* getDataDeliverer() const{return data_deliverer;};
+    void setDataDeliverer(dataDeliverer* c_data_deliverer) {data_deliverer = c_data_deliverer;};
+
     void registerNewToolType(Tool* tool);
     Tool* getToolTypeByName(const std::string& name);
     
@@ -136,6 +156,7 @@ public:
     EventSender<BlockBreakEvent> block_break_event;
     EventSender<BlockStartedBreakingEvent> block_started_breaking_event;
     EventSender<BlockStoppedBreakingEvent> block_stopped_breaking_event;
+    EventSender<BlockUpdateEvent> block_update_event;
     
     ~Blocks();
 };

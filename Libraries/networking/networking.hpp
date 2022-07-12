@@ -11,10 +11,11 @@ class Packet {
     unsigned int read_pos = 0;
     void checkReadSize(unsigned int read_size);
     
-    unsigned int getDataSize();
-    void* getData();
+
     void append(const void* data_ptr, unsigned int size);
 public:
+    unsigned int getDataSize();
+    void* getData();
     Packet& operator>>(bool& obj);
     Packet& operator>>(char& obj);
     Packet& operator>>(unsigned char& obj);
