@@ -24,6 +24,11 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>Terralistic-test.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
 		<key>Terralistic.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -37,6 +42,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>1689685525E95FD000D26060</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>361DD18A26F7478900129191</key>
 		<dict>
 			<key>primary</key>
