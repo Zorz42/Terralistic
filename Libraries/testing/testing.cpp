@@ -12,8 +12,10 @@ _TestClass::_TestClass() {
 
 void _TestClass::_performTests() {
     std::cout << "Performing tests for [" << class_name << "]" << std::endl;
+    construct();
     for(_TestCase& test_case : test_cases)
         test_case.performTest();
+    destruct();
 }
 
 void _TestCase::performTest() {
