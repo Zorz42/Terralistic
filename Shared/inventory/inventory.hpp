@@ -49,6 +49,7 @@ public:
     int removeItem(ItemType* id, int quantity);
     void setItem(int pos, ItemStack item);
     ItemStack getItem(int pos);
+    int countItems(int item_id);
     
     ItemStack getSelectedSlot();
     void swapWithMouseItem(int pos);

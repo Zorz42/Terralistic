@@ -38,19 +38,10 @@ void ClientInventory::init() {
     selected_slot = 0;
 }
 
-int ClientInventory::countItems(int item_id) {
-    int result = 0;
-    for(int i = 0; i < 20; i++){
-        if(inventory.getItem(i).type->id == item_id)
-            result += inventory.getItem(i).stack;
-    }
-    return result;
-}
-
 int ClientInventory::countMaxCraftNumber(const Recipe *recipe) {
     int max_number = INT_MAX;
     for(auto ingredient : recipe->ingredients){
-        max_number = std::min(max_number, countItems(ingredient.first->id) / ingredient.second);
+        max_number = std::min(max_number, inventory.countItems(ingredient.first->id) / ingredient.second);
     }
     return max_number;
 }
@@ -208,6 +199,12 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             inventory.setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));
             break;
         }
+        case ServerPacketType::PLAYER_JOIN: {
+            if(players->getMainPlayer() != nullptr) {
+                inventory.setPlayer((Player *) players->getMainPlayer());
+                inventory.updateAvailableRecipes();
+            }
+        }
         default: break;
     }
 }
@@ -246,11 +243,15 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
                 networking->sendPacket(packet);
                 return true;
             } else if(hovered_recipe != -1) {
-                Packet packet;
-                packet << ClientPacketType::CRAFT << hovered_recipe << getKeyState(gfx::Key::SHIFT);
-                
-                networking->sendPacket(packet);
-                return true;
+                auto* before_update = inventory.getAvailableRecipes()[hovered_recipe];
+                inventory.updateAvailableRecipes();
+                if(inventory.getAvailableRecipes().size() > hovered_recipe && before_update == inventory.getAvailableRecipes()[hovered_recipe]) {
+                    Packet packet;
+                    packet << ClientPacketType::CRAFT << hovered_recipe << getKeyState(gfx::Key::SHIFT);
+
+                    networking->sendPacket(packet);
+                    return true;
+                }
             }
             return false;
         }

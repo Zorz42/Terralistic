@@ -3,6 +3,15 @@
 #include <cstring>
 #include "player.hpp"
 
+int Inventory::countItems(int item_id) {
+    int result = 0;
+    for(int i = 0; i < 20; i++){
+        if(getItem(i).type->id == item_id)
+            result += getItem(i).stack;
+    }
+    return result;
+}
+
 void Inventory::setItem(int pos, ItemStack item) {
     if(item_counts == nullptr)
         throw Exception("item_counts is null");
@@ -127,26 +136,25 @@ bool Inventory::canCraftRecipe(const Recipe* recipe) {
     if(std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){
         if(item_counts == nullptr)
             throw Exception("item_counts is null");
-        return item_counts[(int)ingredient.first->id] >= ingredient.second;
-    })) {
+        return countItems((int)ingredient.first->id) >= ingredient.second;
+        //return item_counts[(int)ingredient.first->id] >= ingredient.second;
+                                                                                                                        })){
         if (recipe->crafting_block == nullptr) {
-            goto add_recipe;
-        } else {
+            return true;
+        } else if (player != nullptr){
             for (int i = player->getX() / (BLOCK_WIDTH * 2) - 3;
                  i < player->getX() / (BLOCK_WIDTH * 2) + 3; i++) {
                 for (int j = player->getY() / (BLOCK_WIDTH * 2) - 3;
                      j < player->getY() / (BLOCK_WIDTH * 2) + 3; j++) {
                     if (i >= 0 && j >= 0 && i < blocks->getWidth() && j < blocks->getHeight() &&
                         blocks->getBlockType(i, j) == recipe->crafting_block) {
-                        goto add_recipe;
+                        return true;
                     }
                 }
             }
         }
-        return false;
     }
-    add_recipe:
-    return true;
+    return false;
 }
 
 const std::vector<const Recipe*>& Inventory::getAvailableRecipes() {
@@ -159,9 +167,9 @@ void Inventory::updateAvailableRecipes() {
             available_recipes.erase(available_recipes.begin() + i);
     }
 
-    for(int i = 0; i < recipes->getAllRecipes().size(); i++)
-        if(canCraftRecipe(recipes->getAllRecipes()[i]) && !std::count(available_recipes.begin(), available_recipes.end(), recipes->getAllRecipes()[i]))
-            available_recipes.emplace_back(recipes->getAllRecipes()[i]);
+    for(auto i : recipes->getAllRecipes())
+        if(canCraftRecipe(i) && !std::count(available_recipes.begin(), available_recipes.end(), i))
+            available_recipes.emplace_back(i);
 }
 
 void Recipes::registerARecipe(Recipe* recipe) {
@@ -175,6 +183,7 @@ const std::vector<Recipe*>& Recipes::getAllRecipes() {
 Inventory& Inventory::operator=(Inventory const& inventory) {
     items = inventory.items;
     recipes = inventory.recipes;
+    delete[] item_counts;
     
     selected_slot = inventory.selected_slot;
     for(int i = 0; i < INVENTORY_SIZE; i++)
