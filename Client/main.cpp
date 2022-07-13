@@ -67,12 +67,12 @@ public:
 int main(int argc, char **argv) {
     srand((int)time(nullptr));
 
-    if(argc == 2 && (std::string)argv[1] == "version") {
+    if(argc > 1 && (std::string)argv[1] == "version") {
         std::cout << CURR_VERSION_STR << std::endl;
         return 0;
     }
     
-    if(argc == 2 && (std::string)argv[1] == "test") {
+    if(argc > 1 && (std::string)argv[1] == "test") {
         performTests();
         return 0;
     }
