@@ -45,11 +45,23 @@ void _setTestName(_TestClass* test, const std::string& name);
 
 bool performTests();
 
-#define _TEST_CLASS(line) static class _TestClassInstance ## line : public _TestClass { \
-typedef _TestClassInstance ## line self;
+#if defined(XCTESTING) && defined(__OBJC__)
 
+#include <XCTest/XCTest.h>
+
+#define TEST_CLASS(name) @interface name : XCTestCase @end @implementation name
+
+#define TEST_CASE(name) - (void)name
+
+#define TEST_NAME(name) @end
+
+#define ASSERT(x) XCTAssertTrue(x)
+
+#else
+
+#define _TEST_CLASS(line) static class _TestClassInstance ## line : public _TestClass { typedef _TestClassInstance ## line self;
 #define _TEST_CLASSP(line) _TEST_CLASS(line)
-#define TEST_CLASS _TEST_CLASSP(__LINE__)
+#define TEST_CLASS(name) _TEST_CLASSP(__LINE__)
 
 #define _TEST_CASE(name, line) _CaseRegistrator case_registrator ## line = _CaseRegistrator((void (_TestClass::*)())&self::case_name, this, #name); void case_name()
 #define _TEST_CASEP(name, line) _TEST_CASE(name, line)
@@ -60,3 +72,6 @@ typedef _TestClassInstance ## line self;
 #define TEST_NAME(name) _TEST_NAMEP(name, __LINE__)
 
 #define ASSERT(x) _assert(x)
+
+#endif
+

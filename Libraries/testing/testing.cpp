@@ -47,21 +47,6 @@ _TestClassNameSetter::_TestClassNameSetter(_TestClass* test, const std::string& 
     test->class_name = name;
 }
 
-TEST_CLASS
-    TEST_CASE(TestTest) {
-        int a = 1;
-        ASSERT(a == 1);
-    }
-TEST_NAME(Test)
-
-struct A {
-    typedef A self;
-    void (self::*a)() = &self::test_func;
-    void test_func() {
-        
-    }
-};
-
 bool performTests() {
     if(test_classes == nullptr) {
         std::cout << "No tests to run!" << std::endl;
