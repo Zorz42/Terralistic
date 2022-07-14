@@ -1,4 +1,4 @@
-#include <XCTest/XCTest.h>
+#include "testing.hpp"
 #include "events.hpp"
 
 class DummyEvent {
@@ -15,25 +15,21 @@ class DummyEventListener : public EventListener<DummyEvent> {
     }
 };
 
-@interface TestEvent : XCTestCase
+TEST_CLASS(TestEvent)
 
-@end
-
-@implementation TestEvent
-
-- (void)testEvent {
+TEST_CASE(testEvent) {
     EventSender<DummyEvent> dummy_event;
     DummyEventListener dummy_event_listener;
     dummy_event.addListener(&dummy_event_listener);
     
     DummyEvent event(100);
     dummy_event.call(event);
-    XCTAssertEqual(last_value, 100);
+    ASSERT(last_value == 100);
     
     dummy_event.removeListener(&dummy_event_listener);
     DummyEvent event2(200);
     dummy_event.call(event2);
-    XCTAssertEqual(last_value, 100);
+    ASSERT(last_value == 100);
 }
 
-@end
+END_TEST_CLASS(TestEvent)

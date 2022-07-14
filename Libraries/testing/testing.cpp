@@ -59,8 +59,13 @@ bool performTests() {
             classes_passed++;
         else
             classes_failed++;
+        std::cout << std::endl;
     }
     
     std::cout << "Overall results for all classes: " << classes_passed << " CLASSES PASSED, " << classes_failed << " CLASSES FAILED" << std::endl;
     return classes_failed == 0;
+}
+
+_CaseRegistrator::_CaseRegistrator(void (_TestClass::* case_func)(), _TestClass* test_class, const std::string& case_name) {
+    test_class->test_cases.push_back(_TestCase(case_func, case_name, test_class));
 }
