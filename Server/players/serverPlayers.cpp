@@ -402,19 +402,17 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             int craft_index;
             bool craft_all;
             event.packet >> craft_index >> craft_all;
-            const Recipe* recipe_crafted = event.player->inventory.getAvailableRecipes()[craft_index];
+            const Recipe *recipe_crafted = event.player->inventory.getAvailableRecipes()[craft_index];
 
-            for (auto ingredient: recipe_crafted->ingredients)
-                event.player->inventory.removeItem(ingredient.first, ingredient.second);
-            event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+            do{
+                event.player->inventory.updateAvailableRecipes();
+                if (!(craft_index < event.player->inventory.getAvailableRecipes().size() && recipe_crafted == event.player->inventory.getAvailableRecipes()[craft_index]))
+                    break;
+                for (auto ingredient: recipe_crafted->ingredients)
+                    event.player->inventory.removeItem(ingredient.first, ingredient.second);
+                event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
+            }while(craft_all);
 
-            if(craft_all)
-                while(craft_index < event.player->inventory.getAvailableRecipes().size() && recipe_crafted == event.player->inventory.getAvailableRecipes()[craft_index]) {
-                    for (auto ingredient: recipe_crafted->ingredients)
-                        event.player->inventory.removeItem(ingredient.first, ingredient.second);
-                    event.player->inventory.addItem(recipe_crafted->result.type, recipe_crafted->result.stack);
-                }
-            
             break;
         }
             
@@ -500,7 +498,7 @@ void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
 
 BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
     if(blocks_behaviour == nullptr)
-        throw Exception("blocks_behavious is null");
+        throw Exception("blocks_behaviours is null");
     return blocks_behaviour[type->id];
 }
 
@@ -517,7 +515,7 @@ void ServerPlayers::onEvent(WorldLoadEvent &event) {
 }
 
 void ServerPlayers::onEvent(EntityAbsoluteVelocityChangeEvent &event) {
-    ServerPlayer* player = (ServerPlayer*)event.entity;
+    auto player = (ServerPlayer*)event.entity;
     int delta_vel_x = std::abs(player->getVelocityX() - event.old_vel_x);
     int delta_vel_y = std::abs(player->getVelocityY() - event.old_vel_y);
     if(delta_vel_x + delta_vel_y > 69) {

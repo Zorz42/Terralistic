@@ -29,6 +29,7 @@ public:
 namespace gfx {
 
 inline bool key_states[(int)gfx::Key::UNKNOWN];
+inline bool absolute_key_states[(int)gfx::Key::UNKNOWN];
 
 }
 
