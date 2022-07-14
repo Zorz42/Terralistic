@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
         std::cout << CURR_VERSION_STR << std::endl;
         return 0;
     }
-    
+
     if(argc > 1 && (std::string)argv[1] == "test")
         return performTests() ? 0 : 1;
 
