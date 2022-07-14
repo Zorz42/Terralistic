@@ -72,10 +72,8 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    if(argc > 1 && (std::string)argv[1] == "test") {
-        performTests();
-        return 0;
-    }
+    if(argc > 1 && (std::string)argv[1] == "test")
+        return performTests() ? 0 : 1;
 
     resource_path = getResourcePath(argv[0]);
     gfx::init(1130, 700, "Terralistic");

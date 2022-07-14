@@ -10,7 +10,7 @@ class _TestCase {
     _TestClass* instance;
 public:
     _TestCase(void (_TestClass::* case_func)(), const std::string& case_name, _TestClass* instance) : case_func(case_func), case_name(case_name), instance(instance) {}
-    void performTest();
+    bool performTest();
 };
 
 class _TestClass {
@@ -23,8 +23,10 @@ public:
     virtual void construct() {}
     virtual void destruct() {}
     
-    void _performTests();
+    bool _performTests();
     void _registerTestCase();
+    
+    void _assert(bool x);
 };
 
 class _TestClassNameSetter {
@@ -41,6 +43,8 @@ public:
 
 void _setTestName(_TestClass* test, const std::string& name);
 
+bool performTests();
+
 #define _TEST_CLASS(line) static class _TestClassInstance ## line : public _TestClass { \
 typedef _TestClassInstance ## line self;
 
@@ -55,4 +59,4 @@ typedef _TestClassInstance ## line self;
 #define _TEST_NAMEP(name, line) _TEST_NAME(name, line)
 #define TEST_NAME(name) _TEST_NAMEP(name, __LINE__)
 
-void performTests();
+#define ASSERT(x) _assert(x)
