@@ -28,6 +28,7 @@ public:
     virtual bool onKeyDown(Key key_) { return false; }
     virtual bool onKeyUp(Key key_) { return false; }
     bool getKeyState(Key key_) const;
+    bool getAbsoluteKeyState(Key key_) const;
     virtual void onMouseScroll(int distance) {}
     int getMouseX();
     int getMouseY();
@@ -38,8 +39,8 @@ public:
 
 class Scene : public SceneModule {
     std::vector<SceneModule*> modules;
-    void onKeyDownCallback(Key key_);
-    void onKeyUpCallback(Key key_);
+    void onKeyDownCallback(Key key_, bool only_absolute);
+    void onKeyUpCallback(Key key_, bool only_absolute);
     bool running = true, initialized = false;
     float render_time;
     int frame_count = 0;
