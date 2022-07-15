@@ -280,7 +280,6 @@
 		168600DE2681DB7300763775 /* serverPlayers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverPlayers.cpp; sourceTree = "<group>"; };
 		168600DF2681DB7300763775 /* serverPlayers.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverPlayers.hpp; sourceTree = "<group>"; };
 		1690693A26D1A1C80057345A /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game.hpp; sourceTree = "<group>"; };
-		1690D7D626BA869F0007755C /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
 		1690D7D826BA87B90007755C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1695428D2680B5B400F1F4FE /* versions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = versions.hpp; sourceTree = "<group>"; };
 		169990A72700E25300224E11 /* naturalLight.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = naturalLight.cpp; sourceTree = "<group>"; };
@@ -311,19 +310,6 @@
 		16B77FE926F5102700FE3FE9 /* updater.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = updater.hpp; sourceTree = "<group>"; };
 		16BF6959269D7F4D00CFE175 /* resourcePath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = resourcePath.cpp; sourceTree = "<group>"; };
 		16BF695A269D7F4D00CFE175 /* resourcePath.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = resourcePath.hpp; sourceTree = "<group>"; };
-		16BF695D269D853100CFE175 /* sfml-network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sfml-network.framework"; path = "Dependencies/SFML-2.5.1-macos-clang/Frameworks/sfml-network.framework"; sourceTree = "<group>"; };
-		16BF695E269D853100CFE175 /* sfml-graphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sfml-graphics.framework"; path = "Dependencies/SFML-2.5.1-macos-clang/Frameworks/sfml-graphics.framework"; sourceTree = "<group>"; };
-		16BF695F269D853100CFE175 /* sfml-window.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sfml-window.framework"; path = "Dependencies/SFML-2.5.1-macos-clang/Frameworks/sfml-window.framework"; sourceTree = "<group>"; };
-		16BF6960269D853100CFE175 /* sfml-audio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sfml-audio.framework"; path = "Dependencies/SFML-2.5.1-macos-clang/Frameworks/sfml-audio.framework"; sourceTree = "<group>"; };
-		16BF6961269D853100CFE175 /* SFML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFML.framework; path = "Dependencies/SFML-2.5.1-macos-clang/Frameworks/SFML.framework"; sourceTree = "<group>"; };
-		16BF6962269D853100CFE175 /* sfml-system.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sfml-system.framework"; path = "Dependencies/SFML-2.5.1-macos-clang/Frameworks/sfml-system.framework"; sourceTree = "<group>"; };
-		16BF6970269D853A00CFE175 /* ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ogg.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/ogg.framework"; sourceTree = "<group>"; };
-		16BF6971269D853A00CFE175 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/OpenAL.framework"; sourceTree = "<group>"; };
-		16BF6972269D853A00CFE175 /* vorbisenc.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbisenc.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/vorbisenc.framework"; sourceTree = "<group>"; };
-		16BF6973269D853A00CFE175 /* freetype.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = freetype.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/freetype.framework"; sourceTree = "<group>"; };
-		16BF6974269D853A00CFE175 /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/vorbis.framework"; sourceTree = "<group>"; };
-		16BF6975269D853A00CFE175 /* FLAC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FLAC.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/FLAC.framework"; sourceTree = "<group>"; };
-		16BF6976269D853A00CFE175 /* vorbisfile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbisfile.framework; path = "Dependencies/SFML-2.5.1-macos-clang/extlibs/vorbisfile.framework"; sourceTree = "<group>"; };
 		16C9470327109EC100A51E81 /* player.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
 		16C9470427109EC100A51E81 /* player.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = player.hpp; sourceTree = "<group>"; };
 		3605ED4E276A0A0A00ECCA08 /* camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
@@ -339,7 +325,6 @@
 		3618C93527A2F8D000A23335 /* clientHealth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientHealth.cpp; sourceTree = "<group>"; };
 		3618C93627A2F8D000A23335 /* clientHealth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = clientHealth.hpp; sourceTree = "<group>"; };
 		361DD1EB26F7478900129191 /* Terralistic-server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Terralistic-server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		362403672872F27A00598B0C /* libplatform_folders.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libplatform_folders.a; path = "Dependencies/PlatformFolders-4.2.0/build/libplatform_folders.a"; sourceTree = "<group>"; };
 		3624036B2872F37300598B0C /* font.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.opa; path = Build/Resources/font.opa; sourceTree = SOURCE_ROOT; };
 		3624036C2872F37300598B0C /* background.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = background.opa; path = Build/Resources/background.opa; sourceTree = SOURCE_ROOT; };
 		3624036D2872F37300598B0C /* play_button.opa */ = {isa = PBXFileReference; lastKnownFileType = file; name = play_button.opa; path = Build/Resources/play_button.opa; sourceTree = SOURCE_ROOT; };
@@ -418,11 +403,7 @@
 		366D9707282067FA00DEC292 /* timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer.cpp; sourceTree = "<group>"; };
 		366D9708282067FA00DEC292 /* button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = button.cpp; sourceTree = "<group>"; };
 		366D9709282067FA00DEC292 /* centeredObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = centeredObject.cpp; sourceTree = "<group>"; };
-		366EBE0D282EDD0E00C36DE5 /* libGLEW.2.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.2.2.0.dylib; path = "Dependencies/glew-2.2.0/lib/libGLEW.2.2.0.dylib"; sourceTree = "<group>"; };
 		366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "Dependencies/glfw-3.3.7.bin.MACOS/lib-universal/libglfw.3.dylib"; sourceTree = "<group>"; };
-		366EBE14282EDEEA00C36DE5 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = "Dependencies/glew-2.2.0/lib/libGLEW.a"; sourceTree = "<group>"; };
-		366EBE16282EDF2B00C36DE5 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = "Dependencies/glfw-3.3.7.bin.MACOS/lib-universal/libglfw3.a"; sourceTree = "<group>"; };
-		366EBE1A282EE02F00C36DE5 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "Dependencies/glfw-3.3.7.bin.MACOS/lib-x86_64/libglfw.3.dylib"; sourceTree = "<group>"; };
 		3672B15E277C8431001293B5 /* serverAdder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverAdder.cpp; sourceTree = "<group>"; };
 		3672B15F277C8431001293B5 /* serverAdder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverAdder.hpp; sourceTree = "<group>"; };
 		3672B162277C885D001293B5 /* nameChooser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nameChooser.cpp; sourceTree = "<group>"; };
@@ -468,7 +449,6 @@
 		369981F0277CCAD500FA3F72 /* privateWorld.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = privateWorld.cpp; sourceTree = "<group>"; };
 		369E17CD2839467E00D37108 /* networking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = networking.hpp; sourceTree = "<group>"; };
 		36A52165279D684F00C1F8CB /* testEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testEvent.mm; sourceTree = "<group>"; };
-		36BFB22D282EE0F3008A462A /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = "Dependencies/glfw-3.3.7.bin.MACOS/lib-x86_64/libglfw3.a"; sourceTree = "<group>"; };
 		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
@@ -522,29 +502,9 @@
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				362403672872F27A00598B0C /* libplatform_folders.a */,
-				36BFB22D282EE0F3008A462A /* libglfw3.a */,
-				366EBE1A282EE02F00C36DE5 /* libglfw.3.dylib */,
-				366EBE16282EDF2B00C36DE5 /* libglfw3.a */,
-				366EBE14282EDEEA00C36DE5 /* libGLEW.a */,
 				366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */,
-				366EBE0D282EDD0E00C36DE5 /* libGLEW.2.2.0.dylib */,
 				366D96F2282056A600DEC292 /* OpenGL.framework */,
 				1690D7D826BA87B90007755C /* libz.tbd */,
-				1690D7D626BA869F0007755C /* libz.1.2.11.tbd */,
-				16BF6975269D853A00CFE175 /* FLAC.framework */,
-				16BF6973269D853A00CFE175 /* freetype.framework */,
-				16BF6970269D853A00CFE175 /* ogg.framework */,
-				16BF6971269D853A00CFE175 /* OpenAL.framework */,
-				16BF6974269D853A00CFE175 /* vorbis.framework */,
-				16BF6972269D853A00CFE175 /* vorbisenc.framework */,
-				16BF6976269D853A00CFE175 /* vorbisfile.framework */,
-				16BF6960269D853100CFE175 /* sfml-audio.framework */,
-				16BF695E269D853100CFE175 /* sfml-graphics.framework */,
-				16BF695D269D853100CFE175 /* sfml-network.framework */,
-				16BF6962269D853100CFE175 /* sfml-system.framework */,
-				16BF695F269D853100CFE175 /* sfml-window.framework */,
-				16BF6961269D853100CFE175 /* SFML.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
