@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include "textInput.hpp"
 #include "font.hpp"
+#include <math.h>
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
@@ -71,6 +72,9 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
     }
     
     if (active) {
+        cursor[0] = std::min(cursor[0], (int)text.size());
+        cursor[1] = std::min(cursor[1], (int)text.size());
+
         int width_before = 0;
         for(char i : text.substr(0, cursor[0]))
             width_before += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;

@@ -58,7 +58,8 @@ void ClientItems::render() {
 
             int item_x = item->getX() - camera->getX() + gfx::getWindowWidth() / 2;
             int item_y = item->getY() - camera->getY() + gfx::getWindowHeight() / 2;
-            item_rects.setRect(item_index, {item_x + rect.w - 8, item_y - rect.h * 2 + 16, rect.w, rect.h * 2});
+            item_rects.setRect(item_index, {item_x + BLOCK_WIDTH - rect.w / 2, item_y - rect.h * 2 + 16, rect.w, rect.h * 2});
+            item_rects.setColor(item_index, {255, 255, 255});
             item_index++;
         }
     }
