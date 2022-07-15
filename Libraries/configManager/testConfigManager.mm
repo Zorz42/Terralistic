@@ -1,3 +1,4 @@
+#include <fstream>
 #include "testing.hpp"
 #include "configManager.hpp"
 #include "exception.hpp"
@@ -69,6 +70,20 @@ TEST_CASE(testThrowsKeyException) {
     ASSERT(threw);
     config.setStr("testKey", "test value");
     config.getStr("testKey");
+}
+
+TEST_CASE(testReadsGeneratedConfig) {
+    {
+        std::ofstream output_file("test.txt");
+        std::string file_content = "testKey:   test value";
+        output_file << file_content;
+        output_file.close();
+        
+        ConfigFile config("test.txt");
+        ASSERT(config.getStr("testKey") == "test value");
+    }
+    
+    std::remove("test.txt");
 }
  
 END_TEST_CLASS(TestConfigManager)
