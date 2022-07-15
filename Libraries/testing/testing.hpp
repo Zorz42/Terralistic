@@ -36,27 +36,38 @@ public:
 
 class _CaseRegistrator {
 public:
-    _CaseRegistrator(void (_TestClass::* case_func)(), _TestClass* test_class, const std::string& case_name) {
-        test_class->test_cases.push_back(_TestCase(case_func, case_name, test_class));
-    }
+    _CaseRegistrator(void (_TestClass::* case_func)(), _TestClass* test_class, const std::string& case_name);
 };
 
 void _setTestName(_TestClass* test, const std::string& name);
 
 bool performTests();
 
-#define _TEST_CLASS(line) static class _TestClassInstance ## line : public _TestClass { \
-typedef _TestClassInstance ## line self;
+#if defined(XCTESTING) && defined(__OBJC__)
 
-#define _TEST_CLASSP(line) _TEST_CLASS(line)
-#define TEST_CLASS _TEST_CLASSP(__LINE__)
+#include <XCTest/XCTest.h>
 
-#define _TEST_CASE(name, line) _CaseRegistrator case_registrator ## line = _CaseRegistrator((void (_TestClass::*)())&self::case_name, this, #name); void case_name()
+#define TEST_CLASS(name) @interface name : XCTestCase @end @implementation name
+
+#define TEST_CASE(name) - (void)name
+
+#define END_TEST_CLASS(name) @end
+
+#define ASSERT(x) XCTAssertTrue(x)
+
+#else
+
+#define TEST_CLASS(name) static class _TestClassInstance ## name : public _TestClass { typedef _TestClassInstance ## name self;
+
+#define _TEST_CASE(name, line) _CaseRegistrator case_registrator ## line = _CaseRegistrator((void (_TestClass::*)())&self::name, this, #name); void name()
 #define _TEST_CASEP(name, line) _TEST_CASE(name, line)
 #define TEST_CASE(name) _TEST_CASEP(name, __LINE__)
 
-#define _TEST_NAME(name, line) } name; static _TestClassNameSetter test_name_setter ## line (&name, #name);
-#define _TEST_NAMEP(name, line) _TEST_NAME(name, line)
-#define TEST_NAME(name) _TEST_NAMEP(name, __LINE__)
+#define _END_TEST_CLASS(name, line) } name; static _TestClassNameSetter test_name_setter ## line (&name, #name);
+#define _END_TEST_CLASSP(name, line) _END_TEST_CLASS(name, line)
+#define END_TEST_CLASS(name) _END_TEST_CLASSP(name, __LINE__)
 
 #define ASSERT(x) _assert(x)
+
+#endif
+

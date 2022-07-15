@@ -39,8 +39,7 @@
 		16A13D152709A10D009DEE40 /* serverBlocks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A13D122709A100009DEE40 /* serverBlocks.cpp */; };
 		16A13D192709B74A009DEE40 /* serverLiquids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A13D172709B74A009DEE40 /* serverLiquids.cpp */; };
 		16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A13D172709B74A009DEE40 /* serverLiquids.cpp */; };
-		16A3C00526FF8677001B9E4E /* TestCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00326FF8677001B9E4E /* TestCompress.mm */; };
-		16A3C00626FF8677001B9E4E /* TestConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00426FF8677001B9E4E /* TestConfigManager.mm */; };
+		16A3C00626FF8677001B9E4E /* testConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00426FF8677001B9E4E /* testConfigManager.mm */; };
 		16A3C00726FF869A001B9E4E /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		16A3C00826FF869A001B9E4E /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
 		16A3C00926FF86A2001B9E4E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
@@ -178,9 +177,16 @@
 		3693E502274AC5F900939213 /* virtualMachine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693E500274AC5F900939213 /* virtualMachine.cpp */; };
 		369693C6287E33B100D39F1B /* testing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369693C4287E33B100D39F1B /* testing.cpp */; };
 		369693C7287E33B100D39F1B /* testing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369693C4287E33B100D39F1B /* testing.cpp */; };
+		369693C82880558300D39F1B /* testing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369693C4287E33B100D39F1B /* testing.cpp */; };
+		369693CC2880577A00D39F1B /* testCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693C92880577A00D39F1B /* testCompress.mm */; };
+		369693D12880775000D39F1B /* testCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693C92880577A00D39F1B /* testCompress.mm */; };
+		369693D22880775000D39F1B /* testCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693C92880577A00D39F1B /* testCompress.mm */; };
+		369693D328807AD200D39F1B /* testEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* testEvent.mm */; };
+		369693D428807AD200D39F1B /* testEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* testEvent.mm */; };
+		369693D528807B6400D39F1B /* testConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00426FF8677001B9E4E /* testConfigManager.mm */; };
+		369693D628807B6400D39F1B /* testConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00426FF8677001B9E4E /* testConfigManager.mm */; };
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
-		36A52164279D667700C1F8CB /* TestException.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52163279D667700C1F8CB /* TestException.mm */; };
-		36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* TestEvent.mm */; };
+		36A52166279D684F00C1F8CB /* testEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* testEvent.mm */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
@@ -292,8 +298,7 @@
 		16A13D172709B74A009DEE40 /* serverLiquids.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverLiquids.cpp; sourceTree = "<group>"; };
 		16A13D182709B74A009DEE40 /* serverLiquids.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverLiquids.hpp; sourceTree = "<group>"; };
 		16A3BFFA26FF8662001B9E4E /* TerralisticTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TerralisticTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		16A3C00326FF8677001B9E4E /* TestCompress.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestCompress.mm; sourceTree = "<group>"; };
-		16A3C00426FF8677001B9E4E /* TestConfigManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestConfigManager.mm; sourceTree = "<group>"; };
+		16A3C00426FF8677001B9E4E /* testConfigManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = testConfigManager.mm; sourceTree = "<group>"; };
 		16A3C00F26FF871C001B9E4E /* commands.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = commands.cpp; sourceTree = "<group>"; };
 		16A3C01026FF871C001B9E4E /* commands.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = commands.hpp; sourceTree = "<group>"; };
 		16A681DD2705A77A0084E9CE /* clientEntities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clientEntities.cpp; sourceTree = "<group>"; };
@@ -459,13 +464,13 @@
 		3693E501274AC5F900939213 /* virtualMachine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = virtualMachine.hpp; sourceTree = "<group>"; };
 		369693C4287E33B100D39F1B /* testing.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = testing.cpp; sourceTree = "<group>"; };
 		369693C5287E33B100D39F1B /* testing.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = testing.hpp; sourceTree = "<group>"; };
+		369693C92880577A00D39F1B /* testCompress.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = testCompress.mm; sourceTree = "<group>"; };
 		369981F0277CCAD500FA3F72 /* privateWorld.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = privateWorld.cpp; sourceTree = "<group>"; };
 		369E17CD2839467E00D37108 /* networking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = networking.hpp; sourceTree = "<group>"; };
-		36A52163279D667700C1F8CB /* TestException.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestException.mm; sourceTree = "<group>"; };
-		36A52165279D684F00C1F8CB /* TestEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestEvent.mm; sourceTree = "<group>"; };
+		36A52165279D684F00C1F8CB /* testEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testEvent.mm; sourceTree = "<group>"; };
 		36BFB22D282EE0F3008A462A /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = "Dependencies/glfw-3.3.7.bin.MACOS/lib-x86_64/libglfw3.a"; sourceTree = "<group>"; };
 		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
-		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
+		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -613,6 +618,7 @@
 			children = (
 				1675E71C26611B8000B620F4 /* configManager.hpp */,
 				1675E71B26611B8000B620F4 /* configManager.cpp */,
+				16A3C00426FF8677001B9E4E /* testConfigManager.mm */,
 			);
 			path = configManager;
 			sourceTree = "<group>";
@@ -630,6 +636,7 @@
 			isa = PBXGroup;
 			children = (
 				1676E9F82699C30B00034070 /* events.hpp */,
+				36A52165279D684F00C1F8CB /* testEvent.mm */,
 			);
 			path = events;
 			sourceTree = "<group>";
@@ -757,7 +764,6 @@
 				167C03AA26E13AE00045FEA9 /* Shared */,
 				1689699C25E9653E00D26060 /* Client */,
 				167B38752642F73900E3C718 /* Server */,
-				16A3BFFB26FF8662001B9E4E /* TerralisticTests */,
 				1661654A25EA2CC8002A3815 /* Frameworks */,
 				1661662B25EA3873002A3815 /* Products */,
 			);
@@ -856,17 +862,6 @@
 				167B53CB270A26EC000089B3 /* serverItems.cpp */,
 			);
 			path = items;
-			sourceTree = "<group>";
-		};
-		16A3BFFB26FF8662001B9E4E /* TerralisticTests */ = {
-			isa = PBXGroup;
-			children = (
-				36A52165279D684F00C1F8CB /* TestEvent.mm */,
-				36A52163279D667700C1F8CB /* TestException.mm */,
-				16A3C00326FF8677001B9E4E /* TestCompress.mm */,
-				16A3C00426FF8677001B9E4E /* TestConfigManager.mm */,
-			);
-			path = TerralisticTests;
 			sourceTree = "<group>";
 		};
 		16A3C00E26FF871C001B9E4E /* commands */ = {
@@ -1573,6 +1568,7 @@
 			children = (
 				36D31CD826DBE330006F89B3 /* compress.hpp */,
 				36D31CD726DBE330006F89B3 /* compress.cpp */,
+				369693C92880577A00D39F1B /* testCompress.mm */,
 			);
 			path = compress;
 			sourceTree = "<group>";
@@ -1765,6 +1761,7 @@
 				366D96F7282059DB00DEC292 /* readOpa.cpp in Sources */,
 				169B87D2270F5238006023B8 /* chat.cpp in Sources */,
 				3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */,
+				369693D428807AD200D39F1B /* testEvent.mm in Sources */,
 				369311272843463300C4DF00 /* packet.cpp in Sources */,
 				366D971E282067FA00DEC292 /* timer.cpp in Sources */,
 				169D0DFA271C10A700F1D484 /* particles.cpp in Sources */,
@@ -1841,12 +1838,14 @@
 				3657222326D07181005AB3CC /* singleplayerSelector.cpp in Sources */,
 				367F362D285F70C900319AD2 /* blur.cpp in Sources */,
 				366D9720282067FA00DEC292 /* button.cpp in Sources */,
+				369693D628807B6400D39F1B /* testConfigManager.mm in Sources */,
 				3693112A2843464A00C4DF00 /* socket.cpp in Sources */,
 				36D31CD926DBE330006F89B3 /* compress.cpp in Sources */,
 				169990A92700E25300224E11 /* naturalLight.cpp in Sources */,
 				167513C426A498DA00E21C68 /* biomes.cpp in Sources */,
 				366D9714282067FA00DEC292 /* textInput.cpp in Sources */,
 				1675E71D26611B8000B620F4 /* configManager.cpp in Sources */,
+				369693D22880775000D39F1B /* testCompress.mm in Sources */,
 				16A681DF2705A77A0084E9CE /* clientEntities.cpp in Sources */,
 				3657222226D07181005AB3CC /* mainMenu.cpp in Sources */,
 			);
@@ -1856,12 +1855,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36A52166279D684F00C1F8CB /* TestEvent.mm in Sources */,
+				369693C82880558300D39F1B /* testing.cpp in Sources */,
+				369693CC2880577A00D39F1B /* testCompress.mm in Sources */,
+				36A52166279D684F00C1F8CB /* testEvent.mm in Sources */,
 				16A3C00726FF869A001B9E4E /* compress.cpp in Sources */,
 				16A3C00826FF869A001B9E4E /* configManager.cpp in Sources */,
-				36A52164279D667700C1F8CB /* TestException.mm in Sources */,
-				16A3C00626FF8677001B9E4E /* TestConfigManager.mm in Sources */,
-				16A3C00526FF8677001B9E4E /* TestCompress.mm in Sources */,
+				16A3C00626FF8677001B9E4E /* testConfigManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1898,8 +1897,10 @@
 				3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */,
 				169B87D1270F5036006023B8 /* serverChat.cpp in Sources */,
 				361DD1A426F7478900129191 /* items.cpp in Sources */,
+				369693D328807AD200D39F1B /* testEvent.mm in Sources */,
 				367F3638285F751800319AD2 /* font.cpp in Sources */,
 				16A3C01226FF871C001B9E4E /* commands.cpp in Sources */,
+				369693D12880775000D39F1B /* testCompress.mm in Sources */,
 				366D9723282067FA00DEC292 /* centeredObject.cpp in Sources */,
 				167581902707687E00422C07 /* inventory.cpp in Sources */,
 				361DD1A626F7478900129191 /* serverPlayers.cpp in Sources */,
@@ -1920,6 +1921,7 @@
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
 				167422602702F48B00D6D8F2 /* liquids.cpp in Sources */,
 				361DD1C226F7478900129191 /* configManager.cpp in Sources */,
+				369693D528807B6400D39F1B /* testConfigManager.mm in Sources */,
 				368C34AF2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */,
 				366D9715282067FA00DEC292 /* textInput.cpp in Sources */,
 			);
@@ -2233,6 +2235,11 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"XCTESTING=1",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2255,6 +2262,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4CKFJDZL4P;
+				GCC_PREPROCESSOR_DEFINITIONS = "XCTESTING=1";
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

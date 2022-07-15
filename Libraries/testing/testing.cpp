@@ -47,21 +47,6 @@ _TestClassNameSetter::_TestClassNameSetter(_TestClass* test, const std::string& 
     test->class_name = name;
 }
 
-TEST_CLASS
-    TEST_CASE(TestTest) {
-        int a = 1;
-        ASSERT(a == 1);
-    }
-TEST_NAME(Test)
-
-struct A {
-    typedef A self;
-    void (self::*a)() = &self::test_func;
-    void test_func() {
-        
-    }
-};
-
 bool performTests() {
     if(test_classes == nullptr) {
         std::cout << "No tests to run!" << std::endl;
@@ -74,8 +59,13 @@ bool performTests() {
             classes_passed++;
         else
             classes_failed++;
+        std::cout << std::endl;
     }
     
     std::cout << "Overall results for all classes: " << classes_passed << " CLASSES PASSED, " << classes_failed << " CLASSES FAILED" << std::endl;
     return classes_failed == 0;
+}
+
+_CaseRegistrator::_CaseRegistrator(void (_TestClass::* case_func)(), _TestClass* test_class, const std::string& case_name) {
+    test_class->test_cases.push_back(_TestCase(case_func, case_name, test_class));
 }

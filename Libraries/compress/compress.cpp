@@ -1,6 +1,7 @@
 #include <zlib.h>
 #include "compress.hpp"
 #include "exception.hpp"
+#include "testing.hpp"
 
 std::vector<char> compress(const std::vector<char>& decompressed_data) {
     unsigned long compressed_size = decompressed_data.size() * 1.01 + 12;
@@ -30,3 +31,14 @@ std::vector<char> decompress(const std::vector<char>& compressed_data) {
     
     return decompressed_data;
 }
+
+/*TEST_CLASS
+    TEST_CASE(Compress) {
+        std::string data = "This string should be compressed...";
+        std::vector<char> uncompressed(data.begin(), data.end());
+        std::vector<char> compressed = compress(uncompressed);
+        std::vector<char> uncompressed_again = decompress(compressed);
+        ASSERT(uncompressed == uncompressed_again);
+    }
+TEST_NAME(TestCompress)*/
+
