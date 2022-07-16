@@ -24,7 +24,7 @@ void ConfigFile::reloadFromDisk() {
 
 std::string ConfigFile::getStr(const std::string& key) {
     if(!keyExists(key))
-        throw Exception("Key \"" + key + "\" does not exist in config!");
+        throw ConfigKeyError("Key \"" + key + "\" does not exist in config!");
     return values[key];
 }
 

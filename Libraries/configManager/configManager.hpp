@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include "exception.hpp"
 
 class ConfigFile {
     std::string path;
@@ -26,3 +27,5 @@ public:
     
     void reloadFromDisk();
 };
+
+EXCEPTION_TYPE(ConfigKeyError)

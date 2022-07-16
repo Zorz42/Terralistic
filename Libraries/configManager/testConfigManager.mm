@@ -61,7 +61,7 @@ TEST_CASE(testSaving) {
 
 TEST_CASE(testThrowsKeyException) {
     ConfigFile config;
-    ASSERT_THROWS(Exception, config.getStr("testKey"));
+    ASSERT_THROWS(ConfigKeyError, config.getStr("testKey"));
     config.setStr("testKey", "test value");
     config.getStr("testKey");
 }

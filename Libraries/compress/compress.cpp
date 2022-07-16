@@ -8,7 +8,7 @@ std::vector<char> compress(const std::vector<char>& decompressed_data) {
     std::vector<char> compressed_data(compressed_size);
     
     if(compress((Bytef*)&compressed_data[0], &compressed_size, (const Bytef*)&decompressed_data[0], decompressed_data.size()) != Z_OK)
-        throw Exception("Could not archive some data!");
+        throw CompressError("Could not archive some data!");
     
     unsigned int decompressed_size = (unsigned int)decompressed_data.size();
     for(int i = 0; i < sizeof(unsigned int); i++)
@@ -27,18 +27,8 @@ std::vector<char> decompress(const std::vector<char>& compressed_data) {
     std::vector<char> decompressed_data(uncompressed_size);
     
     if(uncompress((Bytef*)&decompressed_data[0], &uncompressed_size, (const Bytef*)&compressed_data[0], compressed_data.size() - sizeof(unsigned int)) != Z_OK)
-        throw Exception("Archive is corrupted!");
+        throw ArchiveError("Archive is corrupted!");
     
     return decompressed_data;
 }
-
-/*TEST_CLASS
-    TEST_CASE(Compress) {
-        std::string data = "This string should be compressed...";
-        std::vector<char> uncompressed(data.begin(), data.end());
-        std::vector<char> compressed = compress(uncompressed);
-        std::vector<char> uncompressed_again = decompress(compressed);
-        ASSERT(uncompressed == uncompressed_again);
-    }
-TEST_NAME(TestCompress)*/
 

@@ -12,3 +12,5 @@ public:
        return message.c_str();
     }
 };
+
+#define EXCEPTION_TYPE(name) class name : public Exception { public: explicit name(std::string  message) : Exception(std::move(message)) {} };
