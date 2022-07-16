@@ -24,6 +24,8 @@ std::vector<char> decompress(const std::vector<char>& compressed_data) {
     for(int i = 0; i < sizeof(unsigned int); i++)
         decompressed_size += (unsigned int)(unsigned char)compressed_data[compressed_data.size() - sizeof(unsigned int) + i] << i * 8;
     
+    actual_decompressed_size = decompressed_size;
+    
     std::vector<char> decompressed_data(decompressed_size);
     
     if(uncompress((Bytef*)&decompressed_data[0], &actual_decompressed_size, (const Bytef*)&compressed_data[0], compressed_data.size() - sizeof(unsigned int)) != Z_OK)
