@@ -14,12 +14,10 @@
 void _socketDisableBlocking(int socket_handle) {
 #ifdef _WIN32
     unsigned long mode = 1;
-    if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0)
-        throw Exception("Could not set socket to blocking");
+    if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0) throw Exception("Could not set socket to blocking");
 #else
     int status = fcntl(socket_handle, F_GETFL);
-    if(fcntl(socket_handle, F_SETFL, status | O_NONBLOCK) == -1)
-        throw Exception("Failed to set file status flags: " + std::to_string(errno));
+    if(fcntl(socket_handle, F_SETFL, status | O_NONBLOCK) == -1) throw Exception("Failed to set file status flags: " + std::to_string(errno));
 #endif
 }
 
@@ -70,7 +68,7 @@ void TcpSocket::send(const void* obj, unsigned int size) {
 
 void TcpSocket::send(Packet& packet) {
     if(!connected)
-        throw Exception("Not connected!");
+        throw NotConnectedError("Not connected!");
     
     unsigned int size = (unsigned int)packet.getDataSize();
     unsigned int prev_buffer_size = (unsigned int)packet_buffer_out.size();
@@ -84,7 +82,7 @@ void TcpSocket::send(Packet& packet) {
 
 bool TcpSocket::receive(void* obj, unsigned int size) {
     if(!connected)
-        throw Exception("Not connected!");
+        throw NotConnectedError("Not connected!");
     
     unsigned int received = 0;
     while(received < size) {
@@ -139,7 +137,8 @@ bool TcpSocket::receivePacket() {
 
 bool TcpSocket::connect(const std::string& ip, unsigned short port) {
     if(connected)
-        throw Exception("Already connected!");
+        throw AlreadyConnectedError("Already connected!");
+    
     sockaddr_in serv_addr;
     
     int handle = socket(AF_INET, SOCK_STREAM, 0);
@@ -172,7 +171,7 @@ std::string TcpSocket::getIpAddress() {
 
 void TcpSocket::disconnect() {
     if(!connected)
-        throw Exception("Not connected!");
+        throw NotConnectedError("Not connected!");
 #ifdef WIN32
     closesocket(socket_handle);
 #else
@@ -187,7 +186,8 @@ bool TcpSocket::isConnected() const {
 
 void TcpSocket::flushPacketBuffer() {
     if(!connected)
-        throw Exception("Not connected!");
+        throw NotConnectedError("Not connected!");
+    
     if(!packet_buffer_out.empty()) {
         send(packet_buffer_out.data(), (unsigned int)packet_buffer_out.size());
         packet_buffer_out.clear();
@@ -196,17 +196,15 @@ void TcpSocket::flushPacketBuffer() {
 
 void TcpSocket::create(int handle, const std::string& address) {
     if(connected)
-        throw Exception("Already connected!");
+        throw AlreadyConnectedError("Already connected!");
     
     socket_handle = handle;
     ip_address = address;
 
     int opt = 1;
-    if(setsockopt(socket_handle, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt, sizeof(opt)))
-        throw Exception("Setsockopt failed");
+    if(setsockopt(socket_handle, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt, sizeof(opt))) throw SocketError("Setsockopt failed");
 
-    if(setsockopt(socket_handle, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)))
-        throw Exception("Setsockopt failed");
+    if(setsockopt(socket_handle, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt))) throw SocketError("Setsockopt failed");
     
     connected = true;
 }

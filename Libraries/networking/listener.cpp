@@ -24,9 +24,6 @@ void TcpListener::handleError() {
 }
 #else
 void TcpListener::handleError() {
-    if(errno == EAGAIN || errno == EINPROGRESS)
-        return;
-
     switch(errno) {
         case EWOULDBLOCK:
         case ECONNABORTED:
@@ -34,6 +31,7 @@ void TcpListener::handleError() {
         case ETIMEDOUT:
         case ENETRESET:
         case ENOTCONN:
+        case EINPROGRESS:
         case EPIPE: return;
         default: throw Exception("Listener error");
     }
@@ -44,8 +42,7 @@ void TcpListener::listen(unsigned short port) {
     sockaddr_in address{};
     
     int listener_handle = socket(AF_INET, SOCK_STREAM, 0);
-    if(listener_handle == 0)
-        throw Exception("Socket failed");
+    if(listener_handle == 0) throw SocketError("Socket failed");
     listener_socket.create(listener_handle, "127.0.0.1");
 
     std::memset(&address, 0, sizeof(address));
@@ -57,11 +54,9 @@ void TcpListener::listen(unsigned short port) {
     address.sin_len = sizeof(address);
 #endif
  
-    if(bind(listener_handle, (struct sockaddr*)&address, sizeof(address)) < 0)
-        throw Exception("Cannot bind to socket");
+    if(bind(listener_handle, (struct sockaddr*)&address, sizeof(address)) < 0) throw BindError("Cannot bind to socket");
     
-    if(::listen(listener_handle, SOMAXCONN) < 0)
-        throw Exception("Cannot listen to socket");
+    if(::listen(listener_handle, SOMAXCONN) < 0) throw ListenError("Cannot listen to socket");
     
     _socketDisableBlocking(listener_handle);
 }
@@ -69,11 +64,13 @@ void TcpListener::listen(unsigned short port) {
 bool TcpListener::accept(TcpSocket& socket) const {
     sockaddr_in address{};
     int addrlen = sizeof(address);
+    
 #ifdef WIN32
     int socket_handle = ::accept(listener_socket.socket_handle, (struct sockaddr*)&address, (int*)&addrlen);
 #else
-    int socket_handle = ::accept(listener_socket.socket_handle, (struct sockaddr*)&address, (socklen_t *)&addrlen);
+    int socket_handle = ::accept(listener_socket.socket_handle, (struct sockaddr*)&address, (socklen_t*)&addrlen);
 #endif
+    
     if(socket_handle < 0) {
         handleError();
         return false;

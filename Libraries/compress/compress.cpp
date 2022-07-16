@@ -7,8 +7,7 @@ std::vector<char> compress(const std::vector<char>& decompressed_data) {
     unsigned long compressed_size = decompressed_data.size() * 1.01 + 12;
     std::vector<char> compressed_data(compressed_size);
     
-    if(compress((Bytef*)&compressed_data[0], &compressed_size, (const Bytef*)&decompressed_data[0], decompressed_data.size()) != Z_OK)
-        throw CompressError("Could not archive some data!");
+    if(compress((Bytef*)&compressed_data[0], &compressed_size, (const Bytef*)&decompressed_data[0], decompressed_data.size()) != Z_OK) throw CompressError("Could not archive some data!");
     
     unsigned int decompressed_size = (unsigned int)decompressed_data.size();
     for(int i = 0; i < sizeof(unsigned int); i++)
@@ -28,11 +27,9 @@ std::vector<char> decompress(const std::vector<char>& compressed_data) {
     
     std::vector<char> decompressed_data(decompressed_size);
     
-    if(uncompress((Bytef*)&decompressed_data[0], &actual_decompressed_size, (const Bytef*)&compressed_data[0], compressed_data.size() - sizeof(unsigned int)) != Z_OK)
-        throw ArchiveError("Archive is corrupted!");
+    if(uncompress((Bytef*)&decompressed_data[0], &actual_decompressed_size, (const Bytef*)&compressed_data[0], compressed_data.size() - sizeof(unsigned int)) != Z_OK) throw ArchiveError("Archive is corrupted!");
     
-    if(actual_decompressed_size != decompressed_size)
-        throw ArchiveError("Uncompressed sizes did not match!");
+    if(actual_decompressed_size != decompressed_size) throw ArchiveError("Uncompressed sizes did not match!");
     
     return decompressed_data;
 }

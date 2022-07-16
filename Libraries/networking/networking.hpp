@@ -87,3 +87,9 @@ public:
 };
 
 void _socketDisableBlocking(int socket_handle);
+
+EXCEPTION_TYPE(SocketError)
+EXCEPTION_TYPE(BindError)
+EXCEPTION_TYPE(ListenError)
+EXCEPTION_TYPE(AlreadyConnectedError)
+EXCEPTION_TYPE(NotConnectedError)
