@@ -14,11 +14,8 @@ TEST_CASE(testNetworkingConnects) {
     listener.listen(port);
 
     ASSERT(c_socket.connect("127.0.0.1", port));
-
     ASSERT(c_socket.isConnected());
-
     ASSERT(listener.accept(s_socket));
-
     ASSERT(s_socket.isConnected());
 
     s_socket.disconnect();

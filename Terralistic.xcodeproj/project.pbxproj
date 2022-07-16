@@ -150,16 +150,16 @@
 		3672B164277C885D001293B5 /* nameChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B162277C885D001293B5 /* nameChooser.cpp */; };
 		3672D2CF287DEF2D000FD606 /* blockData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672D2CD287DEF2D000FD606 /* blockData.cpp */; };
 		3672D2D0287DEF2D000FD606 /* blockData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672D2CD287DEF2D000FD606 /* blockData.cpp */; };
-		367E42212873040A006EBD84 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 367E42202873040A006EBD84 /* glad.c */; };
-		367E422528730434006EBD84 /* platform_folders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367E422428730434006EBD84 /* platform_folders.cpp */; };
-		367E422728730A72006EBD84 /* platform_folders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367E422428730434006EBD84 /* platform_folders.cpp */; };
-		367E422828730A72006EBD84 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 367E42202873040A006EBD84 /* glad.c */; };
 		367F362D285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
 		367F362E285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
 		367F3632285F716000319AD2 /* shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3630285F716000319AD2 /* shadow.cpp */; };
 		367F3633285F716000319AD2 /* shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3630285F716000319AD2 /* shadow.cpp */; };
 		367F3637285F751800319AD2 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3635285F751800319AD2 /* font.cpp */; };
 		367F3638285F751800319AD2 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3635285F751800319AD2 /* font.cpp */; };
+		368198C8288348F900DB57C5 /* libplatform_folders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198C7288348E100DB57C5 /* libplatform_folders.a */; };
+		368198C92883491900DB57C5 /* libplatform_folders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198C7288348E100DB57C5 /* libplatform_folders.a */; };
+		368198CB28834ADB00DB57C5 /* libglad.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198CA28834ADB00DB57C5 /* libglad.dylib */; };
+		368198CC28834ADB00DB57C5 /* libglad.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 368198CA28834ADB00DB57C5 /* libglad.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
@@ -228,6 +228,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				368198CC28834ADB00DB57C5 /* libglad.dylib in Embed Libraries */,
 				368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
@@ -406,14 +407,14 @@
 		3672B163277C885D001293B5 /* nameChooser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = nameChooser.hpp; sourceTree = "<group>"; };
 		3672D2CD287DEF2D000FD606 /* blockData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockData.cpp; sourceTree = "<group>"; };
 		3672D2CE287DEF2D000FD606 /* blockData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockData.hpp; sourceTree = "<group>"; };
-		367E42202873040A006EBD84 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glad.c; path = Dependencies/glad/src/glad.c; sourceTree = SOURCE_ROOT; };
-		367E422428730434006EBD84 /* platform_folders.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = platform_folders.cpp; path = "Dependencies/PlatformFolders-4.2.0/sago/platform_folders.cpp"; sourceTree = SOURCE_ROOT; };
 		367F362B285F70C900319AD2 /* blur.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blur.cpp; sourceTree = "<group>"; };
 		367F362C285F70C900319AD2 /* blur.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blur.hpp; sourceTree = "<group>"; };
 		367F3630285F716000319AD2 /* shadow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shadow.cpp; sourceTree = "<group>"; };
 		367F3631285F716000319AD2 /* shadow.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = shadow.hpp; sourceTree = "<group>"; };
 		367F3635285F751800319AD2 /* font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = font.cpp; sourceTree = "<group>"; };
 		367F3636285F751800319AD2 /* font.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = font.hpp; sourceTree = "<group>"; };
+		368198C7288348E100DB57C5 /* libplatform_folders.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libplatform_folders.a; path = "Dependencies/PlatformFolders-4.2.0/build/libplatform_folders.a"; sourceTree = "<group>"; };
+		368198CA28834ADB00DB57C5 /* libglad.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglad.dylib; path = Dependencies/glad/libglad.dylib; sourceTree = "<group>"; };
 		368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glfwAbstraction.cpp; sourceTree = "<group>"; };
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
@@ -457,6 +458,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				3672919B26FE225900786856 /* libz.tbd in Frameworks */,
+				368198C8288348F900DB57C5 /* libplatform_folders.a in Frameworks */,
+				368198CB28834ADB00DB57C5 /* libglad.dylib in Frameworks */,
 				368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -474,6 +477,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */,
+				368198C92883491900DB57C5 /* libplatform_folders.a in Frameworks */,
 				3672919C26FE226400786856 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -499,6 +503,8 @@
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				368198CA28834ADB00DB57C5 /* libglad.dylib */,
+				368198C7288348E100DB57C5 /* libplatform_folders.a */,
 				366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */,
 				366D96F2282056A600DEC292 /* OpenGL.framework */,
 				1690D7D826BA87B90007755C /* libz.tbd */,
@@ -941,8 +947,6 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				367E422428730434006EBD84 /* platform_folders.cpp */,
-				367E42202873040A006EBD84 /* glad.c */,
 				36D26F2927352F6600F1F476 /* exception */,
 				369693C3287E339200D39F1B /* testing */,
 				366D96E12820568400DEC292 /* graphics */,
@@ -1748,7 +1752,6 @@
 				366D9722282067FA00DEC292 /* centeredObject.cpp in Sources */,
 				167B53D1270A271D000089B3 /* serverEntities.cpp in Sources */,
 				16C9470527109EC100A51E81 /* player.cpp in Sources */,
-				367E422528730434006EBD84 /* platform_folders.cpp in Sources */,
 				16A13D192709B74A009DEE40 /* serverLiquids.cpp in Sources */,
 				16BF695B269D7F4D00CFE175 /* resourcePath.cpp in Sources */,
 				36DDF8AC2689F725002337F3 /* items.cpp in Sources */,
@@ -1760,7 +1763,6 @@
 				36DDF8B12689F725002337F3 /* print.cpp in Sources */,
 				1679733F2712303100E90477 /* clientBlocks.cpp in Sources */,
 				16A13D142709A100009DEE40 /* serverBlocks.cpp in Sources */,
-				367E42212873040A006EBD84 /* glad.c in Sources */,
 				169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */,
 				369693D82883369B00D39F1B /* testEvents.mm in Sources */,
 				366D9712282067FA00DEC292 /* texture.cpp in Sources */,
@@ -1830,8 +1832,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				367E422728730A72006EBD84 /* platform_folders.cpp in Sources */,
-				367E422828730A72006EBD84 /* glad.c in Sources */,
 				366D9711282067FA00DEC292 /* scene.cpp in Sources */,
 				167B53CE270A26EC000089B3 /* serverItems.cpp in Sources */,
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
@@ -2076,6 +2076,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
+					"$(PROJECT_DIR)/Dependencies/glad",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2156,6 +2158,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
+					"$(PROJECT_DIR)/Dependencies/glad",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
@@ -2288,6 +2292,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2364,6 +2369,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
+					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;

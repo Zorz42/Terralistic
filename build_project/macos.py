@@ -25,13 +25,17 @@ class GenerateGlad(tasks.Task):
     def execute(self):
         if not utils.exists(self.project_path + "Dependencies/glad/"):
             utils.system(f"python3 -m glad --profile compatibility --out-path \"{self.project_path}Dependencies/glad/\" --api gl=4.6 --generator c")
+            utils.system(f"cd {self.project_path}Dependencies/Glad/ && clang -dynamiclib -o libglad.dylib src/glad.c -I include")
         else:
             print("Glad already generated")
 
 
 class InstallPlatformFolders(tasks.Task):
+    def checkForDependencies(self):
+        self.requireCommand("cmake")
+
     def execute(self):
-        dependencies.installDependency("https://github.com/sago007/PlatformFolders/archive/refs/tags/4.2.0.zip", self.project_path + "Dependencies/PlatformFolders-4.2.0/", "platform folders")
+        dependencies.installDependency("https://github.com/sago007/PlatformFolders/archive/refs/tags/4.2.0.zip", self.project_path + "Dependencies/PlatformFolders-4.2.0/", "platform folders", f"cd {self.project_path}Dependencies/PlatformFolders-4.2.0/ && mkdir -p build && cd build && cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release .. && cmake --build .")
 
 
 class InstallPerlinNoise(tasks.Task):
