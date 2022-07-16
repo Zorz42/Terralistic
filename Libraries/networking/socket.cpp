@@ -178,9 +178,10 @@ void TcpSocket::disconnect() {
 #else
     close(socket_handle);
 #endif
+    connected = false;
 }
 
-bool TcpSocket::isConnected() {
+bool TcpSocket::isConnected() const {
     return connected;
 }
 

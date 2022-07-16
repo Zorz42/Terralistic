@@ -15,9 +15,9 @@ class DummyEventListener : public EventListener<DummyEvent> {
     }
 };
 
-TEST_CLASS(TestEvent)
+TEST_CLASS(TestEvents)
 
-TEST_CASE(testEvent) {
+TEST_CASE(testEvents) {
     EventSender<DummyEvent> dummy_event;
     DummyEventListener dummy_event_listener;
     dummy_event.addListener(&dummy_event_listener);
@@ -32,4 +32,4 @@ TEST_CASE(testEvent) {
     ASSERT(last_value == 100);
 }
 
-END_TEST_CLASS(TestEvent)
+END_TEST_CLASS(TestEvents)

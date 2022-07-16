@@ -73,7 +73,7 @@ public:
     std::string getIpAddress();
     void disconnect();
     
-    bool isConnected();
+    bool isConnected() const;
 };
 
 class TcpListener {
