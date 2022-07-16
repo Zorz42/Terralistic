@@ -158,8 +158,8 @@
 		367F3638285F751800319AD2 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3635285F751800319AD2 /* font.cpp */; };
 		368198C8288348F900DB57C5 /* libplatform_folders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198C7288348E100DB57C5 /* libplatform_folders.a */; };
 		368198C92883491900DB57C5 /* libplatform_folders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198C7288348E100DB57C5 /* libplatform_folders.a */; };
-		368198CB28834ADB00DB57C5 /* libglad.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198CA28834ADB00DB57C5 /* libglad.dylib */; };
-		368198CC28834ADB00DB57C5 /* libglad.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 368198CA28834ADB00DB57C5 /* libglad.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		368198CE2883622800DB57C5 /* libglad.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198CD2883621F00DB57C5 /* libglad.a */; };
+		368198CF2883623D00DB57C5 /* libglad.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198CD2883621F00DB57C5 /* libglad.a */; };
 		368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
@@ -228,7 +228,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				368198CC28834ADB00DB57C5 /* libglad.dylib in Embed Libraries */,
 				368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
@@ -415,6 +414,7 @@
 		367F3636285F751800319AD2 /* font.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = font.hpp; sourceTree = "<group>"; };
 		368198C7288348E100DB57C5 /* libplatform_folders.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libplatform_folders.a; path = "Dependencies/PlatformFolders-4.2.0/build/libplatform_folders.a"; sourceTree = "<group>"; };
 		368198CA28834ADB00DB57C5 /* libglad.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglad.dylib; path = Dependencies/glad/libglad.dylib; sourceTree = "<group>"; };
+		368198CD2883621F00DB57C5 /* libglad.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglad.a; path = Dependencies/glad/libglad.a; sourceTree = "<group>"; };
 		368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glfwAbstraction.cpp; sourceTree = "<group>"; };
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
@@ -459,8 +459,8 @@
 			files = (
 				3672919B26FE225900786856 /* libz.tbd in Frameworks */,
 				368198C8288348F900DB57C5 /* libplatform_folders.a in Frameworks */,
-				368198CB28834ADB00DB57C5 /* libglad.dylib in Frameworks */,
 				368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */,
+				368198CE2883622800DB57C5 /* libglad.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -479,6 +479,7 @@
 				368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */,
 				368198C92883491900DB57C5 /* libplatform_folders.a in Frameworks */,
 				3672919C26FE226400786856 /* libz.tbd in Frameworks */,
+				368198CF2883623D00DB57C5 /* libglad.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,6 +504,7 @@
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				368198CD2883621F00DB57C5 /* libglad.a */,
 				368198CA28834ADB00DB57C5 /* libglad.dylib */,
 				368198C7288348E100DB57C5 /* libplatform_folders.a */,
 				366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */,
@@ -2293,6 +2295,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
 					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
+					"$(PROJECT_DIR)/Dependencies/glad",
 				);
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2370,6 +2373,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
 					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
+					"$(PROJECT_DIR)/Dependencies/glad",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;

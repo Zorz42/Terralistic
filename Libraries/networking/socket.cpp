@@ -14,10 +14,12 @@
 void _socketDisableBlocking(int socket_handle) {
 #ifdef _WIN32
     unsigned long mode = 1;
-    ioctlsocket(socket_handle, FIONBIO, &mode)
+    if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0)
+        throw Exception("Could not set socket to blocking");
 #else
     int status = fcntl(socket_handle, F_GETFL);
-    fcntl(socket_handle, F_SETFL, status | O_NONBLOCK);
+    if(fcntl(socket_handle, F_SETFL, status | O_NONBLOCK) == -1)
+        throw Exception("Failed to set file status flags: " + std::to_string(errno));
 #endif
 }
 

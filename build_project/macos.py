@@ -25,7 +25,7 @@ class GenerateGlad(tasks.Task):
     def execute(self):
         if not utils.exists(self.project_path + "Dependencies/glad/"):
             utils.system(f"python3 -m glad --profile compatibility --out-path \"{self.project_path}Dependencies/glad/\" --api gl=4.6 --generator c")
-            utils.system(f"cd {self.project_path}Dependencies/Glad/ && clang -dynamiclib -o libglad.dylib src/glad.c -I include")
+            utils.system(f"cd {self.project_path}Dependencies/Glad/ && clang -c -o libglad.o src/glad.c -I include && libtool -static libglad.o -o libglad.a")
         else:
             print("Glad already generated")
 
