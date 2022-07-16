@@ -28,28 +28,8 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"
       disableMainThreadChecker = "YES"
-      systemAttachmentLifetime = "keepNever"
-      codeCoverageEnabled = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "16A3BFF926FF8662001B9E4E"
-            BuildableName = "TerralisticTests.xctest"
-            BlueprintName = "TerralisticTests"
-            ReferencedContainer = "container:Terralistic.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
+      systemAttachmentLifetime = "keepNever">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "16A3BFF926FF8662001B9E4E"
-               BuildableName = "TerralisticTests.xctest"
-               BlueprintName = "TerralisticTests"
-               ReferencedContainer = "container:Terralistic.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

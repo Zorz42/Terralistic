@@ -181,12 +181,18 @@
 		369693CC2880577A00D39F1B /* testCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693C92880577A00D39F1B /* testCompress.mm */; };
 		369693D12880775000D39F1B /* testCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693C92880577A00D39F1B /* testCompress.mm */; };
 		369693D22880775000D39F1B /* testCompress.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693C92880577A00D39F1B /* testCompress.mm */; };
-		369693D328807AD200D39F1B /* testEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* testEvent.mm */; };
-		369693D428807AD200D39F1B /* testEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* testEvent.mm */; };
 		369693D528807B6400D39F1B /* testConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00426FF8677001B9E4E /* testConfigManager.mm */; };
 		369693D628807B6400D39F1B /* testConfigManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16A3C00426FF8677001B9E4E /* testConfigManager.mm */; };
+		369693D82883369B00D39F1B /* testEvents.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693D72883369B00D39F1B /* testEvents.mm */; };
+		369693D92883369B00D39F1B /* testEvents.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693D72883369B00D39F1B /* testEvents.mm */; };
+		369693DA2883369B00D39F1B /* testEvents.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693D72883369B00D39F1B /* testEvents.mm */; };
+		369693DC288336A500D39F1B /* testNetworking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693DB288336A400D39F1B /* testNetworking.mm */; };
+		369693DD288336A500D39F1B /* testNetworking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693DB288336A400D39F1B /* testNetworking.mm */; };
+		369693DE288336A500D39F1B /* testNetworking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 369693DB288336A400D39F1B /* testNetworking.mm */; };
+		369693DF2883370400D39F1B /* packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311262843463300C4DF00 /* packet.cpp */; };
+		369693E02883370400D39F1B /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311292843464A00C4DF00 /* socket.cpp */; };
+		369693E12883370400D39F1B /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693112C2843466000C4DF00 /* listener.cpp */; };
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
-		36A52166279D684F00C1F8CB /* testEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A52165279D684F00C1F8CB /* testEvent.mm */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
@@ -194,16 +200,6 @@
 		36DDF8B12689F725002337F3 /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B387E2642F73900E3C718 /* print.cpp */; };
 		36DDF8B22689F725002337F3 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167B38932642F73900E3C718 /* server.cpp */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		16A3BFFE26FF8662001B9E4E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1689684E25E95FD000D26060 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1689685525E95FD000D26060;
-			remoteInfo = Terralistic;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		361DD1DA26F7478900129191 /* Embed Frameworks */ = {
@@ -446,9 +442,10 @@
 		369693C4287E33B100D39F1B /* testing.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = testing.cpp; sourceTree = "<group>"; };
 		369693C5287E33B100D39F1B /* testing.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = testing.hpp; sourceTree = "<group>"; };
 		369693C92880577A00D39F1B /* testCompress.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = testCompress.mm; sourceTree = "<group>"; };
+		369693D72883369B00D39F1B /* testEvents.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = testEvents.mm; sourceTree = "<group>"; };
+		369693DB288336A400D39F1B /* testNetworking.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = testNetworking.mm; sourceTree = "<group>"; };
 		369981F0277CCAD500FA3F72 /* privateWorld.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = privateWorld.cpp; sourceTree = "<group>"; };
 		369E17CD2839467E00D37108 /* networking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = networking.hpp; sourceTree = "<group>"; };
-		36A52165279D684F00C1F8CB /* testEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testEvent.mm; sourceTree = "<group>"; };
 		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
@@ -596,7 +593,7 @@
 			isa = PBXGroup;
 			children = (
 				1676E9F82699C30B00034070 /* events.hpp */,
-				36A52165279D684F00C1F8CB /* testEvent.mm */,
+				369693D72883369B00D39F1B /* testEvents.mm */,
 			);
 			path = events;
 			sourceTree = "<group>";
@@ -1503,6 +1500,7 @@
 				369311262843463300C4DF00 /* packet.cpp */,
 				369311292843464A00C4DF00 /* socket.cpp */,
 				3693112C2843466000C4DF00 /* listener.cpp */,
+				369693DB288336A400D39F1B /* testNetworking.mm */,
 			);
 			path = networking;
 			sourceTree = "<group>";
@@ -1566,7 +1564,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				16A3BFFF26FF8662001B9E4E /* PBXTargetDependency */,
 			);
 			name = TerralisticTests;
 			productName = TerralisticTests;
@@ -1721,7 +1718,6 @@
 				366D96F7282059DB00DEC292 /* readOpa.cpp in Sources */,
 				169B87D2270F5238006023B8 /* chat.cpp in Sources */,
 				3657221226D07181005AB3CC /* pauseScreen.cpp in Sources */,
-				369693D428807AD200D39F1B /* testEvent.mm in Sources */,
 				369311272843463300C4DF00 /* packet.cpp in Sources */,
 				366D971E282067FA00DEC292 /* timer.cpp in Sources */,
 				169D0DFA271C10A700F1D484 /* particles.cpp in Sources */,
@@ -1766,6 +1762,7 @@
 				16A13D142709A100009DEE40 /* serverBlocks.cpp in Sources */,
 				367E42212873040A006EBD84 /* glad.c in Sources */,
 				169DE4EB26E3E201008DB021 /* modManager.cpp in Sources */,
+				369693D82883369B00D39F1B /* testEvents.mm in Sources */,
 				366D9712282067FA00DEC292 /* texture.cpp in Sources */,
 				3672B160277C8431001293B5 /* serverAdder.cpp in Sources */,
 				366D970A282067FA00DEC292 /* sprite.cpp in Sources */,
@@ -1794,6 +1791,7 @@
 				366D970E282067FA00DEC292 /* rectShape.cpp in Sources */,
 				3605ED58276E90FA00ECCA08 /* walls.cpp in Sources */,
 				3672B164277C885D001293B5 /* nameChooser.cpp in Sources */,
+				369693DC288336A500D39F1B /* testNetworking.mm in Sources */,
 				1682944326A16D780017E2FD /* packetType.cpp in Sources */,
 				3657222326D07181005AB3CC /* singleplayerSelector.cpp in Sources */,
 				367F362D285F70C900319AD2 /* blur.cpp in Sources */,
@@ -1815,9 +1813,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				369693DF2883370400D39F1B /* packet.cpp in Sources */,
+				369693E02883370400D39F1B /* socket.cpp in Sources */,
+				369693E12883370400D39F1B /* listener.cpp in Sources */,
 				369693C82880558300D39F1B /* testing.cpp in Sources */,
 				369693CC2880577A00D39F1B /* testCompress.mm in Sources */,
-				36A52166279D684F00C1F8CB /* testEvent.mm in Sources */,
+				369693DA2883369B00D39F1B /* testEvents.mm in Sources */,
+				369693DE288336A500D39F1B /* testNetworking.mm in Sources */,
 				16A3C00726FF869A001B9E4E /* compress.cpp in Sources */,
 				16A3C00826FF869A001B9E4E /* configManager.cpp in Sources */,
 				16A3C00626FF8677001B9E4E /* testConfigManager.mm in Sources */,
@@ -1842,6 +1844,7 @@
 				16A61F612708DA3300738C61 /* entities.cpp in Sources */,
 				1676AF392704595400321C8B /* blocks.cpp in Sources */,
 				361DD1ED26F7481200129191 /* launcher.cpp in Sources */,
+				369693DD288336A500D39F1B /* testNetworking.mm in Sources */,
 				367F362E285F70C900319AD2 /* blur.cpp in Sources */,
 				366D9717282067FA00DEC292 /* graphics.cpp in Sources */,
 				366D971F282067FA00DEC292 /* timer.cpp in Sources */,
@@ -1857,12 +1860,12 @@
 				3605ED59276E90FA00ECCA08 /* walls.cpp in Sources */,
 				169B87D1270F5036006023B8 /* serverChat.cpp in Sources */,
 				361DD1A426F7478900129191 /* items.cpp in Sources */,
-				369693D328807AD200D39F1B /* testEvent.mm in Sources */,
 				367F3638285F751800319AD2 /* font.cpp in Sources */,
 				16A3C01226FF871C001B9E4E /* commands.cpp in Sources */,
 				369693D12880775000D39F1B /* testCompress.mm in Sources */,
 				366D9723282067FA00DEC292 /* centeredObject.cpp in Sources */,
 				167581902707687E00422C07 /* inventory.cpp in Sources */,
+				369693D92883369B00D39F1B /* testEvents.mm in Sources */,
 				361DD1A626F7478900129191 /* serverPlayers.cpp in Sources */,
 				366D971B282067FA00DEC292 /* rectArray.cpp in Sources */,
 				366D970F282067FA00DEC292 /* rectShape.cpp in Sources */,
@@ -1903,14 +1906,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		16A3BFFF26FF8662001B9E4E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 1689685525E95FD000D26060 /* Terralistic */;
-			targetProxy = 16A3BFFE26FF8662001B9E4E /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1689686825E95FD100D26060 /* Debug */ = {

@@ -71,3 +71,5 @@ bool performTests();
 
 #endif
 
+#define ASSERT_THROWS(exception, expr) {bool threw = false; try{ expr; } catch(const exception& e) { threw = true; }; ASSERT(threw); }
+
