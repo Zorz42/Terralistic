@@ -13,7 +13,7 @@ You will need to have installed to build:
 - python3 (to run build.py)
 - cmake
 - make
-- gcc
+- gcc (c++ and objective c++)
 - glad
 
 If you want to edit code use:
