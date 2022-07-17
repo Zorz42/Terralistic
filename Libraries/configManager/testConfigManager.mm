@@ -1,7 +1,12 @@
 #include <fstream>
+#include <platform_folders.h>
 #include "testing.hpp"
 #include "configManager.hpp"
 #include "exception.hpp"
+
+#ifndef TEMP_FILE_DIR
+#define TEMP_FILE_DIR "./"
+#endif
 
 TEST_CLASS(TestConfigManager)
 
@@ -46,17 +51,17 @@ TEST_CASE(testDefaultValue) {
 
 TEST_CASE(testSaving) {
     {
-        ConfigFile config("test.txt");
+        ConfigFile config(std::string(TEMP_FILE_DIR) + "/test.txt");
         config.setStr("testKey", "test value");
         config.setInt("testInt", 101);
         config.saveConfig();
         
-        ConfigFile config2("test.txt");
+        ConfigFile config2(std::string(TEMP_FILE_DIR) + "/test.txt");
         ASSERT(config2.getStr("testKey") == "test value");
         ASSERT(config2.getInt("testInt") == 101);
     }
     
-    std::remove("test.txt");
+    std::remove((std::string(TEMP_FILE_DIR) + "/qtest.txt").c_str());
 }
 
 TEST_CASE(testThrowsKeyException) {
@@ -68,16 +73,16 @@ TEST_CASE(testThrowsKeyException) {
 
 TEST_CASE(testReadsGeneratedConfig) {
     {
-        std::ofstream output_file("test.txt");
+        std::ofstream output_file(std::string(TEMP_FILE_DIR) + "/test.txt");
         std::string file_content = "testKey:   test value";
         output_file << file_content;
         output_file.close();
         
-        ConfigFile config("test.txt");
+        ConfigFile config(std::string(TEMP_FILE_DIR) + "/test.txt");
         ASSERT(config.getStr("testKey") == "test value");
     }
     
-    std::remove("test.txt");
+    std::remove((std::string(TEMP_FILE_DIR) + "/test.txt").c_str());
 }
- 
+
 END_TEST_CLASS(TestConfigManager)

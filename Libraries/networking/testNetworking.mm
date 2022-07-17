@@ -57,4 +57,28 @@ TEST_CASE(testListenerHandleError) {
     listener.close();
 }
 
+TEST_CASE(testSocketSendsData) {
+    TcpSocket c_socket, s_socket;
+    TcpListener listener;
+
+    int port = 45926;
+    listener.listen(port);
+
+    c_socket.connect("127.0.0.1", port);
+    listener.accept(s_socket);
+    
+    
+
+    s_socket.disconnect();
+
+    listener.close();
+    c_socket.disconnect();
+}
+
 END_TEST_CLASS(TestNetworking)
+
+TEST_CLASS(TestPacket)
+
+
+
+END_TEST_CLASS(TestPacket)

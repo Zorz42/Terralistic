@@ -172,6 +172,7 @@ std::string TcpSocket::getIpAddress() {
 void TcpSocket::disconnect() {
     if(!connected)
         throw NotConnectedError("Not connected!");
+    
 #ifdef WIN32
     closesocket(socket_handle);
 #else
@@ -202,6 +203,7 @@ void TcpSocket::create(int handle, const std::string& address) {
     ip_address = address;
 
     int opt = 1;
+    
     if(setsockopt(socket_handle, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt, sizeof(opt))) throw SocketError("Setsockopt failed");
 
     if(setsockopt(socket_handle, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt))) throw SocketError("Setsockopt failed");
