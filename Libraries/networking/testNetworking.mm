@@ -65,10 +65,21 @@ TEST_CASE(testSocketSendsData) {
     listener.listen(port);
 
     c_socket.connect("127.0.0.1", port);
+    
     listener.accept(s_socket);
-    
-    
 
+    Packet sent_packet, received_packet;
+    sent_packet << 1552;
+    
+    c_socket.send(sent_packet);
+    c_socket.flushPacketBuffer();
+    
+    ASSERT(s_socket.receive(received_packet));
+    int received;
+    received_packet >> received;
+    
+    ASSERT(received == 1552);
+    
     s_socket.disconnect();
 
     listener.close();
