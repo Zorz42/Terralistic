@@ -39,6 +39,7 @@ class Inventory {
     bool canCraftRecipe(const Recipe* recipe);
 public:
     Inventory(Items* items, Recipes* recipes, Blocks* blocks);
+    Inventory(const Inventory& inventory);
     
     int selected_slot = 0;
     
@@ -61,7 +62,7 @@ public:
     void fromSerial(const std::vector<char>& serial);
     void setPlayer(Player* cplayer){player = cplayer;}
     
-    Inventory& operator=(Inventory const& inventory);
+    Inventory& operator=(const Inventory& inventory);
     
     EventSender<InventoryItemChangeEvent> item_change_event;
     

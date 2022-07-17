@@ -2216,6 +2216,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.TerralisticTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"Dependencies/PerlinNoise-3.0.0",
+					Dependencies/glad/include,
+					"Dependencies/glfw-3.3.7.bin.MACOS/include",
+					"Dependencies/PlatformFolders-4.2.0/sago",
+				);
 			};
 			name = Debug;
 		};
@@ -2239,6 +2245,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.TerralisticTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"Dependencies/PerlinNoise-3.0.0",
+					Dependencies/glad/include,
+					"Dependencies/glfw-3.3.7.bin.MACOS/include",
+					"Dependencies/PlatformFolders-4.2.0/sago",
+				);
 			};
 			name = Release;
 		};

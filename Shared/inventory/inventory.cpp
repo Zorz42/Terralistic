@@ -137,8 +137,7 @@ bool Inventory::canCraftRecipe(const Recipe* recipe) {
         if(item_counts == nullptr)
             throw Exception("item_counts is null");
         return countItems((int)ingredient.first->id) >= ingredient.second;
-        //return item_counts[(int)ingredient.first->id] >= ingredient.second;
-                                                                                                                        })){
+    })) {
         if (recipe->crafting_block == nullptr) {
             return true;
         } else if (player != nullptr){
@@ -180,7 +179,7 @@ const std::vector<Recipe*>& Recipes::getAllRecipes() {
     return recipes;
 }
 
-Inventory& Inventory::operator=(Inventory const& inventory) {
+Inventory& Inventory::operator=(const Inventory& inventory) {
     items = inventory.items;
     recipes = inventory.recipes;
     delete[] item_counts;
@@ -189,12 +188,18 @@ Inventory& Inventory::operator=(Inventory const& inventory) {
     for(int i = 0; i < INVENTORY_SIZE; i++)
         inventory_arr[i] = inventory.inventory_arr[i];
     mouse_item = inventory.mouse_item;
+    
     item_counts = new int[items->getNumItemTypes()];
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = inventory.item_counts[i];
+    
     available_recipes = inventory.available_recipes;
     
     return *this;
+}
+
+Inventory::Inventory(const Inventory& inventory) {
+    *this = inventory;
 }
 
 Inventory::~Inventory() {
