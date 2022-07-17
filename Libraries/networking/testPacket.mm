@@ -138,4 +138,10 @@ TEST_CASE(testPacketSavesMixed) {
     ASSERT(d == 'a');
 }
 
+TEST_CASE(testPacketThrowsException) {
+    Packet packet;
+    int a;
+    ASSERT_THROWS(PacketError, packet >> a);
+}
+
 END_TEST_CLASS(TestPacket)

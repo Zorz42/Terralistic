@@ -23,7 +23,7 @@ void Packet::append(const void* data_ptr, unsigned int size) {
 
 void Packet::checkReadSize(unsigned int read_size) {
     if(read_pos + read_size > data.size())
-        throw Exception("Reading packet out of bounds");
+        throw PacketError("Reading packet out of bounds");
 }
 
 Packet& Packet::operator>>(bool& obj) {
