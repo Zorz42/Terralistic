@@ -76,9 +76,3 @@ TEST_CASE(testSocketSendsData) {
 }
 
 END_TEST_CLASS(TestNetworking)
-
-TEST_CLASS(TestPacket)
-
-
-
-END_TEST_CLASS(TestPacket)

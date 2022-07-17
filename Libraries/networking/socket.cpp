@@ -25,30 +25,28 @@ void _socketDisableBlocking(int socket_handle) {
 void TcpSocket::handleError() {
     switch (WSAGetLastError()) {
         case WSAEWOULDBLOCK:
+        case WSAEISCONN:
         case WSAEALREADY: return;
         case WSAECONNABORTED:
         case WSAECONNRESET:
         case WSAETIMEDOUT:
         case WSAENETRESET:
         case WSAENOTCONN: connected = false; return;
-        case WSAEISCONN: return;
         default: throw Exception("Socket error");
     }
 }
 #else
 void TcpSocket::handleError() {
-    if(errno == EAGAIN || errno == EINPROGRESS)
-        return;
-    
     switch(errno) {
+        case EINPROGRESS:
         case EWOULDBLOCK:  return;
         case ECONNABORTED:
         case ECONNRESET:
         case ETIMEDOUT:
         case ENETRESET:
         case ENOTCONN:
-        case EPIPE:        connected = false; return;
-        default:           throw Exception("Socket error");
+        case EPIPE: connected = false; return;
+        default: throw Exception("Socket error");
     }
 }
 #endif

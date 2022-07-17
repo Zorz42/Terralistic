@@ -90,14 +90,14 @@ Packet& Packet::operator>>(long long& obj) {
     checkReadSize(sizeof(obj));
     unsigned char bytes[sizeof(obj)];
     std::memcpy(bytes, &data[read_pos], sizeof(obj));
-    obj = ((unsigned long long)(bytes[0]) << 56) |
-           ((unsigned long long)(bytes[1]) << 48) |
-           ((unsigned long long)(bytes[2]) << 40) |
-           ((unsigned long long)(bytes[3]) << 32) |
-           ((unsigned long long)(bytes[4]) << 24) |
-           ((unsigned long long)(bytes[5]) << 16) |
-           ((unsigned long long)(bytes[6]) <<  8) |
-           ((unsigned long long)(bytes[7])      );
+    obj = ((long long)(bytes[0]) << 56) |
+           ((long long)(bytes[1]) << 48) |
+           ((long long)(bytes[2]) << 40) |
+           ((long long)(bytes[3]) << 32) |
+           ((long long)(bytes[4]) << 24) |
+           ((long long)(bytes[5]) << 16) |
+           ((long long)(bytes[6]) <<  8) |
+           ((long long)(bytes[7])      );
     read_pos += sizeof(obj);
 
     return *this;
@@ -227,7 +227,7 @@ Packet& Packet::operator<<(long long obj) {
 }
 
 Packet& Packet::operator<<(unsigned long long obj) {
-    unsigned int to_write[] = {
+    unsigned char to_write[] = {
         (unsigned char)((obj >> 56) & 0xFF),
         (unsigned char)((obj >> 48) & 0xFF),
         (unsigned char)((obj >> 40) & 0xFF),

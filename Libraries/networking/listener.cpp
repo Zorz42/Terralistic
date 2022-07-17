@@ -8,36 +8,6 @@
 #include <cstring>
 #endif
 
-#ifdef WIN32
-void TcpListener::handleError() {
-    switch (WSAGetLastError()) {
-        case WSAEWOULDBLOCK:
-        case WSAEALREADY:
-        case WSAECONNABORTED:
-        case WSAECONNRESET:
-        case WSAETIMEDOUT:
-        case WSAENETRESET:
-        case WSAENOTCONN:
-        case WSAEISCONN: return;
-        default: throw Exception("Listener error");
-    }
-}
-#else
-void TcpListener::handleError() {
-    switch(errno) {
-        case EWOULDBLOCK:
-        case ECONNABORTED:
-        case ECONNRESET:
-        case ETIMEDOUT:
-        case ENETRESET:
-        case ENOTCONN:
-        case EINPROGRESS:
-        case EPIPE: return;
-        default: throw Exception("Listener error");
-    }
-}
-#endif
-
 void TcpListener::listen(unsigned short port) {
     sockaddr_in address{};
     
@@ -71,10 +41,8 @@ bool TcpListener::accept(TcpSocket& socket) const {
     int socket_handle = ::accept(listener_socket.socket_handle, (struct sockaddr*)&address, (socklen_t*)&addrlen);
 #endif
     
-    if(socket_handle < 0) {
-        handleError();
+    if(socket_handle < 0)
         return false;
-    }
 
     socket.create(socket_handle, inet_ntoa(address.sin_addr));
 
