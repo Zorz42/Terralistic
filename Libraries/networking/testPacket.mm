@@ -122,4 +122,20 @@ TEST_CASE(testPacketSavesUnsignedCharVector) {
     ASSERT(value == result);
 }
 
+TEST_CASE(testPacketSavesMixed) {
+    Packet packet;
+    packet << (std::string)"this is a test." << 100 << 1562LL << 'a';
+    
+    std::string a;
+    int b;
+    long long c;
+    char d;
+    packet >> a >> b >> c >> d;
+    
+    ASSERT(a == "this is a test.");
+    ASSERT(b == 100);
+    ASSERT(c == 1562LL);
+    ASSERT(d == 'a');
+}
+
 END_TEST_CLASS(TestPacket)
