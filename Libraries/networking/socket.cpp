@@ -14,10 +14,10 @@
 void _socketDisableBlocking(int socket_handle) {
 #ifdef _WIN32
     unsigned long mode = 1;
-    if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0) throw Exception("Could not set socket to blocking");
+    if(ioctlsocket(socket_handle, FIONBIO, &mode) != 0) throw SocketError("Could not set socket to blocking");
 #else
     int status = fcntl(socket_handle, F_GETFL);
-    if(fcntl(socket_handle, F_SETFL, status | O_NONBLOCK) == -1) throw Exception("Failed to set file status flags: " + std::to_string(errno));
+    if(fcntl(socket_handle, F_SETFL, status | O_NONBLOCK) == -1) throw SocketError("Failed to set file status flags: " + std::to_string(errno));
 #endif
 }
 
@@ -32,7 +32,11 @@ void TcpSocket::handleError() {
         case WSAETIMEDOUT:
         case WSAENETRESET:
         case WSAENOTCONN: disconnect(); return;
-        default: throw Exception("Socket error");
+        default: {
+            char message[256] = {0};
+            FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0, WSAGetLastError(), 0, message, 256, 0);
+            throw SocketError("Socket error: " + (std::string)message);
+        }
     }
 }
 #else
@@ -46,7 +50,7 @@ void TcpSocket::handleError() {
         case ENETRESET:
         case ENOTCONN:
         case EPIPE: disconnect(); return;
-        default: throw Exception("Socket error");
+        default: throw SocketError("Socket error: " + (std::string)strerror(errno));
     }
 }
 #endif
@@ -139,21 +143,19 @@ bool TcpSocket::connect(const std::string& ip, unsigned short port) {
     
     sockaddr_in serv_addr;
     
-    int handle = socket(AF_INET, SOCK_STREAM, 0);
-    if(handle < 0) {
+    int sock_handle = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock_handle < 0) {
         handleError();
         return false;
     }
 
-    create(handle, ip);
+    create(sock_handle, ip);
  
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
     
-    if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) <= 0) {
-        handleError();
-        return false;
-    }
+    if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) == 0)
+        throw AddressFormatError(ip + " is not a valid formatted ip");
  
     if(::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
         disconnect();

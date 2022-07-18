@@ -1,7 +1,13 @@
+#include <chrono>
+#include <thread>
 #include "testing.hpp"
 #include "networking.hpp"
 
 TEST_CLASS(TestNetworking)
+
+void waitABit() {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+}
 
 TEST_CASE(testNetworkingConnects) {
     TcpSocket c_socket, s_socket;
@@ -11,6 +17,7 @@ TEST_CASE(testNetworkingConnects) {
     listener.listen(port);
 
     ASSERT(c_socket.connect("127.0.0.1", port));
+    waitABit();
     ASSERT(listener.accept(s_socket));
 
     s_socket.disconnect();
@@ -31,6 +38,7 @@ TEST_CASE(testSocketConnectedState) {
 
     c_socket.connect("127.0.0.1", port);
     ASSERT(c_socket.isConnected());
+    waitABit();
     listener.accept(s_socket);
     ASSERT(s_socket.isConnected());
 
@@ -48,7 +56,7 @@ TEST_CASE(testListenerHandleError) {
 
     int port = 45925;
     listener.listen(port);
-
+    
     ASSERT(!listener.accept(s_socket));
     
     c_socket.connect("127.0.0.1", port);
@@ -65,7 +73,7 @@ TEST_CASE(testSocketSendsData) {
     listener.listen(port);
 
     c_socket.connect("127.0.0.1", port);
-    
+    waitABit();
     listener.accept(s_socket);
 
     Packet sent_packet, received_packet;
@@ -73,6 +81,8 @@ TEST_CASE(testSocketSendsData) {
     
     c_socket.send(sent_packet);
     c_socket.flushPacketBuffer();
+    
+    waitABit();
     
     ASSERT(s_socket.receive(received_packet));
     int received;
@@ -94,7 +104,7 @@ TEST_CASE(testSocketGetIpAddress) {
     listener.listen(port);
 
     c_socket.connect("127.0.0.1", port);
-    
+    waitABit();
     listener.accept(s_socket);
 
     ASSERT(c_socket.getIpAddress() == "127.0.0.1");
@@ -124,7 +134,7 @@ TEST_CASE(testSocketThrowsBasedOnConnectedState) {
     listener.listen(port);
 
     c_socket.connect("127.0.0.1", port);
-    
+    waitABit();
     listener.accept(s_socket);
     
     c_socket.getIpAddress();
@@ -157,6 +167,50 @@ TEST_CASE(testSocketThrowsBasedOnConnectedState) {
     ASSERT_THROWS(NotConnectedError, c_socket.flushPacketBuffer());
     ASSERT_THROWS(NotConnectedError, c_socket.receive(packet));
     ASSERT_THROWS(NotConnectedError, c_socket.send(packet));
+}
+
+TEST_CASE(testClientDisconnects) {
+    TcpSocket c_socket, s_socket;
+    TcpListener listener;
+
+    int port = 45929;
+    listener.listen(port);
+
+    c_socket.connect("127.0.0.1", port);
+    waitABit();
+    listener.accept(s_socket);
+
+    c_socket.disconnect();
+    waitABit();
+    
+    Packet packet;
+    s_socket.receive(packet);
+    
+    ASSERT(!s_socket.isConnected());
+
+    listener.close();
+}
+
+TEST_CASE(testServerDisconnects) {
+    TcpSocket c_socket, s_socket;
+    TcpListener listener;
+
+    int port = 45930;
+    listener.listen(port);
+
+    c_socket.connect("127.0.0.1", port);
+    waitABit();
+    listener.accept(s_socket);
+
+    s_socket.disconnect();
+    waitABit();
+    
+    Packet packet;
+    c_socket.receive(packet);
+    
+    ASSERT(!c_socket.isConnected());
+
+    listener.close();
 }
 
 END_TEST_CLASS(TestNetworking)
