@@ -88,7 +88,7 @@ void ServerNetworking::removeConnection(Connection* connection) {
     ServerDisconnectEvent event(connection);
     disconnect_event.call(event);
     
-    print::info(connection->getIpAddress() + " disconnected (" + std::to_string(connections.size() - 1) + " players online)");
+    print::info("someone disconnected (" + std::to_string(connections.size() - 1) + " players online)");
     
     delete connection;
     connections.erase(pos);
