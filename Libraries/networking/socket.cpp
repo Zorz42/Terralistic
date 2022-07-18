@@ -155,15 +155,19 @@ bool TcpSocket::connect(const std::string& ip, unsigned short port) {
         return false;
     }
  
-    if(::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
+    if(::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+        disconnect();
         return false;
+    }
     
     _socketDisableBlocking(socket_handle);
     
     return true;
 }
 
-std::string TcpSocket::getIpAddress() {
+const std::string& TcpSocket::getIpAddress() const {
+    if(!connected)
+        throw NotConnectedError("Not connected!");
     return ip_address;
 }
 
@@ -177,6 +181,7 @@ void TcpSocket::disconnect() {
     close(socket_handle);
 #endif
     connected = false;
+    ip_address.clear();
 }
 
 bool TcpSocket::isConnected() const {

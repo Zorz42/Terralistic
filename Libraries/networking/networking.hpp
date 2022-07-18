@@ -71,9 +71,9 @@ public:
     void flushPacketBuffer();
     
     bool connect(const std::string& ip, unsigned short port);
-    std::string getIpAddress();
     void disconnect();
     
+    const std::string& getIpAddress() const;
     bool isConnected() const;
 };
 
