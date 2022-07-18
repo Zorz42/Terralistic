@@ -31,7 +31,7 @@ void TcpSocket::handleError() {
         case WSAECONNRESET:
         case WSAETIMEDOUT:
         case WSAENETRESET:
-        case WSAENOTCONN: connected = false; return;
+        case WSAENOTCONN: disconnect(); return;
         default: throw Exception("Socket error");
     }
 }
@@ -45,7 +45,7 @@ void TcpSocket::handleError() {
         case ETIMEDOUT:
         case ENETRESET:
         case ENOTCONN:
-        case EPIPE: connected = false; return;
+        case EPIPE: disconnect(); return;
         default: throw Exception("Socket error");
     }
 }
