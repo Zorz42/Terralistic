@@ -8,7 +8,9 @@
 
 class ServerPlayerData {
 public:
-    ServerPlayerData(Items* items, Recipes* recipes, Blocks* blocks) : inventory(items, recipes, blocks) {}
+    ServerPlayerData(Items* items, Recipes* recipes, Blocks* blocks) : inventory(items, recipes) {
+        inventory.setBlocks((Blocks*)blocks);
+    }
     
     std::string name;
     int x = 0, y = 0;
@@ -21,7 +23,7 @@ class ServerPlayer : public Player, EventListener<InventoryItemChangeEvent> {
     
     void onEvent(InventoryItemChangeEvent& event) override;
 public:
-    explicit ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) { friction = false; inventory.item_change_event.addListener(this); }
+    explicit ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) { friction = false; inventory.item_change_event.addListener(this);}
 
     Inventory inventory;
     

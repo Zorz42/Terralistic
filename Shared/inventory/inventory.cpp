@@ -67,7 +67,7 @@ std::vector<char> Inventory::toSerial() const {
     return serial;
 }
 
-Inventory::Inventory(Items* items, Recipes* recipes, Blocks* blocks) : items(items), recipes(recipes), blocks(blocks), mouse_item(&items->nothing, 0) {
+Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes), mouse_item(&items->nothing, 0) {
     item_counts = new int[items->getNumItemTypes()];
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = 0;
@@ -140,7 +140,7 @@ bool Inventory::canCraftRecipe(const Recipe* recipe) {
     })) {
         if (recipe->crafting_block == nullptr) {
             return true;
-        } else if (player != nullptr){
+        } else if (player != nullptr && blocks != nullptr){
             for (int i = player->getX() / (BLOCK_WIDTH * 2) - 3;
                  i < player->getX() / (BLOCK_WIDTH * 2) + 3; i++) {
                 for (int j = player->getY() / (BLOCK_WIDTH * 2) - 3;
@@ -199,7 +199,8 @@ Inventory& Inventory::operator=(const Inventory& inventory) {
 }
 
 Inventory::Inventory(const Inventory& inventory) {
-    *this = inventory;
+    *this = inventory;//fix maybe? read next comment
+    this->setBlocks(inventory.blocks);//this is needed, I thought the data is linked via a pointer but somehow without this line only inventory (and not this) have a pointer to blocks
 }
 
 Inventory::~Inventory() {
