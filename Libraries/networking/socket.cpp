@@ -42,9 +42,20 @@ void TcpSocket::handleError() {
 #else
 void TcpSocket::handleError() {
     switch(errno) {
-        case EINPROGRESS: case EWOULDBLOCK:  return;
-        case ECONNABORTED: case ECONNRESET: case ETIMEDOUT: case ENETRESET: case ENOTCONN: case EPIPE: case ECONNREFUSED: disconnect(); return;
-        default: throw SocketError("Socket error: " + (std::string)strerror(errno));
+        case EWOULDBLOCK:
+        case EINPROGRESS:
+            return;
+        case ECONNREFUSED:
+        case ECONNABORTED:
+        case ECONNRESET:
+        case ETIMEDOUT:
+        case ENETRESET:
+        case ENOTCONN:
+        case EPIPE:
+            disconnect();
+            return;
+        default:
+            throw SocketError("Socket error: " + (std::string)strerror(errno));
     }
 }
 #endif

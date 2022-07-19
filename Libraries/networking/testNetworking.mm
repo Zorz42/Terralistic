@@ -6,8 +6,8 @@
 
 TEST_CLASS(TestNetworking)
 
-void waitABit() {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+void waitABit(int ms=1) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 TEST_CASE(testNetworkingConnects) {
@@ -253,5 +253,33 @@ TEST_CASE(testSocketError) {
     
     ASSERT_THROWS(SocketError, socket.connect("127.0.0.1", 0));
 }
+
+TEST_CASE(testSocketAutoFlushes) {
+    TcpSocket c_socket, s_socket;
+    TcpListener listener;
+
+    int port = 4532;
+    listener.listen(port);
+
+    c_socket.connect("127.0.0.1", port);
+    waitABit();
+    listener.accept(s_socket);
+
+    Packet sent_packet, received_packet;
+    for(int i = 0; i < 100000; i++)
+        sent_packet << 42;
+    
+    c_socket.send(sent_packet);
+    
+    waitABit(10);
+    
+    ASSERT(s_socket.receive(received_packet));
+    
+    s_socket.disconnect();
+
+    listener.close();
+    c_socket.disconnect();
+}
+
 
 END_TEST_CLASS(TestNetworking)
