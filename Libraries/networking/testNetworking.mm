@@ -1,5 +1,6 @@
 #include <chrono>
 #include <thread>
+#include <iostream>
 #include "testing.hpp"
 #include "networking.hpp"
 
@@ -89,6 +90,27 @@ TEST_CASE(testSocketSendsData) {
     received_packet >> received;
     
     ASSERT(received == 1552);
+    
+    s_socket.disconnect();
+
+    listener.close();
+    c_socket.disconnect();
+}
+
+TEST_CASE(testSocketReceivesNothing) {
+    TcpSocket c_socket, s_socket;
+    TcpListener listener;
+
+    int port = 4593;
+    listener.listen(port);
+
+    c_socket.connect("127.0.0.1", port);
+    waitABit();
+    listener.accept(s_socket);
+
+    Packet received_packet;
+    ASSERT(!s_socket.receive(received_packet));
+    ASSERT(!c_socket.receive(received_packet));
     
     s_socket.disconnect();
 
@@ -211,6 +233,25 @@ TEST_CASE(testServerDisconnects) {
     ASSERT(!c_socket.isConnected());
 
     listener.close();
+}
+
+TEST_CASE(testWronglyFormattedAddress) {
+    TcpSocket socket;
+     
+    ASSERT_THROWS(AddressFormatError, socket.connect("3543.54;AA", 120));
+}
+
+TEST_CASE(testConnectDenied) {
+    TcpSocket socket;
+    
+    socket.connect("127.0.0.1", 150);
+    ASSERT(!socket.isConnected());
+}
+
+TEST_CASE(testSocketError) {
+    TcpSocket socket;
+    
+    ASSERT_THROWS(SocketError, socket.connect("127.0.0.1", 0));
 }
 
 END_TEST_CLASS(TestNetworking)
