@@ -165,6 +165,10 @@
 		368198CF2883623D00DB57C5 /* libglad.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 368198CD2883621F00DB57C5 /* libglad.a */; };
 		368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368296C328631C6100AD2176 /* libglfw.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		3683B0EC2887068C00F2E969 /* testPacketType.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3683B0EB2887068C00F2E969 /* testPacketType.mm */; };
+		3683B0ED2887068C00F2E969 /* testPacketType.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3683B0EB2887068C00F2E969 /* testPacketType.mm */; };
+		3683B0EE2887068C00F2E969 /* testPacketType.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3683B0EB2887068C00F2E969 /* testPacketType.mm */; };
+		3683B0EF28870DA600F2E969 /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368779712837EBCF00AA5943 /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368C34AE2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */; };
@@ -419,6 +423,7 @@
 		368198C7288348E100DB57C5 /* libplatform_folders.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libplatform_folders.a; path = "Dependencies/PlatformFolders-4.2.0/build/libplatform_folders.a"; sourceTree = "<group>"; };
 		368198CA28834ADB00DB57C5 /* libglad.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglad.dylib; path = Dependencies/glad/libglad.dylib; sourceTree = "<group>"; };
 		368198CD2883621F00DB57C5 /* libglad.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglad.a; path = Dependencies/glad/libglad.a; sourceTree = "<group>"; };
+		3683B0EB2887068C00F2E969 /* testPacketType.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testPacketType.mm; sourceTree = "<group>"; };
 		368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glfwAbstraction.cpp; sourceTree = "<group>"; };
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
@@ -711,6 +716,7 @@
 			children = (
 				168161CF269EFFB600A95DA9 /* packetType.hpp */,
 				1682944226A16D780017E2FD /* packetType.cpp */,
+				3683B0EB2887068C00F2E969 /* testPacketType.mm */,
 			);
 			path = packetType;
 			sourceTree = "<group>";
@@ -1782,6 +1788,7 @@
 				366399D427775F10007C944E /* clientWalls.cpp in Sources */,
 				3693112D2843466000C4DF00 /* listener.cpp in Sources */,
 				3692C14F26E509F100F9DD71 /* entities.cpp in Sources */,
+				3683B0EC2887068C00F2E969 /* testPacketType.mm in Sources */,
 				3665490327CA434F00D156D3 /* respawnScreen.cpp in Sources */,
 				3605ED50276A0A0A00ECCA08 /* camera.cpp in Sources */,
 				36DDF8B22689F725002337F3 /* server.cpp in Sources */,
@@ -1823,7 +1830,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3683B0EF28870DA600F2E969 /* packetType.cpp in Sources */,
 				369693DF2883370400D39F1B /* packet.cpp in Sources */,
+				3683B0EE2887068C00F2E969 /* testPacketType.mm in Sources */,
 				3674D40A28843FCD00582478 /* testPacket.mm in Sources */,
 				369693E02883370400D39F1B /* socket.cpp in Sources */,
 				369693E12883370400D39F1B /* listener.cpp in Sources */,
@@ -1842,6 +1851,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				366D9711282067FA00DEC292 /* scene.cpp in Sources */,
+				3683B0ED2887068C00F2E969 /* testPacketType.mm in Sources */,
 				167B53CE270A26EC000089B3 /* serverItems.cpp in Sources */,
 				16A13D1A2709B755009DEE40 /* serverLiquids.cpp in Sources */,
 				3693112B2843464A00C4DF00 /* socket.cpp in Sources */,

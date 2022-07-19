@@ -61,3 +61,5 @@ Packet& operator>>(Packet& packet, ServerPacketType& packet_type);
 
 Packet& operator<<(Packet& packet, WelcomePacketType packet_type);
 Packet& operator>>(Packet& packet, WelcomePacketType& packet_type);
+
+EXCEPTION_TYPE(PacketTypeError)

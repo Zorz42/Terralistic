@@ -13,4 +13,4 @@ public:
     }
 };
 
-#define EXCEPTION_TYPE(name) class name : public Exception { public: explicit name(std::string  message) : Exception(std::move(message)) {} };
+#define EXCEPTION_TYPE(name) class name : public Exception { public: explicit name(std::string message) : Exception(std::move(message)) {} };
