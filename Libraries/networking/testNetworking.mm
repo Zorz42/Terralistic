@@ -266,7 +266,7 @@ TEST_CASE(testSocketAutoFlushes) {
     listener.accept(s_socket);
 
     Packet sent_packet, received_packet;
-    for(int i = 0; i < 100000; i++)
+    for(int i = 0; i < 50000; i++)
         sent_packet << 42;
     
     c_socket.send(sent_packet);
