@@ -50,7 +50,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     
     int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - camera->getX();
     int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY();
-    player_texture.render(2, player_x, player_y, {player_to_draw.texture_frame * PLAYER_WIDTH, 0, PLAYER_WIDTH, PLAYER_HEIGHT}, player_to_draw.flipped);
+    player_texture.render(2, player_x - 4, player_y - 8, {player_to_draw.texture_frame * (PLAYER_WIDTH + 4), 0, (PLAYER_WIDTH + 4), (PLAYER_HEIGHT + 4)}, player_to_draw.flipped);
     if(&player_to_draw != main_player) {
         if(!player_to_draw.has_created_text) {
             player_to_draw.name_text.loadFromText(player_to_draw.name, WHITE);

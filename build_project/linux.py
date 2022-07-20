@@ -60,6 +60,7 @@ class InstallPerlinNoise(tasks.Task):
 
 class CompileResourcePack(tasks.Task):
     def execute(self):
+        compileResourcePack.compileResourcePack(self.project_path + "Resources/", self.project_path + "cmake-build-debug/Resources/")
         compileResourcePack.compileResourcePack(self.project_path + "Resources/", self.project_path + "Build/Resources/")
 
 

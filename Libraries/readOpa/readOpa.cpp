@@ -25,3 +25,18 @@ void loadOpa(gfx::Texture& texture, const std::string& path) {
 
     texture.loadFromData(&data[0], width, height);
 }
+
+void loadOpaSkinTemplate(std::vector<unsigned char>& data, const std::string& path){
+    std::ifstream opa_file(path, std::ios::binary);
+    if(!opa_file.is_open() || (opa_file.eof() && opa_file.fail()))
+        throw Exception("Could not open file: " + path);
+
+    opa_file.seekg(0, std::ios_base::end);
+    std::streampos file_size = opa_file.tellg();
+    data.clear();
+    data.resize(file_size);
+
+    opa_file.seekg(0, std::ios_base::beg);
+    opa_file.read((char*)&data[0], file_size);
+
+}
