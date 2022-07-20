@@ -16,12 +16,15 @@ void gfx::Surface::createEmpty(int w, int h) {
     data = std::vector<unsigned char>(width * height * 4, 0);
 }
 
-gfx::Color gfx::Surface::getPixel(int x, int y) const {
+int gfx::Surface::getIndex(int x, int y) const {
     if(x < 0 || x >= width || y < 0 || y >= height)
         throw PixelOutOfBoundsError("Pixel out of bounds");
-    
+    return ((height - y - 1) * width + x) * 4;
+}
+
+gfx::Color gfx::Surface::getPixel(int x, int y) const {
     Color result;
-    int index = ((height - y) * width + x) * 4;
+    int index = getIndex(x, y);
     result.r = data[index + 0];
     result.g = data[index + 1];
     result.b = data[index + 2];
@@ -33,7 +36,7 @@ void gfx::Surface::setPixel(int x, int y, gfx::Color color) {
     if(x < 0 || x >= width || y < 0 || y >= height)
         throw PixelOutOfBoundsError("Pixel out of bounds");
     
-    int index = ((height - y) * width + x) * 4;
+    int index = getIndex(x, y);
     data[index + 0] = color.r;
     data[index + 1] = color.g;
     data[index + 2] = color.b;

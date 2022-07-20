@@ -8,6 +8,8 @@ namespace gfx {
 class Surface {
     std::vector<unsigned char> data;
     int width = 0, height = 0;
+    
+    int getIndex(int x, int y) const;
 public:
     void loadFromBuffer(const std::vector<unsigned char>& buffer, int w, int h);
     void createEmpty(int w, int h);
