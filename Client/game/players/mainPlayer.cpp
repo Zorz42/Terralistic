@@ -6,7 +6,6 @@ void ClientPlayers::init() {
 }
 
 void ClientPlayers::loadTextures() {
-    //loadOpa(player_texture, "/misc/player.opa");
     std::vector<unsigned char> skin_template, player_texture_vector, skin;
     loadOpaSkinTemplate(skin_template, resource_pack->getFile("/misc/skin_template.opa"));
     loadOpaSkinTemplate(skin, resource_pack->getFile("/misc/skin.opa"));
@@ -18,20 +17,20 @@ void ClientPlayers::loadTextures() {
     player_texture_vector.resize(skin_template.size());
 
     for(int i = 0; i < skin_template.size(); i += 4)
-        if(skin_template[i + 3] == 0){
+        if(skin_template[i + 3] == 0) {
             player_texture_vector[i] = 0;
             player_texture_vector[i + 1] = 0;
             player_texture_vector[i + 2] = 0;
             player_texture_vector[i + 3] = 0;
-        }else{
+        } else {
             int x = skin_template[i + 2] / 8;
             int y = 31 - skin_template[i + 1] / 8;
-            int pixel = (y * 32 + x) * 4;//x and y may need to be reversed
+            int pixel = (y * 32 + x) * 4; // x and y may need to be reversed
             unsigned char r = skin[pixel];
             unsigned char g = skin[pixel + 1];
             unsigned char b = skin[pixel + 2];
             unsigned char a = skin[pixel + 3];
-            if(pixel * 2 < 4096)//size of the skin array
+            if(pixel * 2 < 4096) // size of the skin array
                 a = 255;
             player_texture_vector[i] = r;
             player_texture_vector[i + 1] = g;
