@@ -8,25 +8,21 @@ void gfx::Texture::createBlankImage(int width_, int height_) {
     if(width_ <= 0 || height_ <= 0)
         throw std::runtime_error("Width and Height of a texture size must be positive.");
     
-    unsigned char* array = new unsigned char[width_ * height_ * 4];
-    memset(array, 0, width_ * height_ * 4);
-    loadFromData(array, width_, height_);
-    delete[] array;
+    Surface surface;
+    surface.createEmpty(width_, height_);
+    loadFromSurface(surface);
     
     glBindTexture(GL_TEXTURE_2D, gl_texture);
 }
 
-void gfx::Texture::loadFromData(const unsigned char* data, int width_, int height_) {
-    if(width_ <= 0 || height_ <= 0)
-        throw std::runtime_error("Width and Height of a texture size must be positive.");
-    
+void gfx::Texture::loadFromSurface(const Surface& surface) {
     freeTexture();
     
-    width = width_;
-    height = height_;
+    width = surface.getWidth();
+    height = surface.getHeight();
 
-    unsigned char* data2 = new unsigned char[width_ * height_ * 4];
-    for(int i = 0; i < width_ * height_ * 4; i++) {
+    unsigned char* data2 = new unsigned char[width * height * 4];
+    for(int i = 0; i < width * height * 4; i++) {
         data2[i] = 255;
         if(i % 8 == 1)
             data2[i] = 0;
@@ -34,7 +30,7 @@ void gfx::Texture::loadFromData(const unsigned char* data, int width_, int heigh
 
     glGenTextures(1, &gl_texture);
     glBindTexture(GL_TEXTURE_2D, gl_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &surface.getData()[0]);
 
     delete[] data2;
 
@@ -89,6 +85,7 @@ void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool fl
         transform.translate(src_rect.w * scale + x * 2, 0);
         transform.stretch(-1, 1);
     }
+    
     transform.translate(x, y);
     transform.stretch(src_rect.w * scale, src_rect.h * scale);
     

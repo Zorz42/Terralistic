@@ -3,7 +3,7 @@
 #include "readOpa.hpp"
 
 void MenuBack::init() {
-    loadOpa(background, resource_path + "background.opa");
+    background.loadFromSurface(readOpa(resource_path + "background.opa"));
     
     back_rect.orientation = gfx::CENTER;
     back_rect.fill_color.a = TRANSPARENCY;

@@ -6,7 +6,22 @@ void ClientPlayers::init() {
 }
 
 void ClientPlayers::loadTextures() {
-    std::vector<unsigned char> skin_template, player_texture_vector, skin;
+    gfx::Surface player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
+    gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
+    
+    for(int y = 0; y < player_surface.getHeight(); y++)
+        for(int x = 0; x < player_surface.getWidth(); x++)
+            if(player_surface.getPixel(x, y).a != 0) {
+                gfx::Color curr_pixel = player_surface.getPixel(x, y);
+                int skin_x = curr_pixel.b / 8;
+                int skin_y = (curr_pixel.g / 8 + 1) % 32;
+                
+                player_surface.setPixel(x, y, skin.getPixel(skin_x, skin_y));
+            }
+    
+    player_texture.loadFromSurface(player_surface);
+    
+    /*std::vector<unsigned char> skin_template, player_texture_vector, skin;
     loadOpaSkinTemplate(skin_template, resource_pack->getFile("/misc/skin_template.opa"));
     loadOpaSkinTemplate(skin, resource_pack->getFile("/misc/skin.opa"));
 
@@ -37,7 +52,7 @@ void ClientPlayers::loadTextures() {
             player_texture_vector[i + 2] = b;
             player_texture_vector[i + 3] = a;
         }
-    player_texture.loadFromData(&player_texture_vector[0], width, height);
+    player_texture.loadFromData(&player_texture_vector[0], width, height);*/
 }
 
 void ClientPlayers::stop() {

@@ -110,6 +110,8 @@
 		366399D027775E17007C944E /* serverWalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366399CD27775E17007C944E /* serverWalls.cpp */; };
 		366399D427775F10007C944E /* clientWalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366399D227775F10007C944E /* clientWalls.cpp */; };
 		3665490327CA434F00D156D3 /* respawnScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3665490127CA434F00D156D3 /* respawnScreen.cpp */; };
+		366596802888479200038229 /* surface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3665967E2888479200038229 /* surface.cpp */; };
+		366596812888479200038229 /* surface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3665967E2888479200038229 /* surface.cpp */; };
 		3666D90D2748FEC500C23231 /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D90A2748FEC500C23231 /* lexer.cpp */; };
 		3666D90E2748FEC500C23231 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D90C2748FEC500C23231 /* main.cpp */; };
 		3666D9132749247A00C23231 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3666D9112749247A00C23231 /* parser.cpp */; };
@@ -376,6 +378,8 @@
 		366399D327775F10007C944E /* clientWalls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clientWalls.hpp; sourceTree = "<group>"; };
 		3665490127CA434F00D156D3 /* respawnScreen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = respawnScreen.cpp; sourceTree = "<group>"; };
 		3665490227CA434F00D156D3 /* respawnScreen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = respawnScreen.hpp; sourceTree = "<group>"; };
+		3665967E2888479200038229 /* surface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = surface.cpp; sourceTree = "<group>"; };
+		3665967F2888479200038229 /* surface.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = surface.hpp; sourceTree = "<group>"; };
 		3666D8FE2748FE9700C23231 /* jaclang */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = jaclang; sourceTree = BUILT_PRODUCTS_DIR; };
 		3666D90A2748FEC500C23231 /* lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
 		3666D90B2748FEC500C23231 /* lexer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = lexer.hpp; sourceTree = "<group>"; };
@@ -1198,6 +1202,15 @@
 			path = respawnScreen;
 			sourceTree = "<group>";
 		};
+		3665967D2888477500038229 /* surface */ = {
+			isa = PBXGroup;
+			children = (
+				3665967F2888479200038229 /* surface.hpp */,
+				3665967E2888479200038229 /* surface.cpp */,
+			);
+			path = surface;
+			sourceTree = "<group>";
+		};
 		3666D9052748FEC500C23231 /* Jaclang */ = {
 			isa = PBXGroup;
 			children = (
@@ -1266,6 +1279,7 @@
 				366D9703282067FA00DEC292 /* graphics.cpp */,
 				368F706E2854FC8500C6FF6B /* color */,
 				368F70762854FD0000C6FF6B /* transformation */,
+				3665967D2888477500038229 /* surface */,
 				368C34AB2855DB6700DA7569 /* glfwAbstraction */,
 				367F362A285F70B100319AD2 /* blur */,
 				367F362F285F715300319AD2 /* shadow */,
@@ -1745,6 +1759,7 @@
 				367F3637285F751800319AD2 /* font.cpp in Sources */,
 				3657222426D07181005AB3CC /* menuBack.cpp in Sources */,
 				3605ED54276A1ED000ECCA08 /* background.cpp in Sources */,
+				366596802888479200038229 /* surface.cpp in Sources */,
 				3657221C26D07181005AB3CC /* game.cpp in Sources */,
 				3657221126D07181005AB3CC /* debugMenu.cpp in Sources */,
 				1674225F2702F48B00D6D8F2 /* liquids.cpp in Sources */,
@@ -1907,6 +1922,7 @@
 				369693D528807B6400D39F1B /* testConfigManager.mm in Sources */,
 				368C34AF2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */,
 				366D9715282067FA00DEC292 /* textInput.cpp in Sources */,
+				366596812888479200038229 /* surface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

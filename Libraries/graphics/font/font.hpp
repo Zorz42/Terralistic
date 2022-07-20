@@ -1,8 +1,9 @@
 #pragma once
+#include "surface.hpp"
 
 namespace gfx {
 
-void loadFont(const unsigned char* data);
+void loadFont(const Surface& surface);
 
 
 };

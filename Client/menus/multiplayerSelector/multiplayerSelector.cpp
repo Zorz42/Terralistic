@@ -42,17 +42,17 @@ void MultiplayerSelector::refresh() {
         
         server->y = scroll_limit + TOP_HEIGHT;
         
-        loadOpa(server->icon, resource_path + "world_icon.opa");
+        server->icon.loadFromSurface(readOpa(resource_path + "world_icon.opa"));
         
         server->data.ip = server_data[i].ip;
         server->data.name = server_data[i].name;
         server->name_texture.loadFromText(server_data[i].name);
 
-        loadOpa(server->join_button, resource_path + "join_button.opa");
+        server->join_button.loadFromSurface(readOpa(resource_path + "join_button.opa"));
         server->join_button.scale = 3;
         server->join_button.margin = 5;
         
-        loadOpa(server->remove_button, resource_path + "remove_button.opa");
+        server->remove_button.loadFromSurface(readOpa(resource_path + "remove_button.opa"));
         server->remove_button.scale = 3;
         server->remove_button.margin = 5;
         

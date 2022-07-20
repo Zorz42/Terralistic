@@ -6,6 +6,7 @@
 #include "updater.hpp"
 #include "networking.hpp"
 #include "testing.hpp"
+#include "readOpa.hpp"
 
 class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     ChoiceSetting* scale_setting;
@@ -79,13 +80,7 @@ int main(int argc, char **argv) {
     gfx::init(1130, 700, "Terralistic");
     gfx::setMinimumWindowSize(gfx::getWindowWidth(), gfx::getWindowHeight());
     
-    std::ifstream font_file(resource_path + "font.opa");
-    if(!font_file.is_open())
-        throw Exception("Could not open font file");
-    std::vector<unsigned char> data = std::vector<unsigned char>((std::istreambuf_iterator<char>(font_file)), std::istreambuf_iterator<char>());
-    data.erase(data.begin(), data.begin() + 8);
-    
-    gfx::loadFont(&data[0]);
+    gfx::loadFont(readOpa(resource_path + "font.opa"));
     
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/");
     

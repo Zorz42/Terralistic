@@ -2,7 +2,7 @@
 #include "readOpa.hpp"
 
 void Background::loadTextures() {
-    loadOpa(background, resource_pack->getFile("/misc/background.opa"));
+    background.loadFromSurface(readOpa(resource_pack->getFile("/misc/background.opa")));
 }
 
 void Background::render() {

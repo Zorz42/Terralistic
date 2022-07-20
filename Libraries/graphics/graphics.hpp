@@ -3,11 +3,12 @@
 #define GRAPHICS_PUBLIC
 #include "color.hpp"
 #include "glfwAbstraction.hpp"
+#include "transformation.hpp"
+#include "surface.hpp"
 #include "blur.hpp"
 #include "rectShape.hpp"
 #include "orientation.hpp"
 #include "centeredObject.hpp"
-#include "transformation.hpp"
 #include "timer.hpp"
 #include "font.hpp"
 #include "texture.hpp"
