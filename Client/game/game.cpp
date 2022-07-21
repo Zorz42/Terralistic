@@ -154,7 +154,7 @@ void Game::update(float frame_length) {
         if(entity->type == EntityType::PLAYER) {
             auto *player = (ClientPlayer *) entity;
             if(!player->has_created_texture)
-                player->loadPlayerTexture(&resource_pack);
+                players.loadPlayerTexture(*player);
         }
 
 

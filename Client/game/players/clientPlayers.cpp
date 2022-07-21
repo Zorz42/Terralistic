@@ -5,9 +5,8 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Play
     friction = false;
 }
 
-void ClientPlayer::loadPlayerTexture(ResourcePack* resource_pack) {
-    gfx::Surface player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
-    gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
+void ClientPlayer::loadSkin(const gfx::Surface& skin, ResourcePack* resource_pack){
+    player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
 
     for(int y = 0; y < player_surface.getHeight(); y++)
         for(int x = 0; x < player_surface.getWidth(); x++)
@@ -18,9 +17,14 @@ void ClientPlayer::loadPlayerTexture(ResourcePack* resource_pack) {
                     color.a = 255;
                 player_surface.setPixel(x, y, color);
             }
+}
 
-    player_texture.loadFromSurface(player_surface);
-    has_created_texture = true;
+void ClientPlayers::loadPlayerTexture(ClientPlayer& player) {
+    if(&player == main_player)
+        player.loadSkin(readOpa(resource_pack->getFile("/misc/skin.opa")), resource_pack);
+
+    player.player_texture.loadFromSurface(player.player_surface);
+    player.has_created_texture = true;
 }
 
 void ClientPlayers::render() {
@@ -110,6 +114,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
+                main_player->loadSkin(readOpa(resource_pack->getFile("/misc/skin.opa")), resource_pack);
             }
 
             break;
