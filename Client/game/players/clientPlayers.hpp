@@ -10,6 +10,7 @@
 class ClientPlayer : public Player {
 public:
     ClientPlayer(const std::string& name, int x, int y, int id);
+    void loadPlayerTexture(ResourcePack* resource_pack);
     int texture_frame = 0;
     gfx::Texture name_text;
     gfx::Texture player_texture;
@@ -30,7 +31,6 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     
     void init() override;
     void loadTextures() override;
-    void loadPlayerTexture(ClientPlayer& player);
     void updateParallel(float frame_length) override;
     void onEvent(ClientPacketEvent& event) override;
     void render() override;
