@@ -77,7 +77,6 @@ void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool fl
     
     glUniform1i(uniform_texture_sampler, 0);
     glUniform1i(uniform_has_texture, 1);
-    glUniform1i(uniform_blend_multiply, 0);
     glUniform1i(uniform_has_color_buffer, 0);
     _Transformation transform = normalization_transform;
     

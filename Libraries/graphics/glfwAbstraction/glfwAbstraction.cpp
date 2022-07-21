@@ -8,7 +8,6 @@ static const char* vertex_shader_code =
 "layout(location = 2) in vec2 vertex_uv;"
 "out vec4 fragment_color;"
 "out vec2 uv;"
-"out vec2 back_uv;"
 "uniform int has_color_buffer;"
 "uniform vec4 default_color;"
 "uniform mat3 transform_matrix;"
@@ -17,22 +16,17 @@ static const char* vertex_shader_code =
 "   gl_Position = vec4(transform_matrix * vec3(vertex_position.xy, 1), 1);"
 "   fragment_color = mix(default_color, vertex_color, has_color_buffer);"
 "   uv = (texture_transform_matrix * vec3(vertex_uv, 1)).xy;"
-"   back_uv = (texture_transform_matrix * vec3(vertex_position, 1)).xy;"
 "}";
 
 static const char* fragment_shader_code =
 "#version 330 core\n"
 "in vec4 fragment_color;"
 "in vec2 uv;"
-"in vec2 back_uv;"
 "layout(location = 0) out vec4 color;"
 "uniform sampler2D texture_sampler;"
-"uniform sampler2D back_texture_sampler;"
 "uniform int has_texture;"
-"uniform int blend_multiply;"
 "void main() {"
 "   color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, uv).rgba, has_texture) * fragment_color;"
-"   color = mix(color, vec4(texture(back_texture_sampler, back_uv).rgb * color.rgb, 1), blend_multiply);"
 "}";
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -139,8 +133,6 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
     uniform_has_color_buffer = glGetUniformLocation(shader_program, "has_color_buffer");
     uniform_transform_matrix = glGetUniformLocation(shader_program, "transform_matrix");
     uniform_texture_transform_matrix = glGetUniformLocation(shader_program, "texture_transform_matrix");
-    uniform_back_texture_sampler = glGetUniformLocation(shader_program, "back_texture_sampler");
-    uniform_blend_multiply = glGetUniformLocation(shader_program, "blend_multiply");
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
