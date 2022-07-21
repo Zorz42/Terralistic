@@ -13,7 +13,7 @@ public:
     int texture_frame = 0;
     gfx::Texture name_text;
     gfx::Texture player_texture;
-    bool has_created_text = false;
+    bool has_created_text = false, has_created_texture = false;
     int started_moving = 0;
     bool has_jumped = false;
 };
@@ -30,6 +30,7 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     
     void init() override;
     void loadTextures() override;
+    void loadPlayerTexture();
     void updateParallel(float frame_length) override;
     void onEvent(ClientPacketEvent& event) override;
     void render() override;
