@@ -32,9 +32,13 @@ int main(int argc, char **argv) {
         
         std::ifstream font_file(resource_path + "font.opa");
         std::vector<unsigned char> data = std::vector<unsigned char>((std::istreambuf_iterator<char>(font_file)), std::istreambuf_iterator<char>());
+        int w = *(int*)&data[0];
+        int h = *(int*)&data[sizeof(int)];
         data.erase(data.begin(), data.begin() + 8);
-        
-        gfx::loadFont(&data[0]);
+
+        gfx::Surface font_surface;
+        font_surface.loadFromBuffer(data, w, h);
+        gfx::loadFont(font_surface);
     }
     
     Server main_server(resource_path, data_folder + "world", 33770);
