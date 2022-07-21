@@ -17,12 +17,14 @@
 #include "clientWalls.hpp"
 #include "respawnScreen.hpp"
 
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed);
+void startPrivateWorld(gfx::Scene* prev_scene, const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed);
 
 class Game : gfx::Scene, public BackgroundRect {
+    void preInit() override;
     void init() override;
     bool onKeyDown(gfx::Key key) override;
     void update(float frame_length) override;
+    void stop() override;
     
     void initializeGame();
     std::string username;
@@ -61,7 +63,6 @@ class Game : gfx::Scene, public BackgroundRect {
     std::thread parallel_update_thread;
     
     void parallelUpdateLoop();
-    void stop() override;
 public:
     Game(BackgroundRect* background_rect, Settings* settings, const std::string& username, const std::string& ip_address, int port=33770);
     
@@ -73,5 +74,5 @@ public:
     bool interrupt = false;
     std::string interrupt_message;
     
-    void start();
+    void start(gfx::Scene* prev_scene);
 };

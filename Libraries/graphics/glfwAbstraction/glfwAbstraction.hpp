@@ -1,4 +1,6 @@
 #pragma once
+#include "events.hpp"
+
 
 #define GL_SILENCE_DEPRECATION
 extern "C" {
@@ -15,6 +17,10 @@ int getWindowHeight();
 void enableVsync(bool enabled);
 
 void setGlobalScale(float scale);
+
+
+class _ScreenRefreshEvent {};
+inline EventSender<_ScreenRefreshEvent> _screen_refresh_event_sender;
 
 };
 

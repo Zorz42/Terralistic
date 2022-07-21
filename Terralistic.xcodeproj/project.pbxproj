@@ -772,10 +772,10 @@
 		169AD3A027023B590096D80D /* blocks */ = {
 			isa = PBXGroup;
 			children = (
-				3672D2CE287DEF2D000FD606 /* blockData.hpp */,
-				3672D2CD287DEF2D000FD606 /* blockData.cpp */,
 				169AD3A227023B690096D80D /* blocks.hpp */,
 				169AD3A127023B690096D80D /* blocks.cpp */,
+				3672D2CE287DEF2D000FD606 /* blockData.hpp */,
+				3672D2CD287DEF2D000FD606 /* blockData.cpp */,
 			);
 			path = blocks;
 			sourceTree = "<group>";
@@ -965,10 +965,10 @@
 			children = (
 				36D26F2927352F6600F1F476 /* exception */,
 				369693C3287E339200D39F1B /* testing */,
+				1676E9F62699BF8600034070 /* events */,
 				366D96E12820568400DEC292 /* graphics */,
 				366D96F4282059C600DEC292 /* readOpa */,
 				36D31CD626DBE31D006F89B3 /* compress */,
-				1676E9F62699BF8600034070 /* events */,
 				1675E71A26611B6300B620F4 /* configManager */,
 				369E17CB2839466900D37108 /* networking */,
 			);

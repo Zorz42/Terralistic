@@ -46,7 +46,7 @@ bool NameChooser::onKeyUp(gfx::Key key) {
         returnFromScene();
         return true;
     } else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_join)) {
-        Game(menu_back, settings, name_input.getText(), server_ip).start();
+        Game(menu_back, settings, name_input.getText(), server_ip).start(this);
         returnFromScene();
         return true;
     }

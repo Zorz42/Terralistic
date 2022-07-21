@@ -48,8 +48,8 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
-    //if(gfx::curr_scene != nullptr)
-    //    gfx::curr_scene->renderAll(); // TODO: implement
+    gfx::_ScreenRefreshEvent event;
+    gfx::_screen_refresh_event_sender.call(event);
 }
 
 static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {

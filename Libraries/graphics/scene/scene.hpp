@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "textInput.hpp"
+#include "glfwAbstraction.hpp"
 
 namespace gfx {
 
@@ -37,14 +38,15 @@ public:
     std::vector<TextInput*> text_inputs;
 };
 
-class Scene : public SceneModule {
+class Scene : public SceneModule, EventListener<_ScreenRefreshEvent> {
     std::vector<SceneModule*> modules;
     void onKeyDownCallback(Key key_, bool only_absolute);
     void onKeyUpCallback(Key key_, bool only_absolute);
-    bool running = true, initialized = false;
+    bool running = true, initialized = false, active = true;
     float render_time;
     int frame_count = 0;
     Timer print_render_data_timer;
+    void onEvent(_ScreenRefreshEvent& event) override;
 public:
     Scene(const std::string& module_name) : SceneModule(module_name) {}
     void initialize();
@@ -62,6 +64,8 @@ public:
     void onTextEnteredEvent(char c);
     void onMouseWheelScrollEvent(int delta);
     float getRenderTime();
+    
+    virtual void preInit() {}
 };
 
 inline int fps_limit = 0;

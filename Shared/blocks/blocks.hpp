@@ -51,11 +51,11 @@ public:
     std::string name;
 };
 
-struct DefaultData{
-    virtual ~DefaultData(){}
-    virtual void save(std::vector<char>& data, unsigned long& index){}
-    virtual void load(const char*& iter){}
-    virtual int getSavedSize(){return 0;}
+struct DefaultData {
+    virtual ~DefaultData() {}
+    virtual void save(std::vector<char>& data, unsigned long& index) {}
+    virtual void load(const char*& iter) {}
+    virtual int getSavedSize() { return 0; }
 };
 
 struct dataDeliverer;
