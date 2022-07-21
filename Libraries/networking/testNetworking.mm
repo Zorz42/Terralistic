@@ -10,73 +10,90 @@ void waitABit(int ms=1) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-TEST_CASE(testNetworkingConnects) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
+int port = 45923;
 
-    int port = 45923;
+TcpSocket c_socket, s_socket;
+TcpListener listener;
+
+CASE_CONSTRUCTOR {
+    port++;
+    c_socket = TcpSocket();
+    s_socket = TcpSocket();
+    listener = TcpListener();
+    
     listener.listen(port);
-
-    ASSERT(c_socket.connect("127.0.0.1", port));
+    
+    c_socket.connect("127.0.0.1", port);
     waitABit();
-    ASSERT(listener.accept(s_socket));
+    listener.accept(s_socket);
+}
 
-    s_socket.disconnect();
-
+CASE_DESTRUCTOR {
+    if(s_socket.isConnected())
+        s_socket.disconnect();
+    
     listener.close();
-    c_socket.disconnect();
+    if(c_socket.isConnected())
+        c_socket.disconnect();
+}
+
+TEST_CASE(testNetworkingConnects) {
+    TcpSocket client_socket, server_socket;
+    TcpListener server_listener;
+
+    int curr_port = 45920;
+    server_listener.listen(curr_port);
+
+    ASSERT(client_socket.connect("127.0.0.1", curr_port));
+    waitABit();
+    ASSERT(server_listener.accept(server_socket));
+
+    server_socket.disconnect();
+
+    server_listener.close();
+    client_socket.disconnect();
 }
 
 TEST_CASE(testSocketConnectedState) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
+    TcpSocket client_socket, server_socket;
+    TcpListener server_listener;
+    
+    ASSERT(!client_socket.isConnected());
+    ASSERT(!server_socket.isConnected());
 
-    ASSERT(!c_socket.isConnected());
-    ASSERT(!s_socket.isConnected());
+    int curr_port = 45921;
+    server_listener.listen(curr_port);
 
-    int port = 45924;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    ASSERT(c_socket.isConnected());
+    client_socket.connect("127.0.0.1", curr_port);
+    ASSERT(client_socket.isConnected());
     waitABit();
-    listener.accept(s_socket);
-    ASSERT(s_socket.isConnected());
+    server_listener.accept(server_socket);
+    ASSERT(server_socket.isConnected());
 
-    s_socket.disconnect();
-    ASSERT(!s_socket.isConnected());
+    server_socket.disconnect();
+    ASSERT(!server_socket.isConnected());
 
-    listener.close();
-    c_socket.disconnect();
-    ASSERT(!c_socket.isConnected());
+    server_listener.close();
+    client_socket.disconnect();
+    ASSERT(!client_socket.isConnected());
 }
 
 TEST_CASE(testListenerHandleError) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
+    TcpSocket client_socket, server_socket;
+    TcpListener server_listener;
 
-    int port = 45925;
-    listener.listen(port);
+    int curr_port = 45922;
+    server_listener.listen(curr_port);
     
-    ASSERT(!listener.accept(s_socket));
+    ASSERT(!server_listener.accept(s_socket));
     
-    c_socket.connect("127.0.0.1", port);
-    c_socket.disconnect();
+    client_socket.connect("127.0.0.1", curr_port);
+    client_socket.disconnect();
 
-    listener.close();
+    server_listener.close();
 }
 
 TEST_CASE(testSocketSendsData) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
-
-    int port = 4592;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    waitABit();
-    listener.accept(s_socket);
-
     Packet sent_packet, received_packet;
     sent_packet << 1552;
     
@@ -90,74 +107,31 @@ TEST_CASE(testSocketSendsData) {
     received_packet >> received;
     
     ASSERT(received == 1552);
-    
-    s_socket.disconnect();
-
-    listener.close();
-    c_socket.disconnect();
 }
 
 TEST_CASE(testSocketReceivesNothing) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
-
-    int port = 4593;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    waitABit();
-    listener.accept(s_socket);
-
     Packet received_packet;
     ASSERT(!s_socket.receive(received_packet));
     ASSERT(!c_socket.receive(received_packet));
-    
-    s_socket.disconnect();
-
-    listener.close();
-    c_socket.disconnect();
 }
 
 TEST_CASE(testSocketGetIpAddress) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
-
-    int port = 45927;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    waitABit();
-    listener.accept(s_socket);
-
+    TcpSocket socket;
+    ASSERT_THROWS(NotConnectedError, socket.getIpAddress());
+        
     ASSERT(c_socket.getIpAddress() == "127.0.0.1");
     ASSERT(s_socket.getIpAddress() == "127.0.0.1");
-    
-    s_socket.disconnect();
-    
-    listener.close();
-    c_socket.disconnect();
-    
-    ASSERT_THROWS(NotConnectedError, c_socket.getIpAddress());
-    ASSERT_THROWS(NotConnectedError, s_socket.getIpAddress());
 }
 
 TEST_CASE(testSocketThrowsBasedOnConnectedState) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
+    TcpSocket socket;
     
     Packet packet;
-    ASSERT_THROWS(NotConnectedError, c_socket.disconnect());
-    ASSERT_THROWS(NotConnectedError, c_socket.getIpAddress());
-    ASSERT_THROWS(NotConnectedError, c_socket.flushPacketBuffer());
-    ASSERT_THROWS(NotConnectedError, c_socket.receive(packet));
-    ASSERT_THROWS(NotConnectedError, c_socket.send(packet));
-    
-    int port = 45928;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    waitABit();
-    listener.accept(s_socket);
+    ASSERT_THROWS(NotConnectedError, socket.disconnect());
+    ASSERT_THROWS(NotConnectedError, socket.getIpAddress());
+    ASSERT_THROWS(NotConnectedError, socket.flushPacketBuffer());
+    ASSERT_THROWS(NotConnectedError, socket.receive(packet));
+    ASSERT_THROWS(NotConnectedError, socket.send(packet));
     
     c_socket.getIpAddress();
     c_socket.flushPacketBuffer();
@@ -179,29 +153,9 @@ TEST_CASE(testSocketThrowsBasedOnConnectedState) {
     
     c_socket.connect("127.0.0.1", port);
     ASSERT_THROWS(AlreadyConnectedError, listener.accept(c_socket));
-    
-    c_socket.disconnect();
-    
-    listener.close();
-    
-    ASSERT_THROWS(NotConnectedError, c_socket.disconnect());
-    ASSERT_THROWS(NotConnectedError, c_socket.getIpAddress());
-    ASSERT_THROWS(NotConnectedError, c_socket.flushPacketBuffer());
-    ASSERT_THROWS(NotConnectedError, c_socket.receive(packet));
-    ASSERT_THROWS(NotConnectedError, c_socket.send(packet));
 }
 
 TEST_CASE(testClientDisconnects) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
-
-    int port = 45929;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    waitABit();
-    listener.accept(s_socket);
-
     c_socket.disconnect();
     waitABit();
     
@@ -209,21 +163,9 @@ TEST_CASE(testClientDisconnects) {
     s_socket.receive(packet);
     
     ASSERT(!s_socket.isConnected());
-
-    listener.close();
 }
 
 TEST_CASE(testServerDisconnects) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
-
-    int port = 45930;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    waitABit();
-    listener.accept(s_socket);
-
     s_socket.disconnect();
     waitABit();
     
@@ -231,8 +173,6 @@ TEST_CASE(testServerDisconnects) {
     c_socket.receive(packet);
     
     ASSERT(!c_socket.isConnected());
-
-    listener.close();
 }
 
 TEST_CASE(testWronglyFormattedAddress) {
@@ -256,16 +196,6 @@ TEST_CASE(testSocketError) {
 }
 
 TEST_CASE(testSocketAutoFlushes) {
-    TcpSocket c_socket, s_socket;
-    TcpListener listener;
-
-    int port = 4532;
-    listener.listen(port);
-
-    c_socket.connect("127.0.0.1", port);
-    waitABit();
-    listener.accept(s_socket);
-
     Packet sent_packet, received_packet;
     for(int i = 0; i < 50000; i++)
         sent_packet << 42;
@@ -275,11 +205,6 @@ TEST_CASE(testSocketAutoFlushes) {
     waitABit(10);
     
     ASSERT(s_socket.receive(received_packet));
-    
-    s_socket.disconnect();
-
-    listener.close();
-    c_socket.disconnect();
 }
 
 

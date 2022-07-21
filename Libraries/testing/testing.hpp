@@ -20,8 +20,8 @@ class _TestClass {
     std::string class_name;
 public:
     _TestClass();
-    virtual void construct() {}
-    virtual void destruct() {}
+    virtual void _construct() {}
+    virtual void _destruct() {}
     
     bool _performTests();
     void _registerTestCase();
@@ -55,19 +55,22 @@ bool performTests();
 
 #define ASSERT(x) XCTAssertTrue(x)
 
+#define CASE_CONSTRUCTOR - (void)setUp
+
+#define CASE_DESTRUCTOR - (void)tearDown
+
 #else
 
 #define TEST_CLASS(name) static class _TestClassInstance ## name : public _TestClass { typedef _TestClassInstance ## name self;
 
-#define _TEST_CASE(name, line) _CaseRegistrator case_registrator ## line = _CaseRegistrator((void (_TestClass::*)())&self::name, this, #name); void name()
-#define _TEST_CASEP(name, line) _TEST_CASE(name, line)
-#define TEST_CASE(name) _TEST_CASEP(name, __LINE__)
+#define TEST_CASE(name) _CaseRegistrator case_registrator ## name = _CaseRegistrator((void (_TestClass::*)())&self::name, this, #name); void name()
 
-#define _END_TEST_CLASS(name, line) } name; static _TestClassNameSetter test_name_setter ## line (&name, #name);
-#define _END_TEST_CLASSP(name, line) _END_TEST_CLASS(name, line)
-#define END_TEST_CLASS(name) _END_TEST_CLASSP(name, __LINE__)
+#define END_TEST_CLASS(name) } name; static _TestClassNameSetter test_name_setter ## name (&name, #name);
 
 #define ASSERT(x) _assert(x)
+
+#define CASE_CONSTRUCTOR void _construct() override
+#define CASE_DESTRUCTOR void _destruct() override
 
 #endif
 
