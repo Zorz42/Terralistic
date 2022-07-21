@@ -97,22 +97,27 @@ void Game::initializeGame() {
     }
 }
 
-void Game::start() {
+void Game::preInit() {
+    std::thread init_thread(&Game::initializeGame, this);
+    WorldJoiningScreen world_joining_screen(background_rect, this);
+    switchToScene(world_joining_screen);
+    init_thread.join();
+    
+    if(interrupt)
+        throw Exception(interrupt_message);
+    
+    for(auto i : getModules())
+        if(i != this)
+            ((ClientModule*)i)->loadTextures();
+}
+
+void Game::start(gfx::Scene* prev_scene) {
     try {
         if(interrupt)
             throw Exception(interrupt_message);
         
-        std::thread init_thread(&Game::initializeGame, this);
-        WorldJoiningScreen(background_rect, this).run();
-        init_thread.join();
+        prev_scene->switchToScene(*this);
         
-        if(interrupt)
-            throw Exception(interrupt_message);
-        
-        for(auto i : getModules())
-            if(i != this)
-                ((ClientModule*)i)->loadTextures();
-        run();
         if(interrupt)
             throw Exception(interrupt_message);
     } catch(const std::exception& exception) {

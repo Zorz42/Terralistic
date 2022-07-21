@@ -124,7 +124,7 @@ bool SingleplayerSelector::onKeyUp(gfx::Key key) {
         else
             for(int i = 0; i < worlds.size(); i++) {
                 if(worlds[i]->play_button.isHovered(getMouseX(), getMouseY())) {
-                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
+                    startPrivateWorld(this, sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
                     refresh();
                 }
                 else if(worlds[i]->delete_button.isHovered(getMouseX(), getMouseY())) {

@@ -315,6 +315,8 @@ void gfx::Scene::onMouseWheelScrollEvent(int delta) {
 }
 
 void gfx::Scene::run() {
+    _screen_refresh_event_sender.addListener(this);
+    preInit();
     initialize();
     
     while(running) {
@@ -338,6 +340,13 @@ void gfx::Scene::run() {
             if(modules[i] != this)
                 modules[i]->stop();
     }
+    
+    _screen_refresh_event_sender.removeListener(this);
+}
+
+void gfx::Scene::onEvent(_ScreenRefreshEvent& event) {
+    if(active)
+        renderAll();
 }
 
 void gfx::Scene::renderAll() {
@@ -444,7 +453,9 @@ void gfx::characterCallback(GLFWwindow* window, unsigned int codepoint) {
 void gfx::Scene::switchToScene(Scene& scene) {
     for(auto & module : modules)
         module->enable_key_states = false;
+    active = false;
     scene.run();
+    active = true;
     for(auto & module : modules)
         module->enable_key_states = true;
 }

@@ -90,7 +90,7 @@ void startServer(Server* server, Game* game) {
     }
 }
 
-void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed) {
+void startPrivateWorld(gfx::Scene* prev_scene, const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed) {
     int port = rand() % (TO_PORT - FROM_PORT) + FROM_PORT;
     Server private_server(resource_path, world_name, port);
     Game game(menu_back, settings, "_", "127.0.0.1", port);
@@ -99,14 +99,15 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     private_server.setPrivate(true);
     std::thread server_thread = std::thread(startServer, &private_server, &game);
     
-    WorldStartingScreen(menu_back, &private_server).run();
+    WorldStartingScreen world_starting_screen(menu_back, &private_server);
+    prev_scene->switchToScene(world_starting_screen);
     
     BooleanSetting autosave_setting("Autosave", true);
     AutosaveChangeListener autosave_listener(&autosave_setting, &private_server);
     settings->addSetting(&autosave_setting);
     autosave_setting.setting_change_event.addListener(&autosave_listener);
     
-    game.start();
+    game.start(prev_scene);
     
     private_server.stop();
     
@@ -116,11 +117,12 @@ void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back,
     settings->removeSetting(&autosave_setting);
     autosave_setting.setting_change_event.removeListener(&autosave_listener);
     
-    WorldStartingScreen(menu_back, &private_server).run();
+    world_starting_screen = WorldStartingScreen(menu_back, &private_server);
+    prev_scene->switchToScene(world_starting_screen);
     
     if(game.interrupt) {
         ChoiceScreen choice_screen(menu_back, game.interrupt_message, {"Close"});
-        choice_screen.run();
+        prev_scene->switchToScene(choice_screen);
     }
     
     server_thread.join();
