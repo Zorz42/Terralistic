@@ -154,6 +154,15 @@ void Game::init() {
 void Game::update(float frame_length) {
     if(interrupt)
         throw Exception(interrupt_message);
+
+    for(auto entity : entities.getEntities())
+        if(entity->type == EntityType::PLAYER) {
+            auto *player = (ClientPlayer *) entity;
+            if(!player->has_created_texture)
+                players.loadPlayerTexture(*player);
+        }
+
+
     
     fps_count++;
     frame_length_sum += getRenderTime();
@@ -187,6 +196,12 @@ bool Game::onKeyDown(gfx::Key key) {
             for (int i = 0; i < blocks.getWidth() / CHUNK_SIZE; i++)
                 for (int j = 0; j < blocks.getHeight() / CHUNK_SIZE; j++)
                     blocks.getRenderBlockChunk(i, j)->has_update = true;
+
+            for(auto entity : entities.getEntities())
+                if(entity->type == EntityType::PLAYER) {
+                    auto *player = (ClientPlayer *) entity;
+                    player->has_created_texture = false;
+                }
         }
         return true;
     }

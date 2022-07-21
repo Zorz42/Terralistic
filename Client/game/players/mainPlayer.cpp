@@ -6,20 +6,7 @@ void ClientPlayers::init() {
 }
 
 void ClientPlayers::loadTextures() {
-    gfx::Surface player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
-    gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
-    
-    for(int y = 0; y < player_surface.getHeight(); y++)
-        for(int x = 0; x < player_surface.getWidth(); x++)
-            if(player_surface.getPixel(x, y).a != 0) {
-                gfx::Color curr_pixel = player_surface.getPixel(x, y);
-                gfx::Color color = skin.getPixel(curr_pixel.b / 8, curr_pixel.g / 8);
-                if(y > 16)
-                    color.a = 255;
-                player_surface.setPixel(x, y, color);
-            }
-    
-    player_texture.loadFromSurface(player_surface);
+    player_texture.loadFromSurface(readOpa(resource_pack->getFile("/misc/player.opa")));
 }
 
 void ClientPlayers::stop() {

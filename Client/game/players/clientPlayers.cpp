@@ -1,7 +1,30 @@
 #include "clientPlayers.hpp"
+#include "readOpa.hpp"
 
 ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
     friction = false;
+}
+
+void ClientPlayer::loadSkin(const gfx::Surface& skin, ResourcePack* resource_pack){
+    player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
+
+    for(int y = 0; y < player_surface.getHeight(); y++)
+        for(int x = 0; x < player_surface.getWidth(); x++)
+            if(player_surface.getPixel(x, y).a != 0) {
+                gfx::Color curr_pixel = player_surface.getPixel(x, y);
+                gfx::Color color = skin.getPixel(curr_pixel.b / 8, curr_pixel.g / 8);
+                if(y > 16)
+                    color.a = 255;
+                player_surface.setPixel(x, y, color);
+            }
+}
+
+void ClientPlayers::loadPlayerTexture(ClientPlayer& player) {
+    if(&player == main_player)
+        player.loadSkin(readOpa(resource_pack->getFile("/misc/skin.opa")), resource_pack);
+
+    player.player_texture.loadFromSurface(player.player_surface);
+    player.has_created_texture = true;
 }
 
 void ClientPlayers::render() {
@@ -50,7 +73,11 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     
     int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - camera->getX();
     int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY();
-    player_texture.render(2, player_x - 4, player_y - 8, {player_to_draw.texture_frame * (PLAYER_WIDTH + 4), 0, (PLAYER_WIDTH + 4), (PLAYER_HEIGHT + 4)}, player_to_draw.flipped);
+    if(player_to_draw.has_created_texture)
+        player_to_draw.player_texture.render(2, player_x - 4, player_y - 8, {player_to_draw.texture_frame * (PLAYER_WIDTH + 4), 0, (PLAYER_WIDTH + 4), (PLAYER_HEIGHT + 4)}, player_to_draw.flipped);
+    else
+        player_texture.render(2, player_x - 4, player_y - 8, {player_to_draw.texture_frame * (PLAYER_WIDTH + 4), 0, (PLAYER_WIDTH + 4), (PLAYER_HEIGHT + 4)}, player_to_draw.flipped);
+
     if(&player_to_draw != main_player) {
         if(!player_to_draw.has_created_text) {
             player_to_draw.name_text.loadFromText(player_to_draw.name, WHITE);
@@ -87,6 +114,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
+                main_player->loadSkin(readOpa(resource_pack->getFile("/misc/skin.opa")), resource_pack);
             }
 
             break;
