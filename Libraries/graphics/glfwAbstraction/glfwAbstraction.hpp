@@ -37,8 +37,7 @@ inline GLFWwindow* glfw_window;
 inline unsigned int shader_program;
 
 inline int uniform_has_color_buffer, uniform_default_color, uniform_has_texture,
-uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_matrix,
-uniform_back_texture_sampler, uniform_blend_multiply;
+uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_matrix;
 
 inline unsigned int rect_vertex_buffer, rect_outline_vertex_buffer;
 
@@ -61,8 +60,6 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void characterCallback(GLFWwindow* window, unsigned int codepoint);
 
 void updateWindow();
-
-inline bool updated_back_window_texture = false;
 
 std::string getClipboard();
 void setClipboard(const std::string& data);

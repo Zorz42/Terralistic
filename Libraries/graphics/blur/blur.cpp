@@ -55,7 +55,6 @@ void blurRect(float offset_x, float offset_y, GLuint texture, GLuint back_textur
 #define BLUR_QUALITY 3
 
 void gfx::blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, _Transformation texture_transform) {
-    updated_back_window_texture = false;
     glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glUseProgram(gfx::blur_shader_program);
@@ -64,7 +63,6 @@ void gfx::blurRectangle(RectShape rect, int radius, unsigned int texture, unsign
     glUniform4f(gfx::uniform_blur_limit, x2, -y1, x1, -y2);
     
     glUniform1i(gfx::uniform_blur_texture_sampler, 0);
-    glUniform1i(gfx::uniform_back_texture_sampler, 0);
     
     _Transformation transform = texture_transform;
     transform.translate(rect.x, rect.y);
