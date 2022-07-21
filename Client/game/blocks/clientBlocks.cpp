@@ -105,13 +105,13 @@ void ClientBlocks::init() {
 }
 
 void ClientBlocks::loadTextures() {
-    loadOpa(breaking_texture, resource_pack->getFile("/misc/breaking.opa"));
+    breaking_texture.loadFromSurface(readOpa(resource_pack->getFile("/misc/breaking.opa")));
     
     std::vector<gfx::Texture*> block_textures(getNumBlockTypes() - 1);
 
     for(int i = 1; i < getNumBlockTypes(); i++) {
         block_textures[i - 1] = new gfx::Texture;
-        loadOpa(*block_textures[i - 1], resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".opa"));
+        block_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".opa")));
     }
     
     blocks_atlas.create(block_textures);

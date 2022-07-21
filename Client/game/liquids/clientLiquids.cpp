@@ -42,7 +42,7 @@ void ClientLiquids::loadTextures() {
 
     for(int i = 1; i < getNumLiquidTypes(); i++) {
         liquid_textures[i - 1] = new gfx::Texture;
-        loadOpa(*liquid_textures[i - 1], resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa"));
+        liquid_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa")));
     }
     
     liquids_atlas.create(liquid_textures);

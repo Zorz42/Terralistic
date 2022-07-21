@@ -91,15 +91,15 @@ void SingleplayerSelector::refresh() {
     for(int i = 0; i < worlds.size(); i++) {
         worlds[i]->y = scroll_limit + TOP_HEIGHT;
         
-        loadOpa(worlds[i]->icon, resource_path + "world_icon.opa");
+        worlds[i]->icon.loadFromSurface(readOpa(resource_path + "world_icon.opa"));
         
         worlds[i]->title.loadFromText(worlds[i]->name);
 
-        loadOpa(worlds[i]->play_button, resource_path + "play_button.opa");
+        worlds[i]->play_button.loadFromSurface(readOpa(resource_path + "play_button.opa"));
         worlds[i]->play_button.scale = 3;
         worlds[i]->play_button.margin = 5;
         
-        loadOpa(worlds[i]->delete_button, resource_path + "delete_button.opa");
+        worlds[i]->delete_button.loadFromSurface(readOpa(resource_path + "delete_button.opa"));
         worlds[i]->delete_button.scale = 3;
         worlds[i]->delete_button.margin = 5;
         

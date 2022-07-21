@@ -27,6 +27,7 @@ void TcpSocket::handleError() {
         case WSAEWOULDBLOCK:
         case WSAEISCONN:
         case WSAEALREADY: return;
+        case WSAECONNREFUSED:
         case WSAECONNABORTED:
         case WSAECONNRESET:
         case WSAETIMEDOUT:

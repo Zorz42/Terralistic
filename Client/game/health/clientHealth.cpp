@@ -7,7 +7,7 @@ void ClientHealth::init() {
 }
 
 void ClientHealth::loadTextures() {
-    loadOpa(heart_texture, resource_pack->getFile("/misc/hearts.opa"));
+    heart_texture.loadFromSurface(readOpa(resource_pack->getFile("/misc/hearts.opa")));
 }
 
 void ClientHealth::stop() {

@@ -130,13 +130,13 @@ void ClientWalls::init() {
 }
 
 void ClientWalls::loadTextures() {
-    loadOpa(breaking_texture, resource_pack->getFile("/misc/breaking.opa"));
+    breaking_texture.loadFromSurface(readOpa(resource_pack->getFile("/misc/breaking.opa")));
     
     std::vector<gfx::Texture*> wall_textures(getNumWallTypes() - 1);
 
     for(int i = 1; i < getNumWallTypes(); i++) {
         wall_textures[i - 1] = new gfx::Texture;
-        loadOpa(*wall_textures[i - 1], resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".opa"));
+        wall_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".opa")));
     }
     
     walls_atlas.create(wall_textures);

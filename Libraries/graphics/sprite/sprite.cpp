@@ -27,8 +27,8 @@ void gfx::Sprite::createBlankImage(int width, int height) {
     setSrcRect({0, 0, getTextureWidth(), getTextureHeight()});
 }
 
-void gfx::Sprite::loadFromData(const unsigned char* data, int width, int height) {
-    Texture::loadFromData(data, width, height);
+void gfx::Sprite::loadFromSurface(const Surface& surface) {
+    Texture::loadFromSurface(surface);
     setSrcRect({0, 0, getTextureWidth(), getTextureHeight()});
 }
 

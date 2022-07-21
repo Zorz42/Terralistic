@@ -243,8 +243,9 @@ TEST_CASE(testWronglyFormattedAddress) {
 
 TEST_CASE(testConnectDenied) {
     TcpSocket socket;
-    
-    socket.connect("127.0.0.1", 150);
+
+    socket.connect("127.0.0.1", 2342);
+
     ASSERT(!socket.isConnected());
 }
 
