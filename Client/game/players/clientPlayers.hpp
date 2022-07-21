@@ -30,7 +30,7 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     
     void init() override;
     void loadTextures() override;
-    void loadPlayerTexture();
+    void loadPlayerTexture(ClientPlayer& player);
     void updateParallel(float frame_length) override;
     void onEvent(ClientPacketEvent& event) override;
     void render() override;

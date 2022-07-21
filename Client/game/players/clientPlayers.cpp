@@ -5,43 +5,22 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Play
     friction = false;
 }
 
-void ClientPlayers::loadPlayerTexture() {
-    std::vector<unsigned char> skin_template, player_texture_vector, skin;
-    loadOpaSkinTemplate(skin_template, resource_pack->getFile("/misc/skin_template.opa"));
-    loadOpaSkinTemplate(skin, resource_pack->getFile("/misc/skin.opa"));
+void ClientPlayers::loadPlayerTexture(ClientPlayer& player) {
+    gfx::Surface player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
+    gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
 
-    int width = *(int*)&skin_template[0];
-    int height = *(int*)&skin_template[sizeof(int)];
-    skin_template.erase(skin_template.begin(), skin_template.begin() + sizeof(int) * 2);
-    skin.erase(skin.begin(), skin.begin() + sizeof(int) * 2);
-    player_texture_vector.resize(skin_template.size());
+    for(int y = 0; y < player_surface.getHeight(); y++)
+        for(int x = 0; x < player_surface.getWidth(); x++)
+            if(player_surface.getPixel(x, y).a != 0) {
+                gfx::Color curr_pixel = player_surface.getPixel(x, y);
+                gfx::Color color = skin.getPixel(curr_pixel.b / 8, curr_pixel.g / 8);
+                if(y > 16)
+                    color.a = 255;
+                player_surface.setPixel(x, y, color);
+            }
 
-    for(int i = 0; i < skin_template.size(); i += 4)
-        if(skin_template[i + 3] == 0){
-            player_texture_vector[i] = 0;
-            player_texture_vector[i + 1] = 0;
-            player_texture_vector[i + 2] = 0;
-            player_texture_vector[i + 3] = 0;
-        }else{
-            int x = skin_template[i + 2] / 8;
-            int y = 31 - skin_template[i + 1] / 8;
-            int pixel = (y * 32 + x) * 4;//x and y may need to be reversed
-            unsigned char r = skin[pixel];
-            unsigned char g = skin[pixel + 1];
-            unsigned char b = skin[pixel + 2];
-            unsigned char a = skin[pixel + 3];
-            if(pixel * 2 < 4096)//size of the skin array
-                a = 255;
-            player_texture_vector[i] = r;
-            player_texture_vector[i + 1] = g;
-            player_texture_vector[i + 2] = b;
-            player_texture_vector[i + 3] = a;
-        }
-
-    //player_texture.loadFromData(&player_texture_vector[0], width, height);
-    //main_player->player_texture.loadFromData(&player_texture_vector[0], width, height);
-    loadOpa(main_player->player_texture, resource_pack->getFile("/misc/player.opa"));
-    main_player->has_created_texture = true;
+    player.player_texture.loadFromSurface(player_surface);
+    player.has_created_texture = true;
 }
 
 void ClientPlayers::render() {
@@ -90,15 +69,11 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
     
     int player_x = gfx::getWindowWidth() / 2 + player_to_draw.getX() - camera->getX();
     int player_y = gfx::getWindowHeight() / 2 + player_to_draw.getY() - camera->getY();
-    /*if(player_to_draw.has_created_texture)
+    if(player_to_draw.has_created_texture)
         player_to_draw.player_texture.render(2, player_x - 4, player_y - 8, {player_to_draw.texture_frame * (PLAYER_WIDTH + 4), 0, (PLAYER_WIDTH + 4), (PLAYER_HEIGHT + 4)}, player_to_draw.flipped);
     else
         player_texture.render(2, player_x - 4, player_y - 8, {player_to_draw.texture_frame * (PLAYER_WIDTH + 4), 0, (PLAYER_WIDTH + 4), (PLAYER_HEIGHT + 4)}, player_to_draw.flipped);
-    */
-    if(player_to_draw.has_created_texture)
-        player_to_draw.player_texture.render(2, player_x, player_y);
-    else
-        player_texture.render(2, player_x, player_y);
+
     if(&player_to_draw != main_player) {
         if(!player_to_draw.has_created_text) {
             player_to_draw.name_text.loadFromText(player_to_draw.name, WHITE);
@@ -135,7 +110,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
-                loadPlayerTexture();
+                loadPlayerTexture(*main_player);
             }
 
             break;
