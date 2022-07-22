@@ -14,14 +14,14 @@ _TestClass::_TestClass() {
 bool _TestClass::_performTests() {
     std::cout << "Performing tests for [" << class_name << "]" << std::endl;
     int tests_passed = 0, tests_failed = 0;
-    construct();
     for(_TestCase& test_case : test_cases) {
+        _construct();
         if(test_case.performTest())
             tests_passed++;
         else
             tests_failed++;
+        _destruct();
     }
-    destruct();
     std::cout << "Test results for [" << class_name << "]: " << tests_passed << " PASSED, " << tests_failed << " FAILED" << std::endl;
     return tests_failed == 0;
 }

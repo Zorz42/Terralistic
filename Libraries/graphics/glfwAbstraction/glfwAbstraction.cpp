@@ -72,13 +72,10 @@ static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float 
     int window_width_, window_height_;
     glfwGetWindowSize(gfx::glfw_window, &window_width_, &window_height_);
     
-    //gfx::Scene* temp_scene = gfx::curr_scene;
-    //gfx::curr_scene = nullptr;
     framebufferSizeCallback(gfx::glfw_window, window_width_ * gfx::system_scale_x, window_height_ * gfx::system_scale_y);
 #ifndef __APPLE__
     gfx::setMinimumWindowSize(gfx::window_width_min, gfx::window_height_min);
 #endif
-    //gfx::curr_scene = temp_scene;
 }
 
 void gfx::setMinimumWindowSize(int width, int height) {

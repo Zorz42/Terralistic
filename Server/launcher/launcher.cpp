@@ -11,6 +11,7 @@ class ServerScene : public gfx::Scene {
     void init() override;
     void render() override;
 public:
+    ServerScene() : gfx::Scene("Server") {}
 };
 
 int main(int argc, char **argv) {
