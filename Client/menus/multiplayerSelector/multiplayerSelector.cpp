@@ -116,7 +116,7 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
             returnFromScene();
         else if(new_button.isHovered(getMouseX(), getMouseY())) {
             ServerAdder server_adder(menu_back);
-            switchToScene(server_adder);
+            server_adder.run();
             if(!server_adder.server_ip.empty())
                 server_data.emplace_back(server_adder.server_name, server_adder.server_ip);
             refresh();
@@ -125,14 +125,14 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
             for(int i = 0; i < servers.size(); i++) {
                 if(servers[i]->join_button.isHovered(getMouseX(), getMouseY())) {
                     NameChooser name_chooser(menu_back, settings, servers[i]->data.ip);
-                    switchToScene(name_chooser);
+                    name_chooser.run();
                 } else if(servers[i]->remove_button.isHovered(getMouseX(), getMouseY())) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
                     else {
                         ChoiceScreen choice_screen(menu_back, "Do you want to remove " + servers[i]->data.name + "?", {"Yes", "No"}, &result);
-                        switchToScene(choice_screen);
+                        choice_screen.run();
                     }
 
                     if(result == "Yes") {

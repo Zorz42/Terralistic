@@ -99,8 +99,7 @@ void Game::initializeGame() {
 
 void Game::preInit() {
     std::thread init_thread(&Game::initializeGame, this);
-    WorldJoiningScreen world_joining_screen(background_rect, this);
-    switchToScene(world_joining_screen);
+    WorldJoiningScreen(background_rect, this).run();
     init_thread.join();
     
     if(interrupt)
@@ -111,18 +110,17 @@ void Game::preInit() {
             ((ClientModule*)i)->loadTextures();
 }
 
-void Game::start(gfx::Scene* prev_scene) {
+void Game::start() {
     try {
         if(interrupt)
             throw Exception(interrupt_message);
         
-        prev_scene->switchToScene(*this);
+        run();
         
         if(interrupt)
             throw Exception(interrupt_message);
     } catch(const std::exception& exception) {
-        ChoiceScreen choice_screen(background_rect, exception.what(), {"Close"});
-        switchToScene(choice_screen);
+        ChoiceScreen(background_rect, exception.what(), {"Close"}).run();
     }
 }
 
@@ -184,7 +182,7 @@ void Game::renderBack() {
 bool Game::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ESCAPE) {
         PauseScreen pause_screen(this, settings);
-        switchToScene(pause_screen);
+        pause_screen.run();
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
         // reloads resources
