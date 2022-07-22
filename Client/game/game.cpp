@@ -200,7 +200,8 @@ bool Game::onKeyDown(gfx::Key key) {
             for(auto entity : entities.getEntities())
                 if(entity->type == EntityType::PLAYER) {
                     auto *player = (ClientPlayer *) entity;
-                    player->has_created_texture = false;
+                    if(player == players.getMainPlayer())
+                        player->has_created_texture = false;
                 }
         }
         return true;

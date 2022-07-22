@@ -458,11 +458,14 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
         }
         case ClientPacketType::PLAYER_SKIN: {
             std::vector< unsigned char> arr;
-            int size = 32 * 32 * 4 + sizeof(int) + sizeof(bool);
-            arr.resize(size);
+            int id;
+            bool new_skin;
+            arr.resize(32 * 32 * 4);
             event.packet >> arr;
+            event.packet >> new_skin;
+            id = event.player->id;
             Packet skin_packet;
-            skin_packet << ServerPacketType::PLAYER_SKIN << arr;
+            skin_packet << ServerPacketType::PLAYER_SKIN << arr << id << new_skin;
             networking->sendToEveryone(skin_packet);
             break;
         }

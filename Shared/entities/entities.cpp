@@ -2,11 +2,11 @@
 #include "entities.hpp"
 
 void Entities::updateAllEntities(float frame_length) {
-    for(int i = 0; i < entities.size(); i++) {
-        float old_vel_x = entities[i]->velocity_x, old_vel_y = entities[i]->velocity_y;
-        entities[i]->updateEntity(blocks, frame_length);
-        if(entities[i]->type == EntityType::PLAYER && (old_vel_x != entities[i]->velocity_x || old_vel_y != entities[i]->velocity_y)){
-            EntityAbsoluteVelocityChangeEvent event(entities[i], old_vel_x, old_vel_y);
+    for(auto & entity : entities) {
+        float old_vel_x = entity->velocity_x, old_vel_y = entity->velocity_y;
+        entity->updateEntity(blocks, frame_length);
+        if(entity->type == EntityType::PLAYER && (old_vel_x != entity->velocity_x || old_vel_y != entity->velocity_y)){
+            EntityAbsoluteVelocityChangeEvent event(entity, old_vel_x, old_vel_y);
             entity_absolute_velocity_change_event.call(event);
         }
     }
@@ -31,9 +31,9 @@ void Entities::removeEntity(Entity* entity) {
 }
 
 Entity* Entities::getEntityById(int id) {
-    for(auto & entitie : entities)
-        if(entitie->id == id)
-            return entitie;
+    for(auto & entity : entities)
+        if(entity->id == id)
+            return entity;
     throw Exception("Entity not found by id");
 }
 

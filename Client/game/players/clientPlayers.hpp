@@ -15,7 +15,7 @@ public:
     gfx::Texture name_text;
     gfx::Texture player_texture;
     gfx::Surface player_surface;
-    bool has_created_text = false, has_created_texture = false;
+    bool has_created_text = false, has_created_texture = false, has_created_surface = false;
     int started_moving = 0;
     bool has_jumped = false;
 };
