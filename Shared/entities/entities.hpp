@@ -70,8 +70,8 @@ public:
     void setVelocityY(Entity* entity, float velocity_y);
     void addVelocityX(Entity* entity, float velocity_x);
     void addVelocityY(Entity* entity, float velocity_y);
-    void setX(Entity* entity, float x);
-    void setY(Entity* entity, float y);
+    void setX(Entity* entity, float x, bool send_to_everyone = true);
+    void setY(Entity* entity, float y, bool send_to_everyone = true);
     
     EventSender<EntityPositionChangeEvent> entity_position_change_event;
     EventSender<EntityVelocityChangeEvent> entity_velocity_change_event;

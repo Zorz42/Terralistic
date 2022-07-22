@@ -99,9 +99,8 @@ void ServerPlayers::resetPlayer(ServerPlayer *player) {
     int spawn_y = 0;
     while(blocks->getBlockType(spawn_x, spawn_y)->ghost && blocks->getBlockType(spawn_x + 1, spawn_y)->ghost)
         spawn_y++;
-    
-    entities->setX(player, spawn_x * BLOCK_WIDTH * 2);
-    entities->setY(player, spawn_y * BLOCK_WIDTH * 2 - PLAYER_HEIGHT * 2);
+    entities->setX(player, spawn_x * BLOCK_WIDTH * 2, false);
+    entities->setY(player, spawn_y * BLOCK_WIDTH * 2 - PLAYER_HEIGHT * 2, false);
     
     for(int i = 0; i < INVENTORY_SIZE; i++)
         player->inventory.setItem(i, ItemStack(&items->nothing, 0));

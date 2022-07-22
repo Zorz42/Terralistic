@@ -147,19 +147,23 @@ void Entities::addVelocityY(Entity* entity, float velocity_y) {
     setVelocityY(entity, entity->velocity_y + velocity_y);
 }
 
-void Entities::setX(Entity* entity, float x) {
+void Entities::setX(Entity* entity, float x, bool send_to_everyone) {
     if(entity->x != x) {
         entity->x = x;
-        EntityPositionChangeEvent event(entity);
-        entity_position_change_event.call(event);
+        if(send_to_everyone) {
+            EntityPositionChangeEvent event(entity);
+            entity_position_change_event.call(event);
+        }
     }
 }
 
-void Entities::setY(Entity* entity, float y) {
+void Entities::setY(Entity* entity, float y, bool send_to_everyone) {
     if(entity->y != y) {
         entity->y = y;
-        EntityPositionChangeEvent event(entity);
-        entity_position_change_event.call(event);
+        if(send_to_everyone) {
+            EntityPositionChangeEvent event(entity);
+            entity_position_change_event.call(event);
+        }
     }
 }
 
