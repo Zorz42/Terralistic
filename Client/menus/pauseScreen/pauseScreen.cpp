@@ -43,11 +43,11 @@ bool PauseScreen::onKeyUp(gfx::Key key) {
             return true;
         } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
             SettingsMenu settings_menu(this, settings);
-            switchToScene(settings_menu);
+            settings_menu.run();
             return true;
         } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
             ModManager mod_manager(this);
-            switchToScene(mod_manager);
+            mod_manager.run();
             if(mod_manager.changed_mods)
                 changed_mods = true;
             return true;

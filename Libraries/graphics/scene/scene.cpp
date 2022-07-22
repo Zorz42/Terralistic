@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <iomanip>
 
+static gfx::Scene* curr_scene = nullptr;
+
 void gfx::addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function) {
     global_update_functions.push_back(global_update_function);
 }
@@ -35,28 +37,22 @@ int gfx::SceneModule::getMouseY() {
     return mouse_y;
 }
 
-void gfx::Scene::onKeyDownCallback(Key key_, bool only_absolute) {
-    if(!absolute_key_states[(int)key_])
-        absolute_key_states[(int)key_] = true;
-    if(!only_absolute)
-        if(!key_states[(int)key_]) {
-            key_states[(int)key_] = true;
-            for(int i = (int)modules.size() - 1; i >= 0; i--)
-                if(modules[i]->enabled && modules[i]->onKeyDown(key_))
-                    break;
-        }
+void gfx::Scene::onKeyDownCallback(Key key_) {
+    if(!key_states[(int)key_]) {
+        key_states[(int)key_] = true;
+        for(int i = (int)modules.size() - 1; i >= 0; i--)
+            if(modules[i]->enabled && modules[i]->onKeyDown(key_))
+                break;
+    }
 }
 
-void gfx::Scene::onKeyUpCallback(Key key_, bool only_absolute) {
-    if(absolute_key_states[(int)key_])
-        absolute_key_states[(int)key_] = false;
-    if(!only_absolute)
-        if(key_states[(int)key_]) {
-            key_states[(int)key_] = false;
-            for(int i = (int)modules.size() - 1; i >= 0; i--)
-                if(modules[i]->enabled && modules[i]->onKeyUp(key_))
-                    break;
-        }
+void gfx::Scene::onKeyUpCallback(Key key_) {
+    if(key_states[(int)key_]) {
+        key_states[(int)key_] = false;
+        for(int i = (int)modules.size() - 1; i >= 0; i--)
+            if(modules[i]->enabled && modules[i]->onKeyUp(key_))
+                break;
+    }
 }
 
 bool gfx::SceneModule::getKeyState(Key key_) const {
@@ -139,12 +135,12 @@ void gfx::Scene::onMouseButtonEvent(gfx::Key key, bool pressed) {
                     }
         }
         if (key != Key::UNKNOWN && !clicked_text_box)
-            onKeyDownCallback(key, false);
+            onKeyDownCallback(key);
     }
     
     else {
         if (key != Key::UNKNOWN)
-            onKeyUpCallback(key, false);
+            onKeyUpCallback(key);
     }
 }
 
@@ -165,7 +161,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                     }
         }
         
-        if(key == Key::A && getAbsoluteKeyState(Key::CTRL)) {
+        if(key == Key::A && getKeyState(Key::CTRL)) {
             for(auto & module : modules)
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
@@ -173,7 +169,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                             text_input->setCursor(0, (int)text_input->getText().size());
         }
         
-        if(key == Key::C && getAbsoluteKeyState(Key::CTRL)) {
+        if(key == Key::C && getKeyState(Key::CTRL)) {
              for(auto & module : modules)
                  if(module->enabled)
                      for(auto & text_input : module->text_inputs)
@@ -181,7 +177,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                              setClipboard(text_input->getText().substr(text_input->getCursorBegin(), text_input->getCursorEnd() - text_input->getCursorBegin()));
          }
 
-         if(key == Key::X && getAbsoluteKeyState(Key::CTRL)) {
+         if(key == Key::X && getKeyState(Key::CTRL)) {
              for(auto & module : modules)
                  if(module->enabled)
                      for(auto & text_input : module->text_inputs)
@@ -191,7 +187,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                          }
          }
 
-        if(key == Key::V && getAbsoluteKeyState(Key::CTRL)) {
+        if(key == Key::V && getKeyState(Key::CTRL)) {
             for(auto & module : modules)
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
@@ -215,7 +211,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
                         if(text_input->active) {
-                            if(getAbsoluteKeyState(Key::SHIFT)) {
+                            if(getKeyState(Key::SHIFT)) {
                                 if(text_input->getCursorBegin() == text_input->getCursorEnd()) {
                                     text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()), text_input->getCursorEnd());
                                     text_input->setCursorEndActive(false);
@@ -239,7 +235,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
                         if(text_input->active) {
-                            if(getAbsoluteKeyState(Key::SHIFT)) {
+                            if(getKeyState(Key::SHIFT)) {
                                 if(text_input->getCursorBegin() == text_input->getCursorEnd()) {
                                     text_input->setCursor(text_input->getCursorBegin(), text_input->findRightMove(text_input->getCursorBegin()));
                                     text_input->setCursorEndActive(true);
@@ -269,8 +265,8 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                             module->onKeyDown(key);
                     }
         
-        if(key != Key::UNKNOWN)
-            onKeyDownCallback(key, !(!is_textbox_active || key == Key::ENTER));
+        if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
+            onKeyDownCallback(key);
         
         if(is_textbox_active && key == Key::ESCAPE) {
             for(int i = 0; i < modules.size(); i++)
@@ -282,7 +278,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
         
     else {
         if (key != Key::UNKNOWN)
-            onKeyUpCallback(key, false);
+            onKeyUpCallback(key);
     }
 }
 
@@ -315,11 +311,14 @@ void gfx::Scene::onMouseWheelScrollEvent(int delta) {
 }
 
 void gfx::Scene::run() {
+    curr_scene = this;
     _screen_refresh_event_sender.addListener(this);
     preInit();
     initialize();
     
     while(running) {
+        curr_scene = this;
+        
         renderAll();
         
         if(fps_limit) {
@@ -345,12 +344,11 @@ void gfx::Scene::run() {
 }
 
 void gfx::Scene::onEvent(_ScreenRefreshEvent& event) {
-    if(active)
+    if(this == curr_scene)
         renderAll();
 }
 
 void gfx::Scene::renderAll() {
-    curr_scene = this;
     Timer frame_timer;
     
     double mouse_x_normalized, mouse_y_normalized;
@@ -380,6 +378,9 @@ void gfx::Scene::renderAll() {
 //#define ENABLE_DEBUG_PRINT
 
 void gfx::Scene::cycleModules() {
+    for(auto & module : modules)
+        module->enable_key_states = curr_scene == this;
+    
     for(int i = 0; i < modules.size(); i++) {
         Timer timer;
         modules[i]->update(frame_length);
@@ -448,16 +449,6 @@ void gfx::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 
 void gfx::characterCallback(GLFWwindow* window, unsigned int codepoint) {
     curr_scene->onTextEnteredEvent(codepoint);
-}
-
-void gfx::Scene::switchToScene(Scene& scene) {
-    for(auto & module : modules)
-        module->enable_key_states = false;
-    active = false;
-    scene.run();
-    active = true;
-    for(auto & module : modules)
-        module->enable_key_states = true;
 }
 
 float gfx::Scene::getRenderTime() {

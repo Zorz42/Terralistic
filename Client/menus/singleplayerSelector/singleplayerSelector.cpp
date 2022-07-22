@@ -117,14 +117,13 @@ bool SingleplayerSelector::onKeyUp(gfx::Key key) {
             std::vector<std::string> worlds_names;
             for(int i = 0; i < worlds.size(); i++)
                 worlds_names.push_back(worlds[i]->name);
-            WorldCreator world_creator(worlds_names, menu_back, settings);
-            switchToScene(world_creator);
+            WorldCreator(worlds_names, menu_back, settings).run();
             refresh();
         }
         else
             for(int i = 0; i < worlds.size(); i++) {
                 if(worlds[i]->play_button.isHovered(getMouseX(), getMouseY())) {
-                    startPrivateWorld(this, sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
+                    startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
                     refresh();
                 }
                 else if(worlds[i]->delete_button.isHovered(getMouseX(), getMouseY())) {
@@ -132,8 +131,7 @@ bool SingleplayerSelector::onKeyUp(gfx::Key key) {
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
                     else {
-                        ChoiceScreen choice_screen(menu_back, "Do you want to delete " + worlds[i]->name + "?", {"Yes", "No"}, &result);
-                        switchToScene(choice_screen);
+                        ChoiceScreen(menu_back, "Do you want to delete " + worlds[i]->name + "?", {"Yes", "No"}, &result).run();
                     }
 
                     if(result == "Yes") {

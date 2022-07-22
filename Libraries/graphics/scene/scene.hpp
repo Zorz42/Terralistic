@@ -12,10 +12,8 @@ public:
 
 void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
 
-class Scene;
-
 class SceneModule {
-    friend Scene;
+    friend class Scene;
     bool enable_key_states = true;
     int mouse_x, mouse_y;
     std::string module_name;
@@ -40,9 +38,9 @@ public:
 
 class Scene : public SceneModule, EventListener<_ScreenRefreshEvent> {
     std::vector<SceneModule*> modules;
-    void onKeyDownCallback(Key key_, bool only_absolute);
-    void onKeyUpCallback(Key key_, bool only_absolute);
-    bool running = true, initialized = false, active = true;
+    void onKeyDownCallback(Key key_);
+    void onKeyUpCallback(Key key_);
+    bool running = true, initialized = false;
     float render_time;
     int frame_count = 0;
     Timer print_render_data_timer;
@@ -54,7 +52,6 @@ public:
     bool isRunning() const;
     void run();
     void registerAModule(SceneModule* module);
-    void switchToScene(Scene& scene);
     void cycleModules();
     void renderAll();
     void returnFromScene();
@@ -78,8 +75,6 @@ namespace gfx {
 
 inline std::vector<GlobalUpdateFunction*> global_update_functions;
 inline float frame_length;
-
-inline Scene* curr_scene = nullptr;
 
 };
 

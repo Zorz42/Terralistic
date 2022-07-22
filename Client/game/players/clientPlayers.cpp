@@ -13,7 +13,7 @@ void ClientPlayer::loadSkin(const gfx::Surface& skin, ResourcePack* resource_pac
             if(player_surface.getPixel(x, y).a != 0) {
                 gfx::Color curr_pixel = player_surface.getPixel(x, y);
                 gfx::Color color = skin.getPixel(curr_pixel.b / 8, curr_pixel.g / 8);
-                if(y > 16)
+                if(y > 17)
                     color.a = 255;
                 player_surface.setPixel(x, y, color);
             }

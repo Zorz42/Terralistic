@@ -73,7 +73,7 @@ bool WorldCreator::onKeyUp(gfx::Key key) {
         int formed_seed = rand();
         if(!world_seed.getText().empty())
             formed_seed = std::stoi(world_seed.getText());
-        startPrivateWorld(this, sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, settings, formed_seed);
+        startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + world_name.getText() + ".world", menu_back, settings, formed_seed);
         returnFromScene();
         return true;
     }
