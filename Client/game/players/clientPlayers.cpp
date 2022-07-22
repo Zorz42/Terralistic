@@ -121,11 +121,12 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
-            }/*else if(main_player != nullptr){
+            }else if(main_player != nullptr){
+                gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
                 Packet skin_packet;
-                skin_packet << ClientPacketType::PLAYER_SKIN << main_player->player_surface.getData() << false;
+                skin_packet << ClientPacketType::PLAYER_SKIN << skin.getData() << false;
                 networking->sendPacket(skin_packet);
-            }*/
+            }
 
             break;
         }
@@ -184,20 +185,21 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
         }
         case ServerPacketType::PLAYER_SKIN:{
             std::vector<unsigned char> buffer;
-            /*buffer.resize(32 * 32 * 4);
+            buffer.resize(32 * 32 * 4);
             event.packet >> buffer;
             int id;
             event.packet >> id;
             if(id != main_player->id){
                 bool new_skin;
                 event.packet >> new_skin;
-                if(new_skin) {
+                if(new_skin || !getPlayerById(id)->has_created_surface) {
                     gfx::Surface skin;
                     skin.loadFromBuffer(buffer, 32, 32);
                     getPlayerById(id)->loadSkin(skin, resource_pack);
+                    getPlayerById(id)->has_created_texture = false;
                 }
 
-            }*/
+            }
         }
         default:;
     }
