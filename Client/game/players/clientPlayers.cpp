@@ -20,8 +20,13 @@ void ClientPlayer::loadSkin(const gfx::Surface& skin, ResourcePack* resource_pac
 }
 
 void ClientPlayers::loadPlayerTexture(ClientPlayer& player) {
-    if(&player == main_player)
-        player.loadSkin(readOpa(resource_pack->getFile("/misc/skin.opa")), resource_pack);
+    if(&player == main_player) {
+        gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
+        player.loadSkin(skin, resource_pack);
+        Packet skin_packet;
+        skin_packet << ClientPacketType::PLAYER_SKIN << skin.getData() << main_player->id << true;//last arg is whether this is a skin change or not
+        networking->sendPacket(skin_packet);
+    }
 
     player.player_texture.loadFromSurface(player.player_surface);
     player.has_created_texture = true;
@@ -114,7 +119,10 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
-                main_player->loadSkin(readOpa(resource_pack->getFile("/misc/skin.opa")), resource_pack);
+            }else{
+                Packet skin_packet;
+                skin_packet << ClientPacketType::PLAYER_SKIN << main_player->player_surface.getData() << false;
+                networking->sendPacket(skin_packet);
             }
 
             break;
@@ -171,6 +179,22 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             if(main_player && id == main_player->id)
                 main_player = nullptr;
             break;
+        }
+        case ServerPacketType::PLAYER_SKIN:{
+            std::vector<unsigned char> surface;
+            surface.resize(32 * 32 * 4 + sizeof(int) + sizeof(bool));
+            event.packet >> surface;
+            int id = *(int*)&surface[32 * 32 * 4];
+            //if(id != main_player->id){
+                bool new_skin = *(bool*)&surface[32 * 32 * 4 + sizeof(int)];
+                if(new_skin) {
+                    gfx::Surface skin;
+                    surface.erase(surface.begin() + 32 * 32 * 4, surface.end());
+                    skin.loadFromBuffer(surface, 32, 32);
+                    getPlayerById(id)->loadSkin(skin, resource_pack);
+                }
+
+            //}
         }
         default:;
     }

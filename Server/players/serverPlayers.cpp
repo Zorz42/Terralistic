@@ -456,6 +456,16 @@ void ServerPlayers::onEvent(ServerPacketEvent& event) {
             }
             break;
         }
+        case ClientPacketType::PLAYER_SKIN: {
+            std::vector< unsigned char> arr;
+            int size = 32 * 32 * 4 + sizeof(int) + sizeof(bool);
+            arr.resize(size);
+            event.packet >> arr;
+            Packet skin_packet;
+            skin_packet << ServerPacketType::PLAYER_SKIN << arr;
+            networking->sendToEveryone(skin_packet);
+            break;
+        }
         default:;
     }
 }
