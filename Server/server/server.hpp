@@ -32,6 +32,9 @@ class Server {
     
     std::vector<ServerModule*> modules;
     std::string resource_path;
+    
+    int ms_timer_counter;
+    gfx::Timer ms_timer;
 public:
     ServerState state = ServerState::NEUTRAL;
     

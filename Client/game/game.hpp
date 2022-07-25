@@ -56,9 +56,9 @@ class Game : gfx::Scene, public BackgroundRect {
     std::string kick_reason;
     
     DebugLine fps_debug_line, frame_length_line;
-    int fps_count = 0;
+    int fps_count = 0, ms_timer_counter;
     float frame_length_sum = 0;
-    gfx::Timer line_refresh_counter;
+    gfx::Timer line_refresh_counter, ms_timer;
     
     std::thread parallel_update_thread;
     

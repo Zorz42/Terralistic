@@ -124,6 +124,8 @@ void Game::start() {
     }
 }
 
+#define PARALLEL_UPDATES_PER_SECOND 10
+
 void Game::parallelUpdateLoop() {
     try {
         gfx::Timer timer;
@@ -133,8 +135,8 @@ void Game::parallelUpdateLoop() {
             for(auto i : getModules())
                 if(i != this && i->enabled && isRunning())
                     ((ClientModule*)i)->updateParallel(frame_length);
-            if(timer.getTimeElapsed() < 5 && isRunning())
-                gfx::sleep(5 - timer.getTimeElapsed());
+            if(timer.getTimeElapsed() < 1000 / PARALLEL_UPDATES_PER_SECOND && isRunning())
+                gfx::sleep(1000 / PARALLEL_UPDATES_PER_SECOND - timer.getTimeElapsed());
         }
     } catch(const std::exception& exception) {
         interrupt_message = exception.what();
@@ -147,20 +149,19 @@ void Game::init() {
         if(i != this)
             ((ClientModule*)i)->postInit();
     parallel_update_thread = std::thread(&Game::parallelUpdateLoop, this);
+    ms_timer_counter = ms_timer.getTimeElapsed();
 }
 
 void Game::update(float frame_length) {
     if(interrupt)
         throw Exception(interrupt_message);
-
-    for(auto entity : entities.getEntities())
-        if(entity->type == EntityType::PLAYER) {
-            auto *player = (ClientPlayer *) entity;
-            if(!player->has_created_texture)
-                players.loadPlayerTexture(*player);
-        }
-
-
+    
+    while(ms_timer_counter < (int)ms_timer.getTimeElapsed()) {
+        ms_timer_counter++;
+        for(SceneModule* module : getModules())
+            if(module != this)
+                ((ClientModule*)module)->updatePerMs();
+    }
     
     fps_count++;
     frame_length_sum += getRenderTime();
@@ -185,19 +186,20 @@ bool Game::onKeyDown(gfx::Key key) {
         pause_screen.run();
         if(pause_screen.hasExitedToMenu())
             returnFromScene();
+        
         // reloads resources
         if(pause_screen.changed_mods) {
             resource_pack.loadPaths();
-            for (auto i : getModules())
-                if (i != this)
-                    ((ClientModule *) i)->loadTextures();
-            for (int i = 0; i < blocks.getWidth() / CHUNK_SIZE; i++)
+            for(auto i : getModules())
+                if(i != this)
+                    ((ClientModule*)i)->loadTextures();
+            for(int i = 0; i < blocks.getWidth() / CHUNK_SIZE; i++)
                 for (int j = 0; j < blocks.getHeight() / CHUNK_SIZE; j++)
                     blocks.getRenderBlockChunk(i, j)->has_update = true;
 
             for(auto entity : entities.getEntities())
                 if(entity->type == EntityType::PLAYER) {
-                    auto *player = (ClientPlayer *) entity;
+                    auto* player = (ClientPlayer*)entity;
                     if(player == players.getMainPlayer())
                         player->has_created_texture = false;
                 }

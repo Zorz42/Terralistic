@@ -31,8 +31,6 @@ void ServerEntities::onEvent(EntityPositionChangeEvent& event) {
 }
 
 void ServerEntities::update(float frame_length) {
-    updateAllEntities(frame_length);
-    
     if(timer.getTimeElapsed() > 1000) {
         timer.reset();
         for(auto i : getEntities()) {
@@ -45,4 +43,8 @@ void ServerEntities::update(float frame_length) {
             networking->sendToEveryone(packet);
         }
     }
+}
+
+void ServerEntities::updateOnMs() {
+    updateAllEntities();
 }

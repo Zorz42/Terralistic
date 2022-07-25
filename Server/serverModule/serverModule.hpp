@@ -6,4 +6,5 @@ public:
     virtual void postInit() {}
     virtual void update(float frame_length) {}
     virtual void stop() {}
+    virtual void updateOnMs() {}
 };

@@ -1,10 +1,10 @@
 #include <cmath>
 #include "entities.hpp"
 
-void Entities::updateAllEntities(float frame_length) {
+void Entities::updateAllEntities() {
     for(auto & entity : entities) {
         float old_vel_x = entity->velocity_x, old_vel_y = entity->velocity_y;
-        entity->updateEntity(blocks, frame_length);
+        entity->updateEntity(blocks);
         if(entity->type == EntityType::PLAYER && (old_vel_x != entity->velocity_x || old_vel_y != entity->velocity_y)){
             EntityAbsoluteVelocityChangeEvent event(entity, old_vel_x, old_vel_y);
             entity_absolute_velocity_change_event.call(event);
@@ -37,17 +37,17 @@ Entity* Entities::getEntityById(int id) {
     throw Exception("Entity not found by id");
 }
 
-void Entity::updateEntity(Blocks *blocks, float frame_length) {
+void Entity::updateEntity(Blocks *blocks) {
     if(friction) {
-        velocity_y *= std::pow(0.995f, frame_length);
-        velocity_x *= std::pow(isTouchingGround(blocks) ? 0.99f : 0.9995f, frame_length);
+        velocity_y *= 0.995f;
+        velocity_x *= isTouchingGround(blocks) ? 0.99f : 0.9995f;
     }
     
     if(gravity)
-        velocity_y += frame_length / 5.f;
+        velocity_y += 0.2f;
 
     float prev_y = y;
-    float y_to_be = y + float(velocity_y * frame_length) / 100;
+    float y_to_be = y + velocity_y / 100;
     float move_y = y_to_be - y;
     int y_factor = move_y > 0 ? 1 : -1;
     for(int i = 0; i < std::abs(move_y); i++) {
@@ -62,7 +62,7 @@ void Entity::updateEntity(Blocks *blocks, float frame_length) {
         y = y_to_be;
 
     float prev_x = x;
-    float x_to_be = x + float(velocity_x * frame_length) / 100;
+    float x_to_be = x + velocity_x / 100;
     float move_x = x_to_be - x;
     int x_factor = move_x > 0 ? 1 : -1;
     bool has_collided_x = false;
