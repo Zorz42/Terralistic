@@ -39,6 +39,9 @@ void ClientLights::updateParallel(float frame_length) {
 }
 
 void ClientLights::lightUpdateLoop() {
+#ifndef WIN32
+    pthread_setname_np("Light Update");
+#endif
     while(running) {
         bool finished = !enabled;
         while(!finished) {
@@ -50,7 +53,7 @@ void ClientLights::lightUpdateLoop() {
                         finished = false;
                     }
         }
-        gfx::sleep(5);
+        gfx::sleep(100);
     }
 }
 

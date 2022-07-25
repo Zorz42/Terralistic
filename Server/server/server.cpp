@@ -50,6 +50,10 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
 }
 
 void Server::start() {
+#ifndef WIN32
+    pthread_setname_np("Server");
+#endif
+    
     curr_server = this;
 
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");

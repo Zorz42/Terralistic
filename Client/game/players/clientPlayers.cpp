@@ -7,7 +7,7 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Play
 
 void ClientPlayer::loadSkin(const gfx::Surface& skin, ResourcePack* resource_pack){
     player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
-
+    
     for(int y = 0; y < player_surface.getHeight(); y++)
         for(int x = 0; x < player_surface.getWidth(); x++)
             if(player_surface.getPixel(x, y).a != 0) {

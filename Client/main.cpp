@@ -66,6 +66,10 @@ public:
 };
 
 int main(int argc, char **argv) {
+#ifndef WIN32
+    pthread_setname_np("Main");
+#endif
+    
     srand((int)time(nullptr));
 
     if(argc > 1 && (std::string)argv[1] == "version") {

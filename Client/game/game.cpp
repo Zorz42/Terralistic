@@ -128,6 +128,10 @@ void Game::start() {
 
 void Game::parallelUpdateLoop() {
     try {
+        #ifndef WIN32
+            pthread_setname_np("Client Parallel");
+        #endif
+        
         gfx::Timer timer;
         while(isRunning()) {
             float frame_length = timer.getTimeElapsed();
