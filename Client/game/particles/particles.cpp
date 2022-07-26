@@ -43,7 +43,7 @@ bool Particle::isGrounded(Blocks* blocks) const {
     return isColliding(blocks, x, y + 1);
 }
 
-void Particle::update(Blocks* blocks, float frame_length) {
+void Particle::update(Blocks* blocks) {
     if(info->colliding) {
         velocity_x *= 0.98;
         velocity_y *= 0.98;
@@ -53,9 +53,9 @@ void Particle::update(Blocks* blocks, float frame_length) {
     }
     
     if(info->gravity)
-        velocity_y += 1;
+        velocity_y += 0.2f;
     
-    float y_to_be = y + float(velocity_y * frame_length) / 100;
+    float y_to_be = y + velocity_y / 100;
     float move_y = y_to_be - y;
     int y_factor = move_y > 0 ? 1 : -1;
     for(int i = 0; i < std::abs(move_y); i++) {
@@ -69,7 +69,7 @@ void Particle::update(Blocks* blocks, float frame_length) {
     if(velocity_y)
         y = y_to_be;
     
-    float x_to_be = x + float(velocity_x * frame_length) / 100;
+    float x_to_be = x + velocity_x / 100;
     float move_x = x_to_be - x;
     int x_factor = move_x > 0 ? 1 : -1;
     bool has_collided_x = false;
@@ -97,9 +97,9 @@ void Particles::update(float frame_length) {
     enabled = particle_enable_setting.getValue();
 }
 
-void Particles::updateParallel(float frame_length) {
+void Particles::updatePerMs() {
     for(int i = 0; i < particles.size(); i++) {
-        particles[i].update(blocks, frame_length);
+        particles[i].update(blocks);
         if(particles[i].getTimeSpawned() > particles[i].getInfo()->lifetime)
             particles.erase(particles.begin() + i);
     }

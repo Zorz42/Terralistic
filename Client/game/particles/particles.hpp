@@ -21,7 +21,7 @@ public:
     static bool isColliding(Blocks* blocks, float colliding_x, float colliding_y);
     bool isColliding(Blocks* blocks) const;
     
-    void update(Blocks* blocks, float frame_length);
+    void update(Blocks* blocks);
     
     int getX() const;
     int getY() const;
@@ -48,7 +48,7 @@ class Particles : public ClientModule {
     void init() override;
     void stop() override;
     void update(float frame_length) override;
-    void updateParallel(float frame_length) override;
+    void updatePerMs() override;
     void render() override;
     
     BooleanSetting particle_enable_setting;

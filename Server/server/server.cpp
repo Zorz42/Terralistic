@@ -7,7 +7,7 @@
 #include "compress.hpp"
 #include "content.hpp"
 
-#define TPS_LIMIT 200
+#define TPS_LIMIT 20
 
 Server* curr_server = nullptr;
 
@@ -50,6 +50,10 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
 }
 
 void Server::start() {
+#ifndef WIN32
+    pthread_setname_np("Server");
+#endif
+    
     curr_server = this;
 
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
@@ -84,22 +88,33 @@ void Server::start() {
     int ms_per_tick = 1000 / TPS_LIMIT;
     
     float frame_length = 0;
-    float frame_count = 0;
+    int frame_count = 0;
+    
+    ms_timer_counter = ms_timer.getTimeElapsed();
+    gfx::Timer tps_timer;
     while(running) {
         gfx::Timer timer;
         
         for(int i = 0; i < modules.size(); i++)
             modules[i]->update(frame_length);
         
+        while(ms_timer_counter < (int)ms_timer.getTimeElapsed()) {
+            ms_timer_counter++;
+            for(int i = 0; i < modules.size(); i++)
+                modules[i]->updateOnMs();
+        }
+        
         if(ms_per_tick > timer.getTimeElapsed())
             gfx::sleep(ms_per_tick - timer.getTimeElapsed());
         frame_length = timer.getTimeElapsed();
+        
         frame_count++;
-        if(frame_count == 100){
-            frame_count = 0;
+        if(tps_timer.getTimeElapsed() > 1000) {
+            tps_timer.reset();
             Packet packet;
-            packet << ServerPacketType::TPS << (int)(1000 / frame_length);
+            packet << ServerPacketType::TPS << frame_count;
             networking.sendToEveryone(packet);
+            frame_count = 0;
         }
     }
     

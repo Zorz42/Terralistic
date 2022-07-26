@@ -19,7 +19,7 @@ public:
     virtual bool isColliding(Blocks* blocks) { return isCollidingWithBlocks(blocks); }
     bool isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y);
     bool isCollidingWithBlocks(Blocks* blocks);
-    void updateEntity(Blocks* blocks, float frame_length);
+    void updateEntity(Blocks* blocks);
     bool isTouchingGround(Blocks* blocks);
     
     float getVelocityX() const;
@@ -61,7 +61,7 @@ class Entities {
 public:
     explicit Entities(Blocks* blocks) : blocks(blocks) {}
     
-    void updateAllEntities(float frame_length);
+    void updateAllEntities();
     void registerEntity(Entity* entity);
     void removeEntity(Entity* entity);
     Entity* getEntityById(int id);

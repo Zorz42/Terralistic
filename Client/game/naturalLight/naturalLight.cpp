@@ -46,6 +46,10 @@ void NaturalLight::onEvent(WelcomePacketEvent &event) {
 }
 
 void NaturalLight::naturalLightUpdateLoop() {
+#ifndef WIN32
+    pthread_setname_np("Natural Light Update");
+#endif
+    
     while(running) {
         light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 

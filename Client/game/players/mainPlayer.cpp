@@ -18,7 +18,14 @@ void ClientPlayers::stop() {
 #define SNEAK_SPEED 4
 #define JUMP_VELOCITY 50
 
-void ClientPlayers::updateParallel(float frame_length) {
+void ClientPlayers::update(float frame_length) {
+    for(auto entity : entities->getEntities())
+        if(entity->type == EntityType::PLAYER) {
+            auto *player = (ClientPlayer *)entity;
+            if(!player->has_created_texture)
+                loadPlayerTexture(*player);
+        }
+    
     if(main_player) {
         static int prev_x, prev_y;
         float vel_x_change = 0, vel_y_change = 0;

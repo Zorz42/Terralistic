@@ -7,7 +7,7 @@ ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Play
 
 void ClientPlayer::loadSkin(const gfx::Surface& skin, ResourcePack* resource_pack){
     player_surface = readOpa(resource_pack->getFile("/misc/skin_template.opa"));
-
+    
     for(int y = 0; y < player_surface.getHeight(); y++)
         for(int x = 0; x < player_surface.getWidth(); x++)
             if(player_surface.getPixel(x, y).a != 0) {
@@ -42,7 +42,7 @@ void ClientPlayers::render() {
             if(player->has_moved_x && player->isTouchingGround(blocks) && rand() % 100 < abs(player->getVelocityX()) * 2.5) {
                 Particle particle(&walk_particle, player->getX() + int(player->getWidth() / 2), player->getY() + player->getHeight());
                 particle.velocity_x = -player->getVelocityX() / 4 + rand() % int(std::abs(player->getVelocityX())) - std::abs(player->getVelocityX()) / 2;
-                particle.velocity_y = -rand() % int(std::abs(player->getVelocityX()) / 3 * 2) - std::abs(player->getVelocityX()) / 2;
+                particle.velocity_y = -(rand() % int(std::abs(player->getVelocityX()) * 2) + std::abs(player->getVelocityX()));
                 particles->spawnParticle(particle);
                 
             }
