@@ -1,10 +1,9 @@
 #include <fstream>
 #include <filesystem>
-#include <signal.h>
+#include <csignal>
 #include <thread>
 #include "print.hpp"
 #include "server.hpp"
-#include "compress.hpp"
 #include "content.hpp"
 
 #define TPS_LIMIT 20
@@ -32,7 +31,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     world_path(world_path),
     content(&blocks, &walls, &liquids, &items),
     resource_path(resource_path),
-    seed((int)time(NULL))
+    seed((int)time(nullptr))
 {    
     modules = {
         &networking,
@@ -50,16 +49,17 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
 }
 
 void Server::start() {
-#ifndef WIN32
+#ifdef __APPLE__//jakob check if this works
     pthread_setname_np("Server");
+#elifndef WIN32
+    pthread_setname_np(pthread_self(), "Server");
 #endif
-    
     curr_server = this;
 
     content.loadContent(&blocks, &walls, &liquids, &items, &recipes, resource_path + "resourcePack/");
     
-    for(int i = 0; i < modules.size(); i++)
-        modules[i]->init();
+    for(auto & module : modules)
+        module->init();
     
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
@@ -71,8 +71,8 @@ void Server::start() {
         generator.generateWorld(4400, 1200, seed);
     }
     
-    for(int i = 0; i < modules.size(); i++)
-        modules[i]->postInit();
+    for(auto & module : modules)
+        module->postInit();
     
     content.blocks.addBlockBehaviour(&players);
     
@@ -90,22 +90,22 @@ void Server::start() {
     float frame_length = 0;
     int frame_count = 0;
     
-    ms_timer_counter = ms_timer.getTimeElapsed();
+    ms_timer_counter = (int)ms_timer.getTimeElapsed();
     gfx::Timer tps_timer;
     while(running) {
         gfx::Timer timer;
         
-        for(int i = 0; i < modules.size(); i++)
-            modules[i]->update(frame_length);
+        for(auto & module : modules)
+            module->update(frame_length);
         
         while(ms_timer_counter < (int)ms_timer.getTimeElapsed()) {
             ms_timer_counter++;
-            for(int i = 0; i < modules.size(); i++)
-                modules[i]->updateOnMs();
+            for(auto & module : modules)
+                module->updateOnMs();
         }
         
-        if(ms_per_tick > timer.getTimeElapsed())
-            gfx::sleep(ms_per_tick - timer.getTimeElapsed());
+        if((float)ms_per_tick > timer.getTimeElapsed())
+            gfx::sleep((float)ms_per_tick - timer.getTimeElapsed());
         frame_length = timer.getTimeElapsed();
         
         frame_count++;
@@ -124,8 +124,8 @@ void Server::start() {
     world_saver.save();
     
     print::info("Stopping server...");
-    for(int i = 0; i < modules.size(); i++)
-        modules[i]->stop();
+    for(auto & module : modules)
+        module->stop();
 
     state = ServerState::STOPPED;
 }

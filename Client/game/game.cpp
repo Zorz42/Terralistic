@@ -128,8 +128,10 @@ void Game::start() {
 
 void Game::parallelUpdateLoop() {
     try {
-        #ifndef WIN32
-            pthread_setname_np("Client Parallel");
+        #ifdef __APPLE__//jakob check if this works
+                pthread_setname_np("Client Parallel");
+        #elifndef WIN32
+                pthread_setname_np(pthread_self(), "Client Parallel");
         #endif
         
         gfx::Timer timer;

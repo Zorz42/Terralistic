@@ -46,8 +46,10 @@ void NaturalLight::onEvent(WelcomePacketEvent &event) {
 }
 
 void NaturalLight::naturalLightUpdateLoop() {
-#ifndef WIN32
+#ifdef __APPLE__//jakob check if this works
     pthread_setname_np("Natural Light Update");
+#elifndef WIN32
+    pthread_setname_np(pthread_self(), "Natural Light Update");
 #endif
     
     while(running) {

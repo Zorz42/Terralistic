@@ -66,8 +66,10 @@ public:
 };
 
 int main(int argc, char **argv) {
-#ifndef WIN32
+#ifdef __APPLE__//jakob check if this works
     pthread_setname_np("Main");
+#elifndef WIN32
+    pthread_setname_np(pthread_self(), "Main");
 #endif
     
     srand((int)time(nullptr));
