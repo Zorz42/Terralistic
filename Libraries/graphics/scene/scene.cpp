@@ -109,6 +109,8 @@ gfx::Key translateKeyboardKey(int glfw_button) {
         case GLFW_KEY_LEFT_CONTROL: case GLFW_KEY_RIGHT_CONTROL: return gfx::Key::CTRL;
         case GLFW_KEY_RIGHT: return gfx::Key::ARROW_RIGHT;
         case GLFW_KEY_LEFT: return gfx::Key::ARROW_LEFT;
+        case GLFW_KEY_UP: return gfx::Key::ARROW_UP;
+        case GLFW_KEY_DOWN: return gfx::Key::ARROW_DOWN;
         default: return gfx::Key::UNKNOWN;
     }
 }
@@ -269,10 +271,10 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
             onKeyDownCallback(key);
         
         if(is_textbox_active && key == Key::ESCAPE) {
-            for(int i = 0; i < modules.size(); i++)
-                if(modules[i]->enabled)
-                    for(int i2 = 0; i2 < modules[i]->text_inputs.size(); i2++)
-                        modules[i]->text_inputs[i2]->active = false;
+            for(auto & module : modules)
+                if(module->enabled)
+                    for(auto & text_input : module->text_inputs)
+                        text_input->active = false;
         }
     }
         

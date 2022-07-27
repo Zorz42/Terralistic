@@ -121,7 +121,7 @@ void Chat::onEvent(ClientPacketEvent &event) {
                 curr_line.push_back(whole_message[0]);
                 whole_message.erase(whole_message.begin());
                 if(whole_message[0] == '\n') {
-                    ChatLine* new_line = new ChatLine;
+                    auto* new_line = new ChatLine;
                     new_line->text = curr_line;
                         chat_lines.push_back(new_line);
                     whole_message.erase(whole_message.begin());
