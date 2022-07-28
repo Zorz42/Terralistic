@@ -39,9 +39,11 @@ void ClientLights::updateParallel(float frame_length) {
 }
 
 void ClientLights::lightUpdateLoop() {
-#ifdef __APPLE__//jakob check if this works
+#ifdef __APPLE__
     pthread_setname_np("Light Update");
-#elifndef WIN32
+#endif
+
+#ifdef __linux__
     pthread_setname_np(pthread_self(), "Light Update");
 #endif
     while(running) {

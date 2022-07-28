@@ -66,9 +66,11 @@ public:
 };
 
 int main(int argc, char **argv) {
-#ifdef __APPLE__//jakob check if this works
+#ifdef __APPLE__
     pthread_setname_np("Main");
-#elifndef WIN32
+#endif
+
+#ifdef __linux__
     pthread_setname_np(pthread_self(), "Main");
 #endif
     
