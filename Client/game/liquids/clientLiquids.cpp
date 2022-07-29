@@ -85,7 +85,7 @@ void ClientLiquids::render() {
     
     render_time_sum += render_timer.getTimeElapsed();
     fps_count++;
-    if(line_refresh_timer.getTimeElapsed() >= 1000) {
+    if(line_refresh_timer.getTimeElapsed() > 1000) {
         render_time_line.text = std::to_string(render_time_sum / fps_count) + "ms liquids render";
         
         fps_count = 0;
