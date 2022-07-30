@@ -232,26 +232,31 @@ int gfx::getWindowHeight() {
 
 #include "timer.hpp"
 
-static gfx::Timer test_timer;
+static gfx::Timer test_timer, timer2;
+static int max;
 
 void gfx::updateWindow() {
     //sleep(1);
-    //if(test_timer.getTimeElapsed() > 20)
-        //std::cout << test_timer.getTimeElapsed() << std::endl;
-    //if(test_timer.getTimeElapsed() > 5) {
-        //std::cout << "YES" << std::endl;
-        test_timer.reset();
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, default_framebuffer);
-        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, window_texture, 0);
-        
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        glBlitFramebuffer(0, 0, getWindowWidth(), getWindowHeight(), 0, 0, getWindowWidth() * gfx::global_scale_x, getWindowHeight() * gfx::global_scale_y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        
-        glfwSwapBuffers(glfw_window);
-        
-        glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
-    //} //else
-        //std::cout << "NO" << std::endl;
+    
+    if(max < test_timer.getTimeElapsed())
+        max = test_timer.getTimeElapsed();
+    
+    if(timer2.getTimeElapsed() > 1000) {
+        timer2.reset();
+        std::cout << "max ms: " << max << std::endl;
+        max = 0;
+    }
+    
+    test_timer.reset();
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, default_framebuffer);
+    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, window_texture, 0);
+    
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, getWindowWidth(), getWindowHeight(), 0, 0, getWindowWidth() * gfx::global_scale_x, getWindowHeight() * gfx::global_scale_y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    
+    glfwSwapBuffers(glfw_window);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
 }
 
 void gfx::quitGlfw() {
