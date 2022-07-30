@@ -14,11 +14,29 @@ void gfx::Rect::render() {
     
     while(ms_counter < approach_timer.getTimeElapsed()) {
         ms_counter++;
-        x = approach(x, target_x, smooth_factor * 10);
-        y = approach(y, target_y, smooth_factor * 10);
-        width = approach(width, target_width, smooth_factor * 10);
-        height = approach(height, target_height, smooth_factor * 10);
+        
+        if(std::abs(x - target_x) < 1)
+            x = target_x;
+        if(x != target_x)
+            x = approach(x, target_x, smooth_factor * 10);
+        
+        if(std::abs(y - target_y) < 1)
+            y = target_y;
+        if(y != target_y)
+            y = approach(y, target_y, smooth_factor * 10);
+        
+        if(std::abs(width - target_width) < 1)
+            width = target_width;
+        if(width != target_width)
+            width = approach(width, target_width, smooth_factor * 10);
+        
+        if(std::abs(height - target_height) < 1)
+            height = target_height;
+        if(height != target_height)
+            height = approach(height, target_height, smooth_factor * 10);
     }
+    
+    
     
     RectShape rect = getTranslatedRect();
 
