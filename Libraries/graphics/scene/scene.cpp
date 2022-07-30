@@ -128,7 +128,7 @@ void gfx::Scene::onMouseButtonEvent(gfx::Key key, bool pressed) {
     if(pressed) {
         bool clicked_text_box = false;
         if (key == Key::MOUSE_LEFT) {
-            for (SceneModule* module : modules)
+            for(SceneModule* module : modules)
                 if(module->enabled)
                     for (TextInput* i : module->text_inputs) {
                         i->active = i->isHovered(getMouseX(), getMouseY());
