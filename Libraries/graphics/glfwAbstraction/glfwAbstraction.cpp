@@ -230,24 +230,7 @@ int gfx::getWindowHeight() {
 #endif
 }
 
-#include "timer.hpp"
-
-static gfx::Timer test_timer, timer2;
-static int max;
-
 void gfx::updateWindow() {
-    //sleep(1);
-    
-    if(max < test_timer.getTimeElapsed())
-        max = test_timer.getTimeElapsed();
-    
-    if(timer2.getTimeElapsed() > 1000) {
-        timer2.reset();
-        std::cout << "max ms: " << max << std::endl;
-        max = 0;
-    }
-    
-    test_timer.reset();
     glBindFramebuffer(GL_READ_FRAMEBUFFER, default_framebuffer);
     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, window_texture, 0);
     
