@@ -10,6 +10,7 @@ class Camera : public ClientModule {
     void init() override;
     void update(float frame_length) override;
     gfx::Timer timer;
+    int timer_counter = 0;
     
     DebugLine coords_debug_line;
 public:

@@ -9,6 +9,7 @@ enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I
 
 class Button : public Sprite {
     gfx::Timer timer;
+    int timer_counter = 0;
 public:
     int margin = GFX_DEFAULT_BUTTON_MARGIN;
 

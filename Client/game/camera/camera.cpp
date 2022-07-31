@@ -30,10 +30,10 @@ int Camera::getTargetY() const {
 }
 
 void Camera::update(float frame_length) {
-    if(timer.getTimeElapsed() > 14) {
-        timer.reset();
-        x += (target_x - x) / 8;
-        y += (target_y - y) / 8;
+    while(timer_counter < timer.getTimeElapsed()) {
+        timer_counter++;
+        x += (target_x - x) / 100;
+        y += (target_y - y) / 100;
     }
     
     coords_debug_line.text = std::string("X: ") + std::to_string(int(x / (BLOCK_WIDTH * 2))) + ", Y: " + std::to_string(int(y / (BLOCK_WIDTH * 2)));
