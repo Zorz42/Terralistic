@@ -3,7 +3,7 @@
 #include "readOpa.hpp"
 #include "resourcePath.hpp"
 
-#define EXTENDED_VIEW_MARGIN 100
+#define EXTENDED_VIEW_MARGIN 30
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
