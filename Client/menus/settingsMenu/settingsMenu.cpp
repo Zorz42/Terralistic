@@ -66,7 +66,7 @@ void SettingsMenu::render() {
 }
 
 RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setting) {
-    choice_text.loadFromText(setting->indent);
+    choice_text.loadFromText(setting->ident);
     choice_text.scale = 3;
     choice_text.orientation = gfx::TOP;
     select_rect.fill_color = DARK_GREY;
@@ -128,7 +128,7 @@ void RenderChoiceSetting::onMouseButtonUp(int x, int y) {
 }
 
 RenderBooleanSetting::RenderBooleanSetting(BooleanSetting* setting) : setting(setting) {
-    text.loadFromText(setting->indent);
+    text.loadFromText(setting->ident);
     text.scale = 3;
     text.orientation = gfx::TOP;
     

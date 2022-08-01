@@ -14,13 +14,13 @@ void VariableDeclarationType::print(ProgramLine* line, int depth) {
 }
 
 ProgramLine* VariableDeclarationType::parse(const Token*& curr_token) {
-    if(curr_token->type != TokenType::INDENT || curr_token->text != "int")
+    if(curr_token->type != TokenType::IDENT || curr_token->text != "int")
         return nullptr;
     
     curr_token++;
     VariableDeclaration* variable_declaration = new VariableDeclaration(this);
     
-    if(curr_token->type != TokenType::INDENT)
+    if(curr_token->type != TokenType::IDENT)
         throw Error("Expected variable name after type.");
     
     if(variable_manager->variableExists(curr_token->text))
@@ -79,7 +79,7 @@ void VariableSettingType::print(ProgramLine* line, int depth) {
 }
 
 ProgramLine* VariableSettingType::parse(const Token*& curr_token) {
-    if(curr_token->type != TokenType::INDENT || (curr_token + 1)->type != TokenType::ASSIGNMENT)
+    if(curr_token->type != TokenType::IDENT || (curr_token + 1)->type != TokenType::ASSIGNMENT)
         return nullptr;
     
     VariableSetting* variable_setting = new VariableSetting(this);

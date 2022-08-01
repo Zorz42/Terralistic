@@ -173,12 +173,12 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     }
     args.push_back(message.substr(0, pos));
     
-    std::string indentifier = args[0];
+    std::string identifier = args[0];
     args.erase(args.begin());
-    indentifier.erase(indentifier.begin());
+    identifier.erase(identifier.begin());
 
     for(int i = 0; i < commands.size(); i++)
-        if(commands[i]->indentifier == indentifier) {
+        if(commands[i]->identifier == identifier) {
             try {
                 if(!commands[i]->onCommand(args, player))
                     chat->sendChat(player, commands[i]->usage);
@@ -188,24 +188,24 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
             return;
         }
     
-    chat->sendChat(player, "Command \"" + indentifier + "\" not recognised. Type /help for a list of commands.");
+    chat->sendChat(player, "Command \"" + identifier + "\" not recognised. Type /help for a list of commands.");
 }
 
 bool HelpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.empty()) {
         std::string message = "List of commands:\n";
         for(int i = 0; i < commands.size(); i++)
-            message += commands[i]->indentifier + " -> " + commands[i]->description + "\n";
+            message += commands[i]->identifier + " -> " + commands[i]->description + "\n";
         chat->sendChat(executor, message);
         return true;
     } else if(args.size() == 1) {
         for(int i = 0; i < commands.size(); i++)
-            if(commands[i]->indentifier == args[0]) {
+            if(commands[i]->identifier == args[0]) {
                 chat->sendChat(executor, commands[i]->usage);
                 return true;
             }
         
-        chat->sendChat(executor, "Command \"" + indentifier + "\" not found.");
+        chat->sendChat(executor, "Command \"" + identifier + "\" not found.");
         return true;
     }
     return false;

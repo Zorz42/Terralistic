@@ -4,7 +4,7 @@
 #include <fstream>
 
 enum class TokenType {
-    NONE, INDENT, STRING, CONSTANT_INTEGER, END,
+    NONE, IDENT, STRING, CONSTANT_INTEGER, END,
     // synbols
     ASSIGNMENT, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY_BRACKET, RIGHT_CURLY_BRACKET,
     // operators
