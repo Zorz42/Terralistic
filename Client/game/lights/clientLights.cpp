@@ -50,10 +50,15 @@ void ClientLights::lightUpdateLoop() {
         bool finished = !enabled;
         while(!finished) {
             finished = true;
-            for(int y = blocks->getBlocksExtendedViewBeginY(); y <= blocks->getBlocksExtendedViewEndY(); y++)
-                for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
-                    if(hasScheduledLightUpdate(x, y)) {
-                        updateLight(x, y);
+            for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE * CHUNK_SIZE; y < blocks->getBlocksExtendedViewEndY(); y += CHUNK_SIZE)
+                for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE * CHUNK_SIZE; x < blocks->getBlocksExtendedViewEndX(); x += CHUNK_SIZE)
+                    if(getLightChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_light_update) {
+                        getLightChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_light_update = false;
+                        
+                        for(int y_ = y; y_ < y + CHUNK_SIZE; y_++)
+                            for(int x_ = x; x_ < x + CHUNK_SIZE; x_++)
+                                updateLight(x_, y_);
+                        
                         finished = false;
                     }
         }
@@ -119,6 +124,7 @@ void ClientLights::onEvent(LightColorChangeEvent& event) {
     scheduleClientLightUpdate(event.x - 1, event.y);
     scheduleClientLightUpdate(event.x, event.y - 1);
     scheduleClientLightUpdate(event.x - 1, event.y - 1);
+    getLightChunk(event.x / CHUNK_SIZE, event.y / CHUNK_SIZE)->has_light_update = true;
 }
 
 void ClientLights::render() {

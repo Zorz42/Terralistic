@@ -10,7 +10,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
         bool is_created = false;
         int light_count = 0;
     public:
-        bool has_update = true;
+        bool has_update = true, has_light_update = true;
         bool isCreated() const { return is_created; }
         void create();
         void update(ClientLights* lights, int x, int y);
