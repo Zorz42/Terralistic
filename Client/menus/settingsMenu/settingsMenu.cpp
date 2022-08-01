@@ -83,6 +83,15 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
 }
 
 void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y) {
+    int x = width / 2 - SPACING;
+    for(int i = (int)choice_buttons.size() - 1; i >= 0; i--) {
+        gfx::Button* button = choice_buttons[i];
+        x -= button->getWidth() / 2;
+        button->x = x;
+        x -= button->getWidth() / 2;
+        button->y = y + getHeight() / 2 - button->getHeight() / 2;
+    }
+    
     gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
     select_rect.setX(selected_button->x);
     select_rect.setY(selected_button->y);
@@ -95,15 +104,8 @@ void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y) {
     
     choice_text.render();
     
-    int x = width / 2 - SPACING;
-    for(int i = (int)choice_buttons.size() - 1; i >= 0; i--) {
-        gfx::Button* button = choice_buttons[i];
-        x -= button->getWidth() / 2;
-        button->x = x;
-        x -= button->getWidth() / 2;
-        button->y = y + getHeight() / 2 - button->getHeight() / 2;
-        button->render(mouse_x, mouse_y);
-    }
+    for(int i = 0; i < (int)choice_buttons.size(); i++)
+        choice_buttons[i]->render(mouse_x, mouse_y);
 }
 
 int RenderChoiceSetting::getHeight() {
