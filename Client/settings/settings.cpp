@@ -63,6 +63,29 @@ void BooleanSetting::setValue(bool new_value) {
     setting_change_event.call(event);
 }
 
+std::string SliderSetting::exportToStr() {
+    return std::to_string(getSelectedChoice());
+}
+
+void SliderSetting::loadFromStr(std::string value) {
+    setSelectedChoice(std::stoi(value));
+}
+
+int SliderSetting::getSelectedChoice() const {
+    return selected_choice;
+}
+
+int SliderSetting::getSliderValue() const {
+    return min + (selected_choice - (int)choices.size()) * step;
+}
+
+void SliderSetting::setSelectedChoice(int choice) {
+    selected_choice = choice;
+    
+    SettingChangeEvent event;
+    setting_change_event.call(event);
+}
+
 void Settings::reloadSettings() {
     is_loading = true;
     config_file.reloadFromDisk();

@@ -49,6 +49,7 @@ public:
     const int min, max, step;
     int getSelectedChoice() const;
     void setSelectedChoice(int choice);
+    int getSliderValue() const;
     
     std::string exportToStr() override;
     void loadFromStr(std::string value) override;

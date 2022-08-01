@@ -39,6 +39,20 @@ public:
     int getWidth() override;
 };
 
+class RenderSliderSetting : public RenderSetting {
+    SliderSetting* const setting;
+    std::vector<gfx::Button*> choice_buttons;
+    gfx::Sprite choice_text;
+    gfx::Rect select_rect, slider_rect;
+    void onMouseButtonUp(int x, int y) override;
+public:
+    explicit RenderSliderSetting(SliderSetting* setting);
+    
+    void render(int y, int width, int mouse_x, int mouse_y) override;
+    int getHeight() override;
+    int getWidth() override;
+};
+
 class SettingsMenu : public gfx::Scene {
     gfx::Button back_button;
     

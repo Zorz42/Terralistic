@@ -31,7 +31,7 @@ public:
 };
 
 class FpsChangeListener : public EventListener<SettingChangeEvent> {
-    ChoiceSetting* fps_setting;
+    SliderSetting* fps_setting;
     void onEvent(SettingChangeEvent& event) override {
         switch(fps_setting->getSelectedChoice()) {
             case 0:
@@ -40,20 +40,15 @@ class FpsChangeListener : public EventListener<SettingChangeEvent> {
                 break;
             case 1:
                 gfx::enableVsync(false);
-                gfx::fps_limit = 5;
-                break;
-            case 2:
-                gfx::enableVsync(false);
-                gfx::fps_limit = 60;
-                break;
-            case 3:
-                gfx::enableVsync(false);
                 gfx::fps_limit = 0;
                 break;
+            default:
+                gfx::enableVsync(false);
+                gfx::fps_limit = fps_setting->getSliderValue();
         }
     }
 public:
-    explicit FpsChangeListener(ChoiceSetting* fps_setting) : fps_setting(fps_setting) {}
+    explicit FpsChangeListener(SliderSetting* fps_setting) : fps_setting(fps_setting) {}
 };
 
 class BlurChangeListener : public EventListener<SettingChangeEvent> {
@@ -100,7 +95,7 @@ int main(int argc, char **argv) {
     scale_setting.setting_change_event.addListener(&scale_change_listener);
     settings.addSetting(&scale_setting);
     
-    ChoiceSetting fps_setting("FPS limit", {"Vsync", "5", "60", "Unlimited"}, 2);
+    SliderSetting fps_setting("FPS limit", 10, 300, 10, {"Vsync", "Unlimited"}, 0);
     FpsChangeListener fps_change_listener(&fps_setting);
     fps_setting.setting_change_event.addListener(&fps_change_listener);
     settings.addSetting(&fps_setting);
