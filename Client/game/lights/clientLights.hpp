@@ -4,7 +4,7 @@
 #include "lights.hpp"
 #include "settings.hpp"
 
-class ClientLights : public Lights, public ClientModule, EventListener<LightColorChangeEvent> {
+class ClientLights : public Lights, public ClientModule, EventListener<LightColorChangeEvent>, EventListener<LightUpdateScheduleEvent> {
     class LightChunk {
         gfx::RectArray light_rects;
         bool is_created = false;
@@ -26,6 +26,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     std::thread light_update_thread;
     
     void onEvent(LightColorChangeEvent& event) override;
+    void onEvent(LightUpdateScheduleEvent& event) override;
     
     LightChunk* light_chunks = nullptr;
     

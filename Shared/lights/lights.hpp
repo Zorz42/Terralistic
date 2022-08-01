@@ -9,6 +9,12 @@ public:
     int x, y;
 };
 
+class LightUpdateScheduleEvent {
+public:
+    LightUpdateScheduleEvent(int x, int y) : x(x), y(y) {}
+    int x, y;
+};
+
 class LightColor {
 public:
     LightColor(int r, int g, int b) : r(r), g(g), b(b) {}
@@ -57,6 +63,7 @@ public:
     void updateLightEmitter(int x, int y);
     
     EventSender<LightColorChangeEvent> light_color_change_event;
+    EventSender<LightUpdateScheduleEvent> light_update_schedule_event;
     
     ~Lights();
 };

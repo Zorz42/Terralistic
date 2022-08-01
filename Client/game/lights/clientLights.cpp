@@ -6,6 +6,7 @@ void ClientLights::init() {
 #endif
     Lights::init();
     light_color_change_event.addListener(this);
+    light_update_schedule_event.addListener(this);
     debug_menu->registerDebugLine(&render_time_line);
 }
 
@@ -57,7 +58,8 @@ void ClientLights::lightUpdateLoop() {
                         
                         for(int y_ = y; y_ < y + CHUNK_SIZE; y_++)
                             for(int x_ = x; x_ < x + CHUNK_SIZE; x_++)
-                                updateLight(x_, y_);
+                                if(hasScheduledLightUpdate(x_, y_))
+                                    updateLight(x_, y_);
                         
                         finished = false;
                     }
@@ -124,6 +126,9 @@ void ClientLights::onEvent(LightColorChangeEvent& event) {
     scheduleClientLightUpdate(event.x - 1, event.y);
     scheduleClientLightUpdate(event.x, event.y - 1);
     scheduleClientLightUpdate(event.x - 1, event.y - 1);
+}
+
+void ClientLights::onEvent(LightUpdateScheduleEvent& event) {
     getLightChunk(event.x / CHUNK_SIZE, event.y / CHUNK_SIZE)->has_light_update = true;
 }
 
@@ -153,6 +158,7 @@ void ClientLights::stop() {
 #endif
     Lights::stop();
     light_color_change_event.removeListener(this);
+    light_update_schedule_event.removeListener(this);
     delete[] light_chunks;
 }
 

@@ -124,6 +124,8 @@ LightColor Lights::getLightSourceColor(int x, int y) {
 
 void Lights::scheduleLightUpdate(int x, int y) {
     getLight(x, y)->update_light = true;
+    LightUpdateScheduleEvent event(x, y);
+    light_update_schedule_event.call(event);
 }
 
 bool Lights::hasScheduledLightUpdate(int x, int y) {
