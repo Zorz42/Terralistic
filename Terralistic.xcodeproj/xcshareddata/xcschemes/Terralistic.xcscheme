@@ -28,7 +28,8 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"
       disableMainThreadChecker = "YES"
-      systemAttachmentLifetime = "keepNever">
+      systemAttachmentLifetime = "keepNever"
+      codeCoverageEnabled = "YES">
       <Testables>
       </Testables>
    </TestAction>
