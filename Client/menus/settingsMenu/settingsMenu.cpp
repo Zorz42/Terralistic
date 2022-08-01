@@ -69,7 +69,7 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
     choice_text.loadFromText(setting->indent);
     choice_text.scale = 3;
     choice_text.orientation = gfx::TOP;
-    select_rect.border_color = GREY;
+    select_rect.fill_color = DARK_GREY;
     select_rect.smooth_factor = 2;
     select_rect.orientation = gfx::TOP;
     for(const auto & choice : setting->choices) {
