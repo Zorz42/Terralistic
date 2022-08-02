@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     scale_setting.setting_change_event.addListener(&scale_change_listener);
     settings.addSetting(&scale_setting);
     
-    SliderSetting fps_setting("FPS limit", 10, 300, 10, {"Vsync", "Unlimited"}, 0);
+    SliderSetting fps_setting("FPS limit", 10, 300, 10, {"Vsync", "Unlimited"}, "FPS", 0);
     FpsChangeListener fps_change_listener(&fps_setting);
     fps_setting.setting_change_event.addListener(&fps_change_listener);
     settings.addSetting(&fps_setting);

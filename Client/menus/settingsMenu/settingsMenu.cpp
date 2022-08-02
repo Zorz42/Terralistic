@@ -48,6 +48,15 @@ bool SettingsMenu::onKeyUp(gfx::Key key) {
     return false;
 }
 
+bool SettingsMenu::onKeyDown(gfx::Key key) {
+    if(key == gfx::Key::MOUSE_LEFT) {
+        for(auto & render_setting : render_settings)
+            render_setting->onMouseButtonDown(getMouseX(), getMouseY());
+        return true;
+    }
+    return false;
+}
+
 void SettingsMenu::render() {
     background->setBackWidth(required_width + 6 * SPACING);
     background->renderBack();
@@ -212,7 +221,12 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     slider_rect.setWidth((setting->max - setting->min) / setting->step * 10);
     slider_rect.setHeight(dummy_button.getHeight());
     slider_rect.orientation = gfx::TOP;
-    slider_rect.fill_color = BLACK;
+    
+    slider_text.scale = 2;
+    slider_text.orientation = gfx::TOP;
+    slider_text.setColor(WHITE);
+    
+    updateSliderText();
 }
 
 void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
@@ -230,13 +244,34 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
         button->y = y + getHeight() / 2 - button->getHeight() / 2;
     }
     
+    slider_hovered = slider_rect.getTranslatedX() < mouse_x && slider_rect.getTranslatedX() + slider_rect.getWidth() > mouse_x && slider_rect.getTranslatedY() < mouse_y && slider_rect.getTranslatedY() + slider_rect.getHeight() > mouse_y;
+    
+    slider_rect.fill_color = slider_hovered ? GREY : BLACK;
     slider_rect.render();
     
-    gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
-    select_rect.setX(selected_button->x);
-    select_rect.setY(selected_button->y);
-    select_rect.setWidth(selected_button->getWidth());
-    select_rect.setHeight(selected_button->getHeight());
+    if(setting->getSelectedChoice() < choice_buttons.size()) {
+        gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
+        select_rect.setX(selected_button->x);
+        select_rect.setY(selected_button->y);
+        select_rect.setWidth(selected_button->getWidth());
+        select_rect.setHeight(selected_button->getHeight());
+    } else {
+        select_rect.setWidth(10);
+        select_rect.setHeight(slider_rect.getHeight());
+        select_rect.setY(slider_rect.getY());
+        select_rect.setX(slider_rect.getX() - slider_rect.getWidth() / 2 + 10 * (setting->getSelectedChoice() - (int)choice_buttons.size()) + select_rect.getWidth() / 2);
+    }
+    
+    if(holding_slider) {
+        int selected_choice = (mouse_x - slider_rect.getTranslatedX()) / 10 + (int)choice_buttons.size();
+        selected_choice = std::max(selected_choice, (int)choice_buttons.size());
+        selected_choice = std::min(selected_choice, (setting->max - setting->min) / setting->step + 1);
+        if(setting->getSelectedChoice() != selected_choice) {
+            setting->setSelectedChoice(selected_choice);
+            updateSliderText();
+        }
+    }
+    
     select_rect.render();
     
     choice_text.y = y + getHeight() / 2 - choice_text.getHeight() / 2;
@@ -246,6 +281,10 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
     
     for(int i = 0; i < (int)choice_buttons.size(); i++)
         choice_buttons[i]->render(mouse_x, mouse_y);
+    
+    slider_text.y = slider_rect.getY() + slider_rect.getHeight() / 2 - slider_text.getHeight() / 2;
+    slider_text.x = slider_rect.getX();
+    slider_text.render();
 }
 
 int RenderSliderSetting::getHeight() {
@@ -262,7 +301,26 @@ int RenderSliderSetting::getWidth() {
 }
 
 void RenderSliderSetting::onMouseButtonUp(int x, int y) {
+    holding_slider = false;
+    for(int i = 0; i < choice_buttons.size(); i++)
+        if(choice_buttons[i]->isHovered(x, y)) {
+            setting->setSelectedChoice(i);
+            updateSliderText();
+        }
+}
+
+void RenderSliderSetting::onMouseButtonDown(int x, int y) {
+    if(slider_hovered)
+        holding_slider = true;
+    
     for(int i = 0; i < choice_buttons.size(); i++)
         if(choice_buttons[i]->isHovered(x, y))
             setting->setSelectedChoice(i);
+}
+
+void RenderSliderSetting::updateSliderText() {
+    if(setting->getSelectedChoice() < choice_buttons.size())
+        slider_text.loadFromText(setting->slider_text);
+    else
+        slider_text.loadFromText(std::to_string(setting->getSliderValue()) + " " + setting->slider_text);
 }

@@ -7,7 +7,8 @@ public:
     virtual void render(int y, int width, int mouse_x, int mouse_y) = 0;
     virtual int getHeight() = 0;
     virtual int getWidth() = 0;
-    virtual void onMouseButtonUp(int x, int y) = 0;
+    virtual void onMouseButtonUp(int x, int y) {}
+    virtual void onMouseButtonDown(int x, int y) {}
     virtual ~RenderSetting() = default;
 };
 
@@ -42,9 +43,12 @@ public:
 class RenderSliderSetting : public RenderSetting {
     SliderSetting* const setting;
     std::vector<gfx::Button*> choice_buttons;
-    gfx::Sprite choice_text;
+    gfx::Sprite choice_text, slider_text;
     gfx::Rect select_rect, slider_rect;
+    bool holding_slider = false, slider_hovered = false;
     void onMouseButtonUp(int x, int y) override;
+    void onMouseButtonDown(int x, int y) override;
+    void updateSliderText();
 public:
     explicit RenderSliderSetting(SliderSetting* setting);
     
@@ -61,6 +65,7 @@ class SettingsMenu : public gfx::Scene {
     void init() override;
     void stop() override;
     bool onKeyUp(gfx::Key key) override;
+    bool onKeyDown(gfx::Key key) override;
     void render() override;
     BackgroundRect* background;
     Settings* settings;

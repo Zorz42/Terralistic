@@ -44,8 +44,9 @@ public:
 class SliderSetting : public Setting {
     int selected_choice;
 public:
-    SliderSetting(const std::string& ident, int min, int max, int step, const std::vector<std::string>& choices, int default_value) : Setting(ident), min(min), max(max), step(step), choices(choices), selected_choice(default_value) { type = SettingType::SLIDER_SETTING; };
+    SliderSetting(const std::string& ident, int min, int max, int step, const std::vector<std::string>& choices, const std::string& slider_text, int default_value) : Setting(ident), min(min), max(max), step(step), choices(choices), slider_text(slider_text), selected_choice(default_value) { type = SettingType::SLIDER_SETTING; };
     const std::vector<std::string> choices;
+    const std::string slider_text;
     const int min, max, step;
     int getSelectedChoice() const;
     void setSelectedChoice(int choice);
