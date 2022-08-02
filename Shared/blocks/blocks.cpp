@@ -51,12 +51,12 @@ void Blocks::create(int width_, int height_) {
     
     width = width_;
     height = height_;
-    blocks = new Block[width * height];
-    chunks = new BlockChunk[width / CHUNK_SIZE * height / CHUNK_SIZE];
+    blocks.resize(width * height);
+    chunks.resize(width / CHUNK_SIZE * height / CHUNK_SIZE);
 }
 
 Blocks::Block* Blocks::getBlock(int x, int y) {
-    if(x < 0 || x >= width || y < 0 || y >= height || blocks == nullptr)
+    if(x < 0 || x >= width || y < 0 || y >= height || blocks.empty())
         throw Exception("Block is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &blocks[y * width + x];
 }
@@ -139,7 +139,7 @@ void Blocks::startBreakingBlock(int x, int y) {
 }
 
 Blocks::BlockChunk* Blocks::getChunk(int x, int y) {
-    if(x < 0 || x >= width / CHUNK_SIZE || y < 0 || y >= height / CHUNK_SIZE || chunks == nullptr)
+    if(x < 0 || x >= width / CHUNK_SIZE || y < 0 || y >= height / CHUNK_SIZE || chunks.empty())
         throw Exception("Block chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &chunks[y * width / CHUNK_SIZE + x];
 }
@@ -182,7 +182,7 @@ std::vector<char> Blocks::toSerial() {
     std::vector<char> serial;
     unsigned long iter = 0;
     int size = 0;
-    Block* block = blocks;
+    Block* block = &blocks[0];
     for(int i = 0; i < width * height; i++){
         if(block_types[block->id]->block_data_index != 0)
             size += block->additional_block_data->getSavedSize();
@@ -193,7 +193,7 @@ std::vector<char> Blocks::toSerial() {
     iter += 2;
     *(unsigned short*)&serial[iter] = height;
     iter += 2;
-    block = blocks;
+    block = &blocks[0];
     for(int i = 0; i < width * height; i++) {
         serial[iter++] = (char)block->id;
         serial[iter++] = (char)block->x_from_main;
@@ -215,7 +215,7 @@ void Blocks::fromSerial(const std::vector<char>& serial) {
     height_ = *(unsigned short*)iter;
     iter += 2;
     create(width_, height_);
-    Block* block = blocks;
+    Block* block = &blocks[0];
     for(int i = 0; i < width * height; i++) {
         block->id = (unsigned char)*iter++;
         block->x_from_main = (unsigned char)*iter++;
@@ -269,8 +269,4 @@ int Blocks::getBlockYFromMain(int x, int y) {
 
 DefaultData* Blocks::getBlockData(int x, int y){
     return getBlock(x, y)->additional_block_data;
-}
-
-Blocks::~Blocks() {
-    delete[] blocks;
 }

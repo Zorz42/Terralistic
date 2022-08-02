@@ -101,8 +101,8 @@ class Blocks {
         int breaking_blocks_count = 0;
     };
     
-    Block *blocks = nullptr;
-    BlockChunk *chunks = nullptr;
+    std::vector<Block> blocks;
+    std::vector<BlockChunk> chunks ;
     dataDeliverer* data_deliverer;
     int width = 0, height = 0;
     std::vector<BreakingBlock> breaking_blocks;
@@ -157,6 +157,4 @@ public:
     EventSender<BlockStartedBreakingEvent> block_started_breaking_event;
     EventSender<BlockStoppedBreakingEvent> block_stopped_breaking_event;
     EventSender<BlockUpdateEvent> block_update_event;
-    
-    ~Blocks();
 };

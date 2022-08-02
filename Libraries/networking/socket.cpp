@@ -126,12 +126,11 @@ bool TcpSocket::receivePacket() {
     unsigned int size;
     if(!receive(&size, sizeof(unsigned int))) return false;
     
-    unsigned char* obj = new unsigned char[size];
-    if(!receive(obj, size)) return false;
+    std::vector<unsigned char> obj(size);
+    if(!receive(&obj[0], size)) return false;
     
     Packet packet;
-    packet.append(obj, size);
-    delete[] obj;
+    packet.append(&obj[0], size);
     
     packet_buffer_in.push(packet);
     

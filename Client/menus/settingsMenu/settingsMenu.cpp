@@ -218,7 +218,7 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     dummy_button.scale = 2;
     dummy_button.margin = 5;
     
-    slider_rect.setWidth((setting->max - setting->min) / setting->step * 10);
+    slider_rect.setWidth(((setting->max - setting->min) / setting->step + 1) * 10);
     slider_rect.setHeight(dummy_button.getHeight());
     slider_rect.orientation = gfx::TOP;
     
@@ -265,7 +265,7 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
     if(holding_slider) {
         int selected_choice = (mouse_x - slider_rect.getTranslatedX()) / 10 + (int)choice_buttons.size();
         selected_choice = std::max(selected_choice, (int)choice_buttons.size());
-        selected_choice = std::min(selected_choice, (setting->max - setting->min) / setting->step + 1);
+        selected_choice = std::min(selected_choice, (setting->max - setting->min) / setting->step + (int)choice_buttons.size());
         if(setting->getSelectedChoice() != selected_choice) {
             setting->setSelectedChoice(selected_choice);
             updateSliderText();
