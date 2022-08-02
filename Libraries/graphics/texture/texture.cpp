@@ -20,8 +20,8 @@ void gfx::Texture::loadFromSurface(const Surface& surface) {
     
     width = surface.getWidth();
     height = surface.getHeight();
-
-    unsigned char* data2 = new unsigned char[width * height * 4];
+    
+    std::vector<unsigned char> data2(width * height * 4);
     for(int i = 0; i < width * height * 4; i++) {
         data2[i] = 255;
         if(i % 8 == 1)
@@ -31,8 +31,6 @@ void gfx::Texture::loadFromSurface(const Surface& surface) {
     glGenTextures(1, &gl_texture);
     glBindTexture(GL_TEXTURE_2D, gl_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &surface.getData()[0]);
-
-    delete[] data2;
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

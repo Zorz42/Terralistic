@@ -18,7 +18,7 @@ void Chat::init() {
     chat_box.def_color.a = TRANSPARENCY;
     chat_box.setBlurIntensity(BLUR);
     chat_box.setBorderColor(BORDER_COLOR);
-    chat_box.width = 100;
+    chat_box.width = chat_width;
     chat_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
 
     text_inputs = {&chat_box};
@@ -29,10 +29,11 @@ void Chat::update(float frame_length) {
     
     if(enabled) {
         int target_width = chat_box.active ? 300 : 100;
-        if(timer.getTimeElapsed() > 14) {
-            timer.reset();
-            chat_box.width += (target_width - (int)chat_box.width) / 3;
+        while(timer_counter < timer.getTimeElapsed()) {
+            timer_counter++;
+            chat_width += (target_width - chat_width) / 40;
         }
+        chat_box.width = chat_width;
         
         for(auto & chat_line : chat_lines)
             chat_line->text_sprite.y += (chat_line->y_to_be - chat_line->text_sprite.y) / 2;

@@ -3,7 +3,7 @@
 #include "readOpa.hpp"
 #include "resourcePath.hpp"
 
-#define EXTENDED_VIEW_MARGIN 100
+#define EXTENDED_VIEW_MARGIN 30
 
 void ClientBlocks::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
@@ -32,15 +32,14 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
 
             int x, y;
             event.packet >> x >> y;
-            char* data = new char[getBlockData(x, y)->getSavedSize()];
+            std::vector<char> data(getBlockData(x, y)->getSavedSize());
             for(int i = 0; i < getBlockData(x, y)->getSavedSize(); i++){
                 event.packet >> data[i];
             }
-            const char *iter = data;
+            const char *iter = &data[0];
             getBlockData(x, y)->load(iter);
             updateState(x, y);
             scheduleBlockUpdate(x, y);
-            delete[] data;
         }
         default:;
     }
@@ -217,7 +216,7 @@ void ClientBlocks::render() {
     
     render_time_sum += render_timer.getTimeElapsed();
     fps_count++;
-    if(line_refresh_timer.getTimeElapsed() >= 1000) {
+    if(line_refresh_timer.getTimeElapsed() > 1000) {
         render_time_line.text = std::to_string(render_time_sum / fps_count) + "ms blocks render";
         
         fps_count = 0;

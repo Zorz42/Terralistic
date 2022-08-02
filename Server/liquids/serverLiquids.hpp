@@ -24,7 +24,7 @@ class ServerLiquids : public ServerModule, public Liquids, EventListener<ServerC
     
     std::priority_queue<LiquidUpdate, std::vector<LiquidUpdate>, bool(*)(LiquidUpdate&, LiquidUpdate&)> liquid_update_queue;
     
-    bool* liquid_schedules = nullptr;
+    std::vector<bool> liquid_schedules ;
     void setLiquidSchedule(int x, int y, bool value);
     bool isLiquidScheduled(int x, int y);
     

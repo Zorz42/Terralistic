@@ -9,8 +9,8 @@ public:
     Items* items;
     ServerPlayers* players;
     ServerChat* chat;
-    Command(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, const std::string& indentifier, const std::string& usage, const std::string& description) : blocks(blocks), liquids(liquids), entities(entities), items(items), players(players), chat(chat), indentifier(indentifier), usage(usage), description(description) {}
-    std::string indentifier, usage, description;
+    Command(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, const std::string& identifier, const std::string& usage, const std::string& description) : blocks(blocks), liquids(liquids), entities(entities), items(items), players(players), chat(chat), identifier(identifier), usage(usage), description(description) {}
+    std::string identifier, usage, description;
     virtual bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) = 0;
 };
 

@@ -16,8 +16,11 @@ class Chat : public ClientModule, EventListener<ClientPacketEvent> {
     ClientPlayers* players;
     std::vector<ChatLine*> chat_lines;
     gfx::Timer timer;
+    int timer_counter = 0;
     std::vector<std::string> saved_lines = {""};
     int selected_saved_line = 0;
+    
+    float chat_width = 100;
     
     void init() override;
     void update(float frame_length) override;

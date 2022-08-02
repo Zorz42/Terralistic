@@ -21,8 +21,8 @@ class ClientWalls : public Walls, public ClientModule, EventListener<ClientPacke
         void render(ClientWalls* walls, int x, int y);
     };
     
-    RenderWall* render_walls = nullptr;
-    RenderWallChunk* wall_chunks = nullptr;
+    std::vector<RenderWall> render_walls;
+    std::vector<RenderWallChunk> wall_chunks;
     RenderWall* getRenderWall(int x, int y);
     RenderWallChunk* getRenderWallChunk(int x, int y);
     

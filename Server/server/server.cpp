@@ -49,9 +49,11 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
 }
 
 void Server::start() {
-#ifdef __APPLE__//jakob check if this works
+#ifdef __APPLE__
     pthread_setname_np("Server");
-#elifndef WIN32
+#endif
+
+#ifdef __linux__
     pthread_setname_np(pthread_self(), "Server");
 #endif
     curr_server = this;

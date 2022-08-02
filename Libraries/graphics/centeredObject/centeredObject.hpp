@@ -14,7 +14,7 @@ public:
     int getTranslatedX() const;
     int getTranslatedY() const;
 
-    int x, y;
+    float x, y;
 };
 
 };

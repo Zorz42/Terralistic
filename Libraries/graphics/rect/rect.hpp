@@ -7,10 +7,11 @@ namespace gfx {
 class Rect : public _CenteredObject {
     using _CenteredObject::x;
     using _CenteredObject::y;
-    int width, height;
+    float width = 1, height = 1;
     
-    int target_x = 0, target_y = 0, target_width = 0, target_height = 0;
+    int target_x = 0, target_y = 0, target_width = 1, target_height = 1;
     Timer approach_timer;
+    int ms_counter = 0;
     
     bool first_time = true;
 public:

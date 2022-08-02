@@ -78,6 +78,10 @@ static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float 
 #endif
 }
 
+static void windowFocusCallback(GLFWwindow* window, int focused) {
+    gfx::is_window_focused = focused;
+}
+
 void gfx::setMinimumWindowSize(int width, int height) {
     window_width_min = width;
     window_height_min = height;
@@ -105,6 +109,7 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
     glfwSetScrollCallback(glfw_window, gfx::scrollCallback);
     glfwSetCharCallback(glfw_window, gfx::characterCallback);
     glfwSetMouseButtonCallback(glfw_window, gfx::mouseButtonCallback);
+    glfwSetWindowFocusCallback(glfw_window, windowFocusCallback);
 
     float scale_x, scale_y;
     glfwGetWindowContentScale(glfw_window, &scale_x, &scale_y);
@@ -230,7 +235,7 @@ int gfx::getWindowHeight() {
 #endif
 }
 
-void gfx::updateWindow() {    
+void gfx::updateWindow() {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, default_framebuffer);
     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, window_texture, 0);
     

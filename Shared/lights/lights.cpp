@@ -17,7 +17,7 @@ void Lights::stop() {
 }
 
 void Lights::create() {
-    lights = new Light[blocks->getWidth() * blocks->getHeight()];
+    lights.resize(blocks->getWidth() * blocks->getHeight());
 }
 
 void Lights::updateAllLightEmitters() {
@@ -27,7 +27,7 @@ void Lights::updateAllLightEmitters() {
 }
 
 Lights::Light* Lights::getLight(int x, int y) {
-    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight() || lights == nullptr)
+    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight() || lights.empty())
         throw Exception("Light is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &lights[y * blocks->getWidth() + x];
 }
@@ -124,6 +124,8 @@ LightColor Lights::getLightSourceColor(int x, int y) {
 
 void Lights::scheduleLightUpdate(int x, int y) {
     getLight(x, y)->update_light = true;
+    LightUpdateScheduleEvent event(x, y);
+    light_update_schedule_event.call(event);
 }
 
 bool Lights::hasScheduledLightUpdate(int x, int y) {
@@ -157,8 +159,4 @@ void Lights::scheduleLightUpdateForNeighbors(int x, int y) {
 
 void Lights::updateLightEmitter(int x, int y) {
     setLightSource(x, y, LightColor(blocks->getBlockType(x, y)->light_emission_r, blocks->getBlockType(x, y)->light_emission_g, blocks->getBlockType(x, y)->light_emission_b));
-}
-
-Lights::~Lights() {
-    delete[] lights;
 }

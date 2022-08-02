@@ -13,8 +13,8 @@ int Inventory::countItems(int item_id) {
 }
 
 void Inventory::setItem(int pos, ItemStack item) {
-    if(item_counts == nullptr)
-        throw Exception("item_counts is null");
+    if(item_counts.empty())
+        throw Exception("item_counts is empty");
     item_counts[(int)getItem(pos).type->id] -= getItem(pos).stack;
     item_counts[(int)item.type->id] += item.stack;
     ItemStack& item_stack = pos == -1 ? mouse_item : inventory_arr[pos];
@@ -68,7 +68,7 @@ std::vector<char> Inventory::toSerial() const {
 }
 
 Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(recipes), mouse_item(&items->nothing, 0) {
-    item_counts = new int[items->getNumItemTypes()];
+    item_counts.resize(items->getNumItemTypes());
     for(int i = 0; i < items->getNumItemTypes(); i++)
         item_counts[i] = 0;
     
@@ -134,8 +134,8 @@ void Inventory::swapWithMouseItem(int pos) {
 
 bool Inventory::canCraftRecipe(const Recipe* recipe) {
     if(std::all_of(recipe->ingredients.begin(), recipe->ingredients.end(), [this](auto ingredient){
-        if(item_counts == nullptr)
-            throw Exception("item_counts is null");
+        if(item_counts.empty())
+            throw Exception("item_counts is empty");
         return countItems((int)ingredient.first->id) >= ingredient.second;
     })) {
         if (recipe->crafting_block == nullptr) {
@@ -177,32 +177,4 @@ void Recipes::registerARecipe(Recipe* recipe) {
 
 const std::vector<Recipe*>& Recipes::getAllRecipes() {
     return recipes;
-}
-
-Inventory& Inventory::operator=(const Inventory& inventory) {
-    items = inventory.items;
-    recipes = inventory.recipes;
-    delete[] item_counts;
-    
-    selected_slot = inventory.selected_slot;
-    for(int i = 0; i < INVENTORY_SIZE; i++)
-        inventory_arr[i] = inventory.inventory_arr[i];
-    mouse_item = inventory.mouse_item;
-    
-    item_counts = new int[items->getNumItemTypes()];
-    for(int i = 0; i < items->getNumItemTypes(); i++)
-        item_counts[i] = inventory.item_counts[i];
-    
-    available_recipes = inventory.available_recipes;
-    
-    return *this;
-}
-
-Inventory::Inventory(const Inventory& inventory) {
-    *this = inventory;//fix maybe? read next comment
-    this->setBlocks(inventory.blocks);//this is needed, I thought the data is linked via a pointer but somehow without this line only inventory (and not this) have a pointer to blocks
-}
-
-Inventory::~Inventory() {
-    delete[] item_counts;
 }

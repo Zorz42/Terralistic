@@ -6,19 +6,20 @@ void ClientLights::init() {
 #endif
     Lights::init();
     light_color_change_event.addListener(this);
+    light_update_schedule_event.addListener(this);
     debug_menu->registerDebugLine(&render_time_line);
 }
 
 void ClientLights::postInit() {
     create();
-    light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
+    light_chunks.resize(getWidth() / 16 * getHeight() / 16);
     updateAllLightEmitters();
     
     light_update_thread = std::thread(&ClientLights::lightUpdateLoop, this);
 }
 
 ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / 16 || y < 0 || y >= getHeight() / 16 || light_chunks == nullptr)
+    if(x < 0 || x >= getWidth() / 16 || y < 0 || y >= getHeight() / 16 || light_chunks.empty())
         throw Exception("Light chunk out of bounds.");
     return &light_chunks[y * getWidth() / 16 + x];
 }
@@ -39,19 +40,27 @@ void ClientLights::updateParallel(float frame_length) {
 }
 
 void ClientLights::lightUpdateLoop() {
-#ifdef __APPLE__//jakob check if this works
+#ifdef __APPLE__
     pthread_setname_np("Light Update");
-#elifndef WIN32
+#endif
+
+#ifdef __linux__
     pthread_setname_np(pthread_self(), "Light Update");
 #endif
     while(running) {
         bool finished = !enabled;
         while(!finished) {
             finished = true;
-            for(int y = blocks->getBlocksExtendedViewBeginY(); y <= blocks->getBlocksExtendedViewEndY(); y++)
-                for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
-                    if(hasScheduledLightUpdate(x, y)) {
-                        updateLight(x, y);
+            for(int y = blocks->getBlocksExtendedViewBeginY() / CHUNK_SIZE * CHUNK_SIZE; y < blocks->getBlocksExtendedViewEndY(); y += CHUNK_SIZE)
+                for(int x = blocks->getBlocksExtendedViewBeginX() / CHUNK_SIZE * CHUNK_SIZE; x < blocks->getBlocksExtendedViewEndX(); x += CHUNK_SIZE)
+                    if(getLightChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_light_update) {
+                        getLightChunk(x / CHUNK_SIZE, y / CHUNK_SIZE)->has_light_update = false;
+                        
+                        for(int y_ = y; y_ < y + CHUNK_SIZE; y_++)
+                            for(int x_ = x; x_ < x + CHUNK_SIZE; x_++)
+                                if(hasScheduledLightUpdate(x_, y_))
+                                    updateLight(x_, y_);
+                        
                         finished = false;
                     }
         }
@@ -119,6 +128,10 @@ void ClientLights::onEvent(LightColorChangeEvent& event) {
     scheduleClientLightUpdate(event.x - 1, event.y - 1);
 }
 
+void ClientLights::onEvent(LightUpdateScheduleEvent& event) {
+    getLightChunk(event.x / CHUNK_SIZE, event.y / CHUNK_SIZE)->has_light_update = true;
+}
+
 void ClientLights::render() {
     gfx::Timer render_timer;
     for(int y = blocks->getBlocksViewBeginY() / CHUNK_SIZE; y <= blocks->getBlocksViewEndY() / CHUNK_SIZE; y++)
@@ -145,7 +158,7 @@ void ClientLights::stop() {
 #endif
     Lights::stop();
     light_color_change_event.removeListener(this);
-    delete[] light_chunks;
+    light_update_schedule_event.removeListener(this);
 }
 
 void ClientLights::scheduleClientLightUpdate(int x, int y) {

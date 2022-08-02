@@ -4,13 +4,13 @@
 #include "lights.hpp"
 #include "settings.hpp"
 
-class ClientLights : public Lights, public ClientModule, EventListener<LightColorChangeEvent> {
+class ClientLights : public Lights, public ClientModule, EventListener<LightColorChangeEvent>, EventListener<LightUpdateScheduleEvent> {
     class LightChunk {
         gfx::RectArray light_rects;
         bool is_created = false;
         int light_count = 0;
     public:
-        bool has_update = true;
+        bool has_update = true, has_light_update = true;
         bool isCreated() const { return is_created; }
         void create();
         void update(ClientLights* lights, int x, int y);
@@ -26,8 +26,9 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     std::thread light_update_thread;
     
     void onEvent(LightColorChangeEvent& event) override;
+    void onEvent(LightUpdateScheduleEvent& event) override;
     
-    LightChunk* light_chunks = nullptr;
+    std::vector<LightChunk> light_chunks;
     
     DebugMenu* debug_menu;
     gfx::Timer line_refresh_timer;

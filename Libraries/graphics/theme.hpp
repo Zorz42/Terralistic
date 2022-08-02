@@ -3,6 +3,7 @@
 #define WHITE gfx::Color({230, 230, 230})
 #define LIGHT_GREY gfx::Color({200, 200, 200})
 #define GREY gfx::Color({85, 85, 85})
+#define DARK_GREY gfx::Color({50, 50, 50})
 #define BORDER_COLOR gfx::Color({100, 100, 100})
 #define BLACK gfx::Color({0, 0, 0})
 #define TRANSPARENT gfx::Color({0, 0, 0, 0})

@@ -59,7 +59,7 @@ Token endToken() {
         result.type = TokenType::CONSTANT_INTEGER;
     } else {
         result.text = curr_token;
-        result.type = TokenType::INDENT;
+        result.type = TokenType::IDENT;
     }
     
     curr_token.clear();
@@ -125,8 +125,8 @@ void printToken(std::string prefix, std::string content) {
 
 void printToken(const Token& token) {
     switch(token.type) {
-        case TokenType::INDENT:
-            printToken("INDENT", token.text);
+        case TokenType::IDENT:
+            printToken("IDENT", token.text);
             break;
         case TokenType::STRING:
             printToken("STRING", std::string("\"") + token.text + "\"");

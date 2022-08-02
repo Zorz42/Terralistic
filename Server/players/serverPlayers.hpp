@@ -77,7 +77,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, Even
     
     std::vector<ServerPlayerData*> all_players;
 
-    BlockBehaviour **blocks_behaviour = nullptr;
+    std::vector<BlockBehaviour*> blocks_behaviour;
     
     void onEvent(BlockUpdateEvent& event) override;
     void onEvent(BlockRandomTickEvent& event) override;

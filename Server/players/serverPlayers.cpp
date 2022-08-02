@@ -33,7 +33,7 @@ void ServerPlayers::init() {
 }
 
 void ServerPlayers::postInit() {
-    blocks_behaviour = new BlockBehaviour*[blocks->getNumBlockTypes()];
+    blocks_behaviour.resize(blocks->getNumBlockTypes());
     for(int i = 0; i < blocks->getNumBlockTypes(); i++)
         blocks_behaviour[i] = &default_behaviour;
     
@@ -53,8 +53,6 @@ void ServerPlayers::stop() {
     
     for(auto & all_player : all_players)
         delete all_player;
-    
-    delete[] blocks_behaviour;
 }
 
 ServerPlayer* ServerPlayers::getPlayerByName(const std::string& name) {
@@ -509,8 +507,8 @@ void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
 }
 
 BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
-    if(blocks_behaviour == nullptr)
-        throw Exception("blocks_behaviours is null");
+    if(blocks_behaviour.empty())
+        throw Exception("blocks_behaviours is empty");
     return blocks_behaviour[type->id];
 }
 

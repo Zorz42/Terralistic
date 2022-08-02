@@ -52,14 +52,13 @@ void ClientLiquids::loadTextures() {
 }
 
 void ClientLiquids::postInit() {
-    liquid_chunks = new RenderLiquidChunk[getWidth() / 16 * getHeight() / 16];
+    liquid_chunks.resize(getWidth() / 16 * getHeight() / 16);
 }
 
 void ClientLiquids::stop() {
     networking->packet_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
     liquid_change_event.removeListener(this);
-    delete[] liquid_chunks;
 }
 
 void ClientLiquids::scheduleLiquidUpdate(int x, int y) {
@@ -85,7 +84,7 @@ void ClientLiquids::render() {
     
     render_time_sum += render_timer.getTimeElapsed();
     fps_count++;
-    if(line_refresh_timer.getTimeElapsed() >= 1000) {
+    if(line_refresh_timer.getTimeElapsed() > 1000) {
         render_time_line.text = std::to_string(render_time_sum / fps_count) + "ms liquids render";
         
         fps_count = 0;
@@ -129,7 +128,7 @@ gfx::RectShape ClientLiquids::getLiquidRectInAtlas(LiquidType* type) {
 }
 
 ClientLiquids::RenderLiquidChunk* ClientLiquids::getRenderLiquidChunk(int x, int y) {
-    if(liquid_chunks == nullptr)
-        throw Exception("Liquid chunks is null");
+    if(liquid_chunks.empty())
+        throw Exception("Liquid chunks is empty");
     return &liquid_chunks[y * getWidth() / 16 + x];
 }

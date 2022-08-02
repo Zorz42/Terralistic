@@ -136,7 +136,7 @@ void gfx::Scene::onMouseButtonEvent(gfx::Key key, bool pressed) {
     if(pressed) {
         bool clicked_text_box = false;
         if (key == Key::MOUSE_LEFT) {
-            for (SceneModule* module : modules)
+            for(SceneModule* module : modules)
                 if(module->enabled)
                     for (TextInput* i : module->text_inputs) {
                         i->active = i->isHovered(getMouseX(), getMouseY());
@@ -331,8 +331,8 @@ void gfx::Scene::run() {
         
         renderAll();
         
-        if(fps_limit) {
-            float ms_per_frame = 1000.f / fps_limit;
+        if(fps_limit || !is_window_focused) {
+            float ms_per_frame = is_window_focused ? 1000.f / fps_limit : 1000;
             if(frame_length < ms_per_frame)
                 gfx::sleep(ms_per_frame - frame_length);
         }

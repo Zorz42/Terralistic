@@ -28,7 +28,7 @@ class Liquids {
     };
     
     std::vector<LiquidType*> liquid_types;
-    Liquid* liquids = nullptr;
+    std::vector<Liquid> liquids;
     Liquid* getLiquid(int x, int y);
     bool isFlowable(int x, int y);
     
@@ -62,6 +62,4 @@ public:
     int getNumLiquidTypes();
     
     EventSender<LiquidChangeEvent> liquid_change_event;
-    
-    ~Liquids();
 };

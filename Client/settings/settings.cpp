@@ -11,8 +11,8 @@ const std::vector<Setting*>& Settings::getSettings() {
 
 void Settings::addSetting(Setting* setting) {
     settings.push_back(setting);
-    if(config_file.keyExists(setting->indent))
-        setting->loadFromStr(config_file.getStr(setting->indent));
+    if(config_file.keyExists(setting->ident))
+        setting->loadFromStr(config_file.getStr(setting->ident));
     setting->setting_change_event.addListener(this);
 }
 
@@ -22,7 +22,7 @@ void Settings::removeSetting(Setting* setting) {
     if(pos == settings.end())
         throw Exception("Removed non-existing setting.");
     settings.erase(pos);
-    config_file.setStr(setting->indent, setting->exportToStr());
+    config_file.setStr(setting->ident, setting->exportToStr());
 }
 
 std::string ChoiceSetting::exportToStr() {
@@ -63,12 +63,35 @@ void BooleanSetting::setValue(bool new_value) {
     setting_change_event.call(event);
 }
 
+std::string SliderSetting::exportToStr() {
+    return std::to_string(getSelectedChoice());
+}
+
+void SliderSetting::loadFromStr(std::string value) {
+    setSelectedChoice(std::stoi(value));
+}
+
+int SliderSetting::getSelectedChoice() const {
+    return selected_choice;
+}
+
+int SliderSetting::getSliderValue() const {
+    return min + (selected_choice - (int)choices.size()) * step;
+}
+
+void SliderSetting::setSelectedChoice(int choice) {
+    selected_choice = choice;
+    
+    SettingChangeEvent event;
+    setting_change_event.call(event);
+}
+
 void Settings::reloadSettings() {
     is_loading = true;
     config_file.reloadFromDisk();
     for(auto & setting : settings)
-        if(config_file.keyExists(setting->indent))
-            setting->loadFromStr(config_file.getStr(setting->indent));
+        if(config_file.keyExists(setting->ident))
+            setting->loadFromStr(config_file.getStr(setting->ident));
     is_loading = false;
 }
 
@@ -84,7 +107,7 @@ void Settings::update() {
 void Settings::onEvent(SettingChangeEvent& event) {
     if(!is_loading) {
         for(auto & setting : settings)
-            config_file.setStr(setting->indent, setting->exportToStr());
+            config_file.setStr(setting->ident, setting->exportToStr());
         config_file.saveConfig();
     }
 }

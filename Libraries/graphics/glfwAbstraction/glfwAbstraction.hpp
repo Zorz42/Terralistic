@@ -70,6 +70,8 @@ void updateWindow();
 std::string getClipboard();
 void setClipboard(const std::string& data);
 
+inline bool is_window_focused = true;
+
 };
 
 #endif
