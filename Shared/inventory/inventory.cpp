@@ -178,26 +178,3 @@ void Recipes::registerARecipe(Recipe* recipe) {
 const std::vector<Recipe*>& Recipes::getAllRecipes() {
     return recipes;
 }
-
-Inventory& Inventory::operator=(const Inventory& inventory) {
-    items = inventory.items;
-    recipes = inventory.recipes;
-    
-    selected_slot = inventory.selected_slot;
-    for(int i = 0; i < INVENTORY_SIZE; i++)
-        inventory_arr[i] = inventory.inventory_arr[i];
-    mouse_item = inventory.mouse_item;
-    
-    item_counts.resize(items->getNumItemTypes());
-    for(int i = 0; i < items->getNumItemTypes(); i++)
-        item_counts[i] = inventory.item_counts[i];
-    
-    available_recipes = inventory.available_recipes;
-    
-    return *this;
-}
-
-Inventory::Inventory(const Inventory& inventory) {
-    *this = inventory;//fix maybe? read next comment
-    this->setBlocks(inventory.blocks);//this is needed, I thought the data is linked via a pointer but somehow without this line only inventory (and not this) have a pointer to blocks
-}
