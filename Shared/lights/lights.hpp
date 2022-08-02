@@ -32,7 +32,7 @@ class Lights : EventListener<BlockChangeEvent> {
         LightColor color;
     };
     
-    Light* lights = nullptr;
+    std::vector<Light> lights;
     
     Light* getLight(int x, int y);
     void setLightColor(int x, int y, LightColor color);
@@ -64,6 +64,4 @@ public:
     
     EventSender<LightColorChangeEvent> light_color_change_event;
     EventSender<LightUpdateScheduleEvent> light_update_schedule_event;
-    
-    ~Lights();
 };

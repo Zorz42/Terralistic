@@ -8,8 +8,8 @@ class Structure {
 public:
     std::string name;
     int x_size, y_size, y_offset;
-    int* blocks;
-    Structure(std::string cname, int x, int y, int y_offset, int* cBlocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(y_offset), blocks(cBlocks) {}
+    std::vector<int> blocks;
+    Structure(std::string cname, int x, int y, int y_offset, std::vector<int> blocks) : name(std::move(cname)), x_size(x), y_size(y), y_offset(y_offset), blocks(blocks) {}
 };
 
 class WorldGenerator {
@@ -60,7 +60,7 @@ class WorldGenerator {
     std::string resource_path;
 
     int generating_current = 0, generating_total = 1;
-    int* surface_heights = nullptr;
+    std::vector<int> surface_heights;
     
     GameContent* content;
     

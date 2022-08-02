@@ -255,11 +255,13 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
         select_rect.setY(selected_button->y);
         select_rect.setWidth(selected_button->getWidth());
         select_rect.setHeight(selected_button->getHeight());
+        slider_rect.border_color = TRANSPARENT;
     } else {
         select_rect.setWidth(10);
         select_rect.setHeight(slider_rect.getHeight());
         select_rect.setY(slider_rect.getY());
         select_rect.setX(slider_rect.getX() - slider_rect.getWidth() / 2 + 10 * (setting->getSelectedChoice() - (int)choice_buttons.size()) + select_rect.getWidth() / 2);
+        slider_rect.border_color = DARK_GREY;
     }
     
     if(holding_slider) {
@@ -320,7 +322,7 @@ void RenderSliderSetting::onMouseButtonDown(int x, int y) {
 
 void RenderSliderSetting::updateSliderText() {
     if(setting->getSelectedChoice() < choice_buttons.size())
-        slider_text.loadFromText(setting->slider_text);
+        slider_text.loadFromText(setting->default_slider_text);
     else
         slider_text.loadFromText(std::to_string(setting->getSliderValue()) + " " + setting->slider_text);
 }

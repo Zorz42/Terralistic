@@ -6,7 +6,7 @@ int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
     if(world_width <= 0 || world_height <= 0)
         throw Exception("World width and height must be a positive integer.");
     
-    surface_heights = new int[world_width];
+    surface_heights.resize(world_width);
     
     siv::PerlinNoise noise((unsigned int)seed);
     std::mt19937 seeded_random(seed);
@@ -24,8 +24,7 @@ int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
         generateDefaultWorld(noise, seeded_random);
     }
     
-    delete[] surface_heights;
-    surface_heights = nullptr;
+    surface_heights.clear();
     
     return 0;
 }
@@ -102,7 +101,7 @@ void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
 void WorldGenerator::calculateHeight(siv::PerlinNoise& noise) {
     int biome_blend = 20;
     float divide_at_end;
-    int *no_blend_height = new int[blocks->getWidth()];
+    std::vector<int> no_blend_height(blocks->getWidth());
     for(int current_slice = 0; current_slice < blocks->getWidth(); current_slice++) {
         no_blend_height[current_slice] = loaded_biomes[(int) biomes->biomes[current_slice]].height;
     }
@@ -120,7 +119,6 @@ void WorldGenerator::calculateHeight(siv::PerlinNoise& noise) {
         variation /= divide_at_end;
         surface_heights[current_slice] = surface_heights[current_slice] + turbulence(current_slice + 0.003, 0, 64, noise) * variation;
     }
-    delete[] no_blend_height;
 
 }
 
@@ -403,29 +401,30 @@ void WorldGenerator::loadAssets() {
 
     structureFile.seekg(0, std::ios::end);
     int size = (int)structureFile.tellg();
-    char* assetData = new char[size];
+    std::vector<char> asset_data(size);
     structureFile.seekg(0, std::ios::beg);
-    structureFile.read(assetData, size);
+    structureFile.read(&asset_data[0], size);
 
     int counter = 0;
     int previousEnd = 0;
     while (counter < size - 1) {
         std::string name;
-        int nameSize = assetData[counter];
+        int nameSize = asset_data[counter];
         counter++;
         while (counter - previousEnd <= nameSize) {
-            name += assetData[counter];
+            name += asset_data[counter];
             counter++;
         }
-        int x_size = (assetData[counter] << 8) + assetData[counter + 1];
+        int x_size = (asset_data[counter] << 8) + asset_data[counter + 1];
         counter += 2;
-        int y_size = (assetData[counter] << 8) + assetData[counter + 1];
+        int y_size = (asset_data[counter] << 8) + asset_data[counter + 1];
         counter += 2;
-        int y_offset = (assetData[counter] << 8) + assetData[counter + 1];
+        int y_offset = (asset_data[counter] << 8) + asset_data[counter + 1];
         counter += 2;
-        int *blocks_ = new int[x_size * y_size];
+        
+        std::vector<int> blocks_(x_size * y_size);
         for (int i = 0; i < x_size * y_size; i++) {
-            blocks_[i] = (assetData[counter] << 8) + assetData[counter + 1] - 1;
+            blocks_[i] = (asset_data[counter] << 8) + asset_data[counter + 1] - 1;
             counter += 2;
         }
         structures.emplace_back(name, x_size, y_size, y_offset, blocks_);
@@ -433,7 +432,6 @@ void WorldGenerator::loadAssets() {
     }
 
     structureFile.close();
-    delete[] assetData;
 }
 
 void WorldGenerator::generateStructure(const std::string& name, int x, int y) {

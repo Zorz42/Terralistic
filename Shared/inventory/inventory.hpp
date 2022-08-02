@@ -33,7 +33,7 @@ class Inventory {
     Player* player;
     Blocks* blocks;
     ItemStack mouse_item;
-    int *item_counts = nullptr;
+    std::vector<int> item_counts;
     std::vector<const Recipe*> available_recipes;
     ItemStack inventory_arr[INVENTORY_SIZE];
     bool canCraftRecipe(const Recipe* recipe);
@@ -66,6 +66,4 @@ public:
     Inventory& operator=(const Inventory& inventory);
     
     EventSender<InventoryItemChangeEvent> item_change_event;
-    
-    ~Inventory();
 };

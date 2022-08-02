@@ -2,20 +2,20 @@
 #include "compress.hpp"
 
 Walls::Wall* Walls::getWall(int x, int y) {
-    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight() || walls == nullptr)
+    if(x < 0 || x >= getWidth() || y < 0 || y >= getHeight() || walls.empty())
         throw Exception("Wall is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &walls[y * getWidth() + x];
 }
 
 Walls::WallChunk* Walls::getChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE || chunks == nullptr)
+    if(x < 0 || x >= getWidth() / CHUNK_SIZE || y < 0 || y >= getHeight() / CHUNK_SIZE || chunks.empty())
         throw Exception("Wall chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &chunks[y * getWidth() / CHUNK_SIZE + x];
 }
 
 void Walls::create() {
-    walls = new Wall[getWidth() * getHeight()];
-    chunks = new WallChunk[getWidth() / CHUNK_SIZE * getHeight() / CHUNK_SIZE];
+    walls.resize(getWidth() * getHeight());
+    chunks.resize(getWidth() / CHUNK_SIZE * getHeight() / CHUNK_SIZE);
 }
 
 WallType* Walls::getWallType(int x, int y) {
@@ -53,7 +53,7 @@ std::vector<char> Walls::toSerial() {
     std::vector<char> serial;
     unsigned long iter = 0;
     serial.resize(serial.size() + getWidth() * getHeight());
-    Wall* wall = walls;
+    Wall* wall = &walls[0];
     for(int i = 0; i < getWidth() * getHeight(); i++) {
         serial[iter++] = (char)wall->id;
         wall++;
@@ -65,7 +65,7 @@ void Walls::fromSerial(const std::vector<char>& serial) {
     std::vector<char> decompressed = decompress(serial);
     const char* iter = &decompressed[0];
     create();
-    Wall* wall = walls;
+    Wall* wall = &walls[0];
     for(int i = 0; i < getWidth() * getHeight(); i++) {
         wall->id = (unsigned char)*iter++;
         wall++;

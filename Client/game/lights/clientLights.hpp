@@ -28,7 +28,7 @@ class ClientLights : public Lights, public ClientModule, EventListener<LightColo
     void onEvent(LightColorChangeEvent& event) override;
     void onEvent(LightUpdateScheduleEvent& event) override;
     
-    LightChunk* light_chunks = nullptr;
+    std::vector<LightChunk> light_chunks;
     
     DebugMenu* debug_menu;
     gfx::Timer line_refresh_timer;

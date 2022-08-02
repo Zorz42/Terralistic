@@ -30,13 +30,13 @@ void ClientWalls::updateOrientationRight(int x, int y) {
 }
 
 ClientWalls::RenderWall* ClientWalls::getRenderWall(int x, int y) {
-    if(render_walls == nullptr)
+    if(render_walls.empty())
         throw Exception("render_walls are null");
     return &render_walls[y * getWidth() + x];
 }
 
 ClientWalls::RenderWallChunk* ClientWalls::getRenderWallChunk(int x, int y) {
-    if(wall_chunks == nullptr)
+    if(wall_chunks.empty())
         throw Exception("wall_chunks are null");
     return &wall_chunks[y * getWidth() / 16 + x];
 }
@@ -60,8 +60,8 @@ int ClientWalls::getState(int x, int y) {
 }
 
 void ClientWalls::postInit() {
-    render_walls = new RenderWall[getWidth() * getHeight()];
-    wall_chunks = new RenderWallChunk[getWidth() / 16 * getHeight() / 16];
+    render_walls.resize(getWidth() * getHeight());
+    wall_chunks.resize(getWidth() / 16 * getHeight() / 16);
 }
 
 void ClientWalls::onEvent(WelcomePacketEvent& event) {
@@ -149,9 +149,6 @@ void ClientWalls::stop() {
     networking->welcome_packet_event.removeListener(this);
     networking->packet_event.removeListener(this);
     wall_change_event.removeListener(this);
-    
-    delete[] render_walls;
-    delete[] wall_chunks;
 }
 
 void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {

@@ -53,7 +53,7 @@ void ClientInventory::loadTextures() {
         numbers[i].loadFromText(text, WHITE);
     }
     
-    item_text_textures = new gfx::Texture[items->getNumItemTypes() - 1];
+    item_text_textures.resize(items->getNumItemTypes() - 1);
     
     for(int i = 1; i < items->getNumItemTypes(); i++)
         item_text_textures[i - 1].loadFromText(items->getItemTypeById(i)->display_name);
@@ -62,7 +62,6 @@ void ClientInventory::loadTextures() {
 void ClientInventory::stop() {
     networking->packet_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
-    delete[] item_text_textures;
 }
 
 void ClientInventory::update(float frame_length) {
@@ -274,7 +273,7 @@ void ClientInventory::onEvent(WelcomePacketEvent &event) {
 }
 
 const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {
-    if(item_text_textures == nullptr)
-        throw Exception("item_text_textures are null");
+    if(item_text_textures.empty())
+        throw Exception("item_text_textures are empty");
     return item_text_textures[type->id - 1];
 }

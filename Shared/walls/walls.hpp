@@ -55,8 +55,8 @@ class Walls {
         int breaking_wall_count = 0;
     };
     
-    Wall* walls = nullptr;
-    WallChunk* chunks = nullptr;
+    std::vector<Wall> walls;
+    std::vector<WallChunk> chunks;
     Blocks* blocks;
     
     std::vector<BreakingWall> breaking_walls;

@@ -2,11 +2,11 @@
 #include "compress.hpp"
 
 void Liquids::create() {
-    liquids = new Liquid[blocks->getWidth() * blocks->getHeight()];
+    liquids.resize(blocks->getWidth() * blocks->getHeight());
 }
 
 Liquids::Liquid* Liquids::getLiquid(int x, int y) {
-    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight() || liquids == nullptr)
+    if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight() || liquids.empty())
         throw Exception("Liquid is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &liquids[y * blocks->getWidth() + x];
 }
@@ -125,7 +125,7 @@ float Liquids::getLiquidLevel(int x, int y) {
 std::vector<char> Liquids::toSerial() {
     std::vector<char> serial;
     serial.reserve(blocks->getWidth() * blocks->getHeight() * 2);
-    Liquid* liquid = liquids;
+    Liquid* liquid = &liquids[0];
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
@@ -142,7 +142,7 @@ void Liquids::fromSerial(const std::vector<char>& serial) {
     std::vector<char> decompressed = decompress(serial);
     create();
     const char* iter = &decompressed[0];
-    Liquid* liquid = liquids;
+    Liquid* liquid = &liquids[0];
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
@@ -177,6 +177,3 @@ int Liquids::getNumLiquidTypes() {
     return (int)liquid_types.size();
 }
 
-Liquids::~Liquids() {
-    delete[] liquids;
-}
