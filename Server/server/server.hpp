@@ -12,7 +12,6 @@
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
 class Server {
-    std::string world_path;
     ServerNetworking networking;
     WorldSaver world_saver;
     ServerBlocks blocks;
@@ -41,6 +40,7 @@ public:
     Server(const std::string& resource_path, const std::string& world_path, int port);
     
     int seed;
+    std::string world_path;
 
     void start();
     void stop();
