@@ -36,7 +36,6 @@ public:
 class ServerNetworking : public ServerModule {
     std::vector<Connection*> connections;
     TcpListener listener;
-    int port;
     gfx::Timer timer;
 
     void postInit() override;
@@ -54,6 +53,7 @@ public:
     const std::vector<Connection*>& getConnections();
     
     bool is_private = false;
+    int port;
     
     EventSender<ServerConnectionWelcomeEvent> connection_welcome_event;
     EventSender<ServerNewConnectionEvent> new_connection_event;

@@ -2,8 +2,7 @@
 #include "launcherModule.hpp"
 
 class WorldInfo : LauncherModule{
-    gfx::Sprite name_text;
-    gfx::Sprite seed_text;
+    gfx::Sprite name_text, seed_text, port_text;
 public:
     void render() override;
     void init() override;

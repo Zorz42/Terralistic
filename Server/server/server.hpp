@@ -41,6 +41,7 @@ public:
     
     int seed;
     std::string world_path;
+    ServerNetworking* getNetworking(){return &networking;}
 
     void start();
     void stop();

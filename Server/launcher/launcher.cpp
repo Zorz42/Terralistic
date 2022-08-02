@@ -109,7 +109,7 @@ void ServerScene::init() {
 }
 
 void ServerScene::render() {
-    gfx::RectShape(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight()).render(BLACK);
+    gfx::RectShape(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight()).render(DARK_GREY);
     for(auto module : modules) {
         module->width = (int)(module->target_w * (float)gfx::getWindowWidth());
         module->height = (int)(module->target_h * (float)gfx::getWindowHeight());
