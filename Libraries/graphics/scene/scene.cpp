@@ -37,22 +37,30 @@ int gfx::SceneModule::getMouseY() {
     return mouse_y;
 }
 
-void gfx::Scene::onKeyDownCallback(Key key_) {
-    if(!key_states[(int)key_]) {
-        key_states[(int)key_] = true;
-        for(int i = (int)modules.size() - 1; i >= 0; i--)
-            if(modules[i]->enabled && modules[i]->onKeyDown(key_))
-                break;
-    }
+void gfx::Scene::onKeyDownCallback(Key key_, bool only_absolute) {
+    if(!absolute_key_states[(int)key_])
+        absolute_key_states[(int)key_] = true;
+
+    if(!only_absolute)
+        if(!key_states[(int)key_]) {
+            key_states[(int)key_] = true;
+            for(int i = (int)modules.size() - 1; i >= 0; i--)
+                if(modules[i]->enabled && modules[i]->onKeyDown(key_))
+                    break;
+        }
 }
 
-void gfx::Scene::onKeyUpCallback(Key key_) {
-    if(key_states[(int)key_]) {
-        key_states[(int)key_] = false;
-        for(int i = (int)modules.size() - 1; i >= 0; i--)
-            if(modules[i]->enabled && modules[i]->onKeyUp(key_))
-                break;
-    }
+void gfx::Scene::onKeyUpCallback(Key key_, bool only_absolute) {
+    if(absolute_key_states[(int)key_])
+        absolute_key_states[(int)key_] = false;
+
+    if(!only_absolute)
+        if(key_states[(int)key_]) {
+            key_states[(int)key_] = false;
+            for(int i = (int)modules.size() - 1; i >= 0; i--)
+                if(modules[i]->enabled && modules[i]->onKeyUp(key_))
+                    break;
+        }
 }
 
 bool gfx::SceneModule::getKeyState(Key key_) const {
@@ -163,7 +171,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                     }
         }
         
-        if(key == Key::A && getKeyState(Key::CTRL)) {
+        if(key == Key::A && getAbsoluteKeyState(Key::CTRL)) {
             for(auto & module : modules)
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
@@ -171,7 +179,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                             text_input->setCursor(0, (int)text_input->getText().size());
         }
         
-        if(key == Key::C && getKeyState(Key::CTRL)) {
+        if(key == Key::C && getAbsoluteKeyState(Key::CTRL)) {
              for(auto & module : modules)
                  if(module->enabled)
                      for(auto & text_input : module->text_inputs)
@@ -179,7 +187,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                              setClipboard(text_input->getText().substr(text_input->getCursorBegin(), text_input->getCursorEnd() - text_input->getCursorBegin()));
          }
 
-         if(key == Key::X && getKeyState(Key::CTRL)) {
+         if(key == Key::X && getAbsoluteKeyState(Key::CTRL)) {
              for(auto & module : modules)
                  if(module->enabled)
                      for(auto & text_input : module->text_inputs)
@@ -189,7 +197,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                          }
          }
 
-        if(key == Key::V && getKeyState(Key::CTRL)) {
+        if(key == Key::V && getAbsoluteKeyState(Key::CTRL)) {
             for(auto & module : modules)
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
@@ -213,7 +221,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
                         if(text_input->active) {
-                            if(getKeyState(Key::SHIFT)) {
+                            if(getAbsoluteKeyState(Key::SHIFT)) {
                                 if(text_input->getCursorBegin() == text_input->getCursorEnd()) {
                                     text_input->setCursor(text_input->findLeftMove(text_input->getCursorBegin()), text_input->getCursorEnd());
                                     text_input->setCursorEndActive(false);
@@ -237,7 +245,7 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                 if(module->enabled)
                     for(auto & text_input : module->text_inputs)
                         if(text_input->active) {
-                            if(getKeyState(Key::SHIFT)) {
+                            if(getAbsoluteKeyState(Key::SHIFT)) {
                                 if(text_input->getCursorBegin() == text_input->getCursorEnd()) {
                                     text_input->setCursor(text_input->getCursorBegin(), text_input->findRightMove(text_input->getCursorBegin()));
                                     text_input->setCursorEndActive(true);
@@ -267,8 +275,8 @@ void gfx::Scene::onKeyboardButtonEvent(gfx::Key key, bool pressed) {
                             module->onKeyDown(key);
                     }
         
-        if(key != Key::UNKNOWN && (!is_textbox_active || key == Key::ENTER))
-            onKeyDownCallback(key);
+        if(key != Key::UNKNOWN)
+            onKeyDownCallback(key, !(!is_textbox_active || key == Key::ENTER));
         
         if(is_textbox_active && key == Key::ESCAPE) {
             for(auto & module : modules)

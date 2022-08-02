@@ -38,8 +38,8 @@ public:
 
 class Scene : public SceneModule, EventListener<_ScreenRefreshEvent> {
     std::vector<SceneModule*> modules;
-    void onKeyDownCallback(Key key_);
-    void onKeyUpCallback(Key key_);
+    void onKeyDownCallback(Key key_,  bool only_absolute = false);
+    void onKeyUpCallback(Key key_,  bool only_absolute = false);
     bool running = true, initialized = false;
     float render_time;
     int frame_count = 0;
