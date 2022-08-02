@@ -87,8 +87,10 @@ int main(int argc, char **argv) {
     if(gui) {
         std::thread server_thread(&Server::start, &main_server);
         auto scene = ServerScene();
-        for(auto UImodule : scene.modules)
+        for(auto UImodule : scene.modules) {
             UImodule->server = &main_server;
+            UImodule->init();
+        }
         scene.run();
         main_server.stop();
         server_thread.join();

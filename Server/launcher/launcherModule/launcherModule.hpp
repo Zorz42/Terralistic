@@ -10,6 +10,7 @@ public:
     int width = 100, height = 100;
     int min_width = 10, min_height = 10;
     virtual void render(){};
+    virtual void init(){};
     int getMinWindowWidth(){return (int)((float)min_width / target_w);}
     int getMinWindowHeight(){return (int)((float)min_height / target_h);}
 };
