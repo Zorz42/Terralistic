@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
     }
 }
 
+
 void ServerScene::init() {
     int min_h = 0, min_w = 0;
     for(auto module : modules){
