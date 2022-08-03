@@ -70,7 +70,6 @@
 		361DD1BC26F7478900129191 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		361DD1C026F7478900129191 /* biomes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167513C226A498DA00E21C68 /* biomes.cpp */; };
 		361DD1C226F7478900129191 /* configManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1675E71B26611B8000B620F4 /* configManager.cpp */; };
-		361DD1ED26F7481200129191 /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1626244F26430B77007E01C4 /* launcher.cpp */; };
 		362403742872F37400598B0C /* font.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036B2872F37300598B0C /* font.opa */; };
 		362403752872F37400598B0C /* font.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036B2872F37300598B0C /* font.opa */; };
 		362403762872F37400598B0C /* background.opa in Resources */ = {isa = PBXBuildFile; fileRef = 3624036C2872F37300598B0C /* background.opa */; };
@@ -155,6 +154,8 @@
 		3674D40828843FCD00582478 /* testPacket.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3674D40728843F7F00582478 /* testPacket.mm */; };
 		3674D40928843FCD00582478 /* testPacket.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3674D40728843F7F00582478 /* testPacket.mm */; };
 		3674D40A28843FCD00582478 /* testPacket.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3674D40728843F7F00582478 /* testPacket.mm */; };
+		367B2C8D289AECC400E89C5D /* worldInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367B2C88289AECC400E89C5D /* worldInfo.cpp */; };
+		367B2C8E289AECC400E89C5D /* launcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367B2C8C289AECC400E89C5D /* launcher.cpp */; };
 		367F362D285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
 		367F362E285F70C900319AD2 /* blur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F362B285F70C900319AD2 /* blur.cpp */; };
 		367F3632285F716000319AD2 /* shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 367F3630285F716000319AD2 /* shadow.cpp */; };
@@ -245,7 +246,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1626244F26430B77007E01C4 /* launcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = launcher.cpp; sourceTree = "<group>"; };
 		1626245226430B94007E01C4 /* server.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = server.hpp; sourceTree = "<group>"; };
 		1661657B25EA2D0D002A3815 /* Terralistic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Terralistic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16670CDE26DDFAA90057AA41 /* settingsMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settingsMenu.cpp; sourceTree = "<group>"; };
@@ -418,6 +418,10 @@
 		3672D2CD287DEF2D000FD606 /* blockData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blockData.cpp; sourceTree = "<group>"; };
 		3672D2CE287DEF2D000FD606 /* blockData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = blockData.hpp; sourceTree = "<group>"; };
 		3674D40728843F7F00582478 /* testPacket.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testPacket.mm; sourceTree = "<group>"; };
+		367B2C88289AECC400E89C5D /* worldInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worldInfo.cpp; sourceTree = "<group>"; };
+		367B2C89289AECC400E89C5D /* worldInfo.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = worldInfo.hpp; sourceTree = "<group>"; };
+		367B2C8B289AECC400E89C5D /* launcherModule.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = launcherModule.hpp; sourceTree = "<group>"; };
+		367B2C8C289AECC400E89C5D /* launcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = launcher.cpp; sourceTree = "<group>"; };
 		367F362B285F70C900319AD2 /* blur.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blur.cpp; sourceTree = "<group>"; };
 		367F362C285F70C900319AD2 /* blur.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blur.hpp; sourceTree = "<group>"; };
 		367F3630285F716000319AD2 /* shadow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shadow.cpp; sourceTree = "<group>"; };
@@ -506,14 +510,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1626244C26430B41007E01C4 /* launcher */ = {
-			isa = PBXGroup;
-			children = (
-				1626244F26430B77007E01C4 /* launcher.cpp */,
-			);
-			path = launcher;
-			sourceTree = "<group>";
-		};
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -673,7 +669,7 @@
 				169B87CD270F5035006023B8 /* chat */,
 				16A3C00E26FF871C001B9E4E /* commands */,
 				167B38922642F73900E3C718 /* server */,
-				1626244C26430B41007E01C4 /* launcher */,
+				367B2C86289AECC400E89C5D /* serverUI */,
 			);
 			path = Server;
 			sourceTree = "<group>";
@@ -1327,6 +1323,33 @@
 			path = nameChooser;
 			sourceTree = "<group>";
 		};
+		367B2C86289AECC400E89C5D /* serverUI */ = {
+			isa = PBXGroup;
+			children = (
+				367B2C87289AECC400E89C5D /* worldInfo */,
+				367B2C8A289AECC400E89C5D /* launcherModule */,
+				367B2C8C289AECC400E89C5D /* launcher.cpp */,
+			);
+			path = serverUI;
+			sourceTree = "<group>";
+		};
+		367B2C87289AECC400E89C5D /* worldInfo */ = {
+			isa = PBXGroup;
+			children = (
+				367B2C88289AECC400E89C5D /* worldInfo.cpp */,
+				367B2C89289AECC400E89C5D /* worldInfo.hpp */,
+			);
+			path = worldInfo;
+			sourceTree = "<group>";
+		};
+		367B2C8A289AECC400E89C5D /* launcherModule */ = {
+			isa = PBXGroup;
+			children = (
+				367B2C8B289AECC400E89C5D /* launcherModule.hpp */,
+			);
+			path = launcherModule;
+			sourceTree = "<group>";
+		};
 		367F362A285F70B100319AD2 /* blur */ = {
 			isa = PBXGroup;
 			children = (
@@ -1877,7 +1900,6 @@
 				16A13D152709A10D009DEE40 /* serverBlocks.cpp in Sources */,
 				16A61F612708DA3300738C61 /* entities.cpp in Sources */,
 				1676AF392704595400321C8B /* blocks.cpp in Sources */,
-				361DD1ED26F7481200129191 /* launcher.cpp in Sources */,
 				369693DD288336A500D39F1B /* testNetworking.mm in Sources */,
 				367F362E285F70C900319AD2 /* blur.cpp in Sources */,
 				366D9717282067FA00DEC292 /* graphics.cpp in Sources */,
@@ -1906,6 +1928,7 @@
 				361DD1AA26F7478900129191 /* serverNetworking.cpp in Sources */,
 				361DD1AB26F7478900129191 /* print.cpp in Sources */,
 				366D96F8282059DB00DEC292 /* readOpa.cpp in Sources */,
+				367B2C8D289AECC400E89C5D /* worldInfo.cpp in Sources */,
 				361DD1B126F7478900129191 /* server.cpp in Sources */,
 				366D970B282067FA00DEC292 /* sprite.cpp in Sources */,
 				366D9719282067FA00DEC292 /* textureAtlas.cpp in Sources */,
@@ -1917,6 +1940,7 @@
 				167B53D2270A271D000089B3 /* serverEntities.cpp in Sources */,
 				369311282843463300C4DF00 /* packet.cpp in Sources */,
 				361DD1C026F7478900129191 /* biomes.cpp in Sources */,
+				367B2C8E289AECC400E89C5D /* launcher.cpp in Sources */,
 				167422602702F48B00D6D8F2 /* liquids.cpp in Sources */,
 				361DD1C226F7478900129191 /* configManager.cpp in Sources */,
 				369693D528807B6400D39F1B /* testConfigManager.mm in Sources */,
