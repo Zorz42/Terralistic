@@ -113,7 +113,7 @@ void ServerScene::render() {
     for(auto module : modules) {
         module->width = (int)(module->target_w * (float)gfx::getWindowWidth());
         module->height = (int)(module->target_h * (float)gfx::getWindowHeight());
-        module->render();
+        module->update(0.0);
         module->texture.render(1, ((int)(module->target_x * (float)gfx::getWindowWidth())), ((int)(module->target_y * (float)gfx::getWindowHeight())));
     }
 }

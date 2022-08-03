@@ -30,7 +30,7 @@ void WorldInfo::init() {
 
 
 
-void WorldInfo::render() {
+void WorldInfo::update(float frame_length) {
     if(width != texture.getTextureWidth() || height != texture.getTextureHeight())
         texture.createBlankImage(width, height);
 
@@ -79,9 +79,6 @@ void WorldInfo::render() {
     state_text.y = (float)texture.getTextureHeight() - 10 - (float)state_text.getHeight();
     clock_text.x = (float)texture.getTextureWidth() - 10 - (float)clock_text.getWidth();
     clock_text.y = 10;
-
-
-    std::cout << texture.getTextureWidth() << "\n";
 
     texture.setRenderTarget();
 
