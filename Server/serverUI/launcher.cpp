@@ -111,8 +111,9 @@ void ServerScene::init() {
 void ServerScene::render() {
     gfx::RectShape(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight()).render(DARK_GREY);
     for(auto module : modules) {
-        module->width = (int)(module->target_w * (float)gfx::getWindowWidth());
-        module->height = (int)(module->target_h * (float)gfx::getWindowHeight());
+        //std::max(, module->min_width/height) can be removed once setMinimumWindoeSize works
+        module->width = std::max((int)(module->target_w * (float)gfx::getWindowWidth()), module->min_width);
+        module->height = std::max((int)(module->target_h * (float)gfx::getWindowHeight()), module->min_height);
         module->update(0.0);
         module->texture.render(1, ((int)(module->target_x * (float)gfx::getWindowWidth())), ((int)(module->target_y * (float)gfx::getWindowHeight())));
     }
