@@ -103,7 +103,7 @@ void ServerScene::init() {
     int min_h = 0, min_w = 0;
     for(auto module : modules){
         min_w = std::max(min_w, module->getMinWindowWidth());
-        min_h = std::max(min_h, module->getMinWindowWidth());
+        min_h = std::max(min_h, module->getMinWindowHeight());
     }
     gfx::setMinimumWindowSize(min_w, min_h);//doesn't work?
 }
