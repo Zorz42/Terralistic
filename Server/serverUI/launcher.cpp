@@ -7,13 +7,14 @@
 #include "readOpa.hpp"
 #include "launcherModule.hpp"
 #include "worldInfo.hpp"
+#include "console.hpp"
 #include "configManager.hpp"
 
 class ServerScene : public gfx::Scene {
     void init() override;
     void render() override;
 public:
-    std::vector<LauncherModule*> modules;
+    //std::vector<LauncherModule*> modules;
     ServerScene() : gfx::Scene("Server") {
         ConfigFile file(resource_path + "resourcePack/userinterface/server_ui.config");
         std::string temp_str_modules = file.getStr("modules");
@@ -43,7 +44,11 @@ public:
                 continue;
             switch (activated_modules[i]) {
                 case 1:{
-                    modules.push_back((LauncherModule*)new WorldInfo(x, y, w, h));
+                    registerAModule((SceneModule*)new WorldInfo(x, y, w, h));
+                    break;
+                }
+                case 2:{
+                    registerAModule((SceneModule*)new Console(x, y, w, h));
                     break;
                 }
                 default:
@@ -57,17 +62,17 @@ public:
 
 int main(int argc, char **argv) {
     std::string data_folder = sago::getDataHome() + "/Terralistic-Server/";
-    
+
     bool gui = true;
-    
+
     if(argc > 1 && (std::string)argv[1] == "nogui")
         gui = false;
-    
+
     if(!std::filesystem::exists(data_folder))
         std::filesystem::create_directory(data_folder);
-    
+
     resource_path = getResourcePath(argv[0]);
-    
+
     if(gui) {
         gfx::init(800, 500, "Terralistic Server");
 
@@ -81,15 +86,16 @@ int main(int argc, char **argv) {
         font_surface.loadFromBuffer(data, w, h);
         gfx::loadFont(font_surface);
     }
-    
+
     Server main_server(resource_path, data_folder + "world", 33770);
-    
+
     if(gui) {
         std::thread server_thread(&Server::start, &main_server);
         auto scene = ServerScene();
-        for(auto UImodule : scene.modules) {
-            UImodule->server = &main_server;
-            UImodule->init();
+        for(auto scene_module : scene.getModules()) {
+            auto UI_module = (LauncherModule*) scene_module;
+            UI_module->server = &main_server;
+            UI_module->init();
         }
         scene.run();
         main_server.stop();
@@ -102,20 +108,23 @@ int main(int argc, char **argv) {
 
 void ServerScene::init() {
     int min_h = 0, min_w = 0;
-    for(auto module : modules){
-        min_w = std::max(min_w, module->getMinWindowWidth());
-        min_h = std::max(min_h, module->getMinWindowHeight());
+    for(auto scene_module : getModules()){
+        auto UI_module = (LauncherModule*) scene_module;
+        min_w = std::max(min_w, UI_module->getMinWindowWidth());
+        min_h = std::max(min_h, UI_module->getMinWindowHeight());
     }
     gfx::setMinimumWindowSize(min_w, min_h);//doesn't work?
 }
 
 void ServerScene::render() {
     gfx::RectShape(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight()).render(DARK_GREY);
-    for(auto module : modules) {
+    for(int i = 1; i < getModules().size(); i++) {//skiping server scene
+        auto UI_module = (LauncherModule*) getModules()[i];
         //std::max(, module->min_width/height) can be removed once setMinimumWindoeSize works
-        module->width = std::max((int)(module->target_w * (float)gfx::getWindowWidth()), module->min_width);
-        module->height = std::max((int)(module->target_h * (float)gfx::getWindowHeight()), module->min_height);
-        module->update(0.0);
-        module->texture.render(1, ((int)(module->target_x * (float)gfx::getWindowWidth())), ((int)(module->target_y * (float)gfx::getWindowHeight())));
+        UI_module->width = std::max((int)(UI_module->target_w * (float)gfx::getWindowWidth()), UI_module->min_width);
+        UI_module->height = std::max((int)(UI_module->target_h * (float)gfx::getWindowHeight()), UI_module->min_height);
+        UI_module->update(0.0);
+        UI_module->texture.render(1, ((int)(UI_module->target_x * (float)gfx::getWindowWidth())), ((int)(UI_module->target_y * (float)gfx::getWindowHeight())));
     }
 }
+
