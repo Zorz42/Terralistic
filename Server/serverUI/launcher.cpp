@@ -95,7 +95,6 @@ int main(int argc, char **argv) {
         for(auto scene_module : scene.getModules()) {
             auto UI_module = (LauncherModule*) scene_module;
             UI_module->server = &main_server;
-            UI_module->init();
         }
         scene.run();
         main_server.stop();
