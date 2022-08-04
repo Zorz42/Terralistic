@@ -2,7 +2,7 @@
 #include <chrono>
 #include <ctime>
 
-WorldInfo::WorldInfo(float x_, float y_, float w_, float h_){
+WorldInfo::WorldInfo(float x_, float y_, float w_, float h_): LauncherModule("world_info"){
     target_x = x_;
     target_y = y_;
     target_w = w_;
@@ -35,7 +35,7 @@ void WorldInfo::update(float frame_length) {
         texture.createBlankImage(width, height);
 
     if(lastState != server->state) {
-        switch ((int) server->state) {
+        switch((int) server->state) {
             case 0:
                 state_text.loadFromText("Server state: neutral");
                 break;

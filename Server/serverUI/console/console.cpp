@@ -5,7 +5,7 @@
 
 static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
-Console::Console(float x_, float y_, float w_, float h_) {
+Console::Console(float x_, float y_, float w_, float h_): LauncherModule("console") {
     target_x = x_;
     target_y = y_;
     target_w = w_;

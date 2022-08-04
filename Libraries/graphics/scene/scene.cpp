@@ -3,7 +3,6 @@
 #include "button.hpp"
 #include <iostream>
 #include <algorithm>
-#include <iomanip>
 
 static gfx::Scene* curr_scene = nullptr;
 
@@ -332,7 +331,7 @@ void gfx::Scene::run() {
         renderAll();
         
         if(fps_limit || !is_window_focused) {
-            float ms_per_frame = is_window_focused ? 1000.f / fps_limit : 1000;
+            float ms_per_frame = is_window_focused ? 1000.f / (float)fps_limit : 1000;
             if(frame_length < ms_per_frame)
                 gfx::sleep(ms_per_frame - frame_length);
         }
@@ -345,9 +344,9 @@ void gfx::Scene::run() {
 
     if(initialized) {
         stop();
-        for(int i = 0; i < modules.size(); i++)
-            if(modules[i] != this)
-                modules[i]->stop();
+        for(auto & module : modules)
+            if(module != this)
+                module->stop();
     }
     
     _screen_refresh_event_sender.removeListener(this);
@@ -363,20 +362,20 @@ void gfx::Scene::renderAll() {
     
     double mouse_x_normalized, mouse_y_normalized;
     glfwGetCursorPos(glfw_window, &mouse_x_normalized, &mouse_y_normalized);
-    mouse_x = mouse_x_normalized * gfx::system_scale_x / gfx::global_scale_x;
-    mouse_y = mouse_y_normalized * gfx::system_scale_y / gfx::global_scale_y;
-    for(int i = 0; i < modules.size(); i++)
-        if(modules[i]->enabled) {
-            modules[i]->mouse_x = mouse_x;
-            modules[i]->mouse_y = mouse_y;
+    mouse_x = (int)(mouse_x_normalized * gfx::system_scale_x / gfx::global_scale_x);
+    mouse_y = (int)(mouse_y_normalized * gfx::system_scale_y / gfx::global_scale_y);
+    for(auto & module : modules)
+        if(module->enabled) {
+            module->mouse_x = mouse_x;
+            module->mouse_y = mouse_y;
         }
     
     resetRenderTarget();
     
     cycleModules();
     
-    for(int i = 0; i < global_update_functions.size(); i++)
-        global_update_functions[i]->update();
+    for(auto & global_update_function : global_update_functions)
+        global_update_function->update();
     
     render_time = frame_timer.getTimeElapsed();
     
@@ -391,17 +390,17 @@ void gfx::Scene::cycleModules() {
     for(auto & module : modules)
         module->enable_key_states = curr_scene == this;
     
-    for(int i = 0; i < modules.size(); i++) {
+    for(auto & module : modules) {
         Timer timer;
-        modules[i]->update(frame_length);
-        modules[i]->update_time_sum += timer.getTimeElapsed();
+        module->update(frame_length);
+        module->update_time_sum += timer.getTimeElapsed();
     }
     
-    for(int i = 0; i < modules.size(); i++)
-        if(modules[i]->enabled) {
+    for(auto & module : modules)
+        if(module->enabled) {
             Timer timer;
-            modules[i]->render();
-            modules[i]->render_time_sum += timer.getTimeElapsed();
+            module->render();
+            module->render_time_sum += timer.getTimeElapsed();
         }
     
     frame_count++;
@@ -413,16 +412,16 @@ void gfx::Scene::cycleModules() {
         std::cout << "---> Render Times for: " << module_name << std::endl;
 #endif
         
-        for(int i = 0; i < modules.size(); i++) {
+        for(auto & module : modules) {
 #ifdef ENABLE_DEBUG_PRINT
-            if(modules[i]->enabled)
-                std::cout << std::fixed << std::setprecision(3) << modules[i]->module_name << std::setw(30 - (int)modules[i]->module_name.length()) << " Update: " << modules[i]->update_time_sum / frame_count << " Render: " << modules[i]->render_time_sum / frame_count << std::endl;
+            if(module->enabled)
+                std::cout << std::fixed << std::setprecision(3) << module->module_name << std::setw(30 - (int)module->module_name.length()) << " Update: " << module->update_time_sum / frame_count << " Render: " << module->render_time_sum / frame_count << std::endl;
             else
-                std::cout << std::fixed << std::setprecision(3) << modules[i]->module_name << " (Disabled)" << std::endl;
+                std::cout << std::fixed << std::setprecision(3) << module->module_name << " (Disabled)" << std::endl;
 #endif
                 
-            modules[i]->update_time_sum = 0;
-            modules[i]->render_time_sum = 0;
+            module->update_time_sum = 0;
+            module->render_time_sum = 0;
         }
         
         frame_count = 0;
@@ -454,7 +453,7 @@ void gfx::mouseButtonCallback(GLFWwindow* window, int button, int action, int mo
 }
 
 void gfx::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-    curr_scene->onMouseWheelScrollEvent(yoffset);
+    curr_scene->onMouseWheelScrollEvent((int)yoffset);
 }
 
 void gfx::characterCallback(GLFWwindow* window, unsigned int codepoint) {
