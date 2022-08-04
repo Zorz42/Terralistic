@@ -82,6 +82,7 @@ void WorldInfo::update(float frame_length) {
 
     texture.setRenderTarget();
 
+    gfx::RectShape(0, 0, width, height).render(DARK_GREY);//can be removed once setMinimumWindoeSize works
     gfx::RectShape(2, 2, width - 4, height - 4).render(GREY);
     name_text.render();
     seed_text.render();
