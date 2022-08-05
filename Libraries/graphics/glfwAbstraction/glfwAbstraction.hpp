@@ -52,7 +52,6 @@ inline float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_
 inline _Transformation window_normalization_transform, normalization_transform;
 
 inline unsigned int window_texture, window_texture_back, default_framebuffer;
-inline float global_scale = 0;
 
 inline int window_width_min, window_height_min;
 
