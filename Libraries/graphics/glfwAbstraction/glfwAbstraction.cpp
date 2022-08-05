@@ -80,7 +80,11 @@ void gfx::setMinimumWindowSize(int width, int height) {
     window_width_min = width;
     window_height_min = height;
     
+#ifdef __APPLE__
+    glfwSetWindowSizeLimits(glfw_window, width, height, -1, -1);
+#else
     glfwSetWindowSizeLimits(glfw_window, width * global_scale_x * system_scale_x, height * global_scale_y * system_scale_y, -1, -1);
+#endif
 }
 
 void gfx::initGlfw(int window_width_, int window_height_, const std::string& window_title) {
@@ -209,13 +213,27 @@ void gfx::enableVsync(bool enabled) {
 int gfx::getWindowWidth() {
     int width;
     glfwGetWindowSize(gfx::glfw_window, &width, nullptr);
+#ifdef __APPLE__
+    if(system_scale_x == 1)
+        return width / global_scale_x;
+    else
+        return width / global_scale_x * 2;
+#else
     return width / global_scale_x;
+#endif
 }
 
 int gfx::getWindowHeight() {
     int height;
     glfwGetWindowSize(gfx::glfw_window, nullptr, &height);
+#ifdef __APPLE__
+    if(system_scale_y == 1)
+        return height / global_scale_y;
+    else
+        return height / global_scale_y * 2;
+#else
     return height / global_scale_y;
+#endif
 }
 
 void gfx::updateWindow() {
@@ -245,11 +263,19 @@ void gfx::setClipboard(const std::string& data) {
 int gfx::getMouseX() {
     double mouse_x_normalized;
     glfwGetCursorPos(glfw_window, &mouse_x_normalized, nullptr);
-    return mouse_x_normalized / gfx::global_scale_x;
+#ifdef __APPLE__
+    return mouse_x_normalized * system_scale_x / global_scale_x;
+#else
+    return mouse_x_normalized / global_scale_x;
+#endif
 }
 
 int gfx::getMouseY() {
     double mouse_y_normalized;
     glfwGetCursorPos(glfw_window, nullptr, &mouse_y_normalized);
-    return mouse_y_normalized / gfx::global_scale_y;
+#ifdef __APPLE__
+    return mouse_y_normalized * system_scale_y / global_scale_y;
+#else
+    return mouse_y_normalized / global_scale_y;
+#endif
 }
