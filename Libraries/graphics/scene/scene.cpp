@@ -360,11 +360,9 @@ void gfx::Scene::onEvent(_ScreenRefreshEvent& event) {
 
 void gfx::Scene::renderAll() {
     Timer frame_timer;
-    
-    double mouse_x_normalized, mouse_y_normalized;
-    glfwGetCursorPos(glfw_window, &mouse_x_normalized, &mouse_y_normalized);
-    mouse_x = mouse_x_normalized * gfx::system_scale_x / gfx::global_scale_x;
-    mouse_y = mouse_y_normalized * gfx::system_scale_y / gfx::global_scale_y;
+
+    mouse_x = gfx::getMouseX();
+    mouse_y = gfx::getMouseY();
     for(int i = 0; i < modules.size(); i++)
         if(modules[i]->enabled) {
             modules[i]->mouse_x = mouse_x;

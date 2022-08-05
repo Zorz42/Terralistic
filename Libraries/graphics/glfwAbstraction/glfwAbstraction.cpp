@@ -29,11 +29,9 @@ static const char* fragment_shader_code =
 "   color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, uv).rgba, has_texture) * fragment_color;"
 "}";
 
-static float global_scale = 0;
+static float global_scale = SYSTEM_SCALE;
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    gfx::window_resized_counter++;
-    
     gfx::window_normalization_transform = gfx::_Transformation();
     gfx::window_normalization_transform.stretch(1.f / gfx::getWindowWidth() * 2, -1.f / gfx::getWindowHeight() * 2);
     gfx::window_normalization_transform.translate(-float(gfx::getWindowWidth()) / 2, -float(gfx::getWindowHeight()) / 2);
@@ -55,12 +53,7 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
-#ifndef __APPLE__
-    scale_x = 1;
-    scale_y = 1;
-#endif
-
-    if(global_scale == 0) {
+    if(global_scale == SYSTEM_SCALE) {
         gfx::global_scale_x = scale_x;
         gfx::global_scale_y = scale_y;
     } else {
@@ -76,9 +69,7 @@ static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float 
     
     framebufferSizeCallback(gfx::glfw_window, window_width_ * gfx::system_scale_x, window_height_ * gfx::system_scale_y);
 
-#ifndef __APPLE__
     gfx::setMinimumWindowSize(gfx::window_width_min, gfx::window_height_min);
-#endif
 }
 
 static void windowFocusCallback(GLFWwindow* window, int focused) {
@@ -88,13 +79,8 @@ static void windowFocusCallback(GLFWwindow* window, int focused) {
 void gfx::setMinimumWindowSize(int width, int height) {
     window_width_min = width;
     window_height_min = height;
-    float scale = 1;
     
-#ifndef __APPLE__
-    scale = global_scale;
-#endif
-    
-    glfwSetWindowSizeLimits(glfw_window, width * scale, height * scale, -1, -1);
+    glfwSetWindowSizeLimits(glfw_window, width * global_scale_x * system_scale_x, height * global_scale_y * system_scale_y, -1, -1);
 }
 
 void gfx::initGlfw(int window_width_, int window_height_, const std::string& window_title) {
@@ -223,21 +209,13 @@ void gfx::enableVsync(bool enabled) {
 int gfx::getWindowWidth() {
     int width;
     glfwGetWindowSize(gfx::glfw_window, &width, nullptr);
-#ifdef __APPLE__
-    return width / global_scale_x * 2;
-#else
     return width / global_scale_x;
-#endif
 }
 
 int gfx::getWindowHeight() {
     int height;
     glfwGetWindowSize(gfx::glfw_window, nullptr, &height);
-#ifdef __APPLE__
-    return height / global_scale_y * 2;
-#else
     return height / global_scale_y;
-#endif
 }
 
 void gfx::updateWindow() {
@@ -262,4 +240,16 @@ std::string gfx::getClipboard() {
 
 void gfx::setClipboard(const std::string& data) {
     glfwSetClipboardString(glfw_window, data.c_str());
+}
+
+int gfx::getMouseX() {
+    double mouse_x_normalized;
+    glfwGetCursorPos(glfw_window, &mouse_x_normalized, nullptr);
+    return mouse_x_normalized / gfx::global_scale_x;
+}
+
+int gfx::getMouseY() {
+    double mouse_y_normalized;
+    glfwGetCursorPos(glfw_window, nullptr, &mouse_y_normalized);
+    return mouse_y_normalized / gfx::global_scale_y;
 }

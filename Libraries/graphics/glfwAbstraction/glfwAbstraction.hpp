@@ -7,6 +7,7 @@ extern "C" {
 #include <glad/glad.h>
 }
 #include <GLFW/glfw3.h>
+#define SYSTEM_SCALE 0
 
 namespace gfx {
 
@@ -17,7 +18,6 @@ int getWindowHeight();
 void enableVsync(bool enabled);
 
 void setGlobalScale(float scale);
-
 
 class _ScreenRefreshEvent {};
 inline EventSender<_ScreenRefreshEvent> _screen_refresh_event_sender;
@@ -55,8 +55,6 @@ inline unsigned int window_texture, window_texture_back, default_framebuffer;
 
 inline int window_width_min, window_height_min;
 
-inline int window_resized_counter = 0;
-
 unsigned int CompileShaders(const char* vertex_code, const char* fragment_code);
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -70,6 +68,9 @@ std::string getClipboard();
 void setClipboard(const std::string& data);
 
 inline bool is_window_focused = true;
+
+int getMouseX();
+int getMouseY();
 
 };
 
