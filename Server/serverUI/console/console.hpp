@@ -1,42 +1,20 @@
 #pragma once
 #include "launcherModule.hpp"
+#include "print.hpp"
 
-/*class ChatLine {
+class ChatLine {
 public:
     std::string text;
     gfx::Sprite text_sprite;
     int y_to_be{};
 };
 
-class Chat : public ServerModule, EventListener<ServerPacketEvent> {
-    gfx::TextInput chat_box;
-    ServerNetworking* networking;
-    ServerPlayers* players;
+class Console : LauncherModule, EventListener<PrintEvent>{
     std::vector<ChatLine*> chat_lines;
-    std::vector<std::string> saved_lines = {""};
-    int selected_saved_line = 0;
-
-    float chat_width = 100;
-
-    void init() override;
-    void update(float frame_length) override;
-    //bool onKeyDown(gfx::Key key) override;
-    void stop() override;
-
-    void onEvent(ServerPacketEvent& event) override;
-public:
-    Chat(ServerNetworking* networking, ServerPlayers* players) : ServerModule(), networking(networking), players(players) {}
-};
-*/
-
-
-
-
-class Console : LauncherModule, EventListener<ServerPacketEvent>{
     gfx::TextInput input_box;
     std::vector<std::string> saved_lines = {""};
     int selected_saved_line = 0;
-    void onEvent(ServerPacketEvent& event) override;
+    void onEvent(PrintEvent& event) override;
     void stop() override;
     void init() override;
 public:

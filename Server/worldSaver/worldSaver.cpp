@@ -1,7 +1,6 @@
 #include <fstream>
 #include <thread>
 #include "worldSaver.hpp"
-#include "print.hpp"
 #include "graphics.hpp"
 #include <cstring>
 #include <sstream>
@@ -54,7 +53,7 @@ void WorldSaver::save() {
         output.push_back(0);
         
         output.insert(output.end(), {0, 0, 0, 0}); 
-        unsigned int size = (unsigned int)i.second.size();
+        auto size = (unsigned int)i.second.size();
         memcpy(&output[output.size() - 4], &size, sizeof(unsigned int));
         
         output.insert(output.end(), i.second.begin(), i.second.end());
@@ -68,7 +67,7 @@ void WorldSaver::update(float frame_length) {
     if(timer.getTimeElapsed() > AUTOSAVE_INTERVAL * 1000) {
         timer.reset();
         if(autosave_enabled) {
-            print::info("Autosaving world...");
+            print->info("Autosaving world...");
             std::thread save_thread(&WorldSaver::save, this);
             save_thread.detach();
         }

@@ -16,8 +16,9 @@ void onInterrupt(int signum) {
 }
 
 Server::Server(const std::string& resource_path, const std::string& world_path, int port) :
-    networking(port),
-    world_saver(world_path),
+    print(),
+    networking(port, &print),
+    world_saver(world_path, &print),
     blocks(&networking, &world_saver),
     walls(&blocks, &world_saver, &networking),
     biomes(&blocks, &world_saver),
@@ -26,7 +27,7 @@ Server::Server(const std::string& resource_path, const std::string& world_path, 
     entities(&blocks, &networking),
     items(&entities, &blocks, &walls, &networking),
     players(&blocks, &walls, &liquids, &entities, &items, &networking, &recipes, &world_saver),
-    chat(&players, &networking),
+    chat(&players, &networking, &print),
     commands(&blocks, &liquids, &players, &items, &entities, &chat),
     world_path(world_path),
     content(&blocks, &walls, &liquids, &items),
@@ -65,11 +66,11 @@ void Server::start() {
     
     if(std::filesystem::exists(world_path)) {
         state = ServerState::LOADING_WORLD;
-        print::info("Loading world...");
+        print.info("Loading world...");
         world_saver.load();
     } else {
         state = ServerState::GENERATING_WORLD;
-        print::info("Generating world...");
+        print.info("Generating world...");
         generator.generateWorld(4400, 1200, seed);
     }
     
@@ -85,7 +86,7 @@ void Server::start() {
     signal(SIGINT, onInterrupt);
 
     state = ServerState::RUNNING;
-    print::info("Server has started!");
+    print.info("Server has started!");
     
     int ms_per_tick = 1000 / TPS_LIMIT;
     
@@ -122,10 +123,10 @@ void Server::start() {
     
     state = ServerState::STOPPING;
     
-    print::info("Saving world...");
+    print.info("Saving world...");
     world_saver.save();
     
-    print::info("Stopping server...");
+    print.info("Stopping server...");
     for(auto & module : modules)
         module->stop();
 

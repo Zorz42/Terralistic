@@ -2,20 +2,37 @@
 #include <iomanip>
 #include <iostream>
 
-static void printText(const std::string& text) {
+void Print::printText(MessageType type, const std::string& text) {
     auto t = std::time(nullptr);
     auto tm = *localtime(&t);
-    std::cout << std::put_time(&tm, "[%d.%m.%Y %H:%M:%S] ") << text << std::endl;
+    switch (type) {
+        case 0: {
+            std::cout << std::put_time(&tm, "[%d.%m.%Y %H:%M:%S] ") << text << std::endl;
+            break;
+        }
+        case 1:{
+            std::cout << std::put_time(&tm, "[%d.%m.%Y %H:%M:%S] ") << "[WARNING] " << text << std::endl;
+            break;
+        }
+        case 2:{
+            std::cout << std::put_time(&tm, "[%d.%m.%Y %H:%M:%S] ") << "[ERROR] " << text << std::endl;
+            break;
+        }
+        default:
+            break;
+    }
+    PrintEvent event(type, text);
+    print_event.call(event);
 }
 
-void print::info(const std::string& text) {
-    printText(text);
+void Print::info(const std::string& text) {
+    printText(MessageType::INFO, text);
 }
 
-void print::warning(const std::string& text) {
-    printText("[warning] " + text);
+void Print::warning(const std::string& text) {
+    printText(MessageType::WARNING, text);
 }
 
-void print::error(const std::string& text) {
-    printText("[error] " + text);
+void Print::error(const std::string& text) {
+    printText(MessageType::ERROR, text);
 }

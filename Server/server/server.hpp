@@ -12,6 +12,7 @@
 enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPPING, STOPPED, CRASHED};
 
 class Server {
+    Print print;
     ServerNetworking networking;
     WorldSaver world_saver;
     ServerBlocks blocks;
@@ -43,6 +44,7 @@ public:
     std::string world_path;
     ServerNetworking* getNetworking(){return &networking;}
     ServerPlayers* getPlayers(){return &players;}
+    Print* getPrint(){return &print;}
 
     void start();
     void stop();

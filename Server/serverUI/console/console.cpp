@@ -29,7 +29,7 @@ void Console::init() {
     input_box.width = 100;
     input_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
     text_inputs = {&input_box};
-    server->getPlayers()->packet_event.addListener(this);
+    server->getPrint()->print_event.addListener(this);
 }
 
 
@@ -47,6 +47,27 @@ void Console::update(float frame_length) {
     gfx::RectShape(2, 2, width - 4, height - 4).render(GREY);
     input_box.render(getMouseX(), getMouseY());//you are not able to click directly onto the text input if this module is not in the upper right position. will be fixed with the implementation of UI containers
 
+
+    for(auto & chat_line : chat_lines) {
+        if(!chat_line->text.empty()) {
+            chat_line->text_sprite.scale = 2;
+            chat_line->text_sprite.y = input_box.y;
+            chat_line->text_sprite.x = SPACING / 2;
+            chat_line->y_to_be = input_box.y - input_box.getHeight();
+            chat_line->text.clear();
+            chat_line->text.shrink_to_fit();
+
+            for(auto & i2 : chat_lines)
+                if(i2 != chat_line)
+                    i2->y_to_be -= chat_line->text_sprite.getHeight();
+        }
+
+        chat_line->text_sprite.render();
+    }
+
+
+
+
     gfx::resetRenderTarget();
 }
 
@@ -56,6 +77,7 @@ bool Console::onKeyDown(gfx::Key key) {
             Packet chat_packet;
             chat_packet << ServerPacketType::CHAT << ("[Server] "+ input_box.getText());
             server->getNetworking()->sendToEveryone(chat_packet);
+            server->getPrint()->info(input_box.getText());
             saved_lines.insert(saved_lines.begin() + 1, input_box.getText());
             selected_saved_line = 0;
             if(saved_lines.size() > 20)
@@ -88,17 +110,21 @@ bool Console::onKeyDown(gfx::Key key) {
     return false;
 }
 
-void Console::onEvent(ServerPacketEvent &event) {
-    switch (event.packet_type) {
-        case ClientPacketType::CHAT:{
-        }
-
-        default:
-            break;
-    }
+void Console::onEvent(PrintEvent &event) {
+    while(chat_lines.size() > 100)
+        chat_lines.erase(chat_lines.begin());
+    chat_lines.emplace_back(new ChatLine);
+    auto line = chat_lines[chat_lines.size() - 1];
+    line->text = event.message;
+    line->text_sprite.loadFromText(line->text);
+    if(event.type == MessageType::WARNING)
+        line->text_sprite.setColor({255, 255, 0});
+    else if(event.type == MessageType::ERROR)
+        line->text_sprite.setColor({255, 0, 0});
+    line->text_sprite.orientation = gfx::BOTTOM_LEFT;
 }
 
 
 void Console::stop() {
-    server->getPlayers()->packet_event.removeListener(this);
+    server->getPrint()->print_event.removeListener(this);
 }
