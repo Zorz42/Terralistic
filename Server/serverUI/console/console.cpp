@@ -29,6 +29,7 @@ void Console::init() {
     input_box.width = 100;
     input_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
     text_inputs = {&input_box};
+    server->getPlayers()->packet_event.addListener(this);
 }
 
 
@@ -85,4 +86,19 @@ bool Console::onKeyDown(gfx::Key key) {
         return true;
     }
     return false;
+}
+
+void Console::onEvent(ServerPacketEvent &event) {
+    switch (event.packet_type) {
+        case ClientPacketType::CHAT:{
+        }
+
+        default:
+            break;
+    }
+}
+
+
+void Console::stop() {
+    server->getPlayers()->packet_event.removeListener(this);
 }

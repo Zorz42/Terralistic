@@ -1,6 +1,7 @@
 #include "worldInfo.hpp"
 #include <chrono>
 #include <ctime>
+#include <iomanip>
 
 WorldInfo::WorldInfo(float x_, float y_, float w_, float h_): LauncherModule("world_info"){
     target_x = x_;
@@ -64,10 +65,11 @@ void WorldInfo::update(float frame_length) {
         lastState = server->state;
     }
 
-    auto time = std::chrono::system_clock::now();
-    std::time_t time_ = std::chrono::system_clock::to_time_t(time);
-    std::string time_string = std::ctime(&time_);
-    clock_text.loadFromText(time_string.substr(0, time_string.size() - 6));
+    auto t = std::time(nullptr);
+    auto tm = *localtime(&t);
+    std::stringstream time1;
+    time1 << std::put_time(&tm, "%d.%m.%Y %H:%M:%S");
+    clock_text.loadFromText(time1.str());
 
     name_text.x = 10;
     name_text.y = 10;

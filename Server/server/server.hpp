@@ -42,6 +42,7 @@ public:
     int seed;
     std::string world_path;
     ServerNetworking* getNetworking(){return &networking;}
+    ServerPlayers* getPlayers(){return &players;}
 
     void start();
     void stop();

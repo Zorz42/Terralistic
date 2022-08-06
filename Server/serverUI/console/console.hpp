@@ -32,13 +32,15 @@ public:
 
 
 
-class Console : LauncherModule{
+class Console : LauncherModule, EventListener<ServerPacketEvent>{
     gfx::TextInput input_box;
     std::vector<std::string> saved_lines = {""};
     int selected_saved_line = 0;
+    void onEvent(ServerPacketEvent& event) override;
+    void stop() override;
+    void init() override;
 public:
     void update(float frame_length) override;
-    void init() override;
     bool onKeyDown(gfx::Key key) override;
     Console(float x_, float y_, float w_, float h_);
 };
