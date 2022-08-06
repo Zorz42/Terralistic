@@ -34,8 +34,11 @@ public:
 
 class Console : LauncherModule{
     gfx::TextInput input_box;
+    std::vector<std::string> saved_lines = {""};
+    int selected_saved_line = 0;
 public:
     void update(float frame_length) override;
     void init() override;
+    bool onKeyDown(gfx::Key key) override;
     Console(float x_, float y_, float w_, float h_);
 };
