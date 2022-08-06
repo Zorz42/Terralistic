@@ -30,50 +30,57 @@ static const char* fragment_shader_code =
 "}";
 
 static float global_scale = SYSTEM_SCALE;
+static unsigned int default_framebuffer, window_width_min, window_height_min;
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    gfx::window_normalization_transform = gfx::_Transformation();
-    gfx::window_normalization_transform.stretch(1.f / gfx::getWindowWidth() * 2, -1.f / gfx::getWindowHeight() * 2);
-    gfx::window_normalization_transform.translate(-float(gfx::getWindowWidth()) / 2, -float(gfx::getWindowHeight()) / 2);
+    using namespace gfx;
     
-    glBindTexture(GL_TEXTURE_2D, gfx::window_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx::getWindowWidth(), gfx::getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    window_normalization_transform = _Transformation();
+    window_normalization_transform.stretch(1.f / getWindowWidth() * 2, -1.f / getWindowHeight() * 2);
+    window_normalization_transform.translate(-float(getWindowWidth()) / 2, -float(getWindowHeight()) / 2);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    
-    glBindTexture(GL_TEXTURE_2D, gfx::window_texture_back);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx::getWindowWidth(), gfx::getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    glBindTexture(GL_TEXTURE_2D, window_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth(), getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
-    gfx::_ScreenRefreshEvent event;
-    gfx::_screen_refresh_event_sender.call(event);
+    glBindTexture(GL_TEXTURE_2D, window_texture_back);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth(), getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    
+    _ScreenRefreshEvent event;
+    _screen_refresh_event_sender.call(event);
 }
 
 static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
+    using namespace gfx;
+    
+    system_scale_x = scale_x;
+    system_scale_y = scale_y;
+    
     if(global_scale == SYSTEM_SCALE) {
-        gfx::global_scale_x = scale_x;
-        gfx::global_scale_y = scale_y;
+        global_scale_x = system_scale_x;
+        global_scale_y = system_scale_y;
     } else {
-        gfx::global_scale_x = global_scale;
-        gfx::global_scale_y = global_scale;
+        global_scale_x = global_scale;
+        global_scale_y = global_scale;
     }
     
-    gfx::system_scale_x = scale_x;
-    gfx::system_scale_y = scale_y;
-    
     int window_width_, window_height_;
-    glfwGetWindowSize(gfx::glfw_window, &window_width_, &window_height_);
+    glfwGetWindowSize(glfw_window, &window_width_, &window_height_);
     
-    framebufferSizeCallback(gfx::glfw_window, window_width_ * gfx::system_scale_x, window_height_ * gfx::system_scale_y);
+    framebufferSizeCallback(glfw_window, window_width_ * system_scale_x, window_height_ * system_scale_y);
 
-    gfx::setMinimumWindowSize(gfx::window_width_min, gfx::window_height_min);
+    setMinimumWindowSize(window_width_min, window_height_min);
 }
 
 static void windowFocusCallback(GLFWwindow* window, int focused) {
-    gfx::is_window_focused = focused;
+    using namespace gfx;
+    
+    is_window_focused = focused;
 }
 
 void gfx::setMinimumWindowSize(int width, int height) {
@@ -100,10 +107,10 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
     glfw_window = glfwCreateWindow(window_width_, window_height_, window_title.c_str(), nullptr, nullptr);
     glfwSetFramebufferSizeCallback(glfw_window, framebufferSizeCallback);
     glfwSetWindowContentScaleCallback(glfw_window, windowContentScaleCallback);
-    glfwSetKeyCallback(glfw_window, gfx::keyCallback);
-    glfwSetScrollCallback(glfw_window, gfx::scrollCallback);
-    glfwSetCharCallback(glfw_window, gfx::characterCallback);
-    glfwSetMouseButtonCallback(glfw_window, gfx::mouseButtonCallback);
+    glfwSetKeyCallback(glfw_window, keyCallback);
+    glfwSetScrollCallback(glfw_window, scrollCallback);
+    glfwSetCharCallback(glfw_window, characterCallback);
+    glfwSetMouseButtonCallback(glfw_window, mouseButtonCallback);
     glfwSetWindowFocusCallback(glfw_window, windowFocusCallback);
 
     float scale_x, scale_y;
@@ -123,7 +130,7 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
 
     glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
 
-    shader_program = CompileShaders(vertex_shader_code, fragment_shader_code);
+    shader_program = compileShaders(vertex_shader_code, fragment_shader_code);
     uniform_has_texture = glGetUniformLocation(shader_program, "has_texture");
     uniform_default_color = glGetUniformLocation(shader_program, "default_color");
     uniform_texture_sampler = glGetUniformLocation(shader_program, "texture_sampler");
@@ -175,10 +182,10 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
 
 void gfx::setGlobalScale(float scale) {
     global_scale = scale;
-    windowContentScaleCallback(gfx::glfw_window, gfx::system_scale_x, gfx::system_scale_y);
+    windowContentScaleCallback(glfw_window, system_scale_x, system_scale_y);
 }
 
-unsigned int gfx::CompileShaders(const char* vertex_code, const char* fragment_code) {
+unsigned int gfx::compileShaders(const char* vertex_code, const char* fragment_code) {
     GLuint vertex_id = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -212,7 +219,7 @@ void gfx::enableVsync(bool enabled) {
 
 int gfx::getWindowWidth() {
     int width;
-    glfwGetWindowSize(gfx::glfw_window, &width, nullptr);
+    glfwGetWindowSize(glfw_window, &width, nullptr);
 #ifdef __APPLE__
     if(system_scale_x == 1)
         return width / global_scale_x;
@@ -225,7 +232,7 @@ int gfx::getWindowWidth() {
 
 int gfx::getWindowHeight() {
     int height;
-    glfwGetWindowSize(gfx::glfw_window, nullptr, &height);
+    glfwGetWindowSize(glfw_window, nullptr, &height);
 #ifdef __APPLE__
     if(system_scale_y == 1)
         return height / global_scale_y;
@@ -241,7 +248,7 @@ void gfx::updateWindow() {
     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, window_texture, 0);
     
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, getWindowWidth(), getWindowHeight(), 0, 0, getWindowWidth() * gfx::global_scale_x, getWindowHeight() * gfx::global_scale_y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, getWindowWidth(), getWindowHeight(), 0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     
     glfwSwapBuffers(glfw_window);
     

@@ -51,11 +51,9 @@ inline float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_
 
 inline _Transformation window_normalization_transform, normalization_transform;
 
-inline unsigned int window_texture, window_texture_back, default_framebuffer;
+inline unsigned int window_texture, window_texture_back;
 
-inline int window_width_min, window_height_min;
-
-unsigned int CompileShaders(const char* vertex_code, const char* fragment_code);
+unsigned int compileShaders(const char* vertex_code, const char* fragment_code);
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
