@@ -1,11 +1,11 @@
 #include "button.hpp"
 
 int gfx::Button::getWidth() const {
-    return (getTextureWidth() + margin * 2) * scale;
+    return (getTextureWidth() + margin * 2) * getScale();
 }
 
 int gfx::Button::getHeight() const {
-    return (getTextureHeight() + margin * 2) * scale;
+    return (getTextureHeight() + margin * 2) * getScale();
 }
 
 bool gfx::Button::isHovered(int mouse_x, int mouse_y) const {
@@ -43,5 +43,5 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
     hover_rect.render(button_color);
     hover_rect.renderOutline(button_border_color);
     
-    Texture::render(scale, rect.x + margin * scale, rect.y + margin * scale);
+    Texture::render(getScale(), rect.x + margin * getScale(), rect.y + margin * getScale());
 }

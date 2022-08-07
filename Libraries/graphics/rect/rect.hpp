@@ -1,5 +1,5 @@
 #pragma once
-#include "centeredObject.hpp"
+#include "orientedObject.hpp"
 #include "timer.hpp"
 
 namespace gfx {
@@ -7,7 +7,8 @@ namespace gfx {
 class Rect : public _OrientedObject {
     using _OrientedObject::x;
     using _OrientedObject::y;
-    float width = 1, height = 1;
+    using _OrientedObject::w;
+    using _OrientedObject::h;
     
     int target_x = 0, target_y = 0, target_width = 1, target_height = 1;
     Timer approach_timer;

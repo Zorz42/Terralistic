@@ -2,17 +2,17 @@
 #include "game.hpp"
 
 void WorldCreator::init() {
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
     new_world_title.loadFromSurface(gfx::textToSurface("Create a new world:"));
-    new_world_title.scale = 3;
+    new_world_title.setScale(3);
     new_world_title.y = SPACING;
     new_world_title.orientation = gfx::TOP;
 
-    create_button.scale = 3;
+    create_button.setScale(3);
     create_button.loadFromSurface(gfx::textToSurface("Create world"));
     create_button.y = -SPACING;
     create_button.orientation = gfx::BOTTOM;
@@ -20,7 +20,7 @@ void WorldCreator::init() {
     back_button.x = (-create_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
     create_button.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + SPACING) / 2;
 
-    world_name.scale = 3;
+    world_name.setScale(3);
     world_name.orientation = gfx::CENTER;
     world_name.setText("");
     world_name.active = true;
@@ -32,7 +32,7 @@ void WorldCreator::init() {
         return '\0';
     };
 
-    world_seed.scale = 3;
+    world_seed.setScale(3);
     world_seed.orientation = gfx::CENTER;
     world_seed.setText("");
     world_seed.active = false;
@@ -47,15 +47,15 @@ void WorldCreator::init() {
 
 
     new_world_name.loadFromSurface(gfx::textToSurface("New world name"));
-    new_world_name.scale = 3;
+    new_world_name.setScale(3);
     new_world_name.y = world_name.y;
-    new_world_name.x = -world_name.getWidth() / 2 + new_world_name.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_name.x = -world_name.w / 2 + new_world_name.h / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_world_name.orientation = gfx::CENTER;
 
     new_world_seed.loadFromSurface(gfx::textToSurface("New world seed"));
-    new_world_seed.scale = 3;
+    new_world_seed.setScale(3);
     new_world_seed.y = world_seed.y;
-    new_world_seed.x = -world_seed.getWidth() / 2 + new_world_seed.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_seed.x = -world_seed.getWidth() / 2 + new_world_seed.w / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_world_seed.orientation = gfx::CENTER;
 
 

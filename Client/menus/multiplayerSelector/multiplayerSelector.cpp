@@ -7,8 +7,8 @@
 #include "readOpa.hpp"
 #include "resourcePath.hpp"
 
-#define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
-#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
+#define TOP_HEIGHT (title.h + 2 * SPACING)
+#define BOTTOM_HEIGHT (back_button.h + 2 * SPACING)
 
 void MenuServer::render(int position, int mouse_x, int mouse_y) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
@@ -49,11 +49,11 @@ void MultiplayerSelector::refresh() {
         server->name_texture.loadFromSurface(gfx::textToSurface(server_data[i].name));
 
         server->join_button.loadFromSurface(readOpa(resource_path + "join_button.opa"));
-        server->join_button.scale = 3;
+        server->join_button.setScale(3);
         server->join_button.margin = 5;
         
         server->remove_button.loadFromSurface(readOpa(resource_path + "remove_button.opa"));
-        server->remove_button.scale = 3;
+        server->remove_button.setScale(3);
         server->remove_button.margin = 5;
         
         scroll_limit += 116 + SPACING * 3;
@@ -64,17 +64,17 @@ void MultiplayerSelector::init() {
     ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     config.setDefaultStr("servers", "");
     
-    title.scale = 3;
+    title.setScale(3);
     title.loadFromSurface(gfx::textToSurface("Select a server to join"));
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
-    new_button.scale = 3;
+    new_button.setScale(3);
     new_button.loadFromSurface(gfx::textToSurface("Add"));
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;

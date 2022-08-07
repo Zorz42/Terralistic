@@ -144,8 +144,8 @@
 		366D971F282067FA00DEC292 /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9707282067FA00DEC292 /* timer.cpp */; };
 		366D9720282067FA00DEC292 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9708282067FA00DEC292 /* button.cpp */; };
 		366D9721282067FA00DEC292 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9708282067FA00DEC292 /* button.cpp */; };
-		366D9722282067FA00DEC292 /* centeredObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* centeredObject.cpp */; };
-		366D9723282067FA00DEC292 /* centeredObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* centeredObject.cpp */; };
+		366D9722282067FA00DEC292 /* orientedObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* orientedObject.cpp */; };
+		366D9723282067FA00DEC292 /* orientedObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* orientedObject.cpp */; };
 		3672919B26FE225900786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672919C26FE226400786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672B160277C8431001293B5 /* serverAdder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B15E277C8431001293B5 /* serverAdder.cpp */; };
@@ -409,7 +409,7 @@
 		366D9706282067FA00DEC292 /* transformation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = transformation.cpp; sourceTree = "<group>"; };
 		366D9707282067FA00DEC292 /* timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer.cpp; sourceTree = "<group>"; };
 		366D9708282067FA00DEC292 /* button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = button.cpp; sourceTree = "<group>"; };
-		366D9709282067FA00DEC292 /* centeredObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = centeredObject.cpp; sourceTree = "<group>"; };
+		366D9709282067FA00DEC292 /* orientedObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = orientedObject.cpp; sourceTree = "<group>"; };
 		366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "Dependencies/glfw-3.3.7.bin.MACOS/lib-universal/libglfw.3.dylib"; sourceTree = "<group>"; };
 		3672B15E277C8431001293B5 /* serverAdder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = serverAdder.cpp; sourceTree = "<group>"; };
 		3672B15F277C8431001293B5 /* serverAdder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = serverAdder.hpp; sourceTree = "<group>"; };
@@ -432,7 +432,7 @@
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
 		368F70802854FDCD00C6FF6B /* rectShape.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = rectShape.hpp; sourceTree = "<group>"; };
-		368F70822854FDCF00C6FF6B /* centeredObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = centeredObject.hpp; sourceTree = "<group>"; };
+		368F70822854FDCF00C6FF6B /* orientedObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = orientedObject.hpp; sourceTree = "<group>"; };
 		368F70832854FDD100C6FF6B /* transformation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = transformation.hpp; sourceTree = "<group>"; };
 		368F70842854FDD200C6FF6B /* timer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = timer.hpp; sourceTree = "<group>"; };
 		368F70852854FDD700C6FF6B /* texture.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = texture.hpp; sourceTree = "<group>"; };
@@ -1283,7 +1283,7 @@
 				367F362A285F70B100319AD2 /* blur */,
 				367F362F285F715300319AD2 /* shadow */,
 				368F70732854FCEB00C6FF6B /* rectShape */,
-				368F70752854FCF900C6FF6B /* centeredObject */,
+				368F70752854FCF900C6FF6B /* orientedObject */,
 				368F70772854FD0900C6FF6B /* timer */,
 				368F70782854FD0F00C6FF6B /* texture */,
 				367F3634285F750700319AD2 /* font */,
@@ -1378,13 +1378,13 @@
 			path = rectShape;
 			sourceTree = "<group>";
 		};
-		368F70752854FCF900C6FF6B /* centeredObject */ = {
+		368F70752854FCF900C6FF6B /* orientedObject */ = {
 			isa = PBXGroup;
 			children = (
-				368F70822854FDCF00C6FF6B /* centeredObject.hpp */,
-				366D9709282067FA00DEC292 /* centeredObject.cpp */,
+				368F70822854FDCF00C6FF6B /* orientedObject.hpp */,
+				366D9709282067FA00DEC292 /* orientedObject.cpp */,
 			);
-			path = centeredObject;
+			path = orientedObject;
 			sourceTree = "<group>";
 		};
 		368F70762854FD0000C6FF6B /* transformation */ = {
@@ -1768,7 +1768,7 @@
 				16A3C01126FF871C001B9E4E /* commands.cpp in Sources */,
 				366399CF27775E17007C944E /* serverWalls.cpp in Sources */,
 				3657220D26D07181005AB3CC /* clientNetworking.cpp in Sources */,
-				366D9722282067FA00DEC292 /* centeredObject.cpp in Sources */,
+				366D9722282067FA00DEC292 /* orientedObject.cpp in Sources */,
 				167B53D1270A271D000089B3 /* serverEntities.cpp in Sources */,
 				16C9470527109EC100A51E81 /* player.cpp in Sources */,
 				16A13D192709B74A009DEE40 /* serverLiquids.cpp in Sources */,
@@ -1887,7 +1887,7 @@
 				367F3638285F751800319AD2 /* font.cpp in Sources */,
 				16A3C01226FF871C001B9E4E /* commands.cpp in Sources */,
 				369693D12880775000D39F1B /* testCompress.mm in Sources */,
-				366D9723282067FA00DEC292 /* centeredObject.cpp in Sources */,
+				366D9723282067FA00DEC292 /* orientedObject.cpp in Sources */,
 				167581902707687E00422C07 /* inventory.cpp in Sources */,
 				369693D92883369B00D39F1B /* testEvents.mm in Sources */,
 				361DD1A626F7478900129191 /* serverPlayers.cpp in Sources */,

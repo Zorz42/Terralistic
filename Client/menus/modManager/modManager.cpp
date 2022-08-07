@@ -52,20 +52,20 @@ void ModManager::init() {
     placeholder.smooth_factor = 1;
     
     enabled_text.loadFromSurface(gfx::textToSurface("Enabled"));
-    enabled_text.scale = 3;
+    enabled_text.setScale(3);
     enabled_text.orientation = gfx::TOP;
     enabled_text.x = 200;
     enabled_text.y = SPACING;
     
     disabled_text.loadFromSurface(gfx::textToSurface("Disabled"));
-    disabled_text.scale = 3;
+    disabled_text.setScale(3);
     disabled_text.orientation = gfx::TOP;
     disabled_text.x = -200;
     disabled_text.y = SPACING;
     
     back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.orientation = gfx::BOTTOM;
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.y = -SPACING;
 }
 
@@ -97,7 +97,7 @@ bool ModManager::onKeyUp(gfx::Key key) {
 
 void ModManager::render() {
     int placeholder_x, placeholder_y = 0;
-    int curr_disabled_y = 2 * SPACING + enabled_text.getHeight(), curr_enabled_y = 2 * SPACING + enabled_text.getHeight();
+    int curr_disabled_y = 2 * SPACING + enabled_text.h, curr_enabled_y = 2 * SPACING + enabled_text.h;
     for(auto & mod : mods) {
         if(mod == holding) {
             placeholder_x = mod->enabled ? 200 : -200;

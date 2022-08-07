@@ -62,14 +62,14 @@ void UpdateChecker::checkForUpdates() {
 void UpdateChecker::init() {
     update_thread = std::thread(&UpdateChecker::checkForUpdates, this);
     
-    text.scale = 3;
+    text.setScale(3);
     text.orientation = gfx::CENTER;
     text.loadFromSurface(gfx::textToSurface("Checking for updates"));
 }
 
 void UpdateChecker::render() {
     static UpdateState prev_update_state = UpdateState::NEUTRAL;
-    menu_back->setBackWidth(text.getWidth() + 100);
+    menu_back->setBackWidth(text.w + 100);
     menu_back->renderBack();
     
     if(update_state != prev_update_state) {

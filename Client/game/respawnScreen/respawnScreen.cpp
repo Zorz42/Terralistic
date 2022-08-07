@@ -8,10 +8,10 @@ void RespawnScreen::init() {
     back_rect.border_color = BORDER_COLOR;
     back_rect.smooth_factor = 3;
     
-    you_died_text.scale = 4;
+    you_died_text.setScale(4);
     you_died_text.orientation = gfx::CENTER;
     
-    respawn_button.scale = 3;
+    respawn_button.setScale(3);
     respawn_button.orientation = gfx::CENTER;
 }
 
@@ -40,8 +40,8 @@ void RespawnScreen::render() {
 
     back_rect.setHeight(gfx::getWindowHeight());
     back_rect.setY(is_active ? 0 : -2 * back_rect.getHeight());
-    you_died_text.y = back_rect.getY() - you_died_text.getHeight() / 2 - SPACING / 2;
-    respawn_button.y = back_rect.getY() + respawn_button.getHeight() / 2 + SPACING / 2;
+    you_died_text.y = back_rect.getY() - you_died_text.h / 2 - SPACING / 2;
+    respawn_button.y = back_rect.getY() + respawn_button.h / 2 + SPACING / 2;
     
     float progress = float(back_rect.getY() + 2 * back_rect.getHeight()) / back_rect.getHeight() / 2;
     

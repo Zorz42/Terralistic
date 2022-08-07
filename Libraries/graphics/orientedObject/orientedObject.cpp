@@ -1,5 +1,5 @@
 #include "glfwAbstraction.hpp"
-#include "centeredObject.hpp"
+#include "orientedObject.hpp"
 
 gfx::_OrientedObject::_OrientedObject(int x, int y, int w, int h, Orientation orientation) : orientation(orientation), RectShape(x, y, w, h) {}
 

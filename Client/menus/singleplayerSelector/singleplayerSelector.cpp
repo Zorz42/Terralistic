@@ -6,8 +6,8 @@
 #include "readOpa.hpp"
 #include "resourcePath.hpp"
 
-#define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
-#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
+#define TOP_HEIGHT (title.h + 2 * SPACING)
+#define BOTTOM_HEIGHT (back_button.h + 2 * SPACING)
 
 void World::render(int position, int mouse_x, int mouse_y) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
@@ -33,17 +33,17 @@ void World::render(int position, int mouse_x, int mouse_y) {
 void SingleplayerSelector::init() {
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Worlds/");
     
-    title.scale = 3;
+    title.setScale(3);
     title.loadFromSurface(gfx::textToSurface("Select a world to play!"));
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
-    new_button.scale = 3;
+    new_button.setScale(3);
     new_button.loadFromSurface(gfx::textToSurface("New"));
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
@@ -96,11 +96,11 @@ void SingleplayerSelector::refresh() {
         worlds[i]->title.loadFromSurface(gfx::textToSurface(worlds[i]->name));
 
         worlds[i]->play_button.loadFromSurface(readOpa(resource_path + "play_button.opa"));
-        worlds[i]->play_button.scale = 3;
+        worlds[i]->play_button.setScale(3);
         worlds[i]->play_button.margin = 5;
         
         worlds[i]->delete_button.loadFromSurface(readOpa(resource_path + "delete_button.opa"));
-        worlds[i]->delete_button.scale = 3;
+        worlds[i]->delete_button.setScale(3);
         worlds[i]->delete_button.margin = 5;
         
         worlds[i]->last_played.loadFromSurface(gfx::textToSurface("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY));

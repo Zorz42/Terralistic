@@ -1,17 +1,17 @@
 #include "serverAdder.hpp"
 
 void ServerAdder::init() {
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
     add_server_title.loadFromSurface(gfx::textToSurface("Add a new server"));
-    add_server_title.scale = 3;
+    add_server_title.setScale(3);
     add_server_title.y = SPACING;
     add_server_title.orientation = gfx::TOP;
     
-    add_button.scale = 3;
+    add_button.setScale(3);
     add_button.loadFromSurface(gfx::textToSurface("Add server"));
     add_button.y = -SPACING;
     add_button.orientation = gfx::BOTTOM;
@@ -19,7 +19,7 @@ void ServerAdder::init() {
     back_button.x = (-add_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
     add_button.x = (add_button.getWidth() + back_button.getWidth() - add_button.getWidth() + SPACING) / 2;
 
-    server_ip_input.scale = 3;
+    server_ip_input.setScale(3);
     server_ip_input.orientation = gfx::CENTER;
     server_ip_input.setText("");
     server_ip_input.active = false;
@@ -29,7 +29,7 @@ void ServerAdder::init() {
         return '\0';
     };
 
-    server_name_input.scale = 3;
+    server_name_input.setScale(3);
     server_name_input.orientation = gfx::CENTER;
     server_name_input.setText("");
     server_name_input.active = true;
@@ -43,15 +43,15 @@ void ServerAdder::init() {
     server_ip_input.y = 16 + server_ip_input.getHeight() / 2;
 
     new_server_name.loadFromSurface(gfx::textToSurface("New server name"));
-    new_server_name.scale = 3;
+    new_server_name.setScale(3);
     new_server_name.y = server_name_input.y;
-    new_server_name.x = -new_server_name.getWidth() / 2 + new_server_name.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_server_name.x = -new_server_name.w / 2 + new_server_name.w / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_server_name.orientation = gfx::CENTER;
 
     new_server_ip.loadFromSurface(gfx::textToSurface("New server ip"));
-    new_server_ip.scale = 3;
+    new_server_ip.setScale(3);
     new_server_ip.y = server_ip_input.y;
-    new_server_ip.x = -new_server_ip.getWidth() / 2 + new_server_ip.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_server_ip.x = -new_server_ip.w / 2 + new_server_ip.w / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_server_ip.orientation = gfx::CENTER;
     
     server_name_input.def_color.a = TRANSPARENCY;

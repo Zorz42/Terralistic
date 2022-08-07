@@ -6,17 +6,17 @@ void NameChooser::init() {
     ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     config.setDefaultStr("username", "");
     
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
     choose_name_title.loadFromSurface(gfx::textToSurface("Choose your username:"));
-    choose_name_title.scale = 3;
+    choose_name_title.setScale(3);
     choose_name_title.y = SPACING;
     choose_name_title.orientation = gfx::TOP;
     
-    join_button.scale = 3;
+    join_button.setScale(3);
     join_button.loadFromSurface(gfx::textToSurface("Join server"));
     join_button.y = -SPACING;
     join_button.orientation = gfx::BOTTOM;
@@ -24,7 +24,7 @@ void NameChooser::init() {
     back_button.x = (-join_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
     join_button.x = (join_button.getWidth() + back_button.getWidth() - join_button.getWidth() + SPACING) / 2;
 
-    name_input.scale = 3;
+    name_input.setScale(3);
     name_input.orientation = gfx::CENTER;
     name_input.setText(config.getStr("username"));
     name_input.active = true;

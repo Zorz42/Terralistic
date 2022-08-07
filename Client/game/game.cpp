@@ -16,7 +16,7 @@ public:
 };
 
 void WorldJoiningScreen::init() {
-    text.scale = 3;
+    text.setScale(3);
     text.createBlankImage(1, 1);
     text.orientation = gfx::CENTER;
     text.loadFromSurface(gfx::textToSurface("Joining world"));
@@ -26,7 +26,7 @@ void WorldJoiningScreen::render() {
     if(game->isInitialized() || game->interrupt)
         returnFromScene();
     
-    menu_back->setBackWidth(text.getWidth() + 300);
+    menu_back->setBackWidth(text.w + 300);
     menu_back->renderBack();
     text.render();
 }

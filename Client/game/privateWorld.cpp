@@ -31,7 +31,7 @@ public:
 
 
 void WorldStartingScreen::init() {
-    text.scale = 3;
+    text.setScale(3);
     text.createBlankImage(1, 1);
     text.orientation = gfx::CENTER;
     
@@ -66,14 +66,14 @@ void WorldStartingScreen::render() {
                 break;
             default:;
         }
-        menu_back->setBackWidth(text.getWidth() + 300);
+        menu_back->setBackWidth(text.w + 300);
     }
     
     if(server->state == ServerState::GENERATING_WORLD) {
-        loading_bar_back.setWidth(text.getWidth() + 200);
+        loading_bar_back.setWidth(text.w + 200);
         loading_bar.setX(loading_bar_back.getTranslatedX());
         loading_bar.setY(loading_bar_back.getTranslatedY());
-        loading_bar.setWidth(server->getGeneratingCurrent() * (text.getWidth() + 200) / server->getGeneratingTotal());
+        loading_bar.setWidth(server->getGeneratingCurrent() * (text.w + 200) / server->getGeneratingTotal());
         loading_bar_back.render();
         loading_bar.render();
     }

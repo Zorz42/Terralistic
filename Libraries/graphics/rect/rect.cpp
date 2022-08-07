@@ -25,15 +25,15 @@ void gfx::Rect::render() {
         if(y != target_y)
             y = approach(y, target_y, smooth_factor * 10);
         
-        if(std::abs(width - target_width) < 1)
-            width = target_width;
-        if(width != target_width)
-            width = approach(width, target_width, smooth_factor * 10);
+        if(std::abs(w - target_width) < 1)
+            w = target_width;
+        if(w != target_width)
+            w = approach(w, target_width, smooth_factor * 10);
         
-        if(std::abs(height - target_height) < 1)
-            height = target_height;
-        if(height != target_height)
-            height = approach(height, target_height, smooth_factor * 10);
+        if(std::abs(h - target_height) < 1)
+            h = target_height;
+        if(h != target_height)
+            h = approach(h, target_height, smooth_factor * 10);
     }
     
     RectShape rect = getTranslatedRect();
@@ -49,7 +49,7 @@ void gfx::Rect::render() {
 }
 
 int gfx::Rect::getWidth() const {
-    return width;
+    return w;
 }
 
 void gfx::Rect::setWidth(int width_) {
@@ -57,11 +57,11 @@ void gfx::Rect::setWidth(int width_) {
         throw Exception("Width must be positive.");
     target_width = width_;
     if(first_time)
-        width = width_;
+        w = width_;
 }
 
 int gfx::Rect::getHeight() const {
-    return height;
+    return h;
 }
 
 void gfx::Rect::setHeight(int height_) {
@@ -69,7 +69,7 @@ void gfx::Rect::setHeight(int height_) {
         throw Exception("Height must be positive.");
     target_height = height_;
     if(first_time)
-        height = height_;
+        h = height_;
 }
 
 int gfx::Rect::getX() const {
@@ -103,6 +103,6 @@ int gfx::Rect::getTargetY() const {
 void gfx::Rect::jumpToTarget() {
     y = target_y;
     x = target_x;
-    width = target_width;
-    height = target_height;
+    w = target_width;
+    h = target_height;
 }

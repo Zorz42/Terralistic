@@ -7,7 +7,7 @@
 #include "surface.hpp"
 #include "blur.hpp"
 #include "rectShape.hpp"
-#include "centeredObject.hpp"
+#include "orientedObject.hpp"
 #include "timer.hpp"
 #include "font.hpp"
 #include "texture.hpp"

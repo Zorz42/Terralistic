@@ -27,7 +27,7 @@ void SettingsMenu::init() {
     }
     
     back_button.loadFromSurface(gfx::textToSurface("Back"));
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.orientation = gfx::BOTTOM;
     back_button.y = -SPACING;
 }
@@ -81,7 +81,7 @@ void SettingsMenu::render() {
 
 RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setting) {
     choice_text.loadFromSurface(gfx::textToSurface(setting->ident));
-    choice_text.scale = 3;
+    choice_text.setScale(3);
     choice_text.orientation = gfx::TOP;
     select_rect.fill_color = DARK_GREY;
     select_rect.smooth_factor = 2;
@@ -89,7 +89,7 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
     for(const auto & choice : setting->choices) {
         gfx::Button* button = new gfx::Button;
         button->loadFromSurface(gfx::textToSurface(choice));
-        button->scale = 2;
+        button->setScale(2);
         button->orientation = gfx::TOP;
         button->margin = 5;
         choice_buttons.push_back(button);
@@ -113,8 +113,8 @@ void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y) {
     select_rect.setHeight(selected_button->getHeight());
     select_rect.render();
     
-    choice_text.y = y + getHeight() / 2 - choice_text.getHeight() / 2;
-    choice_text.x = -width / 2 + choice_text.getWidth() / 2 + SPACING;
+    choice_text.y = y + getHeight() / 2 - choice_text.h / 2;
+    choice_text.x = -width / 2 + choice_text.w / 2 + SPACING;
     
     choice_text.render();
     
@@ -124,12 +124,12 @@ void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y) {
 
 int RenderChoiceSetting::getHeight() {
     int height = 0;
-    height = std::max(height, choice_text.getHeight() + 2 * SPACING);
+    height = std::max(height, choice_text.h + 2 * SPACING);
     return height;
 }
 
 int RenderChoiceSetting::getWidth() {
-    int width = choice_text.getWidth() + 3 * SPACING;
+    int width = choice_text.w + 3 * SPACING;
     for(auto & choice_button : choice_buttons)
         width += choice_button->getWidth() + 10;
     return width;
@@ -143,10 +143,10 @@ void RenderChoiceSetting::onMouseButtonUp(int x, int y) {
 
 RenderBooleanSetting::RenderBooleanSetting(BooleanSetting* setting) : setting(setting) {
     text.loadFromSurface(gfx::textToSurface(setting->ident));
-    text.scale = 3;
+    text.setScale(3);
     text.orientation = gfx::TOP;
     
-    toggle_button.scale = 2;
+    toggle_button.setScale(2);
     toggle_button.orientation = gfx::TOP;
     toggle_button.margin = 5;
     
@@ -154,8 +154,8 @@ RenderBooleanSetting::RenderBooleanSetting(BooleanSetting* setting) : setting(se
 }
 
 void RenderBooleanSetting::render(int y, int width, int mouse_x, int mouse_y) {
-    text.y = y + getHeight() / 2 - text.getHeight() / 2;
-    text.x = -width / 2 + text.getWidth() / 2 + SPACING;
+    text.y = y + getHeight() / 2 - text.h / 2;
+    text.x = -width / 2 + text.w / 2 + SPACING;
     
     toggle_button.y = y + getHeight() / 2 - toggle_button.getHeight() / 2;
     toggle_button.x = width / 2 - toggle_button.getWidth() / 2 - SPACING;
@@ -178,13 +178,13 @@ void RenderBooleanSetting::updateButtonText() {
 
 int RenderBooleanSetting::getHeight() {
     int height = 0;
-    height = std::max(height, text.getHeight() + 2 * SPACING);
+    height = std::max(height, text.h + 2 * SPACING);
     height = std::max(height, toggle_button.getHeight() + 2 * SPACING);
     return height;
 }
 
 int RenderBooleanSetting::getWidth() {
-    int width = text.getWidth() + 3 * SPACING;
+    int width = text.w + 3 * SPACING;
     return width;
 }
 
@@ -197,7 +197,7 @@ void RenderBooleanSetting::onMouseButtonUp(int x, int y) {
 
 RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setting) {
     choice_text.loadFromSurface(gfx::textToSurface(setting->ident));
-    choice_text.scale = 3;
+    choice_text.setScale(3);
     choice_text.orientation = gfx::TOP;
     
     select_rect.fill_color = DARK_GREY;
@@ -207,7 +207,7 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     for(const auto & choice : setting->choices) {
         gfx::Button* button = new gfx::Button;
         button->loadFromSurface(gfx::textToSurface(choice));
-        button->scale = 2;
+        button->setScale(2);
         button->orientation = gfx::TOP;
         button->margin = 5;
         choice_buttons.push_back(button);
@@ -215,14 +215,14 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     
     gfx::Button dummy_button;
     dummy_button.loadFromSurface(gfx::textToSurface("dummy"));
-    dummy_button.scale = 2;
+    dummy_button.setScale(2);
     dummy_button.margin = 5;
     
     slider_rect.setWidth(((setting->max - setting->min) / setting->step + 1) * 10);
     slider_rect.setHeight(dummy_button.getHeight());
     slider_rect.orientation = gfx::TOP;
     
-    slider_text.scale = 2;
+    slider_text.setScale(2);
     slider_text.orientation = gfx::TOP;
     slider_text.setColor(WHITE);
     
@@ -276,27 +276,27 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
     
     select_rect.render();
     
-    choice_text.y = y + getHeight() / 2 - choice_text.getHeight() / 2;
-    choice_text.x = -width / 2 + choice_text.getWidth() / 2 + SPACING;
+    choice_text.y = y + getHeight() / 2 - choice_text.h / 2;
+    choice_text.x = -width / 2 + choice_text.w / 2 + SPACING;
     
     choice_text.render();
     
     for(int i = 0; i < (int)choice_buttons.size(); i++)
         choice_buttons[i]->render(mouse_x, mouse_y);
     
-    slider_text.y = slider_rect.getY() + slider_rect.getHeight() / 2 - slider_text.getHeight() / 2;
+    slider_text.y = slider_rect.getY() + slider_rect.getHeight() / 2 - slider_text.h / 2;
     slider_text.x = slider_rect.getX();
     slider_text.render();
 }
 
 int RenderSliderSetting::getHeight() {
     int height = 0;
-    height = std::max(height, choice_text.getHeight() + 2 * SPACING);
+    height = std::max(height, choice_text.h + 2 * SPACING);
     return height;
 }
 
 int RenderSliderSetting::getWidth() {
-    int width = choice_text.getWidth() + 3 * SPACING + slider_rect.getWidth() + 10;
+    int width = choice_text.w + 3 * SPACING + slider_rect.getWidth() + 10;
     for(auto & choice_button : choice_buttons)
         width += choice_button->getWidth() + 10;
     return width;

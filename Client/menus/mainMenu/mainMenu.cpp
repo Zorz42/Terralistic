@@ -6,23 +6,23 @@
 #include "modManager.hpp"
 
 void MainMenu::init() {
-    singleplayer_button.scale = 3;
+    singleplayer_button.setScale(3);
     singleplayer_button.loadFromSurface(gfx::textToSurface("Singleplayer"));
     singleplayer_button.orientation = gfx::CENTER;
     
-    multiplayer_button.scale = 3;
+    multiplayer_button.setScale(3);
     multiplayer_button.loadFromSurface(gfx::textToSurface("Multiplayer"));
     multiplayer_button.orientation = gfx::CENTER;
     
-    settings_button.scale = 3;
+    settings_button.setScale(3);
     settings_button.loadFromSurface(gfx::textToSurface("Settings"));
     settings_button.orientation = gfx::CENTER;
     
-    mods_button.scale = 3;
+    mods_button.setScale(3);
     mods_button.loadFromSurface(gfx::textToSurface("Mods"));
     mods_button.orientation = gfx::CENTER;
 
-    exit_button.scale = 3;
+    exit_button.setScale(3);
     exit_button.loadFromSurface(gfx::textToSurface("Exit"));
     exit_button.orientation = gfx::CENTER;
     
@@ -34,17 +34,17 @@ void MainMenu::init() {
     
     debug_title.loadFromSurface(gfx::textToSurface("DEBUG MODE", GREY));
     debug_title.orientation = gfx::TOP;
-    debug_title.scale = 2;
+    debug_title.setScale(2);
     debug_title.y = SPACING / 4;
     
     title.loadFromSurface(gfx::textToSurface("Terralistic"));
-    title.scale = 4;
+    title.setScale(4);
     title.orientation = gfx::TOP;
-    title.y = debug_title.y + debug_title.getHeight() + SPACING / 2;
+    title.y = debug_title.y + debug_title.h + SPACING / 2;
     
     version.loadFromSurface(gfx::textToSurface(CURR_VERSION_STR, GREY));
     version.orientation = gfx::BOTTOM;
-    version.scale = 2;
+    version.setScale(2);
     version.y = -5;
 }
 

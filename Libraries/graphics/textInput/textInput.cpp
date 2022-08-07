@@ -31,7 +31,7 @@ int gfx::TextInput::findRightMove(int curr_pos) {
 }
 
 int gfx::TextInput::getWidth() const {
-    return (width + 2 * margin) * scale;
+    return (w + 2 * margin) * getScale();
 }
 
 gfx::TextInput::TextInput() {
@@ -57,18 +57,18 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
     back_rect.fill_color = isHovered(mouse_x, mouse_y) ? hover_color : def_color;
     back_rect.render();
     
-    rect.x += margin * scale;
-    rect.y += margin * scale;
-    rect.w = getTextureWidth() * scale;
-    rect.h -= margin * 2 * scale;
+    rect.x += margin * getScale();
+    rect.y += margin * getScale();
+    rect.w = getTextureWidth() * getScale();
+    rect.h -= margin * 2 * getScale();
     int x, w;
-    if (rect.w > width * scale) {
-        x = rect.w / scale - width;
+    if (rect.w > width * getScale()) {
+        x = rect.w / getScale() - width;
         w = width;
     }
     else {
         x = 0;
-        w = rect.w / scale;
+        w = rect.w / getScale();
     }
     
     if (active) {
@@ -92,10 +92,10 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
         
         Color box_color = width_of_selection == 1 ? Color{255, 255, 255} : Color{230, 230, 230, 150};
 
-        RectShape(rect.x + width_before * scale, rect.y, scale * width_of_selection, rect.h).render(box_color);
+        RectShape(rect.x + width_before * getScale(), rect.y, getScale() * width_of_selection, rect.h).render(box_color);
     }
 
-    Texture::render(scale, rect.x, rect.y, {x, 0, w, int(rect.h / scale)});
+    Texture::render(getScale(), rect.x, rect.y, {x, 0, w, int(rect.h / getScale())});
 }
 
 void gfx::TextInput::setBorderColor(Color color) {
