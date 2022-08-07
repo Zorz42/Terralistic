@@ -8,7 +8,6 @@
 #include "launcherModule.hpp"
 #include "worldInfo.hpp"
 #include "console.hpp"
-#include "configManager.hpp"
 
 class ServerScene : public gfx::Scene {
     void init() override;
@@ -57,6 +56,10 @@ int main(int argc, char **argv) {
         for(auto scene_module : scene.getModules()) {
             auto UI_module = (LauncherModule*) scene_module;
             UI_module->server = &main_server;
+            if(*UI_module->getModuleName() == "console"){
+                auto console = (Console*)UI_module;
+                console->module_vector = scene.getModules();
+            }
         }
         scene.run();
         main_server.stop();

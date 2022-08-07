@@ -6,7 +6,8 @@
 
 class LauncherModule : public ServerModule, public gfx::SceneModule{
 public:
-
+    bool loadConfig();
+    void changeConfig(const std::string& key, const std::string& value);
     LauncherModule(const std::string& name);
     Server* server = nullptr;
     gfx::Texture texture;

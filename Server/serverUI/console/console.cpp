@@ -70,13 +70,21 @@ void Console::update(float frame_length) {
 bool Console::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && input_box.active) {
         if(!input_box.getText().empty()) {
-            Packet chat_packet;
-            chat_packet << ServerPacketType::CHAT << ("[Server] "+ input_box.getText());
-            server->getNetworking()->sendToEveryone(chat_packet);
+            if(input_box.getText().substr(0, 2) == "//"){//when more // commands get added code inside this block will be moved to its own sub-function
+                std::string command = input_box.getText();
+                command.erase(0, 2);
+                if(command.substr(0, 13) == "module_config"){
+                    moduleConfig(command);
+                }
+            }else {
+                Packet chat_packet;
+                chat_packet << ServerPacketType::CHAT << ("[Server] " + input_box.getText());
+                server->getNetworking()->sendToEveryone(chat_packet);
+            }
             server->getPrint()->info(input_box.getText());
             saved_lines.insert(saved_lines.begin() + 1, input_box.getText());
             selected_saved_line = 0;
-            if(saved_lines.size() > 20)
+            if (saved_lines.size() > 20)
                 saved_lines.erase(saved_lines.end());
             input_box.setText("");
         }
@@ -123,4 +131,17 @@ void Console::onEvent(PrintEvent &event) {
 
 void Console::stop() {
     server->getPrint()->print_event.removeListener(this);
+}
+
+void Console::moduleConfig(std::string command) {
+    command.erase(0, 14);
+    size_t pos = command.find(' ');
+    for(auto module : module_vector){
+        if(command.substr(0, pos) == *module->getModuleName()){
+            command.erase(0, pos + 1);
+            pos = command.find(' ');
+            auto l_module = (LauncherModule*)module;
+            l_module->changeConfig(command.substr(0, pos), command.substr(pos + 1, command.size() - pos - 1));
+        }
+    }
 }

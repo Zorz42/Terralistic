@@ -14,11 +14,13 @@ class Console : LauncherModule, EventListener<PrintEvent>{
     gfx::TextInput input_box;
     std::vector<std::string> saved_lines = {""};
     int selected_saved_line = 0;
+    void moduleConfig(std::string command);
     void onEvent(PrintEvent& event) override;
     void stop() override;
     void init() override;
-public:
     void update(float frame_length) override;
     bool onKeyDown(gfx::Key key) override;
+public:
+    std::vector<SceneModule*> module_vector;
     Console();
 };
