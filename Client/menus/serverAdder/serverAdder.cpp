@@ -2,17 +2,17 @@
 
 void ServerAdder::init() {
     back_button.scale = 3;
-    back_button.loadFromText("Back");
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
-    add_server_title.loadFromText("Add a new server");
+    add_server_title.loadFromSurface(gfx::textToSurface("Add a new server"));
     add_server_title.scale = 3;
     add_server_title.y = SPACING;
     add_server_title.orientation = gfx::TOP;
     
     add_button.scale = 3;
-    add_button.loadFromText("Add server");
+    add_button.loadFromSurface(gfx::textToSurface("Add server"));
     add_button.y = -SPACING;
     add_button.orientation = gfx::BOTTOM;
 
@@ -42,13 +42,13 @@ void ServerAdder::init() {
     server_name_input.y = - 16 - server_name_input.getHeight() / 2;
     server_ip_input.y = 16 + server_ip_input.getHeight() / 2;
 
-    new_server_name.loadFromText("New server name");
+    new_server_name.loadFromSurface(gfx::textToSurface("New server name"));
     new_server_name.scale = 3;
     new_server_name.y = server_name_input.y;
     new_server_name.x = -new_server_name.getWidth() / 2 + new_server_name.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_server_name.orientation = gfx::CENTER;
 
-    new_server_ip.loadFromText("New server ip");
+    new_server_ip.loadFromSurface(gfx::textToSurface("New server ip"));
     new_server_ip.scale = 3;
     new_server_ip.y = server_ip_input.y;
     new_server_ip.x = -new_server_ip.getWidth() / 2 + new_server_ip.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
@@ -81,7 +81,7 @@ void ServerAdder::render() {
             can_add = false;
         else
             can_add = true;
-        add_button.loadFromText("Add server", {(unsigned char)(can_add ? WHITE.r : GREY.r), (unsigned char)(can_add ? WHITE.g : GREY.g), (unsigned char)(can_add ? WHITE.b : GREY.b)});
+        add_button.loadFromSurface(gfx::textToSurface("Add server", {(unsigned char)(can_add ? WHITE.r : GREY.r), (unsigned char)(can_add ? WHITE.g : GREY.g), (unsigned char)(can_add ? WHITE.b : GREY.b)}));
         add_button.disabled = !can_add;
     }
 

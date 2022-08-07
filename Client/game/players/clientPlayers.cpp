@@ -87,7 +87,7 @@ void ClientPlayers::render(ClientPlayer& player_to_draw) {
 
     if(&player_to_draw != main_player) {
         if(!player_to_draw.has_created_text) {
-            player_to_draw.name_text.loadFromText(player_to_draw.name, WHITE);
+            player_to_draw.name_text.loadFromSurface(gfx::textToSurface(player_to_draw.name));
             player_to_draw.has_created_text = true;
         }
         int header_x = gfx::getWindowWidth() / 2 - player_to_draw.name_text.getTextureWidth() / 2 + player_to_draw.getX() + PLAYER_WIDTH - camera->getX(),

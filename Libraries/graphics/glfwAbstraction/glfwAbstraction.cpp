@@ -141,7 +141,7 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
     uniform_texture_transform_matrix = glGetUniformLocation(shader_program, "texture_transform_matrix");
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    setBlendMode(BlendMode::BLEND_ALPHA);
     
     glUseProgram(shader_program);
     
@@ -291,4 +291,16 @@ int gfx::getMouseY() {
 
 bool gfx::isWindowClosed() {
     return glfwWindowShouldClose(glfw_window) != 0;
+}
+
+void gfx::setBlendMode(BlendMode blend_mode) {
+    switch (blend_mode) {
+        case BlendMode::BLEND_ALPHA:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+            
+        case BlendMode::BLEND_MULTIPLY:
+            glBlendFunc(GL_DST_COLOR, GL_ZERO);
+            break;
+    }
 }

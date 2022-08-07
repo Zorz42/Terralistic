@@ -46,7 +46,7 @@ void MultiplayerSelector::refresh() {
         
         server->data.ip = server_data[i].ip;
         server->data.name = server_data[i].name;
-        server->name_texture.loadFromText(server_data[i].name);
+        server->name_texture.loadFromSurface(gfx::textToSurface(server_data[i].name));
 
         server->join_button.loadFromSurface(readOpa(resource_path + "join_button.opa"));
         server->join_button.scale = 3;
@@ -65,17 +65,17 @@ void MultiplayerSelector::init() {
     config.setDefaultStr("servers", "");
     
     title.scale = 3;
-    title.loadFromText("Select a server to join!");
+    title.loadFromSurface(gfx::textToSurface("Select a server to join"));
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
-    back_button.loadFromText("Back");
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
-    new_button.loadFromText("Add");
+    new_button.loadFromSurface(gfx::textToSurface("Add"));
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
     

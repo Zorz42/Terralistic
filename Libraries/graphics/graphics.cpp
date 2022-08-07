@@ -11,7 +11,6 @@ void gfx::init(int window_width, int window_height, const std::string& window_ti
 }
 
 void gfx::quit() {
-    quitFont();
     quitShadow();
     quitGlfw();
 }

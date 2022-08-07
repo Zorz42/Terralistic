@@ -186,7 +186,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
 
 void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
     if(block_count > 0)
-        block_rects.render(&blocks->getBlocksAtlasTexture(), x, y, false, block_count);
+        block_rects.render(&blocks->getBlocksAtlasTexture(), x, y, block_count);
 }
 
 const gfx::Texture& ClientBlocks::getBlocksAtlasTexture() {

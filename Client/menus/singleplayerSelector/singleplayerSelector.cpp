@@ -34,17 +34,17 @@ void SingleplayerSelector::init() {
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Worlds/");
     
     title.scale = 3;
-    title.loadFromText("Select a world to play!");
+    title.loadFromSurface(gfx::textToSurface("Select a world to play!"));
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
     back_button.scale = 3;
-    back_button.loadFromText("Back");
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     new_button.scale = 3;
-    new_button.loadFromText("New");
+    new_button.loadFromSurface(gfx::textToSurface("New"));
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
     
@@ -93,7 +93,7 @@ void SingleplayerSelector::refresh() {
         
         worlds[i]->icon.loadFromSurface(readOpa(resource_path + "world_icon.opa"));
         
-        worlds[i]->title.loadFromText(worlds[i]->name);
+        worlds[i]->title.loadFromSurface(gfx::textToSurface(worlds[i]->name));
 
         worlds[i]->play_button.loadFromSurface(readOpa(resource_path + "play_button.opa"));
         worlds[i]->play_button.scale = 3;
@@ -103,7 +103,7 @@ void SingleplayerSelector::refresh() {
         worlds[i]->delete_button.scale = 3;
         worlds[i]->delete_button.margin = 5;
         
-        worlds[i]->last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY);
+        worlds[i]->last_played.loadFromSurface(gfx::textToSurface("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY));
         
         scroll_limit += 116 + SPACING * 3;
     }

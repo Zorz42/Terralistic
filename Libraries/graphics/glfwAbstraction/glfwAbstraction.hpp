@@ -19,6 +19,10 @@ void enableVsync(bool enabled);
 
 void setGlobalScale(float scale);
 
+enum class BlendMode { BLEND_ALPHA, BLEND_MULTIPLY };
+
+void setBlendMode(BlendMode blend_mode);
+
 class _ScreenRefreshEvent {};
 inline EventSender<_ScreenRefreshEvent> _screen_refresh_event_sender;
 

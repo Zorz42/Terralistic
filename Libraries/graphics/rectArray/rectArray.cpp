@@ -85,7 +85,7 @@ void gfx::RectArray::resize(int size) {
     length = size;
 }
 
-void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multiply, int num_rects) {
+void gfx::RectArray::render(const Texture* image, int x, int y, int num_rects) {
     if(vertex_buffer == -1) {
         glGenBuffers(1, &vertex_buffer);
         glGenBuffers(1, &color_buffer);
@@ -145,16 +145,10 @@ void gfx::RectArray::render(const Texture* image, int x, int y, bool blend_multi
         
         glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->getNormalizationTransform().getArray());
     }
-    
-    
-    if(blend_multiply)
-        glBlendFunc(GL_DST_COLOR, GL_ZERO);
 
     glDrawArrays(GL_TRIANGLES, 0, num_rects * 6);
     
     glDisableVertexAttribArray(SHADER_COLOR_BUFFER);
     if(image != nullptr)
         glDisableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
-    
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

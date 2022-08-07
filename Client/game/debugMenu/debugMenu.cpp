@@ -32,7 +32,7 @@ int DebugLine::getHeight() {
 void DebugLine::update() {
     if(prev_text != text) {
         prev_text = text;
-        texture.loadFromText(text);
+        texture.loadFromSurface(gfx::textToSurface(text));
     }
 }
 

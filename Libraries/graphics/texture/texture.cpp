@@ -124,26 +124,6 @@ void gfx::resetRenderTarget() {
     normalization_transform = window_normalization_transform;
 }
 
-#define TEXT_SPACING 1
-
-void gfx::Texture::loadFromText(const std::string& text, Color color) {
-    int width_ = 0;
-    for(char i : text)
-        width_ += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
-    
-    if(width_ == 0)
-        width_ = 1;
-    
-    createBlankImage(width_, 16);
-    setRenderTarget();
-    int x = 0;
-    for(char i : text) {
-        font_texture->render(1, x, 0, font_rects[(int)(unsigned char)i], false, color);
-        x += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
-    }
-    resetRenderTarget();
-}
-
 const gfx::_Transformation& gfx::Texture::getNormalizationTransform() const {
     return texture_normalization_transform;
 }

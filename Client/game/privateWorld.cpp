@@ -51,13 +51,13 @@ void WorldStartingScreen::render() {
         prev_server_state = server->state;
         switch(server->state) {
             case ServerState::LOADING_WORLD:
-                text.loadFromText("Loading world");
+                text.loadFromSurface(gfx::textToSurface("Loading world"));
                 break;
             case ServerState::GENERATING_WORLD:
-                text.loadFromText("Generating world");
+                text.loadFromSurface(gfx::textToSurface("Generating world"));
                 break;
             case ServerState::STOPPING:
-                text.loadFromText("Saving world");
+                text.loadFromSurface(gfx::textToSurface("Saving world"));
                 break;
             case ServerState::CRASHED:
             case ServerState::STOPPED:

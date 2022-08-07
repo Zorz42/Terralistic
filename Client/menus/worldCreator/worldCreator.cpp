@@ -3,17 +3,17 @@
 
 void WorldCreator::init() {
     back_button.scale = 3;
-    back_button.loadFromText("Back");
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
-    new_world_title.loadFromText("Create new world:");
+    new_world_title.loadFromSurface(gfx::textToSurface("Create a new world:"));
     new_world_title.scale = 3;
     new_world_title.y = SPACING;
     new_world_title.orientation = gfx::TOP;
 
     create_button.scale = 3;
-    create_button.loadFromText("Create world");
+    create_button.loadFromSurface(gfx::textToSurface("Create world"));
     create_button.y = -SPACING;
     create_button.orientation = gfx::BOTTOM;
 
@@ -46,13 +46,13 @@ void WorldCreator::init() {
     world_seed.y = 16 + world_seed.getHeight() / 2;
 
 
-    new_world_name.loadFromText("New world name");
+    new_world_name.loadFromSurface(gfx::textToSurface("New world name"));
     new_world_name.scale = 3;
     new_world_name.y = world_name.y;
     new_world_name.x = -world_name.getWidth() / 2 + new_world_name.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_world_name.orientation = gfx::CENTER;
 
-    new_world_seed.loadFromText("New world seed");
+    new_world_seed.loadFromSurface(gfx::textToSurface("New world seed"));
     new_world_seed.scale = 3;
     new_world_seed.y = world_seed.y;
     new_world_seed.x = -world_seed.getWidth() / 2 + new_world_seed.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
@@ -85,7 +85,7 @@ void WorldCreator::render() {
     menu_back->renderBack();
     if(can_create != (!world_name.getText().empty() && !std::count(worlds.begin(), worlds.end(), world_name.getText()))) {
         can_create = !can_create;
-        create_button.loadFromText("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)});
+        create_button.loadFromSurface(gfx::textToSurface("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)}));
         create_button.disabled = !can_create;
     }
     create_button.render(getMouseX(), getMouseY());

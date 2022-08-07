@@ -64,7 +64,7 @@ void UpdateChecker::init() {
     
     text.scale = 3;
     text.orientation = gfx::CENTER;
-    text.loadFromText("Checking for updates");
+    text.loadFromSurface(gfx::textToSurface("Checking for updates"));
 }
 
 void UpdateChecker::render() {
@@ -78,13 +78,13 @@ void UpdateChecker::render() {
             case UpdateState::NEUTRAL:
                 break;
             case UpdateState::CHECKING:
-                text.loadFromText("Checking for updates");
+                text.loadFromSurface(gfx::textToSurface("Checking for updates"));
                 break;
             case UpdateState::DOWNLOADING:
-                text.loadFromText("Downloading updates");
+                text.loadFromSurface(gfx::textToSurface("Downloading updates"));
                 break;
             case UpdateState::APPLYING:
-                text.loadFromText("Applying updates");
+                text.loadFromSurface(gfx::textToSurface("Applying updates"));
                 break;
             case UpdateState::FINISHED:
                 update_thread.join();

@@ -26,7 +26,7 @@ void SettingsMenu::init() {
         required_width = std::max(render_settings.back()->getWidth(), required_width);
     }
     
-    back_button.loadFromText("Back");
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.scale = 3;
     back_button.orientation = gfx::BOTTOM;
     back_button.y = -SPACING;
@@ -80,7 +80,7 @@ void SettingsMenu::render() {
 }
 
 RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setting) {
-    choice_text.loadFromText(setting->ident);
+    choice_text.loadFromSurface(gfx::textToSurface(setting->ident));
     choice_text.scale = 3;
     choice_text.orientation = gfx::TOP;
     select_rect.fill_color = DARK_GREY;
@@ -88,7 +88,7 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
     select_rect.orientation = gfx::TOP;
     for(const auto & choice : setting->choices) {
         gfx::Button* button = new gfx::Button;
-        button->loadFromText(choice);
+        button->loadFromSurface(gfx::textToSurface(choice));
         button->scale = 2;
         button->orientation = gfx::TOP;
         button->margin = 5;
@@ -142,7 +142,7 @@ void RenderChoiceSetting::onMouseButtonUp(int x, int y) {
 }
 
 RenderBooleanSetting::RenderBooleanSetting(BooleanSetting* setting) : setting(setting) {
-    text.loadFromText(setting->ident);
+    text.loadFromSurface(gfx::textToSurface(setting->ident));
     text.scale = 3;
     text.orientation = gfx::TOP;
     
@@ -168,11 +168,11 @@ void RenderBooleanSetting::updateButtonText() {
     if(setting->getValue()) {
         toggle_button.def_color = {44, 159, 44};
         toggle_button.hover_color = {44, 199, 44};
-        toggle_button.loadFromText("On");
+        toggle_button.loadFromSurface(gfx::textToSurface("On"));
     } else {
         toggle_button.def_color = GFX_DEFAULT_BUTTON_COLOR;
         toggle_button.hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR;
-        toggle_button.loadFromText("Off");
+        toggle_button.loadFromSurface(gfx::textToSurface("Off"));
     }
 }
 
@@ -196,7 +196,7 @@ void RenderBooleanSetting::onMouseButtonUp(int x, int y) {
 }
 
 RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setting) {
-    choice_text.loadFromText(setting->ident);
+    choice_text.loadFromSurface(gfx::textToSurface(setting->ident));
     choice_text.scale = 3;
     choice_text.orientation = gfx::TOP;
     
@@ -206,7 +206,7 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     
     for(const auto & choice : setting->choices) {
         gfx::Button* button = new gfx::Button;
-        button->loadFromText(choice);
+        button->loadFromSurface(gfx::textToSurface(choice));
         button->scale = 2;
         button->orientation = gfx::TOP;
         button->margin = 5;
@@ -214,7 +214,7 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     }
     
     gfx::Button dummy_button;
-    dummy_button.loadFromText("dummy_test");
+    dummy_button.loadFromSurface(gfx::textToSurface("dummy"));
     dummy_button.scale = 2;
     dummy_button.margin = 5;
     
@@ -322,7 +322,7 @@ void RenderSliderSetting::onMouseButtonDown(int x, int y) {
 
 void RenderSliderSetting::updateSliderText() {
     if(setting->getSelectedChoice() < choice_buttons.size())
-        slider_text.loadFromText(setting->default_slider_text);
+        slider_text.loadFromSurface(gfx::textToSurface(setting->default_slider_text));
     else
-        slider_text.loadFromText(std::to_string(setting->getSliderValue()) + " " + setting->slider_text);
+        slider_text.loadFromSurface(gfx::textToSurface(std::to_string(setting->getSliderValue()) + " " + setting->slider_text));
 }

@@ -4,19 +4,19 @@
 
 void PauseScreen::init() {
     resume_button.scale = 3;
-    resume_button.loadFromText("Resume");
+    resume_button.loadFromSurface(gfx::textToSurface("Resume"));
     resume_button.y = SPACING;
 
     settings_button.scale = 3;
-    settings_button.loadFromText("Settings");
+    settings_button.loadFromSurface(gfx::textToSurface("Settings"));
     settings_button.y = resume_button.y + resume_button.getHeight() + SPACING;
     
     mods_button.scale = 3;
-    mods_button.loadFromText("Mods");
+    mods_button.loadFromSurface(gfx::textToSurface("Mods"));
     mods_button.y = settings_button.y + settings_button.getHeight() + SPACING;
     
     quit_button.scale = 3;
-    quit_button.loadFromText("Leave Game");
+    quit_button.loadFromSurface(gfx::textToSurface("Leave Game"));
     quit_button.y = mods_button.y + mods_button.getHeight() + SPACING;
     
     back_rect.fill_color.a = TRANSPARENCY;

@@ -31,8 +31,3 @@ void gfx::Sprite::loadFromSurface(const Surface& surface) {
     Texture::loadFromSurface(surface);
     setSrcRect({0, 0, getTextureWidth(), getTextureHeight()});
 }
-
-void gfx::Sprite::loadFromText(const std::string &text, Color color_) {
-    Texture::loadFromText(text, color_);
-    setSrcRect({0, 0, getTextureWidth(), getTextureHeight()});
-}

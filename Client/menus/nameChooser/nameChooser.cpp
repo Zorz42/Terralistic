@@ -7,17 +7,17 @@ void NameChooser::init() {
     config.setDefaultStr("username", "");
     
     back_button.scale = 3;
-    back_button.loadFromText("Back");
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
     
-    choose_name_title.loadFromText("Choose your username:");
+    choose_name_title.loadFromSurface(gfx::textToSurface("Choose your username:"));
     choose_name_title.scale = 3;
     choose_name_title.y = SPACING;
     choose_name_title.orientation = gfx::TOP;
     
     join_button.scale = 3;
-    join_button.loadFromText("Join server");
+    join_button.loadFromSurface(gfx::textToSurface("Join server"));
     join_button.y = -SPACING;
     join_button.orientation = gfx::BOTTOM;
 
@@ -58,7 +58,7 @@ void NameChooser::render() {
     menu_back->renderBack();
     if(can_join != !name_input.getText().empty()) {
         can_join = !can_join;
-        join_button.loadFromText("Join server", {(unsigned char)(can_join ? WHITE.r : GREY.r), (unsigned char)(can_join ? WHITE.g : GREY.g), (unsigned char)(can_join ? WHITE.b : GREY.b)});
+        join_button.loadFromSurface(gfx::textToSurface("Join server", {(unsigned char)(can_join ? WHITE.r : GREY.r), (unsigned char)(can_join ? WHITE.g : GREY.g), (unsigned char)(can_join ? WHITE.b : GREY.b)}));
         join_button.disabled = !can_join;
     }
     join_button.render(getMouseX(), getMouseY());

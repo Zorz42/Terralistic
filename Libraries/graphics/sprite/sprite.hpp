@@ -21,7 +21,6 @@ public:
     void setSrcRect(RectShape src_rect);
     void createBlankImage(int width, int height);
     void loadFromSurface(const Surface& surface);
-    void loadFromText(const std::string &text, Color color={255, 255, 255});
 };
 
 };

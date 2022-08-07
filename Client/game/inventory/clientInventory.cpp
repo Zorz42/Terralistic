@@ -50,13 +50,13 @@ void ClientInventory::loadTextures() {
     for(int i = 0; i < 10; i++) {
         std::string text = "0";
         text[0] += i;
-        numbers[i].loadFromText(text, WHITE);
+        numbers[i].loadFromSurface(gfx::textToSurface(text));
     }
     
     item_text_textures.resize(items->getNumItemTypes() - 1);
     
     for(int i = 1; i < items->getNumItemTypes(); i++)
-        item_text_textures[i - 1].loadFromText(items->getItemTypeById(i)->display_name);
+        item_text_textures[i - 1].loadFromSurface(gfx::textToSurface(items->getItemTypeById(i)->display_name));
 }
 
 void ClientInventory::stop() {

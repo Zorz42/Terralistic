@@ -5,13 +5,13 @@
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
-    loadFromText(text, text_color);
+    loadFromSurface(textToSurface(text, text_color));
 }
 
 void gfx::TextInput::eraseSelected() {
     text.erase(cursor[0], cursor[1] - cursor[0]);
     cursor[1] = cursor[0];
-    loadFromText(text, text_color);
+    loadFromSurface(textToSurface(text, text_color));
 }
 
 int gfx::TextInput::findLeftMove(int curr_pos) {
@@ -77,11 +77,11 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
 
         int width_before = 0;
         for(char i : text.substr(0, cursor[0]))
-            width_before += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
+            width_before += getCharWidth(i) + TEXT_SPACING;
         
         int width_of_selection = 0;
         for(char i : text.substr(cursor[0], cursor[1] - cursor[0]))
-            width_of_selection += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
+            width_of_selection += getCharWidth(i) + TEXT_SPACING;
 
 
         //if(!width_before)

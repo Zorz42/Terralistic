@@ -45,7 +45,7 @@ void Chat::render() {
     
     for(auto & chat_line : chat_lines) {
         if(!chat_line->text.empty()) {
-            chat_line->text_sprite.loadFromText(chat_line->text);
+            chat_line->text_sprite.loadFromSurface(gfx::textToSurface(chat_line->text));
             chat_line->text_sprite.scale = 2;
             chat_line->text_sprite.y = chat_box.y;
             chat_line->text_sprite.x = SPACING / 2;
