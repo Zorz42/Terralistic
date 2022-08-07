@@ -13,8 +13,8 @@ class Button : public Sprite {
 public:
     int margin = GFX_DEFAULT_BUTTON_MARGIN;
 
-    int getWidth() const override;
-    int getHeight() const override;
+    int getWidth() const;
+    int getHeight() const;
 
     Color def_color = GFX_DEFAULT_BUTTON_COLOR, def_border_color = GFX_DEFAULT_BUTTON_BORDER_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR, border_hover_color = GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR;
     bool isHovered(int mouse_x, int mouse_y) const;

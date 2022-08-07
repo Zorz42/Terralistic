@@ -1,16 +1,16 @@
 #include "glfwAbstraction.hpp"
 #include "centeredObject.hpp"
 
-gfx::_CenteredObject::_CenteredObject(int x, int y, Orientation orientation) : orientation(orientation), x(x), y(y) {}
+gfx::_OrientedObject::_OrientedObject(int x, int y, int w, int h, Orientation orientation) : orientation(orientation), RectShape(x, y, w, h) {}
 
-int gfx::_CenteredObject::getTranslatedX() const {
-    return x + getWindowWidth() * orientation.x - getWidth() * orientation.x;
+int gfx::_OrientedObject::getTranslatedX() const {
+    return x + getWindowWidth() * orientation.x - w * orientation.x;
 }
 
-int gfx::_CenteredObject::getTranslatedY() const {
-    return y + getWindowHeight() * orientation.y - getHeight() * orientation.y;
+int gfx::_OrientedObject::getTranslatedY() const {
+    return y + getWindowHeight() * orientation.y - h * orientation.y;
 }
 
-gfx::RectShape gfx::_CenteredObject::getTranslatedRect() const {
-    return {getTranslatedX(), getTranslatedY(), getWidth(), getHeight()};
+gfx::RectShape gfx::_OrientedObject::getTranslatedRect() const {
+    return {getTranslatedX(), getTranslatedY(), w, h};
 }

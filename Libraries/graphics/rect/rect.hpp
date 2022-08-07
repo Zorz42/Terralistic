@@ -4,9 +4,9 @@
 
 namespace gfx {
 
-class Rect : public _CenteredObject {
-    using _CenteredObject::x;
-    using _CenteredObject::y;
+class Rect : public _OrientedObject {
+    using _OrientedObject::x;
+    using _OrientedObject::y;
     float width = 1, height = 1;
     
     int target_x = 0, target_y = 0, target_width = 1, target_height = 1;
@@ -15,10 +15,10 @@ class Rect : public _CenteredObject {
     
     bool first_time = true;
 public:
-    int getWidth() const override;
+    int getWidth() const;
     void setWidth(int width_);
     
-    int getHeight() const override;
+    int getHeight() const;
     void setHeight(int height_);
     
     int getX() const;

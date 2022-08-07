@@ -17,7 +17,8 @@ public:
     TextInput();
 
     std::string getText() const { return text; }
-    int getWidth() const override;
+    int getWidth() const;
+    
     void eraseSelected();
     int findLeftMove(int curr_pos);
     int findRightMove(int curr_pos);

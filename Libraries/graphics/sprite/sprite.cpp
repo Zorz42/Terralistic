@@ -1,6 +1,6 @@
 #include "sprite.hpp"
 
-gfx::Sprite::Sprite() : _CenteredObject(0, 0) {}
+gfx::Sprite::Sprite() : _OrientedObject(0, 0) {}
 
 void gfx::Sprite::render() const {
     Texture::render(scale, getTranslatedX(), getTranslatedY(), src_rect, flipped, color);

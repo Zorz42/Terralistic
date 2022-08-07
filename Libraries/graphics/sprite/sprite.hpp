@@ -6,7 +6,7 @@
 
 namespace gfx {
 
-class Sprite : public _CenteredObject, public Texture {
+class Sprite : public _OrientedObject, public Texture {
     Color color{255, 255, 255};
     RectShape src_rect;
 public:
@@ -14,8 +14,8 @@ public:
     
     bool flipped = false;
     float scale = 1;
-    int getWidth() const override;
-    int getHeight() const override;
+    int getWidth() const;
+    int getHeight() const;
     void setColor(Color color_);
     void render() const;
     void setSrcRect(RectShape src_rect);

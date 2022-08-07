@@ -432,7 +432,6 @@
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
 		368F70802854FDCD00C6FF6B /* rectShape.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = rectShape.hpp; sourceTree = "<group>"; };
-		368F70812854FDCE00C6FF6B /* orientation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = orientation.hpp; sourceTree = "<group>"; };
 		368F70822854FDCF00C6FF6B /* centeredObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = centeredObject.hpp; sourceTree = "<group>"; };
 		368F70832854FDD100C6FF6B /* transformation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = transformation.hpp; sourceTree = "<group>"; };
 		368F70842854FDD200C6FF6B /* timer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = timer.hpp; sourceTree = "<group>"; };
@@ -1284,7 +1283,6 @@
 				367F362A285F70B100319AD2 /* blur */,
 				367F362F285F715300319AD2 /* shadow */,
 				368F70732854FCEB00C6FF6B /* rectShape */,
-				368F70742854FCF200C6FF6B /* orientation */,
 				368F70752854FCF900C6FF6B /* centeredObject */,
 				368F70772854FD0900C6FF6B /* timer */,
 				367F3634285F750700319AD2 /* font */,
@@ -1378,14 +1376,6 @@
 				366D96FF282067F900DEC292 /* rectShape.cpp */,
 			);
 			path = rectShape;
-			sourceTree = "<group>";
-		};
-		368F70742854FCF200C6FF6B /* orientation */ = {
-			isa = PBXGroup;
-			children = (
-				368F70812854FDCE00C6FF6B /* orientation.hpp */,
-			);
-			path = orientation;
 			sourceTree = "<group>";
 		};
 		368F70752854FCF900C6FF6B /* centeredObject */ = {
