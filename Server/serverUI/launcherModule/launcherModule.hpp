@@ -7,7 +7,7 @@
 class LauncherModule : public ServerModule, public gfx::SceneModule{
 public:
 
-    LauncherModule(const std::string& name): SceneModule(name){}
+    LauncherModule(const std::string& name);
     Server* server = nullptr;
     gfx::Texture texture;
     float target_x = 0, target_y = 0, target_w = 0, target_h = 0;

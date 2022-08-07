@@ -3,11 +3,7 @@
 #include <ctime>
 #include <iomanip>
 
-WorldInfo::WorldInfo(float x_, float y_, float w_, float h_): LauncherModule("world_info"){
-    target_x = x_;
-    target_y = y_;
-    target_w = w_;
-    target_h = h_;
+WorldInfo::WorldInfo(): LauncherModule("world_info"){
     min_width = 620;
     min_height = 90;
     texture.createBlankImage(width, height);

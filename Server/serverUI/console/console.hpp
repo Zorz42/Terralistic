@@ -20,5 +20,5 @@ class Console : LauncherModule, EventListener<PrintEvent>{
 public:
     void update(float frame_length) override;
     bool onKeyDown(gfx::Key key) override;
-    Console(float x_, float y_, float w_, float h_);
+    Console();
 };

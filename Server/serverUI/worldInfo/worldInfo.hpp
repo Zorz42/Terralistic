@@ -7,5 +7,5 @@ class WorldInfo : LauncherModule{
 public:
     void update(float frame_length) override;
     void init() override;
-    WorldInfo(float x_, float y_, float w_, float h_);
+    WorldInfo();
 };

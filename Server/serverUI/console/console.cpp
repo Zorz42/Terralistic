@@ -5,11 +5,7 @@
 
 static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
-Console::Console(float x_, float y_, float w_, float h_): LauncherModule("console") {
-    target_x = x_;
-    target_y = y_;
-    target_w = w_;
-    target_h = h_;
+Console::Console(): LauncherModule("console") {
     min_width = 300;
     min_height = 90;
     texture.createBlankImage(width, height);

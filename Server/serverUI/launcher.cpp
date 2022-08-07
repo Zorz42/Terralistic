@@ -14,47 +14,9 @@ class ServerScene : public gfx::Scene {
     void init() override;
     void render() override;
 public:
-    //std::vector<LauncherModule*> modules;
     ServerScene() : gfx::Scene("Server") {
-        ConfigFile file(resource_path + "resourcePack/userinterface/server_ui.config");
-        std::string temp_str_modules = file.getStr("modules");
-        std::vector<int> activated_modules;
-        size_t pos;
-        while ((pos = temp_str_modules.find(' ')) != std::string::npos) {
-            activated_modules.push_back(std::stoi(temp_str_modules.substr(0, pos)));
-            temp_str_modules.erase(0, pos + 1);
-        }
-        activated_modules.push_back(std::stoi(temp_str_modules));
-        for(int i = 0; i < activated_modules.size(); i++){
-            std::string properties = file.getStr(std::to_string(i));
-            int nums[8];
-            for(int j = 0; j < 4; j++){
-                pos = properties.find('/');
-                nums[2 * j] = std::stoi(properties.substr(0, pos));
-                properties.erase(0, pos + 1);
-                pos = properties.find(' ');
-                nums[2 * j + 1] = std::stoi(properties.substr(0, pos));
-                properties.erase(0, pos + 1);
-            }
-            float x = (float)nums[0] / (float)nums[1];
-            float y = (float)nums[2] / (float)nums[3];
-            float w = (float)nums[4] / (float)nums[5];
-            float h = (float)nums[6] / (float)nums[7];
-            if(x + w > 1 || y + h > 1 || w == 0 || h == 0)
-                continue;
-            switch (activated_modules[i]) {
-                case 1:{
-                    registerAModule((SceneModule*)new WorldInfo(x, y, w, h));
-                    break;
-                }
-                case 2:{
-                    registerAModule((SceneModule*)new Console(x, y, w, h));
-                    break;
-                }
-                default:
-                    continue;
-            }
-        }
+        registerAModule((SceneModule*)new WorldInfo());
+        registerAModule((SceneModule*)new Console());
     }
 };
 
@@ -95,7 +57,6 @@ int main(int argc, char **argv) {
         for(auto scene_module : scene.getModules()) {
             auto UI_module = (LauncherModule*) scene_module;
             UI_module->server = &main_server;
-            scene_module->enabled = true;
         }
         scene.run();
         main_server.stop();
@@ -120,6 +81,8 @@ void ServerScene::render() {
     gfx::RectShape(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight()).render(DARK_GREY);
     for(int i = 1; i < getModules().size(); i++) {//skiping server scene
         auto UI_module = (LauncherModule*) getModules()[i];
+        if(!UI_module->enabled)
+            continue;
         //std::max(, module->min_width/height) can be removed once setMinimumWindoeSize works
         UI_module->width = std::max((int)(UI_module->target_w * (float)gfx::getWindowWidth()), UI_module->min_width);
         UI_module->height = std::max((int)(UI_module->target_h * (float)gfx::getWindowHeight()), UI_module->min_height);
