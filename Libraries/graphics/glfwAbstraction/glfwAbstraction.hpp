@@ -38,16 +38,12 @@ namespace gfx {
 void initGlfw(int window_width, int window_height, const std::string& window_title);
 void quitGlfw();
 
-inline GLFWwindow* glfw_window;
-
 inline unsigned int shader_program;
 
 inline int uniform_has_color_buffer, uniform_default_color, uniform_has_texture,
 uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_matrix;
 
 inline unsigned int rect_vertex_buffer, rect_outline_vertex_buffer;
-
-inline float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_scale_y = 1;
 
 inline _Transformation window_normalization_transform, normalization_transform;
 
@@ -69,6 +65,8 @@ inline bool is_window_focused = true;
 
 int getMouseX();
 int getMouseY();
+
+bool isWindowClosed();
 
 };
 

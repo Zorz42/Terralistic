@@ -31,6 +31,8 @@ static const char* fragment_shader_code =
 
 static float global_scale = SYSTEM_SCALE;
 static unsigned int default_framebuffer, window_width_min, window_height_min;
+static float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_scale_y = 1;
+static GLFWwindow* glfw_window;
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     using namespace gfx;
@@ -285,4 +287,8 @@ int gfx::getMouseY() {
 #else
     return mouse_y_normalized / global_scale_y;
 #endif
+}
+
+bool gfx::isWindowClosed() {
+    return glfwWindowShouldClose(glfw_window) != 0;
 }

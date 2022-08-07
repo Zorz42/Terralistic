@@ -339,7 +339,7 @@ void gfx::Scene::run() {
             
         glfwPollEvents();
         
-        if(glfwWindowShouldClose(glfw_window) != 0)
+        if(isWindowClosed())
             running = false;
     }
 
