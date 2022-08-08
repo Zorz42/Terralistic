@@ -31,7 +31,7 @@ void Console::init() {
     auto t = std::time(nullptr);
     auto tm = *localtime(&t);
     std::stringstream timestamped_text;
-    timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S");
+    timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S.txt");
     log_file_name = timestamped_text.str();
 
 }
