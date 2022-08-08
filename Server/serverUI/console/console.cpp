@@ -56,7 +56,7 @@ void Console::update(float frame_length) {
             chat_line->text_sprite.loadFromText(chat_line->text);
             chat_line->text_sprite.y = input_box.y;
             chat_line->text_sprite.x = input_box.x;
-            chat_line->y_to_be = input_box.y - input_box.getHeight();
+            chat_line->y_to_be = (int)input_box.y - input_box.getHeight();
             chat_line->text.clear();
             chat_line->text.shrink_to_fit();
 
@@ -80,7 +80,7 @@ bool Console::onKeyDown(gfx::Key key) {
                 std::string command = input_box.getText();
                 command.erase(0, 2);
                 if(command.substr(0, 13) == "module_config"){
-                    moduleConfig(command);
+                    module_manager->moduleConfig(command);
                 }
             }else {
                 std::string command = input_box.getText();
@@ -150,17 +150,4 @@ void Console::onEvent(PrintEvent &event) {
 
 void Console::stop() {
     server->getPrint()->print_event.removeListener(this);
-}
-
-void Console::moduleConfig(std::string command) {
-    command.erase(0, 14);
-    size_t pos = command.find(' ');
-    for(auto module : module_vector){
-        if(command.substr(0, pos) == *module->getModuleName()){
-            command.erase(0, pos + 1);
-            pos = command.find(' ');
-            auto l_module = (LauncherModule*)module;
-            l_module->changeConfig(command.substr(0, pos), command.substr(pos + 1, command.size() - pos - 1));
-        }
-    }
 }

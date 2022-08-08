@@ -8,6 +8,7 @@
 #include "launcherModule.hpp"
 #include "worldInfo.hpp"
 #include "console.hpp"
+#include "moduleManager.hpp"
 
 class ServerScene : public gfx::Scene {
     void init() override;
@@ -16,6 +17,7 @@ public:
     ServerScene() : gfx::Scene("Server") {
         registerAModule((SceneModule*)new WorldInfo());
         registerAModule((SceneModule*)new Console());
+        registerAModule((SceneModule*)new ModuleManager());
     }
 };
 
@@ -56,8 +58,8 @@ int main(int argc, char **argv) {
         for(auto scene_module : scene.getModules()) {
             auto UI_module = (LauncherModule*) scene_module;
             UI_module->server = &main_server;
-            if(*UI_module->getModuleName() == "console"){
-                auto console = (Console*)UI_module;
+            if(*UI_module->getModuleName() == "module_manager"){
+                auto console = (ModuleManager*)UI_module;
                 console->module_vector = scene.getModules();
             }
         }
