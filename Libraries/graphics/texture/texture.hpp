@@ -19,12 +19,11 @@ public:
     
     int getTextureWidth() const;
     int getTextureHeight() const;
-    void createBlankImage(int width, int height);
     void loadFromSurface(const Surface& surface);
 
     void setRenderTarget();
-    const _Transformation& getNormalizationTransform() const;
-    unsigned int getGlTexture() const;
+    const _Transformation& _getNormalizationTransform() const;
+    unsigned int _getGlTexture() const;
     
     ~Texture();
 };

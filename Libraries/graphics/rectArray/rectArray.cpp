@@ -138,12 +138,12 @@ void gfx::RectArray::render(const Texture* image, int x, int y, int num_rects) {
         
         glUniform1i(uniform_has_texture, 1);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, image->getGlTexture());
+        glBindTexture(GL_TEXTURE_2D, image->_getGlTexture());
         
         glBindBuffer(GL_ARRAY_BUFFER, texture_pos_buffer);
         glVertexAttribPointer(SHADER_TEXTURE_COORD_BUFFER, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
         
-        glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->getNormalizationTransform().getArray());
+        glUniformMatrix3fv(uniform_texture_transform_matrix, 1, GL_FALSE, image->_getNormalizationTransform().getArray());
     }
 
     glDrawArrays(GL_TRIANGLES, 0, num_rects * 6);

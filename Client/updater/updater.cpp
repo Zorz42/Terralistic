@@ -69,7 +69,7 @@ void UpdateChecker::init() {
 
 void UpdateChecker::render() {
     static UpdateState prev_update_state = UpdateState::NEUTRAL;
-    menu_back->setBackWidth(text.w + 100);
+    menu_back->setBackWidth(text.getWidth() + 100);
     menu_back->renderBack();
     
     if(update_state != prev_update_state) {

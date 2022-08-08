@@ -7,6 +7,9 @@
 namespace gfx {
 
 class Sprite : public _OrientedObject, public Texture {
+    using gfx::_OrientedObject::w;
+    using gfx::_OrientedObject::h;
+    
     Color color{255, 255, 255};
     RectShape src_rect;
     float scale = 1;
@@ -18,10 +21,13 @@ public:
     void setScale(float scale);
     float getScale() const;
     void setColor(Color color_);
+    
     void render() const;
-    void setSrcRect(RectShape src_rect);
-    void createBlankImage(int width, int height);
+    
     void loadFromSurface(const Surface& surface);
+    
+    int getWidth() const;
+    int getHeight() const;
 };
 
 };

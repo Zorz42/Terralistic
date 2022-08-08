@@ -4,18 +4,20 @@
 #include "blur.hpp"
 
 void gfx::initShadow() {
+    Surface surface;
+    surface.createEmpty(700, 700);
     shadow_texture = new Texture;
-    shadow_texture->createBlankImage(700, 700);
+    shadow_texture->loadFromSurface(surface);
     Texture shadow_texture_back;
-    shadow_texture_back.createBlankImage(700, 700);
+    shadow_texture_back.loadFromSurface(surface);
     shadow_texture->setRenderTarget();
     RectShape(200, 200, 300, 300).render({0, 0, 0});
     
-    _Transformation shadow_transform = shadow_texture->getNormalizationTransform();
+    _Transformation shadow_transform = shadow_texture->_getNormalizationTransform();
     shadow_transform.translate(-700, 0);
     shadow_transform.stretch(2, 2);
     for(int i = 0; i < 100; i++)
-        blurRectangle(RectShape(0, 0, 700, 700), GFX_SHADOW_BLUR, shadow_texture->getGlTexture(), shadow_texture_back.getGlTexture(), 700, 700, shadow_transform);
+        blurRectangle(RectShape(0, 0, 700, 700), GFX_SHADOW_BLUR, shadow_texture->_getGlTexture(), shadow_texture_back._getGlTexture(), 700, 700, shadow_transform);
 }
 
 void gfx::quitShadow() {

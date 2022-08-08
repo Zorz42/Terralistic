@@ -19,9 +19,8 @@ public:
     using gfx::Rect::setY;
     using gfx::Rect::getTargetY;
     using gfx::Rect::orientation;
-    using gfx::Rect::getTranslatedX;
-    using gfx::Rect::getTranslatedY;
     using gfx::Rect::smooth_factor;
+    using gfx::Rect::getTranslatedRect;
 };
 
 class ModManager : public gfx::Scene {

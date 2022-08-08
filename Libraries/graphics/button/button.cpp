@@ -1,13 +1,5 @@
 #include "button.hpp"
 
-int gfx::Button::getWidth() const {
-    return (getTextureWidth() + margin * 2) * getScale();
-}
-
-int gfx::Button::getHeight() const {
-    return (getTextureHeight() + margin * 2) * getScale();
-}
-
 bool gfx::Button::isHovered(int mouse_x, int mouse_y) const {
     RectShape rect = getTranslatedRect();
     return !disabled && mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
@@ -23,17 +15,17 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
     }
     
     Color button_color{
-        (unsigned char)((int)hover_color.r * hover_progress / 255 + (int)def_color.r * float(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.g * hover_progress / 255 + (int)def_color.g * float(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.b * hover_progress / 255 + (int)def_color.b * float(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.a * hover_progress / 255 + (int)def_color.a * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.r * hover_progress / 255 + def_color.r * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.g * hover_progress / 255 + def_color.g * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.b * hover_progress / 255 + def_color.b * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.a * hover_progress / 255 + def_color.a * float(255 - hover_progress) / 255),
     };
     
     Color button_border_color{
-        (unsigned char)((int)border_hover_color.r * hover_progress / 255 + (int)def_border_color.r * float(255 - hover_progress) / 255),
-        (unsigned char)((int)border_hover_color.g * hover_progress / 255 + (int)def_border_color.g * float(255 - hover_progress) / 255),
-        (unsigned char)((int)border_hover_color.b * hover_progress / 255 + (int)def_border_color.b * float(255 - hover_progress) / 255),
-        (unsigned char)((int)border_hover_color.a * hover_progress / 255 + (int)def_border_color.a * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.r * hover_progress / 255 + def_border_color.r * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.g * hover_progress / 255 + def_border_color.g * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.b * hover_progress / 255 + def_border_color.b * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.a * hover_progress / 255 + def_border_color.a * float(255 - hover_progress) / 255),
     };
     
     int padding = (255 - hover_progress) / 255 * 30;
@@ -43,5 +35,20 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
     hover_rect.render(button_color);
     hover_rect.renderOutline(button_border_color);
     
-    Texture::render(getScale(), rect.x + margin * getScale(), rect.y + margin * getScale());
+    Texture::render(scale, rect.x + margin * scale, rect.y + margin * scale);
+}
+
+void gfx::Button::loadFromSurface(const Surface& surface) {
+    Texture::loadFromSurface(surface);
+    setScale(scale);
+}
+
+void gfx::Button::setScale(float scale_) {
+    scale = scale_;
+    w = (getTextureWidth() + margin * 2) * scale;
+    h = (getTextureHeight() + margin * 2) * scale;
+}
+
+float gfx::Button::getScale() const {
+    return scale;
 }

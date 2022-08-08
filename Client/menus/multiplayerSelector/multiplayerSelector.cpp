@@ -7,7 +7,7 @@
 #include "readOpa.hpp"
 #include "resourcePath.hpp"
 
-#define TOP_HEIGHT (title.h + 2 * SPACING)
+#define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.h + 2 * SPACING)
 
 void MenuServer::render(int position, int mouse_x, int mouse_y) {
@@ -21,11 +21,11 @@ void MenuServer::render(int position, int mouse_x, int mouse_y) {
     name_texture.render(3, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
     
     join_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
-    join_button.y = render_y + render_height - join_button.getHeight() - SPACING;
+    join_button.y = render_y + render_height - join_button.h - SPACING;
     join_button.render(mouse_x, mouse_y);
     
-    remove_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + join_button.getWidth();
-    remove_button.y = render_y + render_height - join_button.getHeight() - SPACING;
+    remove_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + join_button.w;
+    remove_button.y = render_y + render_height - join_button.h - SPACING;
     remove_button.render(mouse_x, mouse_y);
 }
 
@@ -190,7 +190,7 @@ void MultiplayerSelector::render() {
     title.render();
     back_button.render(getMouseX(), getMouseY());
     
-    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
+    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.w / 2;
     new_button.render(getMouseX(), getMouseY());
 }
 

@@ -4,17 +4,6 @@
 #include "texture.hpp"
 #include "font.hpp"
 
-void gfx::Texture::createBlankImage(int width_, int height_) {
-    if(width_ <= 0 || height_ <= 0)
-        throw std::runtime_error("Width and Height of a texture size must be positive.");
-    
-    Surface surface;
-    surface.createEmpty(width_, height_);
-    loadFromSurface(surface);
-    
-    glBindTexture(GL_TEXTURE_2D, gl_texture);
-}
-
 void gfx::Texture::loadFromSurface(const Surface& surface) {
     freeTexture();
     
@@ -106,7 +95,7 @@ void gfx::Texture::render(float scale, int x, int y, bool flipped, Color color) 
     render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped, color);
 }
 
-unsigned int gfx::Texture::getGlTexture() const {
+unsigned int gfx::Texture::_getGlTexture() const {
     return gl_texture;
 }
 
@@ -124,6 +113,6 @@ void gfx::resetRenderTarget() {
     normalization_transform = window_normalization_transform;
 }
 
-const gfx::_Transformation& gfx::Texture::getNormalizationTransform() const {
+const gfx::_Transformation& gfx::Texture::_getNormalizationTransform() const {
     return texture_normalization_transform;
 }

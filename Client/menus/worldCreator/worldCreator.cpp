@@ -17,8 +17,8 @@ void WorldCreator::init() {
     create_button.y = -SPACING;
     create_button.orientation = gfx::BOTTOM;
 
-    back_button.x = (-create_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
-    create_button.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + SPACING) / 2;
+    back_button.x = (-create_button.w - back_button.w + back_button.w - SPACING) / 2;
+    create_button.x = (create_button.w + back_button.w - create_button.w + SPACING) / 2;
 
     world_name.setScale(3);
     world_name.orientation = gfx::CENTER;
@@ -42,20 +42,20 @@ void WorldCreator::init() {
         return '\0';
     };
 
-    world_name.y = - 16 - world_name.getHeight() / 2;
-    world_seed.y = 16 + world_seed.getHeight() / 2;
+    world_name.y = - 16 - world_name.h / 2;
+    world_seed.y = 16 + world_seed.h / 2;
 
 
     new_world_name.loadFromSurface(gfx::textToSurface("New world name"));
     new_world_name.setScale(3);
     new_world_name.y = world_name.y;
-    new_world_name.x = -world_name.w / 2 + new_world_name.h / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_name.x = -world_name.getWidth() / 2 + new_world_name.getHeight() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_world_name.orientation = gfx::CENTER;
 
     new_world_seed.loadFromSurface(gfx::textToSurface("New world seed"));
     new_world_seed.setScale(3);
     new_world_seed.y = world_seed.y;
-    new_world_seed.x = -world_seed.getWidth() / 2 + new_world_seed.w / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_seed.x = -world_seed.getWidth() / 2 + new_world_seed.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_world_seed.orientation = gfx::CENTER;
 
 

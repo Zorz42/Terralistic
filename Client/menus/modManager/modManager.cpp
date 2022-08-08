@@ -17,11 +17,11 @@ GuiMod::GuiMod(const std::string& name) : name(name) {
 
 void GuiMod::renderTile() {
     Rect::render();
-    text.render(2, getTranslatedX() + getWidth() / 2 - text.getTextureWidth(), getTranslatedY() + SPACING / 2);
+    text.render(2, getTranslatedRect().x + getWidth() / 2 - text.getTextureWidth(), getTranslatedRect().y + SPACING / 2);
 }
 
 bool GuiMod::hoversPoint(int x, int y) {
-    return x > getTranslatedX() && x < getTranslatedX() + getWidth() && y > getTranslatedY() && y < getTranslatedY() + getHeight();
+    return x > getTranslatedRect().x && x < getTranslatedRect().x + getWidth() && y > getTranslatedRect().y && y < getTranslatedRect().y + getHeight();
 }
 
 void ModManager::init() {
@@ -74,8 +74,8 @@ bool ModManager::onKeyDown(gfx::Key key) {
         for(auto & mod : mods)
             if(mod->hoversPoint(getMouseX(), getMouseY())) {
                 holding = mod;
-                hold_x = getMouseX() - holding->getTranslatedX();
-                hold_y = getMouseY() - holding->getTranslatedY();
+                hold_x = getMouseX() - holding->getTranslatedRect().x;
+                hold_y = getMouseY() - holding->getTranslatedRect().x;
                 holding_x = holding->getX();
                 holding_y = holding->getY();
                 holding->smooth_factor = 1;
@@ -97,7 +97,7 @@ bool ModManager::onKeyUp(gfx::Key key) {
 
 void ModManager::render() {
     int placeholder_x, placeholder_y = 0;
-    int curr_disabled_y = 2 * SPACING + enabled_text.h, curr_enabled_y = 2 * SPACING + enabled_text.h;
+    int curr_disabled_y = 2 * SPACING + enabled_text.getHeight(), curr_enabled_y = 2 * SPACING + enabled_text.getHeight();
     for(auto & mod : mods) {
         if(mod == holding) {
             placeholder_x = mod->enabled ? 200 : -200;

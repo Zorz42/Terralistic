@@ -6,7 +6,9 @@ void gfx::TextureAtlas::create(const std::vector<Texture*>& textures) {
         height += tex->getTextureHeight();
         width = std::max(width, tex->getTextureWidth());
     }
-    texture.createBlankImage(width, height);
+    Surface surface;
+    surface.createEmpty(width, height);
+    texture.loadFromSurface(surface);
     texture.setRenderTarget();
     rects.resize(textures.size());
     int y = 0;

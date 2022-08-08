@@ -16,8 +16,8 @@ void ServerAdder::init() {
     add_button.y = -SPACING;
     add_button.orientation = gfx::BOTTOM;
 
-    back_button.x = (-add_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
-    add_button.x = (add_button.getWidth() + back_button.getWidth() - add_button.getWidth() + SPACING) / 2;
+    back_button.x = (-add_button.w - back_button.w + back_button.w - SPACING) / 2;
+    add_button.x = (add_button.w + back_button.w - add_button.w + SPACING) / 2;
 
     server_ip_input.setScale(3);
     server_ip_input.orientation = gfx::CENTER;
@@ -39,19 +39,19 @@ void ServerAdder::init() {
         return '\0';
     };
 
-    server_name_input.y = - 16 - server_name_input.getHeight() / 2;
-    server_ip_input.y = 16 + server_ip_input.getHeight() / 2;
+    server_name_input.y = - 16 - server_name_input.h / 2;
+    server_ip_input.y = 16 + server_ip_input.h / 2;
 
     new_server_name.loadFromSurface(gfx::textToSurface("New server name"));
     new_server_name.setScale(3);
     new_server_name.y = server_name_input.y;
-    new_server_name.x = -new_server_name.w / 2 + new_server_name.w / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_server_name.x = -new_server_name.getWidth() / 2 + new_server_name.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_server_name.orientation = gfx::CENTER;
 
     new_server_ip.loadFromSurface(gfx::textToSurface("New server ip"));
     new_server_ip.setScale(3);
     new_server_ip.y = server_ip_input.y;
-    new_server_ip.x = -new_server_ip.w / 2 + new_server_ip.w / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_server_ip.x = -new_server_ip.getWidth() / 2 + new_server_ip.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
     new_server_ip.orientation = gfx::CENTER;
     
     server_name_input.def_color.a = TRANSPARENCY;

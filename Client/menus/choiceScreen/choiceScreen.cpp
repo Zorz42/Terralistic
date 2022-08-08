@@ -19,14 +19,14 @@ void ChoiceScreen::init() {
         button.gfx_button.loadFromSurface(gfx::textToSurface(button.option));
         button.gfx_button.orientation = gfx::BOTTOM;
         button.gfx_button.y = -20;
-        combined_width += button.gfx_button.getWidth();
+        combined_width += button.gfx_button.w;
     }
     
     int curr_x = -combined_width / 2;
     
     for(auto & button : buttons) {
-        button.gfx_button.x = curr_x + button.gfx_button.getWidth() / 2;
-        curr_x += button.gfx_button.getWidth();
+        button.gfx_button.x = curr_x + button.gfx_button.w / 2;
+        curr_x += button.gfx_button.w;
     }
 }
 
@@ -43,7 +43,7 @@ bool ChoiceScreen::onKeyUp(gfx::Key key) {
 }
 
 void ChoiceScreen::render() {
-    menu_back->setBackWidth(question_sprite.w + 100);
+    menu_back->setBackWidth(question_sprite.getWidth() + 100);
     menu_back->renderBack();
     for(auto & button : buttons)
         button.gfx_button.render(getMouseX(), getMouseY());
