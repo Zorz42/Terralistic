@@ -34,8 +34,19 @@ void Console::update(float frame_length) {
     if(!enabled)
         return;
 
-    if(width != texture.getTextureWidth() || height != texture.getTextureHeight())
+    if(width != texture.getTextureWidth() || height != texture.getTextureHeight()) {
         texture.createBlankImage(width, height);
+
+        for(auto & chat_line : chat_lines) {
+            chat_line->text_sprite.x = input_box.x;
+            chat_line->y_to_be = (int) input_box.y - input_box.getHeight();
+
+            for (auto &i2: chat_lines)
+                if (i2 != chat_line)
+                    i2->y_to_be -= chat_line->text_sprite.getHeight();
+        }
+
+    }
     input_box.width = width / 2 - 15;
     input_box.x = 10;
     input_box.y = (float)height - 10 - (float)input_box.getHeight();
