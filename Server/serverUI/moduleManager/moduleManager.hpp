@@ -6,7 +6,7 @@ class ModuleManager : LauncherModule{
     void update(float frame_length) override {enabled = true;};
     void init() override;
 public:
-    ModuleManager();
+    ModuleManager(std::string resource_path);
     std::vector<SceneModule*> module_vector;
     void moduleConfig(std::string command);
 };

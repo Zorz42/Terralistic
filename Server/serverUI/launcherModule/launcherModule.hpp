@@ -6,10 +6,12 @@
 
 class LauncherModule : public ServerModule, public gfx::SceneModule{
 public:
+    void loadDefaultConfig();
     bool loadConfig();
     void changeConfig(const std::string& key, const std::string& value);
-    LauncherModule(const std::string& name);
+    LauncherModule(const std::string& name, std::string resource_path);
     Server* server = nullptr;
+    std::string resource_path;
     gfx::Texture texture;
     float target_x = 0, target_y = 0, target_w = 0, target_h = 0;
     int width = 100, height = 100;

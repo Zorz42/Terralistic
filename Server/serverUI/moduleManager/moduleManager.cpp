@@ -1,7 +1,7 @@
 #include "moduleManager.hpp"
 #include "console.hpp"
 
-ModuleManager::ModuleManager(): LauncherModule("module_manager"){
+ModuleManager::ModuleManager(std::string resource_path): LauncherModule("module_manager", std::move(resource_path)){
     min_width = 1;
     min_height = 1;
 }

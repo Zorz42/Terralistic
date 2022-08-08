@@ -6,7 +6,7 @@
 
 static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
-Console::Console(): LauncherModule("console") {
+Console::Console(std::string resource_path): LauncherModule("console", std::move(resource_path)) {
     min_width = 300;
     min_height = 90;
     texture.createBlankImage(width, height);
@@ -33,7 +33,6 @@ void Console::init() {
     input_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
     text_inputs = {&input_box};
     server->getPrint()->print_event.addListener(this);
-
 }
 
 
@@ -86,7 +85,6 @@ void Console::update(float frame_length) {
 
         chat_line->text_sprite.render();
     }
-
 
     gfx::resetRenderTarget();
 }

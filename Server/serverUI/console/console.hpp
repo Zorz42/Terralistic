@@ -24,5 +24,5 @@ class Console : LauncherModule, EventListener<PrintEvent>{
     bool onKeyDown(gfx::Key key) override;
 public:
     ModuleManager* module_manager;
-    Console();
+    Console(std::string resource_path);
 };

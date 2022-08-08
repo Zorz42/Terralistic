@@ -7,5 +7,5 @@ class WorldInfo : LauncherModule{
 public:
     void update(float frame_length) override;
     void init() override;
-    WorldInfo();
+    WorldInfo(std::string resource_path);
 };

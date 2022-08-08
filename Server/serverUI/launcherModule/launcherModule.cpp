@@ -1,8 +1,12 @@
 #include "launcherModule.hpp"
 #include "configManager.hpp"
 #include <platform_folders.h>
+#include <fstream>
 
-LauncherModule::LauncherModule(const std::string &name): SceneModule(name){
+LauncherModule::LauncherModule(const std::string &name, std::string resource_path): SceneModule(name), resource_path(std::move(resource_path)){
+
+    loadDefaultConfig();
+
     loadConfig();
 }
 
@@ -50,4 +54,28 @@ void LauncherModule::changeConfig(const std::string &key, const std::string &val
         file.saveConfig();
         loadConfig();
     }
+}
+
+void LauncherModule::loadDefaultConfig() {
+    std::ifstream file;
+    file.open(sago::getDataHome() + "/Terralistic-Server/ServerSettings/" + *getModuleName() + ".config");
+    file.close();//creates empty file if it isn't there already
+
+
+    std::ifstream read_from(resource_path + "/resourcePack/userinterface/" + *getModuleName() + ".config");//resource path
+    ConfigFile read_to(sago::getDataHome() + "/Terralistic-Server/ServerSettings/" + *getModuleName() + ".config");
+
+    std::string line;
+    while(std::getline(read_from, line)) {
+        unsigned long separator_index = line.find(':');
+        if(separator_index < line.length()) {
+            std::string value = line.substr(separator_index + 1, line.size());
+            while(!value.empty() && value[0] == ' ')
+                value.erase(value.begin());
+            read_to.setDefaultStr(line.substr(0, separator_index), value);
+        }
+    }
+    read_from.close();
+    read_to.saveConfig();
+
 }

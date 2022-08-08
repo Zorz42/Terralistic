@@ -3,7 +3,7 @@
 #include <ctime>
 #include <iomanip>
 
-WorldInfo::WorldInfo(): LauncherModule("world_info"){
+WorldInfo::WorldInfo(std::string resource_path): LauncherModule("world_info", std::move(resource_path)){
     min_width = 620;
     min_height = 90;
     texture.createBlankImage(width, height);

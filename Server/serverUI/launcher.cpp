@@ -15,9 +15,9 @@ class ServerScene : public gfx::Scene {
     void render() override;
 public:
     ServerScene() : gfx::Scene("Server") {
-        registerAModule((SceneModule*)new WorldInfo());
-        registerAModule((SceneModule*)new Console());
-        registerAModule((SceneModule*)new ModuleManager());
+        registerAModule((SceneModule*)new WorldInfo(resource_path));
+        registerAModule((SceneModule*)new Console(resource_path));
+        registerAModule((SceneModule*)new ModuleManager(resource_path));
     }
 };
 
