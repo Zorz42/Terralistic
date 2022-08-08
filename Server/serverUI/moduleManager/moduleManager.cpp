@@ -25,14 +25,22 @@ bool ModuleManager::onKeyDown(gfx::Key key) {
 }
 
 void ModuleManager::moduleConfig(std::string command) {
-    command.erase(0, 14);
+    std::vector<std::string> args;
     size_t pos = command.find(' ');
+    while (pos != std::string::npos) {
+        args.push_back(command.substr(0, pos));
+        command.erase(0, pos + 1);
+        pos = command.find(' ');
+    }
+    args.push_back(command.substr(0, pos));
+
     for(auto module : module_vector){
-        if(command.substr(0, pos) == *module->getModuleName()){
-            command.erase(0, pos + 1);
-            pos = command.find(' ');
+        if(args[1] == *module->getModuleName() || args[1] == "all"){
             auto l_module = (LauncherModule*)module;
-            l_module->changeConfig(command.substr(0, pos), command.substr(pos + 1, command.size() - pos - 1));
+            if(args.size() == 3 && args[2] == "reload")
+                l_module->loadConfig();
+            else
+                l_module->changeConfig(args[2], args[3]);
         }
     }
 }
