@@ -73,6 +73,7 @@ void ServerNetworking::stop() {
 }
 
 void ServerNetworking::kickConnection(Connection* connection, const std::string& reason) {
+    print->info("Kicked " + connection->player_name + ". Reson: " + reason);
     Packet kick_packet;
     kick_packet << ServerPacketType::KICK << reason;
     connection->send(kick_packet);

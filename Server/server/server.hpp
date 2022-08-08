@@ -45,6 +45,7 @@ public:
     ServerNetworking* getNetworking(){return &networking;}
     ServerPlayers* getPlayers(){return &players;}
     Print* getPrint(){return &print;}
+    ServerChat* getChat(){return &chat;}
 
     void start();
     void stop();

@@ -31,11 +31,17 @@ void Console::init() {
 
 
 void Console::update(float frame_length) {
+    if(!enabled)
+        return;
+
     if(width != texture.getTextureWidth() || height != texture.getTextureHeight())
         texture.createBlankImage(width, height);
     input_box.width = width / 2 - 15;
     input_box.x = 10;
     input_box.y = (float)height - 10 - (float)input_box.getHeight();
+
+    for(auto & chat_line : chat_lines)
+        chat_line->text_sprite.y += ((float)chat_line->y_to_be - chat_line->text_sprite.y) / 2;
 
     texture.setRenderTarget();
 
@@ -46,9 +52,10 @@ void Console::update(float frame_length) {
 
     for(auto & chat_line : chat_lines) {
         if(!chat_line->text.empty()) {
-            chat_line->text_sprite.scale = 2;
+            chat_line->text_sprite.scale = 1.5;
+            chat_line->text_sprite.loadFromText(chat_line->text);
             chat_line->text_sprite.y = input_box.y;
-            chat_line->text_sprite.x = SPACING / 2;
+            chat_line->text_sprite.x = input_box.x;
             chat_line->y_to_be = input_box.y - input_box.getHeight();
             chat_line->text.clear();
             chat_line->text.shrink_to_fit();
@@ -62,14 +69,13 @@ void Console::update(float frame_length) {
     }
 
 
-
-
     gfx::resetRenderTarget();
 }
 
 bool Console::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::ENTER && input_box.active) {
         if(!input_box.getText().empty()) {
+            server->getPrint()->info("[Server] " + input_box.getText());
             if(input_box.getText().substr(0, 2) == "//"){//when more // commands get added code inside this block will be moved to its own sub-function
                 std::string command = input_box.getText();
                 command.erase(0, 2);
@@ -77,11 +83,12 @@ bool Console::onKeyDown(gfx::Key key) {
                     moduleConfig(command);
                 }
             }else {
-                Packet chat_packet;
-                chat_packet << ServerPacketType::CHAT << ("[Server] " + input_box.getText());
-                server->getNetworking()->sendToEveryone(chat_packet);
+                std::string command = input_box.getText();
+                if(command.at(0) != '/')
+                    command.insert(command.begin(), '/');
+                ServerChatEvent event(nullptr, command);
+                server->getChat()->chat_event.call(event);
             }
-            server->getPrint()->info(input_box.getText());
             saved_lines.insert(saved_lines.begin() + 1, input_box.getText());
             selected_saved_line = 0;
             if (saved_lines.size() > 20)
@@ -117,15 +124,27 @@ bool Console::onKeyDown(gfx::Key key) {
 void Console::onEvent(PrintEvent &event) {
     while(chat_lines.size() > 100)
         chat_lines.erase(chat_lines.begin());
-    chat_lines.emplace_back(new ChatLine);
-    auto line = chat_lines[chat_lines.size() - 1];
-    line->text = event.message;
-    line->text_sprite.loadFromText(line->text);
-    if(event.type == MessageType::WARNING)
-        line->text_sprite.setColor({255, 255, 0});
-    else if(event.type == MessageType::ERROR)
-        line->text_sprite.setColor({255, 0, 0});
-    line->text_sprite.orientation = gfx::BOTTOM_LEFT;
+
+    std::string curr_line, whole_message;
+    whole_message = event.message;
+    whole_message.push_back('\n');
+    while(!whole_message.empty()) {
+        curr_line.push_back(whole_message[0]);
+        whole_message.erase(whole_message.begin());
+        if(whole_message[0] == '\n') {
+            auto* new_line = new ChatLine;
+            new_line->text = curr_line;
+            chat_lines.push_back(new_line);
+            whole_message.erase(whole_message.begin());
+            curr_line = "";
+
+            auto line = chat_lines[chat_lines.size() - 1];
+            if(event.type == MessageType::WARNING)
+                line->text_sprite.setColor({255, 255, 0});
+            else if(event.type == MessageType::ERROR)
+                line->text_sprite.setColor({255, 0, 0});
+        }
+    }
 }
 
 
