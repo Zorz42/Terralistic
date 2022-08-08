@@ -1,7 +1,8 @@
 #include "console.hpp"
 #include <set>
-#include <chrono>
-#include <ctime>
+#include <platform_folders.h>
+#include <fstream>
+#include <iomanip>
 
 static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
@@ -26,6 +27,13 @@ void Console::init() {
     input_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
     text_inputs = {&input_box};
     server->getPrint()->print_event.addListener(this);
+
+    auto t = std::time(nullptr);
+    auto tm = *localtime(&t);
+    std::stringstream timestamped_text;
+    timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S");
+    log_file_name = timestamped_text.str();
+
 }
 
 
@@ -138,7 +146,9 @@ void Console::onEvent(PrintEvent &event) {
 
     std::string curr_line, whole_message;
     whole_message = event.message;
-    whole_message.push_back('\n');
+    if(!whole_message.ends_with("\n"))
+        whole_message.push_back('\n');
+    saveToLog(whole_message);
     while(!whole_message.empty()) {
         curr_line.push_back(whole_message[0]);
         whole_message.erase(whole_message.begin());
@@ -156,6 +166,13 @@ void Console::onEvent(PrintEvent &event) {
                 line->text_sprite.setColor({255, 0, 0});
         }
     }
+}
+
+void Console::saveToLog(const std::string& line) {
+    std::ofstream file;
+    file.open(sago::getDataHome() + "/Terralistic-Server/serverLogFiles/" + log_file_name, std::ios::out | std::ios::app);
+    file << line;
+    file.close();
 }
 
 

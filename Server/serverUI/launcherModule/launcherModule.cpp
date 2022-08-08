@@ -7,7 +7,7 @@ LauncherModule::LauncherModule(const std::string &name): SceneModule(name){
 }
 
 bool LauncherModule::loadConfig() {
-    ConfigFile file(sago::getDataHome() + "/Terralistic/ServerSettings/" + *getModuleName() + ".config");
+    ConfigFile file(sago::getDataHome() + "/Terralistic-Server/ServerSettings/" + *getModuleName() + ".config");
     if(file.getStr("enabled") != "true" && file.getStr("enabled") != "false")
         return false;
     enabled = file.getStr("enabled") == "true";
@@ -39,7 +39,7 @@ bool LauncherModule::loadConfig() {
 }
 
 void LauncherModule::changeConfig(const std::string &key, const std::string &value) {
-    ConfigFile file(sago::getDataHome() + "/Terralistic/ServerSettings/" + *getModuleName() + ".config");
+    ConfigFile file(sago::getDataHome() + "/Terralistic-Server/ServerSettings/" + *getModuleName() + ".config");
     std::string temp;
     if(file.keyExists(key))
         temp = file.getStr(key);

@@ -11,10 +11,12 @@ public:
 };
 
 class Console : LauncherModule, EventListener<PrintEvent>{
+    std::string log_file_name;
     std::vector<ChatLine*> chat_lines;
     gfx::TextInput input_box;
     std::vector<std::string> saved_lines = {""};
     int selected_saved_line = 0;
+    void saveToLog(const std::string& line);
     void onEvent(PrintEvent& event) override;
     void stop() override;
     void init() override;
