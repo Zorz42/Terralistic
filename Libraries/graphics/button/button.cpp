@@ -40,15 +40,36 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
 
 void gfx::Button::loadFromSurface(const Surface& surface) {
     Texture::loadFromSurface(surface);
-    setScale(scale);
+    updateSize();
 }
 
 void gfx::Button::setScale(float scale_) {
     scale = scale_;
-    w = (getTextureWidth() + margin * 2) * scale;
-    h = (getTextureHeight() + margin * 2) * scale;
+    updateSize();
 }
 
 float gfx::Button::getScale() const {
     return scale;
+}
+
+void gfx::Button::setMargin(int margin_) {
+    margin = margin_;
+    updateSize();
+}
+
+int gfx::Button::getMargin() const {
+    return margin;
+}
+
+int gfx::Button::getWidth() const {
+    return w;
+}
+
+int gfx::Button::getHeight() const {
+    return h;
+}
+
+void gfx::Button::updateSize() {
+    w = (getTextureWidth() + margin * 2) * scale;
+    h = (getTextureHeight() + margin * 2) * scale;
 }

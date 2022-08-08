@@ -31,11 +31,11 @@ int gfx::TextInput::findRightMove(int curr_pos) {
 }
 
 int gfx::TextInput::getWidth() const {
-    return (w + 2 * margin) * getScale();
+    return (Button::getWidth() + 2 * getMargin()) * getScale();
 }
 
 gfx::TextInput::TextInput() {
-    margin = 3;
+    setMargin(3);
     back_rect.shadow_intensity = GFX_DEFAULT_TEXT_BOX_SHADOW_INTENSITY;
     setText("");
 }
@@ -57,10 +57,10 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
     back_rect.fill_color = isHovered(mouse_x, mouse_y) ? hover_color : def_color;
     back_rect.render();
     
-    rect.x += margin * getScale();
-    rect.y += margin * getScale();
+    rect.x += getMargin() * getScale();
+    rect.y += getMargin() * getScale();
     rect.w = getTextureWidth() * getScale();
-    rect.h -= margin * 2 * getScale();
+    rect.h -= getMargin() * 2 * getScale();
     int x, w;
     if (rect.w > width * getScale()) {
         x = rect.w / getScale() - width;

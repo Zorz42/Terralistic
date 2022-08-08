@@ -19,14 +19,14 @@ void ChoiceScreen::init() {
         button.gfx_button.loadFromSurface(gfx::textToSurface(button.option));
         button.gfx_button.orientation = gfx::BOTTOM;
         button.gfx_button.y = -20;
-        combined_width += button.gfx_button.w;
+        combined_width += button.gfx_button.getWidth();
     }
     
     int curr_x = -combined_width / 2;
     
     for(auto & button : buttons) {
-        button.gfx_button.x = curr_x + button.gfx_button.w / 2;
-        curr_x += button.gfx_button.w;
+        button.gfx_button.x = curr_x + button.gfx_button.getWidth() / 2;
+        curr_x += button.gfx_button.getWidth();
     }
 }
 

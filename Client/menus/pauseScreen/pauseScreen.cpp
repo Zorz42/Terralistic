@@ -9,21 +9,21 @@ void PauseScreen::init() {
 
     settings_button.setScale(3);
     settings_button.loadFromSurface(gfx::textToSurface("Settings"));
-    settings_button.y = resume_button.y + resume_button.h + SPACING;
+    settings_button.y = resume_button.y + resume_button.getHeight() + SPACING;
     
     mods_button.setScale(3);
     mods_button.loadFromSurface(gfx::textToSurface("Mods"));
-    mods_button.y = settings_button.y + settings_button.h + SPACING;
+    mods_button.y = settings_button.y + settings_button.getHeight() + SPACING;
     
     quit_button.setScale(3);
     quit_button.loadFromSurface(gfx::textToSurface("Leave Game"));
-    quit_button.y = mods_button.y + mods_button.h + SPACING;
+    quit_button.y = mods_button.y + mods_button.getHeight() + SPACING;
     
     back_rect.fill_color.a = TRANSPARENCY;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
     back_rect.border_color = BORDER_COLOR;
     back_rect.border_color.a = TRANSPARENCY;
-    back_rect.setX(-(quit_button.w + 2 * SPACING) - 200);
+    back_rect.setX(-(quit_button.getWidth() + 2 * SPACING) - 200);
     back_rect.smooth_factor = 3;
     back_rect.blur_radius = BLUR;
 }
@@ -60,7 +60,7 @@ bool PauseScreen::onKeyUp(gfx::Key key) {
 }
 
 void PauseScreen::render() {
-    back_width = quit_button.w + 2 * SPACING;
+    back_width = quit_button.getWidth() + 2 * SPACING;
     back_rect.setWidth(back_width);
     
     renderBackground();

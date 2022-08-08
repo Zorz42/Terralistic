@@ -23,7 +23,10 @@ class ServerPlayer : public Player, EventListener<InventoryItemChangeEvent> {
     
     void onEvent(InventoryItemChangeEvent& event) override;
 public:
-    explicit ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) { friction = false; inventory.item_change_event.addListener(this);}
+    explicit ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) {
+        friction = false;
+        inventory.item_change_event.addListener(this);
+    }
 
     Inventory inventory;
     
@@ -34,7 +37,9 @@ public:
     bool breaking = false;
     int breaking_x = 0, breaking_y = 0;
     
-    ~ServerPlayer() override;
+    
+    void destruct();
+    ~ServerPlayer() override {}
 };
 
 class BlockBehaviour {

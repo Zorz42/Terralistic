@@ -17,8 +17,8 @@ void WorldCreator::init() {
     create_button.y = -SPACING;
     create_button.orientation = gfx::BOTTOM;
 
-    back_button.x = (-create_button.w - back_button.w + back_button.w - SPACING) / 2;
-    create_button.x = (create_button.w + back_button.w - create_button.w + SPACING) / 2;
+    back_button.x = (-create_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
+    create_button.x = (create_button.getWidth() + back_button.getWidth() - create_button.getWidth() + SPACING) / 2;
 
     world_name.setScale(3);
     world_name.orientation = gfx::CENTER;
@@ -42,8 +42,8 @@ void WorldCreator::init() {
         return '\0';
     };
 
-    world_name.y = - 16 - world_name.h / 2;
-    world_seed.y = 16 + world_seed.h / 2;
+    world_name.y = - 16 - world_name.getHeight() / 2;
+    world_seed.y = 16 + world_seed.getHeight() / 2;
 
 
     new_world_name.loadFromSurface(gfx::textToSurface("New world name"));

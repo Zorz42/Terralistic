@@ -12,13 +12,12 @@ void gfx::Sprite::setColor(Color color_) {
 
 void gfx::Sprite::loadFromSurface(const Surface& surface) {
     Texture::loadFromSurface(surface);
-    setScale(scale);
+    updateSize();
 }
 
 void gfx::Sprite::setScale(float scale_) {
     scale = scale_;
-    w = getTextureWidth() * scale;
-    h = getTextureHeight() * scale;
+    updateSize();
 }
 
 float gfx::Sprite::getScale() const {
@@ -31,4 +30,9 @@ int gfx::Sprite::getWidth() const {
 
 int gfx::Sprite::getHeight() const {
     return h;
+}
+
+void gfx::Sprite::updateSize() {
+    w = getTextureWidth() * scale;
+    h = getTextureHeight() * scale;
 }

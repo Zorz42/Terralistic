@@ -7,7 +7,7 @@
 #include "resourcePath.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
-#define BOTTOM_HEIGHT (back_button.h + 2 * SPACING)
+#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
 void World::render(int position, int mouse_x, int mouse_y) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
@@ -20,11 +20,11 @@ void World::render(int position, int mouse_x, int mouse_y) {
     title.render(3, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
     
     play_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
-    play_button.y = render_y + render_height - play_button.h - SPACING;
+    play_button.y = render_y + render_height - play_button.getHeight() - SPACING;
     play_button.render(mouse_x, mouse_y);
     
-    delete_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + play_button.w;
-    delete_button.y = render_y + render_height - play_button.h - SPACING;
+    delete_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + play_button.getWidth();
+    delete_button.y = render_y + render_height - play_button.getHeight() - SPACING;
     delete_button.render(mouse_x, mouse_y);
     
     last_played.render(2, render_x + render_width - last_played.getTextureWidth() * 2 - SPACING, render_y + render_height - last_played.getTextureHeight() * 2 - SPACING);
@@ -97,11 +97,11 @@ void SingleplayerSelector::refresh() {
 
         worlds[i]->play_button.loadFromSurface(readOpa(resource_path + "play_button.opa"));
         worlds[i]->play_button.setScale(3);
-        worlds[i]->play_button.margin = 5;
+        worlds[i]->play_button.setMargin(5);
         
         worlds[i]->delete_button.loadFromSurface(readOpa(resource_path + "delete_button.opa"));
         worlds[i]->delete_button.setScale(3);
-        worlds[i]->delete_button.margin = 5;
+        worlds[i]->delete_button.setMargin(5);
         
         worlds[i]->last_played.loadFromSurface(gfx::textToSurface("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY));
         
@@ -189,6 +189,6 @@ void SingleplayerSelector::render() {
     title.render();
     back_button.render(getMouseX(), getMouseY());
     
-    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.w / 2;
+    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
     new_button.render(getMouseX(), getMouseY());
 }

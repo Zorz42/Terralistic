@@ -8,7 +8,7 @@
 #include "resourcePath.hpp"
 
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
-#define BOTTOM_HEIGHT (back_button.h + 2 * SPACING)
+#define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
 void MenuServer::render(int position, int mouse_x, int mouse_y) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
@@ -21,11 +21,11 @@ void MenuServer::render(int position, int mouse_x, int mouse_y) {
     name_texture.render(3, render_x + 2 * SPACING + icon.getTextureWidth(), render_y + SPACING * 1.5);
     
     join_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
-    join_button.y = render_y + render_height - join_button.h - SPACING;
+    join_button.y = render_y + render_height - join_button.getHeight() - SPACING;
     join_button.render(mouse_x, mouse_y);
     
-    remove_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + join_button.w;
-    remove_button.y = render_y + render_height - join_button.h - SPACING;
+    remove_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + join_button.getWidth();
+    remove_button.y = render_y + render_height - join_button.getHeight() - SPACING;
     remove_button.render(mouse_x, mouse_y);
 }
 
@@ -50,11 +50,11 @@ void MultiplayerSelector::refresh() {
 
         server->join_button.loadFromSurface(readOpa(resource_path + "join_button.opa"));
         server->join_button.setScale(3);
-        server->join_button.margin = 5;
+        server->join_button.setMargin(5);
         
         server->remove_button.loadFromSurface(readOpa(resource_path + "remove_button.opa"));
         server->remove_button.setScale(3);
-        server->remove_button.margin = 5;
+        server->remove_button.setMargin(5);
         
         scroll_limit += 116 + SPACING * 3;
     }
@@ -190,7 +190,7 @@ void MultiplayerSelector::render() {
     title.render();
     back_button.render(getMouseX(), getMouseY());
     
-    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.w / 2;
+    new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
     new_button.render(getMouseX(), getMouseY());
 }
 

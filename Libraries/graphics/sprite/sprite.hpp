@@ -13,6 +13,8 @@ class Sprite : public _OrientedObject, public Texture {
     Color color{255, 255, 255};
     RectShape src_rect;
     float scale = 1;
+    
+    void updateSize();
 public:
     Sprite();
     

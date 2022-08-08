@@ -21,8 +21,8 @@ void NameChooser::init() {
     join_button.y = -SPACING;
     join_button.orientation = gfx::BOTTOM;
 
-    back_button.x = (-join_button.w - back_button.w + back_button.w - SPACING) / 2;
-    join_button.x = (join_button.w + back_button.w - join_button.w + SPACING) / 2;
+    back_button.x = (-join_button.getWidth() - back_button.getWidth() + back_button.getWidth() - SPACING) / 2;
+    join_button.x = (join_button.getWidth() + back_button.getWidth() - join_button.getWidth() + SPACING) / 2;
 
     name_input.setScale(3);
     name_input.orientation = gfx::CENTER;

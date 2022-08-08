@@ -91,7 +91,7 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
         button->loadFromSurface(gfx::textToSurface(choice));
         button->setScale(2);
         button->orientation = gfx::TOP;
-        button->margin = 5;
+        button->setMargin(5);
         choice_buttons.push_back(button);
     }
 }
@@ -100,17 +100,17 @@ void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y) {
     int x = width / 2 - SPACING;
     for(int i = (int)choice_buttons.size() - 1; i >= 0; i--) {
         gfx::Button* button = choice_buttons[i];
-        x -= button->w / 2;
+        x -= button->getWidth() / 2;
         button->x = x;
-        x -= button->w / 2 + 10;
-        button->y = y + getHeight() / 2 - button->h / 2;
+        x -= button->getWidth() / 2 + 10;
+        button->y = y + getHeight() / 2 - button->getHeight() / 2;
     }
     
     gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
     select_rect.setX(selected_button->x);
     select_rect.setY(selected_button->y);
-    select_rect.setWidth(selected_button->w);
-    select_rect.setHeight(selected_button->h);
+    select_rect.setWidth(selected_button->getWidth());
+    select_rect.setHeight(selected_button->getHeight());
     select_rect.render();
     
     choice_text.y = y + getHeight() / 2 - choice_text.getHeight() / 2;
@@ -131,7 +131,7 @@ int RenderChoiceSetting::getHeight() {
 int RenderChoiceSetting::getWidth() {
     int width = choice_text.getWidth() + 3 * SPACING;
     for(auto & choice_button : choice_buttons)
-        width += choice_button->w + 10;
+        width += choice_button->getWidth() + 10;
     return width;
 }
 
@@ -148,7 +148,7 @@ RenderBooleanSetting::RenderBooleanSetting(BooleanSetting* setting) : setting(se
     
     toggle_button.setScale(2);
     toggle_button.orientation = gfx::TOP;
-    toggle_button.margin = 5;
+    toggle_button.setMargin(5);
     
     updateButtonText();
 }
@@ -157,8 +157,8 @@ void RenderBooleanSetting::render(int y, int width, int mouse_x, int mouse_y) {
     text.y = y + getHeight() / 2 - text.getHeight() / 2;
     text.x = -width / 2 + text.getWidth() / 2 + SPACING;
     
-    toggle_button.y = y + getHeight() / 2 - toggle_button.h / 2;
-    toggle_button.x = width / 2 - toggle_button.w / 2 - SPACING;
+    toggle_button.y = y + getHeight() / 2 - toggle_button.getHeight() / 2;
+    toggle_button.x = width / 2 - toggle_button.getWidth() / 2 - SPACING;
     toggle_button.render(mouse_x, mouse_y);
     
     text.render();
@@ -179,7 +179,7 @@ void RenderBooleanSetting::updateButtonText() {
 int RenderBooleanSetting::getHeight() {
     int height = 0;
     height = std::max(height, text.getHeight() + 2 * SPACING);
-    height = std::max(height, toggle_button.h + 2 * SPACING);
+    height = std::max(height, toggle_button.getHeight() + 2 * SPACING);
     return height;
 }
 
@@ -209,17 +209,17 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
         button->loadFromSurface(gfx::textToSurface(choice));
         button->setScale(2);
         button->orientation = gfx::TOP;
-        button->margin = 5;
+        button->setMargin(5);
         choice_buttons.push_back(button);
     }
     
     gfx::Button dummy_button;
     dummy_button.loadFromSurface(gfx::textToSurface("dummy"));
     dummy_button.setScale(2);
-    dummy_button.margin = 5;
+    dummy_button.setMargin(5);
     
     slider_rect.setWidth(((setting->max - setting->min) / setting->step + 1) * 10);
-    slider_rect.setHeight(dummy_button.h);
+    slider_rect.setHeight(dummy_button.getHeight());
     slider_rect.orientation = gfx::TOP;
     
     slider_text.setScale(2);
@@ -238,10 +238,10 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
     
     for(int i = (int)choice_buttons.size() - 1; i >= 0; i--) {
         gfx::Button* button = choice_buttons[i];
-        x -= button->w / 2;
+        x -= button->getWidth() / 2;
         button->x = x;
-        x -= button->w / 2 + 10;
-        button->y = y + getHeight() / 2 - button->h / 2;
+        x -= button->getWidth() / 2 + 10;
+        button->y = y + getHeight() / 2 - button->getHeight() / 2;
     }
     
     slider_hovered = slider_rect.getTranslatedRect().x < mouse_x && slider_rect.getTranslatedRect().x + slider_rect.getWidth() > mouse_x && slider_rect.getTranslatedRect().y < mouse_y && slider_rect.getTranslatedRect().y + slider_rect.getHeight() > mouse_y;
@@ -253,8 +253,8 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
         gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
         select_rect.setX(selected_button->x);
         select_rect.setY(selected_button->y);
-        select_rect.setWidth(selected_button->w);
-        select_rect.setHeight(selected_button->w);
+        select_rect.setWidth(selected_button->getWidth());
+        select_rect.setHeight(selected_button->getWidth());
         slider_rect.border_color = TRANSPARENT;
     } else {
         select_rect.setWidth(10);
@@ -298,7 +298,7 @@ int RenderSliderSetting::getHeight() {
 int RenderSliderSetting::getWidth() {
     int width = choice_text.getWidth() + 3 * SPACING + slider_rect.getWidth() + 10;
     for(auto & choice_button : choice_buttons)
-        width += choice_button->w + 10;
+        width += choice_button->getWidth() + 10;
     return width;
 }
 
