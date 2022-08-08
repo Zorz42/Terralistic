@@ -10,6 +10,12 @@ Console::Console(): LauncherModule("console") {
     min_width = 300;
     min_height = 90;
     texture.createBlankImage(width, height);
+
+    auto t = std::time(nullptr);
+    auto tm = *localtime(&t);
+    std::stringstream timestamped_text;
+    timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S.txt");
+    log_file_name = timestamped_text.str();
 }
 
 void Console::init() {
@@ -27,12 +33,6 @@ void Console::init() {
     input_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
     text_inputs = {&input_box};
     server->getPrint()->print_event.addListener(this);
-
-    auto t = std::time(nullptr);
-    auto tm = *localtime(&t);
-    std::stringstream timestamped_text;
-    timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S.txt");
-    log_file_name = timestamped_text.str();
 
 }
 
