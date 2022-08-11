@@ -246,9 +246,6 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
     
     slider_hovered = slider_rect.getTranslatedRect().x < mouse_x && slider_rect.getTranslatedRect().x + slider_rect.w > mouse_x && slider_rect.getTranslatedRect().y < mouse_y && slider_rect.getTranslatedRect().y + slider_rect.h > mouse_y;
     
-    slider_rect.fill_color = slider_hovered ? GREY : BLACK;
-    slider_rect.render();
-    
     if(setting->getSelectedChoice() < choice_buttons.size()) {
         gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
         select_rect.x = selected_button->x;
@@ -263,6 +260,9 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
         select_rect.x = slider_rect.x - slider_rect.w / 2 + 10 * (setting->getSelectedChoice() - (int)choice_buttons.size()) + select_rect.w / 2;
         slider_rect.border_color = DARK_GREY;
     }
+    
+    slider_rect.fill_color = slider_hovered ? GREY : BLACK;
+    slider_rect.render();
     
     if(holding_slider) {
         int selected_choice = (mouse_x - slider_rect.getTranslatedRect().x) / 10 + (int)choice_buttons.size();

@@ -41,8 +41,9 @@ void gfx::Rect::render() {
 }
 
 void gfx::Rect::jumpToTarget() {
-    render_y = y;
-    render_x = x;
-    render_w = w;
-    render_h = h;
+    RectShape target_rect = getTranslatedRect();
+    render_x = target_rect.x;
+    render_y = target_rect.y;
+    render_w = target_rect.w;
+    render_h = target_rect.h;
 }
