@@ -15,6 +15,6 @@ class MenuBack : public BackgroundRect {
 public:
     void init();
     void renderBack() override;
-    void setBackWidth(int width) override { back_rect.setWidth(width); }
-    int getBackWidth() override { return back_rect.getWidth(); }
+    void setBackWidth(int width) override { back_rect.w = width; }
+    int getBackWidth() override { return back_rect.w; }
 };

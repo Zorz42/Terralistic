@@ -107,10 +107,10 @@ void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y) {
     }
     
     gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
-    select_rect.setX(selected_button->x);
-    select_rect.setY(selected_button->y);
-    select_rect.setWidth(selected_button->getWidth());
-    select_rect.setHeight(selected_button->getHeight());
+    select_rect.x = selected_button->x;
+    select_rect.y = selected_button->y;
+    select_rect.w = selected_button->getWidth();
+    select_rect.h = selected_button->getHeight();
     select_rect.render();
     
     choice_text.y = y + getHeight() / 2 - choice_text.getHeight() / 2;
@@ -218,8 +218,8 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     dummy_button.setScale(2);
     dummy_button.setMargin(5);
     
-    slider_rect.setWidth(((setting->max - setting->min) / setting->step + 1) * 10);
-    slider_rect.setHeight(dummy_button.getHeight());
+    slider_rect.w = ((setting->max - setting->min) / setting->step + 1) * 10;
+    slider_rect.h = dummy_button.getHeight();
     slider_rect.orientation = gfx::TOP;
     
     slider_text.setScale(2);
@@ -232,9 +232,9 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
 void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
     int x = width / 2 - SPACING;
     
-    slider_rect.setX(x - slider_rect.getWidth() / 2);
-    slider_rect.setY(y + getHeight() / 2 - slider_rect.getHeight() / 2);
-    x -= slider_rect.getWidth() + 10;
+    slider_rect.x = x - slider_rect.w / 2;
+    slider_rect.y = y + getHeight() / 2 - slider_rect.h / 2;
+    x -= slider_rect.w + 10;
     
     for(int i = (int)choice_buttons.size() - 1; i >= 0; i--) {
         gfx::Button* button = choice_buttons[i];
@@ -244,23 +244,23 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
         button->y = y + getHeight() / 2 - button->getHeight() / 2;
     }
     
-    slider_hovered = slider_rect.getTranslatedRect().x < mouse_x && slider_rect.getTranslatedRect().x + slider_rect.getWidth() > mouse_x && slider_rect.getTranslatedRect().y < mouse_y && slider_rect.getTranslatedRect().y + slider_rect.getHeight() > mouse_y;
+    slider_hovered = slider_rect.getTranslatedRect().x < mouse_x && slider_rect.getTranslatedRect().x + slider_rect.w > mouse_x && slider_rect.getTranslatedRect().y < mouse_y && slider_rect.getTranslatedRect().y + slider_rect.h > mouse_y;
     
     slider_rect.fill_color = slider_hovered ? GREY : BLACK;
     slider_rect.render();
     
     if(setting->getSelectedChoice() < choice_buttons.size()) {
         gfx::Button* selected_button = choice_buttons[setting->getSelectedChoice()];
-        select_rect.setX(selected_button->x);
-        select_rect.setY(selected_button->y);
-        select_rect.setWidth(selected_button->getWidth());
-        select_rect.setHeight(selected_button->getWidth());
+        select_rect.x = selected_button->x;
+        select_rect.y = selected_button->y;
+        select_rect.w = selected_button->getWidth();
+        select_rect.h = selected_button->getHeight();
         slider_rect.border_color = TRANSPARENT;
     } else {
-        select_rect.setWidth(10);
-        select_rect.setHeight(slider_rect.getHeight());
-        select_rect.setY(slider_rect.getY());
-        select_rect.setX(slider_rect.getX() - slider_rect.getWidth() / 2 + 10 * (setting->getSelectedChoice() - (int)choice_buttons.size()) + select_rect.getWidth() / 2);
+        select_rect.w = 10;
+        select_rect.h = slider_rect.h;
+        select_rect.y = slider_rect.y;
+        select_rect.x = slider_rect.x - slider_rect.w / 2 + 10 * (setting->getSelectedChoice() - (int)choice_buttons.size()) + select_rect.w / 2;
         slider_rect.border_color = DARK_GREY;
     }
     
@@ -284,8 +284,8 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y) {
     for(int i = 0; i < (int)choice_buttons.size(); i++)
         choice_buttons[i]->render(mouse_x, mouse_y);
     
-    slider_text.y = slider_rect.getY() + slider_rect.getHeight() / 2 - slider_text.getHeight() / 2;
-    slider_text.x = slider_rect.getX();
+    slider_text.y = slider_rect.y + slider_rect.h / 2 - slider_text.getHeight() / 2;
+    slider_text.x = slider_rect.x;
     slider_text.render();
 }
 
@@ -296,7 +296,7 @@ int RenderSliderSetting::getHeight() {
 }
 
 int RenderSliderSetting::getWidth() {
-    int width = choice_text.getWidth() + 3 * SPACING + slider_rect.getWidth() + 10;
+    int width = choice_text.getWidth() + 3 * SPACING + slider_rect.w + 10;
     for(auto & choice_button : choice_buttons)
         width += choice_button->getWidth() + 10;
     return width;

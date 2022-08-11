@@ -3,7 +3,7 @@
 
 void DebugMenu::init() {
     back_rect.orientation = gfx::BOTTOM_RIGHT;
-    back_rect.setY(-SPACING);
+    back_rect.y = -SPACING;
     back_rect.fill_color = BLACK;
     back_rect.border_color = BORDER_COLOR;
     back_rect.fill_color.a = TRANSPARENCY;
@@ -44,14 +44,14 @@ void DebugMenu::render() {
         back_height += debug_line->getHeight();
     }
     
-    back_rect.setWidth(back_width + SPACING);
-    back_rect.setHeight(back_height + SPACING);
-    back_rect.setX(debug_menu_open ? -SPACING : back_rect.getWidth() + SPACING);
+    back_rect.w = back_width + SPACING;
+    back_rect.h = back_height + SPACING;
+    back_rect.x = debug_menu_open ? -SPACING : back_rect.w + SPACING;
     back_rect.render();
     
-    int curr_y = gfx::getWindowHeight() + back_rect.getY() - back_rect.getHeight();
+    int curr_y = gfx::getWindowHeight() + back_rect.y - back_rect.h;
     for(auto & debug_line : debug_lines) {
-        debug_line->render(gfx::getWindowWidth() + back_rect.getX() - back_rect.getWidth() + SPACING / 2, curr_y + SPACING / 2);
+        debug_line->render(gfx::getWindowWidth() + back_rect.x - back_rect.w + SPACING / 2, curr_y + SPACING / 2);
         curr_y += debug_line->getHeight();
     }
 }

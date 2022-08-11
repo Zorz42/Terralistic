@@ -80,10 +80,10 @@ void MultiplayerSelector::init() {
     new_button.orientation = gfx::BOTTOM;
     
     top_rect.orientation = gfx::TOP;
-    top_rect.setHeight(TOP_HEIGHT);
+    top_rect.h = TOP_HEIGHT;
     
     bottom_rect.orientation = gfx::BOTTOM;
-    bottom_rect.setHeight(BOTTOM_HEIGHT);
+    bottom_rect.h = BOTTOM_HEIGHT;
     bottom_rect.fill_color.a = TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = SHADOW_INTENSITY;
     bottom_rect.blur_radius = BLUR;
@@ -170,7 +170,7 @@ void MultiplayerSelector::render() {
     for(int i = 0; i < servers.size(); i++)
         servers[i]->render(position, getMouseX(), getMouseY());
 
-    top_rect.setWidth(menu_back->getBackWidth());
+    top_rect.w = menu_back->getBackWidth();
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
     if(top_rect_visibility < 0.01f)
         top_rect_visibility = 0;
@@ -182,7 +182,7 @@ void MultiplayerSelector::render() {
     if(top_rect_visibility)
         top_rect.render();
     
-    bottom_rect.setWidth(menu_back->getBackWidth());
+    bottom_rect.w = menu_back->getBackWidth();
     int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
     if(scroll_limit_ > 0)
         bottom_rect.render();

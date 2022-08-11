@@ -62,5 +62,7 @@ public:
     void setPlayer(Player* player_) { player = player_; }
     void setBlocks(Blocks* blocks_) { blocks = blocks_; }
     
+    void operator=(const Inventory& inventory);
+    
     EventSender<InventoryItemChangeEvent> item_change_event;
 };

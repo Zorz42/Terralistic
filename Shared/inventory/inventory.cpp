@@ -178,3 +178,16 @@ void Recipes::registerARecipe(Recipe* recipe) {
 const std::vector<Recipe*>& Recipes::getAllRecipes() {
     return recipes;
 }
+
+void Inventory::operator=(const Inventory &inventory) {
+    items = inventory.items;
+    recipes = inventory.recipes;
+    player = inventory.player;
+    blocks = inventory.blocks;
+    mouse_item = inventory.mouse_item;
+    item_counts = inventory.item_counts;
+    available_recipes = inventory.available_recipes;
+    for(int i = 0; i < INVENTORY_SIZE; i++)
+        inventory_arr[i] = inventory.inventory_arr[i];
+    selected_slot = inventory.selected_slot;
+}

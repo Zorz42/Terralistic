@@ -339,7 +339,6 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
     
     if(player != nullptr) {
         savePlayer(player);
-        player->destruct();
         entities->removeEntity(player);
     }
 }
@@ -513,7 +512,7 @@ BlockBehaviour*& ServerPlayers::getBlockBehaviour(BlockType* type) {
     return blocks_behaviour[type->id];
 }
 
-void ServerPlayer::destruct() {
+ServerPlayer::~ServerPlayer() {
     inventory.item_change_event.removeListener(this);
 }
 

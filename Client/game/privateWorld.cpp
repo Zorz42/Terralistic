@@ -37,12 +37,12 @@ void WorldStartingScreen::init() {
     
     loading_bar_back.orientation = gfx::CENTER;
     loading_bar_back.fill_color.a = TRANSPARENCY;
-    loading_bar_back.setHeight(50);
-    loading_bar_back.setY(100);
+    loading_bar_back.h = 50;
+    loading_bar_back.y = 100;
     
     loading_bar.fill_color = WHITE;
     loading_bar.fill_color.a = TRANSPARENCY;
-    loading_bar.setHeight(50);
+    loading_bar.h = 50;
 }
 
 void WorldStartingScreen::render() {
@@ -70,10 +70,10 @@ void WorldStartingScreen::render() {
     }
     
     if(server->state == ServerState::GENERATING_WORLD) {
-        loading_bar_back.setWidth(text.getWidth() + 200);
-        loading_bar.setX(loading_bar_back.getTranslatedRect().x);
-        loading_bar.setY(loading_bar_back.getTranslatedRect().y);
-        loading_bar.setWidth(server->getGeneratingCurrent() * (text.getWidth() + 200) / server->getGeneratingTotal());
+        loading_bar_back.w = text.getWidth() + 200;
+        loading_bar.x = loading_bar_back.getTranslatedRect().x;
+        loading_bar.y = loading_bar_back.getTranslatedRect().y;
+        loading_bar.w = server->getGeneratingCurrent() * (text.getWidth() + 200) / server->getGeneratingTotal();
         loading_bar_back.render();
         loading_bar.render();
     }
