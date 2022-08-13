@@ -369,8 +369,6 @@ void gfx::Scene::renderAll() {
             modules[i]->mouse_y = mouse_y;
         }
     
-    resetRenderTarget();
-    
     cycleModules();
     
     for(int i = 0; i < global_update_functions.size(); i++)

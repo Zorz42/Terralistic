@@ -38,17 +38,12 @@ void ClientLiquids::init() {
 }
 
 void ClientLiquids::loadTextures() {
-    std::vector<gfx::Texture*> liquid_textures(getNumLiquidTypes() - 1);
+    std::vector<gfx::Surface> liquid_surfaces(getNumLiquidTypes() - 1);
 
-    for(int i = 1; i < getNumLiquidTypes(); i++) {
-        liquid_textures[i - 1] = new gfx::Texture;
-        liquid_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa")));
-    }
-    
-    liquids_atlas.create(liquid_textures);
-    
     for(int i = 1; i < getNumLiquidTypes(); i++)
-        delete liquid_textures[i - 1];
+        liquid_surfaces[i - 1] = readOpa(resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa"));
+    
+    liquids_atlas.create(liquid_surfaces);
 }
 
 void ClientLiquids::postInit() {

@@ -49,7 +49,7 @@ uniform_texture_sampler, uniform_transform_matrix, uniform_texture_transform_mat
 
 inline unsigned int rect_vertex_buffer, rect_outline_vertex_buffer;
 
-inline _Transformation window_normalization_transform, normalization_transform;
+inline _Transformation normalization_transform;
 
 inline unsigned int window_texture, window_texture_back;
 

@@ -20,15 +20,11 @@ public:
     int getTextureWidth() const;
     int getTextureHeight() const;
     void loadFromSurface(const Surface& surface);
-
-    void setRenderTarget();
     
     const _Transformation& _getNormalizationTransform() const;
     unsigned int _getGlTexture() const;
     
     ~Texture();
 };
-
-void resetRenderTarget();
 
 };

@@ -37,9 +37,9 @@ static GLFWwindow* glfw_window;
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     using namespace gfx;
     
-    window_normalization_transform = _Transformation();
-    window_normalization_transform.stretch(1.f / getWindowWidth() * 2, -1.f / getWindowHeight() * 2);
-    window_normalization_transform.translate(-float(getWindowWidth()) / 2, -float(getWindowHeight()) / 2);
+    normalization_transform = _Transformation();
+    normalization_transform.stretch(1.f / getWindowWidth() * 2, -1.f / getWindowHeight() * 2);
+    normalization_transform.translate(-float(getWindowWidth()) / 2, -float(getWindowHeight()) / 2);
     
     glBindTexture(GL_TEXTURE_2D, window_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth(), getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);

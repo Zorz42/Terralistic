@@ -23,10 +23,6 @@ void gfx::Texture::loadFromSurface(const Surface& surface) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    
-    texture_normalization_transform = gfx::_Transformation();
-    texture_normalization_transform.translate(0.f, 1.f);
-    texture_normalization_transform.stretch(1.f / texture_width, -1.f / texture_height);
 }
 
 gfx::Texture::~Texture() {
@@ -97,20 +93,6 @@ void gfx::Texture::render(float scale, int x, int y, bool flipped, Color color) 
 
 unsigned int gfx::Texture::_getGlTexture() const {
     return gl_texture;
-}
-
-void gfx::Texture::setRenderTarget() {
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gl_texture, 0);
-    glViewport(0, 0, texture_width, texture_height);
-    normalization_transform = texture_normalization_transform;
-    normalization_transform.translate(-texture_width, 0);
-    normalization_transform.stretch(2, 2);
-}
-
-void gfx::resetRenderTarget() {
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, window_texture, 0);
-    glViewport(0, 0, getWindowWidth(), getWindowHeight());
-    normalization_transform = window_normalization_transform;
 }
 
 const gfx::_Transformation& gfx::Texture::_getNormalizationTransform() const {

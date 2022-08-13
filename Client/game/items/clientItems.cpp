@@ -8,17 +8,12 @@ void ClientItems::init() {
 }
 
 void ClientItems::loadTextures() {
-    std::vector<gfx::Texture*> item_textures(getNumItemTypes() - 1);
+    std::vector<gfx::Surface> item_surfaces(getNumItemTypes() - 1);
 
-    for(int i = 1; i < getNumItemTypes(); i++) {
-        item_textures[i - 1] = new gfx::Texture;
-        item_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/items/" + getItemTypeById(i)->name + ".opa")));
-    }
-
-    items_atlas.create(item_textures);
-    
     for(int i = 1; i < getNumItemTypes(); i++)
-        delete item_textures[i - 1];
+        item_surfaces[i - 1] = readOpa(resource_pack->getFile("/items/" + getItemTypeById(i)->name + ".opa"));
+
+    items_atlas.create(item_surfaces);
 }
 
 void ClientItems::stop() {

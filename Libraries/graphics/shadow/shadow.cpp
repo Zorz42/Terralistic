@@ -2,22 +2,32 @@
 #include "theme.hpp"
 #include "shadow.hpp"
 #include "blur.hpp"
+#include "glfwAbstraction.hpp"
 
 void gfx::initShadow() {
     Surface surface;
     surface.createEmpty(700, 700);
-    shadow_texture = new Texture;
-    shadow_texture->loadFromSurface(surface);
+    
     Texture shadow_texture_back;
     shadow_texture_back.loadFromSurface(surface);
-    shadow_texture->setRenderTarget();
-    RectShape(200, 200, 300, 300).render({0, 0, 0});
+    
+    for(int y = 200; y < 500; y++)
+        for(int x = 200; x < 500; x++)
+            surface.setPixel(x, y, {0, 0, 0});
+    shadow_texture = new Texture;
+    shadow_texture->loadFromSurface(surface);
+    
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, shadow_texture->_getGlTexture(), 0);
+    glViewport(0, 0, 700, 700);
     
     _Transformation shadow_transform = shadow_texture->_getNormalizationTransform();
     shadow_transform.translate(-700, 0);
     shadow_transform.stretch(2, 2);
     for(int i = 0; i < 100; i++)
         blurRectangle(RectShape(0, 0, 700, 700), GFX_SHADOW_BLUR, shadow_texture->_getGlTexture(), shadow_texture_back._getGlTexture(), 700, 700, shadow_transform);
+    
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, window_texture, 0);
+    glViewport(0, 0, getWindowWidth(), getWindowHeight());
 }
 
 void gfx::quitShadow() {
