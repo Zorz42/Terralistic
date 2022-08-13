@@ -1,8 +1,7 @@
 #include "font.hpp"
 #include "rectShape.hpp"
 
-static gfx::Surface font_surface;
-static gfx::RectShape font_rects[256];
+static gfx::Surface char_surfaces[256];
 
 bool fontColEmpty(const gfx::Surface& surface, int x, int y) {
     for(int i = 0; i < 16; i++)
@@ -13,7 +12,6 @@ bool fontColEmpty(const gfx::Surface& surface, int x, int y) {
 }
 
 void gfx::loadFont(const Surface& surface) {
-    font_surface = surface;
     if(surface.getWidth() != 256 || surface.getHeight() != 256)
         throw Exception("Font surface must be 256x256");
     
@@ -34,7 +32,12 @@ void gfx::loadFont(const Surface& surface) {
                 rect.w = 2;
             }
             
-            font_rects[y * 16 + x] = rect;
+            Surface& char_surface = char_surfaces[y * 16 + x];
+            char_surface.createEmpty(rect.w, rect.h);
+            
+            for(int y_ = 0; y_ < rect.h; y_++)
+                for(int x_ = 0; x_ < rect.w; x_++)
+                    char_surface.setPixel(x_, y_, surface.getPixel(rect.x + x_, rect.y + y_));
         }
 }
 
@@ -43,7 +46,7 @@ void gfx::loadFont(const Surface& surface) {
 gfx::Surface gfx::textToSurface(const std::string& text, Color color) {
     int width = 0;
     for(char i : text)
-        width += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
+        width += char_surfaces[(int)(unsigned char)i].getWidth() + TEXT_SPACING;
     
     if(width == 0)
         width = 1;
@@ -52,21 +55,12 @@ gfx::Surface gfx::textToSurface(const std::string& text, Color color) {
     text_surface.createEmpty(width, 16);
     int curr_x = 0;
     for(char i : text) {
-        for(int x = 0; x < font_rects[(int)(unsigned char)i].w; x++)
-            for(int y = 0; y < 16; y++) {
-                Color c = font_surface.getPixel(font_rects[(int)(unsigned char)i].x + x, font_rects[(int)(unsigned char)i].y + y);
-                c.r *= (float)color.r / 255;
-                c.g *= (float)color.g / 255;
-                c.b *= (float)color.b / 255;
-                c.a *= (float)color.a / 255;
-                text_surface.setPixel(x + curr_x, y, c);
-            }
-        
-        curr_x += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
+        text_surface.draw(curr_x, 0, char_surfaces[(int)(unsigned char)i], color);
+        curr_x += char_surfaces[(int)(unsigned char)i].getWidth() + TEXT_SPACING;
     }
     return text_surface;
 }
 
 int gfx::getCharWidth(char c) {
-    return font_rects[(int)(unsigned char)c].w;
+    return char_surfaces[(int)(unsigned char)c].getWidth();
 }

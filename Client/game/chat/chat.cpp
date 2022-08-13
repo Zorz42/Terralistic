@@ -20,7 +20,7 @@ void Chat::init() {
     chat_box.setBorderColor(BORDER_COLOR);
     chat_box.width = chat_width;
     chat_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
-
+    
     text_inputs = {&chat_box};
 }
 
