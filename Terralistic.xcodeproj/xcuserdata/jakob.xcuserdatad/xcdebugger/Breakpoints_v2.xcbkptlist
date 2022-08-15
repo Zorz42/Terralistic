@@ -83,6 +83,66 @@
                   offsetFromSymbolStart = "184">
                </Location>
                <Location
+                  uuid = "7A9B9EAA-2234-4D4F-9250-AFA5EC623A65 - e2754ae0a7db32e1"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;gfx::_CharInputEvent&gt;::~EventSender()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/events/events.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "184">
+               </Location>
+               <Location
+                  uuid = "7A9B9EAA-2234-4D4F-9250-AFA5EC623A65 - 2fda3285ed5ef2be"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;gfx::_KeyPressEvent&gt;::~EventSender()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/events/events.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "184">
+               </Location>
+               <Location
+                  uuid = "7A9B9EAA-2234-4D4F-9250-AFA5EC623A65 - c0c808b301c50c04"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;gfx::_KeyReleaseEvent&gt;::~EventSender()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/events/events.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "184">
+               </Location>
+               <Location
+                  uuid = "7A9B9EAA-2234-4D4F-9250-AFA5EC623A65 - db8e24204a024787"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EventSender&lt;gfx::_ScrollEvent&gt;::~EventSender()"
+                  moduleName = "Terralistic"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jakob/Terralistic/Libraries/events/events.hpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "184">
+               </Location>
+               <Location
                   uuid = "7A9B9EAA-2234-4D4F-9250-AFA5EC623A65 - 3df0a4cd89d1d5bd"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"

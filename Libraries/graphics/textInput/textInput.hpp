@@ -20,8 +20,8 @@ public:
     int getWidth() const;
     
     void eraseSelected();
-    int findLeftMove(int curr_pos);
-    int findRightMove(int curr_pos);
+    int findLeftMove(int curr_pos, bool is_ctrl_pressed);
+    int findRightMove(int curr_pos, bool is_ctrl_pressed);
     void setText(const std::string& text);
     void setCursor(int begin, int end) { cursor[0] = begin; cursor[1] = end; }
     void setCursor(int pos) { cursor[0] = pos; cursor[1] = pos; }

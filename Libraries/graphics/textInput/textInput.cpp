@@ -14,17 +14,17 @@ void gfx::TextInput::eraseSelected() {
     loadFromSurface(textToSurface(text, text_color));
 }
 
-int gfx::TextInput::findLeftMove(int curr_pos) {
+int gfx::TextInput::findLeftMove(int curr_pos, bool is_ctrl_pressed) {
     int new_pos = std::max(0, curr_pos - 1);
-    if(absolute_key_states[(int)Key::CTRL])
+    if(is_ctrl_pressed)
         while(new_pos != 0 && cursor[0] != new_pos && text[new_pos - 1] != ' ' && text[new_pos - 1] != '-')
             new_pos--;
     return new_pos;
 }
 
-int gfx::TextInput::findRightMove(int curr_pos) {
+int gfx::TextInput::findRightMove(int curr_pos, bool is_ctrl_pressed) {
     int new_pos = std::min((int)text.size(), curr_pos + 1);
-    if(absolute_key_states[(int)Key::CTRL])
+    if(is_ctrl_pressed)
         while(new_pos != text.size() && new_pos != cursor[1] && text[new_pos] != ' ' && text[new_pos] != '-')
             new_pos++;
     return new_pos;

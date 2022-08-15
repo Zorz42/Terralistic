@@ -97,8 +97,8 @@ void ServerAdder::render() {
         new_server_ip.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
 
 
-    add_button.render(getMouseX(), getMouseY());
-    back_button.render(getMouseX(), getMouseY());
+    add_button.render(getMouseX(), getMouseY(), getAbsoluteKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getAbsoluteKeyState(gfx::Key::MOUSE_LEFT));
     add_server_title.render();
     server_ip_input.render(getMouseX(), getMouseY());
     server_name_input.render(getMouseX(), getMouseY());

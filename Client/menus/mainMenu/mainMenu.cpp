@@ -79,9 +79,9 @@ void MainMenu::render() {
     debug_title.render();
 #endif
     version.render();
-    singleplayer_button.render(getMouseX(), getMouseY());
-    multiplayer_button.render(getMouseX(), getMouseY());
-    settings_button.render(getMouseX(), getMouseY());
-    mods_button.render(getMouseX(), getMouseY());
-    exit_button.render(getMouseX(), getMouseY());
+    singleplayer_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    multiplayer_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    settings_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    mods_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    exit_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 }

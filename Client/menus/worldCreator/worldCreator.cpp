@@ -88,8 +88,8 @@ void WorldCreator::render() {
         create_button.loadFromSurface(gfx::textToSurface("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)}));
         create_button.disabled = !can_create;
     }
-    create_button.render(getMouseX(), getMouseY());
-    back_button.render(getMouseX(), getMouseY());
+    create_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 
     if(world_name.isHovered(getMouseX(), getMouseY()))
         new_world_name.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});

@@ -5,11 +5,11 @@ bool gfx::Button::isHovered(int mouse_x, int mouse_y) const {
     return !disabled && mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
 
-void gfx::Button::render(int mouse_x, int mouse_y) {
+void gfx::Button::render(int mouse_x, int mouse_y, bool button_pressed) {
     RectShape rect = getTranslatedRect();
     
     while(timer_counter < timer.getTimeElapsed()) {
-        int hover_progress_target = isHovered(mouse_x, mouse_y) ? (key_states[(int)Key::MOUSE_LEFT] ? 200 : 255) : 0;
+        int hover_progress_target = isHovered(mouse_x, mouse_y) ? (button_pressed ? 200 : 255) : 0;
         hover_progress += float(hover_progress_target - hover_progress) / 40;
         timer_counter++;
     }

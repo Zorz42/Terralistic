@@ -34,6 +34,67 @@ static unsigned int default_framebuffer, window_width_min, window_height_min;
 static float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_scale_y = 1;
 static GLFWwindow* glfw_window;
 
+static gfx::Key translateKeyboardKey(int glfw_button) {
+    switch (glfw_button) {
+        case GLFW_KEY_A: return gfx::Key::A;
+        case GLFW_KEY_B: return gfx::Key::B;
+        case GLFW_KEY_C: return gfx::Key::C;
+        case GLFW_KEY_D: return gfx::Key::D;
+        case GLFW_KEY_E: return gfx::Key::E;
+        case GLFW_KEY_F: return gfx::Key::F;
+        case GLFW_KEY_G: return gfx::Key::G;
+        case GLFW_KEY_H: return gfx::Key::H;
+        case GLFW_KEY_I: return gfx::Key::I;
+        case GLFW_KEY_J: return gfx::Key::J;
+        case GLFW_KEY_K: return gfx::Key::K;
+        case GLFW_KEY_L: return gfx::Key::L;
+        case GLFW_KEY_M: return gfx::Key::M;
+        case GLFW_KEY_N: return gfx::Key::N;
+        case GLFW_KEY_O: return gfx::Key::O;
+        case GLFW_KEY_P: return gfx::Key::P;
+        case GLFW_KEY_Q: return gfx::Key::Q;
+        case GLFW_KEY_R: return gfx::Key::R;
+        case GLFW_KEY_S: return gfx::Key::S;
+        case GLFW_KEY_T: return gfx::Key::T;
+        case GLFW_KEY_U: return gfx::Key::U;
+        case GLFW_KEY_V: return gfx::Key::V;
+        case GLFW_KEY_W: return gfx::Key::W;
+        case GLFW_KEY_X: return gfx::Key::X;
+        case GLFW_KEY_Y: return gfx::Key::Y;
+        case GLFW_KEY_Z: return gfx::Key::Z;
+        case GLFW_KEY_0: return gfx::Key::NUM0;
+        case GLFW_KEY_1: return gfx::Key::NUM1;
+        case GLFW_KEY_2: return gfx::Key::NUM2;
+        case GLFW_KEY_3: return gfx::Key::NUM3;
+        case GLFW_KEY_4: return gfx::Key::NUM4;
+        case GLFW_KEY_5: return gfx::Key::NUM5;
+        case GLFW_KEY_6: return gfx::Key::NUM6;
+        case GLFW_KEY_7: return gfx::Key::NUM7;
+        case GLFW_KEY_8: return gfx::Key::NUM8;
+        case GLFW_KEY_9: return gfx::Key::NUM9;
+        case GLFW_KEY_SPACE: return gfx::Key::SPACE;
+        case GLFW_KEY_ESCAPE: return gfx::Key::ESCAPE;
+        case GLFW_KEY_ENTER: return gfx::Key::ENTER;
+        case GLFW_KEY_LEFT_SHIFT: case GLFW_KEY_RIGHT_SHIFT: return gfx::Key::SHIFT;
+        case GLFW_KEY_BACKSPACE: return gfx::Key::BACKSPACE;
+        case GLFW_KEY_LEFT_CONTROL: case GLFW_KEY_RIGHT_CONTROL: return gfx::Key::CTRL;
+        case GLFW_KEY_RIGHT: return gfx::Key::ARROW_RIGHT;
+        case GLFW_KEY_LEFT: return gfx::Key::ARROW_LEFT;
+        case GLFW_KEY_UP: return gfx::Key::ARROW_UP;
+        case GLFW_KEY_DOWN: return gfx::Key::ARROW_DOWN;
+        default: return gfx::Key::UNKNOWN;
+    }
+}
+
+static gfx::Key translateMouseKey(int glfw_button) {
+    switch(glfw_button) {
+        case GLFW_MOUSE_BUTTON_LEFT: return gfx::Key::MOUSE_LEFT;
+        case GLFW_MOUSE_BUTTON_RIGHT: return gfx::Key::MOUSE_RIGHT;
+        case GLFW_MOUSE_BUTTON_MIDDLE: return gfx::Key::MOUSE_MIDDLE;
+        default: return gfx::Key::UNKNOWN;
+    }
+}
+
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     using namespace gfx;
     
@@ -54,7 +115,7 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
     _ScreenRefreshEvent event;
-    _screen_refresh_event_sender.call(event);
+    screen_refresh_event_sender.call(event);
 }
 
 static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
@@ -84,6 +145,47 @@ static void windowFocusCallback(GLFWwindow* window, int focused) {
     
     is_window_focused = focused;
 }
+
+static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    using namespace gfx;
+    
+    if(action == GLFW_PRESS) {
+        _KeyPressEvent event(translateKeyboardKey(key));
+        key_press_event_sender.call(event);
+    } else if(action == GLFW_RELEASE) {
+        _KeyReleaseEvent event(translateKeyboardKey(key));
+        key_release_event_sender.call(event);
+    }
+}
+
+static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    using namespace gfx;
+    
+    if(action == GLFW_PRESS) {
+        _KeyPressEvent event(translateMouseKey(button));
+        key_press_event_sender.call(event);
+    } else if(action == GLFW_RELEASE) {
+        _KeyReleaseEvent event(translateMouseKey(button));
+        key_release_event_sender.call(event);
+    }
+}
+
+static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    using namespace gfx;
+    
+    _ScrollEvent event(yoffset);
+    scroll_event_sender.call(event);
+}
+
+static void characterCallback(GLFWwindow* window, unsigned int codepoint) {
+    using namespace gfx;
+    
+    _CharInputEvent event(codepoint);
+    char_input_event_sender.call(event);
+}
+
+bool getKeyState(gfx::Key key);
+bool getAbsoluteKeyState(gfx::Key key);
 
 void gfx::setMinimumWindowSize(int width, int height) {
     window_width_min = width;

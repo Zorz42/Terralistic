@@ -61,8 +61,8 @@ void NameChooser::render() {
         join_button.loadFromSurface(gfx::textToSurface("Join server", {(unsigned char)(can_join ? WHITE.r : GREY.r), (unsigned char)(can_join ? WHITE.g : GREY.g), (unsigned char)(can_join ? WHITE.b : GREY.b)}));
         join_button.disabled = !can_join;
     }
-    join_button.render(getMouseX(), getMouseY());
-    back_button.render(getMouseX(), getMouseY());
+    join_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     choose_name_title.render();
     name_input.render(getMouseX(), getMouseY());
 }

@@ -46,6 +46,6 @@ void ChoiceScreen::render() {
     menu_back->setBackWidth(question_sprite.getWidth() + 100);
     menu_back->renderBack();
     for(auto & button : buttons)
-        button.gfx_button.render(getMouseX(), getMouseY());
+        button.gfx_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     question_sprite.render();
 }

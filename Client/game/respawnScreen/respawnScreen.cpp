@@ -49,6 +49,6 @@ void RespawnScreen::render() {
         gfx::RectShape(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight()).render({200, 0, 0, (unsigned char)(100 * progress)});
         back_rect.render();
         you_died_text.render();
-        respawn_button.render(getMouseX(), getMouseY());
+        respawn_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     }
 }

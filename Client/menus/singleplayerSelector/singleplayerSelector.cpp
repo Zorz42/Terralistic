@@ -9,7 +9,7 @@
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
-void World::render(int position, int mouse_x, int mouse_y) {
+void World::render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
     
     gfx::Color back_color = BLACK;
@@ -21,11 +21,11 @@ void World::render(int position, int mouse_x, int mouse_y) {
     
     play_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
     play_button.y = render_y + render_height - play_button.getHeight() - SPACING;
-    play_button.render(mouse_x, mouse_y);
+    play_button.render(mouse_x, mouse_y, is_mouse_pressed);
     
     delete_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + play_button.getWidth();
     delete_button.y = render_y + render_height - play_button.getHeight() - SPACING;
-    delete_button.render(mouse_x, mouse_y);
+    delete_button.render(mouse_x, mouse_y, is_mouse_pressed);
     
     last_played.render(2, render_x + render_width - last_played.getTextureWidth() * 2 - SPACING, render_y + render_height - last_played.getTextureHeight() * 2 - SPACING);
 }
@@ -167,7 +167,7 @@ void SingleplayerSelector::render() {
     }
 
     for(int i = 0; i < worlds.size(); i++)
-        worlds[i]->render(position, getMouseX(), getMouseY());
+        worlds[i]->render(position, getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 
     top_rect.w = menu_back->getBackWidth();
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
@@ -187,8 +187,8 @@ void SingleplayerSelector::render() {
         bottom_rect.render();
 
     title.render();
-    back_button.render(getMouseX(), getMouseY());
+    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
-    new_button.render(getMouseX(), getMouseY());
+    new_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 }

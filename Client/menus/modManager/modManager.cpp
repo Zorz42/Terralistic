@@ -127,7 +127,7 @@ void ModManager::render() {
     
     enabled_text.render();
     disabled_text.render();
-    back_button.render(getMouseX(), getMouseY());
+    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     for(auto & mod : mods)
         if(mod != holding)

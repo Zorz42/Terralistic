@@ -23,8 +23,33 @@ enum class BlendMode { BLEND_ALPHA, BLEND_MULTIPLY };
 
 void setBlendMode(BlendMode blend_mode);
 
+enum class Key {MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9, SPACE, ESCAPE, ENTER, SHIFT, BACKSPACE, CTRL, ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, UNKNOWN};
+
 class _ScreenRefreshEvent {};
-inline EventSender<_ScreenRefreshEvent> _screen_refresh_event_sender;
+
+class _CharInputEvent {
+public:
+    _CharInputEvent(char code) : code(code) {}
+    char code;
+};
+
+class _KeyPressEvent {
+public:
+    _KeyPressEvent(Key key) : key(key) {}
+    Key key;
+};
+
+class _KeyReleaseEvent {
+public:
+    _KeyReleaseEvent(Key key) : key(key) {}
+    Key key;
+};
+
+class _ScrollEvent {
+public:
+    _ScrollEvent(int delta) : delta(delta) {}
+    int delta;
+};
 
 };
 
@@ -55,10 +80,11 @@ inline unsigned int window_texture, window_texture_back;
 
 unsigned int compileShaders(const char* vertex_code, const char* fragment_code);
 
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-void characterCallback(GLFWwindow* window, unsigned int codepoint);
+inline EventSender<_ScreenRefreshEvent> screen_refresh_event_sender;
+inline EventSender<_CharInputEvent> char_input_event_sender;
+inline EventSender<_KeyPressEvent> key_press_event_sender;
+inline EventSender<_KeyReleaseEvent> key_release_event_sender;
+inline EventSender<_ScrollEvent> scroll_event_sender;
 
 void updateWindow();
 

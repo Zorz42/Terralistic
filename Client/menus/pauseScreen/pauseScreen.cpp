@@ -89,10 +89,10 @@ void PauseScreen::renderButtons() {
     quit_button.x = back_rect.x + SPACING;
     mods_button.x = back_rect.x + SPACING;
     settings_button.x = back_rect.x + SPACING;
-    resume_button.render(getMouseX(), getMouseY());
-    settings_button.render(getMouseX(), getMouseY());
-    mods_button.render(getMouseX(), getMouseY());
-    quit_button.render(getMouseX(), getMouseY());
+    resume_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    settings_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    mods_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    quit_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     if(returning_to_game) {
         if(back_rect.x == -back_width - 200)

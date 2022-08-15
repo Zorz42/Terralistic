@@ -10,11 +10,11 @@ void gfx::Texture::loadFromSurface(const Surface& surface) {
     texture_width = surface.getWidth();
     texture_height = surface.getHeight();
     
-    std::vector<unsigned char> data2(texture_width * texture_height * 4);
+    std::vector<unsigned char> data(texture_width * texture_height * 4);
     for(int i = 0; i < texture_width * texture_height * 4; i++) {
-        data2[i] = 255;
+        data[i] = 255;
         if(i % 8 == 1)
-            data2[i] = 0;
+            data[i] = 0;
     }
 
     glGenTextures(1, &gl_texture);
@@ -23,6 +23,10 @@ void gfx::Texture::loadFromSurface(const Surface& surface) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    
+    texture_normalization_transform = gfx::_Transformation();
+    texture_normalization_transform.translate(0.f, 1.f);
+    texture_normalization_transform.stretch(1.f / texture_width, -1.f / texture_height);
 }
 
 gfx::Texture::~Texture() {
