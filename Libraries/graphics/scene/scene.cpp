@@ -48,6 +48,9 @@ bool gfx::SceneModule::getAbsoluteKeyState(Key key_) const {
 }
 
 void gfx::Scene::onEvent(_KeyPressEvent& event) {
+    if(curr_scene != this)
+        return;
+    
     bool clicked_text_box = false;
     if(event.key == Key::MOUSE_LEFT) {
         for(SceneModule* module : modules)
@@ -200,6 +203,9 @@ void gfx::Scene::onEvent(_KeyPressEvent& event) {
 }
 
 void gfx::Scene::onEvent(_KeyReleaseEvent& event) {
+    if(curr_scene != this)
+        return;
+    
     if(event.key != Key::UNKNOWN) {
         if(absolute_key_states[(int)event.key])
             absolute_key_states[(int)event.key] = false;
@@ -214,6 +220,9 @@ void gfx::Scene::onEvent(_KeyReleaseEvent& event) {
 }
 
 void gfx::Scene::onEvent(_CharInputEvent& event) {
+    if(curr_scene != this)
+        return;
+    
     if(event.code == '\b')
         return;
 
@@ -238,6 +247,9 @@ void gfx::Scene::onEvent(_CharInputEvent& event) {
 }
 
 void gfx::Scene::onEvent(_ScrollEvent& event) {
+    if(curr_scene != this)
+        return;
+    
     for(auto module : modules)
         module->onMouseScroll(event.delta);
 }
