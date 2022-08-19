@@ -132,11 +132,8 @@ static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float 
         global_scale_y = global_scale;
     }
     
-    int window_width_, window_height_;
-    glfwGetWindowSize(glfw_window, &window_width_, &window_height_);
+    framebufferSizeCallback(glfw_window, 0, 0);
     
-    framebufferSizeCallback(glfw_window, window_width_ * system_scale_x, window_height_ * system_scale_y);
-
     setMinimumWindowSize(window_width_min, window_height_min);
 }
 
@@ -217,9 +214,6 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
     glfwSetMouseButtonCallback(glfw_window, mouseButtonCallback);
     glfwSetWindowFocusCallback(glfw_window, windowFocusCallback);
 
-    float scale_x, scale_y;
-    glfwGetWindowContentScale(glfw_window, &scale_x, &scale_y);
-
     if(!glfw_window)
         throw Exception("Failed to open GLFW window.");
 
@@ -252,6 +246,8 @@ void gfx::initGlfw(int window_width_, int window_height_, const std::string& win
     glGenFramebuffers(1, &default_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
 
+    float scale_x, scale_y;
+    glfwGetWindowContentScale(glfw_window, &scale_x, &scale_y);
     windowContentScaleCallback(glfw_window, scale_x, scale_y);
 
     GLfloat rect_outline_vertex_array[] = {
