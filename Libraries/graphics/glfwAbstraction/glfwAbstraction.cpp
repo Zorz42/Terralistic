@@ -114,6 +114,8 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
+    glViewport(0, 0, getWindowWidth(), getWindowHeight());
+    
     _ScreenRefreshEvent event;
     screen_refresh_event_sender.call(event);
 }
