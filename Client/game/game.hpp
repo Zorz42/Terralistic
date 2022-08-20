@@ -26,6 +26,10 @@ class Game : gfx::Scene, public BackgroundRect {
     void update(float frame_length) override;
     void stop() override;
     
+    void setBackWidth(int width) override {}
+    int getBackWidth() override { return 0; }
+    gfx::Container* getBackContainer() override { return nullptr; }
+    
     void initializeGame();
     std::string username;
     
@@ -68,8 +72,6 @@ public:
     
     using gfx::Scene::isInitialized;
     void renderBack() override;
-    void setBackWidth(int width) override {}
-    int getBackWidth() override { return 0; }
     
     bool interrupt = false;
     std::string interrupt_message;

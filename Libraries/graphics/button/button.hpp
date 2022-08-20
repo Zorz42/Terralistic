@@ -6,14 +6,14 @@
 
 namespace gfx {
 
-class Button : public Texture, public _OrientedObject {
+class Button : public Texture, public Container {
     gfx::Timer timer;
     int timer_counter = 0;
     float scale = 1;
     int margin = GFX_DEFAULT_BUTTON_MARGIN;
     
-    using gfx::_OrientedObject::w;
-    using gfx::_OrientedObject::h;
+    using gfx::Container::w;
+    using gfx::Container::h;
     
     void updateSize();
 public:

@@ -64,7 +64,7 @@ void ClientLights::lightUpdateLoop() {
                         finished = false;
                     }
         }
-        gfx::sleep(100);
+        gfx::sleep(20);
     }
 }
 

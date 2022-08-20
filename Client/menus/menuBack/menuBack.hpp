@@ -6,6 +6,7 @@ public:
     virtual void renderBack() = 0;
     virtual void setBackWidth(int width) = 0;
     virtual int getBackWidth() = 0;
+    virtual gfx::Container* getBackContainer() = 0;
 };
 
 class MenuBack : public BackgroundRect {
@@ -17,4 +18,5 @@ public:
     void renderBack() override;
     void setBackWidth(int width) override { back_rect.w = width; }
     int getBackWidth() override { return back_rect.w; }
+    gfx::Container* getBackContainer() override { return &back_rect; }
 };

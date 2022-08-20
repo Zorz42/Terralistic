@@ -27,4 +27,5 @@ public:
     void renderBack() override;
     void setBackWidth(int width) override;
     int getBackWidth() override;
+    gfx::Container* getBackContainer() override;
 };

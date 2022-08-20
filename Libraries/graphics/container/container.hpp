@@ -18,12 +18,13 @@ inline const Orientation BOTTOM_LEFT =  {0 , 1 };
 inline const Orientation BOTTOM =       {.5, 1 };
 inline const Orientation BOTTOM_RIGHT = {1 , 1 };
 
-class _OrientedObject {
+class Container {
 public:
-    _OrientedObject(int x = 0, int y = 0, int w = 0, int h = 0, Orientation orientation = TOP_LEFT);
+    Container(int x = 0, int y = 0, int w = 0, int h = 0, Orientation orientation = TOP_LEFT);
     Orientation orientation;
     int x, y, w, h;
-    RectShape getTranslatedRect() const;
+    virtual RectShape getTranslatedRect() const;
+    Container* parent_containter = nullptr;
 };
 
 };
