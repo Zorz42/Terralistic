@@ -7,11 +7,11 @@
 #define BORDER_COLOR gfx::Color({100, 100, 100})
 #define BLACK gfx::Color({0, 0, 0})
 #define TRANSPARENT gfx::Color({0, 0, 0, 0})
-#define SPACING 16
-#define BUTTON_MARGIN 10
-#define TRANSPARENCY 170
-#define BLUR 100
-#define SHADOW_INTENSITY 220
+#define SPACING 20
+#define BUTTON_MARGIN 7
+#define TRANSPARENCY 140
+#define BLUR 200
+#define SHADOW_INTENSITY 200
 #define TEXT_INPUT_WIDTH 200
 
 #define GFX_DEFAULT_BUTTON_COLOR TRANSPARENT

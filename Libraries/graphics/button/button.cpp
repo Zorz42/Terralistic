@@ -11,6 +11,8 @@ void gfx::Button::render(int mouse_x, int mouse_y, bool button_pressed) {
     while(timer_counter < timer.getTimeElapsed()) {
         int hover_progress_target = isHovered(mouse_x, mouse_y) ? (button_pressed ? 200 : 255) : 0;
         hover_progress += float(hover_progress_target - hover_progress) / 40;
+        if(std::abs(hover_progress_target - hover_progress) <= 5)
+            hover_progress = hover_progress_target;
         timer_counter++;
     }
     
@@ -35,7 +37,8 @@ void gfx::Button::render(int mouse_x, int mouse_y, bool button_pressed) {
     hover_rect.render(button_color);
     hover_rect.renderOutline(button_border_color);
     
-    Texture::render(scale, rect.x + margin * scale, rect.y + margin * scale);
+    float texture_scale = scale + hover_progress / 255.f * 0.2;
+    Texture::render(texture_scale, rect.x + rect.w / 2 - getTextureWidth() * texture_scale / 2, rect.y + rect.h / 2 - getTextureHeight() * texture_scale / 2);
 }
 
 void gfx::Button::loadFromSurface(const Surface& surface) {
