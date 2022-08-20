@@ -19,6 +19,8 @@ public:
     
     void jumpToTarget();
     void render();
+    
+    RectShape getTranslatedRect() const override;
 };
 
 };

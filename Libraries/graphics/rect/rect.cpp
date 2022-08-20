@@ -17,7 +17,7 @@ void gfx::Rect::render() {
         jumpToTarget();
     }
     
-    RectShape target_rect = getTranslatedRect();
+    RectShape target_rect = Container::getTranslatedRect();
     
     while(ms_counter < approach_timer.getTimeElapsed()) {
         ms_counter++;
@@ -28,7 +28,7 @@ void gfx::Rect::render() {
         render_h = approach(render_h, target_rect.h, smooth_factor * 10);
     }
     
-    RectShape rect = {(int)render_x, (int)render_y, (int)render_w, (int)render_h};
+    RectShape rect = getTranslatedRect();
 
     if(blur_radius && blur_enabled)
         gfx::blurRectangle(rect, blur_radius, window_texture, window_texture_back, getWindowWidth(), getWindowHeight(), normalization_transform);
@@ -41,9 +41,13 @@ void gfx::Rect::render() {
 }
 
 void gfx::Rect::jumpToTarget() {
-    RectShape target_rect = getTranslatedRect();
+    RectShape target_rect = Container::getTranslatedRect();
     render_x = target_rect.x;
     render_y = target_rect.y;
     render_w = target_rect.w;
     render_h = target_rect.h;
+}
+
+gfx::RectShape gfx::Rect::getTranslatedRect() const {
+    return {(int)render_x, (int)render_y, (int)render_w, (int)render_h};
 }
