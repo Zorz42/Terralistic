@@ -16,19 +16,16 @@
 #include "background.hpp"
 #include "clientWalls.hpp"
 #include "respawnScreen.hpp"
+#include "backgroundRect.hpp"
 
 void startPrivateWorld(const std::string& world_name, BackgroundRect* menu_back, Settings* settings, int world_seed);
 
-class Game : gfx::Scene, public BackgroundRect {
+class Game : gfx::Scene, public Background {
     void preInit() override;
     void init() override;
     bool onKeyDown(gfx::Key key) override;
     void update(float frame_length) override;
     void stop() override;
-    
-    void setBackWidth(int width) override {}
-    int getBackWidth() override { return 0; }
-    gfx::Container* getBackContainer() override { return nullptr; }
     
     void initializeGame();
     std::string username;
@@ -36,7 +33,7 @@ class Game : gfx::Scene, public BackgroundRect {
     ClientNetworking networking;
     ResourcePack resource_pack;
     Camera camera;
-    Background background;
+    GameBackground background;
     ClientBlocks blocks;
     ClientWalls walls;
     Particles particles;

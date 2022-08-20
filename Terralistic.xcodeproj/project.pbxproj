@@ -428,6 +428,7 @@
 		368198CA28834ADB00DB57C5 /* libglad.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglad.dylib; path = Dependencies/glad/libglad.dylib; sourceTree = "<group>"; };
 		368198CD2883621F00DB57C5 /* libglad.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglad.a; path = Dependencies/glad/libglad.a; sourceTree = "<group>"; };
 		3683B0EB2887068C00F2E969 /* testPacketType.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testPacketType.mm; sourceTree = "<group>"; };
+		368BF40928B10E790067855B /* backgroundRect.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = backgroundRect.hpp; sourceTree = "<group>"; };
 		368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glfwAbstraction.cpp; sourceTree = "<group>"; };
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
 		368F70702854FC9A00C6FF6B /* color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
@@ -1105,6 +1106,7 @@
 		365721FA26D07181005AB3CC /* menus */ = {
 			isa = PBXGroup;
 			children = (
+				368BF40828B10E590067855B /* backgroundRect */,
 				3657220A26D07181005AB3CC /* menuBack */,
 				365721FE26D07181005AB3CC /* choiceScreen */,
 				365721DE26D07180005AB3CC /* pauseScreen */,
@@ -1350,6 +1352,14 @@
 				367F3635285F751800319AD2 /* font.cpp */,
 			);
 			path = font;
+			sourceTree = "<group>";
+		};
+		368BF40828B10E590067855B /* backgroundRect */ = {
+			isa = PBXGroup;
+			children = (
+				368BF40928B10E790067855B /* backgroundRect.hpp */,
+			);
+			path = backgroundRect;
 			sourceTree = "<group>";
 		};
 		368C34AB2855DB6700DA7569 /* glfwAbstraction */ = {

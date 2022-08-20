@@ -18,10 +18,10 @@ class PauseScreen : public gfx::Scene, public BackgroundRect {
     bool onKeyDown(gfx::Key key) override;
     bool onKeyUp(gfx::Key key) override;
     void render() override;
-    BackgroundRect* background;
+    Background* background;
 public:
     bool changed_mods = false;
-    explicit PauseScreen(BackgroundRect* background, Settings* settings) : gfx::Scene("PauseScreen"), background(background), settings(settings) {}
+    explicit PauseScreen(Background* background, Settings* settings) : gfx::Scene("PauseScreen"), background(background), settings(settings) {}
     bool hasExitedToMenu() const;
     
     void renderBack() override;

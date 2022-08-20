@@ -1,13 +1,6 @@
 #pragma once
 #include "graphics.hpp"
-
-class BackgroundRect {
-public:
-    virtual void renderBack() = 0;
-    virtual void setBackWidth(int width) = 0;
-    virtual int getBackWidth() = 0;
-    virtual gfx::Container* getBackContainer() = 0;
-};
+#include "backgroundRect.hpp"
 
 class MenuBack : public BackgroundRect {
     gfx::Texture background;
