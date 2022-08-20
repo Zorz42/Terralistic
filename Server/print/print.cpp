@@ -1,6 +1,7 @@
 #include "print.hpp"
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 void Print::printText(MessageType type, const std::string& text) {
     auto t = std::time(nullptr);
