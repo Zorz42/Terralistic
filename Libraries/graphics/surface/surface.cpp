@@ -54,3 +54,15 @@ int gfx::Surface::getWidth() const {
 int gfx::Surface::getHeight() const {
     return height;
 }
+
+void gfx::Surface::draw(int x, int y, const Surface &surface, Color color) {
+    for(int y_ = 0; y_ < surface.getHeight(); y_++)
+        for(int x_ = 0; x_ < surface.getWidth(); x_++) {
+            Color c = surface.getPixel(x_, y_);
+            c.r *= (float)color.r / 255;
+            c.g *= (float)color.g / 255;
+            c.b *= (float)color.b / 255;
+            c.a *= (float)color.a / 255;
+            setPixel(x + x_, y + y_, c);
+        }
+}

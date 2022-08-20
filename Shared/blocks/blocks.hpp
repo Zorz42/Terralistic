@@ -15,9 +15,9 @@ public:
     int x, y;
 };
 
-class BlockRandomTickEvent{
+class BlockRandomTickEvent {
 public:
-    BlockRandomTickEvent(int x, int y): x(x), y(y){}
+    BlockRandomTickEvent(int x, int y): x(x), y(y) {}
     int x, y;
 };
 

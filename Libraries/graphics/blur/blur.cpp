@@ -30,7 +30,7 @@ static const char* blur_fragment_shader_code =
 "}";
 
 void gfx::initBlur() {
-    blur_shader_program = CompileShaders(blur_vertex_shader_code, blur_fragment_shader_code);
+    blur_shader_program = compileShaders(blur_vertex_shader_code, blur_fragment_shader_code);
     uniform_blur_transform_matrix = glGetUniformLocation(blur_shader_program, "transform_matrix");
     uniform_blur_texture_transform_matrix = glGetUniformLocation(blur_shader_program, "texture_transform_matrix");
     uniform_blur_texture_sampler = glGetUniformLocation(blur_shader_program, "texture_sampler");

@@ -5,7 +5,7 @@ static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', 
 
 void Chat::init() {
     networking->packet_event.addListener(this);
-    chat_box.scale = 2;
+    chat_box.setScale(2);
     chat_box.orientation = gfx::BOTTOM_LEFT;
     chat_box.y = -SPACING / 2;
     chat_box.x = SPACING / 2;
@@ -20,7 +20,7 @@ void Chat::init() {
     chat_box.setBorderColor(BORDER_COLOR);
     chat_box.width = chat_width;
     chat_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
-
+    
     text_inputs = {&chat_box};
 }
 
@@ -45,8 +45,8 @@ void Chat::render() {
     
     for(auto & chat_line : chat_lines) {
         if(!chat_line->text.empty()) {
-            chat_line->text_sprite.loadFromText(chat_line->text);
-            chat_line->text_sprite.scale = 2;
+            chat_line->text_sprite.loadFromSurface(gfx::textToSurface(chat_line->text));
+            chat_line->text_sprite.setScale(2);
             chat_line->text_sprite.y = chat_box.y;
             chat_line->text_sprite.x = SPACING / 2;
             chat_line->text_sprite.orientation = gfx::BOTTOM_LEFT;

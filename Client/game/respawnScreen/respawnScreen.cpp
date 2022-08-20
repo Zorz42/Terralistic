@@ -8,19 +8,19 @@ void RespawnScreen::init() {
     back_rect.border_color = BORDER_COLOR;
     back_rect.smooth_factor = 3;
     
-    you_died_text.scale = 4;
+    you_died_text.setScale(4);
     you_died_text.orientation = gfx::CENTER;
     
-    respawn_button.scale = 3;
+    respawn_button.setScale(3);
     respawn_button.orientation = gfx::CENTER;
 }
 
 void RespawnScreen::loadTextures() {
-    you_died_text.loadFromText("You Died");
-    respawn_button.loadFromText("Respawn");
+    you_died_text.loadFromSurface(gfx::textToSurface("You Died"));
+    respawn_button.loadFromSurface(gfx::textToSurface("Respawn"));
     
-    back_rect.setWidth(respawn_button.getWidth() + 100);
-    back_rect.setY(-2 * back_rect.getHeight());
+    back_rect.w = respawn_button.getWidth() + 100;
+    back_rect.y = -2 * back_rect.h;
 }
 
 bool RespawnScreen::onKeyUp(gfx::Key key) {
@@ -38,17 +38,17 @@ void RespawnScreen::render() {
         first_time = false;
     is_active = !players->getMainPlayer() && !first_time;
 
-    back_rect.setHeight(gfx::getWindowHeight());
-    back_rect.setY(is_active ? 0 : -2 * back_rect.getHeight());
-    you_died_text.y = back_rect.getY() - you_died_text.getHeight() / 2 - SPACING / 2;
-    respawn_button.y = back_rect.getY() + respawn_button.getHeight() / 2 + SPACING / 2;
+    back_rect.h = gfx::getWindowHeight();
+    back_rect.y = is_active ? 0 : -2 * back_rect.h;
+    you_died_text.y = back_rect.y - you_died_text.getHeight() / 2 - SPACING / 2;
+    respawn_button.y = back_rect.y + respawn_button.getHeight() / 2 + SPACING / 2;
     
-    float progress = float(back_rect.getY() + 2 * back_rect.getHeight()) / back_rect.getHeight() / 2;
+    float progress = float(back_rect.y + 2 * back_rect.h) / back_rect.h / 2;
     
     if(progress || is_active) {
         gfx::RectShape(0, 0, gfx::getWindowWidth(), gfx::getWindowHeight()).render({200, 0, 0, (unsigned char)(100 * progress)});
         back_rect.render();
         you_died_text.render();
-        respawn_button.render(getMouseX(), getMouseY());
+        respawn_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     }
 }

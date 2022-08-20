@@ -8,28 +8,23 @@
 namespace gfx {
 
 class Texture {
-protected:
     void freeTexture();
     unsigned int gl_texture = -1;
-    int width = 0, height = 0;
+    int texture_width = 0, texture_height = 0;
     _Transformation texture_normalization_transform;
+    
 public:
     void render(float scale, int x, int y, bool flipped=false, Color color={255, 255, 255}) const;
     void render(float scale, int x, int y, RectShape src_rect, bool flipped=false, Color color={255, 255, 255}) const;
     
     int getTextureWidth() const;
     int getTextureHeight() const;
-    void createBlankImage(int width, int height);
     void loadFromSurface(const Surface& surface);
-    void loadFromText(const std::string& text, Color color={255, 255, 255});
-
-    void setRenderTarget();
-    const _Transformation& getNormalizationTransform() const;
-    unsigned int getGlTexture() const;
+    
+    const _Transformation& _getNormalizationTransform() const;
+    unsigned int _getGlTexture() const;
     
     ~Texture();
 };
-
-void resetRenderTarget();
 
 };

@@ -6,25 +6,30 @@
 #include "modManager.hpp"
 
 void MainMenu::init() {
-    singleplayer_button.scale = 3;
-    singleplayer_button.loadFromText("Singleplayer");
+    singleplayer_button.setScale(3);
+    singleplayer_button.loadFromSurface(gfx::textToSurface("Singleplayer"));
     singleplayer_button.orientation = gfx::CENTER;
+    singleplayer_button.parent_containter = menu_back->getBackContainer();
     
-    multiplayer_button.scale = 3;
-    multiplayer_button.loadFromText("Multiplayer");
+    multiplayer_button.setScale(3);
+    multiplayer_button.loadFromSurface(gfx::textToSurface("Multiplayer"));
     multiplayer_button.orientation = gfx::CENTER;
+    multiplayer_button.parent_containter = menu_back->getBackContainer();
     
-    settings_button.scale = 3;
-    settings_button.loadFromText("Settings");
+    settings_button.setScale(3);
+    settings_button.loadFromSurface(gfx::textToSurface("Settings"));
     settings_button.orientation = gfx::CENTER;
+    settings_button.parent_containter = menu_back->getBackContainer();
     
-    mods_button.scale = 3;
-    mods_button.loadFromText("Mods");
+    mods_button.setScale(3);
+    mods_button.loadFromSurface(gfx::textToSurface("Mods"));
     mods_button.orientation = gfx::CENTER;
+    mods_button.parent_containter = menu_back->getBackContainer();
 
-    exit_button.scale = 3;
-    exit_button.loadFromText("Exit");
+    exit_button.setScale(3);
+    exit_button.loadFromSurface(gfx::textToSurface("Exit"));
     exit_button.orientation = gfx::CENTER;
+    exit_button.parent_containter = menu_back->getBackContainer();
     
     singleplayer_button.y = -(multiplayer_button.getHeight() + settings_button.getHeight() + mods_button.getHeight() + exit_button.getHeight() + 4) / 2 + singleplayer_button.getHeight() / 3;
     multiplayer_button.y = singleplayer_button.y + singleplayer_button.getHeight() / 2 + multiplayer_button.getHeight() / 2 + 1;
@@ -32,20 +37,23 @@ void MainMenu::init() {
     mods_button.y = settings_button.y + settings_button.getHeight() / 2 + mods_button.getHeight() / 2 + 1;
     exit_button.y = mods_button.y + mods_button.getHeight() / 2 + exit_button.getHeight() / 2 + 1;
     
-    debug_title.loadFromText("DEBUG MODE", GREY);
+    debug_title.loadFromSurface(gfx::textToSurface("DEBUG MODE", GREY));
     debug_title.orientation = gfx::TOP;
-    debug_title.scale = 2;
+    debug_title.setScale(2);
     debug_title.y = SPACING / 4;
+    debug_title.parent_containter = menu_back->getBackContainer();
     
-    title.loadFromText("Terralistic");
-    title.scale = 4;
+    title.loadFromSurface(gfx::textToSurface("Terralistic"));
+    title.setScale(4);
     title.orientation = gfx::TOP;
     title.y = debug_title.y + debug_title.getHeight() + SPACING / 2;
+    title.parent_containter = menu_back->getBackContainer();
     
-    version.loadFromText(CURR_VERSION_STR, GREY);
+    version.loadFromSurface(gfx::textToSurface(CURR_VERSION_STR, GREY));
     version.orientation = gfx::BOTTOM;
-    version.scale = 2;
+    version.setScale(2);
     version.y = -5;
+    version.parent_containter = menu_back->getBackContainer();
 }
 
 bool MainMenu::onKeyUp(gfx::Key key) {
@@ -79,9 +87,9 @@ void MainMenu::render() {
     debug_title.render();
 #endif
     version.render();
-    singleplayer_button.render(getMouseX(), getMouseY());
-    multiplayer_button.render(getMouseX(), getMouseY());
-    settings_button.render(getMouseX(), getMouseY());
-    mods_button.render(getMouseX(), getMouseY());
-    exit_button.render(getMouseX(), getMouseY());
+    singleplayer_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    multiplayer_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    settings_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    mods_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    exit_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 }

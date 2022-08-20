@@ -9,7 +9,7 @@ class TextureAtlas {
     std::vector<RectShape> rects;
 public:
     const Texture& getTexture() { return texture; }
-    void create(const std::vector<Texture*>& textures);
+    void create(const std::vector<Surface>& surfaces);
     RectShape getRect(int id);
 };
 

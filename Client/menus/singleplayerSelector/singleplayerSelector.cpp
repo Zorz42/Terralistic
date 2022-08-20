@@ -9,7 +9,7 @@
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
-void World::render(int position, int mouse_x, int mouse_y) {
+void World::render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
     
     gfx::Color back_color = BLACK;
@@ -21,11 +21,11 @@ void World::render(int position, int mouse_x, int mouse_y) {
     
     play_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
     play_button.y = render_y + render_height - play_button.getHeight() - SPACING;
-    play_button.render(mouse_x, mouse_y);
+    play_button.render(mouse_x, mouse_y, is_mouse_pressed);
     
     delete_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + play_button.getWidth();
     delete_button.y = render_y + render_height - play_button.getHeight() - SPACING;
-    delete_button.render(mouse_x, mouse_y);
+    delete_button.render(mouse_x, mouse_y, is_mouse_pressed);
     
     last_played.render(2, render_x + render_width - last_played.getTextureWidth() * 2 - SPACING, render_y + render_height - last_played.getTextureHeight() * 2 - SPACING);
 }
@@ -33,26 +33,26 @@ void World::render(int position, int mouse_x, int mouse_y) {
 void SingleplayerSelector::init() {
     std::filesystem::create_directory(sago::getDataHome() + "/Terralistic/Worlds/");
     
-    title.scale = 3;
-    title.loadFromText("Select a world to play!");
+    title.setScale(3);
+    title.loadFromSurface(gfx::textToSurface("Select a world to play!"));
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
-    back_button.scale = 3;
-    back_button.loadFromText("Back");
+    back_button.setScale(3);
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
-    new_button.scale = 3;
-    new_button.loadFromText("New");
+    new_button.setScale(3);
+    new_button.loadFromSurface(gfx::textToSurface("New"));
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
     
     top_rect.orientation = gfx::TOP;
-    top_rect.setHeight(TOP_HEIGHT);
+    top_rect.h = TOP_HEIGHT;
     
     bottom_rect.orientation = gfx::BOTTOM;
-    bottom_rect.setHeight(BOTTOM_HEIGHT);
+    bottom_rect.h = BOTTOM_HEIGHT;
     bottom_rect.fill_color.a = TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = SHADOW_INTENSITY;
     bottom_rect.blur_radius = BLUR;
@@ -93,17 +93,17 @@ void SingleplayerSelector::refresh() {
         
         worlds[i]->icon.loadFromSurface(readOpa(resource_path + "world_icon.opa"));
         
-        worlds[i]->title.loadFromText(worlds[i]->name);
+        worlds[i]->title.loadFromSurface(gfx::textToSurface(worlds[i]->name));
 
         worlds[i]->play_button.loadFromSurface(readOpa(resource_path + "play_button.opa"));
-        worlds[i]->play_button.scale = 3;
-        worlds[i]->play_button.margin = 5;
+        worlds[i]->play_button.setScale(3);
+        worlds[i]->play_button.setMargin(5);
         
         worlds[i]->delete_button.loadFromSurface(readOpa(resource_path + "delete_button.opa"));
-        worlds[i]->delete_button.scale = 3;
-        worlds[i]->delete_button.margin = 5;
+        worlds[i]->delete_button.setScale(3);
+        worlds[i]->delete_button.setMargin(5);
         
-        worlds[i]->last_played.loadFromText("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY);
+        worlds[i]->last_played.loadFromSurface(gfx::textToSurface("Last played: " + getFormattedLastTimeModified(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world"), GREY));
         
         scroll_limit += 116 + SPACING * 3;
     }
@@ -167,9 +167,9 @@ void SingleplayerSelector::render() {
     }
 
     for(int i = 0; i < worlds.size(); i++)
-        worlds[i]->render(position, getMouseX(), getMouseY());
+        worlds[i]->render(position, getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 
-    top_rect.setWidth(menu_back->getBackWidth());
+    top_rect.w = menu_back->getBackWidth();
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
     if(top_rect_visibility < 0.01f)
         top_rect_visibility = 0;
@@ -181,14 +181,14 @@ void SingleplayerSelector::render() {
     if(top_rect_visibility)
         top_rect.render();
     
-    bottom_rect.setWidth(menu_back->getBackWidth());
+    bottom_rect.w = menu_back->getBackWidth();
     int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
     if(scroll_limit_ > 0)
         bottom_rect.render();
 
     title.render();
-    back_button.render(getMouseX(), getMouseY());
+    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
-    new_button.render(getMouseX(), getMouseY());
+    new_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 }

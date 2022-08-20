@@ -8,6 +8,8 @@ namespace gfx {
 void initShadow();
 void quitShadow();
 
+void drawShadow(RectShape rect, unsigned char shadow_intensity);
+
 inline Texture* shadow_texture = nullptr;
 
 };

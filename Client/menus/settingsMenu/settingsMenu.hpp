@@ -4,7 +4,7 @@
 
 class RenderSetting {
 public:
-    virtual void render(int y, int width, int mouse_x, int mouse_y) = 0;
+    virtual void render(int y, int width, int mouse_x, int mouse_y, bool is_mouse_pressed) = 0;
     virtual int getHeight() = 0;
     virtual int getWidth() = 0;
     virtual void onMouseButtonUp(int x, int y) {}
@@ -21,7 +21,7 @@ class RenderChoiceSetting : public RenderSetting {
 public:
     explicit RenderChoiceSetting(ChoiceSetting* setting);
     
-    void render(int y, int width, int mouse_x, int mouse_y) override;
+    void render(int y, int width, int mouse_x, int mouse_y, bool is_mouse_pressed) override;
     int getHeight() override;
     int getWidth() override;
 };
@@ -35,7 +35,7 @@ class RenderBooleanSetting : public RenderSetting {
 public:
     explicit RenderBooleanSetting(BooleanSetting* setting);
     
-    void render(int y, int width, int mouse_x, int mouse_y) override;
+    void render(int y, int width, int mouse_x, int mouse_y, bool is_mouse_pressed) override;
     int getHeight() override;
     int getWidth() override;
 };
@@ -52,7 +52,7 @@ class RenderSliderSetting : public RenderSetting {
 public:
     explicit RenderSliderSetting(SliderSetting* setting);
     
-    void render(int y, int width, int mouse_x, int mouse_y) override;
+    void render(int y, int width, int mouse_x, int mouse_y, bool is_mouse_pressed) override;
     int getHeight() override;
     int getWidth() override;
 };

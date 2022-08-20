@@ -1,39 +1,31 @@
 #include "button.hpp"
 
-int gfx::Button::getWidth() const {
-    return (getTextureWidth() + margin * 2) * scale;
-}
-
-int gfx::Button::getHeight() const {
-    return (getTextureHeight() + margin * 2) * scale;
-}
-
 bool gfx::Button::isHovered(int mouse_x, int mouse_y) const {
     RectShape rect = getTranslatedRect();
     return !disabled && mouse_x >= rect.x && mouse_y >= rect.y && mouse_x <= rect.x + rect.w && mouse_y <= rect.y + rect.h;
 }
 
-void gfx::Button::render(int mouse_x, int mouse_y) {
+void gfx::Button::render(int mouse_x, int mouse_y, bool button_pressed) {
     RectShape rect = getTranslatedRect();
     
     while(timer_counter < timer.getTimeElapsed()) {
-        int hover_progress_target = isHovered(mouse_x, mouse_y) ? (key_states[(int)Key::MOUSE_LEFT] ? 200 : 255) : 0;
+        int hover_progress_target = isHovered(mouse_x, mouse_y) ? (button_pressed ? 200 : 255) : 0;
         hover_progress += float(hover_progress_target - hover_progress) / 40;
         timer_counter++;
     }
     
     Color button_color{
-        (unsigned char)((int)hover_color.r * hover_progress / 255 + (int)def_color.r * float(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.g * hover_progress / 255 + (int)def_color.g * float(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.b * hover_progress / 255 + (int)def_color.b * float(255 - hover_progress) / 255),
-        (unsigned char)((int)hover_color.a * hover_progress / 255 + (int)def_color.a * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.r * hover_progress / 255 + def_color.r * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.g * hover_progress / 255 + def_color.g * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.b * hover_progress / 255 + def_color.b * float(255 - hover_progress) / 255),
+        (unsigned char)(hover_color.a * hover_progress / 255 + def_color.a * float(255 - hover_progress) / 255),
     };
     
     Color button_border_color{
-        (unsigned char)((int)border_hover_color.r * hover_progress / 255 + (int)def_border_color.r * float(255 - hover_progress) / 255),
-        (unsigned char)((int)border_hover_color.g * hover_progress / 255 + (int)def_border_color.g * float(255 - hover_progress) / 255),
-        (unsigned char)((int)border_hover_color.b * hover_progress / 255 + (int)def_border_color.b * float(255 - hover_progress) / 255),
-        (unsigned char)((int)border_hover_color.a * hover_progress / 255 + (int)def_border_color.a * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.r * hover_progress / 255 + def_border_color.r * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.g * hover_progress / 255 + def_border_color.g * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.b * hover_progress / 255 + def_border_color.b * float(255 - hover_progress) / 255),
+        (unsigned char)(border_hover_color.a * hover_progress / 255 + def_border_color.a * float(255 - hover_progress) / 255),
     };
     
     int padding = (255 - hover_progress) / 255 * 30;
@@ -44,4 +36,40 @@ void gfx::Button::render(int mouse_x, int mouse_y) {
     hover_rect.renderOutline(button_border_color);
     
     Texture::render(scale, rect.x + margin * scale, rect.y + margin * scale);
+}
+
+void gfx::Button::loadFromSurface(const Surface& surface) {
+    Texture::loadFromSurface(surface);
+    updateSize();
+}
+
+void gfx::Button::setScale(float scale_) {
+    scale = scale_;
+    updateSize();
+}
+
+float gfx::Button::getScale() const {
+    return scale;
+}
+
+void gfx::Button::setMargin(int margin_) {
+    margin = margin_;
+    updateSize();
+}
+
+int gfx::Button::getMargin() const {
+    return margin;
+}
+
+int gfx::Button::getWidth() const {
+    return w;
+}
+
+int gfx::Button::getHeight() const {
+    return h;
+}
+
+void gfx::Button::updateSize() {
+    w = (getTextureWidth() + margin * 2) * scale;
+    h = (getTextureHeight() + margin * 2) * scale;
 }

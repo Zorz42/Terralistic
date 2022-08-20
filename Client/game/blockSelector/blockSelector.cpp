@@ -1,8 +1,8 @@
 #include "blockSelector.hpp"
 
 void BlockSelector::init() {
-    select_rect.setWidth(2 * BLOCK_WIDTH);
-    select_rect.setHeight(2 * BLOCK_WIDTH);
+    select_rect.w = 2 * BLOCK_WIDTH;
+    select_rect.h = 2 * BLOCK_WIDTH;
     select_rect.border_color = {255, 0, 0};
 }
 
@@ -27,8 +27,8 @@ void BlockSelector::render() {
         prev_selected_y = selected_block_y;
     }
     
-    select_rect.setX(-camera->getX() + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2);
-    select_rect.setY(-camera->getY() + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2);
+    select_rect.x = -camera->getX() + gfx::getWindowWidth() / 2 + selected_block_x * BLOCK_WIDTH * 2;
+    select_rect.y = -camera->getY() + gfx::getWindowHeight() / 2 + selected_block_y * BLOCK_WIDTH * 2;
     select_rect.render();
 }
 

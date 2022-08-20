@@ -38,17 +38,12 @@ void ClientLiquids::init() {
 }
 
 void ClientLiquids::loadTextures() {
-    std::vector<gfx::Texture*> liquid_textures(getNumLiquidTypes() - 1);
+    std::vector<gfx::Surface> liquid_surfaces(getNumLiquidTypes() - 1);
 
-    for(int i = 1; i < getNumLiquidTypes(); i++) {
-        liquid_textures[i - 1] = new gfx::Texture;
-        liquid_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa")));
-    }
-    
-    liquids_atlas.create(liquid_textures);
-    
     for(int i = 1; i < getNumLiquidTypes(); i++)
-        delete liquid_textures[i - 1];
+        liquid_surfaces[i - 1] = readOpa(resource_pack->getFile("/liquids/" + getLiquidTypeById(i)->name + ".opa"));
+    
+    liquids_atlas.create(liquid_surfaces);
 }
 
 void ClientLiquids::postInit() {
@@ -111,7 +106,7 @@ void ClientLiquids::RenderLiquidChunk::update(ClientLiquids* liquids, int x, int
 
 void ClientLiquids::RenderLiquidChunk::render(ClientLiquids* liquids, int x, int y) {
     if(liquid_count > 0)
-        liquid_rects.render(&liquids->getLiquidsAtlasTexture(), x, y, false, liquid_count);
+        liquid_rects.render(&liquids->getLiquidsAtlasTexture(), x, y, liquid_count);
 }
 
 void ClientLiquids::RenderLiquidChunk::create() {

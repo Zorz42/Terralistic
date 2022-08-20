@@ -20,6 +20,8 @@ public:
     const std::vector<unsigned char>& getData() const;
     int getWidth() const;
     int getHeight() const;
+    
+    void draw(int x, int y, const Surface& surface, Color color={255, 255, 255});
 };
 
 }

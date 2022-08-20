@@ -8,15 +8,15 @@ ChoiceScreen::ChoiceScreen(BackgroundRect* menu_back, std::string question, cons
 }
 
 void ChoiceScreen::init() {
-    question_sprite.scale = 3;
-    question_sprite.loadFromText(question);
+    question_sprite.setScale(3);
+    question_sprite.loadFromSurface(gfx::textToSurface(question));
     question_sprite.orientation = gfx::CENTER;
     
     int combined_width = 0;
     
     for(auto & button : buttons) {
-        button.gfx_button.scale = 3;
-        button.gfx_button.loadFromText(button.option);
+        button.gfx_button.setScale(3);
+        button.gfx_button.loadFromSurface(gfx::textToSurface(button.option));
         button.gfx_button.orientation = gfx::BOTTOM;
         button.gfx_button.y = -20;
         combined_width += button.gfx_button.getWidth();
@@ -46,6 +46,6 @@ void ChoiceScreen::render() {
     menu_back->setBackWidth(question_sprite.getWidth() + 100);
     menu_back->renderBack();
     for(auto & button : buttons)
-        button.gfx_button.render(getMouseX(), getMouseY());
+        button.gfx_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     question_sprite.render();
 }

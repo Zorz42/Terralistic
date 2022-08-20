@@ -6,7 +6,7 @@ struct World {
     std::string name;
     gfx::Button play_button, delete_button;
     gfx::Texture title, icon, last_played;
-    void render(int position, int mouse_x, int mouse_y);
+    void render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed);
     int y;
 };
 

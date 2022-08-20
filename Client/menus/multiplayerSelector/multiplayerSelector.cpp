@@ -10,7 +10,7 @@
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
-void MenuServer::render(int position, int mouse_x, int mouse_y) {
+void MenuServer::render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
     
     gfx::Color back_color = BLACK;
@@ -22,11 +22,11 @@ void MenuServer::render(int position, int mouse_x, int mouse_y) {
     
     join_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
     join_button.y = render_y + render_height - join_button.getHeight() - SPACING;
-    join_button.render(mouse_x, mouse_y);
+    join_button.render(mouse_x, mouse_y, is_mouse_pressed);
     
     remove_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + join_button.getWidth();
     remove_button.y = render_y + render_height - join_button.getHeight() - SPACING;
-    remove_button.render(mouse_x, mouse_y);
+    remove_button.render(mouse_x, mouse_y, is_mouse_pressed);
 }
 
 void MultiplayerSelector::refresh() {
@@ -46,15 +46,15 @@ void MultiplayerSelector::refresh() {
         
         server->data.ip = server_data[i].ip;
         server->data.name = server_data[i].name;
-        server->name_texture.loadFromText(server_data[i].name);
+        server->name_texture.loadFromSurface(gfx::textToSurface(server_data[i].name));
 
         server->join_button.loadFromSurface(readOpa(resource_path + "join_button.opa"));
-        server->join_button.scale = 3;
-        server->join_button.margin = 5;
+        server->join_button.setScale(3);
+        server->join_button.setMargin(5);
         
         server->remove_button.loadFromSurface(readOpa(resource_path + "remove_button.opa"));
-        server->remove_button.scale = 3;
-        server->remove_button.margin = 5;
+        server->remove_button.setScale(3);
+        server->remove_button.setMargin(5);
         
         scroll_limit += 116 + SPACING * 3;
     }
@@ -64,26 +64,26 @@ void MultiplayerSelector::init() {
     ConfigFile config(sago::getDataHome() + "/Terralistic/servers.txt");
     config.setDefaultStr("servers", "");
     
-    title.scale = 3;
-    title.loadFromText("Select a server to join!");
+    title.setScale(3);
+    title.loadFromSurface(gfx::textToSurface("Select a server to join"));
     title.y = SPACING;
     title.orientation = gfx::TOP;
 
-    back_button.scale = 3;
-    back_button.loadFromText("Back");
+    back_button.setScale(3);
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.y = -SPACING;
     back_button.orientation = gfx::BOTTOM;
 
-    new_button.scale = 3;
-    new_button.loadFromText("Add");
+    new_button.setScale(3);
+    new_button.loadFromSurface(gfx::textToSurface("Add"));
     new_button.y = -SPACING;
     new_button.orientation = gfx::BOTTOM;
     
     top_rect.orientation = gfx::TOP;
-    top_rect.setHeight(TOP_HEIGHT);
+    top_rect.h = TOP_HEIGHT;
     
     bottom_rect.orientation = gfx::BOTTOM;
-    bottom_rect.setHeight(BOTTOM_HEIGHT);
+    bottom_rect.h = BOTTOM_HEIGHT;
     bottom_rect.fill_color.a = TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = SHADOW_INTENSITY;
     bottom_rect.blur_radius = BLUR;
@@ -168,9 +168,9 @@ void MultiplayerSelector::render() {
     }
 
     for(int i = 0; i < servers.size(); i++)
-        servers[i]->render(position, getMouseX(), getMouseY());
+        servers[i]->render(position, getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 
-    top_rect.setWidth(menu_back->getBackWidth());
+    top_rect.w = menu_back->getBackWidth();
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
     if(top_rect_visibility < 0.01f)
         top_rect_visibility = 0;
@@ -182,16 +182,16 @@ void MultiplayerSelector::render() {
     if(top_rect_visibility)
         top_rect.render();
     
-    bottom_rect.setWidth(menu_back->getBackWidth());
+    bottom_rect.w = menu_back->getBackWidth();
     int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
     if(scroll_limit_ > 0)
         bottom_rect.render();
 
     title.render();
-    back_button.render(getMouseX(), getMouseY());
+    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
-    new_button.render(getMouseX(), getMouseY());
+    new_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
 }
 
 void MultiplayerSelector::stop() {
