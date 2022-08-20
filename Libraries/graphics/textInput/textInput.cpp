@@ -82,10 +82,6 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
         int width_of_selection = 0;
         for(char i : text.substr(cursor[0], cursor[1] - cursor[0]))
             width_of_selection += getCharWidth(i) + TEXT_SPACING;
-
-
-        //if(!width_before)
-            //width_before = 1;
         
         if(!width_of_selection)
             width_of_selection = 1;
