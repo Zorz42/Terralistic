@@ -61,10 +61,10 @@ void ServerAdder::init() {
 }
 
 bool ServerAdder::onKeyUp(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY())) {
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
         returnFromScene();
         return true;
-    } else if((key == gfx::Key::MOUSE_LEFT && add_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_add)) {
+    } else if((key == gfx::Key::MOUSE_LEFT && add_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) || (key == gfx::Key::ENTER && can_add)) {
         server_ip = server_ip_input.getText();
         server_name = server_name_input.getText();
         returnFromScene();
@@ -83,23 +83,23 @@ void ServerAdder::render() {
         add_button.disabled = !can_add;
     }
 
-    if(server_name_input.isHovered(getMouseX(), getMouseY()))
+    if(server_name_input.isHovered(getMouseX(), getMouseY(), getMouseVel()))
         new_server_name.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});
     else
         new_server_name.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
 
-    if(server_ip_input.isHovered(getMouseX(), getMouseY())) {
+    if(server_ip_input.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
         new_server_ip.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});
     }
     else
         new_server_ip.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
 
 
-    add_button.render(getMouseX(), getMouseY(), getAbsoluteKeyState(gfx::Key::MOUSE_LEFT));
-    back_button.render(getMouseX(), getMouseY(), getAbsoluteKeyState(gfx::Key::MOUSE_LEFT));
+    add_button.render(getMouseX(), getMouseY(), getMouseVel(), getAbsoluteKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getMouseVel(), getAbsoluteKeyState(gfx::Key::MOUSE_LEFT));
     add_server_title.render();
-    server_ip_input.render(getMouseX(), getMouseY());
-    server_name_input.render(getMouseX(), getMouseY());
+    server_ip_input.render(getMouseX(), getMouseY(), getMouseVel());
+    server_name_input.render(getMouseX(), getMouseY(), getMouseVel());
 
     if(server_name_input.getText().empty())
         new_server_name.render();

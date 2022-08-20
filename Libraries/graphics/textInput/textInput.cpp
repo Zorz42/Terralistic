@@ -48,13 +48,13 @@ void gfx::TextInput::setBlurIntensity(float blur_intensity) {
 
 #define TEXT_SPACING 1
 
-void gfx::TextInput::render(int mouse_x, int mouse_y) {
+void gfx::TextInput::render(int mouse_x, int mouse_y, int mouse_vel) {
     RectShape rect = getTranslatedRect();
     back_rect.x = rect.x;
     back_rect.y = rect.y;
     back_rect.w = rect.w;
     back_rect.h = rect.h;
-    back_rect.fill_color = isHovered(mouse_x, mouse_y) ? hover_color : def_color;
+    back_rect.fill_color = isHovered(mouse_x, mouse_y, mouse_vel) ? hover_color : def_color;
     back_rect.render();
     
     rect.x += getMargin() * getScale();

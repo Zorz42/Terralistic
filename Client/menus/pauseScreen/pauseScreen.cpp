@@ -38,20 +38,20 @@ bool PauseScreen::onKeyDown(gfx::Key key) {
 
 bool PauseScreen::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(resume_button.isHovered(getMouseX(), getMouseY())) {
+        if(resume_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             returnToGame();
             return true;
-        } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(settings_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             SettingsMenu settings_menu(this, settings);
             settings_menu.run();
             return true;
-        } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(mods_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             ModManager mod_manager(this);
             mod_manager.run();
             if(mod_manager.changed_mods)
                 changed_mods = true;
             return true;
-        } else if(quit_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(quit_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             exitToMenu();
             return true;
         }
@@ -89,10 +89,10 @@ void PauseScreen::renderButtons() {
     quit_button.x = back_rect.x + SPACING;
     mods_button.x = back_rect.x + SPACING;
     settings_button.x = back_rect.x + SPACING;
-    resume_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    settings_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    mods_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    quit_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    resume_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    settings_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    mods_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    quit_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     if(returning_to_game) {
         if(back_rect.x == -back_width - 200)

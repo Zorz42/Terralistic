@@ -15,7 +15,7 @@ void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
 class SceneModule {
     friend class Scene;
     bool enable_key_states = true;
-    int mouse_x, mouse_y;
+    int mouse_x, mouse_y, mouse_vel;
     std::string module_name;
     float render_time_sum = 0, update_time_sum = 0;
 public:
@@ -31,6 +31,7 @@ public:
     virtual void onMouseScroll(int distance) {}
     int getMouseX();
     int getMouseY();
+    int getMouseVel();
     bool enabled = true;
     
     std::vector<TextInput*> text_inputs;

@@ -22,8 +22,8 @@ public:
     
     bool disabled = false;
     
-    bool isHovered(int mouse_x, int mouse_y) const;
-    void render(int mouse_x, int mouse_y, bool button_pressed);
+    bool isHovered(int mouse_x, int mouse_y, int mouse_vel) const;
+    void render(int mouse_x, int mouse_y, int mouse_vel, bool button_pressed);
     
     void loadFromSurface(const Surface& surface);
     

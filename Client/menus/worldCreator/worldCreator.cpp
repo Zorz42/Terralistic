@@ -66,10 +66,10 @@ void WorldCreator::init() {
 }
 
 bool WorldCreator::onKeyUp(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY())) {
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
         returnFromScene();
         return true;
-    } else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_create)) {
+    } else if((key == gfx::Key::MOUSE_LEFT && create_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) || (key == gfx::Key::ENTER && can_create)) {
         int formed_seed = rand();
         if(!world_seed.getText().empty())
             formed_seed = std::stoi(world_seed.getText());
@@ -88,23 +88,23 @@ void WorldCreator::render() {
         create_button.loadFromSurface(gfx::textToSurface("Create world", {(unsigned char)(can_create ? WHITE.r : GREY.r), (unsigned char)(can_create ? WHITE.g : GREY.g), (unsigned char)(can_create ? WHITE.b : GREY.b)}));
         create_button.disabled = !can_create;
     }
-    create_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    create_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 
-    if(world_name.isHovered(getMouseX(), getMouseY()))
+    if(world_name.isHovered(getMouseX(), getMouseY(), getMouseVel()))
         new_world_name.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});
     else
         new_world_name.setColor(GREY);
 
-    if(world_seed.isHovered(getMouseX(), getMouseY())) {
+    if(world_seed.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
         new_world_seed.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});
     }
     else
         new_world_seed.setColor(GREY);
 
     new_world_title.render();
-    world_name.render(getMouseX(), getMouseY());
-    world_seed.render(getMouseX(), getMouseY());
+    world_name.render(getMouseX(), getMouseY(), getMouseVel());
+    world_seed.render(getMouseX(), getMouseY(), getMouseVel());
 
     if(world_name.getText().empty())
         new_world_name.render();

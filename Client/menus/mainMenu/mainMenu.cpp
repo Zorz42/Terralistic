@@ -58,19 +58,19 @@ void MainMenu::init() {
 
 bool MainMenu::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(singleplayer_button.isHovered(getMouseX(), getMouseY())) {
+        if(singleplayer_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             SingleplayerSelector(menu_back, settings).run();
             return true;
-        } else if(multiplayer_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(multiplayer_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             MultiplayerSelector(menu_back, settings).run();
             return true;
-        } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(settings_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             SettingsMenu(menu_back, settings).run();
             return true;
-        } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(mods_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             ModManager(menu_back).run();
             return true;
-        } else if(exit_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(exit_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             returnFromScene();
             return true;
         }
@@ -87,9 +87,9 @@ void MainMenu::render() {
     debug_title.render();
 #endif
     version.render();
-    singleplayer_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    multiplayer_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    settings_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    mods_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    exit_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    singleplayer_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    multiplayer_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    settings_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    mods_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    exit_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 }

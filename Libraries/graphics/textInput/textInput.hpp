@@ -13,7 +13,7 @@ class TextInput : public Button {
     Rect back_rect;
     std::vector<Key> passthrough_keys = {};
 public:
-    void render(int mouse_x, int mouse_y);
+    void render(int mouse_x, int mouse_y, int mouse_vel);
     TextInput();
 
     std::string getText() const { return text; }
