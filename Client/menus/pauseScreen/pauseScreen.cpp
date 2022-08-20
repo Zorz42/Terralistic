@@ -127,3 +127,7 @@ void PauseScreen::setBackWidth(int width) {
 int PauseScreen::getBackWidth() {
     return back_rect.w;
 }
+
+gfx::Container* PauseScreen::getBackContainer() {
+    return &back_rect;
+}

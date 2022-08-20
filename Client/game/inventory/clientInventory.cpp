@@ -221,10 +221,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::NUM9: selectSlot(8); return true;
         case gfx::Key::NUM0: selectSlot(9); return true;
         case gfx::Key::E:
-            if(open)  // I know its ugly but if I do open = !open; for some reason clang-tidy thinks the variable not changing, and starts recommending weird optimizations.
-                open = false;
-            else
-                open = true;
+            open = !open;
 
             if(!open && inventory.getItem(-1).type != &items->nothing) {
                 int result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);

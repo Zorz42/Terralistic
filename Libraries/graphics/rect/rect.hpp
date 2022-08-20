@@ -1,10 +1,10 @@
 #pragma once
-#include "orientedObject.hpp"
+#include "container.hpp"
 #include "timer.hpp"
 
 namespace gfx {
 
-class Rect : public _OrientedObject {
+class Rect : public Container {
     float render_x = 0, render_y = 0, render_w = 0, render_h = 0;
     Timer approach_timer;
     int ms_counter = 0;
@@ -19,6 +19,8 @@ public:
     
     void jumpToTarget();
     void render();
+    
+    RectShape getTranslatedRect() const override;
 };
 
 };

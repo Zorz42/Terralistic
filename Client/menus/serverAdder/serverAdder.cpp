@@ -77,10 +77,8 @@ void ServerAdder::render() {
     menu_back->setBackWidth(server_ip_input.getWidth() + 100);
     menu_back->renderBack();
     if(can_add != !(server_ip_input.getText().empty() || server_name_input.getText().empty())) {
-        if(can_add) // I know its ugly but if I do can_add = !can_add; for some reason clang-tidy thinks the variable not changing, and starts recommending weird optimizations.
-            can_add = false;
-        else
-            can_add = true;
+        can_add = !can_add;
+        
         add_button.loadFromSurface(gfx::textToSurface("Add server", {(unsigned char)(can_add ? WHITE.r : GREY.r), (unsigned char)(can_add ? WHITE.g : GREY.g), (unsigned char)(can_add ? WHITE.b : GREY.b)}));
         add_button.disabled = !can_add;
     }

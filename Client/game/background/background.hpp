@@ -2,7 +2,7 @@
 #include "camera.hpp"
 #include "resourcePack.hpp"
 
-class Background : public ClientModule {
+class GameBackground : public ClientModule {
     void loadTextures() override;
     void render() override;
     
@@ -11,5 +11,5 @@ class Background : public ClientModule {
     Camera* camera;
     ResourcePack* resource_pack;
 public:
-    Background(Camera* camera, ResourcePack* resource_pack) : ClientModule("Background"), camera(camera), resource_pack(resource_pack) {}
+    GameBackground(Camera* camera, ResourcePack* resource_pack) : ClientModule("GameBackground"), camera(camera), resource_pack(resource_pack) {}
 };

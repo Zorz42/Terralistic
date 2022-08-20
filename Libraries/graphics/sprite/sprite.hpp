@@ -1,14 +1,14 @@
 #pragma once
 #include "color.hpp"
 #include "rectShape.hpp"
-#include "orientedObject.hpp"
+#include "container.hpp"
 #include "texture.hpp"
 
 namespace gfx {
 
-class Sprite : public _OrientedObject, public Texture {
-    using gfx::_OrientedObject::w;
-    using gfx::_OrientedObject::h;
+class Sprite : public Container, public Texture {
+    using gfx::Container::w;
+    using gfx::Container::h;
     
     Color color{255, 255, 255};
     RectShape src_rect;
