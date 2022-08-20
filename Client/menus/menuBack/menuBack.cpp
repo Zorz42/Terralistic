@@ -20,8 +20,8 @@ void MenuBack::renderBack() {
     for(int i = -1; i < gfx::getWindowWidth() / (background.getTextureWidth() * scale) + 2; i++)
         background.render(scale, pos + i * background.getTextureWidth() * scale, 0);
     
-    if(back_rect.getHeight() != gfx::getWindowHeight()) {
-        back_rect.setHeight(gfx::getWindowHeight());
+    if(back_rect.h != gfx::getWindowHeight()) {
+        back_rect.h = gfx::getWindowHeight();
         back_rect.jumpToTarget();
     }
     back_rect.render();

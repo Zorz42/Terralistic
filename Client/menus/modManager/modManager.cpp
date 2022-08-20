@@ -9,19 +9,19 @@ GuiMod::GuiMod(const std::string& name) : name(name) {
     fill_color.a = TRANSPARENCY;
     blur_radius = BLUR;
     shadow_intensity = SHADOW_INTENSITY;
-    text.loadFromText(name);
-    setWidth(300);
-    setHeight(text.getTextureHeight() * 2 + SPACING);
+    text.loadFromSurface(gfx::textToSurface(name));
+    w = 300;
+    h = text.getTextureHeight() * 2 + SPACING;
     smooth_factor = 3;
 }
 
 void GuiMod::renderTile() {
     Rect::render();
-    text.render(2, getTranslatedX() + getWidth() / 2 - text.getTextureWidth(), getTranslatedY() + SPACING / 2);
+    text.render(2, getTranslatedRect().x + w / 2 - text.getTextureWidth(), getTranslatedRect().y + SPACING / 2);
 }
 
-bool GuiMod::hoversPoint(int x, int y) {
-    return x > getTranslatedX() && x < getTranslatedX() + getWidth() && y > getTranslatedY() && y < getTranslatedY() + getHeight();
+bool GuiMod::hoversPoint(int x_, int y_) {
+    return x_ > getTranslatedRect().x && x_ < getTranslatedRect().x + w && y_ > getTranslatedRect().y && y_ < getTranslatedRect().y + h;
 }
 
 void ModManager::init() {
@@ -51,21 +51,21 @@ void ModManager::init() {
     placeholder.orientation = gfx::TOP;
     placeholder.smooth_factor = 1;
     
-    enabled_text.loadFromText("Enabled");
-    enabled_text.scale = 3;
+    enabled_text.loadFromSurface(gfx::textToSurface("Enabled"));
+    enabled_text.setScale(3);
     enabled_text.orientation = gfx::TOP;
     enabled_text.x = 200;
     enabled_text.y = SPACING;
     
-    disabled_text.loadFromText("Disabled");
-    disabled_text.scale = 3;
+    disabled_text.loadFromSurface(gfx::textToSurface("Disabled"));
+    disabled_text.setScale(3);
     disabled_text.orientation = gfx::TOP;
     disabled_text.x = -200;
     disabled_text.y = SPACING;
     
-    back_button.loadFromText("Back");
+    back_button.loadFromSurface(gfx::textToSurface("Back"));
     back_button.orientation = gfx::BOTTOM;
-    back_button.scale = 3;
+    back_button.setScale(3);
     back_button.y = -SPACING;
 }
 
@@ -74,10 +74,10 @@ bool ModManager::onKeyDown(gfx::Key key) {
         for(auto & mod : mods)
             if(mod->hoversPoint(getMouseX(), getMouseY())) {
                 holding = mod;
-                hold_x = getMouseX() - holding->getTranslatedX();
-                hold_y = getMouseY() - holding->getTranslatedY();
-                holding_x = holding->getX();
-                holding_y = holding->getY();
+                hold_x = getMouseX() - holding->getTranslatedRect().x;
+                hold_y = getMouseY() - holding->getTranslatedRect().x;
+                holding_x = holding->x;
+                holding_y = holding->y;
                 holding->smooth_factor = 1;
                 changed_mods = true;
             }
@@ -102,19 +102,19 @@ void ModManager::render() {
         if(mod == holding) {
             placeholder_x = mod->enabled ? 200 : -200;
             placeholder_y = mod->enabled ? curr_enabled_y : curr_disabled_y;
-            placeholder.setX(placeholder_x);
-            placeholder.setY(placeholder_y);
-            placeholder.setWidth(mod->getWidth());
-            placeholder.setHeight(mod->getHeight());
+            placeholder.x = placeholder_x;
+            placeholder.y = placeholder_y;
+            placeholder.w = mod->w;
+            placeholder.h = mod->h;
         } else {
             mod->orientation = gfx::TOP;
-            mod->setY(mod->enabled ? curr_enabled_y : curr_disabled_y);
-            mod->setX(mod->enabled ? 200 : -200);
+            mod->y = mod->enabled ? curr_enabled_y : curr_disabled_y;
+            mod->x = mod->enabled ? 200 : -200;
         }
         if(mod->enabled)
-            curr_enabled_y += mod->getHeight() + SPACING;
+            curr_enabled_y += mod->h + SPACING;
         else
-            curr_disabled_y += mod->getHeight() + SPACING;
+            curr_disabled_y += mod->h + SPACING;
     }
     
     background->setBackWidth(800);
@@ -127,7 +127,7 @@ void ModManager::render() {
     
     enabled_text.render();
     disabled_text.render();
-    back_button.render(getMouseX(), getMouseY());
+    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     for(auto & mod : mods)
         if(mod != holding)
@@ -141,7 +141,7 @@ void ModManager::render() {
         placeholder.smooth_factor = 1;
     
     if(holding) {
-        int holding_x_should_be = getMouseX() - gfx::getWindowWidth() / 2 + holding->getWidth() / 2 - hold_x, holding_y_should_be = getMouseY() - hold_y;
+        int holding_x_should_be = getMouseX() - gfx::getWindowWidth() / 2 + holding->w / 2 - hold_x, holding_y_should_be = getMouseY() - hold_y;
         
         holding_vel_y += (holding_y_should_be - holding_y) / 3;
         holding_vel_y /= 1.4;
@@ -152,8 +152,8 @@ void ModManager::render() {
         holding_x += holding_vel_x;
         holding_y += holding_vel_y;
         
-        holding->setX(holding_x);
-        holding->setY(holding_y);
+        holding->x = holding_x;
+        holding->y = holding_y;
         
         holding->enabled = holding_x > 0;
     
@@ -161,7 +161,7 @@ void ModManager::render() {
         GuiMod* nearest = holding;
         for(auto & mod : mods) {
             if(mod->enabled == holding->enabled && mod != holding) {
-                int distance = std::abs(holding_y - mod->getTargetY());
+                int distance = std::abs(holding_y - mod->y);
                 if(!nearest || distance < min_distance) {
                     min_distance = distance;
                     nearest = mod;

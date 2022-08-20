@@ -14,7 +14,7 @@ struct MenuServer {
     ServerData data;
     gfx::Button join_button, remove_button;
     gfx::Texture name_texture, icon;
-    void render(int position, int mouse_x, int mouse_y);
+    void render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed);
     int y = 0;
     explicit MenuServer(ServerData data) : data(std::move(data)) {}
 };

@@ -106,17 +106,12 @@ void ClientBlocks::init() {
 void ClientBlocks::loadTextures() {
     breaking_texture.loadFromSurface(readOpa(resource_pack->getFile("/misc/breaking.opa")));
     
-    std::vector<gfx::Texture*> block_textures(getNumBlockTypes() - 1);
+    std::vector<gfx::Surface> block_surfaces(getNumBlockTypes() - 1);
 
-    for(int i = 1; i < getNumBlockTypes(); i++) {
-        block_textures[i - 1] = new gfx::Texture;
-        block_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".opa")));
-    }
-    
-    blocks_atlas.create(block_textures);
-    
     for(int i = 1; i < getNumBlockTypes(); i++)
-        delete block_textures[i - 1];
+        block_surfaces[i - 1] = readOpa(resource_pack->getFile("/blocks/" + getBlockTypeById(i)->name + ".opa"));
+    
+    blocks_atlas.create(block_surfaces);
 }
 
 void ClientBlocks::updateParallel(float frame_length) {
@@ -186,7 +181,7 @@ void ClientBlocks::RenderBlockChunk::update(ClientBlocks* blocks, int x, int y) 
 
 void ClientBlocks::RenderBlockChunk::render(ClientBlocks* blocks, int x, int y) {
     if(block_count > 0)
-        block_rects.render(&blocks->getBlocksAtlasTexture(), x, y, false, block_count);
+        block_rects.render(&blocks->getBlocksAtlasTexture(), x, y, block_count);
 }
 
 const gfx::Texture& ClientBlocks::getBlocksAtlasTexture() {

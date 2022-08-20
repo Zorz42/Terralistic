@@ -60,7 +60,7 @@ void NaturalLight::naturalLightUpdateLoop() {
         for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
             updateLight(x);
         
-        gfx::sleep(100);
+        gfx::sleep(20);
     }
 }
 

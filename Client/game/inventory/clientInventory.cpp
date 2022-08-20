@@ -7,26 +7,26 @@ void ClientInventory::init() {
     networking->welcome_packet_event.addListener(this);
     
     behind_inventory_rect.orientation = gfx::TOP;
-    behind_inventory_rect.setWidth(10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING);
-    behind_inventory_rect.setY(INVENTORY_UI_SPACING / 2);
+    behind_inventory_rect.w = 10 * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2) + INVENTORY_UI_SPACING;
+    behind_inventory_rect.y = INVENTORY_UI_SPACING / 2;
     behind_inventory_rect.blur_radius = BLUR;
     behind_inventory_rect.fill_color.a = TRANSPARENCY;
-    behind_inventory_rect.setHeight(2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
+    behind_inventory_rect.h = 2 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
     behind_inventory_rect.shadow_intensity = SHADOW_INTENSITY;
     behind_inventory_rect.smooth_factor = 2;
     
     select_rect.orientation = gfx::TOP;
     select_rect.fill_color = GREY;
     select_rect.fill_color.a = TRANSPARENCY;
-    select_rect.setY(INVENTORY_UI_SPACING / 2);
-    select_rect.setHeight(BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING);
-    select_rect.setWidth(BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING);
-    select_rect.setX(-9 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING));
+    select_rect.y = INVENTORY_UI_SPACING / 2;
+    select_rect.h = BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING;
+    select_rect.w = BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING;
+    select_rect.x = -9 * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING);
     select_rect.smooth_factor = 2;
     
-    behind_crafting_rect.setX(INVENTORY_UI_SPACING / 2);
-    behind_crafting_rect.setY(INVENTORY_UI_SPACING / 2);
-    behind_crafting_rect.setWidth(INVENTORY_ITEM_BACK_RECT_WIDTH + 2 * INVENTORY_UI_SPACING);
+    behind_crafting_rect.x = INVENTORY_UI_SPACING / 2;
+    behind_crafting_rect.y = INVENTORY_UI_SPACING / 2;
+    behind_crafting_rect.w = INVENTORY_ITEM_BACK_RECT_WIDTH + 2 * INVENTORY_UI_SPACING;
     behind_crafting_rect.blur_radius = BLUR;
     behind_crafting_rect.fill_color.a = TRANSPARENCY;
     behind_crafting_rect.shadow_intensity = SHADOW_INTENSITY;
@@ -50,13 +50,13 @@ void ClientInventory::loadTextures() {
     for(int i = 0; i < 10; i++) {
         std::string text = "0";
         text[0] += i;
-        numbers[i].loadFromText(text, WHITE);
+        numbers[i].loadFromSurface(gfx::textToSurface(text));
     }
     
     item_text_textures.resize(items->getNumItemTypes() - 1);
     
     for(int i = 1; i < items->getNumItemTypes(); i++)
-        item_text_textures[i - 1].loadFromText(items->getItemTypeById(i)->display_name);
+        item_text_textures[i - 1].loadFromSurface(gfx::textToSurface(items->getItemTypeById(i)->display_name));
 }
 
 void ClientInventory::stop() {
@@ -71,10 +71,10 @@ void ClientInventory::update(float frame_length) {
 void ClientInventory::render() {
     bool tooltip_active = false;
     
-    behind_inventory_rect.setHeight(open ? 8 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 4 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING);
+    behind_inventory_rect.h = open ? 8 * BLOCK_WIDTH + 5 * INVENTORY_UI_SPACING : 4 * BLOCK_WIDTH + 3 * INVENTORY_UI_SPACING;
     behind_inventory_rect.render();
     
-    select_rect.setX((2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING));
+    select_rect.x = (2 * (selected_slot - 5) + 1) * (BLOCK_WIDTH * 2 + INVENTORY_UI_SPACING);
     select_rect.render();
     
     const gfx::Texture* text_texture = nullptr;
@@ -93,10 +93,10 @@ void ClientInventory::render() {
             if(inventory.getItem(i).type != &items->nothing) {
                 tooltip_active = true;
                 text_texture = &getItemTextTexture(inventory.getItem(i).type);
-                under_text_rect.setHeight(text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING);
-                under_text_rect.setWidth(text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING);
-                under_text_rect.setX(getMouseX() + 20 - INVENTORY_UI_SPACING);
-                under_text_rect.setY(getMouseY() + 20 - INVENTORY_UI_SPACING);
+                under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING;
+                under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING;
+                under_text_rect.x = getMouseX() + 20 - INVENTORY_UI_SPACING;
+                under_text_rect.y = getMouseY() + 20 - INVENTORY_UI_SPACING;
             }
         }
         
@@ -118,8 +118,8 @@ void ClientInventory::render() {
         std::vector<const Recipe*> available_recipes = inventory.getAvailableRecipes();
 
         hovered_recipe = -1;
-        behind_crafting_rect.setHeight(INVENTORY_UI_SPACING + (int)available_recipes.size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2));
-        behind_crafting_rect.setY(available_recipes.empty() ? -100 : INVENTORY_UI_SPACING / 2);
+        behind_crafting_rect.h = INVENTORY_UI_SPACING + (int)available_recipes.size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2);
+        behind_crafting_rect.y = available_recipes.empty() ? -100 : INVENTORY_UI_SPACING / 2;
         behind_crafting_rect.render();
 
 
@@ -141,10 +141,10 @@ void ClientInventory::render() {
         
         if(hovered_recipe != -1) {
             tooltip_active = true;
-            under_text_rect.setX(getMouseX());
-            under_text_rect.setY(getMouseY());
-            under_text_rect.setWidth(SPACING / 2 + (int)available_recipes[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2));
-            under_text_rect.setHeight(INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING);
+            under_text_rect.x = getMouseX();
+            under_text_rect.y = getMouseY();
+            under_text_rect.w = SPACING / 2 + (int)available_recipes[hovered_recipe]->ingredients.size() * (INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING / 2);
+            under_text_rect.h = INVENTORY_ITEM_BACK_RECT_WIDTH + SPACING;
             under_text_rect.render();
             int x = getMouseX() + SPACING / 2;
             int y = getMouseY() + SPACING / 2;
@@ -221,10 +221,7 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::NUM9: selectSlot(8); return true;
         case gfx::Key::NUM0: selectSlot(9); return true;
         case gfx::Key::E:
-            if(open)  // I know its ugly but if I do open = !open; for some reason clang-tidy thinks the variable not changing, and starts recommending weird optimizations.
-                open = false;
-            else
-                open = true;
+            open = !open;
 
             if(!open && inventory.getItem(-1).type != &items->nothing) {
                 int result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);

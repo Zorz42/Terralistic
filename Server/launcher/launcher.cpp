@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 }
 
 void ServerScene::init() {
-    text.scale = 3;
+    text.setScale(3);
     text.orientation = gfx::CENTER;
     text.loadFromText("Server Running");
 }

@@ -64,7 +64,7 @@ void ClientLights::lightUpdateLoop() {
                         finished = false;
                     }
         }
-        gfx::sleep(100);
+        gfx::sleep(20);
     }
 }
 
@@ -112,8 +112,11 @@ void ClientLights::LightChunk::update(ClientLights* lights, int x, int y) {
 }
 
 void ClientLights::LightChunk::render(int x, int y) {
-    if(light_count > 0)
-        light_rects.render(nullptr, x, y, /*blend_multiply*/true, light_count);
+    if(light_count > 0) {
+        gfx::setBlendMode(gfx::BlendMode::BLEND_MULTIPLY);
+        light_rects.render(nullptr, x, y, light_count);
+        gfx::setBlendMode(gfx::BlendMode::BLEND_ALPHA);
+    }
 }
 
 void ClientLights::LightChunk::create() {

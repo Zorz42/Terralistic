@@ -16,10 +16,9 @@ public:
 };
 
 void WorldJoiningScreen::init() {
-    text.scale = 3;
-    text.createBlankImage(1, 1);
+    text.setScale(3);
     text.orientation = gfx::CENTER;
-    text.loadFromText("Joining world");
+    text.loadFromSurface(gfx::textToSurface("Joining world"));
 }
 
 void WorldJoiningScreen::render() {

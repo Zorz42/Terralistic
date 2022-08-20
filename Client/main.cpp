@@ -13,7 +13,7 @@ class ScaleChangeListener : public EventListener<SettingChangeEvent> {
     void onEvent(SettingChangeEvent& event) override {
         switch(scale_setting->getSelectedChoice()) {
             case 0:
-                gfx::setGlobalScale(0);
+                gfx::setGlobalScale(SYSTEM_SCALE);
                 break;
             case 1:
                 gfx::setGlobalScale(0.5);

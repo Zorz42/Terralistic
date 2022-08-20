@@ -1,21 +1,21 @@
 #include "textureAtlas.hpp"
 
-void gfx::TextureAtlas::create(const std::vector<Texture*>& textures) {
+void gfx::TextureAtlas::create(const std::vector<Surface>& surfaces) {
     int width = 0, height = 0;
-    for(auto tex : textures) {
-        height += tex->getTextureHeight();
-        width = std::max(width, tex->getTextureWidth());
+    for(auto& surface : surfaces) {
+        height += surface.getHeight();
+        width = std::max(width, surface.getWidth());
     }
-    texture.createBlankImage(width, height);
-    texture.setRenderTarget();
-    rects.resize(textures.size());
+    Surface atlas_surface;
+    atlas_surface.createEmpty(width, height);
+    rects.resize(surfaces.size());
     int y = 0;
-    for(int i = 0; i < textures.size(); i++) {
-        textures[i]->render(1, 0, y);
-        rects[i] = RectShape(0, y, textures[i]->getTextureWidth(), textures[i]->getTextureHeight());
-        y += textures[i]->getTextureHeight();
+    for(int i = 0; i < surfaces.size(); i++) {
+        atlas_surface.draw(0, y, surfaces[i]);
+        rects[i] = RectShape(0, y, surfaces[i].getWidth(), surfaces[i].getHeight());
+        y += surfaces[i].getHeight();
     }
-    resetRenderTarget();
+    texture.loadFromSurface(atlas_surface);
 }
 
 gfx::RectShape gfx::TextureAtlas::getRect(int id) {

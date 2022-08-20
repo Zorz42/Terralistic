@@ -8,8 +8,9 @@ class _Transformation {
         {0.f, 1.f, 0.f},
         {0.f, 0.f, 1.f},
     };
-    void applyMatrix(float applied_matrix[3][3]);
 public:
+    _Transformation(float matrix_[3][3]);
+    _Transformation() = default;
     void translate(float x, float y);
     void stretch(float x, float y);
     const float* getArray() const;

@@ -4,40 +4,29 @@
 #include "texture.hpp"
 #include "font.hpp"
 
-void gfx::Texture::createBlankImage(int width_, int height_) {
-    if(width_ <= 0 || height_ <= 0)
-        throw std::runtime_error("Width and Height of a texture size must be positive.");
-    
-    Surface surface;
-    surface.createEmpty(width_, height_);
-    loadFromSurface(surface);
-    
-    glBindTexture(GL_TEXTURE_2D, gl_texture);
-}
-
 void gfx::Texture::loadFromSurface(const Surface& surface) {
     freeTexture();
     
-    width = surface.getWidth();
-    height = surface.getHeight();
+    texture_width = surface.getWidth();
+    texture_height = surface.getHeight();
     
-    std::vector<unsigned char> data2(width * height * 4);
-    for(int i = 0; i < width * height * 4; i++) {
-        data2[i] = 255;
+    std::vector<unsigned char> data(texture_width * texture_height * 4);
+    for(int i = 0; i < texture_width * texture_height * 4; i++) {
+        data[i] = 255;
         if(i % 8 == 1)
-            data2[i] = 0;
+            data[i] = 0;
     }
 
     glGenTextures(1, &gl_texture);
     glBindTexture(GL_TEXTURE_2D, gl_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &surface.getData()[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &surface.getData()[0]);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
     texture_normalization_transform = gfx::_Transformation();
     texture_normalization_transform.translate(0.f, 1.f);
-    texture_normalization_transform.stretch(1.f / width, -1.f / height);
+    texture_normalization_transform.stretch(1.f / texture_width, -1.f / texture_height);
 }
 
 gfx::Texture::~Texture() {
@@ -48,17 +37,17 @@ void gfx::Texture::freeTexture() {
     if(gl_texture != -1) {
         glDeleteTextures(1, &gl_texture);
         gl_texture = -1;
-        width = 0;
-        height = 0;
+        texture_width = 0;
+        texture_height = 0;
     }
 }
 
 int gfx::Texture::getTextureWidth() const {
-    return width;
+    return texture_width;
 }
 
 int gfx::Texture::getTextureHeight() const {
-    return height;
+    return texture_height;
 }
 
 void gfx::Texture::render(float scale, int x, int y, RectShape src_rect, bool flipped, Color color) const {
@@ -106,44 +95,10 @@ void gfx::Texture::render(float scale, int x, int y, bool flipped, Color color) 
     render(scale, x, y, {0, 0, getTextureWidth(), getTextureHeight()}, flipped, color);
 }
 
-unsigned int gfx::Texture::getGlTexture() const {
+unsigned int gfx::Texture::_getGlTexture() const {
     return gl_texture;
 }
 
-void gfx::Texture::setRenderTarget() {
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gl_texture, 0);
-    glViewport(0, 0, width, height);
-    normalization_transform = texture_normalization_transform;
-    normalization_transform.translate(-width, 0);
-    normalization_transform.stretch(2, 2);
-}
-
-void gfx::resetRenderTarget() {
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, window_texture, 0);
-    glViewport(0, 0, getWindowWidth(), getWindowHeight());
-    normalization_transform = window_normalization_transform;
-}
-
-#define TEXT_SPACING 1
-
-void gfx::Texture::loadFromText(const std::string& text, Color color) {
-    int width_ = 0;
-    for(char i : text)
-        width_ += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
-    
-    if(width_ == 0)
-        width_ = 1;
-    
-    createBlankImage(width_, 16);
-    setRenderTarget();
-    int x = 0;
-    for(char i : text) {
-        font_texture->render(1, x, 0, font_rects[(int)(unsigned char)i], false, color);
-        x += font_rects[(int)(unsigned char)i].w + TEXT_SPACING;
-    }
-    resetRenderTarget();
-}
-
-const gfx::_Transformation& gfx::Texture::getNormalizationTransform() const {
+const gfx::_Transformation& gfx::Texture::_getNormalizationTransform() const {
     return texture_normalization_transform;
 }

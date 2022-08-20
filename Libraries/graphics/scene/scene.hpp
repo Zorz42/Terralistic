@@ -36,17 +36,21 @@ public:
     std::vector<TextInput*> text_inputs;
 };
 
-class Scene : public SceneModule, EventListener<_ScreenRefreshEvent> {
+class Scene : public SceneModule, EventListener<_ScreenRefreshEvent>, EventListener<_KeyPressEvent>, EventListener<_KeyReleaseEvent>, EventListener<_ScrollEvent>, EventListener<_CharInputEvent> {
     std::vector<SceneModule*> modules;
-    void onKeyDownCallback(Key key_,  bool only_absolute = false);
-    void onKeyUpCallback(Key key_,  bool only_absolute = false);
     bool running = true, initialized = false;
     float render_time;
     int frame_count = 0;
     Timer print_render_data_timer;
     void onEvent(_ScreenRefreshEvent& event) override;
+    void onEvent(_KeyPressEvent& event) override;
+    void onEvent(_KeyReleaseEvent& event) override;
+    void onEvent(_ScrollEvent& event) override;
+    void onEvent(_CharInputEvent& event) override;
 public:
     Scene(const std::string& module_name) : SceneModule(module_name) {}
+    virtual void preInit() {}
+    
     void initialize();
     bool isInitialized() const;
     bool isRunning() const;
@@ -56,13 +60,7 @@ public:
     void renderAll();
     void returnFromScene();
     const std::vector<SceneModule*>& getModules();
-    void onMouseButtonEvent(gfx::Key key, bool pressed);
-    void onKeyboardButtonEvent(gfx::Key key, bool pressed);
-    void onTextEnteredEvent(char c);
-    void onMouseWheelScrollEvent(int delta);
     float getRenderTime();
-    
-    virtual void preInit() {}
 };
 
 inline int fps_limit = 0;

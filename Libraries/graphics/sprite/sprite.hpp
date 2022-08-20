@@ -1,27 +1,35 @@
 #pragma once
 #include "color.hpp"
 #include "rectShape.hpp"
-#include "centeredObject.hpp"
+#include "container.hpp"
 #include "texture.hpp"
 
 namespace gfx {
 
-class Sprite : public _CenteredObject, public Texture {
+class Sprite : public Container, public Texture {
+    using gfx::Container::w;
+    using gfx::Container::h;
+    
     Color color{255, 255, 255};
     RectShape src_rect;
+    float scale = 1;
+    
+    void updateSize();
 public:
     Sprite();
     
     bool flipped = false;
-    float scale = 1;
-    int getWidth() const override;
-    int getHeight() const override;
+    
+    void setScale(float scale);
+    float getScale() const;
     void setColor(Color color_);
+    
     void render() const;
-    void setSrcRect(RectShape src_rect);
-    void createBlankImage(int width, int height);
+    
     void loadFromSurface(const Surface& surface);
-    void loadFromText(const std::string &text, Color color={255, 255, 255});
+    
+    int getWidth() const;
+    int getHeight() const;
 };
 
 };

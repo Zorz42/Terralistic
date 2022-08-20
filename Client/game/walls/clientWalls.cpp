@@ -132,17 +132,12 @@ void ClientWalls::init() {
 void ClientWalls::loadTextures() {
     breaking_texture.loadFromSurface(readOpa(resource_pack->getFile("/misc/breaking.opa")));
     
-    std::vector<gfx::Texture*> wall_textures(getNumWallTypes() - 1);
+    std::vector<gfx::Surface> wall_surfaces(getNumWallTypes() - 1);
 
-    for(int i = 1; i < getNumWallTypes(); i++) {
-        wall_textures[i - 1] = new gfx::Texture;
-        wall_textures[i - 1]->loadFromSurface(readOpa(resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".opa")));
-    }
-    
-    walls_atlas.create(wall_textures);
-    
     for(int i = 1; i < getNumWallTypes(); i++)
-        delete wall_textures[i - 1];
+        wall_surfaces[i - 1] = readOpa(resource_pack->getFile("/walls/" + getWallTypeById(i)->name + ".opa"));
+    
+    walls_atlas.create(wall_surfaces);
 }
 
 void ClientWalls::stop() {
@@ -172,7 +167,7 @@ void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {
 
 void ClientWalls::RenderWallChunk::render(ClientWalls* walls, int x, int y) {
     if(wall_count > 0)
-        wall_rects.render(&walls->getWallsAtlasTexture(), x, y, false, wall_count);
+        wall_rects.render(&walls->getWallsAtlasTexture(), x, y, wall_count);
 }
 
 void ClientWalls::RenderWallChunk::create() {
