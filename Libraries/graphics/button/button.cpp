@@ -8,9 +8,9 @@ bool gfx::Button::isHovered(int mouse_x, int mouse_y, int mouse_vel) const {
 void gfx::Button::render(int mouse_x, int mouse_y, int mouse_vel, bool button_pressed) {
     RectShape rect = getTranslatedRect();
     
-    int hover_progress_target = isHovered(mouse_x, mouse_y, mouse_vel) ? (button_pressed ? 0.8 : 1) : 0;
+    float hover_progress_target = isHovered(mouse_x, mouse_y, mouse_vel) ? (button_pressed ? 0.8 : 1) : 0;
     while(timer_counter < timer.getTimeElapsed()) {
-        hover_progress += float(hover_progress_target - hover_progress) / 40;
+        hover_progress += (hover_progress_target - hover_progress) / 40;
         if(std::abs(hover_progress_target - hover_progress) <= 0.01)
             hover_progress = hover_progress_target;
         timer_counter++;

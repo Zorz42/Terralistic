@@ -103,18 +103,18 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     normalization_transform.translate(-float(getWindowWidth()) / 2, -float(getWindowHeight()) / 2);
     
     glBindTexture(GL_TEXTURE_2D, window_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth(), getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y, 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
     glBindTexture(GL_TEXTURE_2D, window_texture_back);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth(), getWindowHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y, 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
-    glViewport(0, 0, getWindowWidth(), getWindowHeight());
+    glViewport(0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y);
     
     _ScreenRefreshEvent event;
     screen_refresh_event_sender.call(event);
@@ -348,9 +348,9 @@ int gfx::getWindowHeight() {
 void gfx::updateWindow() {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, default_framebuffer);
     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, window_texture, 0);
-    
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, getWindowWidth(), getWindowHeight(), 0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    
+    glBlitFramebuffer(0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y, 0, 0, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     
     glfwSwapBuffers(glfw_window);
     

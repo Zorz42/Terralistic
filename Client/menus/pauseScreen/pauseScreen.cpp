@@ -68,7 +68,11 @@ void PauseScreen::render() {
 }
 
 void PauseScreen::renderBackground() {
+    bool blur_enabled = gfx::blur_enabled;
+    gfx::blur_enabled = false;
     background->renderBack();
+    gfx::blur_enabled = blur_enabled;
+    
     if(back_rect.h != gfx::getWindowHeight()) {
         back_rect.h = gfx::getWindowHeight();
         back_rect.jumpToTarget();

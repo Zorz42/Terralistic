@@ -306,8 +306,8 @@ void gfx::Scene::onEvent(_ScreenRefreshEvent& event) {
 
 void gfx::Scene::renderAll() {
     Timer frame_timer;
-
-    mouse_vel = (std::abs(mouse_x - gfx::getMouseX()) + std::abs(mouse_y - gfx::getMouseY())) / frame_length * 1000;
+   
+    mouse_vel = std::min((std::abs(mouse_x - gfx::getMouseX()) + std::abs(mouse_y - gfx::getMouseY())) / frame_length * 1000, 10000.f);
     mouse_x = gfx::getMouseX();
     mouse_y = gfx::getMouseY();
     for(int i = 0; i < modules.size(); i++)
@@ -329,7 +329,7 @@ void gfx::Scene::renderAll() {
     frame_length = frame_timer.getTimeElapsed();
 }
 
-//#define ENABLE_DEBUG_PRINT
+#define ENABLE_DEBUG_PRINT
 
 void gfx::Scene::cycleModules() {
     for(auto & module : modules)
