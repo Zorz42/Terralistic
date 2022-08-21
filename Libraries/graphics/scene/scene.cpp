@@ -329,7 +329,7 @@ void gfx::Scene::renderAll() {
     frame_length = frame_timer.getTimeElapsed();
 }
 
-#define ENABLE_DEBUG_PRINT
+//#define ENABLE_DEBUG_PRINT
 
 void gfx::Scene::cycleModules() {
     for(auto & module : modules)
