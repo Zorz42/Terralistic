@@ -140,6 +140,9 @@ int main(int argc, char **argv) {
 
     settings.removeSetting(&blur_setting);
     blur_setting.setting_change_event.removeListener(&blur_change_listener);
+    
+    settings.removeSetting(&stutter_setting);
+    stutter_setting.setting_change_event.removeListener(&stutter_listener);
 
     gfx::quit();
 
