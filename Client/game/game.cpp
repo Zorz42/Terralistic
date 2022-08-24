@@ -87,6 +87,7 @@ void Game::initializeGame() {
     try {
         if(interrupt)
             throw Exception(interrupt_message);
+        Scene::preInit();
         Scene::initialize();
         if(interrupt)
             throw Exception(interrupt_message);
@@ -123,16 +124,16 @@ void Game::start() {
     }
 }
 
-#define PARALLEL_UPDATES_PER_SECOND 10
+#define PARALLEL_UPDATES_PER_SECOND 20
 
 void Game::parallelUpdateLoop() {
     try {
 #ifdef __APPLE__
-                pthread_setname_np("Client Parallel");
+        pthread_setname_np("Client Parallel");
 #endif
 
 #ifdef __linux__
-                pthread_setname_np(pthread_self(), "Client Parallel");
+        pthread_setname_np(pthread_self(), "Client Parallel");
 #endif
         
         gfx::Timer timer;
