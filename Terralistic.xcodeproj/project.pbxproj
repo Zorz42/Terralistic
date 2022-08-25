@@ -146,7 +146,6 @@
 		366D9721282067FA00DEC292 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9708282067FA00DEC292 /* button.cpp */; };
 		366D9722282067FA00DEC292 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* container.cpp */; };
 		366D9723282067FA00DEC292 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9709282067FA00DEC292 /* container.cpp */; };
-		3672919B26FE225900786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672919C26FE226400786856 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		3672B160277C8431001293B5 /* serverAdder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B15E277C8431001293B5 /* serverAdder.cpp */; };
 		3672B164277C885D001293B5 /* nameChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3672B162277C885D001293B5 /* nameChooser.cpp */; };
@@ -202,6 +201,7 @@
 		369693E02883370400D39F1B /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311292843464A00C4DF00 /* socket.cpp */; };
 		369693E12883370400D39F1B /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693112C2843466000C4DF00 /* listener.cpp */; };
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
+		36C875BE28B81CD4007C2E4E /* liblz4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36C875BD28B81CC3007C2E4E /* liblz4.a */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
@@ -460,6 +460,7 @@
 		369693DB288336A400D39F1B /* testNetworking.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = testNetworking.mm; sourceTree = "<group>"; };
 		369981F0277CCAD500FA3F72 /* privateWorld.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = privateWorld.cpp; sourceTree = "<group>"; };
 		369E17CD2839467E00D37108 /* networking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = networking.hpp; sourceTree = "<group>"; };
+		36C875BD28B81CC3007C2E4E /* liblz4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblz4.a; path = "Dependencies/lz4-1.9.4/lib/liblz4.a"; sourceTree = "<group>"; };
 		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
@@ -470,7 +471,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3672919B26FE225900786856 /* libz.tbd in Frameworks */,
+				36C875BE28B81CD4007C2E4E /* liblz4.a in Frameworks */,
 				368198C8288348F900DB57C5 /* libplatform_folders.a in Frameworks */,
 				368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */,
 				368198CE2883622800DB57C5 /* libglad.a in Frameworks */,
@@ -517,6 +518,7 @@
 		1661654A25EA2CC8002A3815 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				36C875BD28B81CC3007C2E4E /* liblz4.a */,
 				368198CD2883621F00DB57C5 /* libglad.a */,
 				368198CA28834ADB00DB57C5 /* libglad.dylib */,
 				368198C7288348E100DB57C5 /* libplatform_folders.a */,
@@ -2115,6 +2117,7 @@
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
 					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 					"$(PROJECT_DIR)/Dependencies/glad",
+					"$(PROJECT_DIR)/Dependencies/lz4-1.9.4/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2135,6 +2138,7 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
+					"Dependencies/lz4-1.9.4/lib",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
@@ -2200,6 +2204,7 @@
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
 					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 					"$(PROJECT_DIR)/Dependencies/glad",
+					"$(PROJECT_DIR)/Dependencies/lz4-1.9.4/lib",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
@@ -2221,6 +2226,7 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
+					"Dependencies/lz4-1.9.4/lib",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
@@ -2255,6 +2261,7 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
+					"Dependencies/lz4-1.9.4/lib",
 				);
 			};
 			name = Debug;
@@ -2284,6 +2291,7 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
+					"Dependencies/lz4-1.9.4/lib",
 				);
 			};
 			name = Release;

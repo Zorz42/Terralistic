@@ -483,8 +483,8 @@ void WorldGenerator::generateStructuresForStrWorld() {
 void WorldGenerator::placeWalls() {
     for(int x = 0; x < blocks->getWidth(); x++) {
         for (int y = 1; y < blocks->getHeight() - 1; y++)
-            if (y > blocks->getHeight() - surface_heights[x - 1] && y > blocks->getHeight() - surface_heights[x] &&
-                y > blocks->getHeight() - surface_heights[x + 1])
+            if (y > blocks->getHeight() - surface_heights[std::max(x - 1, 0)] && y > blocks->getHeight() - surface_heights[x] &&
+                y > blocks->getHeight() - surface_heights[std::min(x + 1, blocks->getWidth() - 1)])
                 walls->setWallTypeSilently(x, y, &content->walls.dirt);
         /*if(x % 8 == 0)
             generating_current++;*/
