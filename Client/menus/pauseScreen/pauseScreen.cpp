@@ -6,18 +6,26 @@ void PauseScreen::init() {
     resume_button.setScale(3);
     resume_button.loadFromSurface(gfx::textToSurface("Resume"));
     resume_button.y = SPACING;
+    resume_button.x = SPACING;
+    resume_button.parent_containter = &back_rect;
 
     settings_button.setScale(3);
     settings_button.loadFromSurface(gfx::textToSurface("Settings"));
     settings_button.y = resume_button.y + resume_button.getHeight() + SPACING;
+    settings_button.x = SPACING;
+    settings_button.parent_containter = &back_rect;
     
     mods_button.setScale(3);
     mods_button.loadFromSurface(gfx::textToSurface("Mods"));
     mods_button.y = settings_button.y + settings_button.getHeight() + SPACING;
+    mods_button.x = SPACING;
+    mods_button.parent_containter = &back_rect;
     
     quit_button.setScale(3);
     quit_button.loadFromSurface(gfx::textToSurface("Leave Game"));
     quit_button.y = mods_button.y + mods_button.getHeight() + SPACING;
+    quit_button.x = SPACING;
+    quit_button.parent_containter = &back_rect;
     
     back_rect.fill_color.a = TRANSPARENCY;
     back_rect.shadow_intensity = SHADOW_INTENSITY;
@@ -38,20 +46,20 @@ bool PauseScreen::onKeyDown(gfx::Key key) {
 
 bool PauseScreen::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(resume_button.isHovered(getMouseX(), getMouseY())) {
+        if(resume_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             returnToGame();
             return true;
-        } else if(settings_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(settings_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             SettingsMenu settings_menu(this, settings);
             settings_menu.run();
             return true;
-        } else if(mods_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(mods_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             ModManager mod_manager(this);
             mod_manager.run();
             if(mod_manager.changed_mods)
                 changed_mods = true;
             return true;
-        } else if(quit_button.isHovered(getMouseX(), getMouseY())) {
+        } else if(quit_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             exitToMenu();
             return true;
         }
@@ -68,11 +76,16 @@ void PauseScreen::render() {
 }
 
 void PauseScreen::renderBackground() {
+    bool blur_enabled = gfx::blur_enabled;
+    gfx::blur_enabled = false;
     background->renderBack();
+    gfx::blur_enabled = blur_enabled;
+    
     if(back_rect.h != gfx::getWindowHeight()) {
         back_rect.h = gfx::getWindowHeight();
         back_rect.jumpToTarget();
     }
+    
     fade_rect.w = gfx::getWindowWidth();
     fade_rect.h = gfx::getWindowHeight();
     int back_x = std::min(back_rect.x, 0);
@@ -85,14 +98,11 @@ void PauseScreen::renderBackground() {
 }
 
 void PauseScreen::renderButtons() {
-    resume_button.x = back_rect.x + SPACING;
-    quit_button.x = back_rect.x + SPACING;
-    mods_button.x = back_rect.x + SPACING;
-    settings_button.x = back_rect.x + SPACING;
-    resume_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    settings_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    mods_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    quit_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    
+    resume_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    settings_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    mods_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    quit_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     if(returning_to_game) {
         if(back_rect.x == -back_width - 200)

@@ -10,7 +10,7 @@
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
-void MenuServer::render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed) {
+void MenuServer::render(int position, int mouse_x, int mouse_y, int mouse_vel, bool is_mouse_pressed) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
     
     gfx::Color back_color = BLACK;
@@ -22,11 +22,11 @@ void MenuServer::render(int position, int mouse_x, int mouse_y, bool is_mouse_pr
     
     join_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
     join_button.y = render_y + render_height - join_button.getHeight() - SPACING;
-    join_button.render(mouse_x, mouse_y, is_mouse_pressed);
+    join_button.render(mouse_x, mouse_y, mouse_vel, is_mouse_pressed);
     
     remove_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + join_button.getWidth();
     remove_button.y = render_y + render_height - join_button.getHeight() - SPACING;
-    remove_button.render(mouse_x, mouse_y, is_mouse_pressed);
+    remove_button.render(mouse_x, mouse_y, mouse_vel, is_mouse_pressed);
 }
 
 void MultiplayerSelector::refresh() {
@@ -112,9 +112,9 @@ void MultiplayerSelector::init() {
 
 bool MultiplayerSelector::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered(getMouseX(), getMouseY()))
+        if(back_button.isHovered(getMouseX(), getMouseY(), getMouseVel()))
             returnFromScene();
-        else if(new_button.isHovered(getMouseX(), getMouseY())) {
+        else if(new_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             ServerAdder server_adder(menu_back);
             server_adder.run();
             if(!server_adder.server_ip.empty())
@@ -123,10 +123,10 @@ bool MultiplayerSelector::onKeyUp(gfx::Key key) {
         }
         else
             for(int i = 0; i < servers.size(); i++) {
-                if(servers[i]->join_button.isHovered(getMouseX(), getMouseY())) {
+                if(servers[i]->join_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
                     NameChooser name_chooser(menu_back, settings, servers[i]->data.ip);
                     name_chooser.run();
-                } else if(servers[i]->remove_button.isHovered(getMouseX(), getMouseY())) {
+                } else if(servers[i]->remove_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
@@ -168,7 +168,7 @@ void MultiplayerSelector::render() {
     }
 
     for(int i = 0; i < servers.size(); i++)
-        servers[i]->render(position, getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+        servers[i]->render(position, getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 
     top_rect.w = menu_back->getBackWidth();
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
@@ -188,10 +188,10 @@ void MultiplayerSelector::render() {
         bottom_rect.render();
 
     title.render();
-    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
-    new_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    new_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 }
 
 void MultiplayerSelector::stop() {

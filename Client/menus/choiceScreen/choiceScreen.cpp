@@ -33,7 +33,7 @@ void ChoiceScreen::init() {
 bool ChoiceScreen::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT)
         for(auto & button : buttons)
-            if(button.gfx_button.isHovered(getMouseX(), getMouseY())) {
+            if(button.gfx_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
                 if(result)
                     *result = button.option;
                 returnFromScene();
@@ -46,6 +46,6 @@ void ChoiceScreen::render() {
     menu_back->setBackWidth(question_sprite.getWidth() + 100);
     menu_back->renderBack();
     for(auto & button : buttons)
-        button.gfx_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+        button.gfx_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
     question_sprite.render();
 }

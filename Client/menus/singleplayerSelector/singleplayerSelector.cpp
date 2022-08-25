@@ -9,7 +9,7 @@
 #define TOP_HEIGHT (title.getHeight() + 2 * SPACING)
 #define BOTTOM_HEIGHT (back_button.getHeight() + 2 * SPACING)
 
-void World::render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed) {
+void World::render(int position, int mouse_x, int mouse_y, int mouse_vel, bool is_mouse_pressed) {
     int render_x = gfx::getWindowWidth() / 2 - 400 + SPACING, render_y = y - position, render_width = 800 - 2 * SPACING, render_height = 116 + 2 * SPACING;
     
     gfx::Color back_color = BLACK;
@@ -21,11 +21,11 @@ void World::render(int position, int mouse_x, int mouse_y, bool is_mouse_pressed
     
     play_button.x = render_x + 2 * SPACING + icon.getTextureWidth();
     play_button.y = render_y + render_height - play_button.getHeight() - SPACING;
-    play_button.render(mouse_x, mouse_y, is_mouse_pressed);
+    play_button.render(mouse_x, mouse_y, mouse_vel, is_mouse_pressed);
     
     delete_button.x = render_x + 3 * SPACING + icon.getTextureWidth() + play_button.getWidth();
     delete_button.y = render_y + render_height - play_button.getHeight() - SPACING;
-    delete_button.render(mouse_x, mouse_y, is_mouse_pressed);
+    delete_button.render(mouse_x, mouse_y, mouse_vel, is_mouse_pressed);
     
     last_played.render(2, render_x + render_width - last_played.getTextureWidth() * 2 - SPACING, render_y + render_height - last_played.getTextureHeight() * 2 - SPACING);
 }
@@ -111,9 +111,9 @@ void SingleplayerSelector::refresh() {
 
 bool SingleplayerSelector::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered(getMouseX(), getMouseY()))
+        if(back_button.isHovered(getMouseX(), getMouseY(), getMouseVel()))
             returnFromScene();
-        else if(new_button.isHovered(getMouseX(), getMouseY())) {
+        else if(new_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
             std::vector<std::string> worlds_names;
             for(int i = 0; i < worlds.size(); i++)
                 worlds_names.push_back(worlds[i]->name);
@@ -122,11 +122,11 @@ bool SingleplayerSelector::onKeyUp(gfx::Key key) {
         }
         else
             for(int i = 0; i < worlds.size(); i++) {
-                if(worlds[i]->play_button.isHovered(getMouseX(), getMouseY())) {
+                if(worlds[i]->play_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
                     startPrivateWorld(sago::getDataHome() + "/Terralistic/Worlds/" + worlds[i]->name + ".world", menu_back, settings, false);
                     refresh();
                 }
-                else if(worlds[i]->delete_button.isHovered(getMouseX(), getMouseY())) {
+                else if(worlds[i]->delete_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
                     std::string result;
                     if(getKeyState(gfx::Key::SHIFT))
                         result = "Yes";
@@ -167,7 +167,7 @@ void SingleplayerSelector::render() {
     }
 
     for(int i = 0; i < worlds.size(); i++)
-        worlds[i]->render(position, getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+        worlds[i]->render(position, getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 
     top_rect.w = menu_back->getBackWidth();
     top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
@@ -187,8 +187,8 @@ void SingleplayerSelector::render() {
         bottom_rect.render();
 
     title.render();
-    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     new_button.x = menu_back->getBackWidth() / 2 - SPACING - new_button.getWidth() / 2;
-    new_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    new_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 }

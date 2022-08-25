@@ -13,17 +13,17 @@ class Button : public Texture, public Container {
     float hover_progress = 0;
     int margin = GFX_DEFAULT_BUTTON_MARGIN;
     
+    void updateSize();
+    
     using gfx::Container::w;
     using gfx::Container::h;
-    
-    void updateSize();
 public:
     Color def_color = GFX_DEFAULT_BUTTON_COLOR, def_border_color = GFX_DEFAULT_BUTTON_BORDER_COLOR, hover_color = GFX_DEFAULT_HOVERED_BUTTON_COLOR, border_hover_color = GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR;
     
     bool disabled = false;
     
-    bool isHovered(int mouse_x, int mouse_y) const;
-    void render(int mouse_x, int mouse_y, bool button_pressed);
+    bool isHovered(int mouse_x, int mouse_y, int mouse_vel) const;
+    void render(int mouse_x, int mouse_y, int mouse_vel, bool button_pressed);
     
     void loadFromSurface(const Surface& surface);
     
@@ -34,7 +34,10 @@ public:
     int getMargin() const;
     
     int getWidth() const;
+    void setWidth(int width);
+    
     int getHeight() const;
+    void setHeight(int height);
 };
 
 };

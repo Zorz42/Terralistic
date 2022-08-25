@@ -42,10 +42,10 @@ void NameChooser::init() {
 }
 
 bool NameChooser::onKeyUp(gfx::Key key) {
-    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY())) {
+    if(key == gfx::Key::MOUSE_LEFT && back_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
         returnFromScene();
         return true;
-    } else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(getMouseX(), getMouseY())) || (key == gfx::Key::ENTER && can_join)) {
+    } else if((key == gfx::Key::MOUSE_LEFT && join_button.isHovered(getMouseX(), getMouseY(), getMouseVel())) || (key == gfx::Key::ENTER && can_join)) {
         Game(menu_back, settings, name_input.getText(), server_ip).start();
         returnFromScene();
         return true;
@@ -61,10 +61,10 @@ void NameChooser::render() {
         join_button.loadFromSurface(gfx::textToSurface("Join server", {(unsigned char)(can_join ? WHITE.r : GREY.r), (unsigned char)(can_join ? WHITE.g : GREY.g), (unsigned char)(can_join ? WHITE.b : GREY.b)}));
         join_button.disabled = !can_join;
     }
-    join_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
-    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    join_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
     choose_name_title.render();
-    name_input.render(getMouseX(), getMouseY());
+    name_input.render(getMouseX(), getMouseY(), getMouseVel());
 }
 
 void NameChooser::stop() {

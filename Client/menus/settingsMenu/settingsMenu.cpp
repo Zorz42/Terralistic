@@ -39,10 +39,10 @@ void SettingsMenu::stop() {
 
 bool SettingsMenu::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered(getMouseX(), getMouseY()))
+        if(back_button.isHovered(getMouseX(), getMouseY(), getMouseVel()))
             returnFromScene();
         for(auto & render_setting : render_settings)
-            render_setting->onMouseButtonUp(getMouseX(), getMouseY());
+            render_setting->onMouseButtonUp(getMouseX(), getMouseY(), getMouseVel());
         return true;
     }
     return false;
@@ -51,7 +51,7 @@ bool SettingsMenu::onKeyUp(gfx::Key key) {
 bool SettingsMenu::onKeyDown(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
         for(auto & render_setting : render_settings)
-            render_setting->onMouseButtonDown(getMouseX(), getMouseY());
+            render_setting->onMouseButtonDown(getMouseX(), getMouseY(), getMouseVel());
         return true;
     }
     return false;
@@ -70,13 +70,13 @@ void SettingsMenu::render() {
         c.a = TRANSPARENCY;
         gfx::RectShape(gfx::getWindowWidth() / 2 - width / 2, y, width, height).render(c);
         
-        render_setting->render(y, required_width, getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+        render_setting->render(y, required_width, getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
         
         y += height;
     }
     
     
-    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 }
 
 RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setting) {
@@ -96,7 +96,7 @@ RenderChoiceSetting::RenderChoiceSetting(ChoiceSetting* setting) : setting(setti
     }
 }
 
-void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y, bool is_mouse_pressed) {
+void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y, int mouse_vel, bool is_mouse_pressed) {
     int x = width / 2 - SPACING;
     for(int i = (int)choice_buttons.size() - 1; i >= 0; i--) {
         gfx::Button* button = choice_buttons[i];
@@ -119,7 +119,7 @@ void RenderChoiceSetting::render(int y, int width, int mouse_x, int mouse_y, boo
     choice_text.render();
     
     for(int i = 0; i < (int)choice_buttons.size(); i++)
-        choice_buttons[i]->render(mouse_x, mouse_y, is_mouse_pressed);
+        choice_buttons[i]->render(mouse_x, mouse_y, mouse_vel, is_mouse_pressed);
 }
 
 int RenderChoiceSetting::getHeight() {
@@ -135,9 +135,9 @@ int RenderChoiceSetting::getWidth() {
     return width;
 }
 
-void RenderChoiceSetting::onMouseButtonUp(int x, int y) {
+void RenderChoiceSetting::onMouseButtonUp(int x, int y, int mouse_vel) {
     for(int i = 0; i < choice_buttons.size(); i++)
-        if(choice_buttons[i]->isHovered(x, y))
+        if(choice_buttons[i]->isHovered(x, y, mouse_vel))
             setting->setSelectedChoice(i);
 }
 
@@ -153,13 +153,13 @@ RenderBooleanSetting::RenderBooleanSetting(BooleanSetting* setting) : setting(se
     updateButtonText();
 }
 
-void RenderBooleanSetting::render(int y, int width, int mouse_x, int mouse_y, bool is_mouse_pressed) {
+void RenderBooleanSetting::render(int y, int width, int mouse_x, int mouse_y, int mouse_vel, bool is_mouse_pressed) {
     text.y = y + getHeight() / 2 - text.getHeight() / 2;
     text.x = -width / 2 + text.getWidth() / 2 + SPACING;
     
     toggle_button.y = y + getHeight() / 2 - toggle_button.getHeight() / 2;
     toggle_button.x = width / 2 - toggle_button.getWidth() / 2 - SPACING;
-    toggle_button.render(mouse_x, mouse_y, is_mouse_pressed);
+    toggle_button.render(mouse_x, mouse_y, mouse_vel, is_mouse_pressed);
     
     text.render();
 }
@@ -188,8 +188,8 @@ int RenderBooleanSetting::getWidth() {
     return width;
 }
 
-void RenderBooleanSetting::onMouseButtonUp(int x, int y) {
-    if(toggle_button.isHovered(x, y)) {
+void RenderBooleanSetting::onMouseButtonUp(int x, int y, int mouse_vel) {
+    if(toggle_button.isHovered(x, y, mouse_vel)) {
         setting->setValue(!setting->getValue());
         updateButtonText();
     }
@@ -229,7 +229,7 @@ RenderSliderSetting::RenderSliderSetting(SliderSetting* setting) : setting(setti
     updateSliderText();
 }
 
-void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y, bool is_mouse_pressed) {
+void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y, int mouse_vel, bool is_mouse_pressed) {
     int x = width / 2 - SPACING;
     
     slider_rect.x = x - slider_rect.w / 2;
@@ -282,7 +282,7 @@ void RenderSliderSetting::render(int y, int width, int mouse_x, int mouse_y, boo
     choice_text.render();
     
     for(int i = 0; i < (int)choice_buttons.size(); i++)
-        choice_buttons[i]->render(mouse_x, mouse_y, is_mouse_pressed);
+        choice_buttons[i]->render(mouse_x, mouse_y, mouse_vel, is_mouse_pressed);
     
     slider_text.y = slider_rect.y + slider_rect.h / 2 - slider_text.getHeight() / 2;
     slider_text.x = slider_rect.x;
@@ -302,21 +302,21 @@ int RenderSliderSetting::getWidth() {
     return width;
 }
 
-void RenderSliderSetting::onMouseButtonUp(int x, int y) {
+void RenderSliderSetting::onMouseButtonUp(int x, int y, int mouse_vel) {
     holding_slider = false;
     for(int i = 0; i < choice_buttons.size(); i++)
-        if(choice_buttons[i]->isHovered(x, y)) {
+        if(choice_buttons[i]->isHovered(x, y, mouse_vel)) {
             setting->setSelectedChoice(i);
             updateSliderText();
         }
 }
 
-void RenderSliderSetting::onMouseButtonDown(int x, int y) {
+void RenderSliderSetting::onMouseButtonDown(int x, int y, int mouse_vel) {
     if(slider_hovered)
         holding_slider = true;
     
     for(int i = 0; i < choice_buttons.size(); i++)
-        if(choice_buttons[i]->isHovered(x, y))
+        if(choice_buttons[i]->isHovered(x, y, mouse_vel))
             setting->setSelectedChoice(i);
 }
 

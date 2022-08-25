@@ -39,6 +39,10 @@ int gfx::SceneModule::getMouseY() {
     return mouse_y;
 }
 
+int gfx::SceneModule::getMouseVel() {
+    return mouse_vel;
+}
+
 bool gfx::SceneModule::getKeyState(Key key_) const {
     return enable_key_states && key_states[(int)key_];
 }
@@ -56,7 +60,7 @@ void gfx::Scene::onEvent(_KeyPressEvent& event) {
         for(SceneModule* module : modules)
             if(module->enabled)
                 for (TextInput* i : module->text_inputs) {
-                    i->active = i->isHovered(getMouseX(), getMouseY());
+                    i->active = i->isHovered(getMouseX(), getMouseY(), getMouseVel());
                     if (i->active)
                         clicked_text_box = true;
                 }
@@ -302,13 +306,15 @@ void gfx::Scene::onEvent(_ScreenRefreshEvent& event) {
 
 void gfx::Scene::renderAll() {
     Timer frame_timer;
-
+   
+    mouse_vel = std::min((std::abs(mouse_x - gfx::getMouseX()) + std::abs(mouse_y - gfx::getMouseY())) / frame_length * 1000, 10000.f);
     mouse_x = gfx::getMouseX();
     mouse_y = gfx::getMouseY();
     for(int i = 0; i < modules.size(); i++)
         if(modules[i]->enabled) {
             modules[i]->mouse_x = mouse_x;
             modules[i]->mouse_y = mouse_y;
+            modules[i]->mouse_vel = mouse_vel;
         }
     
     cycleModules();

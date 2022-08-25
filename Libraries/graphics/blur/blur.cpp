@@ -20,13 +20,11 @@ static const char* blur_fragment_shader_code =
 "uniform sampler2D texture_sampler;"
 "uniform vec2 blur_offset;"
 "uniform vec4 limit;"
-"uniform mat3 transform_matrix;"
-"uniform mat3 texture_transform_matrix;"
-"float gauss[21] = float[](0.0012, 0.0015, 0.0038, 0.0087, 0.0180, 0.0332, 0.0547, 0.0807, 0.1065, 0.1258, 0.1330, 0.1258, 0.1065, 0.0807, 0.0547, 0.0332, 0.0180, 0.0087, 0.0038, 0.0015, 0.0012);"
+"const float gauss[17] = float[](0.0038, 0.0087, 0.0180, 0.0332, 0.0547, 0.0807, 0.1065, 0.1258, 0.1330, 0.1258, 0.1065, 0.0807, 0.0547, 0.0332, 0.0180, 0.0087, 0.0038);"
 "void main() {"
 "   color = vec4(0, 0, 0, 0);"
-"   for(int i = 0; i < 21; i++)"
-"       color += texture(texture_sampler, max(min(uv + (i - 10.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];"
+"   for(int i = 0; i < 17; i++)"
+"       color += texture(texture_sampler, max(min(uv + (i - 8.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];"
 "}";
 
 void gfx::initBlur() {
@@ -55,6 +53,9 @@ void blurRect(float offset_x, float offset_y, GLuint texture, GLuint back_textur
 #define BLUR_QUALITY 3
 
 void gfx::blurRectangle(RectShape rect, int radius, unsigned int texture, unsigned int back_texture, float width, float height, _Transformation texture_transform) {
+    if(anti_stutter)
+        glFinish();
+
     glEnableVertexAttribArray(SHADER_TEXTURE_COORD_BUFFER);
     
     glUseProgram(gfx::blur_shader_program);

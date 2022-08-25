@@ -60,6 +60,15 @@ public:
     explicit BlurChangeListener(BooleanSetting* blur_setting) : blur_setting(blur_setting) {}
 };
 
+class AntiStutterListener : public EventListener<SettingChangeEvent> {
+    BooleanSetting* stutter_setting;
+    void onEvent(SettingChangeEvent& event) override {
+        gfx::anti_stutter = stutter_setting->getValue();
+    }
+public:
+    explicit AntiStutterListener(BooleanSetting* stutter_setting) : stutter_setting(stutter_setting) {}
+};
+
 int main(int argc, char **argv) {
 #ifdef __APPLE__
     pthread_setname_np("Main");
@@ -105,6 +114,11 @@ int main(int argc, char **argv) {
     blur_setting.setting_change_event.addListener(&blur_change_listener);
     settings.addSetting(&blur_setting);
 
+    BooleanSetting stutter_setting("Anti stutter", true);
+    AntiStutterListener stutter_listener(&stutter_setting);
+    stutter_setting.setting_change_event.addListener(&stutter_listener);
+    settings.addSetting(&stutter_setting);
+
     MenuBack* menu_back = new MenuBack;
     menu_back->init();
     
@@ -126,6 +140,9 @@ int main(int argc, char **argv) {
 
     settings.removeSetting(&blur_setting);
     blur_setting.setting_change_event.removeListener(&blur_change_listener);
+    
+    settings.removeSetting(&stutter_setting);
+    stutter_setting.setting_change_event.removeListener(&stutter_listener);
 
     gfx::quit();
 

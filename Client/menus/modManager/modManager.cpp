@@ -88,7 +88,7 @@ bool ModManager::onKeyDown(gfx::Key key) {
 
 bool ModManager::onKeyUp(gfx::Key key) {
     if(key == gfx::Key::MOUSE_LEFT) {
-        if(back_button.isHovered(getMouseX(), getMouseY()))
+        if(back_button.isHovered(getMouseX(), getMouseY(), getMouseVel()))
             returnFromScene();
         return true;
     }
@@ -127,7 +127,7 @@ void ModManager::render() {
     
     enabled_text.render();
     disabled_text.render();
-    back_button.render(getMouseX(), getMouseY(), getKeyState(gfx::Key::MOUSE_LEFT));
+    back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
     
     for(auto & mod : mods)
         if(mod != holding)

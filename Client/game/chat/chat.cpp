@@ -41,7 +41,7 @@ void Chat::update(float frame_length) {
 }
 
 void Chat::render() {
-    chat_box.render(getMouseX(), getMouseY());
+    chat_box.render(getMouseX(), getMouseY(), getMouseVel());
     
     for(auto & chat_line : chat_lines) {
         if(!chat_line->text.empty()) {

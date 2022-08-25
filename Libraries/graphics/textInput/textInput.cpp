@@ -6,12 +6,13 @@
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
     loadFromSurface(textToSurface(text, text_color));
+    setWidth(width);
 }
 
 void gfx::TextInput::eraseSelected() {
     text.erase(cursor[0], cursor[1] - cursor[0]);
     cursor[1] = cursor[0];
-    loadFromSurface(textToSurface(text, text_color));
+    setText(text);
 }
 
 int gfx::TextInput::findLeftMove(int curr_pos, bool is_ctrl_pressed) {
@@ -30,10 +31,6 @@ int gfx::TextInput::findRightMove(int curr_pos, bool is_ctrl_pressed) {
     return new_pos;
 }
 
-int gfx::TextInput::getWidth() const {
-    return (Button::getWidth() + 2 * getMargin()) * getScale();
-}
-
 gfx::TextInput::TextInput() {
     setMargin(3);
     back_rect.shadow_intensity = GFX_DEFAULT_TEXT_BOX_SHADOW_INTENSITY;
@@ -48,30 +45,30 @@ void gfx::TextInput::setBlurIntensity(float blur_intensity) {
 
 #define TEXT_SPACING 1
 
-void gfx::TextInput::render(int mouse_x, int mouse_y) {
+void gfx::TextInput::render(int mouse_x, int mouse_y, int mouse_vel) {
     RectShape rect = getTranslatedRect();
     back_rect.x = rect.x;
     back_rect.y = rect.y;
     back_rect.w = rect.w;
     back_rect.h = rect.h;
-    back_rect.fill_color = isHovered(mouse_x, mouse_y) ? hover_color : def_color;
+    back_rect.fill_color = isHovered(mouse_x, mouse_y, mouse_vel) ? hover_color : def_color;
     back_rect.render();
     
     rect.x += getMargin() * getScale();
     rect.y += getMargin() * getScale();
-    rect.w = getTextureWidth() * getScale();
-    rect.h -= getMargin() * 2 * getScale();
-    int x, w;
-    if (rect.w > width * getScale()) {
-        x = rect.w / getScale() - width;
-        w = width;
-    }
-    else {
-        x = 0;
-        w = rect.w / getScale();
+    rect.w -= getMargin() * getScale() * 2;
+    rect.h -= getMargin() * getScale() * 2;
+    
+    int src_x, src_w;
+    if (getTextureWidth() * getScale() > rect.w) {
+        src_x = getTextureWidth() - rect.w / getScale();
+        src_w = rect.w / getScale();
+    } else {
+        src_x = 0;
+        src_w = getTextureWidth();
     }
     
-    if (active) {
+    if(active) {
         cursor[0] = std::min(cursor[0], (int)text.size());
         cursor[1] = std::min(cursor[1], (int)text.size());
 
@@ -88,10 +85,10 @@ void gfx::TextInput::render(int mouse_x, int mouse_y) {
         
         Color box_color = width_of_selection == 1 ? Color{255, 255, 255} : Color{230, 230, 230, 150};
 
-        RectShape(rect.x + width_before * getScale(), rect.y, getScale() * width_of_selection, rect.h).render(box_color);
+        RectShape(rect.x - src_x * getScale() + width_before * getScale(), rect.y, getScale() * width_of_selection, rect.h).render(box_color);
     }
 
-    Texture::render(getScale(), rect.x, rect.y, {x, 0, w, int(rect.h / getScale())});
+    Texture::render(getScale(), rect.x, rect.y, {src_x, 0, src_w, int(rect.h / getScale())});
 }
 
 void gfx::TextInput::setBorderColor(Color color) {
