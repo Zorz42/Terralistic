@@ -64,15 +64,23 @@ int gfx::Button::getMargin() const {
     return margin;
 }
 
+void gfx::Button::updateSize() {
+    w = (getTextureWidth() + margin * 2) * scale;
+    h = (getTextureHeight() + margin * 2) * scale;
+}
+
 int gfx::Button::getWidth() const {
     return w;
+}
+
+void gfx::Button::setWidth(int width) {
+    w = (width + margin * 2) * scale;
 }
 
 int gfx::Button::getHeight() const {
     return h;
 }
 
-void gfx::Button::updateSize() {
-    w = (getTextureWidth() + margin * 2) * scale;
-    h = (getTextureHeight() + margin * 2) * scale;
+void gfx::Button::setHeight(int height) {
+    h = (height + margin * 2) * scale;
 }

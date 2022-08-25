@@ -146,7 +146,7 @@ void Liquids::fromSerial(const std::vector<char>& serial) {
     for(int y = 0; y < blocks->getHeight(); y++)
         for(int x = 0; x < blocks->getWidth(); x++) {
             if(blocks->getBlockType(x, y)->ghost) {
-                liquid->id = (unsigned char)*iter++;
+                liquid->id = *iter++;
                 if(liquid->id != empty.id)
                     liquid->level = *iter++;
             }

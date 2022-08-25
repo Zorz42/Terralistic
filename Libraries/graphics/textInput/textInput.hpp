@@ -12,12 +12,12 @@ class TextInput : public Button {
     std::string text;
     Rect back_rect;
     std::vector<Key> passthrough_keys = {};
+    
 public:
     void render(int mouse_x, int mouse_y, int mouse_vel);
     TextInput();
 
     std::string getText() const { return text; }
-    int getWidth() const;
     
     void eraseSelected();
     int findLeftMove(int curr_pos, bool is_ctrl_pressed);
@@ -35,6 +35,7 @@ public:
     bool active = false, ignore_next_input = false;
     char (*textProcessing)(char c, int length) = nullptr;
     int width = GFX_DEFAULT_TEXT_INPUT_WIDTH;
+    
     Color text_color = GFX_DEFAULT_TEXT_COLOR;
     void setBlurIntensity(float blur_intensity);
     void setBorderColor(Color color);
