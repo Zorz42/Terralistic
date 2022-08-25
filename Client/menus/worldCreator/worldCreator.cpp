@@ -48,16 +48,13 @@ void WorldCreator::init() {
 
     new_world_name.loadFromSurface(gfx::textToSurface("New world name"));
     new_world_name.setScale(3);
-    new_world_name.y = world_name.y;
-    new_world_name.x = -world_name.getWidth() / 2 + new_world_name.getHeight() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_name.parent_containter = &world_name;
     new_world_name.orientation = gfx::CENTER;
 
     new_world_seed.loadFromSurface(gfx::textToSurface("New world seed"));
     new_world_seed.setScale(3);
-    new_world_seed.y = world_seed.y;
-    new_world_seed.x = -world_seed.getWidth() / 2 + new_world_seed.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_world_seed.parent_containter = &world_seed;
     new_world_seed.orientation = gfx::CENTER;
-
 
     world_name.def_color.a = TRANSPARENCY;
     world_seed.def_color.a = TRANSPARENCY;

@@ -44,14 +44,12 @@ void ServerAdder::init() {
 
     new_server_name.loadFromSurface(gfx::textToSurface("New server name"));
     new_server_name.setScale(3);
-    new_server_name.y = server_name_input.y;
-    new_server_name.x = -new_server_name.getWidth() / 2 + new_server_name.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_server_name.parent_containter = &server_name_input;
     new_server_name.orientation = gfx::CENTER;
 
     new_server_ip.loadFromSurface(gfx::textToSurface("New server ip"));
     new_server_ip.setScale(3);
-    new_server_ip.y = server_ip_input.y;
-    new_server_ip.x = -new_server_ip.getWidth() / 2 + new_server_ip.getWidth() / 2 + 16;//with commenting out this line the text will go to the center, choice will be made later
+    new_server_ip.parent_containter = &server_ip_input;
     new_server_ip.orientation = gfx::CENTER;
     
     server_name_input.def_color.a = TRANSPARENCY;
@@ -88,9 +86,8 @@ void ServerAdder::render() {
     else
         new_server_name.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
 
-    if(server_ip_input.isHovered(getMouseX(), getMouseY(), getMouseVel())) {
+    if(server_ip_input.isHovered(getMouseX(), getMouseY(), getMouseVel()))
         new_server_ip.setColor({GFX_DEFAULT_BUTTON_COLOR.r, GFX_DEFAULT_BUTTON_COLOR.g, GFX_DEFAULT_BUTTON_COLOR.b, TRANSPARENCY});
-    }
     else
         new_server_ip.setColor(GFX_DEFAULT_HOVERED_BUTTON_COLOR);
 
