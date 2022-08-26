@@ -3,6 +3,7 @@
 #include <iostream>
 #include "testing.hpp"
 #include "networking.hpp"
+#include "compress.hpp"
 
 TEST_CLASS(TestNetworking)
 
@@ -94,6 +95,22 @@ TEST_CASE(testListenerHandleError) {
 }
 
 TEST_CASE(testSocketSendsData) {
+    Packet sent_packet, received_packet;
+    sent_packet << 1552;
+    
+    c_socket.send(sent_packet);
+    c_socket.flushPacketBuffer();
+    
+    waitABit();
+    
+    ASSERT(s_socket.receive(received_packet));
+    int received;
+    received_packet >> received;
+    
+    ASSERT(received == 1552);
+}
+
+TEST_CASE(testSocketSendsCompressedData) {
     Packet sent_packet, received_packet;
     sent_packet << 1552;
     
