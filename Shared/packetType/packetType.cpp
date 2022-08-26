@@ -38,9 +38,9 @@ Packet& operator<<(Packet& packet, WelcomePacketType packet_type) {
 }
 
 Packet& operator>>(Packet& packet, WelcomePacketType& packet_type) {
-    int packet_type_char;
-    packet >> packet_type_char;
-    packet_type = (WelcomePacketType)packet_type_char;
+    int packet_type_int;
+    packet >> packet_type_int;
+    packet_type = (WelcomePacketType)packet_type_int;
     if(packet_type <= WelcomePacketType::_START || packet_type >= WelcomePacketType::_END)
         throw PacketTypeError("Invalid welcome packet value type.");
     return packet;

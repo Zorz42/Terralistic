@@ -3,7 +3,6 @@
 #include <iostream>
 #include "testing.hpp"
 #include "networking.hpp"
-#include "compress.hpp"
 
 TEST_CLASS(TestNetworking)
 
@@ -110,12 +109,12 @@ TEST_CASE(testSocketSendsData) {
     ASSERT(received == 1552);
 }
 
-TEST_CASE(testSocketSendsCompressedData) {
+TEST_CASE(testSocketSendsLargeData) {
     Packet sent_packet, received_packet;
     std::vector<char> data, received_data;
-    for(int i = 0; i < 100000; i++)
+    for(int i = 0; i < 1000000; i++)
         data.push_back(rand());
-    sent_packet << compress(data);
+    sent_packet << data;
     
     c_socket.send(sent_packet);
     c_socket.flushPacketBuffer();
@@ -125,7 +124,7 @@ TEST_CASE(testSocketSendsCompressedData) {
     ASSERT(s_socket.receive(received_packet));
     received_packet >> received_data;
     
-    ASSERT(decompress(received_data) == data);
+    ASSERT(received_data == data);
 }
 
 TEST_CASE(testSocketReceivesNothing) {

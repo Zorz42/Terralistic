@@ -22,7 +22,7 @@ std::vector<char> compress(const std::vector<char>& decompressed_data) {
     for(int i = 0; i < sizeof(unsigned int); i++)
         compressed_data[compressed_size + i] = decompressed_size >> 8 * i;
     
-    std::cout << "compress " << timer.getTimeElapsed() << "ms" << std::endl;
+    //std::cout << "compress " << timer.getTimeElapsed() << "ms" << std::endl;
     
     return compressed_data;
 }
@@ -44,7 +44,7 @@ std::vector<char> decompress(const std::vector<char>& compressed_data) {
     
     if(actual_decompressed_size != decompressed_size) throw ArchiveError("Uncompressed sizes did not match!");
     
-    std::cout << "decompress " << timer.getTimeElapsed() << "ms" << std::endl;
+    //std::cout << "decompress " << timer.getTimeElapsed() << "ms" << std::endl;
     
     return decompressed_data;
 }

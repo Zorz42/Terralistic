@@ -58,7 +58,7 @@ class TcpSocket {
     void send(const void* data, unsigned int size);
     bool receive(void* data, unsigned int size);
     
-    void handleError();
+    bool handleError();
     
     bool receivePacket();
     
