@@ -112,7 +112,10 @@ TEST_CASE(testSocketSendsData) {
 
 TEST_CASE(testSocketSendsCompressedData) {
     Packet sent_packet, received_packet;
-    sent_packet << 1552;
+    std::vector<char> data, received_data;
+    for(int i = 0; i < 100000; i++)
+        data.push_back(rand());
+    sent_packet << compress(data);
     
     c_socket.send(sent_packet);
     c_socket.flushPacketBuffer();
@@ -120,10 +123,9 @@ TEST_CASE(testSocketSendsCompressedData) {
     waitABit();
     
     ASSERT(s_socket.receive(received_packet));
-    int received;
-    received_packet >> received;
+    received_packet >> received_data;
     
-    ASSERT(received == 1552);
+    ASSERT(decompress(received_data) == data);
 }
 
 TEST_CASE(testSocketReceivesNothing) {
