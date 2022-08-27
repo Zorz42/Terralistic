@@ -14,7 +14,7 @@ std::vector<char> compress(const std::vector<char>& decompressed_data) {
     
     //if(compress((Bytef*)&compressed_data[0], &compressed_size, (const Bytef*)&decompressed_data[0], decompressed_data.size()) != Z_OK) throw CompressError("Could not archive some data!");
     
-    int compressed_size = LZ4_compress_default(&decompressed_data[0], &compressed_data[0], (int)decompressed_data.size(), max_compressed_size);
+    int compressed_size = LZ4_compress_fast(&decompressed_data[0], &compressed_data[0], (int)decompressed_data.size(), max_compressed_size, 65537);
     
     compressed_data.resize(compressed_size + sizeof(unsigned int));
     
@@ -22,7 +22,7 @@ std::vector<char> compress(const std::vector<char>& decompressed_data) {
     for(int i = 0; i < sizeof(unsigned int); i++)
         compressed_data[compressed_size + i] = decompressed_size >> 8 * i;
     
-    //std::cout << "compress " << timer.getTimeElapsed() << "ms" << std::endl;
+    std::cout << "compress " << timer.getTimeElapsed() << "ms" << std::endl;
     
     return compressed_data;
 }
@@ -44,7 +44,7 @@ std::vector<char> decompress(const std::vector<char>& compressed_data) {
     
     if(actual_decompressed_size != decompressed_size) throw ArchiveError("Uncompressed sizes did not match!");
     
-    //std::cout << "decompress " << timer.getTimeElapsed() << "ms" << std::endl;
+    std::cout << "decompress " << timer.getTimeElapsed() << "ms" << std::endl;
     
     return decompressed_data;
 }
