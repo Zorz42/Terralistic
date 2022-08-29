@@ -88,10 +88,9 @@ void ServerScene::render() {
         auto UI_module = (LauncherModule*) getModules()[i];
         if(!UI_module->enabled)
             continue;
-        //std::max(, module->min_width/height) can be removed once setMinimumWindoeSize works
-        UI_module->base_container.w = std::max((int)(UI_module->target_w * (float)gfx::getWindowWidth()), UI_module->min_width);
-        UI_module->base_container.h = std::max((int)(UI_module->target_h * (float)gfx::getWindowHeight()), UI_module->min_height);
-        UI_module->base_container.x = (int)(UI_module->target_x * (float)gfx::getWindowHeight());
+        UI_module->base_container.w = (int)(UI_module->target_w * (float)gfx::getWindowWidth ());
+        UI_module->base_container.h = (int)(UI_module->target_h * (float)gfx::getWindowHeight());
+        UI_module->base_container.x = (int)(UI_module->target_x * (float)gfx::getWindowWidth ());
         UI_module->base_container.y = (int)(UI_module->target_y * (float)gfx::getWindowHeight());
     }
 }
