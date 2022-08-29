@@ -7,7 +7,7 @@
 static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
 Console::Console(std::string resource_path): LauncherModule("console", std::move(resource_path)) {
-    min_width = 300;
+    /*min_width = 300;
     min_height = 90;
     texture.createBlankImage(width, height);
 
@@ -15,11 +15,11 @@ Console::Console(std::string resource_path): LauncherModule("console", std::move
     auto tm = *localtime(&t);
     std::stringstream timestamped_text;
     timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S.txt");
-    log_file_name = timestamped_text.str();
+    log_file_name = timestamped_text.str();*/
 }
 
 void Console::init() {
-    input_box.scale = 2;
+   /* input_box.scale = 2;
     input_box.textProcessing = [](char c, int length) {
         if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || allowed_chars.find(c) != allowed_chars.end())
             return c;
@@ -32,13 +32,13 @@ void Console::init() {
     input_box.width = 100;
     input_box.setPassthroughKeys({gfx::Key::ARROW_UP, gfx::Key::ARROW_DOWN});
     text_inputs = {&input_box};
-    server->getPrint()->print_event.addListener(this);
+    server->getPrint()->print_event.addListener(this);*/
 }
 
 
 
-void Console::update(float frame_length) {
-    if(!enabled)
+void Console::render() {
+    /*if(!enabled)
         return;
 
     if(width != texture.getTextureWidth() || height != texture.getTextureHeight()) {
@@ -86,7 +86,7 @@ void Console::update(float frame_length) {
         chat_line->text_sprite.render();
     }
 
-    gfx::resetRenderTarget();
+    gfx::resetRenderTarget();*/
 }
 
 bool Console::onKeyDown(gfx::Key key) {
@@ -175,5 +175,5 @@ void Console::saveToLog(const std::string& line) {
 
 
 void Console::stop() {
-    server->getPrint()->print_event.removeListener(this);
+    //server->getPrint()->print_event.removeListener(this);
 }

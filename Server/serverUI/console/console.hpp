@@ -20,7 +20,7 @@ class Console : LauncherModule, EventListener<PrintEvent>{
     void onEvent(PrintEvent& event) override;
     void stop() override;
     void init() override;
-    void update(float frame_length) override;
+    void render() override;
     bool onKeyDown(gfx::Key key) override;
 public:
     ModuleManager* module_manager;
