@@ -11,6 +11,7 @@ public:
 };
 
 class Console : LauncherModule, EventListener<PrintEvent>{
+    bool enable_log = true;
     std::string log_file_name;
     std::vector<ChatLine*> chat_lines;
     gfx::TextInput input_box;

@@ -3,6 +3,7 @@
 #include <platform_folders.h>
 #include <fstream>
 #include <iomanip>
+#include "configManager.hpp"
 
 static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
 
@@ -15,6 +16,9 @@ Console::Console(std::string resource_path): LauncherModule("console", std::move
     std::stringstream timestamped_text;
     timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S.txt");
     log_file_name = timestamped_text.str();
+    ConfigFile file(sago::getDataHome() + "/Terralistic-Server/ServerSettings/console.config");
+    file.setDefaultStr("enable_log", "true");
+    enable_log = file.getStr("enable_log") == "true";
 }
 
 void Console::init() {
@@ -134,7 +138,8 @@ void Console::onEvent(PrintEvent &event) {
     whole_message = event.message;
     if(!whole_message.ends_with("\n"))
         whole_message.push_back('\n');
-    saveToLog(whole_message);
+    if(enable_log)
+        saveToLog(whole_message);
     while(!whole_message.empty()) {
         curr_line.push_back(whole_message[0]);
         whole_message.erase(whole_message.begin());
