@@ -200,9 +200,9 @@
 		369693E02883370400D39F1B /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369311292843464A00C4DF00 /* socket.cpp */; };
 		369693E12883370400D39F1B /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3693112C2843466000C4DF00 /* listener.cpp */; };
 		369981F1277CCAD500FA3F72 /* privateWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 369981F0277CCAD500FA3F72 /* privateWorld.cpp */; };
-		36C875BE28B81CD4007C2E4E /* liblz4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36C875BD28B81CC3007C2E4E /* liblz4.a */; };
-		36C875BF28B9324F007C2E4E /* liblz4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36C875BD28B81CC3007C2E4E /* liblz4.a */; };
 		36C875C028B9326D007C2E4E /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 366D9707282067FA00DEC292 /* timer.cpp */; };
+		36C875C128BE5408007C2E4E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
+		36C875C228BE5411007C2E4E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1690D7D826BA87B90007755C /* libz.tbd */; };
 		36D31CD926DBE330006F89B3 /* compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36D31CD726DBE330006F89B3 /* compress.cpp */; };
 		36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D3A26820ADD00A4B03A /* worldGenerator.cpp */; };
 		36DDF8AC2689F725002337F3 /* items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B36D2C2682000F00A4B03A /* items.cpp */; };
@@ -472,7 +472,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36C875BE28B81CD4007C2E4E /* liblz4.a in Frameworks */,
+				36C875C228BE5411007C2E4E /* libz.tbd in Frameworks */,
 				368198C8288348F900DB57C5 /* libplatform_folders.a in Frameworks */,
 				368296C228631C6100AD2176 /* libglfw.3.dylib in Frameworks */,
 				368198CE2883622800DB57C5 /* libglad.a in Frameworks */,
@@ -483,7 +483,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36C875BF28B9324F007C2E4E /* liblz4.a in Frameworks */,
+				36C875C128BE5408007C2E4E /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2119,7 +2119,6 @@
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
 					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 					"$(PROJECT_DIR)/Dependencies/glad",
-					"$(PROJECT_DIR)/Dependencies/lz4-1.9.4/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2140,7 +2139,6 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
-					"Dependencies/lz4-1.9.4/lib",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
@@ -2206,7 +2204,6 @@
 					"$(PROJECT_DIR)/Dependencies/glfw-3.3.7.bin.MACOS/lib-universal",
 					"$(PROJECT_DIR)/Dependencies/PlatformFolders-4.2.0/build",
 					"$(PROJECT_DIR)/Dependencies/glad",
-					"$(PROJECT_DIR)/Dependencies/lz4-1.9.4/lib",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
@@ -2228,7 +2225,6 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
-					"Dependencies/lz4-1.9.4/lib",
 				);
 				WARNING_CFLAGS = "-Wno-documentation-deprecated-sync";
 			};
@@ -2253,10 +2249,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Dependencies/lz4-1.9.4/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.TerralisticTests;
@@ -2267,7 +2260,6 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
-					"Dependencies/lz4-1.9.4/lib",
 				);
 			};
 			name = Debug;
@@ -2287,10 +2279,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Dependencies/lz4-1.9.4/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jakobzorz.TerralisticTests;
@@ -2301,7 +2290,6 @@
 					Dependencies/glad/include,
 					"Dependencies/glfw-3.3.7.bin.MACOS/include",
 					"Dependencies/PlatformFolders-4.2.0/sago",
-					"Dependencies/lz4-1.9.4/lib",
 				);
 			};
 			name = Release;
