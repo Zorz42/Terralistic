@@ -44,6 +44,7 @@ void Console::render() {
         return;
 
     input_box.width = -10 + (int)(((float)base_container.w - 10) / input_box.getScale());
+    input_box.setWidth(input_box.width);
 
     for(auto & chat_line : chat_lines)
         chat_line->text_sprite.y += (chat_line->y_to_be - chat_line->text_sprite.y) / 2;
