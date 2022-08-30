@@ -14,7 +14,7 @@ std::vector<char> compress(const std::vector<char>& decompressed_data) {
     
     //if(compress((Bytef*)&compressed_data[0], &compressed_size, (const Bytef*)&decompressed_data[0], decompressed_data.size()) != Z_OK) throw CompressError("Could not archive some data!");
     
-    int compressed_size = LZ4_compress_fast(&decompressed_data[0], &compressed_data[0], (int)decompressed_data.size(), max_compressed_size, 65537);
+    int compressed_size = LZ4_compress_fast(&decompressed_data[0], &compressed_data[0], (int)decompressed_data.size(), max_compressed_size, 0);
     
     compressed_data.resize(compressed_size + sizeof(unsigned int));
     

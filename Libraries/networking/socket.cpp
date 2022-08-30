@@ -44,8 +44,8 @@ bool TcpSocket::handleError() {
 bool TcpSocket::handleError() {
     switch(errno) {
         case EWOULDBLOCK:
-        case EINPROGRESS:
             return true;
+        case EINPROGRESS:
         case ECONNREFUSED:
         case ECONNABORTED:
         case ECONNRESET:
@@ -90,7 +90,7 @@ void TcpSocket::send(Packet& packet) {
         flushPacketBuffer();
 }
 
-bool TcpSocket::receive(void* obj, unsigned int size) {
+bool TcpSocket::receive(void* obj, unsigned int size, bool expect_data) {
     if(!connected)
         throw NotConnectedError("Not connected!");
     
@@ -109,8 +109,8 @@ bool TcpSocket::receive(void* obj, unsigned int size) {
             connected = false;
             return false;
         } else if(curr_received < 0) {
-            handleError();
-            return false;
+            if(!handleError() || !expect_data)
+                return false;
         }
     }
     
@@ -131,10 +131,10 @@ bool TcpSocket::receive(Packet& packet) {
 
 bool TcpSocket::receivePacket() {
     unsigned int size;
-    if(!receive(&size, sizeof(unsigned int))) return false;
+    if(!receive(&size, sizeof(unsigned int), false)) return false;
     
     std::vector<unsigned char> obj(size);
-    if(!receive(&obj[0], size)) return false;
+    if(!receive(&obj[0], size, true)) return false;
     
     Packet packet;
     packet.append(&obj[0], size);

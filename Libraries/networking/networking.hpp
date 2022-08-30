@@ -56,7 +56,7 @@ class TcpSocket {
     std::string ip_address;
     
     void send(const void* data, unsigned int size);
-    bool receive(void* data, unsigned int size);
+    bool receive(void* data, unsigned int size, bool expect_data);
     
     bool handleError();
     
