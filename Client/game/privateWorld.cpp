@@ -77,6 +77,7 @@ void WorldStartingScreen::render() {
         loading_bar_back.render();
         loading_bar.render();
     }
+    
     text.render();
 }
 
