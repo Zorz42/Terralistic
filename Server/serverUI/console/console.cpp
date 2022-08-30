@@ -71,6 +71,11 @@ void Console::render() {
         }
         chat_line->text_sprite.render();
     }
+
+    if(!chat_lines.empty())
+        if(chat_lines[0]->text_sprite.y < -1 * base_container.h + 17)
+            chat_lines.erase(chat_lines.begin());
+
 }
 
 bool Console::onKeyDown(gfx::Key key) {
@@ -96,7 +101,6 @@ bool Console::onKeyDown(gfx::Key key) {
                 saved_lines.erase(saved_lines.end());
             input_box.setText("");
         }
-        input_box.active = false;
         return true;
     } else if(key == gfx::Key::ESCAPE && input_box.active) {
         input_box.setText("");

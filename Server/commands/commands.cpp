@@ -215,8 +215,11 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
             }
             return;
         }
-    
-    chat->sendChat(player, "Command \"" + identifier + "\" not recognised. Type /help for a list of commands.");
+
+    if(player == nullptr)
+        print->warning("Command \"" + identifier + "\" not recognised. Type /help for a list of commands.");
+    else
+        chat->sendChat(player, "[WARNING] Command \"" + identifier + "\" not recognised. Type /help for a list of commands.");
 }
 
 bool HelpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
