@@ -43,7 +43,6 @@ class Lights : EventListener<BlockChangeEvent> {
 public:
     explicit Lights(Blocks* blocks) : blocks(blocks) {}
     void create();
-    void updateAllLightEmitters();
     
     void init();
     void stop();

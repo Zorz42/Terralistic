@@ -24,9 +24,9 @@ void _socketDisableBlocking(int socket_handle) {
 #ifdef WIN32
 bool TcpSocket::handleError() {
     switch (WSAGetLastError()) {
-        case WSAEWOULDBLOCK:
+        case WSAEWOULDBLOCK: return true;
         case WSAEISCONN:
-        case WSAEALREADY: return true;
+        case WSAEALREADY:
         case WSAECONNREFUSED:
         case WSAECONNABORTED:
         case WSAECONNRESET:

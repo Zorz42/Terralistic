@@ -13,7 +13,6 @@ void ClientLights::init() {
 void ClientLights::postInit() {
     create();
     light_chunks.resize(getWidth() / 16 * getHeight() / 16);
-    updateAllLightEmitters();
     
     light_update_thread = std::thread(&ClientLights::lightUpdateLoop, this);
 }
@@ -47,6 +46,7 @@ void ClientLights::lightUpdateLoop() {
 #ifdef __linux__
     pthread_setname_np(pthread_self(), "Light Update");
 #endif
+    
     while(running) {
         bool finished = !enabled;
         while(!finished) {
