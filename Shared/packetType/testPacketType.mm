@@ -37,4 +37,20 @@ TEST_CASE(testServerPacketTypeSaves) {
     }
 }
 
+TEST_CASE(testWelcomePacketTypeSaves) {
+    Packet packet;
+    
+    packet << WelcomePacketType::TIME;
+    WelcomePacketType received;
+    packet >> received;
+    ASSERT(received == WelcomePacketType::TIME);
+    
+    for(int type = (int)WelcomePacketType::_START + 1; type < (int)WelcomePacketType::_END - 1; type++) {
+        packet << (WelcomePacketType)type;
+        WelcomePacketType received_type;
+        packet >> received_type;
+        ASSERT(received_type == (WelcomePacketType)type);
+    }
+}
+
 END_TEST_CLASS(TestCompress)

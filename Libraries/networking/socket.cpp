@@ -69,10 +69,7 @@ void TcpSocket::send(const void* obj, unsigned int size) {
         if(curr_sent != -1)
             sent += curr_sent;
         
-        if(curr_sent < 0) {
-            if(!handleError())
-                break;
-        }
+        if(curr_sent < 0 && !handleError()) break;
     }
 }
 
