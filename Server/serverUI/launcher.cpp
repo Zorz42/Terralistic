@@ -9,6 +9,7 @@
 #include "worldInfo.hpp"
 #include "console.hpp"
 #include "moduleManager.hpp"
+#include "playerInfo.hpp"
 
 class ServerScene : public gfx::Scene {
     void init() override;
@@ -18,6 +19,7 @@ public:
         registerAModule((SceneModule*)new WorldInfo(resource_path));
         registerAModule((SceneModule*)new Console(resource_path));
         registerAModule((SceneModule*)new ModuleManager(resource_path));
+        registerAModule((SceneModule*)new PlayerInfo(resource_path));
     }
 };
 
