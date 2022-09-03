@@ -3,8 +3,6 @@
 #include "readOpa.hpp"
 #include "exception.hpp"
 
-#include <iostream>
-
 gfx::Surface readOpa(const std::string& path) {
     std::ifstream opa_file(path, std::ios::binary);
     
