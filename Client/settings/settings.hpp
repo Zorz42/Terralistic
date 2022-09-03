@@ -4,13 +4,13 @@
 #include "graphics.hpp"
 #include "events.hpp"
 
-enum class SettingType {CHOICE_SETTING, BOOLEAN_SETTING, SLIDER_SETTING};
+enum class SettingType {UNKNOWN, CHOICE_SETTING, BOOLEAN_SETTING, SLIDER_SETTING};
 
 class SettingChangeEvent {};
 
 class Setting {
 public:
-    SettingType type;
+    SettingType type = SettingType::UNKNOWN;
     Setting(const std::string& ident) : ident(ident) {}
     const std::string ident;
     virtual std::string exportToStr() = 0;

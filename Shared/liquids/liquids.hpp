@@ -14,8 +14,8 @@ public:
     LiquidType(std::string name) : name(std::move(name)) {}
     
     std::string name;
-    int flow_time;
-    float speed_multiplier;
+    int flow_time = 1;
+    float speed_multiplier = 1;
     int id;
 };
 

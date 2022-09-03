@@ -125,7 +125,7 @@ ItemStack Inventory::getSelectedSlot() {
 }
 
 void Inventory::swapWithMouseItem(int pos) {
-    if(pos < -1 || pos >= INVENTORY_SIZE)
+    if(pos < 0 || pos >= INVENTORY_SIZE)
         throw Exception("Inventory position does not exist");
     ItemStack temp = mouse_item;
     mouse_item = inventory_arr[pos];

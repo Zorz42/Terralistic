@@ -32,7 +32,7 @@ class TaskManager:
 
     def registerTask(self, task: Task):
         self.tasks.append(task)
-        
+
     def run(self):
         required_commands = set()
         print(f"{ANSI_COLOR}Checking dependencies...{ANSI_RESET}")

@@ -86,7 +86,7 @@ class Blocks {
         Block() : id(/*air*/0), x_from_main(0), y_from_main(0) {}
         int id:8;
         int x_from_main:8, y_from_main:8;
-        DefaultData* additional_block_data;
+        DefaultData* additional_block_data = nullptr;
     };
     
     class BreakingBlock {

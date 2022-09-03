@@ -8,7 +8,7 @@ import os
 
 def main():
     project_path = utils.getParentDir(utils.getParentDir(__file__))
-    os.system("")  # Enables ansi escape codes
+    os.system("")  # Enables ANSI escape codes
 
     arg = ""
     if len(sys.argv) > 1:

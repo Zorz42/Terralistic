@@ -23,7 +23,7 @@ def generateBlockTexture(input_file_path: str, output_file_path: str):
 
     input_image = Image.open(input_file_path)
     input_pixels = input_image.load()
-    input_width, input_height = input_image.size
+    _, input_height = input_image.size
 
     for y in range(0, 128, 8):
         copyArea(input_pixels, output_pixels, 0, 0, 8, 8, 0, y)

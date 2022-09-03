@@ -30,8 +30,8 @@ public:
 class Inventory {
     Items* items;
     Recipes* recipes;
-    Player* player;
-    Blocks* blocks;
+    Player* player = nullptr;
+    Blocks* blocks = nullptr;
     ItemStack mouse_item;
     std::vector<int> item_counts;
     std::vector<const Recipe*> available_recipes;
