@@ -1,6 +1,7 @@
 #include <cstring>
 #include "networking.hpp"
 #include "exception.hpp"
+#include "graphics.hpp"
 
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -108,6 +109,8 @@ bool TcpSocket::receive(void* obj, unsigned int size, bool expect_data) {
         } else if(curr_received < 0) {
             if(!handleError() || !expect_data)
                 return false;
+            else
+                gfx::sleep(0.1);
         }
     }
     
