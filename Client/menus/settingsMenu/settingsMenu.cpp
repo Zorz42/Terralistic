@@ -3,6 +3,7 @@
 void SettingsMenu::init() {
     for(auto i : settings->getSettings()) {
         switch(i->type) {
+            case SettingType::UNKNOWN: break;
             case SettingType::CHOICE_SETTING: {
                 ChoiceSetting* choice_setting = (ChoiceSetting*)i;
                 RenderChoiceSetting* render_choice_setting = new RenderChoiceSetting(choice_setting);
