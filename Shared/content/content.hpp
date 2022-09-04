@@ -177,7 +177,7 @@ public:
     ItemType furnace{"furnace"};
 };
 
-class GameContent {
+class GameContent : public NonCopyable {
     void addRecipes(Recipes* recipes);
 public:
     GameContent(Blocks* blocks_, Walls* walls_, Liquids* liquids_, Items* items_) : blocks(blocks_, walls_, liquids_), walls(walls_), liquids(liquids_), items(items_), axe("axe") { blocks_->registerNewToolType(&axe); }

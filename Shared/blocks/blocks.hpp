@@ -62,7 +62,7 @@ struct dataDeliverer;
 
 class Blocks;
 
-class BlockType {
+class BlockType : public NonCopyable {
 public:
     explicit BlockType(std::string name);
     Tool* effective_tool = nullptr;
@@ -80,7 +80,7 @@ public:
     virtual int updateState(Blocks* blocks, int x, int y);
 };
 
-class Blocks {
+class Blocks : public NonCopyable {
     class Block {
     public:
         Block() : id(/*air*/0), x_from_main(0), y_from_main(0) {}

@@ -19,7 +19,7 @@ public:
 };
 
 
-class Recipes {
+class Recipes : public NonCopyable {
     std::vector<Recipe*> recipes;
 public:
     void registerARecipe(Recipe* recipe);

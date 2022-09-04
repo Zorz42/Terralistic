@@ -5,7 +5,7 @@
 
 #define ITEM_WIDTH 8
 
-class ItemType {
+class ItemType : public NonCopyable {
 public:
     explicit ItemType(std::string name) : name(std::move(name)) {}
     
@@ -49,7 +49,7 @@ public:
     float chance = 0;
 };
 
-class Items {
+class Items : public NonCopyable {
     Entities* entities;
     Blocks* blocks;
     

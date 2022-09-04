@@ -27,7 +27,7 @@ public:
     int x, y;
 };
 
-class WallType {
+class WallType : public NonCopyable {
 public:
     explicit WallType(std::string name) : name(std::move(name)) {}
     
@@ -36,7 +36,7 @@ public:
     int id = 0;
 };
 
-class Walls {
+class Walls : public NonCopyable {
     class Wall {
     public:
         Wall() : id(/*clear*/0) {}

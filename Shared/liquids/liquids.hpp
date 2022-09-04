@@ -9,7 +9,7 @@ public:
     int x, y;
 };
 
-class LiquidType {
+class LiquidType : public NonCopyable {
 public:
     LiquidType(std::string name) : name(std::move(name)) {}
     
@@ -19,7 +19,7 @@ public:
     int id;
 };
 
-class Liquids {
+class Liquids : public NonCopyable {
     class Liquid {
     public:
         Liquid() : id(/*empty*/0), level(0) {}
