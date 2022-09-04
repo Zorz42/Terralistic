@@ -2,6 +2,7 @@
 #include <vector>
 #include "textInput.hpp"
 #include "glfwAbstraction.hpp"
+#include "nonCopyable.hpp"
 
 namespace gfx {
 
@@ -12,7 +13,7 @@ public:
 
 void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
 
-class SceneModule {
+class SceneModule : public NonCopyable {
     friend class Scene;
     bool enable_key_states = true;
     int mouse_x = 0, mouse_y = 0, mouse_vel = 0;

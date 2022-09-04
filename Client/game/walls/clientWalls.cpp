@@ -36,7 +36,7 @@ ClientWalls::RenderWall* ClientWalls::getRenderWall(int x, int y) {
 }
 
 ClientWalls::RenderWallChunk* ClientWalls::getRenderWallChunk(int x, int y) {
-    if(wall_chunks.empty())
+    if(wall_chunks == nullptr)
         throw Exception("wall_chunks are null");
     return &wall_chunks[y * getWidth() / 16 + x];
 }
@@ -61,7 +61,7 @@ int ClientWalls::getState(int x, int y) {
 
 void ClientWalls::postInit() {
     render_walls.resize(getWidth() * getHeight());
-    wall_chunks.resize(getWidth() / 16 * getHeight() / 16);
+    wall_chunks = new RenderWallChunk[getWidth() / 16 * getHeight() / 16];
 }
 
 void ClientWalls::onEvent(WelcomePacketEvent& event) {
@@ -144,6 +144,7 @@ void ClientWalls::stop() {
     networking->welcome_packet_event.removeListener(this);
     networking->packet_event.removeListener(this);
     wall_change_event.removeListener(this);
+    delete[] wall_chunks;
 }
 
 void ClientWalls::RenderWallChunk::update(ClientWalls* walls, int x, int y) {

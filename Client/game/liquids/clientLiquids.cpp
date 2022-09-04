@@ -47,13 +47,14 @@ void ClientLiquids::loadTextures() {
 }
 
 void ClientLiquids::postInit() {
-    liquid_chunks.resize(getWidth() / 16 * getHeight() / 16);
+    liquid_chunks = new RenderLiquidChunk[getWidth() / 16 * getHeight() / 16];
 }
 
 void ClientLiquids::stop() {
     networking->packet_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
     liquid_change_event.removeListener(this);
+    delete[] liquid_chunks;
 }
 
 void ClientLiquids::scheduleLiquidUpdate(int x, int y) {
@@ -123,7 +124,7 @@ gfx::RectShape ClientLiquids::getLiquidRectInAtlas(LiquidType* type) {
 }
 
 ClientLiquids::RenderLiquidChunk* ClientLiquids::getRenderLiquidChunk(int x, int y) {
-    if(liquid_chunks.empty())
-        throw Exception("Liquid chunks is empty");
+    if(liquid_chunks == nullptr)
+        throw Exception("Liquid chunks is null");
     return &liquid_chunks[y * getWidth() / 16 + x];
 }

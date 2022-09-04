@@ -10,7 +10,7 @@ public:
 class ChoiceScreen : public gfx::Scene {
     gfx::Sprite question_sprite;
     std::string question, *result;
-    std::vector<ChoiceScreenButton> buttons;
+    std::vector<ChoiceScreenButton*> buttons;
     BackgroundRect* menu_back;
     
     void init() override;

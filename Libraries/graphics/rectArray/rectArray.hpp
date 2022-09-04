@@ -2,10 +2,11 @@
 #include <vector>
 #include "color.hpp"
 #include "texture.hpp"
+#include "nonCopyable.hpp"
 
 namespace gfx {
 
-class RectArray {
+class RectArray : public NonCopyable {
     int length = 0;
     std::vector<float> vertex_array;
     std::vector<float> color_array;

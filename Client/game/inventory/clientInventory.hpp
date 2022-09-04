@@ -18,7 +18,7 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
     int hovered = -1, hovered_recipe = -1;
     
-    std::vector<gfx::Texture> item_text_textures;
+    std::vector<gfx::Texture*> item_text_textures;
     
     void selectSlot(int slot);
     void renderItem(ItemStack item, int x, int y);

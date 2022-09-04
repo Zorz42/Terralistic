@@ -4,10 +4,11 @@
 #include "color.hpp"
 #include "rectShape.hpp"
 #include "surface.hpp"
+#include "nonCopyable.hpp"
 
 namespace gfx {
 
-class Texture {
+class Texture : public NonCopyable {
     void freeTexture();
     unsigned int gl_texture = -1;
     int texture_width = 0, texture_height = 0;

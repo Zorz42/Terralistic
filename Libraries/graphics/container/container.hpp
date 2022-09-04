@@ -1,5 +1,6 @@
 #pragma once
 #include "rectShape.hpp"
+#include "nonCopyable.hpp"
 
 namespace gfx {
 
@@ -18,7 +19,7 @@ inline const Orientation BOTTOM_LEFT =  {0 , 1 };
 inline const Orientation BOTTOM =       {.5, 1 };
 inline const Orientation BOTTOM_RIGHT = {1 , 1 };
 
-class Container {
+class Container : public NonCopyable {
 public:
     Container(int x = 0, int y = 0, int w = 0, int h = 0, Orientation orientation = TOP_LEFT);
     Orientation orientation;
