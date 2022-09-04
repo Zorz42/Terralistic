@@ -39,6 +39,7 @@ class Inventory {
     bool canCraftRecipe(const Recipe* recipe);
 public:
     Inventory(Items* items, Recipes* recipes);
+    Inventory(const Inventory& inventory);
     
     int selected_slot = 0;
     

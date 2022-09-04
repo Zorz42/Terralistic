@@ -466,6 +466,7 @@
 		369E17CD2839467E00D37108 /* networking.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = networking.hpp; sourceTree = "<group>"; };
 		36C875BD28B81CC3007C2E4E /* liblz4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblz4.a; path = "Dependencies/lz4-1.9.4/lib/liblz4.a"; sourceTree = "<group>"; };
 		36C875C328BFD98C007C2E4E /* testResourcePath.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testResourcePath.mm; sourceTree = "<group>"; };
+		36C875C828C3B724007C2E4E /* nonCopyable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = nonCopyable.hpp; sourceTree = "<group>"; };
 		36D26F2B27352F7900F1F476 /* exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = exception.hpp; sourceTree = "<group>"; };
 		36D31CD726DBE330006F89B3 /* compress.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = compress.cpp; sourceTree = "<group>"; };
 		36D31CD826DBE330006F89B3 /* compress.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compress.hpp; sourceTree = "<group>"; };
@@ -971,6 +972,7 @@
 		3619ACED26173D7000BA4EAF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				36C875C728C3B711007C2E4E /* nonCopyable */,
 				36D26F2927352F6600F1F476 /* exception */,
 				369693C3287E339200D39F1B /* testing */,
 				1676E9F62699BF8600034070 /* events */,
@@ -1542,6 +1544,14 @@
 				3674D40728843F7F00582478 /* testPacket.mm */,
 			);
 			path = networking;
+			sourceTree = "<group>";
+		};
+		36C875C728C3B711007C2E4E /* nonCopyable */ = {
+			isa = PBXGroup;
+			children = (
+				36C875C828C3B724007C2E4E /* nonCopyable.hpp */,
+			);
+			path = nonCopyable;
 			sourceTree = "<group>";
 		};
 		36D26F282734635E00F1F476 /* clientModule */ = {
