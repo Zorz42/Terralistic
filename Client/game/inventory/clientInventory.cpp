@@ -16,7 +16,7 @@ void ClientInventory::init() {
     behind_inventory_rect.smooth_factor = 2;
     
     select_rect.orientation = gfx::TOP;
-    select_rect.fill_color = GREY;
+    select_rect.fill_color = DARK_GREY;
     select_rect.fill_color.a = TRANSPARENCY;
     select_rect.y = INVENTORY_UI_SPACING / 2;
     select_rect.h = BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING;
@@ -89,7 +89,7 @@ void ClientInventory::render() {
         int slot_y = int(1.5 * INVENTORY_UI_SPACING) + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH * 2);
         
         gfx::RectShape back_rect(slot_x, slot_y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
-        gfx::Color color = GREY;
+        gfx::Color color = DARK_GREY;
         if(getMouseX() < back_rect.x || getMouseY() < back_rect.y || getMouseX() > back_rect.x + back_rect.w || getMouseY() > back_rect.y + back_rect.h)
             color.a = TRANSPARENCY;
         else if(open) {
