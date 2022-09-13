@@ -268,7 +268,7 @@ void ServerPlayers::update(float frame_length) {
                 player->flipped = player->getVelocityX() < 0;
             
             Packet packet;
-            while(player->getConnection()->receive(packet)) {
+            while(player->getConnection()->isConnected() && player->getConnection()->receive(packet)) {
                 ClientPacketType type;
                 packet >> type;
                 if(type == ClientPacketType::PING) {
