@@ -11,8 +11,8 @@ gfx::RectArray::~RectArray() {
 }
 
 void gfx::RectArray::setVertex(int index, int x, int y) {
-    vertex_array[index * 2] = x;
-    vertex_array[index * 2 + 1] = y;
+    vertex_array[index * 2] = (float)x;
+    vertex_array[index * 2 + 1] = (float)y;
 }
 
 void gfx::RectArray::setVertexColor(int index, Color color) {
