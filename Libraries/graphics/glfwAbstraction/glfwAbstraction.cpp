@@ -190,11 +190,7 @@ void gfx::setMinimumWindowSize(int width, int height) {
     window_width_min = width;
     window_height_min = height;
     
-#ifdef __APPLE__
-    glfwSetWindowSizeLimits(glfw_window, width, height, -1, -1);
-#else
     glfwSetWindowSizeLimits(glfw_window, width * global_scale_x * system_scale_x, height * global_scale_y * system_scale_y, -1, -1);
-#endif
 }
 
 void gfx::initGlfw(int window_width_, int window_height_, const std::string& window_title) {
