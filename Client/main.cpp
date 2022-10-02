@@ -69,7 +69,7 @@ public:
     explicit AntiStutterListener(BooleanSetting* stutter_setting) : stutter_setting(stutter_setting) {}
 };
 
-int main(int argc, char **argv) {
+int main(int argc, const char **argv) {
 #ifdef __APPLE__
     pthread_setname_np("Main");
 #endif
@@ -148,3 +148,12 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+#ifdef _WIN32
+#include <Windows.h>
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    const char** argv = new const char*[1];
+    argv[0] = (char*)hInstance;
+    return main(1, argv);
+}
+#endif

@@ -116,6 +116,3 @@ def buildForWindows(project_path: str, arg: str):
         task_manager.registerTask(UnpackServer(project_path))
 
     task_manager.run()
-
-    if arg == "run":
-        utils.system(f"\"{project_path}Output/Windows/Terralistic/Terralistic.exe\"")
