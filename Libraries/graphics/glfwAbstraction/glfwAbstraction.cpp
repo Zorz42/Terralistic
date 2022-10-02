@@ -31,7 +31,8 @@ static const char* fragment_shader_code =
 
 static float global_scale = SYSTEM_SCALE;
 static unsigned int default_framebuffer, window_width_min, window_height_min;
-static float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_scale_y = 1;
+static float global_scale_x = 1, global_scale_y = 1;
+static int system_scale_x = 1, system_scale_y = 1;
 static GLFWwindow* glfw_window;
 
 static gfx::Key translateKeyboardKey(int glfw_button) {
@@ -123,8 +124,8 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
     using namespace gfx;
     
-    system_scale_x = scale_x;
-    system_scale_y = scale_y;
+    system_scale_x = std::round(scale_x);
+    system_scale_y = std::round(scale_y);
     
     if(global_scale == SYSTEM_SCALE) {
         global_scale_x = system_scale_x;
