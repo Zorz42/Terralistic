@@ -28,7 +28,7 @@ class InstallGlfw(tasks.Task):
 
 class InstallPatch(tasks.Task):
     def execute(self):
-        dependencies.installDependency("https://netix.dl.sourceforge.net/project/gnuwin32/patch/2.5.9-7/patch-2.5.9-7-bin.zip", self.project_path + "Dependencies/patch-2.5.9-7-bin/", "patch", create_dir=True)
+        dependencies.installDependency("http://netix.dl.sourceforge.net/project/gnuwin32/patch/2.5.9-7/patch-2.5.9-7-bin.zip", self.project_path + "Dependencies/patch-2.5.9-7-bin/", "patch", create_dir=True)
 
 
 class GenerateGlad(tasks.Task):
