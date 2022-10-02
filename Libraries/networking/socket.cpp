@@ -65,7 +65,13 @@ bool TcpSocket::handleError() {
 void TcpSocket::send(const void* obj, unsigned int size) {
     unsigned int sent = 0;
     while(sent < size) {
-        int curr_sent = (int)::send(socket_handle, (const char*)((unsigned long)(intptr_t)obj + sent), size - sent, MSG_NOSIGNAL);
+#ifdef _WIN32
+        int flags = 0;
+#else
+        int flags = MSG_NOSIGNAL;
+#endif
+
+        int curr_sent = (int)::send(socket_handle, (const char*)((unsigned long)(intptr_t)obj + sent), size - sent, flags);
 
         if(curr_sent != -1)
             sent += curr_sent;
