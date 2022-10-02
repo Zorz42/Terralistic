@@ -193,7 +193,7 @@ void gfx::setMinimumWindowSize(int width, int height) {
     window_height_min = height;
     
 #ifdef __APPLE__
-    glfwSetWindowSizeLimits(glfw_window, width, height, -1, -1);
+    glfwSetWindowSizeLimits(glfw_window, width / system_scale_x * global_scale_x, height / system_scale_y * global_scale_y, -1, -1);
 #else
     glfwSetWindowSizeLimits(glfw_window, width * global_scale_x * system_scale_x, height * global_scale_y * system_scale_y, -1, -1);
 #endif
