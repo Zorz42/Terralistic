@@ -31,6 +31,12 @@ void SettingsMenu::init() {
     back_button.setScale(3);
     back_button.orientation = gfx::BOTTOM;
     back_button.y = -SPACING;
+    
+    bottom_rect.orientation = gfx::BOTTOM;
+    bottom_rect.h = back_button.getHeight() + 2 * SPACING;
+    bottom_rect.fill_color.a = TRANSPARENCY / 2;
+    bottom_rect.shadow_intensity = SHADOW_INTENSITY;
+    bottom_rect.blur_radius = BLUR;
 }
 
 void SettingsMenu::stop() {
@@ -58,6 +64,12 @@ bool SettingsMenu::onKeyDown(gfx::Key key) {
     return false;
 }
 
+void SettingsMenu::onMouseScroll(int distance) {
+    scroll_offset += distance;
+    scroll_offset = std::max(scroll_offset, gfx::getWindowHeight() - bottom_rect.h - required_height);
+    scroll_offset = std::min(scroll_offset, 0);
+}
+
 void SettingsMenu::render() {
     background->setBackWidth(required_width + 6 * SPACING);
     background->renderBack();
@@ -69,14 +81,16 @@ void SettingsMenu::render() {
         
         gfx::Color c = BLACK;
         c.a = TRANSPARENCY;
-        gfx::RectShape(gfx::getWindowWidth() / 2 - width / 2, y, width, height).render(c);
+        gfx::RectShape(gfx::getWindowWidth() / 2 - width / 2, y + scroll_offset, width, height).render(c);
         
-        render_setting->render(y, required_width, getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
+        render_setting->render(y + scroll_offset, required_width, getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
         
         y += height;
     }
+    required_height = y;
     
-    
+    bottom_rect.w = background->getBackWidth();
+    bottom_rect.render();
     back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 }
 
