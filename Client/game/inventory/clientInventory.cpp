@@ -1,8 +1,12 @@
-#include <limits.h>
+#include <climits>
 #include "clientInventory.hpp"
 #include "resourcePack.hpp"
 
 void ClientInventory::init() {
+    inventory = new Inventory(items, recipes);
+    inventory->setPlayer((Player*)players->getMainPlayer());
+    inventory->setBlocks((Blocks*)blocks);
+
     networking->packet_event.addListener(this);
     networking->welcome_packet_event.addListener(this);
     
@@ -16,7 +20,7 @@ void ClientInventory::init() {
     behind_inventory_rect.smooth_factor = 2;
     
     select_rect.orientation = gfx::TOP;
-    select_rect.fill_color = GREY;
+    select_rect.fill_color = DARK_GREY;
     select_rect.fill_color.a = TRANSPARENCY;
     select_rect.y = INVENTORY_UI_SPACING / 2;
     select_rect.h = BLOCK_WIDTH * 4 + 3 * INVENTORY_UI_SPACING;
@@ -41,7 +45,7 @@ void ClientInventory::init() {
 int ClientInventory::countMaxCraftNumber(const Recipe *recipe) {
     int max_number = INT_MAX;
     for(auto ingredient : recipe->ingredients){
-        max_number = std::min(max_number, inventory.countItems(ingredient.first->id) / ingredient.second);
+        max_number = std::min(max_number, inventory->countItems(ingredient.first->id) / ingredient.second);
     }
     return max_number;
 }
@@ -55,13 +59,18 @@ void ClientInventory::loadTextures() {
     
     item_text_textures.resize(items->getNumItemTypes() - 1);
     
-    for(int i = 1; i < items->getNumItemTypes(); i++)
-        item_text_textures[i - 1].loadFromSurface(gfx::textToSurface(items->getItemTypeById(i)->display_name));
+    for(int i = 1; i < items->getNumItemTypes(); i++) {
+        item_text_textures[i - 1] = new gfx::Texture;
+        item_text_textures[i - 1]->loadFromSurface(gfx::textToSurface(items->getItemTypeById(i)->display_name));
+    }
 }
 
 void ClientInventory::stop() {
+    delete inventory;
     networking->packet_event.removeListener(this);
     networking->welcome_packet_event.removeListener(this);
+    for(int i = 1; i < items->getNumItemTypes(); i++)
+        delete item_text_textures[i - 1];
 }
 
 void ClientInventory::update(float frame_length) {
@@ -85,14 +94,14 @@ void ClientInventory::render() {
         int slot_y = int(1.5 * INVENTORY_UI_SPACING) + i / 10 * 2 * (INVENTORY_UI_SPACING + BLOCK_WIDTH * 2);
         
         gfx::RectShape back_rect(slot_x, slot_y, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING, BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING);
-        gfx::Color color = GREY;
+        gfx::Color color = DARK_GREY;
         if(getMouseX() < back_rect.x || getMouseY() < back_rect.y || getMouseX() > back_rect.x + back_rect.w || getMouseY() > back_rect.y + back_rect.h)
             color.a = TRANSPARENCY;
         else if(open) {
             hovered = i;
-            if(inventory.getItem(i).type != &items->nothing) {
+            if(inventory->getItem(i).type != &items->nothing) {
                 tooltip_active = true;
-                text_texture = &getItemTextTexture(inventory.getItem(i).type);
+                text_texture = &getItemTextTexture(inventory->getItem(i).type);
                 under_text_rect.w = text_texture->getTextureWidth() * 2 + 2 * INVENTORY_UI_SPACING;
                 under_text_rect.h = text_texture->getTextureHeight() * 2 + 2 * INVENTORY_UI_SPACING;
                 under_text_rect.x = getMouseX() + 20 - INVENTORY_UI_SPACING;
@@ -102,8 +111,8 @@ void ClientInventory::render() {
         
         back_rect.render(color);
         
-        if(inventory.getItem(i).type != &items->nothing)
-            renderItem(inventory.getItem(i), slot_x, slot_y);
+        if(inventory->getItem(i).type != &items->nothing)
+            renderItem(inventory->getItem(i), slot_x, slot_y);
     }
     
     if(text_texture) {
@@ -112,10 +121,10 @@ void ClientInventory::render() {
     }
 
     if(open) {
-        if(inventory.getItem(-1).type != &items->nothing)
-            renderItem(inventory.getItem(-1), getMouseX(), getMouseY());
+        if(inventory->getItem(-1).type != &items->nothing)
+            renderItem(inventory->getItem(-1), getMouseX(), getMouseY());
 
-        std::vector<const Recipe*> available_recipes = inventory.getAvailableRecipes();
+        std::vector<const Recipe*> available_recipes = inventory->getAvailableRecipes();
 
         hovered_recipe = -1;
         behind_crafting_rect.h = INVENTORY_UI_SPACING + (int)available_recipes.size() * (BLOCK_WIDTH * 4 + INVENTORY_UI_SPACING * 2);
@@ -195,13 +204,13 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
             int pos;
             event.packet >> stack >> item_id >> pos;
             
-            inventory.setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));
+            inventory->setItem(pos, ItemStack(items->getItemTypeById(item_id), stack));
             break;
         }
         case ServerPacketType::PLAYER_JOIN: {
             if(players->getMainPlayer() != nullptr) {
-                inventory.setPlayer((Player *) players->getMainPlayer());
-                inventory.updateAvailableRecipes();
+                inventory->setPlayer((Player *) players->getMainPlayer());
+                inventory->updateAvailableRecipes();
             }
         }
         default: break;
@@ -223,9 +232,9 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
         case gfx::Key::E:
             open = !open;
 
-            if(!open && inventory.getItem(-1).type != &items->nothing) {
-                int result = inventory.addItem(inventory.getItem(-1).type, inventory.getItem(-1).stack);
-                inventory.setItem(-1, ItemStack(&items->nothing, 0));
+            if(!open && inventory->getItem(-1).type != &items->nothing) {
+                int result = inventory->addItem(inventory->getItem(-1).type, inventory->getItem(-1).stack);
+                inventory->setItem(-1, ItemStack(&items->nothing, 0));
                 Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << result;
                 networking->sendPacket(packet);
@@ -233,15 +242,15 @@ bool ClientInventory::onKeyDown(gfx::Key key) {
             return true;
         case gfx::Key::MOUSE_LEFT: {
             if(hovered != -1) {
-                inventory.swapWithMouseItem(hovered);
+                inventory->swapWithMouseItem(hovered);
                 Packet packet;
                 packet << ClientPacketType::INVENTORY_SWAP << hovered;
                 networking->sendPacket(packet);
                 return true;
             } else if(hovered_recipe != -1) {
-                auto* before_update = inventory.getAvailableRecipes()[hovered_recipe];
-                inventory.updateAvailableRecipes();
-                if(inventory.getAvailableRecipes().size() > hovered_recipe && before_update == inventory.getAvailableRecipes()[hovered_recipe]) {
+                auto* before_update = inventory->getAvailableRecipes()[hovered_recipe];
+                inventory->updateAvailableRecipes();
+                if(inventory->getAvailableRecipes().size() > hovered_recipe && before_update == inventory->getAvailableRecipes()[hovered_recipe]) {
                     Packet packet;
                     packet << ClientPacketType::CRAFT << hovered_recipe << getKeyState(gfx::Key::SHIFT);
 
@@ -265,12 +274,12 @@ void ClientInventory::onEvent(WelcomePacketEvent &event) {
     if(event.packet_type == WelcomePacketType::INVENTORY) {
         std::vector<char> data;
         event.packet >> data;
-        inventory.fromSerial(data);
+        inventory->fromSerial(data);
     }
 }
 
 const gfx::Texture& ClientInventory::getItemTextTexture(ItemType* type) {
     if(item_text_textures.empty())
         throw Exception("item_text_textures are empty");
-    return item_text_textures[type->id - 1];
+    return *item_text_textures[type->id - 1];
 }

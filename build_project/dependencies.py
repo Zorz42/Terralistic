@@ -6,15 +6,18 @@ from . import utils
 def installDependency(url: str, directory: str, name: str, command: str = "", create_dir: bool = False):
     if not utils.exists(directory + "/.done"):
         print(f"Downloading dependency \"{name}\"")
-        
+
         if utils.exists(directory):
             utils.remove(directory)
 
         file = f"{name}.zip"
-
-        with urllib.request.urlopen(url) as request:
-            with open(file, 'wb') as download:
-                download.write(request.read())
+        
+        if url.lower().startswith("http"):
+            with urllib.request.urlopen(url) as request:
+                with open(file, 'wb') as download:
+                    download.write(request.read())
+        else:
+            raise Exception("Url malformed")
 
         if create_dir:
             utils.createDir(directory)

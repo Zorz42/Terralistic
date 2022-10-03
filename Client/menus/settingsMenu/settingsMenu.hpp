@@ -59,6 +59,7 @@ public:
 
 class SettingsMenu : public gfx::Scene {
     gfx::Button back_button;
+    gfx::Rect bottom_rect;
     
     std::vector<RenderSetting*> render_settings;
     
@@ -66,10 +67,12 @@ class SettingsMenu : public gfx::Scene {
     void stop() override;
     bool onKeyUp(gfx::Key key) override;
     bool onKeyDown(gfx::Key key) override;
+    void onMouseScroll(int distance) override;
     void render() override;
     BackgroundRect* background;
     Settings* settings;
-    int required_width = 0;
+    int required_width = 0, required_height = 0;
+    int scroll_offset = 0;
 public:
     explicit SettingsMenu(BackgroundRect* background, Settings* settings) : gfx::Scene("SettingsMenu"), background(background), settings(settings) {}
 };

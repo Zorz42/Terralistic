@@ -1,3 +1,4 @@
+#include <cmath>
 #include "exception.hpp"
 #include "glfwAbstraction.hpp"
 
@@ -31,7 +32,8 @@ static const char* fragment_shader_code =
 
 static float global_scale = SYSTEM_SCALE;
 static unsigned int default_framebuffer, window_width_min, window_height_min;
-static float global_scale_x = 1, global_scale_y = 1, system_scale_x = 1, system_scale_y = 1;
+static float global_scale_x = 1, global_scale_y = 1;
+static int system_scale_x = 1, system_scale_y = 1;
 static GLFWwindow* glfw_window;
 
 static gfx::Key translateKeyboardKey(int glfw_button) {
@@ -99,8 +101,8 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     using namespace gfx;
     
     normalization_transform = _Transformation();
-    normalization_transform.stretch(1.f / getWindowWidth() * 2, -1.f / getWindowHeight() * 2);
-    normalization_transform.translate(-float(getWindowWidth()) / 2, -float(getWindowHeight()) / 2);
+    normalization_transform.stretch(2 / (float)getWindowWidth(), -2 / (float)getWindowHeight());
+    normalization_transform.translate(-(float)getWindowWidth() / 2, -(float)getWindowHeight() / 2);
     
     glBindTexture(GL_TEXTURE_2D, window_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWindowWidth() * global_scale_x, getWindowHeight() * global_scale_y, 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
@@ -123,8 +125,8 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 static void windowContentScaleCallback(GLFWwindow* window, float scale_x, float scale_y) {
     using namespace gfx;
     
-    system_scale_x = scale_x;
-    system_scale_y = scale_y;
+    system_scale_x = std::round(scale_x);
+    system_scale_y = std::round(scale_y);
     
     if(global_scale == SYSTEM_SCALE) {
         global_scale_x = system_scale_x;
@@ -191,7 +193,7 @@ void gfx::setMinimumWindowSize(int width, int height) {
     window_height_min = height;
     
 #ifdef __APPLE__
-    glfwSetWindowSizeLimits(glfw_window, width, height, -1, -1);
+    glfwSetWindowSizeLimits(glfw_window, width / system_scale_x * global_scale_x, height / system_scale_y * global_scale_y, -1, -1);
 #else
     glfwSetWindowSizeLimits(glfw_window, width * global_scale_x * system_scale_x, height * global_scale_y * system_scale_y, -1, -1);
 #endif

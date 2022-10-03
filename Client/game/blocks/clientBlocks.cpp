@@ -28,7 +28,7 @@ void ClientBlocks::onEvent(ClientPacketEvent &event) {
             stopBreakingBlock(x, y);
             break;
         }
-        case ServerPacketType::BLOCK_DATA_UPDATE:{
+        case ServerPacketType::BLOCK_DATA_UPDATE: {
 
             int x, y;
             event.packet >> x >> y;

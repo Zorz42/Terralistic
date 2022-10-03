@@ -1,6 +1,6 @@
 #pragma once
 
-#define CURR_VERSION Version::ALPHA_0_3
-#define CURR_VERSION_STR "0.3.5-alpha"
+#define CURR_VERSION Version::ALPHA_0_4
+#define CURR_VERSION_STR "0.4.1-alpha"
 
-enum class Version { ALPHA_0_0, ALPHA_0_1, ALPHA_0_2, ALPHA_0_3 };
+enum class Version { ALPHA_0_0, ALPHA_0_1, ALPHA_0_2, ALPHA_0_3, ALPHA_0_4 };

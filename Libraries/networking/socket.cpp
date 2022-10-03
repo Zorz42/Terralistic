@@ -1,6 +1,7 @@
 #include <cstring>
 #include "networking.hpp"
 #include "exception.hpp"
+#include "graphics.hpp"
 
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -22,17 +23,17 @@ void _socketDisableBlocking(int socket_handle) {
 }
 
 #ifdef WIN32
-void TcpSocket::handleError() {
+bool TcpSocket::handleError() {
     switch (WSAGetLastError()) {
-        case WSAEWOULDBLOCK:
+        case WSAEWOULDBLOCK: return true;
         case WSAEISCONN:
-        case WSAEALREADY: return;
+        case WSAEALREADY:
         case WSAECONNREFUSED:
         case WSAECONNABORTED:
         case WSAECONNRESET:
         case WSAETIMEDOUT:
         case WSAENETRESET:
-        case WSAENOTCONN: disconnect(); return;
+        case WSAENOTCONN: disconnect(); return false;
         default: {
             char message[256] = {0};
             FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0, WSAGetLastError(), 0, message, 256, 0);
@@ -41,11 +42,11 @@ void TcpSocket::handleError() {
     }
 }
 #else
-void TcpSocket::handleError() {
+bool TcpSocket::handleError() {
     switch(errno) {
         case EWOULDBLOCK:
+            return true;
         case EINPROGRESS:
-            return;
         case ECONNREFUSED:
         case ECONNABORTED:
         case ECONNRESET:
@@ -54,7 +55,7 @@ void TcpSocket::handleError() {
         case ENOTCONN:
         case EPIPE:
             disconnect();
-            return;
+            return false;
         default:
             throw SocketError("Socket error: " + (std::string)strerror(errno));
     }
@@ -64,10 +65,18 @@ void TcpSocket::handleError() {
 void TcpSocket::send(const void* obj, unsigned int size) {
     unsigned int sent = 0;
     while(sent < size) {
-        int curr_sent = (int)::send(socket_handle, (const char*)((unsigned long)(intptr_t)obj + sent), size - sent, 0);
-        sent += curr_sent;
+#ifdef _WIN32
+        int flags = 0;
+#else
+        int flags = MSG_NOSIGNAL;
+#endif
+
+        int curr_sent = (int)::send(socket_handle, (const char*)((unsigned long)(intptr_t)obj + sent), size - sent, flags);
+
+        if(curr_sent != -1)
+            sent += curr_sent;
         
-        if(curr_sent < 0) { handleError(); break; }
+        if(curr_sent < 0 && !handleError()) break;
     }
 }
 
@@ -85,7 +94,7 @@ void TcpSocket::send(Packet& packet) {
         flushPacketBuffer();
 }
 
-bool TcpSocket::receive(void* obj, unsigned int size) {
+bool TcpSocket::receive(void* obj, unsigned int size, bool expect_data) {
     if(!connected)
         throw NotConnectedError("Not connected!");
     
@@ -96,14 +105,18 @@ bool TcpSocket::receive(void* obj, unsigned int size) {
 #else
         int curr_received = (int)::recv(socket_handle, (char*)((unsigned long)obj + received), size - received, MSG_DONTWAIT);
 #endif
-        received += curr_received;
+        if(curr_received != -1)
+            received += curr_received;
+        
         
         if(curr_received == 0) {
             connected = false;
             return false;
         } else if(curr_received < 0) {
-            handleError();
-            return false;
+            if(!handleError() || !expect_data)
+                return false;
+            else
+                gfx::sleep(0.1);
         }
     }
     
@@ -124,10 +137,10 @@ bool TcpSocket::receive(Packet& packet) {
 
 bool TcpSocket::receivePacket() {
     unsigned int size;
-    if(!receive(&size, sizeof(unsigned int))) return false;
+    if(!receive(&size, sizeof(unsigned int), false)) return false;
     
     std::vector<unsigned char> obj(size);
-    if(!receive(&obj[0], size)) return false;
+    if(!receive(&obj[0], size, true)) return false;
     
     Packet packet;
     packet.append(&obj[0], size);
@@ -150,10 +163,9 @@ bool TcpSocket::connect(const std::string& ip, unsigned short port) {
     if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) == 0)
         throw AddressFormatError(ip + " is not a valid formatted address");
  
-    if(::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-        handleError();
-        return false;
-    }
+    if(::connect(socket_handle, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
+        if(!handleError())
+            return false;
     
     _socketDisableBlocking(socket_handle);
     

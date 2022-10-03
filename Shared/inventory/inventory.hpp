@@ -19,7 +19,7 @@ public:
 };
 
 
-class Recipes {
+class Recipes : public NonCopyable {
     std::vector<Recipe*> recipes;
 public:
     void registerARecipe(Recipe* recipe);
@@ -30,8 +30,8 @@ public:
 class Inventory {
     Items* items;
     Recipes* recipes;
-    Player* player;
-    Blocks* blocks;
+    Player* player = nullptr;
+    Blocks* blocks = nullptr;
     ItemStack mouse_item;
     std::vector<int> item_counts;
     std::vector<const Recipe*> available_recipes;
@@ -39,6 +39,7 @@ class Inventory {
     bool canCraftRecipe(const Recipe* recipe);
 public:
     Inventory(Items* items, Recipes* recipes);
+    Inventory(const Inventory& inventory);
     
     int selected_slot = 0;
     

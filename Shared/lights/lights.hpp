@@ -23,7 +23,7 @@ public:
     bool operator!=(LightColor color) const;
 };
 
-class Lights : EventListener<BlockChangeEvent> {
+class Lights : EventListener<BlockChangeEvent>, public NonCopyable {
     class Light {
     public:
         Light() : color(0, 0, 0), source_color(0, 0, 0) {}
@@ -43,7 +43,6 @@ class Lights : EventListener<BlockChangeEvent> {
 public:
     explicit Lights(Blocks* blocks) : blocks(blocks) {}
     void create();
-    void updateAllLightEmitters();
     
     void init();
     void stop();

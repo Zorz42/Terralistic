@@ -12,14 +12,13 @@ void ClientLights::init() {
 
 void ClientLights::postInit() {
     create();
-    light_chunks.resize(getWidth() / 16 * getHeight() / 16);
-    updateAllLightEmitters();
+    light_chunks = new LightChunk[getWidth() / 16 * getHeight() / 16];
     
     light_update_thread = std::thread(&ClientLights::lightUpdateLoop, this);
 }
 
 ClientLights::LightChunk* ClientLights::getLightChunk(int x, int y) {
-    if(x < 0 || x >= getWidth() / 16 || y < 0 || y >= getHeight() / 16 || light_chunks.empty())
+    if(x < 0 || x >= getWidth() / 16 || y < 0 || y >= getHeight() / 16 || light_chunks == nullptr)
         throw Exception("Light chunk out of bounds.");
     return &light_chunks[y * getWidth() / 16 + x];
 }
@@ -47,6 +46,7 @@ void ClientLights::lightUpdateLoop() {
 #ifdef __linux__
     pthread_setname_np(pthread_self(), "Light Update");
 #endif
+    
     while(running) {
         bool finished = !enabled;
         while(!finished) {
@@ -162,6 +162,7 @@ void ClientLights::stop() {
     Lights::stop();
     light_color_change_event.removeListener(this);
     light_update_schedule_event.removeListener(this);
+    delete[] light_chunks;
 }
 
 void ClientLights::scheduleClientLightUpdate(int x, int y) {

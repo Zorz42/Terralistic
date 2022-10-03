@@ -20,12 +20,6 @@ void Lights::create() {
     lights.resize(blocks->getWidth() * blocks->getHeight());
 }
 
-void Lights::updateAllLightEmitters() {
-    for(int x = 0; x < getWidth(); x++)
-        for(int y = 0; y < getHeight(); y++)
-            updateLightEmitter(x, y);
-}
-
 Lights::Light* Lights::getLight(int x, int y) {
     if(x < 0 || x >= blocks->getWidth() || y < 0 || y >= blocks->getHeight() || lights.empty())
         throw Exception("Light is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
@@ -37,9 +31,6 @@ bool Lights::isLightSource(int x, int y) {
 }
 
 void Lights::setLightColor(int x, int y, LightColor color) {
-    if(color.r == 0 && color.g == 0 && color.b == 0)
-        getLight(x, y)->light_source = false;
-    
     if(getLight(x, y)->color != color) {
         getLight(x, y)->color = color;
         LightColorChangeEvent event(x, y);
@@ -58,6 +49,7 @@ void Lights::setLightColor(int x, int y, LightColor color) {
 
 void Lights::updateLight(int x, int y) {
     getLight(x, y)->update_light = false;
+    updateLightEmitter(x, y);
     
     int neighbours[4][2] = {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}};
     
@@ -109,9 +101,11 @@ void Lights::updateLight(int x, int y) {
 }
 
 void Lights::setLightSource(int x, int y, LightColor color) {
-    getLight(x, y)->light_source = true;
-    getLight(x, y)->source_color = color;
-    scheduleLightUpdateForNeighbors(x, y);
+    getLight(x, y)->light_source = color != LightColor(0, 0, 0);
+    if(getLight(x, y)->source_color != color) {
+        getLight(x, y)->source_color = color;
+        scheduleLightUpdateForNeighbors(x, y);
+    }
 }
 
 LightColor Lights::getLightColor(int x, int y) {
@@ -142,7 +136,6 @@ int Lights::getHeight() const {
 
 void Lights::onEvent(BlockChangeEvent& event) {
     scheduleLightUpdate(event.x, event.y);
-    updateLightEmitter(event.x, event.y);
 }
 
 void Lights::scheduleLightUpdateForNeighbors(int x, int y) {
@@ -158,5 +151,7 @@ void Lights::scheduleLightUpdateForNeighbors(int x, int y) {
 }
 
 void Lights::updateLightEmitter(int x, int y) {
-    setLightSource(x, y, LightColor(blocks->getBlockType(x, y)->light_emission_r, blocks->getBlockType(x, y)->light_emission_g, blocks->getBlockType(x, y)->light_emission_b));
+    BlockType* block_type = blocks->getBlockType(x, y);
+    if(block_type != &blocks->air)
+        setLightSource(x, y, LightColor(block_type->light_emission_r, block_type->light_emission_g, block_type->light_emission_b));
 }

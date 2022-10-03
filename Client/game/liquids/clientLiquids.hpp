@@ -14,7 +14,7 @@ class ClientLiquids : public Liquids, public ClientModule, EventListener<ClientP
         void render(ClientLiquids* liquids, int x, int y);
     };
     
-    std::vector<RenderLiquidChunk> liquid_chunks;
+    RenderLiquidChunk* liquid_chunks = nullptr;
     
     gfx::TextureAtlas liquids_atlas;
     

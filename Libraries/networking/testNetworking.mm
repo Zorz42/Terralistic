@@ -109,6 +109,24 @@ TEST_CASE(testSocketSendsData) {
     ASSERT(received == 1552);
 }
 
+TEST_CASE(testSocketSendsLargeData) {
+    Packet sent_packet, received_packet;
+    std::vector<char> data, received_data;
+    for(int i = 0; i < 1000000; i++)
+        data.push_back(rand());
+    sent_packet << data;
+    
+    c_socket.send(sent_packet);
+    c_socket.flushPacketBuffer();
+    
+    waitABit();
+    
+    ASSERT(s_socket.receive(received_packet));
+    received_packet >> received_data;
+    
+    ASSERT(received_data == data);
+}
+
 TEST_CASE(testSocketReceivesNothing) {
     Packet received_packet;
     ASSERT(!s_socket.receive(received_packet));

@@ -1,10 +1,11 @@
 #pragma once
 #include <vector>
 #include "texture.hpp"
+#include "nonCopyable.hpp"
 
 namespace gfx {
 
-class TextureAtlas {
+class TextureAtlas : public NonCopyable {
     Texture texture;
     std::vector<RectShape> rects;
 public:

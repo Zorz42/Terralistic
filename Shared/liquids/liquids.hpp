@@ -9,17 +9,17 @@ public:
     int x, y;
 };
 
-class LiquidType {
+class LiquidType : public NonCopyable {
 public:
     LiquidType(std::string name) : name(std::move(name)) {}
     
     std::string name;
-    int flow_time;
-    float speed_multiplier;
+    int flow_time = 1;
+    float speed_multiplier = 1;
     int id;
 };
 
-class Liquids {
+class Liquids : public NonCopyable {
     class Liquid {
     public:
         Liquid() : id(/*empty*/0), level(0) {}

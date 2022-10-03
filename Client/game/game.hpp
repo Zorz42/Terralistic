@@ -57,7 +57,7 @@ class Game : gfx::Scene, public Background {
     std::string kick_reason;
     
     DebugLine fps_debug_line, frame_length_line;
-    int fps_count = 0, ms_timer_counter;
+    int fps_count = 0, ms_timer_counter = 0;
     float frame_length_sum = 0;
     gfx::Timer line_refresh_counter, ms_timer;
     

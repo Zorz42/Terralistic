@@ -3,6 +3,7 @@
 #include <vector>
 #include "exception.hpp"
 #include "algorithm"
+#include "nonCopyable.hpp"
 
 template<class EventInstance>
 class EventListener {
@@ -11,7 +12,7 @@ public:
 };
 
 template<class EventInstance>
-class EventSender {
+class EventSender : public NonCopyable {
     std::vector<EventListener<EventInstance>*> listeners;
 public:
     void addListener(EventListener<EventInstance>* listener) {

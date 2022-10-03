@@ -33,4 +33,3 @@ std::vector<char> decompress(const std::vector<char>& compressed_data) {
     
     return decompressed_data;
 }
-

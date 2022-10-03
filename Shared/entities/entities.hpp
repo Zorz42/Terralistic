@@ -5,7 +5,7 @@ enum class EntityType { ITEM, PLAYER };
 
 class Entities;
 
-class Entity {
+class Entity : public NonCopyable {
     friend Entities;
     float x, y, velocity_x = 0, velocity_y = 0;
     inline static int curr_id = 1;
@@ -55,7 +55,7 @@ public:
     Entity* entity;
 };
 
-class Entities {
+class Entities : public NonCopyable {
     std::vector<Entity*> entities;
     Blocks* blocks;
 public:

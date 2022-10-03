@@ -76,6 +76,10 @@ Inventory::Inventory(Items* items, Recipes* recipes) : items(items), recipes(rec
         i.type = &items->nothing;
 }
 
+Inventory::Inventory(const Inventory& inventory) {
+    *this = inventory;
+}
+
 int Inventory::addItem(ItemType* id, int quantity) {
     if(quantity < 0)
         throw Exception("Item quantity cannot be negative.");
@@ -125,7 +129,7 @@ ItemStack Inventory::getSelectedSlot() {
 }
 
 void Inventory::swapWithMouseItem(int pos) {
-    if(pos < -1 || pos >= INVENTORY_SIZE)
+    if(pos < 0 || pos >= INVENTORY_SIZE)
         throw Exception("Inventory position does not exist");
     ItemStack temp = mouse_item;
     mouse_item = inventory_arr[pos];
@@ -140,7 +144,7 @@ bool Inventory::canCraftRecipe(const Recipe* recipe) {
     })) {
         if (recipe->crafting_block == nullptr) {
             return true;
-        } else if (player != nullptr && blocks != nullptr){
+        } else if (player != nullptr && blocks != nullptr) {
             for (int i = player->getX() / (BLOCK_WIDTH * 2) - 3;
                  i < player->getX() / (BLOCK_WIDTH * 2) + 3; i++) {
                 for (int j = player->getY() / (BLOCK_WIDTH * 2) - 3;

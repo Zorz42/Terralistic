@@ -12,13 +12,13 @@
 
 class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
     gfx::Texture numbers[10];
-    Inventory inventory;
+    Inventory *inventory;
     bool open = false;
     int selected_slot = 0;
     gfx::Rect under_text_rect, behind_inventory_rect, select_rect, behind_crafting_rect;
     int hovered = -1, hovered_recipe = -1;
     
-    std::vector<gfx::Texture> item_text_textures;
+    std::vector<gfx::Texture*> item_text_textures;
     
     void selectSlot(int slot);
     void renderItem(ItemStack item, int x, int y);
@@ -38,8 +38,9 @@ class ClientInventory : public ClientModule, EventListener<ClientPacketEvent>, E
     ClientItems* items;
     Recipes* recipes;
     ClientPlayers* players;
+    Blocks* blocks;
 public:
-    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players, ClientBlocks* blocks) : ClientModule("ClientInventory"), networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players), inventory(items, recipes) {inventory.setPlayer((Player*)players->getMainPlayer()); inventory.setBlocks((Blocks*)blocks);}
+    ClientInventory(ClientNetworking* networking, ResourcePack* resource_pack, ClientItems* items, Recipes* recipes, ClientPlayers* players, ClientBlocks* blocks) : ClientModule("ClientInventory"), networking(networking), resource_pack(resource_pack), items(items), recipes(recipes), players(players), blocks(blocks) {}
     
     const gfx::Texture& getItemTextTexture(ItemType* type);
 };

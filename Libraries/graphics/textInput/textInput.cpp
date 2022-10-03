@@ -6,7 +6,6 @@
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;
     loadFromSurface(textToSurface(text, text_color));
-    setWidth(width);
 }
 
 void gfx::TextInput::eraseSelected() {
@@ -46,6 +45,8 @@ void gfx::TextInput::setBlurIntensity(float blur_intensity) {
 #define TEXT_SPACING 1
 
 void gfx::TextInput::render(int mouse_x, int mouse_y, int mouse_vel) {
+    setWidth(width);
+    
     RectShape rect = getTranslatedRect();
     back_rect.x = rect.x;
     back_rect.y = rect.y;

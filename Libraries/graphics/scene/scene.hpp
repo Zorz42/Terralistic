@@ -2,6 +2,7 @@
 #include <vector>
 #include "textInput.hpp"
 #include "glfwAbstraction.hpp"
+#include "nonCopyable.hpp"
 
 namespace gfx {
 
@@ -12,10 +13,10 @@ public:
 
 void addAGlobalUpdateFunction(GlobalUpdateFunction* global_update_function);
 
-class SceneModule {
+class SceneModule : public NonCopyable {
     friend class Scene;
     bool enable_key_states = true;
-    int mouse_x, mouse_y, mouse_vel;
+    int mouse_x = 0, mouse_y = 0, mouse_vel = 0;
     std::string module_name;
     float render_time_sum = 0, update_time_sum = 0;
 public:
@@ -41,7 +42,7 @@ public:
 class Scene : public SceneModule, EventListener<_ScreenRefreshEvent>, EventListener<_KeyPressEvent>, EventListener<_KeyReleaseEvent>, EventListener<_ScrollEvent>, EventListener<_CharInputEvent> {
     std::vector<SceneModule*> modules;
     bool running = true, initialized = false;
-    float render_time;
+    float render_time = 0;
     int frame_count = 0;
     Timer print_render_data_timer;
     void onEvent(_ScreenRefreshEvent& event) override;
