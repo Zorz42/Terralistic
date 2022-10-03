@@ -3,6 +3,7 @@
 #include <platform_folders.h>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 #include "configManager.hpp"
 
 static const std::set<char> allowed_chars = {'!', ':', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', '"', '|', '~', '<', '>', '?', '-', '=', ',', '.', '/', '[', ']', ';', '\'', '\\', '`', ' '};
@@ -115,14 +116,14 @@ bool Console::onKeyDown(gfx::Key key) {
         if(selected_saved_line < saved_lines.size() - 1) {
             selected_saved_line++;
             input_box.setText(saved_lines[selected_saved_line]);
-            input_box.setCursor(input_box.getText().size());
+            input_box.setCursor((int)input_box.getText().size());
         }
         return true;
     } else if(key == gfx::Key::ARROW_DOWN && input_box.active) {
         if(selected_saved_line > 0){
             selected_saved_line--;
             input_box.setText(saved_lines[selected_saved_line]);
-            input_box.setCursor(input_box.getText().size());
+            input_box.setCursor((int)input_box.getText().size());
         }
         return true;
     }

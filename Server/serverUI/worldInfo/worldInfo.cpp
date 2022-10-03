@@ -2,6 +2,7 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
+#include <sstream>
 
 WorldInfo::WorldInfo(std::string resource_path): LauncherModule("world_info", std::move(resource_path)){
     min_width = 620;

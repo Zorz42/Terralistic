@@ -202,11 +202,12 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     for(int i = 0; i < commands.size(); i++)
         if(commands[i]->identifier == identifier) {
             try {
-                if(!commands[i]->onCommand(args, player))
+                if(!commands[i]->onCommand(args, player)) {
                     if(player == nullptr)
                         print->info(commands[i]->usage);
                     else
                         chat->sendChat(player, commands[i]->usage);
+                }
             } catch(const Exception& e) {
                 if(player == nullptr)
                     print->error(e.message);

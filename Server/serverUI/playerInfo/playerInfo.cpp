@@ -18,6 +18,6 @@ void PlayerInfo::render() {
 
     gfx::RectShape(base_container.x + 2, base_container.y + 2, base_container.w - 4, base_container.h - 4).render(GREY);
 
-    for(auto card : players)
+    for(auto& card : players)
         card.render();
 }
