@@ -96,11 +96,11 @@ bool GiveCommand::onCommand(std::vector<std::string>& args, ServerPlayer* execut
 
 bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() == 1 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
-        players->setPlayerHealth(executor, std::stoi(args[0]));
+        executor->setHealth(std::stoi(args[0]));
         chat->sendChat(executor, "Set your health to " + args[0] + ".");
         return true;
     } else if(args.size() == 2 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
-        players->setPlayerHealth(players->getPlayerByName(args[1]), std::stoi(args[0]));
+        players->getPlayerByName(args[1])->setHealth(std::stoi(args[0]));
         chat->sendChat(executor, "Set " + args[1] + "'s health to " + args[0] + ".");
         return true;
     }
@@ -109,11 +109,11 @@ bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* e
 
 bool KillCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() == 0) {
-        players->setPlayerHealth(executor, 0);
+        executor->setHealth(0);
         chat->sendChat(executor, "Killed yourself.");
         return true;
     } else if(args.size() == 1) {
-        players->setPlayerHealth(players->getPlayerByName(args[1]), 0);
+        players->getPlayerByName(args[1])->setHealth(0);
         chat->sendChat(executor, "Killed " + args[1] + ".");
         return true;
     }

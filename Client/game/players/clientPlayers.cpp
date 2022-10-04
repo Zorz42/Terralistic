@@ -1,7 +1,7 @@
 #include "clientPlayers.hpp"
 #include "readOpa.hpp"
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, id) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, 100, id) {
     friction = false;
 }
 
@@ -25,9 +25,10 @@ void ClientPlayers::loadPlayerTexture(ClientPlayer& player) {
         gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
         player.loadSkin(skin, resource_pack);
         Packet skin_packet;
-        skin_packet << ClientPacketType::PLAYER_SKIN << skin.getData() << true;//last arg is whether this is a skin change or not
+        skin_packet << ClientPacketType::PLAYER_SKIN << skin.getData() << true; // last arg is whether this is a skin change or not
         networking->sendPacket(skin_packet);
     }
+    
     if(player.has_created_surface) {
         player.player_texture.loadFromSurface(player.player_surface);
         player.has_created_texture = true;
@@ -183,7 +184,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 main_player = nullptr;
             break;
         }
-        case ServerPacketType::PLAYER_SKIN:{
+        case ServerPacketType::PLAYER_SKIN: {
             std::vector<unsigned char> buffer;
             buffer.resize(32 * 32 * 4);
             event.packet >> buffer;

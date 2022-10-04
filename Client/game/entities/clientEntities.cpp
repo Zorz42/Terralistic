@@ -37,7 +37,7 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
             event_packet >> id;
             
             Entity* entity = getEntityById(id);
-            removeEntity(entity);
+            entity_deletion_queue.push(entity);
             break;
         }
         default:;
@@ -46,6 +46,13 @@ void ClientEntities::onEvent(ClientPacketEvent& event) {
 
 void ClientEntities::updatePerMs() {
     updateAllEntities();
+}
+
+void ClientEntities::update(float frame_length) {
+    while(!entity_deletion_queue.empty()) {
+        removeEntity(entity_deletion_queue.front());
+        entity_deletion_queue.pop();
+    }
 }
 
 void ClientEntities::stop() {

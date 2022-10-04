@@ -84,10 +84,11 @@ ServerPlayer* ServerPlayers::addPlayer(const std::string& name) {
     player->inventory.setPlayer((Player*)player);
     if(has_to_reset) {
         resetPlayer(player);
-        player->health = 100;
+        player->setHealth(100);
     }
     
     entities->registerEntity(player);
+    player->health_change_event.addListener(this);
     
     return player;
 }
@@ -110,7 +111,7 @@ void ServerPlayers::savePlayer(ServerPlayer* player) {
     player_data->name = player->name;
     player_data->x = player->getX();
     player_data->y = player->getY();
-    player_data->health = player->health;
+    player_data->health = player->getHealth();
     player_data->inventory = player->inventory;
 }
 
@@ -242,7 +243,7 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     player->setConnection(event.connection);
 
     Packet healthPacket;
-    healthPacket << WelcomePacketType::HEALTH << player->health;
+    healthPacket << WelcomePacketType::HEALTH << player->getHealth();
     event.connection->send(healthPacket);
     
     Packet packet;
@@ -339,6 +340,7 @@ void ServerPlayers::onEvent(ServerDisconnectEvent& event) {
     
     if(player != nullptr) {
         savePlayer(player);
+        player->health_change_event.removeListener(this);
         entities->removeEntity(player);
     }
 }
@@ -479,30 +481,30 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
     }
 }
 
-void ServerPlayers::setPlayerHealth(ServerPlayer* player, int health) {
-    player->health = health;
+void ServerPlayers::onEvent(PlayerHealthChangeEvent& event) {
+    ServerPlayer* server_player = (ServerPlayer*)event.player;
     Packet packet;
-    packet << ServerPacketType::HEALTH << health;
-    player->getConnection()->send(packet);
+    packet << ServerPacketType::HEALTH << event.player->getHealth();
+    server_player->getConnection()->send(packet);
     
-    if(health <= 0) {
+    if(server_player->getHealth() <= 0) {
         for(int i = 0; i < INVENTORY_SIZE; i++) {
-            while(player->inventory.getItem(i).stack) {
+            while(server_player->inventory.getItem(i).stack) {
                 static std::random_device device;
                 static std::mt19937 engine(device());
                 
-                Item* item = items->spawnItem(player->inventory.getItem(i).type, player->getX(), player->getY());
-                player->inventory.setItem(i, ItemStack(player->inventory.getItem(i).type, player->inventory.getItem(i).stack - 1));
+                Item* item = items->spawnItem(server_player->inventory.getItem(i).type, server_player->getX(), server_player->getY());
+                server_player->inventory.setItem(i, ItemStack(server_player->inventory.getItem(i).type, server_player->inventory.getItem(i).stack - 1));
                 
                 entities->addVelocityX(item, int(engine() % 40) - 20);
                 entities->addVelocityY(item, -int(engine() % 20) - 20);
             }
         }
         
-        resetPlayer(player);
-        setPlayerHealth(player, 40);
-        savePlayer(player);
-        entities->removeEntity((Entity*)player);
+        resetPlayer(server_player);
+        server_player->setHealth(40);
+        savePlayer(server_player);
+        entities->removeEntity((Entity*)server_player);
     }
 }
 
@@ -530,6 +532,6 @@ void ServerPlayers::onEvent(EntityAbsoluteVelocityChangeEvent &event) {
     int delta_vel_y = std::abs(player->getVelocityY() - event.old_vel_y);
     if(delta_vel_x + delta_vel_y > 69) {
         int health_decrease = delta_vel_x + delta_vel_y - 69;
-        setPlayerHealth(player, player->health - health_decrease);
+        player->setHealth(player->getHealth() - health_decrease);
     }
 }

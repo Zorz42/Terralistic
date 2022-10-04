@@ -23,7 +23,7 @@ class ServerPlayer : public Player, EventListener<InventoryItemChangeEvent> {
     
     void onEvent(InventoryItemChangeEvent& event) override;
 public:
-    explicit ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y , data.name), inventory(data.inventory), health(data.health) {
+    explicit ServerPlayer(const ServerPlayerData& data) : Player(data.x, data.y, data.name, data.health), inventory(data.inventory) {
         friction = false;
         inventory.item_change_event.addListener(this);
     }
@@ -33,7 +33,6 @@ public:
     void setConnection(Connection* connection);
     Connection* getConnection();
 
-    int health;
     bool breaking = false;
     int breaking_x = 0, breaking_y = 0;
     
@@ -69,7 +68,7 @@ public:
     ServerPlayer* player;
 };
 
-class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, EventListener<BlockRandomTickEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent>, EventListener<EntityAbsoluteVelocityChangeEvent> {
+class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, EventListener<BlockRandomTickEvent>, EventListener<ServerNewConnectionEvent>, EventListener<ServerConnectionWelcomeEvent>, EventListener<ServerPacketEvent>, EventListener<ServerDisconnectEvent>, EventListener<WorldSaveEvent>, EventListener<WorldLoadEvent>, EventListener<PlayerHealthChangeEvent>, EventListener<EntityAbsoluteVelocityChangeEvent> {
     Entities* entities;
     ServerBlocks* blocks;
     Walls* walls;
@@ -91,6 +90,7 @@ class ServerPlayers : public ServerModule, EventListener<BlockUpdateEvent>, Even
     void onEvent(WorldSaveEvent& event) override;
     void onEvent(WorldLoadEvent& event) override;
     void onEvent(EntityAbsoluteVelocityChangeEvent& event) override;
+    void onEvent(PlayerHealthChangeEvent& event) override;
     
     void leftClickEvent(ServerPlayer* player, int x, int y);
     void rightClickEvent(ServerPlayer* player, int x, int y);
@@ -110,7 +110,6 @@ public:
     ServerPlayer* addPlayer(const std::string& name);
     void savePlayer(ServerPlayer* player);
     ServerPlayerData* getPlayerData(const std::string& name);
-    void setPlayerHealth(ServerPlayer* player, int health);
     void resetPlayer(ServerPlayer* player);
     
     std::vector<char> toSerial();
