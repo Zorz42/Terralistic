@@ -216,7 +216,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
                 break;
             } else {
                 Packet join_packet;
-                join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (int)curr_player->moving_type;
+                join_packet << ServerPacketType::PLAYER_JOIN << curr_player->getX() << curr_player->getY() << curr_player->id << curr_player->name << (int)curr_player->moving_type << curr_player->getHealth();
                 event.connection->send(join_packet);
             }
         }
@@ -225,7 +225,7 @@ void ServerPlayers::onEvent(ServerNewConnectionEvent& event) {
         throw Exception("Could not find the player.");
     
     Packet join_packet;
-    join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
+    join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type << player->getHealth();
     networking->sendToEveryone(join_packet);
     event.connection->send(join_packet);
 }
@@ -241,10 +241,6 @@ void ServerPlayers::onEvent(ServerConnectionWelcomeEvent& event) {
     
     ServerPlayer* player = addPlayer(event.connection->player_name);
     player->setConnection(event.connection);
-
-    Packet healthPacket;
-    healthPacket << WelcomePacketType::HEALTH << player->getHealth();
-    event.connection->send(healthPacket);
     
     Packet packet;
     packet << WelcomePacketType::INVENTORY << player->inventory.toSerial();
@@ -294,7 +290,7 @@ void ServerPlayers::update(float frame_length) {
                 player->setConnection(networking->getConnections()[i]);
                 
                 Packet join_packet;
-                join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type;
+                join_packet << ServerPacketType::PLAYER_JOIN << player->getX() << player->getY() << player->id << player->name << (int)player->moving_type << player->getHealth();
                 networking->sendToEveryone(join_packet);
             }
         }

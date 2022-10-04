@@ -3,15 +3,13 @@
 #include "resourcePack.hpp"
 #include "clientPlayers.hpp"
 
-class ClientHealth : public ClientModule, EventListener<ClientPacketEvent>, EventListener<WelcomePacketEvent> {
-    int health = 80, max_health = 80;
+class ClientHealth : public ClientModule, EventListener<ClientPacketEvent> {
     gfx::Texture heart_texture;
     void init() override;
     void loadTextures() override;
     void update(float frame_length) override;
     void render() override;
     void onEvent(ClientPacketEvent &event) override;
-    void onEvent(WelcomePacketEvent &event) override;
     void stop() override;
 
     ResourcePack* resource_pack;

@@ -209,7 +209,7 @@ void ClientInventory::onEvent(ClientPacketEvent &event) {
         }
         case ServerPacketType::PLAYER_JOIN: {
             if(players->getMainPlayer() != nullptr) {
-                inventory->setPlayer((Player *) players->getMainPlayer());
+                inventory->setPlayer((Player*)players->getMainPlayer());
                 inventory->updateAvailableRecipes();
             }
         }

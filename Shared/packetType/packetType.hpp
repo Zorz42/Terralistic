@@ -50,7 +50,7 @@ enum class ServerPacketType {
 };
 
 enum class WelcomePacketType {
-    _START, WELCOME, BLOCKS, WALLS, LIQUIDS, INVENTORY, TIME, HEALTH, _END,
+    _START, WELCOME, BLOCKS, WALLS, LIQUIDS, INVENTORY, TIME, _END,
 };
 
 Packet& operator<<(Packet& packet, ClientPacketType packet_type);

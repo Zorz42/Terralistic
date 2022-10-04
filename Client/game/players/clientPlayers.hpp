@@ -9,7 +9,7 @@
 
 class ClientPlayer : public Player {
 public:
-    ClientPlayer(const std::string& name, int x, int y, int id);
+    ClientPlayer(const std::string& name, int x, int y, int health, int id);
     void loadSkin(const gfx::Surface& skin, ResourcePack* resource_pack);
     int texture_frame = 0;
     gfx::Texture name_text;
@@ -49,6 +49,6 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
 public:
     ClientPlayers(ClientNetworking* networking, ClientBlocks* blocks, Liquids* liquids, ResourcePack* resource_pack, Entities* entities, Particles* particles, Camera* camera, std::string  username) : ClientModule("ClientPlayers"), networking(networking), blocks(blocks), liquids(liquids), resource_pack(resource_pack), entities(entities), particles(particles), camera(camera), username(std::move(username)) {}
     
-    const ClientPlayer* getMainPlayer() { return main_player; }
+    ClientPlayer* getMainPlayer() { return main_player; }
     void loadPlayerTexture(ClientPlayer& player);
 };

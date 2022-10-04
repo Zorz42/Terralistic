@@ -1,7 +1,7 @@
 #include "clientPlayers.hpp"
 #include "readOpa.hpp"
 
-ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int id) : Player(x, y, name, 100, id) {
+ClientPlayer::ClientPlayer(const std::string& name, int x, int y, int health, int id) : Player(x, y, name, health, id) {
     friction = false;
 }
 
@@ -111,9 +111,10 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
             int x, y;
             int id;
             int moving_type;
+            int health;
             std::string name;
-            event.packet >> x >> y >> id >> name >> moving_type;
-            ClientPlayer* new_player = new ClientPlayer(name, x, y, id);
+            event.packet >> x >> y >> id >> name >> moving_type >> health;
+            ClientPlayer* new_player = new ClientPlayer(name, x, y, health, id);
             new_player->moving_type = (MovingType)moving_type;
             entities->registerEntity(new_player);
             if(name == username) {
@@ -122,7 +123,7 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 camera->setX(main_player->getX() + PLAYER_WIDTH);
                 camera->setY(main_player->getY() + PLAYER_HEIGHT - 2000);
                 camera->jumpToTarget();
-            }else if(main_player != nullptr){
+            } else if(main_player != nullptr) {
                 gfx::Surface skin = readOpa(resource_pack->getFile("/misc/skin.opa"));
                 Packet skin_packet;
                 skin_packet << ClientPacketType::PLAYER_SKIN << skin.getData() << false;
