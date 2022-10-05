@@ -480,7 +480,7 @@ void ServerPlayer::onEvent(InventoryItemChangeEvent& event) {
 void ServerPlayers::onEvent(PlayerHealthChangeEvent& event) {
     ServerPlayer* server_player = (ServerPlayer*)event.player;
     Packet packet;
-    packet << ServerPacketType::HEALTH << event.player->getHealth();
+    packet << ServerPacketType::HEALTH << event.player->getHealth() << event.player->id;
     server_player->getConnection()->send(packet);
     
     if(server_player->getHealth() <= 0) {

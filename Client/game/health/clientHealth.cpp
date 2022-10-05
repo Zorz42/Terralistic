@@ -26,9 +26,9 @@ void ClientHealth::render() {
 void ClientHealth::onEvent(ClientPacketEvent &event) {
     switch(event.packet_type) {
         case ServerPacketType::HEALTH:
-            int health;
-            event.packet >> health;
-            players->getMainPlayer()->setHealth(health);
+            int health, id;
+            event.packet >> health >> id;
+            players->getPlayerById(id)->setHealth(health);
             break;
         default: break;
     }

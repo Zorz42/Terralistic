@@ -27,7 +27,6 @@ class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
 
     std::string username;
     ClientPlayer* main_player = nullptr;
-    ClientPlayer* getPlayerById(int id);
     gfx::Texture player_texture;
     
     void init() override;
@@ -51,4 +50,5 @@ public:
     
     ClientPlayer* getMainPlayer() { return main_player; }
     void loadPlayerTexture(ClientPlayer& player);
+    ClientPlayer* getPlayerById(int id);
 };
