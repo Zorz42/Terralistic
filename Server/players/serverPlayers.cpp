@@ -481,7 +481,7 @@ void ServerPlayers::onEvent(PlayerHealthChangeEvent& event) {
     ServerPlayer* server_player = (ServerPlayer*)event.player;
     Packet packet;
     packet << ServerPacketType::HEALTH << event.player->getHealth() << event.player->id;
-    server_player->getConnection()->send(packet);
+    networking->sendToEveryone(packet);
     
     if(server_player->getHealth() <= 0) {
         for(int i = 0; i < INVENTORY_SIZE; i++) {
