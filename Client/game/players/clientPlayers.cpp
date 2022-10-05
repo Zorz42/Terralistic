@@ -12,7 +12,7 @@ void ClientPlayer::loadSkin(const gfx::Surface& skin, ResourcePack* resource_pac
         for(int x = 0; x < player_surface.getWidth(); x++)
             if(player_surface.getPixel(x, y).a != 0) {
                 gfx::Color curr_pixel = player_surface.getPixel(x, y);
-                gfx::Color color = skin.getPixel(curr_pixel.b / 8, curr_pixel.g / 8);
+                gfx::Color color = skin.getPixel(curr_pixel.r / 8, curr_pixel.g / 8);
                 if(y > 17)
                     color.a = 255;
                 player_surface.setPixel(x, y, color);
@@ -129,6 +129,9 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                 skin_packet << ClientPacketType::PLAYER_SKIN << skin.getData() << false;
                 networking->sendPacket(skin_packet);
             }
+            
+            PlayerCreationEvent creation_event(new_player);
+            player_creation_event.call(creation_event);
 
             break;
         }
@@ -183,6 +186,12 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
 
             if(main_player && id == main_player->id)
                 main_player = nullptr;
+            
+            Entity* entity = entities->getEntityById(id);
+            if(entity->type == EntityType::PLAYER) {
+                PlayerDeletionEvent deletion_event((ClientPlayer*)entity);
+                player_deletion_event.call(deletion_event);
+            }
             break;
         }
         case ServerPacketType::PLAYER_SKIN: {
@@ -200,7 +209,6 @@ void ClientPlayers::onEvent(ClientPacketEvent &event) {
                     getPlayerById(id)->loadSkin(skin, resource_pack);
                     getPlayerById(id)->has_created_texture = false;
                 }
-
             }
         }
         default:;

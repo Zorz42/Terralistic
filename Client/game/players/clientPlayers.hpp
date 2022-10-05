@@ -20,6 +20,18 @@ public:
     bool has_jumped = false;
 };
 
+class PlayerCreationEvent {
+public:
+    PlayerCreationEvent(ClientPlayer* player) : player(player) {}
+    ClientPlayer* player;
+};
+
+class PlayerDeletionEvent {
+public:
+    PlayerDeletionEvent(ClientPlayer* player) : player(player) {}
+    ClientPlayer* player;
+};
+
 class ClientPlayers : public ClientModule, EventListener<ClientPacketEvent> {
     bool walking_left = false, walking_right = false, sneaking_left = false, sneaking_right = false, running_left = false, running_right = false;
     
@@ -51,4 +63,7 @@ public:
     ClientPlayer* getMainPlayer() { return main_player; }
     void loadPlayerTexture(ClientPlayer& player);
     ClientPlayer* getPlayerById(int id);
+    
+    EventSender<PlayerCreationEvent> player_creation_event;
+    EventSender<PlayerDeletionEvent> player_deletion_event;
 };

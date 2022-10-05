@@ -25,9 +25,9 @@ int gfx::Surface::getIndex(int x, int y) const {
 gfx::Color gfx::Surface::getPixel(int x, int y) const {
     Color result;
     int index = getIndex(x, y);
-    result.r = data[index + 0];
+    result.b = data[index + 0];
     result.g = data[index + 1];
-    result.b = data[index + 2];
+    result.r = data[index + 2];
     result.a = data[index + 3];
     return result;
 }
@@ -37,9 +37,9 @@ void gfx::Surface::setPixel(int x, int y, gfx::Color color) {
         throw PixelOutOfBoundsError("Pixel out of bounds");
     
     int index = getIndex(x, y);
-    data[index + 0] = color.r;
+    data[index + 0] = color.b;
     data[index + 1] = color.g;
-    data[index + 2] = color.b;
+    data[index + 2] = color.r;
     data[index + 3] = color.a;
 }
 
