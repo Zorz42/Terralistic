@@ -65,7 +65,8 @@ bool DamageText::hasDespawned() {
 void DamageText::render(Camera* camera) {
     if(!initialized) {
         initialized = true;
-        texture.loadFromSurface(gfx::textToSurface(std::to_string(damage), {200, 0, 0, 255}));
+        gfx::Color color = damage > 0 ? gfx::Color{200, 0, 0, 255} : gfx::Color{0, 200, 0, 255};
+        texture.loadFromSurface(gfx::textToSurface(std::to_string(std::abs(damage)), color));
     }
     
     offset /= 6.0 / 5.0;
