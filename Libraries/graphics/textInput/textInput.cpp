@@ -44,6 +44,10 @@ void gfx::TextInput::setBlurIntensity(float blur_intensity) {
 
 #define TEXT_SPACING 1
 
+int gfx::TextInput::getWidth() const {
+    return (width + 2 * getMargin()) * getScale();
+}
+
 void gfx::TextInput::render(int mouse_x, int mouse_y, int mouse_vel) {
     setWidth(width);
     

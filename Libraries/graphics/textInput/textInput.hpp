@@ -39,6 +39,8 @@ public:
     Color text_color = GFX_DEFAULT_TEXT_COLOR;
     void setBlurIntensity(float blur_intensity);
     void setBorderColor(Color color);
+    
+    int getWidth() const;
 };
 
 };

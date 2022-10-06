@@ -307,7 +307,7 @@ void gfx::Scene::onEvent(_ScreenRefreshEvent& event) {
 void gfx::Scene::renderAll() {
     Timer frame_timer;
    
-    float mouse_vel_float = (std::min(std::abs(mouse_x - gfx::getMouseX()), 10000) + std::min(std::abs(mouse_y - gfx::getMouseY()), 10000)) / frame_length * 1000;
+    float mouse_vel_float = (std::min(std::abs(mouse_x - gfx::getMouseX()), 10000) + std::min(std::abs(mouse_y - gfx::getMouseY()), 10000)) / frame_length * 50;
     
     mouse_vel = std::max(std::min(mouse_vel_float, 10000.f), 0.f);
     mouse_x = gfx::getMouseX();
