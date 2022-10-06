@@ -33,8 +33,9 @@ int main(int argc, char **argv) {
     if(argc > 1 && (std::string)argv[1] == "nogui")
         gui = false;
 
-    if(!std::filesystem::exists(data_folder))
-        std::filesystem::create_directory(data_folder);
+    
+    std::filesystem::create_directory(data_folder);
+    std::filesystem::create_directory(data_folder + "ServerSettings/");
 
     resource_path = getResourcePath(argv[0]);
 

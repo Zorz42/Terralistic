@@ -12,10 +12,12 @@ LauncherModule::LauncherModule(const std::string &name, std::string resource_pat
 
 bool LauncherModule::loadConfig() {
     ConfigFile file(sago::getDataHome() + "/Terralistic-Server/ServerSettings/" + *getModuleName() + ".config");
+    file.setDefaultStr("enabled", "true");
     if(file.getStr("enabled") != "true" && file.getStr("enabled") != "false")
         return false;
     enabled = file.getStr("enabled") == "true";
-
+    
+    file.setDefaultStr("transform", "0/1 0/1 1/2 1/2");
     std::string properties = file.getStr("transform");
     properties += ' ';
     int nums[8];

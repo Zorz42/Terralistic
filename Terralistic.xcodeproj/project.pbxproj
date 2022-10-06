@@ -517,8 +517,8 @@
 		162AE33E28EB667A005D50DD /* launcherModule */ = {
 			isa = PBXGroup;
 			children = (
-				162AE33F28EB667A005D50DD /* launcherModule.cpp */,
 				162AE34028EB667A005D50DD /* launcherModule.hpp */,
+				162AE33F28EB667A005D50DD /* launcherModule.cpp */,
 			);
 			path = launcherModule;
 			sourceTree = "<group>";

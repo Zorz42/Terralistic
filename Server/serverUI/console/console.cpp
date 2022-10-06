@@ -18,6 +18,7 @@ Console::Console(std::string resource_path): LauncherModule("console", std::move
     timestamped_text << std::put_time(&tm, "log_@%Y.%m.%d_%H:%M:%S.txt");
     log_file_name = timestamped_text.str();
     ConfigFile file(sago::getDataHome() + "/Terralistic-Server/ServerSettings/console.config");
+    file.setDefaultStr("enable_log", "false");
     enable_log = file.getStr("enable_log") == "true";
 }
 

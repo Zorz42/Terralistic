@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "configManager.hpp"
 #include "content.hpp"
 #include "blockData.hpp"
