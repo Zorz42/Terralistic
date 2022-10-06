@@ -100,14 +100,14 @@ bool Chat::onKeyDown(gfx::Key key) {
         if(selected_saved_line < saved_lines.size() - 1) {
             selected_saved_line++;
             chat_box.setText(saved_lines[selected_saved_line]);
-            chat_box.setCursor(chat_box.getText().size());
+            chat_box.setCursor((int)chat_box.getText().size());
         }
         return true;
     } else if(key == gfx::Key::ARROW_DOWN && chat_box.active) {
         if(selected_saved_line > 0){
             selected_saved_line--;
             chat_box.setText(saved_lines[selected_saved_line]);
-            chat_box.setCursor(chat_box.getText().size());
+            chat_box.setCursor((int)chat_box.getText().size());
         }
         return true;
     }
