@@ -34,6 +34,7 @@ public:
     int getMouseY();
     int getMouseVel();
     bool enabled = true;
+    std::string* getModuleName(){return &module_name;}
     
     std::vector<TextInput*> text_inputs;
 };

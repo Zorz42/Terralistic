@@ -11,7 +11,7 @@ void Connection::greet() {
     greeted = true;
 }
 
-ServerNetworking::ServerNetworking(int port) : port(port) {
+ServerNetworking::ServerNetworking(int port, Print* print) : port(port), print(print) {
     if(port < 0 || port > 65535)
         throw Exception("Port number out of range");
 }
@@ -43,7 +43,7 @@ void ServerNetworking::update(float frame_length) {
             else
                 connections[i]->flushPacketBuffer();
         } else if(connections[i]->receive(packet)) {
-            print::info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
+            print->info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
             
             Packet time_packet;
             time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
@@ -73,6 +73,7 @@ void ServerNetworking::stop() {
 }
 
 void ServerNetworking::kickConnection(Connection* connection, const std::string& reason) {
+    print->info("Kicked " + connection->player_name + ". Reson: " + reason);
     Packet kick_packet;
     kick_packet << ServerPacketType::KICK << reason;
     connection->send(kick_packet);
@@ -88,7 +89,7 @@ void ServerNetworking::removeConnection(Connection* connection) {
     ServerDisconnectEvent event(connection);
     disconnect_event.call(event);
     
-    print::info("someone disconnected (" + std::to_string(connections.size() - 1) + " players online)");
+    print->info("someone disconnected (" + std::to_string(connections.size() - 1) + " players online)");
     
     delete connection;
     connections.erase(pos);

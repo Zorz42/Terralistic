@@ -4,6 +4,7 @@
 #include "events.hpp"
 #include "serverModule.hpp"
 #include "graphics.hpp"
+#include "print.hpp"
 
 class Connection : public TcpSocket {
     bool greeted = false;
@@ -34,9 +35,9 @@ public:
 };
 
 class ServerNetworking : public ServerModule {
+    Print* print;
     std::vector<Connection*> connections;
     TcpListener listener;
-    int port;
     gfx::Timer timer;
 
     void postInit() override;
@@ -46,7 +47,7 @@ class ServerNetworking : public ServerModule {
     void removeConnection(Connection* connection);
     
 public:
-    explicit ServerNetworking(int port);
+    explicit ServerNetworking(int port, Print* print);
     
     void sendToEveryone(Packet& packet);
     void kickConnection(Connection* connection, const std::string& reason);
@@ -54,6 +55,7 @@ public:
     const std::vector<Connection*>& getConnections();
     
     bool is_private = false;
+    int port;
     
     EventSender<ServerConnectionWelcomeEvent> connection_welcome_event;
     EventSender<ServerNewConnectionEvent> new_connection_event;

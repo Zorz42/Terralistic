@@ -13,7 +13,7 @@ void ServerChat::onEvent(ServerPacketEvent &event) {
             return;
         
         std::string chat_format = (event.player->name == "_" ? "Protagonist" : event.player->name) + ": " + message;
-        print::info(chat_format);
+        print->info(chat_format);
         
         Packet chat_packet;
         chat_packet << ServerPacketType::CHAT << chat_format;

@@ -1,5 +1,27 @@
 #include "commands.hpp"
 
+void Command::returnInfo(ServerPlayer *sender, std::string message) {
+    if(sender == nullptr)
+        print->info(message);
+    else
+        chat->sendChat(sender, message);
+}
+
+void Command::returnWarning(ServerPlayer *sender, std::string message) {
+    if(sender == nullptr)
+        print->warning(message);
+    else
+        chat->sendChat(sender, "[WARNING] " + message);
+}
+
+void Command::returnError(ServerPlayer *sender, std::string message) {
+    if(sender == nullptr)
+        print->error(message);
+    else
+        chat->sendChat(sender, "[ERROR] " + message);
+}
+
+
 void Commands::onEvent(ServerChatEvent& event) {
     if(event.message[0] == '/') {
         startCommand(event.message, event.sender);
@@ -52,26 +74,26 @@ bool TpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor
         int x = formatCoord(args[0], (float)executor->getX() / 16), y = formatCoord(args[1], -(float)executor->getY() / 16 + blocks->getHeight());
         entities->setX(executor, x * 16);
         entities->setY(executor, (-y + blocks->getHeight()) * 16);
-        chat->sendChat(executor, "Teleported you to x: " + std::to_string(x) + ", y: " + std::to_string(y) + ".");
+        returnInfo(executor, "Teleported you to x: " + std::to_string(x) + ", y: " + std::to_string(y) + ".");
         return true;
     } else if(args.size() == 1) {
         ServerPlayer* target = players->getPlayerByName(args[0]);
         entities->setX(executor, target->getX());
         entities->setY(executor, target->getY());
-        chat->sendChat(executor, "Teleported you to " + args[0] + ".");
+        returnInfo(executor, "Teleported you to " + args[0] + ".");
         return true;
     } else if(args.size() == 2) {
         ServerPlayer* target1 = players->getPlayerByName(args[0]), *target2 = players->getPlayerByName(args[1]);
         entities->setX(target1, target2->getX());
         entities->setY(target1, target2->getY());
-        chat->sendChat(executor, "Teleported " + args[0] + " to " + args[1] + ".");
+        returnInfo(executor, "Teleported " + args[0] + " to " + args[1] + ".");
         return true;
     } else if(args.size() == 3 && isCoord(args[1]) && isCoord(args[2])) {
         ServerPlayer* target = players->getPlayerByName(args[0]);
         int x = formatCoord(args[1], (float)executor->getX() / 16), y = formatCoord(args[2], -(float)executor->getY() / 16 + blocks->getHeight());
         entities->setX(target, x * 16);
         entities->setY(target, (-y + blocks->getHeight()) * 16);
-        chat->sendChat(executor, "Teleported " + args[0] + " to x: " + std::to_string(x) + ", y: " + std::to_string(y) + ".");
+        returnInfo(executor, "Teleported " + args[0] + " to x: " + std::to_string(x) + ", y: " + std::to_string(y) + ".");
         return true;
     }
     return false;
@@ -80,15 +102,15 @@ bool TpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor
 bool GiveCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() == 1) {
         executor->inventory.addItem(items->getItemTypeByName(args[0]), 1);
-        chat->sendChat(executor, "Gave 1 " + args[0] + ".");
+        returnInfo(executor, "Gave 1 " + args[0] + ".");
         return true;
     } else if(args.size() == 2 && std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
         executor->inventory.addItem(items->getItemTypeByName(args[0]), std::stoi(args[1]));
-        chat->sendChat(executor, "Gave " + args[1] + " " + args[0] + ".");
+        returnInfo(executor, "Gave " + args[1] + " " + args[0] + ".");
         return true;
     } else if(args.size() == 3 && std::all_of(args[1].begin(), args[1].end(), ::isdigit)) {
         players->getPlayerByName(args[2])->inventory.addItem(items->getItemTypeByName(args[0]), std::stoi(args[1]));
-        chat->sendChat(executor, "Gave " + args[2] + " " + args[1] + " " + args[0] + ".");
+        returnInfo(executor, "Gave " + args[2] + " " + args[1] + " " + args[0] + ".");
         return true;
     }
     return false;
@@ -97,11 +119,11 @@ bool GiveCommand::onCommand(std::vector<std::string>& args, ServerPlayer* execut
 bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() == 1 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
         executor->setHealth(std::stoi(args[0]));
-        chat->sendChat(executor, "Set your health to " + args[0] + ".");
+        returnInfo(executor, "Set your health to " + args[0] + ".");
         return true;
     } else if(args.size() == 2 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
         players->getPlayerByName(args[1])->setHealth(std::stoi(args[0]));
-        chat->sendChat(executor, "Set " + args[1] + "'s health to " + args[0] + ".");
+        returnInfo(executor, "Set " + args[1] + "'s health to " + args[0] + ".");
         return true;
     }
     return false;
@@ -110,11 +132,11 @@ bool SetHealthCommand::onCommand(std::vector<std::string>& args, ServerPlayer* e
 bool KillCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
     if(args.size() == 0) {
         executor->setHealth(0);
-        chat->sendChat(executor, "Killed yourself.");
+        returnInfo(executor, "Killed yourself.");
         return true;
     } else if(args.size() == 1) {
         players->getPlayerByName(args[1])->setHealth(0);
-        chat->sendChat(executor, "Killed " + args[1] + ".");
+        returnInfo(executor, "Killed " + args[1] + ".");
         return true;
     }
     return false;
@@ -124,7 +146,7 @@ bool SetblockCommand::onCommand(std::vector<std::string>& args, ServerPlayer* ex
     if(args.size() == 3 && isCoord(args[0]) && isCoord(args[1])) {
         int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
         blocks->setBlockType(x, -y + blocks->getHeight(), blocks->getBlockTypeByName(args[2]));
-        chat->sendChat(executor, "Set block on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
+        returnInfo(executor, "Set block on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
         return true;
     }
     return false;
@@ -140,7 +162,7 @@ bool SetliquidCommand::onCommand(std::vector<std::string>& args, ServerPlayer* e
         int x = formatCoord(args[0], executor->getX() / 16), y = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
         liquids->setLiquidType(x, -y + blocks->getHeight(), liquids->getLiquidTypeByName(args[2]));
         liquids->setLiquidLevel(x, -y + blocks->getHeight(), level);
-        chat->sendChat(executor, "Set liquid on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
+        returnInfo(executor, "Set liquid on x: " + std::to_string(x) + ", y: " + std::to_string(y) + " to " + args[2] + ".");
         return true;
     }
     return false;
@@ -151,13 +173,13 @@ bool FillCommand::onCommand(std::vector<std::string>& args, ServerPlayer* execut
         int x1 = formatCoord(args[0], executor->getX() / 16), y1 = formatCoord(args[1], -executor->getY() / 16 + blocks->getHeight());
         int x2 = formatCoord(args[2], executor->getX() / 16), y2 = formatCoord(args[3], -executor->getY() / 16 + blocks->getHeight());
         if((abs(x1 - x2) + 1) * (abs(y1 - y2) + 1) > 1000){
-            chat->sendChat(executor, "you exceeded the limit of 1000 blocks");
+            returnWarning(executor, "you exceeded the limit of 1000 blocks");
             return true;
         }
         for(int i = x1; i <= x2; i++)
             for(int j = y1; j <= y2; j++)
                 blocks->setBlockType(i, -j + blocks->getHeight(), blocks->getBlockTypeByName(args[4]));
-        chat->sendChat(executor, "Filled from x: " + std::to_string(x1) + ", y: " + std::to_string(y1) + " to x: " + std::to_string(x2) + ", y: " + std::to_string(y2) + "with " + args[4] + ".");
+        returnInfo(executor, "Filled from x: " + std::to_string(x1) + ", y: " + std::to_string(y1) + " to x: " + std::to_string(x2) + ", y: " + std::to_string(y2) + "with " + args[4] + ".");
         return true;
     }
     return false;
@@ -180,15 +202,25 @@ void Commands::startCommand(std::string message, ServerPlayer* player) {
     for(int i = 0; i < commands.size(); i++)
         if(commands[i]->identifier == identifier) {
             try {
-                if(!commands[i]->onCommand(args, player))
-                    chat->sendChat(player, commands[i]->usage);
+                if(!commands[i]->onCommand(args, player)) {
+                    if(player == nullptr)
+                        print->info(commands[i]->usage);
+                    else
+                        chat->sendChat(player, commands[i]->usage);
+                }
             } catch(const Exception& e) {
-                chat->sendChat(player, e.message);
+                if(player == nullptr)
+                    print->error(e.message);
+                else
+                    chat->sendChat(player, "[ERROR] " + e.message);
             }
             return;
         }
-    
-    chat->sendChat(player, "Command \"" + identifier + "\" not recognised. Type /help for a list of commands.");
+
+    if(player == nullptr)
+        print->warning("Command \"" + identifier + "\" not recognised. Type /help for a list of commands.");
+    else
+        chat->sendChat(player, "[WARNING] Command \"" + identifier + "\" not recognised. Type /help for a list of commands.");
 }
 
 bool HelpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
@@ -196,16 +228,16 @@ bool HelpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* execut
         std::string message = "List of commands:\n";
         for(int i = 0; i < commands.size(); i++)
             message += commands[i]->identifier + " -> " + commands[i]->description + "\n";
-        chat->sendChat(executor, message);
+        returnInfo(executor, message);
         return true;
     } else if(args.size() == 1) {
         for(int i = 0; i < commands.size(); i++)
             if(commands[i]->identifier == args[0]) {
-                chat->sendChat(executor, commands[i]->usage);
+                returnInfo(executor, commands[i]->usage);
                 return true;
             }
-        
-        chat->sendChat(executor, "Command \"" + identifier + "\" not found.");
+
+        returnWarning(executor, "Command \"" + args[0] + "\" not found.");
         return true;
     }
     return false;

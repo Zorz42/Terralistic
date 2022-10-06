@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include "textInput.hpp"
 #include "font.hpp"
-#include <math.h>
+#include <cmath>
 
 void gfx::TextInput::setText(const std::string& text_) {
     text = text_;

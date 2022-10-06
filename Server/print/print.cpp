@@ -1,21 +1,26 @@
 #include "print.hpp"
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
-static void printText(const std::string& text) {
+void Print::printText(MessageType type, const std::string& text) {
     auto t = std::time(nullptr);
     auto tm = *localtime(&t);
-    std::cout << std::put_time(&tm, "[%d.%m.%Y %H:%M:%S] ") << text << std::endl;
+    std::stringstream timestamped_text;
+    timestamped_text << std::put_time(&tm, "[%d.%m.%Y %H:%M:%S] ") << text;
+    std::cout << timestamped_text.str() << std::endl;
+    PrintEvent event(type, timestamped_text.str());
+    print_event.call(event);
 }
 
-void print::info(const std::string& text) {
-    printText(text);
+void Print::warning(const std::string &text) {
+    printText(MessageType::WARNING, "[WARNING] " + text);
 }
 
-void print::warning(const std::string& text) {
-    printText("[warning] " + text);
+void Print::error(const std::string& text) {
+    printText(MessageType::ERROR, "[ERROR] " + text);
 }
 
-void print::error(const std::string& text) {
-    printText("[error] " + text);
+void Print::info(const std::string& text) {
+    printText(MessageType::INFO, text);
 }

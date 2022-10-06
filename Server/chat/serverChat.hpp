@@ -13,13 +13,14 @@ public:
 
 class ServerChat : public ServerModule, EventListener<ServerPacketEvent> {
     void onEvent(ServerPacketEvent& event) override;
+    Print* print;
     ServerPlayers* players;
     ServerNetworking* networking;
     
     void init() override;
     void stop() override;
 public:
-    ServerChat(ServerPlayers* players, ServerNetworking* networking) : players(players), networking(networking) {}
+    ServerChat(ServerPlayers *players, ServerNetworking *networking, Print *print): players(players), networking(networking), print(print) {}
     
     static void sendChat(ServerPlayer* player, const std::string& message);
     
