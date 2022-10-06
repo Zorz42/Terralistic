@@ -59,7 +59,7 @@ void ClientHealth::onEvent(PlayerHealthChangeEvent &event) {
 }
 
 bool DamageText::hasDespawned() {
-    return timer.getTimeElapsed() > 2000;
+    return timer.getTimeElapsed() > 1000;
 }
 
 void DamageText::render(Camera* camera) {
@@ -70,7 +70,11 @@ void DamageText::render(Camera* camera) {
     
     offset /= 6.0 / 5.0;
     
+    float render_opacity = 1;
+    if(timer.getTimeElapsed() > 700)
+        render_opacity = (1000 - timer.getTimeElapsed()) / 300.f;
+    
     int render_x = x - camera->getX() + gfx::getWindowWidth() / 2 + PLAYER_WIDTH - texture.getTextureWidth() * 1.5f / 2;
     int render_y = y - camera->getY() + gfx::getWindowHeight() / 2 - texture.getTextureHeight() * 1.5f - 3;
-    texture.render(1.5f, render_x, render_y + offset);
+    texture.render(1.5f, render_x, render_y + offset, {0, 0, texture.getTextureWidth(), texture.getTextureHeight()}, false, {255, 255, 255, (unsigned char)(255 * render_opacity)});
 }
