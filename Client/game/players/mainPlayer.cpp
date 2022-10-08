@@ -10,6 +10,12 @@ void ClientPlayers::loadTextures() {
 }
 
 void ClientPlayers::stop() {
+    for(Entity* entity : entities->getEntities()) {
+        if(entity->type == EntityType::PLAYER) {
+            PlayerDeletionEvent event((ClientPlayer*)entity);
+            player_deletion_event.call(event);
+        }
+    }
     networking->packet_event.removeListener(this);
 }
 

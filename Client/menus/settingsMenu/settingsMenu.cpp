@@ -89,8 +89,9 @@ void SettingsMenu::render() {
     }
     required_height = y;
     
-    bottom_rect.w = background->getBackWidth();
-    bottom_rect.render();
+    bottom_rect.w = background->getBackContainer()->getTranslatedRect().w;
+    if(gfx::getWindowHeight() < bottom_rect.h + required_height)
+        bottom_rect.render();
     back_button.render(getMouseX(), getMouseY(), getMouseVel(), getKeyState(gfx::Key::MOUSE_LEFT));
 }
 
