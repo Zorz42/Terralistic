@@ -106,7 +106,7 @@ class BlockTypes {
     TorchBehaviour torch_behaviour;
     FurnaceBehaviour furnace_behaviour;
     
-    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch, &furnace, &wood_planks};
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch, &furnace, &wood_planks, &wood_platform};
 public:
     BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
@@ -135,6 +135,7 @@ public:
     BlockType cactus{"cactus"};
     FurnaceType furnace{"furnace"};
     BlockType wood_planks{"wood_planks"};
+    BlockType wood_platform{"wood_platform"};
 };
 
 class WallTypes {
@@ -156,7 +157,7 @@ public:
 };
 
 class ItemTypes {
-    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &stick, &branch, &shovel, &furnace};
+    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &stick, &branch, &shovel, &furnace, &wood_platform};
 public:
     explicit ItemTypes(Items* items);
     void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
@@ -176,6 +177,7 @@ public:
     ItemType branch{"branch"};
     ItemType shovel{"shovel"};
     ItemType furnace{"furnace"};
+    ItemType wood_platform{"wood_platform"};
 };
 
 class GameContent : public NonCopyable {

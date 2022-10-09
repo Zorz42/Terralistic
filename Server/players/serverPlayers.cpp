@@ -11,7 +11,7 @@ void AirBehaviour::onRightClick(int x, int y, ServerPlayer* player) {
                 if(blocks->getBlockType(x_, y_) != &blocks->air)
                     can_place = false;
         
-        if(blocks->getBlockType(x, y + 1)->transparent && blocks->getBlockType(x, y - 1)->transparent && blocks->getBlockType(x + 1, y)->transparent && blocks->getBlockType(x - 1, y)->transparent && walls->getWallType(x, y) == &walls->clear)
+        if(blocks->getBlockType(x, y + 1) == &blocks->air && blocks->getBlockType(x, y - 1) == &blocks->air && blocks->getBlockType(x + 1, y) == &blocks->air && blocks->getBlockType(x - 1, y) == &blocks->air && walls->getWallType(x, y) == &walls->clear)
             can_place = false;
             
         if(can_place && player->inventory.decreaseStack(player->inventory.selected_slot, 1))

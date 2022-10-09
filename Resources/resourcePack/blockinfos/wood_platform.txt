@@ -1,10 +1,10 @@
-ghost: true
+ghost: false
 transparent: true
-feet_collidable: false
+feet_collidable: true
 break_time: 1000
 connects_to:
-drop: branch
-drop_chance: 70
+drop: wood_platform
+drop_chance: 100
 light_emission_r: 0
 light_emission_g: 0
 light_emission_b: 0

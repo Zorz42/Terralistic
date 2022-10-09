@@ -19,7 +19,7 @@ public:
 };
 
 class Player : public Entity {
-    bool isColliding(Blocks* blocks) override;
+    bool isColliding(Blocks* blocks, Direction direction, float colliding_x, float colliding_y) override;
     int health;
 public:
     Player(int x, int y, std::string name, int health, int id=0) : Entity(EntityType::PLAYER, x, y, id), name(std::move(name)), health(health) {}

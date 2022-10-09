@@ -51,6 +51,11 @@ void GameContent::addRecipes(Recipes* recipes) {
     recipe->ingredients[&items.stone_block] = 4;
     recipe->ingredients[&items.branch] = 1;
     recipes->registerARecipe(recipe);
+    
+    recipe = new Recipe;
+    recipe->result = ItemStack(&items.wood_platform, 2);
+    recipe->ingredients[&items.wood_planks] = 1;
+    recipes->registerARecipe(recipe);
 }
 
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
@@ -83,6 +88,7 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
         block_type->ghost = block_properties.getStr("ghost") == "true";
         block_type->transparent = block_properties.getStr("transparent") == "true";
         block_type->can_update_states = block_properties.getStr("can_update_states") == "true";
+        block_type->feet_collidable = block_properties.getStr("feet_collidable") == "true";
         
         std::string connects_to = block_properties.getStr("connects_to");
         while(!connects_to.empty()) {
@@ -119,7 +125,7 @@ void BlockTypes::loadContent(Blocks* blocks, Items *items, ItemTypes *item_types
             block_type->height = block_properties.getInt("height");
         }
 
-        if(block_properties.keyExists("additional_data_type")){
+        if(block_properties.keyExists("additional_data_type")) {
             std::string data_type = block_properties.getStr("additional_data_type");
             for(int i = 0; i < block_data_deliverer->names.size(); i++){
                 if(block_data_deliverer->names[i] == data_type){

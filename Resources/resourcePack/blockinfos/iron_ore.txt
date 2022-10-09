@@ -1,5 +1,6 @@
 ghost: false
 transparent: false
+feet_collidable: false
 break_time: 1500
 connects_to:
 drop: iron_ore

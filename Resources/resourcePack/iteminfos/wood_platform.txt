@@ -1,0 +1,5 @@
+display_name: Wood Platform
+max_stack: 99
+places_block: wood_platform
+places_wall: clear
+tool_properties:

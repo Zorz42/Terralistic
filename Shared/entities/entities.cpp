@@ -43,7 +43,9 @@ void Entity::updateEntity(Blocks *blocks) {
         velocity_x *= isTouchingGround(blocks) ? 0.99f : 0.9995f;
     }
     
-    if(gravity)
+    if(isTouchingGround(blocks))
+        velocity_y = 0;
+    else if(gravity)
         velocity_y += 0.2f;
 
     float prev_y = y;
@@ -52,7 +54,7 @@ void Entity::updateEntity(Blocks *blocks) {
     int y_factor = move_y > 0 ? 1 : -1;
     for(int i = 0; i < std::abs(move_y); i++) {
         y += y_factor;
-        if(isColliding(blocks)) {
+        if(isColliding(blocks, y_factor == 1 ? Direction::DOWN : Direction::UP, x, y)) {
             y -= y_factor;
             velocity_y = 0;
             break;
@@ -68,7 +70,7 @@ void Entity::updateEntity(Blocks *blocks) {
     bool has_collided_x = false;
     for(int i = 0; i < std::abs(move_x); i++) {
         x += x_factor;
-        if(isColliding(blocks)) {
+        if(isColliding(blocks, x_factor == 1 ? Direction::RIGHT : Direction::LEFT, x, y)) {
             x -= x_factor;
             has_collided_x = true;
             break;
@@ -81,14 +83,14 @@ void Entity::updateEntity(Blocks *blocks) {
 }
 
 bool Entity::isTouchingGround(Blocks* blocks) {
-    return isCollidingWithBlocks(blocks, x, y + 1) && velocity_y == 0;
+    return isColliding(blocks, Direction::DOWN, x, y + 1) && velocity_y == 0;
 }
 
-bool Entity::isCollidingWithBlocks(Blocks* blocks) {
-    return isCollidingWithBlocks(blocks, x, y);
+bool Entity::isColliding(Blocks* blocks, Direction direction, float colliding_x, float colliding_y) {
+    return isCollidingWithBlocks(blocks, direction, colliding_x, colliding_y);
 }
 
-bool Entity::isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y) {
+bool Entity::isCollidingWithBlocks(Blocks* blocks, Direction direction, float colliding_x, float colliding_y) {
     if(colliding_x < 0 || colliding_y < 0 ||
        colliding_y >= blocks->getHeight() * BLOCK_WIDTH * 2 - getHeight() ||
        colliding_x >= blocks->getWidth() * BLOCK_WIDTH * 2 - getWidth())
@@ -101,7 +103,7 @@ bool Entity::isCollidingWithBlocks(Blocks* blocks, float colliding_x, float coll
     
     for(int x_ = starting_x; x_ <= ending_x; x_++)
         for(int y_ = starting_y; y_ <= ending_y; y_++)
-            if(!blocks->getBlockType(x_, y_)->ghost)
+            if(!blocks->getBlockType(x_, y_)->ghost && !blocks->getBlockType(x_, y_)->feet_collidable)
                 return true;
     
     return false;

@@ -2,6 +2,7 @@
 #include "blocks.hpp"
 
 enum class EntityType { ITEM, PLAYER };
+enum class Direction { LEFT, RIGHT, UP, DOWN };
 
 class Entities;
 
@@ -16,9 +17,8 @@ public:
     bool gravity = true, friction = true, has_moved_x = false, ignore_server_updates = false, has_moved = false;
     const int id;
     const EntityType type;
-    virtual bool isColliding(Blocks* blocks) { return isCollidingWithBlocks(blocks); }
-    bool isCollidingWithBlocks(Blocks* blocks, float colliding_x, float colliding_y);
-    bool isCollidingWithBlocks(Blocks* blocks);
+    virtual bool isColliding(Blocks* blocks, Direction direction, float colliding_x, float colliding_y);
+    bool isCollidingWithBlocks(Blocks* blocks, Direction direction, float colliding_x, float colliding_y);
     void updateEntity(Blocks* blocks);
     bool isTouchingGround(Blocks* blocks);
     

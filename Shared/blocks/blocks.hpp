@@ -76,6 +76,7 @@ public:
     int width = 0, height = 0;
     int block_data_index = 0;
     bool can_update_states = false;
+    bool feet_collidable = false;
     
     virtual int updateState(Blocks* blocks, int x, int y);
 };

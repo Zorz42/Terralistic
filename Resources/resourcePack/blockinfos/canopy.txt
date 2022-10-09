@@ -1,5 +1,6 @@
 ghost: true
 transparent: true
+feet_collidable: false
 break_time: UNBREAKABLE
 connects_to:
 drop: nothing

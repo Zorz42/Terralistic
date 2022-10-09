@@ -1,5 +1,6 @@
 ghost: true
 transparent: true
+feet_collidable: false
 break_time: 1000
 connects_to: sand
 drop: nothing
