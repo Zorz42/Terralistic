@@ -106,7 +106,7 @@ class BlockTypes {
     TorchBehaviour torch_behaviour;
     FurnaceBehaviour furnace_behaviour;
     
-    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch, &furnace};
+    std::vector<BlockType*> block_types = {&dirt, &stone_block, &grass_block, &stone, &wood, &leaves, &canopy, &branch, &sand, &snowy_grass_block, &snow_block, &ice_block, &iron_ore, &copper_ore, &grass, &torch, &cactus, &unlit_torch, &furnace, &wood_planks};
 public:
     BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids);
     void loadContent(Blocks* blocks, Items *items, ItemTypes *item_types, const std::string& resource_path);
@@ -134,6 +134,7 @@ public:
     BlockType unlit_torch{"unlit_torch"};
     BlockType cactus{"cactus"};
     FurnaceType furnace{"furnace"};
+    BlockType wood_planks{"wood_planks"};
 };
 
 class WallTypes {
