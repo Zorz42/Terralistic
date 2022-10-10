@@ -40,10 +40,10 @@ TEST_CASE(testServerPacketTypeSaves) {
 TEST_CASE(testWelcomePacketTypeSaves) {
     Packet packet;
     
-    packet << WelcomePacketType::TIME;
+    packet << WelcomePacketType::BLOCKS;
     WelcomePacketType received;
     packet >> received;
-    ASSERT(received == WelcomePacketType::TIME);
+    ASSERT(received == WelcomePacketType::BLOCKS);
     
     for(int type = (int)WelcomePacketType::_START + 1; type < (int)WelcomePacketType::_END - 1; type++) {
         packet << (WelcomePacketType)type;

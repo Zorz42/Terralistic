@@ -14,6 +14,7 @@ enum class ServerState {NEUTRAL, LOADING_WORLD, GENERATING_WORLD, RUNNING, STOPP
 class Server {
     Print print;
     ServerNetworking networking;
+    ServerTime server_time;
     WorldSaver world_saver;
     ServerBlocks blocks;
     ServerWalls walls;

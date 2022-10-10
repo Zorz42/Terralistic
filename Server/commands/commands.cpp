@@ -40,6 +40,7 @@ void Commands::init() {
     commands.push_back(&help_command);
     commands.push_back(&fill_command);
     commands.push_back(&kill_command);
+    commands.push_back(&time_command);
 }
 
 void Commands::stop() {
@@ -238,6 +239,15 @@ bool HelpCommand::onCommand(std::vector<std::string>& args, ServerPlayer* execut
             }
 
         returnWarning(executor, "Command \"" + args[0] + "\" not found.");
+        return true;
+    }
+    return false;
+}
+
+bool TimeCommand::onCommand(std::vector<std::string>& args, ServerPlayer* executor) {
+    if(args.size() == 1 && std::all_of(args[0].begin(), args[0].end(), ::isdigit)) {
+        time->setTime(std::stoi(args[0]) * 1000);
+        returnInfo(executor, "Time set to: " + args[0]);
         return true;
     }
     return false;

@@ -168,6 +168,8 @@
 		3683B0ED2887068C00F2E969 /* testPacketType.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3683B0EB2887068C00F2E969 /* testPacketType.mm */; };
 		3683B0EE2887068C00F2E969 /* testPacketType.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3683B0EB2887068C00F2E969 /* testPacketType.mm */; };
 		3683B0EF28870DA600F2E969 /* packetType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1682944226A16D780017E2FD /* packetType.cpp */; };
+		36844A5F28F49973004C9199 /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36844A5D28F49973004C9199 /* time.cpp */; };
+		36844A6028F49973004C9199 /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36844A5D28F49973004C9199 /* time.cpp */; };
 		368779702837EBCF00AA5943 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; };
 		368779712837EBCF00AA5943 /* libglfw.3.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 366EBE10282EDD1A00C36DE5 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		368C34AE2855DC6600DA7569 /* glfwAbstraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */; };
@@ -428,6 +430,8 @@
 		368198CA28834ADB00DB57C5 /* libglad.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglad.dylib; path = Dependencies/glad/libglad.dylib; sourceTree = "<group>"; };
 		368198CD2883621F00DB57C5 /* libglad.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglad.a; path = Dependencies/glad/libglad.a; sourceTree = "<group>"; };
 		3683B0EB2887068C00F2E969 /* testPacketType.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = testPacketType.mm; sourceTree = "<group>"; };
+		36844A5D28F49973004C9199 /* time.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = time.cpp; sourceTree = "<group>"; };
+		36844A5E28F49973004C9199 /* time.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = time.hpp; sourceTree = "<group>"; };
 		368BF40928B10E790067855B /* backgroundRect.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = backgroundRect.hpp; sourceTree = "<group>"; };
 		368C34AC2855DC6600DA7569 /* glfwAbstraction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glfwAbstraction.cpp; sourceTree = "<group>"; };
 		368C34AD2855DC6600DA7569 /* glfwAbstraction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfwAbstraction.hpp; sourceTree = "<group>"; };
@@ -699,6 +703,7 @@
 				167B387D2642F73900E3C718 /* print */,
 				3605ED602773A7B000ECCA08 /* worldSaver */,
 				1673274926A80E760063281A /* networking */,
+				36844A5C28F498EF004C9199 /* time */,
 				16A13D112709A000009DEE40 /* blocks */,
 				366399CC27775DFA007C944E /* walls */,
 				167513C126A498DA00E21C68 /* biomes */,
@@ -1345,6 +1350,15 @@
 			path = font;
 			sourceTree = "<group>";
 		};
+		36844A5C28F498EF004C9199 /* time */ = {
+			isa = PBXGroup;
+			children = (
+				36844A5E28F49973004C9199 /* time.hpp */,
+				36844A5D28F49973004C9199 /* time.cpp */,
+			);
+			path = time;
+			sourceTree = "<group>";
+		};
 		368BF40828B10E590067855B /* backgroundRect */ = {
 			isa = PBXGroup;
 			children = (
@@ -1739,6 +1753,7 @@
 				36DDF8A72689F725002337F3 /* worldGenerator.cpp in Sources */,
 				367F3637285F751800319AD2 /* font.cpp in Sources */,
 				3657222426D07181005AB3CC /* menuBack.cpp in Sources */,
+				36844A5F28F49973004C9199 /* time.cpp in Sources */,
 				3605ED54276A1ED000ECCA08 /* background.cpp in Sources */,
 				366596802888479200038229 /* surface.cpp in Sources */,
 				3657221C26D07181005AB3CC /* game.cpp in Sources */,
@@ -1890,6 +1905,7 @@
 				167581902707687E00422C07 /* inventory.cpp in Sources */,
 				369693D92883369B00D39F1B /* testEvents.mm in Sources */,
 				361DD1A626F7478900129191 /* serverPlayers.cpp in Sources */,
+				36844A6028F49973004C9199 /* time.cpp in Sources */,
 				366D971B282067FA00DEC292 /* rectArray.cpp in Sources */,
 				366D970F282067FA00DEC292 /* rectShape.cpp in Sources */,
 				361DD1AA26F7478900129191 /* serverNetworking.cpp in Sources */,

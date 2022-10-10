@@ -13,4 +13,13 @@ public:
     void reset();
 };
 
+class ModTimer {
+    long long start_time;
+public:
+    ModTimer(int modulo);
+    long long getTimeElapsed() const;
+    void set(long long val);
+    int modulo;
+};
+
 };

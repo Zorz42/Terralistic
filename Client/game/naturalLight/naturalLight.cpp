@@ -1,7 +1,5 @@
 #include "naturalLight.hpp"
 
-#define SECONDS_PER_DAY (10 * 60)
-
 float dayFunction(float a) {
     a -= (int)a;
     
@@ -16,7 +14,8 @@ float dayFunction(float a) {
 
 void NaturalLight::init() {
     blocks->block_change_event.addListener(this);
-    networking->welcome_packet_event.addListener(this);
+    networking->packet_event.addListener(this);
+    debug_menu->registerDebugLine(&day_time_line);
 }
 
 void NaturalLight::postInit() {
@@ -30,7 +29,7 @@ void NaturalLight::stop() {
     running = false;
     natural_light_thread.join();
     blocks->block_change_event.removeListener(this);
-    networking->welcome_packet_event.removeListener(this);
+    networking->packet_event.removeListener(this);
 }
 
 void NaturalLight::onEvent(BlockChangeEvent &event) {
@@ -38,10 +37,11 @@ void NaturalLight::onEvent(BlockChangeEvent &event) {
     updateLight(event.x);
 }
 
-void NaturalLight::onEvent(WelcomePacketEvent &event) {
-    if(event.packet_type == WelcomePacketType::TIME) {
-        event.packet >> server_time_on_join;
-        server_timer.reset();
+void NaturalLight::onEvent(ClientPacketEvent &event) {
+    if(event.packet_type == ServerPacketType::TIME) {
+        int server_time;
+        event.packet >> server_time;
+        server_timer.set(server_time);
     }
 }
 
@@ -55,6 +55,7 @@ void NaturalLight::naturalLightUpdateLoop() {
 #endif
     
     while(running) {
+        day_time_line.text = std::string("Time: ") + std::to_string(server_timer.getTimeElapsed() / 1000);
         light_should_be = dayFunction((float)getTime() / 1000 / SECONDS_PER_DAY) * MAX_LIGHT;
 
         for(int x = blocks->getBlocksExtendedViewBeginX(); x <= blocks->getBlocksExtendedViewEndX(); x++)
@@ -72,15 +73,17 @@ void NaturalLight::setNaturalLight(int x, int power) {
 
     if(lights_arr[x] != power) {
         lights_arr[x] = power;
-        for(int y = 0; y < blocks->getHeight(); y++)
+        for(int y = 0; y < blocks->getHeight(); y++) {
+            lights->setLightSource(x, y, LightColor(0, 0, 0));
             lights->updateLightEmitter(x, y);
+        }
         
         for(int y = 0; y < blocks->getHeight() && blocks->getBlockType(x, y)->transparent; y++) {
-            LightColor light_color = lights->getLightSourceColor(x, y);
-            light_color.r = std::max(light_color.r, power);
-            light_color.g = std::max(light_color.g, power);
-            light_color.b = std::max(light_color.b, power);
-            lights->setLightSource(x, y, light_color);
+            LightColor source_color = lights->getLightSourceColor(x, y);
+            source_color.r = std::max(source_color.r, power);
+            source_color.g = std::max(source_color.g, power);
+            source_color.b = std::max(source_color.b, power);
+            lights->setLightSource(x, y, source_color);
         }
     }
 }
@@ -95,8 +98,8 @@ void NaturalLight::removeNaturalLight(int x) {
         lights->setLightSource(x, y, LightColor(0, 0, 0));
 }
 
-int NaturalLight::getTime() const {
-    return server_time_on_join + server_timer.getTimeElapsed();
+long long NaturalLight::getTime() const {
+    return server_timer.getTimeElapsed();
 }
 
 void NaturalLight::updateLight(int x) {

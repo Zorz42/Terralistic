@@ -2,6 +2,7 @@
 #include <utility>
 
 #include "serverChat.hpp"
+#include "time.hpp"
 
 
 class Command {
@@ -10,20 +11,21 @@ public:
     void returnWarning(ServerPlayer* sender, std::string message);
     void returnError(ServerPlayer* sender, std::string message);
     Print* print;
+    ServerTime* time;
     Blocks* blocks;
     Liquids* liquids;
     Entities* entities;
     Items* items;
     ServerPlayers* players;
     ServerChat* chat;
-    Command(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print, std::string  identifier, std::string  usage, std::string  description) : blocks(blocks), liquids(liquids), entities(entities), items(items), players(players), chat(chat), print(print), identifier(std::move(identifier)), usage(std::move(usage)), description(std::move(description)) {}
+    Command(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print, std::string identifier, std::string usage, std::string  description) : time(time), blocks(blocks), liquids(liquids), entities(entities), items(items), players(players), chat(chat), print(print), identifier(std::move(identifier)), usage(std::move(usage)), description(std::move(description)) {}
     std::string identifier, usage, description;
     virtual bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) = 0;
 };
 
 class SetblockCommand : public Command {
 public:
-    SetblockCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(blocks, liquids, entities, items, players, chat, print, "setBlock",
+    SetblockCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "setBlock",
                                                                                                         "Possible invocations of this command:\n"
                                                                                                         "setBlock [x_coordinate] [y_coordinate] [block]", "place a block in world") {}
     bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
@@ -31,7 +33,7 @@ public:
 
 class SetliquidCommand : public Command {
 public:
-    SetliquidCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(blocks, liquids, entities, items, players, chat, print, "setLiquid",
+    SetliquidCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "setLiquid",
                                                                                                                           "Possible invocations of this command:\n"
                                                                                                                           "setLiquid [x_coordinate] [y_coordinate] [liquid]"
                                                                                                                           "setLiquid [x_coordinate] [y_coordinate] [liquid] [liquid_level]", "place a liquid in world") {}
@@ -40,7 +42,7 @@ public:
 
 class FillCommand : public Command {
 public:
-    FillCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(blocks, liquids, entities, items, players, chat, print, "fill",
+    FillCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "fill",
                                                                                                                           "Possible invocations of this command:\n"
                                                                                                                           "fill [x_coordinate_1] [y_coordinate_1] [x_coordinate_2] [y_coordinate_2] [block]", "fill a region of world with a block") {}
     bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
@@ -48,7 +50,7 @@ public:
 
 class TpCommand : public Command {
 public:
-    TpCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(blocks, liquids, entities, items, players, chat, print, "tp",
+    TpCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "tp",
                                                                                                   "Possible invocations of teleport command:\n"
                                                                                                   "tp [player_name] -> teleport yourself to that player\n"
                                                                                                   "tp [player_1_name] [player_2_name] -> teleport player 1 to player 2\n"
@@ -59,7 +61,7 @@ public:
 
 class GiveCommand : public Command {
 public:
-    GiveCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(blocks, liquids, entities, items, players, chat, print, "give",
+    GiveCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "give",
                                                                                                     "Possible invocations of this command:\n"
                                                                                                     "give [item_name] -> give 1 item of that type to yourself\n"
                                                                                                     "give [item_name] [quantity] -> give entered number of items of that type to yourself\n"
@@ -69,7 +71,7 @@ public:
 
 class SetHealthCommand : public Command {
 public:
-    SetHealthCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(blocks, liquids, entities, items, players, chat, print, "setHealth",
+    SetHealthCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "setHealth",
                                                                                                          "Possible invocations of this command:\n"
                                                                                                          "setHealth [health] -> set your health to that number\n"
                                                                                                          "setHealth [health] [player_name] -> set that player's name to that number", "set player's health") {}
@@ -79,7 +81,7 @@ public:
 class HelpCommand : public Command {
     std::vector<Command*>& commands;
 public:
-    HelpCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print, std::vector<Command*>& commands) : commands(commands), Command(blocks, liquids, entities, items, players, chat, print, "help",
+    HelpCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print, std::vector<Command*>& commands) : commands(commands), Command(time, blocks, liquids, entities, items, players, chat, print, "help",
                                                                                                     "Possible invocations of this command:\n"
                                                                                                     "help -> list all commands\n"
                                                                                                     "help [command] -> display help for specific command\n", "display this list") {}
@@ -88,11 +90,20 @@ public:
 
 class KillCommand : public Command {
 public:
-    KillCommand(Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(blocks, liquids, entities, items, players, chat, print, "kill",
+    KillCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "kill",
                                                                                                          "Possible invocations of this command:\n"
                                                                                                          "kill -> kill yourself\n"
                                                                                                          "kill [player_name] -> kill someone else",
                                                                                                                            "kill a player") {}
+    bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
+};
+
+class TimeCommand : public Command {
+public:
+    TimeCommand(ServerTime* time, Blocks* blocks, Liquids* liquids, Entities* entities, Items* items, ServerPlayers* players, ServerChat* chat, Print* print) : Command(time, blocks, liquids, entities, items, players, chat, print, "time",
+                                                                                                         "Possible invocations of this command:\n"
+                                                                                                         "time [time] -> set time from start of the day in seconds\n",
+                                                                                                                           "set time") {}
     bool onCommand(std::vector<std::string>& args, ServerPlayer* executor) override;
 };
 
@@ -115,6 +126,7 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     HelpCommand help_command;
     FillCommand fill_command;
     KillCommand kill_command;
+    TimeCommand time_command;
     std::vector<Command*> commands;
 
     void init() override;
@@ -122,5 +134,5 @@ class Commands : public ServerModule, EventListener<ServerChatEvent> {
     
     void startCommand(std::string message, ServerPlayer* player);
 public:
-    Commands(Blocks* blocks, Liquids* liquids, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat, Print* print) : blocks(blocks), liquids(liquids), players(players), items(items), entities(entities), chat(chat), print(print), setblock_command(blocks, liquids, entities, items, players, chat, print), setliquid_command(blocks, liquids, entities, items, players, chat, print), tp_command(blocks, liquids, entities, items, players, chat, print), give_command(blocks, liquids, entities, items, players, chat, print), health_command(blocks, liquids, entities, items, players, chat, print), help_command(blocks, liquids, entities, items, players, chat, print, commands), fill_command(blocks, liquids, entities, items, players, chat, print), kill_command(blocks, liquids, entities, items, players, chat, print) {}
+    Commands(ServerTime* time, Blocks* blocks, Liquids* liquids, ServerPlayers* players, Items* items, Entities* entities, ServerChat* chat, Print* print) : blocks(blocks), liquids(liquids), players(players), items(items), entities(entities), chat(chat), print(print), setblock_command(time, blocks, liquids, entities, items, players, chat, print), setliquid_command(time, blocks, liquids, entities, items, players, chat, print), tp_command(time, blocks, liquids, entities, items, players, chat, print), give_command(time, blocks, liquids, entities, items, players, chat, print), health_command(time, blocks, liquids, entities, items, players, chat, print), help_command(time, blocks, liquids, entities, items, players, chat, print, commands), fill_command(time, blocks, liquids, entities, items, players, chat, print), kill_command(time, blocks, liquids, entities, items, players, chat, print), time_command(time, blocks, liquids, entities, items, players, chat, print) {}
 };

@@ -18,7 +18,6 @@ ServerNetworking::ServerNetworking(int port, Print* print) : port(port), print(p
 
 void ServerNetworking::postInit() {
     listener.listen(port);
-    timer.reset();
 }
 
 void ServerNetworking::sendToEveryone(Packet& packet) {
@@ -44,10 +43,6 @@ void ServerNetworking::update(float frame_length) {
                 connections[i]->flushPacketBuffer();
         } else if(connections[i]->receive(packet)) {
             print->info(connections[i]->getIpAddress() + " connected (" + std::to_string(connections.size()) + " players online)");
-            
-            Packet time_packet;
-            time_packet << WelcomePacketType::TIME << timer.getTimeElapsed();
-            connections[i]->send(time_packet);
             
             ServerConnectionWelcomeEvent event(connections[i], packet);
             connection_welcome_event.call(event);

@@ -41,16 +41,13 @@ enum class ServerPacketType {
     HEALTH,
 
     // miscellaneous
-    KICK, CHAT,
-
-    // debug menu lines
-    TPS, PING,
+    KICK, CHAT, TIME, TPS, PING,
     
     _END,
 };
 
 enum class WelcomePacketType {
-    _START, WELCOME, BLOCKS, WALLS, LIQUIDS, INVENTORY, TIME, _END,
+    _START, WELCOME, BLOCKS, WALLS, LIQUIDS, INVENTORY, _END,
 };
 
 Packet& operator<<(Packet& packet, ClientPacketType packet_type);

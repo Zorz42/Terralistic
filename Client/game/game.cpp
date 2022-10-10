@@ -46,7 +46,7 @@ Game::Game(BackgroundRect* background_rect, Settings* settings, const std::strin
     particles(settings, &blocks, &camera),
     liquids(&debug_menu, &blocks, &resource_pack, &networking, &camera),
     lights(&debug_menu, settings, &blocks, &resource_pack, &camera),
-    natural_light(&networking, &blocks, &lights),
+    natural_light(&debug_menu, &networking, &blocks, &lights),
     entities(&blocks, &networking),
     items(&resource_pack, &blocks, &entities, &networking, &camera),
     players(&networking, &blocks, &liquids, &resource_pack, &entities, &particles, &camera, username),

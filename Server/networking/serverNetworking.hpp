@@ -38,7 +38,6 @@ class ServerNetworking : public ServerModule {
     Print* print;
     std::vector<Connection*> connections;
     TcpListener listener;
-    gfx::Timer timer;
 
     void postInit() override;
     void update(float frame_length) override;
