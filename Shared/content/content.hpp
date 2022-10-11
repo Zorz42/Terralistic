@@ -139,12 +139,13 @@ public:
 };
 
 class WallTypes {
-    std::vector<WallType*> wall_types = {&dirt};
+    std::vector<WallType*> wall_types = {&dirt, &wood};
 public:
     explicit WallTypes(Walls* walls);
     void loadContent(Walls* walls, Items* items, const std::string& resource_path);
     
-    WallType dirt;
+    WallType dirt{"dirt"};
+    WallType wood{"wood"};
 };
 
 class LiquidTypes {
@@ -157,7 +158,7 @@ public:
 };
 
 class ItemTypes {
-    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &stick, &branch, &shovel, &furnace, &wood_platform};
+    std::vector<ItemType*> item_types = {&stone, &dirt, &stone_block, &wood_planks, &iron_ore, &copper_ore, &fiber, &hatchet, &dirt_wall, &hammer, &torch, &stick, &branch, &shovel, &furnace, &wood_platform, &wood_wall};
 public:
     explicit ItemTypes(Items* items);
     void loadContent(Items* items, Blocks* blocks, Walls* walls, const std::string& resource_path);
@@ -178,6 +179,7 @@ public:
     ItemType shovel{"shovel"};
     ItemType furnace{"furnace"};
     ItemType wood_platform{"wood_platform"};
+    ItemType wood_wall{"wood_wall"};
 };
 
 class GameContent : public NonCopyable {

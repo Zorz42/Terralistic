@@ -56,6 +56,16 @@ void GameContent::addRecipes(Recipes* recipes) {
     recipe->result = ItemStack(&items.wood_platform, 2);
     recipe->ingredients[&items.wood_planks] = 1;
     recipes->registerARecipe(recipe);
+    
+    recipe = new Recipe;
+    recipe->result = ItemStack(&items.wood_wall, 4);
+    recipe->ingredients[&items.wood_planks] = 1;
+    recipes->registerARecipe(recipe);
+    
+    recipe = new Recipe;
+    recipe->result = ItemStack(&items.wood_planks, 1);
+    recipe->ingredients[&items.wood_wall] = 4;
+    recipes->registerARecipe(recipe);
 }
 
 BlockTypes::BlockTypes(Blocks* blocks, Walls* walls, Liquids* liquids) :
@@ -261,9 +271,7 @@ void FurnaceBehaviour::onRightClick(int x, int y, ServerPlayer *player) {
     blocks->block_update_event.call(event);
 }
 
-WallTypes::WallTypes(Walls* walls) :
-dirt("dirt")
-{
+WallTypes::WallTypes(Walls* walls) {
     for(WallType* wall_type : wall_types)
         walls->registerNewWallType(wall_type);
 }
