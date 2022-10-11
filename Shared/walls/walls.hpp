@@ -52,7 +52,7 @@ class Walls : public NonCopyable {
     
     class WallChunk {
     public:
-        int breaking_wall_count = 0;
+        int breaking_wall_count:8 = 0;
     };
     
     std::vector<Wall> walls;
