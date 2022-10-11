@@ -19,7 +19,7 @@ int WorldGenerator::generateWorld(int world_width, int world_height, int seed) {
     if(seed == 1000) {
         generateStructureWorld();
     } else {
-        generating_total = blocks->getWidth() * 6 + blocks->getWidth() / 8;
+        generating_total = blocks->getWidth() * 4 + blocks->getWidth() / 8;
         loadBiomes();
         generateDefaultWorld(noise, seeded_random);
     }
@@ -95,7 +95,6 @@ void WorldGenerator::placeStructures(siv::PerlinNoise &noise) {
                 checking_structure.x_of_last_instance = x;
             }
         }
-        generating_current++;
     }
 }
 
@@ -390,7 +389,6 @@ void WorldGenerator::generateFoliage(std::mt19937& seeded_random) {
             else if(seeded_random() % 3 == 0)
                 blocks->setBlockTypeSilently(x, blocks->getHeight() - surface_heights[x] - 1, &content->blocks.grass);
         }
-        generating_current++;
     }
 }
 
