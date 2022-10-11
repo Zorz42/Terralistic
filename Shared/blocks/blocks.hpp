@@ -99,7 +99,7 @@ class Blocks : public NonCopyable {
     
     class BlockChunk {
     public:
-        int breaking_blocks_count = 0;
+        int breaking_blocks_count:8 = 0;
     };
     
     std::vector<Block> blocks;
