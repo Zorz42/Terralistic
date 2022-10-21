@@ -6,6 +6,8 @@
 #include "worldSaver.hpp"
 #include "liquids.hpp"
 
+enum class OPLevel {PLAYER, MODERATOR, ADMIN};//will be used in the future
+
 class ServerPlayerData {
 public:
     ServerPlayerData(Items* items, Recipes* recipes, Blocks* blocks) : inventory(items, recipes) {
