@@ -3,13 +3,13 @@
         {
             "type": "cargo",
             "name": "Terralistic",
-            "cargoArgs": ["run", "--bin", "Client"],
+            "cargoArgs": ["run", "--bin", "Terralistic"],
         },
 
         {
             "type": "cargo",
             "name": "Terralistic Server",
-            "cargoArgs": ["run", "--bin", "Server"],
+            "cargoArgs": ["run", "--bin", "TerralisticServer"],
         },
     ]
 }

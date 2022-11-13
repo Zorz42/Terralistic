@@ -1,14 +1,34 @@
 [package]
-name = "Terralistic-rust"
+name = "Terralistic"
 version = "0.1.0"
 edition = "2021"
+description = "test"
 
 [[bin]]
-name = "Client"
+name = "Terralistic"
 path = "Client/main/main.rs"
 
 [[bin]]
-name = "Server"
+name = "TerralisticServer"
 path = "Server/main/main.rs"
 
 [dependencies]
+
+[package.metadata.bundle.bin.Terralistic]
+name = "ExampleApplication"
+identifier = "com.Zorz42.Terralistic"
+icon = []
+version = "1.0.0"
+resources = []
+copyright = "Copyright (c) Zorz42 2022. All rights reserved."
+category = "Game"
+short_description = "Terralistic is a game."
+long_description = """
+Terralistic is a Terraria fan game.
+It has some technical stuff that I miss in Terraria,
+like: native mod support, good performance,
+custom programming language for mods, online accounts,
+good ui and so on...
+"""
+deb_depends = []
+osx_frameworks = []
