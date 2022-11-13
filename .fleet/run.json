@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "type": "cargo",
+            "name": "Terralistic",
+            "cargoArgs": ["run", "--bin", "Client"],
+        },
+
+        {
+            "type": "cargo",
+            "name": "Terralistic Server",
+            "cargoArgs": ["run", "--bin", "Server"],
+        },
+    ]
+}

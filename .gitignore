@@ -12,3 +12,9 @@ venv/
 .idea/
 Terralistic.xcarchive/
 copy_files.py
+
+
+# Added by cargo
+
+/target
+
