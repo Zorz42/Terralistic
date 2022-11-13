@@ -11,5 +11,11 @@
             "name": "Terralistic Server",
             "cargoArgs": ["run", "--bin", "TerralisticServer"],
         },
+        {
+            "type": "command",
+            "name": "Run build script",
+            "program": "python3",
+            "args": ["-m", "build_project"],
+        },
     ]
 }

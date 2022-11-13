@@ -15,7 +15,7 @@ def main():
         arg = sys.argv[1]
 
     if sys.platform == "darwin":
-        macos.buildForMacOS(project_path, arg)
+        macos.build_for_macos(project_path, arg)
     elif sys.platform == "linux":
         linux.buildForLinux(project_path, arg)
     elif sys.platform == "win32":

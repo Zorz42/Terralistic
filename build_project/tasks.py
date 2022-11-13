@@ -11,7 +11,7 @@ class Task(abc.ABC):
         self.required_commands = []
         self.project_path = project_path
 
-    def checkForDependencies(self):
+    def check_for_dependencies(self):
         pass
 
     @abc.abstractmethod
@@ -37,7 +37,7 @@ class TaskManager:
         required_commands = set()
         print(f"{ANSI_COLOR}Checking dependencies...{ANSI_RESET}")
         for task in self.tasks:
-            task.checkForDependencies()
+            task.check_for_dependencies()
             for command in task.required_commands:
                 required_commands.add(command)
 

@@ -3,7 +3,7 @@ import cv2
 import zlib
 
 
-def pngToOpa(input_file: str, output_file: str):
+def png_to_opa(input_file: str, output_file: str):
     input_img = cv2.imread(input_file, cv2.IMREAD_UNCHANGED)
 
     height, width, channels = input_img.shape

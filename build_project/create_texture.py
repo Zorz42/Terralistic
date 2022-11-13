@@ -2,7 +2,7 @@ from PIL import Image
 import math
 
 
-def copyArea(source_pixels, target_pixels, source_x: int, source_y: int, width: int, height: int, destination_x: int, destination_y: int):
+def copy_area(source_pixels, target_pixels, source_x: int, source_y: int, width: int, height: int, destination_x: int, destination_y: int):
     for x in range(width):
         for y in range(height):
             target_pixel = list(target_pixels[destination_x + x, destination_y + y])
@@ -17,7 +17,7 @@ def copyArea(source_pixels, target_pixels, source_x: int, source_y: int, width: 
             target_pixels[destination_x + x, destination_y + y] = tuple(target_pixel)
 
 
-def generateBlockTexture(input_file_path: str, output_file_path: str):
+def generate_block_texture(input_file_path: str, output_file_path: str):
     output_image = Image.new("RGBA", (8, 128), (255, 255, 255, 255))
     output_pixels = output_image.load()
 
@@ -26,13 +26,13 @@ def generateBlockTexture(input_file_path: str, output_file_path: str):
     _, input_height = input_image.size
 
     for y in range(0, 128, 8):
-        copyArea(input_pixels, output_pixels, 0, 0, 8, 8, 0, y)
+        copy_area(input_pixels, output_pixels, 0, 0, 8, 8, 0, y)
 
     for texture_y in range(8, input_height - 31, 32):
         for i in range(4):
             for y in range(0, 16, 1):
                 if int(y / math.pow(2, i)) % 2 == 0:
-                    copyArea(input_pixels, output_pixels, 0, i * 8 + texture_y, 8, 8, 0, y * 8)
+                    copy_area(input_pixels, output_pixels, 0, i * 8 + texture_y, 8, 8, 0, y * 8)
 
     for i in range(16):
         if int(i / 8) % 2 == 0 and i % 2 == 0:

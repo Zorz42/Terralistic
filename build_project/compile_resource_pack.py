@@ -2,13 +2,13 @@
 import os
 import sys
 from . import utils
-from . import createTexture
-from . import pngToOpa
+from . import create_texture
+from . import png_to_opa
 
 TEMPLATE_PREFIX = "Template_"
 
 
-def compileResourcePack(input_resource_pack, output_resource_pack):
+def compile_resource_pack(input_resource_pack, output_resource_pack):
     if not input_resource_pack.endswith("/"):
         input_resource_pack += "/"
     if not output_resource_pack.endswith("/"):
@@ -33,16 +33,16 @@ def compileResourcePack(input_resource_pack, output_resource_pack):
             continue
 
         if os.path.isdir(input_file):
-            compileResourcePack(input_file, output_file)
+            compile_resource_pack(input_file, output_file)
         else:
             if file.endswith(".png"):
                 if file.startswith(TEMPLATE_PREFIX):
                     temp_file = "._temp.png"
-                    createTexture.generateBlockTexture(input_file, temp_file)
-                    pngToOpa.pngToOpa(temp_file, output_file)
+                    create_texture.generate_block_texture(input_file, temp_file)
+                    png_to_opa.png_to_opa(temp_file, output_file)
                     utils.remove(temp_file)
                 else:
-                    pngToOpa.pngToOpa(input_file, output_file)
+                    png_to_opa.png_to_opa(input_file, output_file)
             else:
                 utils.copy(input_file, output_file)
 

@@ -1,7 +1,6 @@
-from . import dependencies
 from . import utils
 from . import tasks
-from . import compileResourcePack
+from . import compile_resource_pack
 import importlib
 import multiprocessing
 
@@ -13,7 +12,7 @@ class CreateDirs(tasks.Task):
 
 
 class InstallZlib(tasks.Task):
-    def checkForDependencies(self):
+    def check_for_dependencies(self):
         self.requireCommand("make")
         self.requireCommand("cmake")
 
@@ -22,7 +21,7 @@ class InstallZlib(tasks.Task):
 
 
 class InstallGlfw(tasks.Task):
-    def checkForDependencies(self):
+    def check_for_dependencies(self):
         self.requireCommand("make")
         self.requireCommand("cmake")
 
@@ -36,7 +35,7 @@ class InstallPatch(tasks.Task):
 
 
 class GenerateGlad(tasks.Task):
-    def checkForDependencies(self):
+    def check_for_dependencies(self):
         glad_spec = importlib.util.find_spec("glad")
         if glad_spec is None:
             raise Exception("Glad needs to be installed as a python package, you can install it via pip")
@@ -65,7 +64,7 @@ class CompileResourcePack(tasks.Task):
 
 
 class Build(tasks.Task):
-    def checkForDependencies(self):
+    def check_for_dependencies(self):
         self.requireCommand("make")
         self.requireCommand("cmake")
 

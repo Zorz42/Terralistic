@@ -15,11 +15,30 @@ path = "Server/main/main.rs"
 [dependencies]
 
 [package.metadata.bundle.bin.Terralistic]
-name = "ExampleApplication"
+name = "Terralistic"
 identifier = "com.Zorz42.Terralistic"
 icon = []
 version = "1.0.0"
-resources = []
+resources = ["Build/Resources/*"]
+copyright = "Copyright (c) Zorz42 2022. All rights reserved."
+category = "Game"
+short_description = "Terralistic is a game."
+long_description = """
+Terralistic is a Terraria fan game.
+It has some technical stuff that I miss in Terraria,
+like: native mod support, good performance,
+custom programming language for mods, online accounts,
+good ui and so on...
+"""
+deb_depends = []
+osx_frameworks = []
+
+[package.metadata.bundle.bin.TerralisticServer]
+name = "TerralisticServer"
+identifier = "com.Zorz42.TerralisticServer"
+icon = []
+version = "1.0.0"
+resources = ["Build/Resources/*"]
 copyright = "Copyright (c) Zorz42 2022. All rights reserved."
 category = "Game"
 short_description = "Terralistic is a game."
