@@ -2,6 +2,7 @@
 #include "launcherModule.hpp"
 
 class PlayerCard{
+    gfx::Rect background;
     gfx::Container card_container;
     gfx::Sprite name_text;
 public:
@@ -9,6 +10,8 @@ public:
     void render();
     PlayerCard(Player* cplayer, gfx::Container* parent_cont);
     void transform(int x, int y, int w, int h);
+    void initTransform(int x, int y, int w, int h);
+    gfx::Container* getContainer(){return &card_container;}
 };
 
 
