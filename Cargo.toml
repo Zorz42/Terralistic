@@ -6,20 +6,19 @@ description = "test"
 
 [[bin]]
 name = "Terralistic"
-path = "Client/main/main.rs"
+path = "Client/main.rs"
 
 [[bin]]
 name = "TerralisticServer"
-path = "Server/main/main.rs"
+path = "Server/main.rs"
 
 [dependencies]
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"
 identifier = "com.Zorz42.Terralistic"
-icon = []
+icon = ["Build/Resources/icon.icns"]
 version = "1.0.0"
-resources = ["Build/Resources/*"]
 copyright = "Copyright (c) Zorz42 2022. All rights reserved."
 category = "Game"
 short_description = "Terralistic is a game."
@@ -36,9 +35,8 @@ osx_frameworks = []
 [package.metadata.bundle.bin.TerralisticServer]
 name = "TerralisticServer"
 identifier = "com.Zorz42.TerralisticServer"
-icon = []
+icon = ["Build/Resources/icon.icns"]
 version = "1.0.0"
-resources = ["Build/Resources/*"]
 copyright = "Copyright (c) Zorz42 2022. All rights reserved."
 category = "Game"
 short_description = "Terralistic is a game."

@@ -19,6 +19,8 @@ class BuildClient(tasks.Task):
 
     def execute(self):
         utils.system(f"cd {self.project_path} && cargo-bundle bundle --release --bin Terralistic")
+        utils.remove(f"{self.project_path}target/release/bundle/osx/Terralistic.app/Contents/Resources/")
+        utils.copy(f"{self.project_path}Build/Resources/", f"{self.project_path}target/release/bundle/osx/Terralistic.app/Contents/Resources/")
 
 
 class BuildServer(tasks.Task):
@@ -27,6 +29,8 @@ class BuildServer(tasks.Task):
 
     def execute(self):
         utils.system(f"cd {self.project_path} && cargo-bundle bundle --release --bin TerralisticServer")
+        utils.remove(f"{self.project_path}target/release/bundle/osx/TerralisticServer.app/Contents/Resources/")
+        utils.copy(f"{self.project_path}Build/Resources/", f"{self.project_path}target/release/bundle/osx/TerralisticServer.app/Contents/Resources/")
 
 
 class UnpackClient(tasks.Task):
