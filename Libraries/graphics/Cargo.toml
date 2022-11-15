@@ -6,7 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
+bytemuck = "1"
+ogl33 = { version = "0.2.0", features = ["debug_error_checks"]}
+glfw = "0.47.0"
 
 [lib]
 name = "graphics"

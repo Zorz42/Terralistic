@@ -1,5 +1,5 @@
 /*
-    Transformation is a 3x3 matrix used to move and scale drawn objects.
+Transformation is a 3x3 matrix used to move and scale drawn objects.
 */
 #[derive(Clone)]
 pub struct Transformation {
@@ -8,7 +8,7 @@ pub struct Transformation {
 
 impl Transformation {
     /*
-        A new Transformation always contains identity matrix.
+    A new Transformation always contains identity matrix.
     */
     pub fn new() -> Transformation {
         Transformation{
@@ -21,7 +21,7 @@ impl Transformation {
     }
 
     /*
-        Moves the object around.
+    Moves the object around.
     */
     pub fn translate(&mut self, x: f32, y: f32) {
         let mut transformation = Self::new();
@@ -34,7 +34,7 @@ impl Transformation {
     }
 
     /*
-        Scales the object.
+    Scales the object.
     */
     pub fn stretch(&mut self, x: f32, y: f32) {
         let mut transformation = Self::new();
@@ -51,7 +51,7 @@ impl std::ops::Mul for Transformation {
     type Output = Transformation;
 
     /*
-        Matrix multiplication
+    Matrix multiplication
     */
     fn mul(self, other: Self) -> Self {
         let mut new_transformation = Self::new();
