@@ -3,9 +3,6 @@
 use graphics;
 
 fn main() {
-    graphics::init();
     println!("Hello, this is client!");
-    loop {
-        
-    }
+    graphics::init(1130, 700, String::from("Terralistic"));
 }
