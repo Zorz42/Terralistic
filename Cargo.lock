@@ -7,8 +7,13 @@ name = "Terralistic"
 version = "0.1.0"
 dependencies = [
  "graphics",
+ "shared",
 ]
 
 [[package]]
 name = "graphics"
+version = "0.1.0"
+
+[[package]]
+name = "shared"
 version = "0.1.0"
