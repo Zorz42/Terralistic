@@ -5,3 +5,10 @@ version = 3
 [[package]]
 name = "Terralistic"
 version = "0.1.0"
+dependencies = [
+ "graphics",
+]
+
+[[package]]
+name = "graphics"
+version = "0.1.0"

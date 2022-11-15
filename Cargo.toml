@@ -13,6 +13,7 @@ name = "TerralisticServer"
 path = "Server/main.rs"
 
 [dependencies]
+graphics = {"path" = "Libraries/graphics/"}
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"
