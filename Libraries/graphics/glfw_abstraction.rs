@@ -36,7 +36,8 @@ void main() {
 This stores all values needed for OpenGL and GLFW.
 */
 pub struct GlfwContext {
-
+    pub glfw_window: glfw::Window,
+    pub window_events: std::Receiver<f64, glfw::WindowEvent>,
 }
 
 /*
