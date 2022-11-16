@@ -1,7 +1,20 @@
 use std::collections::HashSet;
 
 
-fn remove_end_until_chars(string: String, chars: HashSet<char>) -> String {//should be &mut String without return if usage allows
+#[test]
+fn test_get_resource_path(){
+    assert_eq!(get_resource_path(
+        String::from("/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Terralistic")),
+               String::from("/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Resources/")
+    );
+    //add tests with windows and macos paths, also with a random utf-8 "folder" in path
+}
+
+
+/*
+ * returns path from beginning to last / or \\
+ */
+fn remove_end_until_chars(string: String, chars: HashSet<char>) -> String {
     let mut char_vec: Vec<char> = string.chars().collect();//split string to safely use utf8
     while !char_vec.is_empty() && !chars.contains(&char_vec[char_vec.len() - 1]) {
         char_vec.pop();
@@ -12,8 +25,11 @@ fn remove_end_until_chars(string: String, chars: HashSet<char>) -> String {//sho
     char_vec.into_iter().collect()
 }
 
-fn return_end_until_chars(string: String, chars: HashSet<char>) -> String {//should be &mut String without return if usage allows
-    let char_vec: Vec<char> = string.chars().collect();
+/*
+ * returns path from last / or \\ until its end
+ */
+fn return_end_until_chars(string: String, chars: HashSet<char>) -> String {
+    let char_vec: Vec<char> = string.chars().collect();//split string to safely use utf8
     let mut iter = char_vec.len() - 1;
     while iter >= 0 && !chars.contains(&char_vec[iter]) {
         iter -= 1;
@@ -21,6 +37,9 @@ fn return_end_until_chars(string: String, chars: HashSet<char>) -> String {//sho
     char_vec[iter + 1..char_vec.len()].into_iter().collect()
 }
 
+/*
+ * generates path to resources from executable path end returns it
+ */
 fn get_resource_path(executable_path: String) -> String {
     let mut parent_directory = remove_end_until_chars(executable_path, HashSet::from(['/', '\\']));
 
