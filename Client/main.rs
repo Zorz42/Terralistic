@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use graphics;
+use shared;
 
 fn main() {
     println!("Hello, this is client!");

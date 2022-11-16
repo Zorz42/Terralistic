@@ -7,6 +7,7 @@ name = "Terralistic"
 version = "0.1.0"
 dependencies = [
  "graphics",
+ "shared",
 ]
 
 [[package]]
@@ -114,6 +115,10 @@ checksum = "b800beb9b6e7d2df1fe337c9e3d04e3af22a124460fb4c30fcc22c9117cefb41"
 dependencies = [
  "cty",
 ]
+
+[[package]]
+name = "shared"
+version = "0.1.0"
 
 [[package]]
 name = "winapi"
