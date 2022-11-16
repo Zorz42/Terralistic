@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 bytemuck = "1"
-ogl33 = { version = "0.2.0", features = ["debug_error_checks"]}
+gl = "0.14.0"
 glfw = "0.47.0"
 
 [lib]
