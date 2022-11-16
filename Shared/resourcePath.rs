@@ -4,8 +4,12 @@ use std::collections::HashSet;
 #[test]
 fn test_get_resource_path(){
     assert_eq!(get_resource_path(
-        String::from("/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Terralistic")),
-               String::from("/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Resources/")
+            String::from(r"/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Terralistic")),
+            String::from(r"/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Resources/")
+    );
+    assert_eq!(get_resource_path(
+            String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü\Terralistic.exe")),
+            String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü/Resources/")
     );
     //add tests with windows and macos paths, also with a random utf-8 "folder" in path
 }
