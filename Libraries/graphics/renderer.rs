@@ -1,10 +1,10 @@
 extern crate glfw;
 use self::glfw::{Context};
 use gl;
+use crate::transformation;
 
-const VERTEX_SHADER_CODE: &str =
-"
-#version 330 core\n
+const VERTEX_SHADER_CODE: &str = r#"
+#version 330 core
 layout(location = 0) in vec2 vertex_position;
 layout(location = 1) in vec4 vertex_color;
 layout(location = 2) in vec2 vertex_uv;
@@ -19,11 +19,10 @@ void main() {
    fragment_color = mix(default_color, vertex_color, has_color_buffer);
    uv = (texture_transform_matrix * vec3(vertex_uv, 1)).xy;
 }
-";
+"#;
 
-const FRAGMENT_SHADER_CODE: &str =
-"
-#version 330 core\n
+const FRAGMENT_SHADER_CODE: &str = r#"
+#version 330 core
 in vec4 fragment_color;
 in vec2 uv;
 layout(location = 0) out vec4 color;
@@ -32,7 +31,7 @@ uniform int has_texture;
 void main() {
    color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, uv).rgba, has_texture) * fragment_color;
 }
-";
+"#;
 
 pub const SHADER_VERTEX_BUFFER: u32 = 0;
 
@@ -129,6 +128,7 @@ pub struct Renderer {
     pub(crate) glfw_window: glfw::Window,
     pub(crate) default_shader: u32,
     pub(crate) rect_vertex_buffer: u32,
+    pub(crate) normalization_transform: transformation::Transformation,
 }
 
 impl Renderer {
@@ -146,6 +146,7 @@ impl Renderer {
             glfw_window,
             default_shader: 0,
             rect_vertex_buffer: 0,
+            normalization_transform: transformation::Transformation::new(),
         }
     }
 
@@ -172,21 +173,36 @@ impl Renderer {
         ];
 
         unsafe {
+            let mut vertex_array_id = 0;
+            gl::GenVertexArrays(1, &mut vertex_array_id);
+            gl::BindVertexArray(vertex_array_id);
+
+            gl::UseProgram(self.default_shader);
+
+            let ident = std::ffi::CString::new("has_texture").unwrap();
+            self.uniforms.has_texture = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
+            let ident = std::ffi::CString::new("default_color").unwrap();
+            self.uniforms.default_color = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
+            let ident = std::ffi::CString::new("texture_sampler").unwrap();
+            self.uniforms.texture_sampler = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
+            let ident = std::ffi::CString::new("has_color_buffer").unwrap();
+            self.uniforms.has_color_buffer = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
+            let ident = std::ffi::CString::new("transform_matrix").unwrap();
+            self.uniforms.transform_matrix = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
+            let ident = std::ffi::CString::new("texture_transform_matrix").unwrap();
+            self.uniforms.texture_transform_matrix = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
+
             gl::GenBuffers(1, &mut self.rect_vertex_buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
             gl::BufferData(gl::ARRAY_BUFFER, (rect_vertex_array.len() * std::mem::size_of::<f32>()) as isize, &rect_vertex_array[0] as *const f32 as *const std::os::raw::c_void, gl::STATIC_DRAW);
 
-            /*let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
-            gl::DrawBuffers(1, &draw_buffers[0]);*/
+            let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
+            gl::DrawBuffers(1, &draw_buffers[0]);
             gl::EnableVertexAttribArray(SHADER_VERTEX_BUFFER);
-
-            self.uniforms.has_texture = gl::GetUniformLocation(self.default_shader, "has_texture".as_ptr() as *const i8);
-            self.uniforms.default_color = gl::GetUniformLocation(self.default_shader, "default_color".as_ptr() as *const i8);
-            self.uniforms.texture_sampler = gl::GetUniformLocation(self.default_shader, "texture_sampler".as_ptr() as *const i8);
-            self.uniforms.has_color_buffer = gl::GetUniformLocation(self.default_shader, "has_color_buffer".as_ptr() as *const i8);
-            self.uniforms.transform_matrix = gl::GetUniformLocation(self.default_shader, "transform_matrix".as_ptr() as *const i8);
-            self.uniforms.texture_transform_matrix = gl::GetUniformLocation(self.default_shader, "texture_transform_matrix".as_ptr() as *const i8);
         }
+
+        self.normalization_transform.stretch(2.0 / self.glfw_window.get_size().0 as f32, -2.0 / self.glfw_window.get_size().1 as f32);
+        self.normalization_transform.translate(-self.glfw_window.get_size().0 as f32 / 2.0, -self.glfw_window.get_size().1 as f32 / 2.0);
     }
 
     /*
@@ -194,8 +210,6 @@ impl Renderer {
     */
     pub fn pre_render(&self) {
         unsafe {
-            gl::UseProgram(self.default_shader);
-
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }

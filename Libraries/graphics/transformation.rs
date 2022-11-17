@@ -59,9 +59,9 @@ impl std::ops::Mul for Transformation {
             for y in 0..3 {
                 let mut sum = 0.0;
                 for i in 0..3 {
-                    sum += self.matrix[3 * y + i] * other.matrix[3 * i + x];
+                    sum += self.matrix[3 * i + y] * other.matrix[3 * x + i];
                 }
-                new_transformation.matrix[3 * y + x] = sum;
+                new_transformation.matrix[3 * x + y] = sum;
             }
         }
         new_transformation

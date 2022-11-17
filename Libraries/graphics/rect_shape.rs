@@ -31,7 +31,7 @@ impl RectShape {
             gl::Uniform1i(renderer.uniforms.has_color_buffer, 0);
         }
 
-        let mut transform = transformation::Transformation::new();
+        let mut transform = renderer.normalization_transform.clone();
         transform.translate(self.x as f32, self.y as f32);
         transform.stretch(self.w as f32, self.h as f32);
 
