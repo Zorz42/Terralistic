@@ -34,7 +34,7 @@ void main() {
 }
 ";
 
-const SHADER_VERTEX_BUFFER: u32 = 0;
+pub const SHADER_VERTEX_BUFFER: u32 = 0;
 
 /*
 This stores all values needed for OpenGL and GLFW.
@@ -109,18 +109,39 @@ pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
 }
 
 /*
+This stores all shader uniform handles
+*/
+pub(crate) struct ShaderUniformHandles {
+    pub has_texture: i32,
+    pub default_color: i32,
+    pub texture_sampler: i32,
+    pub has_color_buffer: i32,
+    pub transform_matrix: i32,
+    pub texture_transform_matrix: i32,
+}
+
+/*
 This stores all values needed for rendering.
 */
 pub struct Renderer {
+    pub(crate) uniforms: ShaderUniformHandles,
     pub(crate) glfw: glfw::Glfw,
     pub(crate) glfw_window: glfw::Window,
-    default_shader: u32,
-    rect_vertex_buffer: u32,
+    pub(crate) default_shader: u32,
+    pub(crate) rect_vertex_buffer: u32,
 }
 
 impl Renderer {
     pub fn new(glfw: glfw::Glfw, glfw_window: glfw::Window) -> Self {
         Renderer{
+            uniforms: ShaderUniformHandles {
+                has_texture: 0,
+                default_color: 0,
+                texture_sampler: 0,
+                has_color_buffer: 0,
+                transform_matrix: 0,
+                texture_transform_matrix: 0,
+            },
             glfw,
             glfw_window,
             default_shader: 0,
@@ -154,12 +175,17 @@ impl Renderer {
             gl::GenBuffers(1, &mut self.rect_vertex_buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
             gl::BufferData(gl::ARRAY_BUFFER, (rect_vertex_array.len() * std::mem::size_of::<f32>()) as isize, &rect_vertex_array[0] as *const f32 as *const std::os::raw::c_void, gl::STATIC_DRAW);
-        }
 
-        let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
-        unsafe {
-            gl::DrawBuffers(1, &draw_buffers[0]);
+            /*let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
+            gl::DrawBuffers(1, &draw_buffers[0]);*/
             gl::EnableVertexAttribArray(SHADER_VERTEX_BUFFER);
+
+            self.uniforms.has_texture = gl::GetUniformLocation(self.default_shader, "has_texture".as_ptr() as *const i8);
+            self.uniforms.default_color = gl::GetUniformLocation(self.default_shader, "default_color".as_ptr() as *const i8);
+            self.uniforms.texture_sampler = gl::GetUniformLocation(self.default_shader, "texture_sampler".as_ptr() as *const i8);
+            self.uniforms.has_color_buffer = gl::GetUniformLocation(self.default_shader, "has_color_buffer".as_ptr() as *const i8);
+            self.uniforms.transform_matrix = gl::GetUniformLocation(self.default_shader, "transform_matrix".as_ptr() as *const i8);
+            self.uniforms.texture_transform_matrix = gl::GetUniformLocation(self.default_shader, "texture_transform_matrix".as_ptr() as *const i8);
         }
     }
 
@@ -168,6 +194,8 @@ impl Renderer {
     */
     pub fn pre_render(&self) {
         unsafe {
+            gl::UseProgram(self.default_shader);
+
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }

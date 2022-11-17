@@ -15,6 +15,9 @@ fn main() {
 
         graphics.renderer.pre_render();
 
+        let rect = gfx::RectShape{x: 0, y: 0, w: 1, h: 1};
+        rect.render(&graphics.renderer, gfx::Color { r: 255, g: 0, b: 0, a: 255 });
+
         graphics.renderer.post_render();
     }
 }

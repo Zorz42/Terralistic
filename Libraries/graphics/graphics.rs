@@ -11,6 +11,9 @@ mod renderer;
 mod events;
 pub use events::Event;
 
+mod rect_shape;
+pub use rect_shape::RectShape;
+
 /*
 A struct that will be passed all
 around the functions that need drawing

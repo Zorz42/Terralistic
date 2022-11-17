@@ -34,6 +34,15 @@ impl EventManager {
         let mut events = vec![];
 
         for (_, glfw_event) in glfw::flush_messages(&self.glfw_events) {
+            match glfw_event {
+                glfw::WindowEvent::FramebufferSize(width, height) => {
+                    unsafe {
+                        gl::Viewport(0, 0, width, height)
+                    }
+                }
+                _ => {}
+            }
+
             if let Some(event) = glfw_event_to_gfx_event(glfw_event) {
                 events.push(event);
             }
