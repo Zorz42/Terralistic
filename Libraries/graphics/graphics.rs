@@ -6,7 +6,7 @@ mod transformation;
 mod surface;
 pub use surface::Surface;
 
-mod glfw_abstraction;
+mod renderer;
 
 mod events;
 pub use events::Event;
@@ -17,17 +17,19 @@ around the functions that need drawing
 */
 pub struct GraphicsContext {
     pub events: events::EventManager,
-    pub renderer: glfw_abstraction::Renderer,
+    pub renderer: renderer::Renderer,
 }
 
 pub fn init(window_width: i32, window_height: i32, window_title: String) -> GraphicsContext {
-    let glfw_context = glfw_abstraction::init_glfw(window_width, window_height, window_title);
+    let glfw_context = renderer::init_glfw(window_width, window_height, window_title);
+    let events = events::EventManager::new(glfw_context.window_events);
+    let mut renderer = renderer::Renderer::new(glfw_context.glfw, glfw_context.glfw_window);
+
+    renderer.init();
+
     GraphicsContext{
-        events: events::EventManager::new(glfw_context.window_events),
-        renderer: glfw_abstraction::Renderer{
-            glfw: glfw_context.glfw,
-            glfw_window: glfw_context.glfw_window,
-        }
+        events,
+        renderer,
     }
 
 }
