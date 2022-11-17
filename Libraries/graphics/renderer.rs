@@ -34,6 +34,8 @@ void main() {
 }
 ";
 
+const SHADER_VERTEX_BUFFER: u32 = 0;
+
 /*
 This stores all values needed for OpenGL and GLFW.
 */
@@ -113,6 +115,7 @@ pub struct Renderer {
     pub(crate) glfw: glfw::Glfw,
     pub(crate) glfw_window: glfw::Window,
     default_shader: u32,
+    rect_vertex_buffer: u32,
 }
 
 impl Renderer {
@@ -120,7 +123,8 @@ impl Renderer {
         Renderer{
             glfw,
             glfw_window,
-            default_shader: 0
+            default_shader: 0,
+            rect_vertex_buffer: 0,
         }
     }
 
@@ -136,6 +140,27 @@ impl Renderer {
     */
     pub fn init(&mut self) {
         self.default_shader = compile_shader(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+
+        let rect_vertex_array: [f32; 12] = [
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            1.0, 1.0,
+        ];
+
+        unsafe {
+            gl::GenBuffers(1, &mut self.rect_vertex_buffer);
+            gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
+            gl::BufferData(gl::ARRAY_BUFFER, (rect_vertex_array.len() * std::mem::size_of::<f32>()) as isize, &rect_vertex_array[0] as *const f32 as *const std::os::raw::c_void, gl::STATIC_DRAW);
+        }
+
+        let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
+        unsafe {
+            gl::DrawBuffers(1, &draw_buffers[0]);
+            gl::EnableVertexAttribArray(SHADER_VERTEX_BUFFER);
+        }
     }
 
     /*
