@@ -1,6 +1,5 @@
 extern crate glfw;
 use self::glfw::{Context};
-use gl;
 use crate::transformation;
 
 const VERTEX_SHADER_CODE: &str = r#"
@@ -34,6 +33,8 @@ void main() {
 "#;
 
 pub const SHADER_VERTEX_BUFFER: u32 = 0;
+pub const SHADER_COLOR_BUFFER: u32 = 0;
+pub const SHADER_TEXTURE_COORD_BUFFER: u32 = 0;
 
 /*
 This stores all values needed for OpenGL and GLFW.

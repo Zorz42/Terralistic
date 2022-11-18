@@ -14,6 +14,9 @@ pub use events::Event;
 mod rect_shape;
 pub use rect_shape::RectShape;
 
+mod texture;
+pub use texture::Texture;
+
 /*
 A struct that will be passed all
 around the functions that need drawing
