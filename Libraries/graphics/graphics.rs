@@ -17,6 +17,9 @@ pub use rect_shape::RectShape;
 mod texture;
 pub use texture::Texture;
 
+mod read_opa;
+pub use read_opa::read_opa;
+
 /*
 A struct that will be passed all
 around the functions that need drawing

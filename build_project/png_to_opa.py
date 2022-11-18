@@ -1,6 +1,6 @@
 # opa - ordered pixel array
 import cv2
-import zlib
+import snappy
 
 
 def png_to_opa(input_file: str, output_file: str):
@@ -27,14 +27,15 @@ def png_to_opa(input_file: str, output_file: str):
                 else:
                     result_data.append(255)
     
-    compressed_data = zlib.compress(bytes(result_data), level=zlib.Z_BEST_COMPRESSION)
-    decompressed_size = len(result_data)
+    compressed_data = snappy.compress(bytes(result_data))
+    """decompressed_size = len(result_data)
     compressed_data_size_bytes = bytes([
         decompressed_size & 0xFF,
         (decompressed_size >> 8) & 0xFF,
         (decompressed_size >> 16) & 0xFF,
         (decompressed_size >> 24) & 0xFF,
-    ])
+    ])"""
 
     with open(output_file, "wb") as output_img:
-        output_img.write(compressed_data + compressed_data_size_bytes)
+        #output_img.write(compressed_data + compressed_data_size_bytes)
+        output_img.write(compressed_data)
