@@ -8,7 +8,7 @@ fn main() {
 
     let mut graphics = gfx::init(1130, 700, String::from("Terralistic"));
 
-    graphics::read_opa(String::from("/Users/jakob/Terralistic-rust/Build/Resources/background.opa"));
+    //graphics::read_opa(String::from("/Users/jakob/Terralistic-rust/Build/Resources/background.opa"));
 
     while graphics.renderer.is_window_open() {
         for event in graphics.events.get_events() {

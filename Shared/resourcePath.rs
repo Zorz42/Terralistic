@@ -9,8 +9,6 @@ fn test_get_resource_path(){
     assert_eq!(get_resource_path(
             String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü\Terralistic.exe")),
             String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü/Resources/"), "test 1 failed");
-    //add tests with macos paths, also with a random utf-8 "folder" in path
-
     assert_eq!(get_resource_path(String::from(r"/test/folder/exec")), String::from(r"/test/folder/Resources/"), "test 2 failed"); //previously used tests
     assert_eq!(get_resource_path(String::from(r"/test/folder/MacOS/exec")), String::from(r"/test/folder/Resources/"), "test 3 failed");
     assert_eq!(get_resource_path(String::from(r"/testing/1234/exec")), String::from(r"/testing/1234/Resources/"), "test 4 failed");
@@ -19,11 +17,10 @@ fn test_get_resource_path(){
             String::from(r"/folder/folder/folder/folder/folder/folder/notfolder")),
             String::from(r"/folder/folder/folder/folder/folder/folder/Resources/"), "test 6 failed");
     assert_eq!(get_resource_path(
-            String::from(r"/folder/folder/folder/folder/folder/folder/MacOS/notfolder")),
-            String::from(r"/folder/folder/folder/folder/folder/folder/Resources/"), "test 7 failed");
+            String::from(r"/folder/folder/folder/folder/šwćgregeropgjćšwž/folder/folder/MacOS/notfolder")),
+            String::from(r"/folder/folder/folder/folder/šwćgregeropgjćšwž/folder/folder/Resources/"), "test 7 failed");
     assert_eq!(get_resource_path(String::from(r"./exec")), String::from(r"./Resources/"), "test 8 failed");
     assert_eq!(get_resource_path(String::from(r"exec")), String::from(r"./Resources/"), "test 9 failed");
-
 }
 
 
