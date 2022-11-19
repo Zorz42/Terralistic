@@ -19,7 +19,7 @@ impl Surface {
         }
 
         Surface {
-            pixels: std::vec![0; (width * height).try_into().unwrap()],
+            pixels: std::vec![0; (width * height * 4).try_into().unwrap()],
             width,
             height,
         }
