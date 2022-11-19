@@ -55,12 +55,15 @@ impl Texture {
         self.height = surface.get_height();
 
         unsafe {
+            // load surface into gpu
+
             gl::GenTextures(1, &mut self.texture_handle);
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as i32, self.width, self.height, 0, gl::BGRA, gl::UNSIGNED_BYTE, &surface.pixels[0] as *const u8 as *const std::os::raw::c_void);
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
+
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as i32, self.width, self.height, 0, gl::RGBA, gl::UNSIGNED_BYTE, surface.pixels.as_ptr() as *const std::ffi::c_void);
         }
 
         self.transform = transformation::Transformation::new();
@@ -78,7 +81,7 @@ impl Texture {
         transform.stretch(src_rect.w as f32, src_rect.h as f32);
 
         unsafe {
-            gl::UniformMatrix3fv(renderer.uniforms.texture_transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
+            gl::UniformMatrix3fv(renderer.uniforms.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
             gl::ActiveTexture(gl::TEXTURE0);
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
@@ -90,7 +93,7 @@ impl Texture {
 
         let mut transform = renderer.normalization_transform.clone();
 
-        if flipped  {
+        if flipped {
             transform.translate(src_rect.w as f32 * scale + x as f32 * 2.0, 0.0);
             transform.stretch(-1.0, 1.0);
         }

@@ -1,27 +1,37 @@
+use std::io::Read;
 use crate::surface;
+use crate::color;
 use snap;
 
-pub fn read_opa(path: String) /*-> surface::Surface*/ {
-    let compressed_data = std::fs::read(path.as_str()).unwrap();
-    let mut decompressed_data = vec![];
+pub fn read_opa(path: String) -> surface::Surface {
+    let mut file = std::fs::File::open(path).unwrap();
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer).unwrap();
 
-    let mut frame_decoder = snap::read::FrameDecoder::new(compressed_data.as_slice());
-    std::io::copy(&mut frame_decoder, &mut decompressed_data).expect("Decompress operation failed");
+    // decompress buffer into decompressed with snap
+    let decompressed_size = snap::raw::decompress_len(&buffer).unwrap();
+    let mut decompressed = vec![0; decompressed_size];
+    // create new snap decoder
+    let mut decoder = snap::raw::Decoder::new();
+    decoder.decompress(&buffer, &mut decompressed).unwrap();
 
-    /*data = decompress(data);
+    // read with and height from first 8 bytes and then the rest is the data
+    let width = u32::from_le_bytes([decompressed[0], decompressed[1], decompressed[2], decompressed[3]]) as i32;
+    let height = u32::from_le_bytes([decompressed[4], decompressed[5], decompressed[6], decompressed[7]]) as i32;
 
-    int width = *(int*)&data[0];
-    int height = *(int*)&data[sizeof(int)];
+    let mut surface = surface::Surface::new(width, height);
 
-    data.erase(data.begin(), data.begin() + sizeof(int) * 2);
+    // iterate through x and y
+    for y in 0..height {
+        for x in 0..width {
+            let index = (y * width + x) as usize;
+            let r = decompressed[index * 4 + 8];
+            let g = decompressed[index * 4 + 9];
+            let b = decompressed[index * 4 + 10];
+            let a = decompressed[index * 4 + 11];
+            surface.set_pixel(x, y, color::Color { r, g, b, a });
+        }
+    }
 
-    if(data.size() != width * height * 4)
-        throw OpaFileError("OPA data size error file size is " + std::to_string(data.size()) + " but should be " + std::to_string(width * height * 4));
-
-    gfx::Surface surface;
-    std::vector<unsigned char> unsigned_data(data.size());
-    for(int i = 0; i < (int)data.size(); i++)
-        unsigned_data[i] = data[i];
-    surface.loadFromBuffer(unsigned_data, width, height);
-    return surface;*/
+    surface
 }
