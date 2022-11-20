@@ -89,6 +89,8 @@ impl Texture {
             gl::Uniform4f(renderer.uniforms.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
             gl::Uniform1i(renderer.uniforms.has_texture, 1);
 
+            gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
+
             renderer.rect_vertex_buffer.draw(true);
         }
     }

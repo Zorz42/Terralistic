@@ -1,8 +1,8 @@
 extern crate glfw;
+
 use self::glfw::{Context};
 use crate::transformation;
 use crate::vertex_buffer_impl;
-use crate::vertex_buffer_impl::{VertexBufferImpl, VertexImpl};
 use crate::color;
 use crate::events;
 use crate::shaders;
@@ -65,7 +65,10 @@ pub struct Renderer {
     pub(crate) glfw_events: std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
     pub(crate) default_shader: u32,
     pub(crate) normalization_transform: transformation::Transformation,
-    pub(crate) rect_vertex_buffer: VertexBufferImpl,
+    pub(crate) rect_vertex_buffer: vertex_buffer_impl::VertexBufferImpl,
+    pub(crate) window_texture: u32,
+    pub(crate) window_texture_back: u32,
+    pub(crate) window_framebuffer: u32,
 }
 
 impl Renderer {
@@ -106,6 +109,9 @@ impl Renderer {
             default_shader: 0,
             normalization_transform: transformation::Transformation::new(),
             rect_vertex_buffer: vertex_buffer_impl::VertexBufferImpl::new(),
+            window_texture: 0,
+            window_texture_back: 0,
+            window_framebuffer: 0,
         };
 
         unsafe {
@@ -131,22 +137,51 @@ impl Renderer {
 
             let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
             gl::DrawBuffers(1, &draw_buffers[0]);
+
+            gl::GenTextures(1, &mut result.window_texture);
+            gl::GenTextures(1, &mut result.window_texture_back);
+            gl::GenFramebuffers(1, &mut result.window_framebuffer);
+            gl::BindFramebuffer(gl::FRAMEBUFFER, result.window_framebuffer);
         }
 
-        result.rect_vertex_buffer.add_vertex(&VertexImpl{x: 0.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 0.0});
-        result.rect_vertex_buffer.add_vertex(&VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
-        result.rect_vertex_buffer.add_vertex(&VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 0.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 0.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
 
-        result.rect_vertex_buffer.add_vertex(&VertexImpl{x: 1.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 1.0});
-        result.rect_vertex_buffer.add_vertex(&VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
-        result.rect_vertex_buffer.add_vertex(&VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 1.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 1.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
 
         result.rect_vertex_buffer.upload();
 
-        result.normalization_transform.stretch(2.0 / result.glfw_window.get_size().0 as f32, -2.0 / result.glfw_window.get_size().1 as f32);
-        result.normalization_transform.translate(-result.glfw_window.get_size().0 as f32 / 2.0, -result.glfw_window.get_size().1 as f32 / 2.0);
+        result.handle_window_resize();
 
         result
+    }
+
+    /*
+    Is called every time the window is resized.
+    */
+    pub fn handle_window_resize(&mut self) {
+        let (width, height) = self.glfw_window.get_size();
+
+        self.normalization_transform = transformation::Transformation::new();
+        self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
+        self.normalization_transform.translate(-width as f32 / 2.0, -height as f32 / 2.0);
+
+        unsafe {
+            gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, width * 2, height * 2, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
+
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
+
+            gl::BindTexture(gl::TEXTURE_2D, self.window_texture_back);
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, width * 2, height * 2, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
+
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
+        }
     }
 
     /*
@@ -155,12 +190,15 @@ impl Renderer {
     pub fn get_events(&mut self) -> Vec<events::Event> {
         let mut events = vec![];
 
+        let mut glfw_events = vec![];
         for (_, glfw_event) in glfw::flush_messages(&self.glfw_events) {
+            glfw_events.push(glfw_event);
+        }
+
+        for glfw_event in glfw_events {
             match glfw_event {
-                glfw::WindowEvent::FramebufferSize(width, height) => {
-                    unsafe {
-                        gl::Viewport(0, 0, width, height)
-                    }
+                glfw::WindowEvent::FramebufferSize(_width, _height) => {
+                    self.handle_window_resize();
                 }
                 _ => {}
             }
@@ -194,7 +232,26 @@ impl Renderer {
     Should be called after rendering
     */
     pub fn post_render(&mut self) {
+        unsafe {
+            gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
+            gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
+            gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+
+            gl::BlitFramebuffer(0, 0, self.glfw_window.get_size().0 * 2, self.glfw_window.get_size().1 * 2, 0, 0, self.glfw_window.get_size().0 * 2, self.glfw_window.get_size().1 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+        }
+
         self.glfw_window.swap_buffers();
         self.glfw.poll_events();
+
+        unsafe {
+            gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
+        }
+    }
+
+    /*
+    Sets the minimum window size
+    */
+    pub fn set_min_window_size(&mut self, width: u32, height: u32) {
+        self.glfw_window.set_size_limits( Some(width), Some(height), None, None);
     }
 }
