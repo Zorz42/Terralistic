@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use graphics as gfx;
-use shared;
+use shared; //not needed, leave it in to get autocomplete in shared
 
 
 fn main() {
