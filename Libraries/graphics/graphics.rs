@@ -3,6 +3,8 @@ pub use color::Color;
 
 mod transformation;
 
+mod vertex_buffer_impl;
+
 mod surface;
 pub use surface::Surface;
 
