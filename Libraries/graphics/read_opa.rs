@@ -25,9 +25,9 @@ pub fn read_opa(path: String) -> surface::Surface {
     for y in 0..height {
         for x in 0..width {
             let index = (y * width + x) as usize;
-            let r = decompressed[index * 4 + 8];
+            let b = decompressed[index * 4 + 8];
             let g = decompressed[index * 4 + 9];
-            let b = decompressed[index * 4 + 10];
+            let r = decompressed[index * 4 + 10];
             let a = decompressed[index * 4 + 11];
             surface.set_pixel(x, y, color::Color {r, g, b, a});
         }

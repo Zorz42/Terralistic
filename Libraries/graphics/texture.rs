@@ -71,7 +71,7 @@ impl Texture {
                            self.width as i32,
                            self.height as i32,
                            0,
-                           gl::BGRA,
+                           gl::RGBA,
                            gl::UNSIGNED_BYTE,
                            &data[0] as *const u8 as *const std::ffi::c_void);
             gl::GenerateMipmap(gl::TEXTURE_2D);
