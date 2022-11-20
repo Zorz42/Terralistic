@@ -1,6 +1,9 @@
 extern crate glfw;
 use self::glfw::{Context};
 use crate::transformation;
+use crate::vertex_buffer_impl;
+use crate::vertex_buffer_impl::{VertexBufferImpl, VertexImpl};
+use crate::color;
 
 /*const VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -34,38 +37,37 @@ void main() {
 
 const VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
+
 layout (location = 0) in vec2 vertex_position;
 layout (location = 1) in vec4 vertex_color;
 layout (location = 2) in vec2 vertex_texture_coordinate;
 
-out vec4 ourColor;
-out vec2 TexCoord;
+out vec4 fragment_color;
+out vec2 texture_coord;
 
 uniform int has_color_buffer;
 uniform vec4 global_color;
 uniform mat3 transform_matrix;
 uniform mat3 texture_transform_matrix;
 
-void main()
-{
+void main() {
 	gl_Position = vec4(transform_matrix * vec3(vertex_position, 1), 1);
-	ourColor = global_color * vertex_color;
-	TexCoord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1)).xy;
+	fragment_color = global_color * vertex_color;
+	texture_coord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1)).xy;
 }
 "#;
 
 const FRAGMENT_SHADER_CODE: &str = r#"
 #version 330 core
-out vec4 FragColor;
 
-in vec4 ourColor;
-in vec2 TexCoord;
-
-// texture sampler
-uniform sampler2D texture1;
+in vec4 fragment_color;
+in vec2 texture_coord;
+layout(location = 0) out vec4 color;
+uniform sampler2D texture_sampler;
+uniform int has_texture;
 
 void main() {
-	FragColor = texture(texture1, TexCoord);
+	color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, texture_coord).rgba, has_texture) * fragment_color;
 }
 "#;
 
@@ -188,11 +190,7 @@ pub struct Renderer {
     pub(crate) glfw_window: glfw::Window,
     pub(crate) default_shader: u32,
     pub(crate) normalization_transform: transformation::Transformation,
-
-    pub(crate) rect_vertex_buffer: u32,
-    pub(crate) texture_vertex_buffer: u32,
-    pub(crate) texture_indices_buffer: u32,
-    pub(crate) texture_vertex_array: u32,
+    pub(crate) rect_vertex_buffer: VertexBufferImpl,
 }
 
 impl Renderer {
@@ -209,11 +207,7 @@ impl Renderer {
             glfw_window,
             default_shader: 0,
             normalization_transform: transformation::Transformation::new(),
-
-            rect_vertex_buffer: 0,
-            texture_vertex_buffer: 0,
-            texture_indices_buffer: 0,
-            texture_vertex_array: 0,
+            rect_vertex_buffer: vertex_buffer_impl::VertexBufferImpl::new(),
         }
     }
 
@@ -253,42 +247,19 @@ impl Renderer {
             let ident = std::ffi::CString::new("texture_transform_matrix").unwrap();
             self.uniforms.texture_transform_matrix = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
 
-            let mut vertex_array_id = 0;
-            gl::GenVertexArrays(1, &mut vertex_array_id);
-            gl::BindVertexArray(vertex_array_id);
-
-            gl::GenBuffers(1, &mut self.rect_vertex_buffer);
-            gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
-            gl::BufferData(gl::ARRAY_BUFFER, (rect_vertex_array.len() * std::mem::size_of::<f32>()) as isize, &rect_vertex_array[0] as *const f32 as *const std::os::raw::c_void, gl::STATIC_DRAW);
-
-
-            let vertices: [f32; 32] = [
-                // positions // colors             // texture coords
-                1.0, 0.0,    1.0, 1.0, 1.0, 1.0,   1.0, 0.0, // top right
-                1.0, 1.0,    1.0, 1.0, 1.0, 1.0,   1.0, 1.0, // bottom right
-                0.0, 1.0,    1.0, 1.0, 1.0, 1.0,   0.0, 1.0, // bottom left
-                0.0, 0.0,    1.0, 1.0, 1.0, 1.0,   0.0, 0.0, // top left
-            ];
-
-            let indices = [
-                0, 1, 3,  // first Triangle
-                1, 2, 3,  // second Triangle
-            ];
-
-            gl::GenVertexArrays(1, &mut self.texture_vertex_array);
-            gl::GenBuffers(1, &mut self.texture_vertex_buffer);
-            gl::GenBuffers(1, &mut self.texture_indices_buffer);
-
-            gl::BindVertexArray(self.texture_vertex_array);
-            gl::BindBuffer(gl::ARRAY_BUFFER, self.texture_vertex_buffer);
-            gl::BufferData(gl::ARRAY_BUFFER, (vertices.len() * std::mem::size_of::<gl::types::GLfloat>()) as gl::types::GLsizeiptr, &vertices[0] as *const f32 as *const std::ffi::c_void, gl::STATIC_DRAW);
-
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.texture_indices_buffer);
-            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, (indices.len() * std::mem::size_of::<gl::types::GLfloat>()) as gl::types::GLsizeiptr, &indices[0] as *const i32 as *const std::ffi::c_void, gl::STATIC_DRAW);
-
             let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
             gl::DrawBuffers(1, &draw_buffers[0]);
         }
+
+        self.rect_vertex_buffer.add_vertex(&VertexImpl{x: 0.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 0.0});
+        self.rect_vertex_buffer.add_vertex(&VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
+        self.rect_vertex_buffer.add_vertex(&VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
+
+        self.rect_vertex_buffer.add_vertex(&VertexImpl{x: 1.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 1.0});
+        self.rect_vertex_buffer.add_vertex(&VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
+        self.rect_vertex_buffer.add_vertex(&VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
+
+        self.rect_vertex_buffer.upload();
 
         self.normalization_transform.stretch(2.0 / self.glfw_window.get_size().0 as f32, -2.0 / self.glfw_window.get_size().1 as f32);
         self.normalization_transform.translate(-self.glfw_window.get_size().0 as f32 / 2.0, -self.glfw_window.get_size().1 as f32 / 2.0);

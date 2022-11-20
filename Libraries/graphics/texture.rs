@@ -91,22 +91,7 @@ impl Texture {
             gl::Uniform4f(renderer.uniforms.global_color, 1.0, 1.0, 1.0, 1.0);
             gl::Uniform1i(renderer.uniforms.has_texture, 1);
 
-            gl::BindVertexArray(renderer.texture_vertex_array);
-            gl::BindBuffer(gl::ARRAY_BUFFER, renderer.texture_vertex_buffer);
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, renderer.texture_indices_buffer);
-
-            let stride = 8 * std::mem::size_of::<gl::types::GLfloat>() as gl::types::GLsizei;
-            gl::VertexAttribPointer(renderer::SHADER_VERTEX_BUFFER, 2, gl::FLOAT, gl::FALSE, stride, std::ptr::null());
-            gl::VertexAttribPointer(renderer::SHADER_COLOR_BUFFER, 4, gl::FLOAT, gl::FALSE, stride, (2 * std::mem::size_of::<gl::types::GLfloat>()) as *const std::ffi::c_void);
-            gl::VertexAttribPointer(renderer::SHADER_TEXTURE_COORD_BUFFER, 2, gl::FLOAT, gl::FALSE, stride, (6 * std::mem::size_of::<gl::types::GLfloat>()) as *const std::ffi::c_void);
-
-            gl::EnableVertexAttribArray(renderer::SHADER_VERTEX_BUFFER);
-            gl::EnableVertexAttribArray(renderer::SHADER_COLOR_BUFFER);
-            gl::EnableVertexAttribArray(renderer::SHADER_TEXTURE_COORD_BUFFER);
-            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
-            gl::DisableVertexAttribArray(renderer::SHADER_TEXTURE_COORD_BUFFER);
-            gl::DisableVertexAttribArray(renderer::SHADER_COLOR_BUFFER);
-            gl::DisableVertexAttribArray(renderer::SHADER_VERTEX_BUFFER);
+            renderer.rect_vertex_buffer.draw(true);
         }
     }
 }
