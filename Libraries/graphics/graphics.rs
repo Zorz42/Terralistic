@@ -5,11 +5,16 @@ mod transformation;
 
 mod vertex_buffer_impl;
 
+mod blend_mode;
+pub use blend_mode::{BlendMode, set_blend_mode};
+
+mod shaders;
+pub use shaders::compile_shader;
+
 mod surface;
 pub use surface::Surface;
 
 mod renderer;
-pub use renderer::{set_blend_mode, BlendMode};
 
 mod events;
 pub use events::Event;
@@ -28,20 +33,12 @@ A struct that will be passed all
 around the functions that need drawing
 */
 pub struct GraphicsContext {
-    pub events: events::EventManager,
     pub renderer: renderer::Renderer,
 }
 
 pub fn init(window_width: i32, window_height: i32, window_title: String) -> GraphicsContext {
-    let glfw_context = renderer::init_glfw(window_width, window_height, window_title);
-    let events = events::EventManager::new(glfw_context.window_events);
-    let mut renderer = renderer::Renderer::new(glfw_context.glfw, glfw_context.glfw_window);
-
-    renderer.init();
-
     GraphicsContext{
-        events,
-        renderer,
+        renderer: renderer::Renderer::new(window_width, window_height, window_title),
     }
 
 }
