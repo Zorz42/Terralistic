@@ -71,10 +71,6 @@ void main() {
 }
 "#;
 
-pub const SHADER_VERTEX_BUFFER: u32 = 0;
-pub const SHADER_COLOR_BUFFER: u32 = 1;
-pub const SHADER_TEXTURE_COORD_BUFFER: u32 = 2;
-
 /*
 This stores all values needed for OpenGL and GLFW.
 */
@@ -223,15 +219,6 @@ impl Renderer {
     */
     pub fn init(&mut self) {
         self.default_shader = compile_shader(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
-
-        let rect_vertex_array: [f32; 12] = [
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
-        ];
 
         unsafe {
             gl::UseProgram(self.default_shader);

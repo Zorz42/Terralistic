@@ -9,7 +9,6 @@ Texture is an image stored in gpu
 */
 pub struct Texture {
     pub(crate) texture_handle: u32,
-    pub(crate) transform: transformation::Transformation,
     width: i32,
     height: i32,
 }
@@ -18,7 +17,6 @@ impl Texture {
     pub fn new() -> Self {
         Texture{
             texture_handle: u32::MAX,
-            transform: transformation::Transformation::new(),
             width: 0,
             height: 0,
         }
@@ -88,7 +86,7 @@ impl Texture {
             transform.stretch(src_rect.w as f32, src_rect.h as f32);
 
             gl::UniformMatrix3fv(renderer.uniforms.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-            gl::Uniform4f(renderer.uniforms.global_color, 1.0, 1.0, 1.0, 1.0);
+            gl::Uniform4f(renderer.uniforms.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
             gl::Uniform1i(renderer.uniforms.has_texture, 1);
 
             renderer.rect_vertex_buffer.draw(true);

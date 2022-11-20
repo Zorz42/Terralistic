@@ -16,6 +16,16 @@ pub(crate) struct VertexBufferImpl {
     vertex_array: u32,
 }
 
+impl Drop for VertexBufferImpl {
+    fn drop(&mut self) {
+        unsafe {
+            gl::DeleteBuffers(1, &self.vertex_buffer);
+            gl::DeleteBuffers(1, &self.index_buffer);
+            gl::DeleteVertexArrays(1, &self.vertex_array);
+        }
+    }
+}
+
 impl VertexBufferImpl {
     pub fn new() -> Self {
         let mut result = VertexBufferImpl{
@@ -33,14 +43,6 @@ impl VertexBufferImpl {
         result
     }
 
-    fn drop(&mut self) {
-        unsafe {
-            gl::DeleteBuffers(1, &mut self.vertex_buffer);
-            gl::DeleteBuffers(1, &mut self.index_buffer);
-            gl::DeleteVertexArrays(1, &mut self.vertex_array);
-        }
-    }
-
     pub fn add_vertex(&mut self, vertex: &VertexImpl) {
         self.vertices.push(vertex.x);
         self.vertices.push(vertex.y);
@@ -52,11 +54,6 @@ impl VertexBufferImpl {
         self.vertices.push(vertex.tex_y);
 
         self.indices.push(self.indices.len() as u32);
-    }
-
-    pub fn clear(&mut self) {
-        self.vertices.clear();
-        self.indices.clear();
     }
 
     pub fn upload(&self) {

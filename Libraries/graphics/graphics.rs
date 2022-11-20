@@ -9,6 +9,7 @@ mod surface;
 pub use surface::Surface;
 
 mod renderer;
+pub use renderer::{set_blend_mode, BlendMode};
 
 mod events;
 pub use events::Event;
