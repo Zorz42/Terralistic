@@ -28,6 +28,9 @@ pub use texture::Texture;
 mod read_opa;
 pub use read_opa::read_opa;
 
+mod text;
+pub use text::Font;
+
 /*
 A struct that will be passed all
 around the functions that need drawing

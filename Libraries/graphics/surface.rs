@@ -9,6 +9,7 @@ pub struct Surface {
     height: i32,
 }
 
+
 impl Surface {
     /*
     Creates a new surface with all trasparent pixels.
