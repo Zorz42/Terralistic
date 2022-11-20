@@ -2,7 +2,7 @@ extern crate glfw;
 use self::glfw::{Context};
 use crate::transformation;
 
-const VERTEX_SHADER_CODE: &str = r#"
+/*const VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
 layout(location = 0) in vec2 vertex_position;
 layout(location = 1) in vec4 vertex_color;
@@ -30,6 +30,43 @@ uniform int has_texture;
 void main() {
    color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, uv).rgba, has_texture) * fragment_color;
 }
+"#;*/
+
+const VERTEX_SHADER_CODE: &str = r#"
+#version 330 core
+layout (location = 0) in vec2 vertex_position;
+layout (location = 1) in vec4 vertex_color;
+layout (location = 2) in vec2 vertex_texture_coordinate;
+
+out vec4 ourColor;
+out vec2 TexCoord;
+
+uniform int has_color_buffer;
+uniform vec4 global_color;
+uniform mat3 transform_matrix;
+uniform mat3 texture_transform_matrix;
+
+void main()
+{
+	gl_Position = vec4(transform_matrix * vec3(vertex_position, 1), 1);
+	ourColor = global_color * vertex_color;
+	TexCoord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1)).xy;
+}
+"#;
+
+const FRAGMENT_SHADER_CODE: &str = r#"
+#version 330 core
+out vec4 FragColor;
+
+in vec4 ourColor;
+in vec2 TexCoord;
+
+// texture sampler
+uniform sampler2D texture1;
+
+void main() {
+	FragColor = texture(texture1, TexCoord);
+}
 "#;
 
 pub const SHADER_VERTEX_BUFFER: u32 = 0;
@@ -43,6 +80,24 @@ pub struct GlfwContext {
     pub glfw: glfw::Glfw,
     pub glfw_window: glfw::Window,
     pub window_events: std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
+}
+
+pub enum BlendMode {
+    Alpha,
+    Multiply,
+}
+
+pub fn set_blend_mode(blend_mode: BlendMode) {
+    unsafe {
+        match blend_mode {
+            BlendMode::Alpha => {
+                gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+            }
+            BlendMode::Multiply => {
+                gl::BlendFunc(gl::DST_COLOR, gl::ONE_MINUS_SRC_ALPHA);
+            }
+        }
+    }
 }
 
 /*
@@ -68,6 +123,11 @@ pub fn init_glfw(window_width: i32, window_height: i32, window_title: String) ->
     glfw_window.set_framebuffer_size_polling(true);
 
     gl::load_with(|symbol| glfw_window.get_proc_address(symbol) as *const _);
+
+    unsafe {
+        gl::Enable(gl::BLEND);
+    }
+    set_blend_mode(BlendMode::Alpha);
 
     GlfwContext{
         glfw,
@@ -113,9 +173,8 @@ This stores all shader uniform handles
 */
 pub(crate) struct ShaderUniformHandles {
     pub has_texture: i32,
-    pub default_color: i32,
+    pub global_color: i32,
     pub texture_sampler: i32,
-    pub has_color_buffer: i32,
     pub transform_matrix: i32,
     pub texture_transform_matrix: i32,
 }
@@ -137,9 +196,8 @@ impl Renderer {
         Renderer{
             uniforms: ShaderUniformHandles {
                 has_texture: 0,
-                default_color: 0,
+                global_color: 0,
                 texture_sampler: 0,
-                has_color_buffer: 0,
                 transform_matrix: 0,
                 texture_transform_matrix: 0,
             },
@@ -182,12 +240,10 @@ impl Renderer {
 
             let ident = std::ffi::CString::new("has_texture").unwrap();
             self.uniforms.has_texture = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
-            let ident = std::ffi::CString::new("default_color").unwrap();
-            self.uniforms.default_color = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
+            let ident = std::ffi::CString::new("global_color").unwrap();
+            self.uniforms.global_color = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
             let ident = std::ffi::CString::new("texture_sampler").unwrap();
             self.uniforms.texture_sampler = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
-            let ident = std::ffi::CString::new("has_color_buffer").unwrap();
-            self.uniforms.has_color_buffer = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
             let ident = std::ffi::CString::new("transform_matrix").unwrap();
             self.uniforms.transform_matrix = gl::GetUniformLocation(self.default_shader, ident.as_ptr());
             let ident = std::ffi::CString::new("texture_transform_matrix").unwrap();

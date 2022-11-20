@@ -29,7 +29,7 @@ pub fn read_opa(path: String) -> surface::Surface {
             let g = decompressed[index * 4 + 9];
             let b = decompressed[index * 4 + 10];
             let a = decompressed[index * 4 + 11];
-            surface.set_pixel(x, y, color::Color { r, g, b, a });
+            surface.set_pixel(x, y, color::Color {r, g, b, a});
         }
     }
 

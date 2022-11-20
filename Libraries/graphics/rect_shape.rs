@@ -26,7 +26,6 @@ impl RectShape {
             gl::VertexAttribPointer(renderer::SHADER_VERTEX_BUFFER, 2, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
 
             gl::Uniform1i(renderer.uniforms.has_texture, 0);
-            gl::Uniform1i(renderer.uniforms.has_color_buffer, 0);
         }
 
         let mut transform = renderer.normalization_transform.clone();
@@ -36,7 +35,7 @@ impl RectShape {
         unsafe {
             gl::UniformMatrix3fv(renderer.uniforms.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
 
-            gl::Uniform4f(renderer.uniforms.default_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
+            gl::Uniform4f(renderer.uniforms.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
 
             gl::DrawArrays(gl::TRIANGLES, 0, 6);
         }
