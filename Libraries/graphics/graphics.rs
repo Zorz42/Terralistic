@@ -1,6 +1,9 @@
 mod color;
 pub use color::Color;
 
+mod timer;
+pub use timer::Timer;
+
 mod transformation;
 
 mod vertex_buffer_impl;
@@ -9,7 +12,6 @@ mod blend_mode;
 pub use blend_mode::{BlendMode, set_blend_mode};
 
 mod shaders;
-pub use shaders::compile_shader;
 
 mod surface;
 pub use surface::Surface;

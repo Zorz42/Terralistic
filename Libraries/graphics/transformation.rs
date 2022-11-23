@@ -2,7 +2,7 @@
 Transformation is a 3x3 matrix used to move and scale drawn objects.
 */
 #[derive(Clone)]
-pub struct Transformation {
+pub(crate) struct Transformation {
     pub matrix: [f32; 9],
 }
 
@@ -23,7 +23,7 @@ impl Transformation {
     /*
     Moves the object around.
     */
-    pub fn translate(&mut self, x: f32, y: f32) {
+    pub(crate) fn translate(&mut self, x: f32, y: f32) {
         let mut transformation = Self::new();
         transformation.matrix = [
             1.0, 0.0, 0.0,
@@ -36,7 +36,7 @@ impl Transformation {
     /*
     Scales the object.
     */
-    pub fn stretch(&mut self, x: f32, y: f32) {
+    pub(crate) fn stretch(&mut self, x: f32, y: f32) {
         let mut transformation = Self::new();
         transformation.matrix = [
             x,   0.0, 0.0,
