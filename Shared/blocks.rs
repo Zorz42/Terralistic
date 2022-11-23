@@ -58,7 +58,7 @@ impl Tool {
     pub fn new(name: String) -> Self { Tool{name} }
 }
 
-mod DefaultData {
+mod default_data {
     //idk what tf this is, will leave for now
     //also this is now a mod, not a struct because it doesn't need variables i think
 }
