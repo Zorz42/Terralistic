@@ -5,6 +5,7 @@ use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::ops::Deref;
 use std::rc::Rc;
+use shared_mut::SharedMut;
 
 pub trait Event {}
 
@@ -19,7 +20,7 @@ pub trait Listener<Type> {
 This struct is an event sender.
 */
 pub struct Sender<Type> {
-    listeners: Vec<Rc<RefCell<dyn Listener<Type>>>>,
+    listeners: Vec<SharedMut<dyn Listener<Type>>>,
 }
 
 impl<Type> Sender<Type> {
@@ -35,18 +36,16 @@ impl<Type> Sender<Type> {
     /*
     Adds a listener to the event sender.
     */
-    pub fn add_listener(&mut self, listener: &Rc<RefCell<dyn Listener<Type>>>) {
-        self.listeners.push(Rc::clone(listener));
+    pub fn add_listener<ListenerType: Listener<Type> + 'static>(&mut self, listener: &SharedMut<ListenerType>) {
+        self.listeners.push(SharedMut{value: listener.value.clone()});
     }
 
     /*
     Sends an event to all listeners.
     */
     pub fn send(&mut self, event: &Type) {
-        for i in (0..self.listeners.len()).rev() {
-            //self.listeners[i].get_mut().on_event(event);
-            //self.listeners[i].borrow_mut().on_event(event);
-            self.listeners[i].deref().borrow_mut().on_event(event);
+        for listener in self.listeners.iter_mut() {
+            listener.get_mut().on_event(event);
         }
     }
 }
