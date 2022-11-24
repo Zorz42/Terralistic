@@ -1,16 +1,12 @@
 [package]
-name = "graphics"
+name = "events"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bytemuck = "1"
-gl = "0.14.0"
-glfw = "0.46.0"
-snap = "1.0.5"
 
 [lib]
-name = "graphics"
-path = "graphics.rs"
+name = "events"
+path = "events.rs"

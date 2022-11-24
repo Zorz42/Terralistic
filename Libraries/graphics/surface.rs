@@ -12,7 +12,7 @@ pub struct Surface {
 
 impl Surface {
     /*
-    Creates a new surface with all trasparent pixels.
+    Creates a new surface with all transparent pixels.
     */
     pub fn new(width: i32, height: i32) -> Self {
         if width < 0 || height < 0 {

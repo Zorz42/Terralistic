@@ -6,6 +6,7 @@ version = 3
 name = "Terralistic"
 version = "0.1.0"
 dependencies = [
+ "events",
  "graphics",
  "shared",
 ]
@@ -50,6 +51,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
 
 [[package]]
+name = "events"
+version = "0.1.0"
+
+[[package]]
 name = "gl"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -71,9 +76,9 @@ dependencies = [
 
 [[package]]
 name = "glfw"
-version = "0.47.0"
+version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2c532509718cb34e0c449ec5ef74529c1af3a33b664e6b8ddfe29252f86f936"
+checksum = "263dbd2e869389735d8628a9e6c8d728513c635ddc28b9809a64ff202c507390"
 dependencies = [
  "bitflags",
  "glfw-sys",
