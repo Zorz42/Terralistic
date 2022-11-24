@@ -15,6 +15,7 @@ path = "Server/main.rs"
 [dependencies]
 graphics = {"path" = "Libraries/graphics/"}
 events = {"path" = "Libraries/events/"}
+shared_mut = {"path" = "Libraries/shared_mut/"}
 shared = {"path" = "Shared/"}
 
 [package.metadata.bundle.bin.Terralistic]

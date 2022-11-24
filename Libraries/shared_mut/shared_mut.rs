@@ -1,0 +1,3 @@
+/*
+This struct packs a mutable object which can be shared.
+*/

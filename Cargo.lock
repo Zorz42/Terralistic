@@ -9,6 +9,7 @@ dependencies = [
  "events",
  "graphics",
  "shared",
+ "shared_mut",
 ]
 
 [[package]]
@@ -53,6 +54,9 @@ checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
 [[package]]
 name = "events"
 version = "0.1.0"
+dependencies = [
+ "shared_mut",
+]
 
 [[package]]
 name = "gl"
@@ -156,6 +160,10 @@ dependencies = [
 
 [[package]]
 name = "shared"
+version = "0.1.0"
+
+[[package]]
+name = "shared_mut"
 version = "0.1.0"
 
 [[package]]

@@ -1,13 +1,12 @@
 [package]
-name = "events"
+name = "shared_mut"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-shared_mut = {"path" = "../shared_mut"}
 
 [lib]
-name = "events"
-path = "events.rs"
+name = "shared_mut"
+path = "shared_mut.rs"

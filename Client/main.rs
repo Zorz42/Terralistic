@@ -1,11 +1,87 @@
 #![allow(non_snake_case)]
 
+use std::borrow::BorrowMut;
+use std::cell::{Ref, RefCell};
+use std::ops::Deref;
+use std::rc::Rc;
 use graphics as gfx;
 use shared; //not needed, leave it in to get autocomplete in shared
+use shared_mut;
+use events;
+
+/*
+This struct is an event.
+*/
+pub struct CustomEvent {
+    pub value: i32,
+}
+
+impl events::Event for CustomEvent {}
+
+/*
+This struct is an event sender.
+ */
+pub struct CustomEventSender {
+    pub event_sender: events::Sender<CustomEvent>,
+}
+
+impl CustomEventSender {
+    /*
+    Creates a new event sender.
+    */
+    pub fn new() -> Self {
+        CustomEventSender {
+            event_sender: events::Sender::new(),
+        }
+    }
+}
+
+/*
+This is another custom event sender.
+*/
+pub struct CustomEventSender2 {
+    pub event_sender: events::Sender<CustomEvent>,
+}
+
+impl CustomEventSender2 {
+    /*
+    Creates a new event sender.
+    */
+    pub fn new() -> Self {
+        CustomEventSender2 {
+            event_sender: events::Sender::new(),
+        }
+    }
+}
+
+/*
+This struct is an event listener.
+*/
+
+pub struct CustomEventListener {
+    pub value: i32,
+}
+
+impl events::Listener<CustomEvent> for CustomEventListener {
+    fn on_event(&mut self, event: &CustomEvent) {
+        println!("Custom event received: {}", event.value);
+        self.value = event.value;
+    }
+}
 
 
 fn main() {
     println!("Hello, this is client!");
+
+    let mut event_sender = CustomEventSender::new();
+    let mut event_sender2 = CustomEventSender2::new();
+    let mut event_listener = Rc::new(RefCell::new(CustomEventListener {value: 10}));
+    let mut event_listener2: Rc<RefCell<(dyn events::Listener<CustomEvent> + 'static)>> = event_listener.clone();
+    event_sender.event_sender.add_listener(&event_listener2);
+    let event = CustomEvent { value: 42 };
+    //event_sender.event_sender.send(&event);
+    println!("event_listener.value = {}", event_listener.borrow().value);
+    event_sender2.event_sender.send(&event);
 
     let mut graphics = gfx::init(1130, 700, String::from("Terralistic"));
 
