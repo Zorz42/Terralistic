@@ -20,9 +20,9 @@ fn main() {
 
 
     while graphics.renderer.is_window_open() {
-        for event in graphics.events.get_events() {
+        /*for event in graphics.events.get_events() {
 
-        }
+        }*///comment when it's not implemented, don't push uncompilable code
 
         graphics.renderer.pre_render();
 

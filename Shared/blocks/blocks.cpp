@@ -140,7 +140,7 @@ void Blocks::startBreakingBlock(int x, int y) {
 
 Blocks::BlockChunk* Blocks::getChunk(int x, int y) {
     if(x < 0 || x >= width / CHUNK_SIZE || y < 0 || y >= height / CHUNK_SIZE || chunks.empty())
-        throw Exception("Block chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+        throw Exception("Chunk chunk is accessed out of the bounds! (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     return &chunks[y * width / CHUNK_SIZE + x];
 }
 
