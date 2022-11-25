@@ -58,7 +58,6 @@ impl CustomEventSender2 {
 /*
 This struct is an event listener.
 */
-
 pub struct CustomEventListener {
     pub value: i32,
 }

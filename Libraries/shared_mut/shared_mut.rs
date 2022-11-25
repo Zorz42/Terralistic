@@ -7,7 +7,7 @@ This struct packs a mutable object which can be shared.
 It doesn't require compile time knowledge of the size of the object.
 */
 pub struct SharedMut<Type: ?Sized> {
-    pub value: Rc<RefCell<Type>>,
+    value: Rc<RefCell<Type>>,
 }
 
 impl<Type> SharedMut<Type> {
@@ -22,6 +22,15 @@ impl<Type> SharedMut<Type> {
 }
 
 impl<Type: ?Sized> SharedMut<Type> {
+    /*
+    Creates a new shared mutable object from a Rc<RefCell<Type>>.
+    */
+    pub fn from_rc(value: Rc<RefCell<Type>>) -> Self {
+        SharedMut {
+            value,
+        }
+    }
+
     /*
     Creates a duplicate of the shared mutable object.
     */
@@ -43,5 +52,12 @@ impl<Type: ?Sized> SharedMut<Type> {
     */
     pub fn get_mut(&self) -> RefMut<Type> {
         self.value.borrow_mut()
+    }
+
+    /*
+    Returns cloned value.
+    */
+    pub fn get_cloned(&self) -> Rc<RefCell<Type>> {
+        self.value.clone()
     }
 }

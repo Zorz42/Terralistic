@@ -37,7 +37,7 @@ impl<Type> Sender<Type> {
     Adds a listener to the event sender.
     */
     pub fn add_listener<ListenerType: Listener<Type> + 'static>(&mut self, listener: &SharedMut<ListenerType>) {
-        self.listeners.push(SharedMut{value: listener.value.clone()});
+        self.listeners.push(SharedMut::from_rc(listener.get_cloned()));
     }
 
     /*
