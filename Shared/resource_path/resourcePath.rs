@@ -55,7 +55,7 @@ fn return_end_until_chars(string: String, chars: HashSet<char>) -> String {
 /*
 generates path to resources from executable path end returns it
  */
-fn get_resource_path(executable_path: String) -> String {
+pub fn get_resource_path(executable_path: String) -> String {
     let mut parent_directory = remove_end_until_chars(executable_path, HashSet::from(['/', '\\']));
 
     if parent_directory.is_empty() {

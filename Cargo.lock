@@ -6,9 +6,10 @@ version = 3
 name = "Terralistic"
 version = "0.1.0"
 dependencies = [
+ "blocks",
  "events",
  "graphics",
- "shared",
+ "resource_path",
  "shared_mut",
 ]
 
@@ -17,6 +18,10 @@ name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
+
+[[package]]
+name = "blocks"
+version = "0.1.0"
 
 [[package]]
 name = "bytemuck"
@@ -159,7 +164,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "shared"
+name = "resource_path"
 version = "0.1.0"
 
 [[package]]

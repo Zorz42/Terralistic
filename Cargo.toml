@@ -16,7 +16,8 @@ path = "Server/main.rs"
 graphics = {"path" = "Libraries/graphics/"}
 events = {"path" = "Libraries/events/"}
 shared_mut = {"path" = "Libraries/shared_mut/"}
-shared = {"path" = "Shared/"}
+resource_path = {"path" = "Shared/resource_path/"}
+blocks = {"path" = "Shared/blocks/"}
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"
