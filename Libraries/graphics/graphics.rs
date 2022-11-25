@@ -17,6 +17,7 @@ mod surface;
 pub use surface::Surface;
 
 mod renderer;
+use crate::renderer::Renderer;
 
 mod events;
 pub use events::Event;
@@ -38,12 +39,12 @@ A struct that will be passed all
 around the functions that need drawing
 */
 pub struct GraphicsContext {
-    pub renderer: renderer::Renderer,
+    pub renderer: Renderer,
 }
 
 pub fn init(window_width: i32, window_height: i32, window_title: String) -> GraphicsContext {
     GraphicsContext{
-        renderer: renderer::Renderer::new(window_width, window_height, window_title),
+        renderer: Renderer::new(window_width, window_height, window_title),
     }
 
 }

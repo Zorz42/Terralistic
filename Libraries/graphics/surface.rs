@@ -1,4 +1,4 @@
-use crate::color;
+use crate::{Color};
 
 /*
 Surface is an image stored in ram.
@@ -61,9 +61,9 @@ impl Surface {
     /*
     Retrieves the pixel color on a specified location.
     */
-    pub fn get_pixel(&self, x: i32, y: i32) -> color::Color {
+    pub fn get_pixel(&self, x: i32, y: i32) -> Color {
         let index = self.get_index(x, y);
-        color::Color{
+        Color{
             r: self.pixels[index],
             g: self.pixels[index + 1],
             b: self.pixels[index + 2],
@@ -74,7 +74,7 @@ impl Surface {
     /*
     Sets the pixel color on a specified location.
     */
-    pub fn set_pixel(&mut self, x: i32, y: i32, color: color::Color) {
+    pub fn set_pixel(&mut self, x: i32, y: i32, color: Color) {
         let index = self.get_index(x, y);
         self.pixels[index] = color.r;
         self.pixels[index + 1] = color.g;
@@ -93,11 +93,11 @@ impl Surface {
     /*
         Copies another surface to the specified location.
     */
-    pub fn draw(&mut self, x: i32, y: i32, surface: &Self, color: color::Color) {
+    pub fn draw(&mut self, x: i32, y: i32, surface: &Self, color: Color) {
         for xpos in 0..surface.get_width() {
             for ypos in 0..surface.get_height() {
                 let surface_color = surface.get_pixel(xpos, ypos);
-                self.set_pixel(xpos + x, ypos + y, color::Color {
+                self.set_pixel(xpos + x, ypos + y, Color {
                     r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
                     g: (surface_color.g as f32 * (color.g as f32 / 255.0)) as u8,
                     b: (surface_color.b as f32 * (color.b as f32 / 255.0)) as u8,

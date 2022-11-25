@@ -1,9 +1,10 @@
-use crate::surface;
-use crate::read_opa;
-use crate::color;
+use crate::surface::Surface;
+use crate::read_opa::read_opa;
+use crate::color::Color;
+use std::cmp::max;
 
 pub struct Font {
-    font_surfaces: Vec<surface::Surface>,
+    font_surfaces: Vec<Surface>,
 }
 
 const CHAR_SPACING: i32 = 1;
@@ -12,9 +13,9 @@ const SPACE_WIDTH: i32 = 2;
 /*
 Check if the column of a surface is empty.
 */
-fn is_column_empty(surface: &surface::Surface, column: i32) -> bool {
+fn is_column_empty(surface: &Surface, column: i32) -> bool {
     for y in 0..surface.get_height() {
-        if surface.get_pixel(column, y) != (color::Color{r: 0, g: 0, b: 0, a: 0}) {
+        if surface.get_pixel(column, y) != (Color{r: 0, g: 0, b: 0, a: 0}) {
             return false;
         }
     }
@@ -29,11 +30,11 @@ impl Font {
     */
     pub fn new(file_path: String) -> Self {
         let mut font_surfaces = vec![];
-        let font_surface = read_opa::read_opa(file_path);
+        let font_surface = read_opa(file_path);
 
         for y in 0..16 {
             for x in 0..16 {
-                let mut surface = surface::Surface::new(16, 16);
+                let mut surface = Surface::new(16, 16);
                 for x2 in 0..16 {
                     for y2 in 0..16 {
                         surface.set_pixel(x2, y2, font_surface.get_pixel(x * 16 + x2, y * 16 + y2));
@@ -53,7 +54,7 @@ impl Font {
                 }
 
                 // create new surface with the correct width
-                let mut new_surface = surface::Surface::new(16 - left - right, 16);
+                let mut new_surface = Surface::new(16 - left - right, 16);
                 for x2 in 0..16 - left - right {
                     for y2 in 0..16 {
                         new_surface.set_pixel(x2, y2, surface.get_pixel(x2 + left, y2));
@@ -72,7 +73,7 @@ impl Font {
     /*
     This function creates a surface with the text on it.
     */
-    pub fn create_text_surface(&self, text: String) -> surface::Surface {
+    pub fn create_text_surface(&self, text: String) -> Surface {
         let mut width = 0;
         let mut height = 0;
         for c in text.chars() {
@@ -81,10 +82,10 @@ impl Font {
             if c == ' ' {
                 width += SPACE_WIDTH;
             }
-            height = std::cmp::max(height, self.font_surfaces[c as usize].get_height());
+            height = max(height, self.font_surfaces[c as usize].get_height());
         }
 
-        let mut surface = surface::Surface::new(width, height);
+        let mut surface = Surface::new(width, height);
         let mut x = 0;
         for c in text.chars() {
             for x2 in 0..self.font_surfaces[c as usize].get_width() {

@@ -1,10 +1,6 @@
 /*
 This trait is used to define an event.
 */
-use std::borrow::BorrowMut;
-use std::cell::RefCell;
-use std::ops::Deref;
-use std::rc::Rc;
 use shared_mut::SharedMut;
 
 pub trait Event {}

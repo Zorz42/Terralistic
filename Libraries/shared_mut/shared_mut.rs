@@ -1,6 +1,5 @@
 use std::rc::Rc;
 use std::cell::{RefCell, Ref, RefMut};
-use std::ops::Deref;
 
 /*
 This struct packs a mutable object which can be shared.

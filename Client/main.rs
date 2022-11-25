@@ -1,9 +1,5 @@
 #![allow(non_snake_case)]
 
-use std::borrow::BorrowMut;
-use std::cell::{Ref, RefCell};
-use std::ops::Deref;
-use std::rc::Rc;
 use graphics as gfx;
 use shared; //not needed, leave it in to get autocomplete in shared
 use shared_mut;
@@ -76,7 +72,7 @@ fn main() {
     let mut event_sender = CustomEventSender::new();
     let mut event_sender2 = CustomEventSender2::new();
 
-    let mut event_listener = SharedMut::new(CustomEventListener { value: 10 });
+    let event_listener = SharedMut::new(CustomEventListener { value: 10 });
 
     event_sender.event_sender.add_listener(&event_listener);
     let event = CustomEvent { value: 42 };

@@ -1,18 +1,21 @@
+use std::fs::File;
 use std::io::Read;
 use crate::surface;
 use crate::color;
+use snap::raw::decompress_len;
+use snap::raw::Decoder;
 use snap;
 
 pub fn read_opa(path: String) -> surface::Surface {
-    let mut file = std::fs::File::open(path).unwrap();
+    let mut file = File::open(path).unwrap();
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer).unwrap();
 
     // decompress buffer into decompressed with snap
-    let decompressed_size = snap::raw::decompress_len(&buffer).unwrap();
+    let decompressed_size = decompress_len(&buffer).unwrap();
     let mut decompressed = vec![0; decompressed_size];
     // create new snap decoder
-    let mut decoder = snap::raw::Decoder::new();
+    let mut decoder = Decoder::new();
     decoder.decompress(&buffer, &mut decompressed).unwrap();
 
     // read with and height from first 8 bytes and then the rest is the data
