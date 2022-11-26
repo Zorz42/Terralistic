@@ -99,7 +99,7 @@ fn main() {
 
         graphics.renderer.pre_render();
 
-        let rect = gfx::RectShape{x: 10, y: 10, w: 100, h: 100};
+        let rect = gfx::Rect{x: 10, y: 10, w: 100, h: 100};
         rect.render(&graphics.renderer, gfx::Color { r: 255, g: 255, b: 0, a: 255 });
 
         // draw background

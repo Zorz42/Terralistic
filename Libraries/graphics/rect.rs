@@ -5,14 +5,21 @@ use crate::renderer;
 This is a rectangle shape not really
 meant to be rendered.
 */
-pub struct RectShape {
+pub struct Rect {
     pub x: i32,
     pub y: i32,
     pub w: i32,
     pub h: i32,
 }
 
-impl RectShape {
+impl Rect {
+    /*
+    Creates a new rectangle.
+     */
+    pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
+        Rect{x, y, w, h}
+    }
+
     /*
     Renders the rectangle on the screen.
     */

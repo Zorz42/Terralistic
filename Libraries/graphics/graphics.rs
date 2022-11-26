@@ -22,8 +22,8 @@ use crate::renderer::Renderer;
 mod events;
 pub use events::Event;
 
-mod rect_shape;
-pub use rect_shape::RectShape;
+mod rect;
+pub use rect::Rect;
 
 mod texture;
 pub use texture::Texture;
@@ -33,6 +33,9 @@ pub use read_opa::read_opa;
 
 mod text;
 pub use text::Font;
+
+mod container;
+pub use container::Container;
 
 /*
 A struct that will be passed all

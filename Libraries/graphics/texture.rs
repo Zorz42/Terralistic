@@ -1,8 +1,11 @@
-use crate::surface;
+use std::ffi::c_void;
+use crate::{Color, Rect, surface, Surface};
 use crate::transformation;
-use crate::rect_shape;
+use crate::rect;
 use crate::color;
 use crate::renderer;
+use crate::renderer::Renderer;
+use crate::transformation::Transformation;
 
 /*
 Texture is an image stored in gpu
@@ -46,7 +49,7 @@ impl Texture {
     /*
     Loads a Surface into gpu memory.
     */
-    pub fn load_from_surface(&mut self, surface: &surface::Surface) {
+    pub fn load_from_surface(&mut self, surface: &Surface) {
         self.free_texture();
 
         self.width = surface.get_width();
@@ -60,12 +63,12 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
 
             let data = surface.pixels.clone();
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGB as i32, self.width as i32, self.height as i32, 0, gl::RGBA, gl::UNSIGNED_BYTE, &data[0] as *const u8 as *const std::ffi::c_void);
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGB as i32, self.width as i32, self.height as i32, 0, gl::RGBA, gl::UNSIGNED_BYTE, &data[0] as *const u8 as *const c_void);
             gl::GenerateMipmap(gl::TEXTURE_2D);
         }
     }
 
-    pub fn render(&self, renderer: &renderer::Renderer, scale: f32, x: i32, y: i32, src_rect: rect_shape::RectShape, flipped: bool, color: color::Color) {
+    pub fn render(&self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Rect, flipped: bool, color: Color) {
         unsafe {
             let mut transform = renderer.normalization_transform.clone();
 
@@ -79,7 +82,7 @@ impl Texture {
 
             gl::UniformMatrix3fv(renderer.uniforms.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
-            let mut transform = transformation::Transformation::new();
+            let mut transform = Transformation::new();
             transform.translate(-1.0, 0.0);
             transform.stretch(1.0 / self.get_texture_width() as f32, 1.0 / self.get_texture_height() as f32);
             transform.translate(src_rect.x as f32, src_rect.y as f32);
