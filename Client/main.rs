@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use graphics as gfx;
-use {resource_path, blocks};
+use shared::{blocks, resource_path};
 use shared_mut;
 use events;
 use shared_mut::SharedMut;
