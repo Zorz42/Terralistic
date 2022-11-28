@@ -1,9 +1,9 @@
 use std::borrow::BorrowMut;
 
-const BLOCK_WIDTH: i32 = 8;
-const UNBREAKABLE: i32 = -1;
-const CHUNK_SIZE: i32 = 16;
-const RANDOM_TICK_SPEED: i32 = 10;
+pub const BLOCK_WIDTH: i32 = 8;
+pub const UNBREAKABLE: i32 = -1;
+pub const CHUNK_SIZE: i32 = 16;
+pub const RANDOM_TICK_SPEED: i32 = 10;
 
 /*
 structs for events that modify blocks
@@ -71,18 +71,18 @@ this is how it's supposed to work^^
 */
 #[derive(PartialEq)]
 pub struct BlockType{
-    effective_tool: Option<*const Tool>,
-    required_tool_power: i32,
-    ghost: bool, transparent: bool,
-    name: String,
-    connects_to: Vec<i32>,
-    break_time: i32,
-    light_emission_r: i32, light_emission_g: i32, light_emission_b: i32,
-    id: i32,
-    width: i32, height: i32,
-    block_data_index: i32,//future me change this to a reference if possible
-    can_update_states: bool,
-    feet_collidable: bool
+    pub effective_tool: Option<*const Tool>,
+    pub required_tool_power: i32,
+    pub ghost: bool, transparent: bool,
+    pub name: String,
+    pub connects_to: Vec<i32>,
+    pub break_time: i32,
+    pub light_emission_r: i32, light_emission_g: i32, light_emission_b: i32,
+    pub id: i32,
+    pub width: i32, height: i32,
+    pub block_data_index: i32,//future me change this to a reference if possible
+    pub can_update_states: bool,
+    pub feet_collidable: bool
 }
 
 impl BlockType {
