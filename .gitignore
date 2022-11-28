@@ -12,7 +12,7 @@ venv/
 .idea/
 Terralistic.xcarchive/
 copy_files.py
-
+**/Cargo.lock
 
 # Added by cargo
 
