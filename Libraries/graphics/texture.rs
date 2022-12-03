@@ -20,6 +20,30 @@ impl Texture {
             height: 0,
         }
     }
+
+    /*
+    Loads a Surface into gpu memory.
+    */
+    pub fn load_from_surface(surface: &Surface) -> Self {
+        let mut result = Texture::new();
+        result.width = surface.get_width();
+        result.height = surface.get_height();
+
+        unsafe {
+            gl::GenTextures(1, &mut result.texture_handle);
+            gl::BindTexture(gl::TEXTURE_2D, result.texture_handle);
+
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
+
+            let data = surface.pixels.clone();
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGB as i32, result.width as i32, result.height as i32, 0, gl::RGBA, gl::UNSIGNED_BYTE, &data[0] as *const u8 as *const c_void);
+            gl::GenerateMipmap(gl::TEXTURE_2D);
+        }
+
+        result
+    }
+
     /*
     Deletes the current texture if it exists.
     */
@@ -40,28 +64,6 @@ impl Texture {
 
     pub fn get_texture_height(&self) -> i32 {
         self.height
-    }
-
-    /*
-    Loads a Surface into gpu memory.
-    */
-    pub fn load_from_surface(&mut self, surface: &Surface) {
-        self.free_texture();
-
-        self.width = surface.get_width();
-        self.height = surface.get_height();
-
-        unsafe {
-            gl::GenTextures(1, &mut self.texture_handle);
-            gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
-
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
-
-            let data = surface.pixels.clone();
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGB as i32, self.width as i32, self.height as i32, 0, gl::RGBA, gl::UNSIGNED_BYTE, &data[0] as *const u8 as *const c_void);
-            gl::GenerateMipmap(gl::TEXTURE_2D);
-        }
     }
 
     pub fn render(&self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Rect, flipped: bool, color: Color) {
@@ -92,5 +94,14 @@ impl Texture {
 
             renderer.rect_vertex_buffer.draw(true);
         }
+    }
+}
+
+/*
+Free the surface when it goes out of scope.
+*/
+impl Drop for Texture {
+    fn drop(&mut self) {
+        self.free_texture();
     }
 }

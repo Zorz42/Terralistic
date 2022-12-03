@@ -32,7 +32,7 @@ mod text;
 pub use text::Font;
 
 mod container;
-pub use container::Container;
+pub use container::{Container, Orientation, TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
 
 /*
 A struct that will be passed all

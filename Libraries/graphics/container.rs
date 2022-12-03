@@ -5,15 +5,15 @@ pub struct Orientation {
     pub y: f32,
 }
 
-const TOP_LEFT: Orientation =     Orientation{x: 0.0 , y: 0.0};
-const TOP: Orientation =          Orientation{x: 0.5 , y: 0.0};
-const TOP_RIGHT: Orientation =    Orientation{x: 1.0 , y: 0.0};
-const LEFT: Orientation =         Orientation{x: 0.0 , y: 0.5};
-const CENTER: Orientation =       Orientation{x: 0.5 , y: 0.5};
-const RIGHT: Orientation =        Orientation{x: 1.0 , y: 0.5};
-const BOTTOM_LEFT: Orientation =  Orientation{x: 0.0 , y: 1.0};
-const BOTTOM: Orientation =       Orientation{x: 0.5 , y: 1.0};
-const BOTTOM_RIGHT: Orientation = Orientation{x: 1.0 , y: 1.0};
+pub const TOP_LEFT: Orientation =     Orientation{x: 0.0 , y: 0.0};
+pub const TOP: Orientation =          Orientation{x: 0.5 , y: 0.0};
+pub const TOP_RIGHT: Orientation =    Orientation{x: 1.0 , y: 0.0};
+pub const LEFT: Orientation =         Orientation{x: 0.0 , y: 0.5};
+pub const CENTER: Orientation =       Orientation{x: 0.5 , y: 0.5};
+pub const RIGHT: Orientation =        Orientation{x: 1.0 , y: 0.5};
+pub const BOTTOM_LEFT: Orientation =  Orientation{x: 0.0 , y: 1.0};
+pub const BOTTOM: Orientation =       Orientation{x: 0.5 , y: 1.0};
+pub const BOTTOM_RIGHT: Orientation = Orientation{x: 1.0 , y: 1.0};
 
 /*
 This struct has coodinates and size of a rectangle.

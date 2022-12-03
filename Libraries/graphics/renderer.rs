@@ -256,4 +256,18 @@ impl Renderer {
     pub fn set_min_window_size(&mut self, width: u32, height: u32) {
         self.glfw_window.set_size_limits( Some(width), Some(height), None, None);
     }
+
+    /*
+    Get the current window width
+     */
+    pub fn get_window_width(&self) -> u32 {
+        self.glfw_window.get_size().0.try_into().unwrap()
+    }
+
+    /*
+    Get the current window height
+     */
+    pub fn get_window_height(&self) -> u32 {
+        self.glfw_window.get_size().1.try_into().unwrap()
+    }
 }
