@@ -1,5 +1,4 @@
 use crate::surface::Surface;
-use crate::read_opa::read_opa;
 use crate::color::Color;
 use std::cmp::max;
 
@@ -24,13 +23,13 @@ fn is_column_empty(surface: &Surface, column: i32) -> bool {
 
 impl Font {
     /*
-    Loads a font from a file. The file must be a .opa file.
+    Loads a font from a data vector, which is deserialized into a surface.
     Loads all the characters in the file and stores them in a
     surface array. The index of the array is the ascii value.
     */
-    pub fn new(file_path: String) -> Self {
+    pub fn new(font_data: Vec<u8>) -> Self {
         let mut font_surfaces = vec![];
-        let font_surface = read_opa(file_path);
+        let font_surface = Surface::deserialize(font_data);
 
         for y in 0..16 {
             for x in 0..16 {

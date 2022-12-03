@@ -28,9 +28,6 @@ pub use rect::Rect;
 mod texture;
 pub use texture::Texture;
 
-mod read_opa;
-pub use read_opa::read_opa;
-
 mod text;
 pub use text::Font;
 

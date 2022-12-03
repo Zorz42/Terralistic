@@ -5,7 +5,7 @@ Discord server: https://discord.gg/dSStXTucCc
 To build, just run:
 
 ```bash
-python3 -m build_project
+cargo run
 ```
 
 You will need to have installed to build:
