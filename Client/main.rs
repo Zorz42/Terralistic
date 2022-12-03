@@ -1,5 +1,8 @@
 #![allow(non_snake_case)]
 
+mod menus;
+mod game;
+
 use graphics as gfx;
 use shared::{blocks, resource_path};
 use shared_mut;

@@ -1,9 +1,5 @@
 use std::ffi::c_void;
-use crate::{Color, Rect, surface, Surface};
-use crate::transformation;
-use crate::rect;
-use crate::color;
-use crate::renderer;
+use crate::{Color, Rect, Surface};
 use crate::renderer::Renderer;
 use crate::transformation::Transformation;
 
