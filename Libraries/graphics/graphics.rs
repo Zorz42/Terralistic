@@ -1,6 +1,23 @@
 mod color;
 pub use color::Color;
 
+mod theme;
+pub use theme::{
+    WHITE,
+    LIGHT_GREY,
+    GREY,
+    DARK_GREY,
+    BORDER_COLOR,
+    BLACK,
+    TRANSPARENT,
+    SPACING,
+    BUTTON_MARGIN,
+    TRANSPARENCY,
+    BLUR,
+    SHADOW_INTENSITY,
+    TEXT_INPUT_WIDTH,
+};
+
 mod timer;
 pub use timer::Timer;
 
@@ -20,7 +37,7 @@ mod renderer;
 use crate::renderer::Renderer;
 
 mod events;
-pub use events::Event;
+pub use events::{Event, Key};
 
 mod rect;
 pub use rect::Rect;
@@ -33,6 +50,9 @@ pub use text::Font;
 
 mod container;
 pub use container::{Container, Orientation, TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
+
+mod render_rect;
+pub use render_rect::RenderRect;
 
 /*
 A struct that will be passed all

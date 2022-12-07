@@ -1,5 +1,6 @@
 use crate::{GraphicsContext, Rect};
 
+#[derive(Clone, Copy)]
 pub struct Orientation {
     pub x: f32,
     pub y: f32,
@@ -21,26 +22,20 @@ Is has orientation and parent container. It also has
 a function to get absolute value of the rectangle.
 */
 pub struct Container {
-    pub x: i32,
-    pub y: i32,
-    pub w: i32,
-    pub h: i32,
+    pub rect: Rect,
+    abs_rect: Rect,
     pub orientation: Orientation,
-    pub parent: Option<Box<Container>>,
 }
 
 impl Container {
     /*
     Creates a new container.
     */
-    pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation, parent: Option<Box<Container>>) -> Self {
+    pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
         Container{
-            x,
-            y,
-            w,
-            h,
+            rect: Rect::new(x, y, w, h),
+            abs_rect: Rect::new(x, y, w, h),
             orientation,
-            parent,
         }
     }
 
@@ -50,25 +45,22 @@ impl Container {
     of the parent container. If parent is None, the parent is the
     window. This function needs graphics_context to get the window size.
     */
-    pub fn get_absolute_rect(&self, graphics_context: &mut GraphicsContext) -> Rect {
-        let mut x = self.x;
-        let mut y = self.y;
-        let mut w = self.w;
-        let mut h = self.h;
+    pub fn get_absolute_rect(&self) -> &Rect {
+        &self.abs_rect
+    }
 
-        if let Some(parent) = &self.parent {
-            let parent_rect = parent.get_absolute_rect(graphics_context);
-            x += (parent_rect.w as f32 * self.orientation.x) as i32;
-            y += (parent_rect.h as f32 * self.orientation.y) as i32;
-            w += (parent_rect.w as f32 * self.orientation.x) as i32;
-            h += (parent_rect.h as f32 * self.orientation.y) as i32;
+    /*
+    This function gets parent container and updates the absolute values
+    */
+    pub fn update(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
+        let parent_rect = if let Some(parent) = parent_container {
+            parent.get_absolute_rect().clone()
         } else {
-            x += (graphics_context.renderer.glfw_window.get_size().0 as f32 * self.orientation.x) as i32;
-            y += (graphics_context.renderer.glfw_window.get_size().1 as f32 * self.orientation.y) as i32;
-            w += (graphics_context.renderer.glfw_window.get_size().0 as f32 * self.orientation.x) as i32;
-            h += (graphics_context.renderer.glfw_window.get_size().1 as f32 * self.orientation.y) as i32;
-        }
+            Rect::new(0, 0, graphics.renderer.get_window_width() as i32, graphics.renderer.get_window_height() as i32)
+        };
 
-        Rect::new(x, y, w, h)
+        self.abs_rect = self.rect.clone();
+        self.abs_rect.x = parent_rect.x + self.rect.x + (parent_rect.w as f32 * self.orientation.x) as i32 - (self.rect.w as f32 * self.orientation.x) as i32;
+        self.abs_rect.y = parent_rect.y + self.rect.y + (parent_rect.h as f32 * self.orientation.y) as i32 - (self.rect.h as f32 * self.orientation.y) as i32;
     }
 }

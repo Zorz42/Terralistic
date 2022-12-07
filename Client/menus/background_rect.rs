@@ -6,7 +6,7 @@ rendered scene for a menu. It implements the
 render_back function.
 */
 pub trait Background {
-    fn render_back(&self, graphics: &mut gfx::GraphicsContext);
+    fn render_back(&mut self, graphics: &mut gfx::GraphicsContext);
 }
 
 /*
