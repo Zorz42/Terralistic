@@ -11,7 +11,6 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                 gfx::Event::KeyPress(key) => {
                     if key == gfx::Key::M {
                         menu_back.set_back_rect_width(rand::thread_rng().gen_range(100..500));
-                        println!("Back width: {}", menu_back.get_back_rect_width());
                     }
                 }
                 _ => {}
