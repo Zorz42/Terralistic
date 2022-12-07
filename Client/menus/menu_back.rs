@@ -36,7 +36,7 @@ impl Background for MenuBack {
         let pos = ((self.background_timer.get_time() * scale as f64 / 150.0) as u64 % texture_width_scaled as u64) as i32;
 
         for i in -1..graphics.renderer.get_window_width() as i32 / (self.background.get_texture_width() as f32 * scale) as i32 + 2 {
-            self.background.render(&graphics.renderer, scale, pos + (i as f32 * texture_width_scaled) as i32, 0, gfx::Rect::new(0, 0, self.background.get_texture_width(), self.background.get_texture_height()), false, gfx::Color{r: 255, g: 255, b: 255, a: 255});
+            self.background.render(&graphics.renderer, scale, pos + (i as f32 * texture_width_scaled) as i32, 0, None, false, None);
         }
     }
 }

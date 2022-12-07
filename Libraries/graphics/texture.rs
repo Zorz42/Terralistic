@@ -66,7 +66,10 @@ impl Texture {
         self.height
     }
 
-    pub fn render(&self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Rect, flipped: bool, color: Color) {
+    pub fn render(&self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Option<Rect>, flipped: bool, color: Option<Color>) {
+        let src_rect = src_rect.unwrap_or(Rect::new(0, 0, self.get_texture_width(), self.get_texture_height()));
+        let color = color.unwrap_or(Color{r: 255, g: 255, b: 255, a: 255});
+
         unsafe {
             let mut transform = renderer.normalization_transform.clone();
 
