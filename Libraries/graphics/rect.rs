@@ -1,10 +1,10 @@
 use crate::color::Color;
 use crate::GraphicsContext;
 
-/*
+/**
 This is a rectangle shape not really
 meant to be rendered.
-*/
+ */
 #[derive(Clone, Copy)]
 pub struct Rect {
     pub x: i32,
@@ -14,16 +14,16 @@ pub struct Rect {
 }
 
 impl Rect {
-    /*
+    /**
     Creates a new rectangle.
      */
     pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
         Rect{x, y, w, h}
     }
 
-    /*
+    /**
     Renders the rectangle on the screen.
-    */
+     */
     pub fn render(&self, graphics: &GraphicsContext, color: Color) {
         if color.a == 0 {
             return;

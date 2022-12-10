@@ -16,11 +16,11 @@ pub const BOTTOM_LEFT: Orientation =  Orientation{x: 0.0 , y: 1.0};
 pub const BOTTOM: Orientation =       Orientation{x: 0.5 , y: 1.0};
 pub const BOTTOM_RIGHT: Orientation = Orientation{x: 1.0 , y: 1.0};
 
-/*
+/**
 This struct has coodinates and size of a rectangle.
 Is has orientation and parent container. It also has
 a function to get absolute value of the rectangle.
-*/
+ */
 pub struct Container {
     pub rect: Rect,
     abs_rect: Rect,
@@ -39,19 +39,19 @@ impl Container {
         }
     }
 
-    /*
+    /**
     Returns the absolute rectangle of the container. Orientation
     is a percentage the container is offset from the top left corner
     of the parent container. If parent is None, the parent is the
     window. This function needs graphics_context to get the window size.
-    */
+     */
     pub fn get_absolute_rect(&self) -> &Rect {
         &self.abs_rect
     }
 
-    /*
+    /**
     This function gets parent container and updates the absolute values
-    */
+     */
     pub fn update(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         let parent_rect = if let Some(parent) = parent_container {
             parent.get_absolute_rect().clone()

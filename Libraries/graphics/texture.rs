@@ -3,9 +3,9 @@ use crate::{Color, Rect, Surface};
 use crate::renderer::Renderer;
 use crate::transformation::Transformation;
 
-/*
+/**
 Texture is an image stored in gpu
-*/
+ */
 pub struct Texture {
     pub(crate) texture_handle: u32,
     width: i32,
@@ -21,9 +21,9 @@ impl Texture {
         }
     }
 
-    /*
+    /**
     Loads a Surface into gpu memory.
-    */
+     */
     pub fn load_from_surface(surface: &Surface) -> Self {
         let mut result = Texture::new();
         result.width = surface.get_width();
@@ -44,9 +44,9 @@ impl Texture {
         result
     }
 
-    /*
+    /**
     Deletes the current texture if it exists.
-    */
+     */
     fn free_texture(&mut self) {
         if self.texture_handle != u32::MAX {
             unsafe {
@@ -100,9 +100,9 @@ impl Texture {
     }
 }
 
-/*
+/**
 Free the surface when it goes out of scope.
-*/
+ */
 impl Drop for Texture {
     fn drop(&mut self) {
         self.free_texture();

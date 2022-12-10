@@ -2,21 +2,20 @@
 
 Discord server: https://discord.gg/dSStXTucCc
 
-To build, just run:
+To build and run:
 
 ```bash
 cargo run
 ```
 
-You will need to have installed to build:
--   python3 (to run build.py)
--   cmake
--   make
--   gcc (c++ and objective c++)
--   glad
+To build and run in release mode:
 
-If you want to edit code use:
--   Windows: CLion
--   MacOS: XCode
--   Linux: CLion
+```bash
+cargo run --release
+```
 
+For building you will need to have the following installed:
+- Rust
+- Cargo
+- glfw3
+- OpenGL

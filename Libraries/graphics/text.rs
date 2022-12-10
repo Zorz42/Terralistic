@@ -9,9 +9,9 @@ pub struct Font {
 const CHAR_SPACING: i32 = 1;
 const SPACE_WIDTH: i32 = 2;
 
-/*
+/**
 Check if the column of a surface is empty.
-*/
+ */
 fn is_column_empty(surface: &Surface, column: i32) -> bool {
     for y in 0..surface.get_height() {
         if surface.get_pixel(column, y) != (Color{r: 0, g: 0, b: 0, a: 0}) {
@@ -22,11 +22,11 @@ fn is_column_empty(surface: &Surface, column: i32) -> bool {
 }
 
 impl Font {
-    /*
+    /**
     Loads a font from a data vector, which is deserialized into a surface.
     Loads all the characters in the file and stores them in a
     surface array. The index of the array is the ascii value.
-    */
+     */
     pub fn new(font_data: Vec<u8>) -> Self {
         let mut font_surfaces = vec![];
         let font_surface = Surface::deserialize(font_data);
@@ -69,9 +69,9 @@ impl Font {
         }
     }
 
-    /*
+    /**
     This function creates a surface with the text on it.
-    */
+     */
     pub fn create_text_surface(&self, text: String) -> Surface {
         let mut width = 0;
         let mut height = 0;

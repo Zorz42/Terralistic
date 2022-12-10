@@ -1,17 +1,17 @@
 use glfw;
 
-/*
+/**
 A collection of all supported events
-*/
+ */
 pub enum Event {
     // key press and release events
     KeyPress(Key),
     KeyRelease(Key),
 }
 
-/*
+/**
 Translates glfw type events to our event type
-*/
+ */
 pub(crate) fn glfw_event_to_gfx_event(glfw_event: glfw::WindowEvent) -> Option<Event> {
     match glfw_event {
         // handle all glfw key presses and releases and translate them to our event type
@@ -162,7 +162,7 @@ pub enum Key {
     Mouse8,
 }
 
-/*
+/**
 This function converts a glfw key to a graphics key
  */
 fn glfw_key_to_gfx_key(key: glfw::Key) -> Key {

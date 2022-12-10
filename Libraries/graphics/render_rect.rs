@@ -1,10 +1,10 @@
-use crate::{Color, GraphicsContext};
+use crate::{Color, GraphicsContext, Timer};
 use crate::Container;
 use crate::Orientation;
 use crate::Rect;
 use crate::Renderer;
 
-/*
+/**
 The struct RenderRect contains a container and
 moves smoothly visually to the saved position
 it has a smooth_factor. At every render the position
@@ -24,6 +24,8 @@ pub struct RenderRect {
     pub border_color: Color,
     pub smooth_factor: f32,
     pub orientation: Orientation,
+    ms_counter: u32,
+    approach_timer: Timer,
 }
 
 impl RenderRect {
@@ -41,25 +43,30 @@ impl RenderRect {
             border_color,
             smooth_factor: 1.0,
             orientation,
+            ms_counter: 0,
+            approach_timer: Timer::new(),
         }
     }
 
-    /*
+    /**
     This function renders the rectangle, it uses Rect class to render.
     It also approcaches the position to the target position.
      */
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
-        self.render_x += (self.x - self.render_x) / self.smooth_factor;
-        self.render_y += (self.y - self.render_y) / self.smooth_factor;
-        self.render_w += (self.w - self.render_w) / self.smooth_factor;
-        self.render_h += (self.h - self.render_h) / self.smooth_factor;
+        while self.ms_counter < self.approach_timer.get_time() as u32 {
+            self.ms_counter += 1;
+            self.render_x += (self.x - self.render_x) / (self.smooth_factor * 10.0);
+            self.render_y += (self.y - self.render_y) / (self.smooth_factor * 10.0);
+            self.render_w += (self.w - self.render_w) / (self.smooth_factor * 10.0);
+            self.render_h += (self.h - self.render_h) / (self.smooth_factor * 10.0);
+        }
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         rect.render(graphics, self.fill_color);
     }
 
-    /*
+    /**
     This function returns the container of the rectangle.
     The container has the position of render rect.
      */
@@ -69,7 +76,7 @@ impl RenderRect {
         container
     }
 
-    /*
+    /**
     This function jumps the rectangle to the target position.
      */
     pub fn jump_to_target(&mut self) {

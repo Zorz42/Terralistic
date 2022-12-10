@@ -47,9 +47,9 @@ void main() {
 }
 "#;
 
-/*
+/**
 This stores all shader uniform handles
-*/
+ */
 pub(crate) struct ShaderUniformHandles {
     pub has_texture: i32,
     pub global_color: i32,
@@ -58,9 +58,9 @@ pub(crate) struct ShaderUniformHandles {
     pub texture_transform_matrix: i32,
 }
 
-/*
+/**
 This stores all the values needed for rendering.
-*/
+ */
 pub struct Renderer {
     pub(crate) uniforms: ShaderUniformHandles,
     pub(crate) glfw: glfw::Glfw,
@@ -75,9 +75,9 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    /*
+    /**
     Initializes all the values needed for rendering.
-    */
+     */
     pub fn new(window_width: i32, window_height: i32, window_title: String) -> Self {
         if window_width <= 0 || window_height <= 0 {
             panic!("Invalid window dimensions");
@@ -162,9 +162,9 @@ impl Renderer {
         result
     }
 
-    /*
+    /**
     Is called every time the window is resized.
-    */
+     */
     pub fn handle_window_resize(&mut self) {
         let (width, height) = self.glfw_window.get_size();
 
@@ -187,9 +187,9 @@ impl Renderer {
         }
     }
 
-    /*
+    /**
     Returns an array of events, such as key presses
-    */
+     */
     pub fn get_events(&mut self) -> Vec<events::Event> {
         let mut events = vec![];
 
@@ -214,16 +214,16 @@ impl Renderer {
         events
     }
 
-    /*
+    /**
     Checks if the window is open, this becomes false, when the user closes the window, or the program closes it
-    */
+     */
     pub fn is_window_open(&self) -> bool {
         !self.glfw_window.should_close()
     }
 
-    /*
+    /**
     Should be called before rendering.
-    */
+     */
     pub fn pre_render(&self) {
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
@@ -231,9 +231,9 @@ impl Renderer {
         }
     }
 
-    /*
+    /**
     Should be called after rendering
-    */
+     */
     pub fn post_render(&mut self) {
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
@@ -251,21 +251,21 @@ impl Renderer {
         }
     }
 
-    /*
+    /**
     Sets the minimum window size
-    */
+     */
     pub fn set_min_window_size(&mut self, width: u32, height: u32) {
         self.glfw_window.set_size_limits( Some(width), Some(height), None, None);
     }
 
-    /*
+    /**
     Get the current window width
      */
     pub fn get_window_width(&self) -> u32 {
         self.glfw_window.get_size().0.try_into().unwrap()
     }
 
-    /*
+    /**
     Get the current window height
      */
     pub fn get_window_height(&self) -> u32 {

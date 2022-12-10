@@ -54,6 +54,9 @@ pub use container::{Container, Orientation, TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENT
 mod render_rect;
 pub use render_rect::RenderRect;
 
+mod button;
+pub use button::Button;
+
 /*
 A struct that will be passed all
 around the functions that need drawing
