@@ -1,8 +1,6 @@
 use crate::{Color, GraphicsContext, Timer};
 use crate::Container;
 use crate::Orientation;
-use crate::Rect;
-use crate::Renderer;
 
 /**
 The struct RenderRect contains a container and

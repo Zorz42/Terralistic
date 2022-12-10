@@ -1,8 +1,9 @@
 extern crate glfw;
 
+use std::collections::HashMap;
 use std::ffi::CString;
 use self::glfw::{Context};
-use crate::{BlendMode, set_blend_mode, transformation};
+use crate::{BlendMode, Key, set_blend_mode};
 use crate::vertex_buffer_impl;
 use crate::color;
 use crate::events;
@@ -72,6 +73,8 @@ pub struct Renderer {
     pub(crate) window_texture: u32,
     pub(crate) window_texture_back: u32,
     pub(crate) window_framebuffer: u32,
+    // Keep track of all Key states as a hashmap
+    pub(crate) key_states: HashMap<Key, bool>,
 }
 
 impl Renderer {
@@ -98,7 +101,7 @@ impl Renderer {
 
         gl::load_with(|symbol| glfw_window.get_proc_address(symbol) as *const _);
 
-        let mut result = Renderer{
+        let mut result = Renderer {
             uniforms: ShaderUniformHandles {
                 has_texture: 0,
                 global_color: 0,
@@ -115,6 +118,7 @@ impl Renderer {
             window_texture: 0,
             window_texture_back: 0,
             window_framebuffer: 0,
+            key_states: HashMap::new(),
         };
 
         unsafe {
@@ -147,13 +151,13 @@ impl Renderer {
             gl::BindFramebuffer(gl::FRAMEBUFFER, result.window_framebuffer);
         }
 
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 0.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 0.0});
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
 
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 1.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 1.0});
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 1.0, y: 0.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 1.0, tex_y: 0.0});
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl{x: 0.0, y: 1.0, color: color::Color{r: 255, g: 255, b: 255, a: 255}, tex_x: 0.0, tex_y: 1.0});
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
 
         result.rect_vertex_buffer.upload();
 
@@ -168,7 +172,7 @@ impl Renderer {
     pub fn handle_window_resize(&mut self) {
         let (width, height) = self.glfw_window.get_size();
 
-        self.normalization_transform = transformation::Transformation::new();
+        self.normalization_transform = Transformation::new();
         self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
         self.normalization_transform.translate(-width as f32 / 2.0, -height as f32 / 2.0);
 
@@ -207,6 +211,15 @@ impl Renderer {
             }
 
             if let Some(event) = glfw_event_to_gfx_event(glfw_event) {
+                // if event is a key press event update the key states to true
+                if let events::Event::KeyPress(key) = event {
+                    self.key_states.insert(key, true);
+                }
+                // if event is a key release event update the key states to false
+                if let events::Event::KeyRelease(key) = event {
+                    self.key_states.insert(key, false);
+                }
+
                 events.push(event);
             }
         }
@@ -255,7 +268,7 @@ impl Renderer {
     Sets the minimum window size
      */
     pub fn set_min_window_size(&mut self, width: u32, height: u32) {
-        self.glfw_window.set_size_limits( Some(width), Some(height), None, None);
+        self.glfw_window.set_size_limits(Some(width), Some(height), None, None);
     }
 
     /**
@@ -270,5 +283,26 @@ impl Renderer {
      */
     pub fn get_window_height(&self) -> u32 {
         self.glfw_window.get_size().1.try_into().unwrap()
+    }
+
+    /**
+    Gets mouse x position
+     */
+    pub fn get_mouse_x(&self) -> f32 {
+        self.glfw_window.get_cursor_pos().0 as f32
+    }
+
+    /**
+    Gets mouse y position
+     */
+    pub fn get_mouse_y(&self) -> f32 {
+        self.glfw_window.get_cursor_pos().1 as f32
+    }
+
+    /**
+    Gets key state
+     */
+    pub fn get_key_state(&self, key: Key) -> bool {
+        *self.key_states.get(&key).unwrap_or(&false)
     }
 }

@@ -1,12 +1,12 @@
 use super::background_rect::{Background, BackgroundRect};
 use graphics as gfx;
 
-/*
+/**
 MenuBack is a struct that contains the background rectangle for
 the most main menus. It implements the BackgroundRect trait. It
 draws the background.opa image scaled to the window's height and
 scrolled to the left.
-*/
+ */
 pub struct MenuBack {
     temp_container: gfx::Container,
     background: gfx::Texture,
@@ -15,9 +15,9 @@ pub struct MenuBack {
 }
 
 impl MenuBack {
-    /*
+    /**
     Creates a new MenuBack.
-    */
+     */
     pub fn new() -> Self {
         let mut back_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0, gfx::BLACK, gfx::BORDER_COLOR, gfx::CENTER);
         back_rect.fill_color.a = gfx::TRANSPARENCY;
@@ -35,9 +35,9 @@ impl MenuBack {
 }
 
 impl Background for MenuBack {
-    /*
+    /**
     Renders the background.
-    */
+     */
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
         let scale = graphics.renderer.get_window_height() as f32 / self.background.get_texture_height() as f32;
         let texture_width_scaled = self.background.get_texture_width() as f32 * scale;
@@ -56,23 +56,23 @@ impl Background for MenuBack {
 }
 
 impl BackgroundRect for MenuBack {
-    /*
+    /**
     Sets the width of the background rectangle.
-    */
+     */
     fn set_back_rect_width(&mut self, width: i32) {
         self.back_rect.w = width as f32;
     }
 
-    /*
+    /**
     Gets the width of the background rectangle.
-    */
+     */
     fn get_back_rect_width(&self) -> i32 {
         self.back_rect.w as i32
     }
 
-    /*
+    /**
     Gets the background rectangle's container.
-    */
+     */
     fn get_back_rect_container(&self) -> &gfx::Container {
         &self.temp_container
     }

@@ -22,6 +22,14 @@ pub(crate) fn glfw_event_to_gfx_event(glfw_event: glfw::WindowEvent) -> Option<E
                 _ => None,
             }
         }
+        // handle mouse button presses and releases
+        glfw::WindowEvent::MouseButton(button, action, _) => {
+            match action {
+                glfw::Action::Press => Some(Event::KeyPress(glfw_mouse_button_to_gfx_key(button))),
+                glfw::Action::Release => Some(Event::KeyRelease(glfw_mouse_button_to_gfx_key(button))),
+                _ => None,
+            }
+        }
         _ => None,
     }
 }
@@ -251,5 +259,21 @@ fn glfw_key_to_gfx_key(key: glfw::Key) -> Key {
         glfw::Key::Equal => Key::Equal,
         glfw::Key::Minus => Key::Minus,
         _ => Key::Unknown,
+    }
+}
+
+/**
+This function converts a glfw mouse button to a graphics key
+ */
+fn glfw_mouse_button_to_gfx_key(button: glfw::MouseButton) -> Key {
+    match button {
+        glfw::MouseButton::Button1 => Key::MouseLeft,
+        glfw::MouseButton::Button2 => Key::MouseRight,
+        glfw::MouseButton::Button3 => Key::MouseMiddle,
+        glfw::MouseButton::Button4 => Key::Mouse4,
+        glfw::MouseButton::Button5 => Key::Mouse5,
+        glfw::MouseButton::Button6 => Key::Mouse6,
+        glfw::MouseButton::Button7 => Key::Mouse7,
+        glfw::MouseButton::Button8 => Key::Mouse8,
     }
 }
