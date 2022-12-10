@@ -1,12 +1,5 @@
 use crate::{Color, Container, GraphicsContext, Orientation, Texture, Timer, TOP_LEFT};
-use crate::theme::{
-    GFX_DEFAULT_BUTTON_COLOR,
-    GFX_DEFAULT_BUTTON_BORDER_COLOR,
-    GFX_DEFAULT_HOVERED_BUTTON_COLOR,
-    GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR,
-    GFX_DEFAULT_TEXT_COLOR,
-    GFX_SHADOW_BLUR,
-};
+use crate::theme::{GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_TEXT_COLOR, GFX_SHADOW_BLUR, GFX_DEFAULT_BUTTON_MARGIN};
 
 /**
 A Button is a rectangle with an image in it.
@@ -39,7 +32,7 @@ impl Button {
             y: 0,
             orientation: TOP_LEFT,
             image: Texture::new(),
-            margin: 0,
+            margin: GFX_DEFAULT_BUTTON_MARGIN,
             scale: 1.0,
             color: GFX_DEFAULT_BUTTON_COLOR,
             border_color: GFX_DEFAULT_BUTTON_COLOR,
@@ -89,6 +82,8 @@ impl Button {
     Renders the button.
      */
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
-
+        let container = self.get_container(graphics, parent_container);
+        let rect = container.get_absolute_rect();
+        rect.render(graphics, self.color);
     }
 }
