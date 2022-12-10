@@ -6,6 +6,7 @@ use crate::{BlendMode, set_blend_mode, transformation};
 use crate::vertex_buffer_impl;
 use crate::color;
 use crate::events;
+use crate::events::glfw_event_to_gfx_event;
 use crate::shaders::compile_shader;
 use crate::transformation::Transformation;
 use crate::vertex_buffer_impl::VertexBufferImpl;
@@ -66,8 +67,8 @@ pub struct Renderer {
     pub(crate) glfw_window: glfw::Window,
     pub(crate) glfw_events: std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
     pub(crate) default_shader: u32,
-    pub(crate) normalization_transform: transformation::Transformation,
-    pub(crate) rect_vertex_buffer: vertex_buffer_impl::VertexBufferImpl,
+    pub(crate) normalization_transform: Transformation,
+    pub(crate) rect_vertex_buffer: VertexBufferImpl,
     pub(crate) window_texture: u32,
     pub(crate) window_texture_back: u32,
     pub(crate) window_framebuffer: u32,
@@ -205,7 +206,7 @@ impl Renderer {
                 _ => {}
             }
 
-            if let Some(event) = events::glfw_event_to_gfx_event(glfw_event) {
+            if let Some(event) = glfw_event_to_gfx_event(glfw_event) {
                 events.push(event);
             }
         }

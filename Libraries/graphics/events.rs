@@ -29,7 +29,7 @@ pub(crate) fn glfw_event_to_gfx_event(glfw_event: glfw::WindowEvent) -> Option<E
 /*
 A collection of all keys on the keyboard and mouse.
 */
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Key {
     Unknown,
     Space,

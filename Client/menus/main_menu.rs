@@ -4,8 +4,11 @@ use rand;
 use rand::Rng;
 
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+    menu_back.set_back_rect_width(200);
+
     while graphics.renderer.is_window_open() {
-        for event in graphics.renderer.get_events() {
+        let events = graphics.renderer.get_events();
+        for event in events {
             // when the m key is pressed, set back width to something random between 100 and 500
             match event {
                 gfx::Event::KeyPress(key) => {
@@ -19,7 +22,6 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
         graphics.renderer.pre_render();
 
-        menu_back.set_back_rect_width(200);
         menu_back.render_back(graphics);
 
         graphics.renderer.post_render();
