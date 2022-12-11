@@ -3,6 +3,7 @@ use glfw;
 /**
 A collection of all supported events
  */
+#[derive(Clone, Copy)]
 pub enum Event {
     // key press and release events
     KeyPress(Key),
@@ -265,7 +266,7 @@ fn glfw_key_to_gfx_key(key: glfw::Key) -> Key {
 /**
 This function converts a glfw mouse button to a graphics key
  */
-fn glfw_mouse_button_to_gfx_key(button: glfw::MouseButton) -> Key {
+pub fn glfw_mouse_button_to_gfx_key(button: glfw::MouseButton) -> Key {
     match button {
         glfw::MouseButton::Button1 => Key::MouseLeft,
         glfw::MouseButton::Button2 => Key::MouseRight,

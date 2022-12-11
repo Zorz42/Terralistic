@@ -3,11 +3,11 @@ extern crate glfw;
 use std::collections::HashMap;
 use std::ffi::CString;
 use self::glfw::{Context};
-use crate::{BlendMode, Key, set_blend_mode};
+use crate::{BlendMode, Event, Key, set_blend_mode};
 use crate::vertex_buffer_impl;
 use crate::color;
 use crate::events;
-use crate::events::glfw_event_to_gfx_event;
+use crate::events::{glfw_event_to_gfx_event, glfw_mouse_button_to_gfx_key};
 use crate::shaders::compile_shader;
 use crate::transformation::Transformation;
 use crate::vertex_buffer_impl::VertexBufferImpl;
@@ -75,6 +75,7 @@ pub struct Renderer {
     pub(crate) window_framebuffer: u32,
     // Keep track of all Key states as a hashmap
     pub(crate) key_states: HashMap<Key, bool>,
+    pub(crate) events: Vec<Event>,
 }
 
 impl Renderer {
@@ -119,6 +120,7 @@ impl Renderer {
             window_texture_back: 0,
             window_framebuffer: 0,
             key_states: HashMap::new(),
+            events: Vec::new(),
         };
 
         unsafe {
@@ -192,11 +194,51 @@ impl Renderer {
     }
 
     /**
+    A function that checks mouse buttons
+    and sends events to the event handler
+    if they change state.
+     */
+    pub fn handle_mouse_buttons(&mut self) {
+        let mouse_buttons = [
+            glfw::MouseButton::Button1,
+            glfw::MouseButton::Button2,
+            glfw::MouseButton::Button3,
+            glfw::MouseButton::Button4,
+            glfw::MouseButton::Button5,
+            glfw::MouseButton::Button6,
+            glfw::MouseButton::Button7,
+            glfw::MouseButton::Button8,
+        ];
+
+        for glfw_button in mouse_buttons {
+            let glfw_state = self.glfw_window.get_mouse_button(glfw_button);
+            let button = glfw_mouse_button_to_gfx_key(glfw_button);
+
+            let state = match glfw_state {
+                glfw::Action::Press => true,
+                glfw::Action::Release => false,
+                _ => continue,
+            };
+
+            if self.get_key_state(button) != state {
+                let new_state = !state;
+                self.set_key_state(button, new_state);
+
+                if new_state {
+                    self.events.push(Event::KeyPress(button));
+                    println!("Key pressed: {:?}", button);
+                } else {
+                    self.events.push(Event::KeyRelease(button));
+                    println!("Key released: {:?}", button);
+                }
+            }
+        }
+    }
+
+    /**
     Returns an array of events, such as key presses
      */
-    pub fn get_events(&mut self) -> Vec<events::Event> {
-        let mut events = vec![];
-
+    pub fn get_events(&mut self) -> Vec<Event> {
         let mut glfw_events = vec![];
         for (_, glfw_event) in glfw::flush_messages(&self.glfw_events) {
             glfw_events.push(glfw_event);
@@ -212,19 +254,22 @@ impl Renderer {
 
             if let Some(event) = glfw_event_to_gfx_event(glfw_event) {
                 // if event is a key press event update the key states to true
-                if let events::Event::KeyPress(key) = event {
-                    self.key_states.insert(key, true);
+                if let Event::KeyPress(key) = event {
+                    self.set_key_state(key, true);
                 }
                 // if event is a key release event update the key states to false
-                if let events::Event::KeyRelease(key) = event {
-                    self.key_states.insert(key, false);
+                if let Event::KeyRelease(key) = event {
+                    self.set_key_state(key, false);
                 }
 
-                events.push(event);
+                self.events.push(event);
             }
         }
 
-        events
+        let result = self.events.clone();
+        self.events.clear();
+
+        result
     }
 
     /**
@@ -237,7 +282,8 @@ impl Renderer {
     /**
     Should be called before rendering.
      */
-    pub fn pre_render(&self) {
+    pub fn pre_render(&mut self) {
+        self.handle_mouse_buttons();
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
@@ -304,5 +350,12 @@ impl Renderer {
      */
     pub fn get_key_state(&self, key: Key) -> bool {
         *self.key_states.get(&key).unwrap_or(&false)
+    }
+
+    /**
+    Sets key state
+     */
+    pub fn set_key_state(&mut self, key: Key, state: bool) {
+        *self.key_states.entry(key).or_insert(false) = state;
     }
 }
