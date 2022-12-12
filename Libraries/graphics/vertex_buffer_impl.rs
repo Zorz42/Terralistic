@@ -1,5 +1,10 @@
 use crate::color;
 
+pub enum DrawMode {
+    Triangles,
+    Lines,
+}
+
 pub(crate) struct VertexImpl {
     pub(crate) x: f32,
     pub(crate) y: f32,
@@ -68,7 +73,7 @@ impl VertexBufferImpl {
         }
     }
 
-    pub fn draw(&self, has_texture: bool) {
+    pub fn draw(&self, has_texture: bool, mode: DrawMode) {
         unsafe {
             gl::BindVertexArray(self.vertex_array);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
@@ -85,7 +90,13 @@ impl VertexBufferImpl {
             if has_texture {
                 gl::EnableVertexAttribArray(2);
             }
-            gl::DrawElements(gl::TRIANGLES, self.indices.len() as i32, gl::UNSIGNED_INT, std::ptr::null());
+
+            let gl_mode = match mode {
+                DrawMode::Triangles => gl::TRIANGLES,
+                DrawMode::Lines => gl::LINES,
+            };
+            gl::DrawElements(gl_mode, self.indices.len() as i32, gl::UNSIGNED_INT, std::ptr::null());
+
             gl::DisableVertexAttribArray(0);
             gl::DisableVertexAttribArray(1);
             if has_texture {

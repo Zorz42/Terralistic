@@ -1,5 +1,5 @@
 use crate::{Color, Container, GraphicsContext, Key, Orientation, Rect, Texture, Timer, TOP_LEFT};
-use crate::theme::{GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_TEXT_COLOR, GFX_SHADOW_BLUR, GFX_DEFAULT_BUTTON_MARGIN};
+use crate::theme::{GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_TEXT_COLOR, GFX_DEFAULT_BUTTON_MARGIN};
 
 /**
 A Button is a rectangle with an image in it.
@@ -35,9 +35,9 @@ impl Button {
             margin: GFX_DEFAULT_BUTTON_MARGIN,
             scale: 1.0,
             color: GFX_DEFAULT_BUTTON_COLOR,
-            border_color: GFX_DEFAULT_BUTTON_COLOR,
+            border_color: GFX_DEFAULT_BUTTON_BORDER_COLOR,
             hover_color: GFX_DEFAULT_HOVERED_BUTTON_COLOR,
-            hover_border_color: GFX_DEFAULT_HOVERED_BUTTON_COLOR,
+            hover_border_color: GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR,
             disabled: false,
             hover_progress: 0.0,
             timer: Timer::new(),
@@ -121,9 +121,9 @@ impl Button {
         let padding = (1.0 - self.hover_progress) * 30.0;
         let hover_rect = Rect::new(rect.x + padding as i32, rect.y + padding as i32, std::cmp::max(0, rect.w - 2 * padding as i32), std::cmp::max(0, rect.h - 2 * padding as i32));
         rect.render(&graphics, self.color);
-        //TODO: rect.render_outline(&graphics, self.border_color);
+        rect.render_outline(&graphics, self.border_color);
         hover_rect.render(&graphics, button_color);
-        //TODO: hover_rect.render_outline(&graphics, button_border_color);
+        hover_rect.render_outline(&graphics, button_border_color);
 
         let texture_scale = self.scale + self.hover_progress * 0.4;
         let x = rect.x + rect.w / 2 - (self.texture.get_texture_width() as f32 * texture_scale / 2.0) as i32;

@@ -1,5 +1,6 @@
 use crate::color::Color;
 use crate::GraphicsContext;
+use crate::vertex_buffer_impl::DrawMode;
 
 /**
 This is a rectangle shape not really
@@ -39,6 +40,27 @@ impl Rect {
             gl::Uniform1i(graphics.renderer.uniforms.has_texture, 0);
         }
 
-        graphics.renderer.rect_vertex_buffer.draw(false);
+        graphics.renderer.rect_vertex_buffer.draw(false,DrawMode::Triangles);
+    }
+
+    /**
+    Renders the rectangle outline on the screen.
+     */
+    pub fn render_outline(&self, graphics: &GraphicsContext, color: Color) {
+        if color.a == 0 {
+            return;
+        }
+
+        let mut transform = graphics.renderer.normalization_transform.clone();
+        transform.translate(self.x as f32, self.y as f32);
+        transform.stretch(self.w as f32, self.h as f32);
+
+        unsafe {
+            gl::UniformMatrix3fv(graphics.renderer.uniforms.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
+            gl::Uniform4f(graphics.renderer.uniforms.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
+            gl::Uniform1i(graphics.renderer.uniforms.has_texture, 0);
+        }
+
+        graphics.renderer.rect_outline_vertex_buffer.draw(false, DrawMode::Lines);
     }
 }

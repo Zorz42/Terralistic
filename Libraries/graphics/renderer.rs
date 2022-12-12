@@ -6,7 +6,6 @@ use self::glfw::{Context};
 use crate::{BlendMode, Event, Key, set_blend_mode};
 use crate::vertex_buffer_impl;
 use crate::color;
-use crate::events;
 use crate::events::{glfw_event_to_gfx_event, glfw_mouse_button_to_gfx_key};
 use crate::shaders::compile_shader;
 use crate::transformation::Transformation;
@@ -70,6 +69,7 @@ pub struct Renderer {
     pub(crate) default_shader: u32,
     pub(crate) normalization_transform: Transformation,
     pub(crate) rect_vertex_buffer: VertexBufferImpl,
+    pub(crate) rect_outline_vertex_buffer: VertexBufferImpl,
     pub(crate) window_texture: u32,
     pub(crate) window_texture_back: u32,
     pub(crate) window_framebuffer: u32,
@@ -116,6 +116,7 @@ impl Renderer {
             default_shader: 0,
             normalization_transform: Transformation::new(),
             rect_vertex_buffer: VertexBufferImpl::new(),
+            rect_outline_vertex_buffer: VertexBufferImpl::new(),
             window_texture: 0,
             window_texture_back: 0,
             window_framebuffer: 0,
@@ -144,9 +145,6 @@ impl Renderer {
             let ident = CString::new("texture_transform_matrix").unwrap();
             result.uniforms.texture_transform_matrix = gl::GetUniformLocation(result.default_shader, ident.as_ptr());
 
-            let draw_buffers: [u32; 1] = [gl::COLOR_ATTACHMENT0];
-            gl::DrawBuffers(1, &draw_buffers[0]);
-
             gl::GenTextures(1, &mut result.window_texture);
             gl::GenTextures(1, &mut result.window_texture_back);
             gl::GenFramebuffers(1, &mut result.window_framebuffer);
@@ -162,6 +160,20 @@ impl Renderer {
         result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
 
         result.rect_vertex_buffer.upload();
+
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
+
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
+
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
+        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
+
+        result.rect_outline_vertex_buffer.upload();
 
         result.handle_window_resize();
 
@@ -221,10 +233,9 @@ impl Renderer {
             };
 
             if self.get_key_state(button) != state {
-                let new_state = !state;
-                self.set_key_state(button, new_state);
+                self.set_key_state(button, state);
 
-                if new_state {
+                if state {
                     self.events.push(Event::KeyPress(button));
                     println!("Key pressed: {:?}", button);
                 } else {
@@ -280,17 +291,6 @@ impl Renderer {
     }
 
     /**
-    Should be called before rendering.
-     */
-    pub fn pre_render(&mut self) {
-        self.handle_mouse_buttons();
-        unsafe {
-            gl::ClearColor(0.2, 0.3, 0.3, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
-        }
-    }
-
-    /**
     Should be called after rendering
      */
     pub fn post_render(&mut self) {
@@ -308,6 +308,8 @@ impl Renderer {
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
         }
+
+        self.handle_mouse_buttons();
     }
 
     /**

@@ -7,9 +7,9 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     menu_back.set_back_rect_width(200);
 
     let mut button = gfx::Button::new();
-    button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Click Me!")));
-    button.color = gfx::GREY;
-    button.hover_color = gfx::LIGHT_GREY;
+    let mut text_surface = graphics.font.create_text_surface(String::from("Click Me!"));
+    text_surface.set_pixel(0, 0, gfx::Color::new(255, 0, 0, 0));
+    button.texture = gfx::Texture::load_from_surface(&text_surface);
     button.scale = 3.0;
     button.x = 30;
     button.y = 30;
@@ -27,8 +27,6 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                 _ => {}
             }
         }
-
-        graphics.renderer.pre_render();
 
         menu_back.render_back(graphics);
 

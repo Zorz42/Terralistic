@@ -2,6 +2,7 @@ use std::ffi::c_void;
 use crate::{Color, Rect, Surface};
 use crate::renderer::Renderer;
 use crate::transformation::Transformation;
+use crate::vertex_buffer_impl::DrawMode;
 
 /**
 Texture is an image stored in gpu
@@ -37,7 +38,7 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
 
             let data = surface.pixels.clone();
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGB as i32, result.width as i32, result.height as i32, 0, gl::RGBA, gl::UNSIGNED_BYTE, &data[0] as *const u8 as *const c_void);
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as i32, result.width as i32, result.height as i32, 0, gl::RGBA, gl::UNSIGNED_BYTE, &data[0] as *const u8 as *const c_void);
             gl::GenerateMipmap(gl::TEXTURE_2D);
         }
 
@@ -95,7 +96,7 @@ impl Texture {
 
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
 
-            renderer.rect_vertex_buffer.draw(true);
+            renderer.rect_vertex_buffer.draw(true, DrawMode::Triangles);
         }
     }
 }
