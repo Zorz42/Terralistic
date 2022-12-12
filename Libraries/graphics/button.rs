@@ -63,7 +63,7 @@ impl Button {
     Generates the container for the button.
      */
     pub fn get_container(&self, graphics: &GraphicsContext, parent_container: Option<&Container>) -> Container {
-        let mut container = Container::new(self.x, self.x, self.get_width(), self.get_height(), self.orientation);
+        let mut container = Container::new(self.x, self.y, self.get_width(), self.get_height(), self.orientation);
         container.update(graphics, parent_container);
         container
     }

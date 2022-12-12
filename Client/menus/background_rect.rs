@@ -1,4 +1,5 @@
 use graphics as gfx;
+use graphics::GraphicsContext;
 
 /**
 Background is a trait that defines a background
@@ -6,7 +7,7 @@ rendered scene for a menu. It implements the
 render_back function.
  */
 pub trait Background {
-    fn render_back(&mut self, graphics: &mut gfx::GraphicsContext);
+    fn render_back(&mut self, graphics: &mut GraphicsContext);
 }
 
 /**

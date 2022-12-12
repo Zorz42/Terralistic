@@ -1,5 +1,6 @@
 use super::background_rect::{Background, BackgroundRect};
 use graphics as gfx;
+use graphics::GraphicsContext;
 
 /**
 MenuBack is a struct that contains the background rectangle for
@@ -8,10 +9,10 @@ draws the background.opa image scaled to the window's height and
 scrolled to the left.
  */
 pub struct MenuBack {
-    temp_container: gfx::Container,
     background: gfx::Texture,
     background_timer: gfx::Timer,
     back_rect: gfx::RenderRect,
+    back_container: gfx::Container,
 }
 
 impl MenuBack {
@@ -26,10 +27,10 @@ impl MenuBack {
         back_rect.smooth_factor = 3.0;
 
         MenuBack {
-            temp_container: gfx::Container::new(0, 0, 0, 0, gfx::CENTER),
             background: gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/background.opa").to_vec())),
             background_timer: gfx::Timer::new(),
             back_rect,
+            back_container: gfx::Container::new(0, 0, 0, 0, gfx::TOP_LEFT),
         }
     }
 }
@@ -38,7 +39,9 @@ impl Background for MenuBack {
     /**
     Renders the background.
      */
-    fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
+    fn render_back(&mut self, graphics: &mut GraphicsContext) {
+        self.back_container = self.back_rect.get_container(graphics, None);
+
         let scale = graphics.renderer.get_window_height() as f32 / self.background.get_texture_height() as f32;
         let texture_width_scaled = self.background.get_texture_width() as f32 * scale;
         let pos = ((self.background_timer.get_time() * scale as f64 / 150.0) as u64 % texture_width_scaled as u64) as i32;
@@ -74,6 +77,6 @@ impl BackgroundRect for MenuBack {
     Gets the background rectangle's container.
      */
     fn get_back_rect_container(&self) -> &gfx::Container {
-        &self.temp_container
+        &self.back_container
     }
 }
