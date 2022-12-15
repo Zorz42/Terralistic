@@ -224,4 +224,71 @@ impl<'blocks> Entities<'blocks>{
             }
         }
     }
+
+    pub fn register_entity(&mut self, entity: Entity){
+        self.entities.push(entity);
+    }
+
+    pub fn remove_entity(&mut self, entity_id: u32){
+        let pos = self.entities.iter().position(|entity| entity.id == entity_id).expect("Removed non existing entity");
+        let event = EntityDeletionEvent::new(entity_id);
+        self.entity_deletion_event.send(event);
+        self.entities.remove(pos);
+    }
+
+    pub fn get_entity_by_id(&self, entity_id: u32) -> Option<&Entity>{
+        self.entities.iter().find(|entity| entity.id == entity_id)
+    }
+
+    pub fn get_entity_by_id_mut(&self, entity_id: u32) -> Option<&Entity>{
+        self.entities.iter().find(|entity| entity.id == entity_id)
+    }
+
+    pub fn get_entities(&self) -> &Vec<Entity>{
+        &self.entities
+    }
+
+    pub fn set_velocity_x(&mut self, entity: &mut Entity, velocity_x: f64){
+        if(entity.velocity_x != velocity_x){
+            entity.velocity_x = velocity_x;
+            let event = EntityVelocityChangeEvent::new(entity.id);
+            self.entity_velocity_change_event.send(event);
+        }
+    }
+
+    pub fn set_velocity_y(&mut self, entity: &mut Entity, velocity_y: f64){
+        if(entity.velocity_y != velocity_y){
+            entity.velocity_y = velocity_y;
+            let event = EntityVelocityChangeEvent::new(entity.id);
+            self.entity_velocity_change_event.send(event);
+        }
+    }
+
+    pub fn add_velocity_x(&mut self, entity: &mut Entity, velocity_x: f64){
+        self.set_velocity_x(entity, entity.velocity_x + velocity_x);
+    }
+
+    pub fn add_velocity_y(&mut self, entity: &mut Entity, velocity_y: f64){
+        self.set_velocity_y(entity, entity.velocity_y + velocity_y);
+    }
+
+    pub fn set_x(&mut self, entity: &mut Entity, x: f64, send_to_everyone: bool){
+        if(entity.x != x){
+            entity.x = x;
+            if send_to_everyone{
+                let event = EntityPositionChangeEvent::new(entity.id);
+                self.entity_position_change_event.send(event);
+            }
+        }
+    }
+
+    pub fn set_y(&mut self, entity: &mut Entity, y: f64, send_to_everyone: bool){
+        if(entity.y != y){
+            entity.y = y;
+            if send_to_everyone{
+                let event = EntityPositionChangeEvent::new(entity.id);
+                self.entity_position_change_event.send(event);
+            }
+        }
+    }
 }
