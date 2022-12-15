@@ -1,6 +1,7 @@
 use std::borrow::BorrowMut;
 use std::rc::Rc;
 use events::*;
+use serde_derive::{Serialize, Deserialize};
 use super::block_data::*;
 
 pub const BLOCK_WIDTH: i32 = 8;
@@ -85,7 +86,7 @@ pub struct BlockType{
     pub block_data_index: i32,//TODO: future me change this to a reference if possible
     pub can_update_states: bool,
     pub feet_collidable: bool,
-    pub custom_data_type: Option<DataType>
+    pub custom_data_type: Option<CustomData>
 }
 
 impl BlockType {
@@ -132,7 +133,7 @@ impl BlockType {
 struct Block{
     id: i32,
     x_from_main: i8, y_from_main: i8,
-    block_data: Option<DataType>
+    block_data: Option<CustomData>
 }
 
 impl Block{
@@ -281,9 +282,9 @@ impl Blocks{
         self.get_block(x, y).y_from_main
     }
 
-    /*pub fn get_block_data(&mut self, x: i32, y: i32) -> &Option<BlockData> {
+    pub fn get_block_data(&mut self, x: i32, y: i32) -> &Option<CustomData> {
         &self.get_block(x, y).block_data
-    }*/ //TODO: make it compile :(
+    }
 
     pub fn get_break_progress(&mut self, x: i32, y: i32) -> i32 {
         for breaking_block in self.breaking_blocks.iter() {
@@ -376,19 +377,7 @@ impl Blocks{
     pub fn to_serial(&mut self) -> Vec<u8> {
         let mut serial: Vec<u8> = Vec::new();
         let mut iter: u32 = 0;
-        let size = 0;
-        for block in self.blocks.iter() {
-            let data = &block.block_data.as_ref().unwrap();
-            match data { //TODO: remove match with traits
-                DataType::Mod(mod_data) => {
-                    mod_data.get_saved_size();
-                },
-                DataType::Furnace(furnace_data) => {
-                    furnace_data.get_saved_size();
-                },
-            }
-        }
-        serial.resize(serial.len() + (self.width * self.height * 6 + 8 + size) as usize, 0);
+        serial.resize(serial.len() + (self.width * self.height * 6 + 8) as usize, 0);
         serial[(iter    ) as usize] = (self.width >> 24) as u8;
         serial[(iter + 1) as usize] = (self.width >> 16) as u8;
         serial[(iter + 2) as usize] = (self.width >>  8) as u8;
@@ -407,23 +396,22 @@ impl Blocks{
             serial[(iter + 4) as usize] = block.x_from_main as u8;
             serial[(iter + 5) as usize] = block.y_from_main as u8;
             iter += 6;
-            let data = &block.block_data.as_ref().unwrap();
-            match data { //TODO: remove match with traits
-                DataType::Mod(mod_data) => {
-                    mod_data.save(&mut serial, &mut iter);
-                },
-                DataType::Furnace(furnace_data) => {
-                    furnace_data.save(&mut serial, &mut iter);
-                },
+            if block.block_data.is_some() {
+                serial.resize(serial.len() + block.block_data.as_ref().unwrap().serial_length as usize, 0);
+                for i in block.block_data.as_ref().unwrap().data.iter() {
+                    serial[iter as usize] = *i;
+                    iter += 1;
+                }
             }
+
         }
         serial
         //TODO: return compressed serial
     }
 
-    pub fn from_serial(&mut self, serial: Vec<u8>){
+    pub fn from_serial(&mut self, serial: Vec<u8>){//TODO: implement serialize/deserialize on whole blocks?
         let mut iter: u32 = 0;
-        let decompressed = serial;//decompress serial whan implemented
+        let decompressed = serial;//TODO: decompress serial whan implemented
         let width  = (decompressed[(iter    ) as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
         let height = (decompressed[(iter + 4) as usize] as i32) << 24 | (decompressed[(iter + 5) as usize] as i32) << 16 | (decompressed[(iter + 6) as usize] as i32) << 8 | decompressed[(iter + 7) as usize] as i32;
         iter += 8;
@@ -438,15 +426,7 @@ impl Blocks{
 
             self.blocks[i].block_data = self.get_block_type_by_id(self.blocks[i].id).custom_data_type.clone();
             if self.blocks[i].block_data.is_some() {
-                let data = &mut self.blocks[i].block_data.as_mut().unwrap();
-                match data { //TODO: remove match with traits
-                    DataType::Mod(mod_data) => {
-                        mod_data.load(&decompressed, &mut iter);
-                    },
-                    DataType::Furnace(furnace_data) => {
-                        furnace_data.load(&decompressed, &mut iter);
-                    },
-                }
+                self.blocks[i].block_data.as_mut().unwrap().data = decompressed[iter as usize..(iter + self.blocks[i].block_data.as_ref().unwrap().serial_length) as usize].to_vec();
             }
         }
     }
