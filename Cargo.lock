@@ -304,6 +304,9 @@ dependencies = [
 [[package]]
 name = "shared"
 version = "0.1.0"
+dependencies = [
+ "events",
+]
 
 [[package]]
 name = "shared_mut"

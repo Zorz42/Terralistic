@@ -39,9 +39,9 @@ impl<Type> Sender<Type> {
     /*
     Sends an event to all listeners.
     */
-    pub fn send(&mut self, event: &Type) {
+    pub fn send(&mut self, event: Type) {
         for listener in self.listeners.iter_mut() {
-            listener.get_mut().on_event(event);
+            listener.get_mut().on_event(&event);
         }
     }
 }

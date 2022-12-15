@@ -1,14 +1,17 @@
 use super::blocks::*;
+use events::*;
 
+#[derive(PartialEq)]
 enum EntityType { ITEM, PLAYER }
+#[derive(PartialEq)]
 enum Direction { LEFT, RIGHT, UP, DOWN }
 static mut CURR_ENTITY_ID: u32 = 1;
 
 struct Entity {
-    x: f32,
-    y: f32,
-    velocity_x: f32,
-    velocity_y: f32,
+    x: f64,
+    y: f64,
+    velocity_x: f64,
+    velocity_y: f64,
     pub gravity: bool,
     pub friction: bool,
     pub has_moved_x: bool,
@@ -21,8 +24,8 @@ struct Entity {
 impl Entity {
     pub fn new(entity_type: EntityType, x: i32, y: i32, id: u32) -> Entity {
         let mut entity = Entity {
-            x: x as f32,
-            y: y as f32,
+            x: x as f64,
+            y: y as f64,
             velocity_x: 0.0,
             velocity_y: 0.0,
             gravity: true,
@@ -47,19 +50,19 @@ impl Entity {
         0
     }
 
-    pub fn is_colliding(&self, blocks: &mut Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool {
+    pub fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
         self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
-    pub fn is_colliding_with_block(&self, blocks: &mut Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool {
+    pub fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
         if colliding_x < 0.0 || colliding_y < 0.0 ||
-            colliding_y >= (blocks.get_height() * BLOCK_WIDTH * 2 - self.get_height())  as f32 ||
-            colliding_x >= (blocks.get_width() * BLOCK_WIDTH * 2 - self.get_width()) as f32 {
+            colliding_y >= (blocks.get_height() * BLOCK_WIDTH * 2 - self.get_height())  as f64 ||
+            colliding_x >= (blocks.get_width() * BLOCK_WIDTH * 2 - self.get_width()) as f64 {
             return true
         }
-        let starting_x = (colliding_x / (BLOCK_WIDTH * 2) as f32) as i32;
-        let starting_y = (colliding_y / (BLOCK_WIDTH * 2) as f32) as i32;
-        let ending_x = ((colliding_x + self.get_width() as f32 - 1.0) / (BLOCK_WIDTH * 2) as f32) as i32;
-        let ending_y = ((colliding_y + self.get_height() as f32 - 1.0) / (BLOCK_WIDTH * 2) as f32) as i32;
+        let starting_x = (colliding_x / (BLOCK_WIDTH * 2) as f64) as i32;
+        let starting_y = (colliding_y / (BLOCK_WIDTH * 2) as f64) as i32;
+        let ending_x = ((colliding_x + self.get_width() as f64 - 1.0) / (BLOCK_WIDTH * 2) as f64) as i32;
+        let ending_y = ((colliding_y + self.get_height() as f64 - 1.0) / (BLOCK_WIDTH * 2) as f64) as i32;
 
         for x in starting_x..ending_x + 1 {
             for y in starting_y..ending_y + 1 {
@@ -71,7 +74,7 @@ impl Entity {
         false
     }
 
-    pub fn update_entity(&mut self, blocks: &mut Blocks) {
+    pub fn update_entity(&mut self, blocks: &Blocks) {
         if self.friction {
             self.velocity_y *= 0.995;
             self.velocity_x *= if self.is_touching_ground(blocks) { 0.99 } else { 0.9995 };
@@ -120,20 +123,105 @@ impl Entity {
         self.has_moved = self.has_moved_x || prev_y != self.y;
     }
 
-    pub fn is_touching_ground(&self, blocks: &mut Blocks) -> bool {
+    pub fn is_touching_ground(&self, blocks: &Blocks) -> bool {
         self.is_colliding(blocks, Direction::DOWN, self.x, self.y + 1.0) && self.velocity_y == 0.0
     }
 
-    pub fn get_x(&self) -> f32 {
+    pub fn get_x(&self) -> f64 {
         self.x
     }
-    pub fn get_y(&self) -> f32 {
+    pub fn get_y(&self) -> f64 {
         self.y
     }
-    pub fn get_velocity_x(&self) -> f32 {
+    pub fn get_velocity_x(&self) -> f64 {
         self.velocity_x
     }
-    pub fn get_velocity_y(&self) -> f32 {
+    pub fn get_velocity_y(&self) -> f64 {
         self.velocity_y
+    }
+}
+
+struct EntityVelocityChangeEvent {
+    pub entity_id: u32,
+}
+impl events::Event for EntityVelocityChangeEvent{}
+impl EntityVelocityChangeEvent{
+    pub fn new(entity_id: u32) -> Self{
+        EntityVelocityChangeEvent{
+            entity_id
+        }
+    }
+}
+
+struct EntityAbsoluteVelocityChangeEvent {
+    pub entity_id: u32,
+    pub old_vel_x: f64, old_vel_y: f64
+}
+
+impl EntityAbsoluteVelocityChangeEvent{
+    pub fn new(entity_id: u32, old_vel_x: f64, old_vel_y: f64) -> Self{
+        EntityAbsoluteVelocityChangeEvent{
+            entity_id,
+            old_vel_x,
+            old_vel_y
+        }
+    }
+}
+
+struct EntityPositionChangeEvent {
+    pub entity_id: u32,
+}
+
+impl EntityPositionChangeEvent{
+    pub fn new(entity_id: u32) -> Self{
+        EntityPositionChangeEvent{
+            entity_id
+        }
+    }
+}
+
+struct EntityDeletionEvent {
+    pub entity_id: u32,
+}
+
+impl EntityDeletionEvent{
+    pub fn new(entity_id: u32) -> Self{
+        EntityDeletionEvent{
+            entity_id
+        }
+    }
+}
+
+struct Entities<'blocks>{
+    entities: Vec<Entity>,
+    blocks: &'blocks Blocks,
+    pub entity_position_change_event: Sender<EntityPositionChangeEvent>,
+    pub entity_velocity_change_event: Sender<EntityVelocityChangeEvent>,
+    pub entity_absolute_velocity_change_event: Sender<EntityAbsoluteVelocityChangeEvent>,
+    pub entity_deletion_event: Sender<EntityDeletionEvent>
+}
+
+impl<'blocks> Entities<'blocks>{
+    pub fn new(blocks: &'blocks Blocks) -> Self {
+        Entities{
+            entities: Vec::new(),
+            blocks,
+            entity_position_change_event: Sender::new(),
+            entity_velocity_change_event: Sender::new(),
+            entity_absolute_velocity_change_event: Sender::new(),
+            entity_deletion_event: Sender::new()
+        }
+    }
+
+    pub fn update_all_entities(&mut self) {
+        for entity in &mut self.entities {
+            let old_vel_x = entity.get_velocity_x();
+            let old_vel_y = entity.get_velocity_y();
+            entity.update_entity(&self.blocks);
+            if entity.entity_type == EntityType::PLAYER && old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
+                let event = EntityAbsoluteVelocityChangeEvent::new(entity.id, old_vel_x, old_vel_y);
+                self.entity_absolute_velocity_change_event.send(event);
+            }
+        }
     }
 }
