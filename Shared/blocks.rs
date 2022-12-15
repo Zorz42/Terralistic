@@ -1,5 +1,6 @@
 use std::borrow::BorrowMut;
 use std::rc::Rc;
+use events::*;
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const UNBREAKABLE: i32 = -1;
@@ -17,6 +18,7 @@ struct BlockChangeEvent {
 impl BlockChangeEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockChangeEvent{x, y} }
 }
+impl Event for BlockChangeEvent {}
 
 struct BlockRandomTickEvent {
     x: i32, y: i32
@@ -24,6 +26,7 @@ struct BlockRandomTickEvent {
 impl BlockRandomTickEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockRandomTickEvent{x, y} }
 }
+impl Event for BlockRandomTickEvent {}
 
 struct BlockBreakEvent {
     x: i32, y: i32
@@ -31,6 +34,7 @@ struct BlockBreakEvent {
 impl BlockBreakEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockBreakEvent{x, y} }
 }
+impl Event for BlockBreakEvent {}
 
 struct BlockStartedBreakingEvent {
     x: i32, y: i32
@@ -38,6 +42,7 @@ struct BlockStartedBreakingEvent {
 impl BlockStartedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStartedBreakingEvent{x, y} }
 }
+impl Event for BlockStartedBreakingEvent {}
 
 struct BlockStoppedBreakingEvent {
     x: i32, y: i32
@@ -45,6 +50,7 @@ struct BlockStoppedBreakingEvent {
 impl BlockStoppedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStoppedBreakingEvent{x, y} }
 }
+impl Event for BlockStoppedBreakingEvent {}
 
 struct BlockUpdateEvent {
     x: i32, y: i32
@@ -52,6 +58,7 @@ struct BlockUpdateEvent {
 impl BlockUpdateEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockUpdateEvent{x, y} }
 }
+impl Event for BlockUpdateEvent {}
 
 pub struct Tool {
     name: String
@@ -164,8 +171,11 @@ pub struct Blocks{
     breaking_blocks: Vec<BreakingBlock>,
     block_types: Vec<Rc<BlockType>>,
     tool_types: Vec<Rc<Tool>>,
-
-    //TODO: event senders
+    block_change_event: Sender<BlockChangeEvent>,
+    block_break_event: Sender<BlockBreakEvent>,
+    block_started_breaking_event: Sender<BlockStartedBreakingEvent>,
+    block_stopped_breaking_event: Sender<BlockStoppedBreakingEvent>,
+    block_update_event: Sender<BlockUpdateEvent>,
 }
 
 impl Blocks{
@@ -177,6 +187,11 @@ impl Blocks{
             breaking_blocks: vec![],
             block_types: vec![],
             tool_types: vec![],
+            block_change_event: Sender::new(),
+            block_break_event: Sender::new(),
+            block_started_breaking_event: Sender::new(),
+            block_stopped_breaking_event: Sender::new(),
+            block_update_event: Sender::new()
         };
 
         let mut air = BlockType::new(String::from("air"));
@@ -248,7 +263,7 @@ impl Blocks{
             self.get_block_mut(x, y).x_from_main = x_from_main;
             self.get_block_mut(x, y).y_from_main = y_from_main;
             let event = BlockChangeEvent::new(x, y);
-            //TODO: call event
+            self.block_change_event.send(event);
         }
     }
 
@@ -306,7 +321,7 @@ impl Blocks{
         self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
 
         let event = BlockStartedBreakingEvent::new(x, y);
-        //TODO: call event
+        self.block_started_breaking_event.send(event);
     }
 
     pub fn stop_breaking_block(&mut self, x: i32, y: i32){
@@ -319,7 +334,7 @@ impl Blocks{
                 breaking_block.is_breaking = false;
                 self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
                 let event = BlockStoppedBreakingEvent::new(x, y);
-                //TODO: call event
+                self.block_stopped_breaking_event.send(event);
                 break;
             }
         }
@@ -340,7 +355,7 @@ impl Blocks{
         let transformed_y = y - self.get_block_y_from_main(x, y) as i32;
 
         let event = BlockBreakEvent::new(transformed_x, transformed_y);
-        //TODO: call event
+        self.block_break_event.send(event);
         unsafe { self.set_block_type(transformed_x, transformed_y, &Rc::clone(self.get_block_type(x, y)), 0, 0); }
     }
 
