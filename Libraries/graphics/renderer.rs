@@ -237,10 +237,8 @@ impl Renderer {
 
                 if state {
                     self.events.push(Event::KeyPress(button));
-                    println!("Key pressed: {:?}", button);
                 } else {
                     self.events.push(Event::KeyRelease(button));
-                    println!("Key released: {:?}", button);
                 }
             }
         }
@@ -251,6 +249,7 @@ impl Renderer {
      */
     pub fn get_events(&mut self) -> Vec<Event> {
         let mut glfw_events = vec![];
+
         for (_, glfw_event) in glfw::flush_messages(&self.glfw_events) {
             glfw_events.push(glfw_event);
         }
