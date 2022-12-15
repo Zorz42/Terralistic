@@ -1,13 +1,14 @@
 use std::borrow::BorrowMut;
 use std::rc::Rc;
 use events::*;
+use super::block_data::*;
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const UNBREAKABLE: i32 = -1;
 pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;
 
-//TODO: write tests
+//TODO: write tests for block changes, block data, and block updates
 
 /*
 structs for events that modify blocks
@@ -68,15 +69,9 @@ impl Tool {
     pub fn new(name: String) -> Self { Tool{name} }
 }
 
-mod default_data {
-    //TODO: implement custom block data
-    //this is a struct that will not exist in the rust version, leave it in to remember what tf i have to do
-}
-
 /*
 includes properties for each block type
 */
-#[derive(PartialEq)]
 pub struct BlockType{
     pub effective_tool: Option<*const Tool>,
     pub required_tool_power: i32,
@@ -89,7 +84,8 @@ pub struct BlockType{
     pub width: i32, height: i32,
     pub block_data_index: i32,//TODO: future me change this to a reference if possible
     pub can_update_states: bool,
-    pub feet_collidable: bool
+    pub feet_collidable: bool,
+    pub custom_data_type: Option<DataType>
 }
 
 impl BlockType {
@@ -106,7 +102,8 @@ impl BlockType {
             width: 0, height: 0,
             block_data_index: 0,
             can_update_states: false,
-            feet_collidable: false
+            feet_collidable: false,
+            custom_data_type: Option::None
         }
     }
     pub fn update_states(blocks: &mut Blocks, x: i32, y: i32) -> i32 {
@@ -131,15 +128,15 @@ impl BlockType {
     }
 }
 
-#[derive(Clone)]
+
 struct Block{
     id: i32,
     x_from_main: i8, y_from_main: i8,
-    //TODO: default data, will leave out for now
+    block_data: Option<DataType>
 }
 
 impl Block{
-    pub fn new() -> Self { Block{id: 0, x_from_main: 0, y_from_main: 0} }
+    pub fn new() -> Self { Block{id: 0, x_from_main: 0, y_from_main: 0, block_data: Option::None} }
 }
 
 struct BreakingBlock{
@@ -166,7 +163,6 @@ impl BlockChunk{
 pub struct Blocks{
     blocks: Vec<Block>,
     chunks: Vec<BlockChunk>,
-    //TODO: data deliverer, will change custom data tho
     width: i32, height: i32,
     breaking_blocks: Vec<BreakingBlock>,
     block_types: Vec<Rc<BlockType>>,
@@ -235,7 +231,10 @@ impl Blocks{
         }
         self.width = width;
         self.height = height;
-        self.blocks = vec![Block::new(); (width * height) as usize];
+        self.blocks = Vec::new();
+        for i in 0..width * height {
+            self.blocks.push(Block::new());
+        }
         self.chunks = vec![BlockChunk::new(); (width * height / CHUNK_SIZE / CHUNK_SIZE) as usize];
     }
 
@@ -268,9 +267,10 @@ impl Blocks{
     }
 
     pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: &BlockType) {
-        //TODO: delete custom data
+        self.get_block_mut(x, y).block_data = Option::None;
         self.get_block_mut(x, y).id = block_type.id;
-        //TODO: add custom data
+        let data = block_type.custom_data_type.clone();
+        self.get_block_mut(x, y).block_data = data;
     }
 
     pub fn get_block_x_from_main(&mut self, x: i32, y: i32) -> i8 {
@@ -281,7 +281,9 @@ impl Blocks{
         self.get_block(x, y).y_from_main
     }
 
-    //TODO: get block data function
+    pub fn get_block_data(&mut self, x: i32, y: i32) -> &Option<BlockData> {
+        &self.get_block(x, y).block_data
+    }
 
     pub fn get_break_progress(&mut self, x: i32, y: i32) -> i32 {
         for breaking_block in self.breaking_blocks.iter() {
@@ -356,7 +358,7 @@ impl Blocks{
 
         let event = BlockBreakEvent::new(transformed_x, transformed_y);
         self.block_break_event.send(event);
-        unsafe { self.set_block_type(transformed_x, transformed_y, &Rc::clone(self.get_block_type(x, y)), 0, 0); }
+        self.set_block_type(transformed_x, transformed_y, &Rc::clone(self.get_block_type(x, y)), 0, 0);
     }
 
     pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
@@ -371,51 +373,81 @@ impl Blocks{
         self.height
     }
 
-    pub fn to_serial(&mut self) -> Vec<i8> {
-        let mut serial: Vec<i8> = Vec::new();
+    pub fn to_serial(&mut self) -> Vec<u8> {
+        let mut serial: Vec<u8> = Vec::new();
         let mut iter: u32 = 0;
         let size = 0;
-        //TODO: save custom block data
+        for block in self.blocks.iter() {
+            let data = &block.block_data.as_ref().unwrap();
+            match data { //TODO: remove match with traits
+                DataType::Mod(mod_data) => {
+                    mod_data.get_saved_size();
+                },
+                DataType::Furnace(furnace_data) => {
+                    furnace_data.get_saved_size();
+                },
+            }
+        }
         serial.resize(serial.len() + (self.width * self.height * 6 + 8 + size) as usize, 0);
-        //TODO: save width in first 4 bytes
-        serial[(iter    ) as usize] = (self.width >> 24) as i8;
-        serial[(iter + 1) as usize] = (self.width >> 16) as i8;
-        serial[(iter + 2) as usize] = (self.width >>  8) as i8;
-        serial[(iter + 3) as usize] = (self.width      ) as i8;
+        serial[(iter    ) as usize] = (self.width >> 24) as u8;
+        serial[(iter + 1) as usize] = (self.width >> 16) as u8;
+        serial[(iter + 2) as usize] = (self.width >>  8) as u8;
+        serial[(iter + 3) as usize] = (self.width      ) as u8;
         iter += 4;
-        //TODO: save height in next 4 bytes
-        serial[(iter    ) as usize] = (self.height >> 24) as i8;
-        serial[(iter + 1) as usize] = (self.height >> 16) as i8;
-        serial[(iter + 2) as usize] = (self.height >>  8) as i8;
-        serial[(iter + 3) as usize] = (self.height      ) as i8;
+        serial[(iter    ) as usize] = (self.height >> 24) as u8;
+        serial[(iter + 1) as usize] = (self.height >> 16) as u8;
+        serial[(iter + 2) as usize] = (self.height >>  8) as u8;
+        serial[(iter + 3) as usize] = (self.height      ) as u8;
         iter += 4;
         for(_i, block) in self.blocks.iter().enumerate() {
-            serial[(iter    ) as usize] = (block.id >> 24) as i8;
-            serial[(iter + 1) as usize] = (block.id >> 16) as i8;
-            serial[(iter + 2) as usize] = (block.id >>  8) as i8;
-            serial[(iter + 3) as usize] = (block.id      ) as i8;
-            serial[(iter + 4) as usize] = block.x_from_main;
-            serial[(iter + 5) as usize] = block.y_from_main;
+            serial[(iter    ) as usize] = (block.id >> 24) as u8;
+            serial[(iter + 1) as usize] = (block.id >> 16) as u8;
+            serial[(iter + 2) as usize] = (block.id >>  8) as u8;
+            serial[(iter + 3) as usize] = (block.id      ) as u8;
+            serial[(iter + 4) as usize] = block.x_from_main as u8;
+            serial[(iter + 5) as usize] = block.y_from_main as u8;
             iter += 6;
-            //TODO: save custom data when implemented
+            let data = &block.block_data.as_ref().unwrap();
+            match data { //TODO: remove match with traits
+                DataType::Mod(mod_data) => {
+                    mod_data.save(&mut serial, &mut iter);
+                },
+                DataType::Furnace(furnace_data) => {
+                    furnace_data.save(&mut serial, &mut iter);
+                },
+            }
         }
         serial
         //TODO: return compressed serial
     }
 
-    pub fn from_serial(&mut self, serial: Vec<i8>){
+    pub fn from_serial(&mut self, serial: Vec<u8>){
         let mut iter: u32 = 0;
         let decompressed = serial;//decompress serial whan implemented
         let width  = (decompressed[(iter    ) as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
         let height = (decompressed[(iter + 4) as usize] as i32) << 24 | (decompressed[(iter + 5) as usize] as i32) << 16 | (decompressed[(iter + 6) as usize] as i32) << 8 | decompressed[(iter + 7) as usize] as i32;
         iter += 8;
         self.create(width, height);
-        for(_i, block) in self.blocks.iter_mut().enumerate() {
-            block.id = (decompressed[iter as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
-            block.x_from_main = decompressed[(iter + 1) as usize];
-            block.y_from_main = decompressed[(iter + 2) as usize];
+
+        for i in 0..self.blocks.len() {
+            self.blocks[i].id = (decompressed[iter as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
+            self.blocks[i].x_from_main = decompressed[(iter + 1) as usize] as i8;
+            self.blocks[i].y_from_main = decompressed[(iter + 2) as usize] as i8;
             iter += 3;
-            //TODO: load custom data when implemented
+
+
+            self.blocks[i].block_data = self.get_block_type_by_id(self.blocks[i].id).custom_data_type.clone();
+            if self.blocks[i].block_data.is_some() {
+                let data = &mut self.blocks[i].block_data.as_mut().unwrap();
+                match data { //TODO: remove match with traits
+                    DataType::Mod(mod_data) => {
+                        mod_data.load(&decompressed, &mut iter);
+                    },
+                    DataType::Furnace(furnace_data) => {
+                        furnace_data.load(&decompressed, &mut iter);
+                    },
+                }
+            }
         }
     }
 
@@ -437,7 +469,6 @@ impl Blocks{
         self.block_types.len() as i32
     }
 
-    //TODO: data deliverer, will probably be rewritten
     pub fn register_new_tool_type(&mut self, tool_type: Tool){
         self.tool_types.push(Rc::new(tool_type));
     }
