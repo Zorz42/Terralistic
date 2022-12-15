@@ -57,6 +57,9 @@ pub use render_rect::RenderRect;
 mod button;
 pub use button::Button;
 
+mod sprite;
+pub use sprite::Sprite;
+
 /*
 A struct that will be passed all
 around the functions that need drawing

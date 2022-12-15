@@ -1,9 +1,12 @@
 use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
+use graphics::SPACING;
 use rand;
-use rand::Rng;
+use shared::versions::VERSION;
 
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+
+
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Singleplayer")));
@@ -29,6 +32,26 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Exit")));
     exit_button.orientation = gfx::CENTER;
 
+    let mut debug_title = gfx::Sprite::new();
+    debug_title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("DEBUG MODE")));
+    debug_title.color = gfx::GREY;
+    debug_title.orientation = gfx::TOP;
+    debug_title.scale = 2.0;
+    debug_title.y = SPACING / 4;
+
+    let mut title = gfx::Sprite::new();
+    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Terralistic")));
+    title.scale = 4.0;
+    title.orientation = gfx::TOP;
+    title.y = debug_title.y + debug_title.get_height() + SPACING / 2;
+
+    let mut version = gfx::Sprite::new();
+    version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from(VERSION)));
+    version.color = gfx::GREY;
+    version.orientation = gfx::BOTTOM;
+    version.scale = 2.0;
+    version.y = -5;
+
     {
         let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
 
@@ -51,7 +74,24 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         for event in events {
             match event {
                 gfx::Event::KeyRelease(key) => {
-
+                    // check for every button if it was clicked with the left mouse button
+                    if key == gfx::Key::MouseLeft {
+                        if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Singleplayer clicked");
+                        }
+                        if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Multiplayer clicked");
+                        }
+                        if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Settings clicked");
+                        }
+                        if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Mods clicked");
+                        }
+                        if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            graphics.renderer.close_window();
+                        }
+                    }
                 }
                 _ => {}
             }
@@ -72,6 +112,11 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         for button in buttons {
             button.render(graphics, Some(menu_back.get_back_rect_container()));
         }
+
+        debug_title.render(graphics, Some(menu_back.get_back_rect_container()));
+        title.render(graphics, Some(menu_back.get_back_rect_container()));
+        version.render(graphics, Some(menu_back.get_back_rect_container()));
+
 
         graphics.renderer.post_render();
     }

@@ -237,10 +237,8 @@ impl Renderer {
 
                 if state {
                     self.events.push(Event::KeyPress(button));
-                    println!("Key pressed: {:?}", button);
                 } else {
                     self.events.push(Event::KeyRelease(button));
-                    println!("Key released: {:?}", button);
                 }
             }
         }
@@ -251,6 +249,7 @@ impl Renderer {
      */
     pub fn get_events(&mut self) -> Vec<Event> {
         let mut glfw_events = vec![];
+
         for (_, glfw_event) in glfw::flush_messages(&self.glfw_events) {
             glfw_events.push(glfw_event);
         }
@@ -288,6 +287,13 @@ impl Renderer {
      */
     pub fn is_window_open(&self) -> bool {
         !self.glfw_window.should_close()
+    }
+
+    /**
+    Closes the window
+     */
+    pub fn close_window(&mut self) {
+        self.glfw_window.set_should_close(true);
     }
 
     /**
@@ -359,5 +365,23 @@ impl Renderer {
      */
     pub fn set_key_state(&mut self, key: Key, state: bool) {
         *self.key_states.entry(key).or_insert(false) = state;
+    }
+}
+
+/**
+Implement the Drop trait for the Renderer
+ */
+impl Drop for Renderer {
+    /**
+    Closes, destroys the window and cleans up the resources
+     */
+    fn drop(&mut self) {
+        unsafe {
+            gl::DeleteFramebuffers(1, &self.window_framebuffer);
+            gl::DeleteTextures(1, &self.window_texture);
+            gl::DeleteTextures(1, &self.window_texture_back);
+        }
+        // close glfw window
+        self.glfw_window.set_should_close(true);
     }
 }
