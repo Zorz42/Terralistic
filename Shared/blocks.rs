@@ -281,9 +281,9 @@ impl Blocks{
         self.get_block(x, y).y_from_main
     }
 
-    /*pub fn get_block_data(&mut self, x: i32, y: i32) -> &Option<BlockData> {
+    pub fn get_block_data(&mut self, x: i32, y: i32) -> &Option<DataType> {
         &self.get_block(x, y).block_data
-    }*/ //TODO: make it compile :(
+    }
 
     pub fn get_break_progress(&mut self, x: i32, y: i32) -> i32 {
         for breaking_block in self.breaking_blocks.iter() {
