@@ -50,7 +50,7 @@ impl RenderRect {
 
     /**
     This function renders the rectangle, it uses Rect class to render.
-    It also approcaches the position to the target position.
+    It also approaches the position to the target position.
      */
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         while self.ms_counter < self.approach_timer.get_time() as u32 {
@@ -63,7 +63,7 @@ impl RenderRect {
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        graphics.renderer.blur_context.blur_region(rect, self.blur_radius, graphics.renderer.window_texture, graphics.renderer.window_texture_back, graphics.renderer.get_window_width() as f32, graphics.renderer.get_window_height() as f32, &graphics.renderer.normalization_transform);
+        graphics.renderer.blur_rect(rect, self.blur_radius);
 
         rect.render(graphics, self.fill_color);
     }

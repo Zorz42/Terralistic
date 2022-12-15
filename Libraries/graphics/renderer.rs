@@ -3,7 +3,7 @@ extern crate glfw;
 use std::collections::HashMap;
 use std::ffi::CString;
 use self::glfw::{Context};
-use crate::{BlendMode, Event, Key, set_blend_mode};
+use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
 use crate::blur::BlurContext;
 use crate::vertex_buffer_impl;
 use crate::color;
@@ -368,6 +368,23 @@ impl Renderer {
      */
     pub fn set_key_state(&mut self, key: Key, state: bool) {
         *self.key_states.entry(key).or_insert(false) = state;
+    }
+
+    /**
+    Blurs given texture
+     */
+    pub(crate) fn blur_region(&self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32, height: f32, texture_transform: &Transformation) {
+        self.blur_context.blur_region(rect, radius, gl_texture, back_texture, width, height, texture_transform);
+        unsafe {
+            gl::UseProgram(self.default_shader);
+        }
+    }
+
+    /**
+    Blurs a given rectangle on the screen
+     */
+    pub(crate) fn blur_rect(&self, rect: &Rect, radius: i32) {
+        self.blur_region(rect, radius, self.window_texture, self.window_texture_back, self.glfw_window.get_size().0 as f32, self.glfw_window.get_size().1 as f32, &self.normalization_transform);
     }
 }
 

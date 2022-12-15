@@ -22,7 +22,7 @@ impl MenuBack {
     pub fn new() -> Self {
         let mut back_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0, gfx::BLACK, gfx::BORDER_COLOR, gfx::CENTER);
         back_rect.fill_color.a = gfx::TRANSPARENCY;
-        //back_rect.blur_radius = gfx::BLUR;
+        back_rect.blur_radius = gfx::BLUR;
         //back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         back_rect.smooth_factor = 3.0;
 
