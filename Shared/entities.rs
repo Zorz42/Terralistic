@@ -144,7 +144,6 @@ impl Entity {
 struct EntityVelocityChangeEvent {
     pub entity_id: u32,
 }
-impl events::Event for EntityVelocityChangeEvent{}
 impl EntityVelocityChangeEvent{
     pub fn new(entity_id: u32) -> Self{
         EntityVelocityChangeEvent{
@@ -157,7 +156,6 @@ struct EntityAbsoluteVelocityChangeEvent {
     pub entity_id: u32,
     pub old_vel_x: f64, old_vel_y: f64
 }
-
 impl EntityAbsoluteVelocityChangeEvent{
     pub fn new(entity_id: u32, old_vel_x: f64, old_vel_y: f64) -> Self{
         EntityAbsoluteVelocityChangeEvent{
@@ -167,11 +165,9 @@ impl EntityAbsoluteVelocityChangeEvent{
         }
     }
 }
-
 struct EntityPositionChangeEvent {
     pub entity_id: u32,
 }
-
 impl EntityPositionChangeEvent{
     pub fn new(entity_id: u32) -> Self{
         EntityPositionChangeEvent{
@@ -179,11 +175,9 @@ impl EntityPositionChangeEvent{
         }
     }
 }
-
 struct EntityDeletionEvent {
     pub entity_id: u32,
 }
-
 impl EntityDeletionEvent{
     pub fn new(entity_id: u32) -> Self{
         EntityDeletionEvent{
@@ -191,6 +185,11 @@ impl EntityDeletionEvent{
         }
     }
 }
+
+impl Event for EntityVelocityChangeEvent {}
+impl Event for EntityAbsoluteVelocityChangeEvent {}
+impl Event for EntityPositionChangeEvent {}
+impl Event for EntityDeletionEvent {}
 
 struct Entities<'blocks>{
     entities: Vec<Entity>,
@@ -249,7 +248,7 @@ impl<'blocks> Entities<'blocks>{
     }
 
     pub fn set_velocity_x(&mut self, entity: &mut Entity, velocity_x: f64){
-        if(entity.velocity_x != velocity_x){
+        if entity.velocity_x != velocity_x {
             entity.velocity_x = velocity_x;
             let event = EntityVelocityChangeEvent::new(entity.id);
             self.entity_velocity_change_event.send(event);
@@ -257,7 +256,7 @@ impl<'blocks> Entities<'blocks>{
     }
 
     pub fn set_velocity_y(&mut self, entity: &mut Entity, velocity_y: f64){
-        if(entity.velocity_y != velocity_y){
+        if entity.velocity_y != velocity_y {
             entity.velocity_y = velocity_y;
             let event = EntityVelocityChangeEvent::new(entity.id);
             self.entity_velocity_change_event.send(event);
@@ -273,7 +272,7 @@ impl<'blocks> Entities<'blocks>{
     }
 
     pub fn set_x(&mut self, entity: &mut Entity, x: f64, send_to_everyone: bool){
-        if(entity.x != x){
+        if entity.x != x {
             entity.x = x;
             if send_to_everyone{
                 let event = EntityPositionChangeEvent::new(entity.id);
@@ -283,7 +282,7 @@ impl<'blocks> Entities<'blocks>{
     }
 
     pub fn set_y(&mut self, entity: &mut Entity, y: f64, send_to_everyone: bool){
-        if(entity.y != y){
+        if entity.y != y {
             entity.y = y;
             if send_to_everyone{
                 let event = EntityPositionChangeEvent::new(entity.id);

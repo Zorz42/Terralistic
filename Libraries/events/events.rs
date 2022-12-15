@@ -15,11 +15,11 @@ pub trait Listener<Type> {
 /*
 This struct is an event sender.
 */
-pub struct Sender<Type> {
+pub struct Sender<Type: Event> {
     listeners: Vec<SharedMut<dyn Listener<Type>>>,
 }
 
-impl<Type> Sender<Type> {
+impl<Type: Event> Sender<Type> {
     /*
     Creates a new event sender.
     */
