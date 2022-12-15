@@ -36,6 +36,8 @@ pub use surface::Surface;
 mod renderer;
 use crate::renderer::Renderer;
 
+mod blur;
+
 mod events;
 pub use events::{Event, Key};
 

@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::ffi::CString;
 use self::glfw::{Context};
 use crate::{BlendMode, Event, Key, set_blend_mode};
+use crate::blur::BlurContext;
 use crate::vertex_buffer_impl;
 use crate::color;
 use crate::events::{glfw_event_to_gfx_event, glfw_mouse_button_to_gfx_key};
@@ -73,6 +74,7 @@ pub struct Renderer {
     pub(crate) window_texture: u32,
     pub(crate) window_texture_back: u32,
     pub(crate) window_framebuffer: u32,
+    pub(crate) blur_context: BlurContext,
     // Keep track of all Key states as a hashmap
     pub(crate) key_states: HashMap<Key, bool>,
     pub(crate) events: Vec<Event>,
@@ -122,6 +124,7 @@ impl Renderer {
             window_framebuffer: 0,
             key_states: HashMap::new(),
             events: Vec::new(),
+            blur_context: BlurContext::new(),
         };
 
         unsafe {

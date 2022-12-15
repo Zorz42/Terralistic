@@ -22,6 +22,7 @@ pub struct RenderRect {
     pub border_color: Color,
     pub smooth_factor: f32,
     pub orientation: Orientation,
+    pub blur_radius: i32,
     ms_counter: u32,
     approach_timer: Timer,
 }
@@ -41,6 +42,7 @@ impl RenderRect {
             border_color,
             smooth_factor: 1.0,
             orientation,
+            blur_radius: 0,
             ms_counter: 0,
             approach_timer: Timer::new(),
         }
@@ -61,6 +63,8 @@ impl RenderRect {
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
+        graphics.renderer.blur_context.blur_region(rect, self.blur_radius, graphics.renderer.window_texture, graphics.renderer.window_texture_back, graphics.renderer.get_window_width() as f32, graphics.renderer.get_window_height() as f32, &graphics.renderer.normalization_transform);
+
         rect.render(graphics, self.fill_color);
     }
 
