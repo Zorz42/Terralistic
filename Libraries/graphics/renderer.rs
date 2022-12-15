@@ -290,6 +290,13 @@ impl Renderer {
     }
 
     /**
+    Closes the window
+     */
+    pub fn close_window(&mut self) {
+        self.glfw_window.set_should_close(true);
+    }
+
+    /**
     Should be called after rendering
      */
     pub fn post_render(&mut self) {
@@ -358,5 +365,23 @@ impl Renderer {
      */
     pub fn set_key_state(&mut self, key: Key, state: bool) {
         *self.key_states.entry(key).or_insert(false) = state;
+    }
+}
+
+/**
+Implement the Drop trait for the Renderer
+ */
+impl Drop for Renderer {
+    /**
+    Closes, destroys the window and cleans up the resources
+     */
+    fn drop(&mut self) {
+        unsafe {
+            gl::DeleteFramebuffers(1, &self.window_framebuffer);
+            gl::DeleteTextures(1, &self.window_texture);
+            gl::DeleteTextures(1, &self.window_texture_back);
+        }
+        // close glfw window
+        self.glfw_window.set_should_close(true);
     }
 }

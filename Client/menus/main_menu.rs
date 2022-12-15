@@ -2,7 +2,6 @@ use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use graphics::SPACING;
 use rand;
-use rand::Rng;
 use shared::versions::VERSION;
 
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
@@ -75,7 +74,24 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         for event in events {
             match event {
                 gfx::Event::KeyRelease(key) => {
-
+                    // check for every button if it was clicked with the left mouse button
+                    if key == gfx::Key::MouseLeft {
+                        if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Singleplayer clicked");
+                        }
+                        if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Multiplayer clicked");
+                        }
+                        if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Settings clicked");
+                        }
+                        if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            println!("Mods clicked");
+                        }
+                        if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                            graphics.renderer.close_window();
+                        }
+                    }
                 }
                 _ => {}
             }
