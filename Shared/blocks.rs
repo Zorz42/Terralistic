@@ -12,7 +12,6 @@ pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;
 
 //TODO: write tests for block changes, block data, and block updates
-//TODO: check that all BlockData is using Rc
 
 /*
 structs for events that modify blocks
@@ -261,7 +260,7 @@ impl Blocks{
         self.get_block_type_by_id(id)
     }
 
-    pub fn set_block_type(&mut self, x: i32, y: i32, block_type: &BlockType, x_from_main: i8, y_from_main: i8) {
+    pub fn set_block_type(&mut self, x: i32, y: i32, block_type: Rc<BlockType>, x_from_main: i8, y_from_main: i8) {
         if block_type.id != self.get_block(x, y).id {
             self.set_block_type_silently(x, y, block_type);
             for i in 0..self.breaking_blocks.len() {
@@ -277,7 +276,7 @@ impl Blocks{
         }
     }
 
-    pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: &BlockType) {
+    pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
         self.get_block_mut(x, y).block_data = Option::None;
         self.get_block_mut(x, y).id = block_type.id;
         let data = block_type.custom_data_type.clone();
@@ -370,7 +369,7 @@ impl Blocks{
 
         let event = BlockBreakEvent::new(transformed_x, transformed_y);
         self.block_break_event.send(event);
-        self.set_block_type(transformed_x, transformed_y, &Rc::clone(&self.get_block_type(x, y)), 0, 0);
+        self.set_block_type(transformed_x, transformed_y, Rc::clone(&self.get_block_type(x, y)), 0, 0);
     }
 
     pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
