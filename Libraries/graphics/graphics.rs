@@ -35,6 +35,8 @@ pub use surface::Surface;
 
 mod blur;
 
+mod shadow;
+
 mod passthrough_shader;
 
 mod renderer;

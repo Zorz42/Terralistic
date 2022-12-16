@@ -67,6 +67,13 @@ impl Texture {
         self.height
     }
 
+    pub(crate) fn get_normalization_transform(&self) -> Transformation {
+        let mut result = Transformation::new();
+        result.translate(-1.0, 1.0);
+        result.stretch(1.0 / self.width as f32, 1.0 / self.height as f32);
+        result
+    }
+
     pub fn render(&self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Option<Rect>, flipped: bool, color: Option<Color>) {
         let src_rect = src_rect.unwrap_or(Rect::new(0, 0, self.get_texture_width(), self.get_texture_height()));
         let color = color.unwrap_or(Color{r: 255, g: 255, b: 255, a: 255});
@@ -84,9 +91,7 @@ impl Texture {
 
             gl::UniformMatrix3fv(renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
-            let mut transform = Transformation::new();
-            transform.translate(-1.0, 0.0);
-            transform.stretch(1.0 / self.get_texture_width() as f32, 1.0 / self.get_texture_height() as f32);
+            let mut transform = self.get_normalization_transform();
             transform.translate(src_rect.x as f32, src_rect.y as f32);
             transform.stretch(src_rect.w as f32, src_rect.h as f32);
 

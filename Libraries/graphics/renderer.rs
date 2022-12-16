@@ -10,6 +10,7 @@ use crate::color;
 use crate::events::{glfw_event_to_gfx_event, glfw_mouse_button_to_gfx_key};
 use crate::passthrough_shader::PassthroughShader;
 use crate::shaders::compile_shader;
+use crate::shadow::ShadowContext;
 use crate::transformation::Transformation;
 use crate::vertex_buffer_impl::VertexBufferImpl;
 
@@ -29,6 +30,7 @@ pub struct Renderer {
     // Keep track of all Key states as a hashmap
     pub(crate) key_states: HashMap<Key, bool>,
     pub(crate) events: Vec<Event>,
+    pub(crate) shadow_context: ShadowContext,
 }
 
 impl Renderer {
@@ -72,6 +74,8 @@ impl Renderer {
             gl::BindFramebuffer(gl::FRAMEBUFFER, window_framebuffer);
         }
 
+        let shadow_context = ShadowContext::new();
+
         let mut result = Renderer {
             glfw,
             glfw_window,
@@ -84,6 +88,7 @@ impl Renderer {
             events: Vec::new(),
             blur_context: BlurContext::new(),
             passthrough_shader,
+            shadow_context,
         };
 
         result.handle_window_resize();
@@ -113,6 +118,9 @@ impl Renderer {
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
+
+            // set glViewport
+            gl::Viewport(0, 0, width * 2, height * 2);
         }
     }
 
