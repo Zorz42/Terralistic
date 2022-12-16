@@ -33,10 +33,12 @@ mod shaders;
 mod surface;
 pub use surface::Surface;
 
+mod blur;
+
+mod passthrough_shader;
+
 mod renderer;
 use crate::renderer::Renderer;
-
-mod blur;
 
 mod events;
 pub use events::{Event, Key};

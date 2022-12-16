@@ -8,73 +8,24 @@ use crate::blur::BlurContext;
 use crate::vertex_buffer_impl;
 use crate::color;
 use crate::events::{glfw_event_to_gfx_event, glfw_mouse_button_to_gfx_key};
+use crate::passthrough_shader::PassthroughShader;
 use crate::shaders::compile_shader;
 use crate::transformation::Transformation;
 use crate::vertex_buffer_impl::VertexBufferImpl;
-
-const VERTEX_SHADER_CODE: &str = r#"
-#version 330 core
-
-layout (location = 0) in vec2 vertex_position;
-layout (location = 1) in vec4 vertex_color;
-layout (location = 2) in vec2 vertex_texture_coordinate;
-
-out vec4 fragment_color;
-out vec2 texture_coord;
-
-uniform int has_color_buffer;
-uniform vec4 global_color;
-uniform mat3 transform_matrix;
-uniform mat3 texture_transform_matrix;
-
-void main() {
-	gl_Position = vec4(transform_matrix * vec3(vertex_position, 1), 1);
-	fragment_color = global_color * vertex_color;
-	texture_coord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1)).xy;
-}
-"#;
-
-const FRAGMENT_SHADER_CODE: &str = r#"
-#version 330 core
-
-in vec4 fragment_color;
-in vec2 texture_coord;
-layout(location = 0) out vec4 color;
-uniform sampler2D texture_sampler;
-uniform int has_texture;
-
-void main() {
-	color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, texture_coord).rgba, has_texture) * fragment_color;
-}
-"#;
-
-/**
-This stores all shader uniform handles
- */
-pub(crate) struct ShaderUniformHandles {
-    pub has_texture: i32,
-    pub global_color: i32,
-    pub texture_sampler: i32,
-    pub transform_matrix: i32,
-    pub texture_transform_matrix: i32,
-}
 
 /**
 This stores all the values needed for rendering.
  */
 pub struct Renderer {
-    pub(crate) uniforms: ShaderUniformHandles,
     pub(crate) glfw: glfw::Glfw,
     pub(crate) glfw_window: glfw::Window,
     pub(crate) glfw_events: std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
-    pub(crate) default_shader: u32,
     pub(crate) normalization_transform: Transformation,
-    pub(crate) rect_vertex_buffer: VertexBufferImpl,
-    pub(crate) rect_outline_vertex_buffer: VertexBufferImpl,
     pub(crate) window_texture: u32,
     pub(crate) window_texture_back: u32,
     pub(crate) window_framebuffer: u32,
     pub(crate) blur_context: BlurContext,
+    pub(crate) passthrough_shader: PassthroughShader,
     // Keep track of all Key states as a hashmap
     pub(crate) key_states: HashMap<Key, bool>,
     pub(crate) events: Vec<Event>,
@@ -104,79 +55,36 @@ impl Renderer {
 
         gl::load_with(|symbol| glfw_window.get_proc_address(symbol) as *const _);
 
-        let mut result = Renderer {
-            uniforms: ShaderUniformHandles {
-                has_texture: 0,
-                global_color: 0,
-                texture_sampler: 0,
-                transform_matrix: 0,
-                texture_transform_matrix: 0,
-            },
-            glfw,
-            glfw_window,
-            glfw_events,
-            default_shader: 0,
-            normalization_transform: Transformation::new(),
-            rect_vertex_buffer: VertexBufferImpl::new(),
-            rect_outline_vertex_buffer: VertexBufferImpl::new(),
-            window_texture: 0,
-            window_texture_back: 0,
-            window_framebuffer: 0,
-            key_states: HashMap::new(),
-            events: Vec::new(),
-            blur_context: BlurContext::new(),
-        };
-
         unsafe {
             gl::Enable(gl::BLEND);
         }
         set_blend_mode(BlendMode::Alpha);
 
-        result.default_shader = compile_shader(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+        let passthrough_shader = PassthroughShader::new();
+        let mut window_texture= 0;
+        let mut window_texture_back= 0;
+        let mut window_framebuffer= 0;
 
         unsafe {
-            gl::UseProgram(result.default_shader);
-
-            let ident = CString::new("has_texture").unwrap();
-            result.uniforms.has_texture = gl::GetUniformLocation(result.default_shader, ident.as_ptr());
-            let ident = CString::new("global_color").unwrap();
-            result.uniforms.global_color = gl::GetUniformLocation(result.default_shader, ident.as_ptr());
-            let ident = CString::new("texture_sampler").unwrap();
-            result.uniforms.texture_sampler = gl::GetUniformLocation(result.default_shader, ident.as_ptr());
-            let ident = CString::new("transform_matrix").unwrap();
-            result.uniforms.transform_matrix = gl::GetUniformLocation(result.default_shader, ident.as_ptr());
-            let ident = CString::new("texture_transform_matrix").unwrap();
-            result.uniforms.texture_transform_matrix = gl::GetUniformLocation(result.default_shader, ident.as_ptr());
-
-            gl::GenTextures(1, &mut result.window_texture);
-            gl::GenTextures(1, &mut result.window_texture_back);
-            gl::GenFramebuffers(1, &mut result.window_framebuffer);
-            gl::BindFramebuffer(gl::FRAMEBUFFER, result.window_framebuffer);
+            gl::GenTextures(1, &mut window_texture);
+            gl::GenTextures(1, &mut window_texture_back);
+            gl::GenFramebuffers(1, &mut window_framebuffer);
+            gl::BindFramebuffer(gl::FRAMEBUFFER, window_framebuffer);
         }
 
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
-
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
-        result.rect_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
-
-        result.rect_vertex_buffer.upload();
-
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
-
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
-
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 1.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
-
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 1.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
-        result.rect_outline_vertex_buffer.add_vertex(&vertex_buffer_impl::VertexImpl { x: 0.0, y: 0.0, color: color::Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
-
-        result.rect_outline_vertex_buffer.upload();
+        let mut result = Renderer {
+            glfw,
+            glfw_window,
+            glfw_events,
+            normalization_transform: Transformation::new(),
+            window_texture,
+            window_texture_back,
+            window_framebuffer,
+            key_states: HashMap::new(),
+            events: Vec::new(),
+            blur_context: BlurContext::new(),
+            passthrough_shader,
+        };
 
         result.handle_window_resize();
 
@@ -376,7 +284,7 @@ impl Renderer {
     pub(crate) fn blur_region(&self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32, height: f32, texture_transform: &Transformation) {
         self.blur_context.blur_region(rect, radius, gl_texture, back_texture, width, height, texture_transform);
         unsafe {
-            gl::UseProgram(self.default_shader);
+            gl::UseProgram(self.passthrough_shader.passthrough_shader);
         }
     }
 
