@@ -305,9 +305,11 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "events",
  "serde",
  "serde_derive",
+ "snap",
 ]
 
 [[package]]

@@ -1,8 +1,10 @@
 use std::borrow::BorrowMut;
+use std::ops::Deref;
 use std::rc::Rc;
 use events::*;
 use serde_derive::{Serialize, Deserialize};
 use super::block_data::*;
+use snap;
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const UNBREAKABLE: i32 = -1;
@@ -10,6 +12,7 @@ pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;
 
 //TODO: write tests for block changes, block data, and block updates
+//TODO: check that all BlockData is using Rc
 
 /*
 structs for events that modify blocks
@@ -168,6 +171,8 @@ pub struct Blocks{
     breaking_blocks: Vec<BreakingBlock>,
     block_types: Vec<Rc<BlockType>>,
     tool_types: Vec<Rc<Tool>>,
+    air: Rc<BlockType>,
+    hand: Rc<Tool>,
     block_change_event: Sender<BlockChangeEvent>,
     block_break_event: Sender<BlockBreakEvent>,
     block_started_breaking_event: Sender<BlockStartedBreakingEvent>,
@@ -184,11 +189,14 @@ impl Blocks{
             breaking_blocks: vec![],
             block_types: vec![],
             tool_types: vec![],
+            air: Rc::new(BlockType::new("_".to_string())),
+            hand: Rc::new(Tool::new("hand".to_string())),
             block_change_event: Sender::new(),
             block_break_event: Sender::new(),
             block_started_breaking_event: Sender::new(),
             block_stopped_breaking_event: Sender::new(),
-            block_update_event: Sender::new()
+            block_update_event: Sender::new(),
+
         };
 
         let mut air = BlockType::new(String::from("air"));
@@ -199,9 +207,11 @@ impl Blocks{
         air.light_emission_g = 0;
         air.light_emission_b = 0;
         air.can_update_states = false;
-        let hand = Tool::new(String::from("hand"));
         b.register_new_block_type(air);
-        b.register_new_tool_type(hand);
+        b.air = Rc::clone(&b.block_types[0]);
+
+        let hand = Rc::new(Tool::new(String::from("hand")));
+        b.register_new_tool_type(Rc::clone(&hand));
         b
     }
 
@@ -219,7 +229,7 @@ impl Blocks{
         &mut self.blocks[(y * self.width + x) as usize]
     }
 
-    fn get_chunk(&mut self, x: i32, y: i32) -> &mut BlockChunk {
+    fn get_chunk_mut(&mut self, x: i32, y: i32) -> &mut BlockChunk {
         if x < 0 || y < 0 || x >= self.width / CHUNK_SIZE || y >= self.height / CHUNK_SIZE || self.chunks.is_empty() {
             panic!("Chunk is accessed out of bounds! x: {}, y: {}", x, y);
         }
@@ -239,14 +249,14 @@ impl Blocks{
         self.chunks = vec![BlockChunk::new(); (width * height / CHUNK_SIZE / CHUNK_SIZE) as usize];
     }
 
-    pub fn get_block_type_by_id(&self, id: i32) -> &Rc<BlockType> {
+    pub fn get_block_type_by_id(&self, id: i32) -> Rc<BlockType> {
         if id < 0 || id >= self.block_types.len() as i32 {
             panic!("Block type id is out of bounds! id: {}", id);
         }
-        &self.block_types[id as usize]
+        Rc::clone(&self.block_types[id as usize])
     }
 
-    pub fn get_block_type(&self, x: i32, y: i32) -> &Rc<BlockType> {
+    pub fn get_block_type(&self, x: i32, y: i32) -> Rc<BlockType> {
         let id = self.get_block(x, y).id.into();
         self.get_block_type_by_id(id)
     }
@@ -308,6 +318,7 @@ impl Blocks{
         for i in self.breaking_blocks.iter_mut() {
             if i.x == x && i.y == y {
                 breaking_block = Some(i);
+                break;
             }
         }
 
@@ -321,7 +332,7 @@ impl Blocks{
 
         breaking_block.unwrap().is_breaking = true;
 
-        self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
+        self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
 
         let event = BlockStartedBreakingEvent::new(x, y);
         self.block_started_breaking_event.send(event);
@@ -335,7 +346,7 @@ impl Blocks{
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.x == x && breaking_block.y == y {
                 breaking_block.is_breaking = false;
-                self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
+                self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
                 let event = BlockStoppedBreakingEvent::new(x, y);
                 self.block_stopped_breaking_event.send(event);
                 break;
@@ -359,11 +370,11 @@ impl Blocks{
 
         let event = BlockBreakEvent::new(transformed_x, transformed_y);
         self.block_break_event.send(event);
-        self.set_block_type(transformed_x, transformed_y, &Rc::clone(self.get_block_type(x, y)), 0, 0);
+        self.set_block_type(transformed_x, transformed_y, &Rc::clone(&self.get_block_type(x, y)), 0, 0);
     }
 
     pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
-        self.get_chunk(x, y).breaking_blocks_count.into()
+        self.get_chunk_mut(x, y).breaking_blocks_count.into()
     }
 
     pub fn get_width(&self) -> i32 {
@@ -377,7 +388,7 @@ impl Blocks{
     pub fn to_serial(&mut self) -> Vec<u8> {
         let mut serial: Vec<u8> = Vec::new();
         let mut iter: u32 = 0;
-        serial.resize(serial.len() + (self.width * self.height * 6 + 8) as usize, 0);
+        serial.resize(serial.len() + (self.width * self.height * 6 + 8) as usize, 0);//TODO: use serialize
         serial[(iter    ) as usize] = (self.width >> 24) as u8;
         serial[(iter + 1) as usize] = (self.width >> 16) as u8;
         serial[(iter + 2) as usize] = (self.width >>  8) as u8;
@@ -405,13 +416,13 @@ impl Blocks{
             }
 
         }
-        serial
-        //TODO: return compressed serial
+        snap::raw::Encoder::new().
+            compress_vec(&serial).unwrap()
     }
 
     pub fn from_serial(&mut self, serial: Vec<u8>){//TODO: implement serialize/deserialize on whole blocks?
         let mut iter: u32 = 0;
-        let decompressed = serial;//TODO: decompress serial whan implemented
+        let decompressed = snap::raw::Decoder::new().decompress_vec(&serial).unwrap();
         let width  = (decompressed[(iter    ) as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
         let height = (decompressed[(iter + 4) as usize] as i32) << 24 | (decompressed[(iter + 5) as usize] as i32) << 16 | (decompressed[(iter + 6) as usize] as i32) << 8 | decompressed[(iter + 7) as usize] as i32;
         iter += 8;
@@ -431,35 +442,36 @@ impl Blocks{
         }
     }
 
-    pub fn register_new_block_type(&mut self, mut block_type: BlockType){
+    pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Rc<BlockType>{
         block_type.id = self.block_types.len() as i32;
         self.block_types.push(Rc::new(block_type));
+        Rc::clone(self.block_types.last_mut().unwrap())
     }
 
-    pub fn get_block_type_by_name(&mut self, name: String) -> &BlockType {
+    pub fn get_block_type_by_name(&mut self, name: String) -> Option<Rc<BlockType>> {
         for block_type in self.block_types.iter() {
             if block_type.name == name {
-                return &block_type;
+                return Some(Rc::clone(block_type));
             }
         }
-        panic!("Block type with name {} not found!", name);
+        None
     }
 
     pub fn get_number_block_types(&mut self) -> i32 {
         self.block_types.len() as i32
     }
 
-    pub fn register_new_tool_type(&mut self, tool_type: Tool){
-        self.tool_types.push(Rc::new(tool_type));
+    pub fn register_new_tool_type(&mut self, tool_type: Rc<Tool>){
+        self.tool_types.push(tool_type);
     }
 
-    pub fn get_tool_type_by_name(&mut self, name: String) -> &Tool {
+    pub fn get_tool_type_by_name(&mut self, name: String) -> Option<Rc<Tool>> {
         for tool_type in self.tool_types.iter() {
             if tool_type.name == name {
-                return &tool_type;
+                return Some(Rc::clone(tool_type));
             }
         }
-        panic!("Tool type with name {} not found!", name);
+        None
     }
 
     pub fn update_state_side(&mut self, x: i32, y: i32, side_x: i32, side_y: i32) -> bool {
