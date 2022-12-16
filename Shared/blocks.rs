@@ -85,7 +85,6 @@ pub struct BlockType{
     pub light_emission_r: i32, light_emission_g: i32, light_emission_b: i32,
     pub id: i32,
     pub width: i32, height: i32,
-    pub block_data_index: i32,//TODO: future me change this to a reference if possible
     pub can_update_states: bool,
     pub feet_collidable: bool,
     pub custom_data_type: Option<CustomData>
@@ -103,7 +102,6 @@ impl BlockType {
             light_emission_r: 0, light_emission_g: 0, light_emission_b: 0,
             id: 0,
             width: 0, height: 0,
-            block_data_index: 0,
             can_update_states: false,
             feet_collidable: false,
             custom_data_type: Option::None
@@ -131,7 +129,7 @@ impl BlockType {
     }
 }
 
-
+#[derive(Deserialize, Serialize)]
 struct Block{
     id: i32,
     x_from_main: i8, y_from_main: i8,
@@ -387,7 +385,9 @@ impl Blocks{
     pub fn to_serial(&mut self) -> Vec<u8> {
         let mut serial: Vec<u8> = Vec::new();
         let mut iter: u32 = 0;
-        serial.resize(serial.len() + (self.width * self.height * 6 + 8) as usize, 0);//TODO: use serialize
+        snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.blocks).unwrap()).unwrap()
+        //TODO: test serialize and deserialize, also for custom block data. Until then don't remove this comment
+        /*serial.resize(serial.len() + (self.width * self.height * 6 + 8) as usize, 0);
         serial[(iter    ) as usize] = (self.width >> 24) as u8;
         serial[(iter + 1) as usize] = (self.width >> 16) as u8;
         serial[(iter + 2) as usize] = (self.width >>  8) as u8;
@@ -416,11 +416,13 @@ impl Blocks{
 
         }
         snap::raw::Encoder::new().
-            compress_vec(&serial).unwrap()
+            compress_vec(&serial).unwrap()*/
     }
 
-    pub fn from_serial(&mut self, serial: Vec<u8>){//TODO: implement serialize/deserialize on whole blocks?
-        let mut iter: u32 = 0;
+    pub fn from_serial(&mut self, serial: Vec<u8>){
+        self.blocks = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(&serial).unwrap()).unwrap();
+        //TODO: test serialize and deserialize, also for custom block data. Until then don't remove this comment
+        /*let mut iter: u32 = 0;
         let decompressed = snap::raw::Decoder::new().decompress_vec(&serial).unwrap();
         let width  = (decompressed[(iter    ) as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
         let height = (decompressed[(iter + 4) as usize] as i32) << 24 | (decompressed[(iter + 5) as usize] as i32) << 16 | (decompressed[(iter + 6) as usize] as i32) << 8 | decompressed[(iter + 7) as usize] as i32;
@@ -438,7 +440,7 @@ impl Blocks{
             if self.blocks[i].block_data.is_some() {
                 self.blocks[i].block_data.as_mut().unwrap().data = decompressed[iter as usize..(iter + self.blocks[i].block_data.as_ref().unwrap().serial_length) as usize].to_vec();
             }
-        }
+        }*/
     }
 
     pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Rc<BlockType>{
