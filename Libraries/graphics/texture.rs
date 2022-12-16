@@ -82,7 +82,7 @@ impl Texture {
             transform.translate(x as f32, y as f32);
             transform.stretch(src_rect.w as f32 * scale, src_rect.h as f32 * scale);
 
-            gl::UniformMatrix3fv(renderer.uniforms.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::UniformMatrix3fv(renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
             let mut transform = Transformation::new();
             transform.translate(-1.0, 0.0);
@@ -90,13 +90,13 @@ impl Texture {
             transform.translate(src_rect.x as f32, src_rect.y as f32);
             transform.stretch(src_rect.w as f32, src_rect.h as f32);
 
-            gl::UniformMatrix3fv(renderer.uniforms.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-            gl::Uniform4f(renderer.uniforms.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
-            gl::Uniform1i(renderer.uniforms.has_texture, 1);
+            gl::UniformMatrix3fv(renderer.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::Uniform4f(renderer.passthrough_shader.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
+            gl::Uniform1i(renderer.passthrough_shader.has_texture, 1);
 
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
 
-            renderer.rect_vertex_buffer.draw(true, DrawMode::Triangles);
+            renderer.passthrough_shader.rect_vertex_buffer.draw(true, DrawMode::Triangles);
         }
     }
 }

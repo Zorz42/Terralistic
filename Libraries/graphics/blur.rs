@@ -61,24 +61,17 @@ impl BlurContext {
         BlurContext {
             blur_shader,
             transform_matrix_uniform: unsafe {
-                let ident = CString::new("transform_matrix").unwrap();
-                gl::GetUniformLocation(blur_shader, ident.as_ptr())
+                gl::GetUniformLocation(blur_shader, "transform_matrix\0".as_ptr() as *const i8)
             },
             texture_transform_matrix_uniform: unsafe {
-                let ident = CString::new("texture_transform_matrix").unwrap();
-                gl::GetUniformLocation(blur_shader, ident.as_ptr())
-            },
-            texture_sampler_uniform: unsafe {
-                let ident = CString::new("texture_sampler").unwrap();
-                gl::GetUniformLocation(blur_shader, ident.as_ptr())
+                gl::GetUniformLocation(blur_shader, "texture_transform_matrix\0".as_ptr() as *const i8) },
+            texture_sampler_uniform: unsafe { gl::GetUniformLocation(blur_shader, "texture_sampler\0".as_ptr() as *const i8)
             },
             blur_offset_uniform: unsafe {
-                let ident = CString::new("blur_offset").unwrap();
-                gl::GetUniformLocation(blur_shader, ident.as_ptr())
+                gl::GetUniformLocation(blur_shader, "blur_offset\0".as_ptr() as *const i8)
             },
             limit_uniform: unsafe {
-                let ident = CString::new("limit").unwrap();
-                gl::GetUniformLocation(blur_shader, ident.as_ptr())
+                gl::GetUniformLocation(blur_shader, "limit\0".as_ptr() as *const i8)
             },
             rect_vertex_buffer: {
                 let mut buffer = 0;
