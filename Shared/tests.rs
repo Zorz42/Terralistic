@@ -1,0 +1,87 @@
+use std::ops::Deref;
+use crate::blocks::BlockType;
+
+use super::resource_path;
+use super::blocks;
+
+#[test]
+fn test_get_resource_path(){
+    assert_eq!(resource_path::get_resource_path(
+        String::from(r"/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Terralistic")),
+               String::from(r"/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Resources/"), "test 0 failed");
+    assert_eq!(resource_path::get_resource_path(
+        String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü\Terralistic.exe")),
+               String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü/Resources/"), "test 1 failed");
+    assert_eq!(resource_path::get_resource_path(String::from(r"/test/folder/exec")), String::from(r"/test/folder/Resources/"), "test 2 failed"); //previously used tests
+    assert_eq!(resource_path::get_resource_path(String::from(r"/test/folder/MacOS/exec")), String::from(r"/test/folder/Resources/"), "test 3 failed");
+    assert_eq!(resource_path::get_resource_path(String::from(r"/testing/1234/exec")), String::from(r"/testing/1234/Resources/"), "test 4 failed");
+    assert_eq!(resource_path::get_resource_path(String::from(r"/testing/1234/MacOS/exec")), String::from(r"/testing/1234/Resources/"), "test 5 failed");
+    assert_eq!(resource_path::get_resource_path(
+        String::from(r"/folder/folder/folder/folder/folder/folder/notfolder")),
+               String::from(r"/folder/folder/folder/folder/folder/folder/Resources/"), "test 6 failed");
+    assert_eq!(resource_path::get_resource_path(
+        String::from(r"/folder/folder/folder/folder/šwćgregeropgjćšwž/folder/folder/MacOS/notfolder")),
+               String::from(r"/folder/folder/folder/folder/šwćgregeropgjćšwž/folder/folder/Resources/"), "test 7 failed");
+    assert_eq!(resource_path::get_resource_path(String::from(r"./exec")), String::from(r"./Resources/"), "test 8 failed");
+    assert_eq!(resource_path::get_resource_path(String::from(r"exec")), String::from(r"./Resources/"), "test 9 failed");
+}
+
+/**this test tests whether the block setting and reading works corretly.
+For now it only really cares about the correct block id and not any other data */
+#[test]
+fn test_block_types(){
+    let mut blocks_obj = blocks::Blocks::new();
+    blocks_obj.create(128, 128);
+    for x in 0..128 {
+        for y in 0..128 {
+            assert_eq!(blocks_obj.get_block_type(x, y).id, 0, "not all blocks are initialized to air");
+        }
+    }
+    let block_type_rand = blocks::BlockType::new("rand".to_string());
+    blocks_obj.register_new_block_type(block_type_rand);
+    let block_type_rand = blocks_obj.get_block_type_by_name("rand".to_string()).unwrap();
+    blocks_obj.set_block_type(0, 0, block_type_rand, 0, 0);
+    blocks_obj.set_block_type(1, 0, blocks_obj.get_block_type_by_id(1), 0, 0);
+    blocks_obj.set_block_type(2, 0, blocks_obj.get_block_type_by_id(1), 0, 0);
+    blocks_obj.set_block_type(1, 0, blocks_obj.get_block_type_by_id(0), 0, 0);
+    assert_eq!(blocks_obj.get_block_type(0, 0).id, 1, "block type not set correctly");
+    assert_eq!(blocks_obj.get_block_type(1, 0).id, 0, "block type not set correctly");
+    assert_eq!(blocks_obj.get_block_type(2, 0).id, 1, "block type not set correctly");
+}
+
+#[test]
+fn test_save_load_of_blocks(){//TODO: test saving and loading of custom data
+    let mut blocks_obj = blocks::Blocks::new();
+    blocks_obj.create(128, 128);
+
+    let mut block_types: Vec<BlockType> = Vec::new();
+    let mut copied_blocks: Vec<blocks::Block> = Vec::new();
+
+    for i in 0..10 {
+        let block_t = blocks::BlockType::new(format!("block{}", i));
+        block_types.push(block_t);
+        blocks_obj.register_new_block_type(block_types[block_types.len() - 1].clone());
+    }
+
+    for i in 0..128 {
+        for j in 0..128 {
+            let num = (rand::random::<u32>() % blocks_obj.get_number_block_types() as u32) as i32;
+            blocks_obj.set_block_type(i, j, blocks_obj.get_block_type_by_id(num), 0, 0);
+            copied_blocks.push(blocks_obj.get_block(i, j).deref().clone());
+        }
+    }
+
+    let serial = blocks_obj.to_serial();
+    let mut blocks_obj = blocks::Blocks::new();
+    blocks_obj.create(128, 128);
+    for i in 0..10 {
+        blocks_obj.register_new_block_type(block_types[i].clone());
+    }
+    blocks_obj.from_serial(serial);
+
+    assert_eq!(block_types.len() as i32 + 1, blocks_obj.get_number_block_types(), "block types not loaded correctly");
+
+    for i in 0..copied_blocks.len() as i32 {
+        assert_eq!(blocks_obj.get_block(i / 128, i % 128).deref().get_id(), copied_blocks[i as usize].get_id(), "{}",  format!("block {} not loaded correctly", i));
+    }
+}

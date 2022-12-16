@@ -75,16 +75,17 @@ impl Tool {
 /*
 includes properties for each block type
 */
+#[derive(Clone)]
 pub struct BlockType{
     pub effective_tool: Option<*const Tool>,
     pub required_tool_power: i32,
-    pub ghost: bool, transparent: bool,
+    pub ghost: bool, pub transparent: bool,
     pub name: String,
     pub connects_to: Vec<i32>,
     pub break_time: i32,
-    pub light_emission_r: i32, light_emission_g: i32, light_emission_b: i32,
+    pub light_emission_r: i32, pub light_emission_g: i32, pub light_emission_b: i32,
     pub id: i32,
-    pub width: i32, height: i32,
+    pub width: i32, pub height: i32,
     pub can_update_states: bool,
     pub feet_collidable: bool,
     pub custom_data_type: Option<CustomData>
@@ -129,8 +130,8 @@ impl BlockType {
     }
 }
 
-#[derive(Deserialize, Serialize)]
-struct Block{
+#[derive(Clone, Deserialize, Serialize)]
+pub struct Block{
     id: i32,
     x_from_main: i8, y_from_main: i8,
     block_data: Option<CustomData>
@@ -138,6 +139,10 @@ struct Block{
 
 impl Block{
     pub fn new() -> Self { Block{id: 0, x_from_main: 0, y_from_main: 0, block_data: Option::None} }
+    pub fn get_id(&self) -> i32 { self.id }
+    pub fn get_x_from_main(&self) -> i8 { self.x_from_main }
+    pub fn get_y_from_main(&self) -> i8 { self.y_from_main }
+    pub fn get_block_data(&mut self) -> &mut Option<CustomData> { self.block_data.borrow_mut() }
 }
 
 struct BreakingBlock{
@@ -212,7 +217,7 @@ impl Blocks{
         b
     }
 
-    fn get_block(&self, x: i32, y: i32) -> &Block {
+    pub fn get_block(&self, x: i32, y: i32) -> &Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
@@ -385,62 +390,15 @@ impl Blocks{
     pub fn to_serial(&mut self) -> Vec<u8> {
         let mut serial: Vec<u8> = Vec::new();
         let mut iter: u32 = 0;
-        snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.blocks).unwrap()).unwrap()
-        //TODO: test serialize and deserialize, also for custom block data. Until then don't remove this comment
-        /*serial.resize(serial.len() + (self.width * self.height * 6 + 8) as usize, 0);
-        serial[(iter    ) as usize] = (self.width >> 24) as u8;
-        serial[(iter + 1) as usize] = (self.width >> 16) as u8;
-        serial[(iter + 2) as usize] = (self.width >>  8) as u8;
-        serial[(iter + 3) as usize] = (self.width      ) as u8;
-        iter += 4;
-        serial[(iter    ) as usize] = (self.height >> 24) as u8;
-        serial[(iter + 1) as usize] = (self.height >> 16) as u8;
-        serial[(iter + 2) as usize] = (self.height >>  8) as u8;
-        serial[(iter + 3) as usize] = (self.height      ) as u8;
-        iter += 4;
-        for(_i, block) in self.blocks.iter().enumerate() {
-            serial[(iter    ) as usize] = (block.id >> 24) as u8;
-            serial[(iter + 1) as usize] = (block.id >> 16) as u8;
-            serial[(iter + 2) as usize] = (block.id >>  8) as u8;
-            serial[(iter + 3) as usize] = (block.id      ) as u8;
-            serial[(iter + 4) as usize] = block.x_from_main as u8;
-            serial[(iter + 5) as usize] = block.y_from_main as u8;
-            iter += 6;
-            if block.block_data.is_some() {
-                serial.resize(serial.len() + block.block_data.as_ref().unwrap().serial_length as usize, 0);
-                for i in block.block_data.as_ref().unwrap().data.iter() {
-                    serial[iter as usize] = *i;
-                    iter += 1;
-                }
-            }
-
-        }
         snap::raw::Encoder::new().
-            compress_vec(&serial).unwrap()*/
+            compress_vec(&bincode::
+            serialize(&self.blocks).unwrap()).unwrap()
     }
 
     pub fn from_serial(&mut self, serial: Vec<u8>){
-        self.blocks = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(&serial).unwrap()).unwrap();
-        //TODO: test serialize and deserialize, also for custom block data. Until then don't remove this comment
-        /*let mut iter: u32 = 0;
-        let decompressed = snap::raw::Decoder::new().decompress_vec(&serial).unwrap();
-        let width  = (decompressed[(iter    ) as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
-        let height = (decompressed[(iter + 4) as usize] as i32) << 24 | (decompressed[(iter + 5) as usize] as i32) << 16 | (decompressed[(iter + 6) as usize] as i32) << 8 | decompressed[(iter + 7) as usize] as i32;
-        iter += 8;
-        self.create(width, height);
-
-        for i in 0..self.blocks.len() {
-            self.blocks[i].id = (decompressed[iter as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
-            self.blocks[i].x_from_main = decompressed[(iter + 1) as usize] as i8;
-            self.blocks[i].y_from_main = decompressed[(iter + 2) as usize] as i8;
-            iter += 3;
-
-
-            self.blocks[i].block_data = self.get_block_type_by_id(self.blocks[i].id).custom_data_type.clone();
-            if self.blocks[i].block_data.is_some() {
-                self.blocks[i].block_data.as_mut().unwrap().data = decompressed[iter as usize..(iter + self.blocks[i].block_data.as_ref().unwrap().serial_length) as usize].to_vec();
-            }
-        }*/
+        self.blocks = bincode::
+            deserialize(&snap::raw::Decoder::new().
+            decompress_vec(&serial).unwrap()).unwrap();
     }
 
     pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Rc<BlockType>{
