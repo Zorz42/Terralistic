@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use std::ops::Deref;
 use super::blocks::*;
 use events::*;
@@ -42,7 +43,7 @@ impl WallStoppedBreakingEvent{
 }
 impl Event for WallStoppedBreakingEvent {}
 
-struct WallType {
+pub struct WallType {
     pub id: i32,
     pub break_time: i32,
     pub name: String,
@@ -98,10 +99,10 @@ impl WallChunk {
     }
 }
 
-struct Walls {
+struct Walls<'blocks>{
     walls: Vec<Wall>,
     chunks: Vec<WallChunk>,
-    blocks: Blocks,
+    blocks: &'blocks Blocks,
 
     breaking_walls: Vec<BreakingWall>,
     wall_types: Vec<Rc<WallType>>,
@@ -117,12 +118,12 @@ struct Walls {
     pub wall_stopped_breaking_event: Sender<WallStoppedBreakingEvent>,
 }
 
-impl Walls{
-    pub fn new() -> Self {
+impl<'blocks> Walls<'blocks>{
+    pub fn new(blocks: &'blocks Blocks) -> Self {
         let mut walls = Walls {
             walls: Vec::new(),
             chunks: Vec::new(),
-            blocks: Blocks::new(),
+            blocks,
 
             breaking_walls: Vec::new(),
             wall_types: Vec::new(),
@@ -137,8 +138,8 @@ impl Walls{
             wall_started_breaking_event: Sender::new(),
             wall_stopped_breaking_event: Sender::new(),
         };
-        walls.register_wall_type(walls.clear.clone());
-        walls.blocks.register_new_tool_type(walls.hammer.clone());
+        walls.register_wall_type(walls.clear.clone());//TODO: @zorz42 make this work
+        //walls.blocks.register_new_tool_type(walls.hammer.clone());
         walls
     }
 

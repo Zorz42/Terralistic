@@ -2,12 +2,12 @@ use super::blocks::*;
 use events::*;
 
 #[derive(PartialEq)]
-enum EntityType { ITEM, PLAYER }
+pub enum EntityType { ITEM, PLAYER }
 #[derive(PartialEq)]
-enum Direction { LEFT, RIGHT, UP, DOWN }
+pub enum Direction { LEFT, RIGHT, UP, DOWN }
 static mut CURR_ENTITY_ID: u32 = 1;
 
-struct Entity {
+pub struct Entity {
     x: f64,
     y: f64,
     velocity_x: f64,
@@ -42,18 +42,33 @@ impl Entity {
         }
         entity
     }
+}
 
-    pub fn get_width(&self) -> i32 {
+pub trait entity_object{
+    fn get_width(&self) -> i32;
+    fn get_height(&self) -> i32;
+    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool;
+    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool;
+    fn update_entity(&mut self, blocks: &Blocks);
+    fn is_touching_ground(&self, blocks: &Blocks) -> bool;
+    fn get_x(&self) -> f64;
+    fn get_y(&self) -> f64;
+    fn get_velocity_x(&self) -> f64;
+    fn get_velocity_y(&self) -> f64;
+    }
+
+impl entity_object for Entity{
+    fn get_width(&self) -> i32 {
         0
     }
-    pub fn get_height(&self) -> i32 {
+    fn get_height(&self) -> i32 {
         0
     }
 
-    pub fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
+    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
         self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
-    pub fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
+    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
         if colliding_x < 0.0 || colliding_y < 0.0 ||
             colliding_y >= (blocks.get_height() * BLOCK_WIDTH * 2 - self.get_height())  as f64 ||
             colliding_x >= (blocks.get_width() * BLOCK_WIDTH * 2 - self.get_width()) as f64 {
@@ -74,7 +89,7 @@ impl Entity {
         false
     }
 
-    pub fn update_entity(&mut self, blocks: &Blocks) {
+    fn update_entity(&mut self, blocks: &Blocks) {
         if self.friction {
             self.velocity_y *= 0.995;
             self.velocity_x *= if self.is_touching_ground(blocks) { 0.99 } else { 0.9995 };
@@ -123,36 +138,34 @@ impl Entity {
         self.has_moved = self.has_moved_x || prev_y != self.y;
     }
 
-    pub fn is_touching_ground(&self, blocks: &Blocks) -> bool {
+    fn is_touching_ground(&self, blocks: &Blocks) -> bool {
         self.is_colliding(blocks, Direction::DOWN, self.x, self.y + 1.0) && self.velocity_y == 0.0
     }
 
-    pub fn get_x(&self) -> f64 {
+    fn get_x(&self) -> f64 {
         self.x
     }
-    pub fn get_y(&self) -> f64 {
+    fn get_y(&self) -> f64 {
         self.y
     }
-    pub fn get_velocity_x(&self) -> f64 {
+    fn get_velocity_x(&self) -> f64 {
         self.velocity_x
     }
-    pub fn get_velocity_y(&self) -> f64 {
+    fn get_velocity_y(&self) -> f64 {
         self.velocity_y
     }
 }
 
-struct EntityVelocityChangeEvent {
+pub struct EntityVelocityChangeEvent {
     pub entity_id: u32,
 }
 impl EntityVelocityChangeEvent{
     pub fn new(entity_id: u32) -> Self{
-        EntityVelocityChangeEvent{
-            entity_id
-        }
+        EntityVelocityChangeEvent{ entity_id }
     }
 }
 
-struct EntityAbsoluteVelocityChangeEvent {
+pub struct EntityAbsoluteVelocityChangeEvent {
     pub entity_id: u32,
     pub old_vel_x: f64, old_vel_y: f64
 }
@@ -165,7 +178,7 @@ impl EntityAbsoluteVelocityChangeEvent{
         }
     }
 }
-struct EntityPositionChangeEvent {
+pub struct EntityPositionChangeEvent {
     pub entity_id: u32,
 }
 impl EntityPositionChangeEvent{
@@ -175,7 +188,7 @@ impl EntityPositionChangeEvent{
         }
     }
 }
-struct EntityDeletionEvent {
+pub struct EntityDeletionEvent {
     pub entity_id: u32,
 }
 impl EntityDeletionEvent{
@@ -191,7 +204,7 @@ impl Event for EntityAbsoluteVelocityChangeEvent {}
 impl Event for EntityPositionChangeEvent {}
 impl Event for EntityDeletionEvent {}
 
-struct Entities<'blocks>{
+pub struct Entities<'blocks>{
     entities: Vec<Entity>,
     blocks: &'blocks Blocks,
     pub entity_position_change_event: Sender<EntityPositionChangeEvent>,
