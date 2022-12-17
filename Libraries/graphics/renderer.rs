@@ -1,5 +1,7 @@
 extern crate glfw;
+extern crate queues;
 
+use queues::*;
 use std::collections::HashMap;
 use std::ffi::CString;
 use self::glfw::{Context};
@@ -27,6 +29,7 @@ pub struct Renderer {
     pub(crate) window_framebuffer: u32,
     pub(crate) blur_context: BlurContext,
     pub(crate) passthrough_shader: PassthroughShader,
+    pub(crate) events_queue: Queue<Event>,
     // Keep track of all Key states as a hashmap
     pub(crate) key_states: HashMap<Key, bool>,
     pub(crate) events: Vec<Event>,
@@ -89,6 +92,7 @@ impl Renderer {
             blur_context: BlurContext::new(),
             passthrough_shader,
             shadow_context,
+            events_queue: Queue::new(),
         };
 
         result.handle_window_resize();
@@ -166,7 +170,7 @@ impl Renderer {
     /**
     Returns an array of events, such as key presses
      */
-    pub fn get_events(&mut self) -> Vec<Event> {
+    fn get_events(&mut self) -> Vec<Event> {
         let mut glfw_events = vec![];
 
         for (_, glfw_event) in glfw::flush_messages(&self.glfw_events) {
@@ -202,6 +206,21 @@ impl Renderer {
     }
 
     /**
+    Returns an event, returns None if there are no events
+     */
+    pub fn get_event(&mut self) -> Option<Event> {
+        for event in self.get_events() {
+            self.events_queue.add(event).unwrap();
+        }
+
+        if self.events_queue.size() == 0 {
+            None
+        } else {
+            Some(self.events_queue.remove().unwrap())
+        }
+    }
+
+    /**
     Checks if the window is open, this becomes false, when the user closes the window, or the program closes it
      */
     pub fn is_window_open(&self) -> bool {
@@ -218,7 +237,7 @@ impl Renderer {
     /**
     Should be called after rendering
      */
-    pub fn post_render(&mut self) {
+    pub fn update_window(&mut self) {
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
             gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);

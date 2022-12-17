@@ -3,10 +3,9 @@ use graphics as gfx;
 use graphics::SPACING;
 use rand;
 use shared::versions::VERSION;
+use crate::menus::run_singleplayer_selector;
 
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
-
-
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Singleplayer")));
@@ -70,25 +69,24 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     }
 
     while graphics.renderer.is_window_open() {
-        let events = graphics.renderer.get_events();
-        for event in events {
+        while let Some(event) = graphics.renderer.get_event() {
             match event {
                 gfx::Event::KeyRelease(key) => {
                     // check for every button if it was clicked with the left mouse button
                     if key == gfx::Key::MouseLeft {
                         if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                            println!("Singleplayer clicked");
+                            run_singleplayer_selector(graphics, menu_back);
                         }
-                        if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                        else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                             println!("Multiplayer clicked");
                         }
-                        if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                        else if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                             println!("Settings clicked");
                         }
-                        if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                        else if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                             println!("Mods clicked");
                         }
-                        if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                        else if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                             graphics.renderer.close_window();
                         }
                     }
@@ -118,6 +116,6 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         version.render(graphics, Some(menu_back.get_back_rect_container()));
 
 
-        graphics.renderer.post_render();
+        graphics.renderer.update_window();
     }
 }
