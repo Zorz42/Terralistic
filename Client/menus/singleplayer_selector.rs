@@ -188,6 +188,7 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
     bottom_rect.orientation = gfx::BOTTOM;
 
     let mut top_rect_visibility = 1.0;
+    let mut position: f32 = 0.0;
 
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
@@ -198,6 +199,9 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
                             break 'render_loop;
                         }
                     }
+                }
+                gfx::Event::MouseScroll(delta) => {
+                    position += delta as f32 * 2.0;
                 }
                 _ => {}
             }
@@ -213,14 +217,14 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
             //worlds[i]->delete_button.disabled = !hoverable;
         //}
 
-        let mut current_y = top_height + gfx::SPACING;
+        let mut current_y = top_height + gfx::SPACING + position as i32;
         for i in 0..world_list.worlds.len() {
             world_list.worlds[i].render(graphics, 0, current_y, Some(&menu_back.get_back_rect_container()));
             current_y += world_list.worlds[i].get_height() + gfx::SPACING;
         }
 
         top_rect.w = menu_back.get_back_rect_width() as f32;
-        //top_rect_visibility += ((position ? 1.f : 0.f) - top_rect_visibility) / 20;
+        top_rect_visibility += ((if position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
 
         if top_rect_visibility < 0.01 {
             top_rect_visibility = 0.0;
@@ -236,10 +240,22 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
         }
 
         bottom_rect.w = menu_back.get_back_rect_width() as f32;
-        //int scroll_limit_ = scroll_limit - gfx::getWindowHeight() + TOP_HEIGHT + BOTTOM_HEIGHT;
-        //if(scroll_limit_ > 0)
-            //bottom_rect.render();
-        bottom_rect.render(graphics, Some(&menu_back.get_back_rect_container()));
+        let mut scroll_limit = current_y - graphics.renderer.get_window_height() as i32 + top_height as i32 + bottom_height as i32;
+        if scroll_limit < 0 {
+            scroll_limit = 0;
+        }
+
+        if scroll_limit > 0 {
+            bottom_rect.render(graphics, Some(&menu_back.get_back_rect_container()));
+        }
+
+        if position > 0.0 {
+            position -= position / 20.0;
+        }
+
+        if position < -scroll_limit as f32 {
+            position -= (position - scroll_limit as f32) / 20.0;
+        }
 
         title.render(graphics, Some(&menu_back.get_back_rect_container()));
         back_button.render(graphics, Some(&menu_back.get_back_rect_container()));

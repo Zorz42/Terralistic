@@ -70,6 +70,9 @@ impl Renderer {
         let mut window_texture_back= 0;
         let mut window_framebuffer= 0;
 
+        glfw_window.set_scroll_polling(true);
+        glfw_window.set_mouse_button_polling(true);
+
         unsafe {
             gl::GenTextures(1, &mut window_texture);
             gl::GenTextures(1, &mut window_texture_back);
@@ -125,45 +128,6 @@ impl Renderer {
 
             // set glViewport
             gl::Viewport(0, 0, width * 2, height * 2);
-        }
-    }
-
-    /**
-    A function that checks mouse buttons
-    and sends events to the event handler
-    if they change state.
-     */
-    pub fn handle_mouse_buttons(&mut self) {
-        let mouse_buttons = [
-            glfw::MouseButton::Button1,
-            glfw::MouseButton::Button2,
-            glfw::MouseButton::Button3,
-            glfw::MouseButton::Button4,
-            glfw::MouseButton::Button5,
-            glfw::MouseButton::Button6,
-            glfw::MouseButton::Button7,
-            glfw::MouseButton::Button8,
-        ];
-
-        for glfw_button in mouse_buttons {
-            let glfw_state = self.glfw_window.get_mouse_button(glfw_button);
-            let button = glfw_mouse_button_to_gfx_key(glfw_button);
-
-            let state = match glfw_state {
-                glfw::Action::Press => true,
-                glfw::Action::Release => false,
-                _ => continue,
-            };
-
-            if self.get_key_state(button) != state {
-                self.set_key_state(button, state);
-
-                if state {
-                    self.events.push(Event::KeyPress(button));
-                } else {
-                    self.events.push(Event::KeyRelease(button));
-                }
-            }
         }
     }
 
@@ -252,8 +216,6 @@ impl Renderer {
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
         }
-
-        self.handle_mouse_buttons();
     }
 
     /**

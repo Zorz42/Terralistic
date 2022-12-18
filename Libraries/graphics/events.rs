@@ -8,6 +8,7 @@ pub enum Event {
     // key press and release events
     KeyPress(Key),
     KeyRelease(Key),
+    MouseScroll(f64),
 }
 
 /**
@@ -23,7 +24,8 @@ pub(crate) fn glfw_event_to_gfx_event(glfw_event: glfw::WindowEvent) -> Option<E
                 _ => None,
             }
         }
-        // handle mouse button presses and releases
+
+        // handle mouse button press events and KeyPress and KeyRelease events
         glfw::WindowEvent::MouseButton(button, action, _) => {
             match action {
                 glfw::Action::Press => Some(Event::KeyPress(glfw_mouse_button_to_gfx_key(button))),
@@ -31,6 +33,9 @@ pub(crate) fn glfw_event_to_gfx_event(glfw_event: glfw::WindowEvent) -> Option<E
                 _ => None,
             }
         }
+
+        glfw::WindowEvent::Scroll(_, y) => Some(Event::MouseScroll(y)),
+
         _ => None,
     }
 }
