@@ -72,6 +72,10 @@ impl Button {
     Checks if the button is hovered with a mouse.
      */
     pub fn is_hovered(&self, graphics: &GraphicsContext, parent_container: Option<&Container>) -> bool {
+        if self.disabled {
+            return false;
+        }
+
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         let mouse_x = graphics.renderer.get_mouse_x() as i32;

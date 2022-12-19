@@ -117,6 +117,14 @@ impl World {
     pub fn get_height(&self) -> i32 {
         self.rect.h as i32
     }
+
+    /**
+    This function disables/enables the world card buttons.
+     */
+    pub fn set_enabled(&mut self, enabled: bool) {
+        self.play_button.disabled = !enabled;
+        self.delete_button.disabled = !enabled;
+    }
 }
 
 /**
@@ -210,12 +218,11 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
 
         menu_back.render_back(graphics);
 
-        //let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height && (graphics.renderer.get_mouse_y() as i32) < graphics.renderer.get_window_height() as i32 - bottom_height as i32;
+        let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height && (graphics.renderer.get_mouse_y() as i32) < graphics.renderer.get_window_height() as i32 - bottom_height as i32;
 
-        //for(int i = 0; i < worlds.size(); i++) {
-            //worlds[i]->play_button.disabled = !hoverable;
-            //worlds[i]->delete_button.disabled = !hoverable;
-        //}
+        for world in &mut world_list.worlds {
+            world.set_enabled(hoverable);
+        }
 
         let mut current_y = gfx::SPACING;
         for i in 0..world_list.worlds.len() {
