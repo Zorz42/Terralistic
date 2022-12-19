@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 events = {"path" = "../Libraries/events/"}
+shared_mut = {"path" = "../Libraries/shared_mut/"}
 snap = "1.0.5"
 bincode = "1.3.3"
 serde = "1.0.130"

@@ -3,6 +3,8 @@ use std::{rc::Rc, collections::hash_map};
 use std::collections::hash_map::Entry;
 use std::ops::Deref;
 use events::*;
+use shared_mut::*;
+use crate::blocks::Block;
 
 const ITEM_WIDTH: i32 = 8;
 
@@ -110,9 +112,9 @@ impl TileDrop {
     }
 }
 
-struct Items<'blocks, 'entities> {
-    entities: &'entities Entities<'blocks>,
-    blocks: &'blocks Blocks,
+struct Items {
+    entities: SharedMut<Entities>,
+    blocks: SharedMut<Blocks>,
 
     item_types: Vec<Rc<ItemType>>,
     block_drops: Vec<TileDrop>,
@@ -123,8 +125,8 @@ struct Items<'blocks, 'entities> {
     item_creation_event: Sender<ItemCreationEvent>,
 }
 
-impl<'blocks, 'entities> Items<'blocks, 'entities> {
-    pub fn new(entities: &'entities Entities<'blocks>, blocks: &'blocks Blocks) -> Self {
+impl Items {
+    pub fn new(entities: SharedMut<Entities>, blocks: SharedMut<Blocks>) -> Self {
         let mut item_types = Vec::new();
         let mut block_drops = Vec::new();
         let mut wall_drops = Vec::new();
@@ -142,5 +144,10 @@ impl<'blocks, 'entities> Items<'blocks, 'entities> {
             nothing,
             item_creation_event: Sender::new()
         }
-    }//TODO: finish implementing functions
+    }
+
+    /**this function spawns an item into the world*/
+    /*pub fn spawn_item(&mut self, item_type: Rc<ItemType>, x: i32, y: i32, entity_item_count: u32) -> u32 {
+        let item = Item::new(item_type, x, y, entity_item_count, self.entities.lock().unwrap().get_next_id());
+    }*/
 }

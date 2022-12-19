@@ -1,5 +1,6 @@
 use super::blocks::*;
 use events::*;
+use shared_mut::*;
 
 #[derive(PartialEq)]
 pub enum EntityType { ITEM, PLAYER }
@@ -204,17 +205,17 @@ impl Event for EntityAbsoluteVelocityChangeEvent {}
 impl Event for EntityPositionChangeEvent {}
 impl Event for EntityDeletionEvent {}
 
-pub struct Entities<'blocks>{
+pub struct Entities{
     entities: Vec<Entity>,
-    blocks: &'blocks Blocks,
+    blocks: SharedMut<Blocks>,
     pub entity_position_change_event: Sender<EntityPositionChangeEvent>,
     pub entity_velocity_change_event: Sender<EntityVelocityChangeEvent>,
     pub entity_absolute_velocity_change_event: Sender<EntityAbsoluteVelocityChangeEvent>,
     pub entity_deletion_event: Sender<EntityDeletionEvent>
 }
 
-impl<'blocks> Entities<'blocks>{
-    pub fn new(blocks: &'blocks Blocks) -> Self {
+impl Entities{
+    pub fn new(blocks: SharedMut<Blocks>) -> Self {
         Entities{
             entities: Vec::new(),
             blocks,
@@ -229,7 +230,7 @@ impl<'blocks> Entities<'blocks>{
         for entity in &mut self.entities {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
-            entity.update_entity(&self.blocks);
+            entity.update_entity(&self.blocks.get());
             if entity.entity_type == EntityType::PLAYER && old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
                 let event = EntityAbsoluteVelocityChangeEvent::new(entity.id, old_vel_x, old_vel_y);
                 self.entity_absolute_velocity_change_event.send(event);
