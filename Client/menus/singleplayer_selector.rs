@@ -210,16 +210,16 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
 
         menu_back.render_back(graphics);
 
-        let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height && (graphics.renderer.get_mouse_y() as i32) < graphics.renderer.get_window_height() as i32 - bottom_height as i32;
+        //let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height && (graphics.renderer.get_mouse_y() as i32) < graphics.renderer.get_window_height() as i32 - bottom_height as i32;
 
         //for(int i = 0; i < worlds.size(); i++) {
             //worlds[i]->play_button.disabled = !hoverable;
             //worlds[i]->delete_button.disabled = !hoverable;
         //}
 
-        let mut current_y = top_height + gfx::SPACING + position as i32;
+        let mut current_y = gfx::SPACING;
         for i in 0..world_list.worlds.len() {
-            world_list.worlds[i].render(graphics, 0, current_y, Some(&menu_back.get_back_rect_container()));
+            world_list.worlds[i].render(graphics, 0, current_y + top_height + position as i32, Some(&menu_back.get_back_rect_container()));
             current_y += world_list.worlds[i].get_height() + gfx::SPACING;
         }
 
@@ -254,7 +254,7 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
         }
 
         if position < -scroll_limit as f32 {
-            position -= (position - scroll_limit as f32) / 20.0;
+            position -= (position + scroll_limit as f32) / 20.0;
         }
 
         title.render(graphics, Some(&menu_back.get_back_rect_container()));
