@@ -62,27 +62,27 @@ impl PassthroughShader {
         let mut rect_vertex_buffer = VertexBufferImpl::new();
         let mut rect_outline_vertex_buffer = VertexBufferImpl::new();
 
-        rect_vertex_buffer.add_vertex(&VertexImpl { x: 0.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
-        rect_vertex_buffer.add_vertex(&VertexImpl { x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
-        rect_vertex_buffer.add_vertex(&VertexImpl { x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
+        rect_vertex_buffer.add_vertex(&VertexImpl{ x: 0.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
+        rect_vertex_buffer.add_vertex(&VertexImpl{ x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+        rect_vertex_buffer.add_vertex(&VertexImpl{ x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
 
-        rect_vertex_buffer.add_vertex(&VertexImpl { x: 1.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
-        rect_vertex_buffer.add_vertex(&VertexImpl { x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
-        rect_vertex_buffer.add_vertex(&VertexImpl { x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
+        rect_vertex_buffer.add_vertex(&VertexImpl{ x: 1.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
+        rect_vertex_buffer.add_vertex(&VertexImpl{ x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+        rect_vertex_buffer.add_vertex(&VertexImpl{ x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
 
         rect_vertex_buffer.upload();
 
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 0.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 0.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
 
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 1.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 1.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 0.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 1.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
 
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 1.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 1.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 1.0, tex_y: 1.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
 
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
-        rect_outline_vertex_buffer.add_vertex(&VertexImpl { x: 0.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 0.0, y: 1.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 1.0 });
+        rect_outline_vertex_buffer.add_vertex(&VertexImpl{ x: 0.0, y: 0.0, color: Color { r: 255, g: 255, b: 255, a: 255 }, tex_x: 0.0, tex_y: 0.0 });
 
         rect_outline_vertex_buffer.upload();
 

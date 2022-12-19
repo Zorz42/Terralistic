@@ -3,6 +3,7 @@
 mod menus;
 mod game;
 
+use core::mem::size_of;
 use graphics as gfx;
 use shared::{blocks};
 use shared_mut;
