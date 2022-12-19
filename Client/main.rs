@@ -4,7 +4,7 @@ mod menus;
 mod game;
 
 use graphics as gfx;
-use shared::{blocks, resource_path};
+use shared::{blocks};
 use shared_mut;
 use events;
 use shared_mut::SharedMut;

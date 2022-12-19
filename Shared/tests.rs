@@ -1,30 +1,7 @@
 use std::ops::Deref;
 use crate::blocks::BlockType;
 
-use super::resource_path;
 use super::blocks;
-
-#[test]
-fn test_get_resource_path(){
-    assert_eq!(resource_path::get_resource_path(
-        String::from(r"/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Terralistic")),
-               String::from(r"/home/nejc/CLionProjects/Terralistic/cmake-build-debug/šwergkćwergžü/Resources/"), "test 0 failed");
-    assert_eq!(resource_path::get_resource_path(
-        String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü\Terralistic.exe")),
-               String::from(r"C:\Users\Uporabnik\CLionProjects\Terralistic\cmake-build-debug\šwergkćwergžü/Resources/"), "test 1 failed");
-    assert_eq!(resource_path::get_resource_path(String::from(r"/test/folder/exec")), String::from(r"/test/folder/Resources/"), "test 2 failed"); //previously used tests
-    assert_eq!(resource_path::get_resource_path(String::from(r"/test/folder/MacOS/exec")), String::from(r"/test/folder/Resources/"), "test 3 failed");
-    assert_eq!(resource_path::get_resource_path(String::from(r"/testing/1234/exec")), String::from(r"/testing/1234/Resources/"), "test 4 failed");
-    assert_eq!(resource_path::get_resource_path(String::from(r"/testing/1234/MacOS/exec")), String::from(r"/testing/1234/Resources/"), "test 5 failed");
-    assert_eq!(resource_path::get_resource_path(
-        String::from(r"/folder/folder/folder/folder/folder/folder/notfolder")),
-               String::from(r"/folder/folder/folder/folder/folder/folder/Resources/"), "test 6 failed");
-    assert_eq!(resource_path::get_resource_path(
-        String::from(r"/folder/folder/folder/folder/šwćgregeropgjćšwž/folder/folder/MacOS/notfolder")),
-               String::from(r"/folder/folder/folder/folder/šwćgregeropgjćšwž/folder/folder/Resources/"), "test 7 failed");
-    assert_eq!(resource_path::get_resource_path(String::from(r"./exec")), String::from(r"./Resources/"), "test 8 failed");
-    assert_eq!(resource_path::get_resource_path(String::from(r"exec")), String::from(r"./Resources/"), "test 9 failed");
-}
 
 /**this test tests whether the block setting and reading works corretly.
 For now it only really cares about the correct block id and not any other data */
