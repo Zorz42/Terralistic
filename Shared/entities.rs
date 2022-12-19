@@ -1,11 +1,14 @@
+use std::sync::{Mutex};
+use bincode::Options;
 use super::blocks::*;
 use events::*;
+use once_cell::sync::Lazy;
 
 #[derive(PartialEq)]
 pub enum EntityType { ITEM, PLAYER }
 #[derive(PartialEq)]
 pub enum Direction { LEFT, RIGHT, UP, DOWN }
-static mut CURR_ENTITY_ID: u32 = 1;
+static CURR_ENTITY_ID: Lazy<Mutex<u32>> = Lazy::new(|| Mutex::new(0));
 
 pub struct Entity {
     x: f64,
@@ -37,8 +40,8 @@ impl Entity {
             entity_type,
         };
         if entity.id == 0 {
-            entity.id = unsafe { CURR_ENTITY_ID };
-            unsafe { CURR_ENTITY_ID += 1 };
+            entity.id = *CURR_ENTITY_ID.lock().unwrap();
+            *CURR_ENTITY_ID.lock().unwrap() += 1;
         }
         entity
     }

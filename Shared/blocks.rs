@@ -270,7 +270,6 @@ impl Blocks{
         }
         &self.blocks[(y * self.width + x) as usize]
     }
-
     fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
