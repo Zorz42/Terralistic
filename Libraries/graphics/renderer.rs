@@ -15,19 +15,19 @@ use crate::transformation::Transformation;
 This stores all the values needed for rendering.
  */
 pub struct Renderer {
-    pub(crate) glfw: glfw::Glfw,
-    pub(crate) glfw_window: glfw::Window,
-    pub(crate) glfw_events: std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
+    glfw: glfw::Glfw,
+    glfw_window: glfw::Window,
+    glfw_events: std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
     pub(crate) normalization_transform: Transformation,
-    pub(crate) window_texture: u32,
-    pub(crate) window_texture_back: u32,
-    pub(crate) window_framebuffer: u32,
-    pub(crate) blur_context: BlurContext,
+    window_texture: u32,
+    window_texture_back: u32,
+    window_framebuffer: u32,
+    blur_context: BlurContext,
     pub(crate) passthrough_shader: PassthroughShader,
-    pub(crate) events_queue: Queue<Event>,
+    events_queue: Queue<Event>,
     // Keep track of all Key states as a hashmap
-    pub(crate) key_states: HashMap<Key, bool>,
-    pub(crate) events: Vec<Event>,
+    key_states: HashMap<Key, bool>,
+    events: Vec<Event>,
     pub(crate) shadow_context: ShadowContext,
 }
 
