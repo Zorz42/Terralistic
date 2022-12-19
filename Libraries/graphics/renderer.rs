@@ -104,6 +104,9 @@ impl Renderer {
     pub fn handle_window_resize(&mut self) {
         let (width, height) = self.glfw_window.get_size();
 
+        // get system scale factor
+        let (scale_x, scale_y) = self.glfw_window.get_content_scale();
+
         self.normalization_transform = Transformation::new();
         #[cfg(target_os = "windows")] {
             self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
@@ -116,19 +119,19 @@ impl Renderer {
 
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, width, height, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, (width as f32 * scale_x) as i32, (height as f32 * scale_y) as i32, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
 
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture_back);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, width, height, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, (width as f32 * scale_x) as i32, (height as f32 * scale_y) as i32, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
 
             // set glViewport
-            gl::Viewport(0, 0, width, height);
+            gl::Viewport(0, 0, (width as f32 * scale_x) as i32, (height as f32 * scale_y) as i32);
         }
     }
 
