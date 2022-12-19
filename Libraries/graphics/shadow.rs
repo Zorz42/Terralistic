@@ -1,7 +1,4 @@
-use std::cmp::min;
 use crate::{Color, GraphicsContext, Rect, Surface, Texture};
-use crate::renderer::Renderer;
-use crate::theme::GFX_SHADOW_BLUR;
 
 /**
 ShadowContext is a struct that contains the information needed to draw a shadow.

@@ -3,18 +3,13 @@ extern crate queues;
 
 use queues::*;
 use std::collections::HashMap;
-use std::ffi::CString;
 use self::glfw::{Context};
 use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
 use crate::blur::BlurContext;
-use crate::vertex_buffer_impl;
-use crate::color;
-use crate::events::{glfw_event_to_gfx_event, glfw_mouse_button_to_gfx_key};
+use crate::events::{glfw_event_to_gfx_event};
 use crate::passthrough_shader::PassthroughShader;
-use crate::shaders::compile_shader;
 use crate::shadow::ShadowContext;
 use crate::transformation::Transformation;
-use crate::vertex_buffer_impl::VertexBufferImpl;
 
 /**
 This stores all the values needed for rendering.

@@ -49,7 +49,6 @@ pub(crate) struct PassthroughShader {
     pub rect_outline_vertex_buffer: VertexBufferImpl,
     pub has_texture: i32,
     pub global_color: i32,
-    pub texture_sampler: i32,
     pub transform_matrix: i32,
     pub texture_transform_matrix: i32,
 }
@@ -89,16 +88,15 @@ impl PassthroughShader {
 
         let has_texture = unsafe { gl::GetUniformLocation(passthrough_shader, "has_texture\0".as_ptr() as *const i8) };
         let global_color = unsafe { gl::GetUniformLocation(passthrough_shader, "global_color\0".as_ptr() as *const i8) };
-        let texture_sampler = unsafe { gl::GetUniformLocation(passthrough_shader, "texture_sampler\0".as_ptr() as *const i8) };
         let transform_matrix = unsafe { gl::GetUniformLocation(passthrough_shader, "transform_matrix\0".as_ptr() as *const i8) };
         let texture_transform_matrix = unsafe { gl::GetUniformLocation(passthrough_shader, "texture_transform_matrix\0".as_ptr() as *const i8) };
+
         PassthroughShader {
             passthrough_shader,
             rect_vertex_buffer,
             rect_outline_vertex_buffer,
             has_texture,
             global_color,
-            texture_sampler,
             transform_matrix,
             texture_transform_matrix,
         }
