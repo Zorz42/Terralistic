@@ -203,7 +203,14 @@ impl Renderer {
             gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
             gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
 
-            gl::BlitFramebuffer(0, 0, self.glfw_window.get_size().0 * 2, self.glfw_window.get_size().1 * 2, 0, 0, self.glfw_window.get_size().0 * 2, self.glfw_window.get_size().1 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            #[cfg(target_os = "windows")] {
+                gl::BlitFramebuffer(0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            }
+            #[cfg(target_os = "macos")] {
+                // get system scale factor
+                let (scale_x, scale_y) = self.glfw_window.get_content_scale();
+                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0 / scale_x) as i32, (self.get_window_height() as f32 * 2.0 / scale_y) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            }
         }
 
         self.glfw_window.swap_buffers();
@@ -225,24 +232,14 @@ impl Renderer {
     Get the current window width
      */
     pub fn get_window_width(&self) -> u32 {
-        #[cfg(target_os = "windows")] {
-            self.glfw_window.get_size().0 as u32
-        }
-        #[cfg(target_os = "macos")] {
-            (self.glfw_window.get_size().0 as f32 * self.glfw_window.get_content_scale().0) as u32
-        }
+        self.glfw_window.get_size().0 as u32
     }
 
     /**
     Get the current window height
      */
     pub fn get_window_height(&self) -> u32 {
-        #[cfg(target_os = "windows")] {
-            self.glfw_window.get_size().1 as u32
-        }
-        #[cfg(target_os = "macos")] {
-            (self.glfw_window.get_size().1 as f32 * self.glfw_window.get_content_scale().1) as u32
-        }
+        self.glfw_window.get_size().1 as u32
     }
 
     /**
