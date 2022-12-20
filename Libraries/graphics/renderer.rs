@@ -104,34 +104,26 @@ impl Renderer {
     pub fn handle_window_resize(&mut self) {
         let (width, height) = self.glfw_window.get_size();
 
-        // get system scale factor
-        let (scale_x, scale_y) = self.glfw_window.get_content_scale();
-
         self.normalization_transform = Transformation::new();
-        #[cfg(target_os = "windows")] {
-            self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
-            self.normalization_transform.translate(-width as f32 / 2.0, -height as f32 / 2.0);
-        }
-        #[cfg(target_os = "macos")] {
-            self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
-            self.normalization_transform.translate(-width as f32 / 2.0, -height as f32 / 2.0);
-        }
+        self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
+        self.normalization_transform.translate(-width as f32 / 2.0, -height as f32 / 2.0);
+
 
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, (width as f32 * scale_x) as i32, (height as f32 * scale_y) as i32, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, self.get_window_width() as i32, self.get_window_height() as i32, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
 
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture_back);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, (width as f32 * scale_x) as i32, (height as f32 * scale_y) as i32, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, self.get_window_width() as i32, self.get_window_height() as i32, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
 
             // set glViewport
-            gl::Viewport(0, 0, (width as f32 * scale_x) as i32, (height as f32 * scale_y) as i32);
+            gl::Viewport(0, 0, self.get_window_width() as i32, self.get_window_height() as i32);
         }
     }
 
@@ -233,14 +225,24 @@ impl Renderer {
     Get the current window width
      */
     pub fn get_window_width(&self) -> u32 {
-        self.glfw_window.get_size().0.try_into().unwrap()
+        #[cfg(target_os = "windows")] {
+            self.glfw_window.get_size().0 as u32
+        }
+        #[cfg(target_os = "macos")] {
+            (self.glfw_window.get_size().0 as f32 * self.glfw_window.get_content_scale().0) as u32
+        }
     }
 
     /**
     Get the current window height
      */
     pub fn get_window_height(&self) -> u32 {
-        self.glfw_window.get_size().1.try_into().unwrap()
+        #[cfg(target_os = "windows")] {
+            self.glfw_window.get_size().1 as u32
+        }
+        #[cfg(target_os = "macos")] {
+            (self.glfw_window.get_size().1 as f32 * self.glfw_window.get_content_scale().1) as u32
+        }
     }
 
     /**
