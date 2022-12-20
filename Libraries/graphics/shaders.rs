@@ -17,7 +17,7 @@ pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
             let mut len = 0;
             gl::GetShaderiv(vertex_id, gl::INFO_LOG_LENGTH, &mut len);
             let mut buffer = Vec::with_capacity(len as usize);
-            buffer.set_len((len as usize) - 1);
+            buffer.set_len(len as usize);
             gl::GetShaderInfoLog(vertex_id, len, std::ptr::null_mut(), buffer.as_mut_ptr() as *mut i8);
             panic!("Vertex shader compilation failed: {}", std::str::from_utf8(&buffer).unwrap());
         }
@@ -33,7 +33,7 @@ pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
             let mut len = 0;
             gl::GetShaderiv(fragment_id, gl::INFO_LOG_LENGTH, &mut len);
             let mut buffer = Vec::with_capacity(len as usize);
-            buffer.set_len((len as usize) - 1);
+            buffer.set_len(len as usize);
             gl::GetShaderInfoLog(fragment_id, len, std::ptr::null_mut(), buffer.as_mut_ptr() as *mut i8);
             panic!("Fragment shader compilation failed: {}", std::str::from_utf8(&buffer).unwrap());
         }

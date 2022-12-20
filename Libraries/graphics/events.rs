@@ -1,4 +1,4 @@
-use glfw;
+use sdl2;
 
 /**
 A collection of all supported events
@@ -12,29 +12,43 @@ pub enum Event {
 }
 
 /**
-Translates glfw type events to our event type
+Translates sdl type events to our event type
  */
-pub(crate) fn glfw_event_to_gfx_event(glfw_event: glfw::WindowEvent) -> Option<Event> {
-    match glfw_event {
-        // handle all glfw key presses and releases and translate them to our event type
-        glfw::WindowEvent::Key(key, _, action, _) => {
+pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Event> {
+    match sdl_event {
+        // handle all sdl key presses and releases and translate them to our event type
+        /*glfw::WindowEvent::Key(key, _, action, _) => {
             match action {
                 glfw::Action::Press => Some(Event::KeyPress(glfw_key_to_gfx_key(key))),
                 glfw::Action::Release => Some(Event::KeyRelease(glfw_key_to_gfx_key(key))),
                 _ => None,
             }
+        }*/
+        sdl2::event::Event::KeyDown { keycode: Some(keycode), .. } => {
+            Some(Event::KeyPress(sdl_key_to_gfx_key(keycode)))
+        }
+
+        sdl2::event::Event::KeyUp { keycode: Some(keycode), .. } => {
+            Some(Event::KeyRelease(sdl_key_to_gfx_key(keycode)))
         }
 
         // handle mouse button press events and KeyPress and KeyRelease events
-        glfw::WindowEvent::MouseButton(button, action, _) => {
+        /*glfw::WindowEvent::MouseButton(button, action, _) => {
             match action {
                 glfw::Action::Press => Some(Event::KeyPress(glfw_mouse_button_to_gfx_key(button))),
                 glfw::Action::Release => Some(Event::KeyRelease(glfw_mouse_button_to_gfx_key(button))),
                 _ => None,
             }
+        }*/
+        sdl2::event::Event::MouseWheel { y, .. } => {
+            Some(Event::MouseScroll(y as f64))
+        }
+        sdl2::event::Event::MouseButtonDown { mouse_btn: sdl2::mouse::MouseButton::Left, .. } => {
+            Some(Event::KeyPress(Key::MouseLeft))
         }
 
-        glfw::WindowEvent::Scroll(_, y) => Some(Event::MouseScroll(y)),
+
+        //glfw::WindowEvent::Scroll(_, y) => Some(Event::MouseScroll(y)),
 
         _ => None,
     }
@@ -47,23 +61,6 @@ A collection of all keys on the keyboard and mouse.
 pub enum Key {
     Unknown,
     Space,
-    Apostrophe,
-    Comma,
-    Minus,
-    Period,
-    Slash,
-    Num0,
-    Num1,
-    Num2,
-    Num3,
-    Num4,
-    Num5,
-    Num6,
-    Num7,
-    Num8,
-    Num9,
-    Semicolon,
-    Equal,
     A,
     B,
     C,
@@ -90,12 +87,6 @@ pub enum Key {
     X,
     Y,
     Z,
-    LeftBracket,
-    Backslash,
-    RightBracket,
-    GraveAccent,
-    World1,
-    World2,
     Escape,
     Enter,
     Tab,
@@ -106,15 +97,6 @@ pub enum Key {
     Left,
     Down,
     Up,
-    PageUp,
-    PageDown,
-    Home,
-    End,
-    CapsLock,
-    ScrollLock,
-    NumLock,
-    PrintScreen,
-    Pause,
     F1,
     F2,
     F3,
@@ -127,36 +109,6 @@ pub enum Key {
     F10,
     F11,
     F12,
-    F13,
-    F14,
-    F15,
-    F16,
-    F17,
-    F18,
-    F19,
-    F20,
-    F21,
-    F22,
-    F23,
-    F24,
-    F25,
-    KeyPad0,
-    KeyPad1,
-    KeyPad2,
-    KeyPad3,
-    KeyPad4,
-    KeyPad5,
-    KeyPad6,
-    KeyPad7,
-    KeyPad8,
-    KeyPad9,
-    KeyPadDecimal,
-    KeyPadDivide,
-    KeyPadMultiply,
-    KeyPadSubtract,
-    KeyPadAdd,
-    KeyPadEnter,
-    KeyPadEqual,
     LeftShift,
     LeftControl,
     LeftAlt,
@@ -165,121 +117,85 @@ pub enum Key {
     RightControl,
     RightAlt,
     RightSuper,
-    Menu,
     MouseLeft,
     MouseRight,
     MouseMiddle,
-    Mouse4,
-    Mouse5,
-    Mouse6,
-    Mouse7,
-    Mouse8,
 }
 
 /**
-This function converts a glfw key to a graphics key
+This function converts a sdl key to a graphics key
  */
-fn glfw_key_to_gfx_key(key: glfw::Key) -> Key {
+fn sdl_key_to_gfx_key(key: sdl2::keyboard::Keycode) -> Key {
     match key {
-        glfw::Key::A => Key::A,
-        glfw::Key::B => Key::B,
-        glfw::Key::C => Key::C,
-        glfw::Key::D => Key::D,
-        glfw::Key::E => Key::E,
-        glfw::Key::F => Key::F,
-        glfw::Key::G => Key::G,
-        glfw::Key::H => Key::H,
-        glfw::Key::I => Key::I,
-        glfw::Key::J => Key::J,
-        glfw::Key::K => Key::K,
-        glfw::Key::L => Key::L,
-        glfw::Key::M => Key::M,
-        glfw::Key::N => Key::N,
-        glfw::Key::O => Key::O,
-        glfw::Key::P => Key::P,
-        glfw::Key::Q => Key::Q,
-        glfw::Key::R => Key::R,
-        glfw::Key::S => Key::S,
-        glfw::Key::T => Key::T,
-        glfw::Key::U => Key::U,
-        glfw::Key::V => Key::V,
-        glfw::Key::W => Key::W,
-        glfw::Key::X => Key::X,
-        glfw::Key::Y => Key::Y,
-        glfw::Key::Z => Key::Z,
-        glfw::Key::Space => Key::Space,
-        glfw::Key::Enter => Key::Enter,
-        glfw::Key::Backspace => Key::Backspace,
-        glfw::Key::Tab => Key::Tab,
-        glfw::Key::Left => Key::Left,
-        glfw::Key::Right => Key::Right,
-        glfw::Key::Up => Key::Up,
-        glfw::Key::Down => Key::Down,
-        glfw::Key::Escape => Key::Escape,
-        glfw::Key::F1 => Key::F1,
-        glfw::Key::F2 => Key::F2,
-        glfw::Key::F3 => Key::F3,
-        glfw::Key::F4 => Key::F4,
-        glfw::Key::F5 => Key::F5,
-        glfw::Key::F6 => Key::F6,
-        glfw::Key::F7 => Key::F7,
-        glfw::Key::F8 => Key::F8,
-        glfw::Key::F9 => Key::F9,
-        glfw::Key::F10 => Key::F10,
-        glfw::Key::F11 => Key::F11,
-        glfw::Key::F12 => Key::F12,
-        glfw::Key::F13 => Key::F13,
-        glfw::Key::F14 => Key::F14,
-        glfw::Key::F15 => Key::F15,
-        glfw::Key::F16 => Key::F16,
-        glfw::Key::F17 => Key::F17,
-        glfw::Key::F18 => Key::F18,
-        glfw::Key::F19 => Key::F19,
-        glfw::Key::F20 => Key::F20,
-        glfw::Key::F21 => Key::F21,
-        glfw::Key::F22 => Key::F22,
-        glfw::Key::F23 => Key::F23,
-        glfw::Key::F24 => Key::F24,
-        glfw::Key::F25 => Key::F25,
-        glfw::Key::NumLock => Key::NumLock,
-        glfw::Key::CapsLock => Key::CapsLock,
-        glfw::Key::ScrollLock => Key::ScrollLock,
-        glfw::Key::RightShift => Key::RightShift,
-        glfw::Key::LeftShift => Key::LeftShift,
-        glfw::Key::RightControl => Key::RightControl,
-        glfw::Key::LeftControl => Key::LeftControl,
-        glfw::Key::RightAlt => Key::RightAlt,
-        glfw::Key::LeftAlt => Key::LeftAlt,
-        glfw::Key::RightSuper => Key::RightSuper,
-        glfw::Key::LeftSuper => Key::LeftSuper,
-        glfw::Key::Menu => Key::Menu,
-        glfw::Key::LeftBracket => Key::LeftBracket,
-        glfw::Key::RightBracket => Key::RightBracket,
-        glfw::Key::Semicolon => Key::Semicolon,
-        glfw::Key::Apostrophe => Key::Apostrophe,
-        glfw::Key::Comma => Key::Comma,
-        glfw::Key::Period => Key::Period,
-        glfw::Key::Slash => Key::Slash,
-        glfw::Key::Backslash => Key::Backslash,
-        glfw::Key::GraveAccent => Key::GraveAccent,
-        glfw::Key::Equal => Key::Equal,
-        glfw::Key::Minus => Key::Minus,
+        sdl2::keyboard::Keycode::Space => Key::Space,
+        sdl2::keyboard::Keycode::A => Key::A,
+        sdl2::keyboard::Keycode::B => Key::B,
+        sdl2::keyboard::Keycode::C => Key::C,
+        sdl2::keyboard::Keycode::D => Key::D,
+        sdl2::keyboard::Keycode::E => Key::E,
+        sdl2::keyboard::Keycode::F => Key::F,
+        sdl2::keyboard::Keycode::G => Key::G,
+        sdl2::keyboard::Keycode::H => Key::H,
+        sdl2::keyboard::Keycode::I => Key::I,
+        sdl2::keyboard::Keycode::J => Key::J,
+        sdl2::keyboard::Keycode::K => Key::K,
+        sdl2::keyboard::Keycode::L => Key::L,
+        sdl2::keyboard::Keycode::M => Key::M,
+        sdl2::keyboard::Keycode::N => Key::N,
+        sdl2::keyboard::Keycode::O => Key::O,
+        sdl2::keyboard::Keycode::P => Key::P,
+        sdl2::keyboard::Keycode::Q => Key::Q,
+        sdl2::keyboard::Keycode::R => Key::R,
+        sdl2::keyboard::Keycode::S => Key::S,
+        sdl2::keyboard::Keycode::T => Key::T,
+        sdl2::keyboard::Keycode::U => Key::U,
+        sdl2::keyboard::Keycode::V => Key::V,
+        sdl2::keyboard::Keycode::W => Key::W,
+        sdl2::keyboard::Keycode::X => Key::X,
+        sdl2::keyboard::Keycode::Y => Key::Y,
+        sdl2::keyboard::Keycode::Z => Key::Z,
+        sdl2::keyboard::Keycode::Escape => Key::Escape,
+        sdl2::keyboard::Keycode::Return => Key::Enter,
+        sdl2::keyboard::Keycode::Tab => Key::Tab,
+        sdl2::keyboard::Keycode::Backspace => Key::Backspace,
+        sdl2::keyboard::Keycode::Insert => Key::Insert,
+        sdl2::keyboard::Keycode::Delete => Key::Delete,
+        sdl2::keyboard::Keycode::Right => Key::Right,
+        sdl2::keyboard::Keycode::Left => Key::Left,
+        sdl2::keyboard::Keycode::Down => Key::Down,
+        sdl2::keyboard::Keycode::Up => Key::Up,
+        sdl2::keyboard::Keycode::F1 => Key::F1,
+        sdl2::keyboard::Keycode::F2 => Key::F2,
+        sdl2::keyboard::Keycode::F3 => Key::F3,
+        sdl2::keyboard::Keycode::F4 => Key::F4,
+        sdl2::keyboard::Keycode::F5 => Key::F5,
+        sdl2::keyboard::Keycode::F6 => Key::F6,
+        sdl2::keyboard::Keycode::F7 => Key::F7,
+        sdl2::keyboard::Keycode::F8 => Key::F8,
+        sdl2::keyboard::Keycode::F9 => Key::F9,
+        sdl2::keyboard::Keycode::F10 => Key::F10,
+        sdl2::keyboard::Keycode::F11 => Key::F11,
+        sdl2::keyboard::Keycode::F12 => Key::F12,
+        sdl2::keyboard::Keycode::LShift => Key::LeftShift,
+        sdl2::keyboard::Keycode::LCtrl => Key::LeftControl,
+        sdl2::keyboard::Keycode::LAlt => Key::LeftAlt,
+        sdl2::keyboard::Keycode::LGui => Key::LeftSuper,
+        sdl2::keyboard::Keycode::RShift => Key::RightShift,
+        sdl2::keyboard::Keycode::RCtrl => Key::RightControl,
+        sdl2::keyboard::Keycode::RAlt => Key::RightAlt,
+        sdl2::keyboard::Keycode::RGui => Key::RightSuper,
         _ => Key::Unknown,
     }
 }
 
 /**
-This function converts a glfw mouse button to a graphics key
+This function converts a sdl mouse button to a graphics key
  */
-pub fn glfw_mouse_button_to_gfx_key(button: glfw::MouseButton) -> Key {
+pub fn sdl_mouse_button_to_gfx_key(button: sdl2::mouse::MouseButton) -> Key {
     match button {
-        glfw::MouseButton::Button1 => Key::MouseLeft,
-        glfw::MouseButton::Button2 => Key::MouseRight,
-        glfw::MouseButton::Button3 => Key::MouseMiddle,
-        glfw::MouseButton::Button4 => Key::Mouse4,
-        glfw::MouseButton::Button5 => Key::Mouse5,
-        glfw::MouseButton::Button6 => Key::Mouse6,
-        glfw::MouseButton::Button7 => Key::Mouse7,
-        glfw::MouseButton::Button8 => Key::Mouse8,
+        sdl2::mouse::MouseButton::Left => Key::MouseLeft,
+        sdl2::mouse::MouseButton::Right => Key::MouseRight,
+        sdl2::mouse::MouseButton::Middle => Key::MouseMiddle,
+        _ => Key::Unknown,
     }
 }
