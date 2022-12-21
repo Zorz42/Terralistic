@@ -16,14 +16,6 @@ Translates sdl type events to our event type
  */
 pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Event> {
     match sdl_event {
-        // handle all sdl key presses and releases and translate them to our event type
-        /*glfw::WindowEvent::Key(key, _, action, _) => {
-            match action {
-                glfw::Action::Press => Some(Event::KeyPress(glfw_key_to_gfx_key(key))),
-                glfw::Action::Release => Some(Event::KeyRelease(glfw_key_to_gfx_key(key))),
-                _ => None,
-            }
-        }*/
         sdl2::event::Event::KeyDown { keycode: Some(keycode), .. } => {
             Some(Event::KeyPress(sdl_key_to_gfx_key(keycode)))
         }
@@ -32,31 +24,23 @@ pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Ev
             Some(Event::KeyRelease(sdl_key_to_gfx_key(keycode)))
         }
 
-        // handle mouse button press events and KeyPress and KeyRelease events
-        /*glfw::WindowEvent::MouseButton(button, action, _) => {
-            match action {
-                glfw::Action::Press => Some(Event::KeyPress(glfw_mouse_button_to_gfx_key(button))),
-                glfw::Action::Release => Some(Event::KeyRelease(glfw_mouse_button_to_gfx_key(button))),
-                _ => None,
-            }
-        }*/
         sdl2::event::Event::MouseWheel { y, .. } => {
             Some(Event::MouseScroll(y as f64))
         }
-        sdl2::event::Event::MouseButtonDown { mouse_btn: sdl2::mouse::MouseButton::Left, .. } => {
-            Some(Event::KeyPress(Key::MouseLeft))
+        sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
+            Some(Event::KeyPress(sdl_mouse_button_to_gfx_key(mouse_btn)))
         }
-
-
-        //glfw::WindowEvent::Scroll(_, y) => Some(Event::MouseScroll(y)),
+        sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => {
+            Some(Event::KeyRelease(sdl_mouse_button_to_gfx_key(mouse_btn)))
+        }
 
         _ => None,
     }
 }
 
-/*
+/**
 A collection of all keys on the keyboard and mouse.
-*/
+ */
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Key {
     Unknown,

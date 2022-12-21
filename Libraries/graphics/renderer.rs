@@ -15,6 +15,8 @@ use crate::transformation::Transformation;
 This stores all the values needed for rendering.
  */
 pub struct Renderer {
+    gl_context: sdl2::video::GLContext,
+    gl: (),
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
     pub(crate) normalization_transform: Transformation,
@@ -78,6 +80,8 @@ impl Renderer {
         let shadow_context = ShadowContext::new();
 
         let mut result = Renderer {
+            gl_context: _gl_context,
+            gl: _gl,
             sdl_window,
             sdl_event_pump: sdl.event_pump().unwrap(),
             normalization_transform: Transformation::new(),
@@ -140,9 +144,14 @@ impl Renderer {
 
         for sdl_event in sdl_events {
             match sdl_event {
-                /*sdl2::event::WindowEvent::SizeChanged(_width, _height) => {
+                // handle window resize
+                sdl2::event::Event::Window { win_event: sdl2::event::WindowEvent::Resized(_width, _height), .. } => {
                     self.handle_window_resize();
-                }*/
+                }
+                // handle quit event
+                sdl2::event::Event::Quit { .. } => {
+                    self.close_window();
+                }
                 _ => {}
             }
 
@@ -212,9 +221,6 @@ impl Renderer {
                 let (scale_x, scale_y) = (1.0, 1.0);
                 gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0 / scale_x) as i32, (self.get_window_height() as f32 * 2.0 / scale_y) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
             }
-
-            gl::ClearColor(0.3, 0.3, 0.5, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
         }
 
         self.sdl_window.gl_swap_window();
