@@ -388,8 +388,6 @@ impl Blocks{
     }
 
     pub fn to_serial(&mut self) -> Vec<u8> {
-        let mut serial: Vec<u8> = Vec::new();
-        let mut iter: u32 = 0;
         snap::raw::Encoder::new().
             compress_vec(&bincode::
             serialize(&self.blocks).unwrap()).unwrap()

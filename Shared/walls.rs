@@ -6,6 +6,7 @@ use std::rc::Rc;
 use serde_derive::{Serialize, Deserialize};
 use bincode;
 use snap;
+use shared_mut::*;
 
 struct WallChangeEvent {
     pub x: i32,
@@ -99,10 +100,10 @@ impl WallChunk {
     }
 }
 
-struct Walls<'blocks>{
+struct Walls{
     walls: Vec<Wall>,
     chunks: Vec<WallChunk>,
-    blocks: &'blocks Blocks,
+    blocks: SharedMut<Blocks>,
 
     breaking_walls: Vec<BreakingWall>,
     wall_types: Vec<Rc<WallType>>,
@@ -118,8 +119,8 @@ struct Walls<'blocks>{
     pub wall_stopped_breaking_event: Sender<WallStoppedBreakingEvent>,
 }
 
-impl<'blocks> Walls<'blocks>{
-    pub fn new(blocks: &'blocks Blocks) -> Self {
+impl Walls{
+    pub fn new(blocks: SharedMut<Blocks>) -> Self {
         let mut walls = Walls {
             walls: Vec::new(),
             chunks: Vec::new(),
@@ -139,7 +140,7 @@ impl<'blocks> Walls<'blocks>{
             wall_stopped_breaking_event: Sender::new(),
         };
         walls.register_wall_type(walls.clear.clone());//TODO: @zorz42 make this work
-        //walls.blocks.register_new_tool_type(walls.hammer.clone());
+        walls.blocks.get_mut().register_new_tool_type(walls.hammer.clone());
         walls
     }
 
@@ -185,12 +186,12 @@ impl<'blocks> Walls<'blocks>{
 
     /**returns world width in blocks*/
     pub fn get_width(&self) -> i32 {
-        self.blocks.get_width()
+        self.blocks.get().get_width()
     }
 
     /**returns world height in blocks*/
     pub fn get_height(&self) -> i32 {
-        self.blocks.get_height()
+        self.blocks.get().get_height()
     }
 
     /**returns the wall type of the wall at given x and y*/
@@ -335,7 +336,7 @@ impl<'blocks> Walls<'blocks>{
     }
 
     /**registers new wall type*/
-    pub fn register_wall_type(&mut self, wall_type: Rc<WallType>) {
+    pub fn register_wall_type(&mut self, wall_type: Rc<WallType>) {//TODO assign id automatically?
         self.wall_types.push(wall_type);
     }
 
