@@ -15,7 +15,7 @@ pub const RANDOM_TICK_SPEED: i32 = 10;
 /**
 Event that is fired when a block is changed
  */
-struct BlockChangeEvent {
+pub struct BlockChangeEvent {
     x: i32, y: i32
 }
 impl BlockChangeEvent {
@@ -37,7 +37,7 @@ impl Event for BlockRandomTickEvent {}
 /**
 Event that is fired when a block is broken
  */
-struct BlockBreakEvent {
+pub struct BlockBreakEvent {
     x: i32, y: i32
 }
 impl BlockBreakEvent {
@@ -48,7 +48,7 @@ impl Event for BlockBreakEvent {}
 /**
 Event that is fired when a block has started breaking
  */
-struct BlockStartedBreakingEvent {
+pub struct BlockStartedBreakingEvent {
     x: i32, y: i32
 }
 impl BlockStartedBreakingEvent {
@@ -59,7 +59,7 @@ impl Event for BlockStartedBreakingEvent {}
 /**
 Event that is fired when a block has stopped breaking
  */
-struct BlockStoppedBreakingEvent {
+pub struct BlockStoppedBreakingEvent {
     x: i32, y: i32
 }
 impl BlockStoppedBreakingEvent {
@@ -70,7 +70,7 @@ impl Event for BlockStoppedBreakingEvent {}
 /**
 Event that is fired when a block is updated
  */
-struct BlockUpdateEvent {
+pub struct BlockUpdateEvent {
     x: i32, y: i32
 }
 impl BlockUpdateEvent {
@@ -223,11 +223,11 @@ pub struct Blocks {
     tool_types: Vec<Rc<Tool>>,
     air: Rc<BlockType>,
     hand: Rc<Tool>,
-    block_change_event: Sender<BlockChangeEvent>,
-    block_break_event: Sender<BlockBreakEvent>,
-    block_started_breaking_event: Sender<BlockStartedBreakingEvent>,
-    block_stopped_breaking_event: Sender<BlockStoppedBreakingEvent>,
-    block_update_event: Sender<BlockUpdateEvent>,
+    pub block_change_event: Sender<BlockChangeEvent>,
+    pub block_break_event: Sender<BlockBreakEvent>,
+    pub block_started_breaking_event: Sender<BlockStartedBreakingEvent>,
+    pub block_stopped_breaking_event: Sender<BlockStoppedBreakingEvent>,
+    pub block_update_event: Sender<BlockUpdateEvent>,
 }
 
 impl Blocks{
