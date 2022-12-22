@@ -64,6 +64,9 @@ impl Renderer {
             gl::Enable(gl::BLEND);
         }
         set_blend_mode(BlendMode::Alpha);
+
+        // enable vsync
+        video_subsystem.gl_set_swap_interval(1).unwrap();
         
         let passthrough_shader = PassthroughShader::new();
         let mut window_texture= 0;
