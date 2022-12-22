@@ -216,7 +216,7 @@ impl EntityStructTrait<Item> for Items {
         for entity in &mut self.items {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
-            entity.update_entity(&self.blocks.get());
+            entity.update_entity(&self.blocks.get_lock());
             if entity.entity.entity_type == EntityType::PLAYER && old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
                 let event = EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
                 self.item_absolute_velocity_change_event.send(event);

@@ -140,7 +140,7 @@ impl Walls{
             wall_stopped_breaking_event: Sender::new(),
         };
         walls.register_wall_type(walls.clear.clone());//TODO: @zorz42 make this work
-        walls.blocks.get_mut().register_new_tool_type(walls.hammer.clone());
+        walls.blocks.get_lock().register_new_tool_type(walls.hammer.clone());
         walls
     }
 
@@ -186,12 +186,12 @@ impl Walls{
 
     /**returns world width in blocks*/
     pub fn get_width(&self) -> i32 {
-        self.blocks.get().get_width()
+        self.blocks.get_lock().get_width()
     }
 
     /**returns world height in blocks*/
     pub fn get_height(&self) -> i32 {
-        self.blocks.get().get_height()
+        self.blocks.get_lock().get_height()
     }
 
     /**returns the wall type of the wall at given x and y*/
