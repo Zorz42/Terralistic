@@ -2,9 +2,11 @@ use super::{entities::*, blocks::*};
 use events::*;
 use shared_mut::SharedMut;
 
+//TODO: write tests
+
 const PLAYER_HEIGHT: i32 = 24;
 const PLAYER_WIDTH: i32 = 16;
-const PLAYER_MAX_HELA: i32 = 80;
+const PLAYER_MAX_HEALTH: i32 = 80;
 
 /**enum of possible movement types for the player*/
 #[derive(PartialEq, Copy, Clone)]
@@ -47,7 +49,6 @@ impl Player {
     }
     /**sets the player's health to the given value*/
     pub fn set_health(&mut self, health: i32) {
-        let old_health = self.health;
         self.health = health;
     }
     /**returns the player's health*/

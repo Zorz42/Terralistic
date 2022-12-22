@@ -5,3 +5,4 @@ pub mod walls;
 pub mod tests;
 pub mod items;
 pub mod player;
+pub mod lights;
