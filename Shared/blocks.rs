@@ -3,7 +3,6 @@ use std::ops::Deref;
 use std::rc::Rc;
 use events::*;
 use serde_derive::{Serialize, Deserialize};
-use super::block_data::*;
 use snap;
 
 pub const BLOCK_WIDTH: i32 = 8;
@@ -13,9 +12,9 @@ pub const RANDOM_TICK_SPEED: i32 = 10;
 
 //TODO: write tests for block changes, block data, and block updates
 
-/*
-structs for events that modify blocks
-*/
+/**
+Event that is fired when a block is changed
+ */
 struct BlockChangeEvent {
     x: i32, y: i32
 }
@@ -24,6 +23,9 @@ impl BlockChangeEvent {
 }
 impl Event for BlockChangeEvent {}
 
+/**
+Event that is fired when a random tick is fired for a block
+ */
 struct BlockRandomTickEvent {
     x: i32, y: i32
 }
@@ -32,6 +34,9 @@ impl BlockRandomTickEvent {
 }
 impl Event for BlockRandomTickEvent {}
 
+/**
+Event that is fired when a block is broken
+ */
 struct BlockBreakEvent {
     x: i32, y: i32
 }
@@ -40,6 +45,9 @@ impl BlockBreakEvent {
 }
 impl Event for BlockBreakEvent {}
 
+/**
+Event that is fired when a block has started breaking
+ */
 struct BlockStartedBreakingEvent {
     x: i32, y: i32
 }
@@ -48,6 +56,9 @@ impl BlockStartedBreakingEvent {
 }
 impl Event for BlockStartedBreakingEvent {}
 
+/**
+Event that is fired when a block has stopped breaking
+ */
 struct BlockStoppedBreakingEvent {
     x: i32, y: i32
 }
@@ -56,6 +67,9 @@ impl BlockStoppedBreakingEvent {
 }
 impl Event for BlockStoppedBreakingEvent {}
 
+/**
+Event that is fired when a block is updated
+ */
 struct BlockUpdateEvent {
     x: i32, y: i32
 }
@@ -64,6 +78,9 @@ impl BlockUpdateEvent {
 }
 impl Event for BlockUpdateEvent {}
 
+/**
+Struct that contains all the information about a tool
+ */
 pub struct Tool {
     name: String
 }
@@ -72,26 +89,45 @@ impl Tool {
     pub fn new(name: String) -> Self { Tool{name} }
 }
 
-/*
-includes properties for each block type
-*/
+/**
+Includes properties for each block type
+ */
 #[derive(Clone)]
 pub struct BlockType{
+    // tool that can break the block, none means it can be broken by hand or any tool
     pub effective_tool: Option<*const Tool>,
+    // how powerful the tool needs to be
     pub required_tool_power: i32,
-    pub ghost: bool, pub transparent: bool,
+    // ghost blocks are blocks that are not solid and can be walked through
+    pub ghost: bool,
+    // transparent blocks are blocks that can be seen through and let light through
+    pub transparent: bool,
+    // name of the block displayed in inventory
     pub name: String,
+    // to which blocks it visually connects
     pub connects_to: Vec<i32>,
+    // how much time it takes to break the block
     pub break_time: i32,
-    pub light_emission_r: i32, pub light_emission_g: i32, pub light_emission_b: i32,
+    // what light color the block emits
+    pub light_emission_r: u8,
+    pub light_emission_g: u8,
+    pub light_emission_b: u8,
+    // block id, used for saving and loading and for networking
     pub id: i32,
-    pub width: i32, pub height: i32,
+    // if the block is larger than 1x1 it connects with other blocks of the same type
+    // and those blocks break and place together, for example: canopies
+    pub width: i32,
+    pub height: i32,
+    // if the block has any different states for connecting to other blocks
     pub can_update_states: bool,
+    // if the block is only collidable by feet, for example: platforms, they have special collision
     pub feet_collidable: bool,
-    pub custom_data_type: Option<CustomData>
 }
 
 impl BlockType {
+    /**
+    Creates a new block type with default values
+     */
     pub fn new(name: String) -> Self {
         BlockType {
             effective_tool: None,
@@ -105,9 +141,10 @@ impl BlockType {
             width: 0, height: 0,
             can_update_states: false,
             feet_collidable: false,
-            custom_data_type: Option::None
         }
     }
+
+
     pub fn update_states(blocks: &mut Blocks, x: i32, y: i32) -> i32 {
         if blocks.get_block_type(x, y).can_update_states {
             let mut state = 0;
@@ -124,49 +161,60 @@ impl BlockType {
                 state += 1 << 3;
             }
             state
-        }else {
+        } else {
             0
         }
     }
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-pub struct Block{
-    id: i32,
-    x_from_main: i8, y_from_main: i8,
-    block_data: Option<CustomData>
+pub(crate) struct Block {
+    pub id: i32,
+    pub x_from_main: i8,
+    pub y_from_main: i8,
+    pub block_data: Vec<u8>
 }
 
-impl Block{
-    pub fn new() -> Self { Block{id: 0, x_from_main: 0, y_from_main: 0, block_data: Option::None} }
-    pub fn get_id(&self) -> i32 { self.id }
-    pub fn get_x_from_main(&self) -> i8 { self.x_from_main }
-    pub fn get_y_from_main(&self) -> i8 { self.y_from_main }
-    pub fn get_block_data(&mut self) -> &mut Option<CustomData> { self.block_data.borrow_mut() }
+impl Block {
+    pub fn new() -> Self {
+        Block{
+            id: 0,
+            x_from_main: 0,
+            y_from_main: 0,
+            block_data: vec![]
+        }
+    }
 }
 
-struct BreakingBlock{
+struct BreakingBlock {
     break_progress: i32,
     is_breaking: bool,
-    x: i32, y: i32,
+    x: i32,
+    y: i32,
 }
 
-impl BreakingBlock{
-    pub fn new() -> Self { BreakingBlock{break_progress: 0, is_breaking: true, x: 0, y: 0} }
+impl BreakingBlock {
+    pub fn new() -> Self {
+        BreakingBlock{
+            break_progress: 0,
+            is_breaking: true,
+            x: 0,
+            y: 0
+        }
+    }
 }
 
 
-#[derive(Clone)]
-struct BlockChunk{
+struct BlockChunk {
     breaking_blocks_count: i8,
 }
 
-impl BlockChunk{
+impl BlockChunk {
     pub fn new() -> Self { BlockChunk{breaking_blocks_count: 0} }
 }
 
 
-pub struct Blocks{
+pub struct Blocks {
     blocks: Vec<Block>,
     chunks: Vec<BlockChunk>,
     width: i32, height: i32,
@@ -198,7 +246,6 @@ impl Blocks{
             block_started_breaking_event: Sender::new(),
             block_stopped_breaking_event: Sender::new(),
             block_update_event: Sender::new(),
-
         };
 
         let mut air = BlockType::new(String::from("air"));
@@ -217,13 +264,12 @@ impl Blocks{
         b
     }
 
-    pub fn get_block(&self, x: i32, y: i32) -> &Block {
+    fn get_block(&self, x: i32, y: i32) -> &Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
         &self.blocks[(y * self.width + x) as usize]
     }
-
     fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
@@ -248,7 +294,10 @@ impl Blocks{
         for i in 0..width * height {
             self.blocks.push(Block::new());
         }
-        self.chunks = vec![BlockChunk::new(); (width * height / CHUNK_SIZE / CHUNK_SIZE) as usize];
+        self.chunks = vec![];
+        for _ in 0..(width * height / CHUNK_SIZE / CHUNK_SIZE) as usize {
+            self.chunks.push(BlockChunk::new());
+        }
     }
 
     pub fn get_block_type_by_id(&self, id: i32) -> Rc<BlockType> {
@@ -280,10 +329,8 @@ impl Blocks{
     }
 
     pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
-        self.get_block_mut(x, y).block_data = Option::None;
+        self.get_block_mut(x, y).block_data.clear();
         self.get_block_mut(x, y).id = block_type.id;
-        let data = block_type.custom_data_type.clone();
-        self.get_block_mut(x, y).block_data = data;
     }
 
     pub fn get_block_x_from_main(&mut self, x: i32, y: i32) -> i8 {
@@ -294,7 +341,7 @@ impl Blocks{
         self.get_block(x, y).y_from_main
     }
 
-    pub fn get_block_data(&mut self, x: i32, y: i32) -> &Option<CustomData> {
+    pub fn get_block_data(&mut self, x: i32, y: i32) -> &Vec<u8> {
         &self.get_block(x, y).block_data
     }
 

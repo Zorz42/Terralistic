@@ -1,4 +1,4 @@
-use crate::{Color, GraphicsContext, Timer};
+use crate::{Color, GraphicsContext, Timer, TOP_LEFT};
 use crate::Container;
 use crate::Orientation;
 
@@ -29,7 +29,7 @@ pub struct RenderRect {
 }
 
 impl RenderRect {
-    pub fn new(x: f32, y: f32, w: f32, h: f32, fill_color: Color, border_color: Color, orientation: Orientation) -> Self {
+    pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
         RenderRect {
             x,
             y,
@@ -39,10 +39,10 @@ impl RenderRect {
             render_y: y,
             render_w: w,
             render_h: h,
-            fill_color,
-            border_color,
+            fill_color: Color::new(0, 0, 0, 255),
+            border_color: Color::new(0, 0, 0, 0),
             smooth_factor: 1.0,
-            orientation,
+            orientation: TOP_LEFT,
             blur_radius: 0,
             shadow_intensity: 0,
             ms_counter: 0,

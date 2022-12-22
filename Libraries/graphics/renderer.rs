@@ -1,35 +1,35 @@
-extern crate glfw;
+extern crate sdl2;
+extern crate queues;
 
+use std::borrow::BorrowMut;
+use queues::*;
 use std::collections::HashMap;
-use std::ffi::CString;
-use self::glfw::{Context};
 use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
 use crate::blur::BlurContext;
-use crate::vertex_buffer_impl;
-use crate::color;
-use crate::events::{glfw_event_to_gfx_event, glfw_mouse_button_to_gfx_key};
+use crate::events::{sdl_event_to_gfx_event};
 use crate::passthrough_shader::PassthroughShader;
-use crate::shaders::compile_shader;
 use crate::shadow::ShadowContext;
 use crate::transformation::Transformation;
-use crate::vertex_buffer_impl::VertexBufferImpl;
 
 /**
 This stores all the values needed for rendering.
  */
 pub struct Renderer {
-    pub(crate) glfw: glfw::Glfw,
-    pub(crate) glfw_window: glfw::Window,
-    pub(crate) glfw_events: std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
+    gl_context: sdl2::video::GLContext,
+    gl: (),
+    sdl_window: sdl2::video::Window,
+    sdl_event_pump: sdl2::EventPump,
     pub(crate) normalization_transform: Transformation,
-    pub(crate) window_texture: u32,
-    pub(crate) window_texture_back: u32,
-    pub(crate) window_framebuffer: u32,
-    pub(crate) blur_context: BlurContext,
+    window_texture: u32,
+    window_texture_back: u32,
+    window_framebuffer: u32,
+    blur_context: BlurContext,
     pub(crate) passthrough_shader: PassthroughShader,
+    events_queue: Queue<Event>,
+    window_open: bool,
     // Keep track of all Key states as a hashmap
-    pub(crate) key_states: HashMap<Key, bool>,
-    pub(crate) events: Vec<Event>,
+    key_states: HashMap<Key, bool>,
+    events: Vec<Event>,
     pub(crate) shadow_context: ShadowContext,
 }
 
@@ -42,26 +42,29 @@ impl Renderer {
             panic!("Invalid window dimensions");
         }
 
-        let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        let mut sdl = sdl2::init().unwrap();
+        let video_subsystem = sdl.video().unwrap();
 
-        glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
-        glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
-        #[cfg(target_os = "macos")]
-        glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
+        let gl_attr = video_subsystem.gl_attr();
 
-        let (mut glfw_window, glfw_events) = glfw.create_window(window_width as u32, window_height as u32, window_title.as_str(), glfw::WindowMode::Windowed).expect("Failed to create GLFW window.");
+        gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
+        gl_attr.set_context_version(3, 3);
 
-        glfw_window.make_current();
-        glfw_window.set_key_polling(true);
-        glfw_window.set_framebuffer_size_polling(true);
+        let mut sdl_window = video_subsystem.window(&window_title, window_width as u32, window_height as u32)
+            .position_centered()
+            .opengl()
+            .resizable()
+            .build()
+            .unwrap();
 
-        gl::load_with(|symbol| glfw_window.get_proc_address(symbol) as *const _);
+        let _gl_context = sdl_window.gl_create_context().unwrap();
+        let _gl = gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
         unsafe {
             gl::Enable(gl::BLEND);
         }
         set_blend_mode(BlendMode::Alpha);
-
+        
         let passthrough_shader = PassthroughShader::new();
         let mut window_texture= 0;
         let mut window_texture_back= 0;
@@ -77,9 +80,10 @@ impl Renderer {
         let shadow_context = ShadowContext::new();
 
         let mut result = Renderer {
-            glfw,
-            glfw_window,
-            glfw_events,
+            gl_context: _gl_context,
+            gl: _gl,
+            sdl_window,
+            sdl_event_pump: sdl.event_pump().unwrap(),
             normalization_transform: Transformation::new(),
             window_texture,
             window_texture_back,
@@ -89,6 +93,8 @@ impl Renderer {
             blur_context: BlurContext::new(),
             passthrough_shader,
             shadow_context,
+            events_queue: Queue::new(),
+            window_open: true,
         };
 
         result.handle_window_resize();
@@ -100,7 +106,9 @@ impl Renderer {
     Is called every time the window is resized.
      */
     pub fn handle_window_resize(&mut self) {
-        let (width, height) = self.glfw_window.get_size();
+        let (width, height) = self.sdl_window.size();
+        let width = width as i32;
+        let height = height as i32;
 
         self.normalization_transform = Transformation::new();
         self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
@@ -108,80 +116,46 @@ impl Renderer {
 
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, width * 2, height * 2, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, self.get_window_width() as i32, self.get_window_height() as i32, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
 
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture_back);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, width * 2, height * 2, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, self.get_window_width() as i32, self.get_window_height() as i32, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
 
             // set glViewport
-            gl::Viewport(0, 0, width * 2, height * 2);
-        }
-    }
-
-    /**
-    A function that checks mouse buttons
-    and sends events to the event handler
-    if they change state.
-     */
-    pub fn handle_mouse_buttons(&mut self) {
-        let mouse_buttons = [
-            glfw::MouseButton::Button1,
-            glfw::MouseButton::Button2,
-            glfw::MouseButton::Button3,
-            glfw::MouseButton::Button4,
-            glfw::MouseButton::Button5,
-            glfw::MouseButton::Button6,
-            glfw::MouseButton::Button7,
-            glfw::MouseButton::Button8,
-        ];
-
-        for glfw_button in mouse_buttons {
-            let glfw_state = self.glfw_window.get_mouse_button(glfw_button);
-            let button = glfw_mouse_button_to_gfx_key(glfw_button);
-
-            let state = match glfw_state {
-                glfw::Action::Press => true,
-                glfw::Action::Release => false,
-                _ => continue,
-            };
-
-            if self.get_key_state(button) != state {
-                self.set_key_state(button, state);
-
-                if state {
-                    self.events.push(Event::KeyPress(button));
-                } else {
-                    self.events.push(Event::KeyRelease(button));
-                }
-            }
+            gl::Viewport(0, 0, self.get_window_width() as i32, self.get_window_height() as i32);
         }
     }
 
     /**
     Returns an array of events, such as key presses
      */
-    pub fn get_events(&mut self) -> Vec<Event> {
-        let mut glfw_events = vec![];
+    fn get_events(&mut self) -> Vec<Event> {
+        let mut sdl_events = vec![];
 
-        for (_, glfw_event) in glfw::flush_messages(&self.glfw_events) {
-            glfw_events.push(glfw_event);
+        for sdl_event in self.sdl_event_pump.poll_iter() {
+            sdl_events.push(sdl_event);
         }
 
-        for glfw_event in glfw_events {
-            match glfw_event {
-                glfw::WindowEvent::FramebufferSize(_width, _height) => {
+        for sdl_event in sdl_events {
+            match sdl_event {
+                // handle window resize
+                sdl2::event::Event::Window { win_event: sdl2::event::WindowEvent::Resized(_width, _height), .. } => {
                     self.handle_window_resize();
+                }
+                // handle quit event
+                sdl2::event::Event::Quit { .. } => {
+                    self.close_window();
                 }
                 _ => {}
             }
 
-            if let Some(event) = glfw_event_to_gfx_event(glfw_event) {
+            if let Some(event) = sdl_event_to_gfx_event(sdl_event) {
                 // if event is a key press event update the key states to true
                 if let Event::KeyPress(key) = event {
                     self.set_key_state(key, true);
@@ -202,74 +176,94 @@ impl Renderer {
     }
 
     /**
+    Returns an event, returns None if there are no events
+     */
+    pub fn get_event(&mut self) -> Option<Event> {
+        for event in self.get_events() {
+            self.events_queue.add(event).unwrap();
+        }
+
+        if self.events_queue.size() == 0 {
+            None
+        } else {
+            Some(self.events_queue.remove().unwrap())
+        }
+    }
+
+    /**
     Checks if the window is open, this becomes false, when the user closes the window, or the program closes it
      */
     pub fn is_window_open(&self) -> bool {
-        !self.glfw_window.should_close()
+        self.window_open
     }
 
     /**
     Closes the window
      */
     pub fn close_window(&mut self) {
-        self.glfw_window.set_should_close(true);
+        self.window_open = false;
     }
 
     /**
     Should be called after rendering
      */
-    pub fn post_render(&mut self) {
+    pub fn update_window(&mut self) {
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
             gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
             gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
 
-            gl::BlitFramebuffer(0, 0, self.glfw_window.get_size().0 * 2, self.glfw_window.get_size().1 * 2, 0, 0, self.glfw_window.get_size().0 * 2, self.glfw_window.get_size().1 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            #[cfg(target_os = "windows")] {
+                gl::BlitFramebuffer(0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            }
+            #[cfg(target_os = "macos")] {
+                // get system scale factor
+                let (scale_x, scale_y) = (1.0, 1.0);
+                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0 / scale_x) as i32, (self.get_window_height() as f32 * 2.0 / scale_y) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            }
         }
 
-        self.glfw_window.swap_buffers();
-        self.glfw.poll_events();
+        self.sdl_window.gl_swap_window();
 
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
         }
-
-        self.handle_mouse_buttons();
     }
 
     /**
     Sets the minimum window size
      */
     pub fn set_min_window_size(&mut self, width: u32, height: u32) {
-        self.glfw_window.set_size_limits(Some(width), Some(height), None, None);
+        self.sdl_window.set_minimum_size(width, height).expect("Failed to set minimum window size");
     }
 
     /**
     Get the current window width
      */
     pub fn get_window_width(&self) -> u32 {
-        self.glfw_window.get_size().0.try_into().unwrap()
+        self.sdl_window.size().0 as u32
     }
 
     /**
     Get the current window height
      */
     pub fn get_window_height(&self) -> u32 {
-        self.glfw_window.get_size().1.try_into().unwrap()
+        self.sdl_window.size().1 as u32
     }
 
     /**
     Gets mouse x position
      */
     pub fn get_mouse_x(&self) -> f32 {
-        self.glfw_window.get_cursor_pos().0 as f32
+        // get mouse position
+        self.sdl_event_pump.mouse_state().x() as f32
     }
 
     /**
     Gets mouse y position
      */
     pub fn get_mouse_y(&self) -> f32 {
-        self.glfw_window.get_cursor_pos().1 as f32
+        self.sdl_event_pump.mouse_state().y() as f32
     }
 
     /**
@@ -300,7 +294,7 @@ impl Renderer {
     Blurs a given rectangle on the screen
      */
     pub(crate) fn blur_rect(&self, rect: &Rect, radius: i32) {
-        self.blur_region(rect, radius, self.window_texture, self.window_texture_back, self.glfw_window.get_size().0 as f32, self.glfw_window.get_size().1 as f32, &self.normalization_transform);
+        self.blur_region(rect, radius, self.window_texture, self.window_texture_back, self.get_window_width() as f32, self.get_window_height() as f32, &self.normalization_transform);
     }
 }
 
@@ -317,7 +311,5 @@ impl Drop for Renderer {
             gl::DeleteTextures(1, &self.window_texture);
             gl::DeleteTextures(1, &self.window_texture_back);
         }
-        // close glfw window
-        self.glfw_window.set_should_close(true);
     }
 }

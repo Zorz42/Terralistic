@@ -1,4 +1,4 @@
-use std::ffi::{c_void, CString};
+use std::ffi::{c_void};
 use crate::Rect;
 use crate::shaders::compile_shader;
 use crate::transformation::Transformation;
@@ -114,6 +114,10 @@ impl BlurContext {
     Blurs region on a given texture.
      */
     pub(crate) fn blur_region(&self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32, height: f32, texture_transform: &Transformation) {
+        if !self.blur_enabled {
+            return;
+        }
+
         unsafe {
             if self.anti_stutter {
                 gl::Finish();

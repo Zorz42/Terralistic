@@ -1,6 +1,7 @@
 /*
 This trait is used to define an event.
 */
+use std::borrow::BorrowMut;
 use shared_mut::SharedMut;
 
 pub trait Event {}
@@ -41,7 +42,7 @@ impl<Type: Event> Sender<Type> {
     */
     pub fn send(&mut self, event: Type) {
         for listener in self.listeners.iter_mut() {
-            listener.get_mut().on_event(&event);
+            listener.get_lock().borrow_mut().on_event(&event);
         }
     }
 }
