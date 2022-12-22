@@ -5,6 +5,8 @@ use {shared_mut::*, events::*};
 
 const ITEM_WIDTH: i32 = 8;
 
+//TODO: write comments and tests
+
 pub struct ItemType{
     pub name: String, pub display_name: String,
     pub max_stack: i32,
@@ -121,7 +123,6 @@ pub struct Items {
     item_creation_event: Sender<ItemCreationEvent>,
     item_position_change_event: Sender<EntityPositionChangeEvent>,
     item_velocity_change_event: Sender<EntityVelocityChangeEvent>,
-    item_absolute_velocity_change_event: Sender<EntityAbsoluteVelocityChangeEvent>,
     item_deletion_event: Sender<EntityDeletionEvent>
 }
 
@@ -143,7 +144,6 @@ impl Items {
             item_creation_event: Sender::new(),
             item_position_change_event: Sender::new(),
             item_velocity_change_event: Sender::new(),
-            item_absolute_velocity_change_event: Sender::new(),
             item_deletion_event: Sender::new()
         }
     }
@@ -217,10 +217,6 @@ impl EntityStructTrait<Item> for Items {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
             entity.update_entity(&self.blocks.get_lock());
-            if entity.entity.entity_type == EntityType::PLAYER && old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
-                let event = EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
-                self.item_absolute_velocity_change_event.send(event);
-            }
         }
     }
     fn register_entity(&mut self, entity: Item){

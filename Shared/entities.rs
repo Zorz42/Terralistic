@@ -7,8 +7,8 @@ use super::items::*;
 use once_cell::sync::Lazy;
 
 #[derive(PartialEq)]
-pub enum EntityType { ITEM, PLAYER }
-#[derive(PartialEq)]
+pub enum EntityType { ITEM, PLAYER }//TODO: remove this since they're now in separate objects?
+#[derive(PartialEq, Copy, Clone)]
 pub enum Direction { LEFT, RIGHT, UP, DOWN }
 static CURR_ENTITY_ID: Lazy<Mutex<u32>> = Lazy::new(|| Mutex::new(0));
 
