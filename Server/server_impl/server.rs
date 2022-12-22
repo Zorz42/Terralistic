@@ -1,19 +1,23 @@
+mod server_module;
+
+use std::borrow::Borrow;
+use std::cell::Cell;
 use crate::server_module::ServerModule;
 
 pub struct Server {
     tps_limit: f64,
     modules: Vec<Box<dyn ServerModule>>,
-    running: bool,
+    running: Cell<bool>,
 }
 
 impl Server {
-    pub fn new() -> Server {
+    pub fn new(running: Cell<bool>) -> Server {
         Server {
             tps_limit: 20.0,
             modules: vec![
 
             ],
-            running: false,
+            running,
         }
     }
 
@@ -27,8 +31,7 @@ impl Server {
         // start server loop
         println!("Server started!");
         let mut last_time = std::time::Instant::now();
-        self.running = true;
-        while self.running {
+        while self.running.borrow().get() {
             let delta_time = last_time.elapsed().as_secs_f64();
             last_time = std::time::Instant::now();
 
@@ -50,9 +53,5 @@ impl Server {
         }
 
         println!("Server stopped.");
-    }
-
-    pub fn stop(&mut self) {
-        self.running = false;
     }
 }
