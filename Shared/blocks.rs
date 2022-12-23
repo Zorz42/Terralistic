@@ -63,11 +63,9 @@ mod default_data {
     //also this is now a mod, not a struct because it doesn't need variables i think
 }
 
-/*
-includes properties for each block type
-B has to be a generic for connects_to list to work, it's just some rust black magic
-https://stackoverflow.com/questions/48288640/generic-struct-with-a-reference-to-the-same-type-but-with-any-concrete-type
-this is how it's supposed to work^^
+
+/**
+implements data and functions for a single block type
 */
 #[derive(PartialEq)]
 pub struct BlockType{
@@ -102,6 +100,10 @@ impl BlockType {
             feet_collidable: false
         }
     }
+
+    /**
+    updates the block's state (and almost always texture) based on its surrounding blocks
+    */
     pub fn update_states(blocks: &mut Blocks, x: i32, y: i32) -> i32 {
         if blocks.get_block_type(x, y).can_update_states {
             let mut state = 0;
@@ -125,6 +127,9 @@ impl BlockType {
 }
 
 #[derive(Clone)]
+/**
+implements data for a single block
+*/
 struct Block{
     id: i32,
     x_from_main: i8, y_from_main: i8,
@@ -155,7 +160,9 @@ impl BlockChunk{
     pub fn new() -> Self { BlockChunk{breaking_blocks_count: 0} }
 }
 
-
+/**
+class that implements all block related functions and data, such as the world's block array, block types, breaking blocks, etc.
+ */
 pub struct Blocks{
     blocks: Vec<Block>,
     chunks: Vec<BlockChunk>,
@@ -193,6 +200,7 @@ impl Blocks{
         b
     }
 
+
     fn get_block(&mut self, x: i32, y: i32) -> &mut Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
@@ -207,6 +215,10 @@ impl Blocks{
         self.chunks[(y * self.width / CHUNK_SIZE + x) as usize].borrow_mut()
     }
 
+
+    /**
+    creates the world array with the desired dimensions, filled with air
+    */
     pub fn create(&mut self, width: i32, height: i32) {
         if width < 0 || height < 0 {
             panic!("Width and height must be positive!");
@@ -224,6 +236,9 @@ impl Blocks{
         &mut self.block_types[id as usize]
     }
 
+    /**
+    gets block type on coordinates
+    */
     pub fn get_block_type(&mut self, x: i32, y: i32) -> &mut BlockType {
             let id = self.get_block(x, y).id.into();
             self.get_block_type_by_id(id)
@@ -246,6 +261,9 @@ impl Blocks{
         }
     }
 
+    /**
+    sets block type on coordinates without updating neighbouring blocks
+    */
     pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: &BlockType) {
         //delete custom data
         self.get_block(x, y).id = block_type.id;
@@ -352,6 +370,9 @@ impl Blocks{
         self.height
     }
 
+    /**
+    save world's block related data to a char stream
+    */
     pub fn to_serial(&mut self) -> Vec<i8> {
         let mut serial: Vec<i8> = Vec::new();
         let mut iter: u32 = 0;
@@ -384,6 +405,9 @@ impl Blocks{
         //return compressed serial
     }
 
+    /**
+    load world's block related data from a char stream
+    */
     pub fn from_serial(&mut self, serial: Vec<i8>){
         let mut iter: u32 = 0;
         let decompressed = serial;//decompress serial whan implemented
@@ -419,6 +443,7 @@ impl Blocks{
     }
 
     //data deliverer, will probably be rewritten
+
     pub fn register_new_tool_type(&mut self, tool_type: Tool){
         self.tool_types.push(tool_type);
     }
@@ -432,6 +457,9 @@ impl Blocks{
         panic!("Tool type with name {} not found!", name);
     }
 
+    /**
+    Not intended for use by itself. Should only be used by update_states function
+    */
     pub fn update_state_side(&mut self, x: i32, y: i32, side_x: i32, side_y: i32) -> bool {
         let this_block_id = self.get_block(x, y).id;
         let side_block_id = self.get_block(x + side_x, y + side_y).id;
