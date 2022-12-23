@@ -16,7 +16,7 @@ pub const RANDOM_TICK_SPEED: i32 = 10;
 Event that is fired when a block is changed
  */
 pub struct BlockChangeEvent {
-    x: i32, y: i32
+    pub x: i32, pub y: i32
 }
 impl BlockChangeEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockChangeEvent{x, y} }
@@ -221,8 +221,8 @@ pub struct Blocks {
     breaking_blocks: Vec<BreakingBlock>,
     block_types: Vec<Rc<BlockType>>,
     tool_types: Vec<Rc<Tool>>,
-    air: Rc<BlockType>,
-    hand: Rc<Tool>,
+    pub air: Rc<BlockType>,
+    pub hand: Rc<Tool>,
     pub block_change_event: Sender<BlockChangeEvent>,
     pub block_break_event: Sender<BlockBreakEvent>,
     pub block_started_breaking_event: Sender<BlockStartedBreakingEvent>,
