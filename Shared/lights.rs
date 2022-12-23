@@ -28,7 +28,7 @@ impl LightUpdateScheduleEvent {
 impl Event for LightColorChangeEvent {}
 
 /**struct that contains the light rgb values*/
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub struct LightColor {
     pub r: i32,
     pub g: i32,
@@ -126,29 +126,31 @@ impl Lights {
     /**updates the light at the given coordinate*/
     pub fn update_light(&mut self, x: i32, y: i32) {
         self.get_light_mut(x, y).update_light = false;
-        let blocks = self.blocks.get_lock();
         self.update_light_emitter(x, y);
 
         let mut neighbours = [[-1, 0], [-1, 0], [-1, 0], [-1, 0]];
+        {
+            let blocks = self.blocks.get_lock();
 
-        if x != 0 {
-            neighbours[0][0] = x - 1;
-            neighbours[0][1] = y;
-        }
-        if x != blocks.get_width() - 1 {
-            neighbours[1][0] = x + 1;
-            neighbours[1][1] = y;
-        }
-        if y != 0 {
-            neighbours[2][0] = x;
-            neighbours[2][1] = y - 1;
-        }
-        if y != blocks.get_height() - 1 {
-            neighbours[3][0] = x;
-            neighbours[3][1] = y + 1;
+            if x != 0 {
+                neighbours[0][0] = x - 1;
+                neighbours[0][1] = y;
+            }
+            if x != blocks.get_width() - 1 {
+                neighbours[1][0] = x + 1;
+                neighbours[1][1] = y;
+            }
+            if y != 0 {
+                neighbours[2][0] = x;
+                neighbours[2][1] = y - 1;
+            }
+            if y != blocks.get_height() - 1 {
+                neighbours[3][0] = x;
+                neighbours[3][1] = y + 1;
+            }
         }
 
-        let color_to_be = LightColor::new(0, 0, 0);
+        let mut color_to_be = LightColor::new(0, 0, 0);
         for neighbour in neighbours {
             if neighbour[0] != -1 {
                 let light_step = if self.blocks.get_lock().get_block_type(neighbour[0], neighbour[1]).transparent { 3 } else { 15 };
@@ -194,11 +196,11 @@ impl Lights {
     }
     /**returns the light color at the given coordinate*/
     pub fn get_light_color(&self, x: i32, y: i32) -> LightColor {
-        self.get_light(x, y).color
+        self.get_light(x, y).color.clone()
     }
     /**returns the light source color at the given coordinate*/
     pub fn get_light_source_color(&self, x: i32, y: i32) -> LightColor {
-        self.get_light(x, y).source_color
+        self.get_light(x, y).source_color.clone()
     }
     /**schedules a light update for the given coordinate*/
     pub fn schedule_light_update(&mut self, x: i32, y: i32) {
@@ -211,26 +213,27 @@ impl Lights {
     }
     /**schedules a light update for the neighbours of the given coordinate*/
     pub fn schedule_light_update_for_neighbours(&mut self, x: i32, y: i32) {
-        let blocks = self.blocks.get_lock();
+        let width = self.get_width();
+        let height = self.get_height();
         self.schedule_light_update(x, y);
         if x != 0 {
             self.schedule_light_update(x - 1, y);
         }
-        if x != blocks.get_width() - 1 {
+        if x != width - 1 {
             self.schedule_light_update(x + 1, y);
         }
         if y != 0 {
             self.schedule_light_update(x, y - 1);
         }
-        if y != blocks.get_height() - 1 {
+        if y != height - 1 {
             self.schedule_light_update(x, y + 1);
         }
     }
     /**updates the light emitter at the given coordinate*/
     pub fn update_light_emitter(&mut self, x: i32, y: i32) {
         let block_type = self.blocks.get_lock().get_block_type(x, y);
-        if block_type != self.blocks.get_lock().air {
-            self.set_light_source(x, y, LightColor::new(block_type.light_color.r, block_type.light_color.g, block_type.light_color.b));
+        if block_type.id != self.blocks.get_lock().air.id {
+            self.set_light_source(x, y, LightColor::new(block_type.light_emission_r as i32, block_type.light_emission_g as i32, block_type.light_emission_b as i32));
         }
     }
 }
