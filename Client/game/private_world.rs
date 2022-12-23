@@ -1,9 +1,10 @@
 use std::borrow::{Borrow, BorrowMut};
+use graphics::GraphicsContext;
 use shared_mut::SharedMut;
 use terralistic_server::Server;
 use crate::game::game::Game;
 
-pub fn run_private_world() {
+pub fn run_private_world(graphics: &mut GraphicsContext) {
     let server_running = SharedMut::new(true);
     let server_running2 = server_running.duplicate();
     // start server in async thread
@@ -14,10 +15,7 @@ pub fn run_private_world() {
 
     // start client
     let mut game = Game::new();
-    //game.run();
-
-    // wait 2 seconds
-    //std::thread::sleep(std::time::Duration::from_secs(2));
+    game.run(graphics);
 
     // stop server
     *server_running.borrow() = false;

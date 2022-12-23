@@ -36,7 +36,7 @@ pub struct World {
 
 impl World {
     pub fn new(graphics: &GraphicsContext, file_path: PathBuf) -> Self {
-        let name = file_path.file_name().unwrap().to_str().unwrap().to_string();
+        let name = file_path.file_stem().unwrap().to_str().unwrap().to_string();
 
         let mut rect = gfx::RenderRect::new(0.0, 0.0, (MENU_WIDTH - 2 * gfx::SPACING) as f32, 0.0);
         rect.orientation = gfx::TOP;
@@ -217,8 +217,7 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
 
                         for world in &mut world_list.worlds {
                             if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(&menu_back.get_back_rect_container())))) {
-                                println!("Play world {}", world.name);
-                                run_private_world();
+                                run_private_world(graphics);
                             }
                         }
                     }
