@@ -136,7 +136,7 @@ impl Renderer {
     }
 
     /**
-    Returns an array of events, such as key presses
+    Returns an array of deprecated_events, such as key presses
      */
     fn get_events(&mut self) -> Vec<Event> {
         let mut sdl_events = vec![];
@@ -179,7 +179,7 @@ impl Renderer {
     }
 
     /**
-    Returns an event, returns None if there are no events
+    Returns an event, returns None if there are no deprecated_events
      */
     pub fn get_event(&mut self) -> Option<Event> {
         for event in self.get_events() {

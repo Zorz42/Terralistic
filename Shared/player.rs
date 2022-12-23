@@ -1,5 +1,5 @@
 use super::{entities::*, blocks::*};
-use events::*;
+use deprecated_events::*;
 use shared_mut::SharedMut;
 
 //TODO: write tests

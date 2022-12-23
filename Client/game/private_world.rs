@@ -5,6 +5,8 @@ use terralistic_server::Server;
 use crate::game::game::Game;
 
 pub fn run_private_world(graphics: &mut GraphicsContext) {
+    let port = 49152;
+
     let server_running = SharedMut::new(true);
     let server_running2 = server_running.duplicate();
     // start server in async thread
@@ -14,7 +16,7 @@ pub fn run_private_world(graphics: &mut GraphicsContext) {
     });
 
     // start client
-    let mut game = Game::new();
+    let mut game = Game::new(port, String::from("127.0.0.1"));
     game.run(graphics);
 
     // stop server

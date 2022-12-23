@@ -1,18 +1,18 @@
 use sdl2;
 
 /**
-A collection of all supported events
+A collection of all supported deprecated_events
  */
 #[derive(Clone, Copy)]
 pub enum Event {
-    // key press and release events
+    // key press and release deprecated_events
     KeyPress(Key),
     KeyRelease(Key),
     MouseScroll(f64),
 }
 
 /**
-Translates sdl type events to our event type
+Translates sdl type deprecated_events to our event type
  */
 pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Event> {
     match sdl_event {

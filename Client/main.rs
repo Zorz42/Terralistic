@@ -7,7 +7,7 @@ use core::mem::size_of;
 use graphics as gfx;
 use shared::{blocks};
 use shared_mut;
-use events;
+use deprecated_events;
 use shared_mut::SharedMut;
 use crate::menus::MenuBack;
 

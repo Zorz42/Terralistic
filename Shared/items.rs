@@ -1,7 +1,7 @@
 use super::{walls, entities::*, blocks, blocks::{Blocks, BlockType}};
 use std::{rc::Rc, collections::hash_map};
 use std::ops::Deref;
-use {shared_mut::*, events::*};
+use {shared_mut::*, deprecated_events::*};
 
 const ITEM_WIDTH: i32 = 8;
 

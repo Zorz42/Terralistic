@@ -1,5 +1,5 @@
 [package]
-name = "events"
+name = "deprecated_events"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,5 +9,5 @@ edition = "2021"
 shared_mut = {"path" = "../shared_mut"}
 
 [lib]
-name = "events"
+name = "deprecated_events"
 path = "events.rs"

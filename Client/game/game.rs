@@ -1,13 +1,16 @@
 use graphics::GraphicsContext;
 use graphics as gfx;
+use crate::game::networking::ClientNetworking;
 
 pub struct Game {
-
+    networking: ClientNetworking,
 }
 
 impl Game {
-    pub fn new() -> Game {
-        Game {}
+    pub fn new(server_port: u16, server_address: String) -> Game {
+        Game {
+            networking: ClientNetworking::new(server_port, server_address),
+        }
     }
 
     pub fn run(&mut self, graphics: &mut GraphicsContext) {

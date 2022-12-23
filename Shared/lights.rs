@@ -1,6 +1,6 @@
 use std::cmp::max;
 use super::{blocks::*};
-use {events::*, shared_mut::SharedMut};
+use {deprecated_events::*, shared_mut::SharedMut};
 
 const MAX_LIGHT: i32 = 100;
 

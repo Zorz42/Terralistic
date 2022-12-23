@@ -1,7 +1,7 @@
 use std::borrow::BorrowMut;
 use std::ops::Deref;
 use super::blocks::*;
-use events::*;
+use deprecated_events::*;
 use std::rc::Rc;
 use serde_derive::{Serialize, Deserialize};
 use bincode;
