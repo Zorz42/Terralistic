@@ -23,6 +23,8 @@ impl Game {
                 }
             }
 
+            gfx::Rect::new(0, 0, graphics.renderer.get_window_width() as i32, graphics.renderer.get_window_height() as i32).render(graphics, gfx::GREY);
+
             graphics.renderer.update_window();
         }
     }
