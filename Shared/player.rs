@@ -153,7 +153,7 @@ impl EntityStructTrait<Player> for Players {
         for entity in &mut self.players {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
-            entity.update_entity(&self.blocks.get_lock());
+            entity.update_entity(&self.blocks.borrow());
             if old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
                 let event = EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
                 self.player_absolute_velocity_change_event.send(event);

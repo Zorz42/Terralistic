@@ -43,8 +43,14 @@ impl<Type: ?Sized> SharedMut<Type> {
     /**
     Returns a reference to the shared mutable object.
      */
-    pub fn get_lock(&self) -> MutexGuard<Type> {
-        self.value.lock().unwrap()
+    pub fn borrow(&self) -> MutexGuard<Type> {
+        loop {
+            match self.value.lock() {
+                Ok(value) => return value,
+                Err(_) => {}
+            }
+            println!("Waiting for lock...");
+        }
     }
 
     /**

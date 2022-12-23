@@ -79,11 +79,11 @@ impl Lights {
     }
     /**returns the light at the given coordinate*/
     fn get_light(&self, x: i32, y: i32) -> &Light {
-        &self.lights[(x + y * self.blocks.get_lock().get_width()) as usize]
+        &self.lights[(x + y * self.blocks.borrow().get_width()) as usize]
     }
     /**returns mutable light at the given coordinate*/
     fn get_light_mut(&mut self, x: i32, y: i32) -> &mut Light {
-        &mut self.lights[(x + y * self.blocks.get_lock().get_width()) as usize]
+        &mut self.lights[(x + y * self.blocks.borrow().get_width()) as usize]
     }
     /**sets the light color at the given coordinate*/
     fn set_light_color(&mut self, x: i32, y: i32, color: LightColor) {
@@ -106,22 +106,22 @@ impl Lights {
     }
     /**creates an empty light vector*/
     pub fn create(&mut self) {
-        let blocks = self.blocks.get_lock();
+        let blocks = self.blocks.borrow();
         for _ in 0..blocks.get_width() * blocks.get_height() {
             self.lights.push(Light::new());
         }
     }
     /**adds a block change event listener to blocks*/
     pub fn init(&self, self_shared_mut: SharedMut<Lights>) {
-        self.blocks.get_lock().block_change_event.add_listener(&self_shared_mut);
+        self.blocks.borrow().block_change_event.add_listener(&self_shared_mut);
     }
     /**returns the wodth of the light vector*/
     pub fn get_width(&self) -> i32 {
-        self.blocks.get_lock().get_width()
+        self.blocks.borrow().get_width()
     }
     /**returns the height of the light vector*/
     pub fn get_height(&self) -> i32 {
-        self.blocks.get_lock().get_height()
+        self.blocks.borrow().get_height()
     }
     /**updates the light at the given coordinate*/
     pub fn update_light(&mut self, x: i32, y: i32) {
@@ -130,7 +130,7 @@ impl Lights {
 
         let mut neighbours = [[-1, 0], [-1, 0], [-1, 0], [-1, 0]];
         {
-            let blocks = self.blocks.get_lock();
+            let blocks = self.blocks.borrow();
 
             if x != 0 {
                 neighbours[0][0] = x - 1;
@@ -153,7 +153,7 @@ impl Lights {
         let mut color_to_be = LightColor::new(0, 0, 0);
         for neighbour in neighbours {
             if neighbour[0] != -1 {
-                let light_step = if self.blocks.get_lock().get_block_type(neighbour[0], neighbour[1]).transparent { 3 } else { 15 };
+                let light_step = if self.blocks.borrow().get_block_type(neighbour[0], neighbour[1]).transparent { 3 } else { 15 };
 
                 let r = if light_step > self.get_light_color(neighbour[0], neighbour[1]).r { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).r - light_step };
                 let g = if light_step > self.get_light_color(neighbour[0], neighbour[1]).g { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).g - light_step };
@@ -231,8 +231,8 @@ impl Lights {
     }
     /**updates the light emitter at the given coordinate*/
     pub fn update_light_emitter(&mut self, x: i32, y: i32) {
-        let block_type = self.blocks.get_lock().get_block_type(x, y);
-        if block_type.id != self.blocks.get_lock().air.id {
+        let block_type = self.blocks.borrow().get_block_type(x, y);
+        if block_type.id != self.blocks.borrow().air.id {
             self.set_light_source(x, y, LightColor::new(block_type.light_emission_r as i32, block_type.light_emission_g as i32, block_type.light_emission_b as i32));
         }
     }

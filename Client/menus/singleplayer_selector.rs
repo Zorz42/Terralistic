@@ -4,6 +4,7 @@ use chrono;
 use graphics as gfx;
 use directories::{BaseDirs, UserDirs, ProjectDirs};
 use graphics::GraphicsContext;
+use crate::game::private_world::run_private_world;
 use crate::menus::background_rect::BackgroundRect;
 
 const MENU_WIDTH: i32 = 800;
@@ -91,7 +92,7 @@ impl World {
     /**
     This function renders the world card on the x and y position.
      */
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, x: i32, y: i32, parent_container: Option<&gfx::Container>) {
+    pub fn render(&mut self, graphics: &mut GraphicsContext, x: i32, y: i32, parent_container: Option<&gfx::Container>) {
         self.rect.x = x as f32;
         self.rect.y = y as f32;
         self.rect.render(&graphics, parent_container);
@@ -124,6 +125,13 @@ impl World {
     pub fn set_enabled(&mut self, enabled: bool) {
         self.play_button.disabled = !enabled;
         self.delete_button.disabled = !enabled;
+    }
+
+    /**
+    This function returns the container of the world card.
+     */
+    pub fn get_container(&self, graphics: &GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        self.rect.get_container(graphics, parent_container)
     }
 }
 
@@ -161,7 +169,7 @@ impl WorldList {
     }
 }
 
-pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect) {
     let mut world_list = WorldList::new(graphics);
 
     let mut title = gfx::Sprite::new();
@@ -205,6 +213,13 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
                     if key == gfx::Key::MouseLeft {
                         if back_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
                             break 'render_loop;
+                        }
+
+                        for world in &mut world_list.worlds {
+                            if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(&menu_back.get_back_rect_container())))) {
+                                println!("Play world {}", world.name);
+                                run_private_world();
+                            }
                         }
                     }
                 }

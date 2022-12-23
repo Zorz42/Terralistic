@@ -42,7 +42,7 @@ impl<Type: Event> Sender<Type> {
     */
     pub fn send(&mut self, event: Type) {
         for listener in self.listeners.iter_mut() {
-            listener.get_lock().borrow_mut().on_event(&event);
+            listener.borrow().on_event(&event);
         }
     }
 }

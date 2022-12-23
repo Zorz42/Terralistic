@@ -1,2 +1,2 @@
-mod game;
-mod private_world;
+pub mod game;
+pub mod private_world;
