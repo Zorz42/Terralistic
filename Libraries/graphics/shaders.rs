@@ -1,6 +1,6 @@
-/*
+/**
 This compiles fragment and vertex shader and returns the compiled shader program
-*/
+ */
 pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
     unsafe {
         let vertex_id = gl::CreateShader(gl::VERTEX_SHADER);
@@ -10,9 +10,33 @@ pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
         gl::ShaderSource(vertex_id, 1, &temp.as_ptr(), std::ptr::null());
         gl::CompileShader(vertex_id);
 
+        // Check for vertex shader compile errors
+        let mut success = 0;
+        gl::GetShaderiv(vertex_id, gl::COMPILE_STATUS, &mut success);
+        if success == 0 {
+            let mut len = 0;
+            gl::GetShaderiv(vertex_id, gl::INFO_LOG_LENGTH, &mut len);
+            let mut buffer = Vec::with_capacity(len as usize);
+            buffer.set_len(len as usize);
+            gl::GetShaderInfoLog(vertex_id, len, std::ptr::null_mut(), buffer.as_mut_ptr() as *mut i8);
+            panic!("Vertex shader compilation failed: {}", std::str::from_utf8(&buffer).unwrap());
+        }
+
         let temp = std::ffi::CString::new(fragment_code).unwrap();
         gl::ShaderSource(fragment_id, 1, &temp.as_ptr(), std::ptr::null());
         gl::CompileShader(fragment_id);
+
+        // Check for fragment shader compile errors
+        let mut success = 0;
+        gl::GetShaderiv(fragment_id, gl::COMPILE_STATUS, &mut success);
+        if success == 0 {
+            let mut len = 0;
+            gl::GetShaderiv(fragment_id, gl::INFO_LOG_LENGTH, &mut len);
+            let mut buffer = Vec::with_capacity(len as usize);
+            buffer.set_len(len as usize);
+            gl::GetShaderInfoLog(fragment_id, len, std::ptr::null_mut(), buffer.as_mut_ptr() as *mut i8);
+            panic!("Fragment shader compilation failed: {}", std::str::from_utf8(&buffer).unwrap());
+        }
 
         let program_id = gl::CreateProgram();
 

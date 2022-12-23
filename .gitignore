@@ -18,5 +18,5 @@ copy_files.py
 
 # Added by cargo
 
-/target
+**/target
 

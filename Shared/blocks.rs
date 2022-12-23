@@ -1,55 +1,86 @@
 use std::borrow::BorrowMut;
+use std::ops::Deref;
+use std::rc::Rc;
+use events::*;
+use serde_derive::{Serialize, Deserialize};
+use snap;
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const UNBREAKABLE: i32 = -1;
 pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;
 
-/*
-structs for events that modify blocks
-*/
-struct BlockChangeEvent {
+//TODO: write tests for block changes, block data, and block updates
+
+/**
+Event that is fired when a block is changed
+ */
+pub struct BlockChangeEvent {
     x: i32, y: i32
 }
 impl BlockChangeEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockChangeEvent{x, y} }
 }
+impl Event for BlockChangeEvent {}
 
+/**
+Event that is fired when a random tick is fired for a block
+ */
 struct BlockRandomTickEvent {
     x: i32, y: i32
 }
 impl BlockRandomTickEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockRandomTickEvent{x, y} }
 }
+impl Event for BlockRandomTickEvent {}
 
-struct BlockBreakEvent {
+/**
+Event that is fired when a block is broken
+ */
+pub struct BlockBreakEvent {
     x: i32, y: i32
 }
 impl BlockBreakEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockBreakEvent{x, y} }
 }
+impl Event for BlockBreakEvent {}
 
-struct BlockStartedBreakingEvent {
+/**
+Event that is fired when a block has started breaking
+ */
+pub struct BlockStartedBreakingEvent {
     x: i32, y: i32
 }
 impl BlockStartedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStartedBreakingEvent{x, y} }
 }
+impl Event for BlockStartedBreakingEvent {}
 
-struct BlockStoppedBreakingEvent {
+/**
+Event that is fired when a block has stopped breaking
+ */
+pub struct BlockStoppedBreakingEvent {
     x: i32, y: i32
 }
 impl BlockStoppedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStoppedBreakingEvent{x, y} }
 }
+impl Event for BlockStoppedBreakingEvent {}
 
-struct BlockUpdateEvent {
+/**
+Event that is fired when a block is updated
+ */
+pub struct BlockUpdateEvent {
     x: i32, y: i32
 }
 impl BlockUpdateEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockUpdateEvent{x, y} }
 }
+impl Event for BlockUpdateEvent {}
 
+/**
+Struct that contains all the information about a tool
+ */
 pub struct Tool {
     name: String
 }
@@ -58,32 +89,45 @@ impl Tool {
     pub fn new(name: String) -> Self { Tool{name} }
 }
 
-mod default_data {
-    //idk what tf this is, will leave for now
-    //also this is now a mod, not a struct because it doesn't need variables i think
-}
-
-
 /**
-implements data and functions for a single block type
-*/
-#[derive(PartialEq)]
+Includes properties for each block type
+ */
+#[derive(Clone)]
 pub struct BlockType{
+    // tool that can break the block, none means it can be broken by hand or any tool
     pub effective_tool: Option<*const Tool>,
+    // how powerful the tool needs to be
     pub required_tool_power: i32,
-    pub ghost: bool, transparent: bool,
+    // ghost blocks are blocks that are not solid and can be walked through
+    pub ghost: bool,
+    // transparent blocks are blocks that can be seen through and let light through
+    pub transparent: bool,
+    // name of the block displayed in inventory
     pub name: String,
+    // to which blocks it visually connects
     pub connects_to: Vec<i32>,
+    // how much time it takes to break the block
     pub break_time: i32,
-    pub light_emission_r: i32, light_emission_g: i32, light_emission_b: i32,
+    // what light color the block emits
+    pub light_emission_r: u8,
+    pub light_emission_g: u8,
+    pub light_emission_b: u8,
+    // block id, used for saving and loading and for networking
     pub id: i32,
-    pub width: i32, height: i32,
-    pub block_data_index: i32,//future me change this to a reference if possible
+    // if the block is larger than 1x1 it connects with other blocks of the same type
+    // and those blocks break and place together, for example: canopies
+    pub width: i32,
+    pub height: i32,
+    // if the block has any different states for connecting to other blocks
     pub can_update_states: bool,
-    pub feet_collidable: bool
+    // if the block is only collidable by feet, for example: platforms, they have special collision
+    pub feet_collidable: bool,
 }
 
 impl BlockType {
+    /**
+    Creates a new block type with default values
+     */
     pub fn new(name: String) -> Self {
         BlockType {
             effective_tool: None,
@@ -95,15 +139,12 @@ impl BlockType {
             light_emission_r: 0, light_emission_g: 0, light_emission_b: 0,
             id: 0,
             width: 0, height: 0,
-            block_data_index: 0,
             can_update_states: false,
-            feet_collidable: false
+            feet_collidable: false,
         }
     }
 
-    /**
-    updates the block's state (and almost always texture) based on its surrounding blocks
-    */
+
     pub fn update_states(blocks: &mut Blocks, x: i32, y: i32) -> i32 {
         if blocks.get_block_type(x, y).can_update_states {
             let mut state = 0;
@@ -120,59 +161,73 @@ impl BlockType {
                 state += 1 << 3;
             }
             state
-        }else {
+        } else {
             0
         }
     }
 }
 
-#[derive(Clone)]
-/**
-implements data for a single block
-*/
-struct Block{
-    id: i32,
-    x_from_main: i8, y_from_main: i8,
-    //default data, will leave out for now
+#[derive(Clone, Deserialize, Serialize)]
+pub(crate) struct Block {
+    pub id: i32,
+    pub x_from_main: i8,
+    pub y_from_main: i8,
+    pub block_data: Vec<u8>
 }
 
-impl Block{
-    pub fn new() -> Self { Block{id: 0, x_from_main: 0, y_from_main: 0} }
+impl Block {
+    pub fn new() -> Self {
+        Block{
+            id: 0,
+            x_from_main: 0,
+            y_from_main: 0,
+            block_data: vec![]
+        }
+    }
 }
 
-struct BreakingBlock{
+struct BreakingBlock {
     break_progress: i32,
     is_breaking: bool,
-    x: i32, y: i32,
+    x: i32,
+    y: i32,
 }
 
-impl BreakingBlock{
-    pub fn new() -> Self { BreakingBlock{break_progress: 0, is_breaking: true, x: 0, y: 0} }
+impl BreakingBlock {
+    pub fn new() -> Self {
+        BreakingBlock{
+            break_progress: 0,
+            is_breaking: true,
+            x: 0,
+            y: 0
+        }
+    }
 }
 
 
-#[derive(Clone)]
-struct BlockChunk{
+struct BlockChunk {
     breaking_blocks_count: i8,
 }
 
-impl BlockChunk{
+impl BlockChunk {
     pub fn new() -> Self { BlockChunk{breaking_blocks_count: 0} }
 }
 
-/**
-class that implements all block related functions and data, such as the world's block array, block types, breaking blocks, etc.
- */
-pub struct Blocks{
+
+pub struct Blocks {
     blocks: Vec<Block>,
     chunks: Vec<BlockChunk>,
-    //data deliverer, will change custom data tho
     width: i32, height: i32,
     breaking_blocks: Vec<BreakingBlock>,
-    block_types: Vec<BlockType>,
-    tool_types: Vec<Tool>,
-
-    //event senders
+    block_types: Vec<Rc<BlockType>>,
+    tool_types: Vec<Rc<Tool>>,
+    air: Rc<BlockType>,
+    hand: Rc<Tool>,
+    pub block_change_event: Sender<BlockChangeEvent>,
+    pub block_break_event: Sender<BlockBreakEvent>,
+    pub block_started_breaking_event: Sender<BlockStartedBreakingEvent>,
+    pub block_stopped_breaking_event: Sender<BlockStoppedBreakingEvent>,
+    pub block_update_event: Sender<BlockUpdateEvent>,
 }
 
 impl Blocks{
@@ -184,6 +239,13 @@ impl Blocks{
             breaking_blocks: vec![],
             block_types: vec![],
             tool_types: vec![],
+            air: Rc::new(BlockType::new("_".to_string())),
+            hand: Rc::new(Tool::new("hand".to_string())),
+            block_change_event: Sender::new(),
+            block_break_event: Sender::new(),
+            block_started_breaking_event: Sender::new(),
+            block_stopped_breaking_event: Sender::new(),
+            block_update_event: Sender::new(),
         };
 
         let mut air = BlockType::new(String::from("air"));
@@ -194,57 +256,63 @@ impl Blocks{
         air.light_emission_g = 0;
         air.light_emission_b = 0;
         air.can_update_states = false;
-        let hand = Tool::new(String::from("hand"));
         b.register_new_block_type(air);
-        b.register_new_tool_type(hand);
+        b.air = Rc::clone(&b.block_types[0]);
+
+        let hand = Rc::new(Tool::new(String::from("hand")));
+        b.register_new_tool_type(Rc::clone(&hand));
         b
     }
 
-
-    fn get_block(&mut self, x: i32, y: i32) -> &mut Block {
+    fn get_block(&self, x: i32, y: i32) -> &Block {
+        if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
+            panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
+        }
+        &self.blocks[(y * self.width + x) as usize]
+    }
+    fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
         &mut self.blocks[(y * self.width + x) as usize]
     }
 
-    fn get_chunk(&mut self, x: i32, y: i32) -> &mut BlockChunk {
+    fn get_chunk_mut(&mut self, x: i32, y: i32) -> &mut BlockChunk {
         if x < 0 || y < 0 || x >= self.width / CHUNK_SIZE || y >= self.height / CHUNK_SIZE || self.chunks.is_empty() {
             panic!("Chunk is accessed out of bounds! x: {}, y: {}", x, y);
         }
         self.chunks[(y * self.width / CHUNK_SIZE + x) as usize].borrow_mut()
     }
 
-
-    /**
-    creates the world array with the desired dimensions, filled with air
-    */
     pub fn create(&mut self, width: i32, height: i32) {
         if width < 0 || height < 0 {
             panic!("Width and height must be positive!");
         }
         self.width = width;
         self.height = height;
-        self.blocks = vec![Block::new(); (width * height) as usize];
-        self.chunks = vec![BlockChunk::new(); (width * height / CHUNK_SIZE / CHUNK_SIZE) as usize];
+        self.blocks = Vec::new();
+        for i in 0..width * height {
+            self.blocks.push(Block::new());
+        }
+        self.chunks = vec![];
+        for _ in 0..(width * height / CHUNK_SIZE / CHUNK_SIZE) as usize {
+            self.chunks.push(BlockChunk::new());
+        }
     }
 
-    pub fn get_block_type_by_id(&mut self, id: i32) -> &mut BlockType {
+    pub fn get_block_type_by_id(&self, id: i32) -> Rc<BlockType> {
         if id < 0 || id >= self.block_types.len() as i32 {
             panic!("Block type id is out of bounds! id: {}", id);
         }
-        &mut self.block_types[id as usize]
+        Rc::clone(&self.block_types[id as usize])
     }
 
-    /**
-    gets block type on coordinates
-    */
-    pub fn get_block_type(&mut self, x: i32, y: i32) -> &mut BlockType {
-            let id = self.get_block(x, y).id.into();
-            self.get_block_type_by_id(id)
+    pub fn get_block_type(&self, x: i32, y: i32) -> Rc<BlockType> {
+        let id = self.get_block(x, y).id.into();
+        self.get_block_type_by_id(id)
     }
 
-    pub fn set_block_type(&mut self, x: i32, y: i32, block_type: &BlockType, x_from_main: i8, y_from_main: i8) {
+    pub fn set_block_type(&mut self, x: i32, y: i32, block_type: Rc<BlockType>, x_from_main: i8, y_from_main: i8) {
         if block_type.id != self.get_block(x, y).id {
             self.set_block_type_silently(x, y, block_type);
             for i in 0..self.breaking_blocks.len() {
@@ -253,21 +321,16 @@ impl Blocks{
                     break;
                 }
             }
-                let block_ : &mut Block = self.get_block(x, y);
-                block_.x_from_main = x_from_main;
-                block_.y_from_main = y_from_main;
+            self.get_block_mut(x, y).x_from_main = x_from_main;
+            self.get_block_mut(x, y).y_from_main = y_from_main;
             let event = BlockChangeEvent::new(x, y);
-            //call event
+            self.block_change_event.send(event);
         }
     }
 
-    /**
-    sets block type on coordinates without updating neighbouring blocks
-    */
-    pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: &BlockType) {
-        //delete custom data
-        self.get_block(x, y).id = block_type.id;
-        //add custom data
+    pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
+        self.get_block_mut(x, y).block_data.clear();
+        self.get_block_mut(x, y).id = block_type.id;
     }
 
     pub fn get_block_x_from_main(&mut self, x: i32, y: i32) -> i8 {
@@ -278,7 +341,9 @@ impl Blocks{
         self.get_block(x, y).y_from_main
     }
 
-    //get block data function
+    pub fn get_block_data(&mut self, x: i32, y: i32) -> &Vec<u8> {
+        &self.get_block(x, y).block_data
+    }
 
     pub fn get_break_progress(&mut self, x: i32, y: i32) -> i32 {
         for breaking_block in self.breaking_blocks.iter() {
@@ -302,6 +367,7 @@ impl Blocks{
         for i in self.breaking_blocks.iter_mut() {
             if i.x == x && i.y == y {
                 breaking_block = Some(i);
+                break;
             }
         }
 
@@ -315,10 +381,10 @@ impl Blocks{
 
         breaking_block.unwrap().is_breaking = true;
 
-        self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
+        self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
 
         let event = BlockStartedBreakingEvent::new(x, y);
-        //call event
+        self.block_started_breaking_event.send(event);
     }
 
     pub fn stop_breaking_block(&mut self, x: i32, y: i32){
@@ -329,9 +395,9 @@ impl Blocks{
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.x == x && breaking_block.y == y {
                 breaking_block.is_breaking = false;
-                self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
+                self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
                 let event = BlockStoppedBreakingEvent::new(x, y);
-                //call event
+                self.block_stopped_breaking_event.send(event);
                 break;
             }
         }
@@ -352,114 +418,66 @@ impl Blocks{
         let transformed_y = y - self.get_block_y_from_main(x, y) as i32;
 
         let event = BlockBreakEvent::new(transformed_x, transformed_y);
-        //call event
-
-        let block_type: *mut BlockType = &mut *self.get_block_type(x, y);
-        unsafe { self.set_block_type(transformed_x, transformed_y, &(*block_type), 0, 0); }
+        self.block_break_event.send(event);
+        self.set_block_type(transformed_x, transformed_y, Rc::clone(&self.get_block_type(x, y)), 0, 0);
     }
 
     pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
-        self.get_chunk(x, y).breaking_blocks_count.into()
+        self.get_chunk_mut(x, y).breaking_blocks_count.into()
     }
 
-    pub fn get_width(&mut self) -> i32 {
+    pub fn get_width(&self) -> i32 {
         self.width
     }
 
-    pub fn get_height(&mut self) -> i32 {
+    pub fn get_height(&self) -> i32 {
         self.height
     }
 
-    /**
-    save world's block related data to a char stream
-    */
-    pub fn to_serial(&mut self) -> Vec<i8> {
-        let mut serial: Vec<i8> = Vec::new();
-        let mut iter: u32 = 0;
-        let size = 0;
-        //save custom block data
-        serial.resize(serial.len() + (self.width * self.height * 6 + 8 + size) as usize, 0);
-        //save width in first 4 bytes
-        serial[(iter    ) as usize] = (self.width >> 24) as i8;
-        serial[(iter + 1) as usize] = (self.width >> 16) as i8;
-        serial[(iter + 2) as usize] = (self.width >>  8) as i8;
-        serial[(iter + 3) as usize] = (self.width      ) as i8;
-        iter += 4;
-        //save height in next 4 bytes
-        serial[(iter    ) as usize] = (self.height >> 24) as i8;
-        serial[(iter + 1) as usize] = (self.height >> 16) as i8;
-        serial[(iter + 2) as usize] = (self.height >>  8) as i8;
-        serial[(iter + 3) as usize] = (self.height      ) as i8;
-        iter += 4;
-        for(_i, block) in self.blocks.iter().enumerate() {
-            serial[(iter    ) as usize] = (block.id >> 24) as i8;
-            serial[(iter + 1) as usize] = (block.id >> 16) as i8;
-            serial[(iter + 2) as usize] = (block.id >>  8) as i8;
-            serial[(iter + 3) as usize] = (block.id      ) as i8;
-            serial[(iter + 4) as usize] = block.x_from_main;
-            serial[(iter + 5) as usize] = block.y_from_main;
-            iter += 6;
-            //save custom data when implemented
-        }
-        serial
-        //return compressed serial
+    pub fn to_serial(&mut self) -> Vec<u8> {
+        snap::raw::Encoder::new().
+            compress_vec(&bincode::
+            serialize(&self.blocks).unwrap()).unwrap()
     }
 
-    /**
-    load world's block related data from a char stream
-    */
-    pub fn from_serial(&mut self, serial: Vec<i8>){
-        let mut iter: u32 = 0;
-        let decompressed = serial;//decompress serial whan implemented
-        let width  = (decompressed[(iter    ) as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
-        let height = (decompressed[(iter + 4) as usize] as i32) << 24 | (decompressed[(iter + 5) as usize] as i32) << 16 | (decompressed[(iter + 6) as usize] as i32) << 8 | decompressed[(iter + 7) as usize] as i32;
-        iter += 8;
-        self.create(width, height);
-        for(_i, block) in self.blocks.iter_mut().enumerate() {
-            block.id = (decompressed[iter as usize] as i32) << 24 | (decompressed[(iter + 1) as usize] as i32) << 16 | (decompressed[(iter + 2) as usize] as i32) << 8 | decompressed[(iter + 3) as usize] as i32;
-            block.x_from_main = decompressed[(iter + 1) as usize];
-            block.y_from_main = decompressed[(iter + 2) as usize];
-            iter += 3;
-            //load custom data when implemented
-        }
+    pub fn from_serial(&mut self, serial: Vec<u8>){
+        self.blocks = bincode::
+            deserialize(&snap::raw::Decoder::new().
+            decompress_vec(&serial).unwrap()).unwrap();
     }
 
-    pub fn register_new_block_type(&mut self, mut block_type: BlockType){
+    pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Rc<BlockType>{
         block_type.id = self.block_types.len() as i32;
-        self.block_types.push(block_type);
+        self.block_types.push(Rc::new(block_type));
+        Rc::clone(self.block_types.last_mut().unwrap())
     }
 
-    pub fn get_block_type_by_name(&mut self, name: String) -> &BlockType {
+    pub fn get_block_type_by_name(&mut self, name: String) -> Option<Rc<BlockType>> {
         for block_type in self.block_types.iter() {
             if block_type.name == name {
-                return &block_type;
+                return Some(Rc::clone(block_type));
             }
         }
-        panic!("Block type with name {} not found!", name);
+        None
     }
 
     pub fn get_number_block_types(&mut self) -> i32 {
         self.block_types.len() as i32
     }
 
-    //data deliverer, will probably be rewritten
-
-    pub fn register_new_tool_type(&mut self, tool_type: Tool){
+    pub fn register_new_tool_type(&mut self, tool_type: Rc<Tool>){
         self.tool_types.push(tool_type);
     }
 
-    pub fn get_tool_type_by_name(&mut self, name: String) -> &Tool {
+    pub fn get_tool_type_by_name(&mut self, name: String) -> Option<Rc<Tool>> {
         for tool_type in self.tool_types.iter() {
             if tool_type.name == name {
-                return &tool_type;
+                return Some(Rc::clone(tool_type));
             }
         }
-        panic!("Tool type with name {} not found!", name);
+        None
     }
 
-    /**
-    Not intended for use by itself. Should only be used by update_states function
-    */
     pub fn update_state_side(&mut self, x: i32, y: i32, side_x: i32, side_y: i32) -> bool {
         let this_block_id = self.get_block(x, y).id;
         let side_block_id = self.get_block(x + side_x, y + side_y).id;

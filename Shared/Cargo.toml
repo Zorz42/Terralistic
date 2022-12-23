@@ -6,7 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
+events = {"path" = "../Libraries/events/"}
+shared_mut = {"path" = "../Libraries/shared_mut/"}
+snap = "1.0.5"
+bincode = "1.3.3"
+serde = "1.0.130"
+serde_derive = "1.0.130"
+rand = "0.8.5"
+once_cell = "1.16.0"
 
 [lib]
 name = "shared"

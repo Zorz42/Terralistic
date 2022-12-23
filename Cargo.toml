@@ -3,6 +3,7 @@ name = "Terralistic"
 version = "0.1.0"
 edition = "2021"
 description = "test"
+build = "BuildProject/build.rs"
 
 [[bin]]
 name = "Terralistic"
@@ -17,6 +18,16 @@ graphics = {"path" = "Libraries/graphics/"}
 events = {"path" = "Libraries/events/"}
 shared_mut = {"path" = "Libraries/shared_mut/"}
 shared = {"path" = "Shared/"}
+terralistic_server = {"path" = "Server/server_impl/"}
+rand = "0.8.4"
+directories = "4.0.1"
+chrono = "0.4.19"
+queues = "1.0.2"
+
+[build-dependencies]
+png = "0.17.7"
+snap = "1.0.5"
+graphics = {"path" = "Libraries/graphics/"}
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"

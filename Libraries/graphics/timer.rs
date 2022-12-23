@@ -1,4 +1,6 @@
-// this function gets current time in milliseconds float
+/**
+this function gets current time in milliseconds float
+ */
 fn get_time() -> f64 {
     let start = std::time::SystemTime::now();
     let since_the_epoch = start.duration_since(std::time::UNIX_EPOCH).expect("Time went backwards");
@@ -6,9 +8,9 @@ fn get_time() -> f64 {
     in_ms as f64
 }
 
-/*
+/**
 Timer measures time in milliseconds with float precision
-*/
+ */
 pub struct Timer {
     start_time: f64,
 }

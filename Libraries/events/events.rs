@@ -1,6 +1,7 @@
 /*
 This trait is used to define an event.
 */
+use std::borrow::BorrowMut;
 use shared_mut::SharedMut;
 
 pub trait Event {}
@@ -15,11 +16,11 @@ pub trait Listener<Type> {
 /*
 This struct is an event sender.
 */
-pub struct Sender<Type> {
+pub struct Sender<Type: Event> {
     listeners: Vec<SharedMut<dyn Listener<Type>>>,
 }
 
-impl<Type> Sender<Type> {
+impl<Type: Event> Sender<Type> {
     /*
     Creates a new event sender.
     */
@@ -39,9 +40,9 @@ impl<Type> Sender<Type> {
     /*
     Sends an event to all listeners.
     */
-    pub fn send(&mut self, event: &Type) {
+    pub fn send(&mut self, event: Type) {
         for listener in self.listeners.iter_mut() {
-            listener.get_mut().on_event(event);
+            listener.get_lock().borrow_mut().on_event(&event);
         }
     }
 }
