@@ -1,5 +1,4 @@
 use shared_mut::SharedMut;
-use std::borrow::Borrow;
 
 pub struct Server {
     tps_limit: f64,

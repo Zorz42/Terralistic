@@ -1,6 +1,4 @@
 use std::sync::{Arc, Mutex, MutexGuard};
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
 
 /**
 This struct packs a mutable object which can be shared.

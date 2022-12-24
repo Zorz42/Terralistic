@@ -1,8 +1,8 @@
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use chrono;
 use graphics as gfx;
-use directories::{BaseDirs, UserDirs, ProjectDirs};
+use directories::BaseDirs;
 use graphics::GraphicsContext;
 use crate::game::private_world::run_private_world;
 use crate::menus::background_rect::BackgroundRect;
@@ -103,13 +103,6 @@ impl World {
         self.play_button.render(graphics, Some(&rect_container));
         self.delete_button.render(graphics, Some(&rect_container));
         self.last_modified.render(graphics, Some(&rect_container));
-    }
-
-    /**
-    This function returns width of the world card.
-     */
-    pub fn get_width(&self) -> i32 {
-        self.rect.w as i32
     }
 
     /**

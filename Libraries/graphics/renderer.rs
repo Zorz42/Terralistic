@@ -1,7 +1,6 @@
 extern crate sdl2;
 extern crate queues;
 
-use std::borrow::BorrowMut;
 use queues::*;
 use std::collections::HashMap;
 use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
@@ -15,8 +14,8 @@ use crate::transformation::Transformation;
 This stores all the values needed for rendering.
  */
 pub struct Renderer {
-    gl_context: sdl2::video::GLContext,
-    gl: (),
+    _gl_context: sdl2::video::GLContext,
+    _gl: (),
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
     pub(crate) normalization_transform: Transformation,
@@ -42,7 +41,7 @@ impl Renderer {
             panic!("Invalid window dimensions");
         }
 
-        let mut sdl = sdl2::init().unwrap();
+        let sdl = sdl2::init().unwrap();
         let video_subsystem = sdl.video().unwrap();
 
         let gl_attr = video_subsystem.gl_attr();
@@ -50,7 +49,7 @@ impl Renderer {
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
         gl_attr.set_context_version(3, 3);
 
-        let mut sdl_window = video_subsystem.window(&window_title, window_width as u32, window_height as u32)
+        let sdl_window = video_subsystem.window(&window_title, window_width as u32, window_height as u32)
             .position_centered()
             .opengl()
             .resizable()
@@ -83,8 +82,8 @@ impl Renderer {
         let shadow_context = ShadowContext::new();
 
         let mut result = Renderer {
-            gl_context: _gl_context,
-            gl: _gl,
+            _gl_context,
+            _gl,
             sdl_window,
             sdl_event_pump: sdl.event_pump().unwrap(),
             normalization_transform: Transformation::new(),

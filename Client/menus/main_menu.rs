@@ -1,7 +1,6 @@
 use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use graphics::SPACING;
-use rand;
 use shared::versions::VERSION;
 use crate::menus::run_singleplayer_selector;
 
