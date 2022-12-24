@@ -1,5 +1,3 @@
-use std::borrow::BorrowMut;
-use std::ops::Deref;
 use super::blocks::*;
 use deprecated_events::*;
 use std::rc::Rc;

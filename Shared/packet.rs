@@ -1,7 +1,7 @@
 use std::any::TypeId;
 use std::hash::{Hash, Hasher};
 use fnv::FnvHasher;
-use serde::{Serialize, Deserialize};
+use serde::{Serialize};
 use serde_derive::{Serialize, Deserialize};
 use serde::de::DeserializeOwned;
 

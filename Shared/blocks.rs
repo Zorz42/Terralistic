@@ -1,5 +1,4 @@
 use std::borrow::BorrowMut;
-use std::ops::Deref;
 use std::rc::Rc;
 use deprecated_events::*;
 use serde_derive::{Serialize, Deserialize};

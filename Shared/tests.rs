@@ -1,6 +1,5 @@
 use std::ops::Deref;
 use crate::blocks::BlockType;
-
 use super::blocks;
 
 /**this test tests whether the block setting and reading works corretly.
@@ -14,7 +13,7 @@ fn test_block_types(){
             assert_eq!(blocks_obj.get_block_type(x, y).id, 0, "not all blocks are initialized to air");
         }
     }
-    let block_type_rand = blocks::BlockType::new("rand".to_string());
+    let block_type_rand = BlockType::new("rand".to_string());
     blocks_obj.register_new_block_type(block_type_rand);
     let block_type_rand = blocks_obj.get_block_type_by_name("rand".to_string()).unwrap();
     blocks_obj.set_block_type(0, 0, block_type_rand, 0, 0);
