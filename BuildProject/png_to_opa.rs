@@ -1,8 +1,9 @@
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 use graphics as gfx;
 
-pub fn png_to_opa(input_file: String, output_file: String) {
+pub fn png_to_opa(input_file: PathBuf, output_file: PathBuf) {
     // read png file and store pixels in a vector
     let decoder = png::Decoder::new(File::open(input_file).unwrap());
     let mut reader = decoder.read_info().unwrap();

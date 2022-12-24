@@ -30,6 +30,7 @@ bincode = "1.3.3"
 png = "0.17.7"
 snap = "1.0.5"
 graphics = {"path" = "Libraries/graphics/"}
+shared = {"path" = "Shared/"}
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"
