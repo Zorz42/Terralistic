@@ -31,13 +31,9 @@ impl ClientNetworking {
     }
 
     pub fn on_event(&mut self, event: Box<dyn Any>) {
-        match event {
-            Packet() => {
-                let packet = event.downcast::<Packet>().unwrap();
+        // check if event is a packet
+        if let Some(packet) = event.downcast_ref::<Packet>() {
 
-                
-            }
-            _ => {}
         }
     }
 
