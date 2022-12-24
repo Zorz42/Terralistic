@@ -9,8 +9,8 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(server_port: u16, server_address: String) -> Game {
-        Game {
+    pub fn new(server_port: u16, server_address: String) -> Self {
+        Self {
             events: EventManager::new(),
             networking: ClientNetworking::new(server_port, server_address),
         }

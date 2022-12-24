@@ -78,7 +78,7 @@ impl World {
         last_modified.y = -gfx::SPACING;
         last_modified.scale = 2.0;
 
-        World {
+        Self {
             name,
             rect,
             play_button,

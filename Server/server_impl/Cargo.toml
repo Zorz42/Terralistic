@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 shared_mut = {"path" = "../../Libraries/shared_mut"}
+events = {"path" = "../../Libraries/events"}
+shared = {"path" = "../../Shared"}
+bincode = "1.3.3"
 
 [lib]
 name = "terralistic_server"

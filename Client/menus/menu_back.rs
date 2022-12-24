@@ -28,7 +28,7 @@ impl MenuBack {
         back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         back_rect.smooth_factor = 3.0;
 
-        MenuBack {
+        Self {
             background: gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/background.opa").to_vec())),
             background_timer: gfx::Timer::new(),
             back_rect,

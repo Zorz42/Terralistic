@@ -6,7 +6,8 @@ use shared::packet::Packet;
 use events::EventManager;
 
 /**
- This handles all the networking for the client
+This handles all the networking for the client.
+Client connects to a server and sends and receives packets.
  */
 pub struct ClientNetworking {
     server_port: u16,
@@ -15,8 +16,8 @@ pub struct ClientNetworking {
 }
 
 impl ClientNetworking {
-    pub fn new(server_port: u16, server_address: String) -> ClientNetworking {
-        ClientNetworking {
+    pub fn new(server_port: u16, server_address: String) -> Self {
+        Self {
             server_port,
             server_address,
             tcp_stream: None,
@@ -32,7 +33,7 @@ impl ClientNetworking {
 
     pub fn on_event(&mut self, event: Box<dyn Any>) {
         // check if event is a packet
-        if let Some(packet) = event.downcast_ref::<Packet>() {
+        if let Some(_packet) = event.downcast_ref::<Packet>() {
 
         }
     }

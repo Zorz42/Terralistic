@@ -32,10 +32,10 @@ impl Packet {
     /**
     This function creates a new packet from a serializable object.
      */
-    pub fn new<T: Serialize + 'static>(data: T) -> Packet {
+    pub fn new<T: Serialize + 'static>(data: T) -> Self {
         let id = get_type_id::<T>();
         let data = bincode::serialize(&data).unwrap();
-        Packet {
+        Self {
             id,
             data,
         }
