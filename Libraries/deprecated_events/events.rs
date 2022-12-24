@@ -1,7 +1,6 @@
 /*
 This trait is used to define an event.
 */
-use std::borrow::BorrowMut;
 use shared_mut::SharedMut;
 
 pub trait Event {}

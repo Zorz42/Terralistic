@@ -1,7 +1,9 @@
+use std::any::Any;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use bincode;
 use shared::packet::Packet;
+use events::EventManager;
 
 /**
  This handles all the networking for the client
@@ -28,7 +30,18 @@ impl ClientNetworking {
         self.tcp_stream.as_ref().unwrap().set_nonblocking(true).unwrap();
     }
 
-    pub fn update(&mut self) {
+    pub fn on_event(&mut self, event: Box<dyn Any>) {
+        match event {
+            Packet() => {
+                let packet = event.downcast::<Packet>().unwrap();
+
+                
+            }
+            _ => {}
+        }
+    }
+
+    pub fn update(&mut self, events: &mut EventManager) {
         // flush the stream
         self.tcp_stream.as_ref().unwrap().flush().unwrap();
         // get all packets from the server one by one
@@ -44,6 +57,8 @@ impl ClientNetworking {
             }
             // deserialize the packet with bincode
             let packet: Packet = bincode::deserialize(&buffer[..bytes_read]).unwrap();
+
+            events.push_event(Box::new(packet));
         }
     }
 
