@@ -14,6 +14,8 @@ impl Game {
     }
 
     pub fn run(&mut self, graphics: &mut GraphicsContext) {
+
+
         'main_loop: while graphics.renderer.is_window_open() {
             while let Some(event) = graphics.renderer.get_event() {
                 match event {

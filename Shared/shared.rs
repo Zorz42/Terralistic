@@ -6,3 +6,4 @@ pub mod tests;
 pub mod items;
 pub mod player;
 pub mod lights;
+pub mod packet;

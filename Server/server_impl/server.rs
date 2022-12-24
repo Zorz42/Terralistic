@@ -1,8 +1,5 @@
-mod server_module;
-
 use shared_mut::SharedMut;
 use std::borrow::Borrow;
-use crate::server_module::ServerModule;
 
 pub struct Server {
     tps_limit: f64,
@@ -17,18 +14,10 @@ impl Server {
         }
     }
 
-    fn get_modules(&self) -> Vec<Box<dyn ServerModule>> {
-        vec![
-
-        ]
-    }
-
     pub fn start(&mut self) {
         println!("Starting server...");
         // init modules
-        for module in &mut self.get_modules() {
-            module.init();
-        }
+
 
         // start server loop
         println!("Server started!");
@@ -38,9 +27,7 @@ impl Server {
             last_time = std::time::Instant::now();
 
             // update modules
-            for module in &mut self.get_modules() {
-                module.update(delta_time as f32);
-            }
+
 
             // sleep
             let sleep_time = 1.0 / self.tps_limit - delta_time;
@@ -54,9 +41,7 @@ impl Server {
         }
 
         // stop modules
-        for module in &mut self.get_modules() {
-            module.stop();
-        }
+
 
         println!("Server stopped.");
     }
