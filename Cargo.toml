@@ -31,6 +31,7 @@ png = "0.17.7"
 snap = "1.0.5"
 graphics = {"path" = "Libraries/graphics/"}
 shared = {"path" = "Shared/"}
+darklua = "0.8.0"
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"

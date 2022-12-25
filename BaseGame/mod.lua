@@ -15,9 +15,9 @@ end
 
 -- This function returns the mod's description.
 function modDescription()
-    return "The base game. It contains the basic
-    game mechanics and is required for all other
-    mods. It is always loaded."
+    return "The base game. It contains the basic"..
+    "game mechanics and is required for all other"..
+    "mods. It is always loaded."
 end
 
 -- This function returns the mod's version.
@@ -27,7 +27,7 @@ end
 
 -- This function is called when the mod is loaded.
 function init()
-    print("BaseGame mod loaded.")
+    tprint("BaseGame mod loaded.")
 end
 
 

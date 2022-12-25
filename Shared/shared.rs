@@ -9,4 +9,4 @@ pub mod items;
 pub mod player;
 pub mod lights;
 pub mod packet;
-pub mod game_mod;
+pub mod mod_manager;

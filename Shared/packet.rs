@@ -2,7 +2,6 @@ use std::any::TypeId;
 use std::hash::{Hash, Hasher};
 use fnv::FnvHasher;
 use serde::{Serialize};
-use serde_derive::{Serialize, Deserialize};
 use serde::de::DeserializeOwned;
 
 
@@ -11,7 +10,7 @@ Packet has an id and data. Id is determined by the hash of the object
 that data is serialized from. You can serialize and deserialize it.
  */
 
-#[derive(Serialize, Deserialize)]
+#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 pub struct Packet {
     pub id: u64,
     pub data: Vec<u8>,

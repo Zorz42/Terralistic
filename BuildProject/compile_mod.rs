@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
-use shared::game_mod::{GameMod, GameModData};
+use shared::mod_manager::{GameMod, GameModData};
 
 /**
 This function compiles a game mod from a directory.
