@@ -30,9 +30,9 @@ impl ClientModManager {
         let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
         self.mod_manager.add_mod(base_mod);
 
-        self.mod_manager.add_global_function("tprint", |(text): (String)| {
+        self.mod_manager.add_global_function("tprint", |_, text: String| {
             println!("[mod] {}", text);
-            ()
+            Ok(0)
         });
 
         self.mod_manager.init();

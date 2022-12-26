@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use rlua::{Context, FromLua, Lua, ToLua};
+use rlua::{Context, FromLua, FromLuaMulti, Lua, ToLua, ToLuaMulti};
 use rlua::prelude::{LuaContext, LuaError, LuaMultiValue};
 use serde_derive::{Serialize, Deserialize};
 
@@ -67,18 +67,16 @@ impl GameMod {
     This function adds a global function to the game mod.
     It takes the name of the function and the closure as input.
      */
-    pub fn add_global_function<F, A>(&mut self, name: &str, func: F)
+    pub fn add_global_function<F, A, R>(&mut self, name: &str, func: F)
         where
-            F: Fn(A) + Send + 'static,
-            A: for<'a> ToLua<'a> + for<'a> FromLua<'a> + Send + 'static,
+            F: 'static + Send + Fn(Context, A) -> Result<R, LuaError>,
+            A: for<'a> FromLuaMulti<'a>,
+            R: for<'a> ToLuaMulti<'a>,
     {
         self.lua.context(|lua| {
             let globals = lua.globals();
             globals.set(name, lua.create_function(
-                move |_, args: A| {
-                    func(args);
-                    Ok(())
-                }
+                func
             ).unwrap()).unwrap();
         });
     }
@@ -165,10 +163,11 @@ impl ModManager {
     Else it throws an error. It takes a closure as a parameter and then converts it
     to a lua function.
      */
-    pub fn add_global_function<F, A>(&mut self, name: &str, func: F)
+    pub fn add_global_function<F, A, R>(&mut self, name: &str, func: F)
         where
-            F: Fn(A) + Send + 'static + Clone,
-            A: for<'a> ToLua<'a> + for<'a> FromLua<'a> + Send + 'static,
+            F: 'static + Send + Clone + Fn(Context, A) -> Result<R, LuaError>,
+            A: for<'a> FromLuaMulti<'a>,
+            R: for<'a> ToLuaMulti<'a>,
     {
         if self.state == ModManagerState::LoadingFunctions || self.state == ModManagerState::LoadingMods {
             self.state = ModManagerState::LoadingFunctions;
