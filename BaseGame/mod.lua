@@ -27,7 +27,16 @@ end
 
 -- This function is called when the mod is loaded.
 function init()
-    tprint("test")
+    tprint("BaseGame mod loaded.")
 end
 
+-- This function is called when the mod is unloaded.
+function stop()
+    tprint("BaseGame mod stopped.")
+end
+
+-- This function is called when the mod is updated.
+function update()
+
+end
 

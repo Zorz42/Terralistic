@@ -2,19 +2,19 @@ use rlua::prelude::{LuaFunction, LuaMultiValue, LuaValue};
 use shared::mod_manager::{GameMod, ModManager};
 
 /**
-Client mod manager that manages all the mods for the client.
+Server mod manager that manages all the mods for the server.
 It is used to initialize, update and stop all the mods.
 It uses the shared mod manager to do this.
-It also gets mods from the server and adds them to the shared mod manager
+It gets all the mods from the world
 and always loads the BaseGame mod.
  */
-pub struct ClientModManager {
+pub struct ServerModManager {
     mod_manager: ModManager,
 }
 
-impl ClientModManager {
+impl ServerModManager {
     /**
-    Creates a new client mod manager.
+    Creates a new server mod manager.
      */
     pub fn new() -> Self {
         Self {
@@ -23,7 +23,7 @@ impl ClientModManager {
     }
 
     /**
-    This function initializes the client mod manager.
+    This function initializes the server mod manager.
     It adds the BaseGame mod to the shared mod manager and initializes it.
      */
     pub fn init(&mut self) {
@@ -31,7 +31,7 @@ impl ClientModManager {
         self.mod_manager.add_mod(base_mod);
 
         self.mod_manager.add_global_function("tprint", |_, text: String| {
-            println!("[client mod] {}", text);
+            println!("[server mod] {}", text);
             Ok(())
         });
 

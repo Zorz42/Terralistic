@@ -1,7 +1,9 @@
 mod networking;
+mod mod_manager;
 
 use shared_mut::SharedMut;
 use events::EventManager;
+use crate::mod_manager::ServerModManager;
 use crate::networking::ServerNetworking;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -18,6 +20,7 @@ pub struct Server {
     server_state: SharedMut<ServerState>,
     events: EventManager,
     networking: ServerNetworking,
+    mods: ServerModManager,
 }
 
 impl Server {
@@ -28,6 +31,7 @@ impl Server {
             server_state,
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
+            mods: ServerModManager::new(),
         }
     }
 
@@ -37,6 +41,7 @@ impl Server {
 
         // init modules
         self.networking.init();
+        self.mods.init();
 
         // start server loop
         println!("Server started!");
@@ -48,6 +53,7 @@ impl Server {
 
             // update modules
             self.networking.update(&mut self.events);
+            self.mods.update();
 
             // handle events
             while let Some(event) = self.events.pop_event() {
@@ -69,6 +75,7 @@ impl Server {
 
         // stop modules
         self.networking.stop();
+        self.mods.stop();
 
         *self.server_state.borrow() = ServerState::Stopped;
         println!("Server stopped.");
