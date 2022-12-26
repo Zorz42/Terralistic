@@ -142,30 +142,11 @@ impl BlockType {
             feet_collidable: false,
         }
     }
-
-
-    pub fn update_states(blocks: &mut Blocks, x: i32, y: i32) -> i32 {
-        if blocks.get_block_type(x, y).can_update_states {
-            let mut state = 0;
-            if blocks.update_state_side(x, y,  0, -1){
-                state += 1 << 0;
-            }
-            if blocks.update_state_side(x, y,  1,  0){
-                state += 1 << 1;
-            }
-            if blocks.update_state_side(x, y,  0,  1){
-                state += 1 << 2;
-            }
-            if blocks.update_state_side(x, y, -1,  0){
-                state += 1 << 3;
-            }
-            state
-        } else {
-            0
-        }
-    }
 }
 
+/**
+Block struct represents a state of a block in a world.
+ */
 #[derive(Clone, Deserialize, Serialize)]
 pub(crate) struct Block {
     pub id: i32,
@@ -176,7 +157,7 @@ pub(crate) struct Block {
 
 impl Block {
     pub fn new() -> Self {
-        Block{
+        Self {
             id: 0,
             x_from_main: 0,
             y_from_main: 0,
@@ -185,6 +166,9 @@ impl Block {
     }
 }
 
+/**
+Breaking block struct represents a block that is currently being broken.
+ */
 struct BreakingBlock {
     break_progress: i32,
     is_breaking: bool,
@@ -194,7 +178,7 @@ struct BreakingBlock {
 
 impl BreakingBlock {
     pub fn new() -> Self {
-        BreakingBlock{
+        Self {
             break_progress: 0,
             is_breaking: true,
             x: 0,
@@ -204,6 +188,9 @@ impl BreakingBlock {
 }
 
 
+/**
+A chunk is a 16x16 area of blocks
+ */
 struct BlockChunk {
     breaking_blocks_count: i8,
 }
@@ -213,38 +200,30 @@ impl BlockChunk {
 }
 
 
+/**
+A world is a 2d array of blocks and chunks.
+ */
 pub struct Blocks {
     blocks: Vec<Block>,
     chunks: Vec<BlockChunk>,
-    width: i32, height: i32,
+    width: i32,
+    height: i32,
     breaking_blocks: Vec<BreakingBlock>,
     block_types: Vec<Rc<BlockType>>,
     tool_types: Vec<Rc<Tool>>,
     pub air: Rc<BlockType>,
-    pub hand: Rc<Tool>,
-    pub block_change_event: Sender<BlockChangeEvent>,
-    pub block_break_event: Sender<BlockBreakEvent>,
-    pub block_started_breaking_event: Sender<BlockStartedBreakingEvent>,
-    pub block_stopped_breaking_event: Sender<BlockStoppedBreakingEvent>,
-    pub block_update_event: Sender<BlockUpdateEvent>,
 }
 
 impl Blocks{
     pub fn new() -> Self {
-        let mut b = Blocks{
+        let mut result = Blocks{
             blocks: vec![],
             chunks: vec![],
             width: 0, height: 0,
             breaking_blocks: vec![],
             block_types: vec![],
             tool_types: vec![],
-            air: Rc::new(BlockType::new("_".to_string())),
-            hand: Rc::new(Tool::new("hand".to_string())),
-            block_change_event: Sender::new(),
-            block_break_event: Sender::new(),
-            block_started_breaking_event: Sender::new(),
-            block_stopped_breaking_event: Sender::new(),
-            block_update_event: Sender::new(),
+            air: Rc::new(BlockType::new("air".to_string())),
         };
 
         let mut air = BlockType::new(String::from("air"));
@@ -255,20 +234,24 @@ impl Blocks{
         air.light_emission_g = 0;
         air.light_emission_b = 0;
         air.can_update_states = false;
-        b.register_new_block_type(air);
-        b.air = Rc::clone(&b.block_types[0]);
+        result.air = result.register_new_block_type(air);
 
-        let hand = Rc::new(Tool::new(String::from("hand")));
-        b.register_new_tool_type(Rc::clone(&hand));
-        b
+        result
     }
 
+    /**
+    This gets the block from x and y coordinates
+     */
     fn get_block(&self, x: i32, y: i32) -> &Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
         &self.blocks[(y * self.width + x) as usize]
     }
+
+    /**
+    This gets the mutable reference of a block from x and y coordinates
+     */
     fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
@@ -276,6 +259,9 @@ impl Blocks{
         &mut self.blocks[(y * self.width + x) as usize]
     }
 
+    /**
+    This gets the mutable reference of a chunk from x and y coordinates
+     */
     fn get_chunk_mut(&mut self, x: i32, y: i32) -> &mut BlockChunk {
         if x < 0 || y < 0 || x >= self.width / CHUNK_SIZE || y >= self.height / CHUNK_SIZE || self.chunks.is_empty() {
             panic!("Chunk is accessed out of bounds! x: {}, y: {}", x, y);
@@ -283,6 +269,9 @@ impl Blocks{
         self.chunks[(y * self.width / CHUNK_SIZE + x) as usize].borrow_mut()
     }
 
+    /**
+    Creates an empty world with given width and height
+     */
     pub fn create(&mut self, width: i32, height: i32) {
         if width < 0 || height < 0 {
             panic!("Width and height must be positive!");
@@ -299,6 +288,9 @@ impl Blocks{
         }
     }
 
+    /**
+    This is used to get a block type from its id, it is used for serialization.
+     */
     pub fn get_block_type_by_id(&self, id: i32) -> Rc<BlockType> {
         if id < 0 || id >= self.block_types.len() as i32 {
             panic!("Block type id is out of bounds! id: {}", id);
@@ -306,11 +298,17 @@ impl Blocks{
         Rc::clone(&self.block_types[id as usize])
     }
 
+    /**
+    This is used to get a block type from from a coordinate.
+     */
     pub fn get_block_type(&self, x: i32, y: i32) -> Rc<BlockType> {
         let id = self.get_block(x, y).id.into();
         self.get_block_type_by_id(id)
     }
 
+    /**
+    This sets the type of a block from a coordinate.
+     */
     pub fn set_block_type(&mut self, x: i32, y: i32, block_type: Rc<BlockType>, x_from_main: i8, y_from_main: i8) {
         if block_type.id != self.get_block(x, y).id {
             self.set_block_type_silently(x, y, block_type);
@@ -322,28 +320,46 @@ impl Blocks{
             }
             self.get_block_mut(x, y).x_from_main = x_from_main;
             self.get_block_mut(x, y).y_from_main = y_from_main;
-            let event = BlockChangeEvent::new(x, y);
-            self.block_change_event.send(event);
+            //let event = BlockChangeEvent::new(x, y);
+            //self.block_change_event.send(event);
         }
     }
 
+    /**
+    This sets the type of a block from a coordinate without sending a block change event
+    and other stuff, just pure block type change. This is potentially dangerous, use with caution.
+    It can be used for stuff like loading a world, generating a world, etc.
+     */
     pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
         self.get_block_mut(x, y).block_data.clear();
         self.get_block_mut(x, y).id = block_type.id;
     }
 
+    /**
+    Gets the x from main property of a block used for big blocks.
+     */
     pub fn get_block_x_from_main(&mut self, x: i32, y: i32) -> i8 {
         self.get_block(x, y).x_from_main
     }
 
+    /**
+    Gets the y from main property of a block used for big blocks.
+     */
     pub fn get_block_y_from_main(&mut self, x: i32, y: i32) -> i8 {
         self.get_block(x, y).y_from_main
     }
 
+    /**
+    Gets the raw block data of a block. Used for blocks that have extra data,
+    like chests, furnaces, etc.
+     */
     pub fn get_block_data(&mut self, x: i32, y: i32) -> &Vec<u8> {
         &self.get_block(x, y).block_data
     }
 
+    /**
+    Gets the breaking progress of a block.
+     */
     pub fn get_break_progress(&mut self, x: i32, y: i32) -> i32 {
         for breaking_block in self.breaking_blocks.iter() {
             if breaking_block.x == x && breaking_block.y == y {
@@ -353,10 +369,16 @@ impl Blocks{
         0
     }
 
+    /**
+    Sets the break stage of a block, which is usually rendered.
+     */
     pub fn get_break_stage(&mut self, x: i32, y: i32) -> i32 {
         (self.get_break_progress(x, y) as f64 / self.get_block_type(x, y).break_time as f64 * 9.0) as i32
     }
 
+    /**
+    Adds a block to the breaking list, which means that the block is being broken.
+     */
     pub fn start_breaking_block(&mut self, x: i32, y: i32){
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
@@ -382,10 +404,13 @@ impl Blocks{
 
         self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
 
-        let event = BlockStartedBreakingEvent::new(x, y);
-        self.block_started_breaking_event.send(event);
+        //let event = BlockStartedBreakingEvent::new(x, y);
+        //self.block_started_breaking_event.send(event);
     }
 
+    /**
+    Stops breaking a block.
+     */
     pub fn stop_breaking_block(&mut self, x: i32, y: i32){
         if x < 0 || y < 0 || x >= self.width || y >= self.height{
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
@@ -395,13 +420,16 @@ impl Blocks{
             if breaking_block.x == x && breaking_block.y == y {
                 breaking_block.is_breaking = false;
                 self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
-                let event = BlockStoppedBreakingEvent::new(x, y);
-                self.block_stopped_breaking_event.send(event);
+                //let event = BlockStoppedBreakingEvent::new(x, y);
+                //self.block_stopped_breaking_event.send(event);
                 break;
             }
         }
     }
 
+    /**
+    Updates the breaking progress of all blocks that are being broken.
+     */
     pub fn update_breaking_blocks(&mut self, frame_length: f64){
         for i in 0..self.breaking_blocks.len() {
             if self.breaking_blocks[i].is_breaking {
@@ -412,45 +440,72 @@ impl Blocks{
             }
         }
     }
+
+    /**
+    Breaks a block and triggers the block break event which can be used to drop items.
+     */
     pub fn break_block(&mut self, x: i32, y: i32){
         let transformed_x = x - self.get_block_x_from_main(x, y) as i32;
         let transformed_y = y - self.get_block_y_from_main(x, y) as i32;
 
         let event = BlockBreakEvent::new(transformed_x, transformed_y);
-        self.block_break_event.send(event);
-        self.set_block_type(transformed_x, transformed_y, Rc::clone(&self.get_block_type(x, y)), 0, 0);
+        //self.block_break_event.send(event);
+        //self.set_block_type(transformed_x, transformed_y, Rc::clone(&self.get_block_type(x, y)), 0, 0);
     }
 
+    /**
+    It only gets the breaking block count of a chunk, used to skip
+    updating chunks that don't have any breaking blocks.
+     */
     pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
         self.get_chunk_mut(x, y).breaking_blocks_count.into()
     }
 
+    /**
+    Returns the width of the world in blocks.
+     */
     pub fn get_width(&self) -> i32 {
         self.width
     }
 
+    /**
+    Returns the height of the world in blocks.
+     */
     pub fn get_height(&self) -> i32 {
         self.height
     }
 
+    /**
+    Serializes the world, used for saving the world and sending it to the client.
+     */
     pub fn to_serial(&mut self) -> Vec<u8> {
         snap::raw::Encoder::new().
             compress_vec(&bincode::
             serialize(&self.blocks).unwrap()).unwrap()
     }
 
+    /**
+    Deserializes the world, used for loading the world and receiving it from the client.
+     */
     pub fn from_serial(&mut self, serial: Vec<u8>){
         self.blocks = bincode::
             deserialize(&snap::raw::Decoder::new().
             decompress_vec(&serial).unwrap()).unwrap();
     }
 
-    pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Rc<BlockType>{
+    /**
+    Adds a new block type to the world.
+     */
+    pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Rc<BlockType> {
         block_type.id = self.block_types.len() as i32;
         self.block_types.push(Rc::new(block_type));
         Rc::clone(self.block_types.last_mut().unwrap())
     }
 
+    /**
+    Returns the block type that has the specified name, used
+    with commands to get the block type from the name.
+     */
     pub fn get_block_type_by_name(&mut self, name: String) -> Option<Rc<BlockType>> {
         for block_type in self.block_types.iter() {
             if block_type.name == name {
@@ -460,14 +515,23 @@ impl Blocks{
         None
     }
 
+    /**
+    Returns the number of block types that are registered.
+     */
     pub fn get_number_block_types(&mut self) -> i32 {
         self.block_types.len() as i32
     }
 
+    /**
+    Adds a new tool type to the world.
+     */
     pub fn register_new_tool_type(&mut self, tool_type: Rc<Tool>){
         self.tool_types.push(tool_type);
     }
 
+    /**
+    Returns the tool type that has the specified name
+     */
     pub fn get_tool_type_by_name(&mut self, name: String) -> Option<Rc<Tool>> {
         for tool_type in self.tool_types.iter() {
             if tool_type.name == name {
@@ -477,12 +541,41 @@ impl Blocks{
         None
     }
 
-    pub fn update_state_side(&mut self, x: i32, y: i32, side_x: i32, side_y: i32) -> bool {
+    /**
+    Returns true, if the block and its neighbor are connected.
+    Used for rendering.
+     */
+    fn update_state_side(&mut self, x: i32, y: i32, side_x: i32, side_y: i32) -> bool {
         let this_block_id = self.get_block(x, y).id;
         let side_block_id = self.get_block(x + side_x, y + side_y).id;
         x + side_x >= self.width || x + side_x < 0 || y + side_y >= self.height || y + side_y < 0 ||
             self.get_block_type(x + side_x, y + side_y).id == this_block_id ||
             self.get_block_type(x, y).connects_to.contains(&side_block_id)
+    }
+
+    /**
+    Updates the state of a block, used for rendering.
+    The state of the block is used to determine which texture to use.
+     */
+    pub fn update_states(&mut self, x: i32, y: i32) -> i32 {
+        if self.get_block_type(x, y).can_update_states {
+            let mut state = 0;
+            if self.update_state_side(x, y,  0, -1) {
+                state += 1;
+            }
+            if self.update_state_side(x, y,  1,  0) {
+                state += 2;
+            }
+            if self.update_state_side(x, y,  0,  1) {
+                state += 4;
+            }
+            if self.update_state_side(x, y, -1,  0) {
+                state += 8;
+            }
+            state
+        } else {
+            0
+        }
     }
 }
 

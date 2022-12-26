@@ -113,7 +113,7 @@ impl Lights {
     }
     /**adds a block change event listener to blocks*/
     pub fn init(&self, self_shared_mut: SharedMut<Lights>) {
-        self.blocks.borrow().block_change_event.add_listener(&self_shared_mut);
+        //self.blocks.borrow().block_change_event.add_listener(&self_shared_mut);
     }
     /**returns the wodth of the light vector*/
     pub fn get_width(&self) -> i32 {
