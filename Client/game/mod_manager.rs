@@ -1,3 +1,4 @@
+use rlua::prelude::{LuaFunction, LuaMultiValue, LuaValue};
 use shared::mod_manager::{GameMod, ModManager};
 
 /**
@@ -28,6 +29,12 @@ impl ClientModManager {
     pub fn init(&mut self) {
         let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
         self.mod_manager.add_mod(base_mod);
+
+        self.mod_manager.add_global_function("tprint", |(text): (String)| {
+            println!("[mod] {}", text);
+            ()
+        });
+
         self.mod_manager.init();
     }
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use rlua::{Context, FromLua, Lua, ToLua};
-use rlua::prelude::{LuaContext, LuaError};
+use rlua::prelude::{LuaContext, LuaError, LuaMultiValue};
 use serde_derive::{Serialize, Deserialize};
 
 #[derive(PartialEq)]
@@ -56,13 +56,6 @@ impl GameMod {
             let globals = lua.globals();
             lua.load(&self.data.lua_code).exec().unwrap();
 
-            let tprint =
-                lua.create_function(|_, (string): (String) | {
-                    println!("[mod] {}", string);
-                    Ok(())
-                }).unwrap();
-            globals.set("tprint", tprint).unwrap();
-
             // execute the init function if it exists
             if let Ok(init) = lua.globals().get::<_, rlua::Function>("init") {
                 init.call::<_, ()>(()).unwrap();
@@ -74,10 +67,19 @@ impl GameMod {
     This function adds a global function to the game mod.
     It takes the name of the function and the closure as input.
      */
-    pub fn add_global_function<A: rlua::UserData + Clone + 'static, R: rlua::UserData + Send + 'static, T: Send + Fn(Context<'_>, A) -> Result<R, LuaError> + 'static + Clone>(&mut self, name: &str, func: T) {
+    pub fn add_global_function<F, A>(&mut self, name: &str, func: F)
+        where
+            F: Fn(A) + Send + 'static,
+            A: for<'a> ToLua<'a> + for<'a> FromLua<'a> + Send + 'static,
+    {
         self.lua.context(|lua| {
             let globals = lua.globals();
-            globals.set(name, lua.create_function(func.clone()).unwrap()).unwrap();
+            globals.set(name, lua.create_function(
+                move |_, args: A| {
+                    func(args);
+                    Ok(())
+                }
+            ).unwrap()).unwrap();
         });
     }
 
@@ -163,7 +165,11 @@ impl ModManager {
     Else it throws an error. It takes a closure as a parameter and then converts it
     to a lua function.
      */
-    pub fn add_global_function<A: rlua::UserData + Clone + 'static, R: rlua::UserData + Send + 'static, T: Send + Fn(Context<'_>, A) -> Result<R, LuaError> + 'static + Clone>(&mut self, name: &str, func: T) {
+    pub fn add_global_function<F, A>(&mut self, name: &str, func: F)
+        where
+            F: Fn(A) + Send + 'static + Clone,
+            A: for<'a> ToLua<'a> + for<'a> FromLua<'a> + Send + 'static,
+    {
         if self.state == ModManagerState::LoadingFunctions || self.state == ModManagerState::LoadingMods {
             self.state = ModManagerState::LoadingFunctions;
             for mod_ in &mut self.mods {

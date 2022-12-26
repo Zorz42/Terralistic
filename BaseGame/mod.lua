@@ -27,7 +27,7 @@ end
 
 -- This function is called when the mod is loaded.
 function init()
-    tprint("BaseGame mod loaded.")
+    tprint("test")
 end
 
 
