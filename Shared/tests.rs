@@ -58,6 +58,6 @@ fn test_save_load_of_blocks(){//TODO: test saving and loading of custom data
     assert_eq!(block_types.len() as i32 + 1, blocks_obj.get_number_block_types(), "block types not loaded correctly");
 
     for i in 0..copied_blocks.len() as i32 {
-        assert_eq!(blocks_obj.get_block(i / 128, i % 128).deref().get_id(), copied_blocks[i as usize].get_id(), "{}",  format!("block {} not loaded correctly", i));
+        assert_eq!(blocks_obj.get_block(i / 128, i % 128).deref().id, copied_blocks[i as usize].id, "{}",  format!("block {} not loaded correctly", i));
     }
 }

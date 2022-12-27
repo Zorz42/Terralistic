@@ -2,7 +2,7 @@ use std::{iter::Map, rc::Rc};
 use std::borrow::Borrow;
 use std::mem::MaybeUninit;
 use super::{items::*, blocks::*, player::*};
-use {events::*};
+use {deprecated_events::*};
 use shared_mut::SharedMut;
 
 const INVENTORY_SIZE: usize = 10;
