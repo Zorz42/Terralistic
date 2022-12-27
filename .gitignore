@@ -5,9 +5,6 @@ Output/
 .idea/
 **/Cargo.lock
 **/*.mod
-./copy_files.py
-./cmake-build-debug
-./Dependencies
 
 #root cargo.lock is still not excluded, idk how to do that.
 #Do exclude it, it's auto generated file on compile
@@ -16,3 +13,6 @@ Output/
 
 **/target
 
+/cmake-build-debug/
+/Dependencies/
+/copy_files.py
