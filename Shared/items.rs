@@ -78,7 +78,8 @@ impl entity_object for Item {
     }
 }
 
-struct ItemStack {
+
+pub struct ItemStack {
     pub item_type: Rc<ItemType>,
     pub stack: i32
 }
@@ -178,7 +179,7 @@ impl Items {
         Option::None
     }
     /**this function returns the number of item types*/
-    pub fn get_item_type_count(&self) -> usize {
+    pub fn get_num_item_types(&self) -> usize {
         self.item_types.len()
     }
     /**this function sets the block drop for the given block type*/

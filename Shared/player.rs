@@ -106,7 +106,7 @@ impl entity_object for Player {
     }
 }
 
-struct Players {
+pub struct Players {
     players: Vec<Player>,
     blocks: SharedMut<Blocks>,
     player_health_change_event: Sender<PlayerHealthChangeEvent>,
