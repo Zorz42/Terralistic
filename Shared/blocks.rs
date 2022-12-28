@@ -6,6 +6,8 @@ use snap;
 use graphics as gfx;
 
 pub const BLOCK_WIDTH: i32 = 8;
+pub const RENDER_SCALE: f32 = 2.0;
+pub const RENDER_BLOCK_WIDTH: i32 = (BLOCK_WIDTH as f32 * RENDER_SCALE) as i32;
 pub const UNBREAKABLE: i32 = -1;
 pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;
@@ -158,6 +160,15 @@ impl BlockType {
 }
 
 /**
+Block types are equal if they have the same id
+ */
+impl PartialEq for BlockType {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+/**
 Block struct represents a state of a block in a world.
  */
 #[derive(Clone, Deserialize, Serialize)]
@@ -250,9 +261,9 @@ impl Blocks{
         let mut test_block = BlockType::new(String::from("test_block"));
         test_block.break_time = UNBREAKABLE;
         // test_block image is 8x8 of black pixels
-        test_block.image = gfx::Surface::new(8, 8);
-        for x in 0..8 {
-            for y in 0..8 {
+        test_block.image = gfx::Surface::new(BLOCK_WIDTH, BLOCK_WIDTH);
+        for x in 0..BLOCK_WIDTH {
+            for y in 0..BLOCK_WIDTH {
                 test_block.image.set_pixel(x, y, gfx::Color::new(0, 0, 0, 255));
             }
         }

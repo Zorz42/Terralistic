@@ -57,7 +57,7 @@ impl Game {
             }
 
             self.background.render(graphics, &self.camera);
-            self.blocks.render(graphics);
+            self.blocks.render(graphics, &self.camera);
 
             while let Some(event) = self.events.pop_event() {
                 self.networking.on_event(event);

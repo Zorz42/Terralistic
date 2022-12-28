@@ -44,4 +44,22 @@ impl Camera {
             self.position_x += 0.5;
         }
     }
+
+    /**
+    This function gets the position of the top left corner of the screen in world coordinates.
+     */
+    pub fn get_top_left(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
+        let width= graphics.renderer.get_window_width();
+        let height = graphics.renderer.get_window_height();
+        (self.position_x - width as f32 / 2.0, self.position_y - height as f32 / 2.0)
+    }
+
+    /**
+    This function gets the position of the bottom right corner of the screen in world coordinates.
+     */
+    pub fn get_bottom_right(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
+        let width= graphics.renderer.get_window_width();
+        let height = graphics.renderer.get_window_height();
+        (self.position_x + width as f32 / 2.0, self.position_y + height as f32 / 2.0)
+    }
 }
