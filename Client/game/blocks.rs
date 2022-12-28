@@ -23,7 +23,7 @@ impl ClientBlocks {
         // set each block in the world to be either air or test_block randomly
         for x in 0..self.blocks.get_width() {
             for y in 0..self.blocks.get_height() {
-                if rand::random::<bool>() {
+                if rand::random::<i32>() % 10 != 0 {
                     self.blocks.set_block(x, y, Rc::clone(&self.blocks.air));
                 } else {
                     self.blocks.set_block(x, y, Rc::clone(&self.blocks.test_block));
@@ -45,8 +45,8 @@ impl ClientBlocks {
 
                     let block_type = self.blocks.get_block_type(x, y);
                     if block_type.image.get_height() != 0 && block_type.image.get_width() != 0 {
-                        //let texture = gfx::Texture::load_from_surface(&block_type.image);
-                        //texture.render(&graphics.renderer, RENDER_SCALE, screen_x, screen_y, None, false, None);
+                        let texture = gfx::Texture::load_from_surface(&block_type.image);
+                        texture.render(&graphics.renderer, RENDER_SCALE, screen_x, screen_y, None, false, None);
                     }
                 }
             }
