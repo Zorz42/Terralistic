@@ -21,7 +21,7 @@ pub fn compile_mod(mod_path: PathBuf) {
 
 
     //Use darklua to minify the mod's lua code. Use DenseLuaGenerator to generate the minified code.
-    let mut parser = Parser::default();
+    let parser = Parser::default();
     let block = parser.parse(&lua_code).unwrap();
 
     let mut generator = DenseLuaGenerator::default();

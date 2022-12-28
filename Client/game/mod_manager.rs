@@ -1,4 +1,3 @@
-use rlua::prelude::{LuaFunction, LuaMultiValue, LuaValue};
 use shared::mod_manager::{GameMod, ModManager};
 
 /**

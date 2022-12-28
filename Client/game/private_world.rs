@@ -1,4 +1,3 @@
-use std::sync::Mutex;
 use graphics::GraphicsContext;
 use shared_mut::SharedMut;
 use terralistic_server::{Server, ServerState};

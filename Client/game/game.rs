@@ -1,6 +1,5 @@
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::mod_manager::ModManager;
 use events::EventManager;
 use crate::game::mod_manager::ClientModManager;
 use crate::game::networking::ClientNetworking;

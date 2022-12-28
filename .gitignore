@@ -12,7 +12,3 @@ Output/
 # Added by cargo
 
 **/target
-
-/cmake-build-debug/
-/Dependencies/
-/copy_files.py
