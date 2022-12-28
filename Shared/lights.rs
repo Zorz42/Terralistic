@@ -232,7 +232,7 @@ impl Lights {
     /**updates the light emitter at the given coordinate*/
     pub fn update_light_emitter(&mut self, x: i32, y: i32) {
         let block_type = self.blocks.borrow().get_block_type(x, y);
-        if block_type.id != self.blocks.borrow().air.id {
+        if block_type.get_id() != self.blocks.borrow().air.get_id() {
             self.set_light_source(x, y, LightColor::new(block_type.light_emission_r as i32, block_type.light_emission_g as i32, block_type.light_emission_b as i32));
         }
     }

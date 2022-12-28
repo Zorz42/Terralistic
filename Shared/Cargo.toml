@@ -16,6 +16,7 @@ rand = "0.8.5"
 once_cell = "1.16.0"
 fnv = "1.0.7"
 rlua = "0.19.4"
+graphics = {"path" = "../Libraries/graphics/"}
 
 [lib]
 name = "shared"

@@ -184,21 +184,21 @@ impl Items {
     }
     /**this function sets the block drop for the given block type*/
     pub fn set_block_drop(&mut self, block_type: Rc<BlockType>, drop: TileDrop) {
-        while self.block_drops.len() <= block_type.id as usize {
+        while self.block_drops.len() <= block_type.get_id() as usize {
             self.block_drops.push(TileDrop::new(self.nothing.clone(), 0.0));
         }
-        self.block_drops[block_type.id as usize] = drop;
+        self.block_drops[block_type.get_id() as usize] = drop;
     }
     /**this function returns the block drop for the given block type*/
     pub fn get_block_drop(&self, block_type: Rc<BlockType>) -> &TileDrop {
-        if block_type.id < self.block_drops.len() as i32 {
-            return &self.block_drops[block_type.id as usize];
+        if block_type.get_id() < self.block_drops.len() as i32 {
+            return &self.block_drops[block_type.get_id() as usize];
         }
         &self.no_drop
     }
     /**this function sets the wall drop for the given wall type*/
     pub fn set_wall_drop(&mut self, wall_type: Rc<walls::WallType>, drop: TileDrop) {
-        while self.wall_drops.len() <= wall_type.id as usize {
+        while self.wall_drops.len() <= wall_type.id as usize { /// TODO: use a hashmap instead of a vector
             self.wall_drops.push(TileDrop::new(self.nothing.clone(), 0.0));
         }
         self.wall_drops[wall_type.id as usize] = drop;

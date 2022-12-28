@@ -3,6 +3,7 @@ use std::rc::Rc;
 use deprecated_events::*;
 use serde_derive::{Serialize, Deserialize};
 use snap;
+use graphics as gfx;
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const UNBREAKABLE: i32 = -1;
@@ -91,7 +92,6 @@ impl Tool {
 /**
 Includes properties for each block type
  */
-#[derive(Clone)]
 pub struct BlockType{
     // tool that can break the block, none means it can be broken by hand or any tool
     pub effective_tool: Option<*const Tool>,
@@ -112,7 +112,7 @@ pub struct BlockType{
     pub light_emission_g: u8,
     pub light_emission_b: u8,
     // block id, used for saving and loading and for networking
-    pub id: i32,
+    id: i32,
     // if the block is larger than 1x1 it connects with other blocks of the same type
     // and those blocks break and place together, for example: canopies
     pub width: i32,
@@ -121,6 +121,8 @@ pub struct BlockType{
     pub can_update_states: bool,
     // if the block is only collidable by feet, for example: platforms, they have special collision
     pub feet_collidable: bool,
+    // the image of the block
+    pub image: gfx::Surface,
 }
 
 impl BlockType {
@@ -135,12 +137,23 @@ impl BlockType {
             name,
             connects_to: vec![],
             break_time: 0,
-            light_emission_r: 0, light_emission_g: 0, light_emission_b: 0,
+            light_emission_r: 0,
+            light_emission_g: 0,
+            light_emission_b: 0,
             id: 0,
-            width: 0, height: 0,
+            width: 0,
+            height: 0,
             can_update_states: false,
             feet_collidable: false,
+            image: gfx::Surface::new(0, 0),
         }
+    }
+
+    /**
+    This function returns the block id
+     */
+    pub fn get_id(&self) -> i32 {
+        self.id
     }
 }
 
@@ -212,29 +225,39 @@ pub struct Blocks {
     block_types: Vec<Rc<BlockType>>,
     tool_types: Vec<Rc<Tool>>,
     pub air: Rc<BlockType>,
+    pub test_block: Rc<BlockType>,
 }
 
 impl Blocks{
     pub fn new() -> Self {
-        let mut result = Blocks{
+        let mut result = Self{
             blocks: vec![],
             chunks: vec![],
             width: 0, height: 0,
             breaking_blocks: vec![],
             block_types: vec![],
             tool_types: vec![],
-            air: Rc::new(BlockType::new("air".to_string())),
+            air: Rc::new(BlockType::new("".to_string())),
+            test_block: Rc::new(BlockType::new("".to_string())),
         };
 
         let mut air = BlockType::new(String::from("air"));
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
-        air.light_emission_r = 0;
-        air.light_emission_g = 0;
-        air.light_emission_b = 0;
-        air.can_update_states = false;
         result.air = result.register_new_block_type(air);
+
+        let mut test_block = BlockType::new(String::from("test_block"));
+        test_block.break_time = UNBREAKABLE;
+        // test_block image is 8x8 of black pixels
+        test_block.image = gfx::Surface::new(8, 8);
+        for x in 0..8 {
+            for y in 0..8 {
+                test_block.image.set_pixel(x, y, gfx::Color::new(0, 0, 0, 255));
+            }
+        }
+
+        result.test_block = result.register_new_block_type(test_block);
 
         result
     }
@@ -309,9 +332,9 @@ impl Blocks{
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_block_type(&mut self, x: i32, y: i32, block_type: Rc<BlockType>, x_from_main: i8, y_from_main: i8) {
+    pub fn set_big_block(&mut self, x: i32, y: i32, block_type: Rc<BlockType>, x_from_main: i8, y_from_main: i8) {
         if block_type.id != self.get_block(x, y).id {
-            self.set_block_type_silently(x, y, block_type);
+            self.set_block_silently(x, y, block_type);
             for i in 0..self.breaking_blocks.len() {
                 if self.breaking_blocks[i].x == x && self.breaking_blocks[i].y == y {
                     self.breaking_blocks.remove(i);
@@ -326,11 +349,18 @@ impl Blocks{
     }
 
     /**
+    This sets the type of a block from a coordinate.
+     */
+    pub fn set_block(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
+        self.set_big_block(x, y, block_type, 0, 0);
+    }
+
+    /**
     This sets the type of a block from a coordinate without sending a block change event
     and other stuff, just pure block type change. This is potentially dangerous, use with caution.
     It can be used for stuff like loading a world, generating a world, etc.
      */
-    pub fn set_block_type_silently(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
+    pub fn set_block_silently(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
         self.get_block_mut(x, y).block_data.clear();
         self.get_block_mut(x, y).id = block_type.id;
     }
@@ -478,7 +508,7 @@ impl Blocks{
     /**
     Serializes the world, used for saving the world and sending it to the client.
      */
-    pub fn to_serial(&mut self) -> Vec<u8> {
+    pub fn serialize(&mut self) -> Vec<u8> {
         snap::raw::Encoder::new().
             compress_vec(&bincode::
             serialize(&self.blocks).unwrap()).unwrap()
@@ -487,7 +517,7 @@ impl Blocks{
     /**
     Deserializes the world, used for loading the world and receiving it from the client.
      */
-    pub fn from_serial(&mut self, serial: Vec<u8>){
+    pub fn deserialize(&mut self, serial: Vec<u8>){
         self.blocks = bincode::
             deserialize(&snap::raw::Decoder::new().
             decompress_vec(&serial).unwrap()).unwrap();

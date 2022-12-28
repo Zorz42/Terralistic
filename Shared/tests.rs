@@ -16,10 +16,10 @@ fn test_block_types(){
     let block_type_rand = BlockType::new("rand".to_string());
     blocks_obj.register_new_block_type(block_type_rand);
     let block_type_rand = blocks_obj.get_block_type_by_name("rand".to_string()).unwrap();
-    blocks_obj.set_block_type(0, 0, block_type_rand, 0, 0);
-    blocks_obj.set_block_type(1, 0, blocks_obj.get_block_type_by_id(1), 0, 0);
-    blocks_obj.set_block_type(2, 0, blocks_obj.get_block_type_by_id(1), 0, 0);
-    blocks_obj.set_block_type(1, 0, blocks_obj.get_block_type_by_id(0), 0, 0);
+    blocks_obj.set_block(0, 0, block_type_rand, 0, 0);
+    blocks_obj.set_block(1, 0, blocks_obj.get_block_type_by_id(1), 0, 0);
+    blocks_obj.set_block(2, 0, blocks_obj.get_block_type_by_id(1), 0, 0);
+    blocks_obj.set_block(1, 0, blocks_obj.get_block_type_by_id(0), 0, 0);
     assert_eq!(blocks_obj.get_block_type(0, 0).id, 1, "block type not set correctly");
     assert_eq!(blocks_obj.get_block_type(1, 0).id, 0, "block type not set correctly");
     assert_eq!(blocks_obj.get_block_type(2, 0).id, 1, "block type not set correctly");
@@ -42,7 +42,7 @@ fn test_save_load_of_blocks(){//TODO: test saving and loading of custom data
     for i in 0..128 {
         for j in 0..128 {
             let num = (rand::random::<u32>() % blocks_obj.get_number_block_types() as u32) as i32;
-            blocks_obj.set_block_type(i, j, blocks_obj.get_block_type_by_id(num), 0, 0);
+            blocks_obj.set_block(i, j, blocks_obj.get_block_type_by_id(num), 0, 0);
             copied_blocks.push(blocks_obj.get_block(i, j).deref().clone());
         }
     }
