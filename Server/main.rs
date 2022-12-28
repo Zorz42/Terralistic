@@ -1,10 +1,8 @@
 #![allow(non_snake_case)]
 
-mod server_impl;
-
 use terralistic_server::Server;
 
 fn main() {
-    //let mut server = Server::new();
+    //let mut server = Server::new();//TODO: Zor42 don't push things that don't compile
     //server.start();
 }
