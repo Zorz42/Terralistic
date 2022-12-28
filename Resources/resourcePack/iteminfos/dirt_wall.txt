@@ -1,5 +1,0 @@
-display_name: Dirt Wall
-max_stack: 99
-places_block: air
-places_wall: dirt
-tool_properties:

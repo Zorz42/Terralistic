@@ -27,16 +27,15 @@ end
 
 -- This function is called when the mod is loaded.
 function init()
-    tprint("BaseGame mod loaded.")
+    terralistic_print("BaseGame mod loaded. " .. tostring(terralistic_add(1, 2)))
 end
 
 -- This function is called when the mod is unloaded.
 function stop()
-    tprint("BaseGame mod stopped.")
+    terralistic_print("BaseGame mod stopped.")
 end
 
 -- This function is called when the mod is updated.
 function update()
 
 end
-

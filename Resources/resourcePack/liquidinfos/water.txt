@@ -1,2 +1,0 @@
-flow_time: 100
-speed_multiplier: 50

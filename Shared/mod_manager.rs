@@ -40,10 +40,18 @@ pub struct GameMod {
 
 impl GameMod {
     pub fn new(data: GameModData) -> Self {
-        Self {
+        let mut result = Self {
             data,
             lua: Lua::new(),
-        }
+        };
+
+        result.lua.context(|lua| {
+            // load the base code terralistic.lua
+            let base_code = include_str!("../Build/Resources/terralistic.lua");
+            lua.load(base_code).exec().unwrap();
+        });
+
+        result
     }
 
     /**
@@ -54,6 +62,8 @@ impl GameMod {
     fn init(&mut self) {
         self.lua.context(|lua| {
             let globals = lua.globals();
+
+            // load the game mod code
             lua.load(&self.data.lua_code).exec().unwrap();
 
             // execute the init function if it exists
@@ -172,7 +182,7 @@ impl ModManager {
         if self.state == ModManagerState::LoadingFunctions || self.state == ModManagerState::LoadingMods {
             self.state = ModManagerState::LoadingFunctions;
             for mod_ in &mut self.mods {
-                mod_.add_global_function(name, func.clone());
+                mod_.add_global_function(&*("terralistic_".to_string() + name), func.clone());
             }
         } else {
             panic!("Cannot add function after initializing");

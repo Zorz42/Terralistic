@@ -29,7 +29,7 @@ impl ServerModManager {
         let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec()); //TODO: fix, did not work because the file was not created yet
         self.mod_manager.add_mod(base_mod);
 
-        self.mod_manager.add_global_function("tprint", |_, text: String| {
+        self.mod_manager.add_global_function("print", |_, text: String| {
             println!("[server mod] {}", text);
             Ok(())
         });
