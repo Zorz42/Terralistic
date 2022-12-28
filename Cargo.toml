@@ -18,8 +18,8 @@ graphics = {"path" = "Libraries/graphics/"}
 deprecated_events = {"path" = "Libraries/deprecated_events/"}
 events = {"path" = "Libraries/events/"}
 shared_mut = {"path" = "Libraries/shared_mut/"}
-shared = {"path" = "Shared/"}
 terralistic_server = {"path" = "Server/server_impl/"}
+shared = {"path" = "Shared/"}
 rand = "0.8.4"
 directories = "4.0.1"
 chrono = "0.4.19"

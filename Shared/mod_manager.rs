@@ -47,7 +47,7 @@ impl GameMod {
 
         result.lua.context(|lua| {
             // load the base code terralistic.lua
-            let base_code = include_str!("../Build/Resources/terralistic.lua");
+            let base_code = include_str!("terralistic.lua");
             lua.load(base_code).exec().unwrap();
         });
 
