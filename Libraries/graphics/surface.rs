@@ -4,7 +4,7 @@ use serde_derive::{Serialize, Deserialize};
 /*
 Surface is an image stored in ram.
 */
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Surface {
     pub(crate) pixels: Vec<u8>,
     width: i32,

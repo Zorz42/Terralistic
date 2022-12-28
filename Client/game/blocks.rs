@@ -1,25 +1,61 @@
+use std::ptr::hash;
 use std::rc::Rc;
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::blocks::{BLOCK_WIDTH, Blocks, RENDER_BLOCK_WIDTH, RENDER_SCALE};
+use shared::blocks::{BLOCK_WIDTH, Blocks, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::game::camera::Camera;
+
+pub struct RenderBlockChunk {
+
+}
+
+impl RenderBlockChunk {
+    pub fn new() -> Self {
+        Self {
+
+        }
+    }
+
+    pub fn init(&mut self, graphics: &mut GraphicsContext) {
+
+    }
+
+    pub fn render(&self, graphics: &mut GraphicsContext, camera: &Camera) {
+
+    }
+}
 
 /**
 Client blocks handles client side block stuff, such as rendering
  */
 pub struct ClientBlocks {
     pub blocks: Blocks,
+    chunks: Vec<RenderBlockChunk>,
+    atlas: gfx::TextureAtlas,
 }
 
 impl ClientBlocks {
     pub fn new() -> Self {
         Self {
             blocks: Blocks::new(),
+            chunks: Vec::new(),
+            atlas: gfx::TextureAtlas::new(Vec::new()),
         }
     }
 
     pub fn init(&mut self, graphics: &mut GraphicsContext) {
-        self.blocks.create(1000, 1000);
+        let mut surfaces = Vec::new();
+        for block_type in 0..self.blocks.get_number_block_types() {
+            surfaces.push(self.blocks.get_block_type_by_id(block_type).image.clone());
+        }
+        self.atlas = gfx::TextureAtlas::new(surfaces);
+
+        self.blocks.create(1024, 1024);
+
+        for _ in 0..self.blocks.get_width() / CHUNK_SIZE * self.blocks.get_height() / CHUNK_SIZE {
+            self.chunks.push(RenderBlockChunk::new());
+        }
+
         // set each block in the world to be either air or test_block randomly
         for x in 0..self.blocks.get_width() {
             for y in 0..self.blocks.get_height() {

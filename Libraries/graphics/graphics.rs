@@ -66,6 +66,9 @@ pub use button::Button;
 mod sprite;
 pub use sprite::Sprite;
 
+mod texture_atlas;
+pub use texture_atlas::TextureAtlas;
+
 /*
 A struct that will be passed all
 around the functions that need drawing
