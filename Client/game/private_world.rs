@@ -1,6 +1,5 @@
 use graphics::GraphicsContext;
 use shared_mut::SharedMut;
-use terralistic_server::{Server, ServerState};
 use crate::game::game::Game;
 
 const SINGLEPLAYER_PORT: u16 = 49152;
