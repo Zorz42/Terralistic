@@ -92,6 +92,16 @@ impl Tool {
 }
 
 /**
+A welcome packet that carries all the information about the world blocks
+ */
+#[derive(Serialize, Deserialize)]
+pub struct BlocksWelcomePacket {
+    pub data: Vec<u8>,
+    pub width: i32,
+    pub height: i32,
+}
+
+/**
 Includes properties for each block type
  */
 pub struct BlockType{

@@ -1,9 +1,12 @@
+use std::any::Any;
 use std::ptr::hash;
 use std::rc::Rc;
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::blocks::{BLOCK_WIDTH, Blocks, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
+use shared::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
+use shared::packet::{Packet, WelcomeCompletePacket};
 use crate::game::camera::Camera;
+use crate::game::networking::WelcomePacketEvent;
 
 pub struct RenderBlockChunk {
     needs_update: bool,
@@ -80,6 +83,15 @@ impl ClientBlocks {
         (x + y * (self.blocks.get_width() / CHUNK_SIZE) as i32) as usize
     }
 
+    pub fn on_event(&mut self, event: &Box<dyn Any>) {
+        if let Some(event) = event.downcast_ref::<WelcomePacketEvent>() {
+            if let Some(packet) = event.packet.deserialize::<BlocksWelcomePacket>() {
+                self.blocks.create(packet.width, packet.height);
+                self.blocks.deserialize(packet.data.clone());
+            }
+        }
+    }
+
     pub fn init(&mut self) {
         let mut surfaces = Vec::new();
         for block_type in 0..self.blocks.get_number_block_types() {
@@ -87,21 +99,8 @@ impl ClientBlocks {
         }
         self.atlas = gfx::TextureAtlas::new(surfaces);
 
-        self.blocks.create(1024, 1024);
-
         for _ in 0..self.blocks.get_width() / CHUNK_SIZE * self.blocks.get_height() / CHUNK_SIZE {
             self.chunks.push(RenderBlockChunk::new());
-        }
-
-        // set each block in the world to be either air or test_block randomly
-        for x in 0..self.blocks.get_width() {
-            for y in 0..self.blocks.get_height() {
-                if rand::random::<i32>() % 10 != 0 {
-                    self.blocks.set_block(x, y, Rc::clone(&self.blocks.air));
-                } else {
-                    self.blocks.set_block(x, y, Rc::clone(&self.blocks.test_block));
-                }
-            }
         }
     }
 

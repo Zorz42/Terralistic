@@ -29,7 +29,8 @@ impl Game {
     }
 
     pub fn run(&mut self, graphics: &mut GraphicsContext) {
-        self.networking.init();
+        self.networking.init(&mut self.events);
+        self.flush_events();
         self.mods.init();
         self.background.init(graphics);
         self.blocks.init();
@@ -59,14 +60,19 @@ impl Game {
             self.background.render(graphics, &self.camera);
             self.blocks.render(graphics, &self.camera);
 
-            while let Some(event) = self.events.pop_event() {
-                self.networking.on_event(event);
-            }
+            self.flush_events();
 
             graphics.renderer.update_window();
         }
 
         self.networking.stop();
         self.mods.stop();
+    }
+
+    pub fn flush_events(&mut self) {
+        while let Some(event) = self.events.pop_event() {
+            self.blocks.on_event(&event);
+            self.networking.on_event(event);
+        }
     }
 }

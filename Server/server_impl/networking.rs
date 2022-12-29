@@ -8,14 +8,25 @@ use events::EventManager;
 /**
 This handles all the networking for one client.
  */
-struct Connection {
+pub struct Connection {
     stream: TcpStream,
     id: u32,
 }
 
-struct PacketFromClientEvent {
-    packet: Packet,
-    connection_id: u32,
+impl Connection {
+    pub fn send_packet(&mut self, packet: Packet) {
+        let serialized_packet = bincode::serialize(&packet).unwrap();
+        self.stream.write(&serialized_packet).unwrap();
+    }
+}
+
+pub struct PacketFromClientEvent {
+    pub packet: Packet,
+    pub connection_id: u32,
+}
+
+pub struct NewConnectionEvent {
+    pub connection_id: u32,
 }
 
 /**
@@ -47,7 +58,7 @@ impl ServerNetworking {
         self.tcp_listener.as_ref().unwrap().set_nonblocking(true).unwrap();
     }
 
-    pub fn on_event(&mut self, event: Box<dyn Any>) {
+    pub fn on_event(&mut self, event: &Box<dyn Any>) {
 
     }
 
@@ -66,6 +77,11 @@ impl ServerNetworking {
                 stream: tcp_stream,
                 id: self.current_id,
             });
+
+            events.push_event(Box::new(NewConnectionEvent {
+                connection_id: self.current_id,
+            }));
+
             self.current_id += 1;
 
             let connection_ip = self.connections.last().unwrap().stream.peer_addr().unwrap().ip().to_string();
@@ -108,5 +124,14 @@ impl ServerNetworking {
         for connection in &mut self.connections {
             connection.stream.shutdown(std::net::Shutdown::Both).unwrap_or_default();
         }
+    }
+
+    pub fn get_connection_by_id(&mut self, id: u32) -> Option<&mut Connection> {
+        for connection in &mut self.connections {
+            if connection.id == id {
+                return Some(connection);
+            }
+        }
+        None
     }
 }

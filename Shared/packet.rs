@@ -1,16 +1,15 @@
 use std::any::TypeId;
 use std::hash::{Hash, Hasher};
 use fnv::FnvHasher;
-use serde::{Serialize};
 use serde::de::DeserializeOwned;
-
+use serde_derive::{Serialize, Deserialize};
 
 /**
 Packet has an id and data. Id is determined by the hash of the object
 that data is serialized from. You can serialize and deserialize it.
  */
 
-#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Packet {
     pub id: u64,
     pub data: Vec<u8>,
@@ -31,7 +30,7 @@ impl Packet {
     /**
     This function creates a new packet from a serializable object.
      */
-    pub fn new<T: Serialize + 'static>(data: T) -> Self {
+    pub fn new<T: serde::Serialize + 'static>(data: T) -> Self {
         let id = get_type_id::<T>();
         let data = bincode::serialize(&data).unwrap();
         Self {
@@ -54,3 +53,8 @@ impl Packet {
     }
 }
 
+/**
+This packet is sent when all the welcome packets have been sent.
+ */
+#[derive(Serialize, Deserialize)]
+pub struct WelcomeCompletePacket {}

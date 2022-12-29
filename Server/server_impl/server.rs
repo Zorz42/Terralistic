@@ -1,8 +1,10 @@
 mod networking;
 mod mod_manager;
+mod blocks;
 
 use shared_mut::SharedMut;
 use events::EventManager;
+use crate::blocks::ServerBlocks;
 use crate::mod_manager::ServerModManager;
 use crate::networking::ServerNetworking;
 
@@ -21,6 +23,7 @@ pub struct Server {
     events: EventManager,
     networking: ServerNetworking,
     mods: ServerModManager,
+    blocks: ServerBlocks,
 }
 
 impl Server {
@@ -32,6 +35,7 @@ impl Server {
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
             mods: ServerModManager::new(),
+            blocks: ServerBlocks::new(),
         }
     }
 
@@ -57,7 +61,8 @@ impl Server {
 
             // handle events
             while let Some(event) = self.events.pop_event() {
-                self.networking.on_event(event);
+                self.blocks.on_event(&event, &mut self.networking);
+                self.networking.on_event(&event);
             }
 
             if !*self.running.borrow() {
