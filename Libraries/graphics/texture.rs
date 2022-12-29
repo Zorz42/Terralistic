@@ -2,7 +2,7 @@ use std::ffi::c_void;
 use crate::{Color, Rect, Surface};
 use crate::renderer::Renderer;
 use crate::transformation::Transformation;
-use crate::vertex_buffer_impl::DrawMode;
+use crate::vertex_buffer::DrawMode;
 
 /**
 Texture is an image stored in gpu

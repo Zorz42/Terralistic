@@ -1,6 +1,6 @@
 use crate::color::Color;
 use crate::GraphicsContext;
-use crate::vertex_buffer_impl::DrawMode;
+use crate::vertex_buffer::DrawMode;
 
 /**
 This is a rectangle shape not really

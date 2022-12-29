@@ -5,7 +5,7 @@ pub enum DrawMode {
     Lines,
 }
 
-pub(crate) struct VertexImpl {
+pub(crate) struct Vertex {
     pub(crate) x: f32,
     pub(crate) y: f32,
     pub(crate) color: color::Color,
@@ -13,7 +13,7 @@ pub(crate) struct VertexImpl {
     pub(crate) tex_y: f32,
 }
 
-pub(crate) struct VertexBufferImpl {
+pub(crate) struct VertexBuffer {
     vertices: Vec<f32>,
     indices: Vec<u32>,
     vertex_buffer: u32,
@@ -21,7 +21,7 @@ pub(crate) struct VertexBufferImpl {
     vertex_array: u32,
 }
 
-impl Drop for VertexBufferImpl {
+impl Drop for VertexBuffer {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteBuffers(1, &self.vertex_buffer);
@@ -31,9 +31,9 @@ impl Drop for VertexBufferImpl {
     }
 }
 
-impl VertexBufferImpl {
+impl VertexBuffer {
     pub fn new() -> Self {
-        let mut result = VertexBufferImpl{
+        let mut result = VertexBuffer {
             vertices: Vec::new(),
             indices: Vec::new(),
             vertex_buffer: 0,
@@ -48,7 +48,7 @@ impl VertexBufferImpl {
         result
     }
 
-    pub fn add_vertex(&mut self, vertex: &VertexImpl) {
+    pub fn add_vertex(&mut self, vertex: &Vertex) {
         self.vertices.push(vertex.x);
         self.vertices.push(vertex.y);
         self.vertices.push(vertex.color.r as f32 / 255.0);

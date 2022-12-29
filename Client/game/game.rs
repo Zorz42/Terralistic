@@ -32,7 +32,7 @@ impl Game {
         self.networking.init();
         self.mods.init();
         self.background.init(graphics);
-        self.blocks.init(graphics);
+        self.blocks.init();
 
         let ms_timer = gfx::Timer::new();
         let mut ms_counter = 0;

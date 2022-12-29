@@ -23,7 +23,7 @@ pub use timer::Timer;
 
 mod transformation;
 
-mod vertex_buffer_impl;
+mod vertex_buffer;
 
 mod blend_mode;
 pub use blend_mode::{BlendMode, set_blend_mode};
@@ -68,6 +68,9 @@ pub use sprite::Sprite;
 
 mod texture_atlas;
 pub use texture_atlas::TextureAtlas;
+
+mod rect_array;
+pub use rect_array::RectArray;
 
 /*
 A struct that will be passed all
