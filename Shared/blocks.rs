@@ -182,7 +182,7 @@ impl PartialEq for BlockType {
 Block struct represents a state of a block in a world.
  */
 #[derive(Clone, Deserialize, Serialize)]
-pub(crate) struct Block {
+pub struct Block {
     pub id: i32,
     pub x_from_main: i8,
     pub y_from_main: i8,
@@ -286,7 +286,7 @@ impl Blocks{
     /**
     This gets the block from x and y coordinates
      */
-    pub(crate) fn get_block(&self, x: i32, y: i32) -> &Block {
+    pub fn get_block(&self, x: i32, y: i32) -> &Block {
         if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
@@ -536,7 +536,7 @@ impl Blocks{
     }
 
     /**
-    Deserializes the world, used for loading the world and receiving it from the client.
+    Deserializes the world, used for loading the world and receiving it from the server.
      */
     pub fn deserialize(&mut self, serial: Vec<u8>){
         self.blocks = bincode::

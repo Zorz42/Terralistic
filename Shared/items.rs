@@ -2,11 +2,11 @@ use super::{walls, entities::*, blocks, blocks::{Blocks, BlockType}};
 use std::{rc::Rc, collections::hash_map};
 use std::ops::Deref;
 use {shared_mut::*, deprecated_events::*};
+use serde_derive::{Serialize, Deserialize};
 
 const ITEM_WIDTH: i32 = 8;
 
 //TODO: write comments and tests
-
 pub struct ItemType{
     pub name: String, pub display_name: String,
     pub max_stack: i32,
@@ -27,6 +27,9 @@ impl ItemType {
             tool_powers: hash_map::HashMap::new(),
             id: 0
         }
+    }
+    pub fn get_id(&self) -> i32 {
+        self.id
     }
 }
 
@@ -77,7 +80,6 @@ impl EntityObject for Item {
         self.entity.get_velocity_y()
     }
 }
-
 
 pub struct ItemStack {
     pub item_type: Rc<ItemType>,

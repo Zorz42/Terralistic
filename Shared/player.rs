@@ -1,3 +1,4 @@
+use std::any::Any;
 use super::{entities::*, blocks::*};
 use deprecated_events::*;
 use shared_mut::SharedMut;
@@ -10,7 +11,7 @@ const PLAYER_MAX_HEALTH: i32 = 80;
 
 /**enum of possible movement types for the player*/
 #[derive(PartialEq, Copy, Clone)]
-enum MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING}
+pub enum MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING}
 
 /**event that is fired when the player's health changes*/
 struct PlayerHealthChangeEvent {
@@ -29,7 +30,7 @@ impl PlayerHealthChangeEvent {
 impl Event for PlayerHealthChangeEvent {}
 
 /**struct with all the information about the player*/
-struct Player {
+pub struct Player {
     entity: Entity,
     health: i32,
     pub name: String,
@@ -54,6 +55,9 @@ impl Player {
     /**returns the player's health*/
     pub fn get_health(&self) -> i32 {
         self.health
+    }
+    pub fn get_id(&self) -> u32 {
+        self.entity.id
     }
 }
 impl EntityObject for Player {
