@@ -56,7 +56,7 @@ impl Player {
         self.health
     }
 }
-impl entity_object for Player {
+impl EntityObject for Player {
     fn get_width(&self) -> i32 { PLAYER_WIDTH * 2 }
     fn get_height(&self) -> i32 { PLAYER_HEIGHT * 2 }
     fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool{

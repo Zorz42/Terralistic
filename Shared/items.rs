@@ -46,10 +46,10 @@ impl Item {
         }
     }
     /**returns item type*/
-    pub fn getType(&self) -> &ItemType { self.item_type.deref() }
+    pub fn get_type(&self) -> &ItemType { self.item_type.deref() }
 }
 
-impl entity_object for Item {
+impl EntityObject for Item {
     fn get_width(&self) -> i32 { ITEM_WIDTH * 2 }
     fn get_height(&self) -> i32 { ITEM_WIDTH * 2 }
     fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool{
@@ -198,7 +198,7 @@ impl Items {
     }
     /**this function sets the wall drop for the given wall type*/
     pub fn set_wall_drop(&mut self, wall_type: Rc<walls::WallType>, drop: TileDrop) {
-        while self.wall_drops.len() <= wall_type.id as usize { /// TODO: use a hashmap instead of a vector
+        while self.wall_drops.len() <= wall_type.id as usize { //TODO: use a hashmap instead of a vector
             self.wall_drops.push(TileDrop::new(self.nothing.clone(), 0.0));
         }
         self.wall_drops[wall_type.id as usize] = drop;

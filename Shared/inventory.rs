@@ -1,5 +1,4 @@
 use std::{iter::Map, rc::Rc};
-use std::borrow::Borrow;
 use std::mem::MaybeUninit;
 use super::{items::*, blocks::*, player::*};
 use {deprecated_events::*};
@@ -67,7 +66,7 @@ impl Inventory {
         let mouse_item = ItemStack::new(Rc::clone(&items.borrow().nothing), 0);
         let item_counts = vec![items.borrow().get_num_item_types() as i32; 0];
 
-        let mut inventory = Inventory{
+        let inventory = Inventory{
             items,
             recipes: Recipes::new(),
             players,
@@ -81,4 +80,6 @@ impl Inventory {
         };
         inventory
     }
+
+
 }
