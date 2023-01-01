@@ -46,6 +46,7 @@ impl Server {
         // init modules
         self.networking.init();
         self.mods.init();
+        self.blocks.init();
 
         // start server loop
         println!("Server started!");

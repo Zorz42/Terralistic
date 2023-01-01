@@ -20,7 +20,7 @@ impl ServerBlocks {
     }
 
     pub fn init(&mut self) {
-        self.blocks.create(1024, 1024);
+        self.blocks.create(64, 64);
 
         // set each block in the world to be either air or test_block randomly
         for x in 0..self.blocks.get_width() {
@@ -32,6 +32,17 @@ impl ServerBlocks {
                 }
             }
         }
+
+        // count number of test blocks
+        let mut num_test_blocks = 0;
+        for x in 0..self.blocks.get_width() {
+            for y in 0..self.blocks.get_height() {
+                if self.blocks.get_block_type(x, y) == self.blocks.test_block {
+                    num_test_blocks += 1;
+                }
+            }
+        }
+        println!("Number of test blocks: {}", num_test_blocks);
     }
 
     pub fn on_event(&mut self, event: &Box<dyn Any>, networking: &mut ServerNetworking) {
@@ -41,7 +52,9 @@ impl ServerBlocks {
                 width: self.blocks.get_width(),
                 height: self.blocks.get_height(),
             });
-            //networking.get_connection_by_id(event.connection_id).unwrap().send_packet(welcome_packet);
+            // print size of packet
+            println!("Size of blocks welcome packet: {}", welcome_packet.data.len());
+            networking.send_packet(&welcome_packet, event.conn);
         }
     }
 }

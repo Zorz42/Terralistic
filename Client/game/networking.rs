@@ -36,31 +36,10 @@ impl ClientNetworking {
         // connect to the server
         self.net_client = Some(Client::connect(format!("{}:{}", self.server_address, self.server_port), Default::default()).unwrap());
 
-        /*loop {
-            let packet = self.get_packet();
-            if let Some(packet) = packet {
-                if let Some(_) = packet.deserialize::<WelcomeCompletePacket>() {
-                    break;
-                }
-
-                // send welcome packet event
-                events.push_event(Box::new(
-                    WelcomePacketEvent {
-                        packet,
-                    }
-                ));
-            } else {
-                // sleep for 1 millisecond
-                std::thread::sleep(std::time::Duration::from_millis(1));
-            }
-        }*/
-
         'welcome_loop: loop {
             for event in self.net_client.as_mut().unwrap().step() {
                 match event {
-                    uflow::client::Event::Connect => {
-                        break 'welcome_loop;
-                    }
+                    uflow::client::Event::Connect => {}
                     uflow::client::Event::Disconnect => {
                         panic!("disconnected from server");
                     }
@@ -70,8 +49,10 @@ impl ClientNetworking {
                     uflow::client::Event::Receive(packet_data) => {
                         let packet = bincode::deserialize::<Packet>(&packet_data).unwrap();
                         if let Some(_) = packet.deserialize::<WelcomeCompletePacket>() {
-                            break;
+                            break 'welcome_loop;
                         }
+
+                        println!("got packet with size {}", packet_data.len());
 
                         // send welcome packet event
                         events.push_event(Box::new(
