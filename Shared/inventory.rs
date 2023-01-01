@@ -307,3 +307,14 @@ impl Inventory {
         self.blocks = blocks;
     }
 }
+
+impl PartialEq for Inventory {
+    fn eq(&self, other: &Self) -> bool {
+        self.player_id == other.player_id
+    }//only one inventory belongs to a single player, se we just compare player ids
+    /*this is the original code, but it is not valid in rust as 2 variables would have to own the same data
+    Inventory::Inventory(const Inventory& inventory) {
+        *this = inventory;
+    }
+    */
+}
