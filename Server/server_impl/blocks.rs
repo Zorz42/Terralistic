@@ -41,7 +41,7 @@ impl ServerBlocks {
                 width: self.blocks.get_width(),
                 height: self.blocks.get_height(),
             });
-            networking.get_connection_by_id(event.connection_id).unwrap().send_packet(welcome_packet);
+            //networking.get_connection_by_id(event.connection_id).unwrap().send_packet(welcome_packet);
         }
     }
 }
