@@ -51,6 +51,15 @@ impl Recipes {
         &self.recipes
     }
 }
+impl Clone for Recipes {
+    fn clone(&self) -> Self {
+        let mut new_r = Recipes{ recipes: Vec::new() };
+        for recipe in &self.recipes {
+            new_r.recipes.push(recipe.clone());
+        }
+        new_r
+    }
+}
 
 /**struct that defines the inventory and everything related to it*/
 pub struct Inventory {
@@ -92,6 +101,21 @@ impl Inventory {
             item_change_event: Sender::new(),
         };
         inventory
+    }
+    pub fn from_existing(inventory: &Inventory) -> Self {
+        Inventory {
+            items: SharedMut::duplicate(&inventory.items),
+            recipes: inventory.recipes.clone(),
+            players: SharedMut::duplicate(&inventory.players),
+            player_id: inventory.player_id,
+            blocks: SharedMut::duplicate(&inventory.blocks),
+            mouse_item: ItemStack::new(Rc::clone(&inventory.items.borrow().nothing), 0),
+            item_counts: inventory.item_counts.clone(),
+            available_recipes: inventory.available_recipes.clone(),
+            inventory_arr: inventory.inventory_arr.clone(),
+            selected_slot: inventory.selected_slot,
+            item_change_event: Sender::new(),
+        }
     }
 
     /**returns whether the player has enough items to craft the recipe*/

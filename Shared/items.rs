@@ -91,6 +91,11 @@ impl ItemStack {
         ItemStack{ item_type, stack }
     }
 }
+impl Clone for ItemStack {
+    fn clone(&self) -> Self {
+        ItemStack::new(Rc::clone(&self.item_type), self.stack)
+    }
+}
 
 struct ItemCreationEvent {
     pub item_id: u32,
