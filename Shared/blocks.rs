@@ -1,6 +1,5 @@
 use std::borrow::BorrowMut;
 use std::rc::Rc;
-use deprecated_events::*;
 use serde_derive::{Serialize, Deserialize};
 use snap;
 use graphics as gfx;
@@ -23,7 +22,7 @@ pub struct BlockChangeEvent {
 impl BlockChangeEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockChangeEvent{x, y} }
 }
-impl Event for BlockChangeEvent {}
+//impl Event for BlockChangeEvent {}
 
 /**
 Event that is fired when a random tick is fired for a block
@@ -34,7 +33,7 @@ struct BlockRandomTickEvent {
 impl BlockRandomTickEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockRandomTickEvent{x, y} }
 }
-impl Event for BlockRandomTickEvent {}
+//impl Event for BlockRandomTickEvent {}
 
 /**
 Event that is fired when a block is broken
@@ -45,7 +44,7 @@ pub struct BlockBreakEvent {
 impl BlockBreakEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockBreakEvent{x, y} }
 }
-impl Event for BlockBreakEvent {}
+//impl Event for BlockBreakEvent {}
 
 /**
 Event that is fired when a block has started breaking
@@ -56,7 +55,7 @@ pub struct BlockStartedBreakingEvent {
 impl BlockStartedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStartedBreakingEvent{x, y} }
 }
-impl Event for BlockStartedBreakingEvent {}
+//impl Event for BlockStartedBreakingEvent {}
 
 /**
 Event that is fired when a block has stopped breaking
@@ -67,7 +66,7 @@ pub struct BlockStoppedBreakingEvent {
 impl BlockStoppedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStoppedBreakingEvent{x, y} }
 }
-impl Event for BlockStoppedBreakingEvent {}
+//impl Event for BlockStoppedBreakingEvent {}
 
 /**
 Event that is fired when a block is updated
@@ -78,7 +77,7 @@ pub struct BlockUpdateEvent {
 impl BlockUpdateEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockUpdateEvent{x, y} }
 }
-impl Event for BlockUpdateEvent {}
+//impl Event for BlockUpdateEvent {}
 
 /**
 Struct that contains all the information about a tool

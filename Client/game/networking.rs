@@ -32,6 +32,8 @@ impl ClientNetworking {
     }
 
     pub fn init(&mut self, events: &mut EventManager) {
+        //uflow::client::Client::connect(server_address, config).unwrap();
+
         // connect to the server
         self.tcp_stream = Some(TcpStream::connect(format!("{}:{}", self.server_address, self.server_port)).unwrap());
         // set the stream to non-blocking

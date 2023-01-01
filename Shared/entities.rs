@@ -1,6 +1,5 @@
 use std::sync::{Mutex};
 use super::blocks::*;
-use deprecated_events::*;
 use once_cell::sync::Lazy;
 
 #[derive(PartialEq)]
@@ -207,10 +206,10 @@ impl EntityDeletionEvent{
     }
 }
 
-impl Event for EntityVelocityChangeEvent {}
-impl Event for EntityAbsoluteVelocityChangeEvent {}
-impl Event for EntityPositionChangeEvent {}
-impl Event for EntityDeletionEvent {}
+//impl Event for EntityVelocityChangeEvent {}
+//impl Event for EntityAbsoluteVelocityChangeEvent {}
+//impl Event for EntityPositionChangeEvent {}
+//impl Event for EntityDeletionEvent {}
 
 pub trait EntityStructTrait<EntityType: EntityObject> {
     /**updates all entities in that struct*/

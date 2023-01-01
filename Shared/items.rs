@@ -1,7 +1,7 @@
 use super::{walls, entities::*, blocks, blocks::{Blocks, BlockType}};
 use std::{rc::Rc, collections::hash_map};
 use std::ops::Deref;
-use {shared_mut::*, deprecated_events::*};
+use shared_mut::*;
 use serde_derive::{Serialize, Deserialize};
 
 const ITEM_WIDTH: i32 = 8;
@@ -104,7 +104,7 @@ struct ItemCreationEvent {
 impl ItemCreationEvent {
     pub fn new(item_id: u32) -> Self { ItemCreationEvent{ item_id } }
 }
-impl Event for ItemCreationEvent {}
+//impl Event for ItemCreationEvent {}
 
 pub struct TileDrop {
     drop: Rc<ItemType>,
@@ -128,10 +128,10 @@ pub struct Items {
     pub nothing: Rc<ItemType>,
     pub no_drop: TileDrop,
 
-    item_creation_event: Sender<ItemCreationEvent>,
-    item_position_change_event: Sender<EntityPositionChangeEvent>,
-    item_velocity_change_event: Sender<EntityVelocityChangeEvent>,
-    item_deletion_event: Sender<EntityDeletionEvent>
+    //item_creation_event: Sender<ItemCreationEvent>,
+    //item_position_change_event: Sender<EntityPositionChangeEvent>,
+    //item_velocity_change_event: Sender<EntityVelocityChangeEvent>,
+    //item_deletion_event: Sender<EntityDeletionEvent>
 }
 
 impl Items {
@@ -149,10 +149,10 @@ impl Items {
             wall_drops: Vec::new(),
             nothing: nothing.clone(),
             no_drop: TileDrop::new(nothing.clone(), 0.0),
-            item_creation_event: Sender::new(),
-            item_position_change_event: Sender::new(),
-            item_velocity_change_event: Sender::new(),
-            item_deletion_event: Sender::new()
+            //item_creation_event: Sender::new(),
+            //item_position_change_event: Sender::new(),
+            //item_velocity_change_event: Sender::new(),
+            //item_deletion_event: Sender::new()
         }
     }
 
@@ -161,7 +161,7 @@ impl Items {
         let item = Item::new(item_type, x, y, entity_item_count, 0);
         self.register_entity(item);
         let item = self.items.last().unwrap();
-        self.item_creation_event.send(ItemCreationEvent::new(item.entity.id));
+        //self.item_creation_event.send(ItemCreationEvent::new(item.entity.id));
         item.entity.id
     }
     /**this function registers an item type*/
@@ -236,7 +236,7 @@ impl EntityStructTrait<Item> for Items {
             return;
         }
         let event = EntityDeletionEvent::new(entity_id);
-        self.item_deletion_event.send(event);
+        //self.item_deletion_event.send(event);
         self.items.remove(pos.unwrap());
     }
     fn get_entity_by_id(&self, entity_id: u32) -> Option<&Item>{
@@ -252,14 +252,14 @@ impl EntityStructTrait<Item> for Items {
         if entity.entity.get_velocity_x() != velocity_x {
             entity.entity.velocity_x = velocity_x;
             let event = EntityVelocityChangeEvent::new(entity.entity.id);
-            self.item_velocity_change_event.send(event);
+            //self.item_velocity_change_event.send(event);
         }
     }
     fn set_velocity_y(&mut self, entity: &mut Item, velocity_y: f64) {
         if entity.entity.get_velocity_y() != velocity_y {
             entity.entity.velocity_y = velocity_y;
             let event = EntityVelocityChangeEvent::new(entity.entity.id);
-            self.item_velocity_change_event.send(event);
+            //self.item_velocity_change_event.send(event);
         }
     }
     fn add_velocity_x(&mut self, entity: &mut Item, velocity_x: f64) {
@@ -273,7 +273,7 @@ impl EntityStructTrait<Item> for Items {
             entity.entity.x = x;
             if send_to_everyone {
                 let event = EntityPositionChangeEvent::new(entity.entity.id);
-                self.item_position_change_event.send(event);
+                //self.item_position_change_event.send(event);
             }
         }
     }
@@ -282,7 +282,7 @@ impl EntityStructTrait<Item> for Items {
             entity.entity.y = y;
             if send_to_everyone {
                 let event = EntityPositionChangeEvent::new(entity.entity.id);
-                self.item_position_change_event.send(event);
+                //self.item_position_change_event.send(event);
             }
         }
     }
