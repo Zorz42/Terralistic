@@ -31,6 +31,7 @@ function init()
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
     terralistic_print("block name: \"" .. block_type["name"] .. "\"")
+    terralistic_register_block_type(block_type)
 end
 
 -- This function is called when the mod is unloaded.
