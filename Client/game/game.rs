@@ -31,9 +31,10 @@ impl Game {
     pub fn run(&mut self, graphics: &mut GraphicsContext) {
         self.networking.init(&mut self.events);
         self.flush_events();
-        self.mods.init();
-        self.background.init(graphics);
+        self.background.init();
         self.blocks.init();
+
+        self.mods.init();
 
         let ms_timer = gfx::Timer::new();
         let mut ms_counter = 0;

@@ -1,6 +1,7 @@
 use std::any::Any;
 use super::{entities::*, blocks::*};
 use shared_mut::SharedMut;
+use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
 
 //TODO: write tests
 

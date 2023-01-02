@@ -1,10 +1,7 @@
 use std::any::Any;
-use std::ptr::hash;
-use std::rc::Rc;
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use shared::packet::{Packet, WelcomeCompletePacket};
+use shared::blocks::blocks::{Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
 use crate::game::camera::Camera;
 use crate::game::networking::WelcomePacketEvent;
 

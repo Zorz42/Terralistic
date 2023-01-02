@@ -1,7 +1,6 @@
 use std::any::Any;
 use std::rc::Rc;
-use bincode::Options;
-use shared::blocks::{Blocks, BlocksWelcomePacket};
+use shared::blocks::blocks::{Blocks, BlocksWelcomePacket};
 use shared::packet::Packet;
 use crate::networking::{NewConnectionEvent, ServerNetworking};
 

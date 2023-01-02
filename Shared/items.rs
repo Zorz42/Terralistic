@@ -1,8 +1,10 @@
-use super::{walls, entities::*, blocks, blocks::{Blocks, BlockType}};
+use super::{walls, entities::*, blocks, blocks::{blocks::Block, block_type::BlockType}};
 use std::{rc::Rc, collections::hash_map};
 use std::ops::Deref;
 use shared_mut::*;
 use serde_derive::{Serialize, Deserialize};
+use crate::blocks::blocks::Blocks;
+use crate::blocks::tool::Tool;
 
 const ITEM_WIDTH: i32 = 8;
 
@@ -10,9 +12,9 @@ const ITEM_WIDTH: i32 = 8;
 pub struct ItemType{
     pub name: String, pub display_name: String,
     pub max_stack: i32,
-    pub places_block: Option<Rc<blocks::BlockType>>,
+    pub places_block: Option<Rc<BlockType>>,
     pub places_wall: Option<Rc<walls::WallType>>,
-    pub tool_powers: hash_map::HashMap<Rc<blocks::Tool>, i32>,
+    pub tool_powers: hash_map::HashMap<Rc<Tool>, i32>,
     id: i32
 }
 

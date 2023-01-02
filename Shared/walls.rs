@@ -4,6 +4,8 @@ use serde_derive::{Serialize, Deserialize};
 use bincode;
 use snap;
 use shared_mut::*;
+use crate::blocks::blocks::{Blocks, CHUNK_SIZE, UNBREAKABLE};
+use crate::blocks::tool::Tool;
 
 struct WallChangeEvent {
     pub x: i32,

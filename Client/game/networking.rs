@@ -1,8 +1,6 @@
 use std::any::Any;
-use std::io::{Read, Write};
-use std::net::{Ipv4Addr, TcpStream};
 use bincode;
-use enet::{Address, BandwidthLimit, ChannelLimit, Enet, Event, Host, Peer};
+use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host};
 use shared::enet_global::ENET_GLOBAL;
 use shared::packet::{Packet, WelcomeCompletePacket};
 use events::EventManager;
@@ -48,7 +46,7 @@ impl ClientNetworking {
         loop {
             if let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
                 match event {
-                    Event::Connect(ref p) => {
+                    Event::Connect(ref _peer) => {
                         break;
                     }
                     Event::Disconnect { .. } => {

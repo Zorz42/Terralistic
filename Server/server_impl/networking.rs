@@ -1,8 +1,7 @@
 use std::any::Any;
-use std::io::{Read, Write};
-use std::net::{Ipv4Addr, SocketAddr, TcpListener, TcpStream};
+use std::net::Ipv4Addr;
 use bincode;
-use enet::{Address, BandwidthLimit, ChannelLimit, Enet, Host, PacketMode, Peer};
+use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
 use shared::packet::{Packet, WelcomeCompletePacket};
 use events::EventManager;
 use shared::enet_global::ENET_GLOBAL;
@@ -81,7 +80,6 @@ impl ServerNetworking {
                         conn: sender.address(),
                     }));
                 }
-                _ => {}
             }
         }
     }

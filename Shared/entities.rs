@@ -1,6 +1,7 @@
 use std::sync::{Mutex};
 use super::blocks::*;
 use once_cell::sync::Lazy;
+use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
 
 #[derive(PartialEq)]
 pub enum EntityType { ITEM, PLAYER }//TODO: remove this since they're now in separate objects?

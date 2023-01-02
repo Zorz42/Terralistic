@@ -30,15 +30,6 @@ impl<Type: ?Sized> SharedMut<Type> {
     }
 
     /**
-    Creates a duplicate of the shared mutable object.
-     */
-    pub fn duplicate(&self) -> Self {
-        SharedMut {
-            value: Arc::clone(&self.value),
-        }
-    }
-
-    /**
     Returns a reference to the shared mutable object.
      */
     pub fn borrow(&self) -> MutexGuard<Type> {
@@ -50,11 +41,15 @@ impl<Type: ?Sized> SharedMut<Type> {
             println!("Waiting for lock...");
         }
     }
+}
 
-    /**
-    Returns cloned value.
-     */
-    pub fn get_cloned(&self) -> Arc<Mutex<Type>> {
-        self.value.clone()
+/**
+Cloning a shared mutable object creates a duplicate of the shared mutable object.
+ */
+impl<Type: ?Sized> Clone for SharedMut<Type> {
+    fn clone(&self) -> Self {
+        SharedMut {
+            value: Arc::clone(&self.value),
+        }
     }
 }

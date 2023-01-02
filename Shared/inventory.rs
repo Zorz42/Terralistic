@@ -2,6 +2,8 @@ use std::{collections::hash_map::HashMap, rc::Rc};
 use std::mem::MaybeUninit;
 use super::{items::*, blocks::*, player::*, entities::*};
 use shared_mut::SharedMut;
+use crate::blocks::block_type::BlockType;
+use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
 
 //TODO: iKramp do debug assertions for all panics
 
@@ -103,11 +105,11 @@ impl Inventory {
     }
     pub fn from_existing(inventory: &Inventory) -> Self {
         Inventory {
-            items: SharedMut::duplicate(&inventory.items),
+            items: inventory.items.clone(),
             recipes: inventory.recipes.clone(),
-            players: SharedMut::duplicate(&inventory.players),
+            players: inventory.players.clone(),
             player_id: inventory.player_id,
-            blocks: SharedMut::duplicate(&inventory.blocks),
+            blocks: inventory.blocks.clone(),
             mouse_item: ItemStack::new(Rc::clone(&inventory.items.borrow().nothing), 0),
             item_counts: inventory.item_counts.clone(),
             available_recipes: inventory.available_recipes.clone(),

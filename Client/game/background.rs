@@ -1,5 +1,4 @@
 use graphics as gfx;
-use graphics::GraphicsContext;
 use crate::game::camera::Camera;
 
 /**
@@ -16,11 +15,11 @@ impl Background {
         }
     }
 
-    pub fn init(&mut self, graphics: &mut GraphicsContext) {
+    pub fn init(&mut self) {
         self.image = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/background.opa").to_vec()));
     }
 
-    pub fn render(&self, graphics: &mut GraphicsContext, camera: &Camera) {
+    pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
         //float scale = (float)gfx::getWindowHeight() / background.getTextureHeight();
         let scale = graphics.renderer.get_window_height() as f32 / self.image.get_texture_height() as f32;
         //int position_x = -int(camera->getX() * scale / 20) % int(background.getTextureWidth() * scale);
