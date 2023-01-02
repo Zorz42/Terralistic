@@ -37,7 +37,7 @@ function init()
     terralistic_print("BaseGame mod loaded.")
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
-    dirt_id = terralistic_register_block_type(block_type)
+    dirt = terralistic_register_block_type(block_type)
 end
 
 -- This function is called when the mod is loaded on a server.
@@ -58,5 +58,10 @@ end
 
 -- This function is called, when a world is being generated.
 function generate_block(x, y)
-    return dirt
+    -- there is a 10% chance that the block is dirt else it is air
+    if math.random(1, 10) == 1 then
+        return dirt
+    else
+        return air
+    end
 end

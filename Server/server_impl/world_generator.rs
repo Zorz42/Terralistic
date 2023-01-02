@@ -55,5 +55,15 @@ impl WorldGenerator {
             }
         }
         println!("World generated in {}ms", start_time.elapsed().as_millis());
+        // count how many blocks of air type there are
+        let mut air_count = 0;
+        for x in 0..blocks.get_width() {
+            for y in 0..blocks.get_height() {
+                if blocks.get_block_type(x, y).id == 0 {
+                    air_count += 1;
+                }
+            }
+        }
+        println!("{}% of the world is air", air_count as f32 / (blocks.get_width() * blocks.get_height()) as f32 * 100.0);
     }
 }

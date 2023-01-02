@@ -1,7 +1,7 @@
 use std::any::Any;
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::blocks::blocks::{Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
+use shared::blocks::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
 use shared::mod_manager::ModManager;
 use crate::game::camera::Camera;
 use crate::game::networking::WelcomePacketEvent;
@@ -26,8 +26,11 @@ impl RenderBlockChunk {
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    /*let curr_block = blocks.get_block_type(world_x + x, world_y + y);
-                    if curr_block.image.get_width() != 0 && curr_block.image.get_height() != 0 {
+                    let curr_block = blocks.get_block_type(world_x + x, world_y + y);
+                    let mut curr_block_rect = atlas.get_rect(curr_block.id as usize).clone();
+                    if curr_block_rect.w != 0 && curr_block_rect.h != 0 {
+                        curr_block_rect.w = BLOCK_WIDTH;
+                        curr_block_rect.h = BLOCK_WIDTH;
                         self.rect_array.add_rect(
                             &gfx::Rect::new(x * RENDER_BLOCK_WIDTH, y * RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
                             &[
@@ -36,9 +39,9 @@ impl RenderBlockChunk {
                                 gfx::Color::new(255, 255, 255, 255),
                                 gfx::Color::new(255, 255, 255, 255),
                             ],
-                            &atlas.get_rect(curr_block.get_id() as usize),
+                            &curr_block_rect,
                         );
-                    }*/
+                    }
                 }
             }
 
@@ -93,15 +96,26 @@ impl ClientBlocks {
     pub fn init(&mut self, mods: &mut ModManager) {
         self.blocks.init(mods);
 
-        let mut surfaces = Vec::new();
-        /*for block_type in 0..self.blocks.get_number_block_types() {
-            surfaces.push(self.blocks.get_block_type_by_id(block_type).image.clone());
-        }*/
-        self.atlas = gfx::TextureAtlas::new(surfaces);
-
         for _ in 0..self.blocks.get_width() / CHUNK_SIZE * self.blocks.get_height() / CHUNK_SIZE {
             self.chunks.push(RenderBlockChunk::new());
         }
+    }
+
+    pub fn load_resources(&mut self, mods: &mut ModManager) {
+        // go through all the block types get their images and load them
+        let mut surfaces = Vec::new();
+        for id in 0..self.blocks.get_number_block_types() {
+            let block_type = self.blocks.get_block_type_by_id(id);
+            let image_resource = mods.get_resource(format!("blocks:{}.opa", block_type.name));
+            if let Some(image_resource) = image_resource {
+                let image = gfx::Surface::deserialize(image_resource.clone());
+                surfaces.push(image);
+            } else {
+                surfaces.push(gfx::Surface::new(0, 0));
+            }
+        }
+
+        self.atlas = gfx::TextureAtlas::new(surfaces);
     }
 
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) {

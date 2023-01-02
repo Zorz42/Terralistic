@@ -41,6 +41,8 @@ impl Game {
 
         self.mods.init();
 
+        self.blocks.load_resources(&mut self.mods.mod_manager);
+
         let ms_timer = gfx::Timer::new();
         let mut ms_counter = 0;
         'main_loop: while graphics.renderer.is_window_open() {

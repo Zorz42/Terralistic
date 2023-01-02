@@ -122,6 +122,14 @@ impl GameMod {
         let data = bincode::serialize(&self.data).unwrap();
         snap::raw::Encoder::new().compress_vec(&data).unwrap()
     }
+
+    /**
+    This function gets the resource with the given path.
+    It returns a byte array with the contents of the resource.
+     */
+    fn get_resource(&self, path: String) -> Option<&Vec<u8>> {
+        self.data.resources.get(&path)
+    }
 }
 
 /**
@@ -227,5 +235,17 @@ impl ModManager {
      */
     pub fn mods_mut(&mut self) -> std::slice::IterMut<GameMod> {
         self.mods.iter_mut()
+    }
+
+    /**
+    This function gets the resource with the given path.
+     */
+    pub fn get_resource(&self, path: String) -> Option<&Vec<u8>> {
+        for game_mod in self.mods.iter().rev() {
+            if let Some(data) = game_mod.get_resource(path.clone()) {
+                return Some(data);
+            }
+        }
+        None
     }
 }
