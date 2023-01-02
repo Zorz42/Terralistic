@@ -10,3 +10,9 @@ edition = "2021"
 [lib]
 name = "shared_mut"
 path = "shared_mut.rs"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = 3

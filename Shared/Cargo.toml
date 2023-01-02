@@ -21,3 +21,9 @@ enet = "0.3.0"
 [lib]
 name = "shared"
 path = "shared.rs"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = 3

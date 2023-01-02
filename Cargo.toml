@@ -27,6 +27,12 @@ bincode = "1.3.3"
 rlua = "0.19.4"
 enet = "0.3.0"
 
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = 3
+
 [build-dependencies]
 png = "0.17.7"
 snap = "1.0.5"
