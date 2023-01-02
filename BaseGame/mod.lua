@@ -25,12 +25,25 @@ function modVersion()
     return "0.1"
 end
 
+-- global variables for block IDs
+air = 0 -- air is built-in and the id is always 0
+dirt = -1
+
+-- global variables for biome IDs
+plains = -1
+
 -- This function is called when the mod is loaded.
 function init()
     terralistic_print("BaseGame mod loaded.")
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
-    terralistic_register_block_type(block_type)
+    dirt_id = terralistic_register_block_type(block_type)
+end
+
+-- This function is called when the mod is loaded on a server.
+function init_server()
+    terralistic_print("BaseGame mod loaded on server.")
+    plains = terralistic_add_biome(1.0)
 end
 
 -- This function is called when the mod is unloaded.
@@ -41,4 +54,9 @@ end
 -- This function is called when the mod is updated.
 function update()
 
+end
+
+-- This function is called, when a world is being generated.
+function generate_block(x, y)
+    return -1
 end

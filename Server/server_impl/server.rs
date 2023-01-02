@@ -9,7 +9,7 @@ use events::EventManager;
 use crate::blocks::ServerBlocks;
 use crate::mod_manager::ServerModManager;
 use crate::networking::ServerNetworking;
-use crate::world_generator::generate_world;
+use crate::world_generator::WorldGenerator;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum ServerState {
@@ -54,9 +54,15 @@ impl Server {
         self.networking.init();
         self.blocks.init(&mut self.mods.mod_manager);
 
-        self.mods.init();
+        let mut generator = WorldGenerator::new();
+        generator.init(&mut self.mods.mod_manager);
 
-        generate_world(&mut self.blocks.blocks);
+        self.mods.init();
+        for game_mod in self.mods.mod_manager.mods_mut() {
+            game_mod.call_function::<(), ()>("init_server", ()).unwrap();
+        }
+
+        generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 1024, 1024, 423657);
 
         // start server loop
         println!("Server started!");

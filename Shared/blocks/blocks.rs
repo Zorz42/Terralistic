@@ -122,15 +122,14 @@ impl Blocks{
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-
         let block_types = self.block_types.clone();
         mods.add_global_function("new_block_type", move |lua, _: ()| {
             Ok(BlockType::new())
         });
 
         mods.add_global_function("register_block_type", move |lua, block_type: BlockType| {
-            Self::_register_new_block_type(block_types.clone(), block_type);
-            Ok(())
+            let result = Self::_register_new_block_type(block_types.clone(), block_type);
+            Ok(result.id)
         });
     }
 
