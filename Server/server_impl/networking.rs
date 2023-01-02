@@ -1,12 +1,13 @@
 use std::any::Any;
 use std::io::{Read, Write};
-use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::net::{Ipv4Addr, SocketAddr, TcpListener, TcpStream};
 use bincode;
+use enet::{Address, BandwidthLimit, ChannelLimit, Enet, Host, PacketMode, Peer};
 use shared::packet::{Packet, WelcomeCompletePacket};
-use uflow::server::Server;
 use events::EventManager;
+use shared::enet_global::ENET_GLOBAL;
 
-pub type Connection = SocketAddr;
+pub type Connection = Address;
 
 pub struct PacketFromClientEvent {
     pub packet: Packet,
@@ -24,7 +25,7 @@ for each client.
  */
 pub struct ServerNetworking {
     server_port: u16,
-    net_server: Option<Server>,
+    net_server: Option<Host<()>>,
     connections: Vec<Connection>,
 }
 
@@ -39,58 +40,62 @@ impl ServerNetworking {
 
     pub fn init(&mut self) {
         // start listening for connections
-        self.net_server = Some(Server::bind(format!("127.0.0.1:{}", self.server_port), Default::default()).unwrap());
+        //self.net_server = Some(Server::bind(format!("127.0.0.1:{}", self.server_port), Default::default()).unwrap());
+        let local_addr = Address::new(Ipv4Addr::LOCALHOST, self.server_port);
+
+        self.net_server = Some(ENET_GLOBAL.create_host::<()>(
+                Some(&local_addr),
+                100,
+                ChannelLimit::Maximum,
+                BandwidthLimit::Unlimited,
+                BandwidthLimit::Unlimited,
+            ).unwrap());
+
     }
 
     pub fn on_event(&mut self, event: &Box<dyn Any>) {
         // handle new connection event
         if let Some(event) = event.downcast_ref::<NewConnectionEvent>() {
-            self.send_packet(&Packet::new(WelcomeCompletePacket {}), event.conn);
-            self.connections.push(event.conn);
+            self.send_packet(&Packet::new(WelcomeCompletePacket {}), &event.conn);
+            self.connections.push(event.conn.clone());
         }
     }
 
     pub fn update(&mut self, events: &mut EventManager) {
-        for event in self.net_server.as_mut().unwrap().step() {
+        while let Some(event) = self.net_server.as_mut().unwrap().service(0).unwrap() {
             match event {
-                uflow::server::Event::Connect(client_address) => {
-                    println!("[{:?}] connected", client_address);
+                enet::Event::Connect(ref peer) => {
+                    println!("[{:?}] connected", peer.address());
                     events.push_event(Box::new(NewConnectionEvent {
-                        conn: client_address,
+                        conn: peer.address(),
                     }));
                 }
-                uflow::server::Event::Disconnect(client_address) => {
-                    println!("[{:?}] disconnected", client_address);
-                    self.connections.retain(|&x| x != client_address);
+                enet::Event::Disconnect(ref peer, ..) => {
+                    println!("[{:?}] disconnected", peer.address());
+                    self.connections.retain(|x| *x != peer.address());
                 }
-                uflow::server::Event::Error(client_address, err) => {
-                    panic!("[{:?}] error: {:?}", client_address, err);
-                }
-                uflow::server::Event::Receive(client_address, packet_data) => {
-                    let packet: Packet = bincode::deserialize(&packet_data).unwrap();
+                enet::Event::Receive {ref packet, ref sender, ..} => {
+                    let packet: Packet = bincode::deserialize(&packet.data()).unwrap();
                     events.push_event(Box::new(PacketFromClientEvent {
                         packet,
-                        conn: client_address,
+                        conn: sender.address(),
                     }));
                 }
+                _ => {}
             }
         }
-
-        self.net_server.as_mut().unwrap().flush();
     }
 
-    pub fn send_packet(&mut self, packet: &Packet, conn: Connection) {
-        let packet_data = bincode::serialize(packet).unwrap().into_boxed_slice();
-        let mut client = self.net_server.as_mut().unwrap().client(&conn).unwrap().borrow_mut();
-
-        println!("sending packet with size {}", packet_data.len());
-        client.send(packet_data, 0, uflow::SendMode::TimeSensitive);
+    pub fn send_packet(&mut self, packet: &Packet, conn: &Connection) {
+        let packet_data = bincode::serialize(packet).unwrap();
+        let mut client = self.net_server.as_mut().unwrap().peers().find(|x| x.address() == *conn).unwrap();
+        client.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
     }
 
     pub fn stop(&mut self) {
         // close all connections
-        for connection in &mut self.connections {
-            self.net_server.as_mut().unwrap().client(&connection).unwrap().borrow_mut().disconnect();
+        for conn in self.net_server.as_mut().unwrap().peers() {
+            conn.disconnect_now(0);
         }
     }
 }
