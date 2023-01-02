@@ -1,6 +1,5 @@
 use super::background_rect::{Background, BackgroundRect};
 use graphics as gfx;
-use graphics::GraphicsContext;
 
 /**
 MenuBack is a struct that contains the background rectangle for
@@ -26,7 +25,7 @@ impl MenuBack {
         back_rect.orientation = gfx::CENTER;
         back_rect.blur_radius = gfx::BLUR;
         back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
-        back_rect.smooth_factor = 3.0;
+        back_rect.smooth_factor = 60.0;
 
         Self {
             background: gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/background.opa").to_vec())),
@@ -41,7 +40,7 @@ impl Background for MenuBack {
     /**
     Renders the background.
      */
-    fn render_back(&mut self, graphics: &mut GraphicsContext) {
+    fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.back_container = self.back_rect.get_container(graphics, None);
 
         let scale = graphics.renderer.get_window_height() as f32 / self.background.get_texture_height() as f32;
@@ -71,8 +70,8 @@ impl BackgroundRect for MenuBack {
     /**
     Gets the width of the background rectangle.
      */
-    fn get_back_rect_width(&self) -> i32 {
-        self.back_rect.w as i32
+    fn get_back_rect_width(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> i32 {
+        self.back_rect.get_container(graphics, parent_container).rect.w as i32
     }
 
     /**

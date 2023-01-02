@@ -484,8 +484,8 @@ impl Blocks{
         for i in 0..self.breaking_blocks.len() {
             if self.breaking_blocks[i].is_breaking {
                 self.breaking_blocks[i].break_progress += frame_length as i32;
-                    if self.breaking_blocks[i].break_progress > self.get_block_type(self.breaking_blocks[i].x, self.breaking_blocks[i].y).break_time {
-                        self.break_block(self.breaking_blocks[i].x, self.breaking_blocks[i].y);
+                if self.breaking_blocks[i].break_progress > self.get_block_type(self.breaking_blocks[i].x, self.breaking_blocks[i].y).break_time {
+                    self.break_block(self.breaking_blocks[i].x, self.breaking_blocks[i].y);
                 }
             }
         }
