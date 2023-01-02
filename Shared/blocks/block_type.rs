@@ -45,8 +45,6 @@ pub struct BlockType{
     pub can_update_states: bool,
     // if the block is only collidable by feet, for example: platforms, they have special collision
     pub feet_collidable: bool,
-    // the image of the block
-    pub image: gfx::Surface,
 }
 
 /**
@@ -184,7 +182,6 @@ impl BlockType {
             height: 0,
             can_update_states: false,
             feet_collidable: false,
-            image: gfx::Surface::new(0, 0),
         }
     }
 

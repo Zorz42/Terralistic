@@ -16,8 +16,8 @@ end
 -- This function returns the mod's description.
 function modDescription()
     return "The base game. It contains the basic"..
-    "game mechanics and is required for all other"..
-    "mods. It is always loaded."
+    "game mechanics and the classic Terralistic"..
+    "experience."
 end
 
 -- This function returns the mod's version.
@@ -30,7 +30,6 @@ function init()
     terralistic_print("BaseGame mod loaded.")
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
-    terralistic_print("block name: \"" .. block_type["name"] .. "\"")
     terralistic_register_block_type(block_type)
 end
 

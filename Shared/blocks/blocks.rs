@@ -96,7 +96,6 @@ pub struct Blocks {
     curr_block_id: i32,
     tool_types: Vec<Rc<Tool>>,
     pub air: Arc<BlockType>,
-    pub test_block: Arc<BlockType>,
 }
 
 impl Blocks{
@@ -109,7 +108,6 @@ impl Blocks{
             block_types: SharedMut::new(vec![]),
             tool_types: vec![],
             air: Arc::new(BlockType::new()),
-            test_block: Arc::new(BlockType::new()),
             curr_block_id: 2,
         };
 
@@ -119,19 +117,6 @@ impl Blocks{
         air.transparent = true;
         air.break_time = UNBREAKABLE;
         result.air = result.register_new_block_type(air);
-
-        let mut test_block = BlockType::new();
-        test_block.name = "test_block".to_string();
-        test_block.break_time = UNBREAKABLE;
-        // test_block image is 8x8 of black pixels
-        test_block.image = gfx::Surface::new(BLOCK_WIDTH, BLOCK_WIDTH);
-        for x in 0..BLOCK_WIDTH {
-            for y in 0..BLOCK_WIDTH {
-                test_block.image.set_pixel(x, y, gfx::Color::new(0, 0, 0, 255));
-            }
-        }
-
-        result.test_block = result.register_new_block_type(test_block);
 
         result
     }

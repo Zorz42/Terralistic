@@ -1,6 +1,7 @@
 mod networking;
 mod mod_manager;
 mod blocks;
+mod world_generator;
 
 use shared::mod_manager::GameMod;
 use shared_mut::SharedMut;
@@ -8,6 +9,7 @@ use events::EventManager;
 use crate::blocks::ServerBlocks;
 use crate::mod_manager::ServerModManager;
 use crate::networking::ServerNetworking;
+use crate::world_generator::generate_world;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum ServerState {
@@ -53,6 +55,8 @@ impl Server {
         self.blocks.init(&mut self.mods.mod_manager);
 
         self.mods.init();
+
+        generate_world(&mut self.blocks.blocks);
 
         // start server loop
         println!("Server started!");

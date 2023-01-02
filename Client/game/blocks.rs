@@ -26,7 +26,7 @@ impl RenderBlockChunk {
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let curr_block = blocks.get_block_type(world_x + x, world_y + y);
+                    /*let curr_block = blocks.get_block_type(world_x + x, world_y + y);
                     if curr_block.image.get_width() != 0 && curr_block.image.get_height() != 0 {
                         self.rect_array.add_rect(
                             &gfx::Rect::new(x * RENDER_BLOCK_WIDTH, y * RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
@@ -38,7 +38,7 @@ impl RenderBlockChunk {
                             ],
                             &atlas.get_rect(curr_block.get_id() as usize),
                         );
-                    }
+                    }*/
                 }
             }
 
@@ -94,9 +94,9 @@ impl ClientBlocks {
         self.blocks.init(mods);
 
         let mut surfaces = Vec::new();
-        for block_type in 0..self.blocks.get_number_block_types() {
+        /*for block_type in 0..self.blocks.get_number_block_types() {
             surfaces.push(self.blocks.get_block_type_by_id(block_type).image.clone());
-        }
+        }*/
         self.atlas = gfx::TextureAtlas::new(surfaces);
 
         for _ in 0..self.blocks.get_width() / CHUNK_SIZE * self.blocks.get_height() / CHUNK_SIZE {

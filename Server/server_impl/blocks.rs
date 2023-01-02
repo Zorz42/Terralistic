@@ -21,18 +21,6 @@ impl ServerBlocks {
 
     pub fn init(&mut self, mods: &mut ModManager) {
         self.blocks.init(mods);
-        self.blocks.create(1024, 1024);
-
-        // set each block in the world to be either air or test_block randomly
-        for x in 0..self.blocks.get_width() {
-            for y in 0..self.blocks.get_height() {
-                if rand::random::<i32>() % 10 != 0 {
-                    self.blocks.set_block(x, y, self.blocks.air.clone());
-                } else {
-                    self.blocks.set_block(x, y, self.blocks.test_block.clone());
-                }
-            }
-        }
     }
 
     pub fn on_event(&mut self, event: &Box<dyn Any>, networking: &mut ServerNetworking) {
