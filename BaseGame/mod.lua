@@ -9,19 +9,19 @@ of the mod.
 
 
 -- This function returns the mod's name.
-function modName()
+function mod_name()
     return "BaseGame"
 end
 
 -- This function returns the mod's description.
-function modDescription()
+function mod_description()
     return "The base game. It contains the basic"..
     "game mechanics and the classic Terralistic"..
     "experience."
 end
 
 -- This function returns the mod's version.
-function modVersion()
+function mod_version()
     return "0.1"
 end
 
@@ -58,5 +58,5 @@ end
 
 -- This function is called, when a world is being generated.
 function generate_block(x, y)
-    return -1
+    return dirt
 end

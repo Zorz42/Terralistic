@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use darklua_core::generator::{DenseLuaGenerator, LuaGenerator};
 use darklua_core::Parser;
 use shared::mod_manager::{GameMod, GameModData};
+use crate::png_to_opa::png_file_to_opa_bytes;
 
 /**
 This function compiles a game mod from a directory.
@@ -29,8 +30,50 @@ pub fn compile_mod(mod_path: PathBuf) {
 
     let minified_lua_code = generator.into_string();
 
-    let mod_obj = GameMod::new(GameModData::new(minified_lua_code, HashMap::new()));
+    let mod_obj = GameMod::new(GameModData::new(minified_lua_code, generate_resources(mod_path.join("Resources"), "".to_string())));
 
     // write the mod to a file that has the same name as the mod's directory and a .mod extension
     std::fs::write(mod_path.join(format!("{}.mod", mod_path.file_name().unwrap().to_str().unwrap())), mod_obj.to_bytes()).unwrap();
+}
+
+/**
+This function takes the Resources folder, goes through all of the recursively,
+changes the file paths to use : instead of / and adds the files to a map.
+ */
+fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String, Vec<u8>> {
+    let mut resources = HashMap::new();
+
+    for entry in std::fs::read_dir(resources_path).unwrap() {
+        let path = entry.unwrap().path();
+
+        if path.is_dir() {
+            resources.extend(generate_resources(path.clone(), format!("{}{}:", prefix, path.file_name().unwrap().to_str().unwrap())));
+        } else {
+            let (file_name, data) = process_file(path);
+            resources.insert(format!("{}{}", prefix, file_name), data);
+        }
+    }
+
+    resources
+}
+
+/**
+This function processes a file in the Resources folder.
+It takes the path to the file as input. It returns the
+new file name and the file contents.
+ */
+
+fn process_file(file_path: PathBuf) -> (String, Vec<u8>) {
+    let mut file_name = file_path.file_name().unwrap().to_str().unwrap().to_string();
+    // if file name has .png extension, change it to .opa extension
+    if file_name.ends_with(".png") {
+        file_name = file_name.replace(".png", ".opa");
+
+        // convert the png to opa
+        let data = png_file_to_opa_bytes(file_path);
+        (file_name, data)
+    } else {
+        let data = std::fs::read(file_path).unwrap();
+        (file_name, data)
+    }
 }
