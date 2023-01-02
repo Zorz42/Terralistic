@@ -40,18 +40,10 @@ pub struct GameMod {
 
 impl GameMod {
     pub fn new(data: GameModData) -> Self {
-        let mut result = Self {
+        Self {
             data,
             lua: Lua::new(),
-        };
-
-        result.lua.context(|lua| {
-            // load the base code terralistic.lua
-            let base_code = include_str!("terralistic.lua");
-            lua.load(base_code).exec().unwrap();
-        });
-
-        result
+        }
     }
 
     /**
@@ -85,9 +77,7 @@ impl GameMod {
     {
         self.lua.context(|lua| {
             let globals = lua.globals();
-            globals.set(name, lua.create_function(
-                func
-            ).unwrap()).unwrap();
+            globals.set(name, lua.create_function(func).unwrap()).unwrap();
         });
     }
 

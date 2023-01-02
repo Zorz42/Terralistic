@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::rc::Rc;
 use shared::blocks::blocks::{Blocks, BlocksWelcomePacket};
+use shared::mod_manager::ModManager;
 use shared::packet::Packet;
 use crate::networking::{NewConnectionEvent, ServerNetworking};
 
@@ -18,16 +19,17 @@ impl ServerBlocks {
         }
     }
 
-    pub fn init(&mut self) {
+    pub fn init(&mut self, mods: &mut ModManager) {
+        self.blocks.init(mods);
         self.blocks.create(1024, 1024);
 
         // set each block in the world to be either air or test_block randomly
         for x in 0..self.blocks.get_width() {
             for y in 0..self.blocks.get_height() {
                 if rand::random::<i32>() % 10 != 0 {
-                    self.blocks.set_block(x, y, Rc::clone(&self.blocks.air));
+                    self.blocks.set_block(x, y, self.blocks.air.clone());
                 } else {
-                    self.blocks.set_block(x, y, Rc::clone(&self.blocks.test_block));
+                    self.blocks.set_block(x, y, self.blocks.test_block.clone());
                 }
             }
         }

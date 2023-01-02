@@ -2,6 +2,7 @@ mod networking;
 mod mod_manager;
 mod blocks;
 
+use shared::mod_manager::GameMod;
 use shared_mut::SharedMut;
 use events::EventManager;
 use crate::blocks::ServerBlocks;
@@ -43,9 +44,13 @@ impl Server {
         println!("Starting server...");
         *self.server_state.borrow() = ServerState::Starting;
 
+        // load base game mod
+        let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
+        self.mods.mod_manager.add_mod(base_mod);
+
         // init modules
         self.networking.init();
-        self.blocks.init();
+        self.blocks.init(&mut self.mods.mod_manager);
 
         self.mods.init();
 

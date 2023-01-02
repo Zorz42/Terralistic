@@ -1,5 +1,6 @@
 use std::borrow::BorrowMut;
 use std::rc::Rc;
+use std::sync::Arc;
 use serde_derive::{Serialize, Deserialize};
 use snap;
 use graphics as gfx;
@@ -91,11 +92,11 @@ pub struct Blocks {
     width: i32,
     height: i32,
     breaking_blocks: Vec<BreakingBlock>,
-    block_types: SharedMut<Vec<Rc<BlockType>>>,
+    block_types: SharedMut<Vec<Arc<BlockType>>>,
     curr_block_id: i32,
     tool_types: Vec<Rc<Tool>>,
-    pub air: Rc<BlockType>,
-    pub test_block: Rc<BlockType>,
+    pub air: Arc<BlockType>,
+    pub test_block: Arc<BlockType>,
 }
 
 impl Blocks{
@@ -107,8 +108,8 @@ impl Blocks{
             breaking_blocks: vec![],
             block_types: SharedMut::new(vec![]),
             tool_types: vec![],
-            air: Rc::new(BlockType::new()),
-            test_block: Rc::new(BlockType::new()),
+            air: Arc::new(BlockType::new()),
+            test_block: Arc::new(BlockType::new()),
             curr_block_id: 2,
         };
 
@@ -138,8 +139,12 @@ impl Blocks{
     pub fn init(&mut self, mods: &mut ModManager) {
 
         let block_types = self.block_types.clone();
-        mods.add_global_function("register_block_type", move |lua, block_type: i32| {
+        mods.add_global_function("new_block_type", move |lua, _: ()| {
+            Ok(BlockType::new())
+        });
 
+        mods.add_global_function("register_block_type", move |lua, block_type: BlockType| {
+            Self::_register_new_block_type(block_types.clone(), block_type);
             Ok(())
         });
     }
@@ -196,17 +201,17 @@ impl Blocks{
     /**
     This is used to get a block type from its id, it is used for serialization.
      */
-    pub fn get_block_type_by_id(&self, id: i32) -> Rc<BlockType> {
+    pub fn get_block_type_by_id(&self, id: i32) -> Arc<BlockType> {
         if id < 0 || id >= self.block_types.borrow().len() as i32 {
             panic!("Block type id is out of bounds! id: {}", id);
         }
-        Rc::clone(&self.block_types.borrow()[id as usize])
+        self.block_types.borrow()[id as usize].clone()
     }
 
     /**
     This is used to get a block type from from a coordinate.
      */
-    pub fn get_block_type(&self, x: i32, y: i32) -> Rc<BlockType> {
+    pub fn get_block_type(&self, x: i32, y: i32) -> Arc<BlockType> {
         let id = self.get_block(x, y).id.into();
         self.get_block_type_by_id(id)
     }
@@ -214,7 +219,7 @@ impl Blocks{
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_big_block(&mut self, x: i32, y: i32, block_type: Rc<BlockType>, x_from_main: i8, y_from_main: i8) {
+    pub fn set_big_block(&mut self, x: i32, y: i32, block_type: Arc<BlockType>, x_from_main: i8, y_from_main: i8) {
         if block_type.get_id() != self.get_block(x, y).id {
             self.set_block_silently(x, y, block_type);
             for i in 0..self.breaking_blocks.len() {
@@ -233,7 +238,7 @@ impl Blocks{
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_block(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
+    pub fn set_block(&mut self, x: i32, y: i32, block_type: Arc<BlockType>) {
         self.set_big_block(x, y, block_type, 0, 0);
     }
 
@@ -242,7 +247,7 @@ impl Blocks{
     and other stuff, just pure block type change. This is potentially dangerous, use with caution.
     It can be used for stuff like loading a world, generating a world, etc.
      */
-    pub fn set_block_silently(&mut self, x: i32, y: i32, block_type: Rc<BlockType>) {
+    pub fn set_block_silently(&mut self, x: i32, y: i32, block_type: Arc<BlockType>) {
         self.get_block_mut(x, y).block_data.clear();
         self.get_block_mut(x, y).id = block_type.get_id();
     }
@@ -408,16 +413,16 @@ impl Blocks{
     /**
     This function adds a new block type, but is used internally by mods.
      */
-    pub fn _register_new_block_type(block_types: SharedMut<Vec<Rc<BlockType>>>, mut block_type: BlockType) -> Rc<BlockType> {
+    pub fn _register_new_block_type(block_types: SharedMut<Vec<Arc<BlockType>>>, mut block_type: BlockType) -> Arc<BlockType> {
         block_type.id = block_types.borrow().len() as i32;
-        block_types.borrow().push(Rc::new(block_type));
-        Rc::clone(block_types.borrow().last_mut().unwrap())
+        block_types.borrow().push(Arc::new(block_type));
+        Arc::clone(block_types.borrow().last_mut().unwrap())
     }
 
     /**
     Adds a new block type to the world.
      */
-    pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Rc<BlockType> {
+    pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Arc<BlockType> {
         Self::_register_new_block_type(self.block_types.clone(), block_type)
     }
 
@@ -425,10 +430,10 @@ impl Blocks{
     Returns the block type that has the specified name, used
     with commands to get the block type from the name.
      */
-    pub fn get_block_type_by_name(&mut self, name: String) -> Option<Rc<BlockType>> {
+    pub fn get_block_type_by_name(&mut self, name: String) -> Option<Arc<BlockType>> {
         for block_type in self.block_types.borrow().iter() {
             if block_type.name == name {
-                return Some(Rc::clone(block_type));
+                return Some(block_type.clone());
             }
         }
         None

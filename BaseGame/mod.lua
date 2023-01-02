@@ -27,7 +27,10 @@ end
 
 -- This function is called when the mod is loaded.
 function init()
-    terralistic_print("BaseGame mod loaded. " .. tostring(terralistic_add(1, 2)))
+    terralistic_print("BaseGame mod loaded.")
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "dirt"
+    terralistic_print("block name: \"" .. block_type["name"] .. "\"")
 end
 
 -- This function is called when the mod is unloaded.

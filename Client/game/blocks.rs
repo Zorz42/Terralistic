@@ -2,6 +2,7 @@ use std::any::Any;
 use graphics::GraphicsContext;
 use graphics as gfx;
 use shared::blocks::blocks::{Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
+use shared::mod_manager::ModManager;
 use crate::game::camera::Camera;
 use crate::game::networking::WelcomePacketEvent;
 
@@ -89,7 +90,9 @@ impl ClientBlocks {
         }
     }
 
-    pub fn init(&mut self) {
+    pub fn init(&mut self, mods: &mut ModManager) {
+        self.blocks.init(mods);
+
         let mut surfaces = Vec::new();
         for block_type in 0..self.blocks.get_number_block_types() {
             surfaces.push(self.blocks.get_block_type_by_id(block_type).image.clone());

@@ -1,5 +1,6 @@
 use graphics::GraphicsContext;
 use graphics as gfx;
+use shared::mod_manager::GameMod;
 use events::EventManager;
 use crate::game::background::Background;
 use crate::game::blocks::ClientBlocks;
@@ -29,10 +30,14 @@ impl Game {
     }
 
     pub fn run(&mut self, graphics: &mut GraphicsContext) {
+        // load base game mod
+        let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
+        self.mods.mod_manager.add_mod(base_mod);
+
         self.networking.init(&mut self.events);
         self.flush_events();
         self.background.init();
-        self.blocks.init();
+        self.blocks.init(&mut self.mods.mod_manager);
 
         self.mods.init();
 

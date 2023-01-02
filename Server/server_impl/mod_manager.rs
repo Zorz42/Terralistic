@@ -8,7 +8,7 @@ It gets all the mods from the world
 and always loads the BaseGame mod.
  */
 pub struct ServerModManager {
-    mod_manager: ModManager,
+    pub mod_manager: ModManager,
 }
 
 impl ServerModManager {
@@ -26,9 +26,6 @@ impl ServerModManager {
     It adds the BaseGame mod to the shared mod manager and initializes it.
      */
     pub fn init(&mut self) {
-        let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec()); //TODO: fix, did not work because the file was not created yet
-        self.mod_manager.add_mod(base_mod);
-
         self.mod_manager.add_global_function("print", |_, text: String| {
             println!("[server mod] {}", text);
             Ok(())
