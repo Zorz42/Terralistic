@@ -1,4 +1,4 @@
-use crate::{Color, GraphicsContext, Timer, TOP_LEFT};
+use crate::{Color, GraphicsContext, TOP_LEFT};
 use crate::Container;
 use crate::Orientation;
 
@@ -25,7 +25,7 @@ pub struct RenderRect {
     pub blur_radius: i32,
     pub shadow_intensity: i32,
     ms_counter: u32,
-    approach_timer: Timer,
+    approach_timer: std::time::Instant,
 }
 
 impl RenderRect {
@@ -46,7 +46,7 @@ impl RenderRect {
             blur_radius: 0,
             shadow_intensity: 0,
             ms_counter: 0,
-            approach_timer: Timer::new(),
+            approach_timer: std::time::Instant::now(),
         }
     }
 
@@ -55,7 +55,7 @@ impl RenderRect {
     It also approaches the position to the target position.
      */
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
-        while self.ms_counter < self.approach_timer.get_time() as u32 {
+        while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
             self.ms_counter += 1;
             self.render_x += (self.x - self.render_x) / self.smooth_factor;
             self.render_y += (self.y - self.render_y) / self.smooth_factor;

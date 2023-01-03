@@ -1,4 +1,4 @@
-use crate::{Color, Container, GraphicsContext, Key, Orientation, Rect, Texture, Timer, TOP_LEFT};
+use crate::{Color, Container, GraphicsContext, Key, Orientation, Rect, Texture, TOP_LEFT};
 use crate::theme::{GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_MARGIN};
 
 /**
@@ -18,7 +18,7 @@ pub struct Button {
     pub hover_border_color: Color,
     pub disabled: bool,
     hover_progress: f32,
-    timer: Timer,
+    timer: std::time::Instant,
     timer_counter: u32,
 }
 
@@ -40,7 +40,7 @@ impl Button {
             hover_border_color: GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR,
             disabled: false,
             hover_progress: 0.0,
-            timer: Timer::new(),
+            timer: std::time::Instant::now(),
             timer_counter: 0,
         }
     }
@@ -100,7 +100,7 @@ impl Button {
             0.0
         };
 
-        while self.timer_counter < self.timer.get_time() as u32 {
+        while self.timer_counter < self.timer.elapsed().as_millis() as u32 {
             self.hover_progress += (hover_progress_target - self.hover_progress) / 40.0;
             if (hover_progress_target - self.hover_progress).abs() <= 0.01 {
                 self.hover_progress = hover_progress_target;

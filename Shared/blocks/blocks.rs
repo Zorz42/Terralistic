@@ -173,10 +173,10 @@ impl Blocks{
         self.width = width;
         self.height = height;
         self.blocks = Vec::new();
-        for _ in 0..width * height {
-            self.blocks.push(Block::new());
-        }
+        self.blocks.resize((width * height) as usize, Block::new());
+
         self.chunks = vec![];
+        self.chunks.reserve((width * height / CHUNK_SIZE / CHUNK_SIZE) as usize);
         for _ in 0..(width * height / CHUNK_SIZE / CHUNK_SIZE) as usize {
             self.chunks.push(BlockChunk::new());
         }

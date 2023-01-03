@@ -38,7 +38,6 @@ impl<Type: ?Sized> SharedMut<Type> {
                 Ok(value) => return value,
                 Err(_) => {}
             }
-            println!("Waiting for lock...");
         }
     }
 }

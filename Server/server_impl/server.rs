@@ -44,6 +44,7 @@ impl Server {
 
     pub fn start(&mut self) {
         println!("Starting server...");
+        let timer = std::time::Instant::now();
         *self.server_state.borrow() = ServerState::Starting;
 
         // load base game mod
@@ -62,10 +63,10 @@ impl Server {
             game_mod.call_function::<(), ()>("init_server", ()).unwrap();
         }
 
-        generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 1024, 1024, 423657);
+        generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657);
 
         // start server loop
-        println!("Server started!");
+        println!("Server started in {}ms", timer.elapsed().as_millis());
         *self.server_state.borrow() = ServerState::Running;
         let mut last_time = std::time::Instant::now();
         loop {

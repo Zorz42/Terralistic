@@ -38,32 +38,36 @@ impl WorldGenerator {
             panic!("No biomes were added! Cannot generate world!");
         }
 
-        blocks.create(width, height);
-        println!("Generating world...");
         let start_time = std::time::Instant::now();
-        for x in 0..blocks.get_width() {
-            for y in 0..blocks.get_height() {
-                let mut curr_block_id = 0;
-                for game_mod in mods.mods_mut() {
-                    let result: i32 = game_mod.call_function("generate_block", (x, y)).unwrap();
-                    if result != -1 {
-                        curr_block_id = result;
-                    }
-                }
 
-                blocks.set_block(x, y, blocks.get_block_type_by_id(curr_block_id).clone());
-            }
-        }
-        println!("World generated in {}ms", start_time.elapsed().as_millis());
-        // count how many blocks of air type there are
-        let mut air_count = 0;
+        blocks.create(width, height);
+
+        let mut terrain = vec![vec![0; width as usize]; height as usize];
+
         for x in 0..blocks.get_width() {
             for y in 0..blocks.get_height() {
-                if blocks.get_block_type(x, y).id == 0 {
-                    air_count += 1;
+                if y < height - 20 {
+                    terrain[y as usize][x as usize] = 1;
+                } else {
+                    terrain[y as usize][x as usize] = 0;
                 }
             }
         }
-        println!("{}% of the world is air", air_count as f32 / (blocks.get_width() * blocks.get_height()) as f32 * 100.0);
+
+        let mut generated_world: Vec<Vec<i32>> = Vec::new();
+
+        for game_mod in mods.mods_mut() {
+            generated_world = game_mod.call_function("generate_world", (width, height, terrain)).unwrap();
+            break;
+        }
+
+        for x in 0..blocks.get_width() {
+            for y in 0..blocks.get_height() {
+                let block_type = blocks.get_block_type_by_id(generated_world[y as usize][x as usize]);
+                blocks.set_block(x, y, block_type);
+            }
+        }
+
+        println!("World generated in {}ms", start_time.elapsed().as_millis());
     }
 }

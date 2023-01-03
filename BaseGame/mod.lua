@@ -57,11 +57,29 @@ function update()
 end
 
 -- This function is called, when a world is being generated.
-function generate_block(x, y)
-    -- there is a 10% chance that the block is dirt else it is air
-    if math.random(1, 10) == 1 then
-        return dirt
-    else
-        return air
+function generate_world(width, height, terrain)
+    --[[result = {}
+    for x = 0, width - 1 do
+        result[x] = {}
     end
+
+    -- Iterate over all blocks in the terrain.
+    for x = 0, width - 1 do
+        for y = 0, height - 1 do
+            -- if terrain is 0, set air, else set 10% dirt and 90% air
+            if terrain[x][y] == 0 then
+                result[x][y] = air
+            else
+                if math.random(0, 9) == 0 then
+                    result[x][y] = dirt
+                else
+                    result[x][y] = air
+                end
+            end
+        end
+    end
+
+    return result]]--
+
+    return terrain
 end
