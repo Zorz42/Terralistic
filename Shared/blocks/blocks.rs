@@ -1,4 +1,5 @@
 use std::borrow::BorrowMut;
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::Arc;
 use serde_derive::{Serialize, Deserialize};
@@ -33,18 +34,12 @@ Block struct represents a state of a block in a world.
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Block {
     pub id: i32,
-    pub x_from_main: i8,
-    pub y_from_main: i8,
-    pub block_data: Vec<u8>
 }
 
 impl Block {
     pub fn new() -> Self {
         Self {
             id: 0,
-            x_from_main: 0,
-            y_from_main: 0,
-            block_data: vec![]
         }
     }
 }
@@ -82,12 +77,20 @@ impl BlockChunk {
     pub fn new() -> Self { BlockChunk{breaking_blocks_count: 0} }
 }
 
+#[derive(Serialize, Deserialize)]
+struct BlocksData {
+    pub blocks: Vec<Block>,
+    // tells how much blocks a block in a big block is from the main block, it is mostly 0, 0 so it is stored in a hashmap
+    pub block_from_main: HashMap<(i32, i32), (i32, i32)>,
+    // saves the block data, it is mostly empty so it is stored in a hashmap
+    pub block_data: HashMap<(i32, i32), Vec<u8>>,
+}
 
 /**
 A world is a 2d array of blocks and chunks.
  */
 pub struct Blocks {
-    blocks: Vec<Block>,
+    block_data: BlocksData,
     chunks: Vec<BlockChunk>,
     width: i32,
     height: i32,
@@ -101,7 +104,11 @@ pub struct Blocks {
 impl Blocks{
     pub fn new() -> Self {
         let mut result = Self{
-            blocks: vec![],
+            block_data: BlocksData {
+                blocks: Vec::new(),
+                block_from_main: HashMap::new(),
+                block_data: HashMap::new(),
+            },
             chunks: vec![],
             width: 0, height: 0,
             breaking_blocks: vec![],
@@ -137,20 +144,20 @@ impl Blocks{
     This gets the block from x and y coordinates
      */
     pub fn get_block(&self, x: i32, y: i32) -> &Block {
-        if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
+        if x < 0 || y < 0 || x >= self.width || y >= self.height || self.block_data.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
-        &self.blocks[(y * self.width + x) as usize]
+        &self.block_data.blocks[(y * self.width + x) as usize]
     }
 
     /**
     This gets the mutable reference of a block from x and y coordinates
      */
     fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
-        if x < 0 || y < 0 || x >= self.width || y >= self.height || self.blocks.is_empty() {
+        if x < 0 || y < 0 || x >= self.width || y >= self.height || self.block_data.blocks.is_empty() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
-        &mut self.blocks[(y * self.width + x) as usize]
+        &mut self.block_data.blocks[(y * self.width + x) as usize]
     }
 
     /**
@@ -172,8 +179,8 @@ impl Blocks{
         }
         self.width = width;
         self.height = height;
-        self.blocks = Vec::new();
-        self.blocks.resize((width * height) as usize, Block::new());
+        self.block_data.blocks = Vec::new();
+        self.block_data.blocks.resize((width * height) as usize, Block::new());
 
         self.chunks = vec![];
         self.chunks.reserve((width * height / CHUNK_SIZE / CHUNK_SIZE) as usize);
@@ -201,6 +208,42 @@ impl Blocks{
     }
 
     /**
+    This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
+     */
+    fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) {
+        if from_main.0 == 0 && from_main.1 == 0 {
+            self.block_data.block_from_main.remove(&(x, y));
+        } else {
+            self.block_data.block_from_main.insert((x, y), from_main);
+        }
+    }
+
+    /**
+    This function gets the block from main for a block. If the value is not found, it returns 0, 0.
+     */
+    fn get_block_from_main(&self, x: i32, y: i32) -> (i32, i32) {
+        *self.block_data.block_from_main.get(&(x, y)).unwrap_or(&(0, 0))
+    }
+
+    /**
+    This function sets the block data for a block. If it is empty the value is removed from the hashmap.
+     */
+    fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) {
+        if data.is_empty() {
+            self.block_data.block_data.remove(&(x, y));
+        } else {
+            self.block_data.block_data.insert((x, y), data);
+        }
+    }
+
+    /**
+    This function returns block data, if it is not found it returns an empty vector.
+     */
+    fn get_block_data(&self, x: i32, y: i32) -> Vec<u8> {
+        self.block_data.block_data.get(&(x, y)).unwrap_or(&vec![]).clone()
+    }
+
+    /**
     This sets the type of a block from a coordinate.
      */
     pub fn set_big_block(&mut self, x: i32, y: i32, block_type: Arc<BlockType>, x_from_main: i8, y_from_main: i8) {
@@ -212,8 +255,7 @@ impl Blocks{
                     break;
                 }
             }
-            self.get_block_mut(x, y).x_from_main = x_from_main;
-            self.get_block_mut(x, y).y_from_main = y_from_main;
+            self.set_block_from_main(x, y, (x_from_main as i32, y_from_main as i32));
             //let event = BlockChangeEvent::new(x, y);
             //self.block_change_event.send(event);
         }
@@ -232,30 +274,8 @@ impl Blocks{
     It can be used for stuff like loading a world, generating a world, etc.
      */
     pub fn set_block_silently(&mut self, x: i32, y: i32, block_type: Arc<BlockType>) {
-        self.get_block_mut(x, y).block_data.clear();
+        self.set_block_data(x, y, vec![]);
         self.get_block_mut(x, y).id = block_type.get_id();
-    }
-
-    /**
-    Gets the x from main property of a block used for big blocks.
-     */
-    pub fn get_block_x_from_main(&mut self, x: i32, y: i32) -> i8 {
-        self.get_block(x, y).x_from_main
-    }
-
-    /**
-    Gets the y from main property of a block used for big blocks.
-     */
-    pub fn get_block_y_from_main(&mut self, x: i32, y: i32) -> i8 {
-        self.get_block(x, y).y_from_main
-    }
-
-    /**
-    Gets the raw block data of a block. Used for blocks that have extra data,
-    like chests, furnaces, etc.
-     */
-    pub fn get_block_data(&mut self, x: i32, y: i32) -> &Vec<u8> {
-        &self.get_block(x, y).block_data
     }
 
     /**
@@ -346,8 +366,8 @@ impl Blocks{
     Breaks a block and triggers the block break event which can be used to drop items.
      */
     pub fn break_block(&mut self, x: i32, y: i32){
-        let transformed_x = x - self.get_block_x_from_main(x, y) as i32;
-        let transformed_y = y - self.get_block_y_from_main(x, y) as i32;
+        let transformed_x = x - self.get_block_from_main(x, y).0 as i32;
+        let transformed_y = y - self.get_block_from_main(x, y).1 as i32;
 
         let event = BlockBreakEvent::new(transformed_x, transformed_y);
         //self.block_break_event.send(event);
@@ -380,18 +400,14 @@ impl Blocks{
     Serializes the world, used for saving the world and sending it to the client.
      */
     pub fn serialize(&mut self) -> Vec<u8> {
-        snap::raw::Encoder::new().
-            compress_vec(&bincode::
-            serialize(&self.blocks).unwrap()).unwrap()
+        snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.block_data).unwrap()).unwrap()
     }
 
     /**
     Deserializes the world, used for loading the world and receiving it from the server.
      */
     pub fn deserialize(&mut self, serial: Vec<u8>){
-        self.blocks = bincode::
-            deserialize(&snap::raw::Decoder::new().
-            decompress_vec(&serial).unwrap()).unwrap();
+        self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(&serial).unwrap()).unwrap();
     }
 
     /**
