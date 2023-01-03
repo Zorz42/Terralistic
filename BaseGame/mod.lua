@@ -58,14 +58,14 @@ end
 
 -- This function is called, when a world is being generated.
 function generate_world(width, height, terrain)
-    --[[result = {}
-    for x = 0, width - 1 do
+    result = {}
+    for x = 1, width do
         result[x] = {}
     end
 
     -- Iterate over all blocks in the terrain.
-    for x = 0, width - 1 do
-        for y = 0, height - 1 do
+    for x = 1, width do
+        for y = 1, height do
             -- if terrain is 0, set air, else set 10% dirt and 90% air
             if terrain[x][y] == 0 then
                 result[x][y] = air
@@ -79,7 +79,5 @@ function generate_world(width, height, terrain)
         end
     end
 
-    return result]]--
-
-    return terrain
+    return result
 end

@@ -42,14 +42,14 @@ impl WorldGenerator {
 
         blocks.create(width, height);
 
-        let mut terrain = vec![vec![0; width as usize]; height as usize];
+        let mut terrain = vec![vec![0; height as usize]; width as usize];
 
         for x in 0..blocks.get_width() {
             for y in 0..blocks.get_height() {
-                if y < height - 20 {
-                    terrain[y as usize][x as usize] = 1;
+                if x / 10 % 2 == 0 {
+                    terrain[x as usize][y as usize] = 1;
                 } else {
-                    terrain[y as usize][x as usize] = 0;
+                    terrain[x as usize][y as usize] = 0;
                 }
             }
         }
@@ -63,7 +63,7 @@ impl WorldGenerator {
 
         for x in 0..blocks.get_width() {
             for y in 0..blocks.get_height() {
-                let block_type = blocks.get_block_type_by_id(generated_world[y as usize][x as usize]);
+                let block_type = blocks.get_block_type_by_id(generated_world[x as usize][y as usize]);
                 blocks.set_block(x, y, block_type);
             }
         }
