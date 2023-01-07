@@ -1,14 +1,6 @@
-use std::borrow::BorrowMut;
-use std::rc::Rc;
 use std::sync::Arc;
-use serde_derive::{Serialize, Deserialize};
-use snap;
-use graphics as gfx;
 use rlua::{ToLua, UserDataMethods};
-use shared_mut::SharedMut;
-use crate::blocks::blocks::Blocks;
 use crate::blocks::tool::Tool;
-use crate::mod_manager::ModManager;
 
 /**
 Includes properties for each block type
@@ -71,7 +63,7 @@ impl rlua::UserData for BlockType {
             }
         });
         // add meta method to set fields, id and image are not accessible
-        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |lua_ctx, this, (key, mut value): (String, rlua::Value)| {
+        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
             match key.as_str() {
                 "required_tool_power" => {
                     match value {

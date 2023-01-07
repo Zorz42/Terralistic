@@ -1,3 +1,4 @@
+use noise::{NoiseFn, Perlin};
 use shared::blocks::blocks::Blocks;
 use shared::mod_manager::ModManager;
 use shared_mut::SharedMut;
@@ -44,12 +45,28 @@ impl WorldGenerator {
 
         let mut terrain = vec![vec![0; height as usize]; width as usize];
 
-        for x in 0..blocks.get_width() {
-            for y in 0..blocks.get_height() {
-                if x / 10 % 2 == 0 {
+        let noise = Perlin::new(seed);
+
+        let mut max_heights = vec![700; width as usize];
+        let mut min_heights = vec![600; width as usize];
+        let mut cave_thresholds = vec![0.6; width as usize];
+
+        for x in 0..width {
+            for y in 0..height {
+                let value=
+                    if (height - y - min_heights[x as usize]) < ((noise.get([x as f64 / 100.0, 0.8]) + 1.0) * (max_heights[x as usize] - min_heights[x as usize]) as f64) as i32
+                    && cave_thresholds[x as usize] > noise.get([x as f64 / 100.0, y as f64 / 100.0])
+                    { 1 } else { 0 };
+
+                terrain[x as usize][y as usize] = value;
+            }
+        }
+
+        // create a border in terrain
+        for x in 0..width {
+            for y in 0..height {
+                if x == 0 || y == 0 || x == width - 1 || y == height - 1 {
                     terrain[x as usize][y as usize] = 1;
-                } else {
-                    terrain[x as usize][y as usize] = 0;
                 }
             }
         }
