@@ -1,6 +1,4 @@
 use std::cmp::max;
-use super::{blocks::*};
-use shared_mut::SharedMut;
 use crate::blocks::blocks::Blocks;
 
 const MAX_LIGHT: i32 = 100;
@@ -62,42 +60,44 @@ impl Light {
 
 /**struct that manages all the lights in the world*/
 struct Lights {
-    blocks: SharedMut<Blocks>,
     lights: Vec<Light>,
+    width: i32,
+    height: i32,
     //pub light_color_change_event: Sender<LightColorChangeEvent>,
     //pub light_update_schedule_event: Sender<LightUpdateScheduleEvent>,
 }
 
 impl Lights {
-    pub fn new(blocks: SharedMut<Blocks>) -> Self {
+    pub fn new(blocks: &Blocks) -> Self {
 
         Lights {
-            blocks,
             lights: Vec::new(),
+            width: blocks.get_width(),
+            height: blocks.get_height(),
             //light_color_change_event: Sender::new(),
             //light_update_schedule_event: Sender::new(),
         }
     }
     /**returns the light at the given coordinate*/
     fn get_light(&self, x: i32, y: i32) -> &Light {
-        &self.lights[(x + y * self.blocks.borrow().get_width()) as usize]
+        &self.lights[(x + y * self.width) as usize]
     }
     /**returns mutable light at the given coordinate*/
     fn get_light_mut(&mut self, x: i32, y: i32) -> &mut Light {
-        &mut self.lights[(x + y * self.blocks.borrow().get_width()) as usize]
+        &mut self.lights[(x + y * self.width) as usize]
     }
     /**sets the light color at the given coordinate*/
     fn set_light_color(&mut self, x: i32, y: i32, color: LightColor) {
         if self.get_light(x, y).color != color {
             self.get_light_mut(x, y).color = color;
             //self.light_color_change_event.send(LightColorChangeEvent::new(x, y));
-            if x < self.get_width() - 1 {
+            if x < self.width - 1 {
                 self.get_light_mut(x + 1, y).update_light = true;
             }
             if x > 0 {
                 self.get_light_mut(x - 1, y).update_light = true;
             }
-            if y < self.get_height() - 1 {
+            if y < self.height - 1 {
                 self.get_light_mut(x, y + 1).update_light = true;
             }
             if y > 0 {
@@ -106,38 +106,35 @@ impl Lights {
         }
     }
     /**creates an empty light vector*/
-    pub fn create(&mut self) {
-        let blocks = self.blocks.borrow();
+    pub fn create(&mut self, blocks: &Blocks) {;
         for _ in 0..blocks.get_width() * blocks.get_height() {
             self.lights.push(Light::new());
         }
     }
     /**adds a block change event listener to blocks*/
-    pub fn init(&self, self_shared_mut: SharedMut<Lights>) {
+    /*pub fn init(&self, self_shared_mut: SharedMut<Lights>) {//TODO: implement new events
         //self.blocks.borrow().block_change_event.add_listener(&self_shared_mut);
-    }
+    }*/
     /**returns the wodth of the light vector*/
     pub fn get_width(&self) -> i32 {
-        self.blocks.borrow().get_width()
+        self.width
     }
     /**returns the height of the light vector*/
     pub fn get_height(&self) -> i32 {
-        self.blocks.borrow().get_height()
+        self.height
     }
     /**updates the light at the given coordinate*/
-    pub fn update_light(&mut self, x: i32, y: i32) {
+    pub fn update_light(&mut self, x: i32, y: i32, blocks: &Blocks) {
         self.get_light_mut(x, y).update_light = false;
-        self.update_light_emitter(x, y);
+        self.update_light_emitter(x, y, blocks);
 
         let mut neighbours = [[-1, 0], [-1, 0], [-1, 0], [-1, 0]];
         {
-            let blocks = self.blocks.borrow();
-
             if x != 0 {
                 neighbours[0][0] = x - 1;
                 neighbours[0][1] = y;
             }
-            if x != blocks.get_width() - 1 {
+            if x != self.width - 1 {
                 neighbours[1][0] = x + 1;
                 neighbours[1][1] = y;
             }
@@ -145,7 +142,7 @@ impl Lights {
                 neighbours[2][0] = x;
                 neighbours[2][1] = y - 1;
             }
-            if y != blocks.get_height() - 1 {
+            if y != self.height - 1 {
                 neighbours[3][0] = x;
                 neighbours[3][1] = y + 1;
             }
@@ -154,7 +151,7 @@ impl Lights {
         let mut color_to_be = LightColor::new(0, 0, 0);
         for neighbour in neighbours {
             if neighbour[0] != -1 {
-                let light_step = if self.blocks.borrow().get_block_type(neighbour[0], neighbour[1]).transparent { 3 } else { 15 };
+                let light_step = if blocks.get_block_type(neighbour[0], neighbour[1]).transparent { 3 } else { 15 };
 
                 let r = if light_step > self.get_light_color(neighbour[0], neighbour[1]).r { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).r - light_step };
                 let g = if light_step > self.get_light_color(neighbour[0], neighbour[1]).g { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).g - light_step };
@@ -214,8 +211,8 @@ impl Lights {
     }
     /**schedules a light update for the neighbours of the given coordinate*/
     pub fn schedule_light_update_for_neighbours(&mut self, x: i32, y: i32) {
-        let width = self.get_width();
-        let height = self.get_height();
+        let width = self.width;
+        let height = self.height;
         self.schedule_light_update(x, y);
         if x != 0 {
             self.schedule_light_update(x - 1, y);
@@ -231,9 +228,9 @@ impl Lights {
         }
     }
     /**updates the light emitter at the given coordinate*/
-    pub fn update_light_emitter(&mut self, x: i32, y: i32) {
-        let block_type = self.blocks.borrow().get_block_type(x, y);
-        if block_type.get_id() != self.blocks.borrow().air.get_id() {
+    pub fn update_light_emitter(&mut self, x: i32, y: i32, blocks: &Blocks) {
+        let block_type = blocks.get_block_type(x, y);
+        if block_type.get_id() != blocks.air.get_id() {
             self.set_light_source(x, y, LightColor::new(block_type.light_emission_r as i32, block_type.light_emission_g as i32, block_type.light_emission_b as i32));
         }
     }
