@@ -1,10 +1,11 @@
 use super::blocks::*;
-use deprecated_events::*;
 use std::rc::Rc;
 use serde_derive::{Serialize, Deserialize};
 use bincode;
 use snap;
 use shared_mut::*;
+use crate::blocks::blocks::{Blocks, CHUNK_SIZE, UNBREAKABLE};
+use crate::blocks::tool::Tool;
 
 struct WallChangeEvent {
     pub x: i32,
@@ -13,7 +14,7 @@ struct WallChangeEvent {
 impl WallChangeEvent{
     pub fn new(x: i32, y: i32) -> Self{ WallChangeEvent{ x, y } }
 }
-impl Event for WallChangeEvent {}
+//impl Event for WallChangeEvent {}
 
 struct WallBreakEvent {
     pub x: i32,
@@ -22,7 +23,7 @@ struct WallBreakEvent {
 impl WallBreakEvent{
     pub fn new(x: i32, y: i32) -> Self{ WallBreakEvent{ x, y } }
 }
-impl Event for WallBreakEvent {}
+//impl Event for WallBreakEvent {}
 
 struct WallStartedBreakingEvent {
     pub x: i32,
@@ -31,7 +32,7 @@ struct WallStartedBreakingEvent {
 impl WallStartedBreakingEvent{
     pub fn new(x: i32, y: i32) -> Self{ WallStartedBreakingEvent{ x, y } }
 }
-impl Event for WallStartedBreakingEvent {}
+//impl Event for WallStartedBreakingEvent {}
 
 struct WallStoppedBreakingEvent {
     pub x: i32,
@@ -40,7 +41,7 @@ struct WallStoppedBreakingEvent {
 impl WallStoppedBreakingEvent{
     pub fn new(x: i32, y: i32) -> Self{ WallStoppedBreakingEvent{ x, y } }
 }
-impl Event for WallStoppedBreakingEvent {}
+//impl Event for WallStoppedBreakingEvent {}
 
 pub struct WallType {
     pub id: i32,
@@ -111,10 +112,10 @@ struct Walls{
     pub clear: Rc<WallType>,
     pub hammer: Rc<Tool>,
 
-    pub wall_change_event: Sender<WallChangeEvent>,
-    pub wall_break_event: Sender<WallBreakEvent>,
-    pub wall_started_breaking_event: Sender<WallStartedBreakingEvent>,
-    pub wall_stopped_breaking_event: Sender<WallStoppedBreakingEvent>,
+    //pub wall_change_event: Sender<WallChangeEvent>,
+    //pub wall_break_event: Sender<WallBreakEvent>,
+    //pub wall_started_breaking_event: Sender<WallStartedBreakingEvent>,
+    //pub wall_stopped_breaking_event: Sender<WallStoppedBreakingEvent>,
 }
 
 impl Walls{
@@ -132,10 +133,10 @@ impl Walls{
             clear: Rc::new(WallType::new(0, UNBREAKABLE, "clear".to_string())),
             hammer: Rc::new(Tool::new("Hammer".to_string())),
 
-            wall_change_event: Sender::new(),
-            wall_break_event: Sender::new(),
-            wall_started_breaking_event: Sender::new(),
-            wall_stopped_breaking_event: Sender::new(),
+            //wall_change_event: Sender::new(),
+            //wall_break_event: Sender::new(),
+            //wall_started_breaking_event: Sender::new(),
+            //wall_stopped_breaking_event: Sender::new(),
         };
         walls.register_wall_type(walls.clear.clone());//TODO: @zorz42 make this work
         walls.blocks.borrow().register_new_tool_type(walls.hammer.clone());
@@ -220,7 +221,7 @@ impl Walls{
                 break;
             }
         }
-        self.wall_change_event.send(WallChangeEvent::new(x, y));
+        //self.wall_change_event.send(WallChangeEvent::new(x, y));
     }
 
     /**this function sets the wall type on x and y without triggering an event (without updating the world)*/
@@ -272,7 +273,7 @@ impl Walls{
 
         self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_wall_count += 1;
 
-        self.wall_started_breaking_event.send(WallStartedBreakingEvent::new(x, y));
+        //self.wall_started_breaking_event.send(WallStartedBreakingEvent::new(x, y));
     }
 
     /**includes the necessary steps to stop breaking a wall, such as removing it from the breaking_walls list, setting is_breaking to false and sending the WallStoppedBreakingEvent*/
@@ -285,7 +286,7 @@ impl Walls{
             if wall.x == x && wall.y == y {
                 wall.is_breaking = false;
                 self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_wall_count -= 1;
-                self.wall_stopped_breaking_event.send(WallStoppedBreakingEvent::new(x, y));
+                //self.wall_stopped_breaking_event.send(WallStoppedBreakingEvent::new(x, y));
                 break;
             }
         }
@@ -308,7 +309,7 @@ impl Walls{
         if x < 0 || y < 0 || x >= self.get_width() || y >= self.get_height() {
             panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
         }
-        self.wall_break_event.send(WallBreakEvent::new(x, y));
+        //self.wall_break_event.send(WallBreakEvent::new(x, y));
 
         self.set_wall_type(x, y, Rc::clone(&self.clear));
     }

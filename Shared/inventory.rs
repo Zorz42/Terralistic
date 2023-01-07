@@ -1,8 +1,9 @@
 use std::{collections::hash_map::HashMap, rc::Rc};
 use std::mem::MaybeUninit;
 use super::{items::*, blocks::*, player::*, entities::*};
-use {deprecated_events::*};
 use shared_mut::SharedMut;
+use crate::blocks::block_type::BlockType;
+use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
 
 //TODO: iKramp do debug assertions for all panics
 
@@ -34,7 +35,7 @@ impl InventoryItemChangeEvent {
         InventoryItemChangeEvent{ item_pos }
     }
 }
-impl Event for InventoryItemChangeEvent {}
+//impl Event for InventoryItemChangeEvent {}
 
 /**struct that contains all recipes*/
 struct Recipes {
@@ -73,7 +74,7 @@ pub struct Inventory {
     available_recipes: Vec<Rc<Recipe>>,
     inventory_arr: [ItemStack; INVENTORY_SIZE],
     pub selected_slot: i32,
-    pub item_change_event: Sender<InventoryItemChangeEvent>,
+    //pub item_change_event: Sender<InventoryItemChangeEvent>,
 }
 impl Inventory {
     pub fn new(items: SharedMut<Items>, players: SharedMut<Players>, blocks: SharedMut<Blocks>) -> Self {
@@ -98,23 +99,23 @@ impl Inventory {
             available_recipes: Vec::new(),
             inventory_arr,
             selected_slot: 0,
-            item_change_event: Sender::new(),
+            //item_change_event: Sender::new(),
         };
         inventory
     }
     pub fn from_existing(inventory: &Inventory) -> Self {
         Inventory {
-            items: SharedMut::duplicate(&inventory.items),
+            items: inventory.items.clone(),
             recipes: inventory.recipes.clone(),
-            players: SharedMut::duplicate(&inventory.players),
+            players: inventory.players.clone(),
             player_id: inventory.player_id,
-            blocks: SharedMut::duplicate(&inventory.blocks),
+            blocks: inventory.blocks.clone(),
             mouse_item: ItemStack::new(Rc::clone(&inventory.items.borrow().nothing), 0),
             item_counts: inventory.item_counts.clone(),
             available_recipes: inventory.available_recipes.clone(),
             inventory_arr: inventory.inventory_arr.clone(),
             selected_slot: inventory.selected_slot,
-            item_change_event: Sender::new(),
+            //item_change_event: Sender::new(),
         }
     }
 
@@ -229,7 +230,7 @@ impl Inventory {
         *item_stack = item;
         self.update_available_recipes();
 
-        self.item_change_event.send(InventoryItemChangeEvent::new(slot));
+        //self.item_change_event.send(InventoryItemChangeEvent::new(slot));
     }
     /**gets an item from an inventory slot*/
     pub fn get_item(&self, slot: i32) -> &ItemStack {

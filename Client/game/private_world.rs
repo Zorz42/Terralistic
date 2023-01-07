@@ -7,10 +7,10 @@ const SINGLEPLAYER_PORT: u16 = 49152;
 
 pub fn run_private_world(graphics: &mut GraphicsContext) {
     let server_running = SharedMut::new(true);
-    let server_running2 = server_running.duplicate();
+    let server_running2 = server_running.clone();
 
     let server_state = SharedMut::new(ServerState::Stopped);
-    let server_state2 = server_state.duplicate();
+    let server_state2 = server_state.clone();
 
     // start server in async thread
     let server_thread = std::thread::spawn(|| {

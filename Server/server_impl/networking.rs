@@ -1,32 +1,20 @@
 use std::any::Any;
-use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::net::Ipv4Addr;
 use bincode;
-use shared::packet::Packet;
+use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
+use shared::packet::{Packet, WelcomeCompletePacket};
 use events::EventManager;
+use shared::enet_global::ENET_GLOBAL;
 
-/**
-This handles all the networking for one client.
- */
-pub struct Connection {
-    stream: TcpStream,
-    id: u32,
-}
-
-impl Connection {
-    pub fn send_packet(&mut self, packet: Packet) {
-        let serialized_packet = bincode::serialize(&packet).unwrap();
-        self.stream.write(&serialized_packet).unwrap();
-    }
-}
+pub type Connection = Address;
 
 pub struct PacketFromClientEvent {
     pub packet: Packet,
-    pub connection_id: u32,
+    pub conn: Connection,
 }
 
 pub struct NewConnectionEvent {
-    pub connection_id: u32,
+    pub conn: Connection,
 }
 
 /**
@@ -36,102 +24,76 @@ for each client.
  */
 pub struct ServerNetworking {
     server_port: u16,
-    tcp_listener: Option<TcpListener>,
+    net_server: Option<Host<()>>,
     connections: Vec<Connection>,
-    current_id: u32,
 }
 
 impl ServerNetworking {
     pub fn new(server_port: u16) -> Self {
         Self {
             server_port,
-            tcp_listener: None,
+            net_server: None,
             connections: Vec::new(),
-            current_id: 0,
         }
     }
 
     pub fn init(&mut self) {
         // start listening for connections
-        self.tcp_listener = Some(TcpListener::bind(format!("127.0.0.1:{}", self.server_port)).unwrap());
-        // set the listener to non-blocking
-        self.tcp_listener.as_ref().unwrap().set_nonblocking(true).unwrap();
+        //self.net_server = Some(Server::bind(format!("127.0.0.1:{}", self.server_port), Default::default()).unwrap());
+        let local_addr = Address::new(Ipv4Addr::LOCALHOST, self.server_port);
+
+        self.net_server = Some(ENET_GLOBAL.create_host::<()>(
+                Some(&local_addr),
+                100,
+                ChannelLimit::Maximum,
+                BandwidthLimit::Unlimited,
+                BandwidthLimit::Unlimited,
+            ).unwrap());
+
     }
 
     pub fn on_event(&mut self, event: &Box<dyn Any>) {
-
+        // handle new connection event
+        if let Some(event) = event.downcast_ref::<NewConnectionEvent>() {
+            self.send_packet(&Packet::new(WelcomeCompletePacket {}), &event.conn);
+            self.connections.push(event.conn.clone());
+        }
     }
 
     pub fn update(&mut self, events: &mut EventManager) {
-        // check for new connections
-        loop {
-            let tcp_stream = self.tcp_listener.as_ref().unwrap().accept();
-            if tcp_stream.is_err() {
-                break;
+        while let Some(event) = self.net_server.as_mut().unwrap().service(0).unwrap() {
+            match event {
+                enet::Event::Connect(ref peer) => {
+                    println!("[{:?}] connected", peer.address());
+                    events.push_event(Box::new(NewConnectionEvent {
+                        conn: peer.address(),
+                    }));
+                }
+                enet::Event::Disconnect(ref peer, ..) => {
+                    println!("[{:?}] disconnected", peer.address());
+                    self.connections.retain(|x| *x != peer.address());
+                }
+                enet::Event::Receive {ref packet, ref sender, ..} => {
+                    let packet: Packet = bincode::deserialize(&packet.data()).unwrap();
+                    events.push_event(Box::new(PacketFromClientEvent {
+                        packet,
+                        conn: sender.address(),
+                    }));
+                }
             }
-            let tcp_stream = tcp_stream.unwrap().0;
-            // set the stream to non-blocking
-            tcp_stream.set_nonblocking(true).unwrap();
-            // add the connection to the list
-            self.connections.push(Connection {
-                stream: tcp_stream,
-                id: self.current_id,
-            });
-
-            events.push_event(Box::new(NewConnectionEvent {
-                connection_id: self.current_id,
-            }));
-
-            self.current_id += 1;
-
-            let connection_ip = self.connections.last().unwrap().stream.peer_addr().unwrap().ip().to_string();
-            println!("New connection: {}", connection_ip);
         }
+    }
 
-        // flush the streams
-        for connection in &mut self.connections {
-            connection.stream.flush().unwrap();
-        }
-
-        // get all packets from the clients one by one
-        // if a client disconnects, remove it from the list
-        for i in 0..self.connections.len() {
-            let mut buffer = [0; 1024];
-            let bytes_read = self.connections[i].stream.read(&mut buffer);
-            if bytes_read.is_err() {
-                continue;
-            }
-            let bytes_read = bytes_read.unwrap();
-            if bytes_read == 0 {
-                // client disconnected
-                let connection_ip = self.connections[i].stream.peer_addr().unwrap().ip().to_string();
-                println!("Connection closed: {}", connection_ip);
-                self.connections.remove(i);
-                continue;
-            }
-            // deserialize the packet with bincode
-            let packet: Packet = bincode::deserialize(&buffer[..bytes_read]).unwrap();
-
-            events.push_event(Box::new(PacketFromClientEvent {
-                packet,
-                connection_id: self.connections[i].id,
-            }));
-        }
+    pub fn send_packet(&mut self, packet: &Packet, conn: &Connection) {
+        let packet_data = bincode::serialize(packet).unwrap();
+        let mut client = self.net_server.as_mut().unwrap().peers().find(|x| x.address() == *conn).unwrap();
+        client.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
     }
 
     pub fn stop(&mut self) {
         // close all connections
-        for connection in &mut self.connections {
-            connection.stream.shutdown(std::net::Shutdown::Both).unwrap_or_default();
+        for conn in self.net_server.as_mut().unwrap().peers() {
+            conn.disconnect_now(0);
         }
-    }
-
-    pub fn get_connection_by_id(&mut self, id: u32) -> Option<&mut Connection> {
-        for connection in &mut self.connections {
-            if connection.id == id {
-                return Some(connection);
-            }
-        }
-        None
     }
 }

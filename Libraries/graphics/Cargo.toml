@@ -19,3 +19,9 @@ queues = "1.0.2"
 [lib]
 name = "graphics"
 path = "graphics.rs"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = 3

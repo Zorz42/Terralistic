@@ -1,6 +1,5 @@
 use super::background_rect::{Background, BackgroundRect};
 use graphics as gfx;
-use graphics::GraphicsContext;
 
 /**
 MenuBack is a struct that contains the background rectangle for
@@ -10,7 +9,7 @@ scrolled to the left.
  */
 pub struct MenuBack {
     background: gfx::Texture,
-    background_timer: gfx::Timer,
+    background_timer: std::time::Instant,
     back_rect: gfx::RenderRect,
     back_container: gfx::Container,
 }
@@ -26,11 +25,11 @@ impl MenuBack {
         back_rect.orientation = gfx::CENTER;
         back_rect.blur_radius = gfx::BLUR;
         back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
-        back_rect.smooth_factor = 3.0;
+        back_rect.smooth_factor = 60.0;
 
         Self {
             background: gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/background.opa").to_vec())),
-            background_timer: gfx::Timer::new(),
+            background_timer: std::time::Instant::now(),
             back_rect,
             back_container: gfx::Container::new(0, 0, 0, 0, gfx::TOP_LEFT),
         }
@@ -41,12 +40,12 @@ impl Background for MenuBack {
     /**
     Renders the background.
      */
-    fn render_back(&mut self, graphics: &mut GraphicsContext) {
+    fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.back_container = self.back_rect.get_container(graphics, None);
 
         let scale = graphics.renderer.get_window_height() as f32 / self.background.get_texture_height() as f32;
         let texture_width_scaled = self.background.get_texture_width() as f32 * scale;
-        let pos = ((self.background_timer.get_time() * scale as f64 / 150.0) as u64 % texture_width_scaled as u64) as i32;
+        let pos = ((self.background_timer.elapsed().as_millis() as f64 * scale as f64 / 150.0) as u64 % texture_width_scaled as u64) as i32;
 
         for i in -1..graphics.renderer.get_window_width() as i32 / (self.background.get_texture_width() as f32 * scale) as i32 + 2 {
             self.background.render(&graphics.renderer, scale, pos + (i as f32 * texture_width_scaled) as i32, 0, None, false, None);
@@ -71,8 +70,8 @@ impl BackgroundRect for MenuBack {
     /**
     Gets the width of the background rectangle.
      */
-    fn get_back_rect_width(&self) -> i32 {
-        self.back_rect.w as i32
+    fn get_back_rect_width(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> i32 {
+        self.back_rect.get_container(graphics, parent_container).rect.w as i32
     }
 
     /**

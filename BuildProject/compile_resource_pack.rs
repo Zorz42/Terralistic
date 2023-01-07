@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use crate::png_to_opa::png_to_opa;
+use crate::png_to_opa::png_file_to_opa_file;
 
 pub fn compile_resource_pack(input_resource_pack: PathBuf, output_resource_pack: PathBuf) {
     // make sure that cargo reruns this script if the input resource pack changes
@@ -26,7 +26,7 @@ pub fn compile_resource_pack(input_resource_pack: PathBuf, output_resource_pack:
 
         // if the file ends with .png then convert it to .opa
         else if path.extension().unwrap() == "png" {
-            png_to_opa(path.clone(), output_resource_pack.join(path.file_name().unwrap().to_str().unwrap().replace(".png", ".opa")));
+            png_file_to_opa_file(path.clone(), output_resource_pack.join(path.file_name().unwrap().to_str().unwrap().replace(".png", ".opa")));
         }
 
         // else just copy the file

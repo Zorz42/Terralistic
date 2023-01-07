@@ -41,6 +41,7 @@ impl World {
         let mut rect = gfx::RenderRect::new(0.0, 0.0, (MENU_WIDTH - 2 * gfx::SPACING) as f32, 0.0);
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
+        rect.smooth_factor = 60.0;
 
         let mut icon = gfx::Sprite::new();
         icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/world_icon.opa").to_vec()));
@@ -237,7 +238,7 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
             current_y += world_list.worlds[i].get_height() + gfx::SPACING;
         }
 
-        top_rect.w = menu_back.get_back_rect_width() as f32;
+        top_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
         top_rect_visibility += ((if position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
 
         if top_rect_visibility < 0.01 {
@@ -253,7 +254,7 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
             top_rect.render(graphics, Some(&menu_back.get_back_rect_container()));
         }
 
-        bottom_rect.w = menu_back.get_back_rect_width() as f32;
+        bottom_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
         let mut scroll_limit = current_y - graphics.renderer.get_window_height() as i32 + top_height as i32 + bottom_height as i32;
         if scroll_limit < 0 {
             scroll_limit = 0;
@@ -275,7 +276,6 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
         back_button.render(graphics, Some(&menu_back.get_back_rect_container()));
 
         new_world_button.render(graphics, Some(&menu_back.get_back_rect_container()));
-
 
         graphics.renderer.update_window();
     }

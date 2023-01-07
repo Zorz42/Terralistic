@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::rc::Rc;
-use bincode::Options;
-use shared::blocks::{Blocks, BlocksWelcomePacket};
+use shared::blocks::blocks::{Blocks, BlocksWelcomePacket};
+use shared::mod_manager::ModManager;
 use shared::packet::Packet;
 use crate::networking::{NewConnectionEvent, ServerNetworking};
 
@@ -19,19 +19,8 @@ impl ServerBlocks {
         }
     }
 
-    pub fn init(&mut self) {
-        self.blocks.create(1024, 1024);
-
-        // set each block in the world to be either air or test_block randomly
-        for x in 0..self.blocks.get_width() {
-            for y in 0..self.blocks.get_height() {
-                if rand::random::<i32>() % 10 != 0 {
-                    self.blocks.set_block(x, y, Rc::clone(&self.blocks.air));
-                } else {
-                    self.blocks.set_block(x, y, Rc::clone(&self.blocks.test_block));
-                }
-            }
-        }
+    pub fn init(&mut self, mods: &mut ModManager) {
+        self.blocks.init(mods);
     }
 
     pub fn on_event(&mut self, event: &Box<dyn Any>, networking: &mut ServerNetworking) {
@@ -41,7 +30,7 @@ impl ServerBlocks {
                 width: self.blocks.get_width(),
                 height: self.blocks.get_height(),
             });
-            networking.get_connection_by_id(event.connection_id).unwrap().send_packet(welcome_packet);
+            networking.send_packet(&welcome_packet, &event.conn);
         }
     }
 }

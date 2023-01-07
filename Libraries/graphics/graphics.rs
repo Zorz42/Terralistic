@@ -18,9 +18,6 @@ pub use theme::{
     TEXT_INPUT_WIDTH,
 };
 
-mod timer;
-pub use timer::Timer;
-
 mod transformation;
 
 mod vertex_buffer;

@@ -15,7 +15,6 @@ path = "Server/main.rs"
 
 [dependencies]
 graphics = {"path" = "Libraries/graphics/"}
-deprecated_events = {"path" = "Libraries/deprecated_events/"}
 events = {"path" = "Libraries/events/"}
 shared_mut = {"path" = "Libraries/shared_mut/"}
 terralistic_server = {"path" = "Server/server_impl/"}
@@ -26,6 +25,13 @@ chrono = "0.4.19"
 queues = "1.0.2"
 bincode = "1.3.3"
 rlua = "0.19.4"
+enet = "0.3.0"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = 3
 
 [build-dependencies]
 png = "0.17.7"

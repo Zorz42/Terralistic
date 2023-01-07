@@ -1,5 +1,6 @@
 use graphics::GraphicsContext;
 use graphics as gfx;
+use shared::mod_manager::GameMod;
 use events::EventManager;
 use crate::game::background::Background;
 use crate::game::blocks::ClientBlocks;
@@ -29,13 +30,25 @@ impl Game {
     }
 
     pub fn run(&mut self, graphics: &mut GraphicsContext) {
+        // load base game mod
+        let timer = std::time::Instant::now();
+
+        let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
+        self.mods.mod_manager.add_mod(base_mod);
+
         self.networking.init(&mut self.events);
         self.flush_events();
-        self.mods.init();
-        self.background.init(graphics);
-        self.blocks.init();
+        self.background.init();
+        self.blocks.init(&mut self.mods.mod_manager);
 
-        let ms_timer = gfx::Timer::new();
+        self.mods.init();
+
+        self.blocks.load_resources(&mut self.mods.mod_manager);
+
+        // print the time it took to initialize
+        println!("Game joined in {}ms", timer.elapsed().as_millis());
+
+        let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         'main_loop: while graphics.renderer.is_window_open() {
             while let Some(event) = graphics.renderer.get_event() {
@@ -52,7 +65,7 @@ impl Game {
             self.networking.update(&mut self.events);
             self.mods.update();
 
-            while ms_counter < ms_timer.get_time() as i32 {
+            while ms_counter < ms_timer.elapsed().as_millis() as i32 {
                 self.camera.update_ms(graphics);
                 ms_counter += 1;
             }

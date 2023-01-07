@@ -8,7 +8,7 @@ It also gets mods from the server and adds them to the shared mod manager
 and always loads the BaseGame mod.
  */
 pub struct ClientModManager {
-    mod_manager: ModManager,
+    pub mod_manager: ModManager,
 }
 
 impl ClientModManager {
@@ -26,9 +26,6 @@ impl ClientModManager {
     It adds the BaseGame mod to the shared mod manager and initializes it.
      */
     pub fn init(&mut self) {
-        let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
-        self.mod_manager.add_mod(base_mod);
-
         self.mod_manager.add_global_function("print", |_, text: String| {
             println!("[client mod] {}", text);
             Ok(())

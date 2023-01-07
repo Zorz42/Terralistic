@@ -11,4 +11,5 @@ pub mod lights;
 pub mod inventory;
 pub mod packet;
 pub mod mod_manager;
+pub mod enet_global;
 pub mod liquids;

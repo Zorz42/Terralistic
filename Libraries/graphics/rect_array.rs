@@ -100,7 +100,7 @@ impl RectArray {
             gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
             if let Some(texture) = texture {
-                let mut transform = texture.get_normalization_transform();
+                let transform = texture.get_normalization_transform();
                 gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
                 gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 1);
                 gl::BindTexture(gl::TEXTURE_2D, texture.texture_handle);

@@ -40,37 +40,26 @@ pub struct GameMod {
 
 impl GameMod {
     pub fn new(data: GameModData) -> Self {
-        let mut result = Self {
+        Self {
             data,
             lua: Lua::new(),
-        };
-
-        result.lua.context(|lua| {
-            // load the base code terralistic.lua
-            let base_code = include_str!("terralistic.lua");
-            lua.load(base_code).exec().unwrap();
-        });
-
-        result
+        }
     }
 
     /**
     This function runs the lua code in the game mod.
     It loads the code and resources into the lua state.
     It then runs the code and the init function.
-     */
-    fn init(&mut self) {
+     */ fn init(&mut self) {
         self.lua.context(|lua| {
             let globals = lua.globals();
 
             // load the game mod code
             lua.load(&self.data.lua_code).exec().unwrap();
-
-            // execute the init function if it exists
-            if let Ok(init) = lua.globals().get::<_, rlua::Function>("init") {
-                init.call::<_, ()>(()).unwrap();
-            }
         });
+
+        // execute the init function
+        self.call_function::<(), ()>("init", ()).unwrap();
     }
 
     /**
@@ -78,17 +67,27 @@ impl GameMod {
     It takes the name of the function and the closure as input.
      */
     pub fn add_global_function<F, A, R>(&mut self, name: &str, func: F)
-        where
-            F: 'static + Send + Fn(Context, A) -> Result<R, LuaError>,
-            A: for<'a> FromLuaMulti<'a>,
-            R: for<'a> ToLuaMulti<'a>,
-    {
+                                        where F: 'static + Send + Fn(Context, A) -> Result<R, LuaError>,
+                                              A: for<'a> FromLuaMulti<'a>,
+                                              R: for<'a> ToLuaMulti<'a>, {
         self.lua.context(|lua| {
             let globals = lua.globals();
-            globals.set(name, lua.create_function(
-                func
-            ).unwrap()).unwrap();
+            globals.set(name, lua.create_function(func).unwrap()).unwrap();
         });
+    }
+
+    /**
+    This function calls a function in the game mod with args and returns the result.
+    It takes the name of the function and the arguments as input.
+     */
+    pub fn call_function<A, R>(&mut self, name: &str, args: A) -> Result<R, LuaError>
+                               where A: for<'a> ToLuaMulti<'a>,
+                                     R: for<'a> FromLuaMulti<'a> {
+        self.lua.context(|lua| {
+            let globals = lua.globals();
+            let func = globals.get::<_, rlua::Function>(name)?;
+            func.call(args)
+        })
     }
 
     /**
@@ -96,12 +95,7 @@ impl GameMod {
     It runs the update function in the lua code.
      */
     fn update(&mut self) {
-        self.lua.context(|lua| {
-            // execute the update function if it exists
-            if let Ok(update) = lua.globals().get::<_, rlua::Function>("update") {
-                update.call::<_, ()>(()).unwrap();
-            }
-        });
+        self.call_function::<(), ()>("update", ()).unwrap();
     }
 
     /**
@@ -109,12 +103,7 @@ impl GameMod {
     It runs the stop function in the lua code.
      */
     fn stop(&mut self) {
-        self.lua.context(|lua| {
-            // execute the stop function if it exists
-            if let Ok(stop) = lua.globals().get::<_, rlua::Function>("stop") {
-                stop.call::<_, ()>(()).unwrap();
-            }
-        });
+        self.call_function::<(), ()>("stop", ()).unwrap();
     }
     /**
     Loads mod from a byte array. It is serialized using bincode and
@@ -132,6 +121,14 @@ impl GameMod {
     pub fn to_bytes(&self) -> Vec<u8> {
         let data = bincode::serialize(&self.data).unwrap();
         snap::raw::Encoder::new().compress_vec(&data).unwrap()
+    }
+
+    /**
+    This function gets the resource with the given path.
+    It returns a byte array with the contents of the resource.
+     */
+    fn get_resource(&self, path: String) -> Option<&Vec<u8>> {
+        self.data.resources.get(&path)
     }
 }
 
@@ -231,5 +228,24 @@ impl ModManager {
         } else {
             panic!("Cannot stop before init");
         }
+    }
+
+    /**
+    Get mutable mods iterator.
+     */
+    pub fn mods_mut(&mut self) -> std::slice::IterMut<GameMod> {
+        self.mods.iter_mut()
+    }
+
+    /**
+    This function gets the resource with the given path.
+     */
+    pub fn get_resource(&self, path: String) -> Option<&Vec<u8>> {
+        for game_mod in self.mods.iter().rev() {
+            if let Some(data) = game_mod.get_resource(path.clone()) {
+                return Some(data);
+            }
+        }
+        None
     }
 }

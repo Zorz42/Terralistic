@@ -3,9 +3,8 @@ use std::io::Write;
 use std::path::PathBuf;
 use graphics as gfx;
 
-pub fn png_to_opa(input_file: PathBuf, output_file: PathBuf) {
-    // read png file and store pixels in a vector
-    let decoder = png::Decoder::new(File::open(input_file).unwrap());
+pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
+    let decoder = png::Decoder::new(File::open(png_path).unwrap());
     let mut reader = decoder.read_info().unwrap();
     let mut buf = vec![0; reader.output_buffer_size()];
     let info = reader.next_frame(&mut buf).unwrap();
@@ -25,7 +24,12 @@ pub fn png_to_opa(input_file: PathBuf, output_file: PathBuf) {
         }
     }
     // serialize surface and write to file
-    let serialized = surface.serialize();
+    surface.serialize()
+}
+
+pub fn png_file_to_opa_file(input_file: PathBuf, output_file: PathBuf) {
+    let serialized = png_file_to_opa_bytes(input_file);
+
     let mut file = File::create(output_file).unwrap();
     file.write_all(&serialized).unwrap();
 }

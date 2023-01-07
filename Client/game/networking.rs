@@ -1,7 +1,7 @@
 use std::any::Any;
-use std::io::{Read, Write};
-use std::net::TcpStream;
 use bincode;
+use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host};
+use shared::enet_global::ENET_GLOBAL;
 use shared::packet::{Packet, WelcomeCompletePacket};
 use events::EventManager;
 
@@ -19,7 +19,7 @@ Client connects to a server and sends and receives packets.
 pub struct ClientNetworking {
     server_port: u16,
     server_address: String,
-    tcp_stream: Option<TcpStream>,
+    net_client: Option<Host<()>>,
 }
 
 impl ClientNetworking {
@@ -27,32 +27,62 @@ impl ClientNetworking {
         Self {
             server_port,
             server_address,
-            tcp_stream: None,
+            net_client: None,
         }
     }
 
     pub fn init(&mut self, events: &mut EventManager) {
         // connect to the server
-        self.tcp_stream = Some(TcpStream::connect(format!("{}:{}", self.server_address, self.server_port)).unwrap());
-        // set the stream to non-blocking
-        self.tcp_stream.as_ref().unwrap().set_nonblocking(true).unwrap();
+        self.net_client = Some(ENET_GLOBAL.create_host::<()>(
+            None,
+            10,
+            ChannelLimit::Maximum,
+            BandwidthLimit::Unlimited,
+            BandwidthLimit::Unlimited,
+        ).unwrap());
+
+        self.net_client.as_mut().unwrap().connect(&Address::new(self.server_address.parse().unwrap(), self.server_port), 10, 0).unwrap();
 
         loop {
-            let packet = self.get_packet();
-            if let Some(packet) = packet {
-                if let Some(_) = packet.deserialize::<WelcomeCompletePacket>() {
-                    break;
-                }
-
-                // send welcome packet event
-                events.push_event(Box::new(
-                    WelcomePacketEvent {
-                        packet,
+            if let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
+                match event {
+                    Event::Connect(ref _peer) => {
+                        break;
                     }
-                ));
-            } else {
-                // sleep for 1 millisecond
-                std::thread::sleep(std::time::Duration::from_millis(1));
+                    Event::Disconnect { .. } => {
+                        panic!("disconnected from server");
+                    }
+                    Event::Receive { .. } => {
+                        panic!("unexpected receive");
+                    }
+                };
+            }
+        };
+
+        'welcome_loop: loop {
+            if let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
+                match event {
+                    Event::Connect(_) => {
+                        panic!("unexpected connect");
+                    }
+                    Event::Disconnect { .. } => {
+                        panic!("disconnected from server");
+                    }
+                    Event::Receive { ref packet, .. } => {
+                        let packet = bincode::deserialize::<Packet>(&packet.data()).unwrap();
+
+                        if let Some(_) = packet.deserialize::<WelcomeCompletePacket>() {
+                            break 'welcome_loop;
+                        }
+
+                        // send welcome packet event
+                        events.push_event(Box::new(
+                            WelcomePacketEvent {
+                                packet,
+                            }
+                        ));
+                    }
+                };
             }
         }
     }
@@ -65,37 +95,30 @@ impl ClientNetworking {
     }
 
     pub fn update(&mut self, events: &mut EventManager) {
-        // flush the stream
-        self.tcp_stream.as_ref().unwrap().flush().unwrap();
-        // get all packets from the server one by one
-        loop {
-            let packet = self.get_packet();
-            if packet.is_none() {
-                break;
-            }
+        self.net_client.as_mut().unwrap().flush();
 
-            events.push_event(Box::new(packet.unwrap()));
+        while let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
+            match event {
+                Event::Connect(_) => {
+                    panic!("connected to server at incorrect time");
+                }
+                Event::Disconnect { .. } => {
+                    panic!("disconnected from server");
+                }
+                Event::Receive { ref packet, .. } => {
+                    let packet = bincode::deserialize::<Packet>(&packet.data()).unwrap();
+
+                    // send welcome packet event
+                    events.push_event(Box::new(packet));
+                }
+            };
         }
     }
 
     pub fn stop(&mut self) {
         // disconnect the socket
-        self.tcp_stream.as_ref().unwrap().shutdown(std::net::Shutdown::Both).unwrap();
-    }
-
-    fn get_packet(&mut self) -> Option<Packet> {
-        // get a packet from the server
-        let mut buffer = [0; 1024];
-        let bytes_read = self.tcp_stream.as_ref().unwrap().read(&mut buffer);
-        if bytes_read.is_err() {
-            return None;
-        }
-        let bytes_read = bytes_read.unwrap();
-        if bytes_read == 0 {
-            return None;
-        }
-        // deserialize the packet with bincode
-        let packet: Packet = bincode::deserialize(&buffer[..bytes_read]).unwrap();
-        Some(packet)
+        for ref mut server in self.net_client.as_mut().unwrap().peers() {
+            server.disconnect(0);
+        };
     }
 }

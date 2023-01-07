@@ -1,6 +1,7 @@
 use std::cmp::max;
 use super::{blocks::*};
-use {deprecated_events::*, shared_mut::SharedMut};
+use shared_mut::SharedMut;
+use crate::blocks::blocks::Blocks;
 
 const MAX_LIGHT: i32 = 100;
 
@@ -25,7 +26,7 @@ impl LightUpdateScheduleEvent {
         LightUpdateScheduleEvent{ x, y }
     }
 }
-impl Event for LightColorChangeEvent {}
+//impl Event for LightColorChangeEvent {}
 
 /**struct that contains the light rgb values*/
 #[derive(PartialEq, Clone, Copy)]
@@ -57,14 +58,14 @@ impl Light {
         }
     }
 }
-impl Event for LightUpdateScheduleEvent {}
+//impl Event for LightUpdateScheduleEvent {}
 
 /**struct that manages all the lights in the world*/
 struct Lights {
     blocks: SharedMut<Blocks>,
     lights: Vec<Light>,
-    pub light_color_change_event: Sender<LightColorChangeEvent>,
-    pub light_update_schedule_event: Sender<LightUpdateScheduleEvent>,
+    //pub light_color_change_event: Sender<LightColorChangeEvent>,
+    //pub light_update_schedule_event: Sender<LightUpdateScheduleEvent>,
 }
 
 impl Lights {
@@ -73,8 +74,8 @@ impl Lights {
         Lights {
             blocks,
             lights: Vec::new(),
-            light_color_change_event: Sender::new(),
-            light_update_schedule_event: Sender::new(),
+            //light_color_change_event: Sender::new(),
+            //light_update_schedule_event: Sender::new(),
         }
     }
     /**returns the light at the given coordinate*/
@@ -89,7 +90,7 @@ impl Lights {
     fn set_light_color(&mut self, x: i32, y: i32, color: LightColor) {
         if self.get_light(x, y).color != color {
             self.get_light_mut(x, y).color = color;
-            self.light_color_change_event.send(LightColorChangeEvent::new(x, y));
+            //self.light_color_change_event.send(LightColorChangeEvent::new(x, y));
             if x < self.get_width() - 1 {
                 self.get_light_mut(x + 1, y).update_light = true;
             }
@@ -205,7 +206,7 @@ impl Lights {
     /**schedules a light update for the given coordinate*/
     pub fn schedule_light_update(&mut self, x: i32, y: i32) {
         self.get_light_mut(x, y).update_light = true;
-        self.light_update_schedule_event.send(LightUpdateScheduleEvent::new(x, y));
+        //self.light_update_schedule_event.send(LightUpdateScheduleEvent::new(x, y));
     }
     /**returns whether the light at the given coordinate needs to be updated*/
     pub fn has_scheduled_light_update(&self, x: i32, y: i32) -> bool {
@@ -238,8 +239,8 @@ impl Lights {
     }
 }
 
-impl Listener<BlockChangeEvent> for Lights {
+/*impl Listener<BlockChangeEvent> for Lights {
     fn on_event(&mut self, event: &BlockChangeEvent) {
         self.schedule_light_update(event.x, event.y);
     }
-}
+}*/
