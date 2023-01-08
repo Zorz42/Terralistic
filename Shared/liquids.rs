@@ -1,6 +1,5 @@
 use std::rc::Rc;
 use super::{blocks::blocks::*};
-use shared_mut::SharedMut;
 
 const MAX_LIQUID_LEVEL: i32 = 100;
 
@@ -47,19 +46,21 @@ impl liquid {
 pub struct Liquids {
     liquid_types: Vec<Rc<LiquidType>>,
     liquids: Vec<liquid>,
-    blocks: SharedMut<Blocks>,
     pub empty: Rc<LiquidType>,
+    width: i32,
+    height: i32,
     //TODO: new event sender
 }
 
 impl Liquids {
-    pub fn new(blocks: SharedMut<Blocks>) -> Liquids {
+    pub fn new(blocks: &Blocks) -> Liquids {
         let mut temp = LiquidType::new("temp".to_string());
         let mut liquids_object = Liquids {
             liquid_types: Vec::new(),
             liquids: Vec::new(),
-            blocks: blocks,
             empty: Rc::new(temp),//temporarily assign
+            width: blocks.get_width(),
+            height: blocks.get_height(),
         };
         let mut empty = LiquidType::new("empty".to_string());
         empty.flow_time = 0;
@@ -71,39 +72,41 @@ impl Liquids {
 
     /**this function returns a liquid at the given position*/
     fn get_liquid(&self, x: i32, y: i32) -> &liquid {
-        if x < 0 || y < 0 || x >= self.blocks.borrow().get_width() || y >= self.blocks.borrow().get_height() {
+        if x < 0 || y < 0 || x >= self.width || y >= self.height {
             panic!("Liquid is accessed out of the bounds! ({}, {})", x, y);
         }
-        &self.liquids[(y * self.blocks.borrow().get_width() + x) as usize]
+        &self.liquids[(y * self.width + x) as usize]
     }
 
     /**this function returns a mutable liquid at the given position*/
     fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut liquid {
-        if x < 0 || y < 0 || x >= self.blocks.borrow().get_width() || y >= self.blocks.borrow().get_height() {
+        if x < 0 || y < 0 || x >= self.width || y >= self.height {
             panic!("Liquid is accessed out of the bounds! ({}, {})", x, y);
         }
-        &mut self.liquids[(y * self.blocks.borrow().get_width() + x) as usize]
+        &mut self.liquids[(y * self.width + x) as usize]
     }
 
     /**returns whether the given liquid is flowable*/
-    fn is_flowable(&self, x: i32, y: i32) -> bool {
-        self.blocks.borrow().get_block_type(x, y).ghost && self.get_liquid_type(x, y).id == self.empty.id
+    fn is_flowable(&self, x: i32, y: i32, blocks: &Blocks) -> bool {
+        blocks.get_block_type(x, y).ghost && self.get_liquid_type(x, y).id == self.empty.id
     }
 
     /**creates the liquid array*/
-    pub fn create(&mut self) {
+    pub fn create(&mut self, blocks: &Blocks) {
         self.liquids = Vec::new();
-        self.liquids.resize_with((self.blocks.borrow().get_width() * self.blocks.borrow().get_height()) as usize, || liquid::new());
+        self.width = blocks.get_width();
+        self.height = blocks.get_height();
+        self.liquids.resize_with((self.width * self.height) as usize, || liquid::new());
     }
 
     /**returns the width of the liquid array*/
     pub fn get_width(&self) -> i32 {
-        self.blocks.borrow().get_width()
+        self.width
     }
 
     /**returns the height of the liquid array*/
     pub fn get_height(&self) -> i32 {
-        self.blocks.borrow().get_height()
+        self.height
     }
 
     /**returns the liquid type at the given position*/
@@ -147,13 +150,13 @@ impl Liquids {
     }
 
     /**updates the liquid at the given position*/
-    pub fn update_liquid(&mut self, x: i32, y: i32) {
+    pub fn update_liquid(&mut self, x: i32, y: i32, blocks: &Blocks) {
         if self.get_liquid_level(x, y) == 0.0 {
             self.set_liquid_type(x, y, self.empty.clone());
             return;
         }
 
-        if !self.blocks.borrow().get_block_type(x, y).ghost {
+        if !blocks.get_block_type(x, y).ghost {
             self.set_liquid_type(x, y, self.empty.clone());
         }
 
@@ -161,15 +164,15 @@ impl Liquids {
         let mut left_exists = false;
         let mut right_exists = false;
 
-        if y < self.get_height() - 1 && (self.is_flowable(x, y + 1) || (self.get_liquid_type(x, y + 1).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x, y + 1) as i32 != MAX_LIQUID_LEVEL)) {
+        if y < self.get_height() - 1 && (self.is_flowable(x, y + 1, blocks) || (self.get_liquid_type(x, y + 1).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x, y + 1) as i32 != MAX_LIQUID_LEVEL)) {
             under_exists = true
         }
 
-        if x > 0 && (self.is_flowable(x - 1, y) || (self.get_liquid_type(x - 1, y).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x - 1, y) as i32 != MAX_LIQUID_LEVEL)) {
+        if x > 0 && (self.is_flowable(x - 1, y, blocks) || (self.get_liquid_type(x - 1, y).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x - 1, y) as i32 != MAX_LIQUID_LEVEL)) {
             left_exists = true
         }
 
-        if x < self.get_width() - 1 && (self.is_flowable(x + 1, y) || (self.get_liquid_type(x + 1, y).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x + 1, y) as i32 != MAX_LIQUID_LEVEL)) {
+        if x < self.get_width() - 1 && (self.is_flowable(x + 1, y, blocks) || (self.get_liquid_type(x + 1, y).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x + 1, y) as i32 != MAX_LIQUID_LEVEL)) {
             right_exists = true
         }
 
