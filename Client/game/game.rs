@@ -29,7 +29,7 @@ impl Game {
         }
     }
 
-    pub fn run(&mut self, graphics: &mut GraphicsContext) {
+    pub fn init(&mut self) {
         // load base game mod
         let timer = std::time::Instant::now();
 
@@ -47,7 +47,9 @@ impl Game {
 
         // print the time it took to initialize
         println!("Game joined in {}ms", timer.elapsed().as_millis());
+    }
 
+    pub fn run(&mut self, graphics: &mut GraphicsContext) {
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         'main_loop: while graphics.renderer.is_window_open() {

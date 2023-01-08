@@ -1,4 +1,5 @@
 mod background_rect;
+pub use background_rect::BackgroundRect;
 
 mod menu_back;
 pub use menu_back::MenuBack;

@@ -211,7 +211,7 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
 
                         for world in &mut world_list.worlds {
                             if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(&menu_back.get_back_rect_container())))) {
-                                run_private_world(graphics);
+                                run_private_world(graphics, menu_back);
                             }
                         }
                     }
