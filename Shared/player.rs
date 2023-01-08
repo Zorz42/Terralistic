@@ -1,6 +1,5 @@
 use std::any::Any;
 use super::{entities::*, blocks::*};
-use shared_mut::SharedMut;
 use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
 
 //TODO: write tests
@@ -112,7 +111,6 @@ impl EntityObject for Player {
 
 pub struct Players {
     players: Vec<Player>,
-    blocks: SharedMut<Blocks>,
     //player_health_change_event: Sender<PlayerHealthChangeEvent>,
     //player_position_change_event: Sender<EntityPositionChangeEvent>,
     //player_velocity_change_event: Sender<EntityVelocityChangeEvent>,
@@ -120,10 +118,9 @@ pub struct Players {
     //player_deletion_event: Sender<EntityDeletionEvent>
 }
 impl Players {
-    pub fn new(blocks: SharedMut<Blocks>) -> Players {
+    pub fn new() -> Players {
         Players {
             players: Vec::new(),
-            blocks: blocks,
             //player_health_change_event: Sender::new(),
             //player_position_change_event: Sender::new(),
             //player_velocity_change_event: Sender::new(),
@@ -153,11 +150,11 @@ impl Players {
 }
 
 impl EntityStructTrait<Player> for Players {
-    fn update_all_entities(&mut self) {
+    fn update_all_entities(&mut self, blocks: &Blocks) {
         for entity in &mut self.players {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
-            entity.update_entity(&self.blocks.borrow());
+            entity.update_entity(&blocks);
             if old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
                 let event = EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
                 //self.player_absolute_velocity_change_event.send(event);

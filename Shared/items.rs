@@ -1,7 +1,6 @@
 use super::{walls, entities::*, blocks, blocks::{blocks::Block, block_type::BlockType}};
 use std::{rc::Rc, collections::hash_map};
 use std::ops::Deref;
-use shared_mut::*;
 use serde_derive::{Serialize, Deserialize};
 use crate::blocks::blocks::Blocks;
 use crate::blocks::tool::Tool;
@@ -120,7 +119,6 @@ impl TileDrop {
 }
 
 pub struct Items {
-    blocks: SharedMut<Blocks>,
 
     items: Vec<Item>,
     item_types: Vec<Rc<ItemType>>,
@@ -137,14 +135,13 @@ pub struct Items {
 }
 
 impl Items {
-    pub fn new(blocks: SharedMut<Blocks>) -> Self {
+    pub fn new() -> Self {
         let nothing = Rc::new(ItemType::new("nothing".to_string()));
 
         let mut item_types = Vec::new();
         item_types.push(nothing.clone());
 
         Items{
-            blocks,
             items: Vec::new(),
             item_types,
             block_drops: Vec::new(),
@@ -222,11 +219,11 @@ impl Items {
 }
 
 impl EntityStructTrait<Item> for Items {
-    fn update_all_entities(&mut self) {
+    fn update_all_entities(&mut self, blocks: &Blocks) {
         for entity in &mut self.items {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
-            entity.update_entity(&self.blocks.borrow());
+            entity.update_entity(&blocks);
         }
     }
     fn register_entity(&mut self, entity: Item){

@@ -214,7 +214,7 @@ impl EntityDeletionEvent{
 
 pub trait EntityStructTrait<EntityType: EntityObject> {
     /**updates all entities in that struct*/
-    fn update_all_entities(&mut self);
+    fn update_all_entities(&mut self, blocks: &Blocks);
     /**registers a new entity in that struct*/
     fn register_entity(&mut self, entity: EntityType);
     /**removes an entity in that struct*/
