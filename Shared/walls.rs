@@ -120,6 +120,7 @@ struct Walls{
 
 impl Walls{
     pub fn new(blocks: &mut Blocks) -> Self {
+        let temp = Rc::new(WallType::new(0, 0, "temp".to_string()));
         let mut walls = Walls {
             walls: Vec::new(),
             chunks: Vec::new(),
@@ -129,7 +130,7 @@ impl Walls{
 
             curr_id: 0,
 
-            clear: Rc::new(WallType::new(0, UNBREAKABLE, "clear".to_string())),
+            clear: temp,
             hammer: Rc::new(Tool::new("Hammer".to_string())),
 
             width: blocks.get_width(),
@@ -140,7 +141,9 @@ impl Walls{
             //wall_started_breaking_event: Sender::new(),
             //wall_stopped_breaking_event: Sender::new(),
         };
-        walls.register_wall_type(walls.clear.clone());//TODO: @zorz42 make this work
+        let clear_type = WallType::new(0, 0, "clear".to_string());
+        walls.register_wall_type(clear_type);
+        walls.clear = walls.wall_types[0].clone();
         blocks.register_new_tool_type(walls.hammer.clone());
         walls
     }
@@ -339,8 +342,9 @@ impl Walls{
     }
 
     /**registers new wall type*/
-    pub fn register_wall_type(&mut self, wall_type: Rc<WallType>) {//TODO assign id automatically?
-        self.wall_types.push(wall_type);
+    pub fn register_wall_type(&mut self, wall_type: WallType) {
+        wall_type.id = self.wall_types.len() as u8;
+        self.wall_types.push(Rc::new(wall_type));
     }
 
     /**returns wall type with the given name*/
