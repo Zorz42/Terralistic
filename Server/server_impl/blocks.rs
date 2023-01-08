@@ -2,6 +2,7 @@ use std::any::Any;
 use shared::blocks::blocks::{Blocks, BlocksWelcomePacket};
 use shared::mod_manager::ModManager;
 use shared::packet::Packet;
+use events::Event;
 use crate::networking::{NewConnectionEvent, ServerNetworking};
 
 /**
@@ -22,8 +23,8 @@ impl ServerBlocks {
         self.blocks.init(mods);
     }
 
-    pub fn on_event(&mut self, event: &Box<dyn Any>, networking: &mut ServerNetworking) {
-        if let Some(event) = event.downcast_ref::<NewConnectionEvent>() {
+    pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) {
+        if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let welcome_packet = Packet::new(BlocksWelcomePacket {
                 data: self.blocks.serialize(),
                 width: self.blocks.get_width(),

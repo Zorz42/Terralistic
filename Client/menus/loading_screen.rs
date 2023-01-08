@@ -24,7 +24,9 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
 
         if curr_text != *loading_text.borrow() {
             curr_text = loading_text.borrow().clone();
-            loading_text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(curr_text.clone()));
+            if !curr_text.is_empty() {
+                loading_text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(curr_text.clone()));
+            }
         }
 
         loading_text_sprite.render(graphics, Some(menu_back.get_back_rect_container()));

@@ -3,7 +3,7 @@ use std::net::Ipv4Addr;
 use bincode;
 use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
 use shared::packet::{Packet, WelcomeCompletePacket};
-use events::EventManager;
+use events::{Event, EventManager};
 use shared::enet_global::ENET_GLOBAL;
 
 pub type Connection = Address;
@@ -52,9 +52,9 @@ impl ServerNetworking {
 
     }
 
-    pub fn on_event(&mut self, event: &Box<dyn Any>) {
+    pub fn on_event(&mut self, event: &Event) {
         // handle new connection event
-        if let Some(event) = event.downcast_ref::<NewConnectionEvent>() {
+        if let Some(event) = event.downcast::<NewConnectionEvent>() {
             self.send_packet(&Packet::new(WelcomeCompletePacket {}), &event.conn);
             self.connections.push(event.conn.clone());
         }
@@ -65,9 +65,9 @@ impl ServerNetworking {
             match event {
                 enet::Event::Connect(ref peer) => {
                     println!("[{:?}] connected", peer.address());
-                    events.push_event(Box::new(NewConnectionEvent {
+                    events.push_event(Event::new(Box::new(NewConnectionEvent {
                         conn: peer.address(),
-                    }));
+                    })));
                 }
                 enet::Event::Disconnect(ref peer, ..) => {
                     println!("[{:?}] disconnected", peer.address());
@@ -75,10 +75,10 @@ impl ServerNetworking {
                 }
                 enet::Event::Receive {ref packet, ref sender, ..} => {
                     let packet: Packet = bincode::deserialize(&packet.data()).unwrap();
-                    events.push_event(Box::new(PacketFromClientEvent {
+                    events.push_event(Event::new(Box::new(PacketFromClientEvent {
                         packet,
                         conn: sender.address(),
-                    }));
+                    })));
                 }
             }
         }

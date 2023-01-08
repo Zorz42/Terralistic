@@ -3,6 +3,7 @@ use graphics::GraphicsContext;
 use graphics as gfx;
 use shared::blocks::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
 use shared::mod_manager::ModManager;
+use events::Event;
 use crate::game::camera::Camera;
 use crate::game::networking::WelcomePacketEvent;
 
@@ -84,8 +85,8 @@ impl ClientBlocks {
         (x + y * (self.blocks.get_width() / CHUNK_SIZE) as i32) as usize
     }
 
-    pub fn on_event(&mut self, event: &Box<dyn Any>) {
-        if let Some(event) = event.downcast_ref::<WelcomePacketEvent>() {
+    pub fn on_event(&mut self, event: &Event) {
+        if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.deserialize::<BlocksWelcomePacket>() {
                 self.blocks.create(packet.width, packet.height);
                 self.blocks.deserialize(packet.data.clone());
@@ -95,13 +96,13 @@ impl ClientBlocks {
 
     pub fn init(&mut self, mods: &mut ModManager) {
         self.blocks.init(mods);
-
-        for _ in 0..self.blocks.get_width() / CHUNK_SIZE * self.blocks.get_height() / CHUNK_SIZE {
-            self.chunks.push(RenderBlockChunk::new());
-        }
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) {
+        for _ in 0..self.blocks.get_width() / CHUNK_SIZE * self.blocks.get_height() / CHUNK_SIZE {
+            self.chunks.push(RenderBlockChunk::new());
+        }
+
         // go through all the block types get their images and load them
         let mut surfaces = Vec::new();
         for id in 0..self.blocks.get_number_block_types() {

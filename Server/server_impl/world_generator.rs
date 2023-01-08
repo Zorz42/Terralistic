@@ -98,7 +98,7 @@ impl WorldGenerator {
         for x in 0..width {
             for y in 0..height {
                 let terrain_noise = ((turbulence(&noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32;
-                let terrain_height = (height - y);
+                let terrain_height = height - y;
 
                 let cave_noise = f64::abs(turbulence(&noise, x as f64 / 80.0, y as f64 / 80.0));
                 let cave_threshold = y as f64 / height as f64 * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize]) + min_cave_thresholds[x as usize];

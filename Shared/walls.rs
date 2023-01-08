@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 use serde_derive::{Serialize, Deserialize};
 use bincode;
 use snap;
@@ -102,12 +102,12 @@ struct Walls{
     chunks: Vec<WallChunk>,
 
     breaking_walls: Vec<BreakingWall>,
-    wall_types: Vec<Rc<WallType>>,
+    wall_types: Vec<Arc<WallType>>,
 
     curr_id: i32,
 
-    pub clear: Rc<WallType>,
-    pub hammer: Rc<Tool>,
+    pub clear: Arc<WallType>,
+    pub hammer: Arc<Tool>,
 
     width: i32,
     height: i32,
@@ -120,7 +120,7 @@ struct Walls{
 
 impl Walls{
     pub fn new(blocks: &mut Blocks) -> Self {
-        let temp = Rc::new(WallType::new(0, 0, "temp".to_string()));
+        let temp = Arc::new(WallType::new(0, 0, "temp".to_string()));
         let mut walls = Walls {
             walls: Vec::new(),
             chunks: Vec::new(),
@@ -131,7 +131,7 @@ impl Walls{
             curr_id: 0,
 
             clear: temp,
-            hammer: Rc::new(Tool::new("Hammer".to_string())),
+            hammer: Arc::new(Tool::new("Hammer".to_string())),
 
             width: blocks.get_width(),
             height: blocks.get_height(),
@@ -215,7 +215,7 @@ impl Walls{
 
     /**this function sets the wall type on x and y and sends the WallChangeEvent.
     It also removes the wall on x and y from breaking walls if it is in that list*/
-    pub fn set_wall_type(&mut self, x: i32, y: i32, wall_type: Rc<WallType>) {
+    pub fn set_wall_type(&mut self, x: i32, y: i32, wall_type: Arc<WallType>) {
         let wall = self.get_wall(x, y);
         if wall.id == wall_type.id {
             return;
@@ -232,7 +232,7 @@ impl Walls{
     }
 
     /**this function sets the wall type on x and y without triggering an event (without updating the world)*/
-    pub fn set_wall_type_silently(&mut self, x: i32, y: i32, wall_type: Rc<WallType>) {
+    pub fn set_wall_type_silently(&mut self, x: i32, y: i32, wall_type: Arc<WallType>) {
         self.get_wall_mut(x, y).id = wall_type.id;
     }
 
@@ -318,7 +318,7 @@ impl Walls{
         }
         //self.wall_break_event.send(WallBreakEvent::new(x, y));
 
-        self.set_wall_type(x, y, Rc::clone(&self.clear));
+        self.set_wall_type(x, y, self.clear.clone());
     }
 
     /**returns the count of breaking walls in the given chunk*/
@@ -344,14 +344,14 @@ impl Walls{
     /**registers new wall type*/
     pub fn register_wall_type(&mut self, mut wall_type: WallType) {
         wall_type.id = self.wall_types.len() as i32;
-        self.wall_types.push(Rc::new(wall_type));
+        self.wall_types.push(Arc::new(wall_type));
     }
 
     /**returns wall type with the given name*/
-    pub fn get_wall_type_by_name(&self, name: &str) -> Option<Rc<WallType>> {
+    pub fn get_wall_type_by_name(&self, name: &str) -> Option<Arc<WallType>> {
         for wall_type in &self.wall_types {
             if wall_type.name == name {
-                return Some(Rc::clone(wall_type));
+                return Some(Arc::clone(wall_type));
             }
         }
         None

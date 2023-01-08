@@ -95,7 +95,7 @@ pub struct Blocks {
     height: i32,
     breaking_blocks: Vec<BreakingBlock>,
     block_types: SharedMut<Vec<Arc<BlockType>>>,
-    tool_types: Vec<Rc<Tool>>,
+    tool_types: Vec<Arc<Tool>>,
     pub air: Arc<BlockType>,
 }
 
@@ -446,17 +446,17 @@ impl Blocks{
     /**
     Adds a new tool type to the world.
      */
-    pub fn register_new_tool_type(&mut self, tool_type: Rc<Tool>){
+    pub fn register_new_tool_type(&mut self, tool_type: Arc<Tool>){
         self.tool_types.push(tool_type);
     }
 
     /**
     Returns the tool type that has the specified name
      */
-    pub fn get_tool_type_by_name(&mut self, name: String) -> Option<Rc<Tool>> {
+    pub fn get_tool_type_by_name(&mut self, name: String) -> Option<Arc<Tool>> {
         for tool_type in self.tool_types.iter() {
             if tool_type.name == name {
-                return Some(Rc::clone(tool_type));
+                return Some(tool_type.clone());
             }
         }
         None

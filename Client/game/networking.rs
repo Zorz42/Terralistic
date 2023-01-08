@@ -76,21 +76,14 @@ impl ClientNetworking {
                         }
 
                         // send welcome packet event
-                        events.push_event(Box::new(
+                        events.push_event(events::Event::new(Box::new(
                             WelcomePacketEvent {
                                 packet,
                             }
-                        ));
+                        )));
                     }
                 };
             }
-        }
-    }
-
-    pub fn on_event(&mut self, event: Box<dyn Any>) {
-        // check if event is a packet
-        if let Some(_packet) = event.downcast_ref::<Packet>() {
-
         }
     }
 
@@ -109,7 +102,7 @@ impl ClientNetworking {
                     let packet = bincode::deserialize::<Packet>(&packet.data()).unwrap();
 
                     // send welcome packet event
-                    events.push_event(Box::new(packet));
+                    events.push_event(events::Event::new(Box::new(packet)));
                 }
             };
         }

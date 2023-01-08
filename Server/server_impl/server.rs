@@ -42,10 +42,11 @@ impl Server {
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self, status_text: SharedMut<String>) {
         println!("Starting server...");
         let timer = std::time::Instant::now();
         *self.server_state.borrow() = ServerState::Starting;
+        *status_text.borrow() = "Starting server".to_string();
 
         // load base game mod
         let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
@@ -58,16 +59,19 @@ impl Server {
         let mut generator = WorldGenerator::new();
         generator.init(&mut self.mods.mod_manager);
 
+        *status_text.borrow() = "Initializing mods".to_string();
         self.mods.init();
         for game_mod in self.mods.mod_manager.mods_mut() {
             game_mod.call_function::<(), ()>("init_server", ()).unwrap();
         }
 
+        *status_text.borrow() = "Generating world".to_string();
         generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657);
 
         // start server loop
         println!("Server started in {}ms", timer.elapsed().as_millis());
         *self.server_state.borrow() = ServerState::Running;
+        status_text.borrow().clear();
         let mut last_time = std::time::Instant::now();
         loop {
             let delta_time = last_time.elapsed().as_secs_f64();
