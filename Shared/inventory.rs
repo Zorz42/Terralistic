@@ -1,7 +1,6 @@
 use std::{collections::hash_map::HashMap, rc::Rc};
 use std::mem::MaybeUninit;
 use super::{items::*, blocks::*, player::*, entities::*};
-use shared_mut::SharedMut;
 use crate::blocks::block_type::BlockType;
 use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
 
@@ -64,11 +63,8 @@ impl Clone for Recipes {
 
 /**struct that defines the inventory and everything related to it*/
 pub struct Inventory {
-    items: SharedMut<Items>,
     recipes: Recipes,
-    players: SharedMut<Players>,
     player_id: u32,
-    blocks: SharedMut<Blocks>,
     mouse_item: ItemStack,
     item_counts: Vec<i32>,
     available_recipes: Vec<Rc<Recipe>>,
@@ -77,23 +73,20 @@ pub struct Inventory {
     //pub item_change_event: Sender<InventoryItemChangeEvent>,
 }
 impl Inventory {
-    pub fn new(items: SharedMut<Items>, players: SharedMut<Players>, blocks: SharedMut<Blocks>) -> Self {
+    pub fn new(items: &Items) -> Self {
 
         //some shenanigans because an array can't be directly initialized with non copy types
         let mut temp_arr: [MaybeUninit<ItemStack>; INVENTORY_SIZE] = unsafe { MaybeUninit::uninit().assume_init() };
         for i in 0..INVENTORY_SIZE {
-            temp_arr[i] = MaybeUninit::new(ItemStack::new(items.borrow().nothing.clone(), 0));
+            temp_arr[i] = MaybeUninit::new(ItemStack::new(items.nothing.clone(), 0));
         }
         let inventory_arr: [ItemStack; INVENTORY_SIZE] = unsafe { std::mem::transmute(temp_arr) };
-        let mouse_item = ItemStack::new(Rc::clone(&items.borrow().nothing), 0);
-        let item_counts = vec![items.borrow().get_num_item_types() as i32; 0];
+        let mouse_item = ItemStack::new(Rc::clone(&items.nothing), 0);
+        let item_counts = vec![items.get_num_item_types() as i32; 0];
 
         let inventory = Inventory{
-            items,
             recipes: Recipes::new(),
-            players,
             player_id: 0,
-            blocks,
             mouse_item,
             item_counts,
             available_recipes: Vec::new(),
@@ -105,12 +98,9 @@ impl Inventory {
     }
     pub fn from_existing(inventory: &Inventory) -> Self {
         Inventory {
-            items: inventory.items.clone(),
             recipes: inventory.recipes.clone(),
-            players: inventory.players.clone(),
             player_id: inventory.player_id,
-            blocks: inventory.blocks.clone(),
-            mouse_item: ItemStack::new(Rc::clone(&inventory.items.borrow().nothing), 0),
+            mouse_item: ItemStack::new(Rc::clone(&inventory.mouse_item.item_type.clone()), 0),
             item_counts: inventory.item_counts.clone(),
             available_recipes: inventory.available_recipes.clone(),
             inventory_arr: inventory.inventory_arr.clone(),
@@ -120,9 +110,7 @@ impl Inventory {
     }
 
     /**returns whether the player has enough items to craft the recipe*/
-    fn can_craft_recipe(&self, recipe: &Recipe) -> bool {
-        let items = self.items.borrow();
-        let players = self.players.borrow();
+    fn can_craft_recipe(&self, recipe: &Recipe, blocks: &Blocks, items: &Items, players: &Players) -> bool {
         for i in 0..items.get_num_item_types() {
             if recipe.ingredients.get(&(i as i32)).unwrap_or(&0) > self.item_counts.get(i).unwrap_or(&0) {
                 return false;
@@ -132,7 +120,6 @@ impl Inventory {
             return true;
         } else {
             let player_coords = [players.get_entity_by_id(self.player_id).unwrap().get_x() as i32, players.get_entity_by_id(self.player_id).unwrap().get_y() as i32];
-            let blocks = self.blocks.borrow();
             for x in -CRAFTING_BLOCK_RANGE..CRAFTING_BLOCK_RANGE {
                 for y in -CRAFTING_BLOCK_RANGE..CRAFTING_BLOCK_RANGE {
                     let block = blocks.get_block(std::cmp::min(blocks.get_width(), std::cmp::max(0, player_coords[0] / (BLOCK_WIDTH * 2) + x)),
@@ -150,20 +137,20 @@ impl Inventory {
         &self.available_recipes
     }
     /**updates the list of available recipes*/
-    pub fn update_available_recipes(&mut self) {
+    pub fn update_available_recipes(&mut self, blocks: &Blocks, items: &Items, players: &Players) {
         for i in 0..self.available_recipes.len() {
-            if !self.can_craft_recipe(&self.recipes.get_all_recipes()[i]) {
+            if !self.can_craft_recipe(&self.recipes.get_all_recipes()[i], blocks, items, players) {
                 self.available_recipes.remove(i);
             }
         }
         for recipe in self.recipes.get_all_recipes() {
-            if self.can_craft_recipe(recipe) && !self.available_recipes.contains(recipe) {
+            if self.can_craft_recipe(recipe, blocks, items, players) && !self.available_recipes.contains(recipe) {
                 self.available_recipes.push(Rc::clone(recipe));
             }
         }
     }
     /**adds an item to the inventory*/
-    pub fn add_item(&mut self, item: Rc<ItemType>, mut count: i32) -> i32 {
+    pub fn add_item(&mut self, item: Rc<ItemType>, mut count: i32, blocks: &Blocks, items: &Items, players: &Players) -> i32 {
         if count <= 0 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("item count cannot be negative");
@@ -171,16 +158,16 @@ impl Inventory {
         }
         for i in 0..INVENTORY_SIZE as i32 {
             if self.get_item(i).item_type.get_id() == item.get_id() {
-                count -= self.increase_stack(i, count);
+                count -= self.increase_stack(i, count, blocks, items, players);
                 if count <= 0 {
                     return i;
                 }
             }
         }
         for i in 0..INVENTORY_SIZE as i32 {
-            if self.get_item(i).item_type.get_id() == self.items.borrow().nothing.get_id() {
-                self.set_item(i, ItemStack::new(Rc::clone(&item), count));
-                count -= self.increase_stack(i, count);
+            if self.get_item(i).item_type.get_id() == items.nothing.get_id() {
+                self.set_item(i, ItemStack::new(Rc::clone(&item), count), blocks, items, players);
+                count -= self.increase_stack(i, count, blocks, items, players);
                 if count <= 0 {
                     return i;
                 }
@@ -189,7 +176,7 @@ impl Inventory {
         -1
     }
     /**removes an item from the inventory*/
-    pub fn remove_item(&mut self, item: Rc<ItemType>, mut count: i32) -> i32 {
+    pub fn remove_item(&mut self, item: Rc<ItemType>, mut count: i32, blocks: &Blocks, items: &Items, players: &Players) -> i32 {
         if count <= 0 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("item count cannot be negative");
@@ -197,14 +184,14 @@ impl Inventory {
         }
         for i in 0..INVENTORY_SIZE as i32 {
             if self.get_item(i).item_type.get_id() == item.get_id() {
-                count -= self.decrease_stack(i, count);
+                count -= self.decrease_stack(i, count, blocks, items, players);
                 if count <= 0 {
                     return i;
                 }
             }
         }
         if self.mouse_item.item_type.get_id() == item.get_id() {
-            count -= self.decrease_stack(-1, count);
+            count -= self.decrease_stack(-1, count, blocks, items, players);
             if count <= 0 {
                 return -1;
             }
@@ -212,7 +199,7 @@ impl Inventory {
         -1
     }
     /**sets an inventory slot to an item*/
-    pub fn set_item(&mut self, slot: i32, item: ItemStack) {
+    pub fn set_item(&mut self, slot: i32, item: ItemStack, blocks: &Blocks, items: &Items, players: &Players) {
         if slot < 0 || slot >= INVENTORY_SIZE as i32 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("slot out of bounds");
@@ -221,14 +208,14 @@ impl Inventory {
         if self.item_counts.is_empty() {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("item counts is empty");
-            self.item_counts = vec![self.items.borrow().get_num_item_types() as i32; 0];
+            self.item_counts = vec![items.get_num_item_types() as i32; 0];
         }
         let old_item_id = self.get_item(slot).item_type.get_id() as usize;
         self.item_counts[old_item_id] -= self.get_item(slot).stack;
         self.item_counts[item.item_type.get_id() as usize] += item.stack;
         let item_stack = if slot == -1 {&mut self.mouse_item} else {&mut self.inventory_arr[slot as usize]};
         *item_stack = item;
-        self.update_available_recipes();
+        self.update_available_recipes(blocks, items, players);
 
         //self.item_change_event.send(InventoryItemChangeEvent::new(slot));
     }
@@ -280,25 +267,25 @@ impl Inventory {
         std::mem::swap(&mut self.inventory_arr[slot as usize], &mut self.mouse_item);
     }
     /**increases the stack count of an item in an inventory slot*/
-    pub fn increase_stack(&mut self, slot: i32, stack: i32) -> i32 {
+    pub fn increase_stack(&mut self, slot: i32, stack: i32, blocks: &Blocks, items: &Items, players: &Players) -> i32 {
         let mut stack_to_be = self.get_item(slot).stack + stack;
         let result;
         if stack_to_be > self.get_item(slot).item_type.max_stack {
             stack_to_be = self.get_item(slot).item_type.max_stack;
         }
         result = stack_to_be - self.get_item(slot).stack;
-        self.set_item(slot, ItemStack::new(Rc::clone(&self.get_item(slot).item_type), stack_to_be));
+        self.set_item(slot, ItemStack::new(Rc::clone(&self.get_item(slot).item_type), stack_to_be), blocks, items, players);
         result
     }
     /**decreases the stack count of an item in an inventory slot*/
-    pub fn decrease_stack(&mut self, slot: i32, stack: i32) -> i32 {
+    pub fn decrease_stack(&mut self, slot: i32, stack: i32, blocks: &Blocks, items: &Items, players: &Players) -> i32 {
         if stack > self.get_item(slot).stack {
             let prev_stack = self.get_item(slot).stack;
-            let nothing_type = Rc::clone(&self.items.borrow().nothing);
-            self.set_item(slot, ItemStack::new(nothing_type, 0));
+            let nothing_type = items.nothing.clone();
+            self.set_item(slot, ItemStack::new(nothing_type, 0), blocks, items, players);
             prev_stack
         } else {
-            self.set_item(slot, ItemStack::new(Rc::clone(&self.get_item(slot).item_type), self.get_item(slot).stack - stack));
+            self.set_item(slot, ItemStack::new(Rc::clone(&self.get_item(slot).item_type), self.get_item(slot).stack - stack), blocks, items, players);
             stack
         }
     }
@@ -312,12 +299,12 @@ impl Inventory {
         serial
     }
     /**deserializes the inventory, used when loading the world or receiving it from the server*/
-    pub fn deserialize(&mut self, data: Vec<u8>) {
+    pub fn deserialize(&mut self, data: Vec<u8>, items: &Items) {
         let mut i = 0;
         for item in &mut self.inventory_arr {
             let item_id = i32::from_le_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]]);
             let stack = i32::from_le_bytes([data[i + 4], data[i + 5], data[i + 6], data[i + 7]]);
-            *item = ItemStack::new(Rc::clone(&self.items.borrow().get_item_type(item_id)), stack);
+            *item = ItemStack::new(items.get_item_type(item_id).clone(), stack);
             i += 8;
         }
     }
@@ -325,10 +312,5 @@ impl Inventory {
     /**sets the inventory's player*/
     pub fn set_player(&mut self, player: &mut Player) {
         self.player_id = player.get_id();
-    }
-    /**sets the inventory's blocks reference.
-    This will soon be deprecated, do not use. it is here just as a temporary placeholder for testing!*/
-    pub fn set_blocks(&mut self, blocks: SharedMut<Blocks>) {//TODO: remove
-        self.blocks = blocks;
     }
 }
