@@ -8,3 +8,6 @@ pub use main_menu::run_main_menu;
 
 mod singleplayer_selector;
 pub use singleplayer_selector::run_singleplayer_selector;
+
+mod loading_screen;
+pub use loading_screen::run_loading_screen;

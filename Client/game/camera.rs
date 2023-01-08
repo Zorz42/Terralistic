@@ -6,6 +6,8 @@ Camera is a struct that handles the camera position.
  */
 
 pub struct Camera {
+    target_position_x: f32,
+    target_position_y: f32,
     position_x: f32,
     position_y: f32,
 }
@@ -13,14 +15,16 @@ pub struct Camera {
 impl Camera {
     pub fn new() -> Self {
         Self {
+            target_position_x: 0.0,
+            target_position_y: 0.0,
             position_x: 0.0,
             position_y: 0.0,
         }
     }
 
     pub fn set_position(&mut self, x: f32, y: f32) {
-        self.position_x = x;
-        self.position_y = y;
+        self.target_position_x = x;
+        self.target_position_y = y;
     }
 
     pub fn get_position(&self) -> (f32, f32) {
@@ -28,20 +32,23 @@ impl Camera {
     }
 
     pub fn update_ms(&mut self, graphics: &mut GraphicsContext) {
+        self.position_x += (self.target_position_x - self.position_x) * 0.005;
+        self.position_y += (self.target_position_y - self.position_y) * 0.005;
+
         if graphics.renderer.get_key_state(gfx::Key::W) {
-            self.position_y -= 2.0;
+            self.target_position_y -= 2.0;
         }
 
         if graphics.renderer.get_key_state(gfx::Key::S) {
-            self.position_y += 2.0;
+            self.target_position_y += 2.0;
         }
 
         if graphics.renderer.get_key_state(gfx::Key::A) {
-            self.position_x -= 2.0;
+            self.target_position_x -= 2.0;
         }
 
         if graphics.renderer.get_key_state(gfx::Key::D) {
-            self.position_x += 2.0;
+            self.target_position_x += 2.0;
         }
     }
 
