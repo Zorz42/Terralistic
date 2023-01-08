@@ -342,8 +342,8 @@ impl Walls{
     }
 
     /**registers new wall type*/
-    pub fn register_wall_type(&mut self, wall_type: WallType) {
-        wall_type.id = self.wall_types.len() as u8;
+    pub fn register_wall_type(&mut self, mut wall_type: WallType) {
+        wall_type.id = self.wall_types.len() as i32;
         self.wall_types.push(Rc::new(wall_type));
     }
 
