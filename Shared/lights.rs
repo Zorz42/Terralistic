@@ -4,7 +4,7 @@ use crate::blocks::blocks::Blocks;
 const MAX_LIGHT: i32 = 100;
 
 /**event that fires when the light color is changed*/
-pub struct LightColorChangeEvent {
+pub struct LightColorChangeEvent {//TODO: implement new events
     pub x: i32,
     pub y: i32,
 }
