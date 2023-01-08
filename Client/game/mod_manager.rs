@@ -1,4 +1,4 @@
-use shared::mod_manager::{GameMod, ModManager};
+use shared::mod_manager::{ModManager};
 
 /**
 Client mod manager that manages all the mods for the client.

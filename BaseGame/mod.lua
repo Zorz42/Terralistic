@@ -66,15 +66,11 @@ function generate_world(width, height, terrain)
     -- Iterate over all blocks in the terrain.
     for x = 1, width do
         for y = 1, height do
-            -- if terrain is 0, set air, else set 10% dirt and 90% air
+            -- if terrain is 0, set air, else set dirt
             if terrain[x][y] == 0 then
                 result[x][y] = air
             else
-                if math.random(0, 9) == 0 then
-                    result[x][y] = dirt
-                else
-                    result[x][y] = air
-                end
+                result[x][y] = dirt
             end
         end
     end

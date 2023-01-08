@@ -29,19 +29,19 @@ impl Camera {
 
     pub fn update_ms(&mut self, graphics: &mut GraphicsContext) {
         if graphics.renderer.get_key_state(gfx::Key::W) {
-            self.position_y -= 0.5;
+            self.position_y -= 2.0;
         }
 
         if graphics.renderer.get_key_state(gfx::Key::S) {
-            self.position_y += 0.5;
+            self.position_y += 2.0;
         }
 
         if graphics.renderer.get_key_state(gfx::Key::A) {
-            self.position_x -= 0.5;
+            self.position_x -= 2.0;
         }
 
         if graphics.renderer.get_key_state(gfx::Key::D) {
-            self.position_x += 0.5;
+            self.position_x += 2.0;
         }
     }
 

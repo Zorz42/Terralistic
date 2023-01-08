@@ -4,7 +4,6 @@ use std::rc::Rc;
 use std::sync::Arc;
 use serde_derive::{Serialize, Deserialize};
 use snap;
-use graphics as gfx;
 use shared_mut::SharedMut;
 use crate::blocks::block_type::BlockType;
 use crate::blocks::events::BlockBreakEvent;
@@ -96,7 +95,6 @@ pub struct Blocks {
     height: i32,
     breaking_blocks: Vec<BreakingBlock>,
     block_types: SharedMut<Vec<Arc<BlockType>>>,
-    curr_block_id: i32,
     tool_types: Vec<Rc<Tool>>,
     pub air: Arc<BlockType>,
 }
@@ -115,7 +113,6 @@ impl Blocks{
             block_types: SharedMut::new(vec![]),
             tool_types: vec![],
             air: Arc::new(BlockType::new()),
-            curr_block_id: 2,
         };
 
         let mut air = BlockType::new();
@@ -130,11 +127,11 @@ impl Blocks{
 
     pub fn init(&mut self, mods: &mut ModManager) {
         let block_types = self.block_types.clone();
-        mods.add_global_function("new_block_type", move |lua, _: ()| {
+        mods.add_global_function("new_block_type", move |_lua, _: ()| {
             Ok(BlockType::new())
         });
 
-        mods.add_global_function("register_block_type", move |lua, block_type: BlockType| {
+        mods.add_global_function("register_block_type", move |_lua, block_type: BlockType| {
             let result = Self::_register_new_block_type(block_types.clone(), block_type);
             Ok(result.id)
         });
@@ -369,7 +366,7 @@ impl Blocks{
         let transformed_x = x - self.get_block_from_main(x, y).0 as i32;
         let transformed_y = y - self.get_block_from_main(x, y).1 as i32;
 
-        let event = BlockBreakEvent::new(transformed_x, transformed_y);
+        let _event = BlockBreakEvent::new(transformed_x, transformed_y);
         //self.block_break_event.send(event);
         //self.set_block_type(transformed_x, transformed_y, Rc::clone(&self.get_block_type(x, y)), 0, 0);
     }
@@ -422,7 +419,7 @@ impl Blocks{
     /**
     Adds a new block type to the world.
      */
-    pub fn register_new_block_type(&mut self, mut block_type: BlockType) -> Arc<BlockType> {
+    pub fn register_new_block_type(&mut self, block_type: BlockType) -> Arc<BlockType> {
         Self::_register_new_block_type(self.block_types.clone(), block_type)
     }
 

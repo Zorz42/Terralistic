@@ -20,17 +20,19 @@ pub fn compile_mod(mod_path: PathBuf) {
     // read the mod's lua code
     let lua_code = std::fs::read_to_string(mod_path.join("mod.lua")).unwrap();
 
-
     //Use darklua to minify the mod's lua code. Use DenseLuaGenerator to generate the minified code.
     let parser = Parser::default();
-    let block = parser.parse(&lua_code).unwrap();
+    let block = std::thread::Builder::new().stack_size(100_000_000).spawn(move || {
+        parser.parse(&lua_code)
+    }).unwrap().join().unwrap().unwrap();
 
     let mut generator = DenseLuaGenerator::default();
     generator.write_block(&block);
 
     let minified_lua_code = generator.into_string();
-
-    let mod_obj = GameMod::new(GameModData::new(minified_lua_code, generate_resources(mod_path.join("Resources"), "".to_string())));
+    let resources = generate_resources(mod_path.join("Resources"), "".to_string());
+    let mod_data = GameModData::new(minified_lua_code, resources);
+    let mod_obj = GameMod::new(mod_data);
 
     // write the mod to a file that has the same name as the mod's directory and a .mod extension
     std::fs::write(mod_path.join(format!("{}.mod", mod_path.file_name().unwrap().to_str().unwrap())), mod_obj.to_bytes()).unwrap();
@@ -41,6 +43,8 @@ This function takes the Resources folder, goes through all of the recursively,
 changes the file paths to use : instead of / and adds the files to a map.
  */
 fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String, Vec<u8>> {
+    println!("Generating resource pack... {}", resources_path.to_str().unwrap());
+
     let mut resources = HashMap::new();
 
     for entry in std::fs::read_dir(resources_path).unwrap() {
