@@ -5,9 +5,10 @@ use graphics as gfx;
 use directories::BaseDirs;
 use graphics::GraphicsContext;
 use crate::game::private_world::run_private_world;
+use super::world_creation::run_world_creation;
 use crate::menus::background_rect::BackgroundRect;
 
-const MENU_WIDTH: i32 = 800;
+pub const MENU_WIDTH: i32 = 800;
 
 /**
 This function returns formatted string "%d %B %Y %H:%M" of the time
@@ -207,6 +208,9 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
                     if key == gfx::Key::MouseLeft {
                         if back_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
                             break 'render_loop;
+                        }
+                        if new_world_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
+                            run_world_creation(graphics, menu_back);
                         }
 
                         for world in &mut world_list.worlds {
