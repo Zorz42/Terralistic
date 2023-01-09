@@ -60,6 +60,9 @@ pub use render_rect::RenderRect;
 mod button;
 pub use button::Button;
 
+mod text_input;
+pub use text_input::TextInput;
+
 mod sprite;
 pub use sprite::Sprite;
 

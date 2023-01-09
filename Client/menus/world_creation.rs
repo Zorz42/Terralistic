@@ -25,6 +25,11 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
     create_button.y = -gfx::SPACING;
     create_button.orientation = gfx::BOTTOM;
 
+    let mut world_name_input = gfx::TextInput::new();
+    world_name_input.button.scale = 3.0;
+    world_name_input.button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("World name")));
+    world_name_input.button.orientation = gfx::CENTER;
+
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {//sorts out the events
@@ -52,6 +57,8 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
         back_button.render(graphics, Some(&menu_back.get_back_rect_container()));
 
         create_button.render(graphics, Some(&menu_back.get_back_rect_container()));
+
+        world_name_input.render(graphics, Some(&menu_back.get_back_rect_container()));
 
         graphics.renderer.update_window();
     }
