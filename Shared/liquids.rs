@@ -28,15 +28,15 @@ impl LiquidType {
 }
 
 /**struct with information about a liquid*/
-struct liquid {
+struct Liquid {
     pub id: i32,
     pub level: f64,
 }
 
-impl liquid {
-    pub fn new() -> liquid {
-        liquid {
-            id: 0,
+impl Liquid {
+    pub fn new() -> Liquid {
+        Liquid {
+            id: 0,//TODO: change to Rc<LiquidType>?
             level: 0.0,
         }
     }
@@ -45,7 +45,7 @@ impl liquid {
 /**struct that manages all the liquids*/
 pub struct Liquids {
     liquid_types: Vec<Rc<LiquidType>>,
-    liquids: Vec<liquid>,
+    liquids: Vec<Liquid>,
     pub empty: Rc<LiquidType>,
     width: i32,
     height: i32,
@@ -60,7 +60,7 @@ impl Liquids {
             liquids: Vec::new(),
             empty: Rc::new(temp),//temporarily assign
             width: blocks.get_width(),
-            height: blocks.get_height(),
+            height: blocks.get_height()
         };
         let mut empty = LiquidType::new("empty".to_string());
         empty.flow_time = 0;
@@ -71,7 +71,7 @@ impl Liquids {
     }
 
     /**this function returns a liquid at the given position*/
-    fn get_liquid(&self, x: i32, y: i32) -> &liquid {
+    fn get_liquid(&self, x: i32, y: i32) -> &Liquid {
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
             panic!("Liquid is accessed out of the bounds! ({}, {})", x, y);
         }
@@ -79,7 +79,7 @@ impl Liquids {
     }
 
     /**this function returns a mutable liquid at the given position*/
-    fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut liquid {
+    fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut Liquid {
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
             panic!("Liquid is accessed out of the bounds! ({}, {})", x, y);
         }
@@ -94,9 +94,9 @@ impl Liquids {
     /**creates the liquid array*/
     pub fn create(&mut self, blocks: &Blocks) {
         self.liquids = Vec::new();
-        self.width = blocks.get_width();
         self.height = blocks.get_height();
-        self.liquids.resize_with((self.width * self.height) as usize, || liquid::new());
+        self.width = blocks.get_width();
+        self.liquids.resize_with((self.width * self.height) as usize, || Liquid::new());
     }
 
     /**returns the width of the liquid array*/
