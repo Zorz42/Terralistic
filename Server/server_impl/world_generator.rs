@@ -74,7 +74,7 @@ impl WorldGenerator {
     }
 
     pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, width: i32, height: i32, seed: u32, status_text: SharedMut<String>) {
-        self.total_tasks = width * height * 2;
+        self.total_tasks = width * height;
         self.status_text = status_text.clone();
 
         if self.biomes.borrow().len() == 0 {
@@ -141,13 +141,7 @@ impl WorldGenerator {
             break;
         }
 
-        for x in 0..blocks.get_width() {
-            for y in 0..blocks.get_height() {
-                self.next_task();
-                let block_type = blocks.get_block_type_by_id(generated_world[x as usize][y as usize]);
-                blocks.set_block(x, y, block_type);
-            }
-        }
+        blocks.create_from_block_ids(generated_world);
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 

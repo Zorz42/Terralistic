@@ -153,6 +153,28 @@ impl Blocks{
     }
 
     /**
+    This function creates a world from a 2d vector of block type ids
+     */
+    pub fn create_from_block_ids(&mut self, block_ids: Vec<Vec<i32>>) {
+        let width = block_ids.len() as i32;
+        let height = block_ids[0].len() as i32;
+
+        // check that all the rows have the same length
+        for row in &block_ids {
+            if row.len() as i32 != height {
+                panic!("All the rows must have the same length!");
+            }
+        }
+
+        self.create(width, height);
+        for x in 0..width {
+            for y in 0..height {
+                self.get_block_mut(x, y).id = block_ids[x as usize][y as usize];
+            }
+        }
+    }
+
+    /**
     This function returns the block at given position
      */
     pub fn get_block(&self, x: i32, y: i32) -> &Block {
@@ -232,7 +254,9 @@ impl Blocks{
      */
     pub fn set_big_block(&mut self, x: i32, y: i32, block_type: Arc<BlockType>, x_from_main: i8, y_from_main: i8) {
         if block_type.get_id() != self.get_block(x, y).id {
-            self.set_block_silently(x, y, block_type);
+            self.set_block_data(x, y, vec![]);
+            self.get_block_mut(x, y).id = block_type.get_id();
+
             for i in 0..self.breaking_blocks.len() {
                 if self.breaking_blocks[i].x == x && self.breaking_blocks[i].y == y {
                     self.breaking_blocks.remove(i);
@@ -250,16 +274,6 @@ impl Blocks{
      */
     pub fn set_block(&mut self, x: i32, y: i32, block_type: Arc<BlockType>) {
         self.set_big_block(x, y, block_type, 0, 0);
-    }
-
-    /**
-    This sets the type of a block from a coordinate without sending a block change event
-    and other stuff, just pure block type change. This is potentially dangerous, use with caution.
-    It can be used for stuff like loading a world, generating a world, etc.
-     */
-    pub fn set_block_silently(&mut self, x: i32, y: i32, block_type: Arc<BlockType>) {
-        self.set_block_data(x, y, vec![]);
-        self.get_block_mut(x, y).id = block_type.get_id();
     }
 
     /**
