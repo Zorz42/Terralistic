@@ -68,6 +68,7 @@ impl BreakingBlock {
 /**
 A chunk is a 16x16 area of blocks
  */
+#[derive(Clone)]
 struct BlockChunk {
     breaking_blocks_count: i8,
 }
@@ -78,7 +79,7 @@ impl BlockChunk {
 
 #[derive(Serialize, Deserialize)]
 struct BlocksData {
-    pub blocks: Vec<Block>,
+    pub blocks: Vec<Vec<Block>>,
     // tells how much blocks a block in a big block is from the main block, it is mostly 0, 0 so it is stored in a hashmap
     pub block_from_main: HashMap<(i32, i32), (i32, i32)>,
     // saves the block data, it is mostly empty so it is stored in a hashmap
@@ -90,7 +91,7 @@ A world is a 2d array of blocks and chunks.
  */
 pub struct Blocks {
     block_data: BlocksData,
-    chunks: Vec<BlockChunk>,
+    chunks: Vec<Vec<BlockChunk>>,
     width: i32,
     height: i32,
     breaking_blocks: Vec<BreakingBlock>,
@@ -138,36 +139,6 @@ impl Blocks{
     }
 
     /**
-    This gets the block from x and y coordinates
-     */
-    pub fn get_block(&self, x: i32, y: i32) -> &Block {
-        if x < 0 || y < 0 || x >= self.width || y >= self.height || self.block_data.blocks.is_empty() {
-            panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
-        }
-        &self.block_data.blocks[(y * self.width + x) as usize]
-    }
-
-    /**
-    This gets the mutable reference of a block from x and y coordinates
-     */
-    fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
-        if x < 0 || y < 0 || x >= self.width || y >= self.height || self.block_data.blocks.is_empty() {
-            panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
-        }
-        &mut self.block_data.blocks[(y * self.width + x) as usize]
-    }
-
-    /**
-    This gets the mutable reference of a chunk from x and y coordinates
-     */
-    fn get_chunk_mut(&mut self, x: i32, y: i32) -> &mut BlockChunk {
-        if x < 0 || y < 0 || x >= self.width / CHUNK_SIZE || y >= self.height / CHUNK_SIZE || self.chunks.is_empty() {
-            panic!("Chunk is accessed out of bounds! x: {}, y: {}", x, y);
-        }
-        self.chunks[(y * self.width / CHUNK_SIZE + x) as usize].borrow_mut()
-    }
-
-    /**
     Creates an empty world with given width and height
      */
     pub fn create(&mut self, width: i32, height: i32) {
@@ -176,14 +147,30 @@ impl Blocks{
         }
         self.width = width;
         self.height = height;
-        self.block_data.blocks = Vec::new();
-        self.block_data.blocks.resize((width * height) as usize, Block::new());
 
-        self.chunks = vec![];
-        self.chunks.reserve((width * height / CHUNK_SIZE / CHUNK_SIZE) as usize);
-        for _ in 0..(width * height / CHUNK_SIZE / CHUNK_SIZE) as usize {
-            self.chunks.push(BlockChunk::new());
-        }
+        self.block_data.blocks = vec![vec![Block::new(); height as usize]; width as usize];
+        self.chunks = vec![vec![BlockChunk::new(); (height / CHUNK_SIZE) as usize]; (width / CHUNK_SIZE) as usize];
+    }
+
+    /**
+    This function returns the block at given position
+     */
+    pub fn get_block(&self, x: i32, y: i32) -> &Block {
+        &self.block_data.blocks[x as usize][y as usize]
+    }
+
+    /**
+    This function returns the mutable block at given position
+     */
+    fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
+        &mut self.block_data.blocks[x as usize][y as usize]
+    }
+
+    /**
+    This function returns the chunk at given position
+     */
+    fn get_chunk(&mut self, x: i32, y: i32) -> &mut BlockChunk {
+        &mut self.chunks[x as usize][y as usize]
     }
 
     /**
@@ -320,7 +307,7 @@ impl Blocks{
 
         breaking_block.unwrap().is_breaking = true;
 
-        self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
+        self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
 
         //let event = BlockStartedBreakingEvent::new(x, y);
         //self.block_started_breaking_event.send(event);
@@ -337,7 +324,7 @@ impl Blocks{
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.x == x && breaking_block.y == y {
                 breaking_block.is_breaking = false;
-                self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
+                self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
                 //let event = BlockStoppedBreakingEvent::new(x, y);
                 //self.block_stopped_breaking_event.send(event);
                 break;
@@ -376,7 +363,7 @@ impl Blocks{
     updating chunks that don't have any breaking blocks.
      */
     pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
-        self.get_chunk_mut(x, y).breaking_blocks_count.into()
+        self.get_chunk(x, y).breaking_blocks_count.into()
     }
 
     /**

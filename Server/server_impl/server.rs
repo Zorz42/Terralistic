@@ -3,6 +3,7 @@ mod mod_manager;
 mod blocks;
 mod world_generator;
 
+use std::os::macos::raw::stat;
 use shared::mod_manager::GameMod;
 use shared_mut::SharedMut;
 use events::EventManager;
@@ -65,8 +66,7 @@ impl Server {
             game_mod.call_function::<(), ()>("init_server", ()).unwrap();
         }
 
-        *status_text.borrow() = "Generating world".to_string();
-        generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657);
+        generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657, status_text.clone());
 
         // start server loop
         println!("Server started in {}ms", timer.elapsed().as_millis());
