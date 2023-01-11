@@ -3,7 +3,7 @@ mod mod_manager;
 mod blocks;
 mod world_generator;
 
-use std::os::macos::raw::stat;
+//use std::os::macos::raw::stat;
 use shared::mod_manager::GameMod;
 use shared_mut::SharedMut;
 use events::EventManager;
