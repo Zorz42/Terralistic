@@ -26,13 +26,14 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
     create_button.orientation = gfx::BOTTOM;
 
     let mut world_name_input = gfx::TextInput::new();
-    world_name_input.button.scale = 3.0;
-    world_name_input.button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("World name")));
-    world_name_input.button.orientation = gfx::CENTER;
+    world_name_input.scale = 3.0;
+    world_name_input.backtext_texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("World name")));
+    world_name_input.orientation = gfx::CENTER;
 
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {//sorts out the events
+            world_name_input.on_event(&event, graphics, None);
             match event {
                 gfx::Event::KeyRelease(key) => {
                     if key == gfx::Key::MouseLeft {

@@ -16,10 +16,8 @@ pub struct Button {
     pub border_color: Color,
     pub hover_color: Color,
     pub hover_border_color: Color,
-    pub text_color: Option<Color>,
     pub disabled: bool,
     pub hover_progress: f32,
-    pub render_text: bool,
     timer: std::time::Instant,
     timer_counter: u32,
 }
@@ -40,10 +38,8 @@ impl Button {
             border_color: GFX_DEFAULT_BUTTON_BORDER_COLOR,
             hover_color: GFX_DEFAULT_HOVERED_BUTTON_COLOR,
             hover_border_color: GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR,
-            text_color: None,
             disabled: false,
             hover_progress: 0.0,
-            render_text: true,
             timer: std::time::Instant::now(),
             timer_counter: 0,
         }
@@ -133,13 +129,9 @@ impl Button {
         hover_rect.render(&graphics, button_color);
         hover_rect.render_outline(&graphics, button_border_color);
 
-        if !self.render_text {
-            return;
-        }
-
         let texture_scale = self.scale + self.hover_progress * 0.4;
         let x = rect.x + rect.w / 2 - (self.texture.get_texture_width() as f32 * texture_scale / 2.0) as i32;
         let y = rect.y + rect.h / 2 - (self.texture.get_texture_height() as f32 * texture_scale / 2.0) as i32;
-        self.texture.render(&graphics.renderer, texture_scale, x, y, None, false, self.text_color);
+        self.texture.render(&graphics.renderer, texture_scale, x, y, None, false, None);
     }
 }
