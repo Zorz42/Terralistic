@@ -162,12 +162,15 @@ impl TextInput {
                 rect.y + rect.h / 2 - (self.backtext_texture.get_texture_height() as f32 * texture_scale / 2.0) as i32,
                 None, false,
                 if self.is_hovered(graphics, parent_container) { Some(self.color) } else { Some(self.hover_color) });
-        } else if !self.inputed_text.is_empty() {
-            self.inputed_text_texture.texture.render(
-                &graphics.renderer, texture_scale,
-                rect.x + rect.w / 2 - (self.inputed_text_texture.texture.get_texture_width() as f32 * texture_scale / 2.0) as i32,
-                rect.y + rect.h / 2 - (self.inputed_text_texture.texture.get_texture_height() as f32 * texture_scale / 2.0) as i32,
-                None, false, None);
+        } else {
+            if !self.inputed_text.is_empty() {
+                self.inputed_text_texture.texture.render(
+                    &graphics.renderer, texture_scale,
+                    rect.x + rect.w / 2 - (self.inputed_text_texture.texture.get_texture_width() as f32 * texture_scale / 2.0) as i32,
+                    rect.y + rect.h / 2 - (self.inputed_text_texture.texture.get_texture_height() as f32 * texture_scale / 2.0) as i32,
+                    None, false, None);
+            }
+            //TODO render cursor
         }
     }
 
@@ -196,6 +199,15 @@ impl TextInput {
                             self.cursor[0] -= 1;
                         }
                         self.cursor[1] = self.cursor[0];
+                        self.text_changed = true;
+                    },
+                    Key::Delete => {
+                        if self.cursor[0] != self.cursor[1] {
+                            self.inputed_text.replace_range(self.cursor[0]..self.cursor[1], "");
+                            self.cursor[1] = self.cursor[0];
+                        } else if self.inputed_text.len() > self.cursor[0] {
+                            self.inputed_text.remove(self.cursor[0]);
+                        }
                         self.text_changed = true;
                     },
                     _ => {
