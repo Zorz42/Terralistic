@@ -210,6 +210,22 @@ impl TextInput {
                         }
                         self.text_changed = true;
                     },
+                    Key::Left => {
+                        if self.cursor[0] == self.cursor[1] {
+                            if self.cursor[0] > 0 {
+                                self.cursor[0] -= 1;
+                            }
+                        }
+                        self.cursor[1] = self.cursor[0];
+                    },
+                    Key::Right => {
+                        if self.cursor[0] == self.cursor[1] {
+                            if self.cursor[0] < self.inputed_text.len() {
+                                self.cursor[1] += 1;
+                            }
+                        }
+                        self.cursor[0] = self.cursor[1];
+                    },
                     _ => {
                         let input = TextInput::translate_keycode_to_char(*key);
                         if input.is_some() {
