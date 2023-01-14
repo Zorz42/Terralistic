@@ -1,4 +1,3 @@
-use std::borrow::Borrow;
 use graphics as gfx;
 use shared_mut::SharedMut;
 use crate::menus::background_rect::BackgroundRect;

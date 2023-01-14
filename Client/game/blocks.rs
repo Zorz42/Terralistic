@@ -1,4 +1,3 @@
-use std::any::Any;
 use graphics::GraphicsContext;
 use graphics as gfx;
 use shared::blocks::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH};

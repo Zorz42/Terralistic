@@ -170,7 +170,7 @@ impl LuaUserData for Biome {
     // implement index and new_index metamethods to allow reading and writing to fields
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to access fields
-        methods.add_meta_method(rlua::MetaMethod::Index, |lua_ctx, this, key: String| {
+        methods.add_meta_method(rlua::MetaMethod::Index, |_lua_ctx, this, key: String| {
             match key.as_str() {
                 "min_width" => Ok(this.min_width),
                 "max_width" => Ok(this.max_width),

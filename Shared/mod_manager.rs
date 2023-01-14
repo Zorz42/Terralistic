@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use rlua::{Context, FromLua, FromLuaMulti, Lua, ToLua, ToLuaMulti};
-use rlua::prelude::{LuaContext, LuaError, LuaMultiValue};
+use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
+use rlua::prelude::LuaError;
 use serde_derive::{Serialize, Deserialize};
 
 #[derive(PartialEq)]
@@ -52,8 +52,6 @@ impl GameMod {
     It then runs the code and the init function.
      */ fn init(&mut self) {
         self.lua.context(|lua| {
-            let globals = lua.globals();
-
             // load the game mod code
             lua.load(&self.data.lua_code).exec().unwrap();
         });
@@ -137,7 +135,6 @@ Mod manager is responsible for loading mods and managing them.
  */
 pub struct ModManager {
     mods: Vec<GameMod>,
-    has_initialized: bool,
     state: ModManagerState,
 }
 
@@ -148,7 +145,6 @@ impl ModManager {
     pub fn new() -> Self {
         Self {
             mods: Vec::new(),
-            has_initialized: false,
             state: ModManagerState::LoadingMods,
         }
     }

@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::net::Ipv4Addr;
 use bincode;
 use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};

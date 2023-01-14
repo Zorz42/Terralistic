@@ -1,4 +1,3 @@
-use std::any::Any;
 use graphics::GraphicsContext;
 use graphics as gfx;
 use shared::mod_manager::GameMod;

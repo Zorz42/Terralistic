@@ -1,4 +1,3 @@
-use std::any::Any;
 use bincode;
 use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host};
 use shared::enet_global::ENET_GLOBAL;
