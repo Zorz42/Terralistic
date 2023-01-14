@@ -1,9 +1,5 @@
-use crate::{Color, Container, GraphicsContext, Texture, Sprite, Orientation, TOP_LEFT, Rect, Key, Event};
-use super::Button;
-use std::cmp::max;
-use sdl2::libc::scanf;
-use serde::de::Unexpected::Str;
-use crate::theme::{GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_PADDING, GFX_DEFAULT_TEXT_INPUT_WIDTH, GFX_DEFAULT_TEXT_INPUT_COLOR, GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_PADDING};
+use crate::{Color, Container, GraphicsContext, Texture, Orientation, TOP_LEFT, Rect, Key, Event, RenderRect, WHITE, GREY};
+use crate::theme::{GFX_DEFAULT_TEXT_INPUT_WIDTH, GFX_DEFAULT_TEXT_INPUT_COLOR, GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_PADDING, GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY};
 
 pub struct TextInput {
     pub x: i32,
@@ -24,11 +20,17 @@ pub struct TextInput {
     text_texture: Texture,
     text_changed: bool,
     pub selected: bool,
+    pub shadow_intensity: i32,
     cursor: (usize, usize),
+    cursor_rect: RenderRect,
 }
 
 impl TextInput {
     pub fn new(graphics: &mut GraphicsContext) -> TextInput {
+        let mut cursor_rect = RenderRect::new(0.0, 0.0, 1.0, 1.0);
+        cursor_rect.smooth_factor = 30.0;
+        cursor_rect.fill_color = WHITE;
+
         TextInput {
             x: 0,
             y: 0,
@@ -39,8 +41,8 @@ impl TextInput {
             scale: 1.0,
             color: GFX_DEFAULT_TEXT_INPUT_COLOR,
             border_color: GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR,
-            hover_color: GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR,
-            hover_border_color: GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR,
+            hover_color: GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR,
+            hover_border_color: GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR,
             hover_progress: 0.0,
             timer: std::time::Instant::now(),
             timer_counter: 0,
@@ -48,7 +50,9 @@ impl TextInput {
             text_texture: Texture::load_from_surface(&graphics.font.create_text_surface(String::from(""))),
             text_changed: false,
             selected: false,
+            shadow_intensity: GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY,
             cursor: (0, 0),
+            cursor_rect,
         }
     }
     
@@ -102,6 +106,13 @@ impl TextInput {
     }
 
     /**
+    sets the hint text in the input box
+     */
+    pub fn set_hint(&mut self, graphics: &mut GraphicsContext, hint: String) {
+        self.hint_texture = Texture::load_from_surface(&graphics.font.create_text_surface(hint));
+    }
+
+    /**
     renders the text input
      */
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
@@ -140,19 +151,19 @@ impl TextInput {
         rect.render(graphics, color);
         rect.render_outline(&graphics, border_color);
 
-        if self.text.is_empty() && !self.selected {
-            /*self.backtext_texture.render(
-                &graphics.renderer, texture_scale,
-                rect.x + rect.w / 2 - (self.backtext_texture.get_texture_width() as f32 * texture_scale / 2.0) as i32,
-                rect.y + rect.h / 2 - (self.backtext_texture.get_texture_height() as f32 * texture_scale / 2.0) as i32,
-                None, false,
-                if self.is_hovered(graphics, parent_container) { Some(self.color) } else { Some(self.hover_color) });*/
+        graphics.renderer.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
+
+        let mut src_rect = Rect::new(0, 0, self.text_texture.get_texture_width(), self.text_texture.get_texture_height());
+        src_rect.w = i32::min(src_rect.w, self.width);
+        if self.text.is_empty() {
+            src_rect.w = 0;
+        }
+        src_rect.x = self.text_texture.get_texture_width() as i32 - src_rect.w;
+
+        if self.text.is_empty() {
+            self.hint_texture.render(&graphics.renderer, self.scale, (rect.x as f32 + rect.w as f32 / 2.0 - self.hint_texture.get_texture_width() as f32 / 2.0 * self.scale) as i32, rect.y + (self.padding as f32 * self.scale) as i32, None, false, Some(GREY));
         } else {
             if !self.text.is_empty() {
-                let mut src_rect = Rect::new(0, 0, self.text_texture.get_texture_width(), self.text_texture.get_texture_height());
-                src_rect.w = i32::min(src_rect.w, self.width);
-                src_rect.x = self.text_texture.get_texture_width() as i32 - src_rect.w;
-
                 self.text_texture.render(
                     &graphics.renderer, self.scale,
                     rect.x + (self.padding as f32 * self.scale) as i32,
@@ -160,7 +171,15 @@ impl TextInput {
                     Some(src_rect), false, None
                 );
             }
-            //TODO render cursor
+        }
+
+        if self.selected {
+            self.cursor_rect.x = rect.x as f32 + self.padding as f32 * self.scale + src_rect.w as f32 * self.scale;
+            self.cursor_rect.y = rect.y as f32 + self.padding as f32 * self.scale;
+            self.cursor_rect.h = rect.h as f32 - self.padding as f32 * self.scale * 2.0;
+            self.cursor_rect.w = 4.0;
+
+            self.cursor_rect.render(graphics, None);
         }
     }
 

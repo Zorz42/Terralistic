@@ -27,7 +27,7 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
 
     let mut world_name_input = gfx::TextInput::new(graphics);
     world_name_input.scale = 3.0;
-    //world_name_input.backtext_texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("World name")));
+    world_name_input.set_hint(graphics, String::from("World name"));
     world_name_input.orientation = gfx::CENTER;
 
     //this is where the menu is drawn
