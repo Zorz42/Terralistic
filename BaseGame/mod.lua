@@ -41,31 +41,36 @@ function init()
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
     dirt = terralistic_register_block_type(block_type)
-
-    -- register biomes
-    biome = terralistic_new_biome()
-    biome["min_height"] = 0
-    biome["max_height"] = 40
-    biome["base_block"] = dirt
-    plains = terralistic_register_biome(biome)
-
-    biome = terralistic_new_biome()
-    biome["min_height"] = 10
-    biome["max_height"] = 60
-    biome["base_block"] = dirt
-    hills = terralistic_register_biome(biome)
-
-    biome = terralistic_new_biome()
-    biome["min_height"] = 40
-    biome["max_height"] = 120
-    biome["base_block"] = dirt
-    mountains = terralistic_register_biome(biome)
 end
 
 -- This function is called when the mod is loaded on a server.
 function init_server()
-    terralistic_print("BaseGame mod loaded on server.")
-    plains = terralistic_add_biome(1.0)
+    -- register biomes
+    biome = terralistic_new_biome()
+    biome["min_terrain_height"] = 0
+    biome["max_terrain_height"] = 40
+    biome["min_width"] = 100
+    biome["max_width"] = 300
+    biome["base_block"] = dirt
+    plains = terralistic_register_biome(biome)
+
+    biome = terralistic_new_biome()
+    biome["min_terrain_height"] = 10
+    biome["max_terrain_height"] = 60
+    biome["min_width"] = 100
+    biome["max_width"] = 300
+    biome["base_block"] = dirt
+    hills = terralistic_register_biome(biome)
+    terralistic_connect_biomes(plains, hills, 1)
+
+    biome = terralistic_new_biome()
+    biome["min_terrain_height"] = 40
+    biome["max_terrain_height"] = 120
+    biome["min_width"] = 100
+    biome["max_width"] = 300
+    biome["base_block"] = dirt
+    mountains = terralistic_register_biome(biome)
+    terralistic_connect_biomes(hills, mountains, 1)
 end
 
 -- This function is called when the mod is unloaded.

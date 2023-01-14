@@ -60,6 +60,15 @@ impl WorldGenerator {
             biomes.borrow().push(biome);
             Ok(biomes.borrow().len() - 1)
         });
+
+        // lua function connect_biomes(biome1, biome2, weight) takes two biome ids and a weight and connects them
+        // the weight is how likely it is to go from biome1 to biome2 (and vice versa)
+        let biomes = self.biomes.clone();
+        mods.add_global_function("connect_biomes", move |_, (biome1, biome2, weight): (i32, i32, i32)| {
+            biomes.borrow()[biome1 as usize].adjacent_biomes.push((weight, biome2));
+            biomes.borrow()[biome2 as usize].adjacent_biomes.push((weight, biome1));
+            Ok(())
+        });
     }
 
     fn next_task(&mut self) {
@@ -72,7 +81,44 @@ impl WorldGenerator {
             panic!("No biomes were added! Cannot generate world!");
         }
 
-        let width = min_width;
+        let mut min_heights = Vec::new();
+        let mut max_heights = Vec::new();
+
+        let mut width = 0;
+
+        // walk on the graph of biomes
+        // initial biome is random
+        let mut curr_biome = rand::random::<i32>() % self.biomes.borrow().len() as i32;
+        while width < min_width {
+            // determine the width of the current biome
+            // the width is a random number between the min and max width
+            let biome = &self.biomes.borrow()[curr_biome as usize];
+            let biome_width = rand::random::<i32>() % (biome.max_width - biome.min_width) + biome.min_width;
+            for _ in 0..biome_width {
+                min_heights.push(biome.min_terrain_height as f64);
+                max_heights.push(biome.max_terrain_height as f64);
+            }
+            width += biome_width;
+
+            // determine the next biome
+            // the next biome is chosen randomly based on the weights of the edges
+            let mut total_weight = 0;
+            for (weight, _) in &biome.adjacent_biomes {
+                total_weight += weight;
+            }
+            let mut rand = rand::random::<i32>() % total_weight;
+            for (weight, next_biome) in &biome.adjacent_biomes {
+                rand -= weight;
+                if rand < 0 {
+                    curr_biome = *next_biome;
+                    println!("next biome: {}", curr_biome);
+                    break;
+                }
+            }
+        }
+
+        println!("Creating a world with size {}x{}", width, height);
+
         self.total_tasks = width * height;
         self.status_text = status_text.clone();
 
@@ -85,17 +131,8 @@ impl WorldGenerator {
 
         let noise = Perlin::new(seed);
 
-        let mut min_heights = vec![0.0; width as usize];
-        let mut max_heights = vec![80.0; width as usize];
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
-
-        /*for x in 300..1000 {
-            min_heights[x as usize] = (height * 2 / 3 - 180) as f64;
-            max_heights[x as usize] = (height * 2 / 3 - 100) as f64;
-            min_cave_thresholds[x as usize] = 0.05;
-            max_cave_thresholds[x as usize] = 0.2;
-        }*/
 
         let convolution_size = 50;
         for _ in 0..5 {
@@ -106,7 +143,7 @@ impl WorldGenerator {
         }
 
         for x in 0..width {
-            let terrain_noise = ((turbulence(&noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + width * 2 / 3;
+            let terrain_noise = ((turbulence(&noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
             for y in 0..height {
                 self.next_task();
                 let terrain_height = height - y;
@@ -129,14 +166,7 @@ impl WorldGenerator {
             }
         }
 
-        let mut generated_world: Vec<Vec<i32>> = Vec::new();
-
-        for game_mod in mods.mods_mut() {
-            generated_world = game_mod.call_function("generate_world", (width, height, terrain)).unwrap();
-            break;
-        }
-
-        blocks.create_from_block_ids(generated_world);
+        blocks.create_from_block_ids(terrain);
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 
@@ -150,8 +180,11 @@ impl WorldGenerator {
 struct Biome {
     pub min_width: i32,
     pub max_width: i32,
+    pub min_terrain_height: i32,
+    pub max_terrain_height: i32,
     pub base_block: i32,
-    pub adjacent_biomes: Vec<i32>,
+    // the first element is connection weight, the second is the biome id
+    pub adjacent_biomes: Vec<(i32, i32)>,
 }
 
 impl Biome {
@@ -159,6 +192,8 @@ impl Biome {
         Self {
             min_width: 0,
             max_width: 0,
+            min_terrain_height: 0,
+            max_terrain_height: 0,
             base_block: 0,
             adjacent_biomes: Vec::new(),
         }
@@ -174,6 +209,8 @@ impl LuaUserData for Biome {
             match key.as_str() {
                 "min_width" => Ok(this.min_width),
                 "max_width" => Ok(this.max_width),
+                "min_terrain_height" => Ok(this.min_terrain_height),
+                "max_terrain_height" => Ok(this.max_terrain_height),
                 "base_block" => Ok(this.base_block),
                 _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
             }
@@ -192,6 +229,20 @@ impl LuaUserData for Biome {
                     match value {
                         rlua::Value::Integer(b) => this.max_width = b as i32,
                         _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for max_width")))
+                    }
+                    Ok(())
+                },
+                "min_terrain_height" => {
+                    match value {
+                        rlua::Value::Integer(b) => this.min_terrain_height = b as i32,
+                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for min_terrain_height")))
+                    }
+                    Ok(())
+                },
+                "max_terrain_height" => {
+                    match value {
+                        rlua::Value::Integer(b) => this.max_terrain_height = b as i32,
+                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for max_terrain_height")))
                     }
                     Ok(())
                 },
