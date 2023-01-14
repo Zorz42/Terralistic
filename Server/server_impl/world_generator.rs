@@ -1,19 +1,9 @@
 use noise::{NoiseFn, Perlin};
+use rlua::prelude::{LuaUserData, LuaUserDataMethods};
+use rlua::UserDataMethods;
 use shared::blocks::blocks::Blocks;
 use shared::mod_manager::ModManager;
 use shared_mut::SharedMut;
-
-struct Biome {
-    frequency: f32,
-}
-
-impl Biome {
-    fn new(frequency: f32) -> Self {
-        Self {
-            frequency,
-        }
-    }
-}
 
 fn turbulence(noise: &Perlin, x: f64, y: f64) -> f64 {
     let mut value = 0.0;
@@ -61,9 +51,13 @@ impl WorldGenerator {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
+        mods.add_global_function("new_biome", move |_, _: ()| {
+            Ok(Biome::new())
+        });
+
         let biomes = self.biomes.clone();
-        mods.add_global_function("add_biome", move |_, frequency| {
-            biomes.borrow().push(Biome::new(frequency));
+        mods.add_global_function("register_biome", move |_, biome: Biome| {
+            biomes.borrow().push(biome);
             Ok(biomes.borrow().len() - 1)
         });
     }
@@ -73,13 +67,14 @@ impl WorldGenerator {
         *self.status_text.borrow() = format!("Generating world {}%", (self.current_task as f32 / self.total_tasks as f32 * 100.0) as i32);
     }
 
-    pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, width: i32, height: i32, seed: u32, status_text: SharedMut<String>) {
-        self.total_tasks = width * height;
-        self.status_text = status_text.clone();
-
+    pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, min_width: i32, height: i32, seed: u32, status_text: SharedMut<String>) {
         if self.biomes.borrow().len() == 0 {
             panic!("No biomes were added! Cannot generate world!");
         }
+
+        let width = min_width;
+        self.total_tasks = width * height;
+        self.status_text = status_text.clone();
 
         let start_time = std::time::Instant::now();
 
@@ -90,17 +85,17 @@ impl WorldGenerator {
 
         let noise = Perlin::new(seed);
 
-        let mut min_heights = vec![(height * 2 / 3) as f64; width as usize];
-        let mut max_heights = vec![(height * 2 / 3 + 80) as f64; width as usize];
+        let mut min_heights = vec![0.0; width as usize];
+        let mut max_heights = vec![80.0; width as usize];
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
 
-        for x in 300..1000 {
+        /*for x in 300..1000 {
             min_heights[x as usize] = (height * 2 / 3 - 180) as f64;
             max_heights[x as usize] = (height * 2 / 3 - 100) as f64;
             min_cave_thresholds[x as usize] = 0.05;
             max_cave_thresholds[x as usize] = 0.2;
-        }
+        }*/
 
         let convolution_size = 50;
         for _ in 0..5 {
@@ -111,7 +106,7 @@ impl WorldGenerator {
         }
 
         for x in 0..width {
-            let terrain_noise = ((turbulence(&noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32;
+            let terrain_noise = ((turbulence(&noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + width * 2 / 3;
             for y in 0..height {
                 self.next_task();
                 let terrain_height = height - y;
@@ -148,5 +143,67 @@ impl WorldGenerator {
         if self.current_task != self.total_tasks {
             panic!("Not all tasks were completed! {} != {}", self.current_task, self.total_tasks);
         }
+    }
+}
+
+#[derive(Clone)]
+struct Biome {
+    pub min_width: i32,
+    pub max_width: i32,
+    pub base_block: i32,
+    pub adjacent_biomes: Vec<i32>,
+}
+
+impl Biome {
+    fn new() -> Self {
+        Self {
+            min_width: 0,
+            max_width: 0,
+            base_block: 0,
+            adjacent_biomes: Vec::new(),
+        }
+    }
+}
+
+// make Biome compatible with Lua
+impl LuaUserData for Biome {
+    // implement index and new_index metamethods to allow reading and writing to fields
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+        // add meta method to access fields
+        methods.add_meta_method(rlua::MetaMethod::Index, |lua_ctx, this, key: String| {
+            match key.as_str() {
+                "min_width" => Ok(this.min_width),
+                "max_width" => Ok(this.max_width),
+                "base_block" => Ok(this.base_block),
+                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
+            }
+        });
+        // add meta method to set fields
+        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
+            match key.as_str() {
+                "min_width" => {
+                    match value {
+                        rlua::Value::Integer(b) => this.min_width = b as i32,
+                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for min_width")))
+                    }
+                    Ok(())
+                },
+                "max_width" => {
+                    match value {
+                        rlua::Value::Integer(b) => this.max_width = b as i32,
+                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for max_width")))
+                    }
+                    Ok(())
+                },
+                "base_block" => {
+                    match value {
+                        rlua::Value::Integer(b) => this.base_block = b as i32,
+                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for base_block")))
+                    }
+                    Ok(())
+                },
+                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of BlockType", key))),
+            }
+        });
     }
 }

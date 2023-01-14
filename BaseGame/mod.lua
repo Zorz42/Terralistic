@@ -31,13 +31,35 @@ dirt = -1
 
 -- global variables for biome IDs
 plains = -1
+hills = -1
+mountains = -1
 
 -- This function is called when the mod is loaded.
 function init()
+    -- register blocks
     terralistic_print("BaseGame mod loaded.")
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
     dirt = terralistic_register_block_type(block_type)
+
+    -- register biomes
+    biome = terralistic_new_biome()
+    biome["min_height"] = 0
+    biome["max_height"] = 40
+    biome["base_block"] = dirt
+    plains = terralistic_register_biome(biome)
+
+    biome = terralistic_new_biome()
+    biome["min_height"] = 10
+    biome["max_height"] = 60
+    biome["base_block"] = dirt
+    hills = terralistic_register_biome(biome)
+
+    biome = terralistic_new_biome()
+    biome["min_height"] = 40
+    biome["max_height"] = 120
+    biome["base_block"] = dirt
+    mountains = terralistic_register_biome(biome)
 end
 
 -- This function is called when the mod is loaded on a server.
