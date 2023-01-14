@@ -11,7 +11,7 @@ pub use theme::{
     BLACK,
     TRANSPARENT,
     SPACING,
-    BUTTON_MARGIN,
+    BUTTON_PADDING,
     TRANSPARENCY,
     BLUR,
     SHADOW_INTENSITY,

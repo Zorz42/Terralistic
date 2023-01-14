@@ -1,5 +1,5 @@
 use crate::{Color, Container, GraphicsContext, Key, Orientation, Rect, Texture, TOP_LEFT};
-use crate::theme::{GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_MARGIN};
+use crate::theme::{GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_PADDING};
 
 /**
 A Button is a rectangle with an image in it.
@@ -32,7 +32,7 @@ impl Button {
             y: 0,
             orientation: TOP_LEFT,
             texture: Texture::new(),
-            margin: GFX_DEFAULT_BUTTON_MARGIN,
+            margin: GFX_DEFAULT_BUTTON_PADDING,
             scale: 1.0,
             color: GFX_DEFAULT_BUTTON_COLOR,
             border_color: GFX_DEFAULT_BUTTON_BORDER_COLOR,

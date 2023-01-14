@@ -3,12 +3,13 @@ use sdl2;
 /**
 A collection of all supported deprecated_events
  */
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum Event {
     // key press and release deprecated_events
     KeyPress(Key),
     KeyRelease(Key),
     MouseScroll(f64),
+    TextInput(String),
 }
 
 /**
@@ -32,6 +33,9 @@ pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Ev
         }
         sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => {
             Some(Event::KeyRelease(sdl_mouse_button_to_gfx_key(mouse_btn)))
+        }
+        sdl2::event::Event::TextInput { text, .. } => {
+            Some(Event::TextInput(text.clone()))
         }
 
         _ => None,

@@ -74,15 +74,16 @@ impl Font {
      */
     pub fn create_text_surface(&self, text: String) -> Surface {
         let mut width = 0;
-        let mut height = 0;
+        let mut height = self.font_surfaces[0].get_height();
         for c in text.chars() {
             // is its space it makes it a little bigger
             width += self.font_surfaces[c as usize].get_width() + CHAR_SPACING;
             if c == ' ' {
                 width += SPACE_WIDTH;
             }
-            height = max(height, self.font_surfaces[c as usize].get_height());
         }
+        // if width is 0, set it to 1
+        width = max(width, 1);
 
         let mut surface = Surface::new(width, height);
         let mut x = 0;
