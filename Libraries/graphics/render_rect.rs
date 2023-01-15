@@ -50,6 +50,14 @@ impl RenderRect {
         }
     }
 
+    fn approach(position: f32, target: f32, smooth_factor: f32) -> f32 {
+        if (target - position).abs() <= 0.01 {
+            target
+        } else {
+            position + (target - position) / smooth_factor
+        }
+    }
+
     /**
     This function renders the rectangle, it uses Rect class to render.
     It also approaches the position to the target position.
@@ -57,10 +65,10 @@ impl RenderRect {
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
             self.ms_counter += 1;
-            self.render_x += (self.x - self.render_x) / self.smooth_factor;
-            self.render_y += (self.y - self.render_y) / self.smooth_factor;
-            self.render_w += (self.w - self.render_w) / self.smooth_factor;
-            self.render_h += (self.h - self.render_h) / self.smooth_factor;
+            self.render_x = Self::approach(self.render_x, self.x, self.smooth_factor);
+            self.render_y = Self::approach(self.render_y, self.y, self.smooth_factor);
+            self.render_w = Self::approach(self.render_w, self.w, self.smooth_factor);
+            self.render_h = Self::approach(self.render_h, self.h, self.smooth_factor);
         }
 
         let container = self.get_container(graphics, parent_container);

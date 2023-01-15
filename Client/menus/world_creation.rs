@@ -30,6 +30,14 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
     world_name_input.set_hint(graphics, String::from("World name"));
     world_name_input.orientation = gfx::CENTER;
 
+    world_name_input.text_processing = Some(Box::new(|text: char| {
+        // this closure only accepts letters, numbers and _ symbol
+        if text.is_alphanumeric() || text == '_' {
+            return Some(text);
+        }
+        None
+    }));
+
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {//sorts out the events

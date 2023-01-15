@@ -14,6 +14,8 @@ pub struct TextInput {
     pub hover_color: Color,
     pub hover_border_color: Color,
     hover_progress: f32,
+    cursor_color_progress: f32,
+    hint_color_progress: f32,
     timer: std::time::Instant,
     timer_counter: u32,
     text: String,
@@ -23,6 +25,8 @@ pub struct TextInput {
     pub shadow_intensity: i32,
     cursor: (usize, usize),
     cursor_rect: RenderRect,
+    // text_processing is a closure, that takes a char and returns a char
+    pub text_processing: Option<Box<dyn Fn(char) -> Option<char>>>,
 }
 
 impl TextInput {
@@ -44,6 +48,8 @@ impl TextInput {
             hover_color: GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR,
             hover_border_color: GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR,
             hover_progress: 0.0,
+            cursor_color_progress: 0.0,
+            hint_color_progress: 1.0,
             timer: std::time::Instant::now(),
             timer_counter: 0,
             text: String::new(),
@@ -53,6 +59,7 @@ impl TextInput {
             shadow_intensity: GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY,
             cursor: (0, 0),
             cursor_rect,
+            text_processing: None,
         }
     }
     
@@ -125,9 +132,20 @@ impl TextInput {
         }
 
         let hover_progress_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
+        let cursor_color_progress_target = if self.selected { 1.0 } else { 0.0 };
+        let hint_color_progress_target = if self.text.is_empty() { 1.0 } else { 0.0 };
 
         while self.timer_counter < self.timer.elapsed().as_millis() as u32 {
-            self.hover_progress += (hover_progress_target - self.hover_progress) / 40.0;
+            let mut smooth_factor = 40.0;
+            if hover_progress_target < self.hover_progress {
+                smooth_factor *= 10.0;
+            }
+            self.hover_progress += (hover_progress_target - self.hover_progress) / smooth_factor;
+
+            self.cursor_color_progress += (cursor_color_progress_target - self.cursor_color_progress) / 40.0;
+
+            self.hint_color_progress += (hint_color_progress_target - self.hint_color_progress) / 40.0;
+
             if (hover_progress_target - self.hover_progress).abs() <= 0.01 {
                 self.hover_progress = hover_progress_target;
             }
@@ -160,30 +178,36 @@ impl TextInput {
         }
         src_rect.x = self.text_texture.get_texture_width() as i32 - src_rect.w;
 
-        if self.text.is_empty() {
-            self.hint_texture.render(&graphics.renderer, self.scale, (rect.x as f32 + rect.w as f32 / 2.0 - self.hint_texture.get_texture_width() as f32 / 2.0 * self.scale) as i32, rect.y + (self.padding as f32 * self.scale) as i32, None, false, Some(GREY));
-        } else {
-            if !self.text.is_empty() {
-                self.text_texture.render(
-                    &graphics.renderer, self.scale,
-                    rect.x + (self.padding as f32 * self.scale) as i32,
-                    rect.y + rect.h / 2 - (self.text_texture.get_texture_height() as f32 * self.scale / 2.0) as i32,
-                    Some(src_rect), false, None
-                );
-            }
+        self.hint_texture.render(&graphics.renderer, self.scale,
+                                 (rect.x as f32 + rect.w as f32 / 2.0 - self.hint_texture.get_texture_width() as f32 / 2.0 * self.scale) as i32,
+                                 rect.y + (self.padding as f32 * self.scale) as i32, None, false,
+                                 Some(GREY.set_a((255.0 * self.hint_color_progress) as u8)));
+
+        if !self.text.is_empty() {
+            self.text_texture.render(
+                &graphics.renderer, self.scale,
+                rect.x + (self.padding as f32 * self.scale) as i32,
+                rect.y + rect.h / 2 - (self.text_texture.get_texture_height() as f32 * self.scale / 2.0) as i32,
+                Some(src_rect), false, None
+            );
         }
 
-        if self.selected {
-            self.cursor_rect.x = rect.x as f32 + self.padding as f32 * self.scale + src_rect.w as f32 * self.scale;
-            self.cursor_rect.y = rect.y as f32 + self.padding as f32 * self.scale;
-            self.cursor_rect.h = rect.h as f32 - self.padding as f32 * self.scale * 2.0;
-            self.cursor_rect.w = 4.0;
+        let texture_width = if self.text.is_empty() { 0 } else { (self.text_texture.get_texture_width() as f32 * self.scale) as i32 };
+        let text_begin_x = i32::min(rect.x + (self.padding as f32 * self.scale) as i32, rect.x + (self.padding as f32 * self.scale) as i32 + rect.w - texture_width);
+        let x1 = text_begin_x as f32 + texture_width as f32;
+        let x2 = text_begin_x as f32 + texture_width as f32 + 4.0;
 
-            self.cursor_rect.render(graphics, None);
-        }
+        self.cursor_rect.x = x1;
+        self.cursor_rect.y = rect.y as f32 + self.padding as f32 * self.scale;
+        self.cursor_rect.h = rect.h as f32 - self.padding as f32 * self.scale * 2.0;
+        self.cursor_rect.w = x2 - x1;
+
+        self.cursor_rect.fill_color.a = (255.0 * self.cursor_color_progress) as u8;
+
+        self.cursor_rect.render(graphics, None);
     }
 
-    pub fn on_event(&mut self, event: &Event, graphics: &GraphicsContext, parent_container: Option<&Container>) {//TODO add text processing with closures?
+    pub fn on_event(&mut self, event: &Event, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         match event {
             Event::TextInput(text) => {
                 if self.selected {
@@ -191,8 +215,20 @@ impl TextInput {
                         self.text.replace_range(self.cursor.0..self.cursor.1, "");
                         self.cursor.1 = self.cursor.0;
                     }
-                    self.text.insert_str(self.cursor.0, text);
-                    self.cursor.0 += text.len();
+                    // run every character of text through text_processing closure if it exists and create new string
+                    let mut new_text = String::new();
+                    for c in text.chars() {
+                        if let Some(text_processing) = &self.text_processing {
+                            if let Some(c) = text_processing(c) {
+                                new_text.push(c);
+                            }
+                        } else {
+                            new_text.push(c);
+                        }
+                    }
+
+                    self.text.insert_str(self.cursor.0, new_text.as_str());
+                    self.cursor.0 += new_text.len();
                     self.text_changed = true;
                     self.cursor.1 = self.cursor.0;
                 }
