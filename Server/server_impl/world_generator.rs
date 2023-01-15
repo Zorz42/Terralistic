@@ -83,20 +83,23 @@ impl WorldGenerator {
 
         let mut min_heights = Vec::new();
         let mut max_heights = Vec::new();
+        let mut biome_ids = Vec::new();
 
         let mut width = 0;
 
         // walk on the graph of biomes
         // initial biome is random
-        let mut curr_biome = rand::random::<i32>() % self.biomes.borrow().len() as i32;
+        let mut curr_biome = rand::random::<i32>().abs() % self.biomes.borrow().len() as i32;
         while width < min_width {
             // determine the width of the current biome
             // the width is a random number between the min and max width
             let biome = &self.biomes.borrow()[curr_biome as usize];
-            let biome_width = rand::random::<i32>() % (biome.max_width - biome.min_width) + biome.min_width;
+            let biome_width = rand::random::<i32>().abs() % (biome.max_width - biome.min_width) + biome.min_width;
+            println!("Biome width: {}", biome_width);
             for _ in 0..biome_width {
                 min_heights.push(biome.min_terrain_height as f64);
                 max_heights.push(biome.max_terrain_height as f64);
+                biome_ids.push(curr_biome);
             }
             width += biome_width;
 
@@ -106,12 +109,11 @@ impl WorldGenerator {
             for (weight, _) in &biome.adjacent_biomes {
                 total_weight += weight;
             }
-            let mut rand = rand::random::<i32>() % total_weight;
+            let mut rand = rand::random::<i32>().abs() % total_weight;
             for (weight, next_biome) in &biome.adjacent_biomes {
                 rand -= weight;
                 if rand < 0 {
                     curr_biome = *next_biome;
-                    println!("next biome: {}", curr_biome);
                     break;
                 }
             }
@@ -151,7 +153,11 @@ impl WorldGenerator {
                 let cave_noise = f64::abs(turbulence(&noise, x as f64 / 80.0, y as f64 / 80.0));
                 let cave_threshold = y as f64 / height as f64 * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize]) + min_cave_thresholds[x as usize];
 
-                let value= if terrain_height < terrain_noise && cave_threshold < cave_noise { 1 } else { 0 };
+                let value= if terrain_height < terrain_noise && cave_threshold < cave_noise {
+                    self.biomes.borrow()[biome_ids[x as usize] as usize].base_block
+                } else {
+                    blocks.air.get_id()
+                };
 
                 terrain[x as usize][y as usize] = value;
             }

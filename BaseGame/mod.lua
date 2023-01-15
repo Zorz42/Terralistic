@@ -27,7 +27,9 @@ end
 
 -- global variables for block IDs
 air = 0 -- air is built-in and the id is always 0
-dirt = -1
+dirt_block = -1
+stone_block = -1
+copper_ore = -1
 
 -- global variables for biome IDs
 plains = -1
@@ -37,10 +39,19 @@ mountains = -1
 -- This function is called when the mod is loaded.
 function init()
     -- register blocks
-    terralistic_print("BaseGame mod loaded.")
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
-    dirt = terralistic_register_block_type(block_type)
+    dirt_block = terralistic_register_block_type(block_type)
+
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "stone_block"
+    stone_block = terralistic_register_block_type(block_type)
+
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "copper_ore"
+    copper_ore = terralistic_register_block_type(block_type)
+
+    terralistic_print("BaseGame mod loaded.")
 end
 
 -- This function is called when the mod is loaded on a server.
@@ -51,7 +62,7 @@ function init_server()
     biome["max_terrain_height"] = 40
     biome["min_width"] = 100
     biome["max_width"] = 300
-    biome["base_block"] = dirt
+    biome["base_block"] = dirt_block
     plains = terralistic_register_biome(biome)
 
     biome = terralistic_new_biome()
@@ -59,18 +70,18 @@ function init_server()
     biome["max_terrain_height"] = 60
     biome["min_width"] = 100
     biome["max_width"] = 300
-    biome["base_block"] = dirt
+    biome["base_block"] = copper_ore
     hills = terralistic_register_biome(biome)
-    terralistic_connect_biomes(plains, hills, 1)
+    terralistic_connect_biomes(plains, hills, 100)
 
     biome = terralistic_new_biome()
     biome["min_terrain_height"] = 40
     biome["max_terrain_height"] = 120
     biome["min_width"] = 100
     biome["max_width"] = 300
-    biome["base_block"] = dirt
+    biome["base_block"] = stone_block
     mountains = terralistic_register_biome(biome)
-    terralistic_connect_biomes(hills, mountains, 1)
+    terralistic_connect_biomes(hills, mountains, 100)
 end
 
 -- This function is called when the mod is unloaded.
