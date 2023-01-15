@@ -54,7 +54,7 @@ impl TextInput {
             timer_counter: 0,
             text: String::new(),
             text_texture: Texture::load_from_surface(&graphics.font.create_text_surface(String::from(""))),
-            text_changed: false,
+            text_changed: true,
             selected: false,
             shadow_intensity: GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY,
             cursor: (0, 0),
@@ -120,6 +120,17 @@ impl TextInput {
     }
 
     /**
+    returns the cursor in order
+     */
+    fn get_cursor(&self) -> (usize, usize) {
+        if self.cursor.0 > self.cursor.1 {
+            (self.cursor.1, self.cursor.0)
+        } else {
+            (self.cursor.0, self.cursor.1)
+        }
+    }
+
+    /**
     renders the text input
      */
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
@@ -128,11 +139,10 @@ impl TextInput {
 
         if self.text_changed && self.text.len() > 0 {
             self.text_texture = Texture::load_from_surface(&graphics.font.create_text_surface(self.text.clone()));
-            self.text_changed = false;
         }
 
         let hover_progress_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
-        let cursor_color_progress_target = if self.selected { 1.0 } else { 0.0 };
+        let cursor_color_progress_target = if self.selected { 0.5 } else { 0.0 };
         let hint_color_progress_target = if self.text.is_empty() { 1.0 } else { 0.0 };
 
         while self.timer_counter < self.timer.elapsed().as_millis() as u32 {
@@ -192,19 +202,37 @@ impl TextInput {
             );
         }
 
-        let texture_width = if self.text.is_empty() { 0 } else { (self.text_texture.get_texture_width() as f32 * self.scale) as i32 };
-        let text_begin_x = i32::min(rect.x + (self.padding as f32 * self.scale) as i32, rect.x + (self.padding as f32 * self.scale) as i32 + rect.w - texture_width);
-        let x1 = text_begin_x as f32 + texture_width as f32;
-        let x2 = text_begin_x as f32 + texture_width as f32 + 4.0;
+        if self.text_changed || self.selected {
+            let texture_width = if self.text.is_empty() { 0 } else { (self.text_texture.get_texture_width() as f32 * self.scale) as i32 };
 
-        self.cursor_rect.x = x1;
-        self.cursor_rect.y = rect.y as f32 + self.padding as f32 * self.scale;
-        self.cursor_rect.h = rect.h as f32 - self.padding as f32 * self.scale * 2.0;
-        self.cursor_rect.w = x2 - x1;
+            let text_begin_x = i32::min(rect.x + (self.padding as f32 * self.scale) as i32, rect.x + (self.padding as f32 * self.scale) as i32 + rect.w - texture_width);
+
+            // w1 is the width of the text before the cursor.0
+            let mut w1 = graphics.font.create_text_surface(self.text[..self.get_cursor().0].to_string()).get_width() as f32 * self.scale;
+            if self.get_cursor().0 == 0 {
+                w1 = 0.0;
+            }
+            // w2 is the width of the text before the cursor.1
+            let mut w2 = graphics.font.create_text_surface(self.text[..self.get_cursor().1].to_string()).get_width() as f32 * self.scale;
+            if self.get_cursor().1 == 0 {
+                w2 = 0.0;
+            }
+
+
+            let x1 = text_begin_x as f32 + w1 - 3.0;
+            let x2 = text_begin_x as f32 + w2 + 1.0;
+
+            self.cursor_rect.x = x1;
+            self.cursor_rect.y = rect.y as f32 + self.padding as f32 * self.scale;
+            self.cursor_rect.h = rect.h as f32 - self.padding as f32 * self.scale * 2.0;
+            self.cursor_rect.w = x2 - x1;
+        }
 
         self.cursor_rect.fill_color.a = (255.0 * self.cursor_color_progress) as u8;
 
         self.cursor_rect.render(graphics, None);
+
+        self.text_changed = false;
     }
 
     pub fn on_event(&mut self, event: &Event, graphics: &GraphicsContext, parent_container: Option<&Container>) {
@@ -212,7 +240,7 @@ impl TextInput {
             Event::TextInput(text) => {
                 if self.selected {
                     if self.cursor.0 != self.cursor.1 {
-                        self.text.replace_range(self.cursor.0..self.cursor.1, "");
+                        self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
                         self.cursor.1 = self.cursor.0;
                     }
                     // run every character of text through text_processing closure if it exists and create new string
@@ -246,8 +274,8 @@ impl TextInput {
                 match key {
                     Key::Backspace => {
                         if self.cursor.0 != self.cursor.1 {
-                            self.text.replace_range(self.cursor.0..self.cursor.1, "");
-                            self.cursor.1 = self.cursor.0;
+                            self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
+                            self.cursor.0 = self.get_cursor().0;
                         } else if self.cursor.0 > 0 {
                             self.text.remove(self.cursor.0 - 1);
                             self.cursor.0 -= 1;
@@ -257,7 +285,8 @@ impl TextInput {
                     },
                     Key::Delete => {
                         if self.cursor.0 != self.cursor.1 {
-                            self.text.replace_range(self.cursor.0..self.cursor.1, "");
+                            self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
+                            self.cursor.0 = self.get_cursor().0;
                             self.cursor.1 = self.cursor.0;
                         } else if self.text.len() > self.cursor.0 {
                             self.text.remove(self.cursor.0);
@@ -265,20 +294,33 @@ impl TextInput {
                         self.text_changed = true;
                     },
                     Key::Left => {
-                        if self.cursor.0 == self.cursor.1 {
-                            if self.cursor.0 > 0 {
+                        if graphics.renderer.get_key_state(Key::LeftShift) {
+                            if self.cursor.1 > 0 {
+                                self.cursor.1 -= 1;
+                            }
+                        } else {
+                            if self.cursor.0 != self.cursor.1 {
+                                self.cursor.0 = self.get_cursor().0;
+                            } else if self.cursor.0 > 0 {
                                 self.cursor.0 -= 1;
                             }
+
+                            self.cursor.1 = self.cursor.0;
                         }
-                        self.cursor.1 = self.cursor.0;
                     },
                     Key::Right => {
-                        if self.cursor.0 == self.cursor.1 {
-                            if self.cursor.0 < self.text.len() {
+                        if graphics.renderer.get_key_state(Key::LeftShift) {
+                            if self.cursor.1 < self.text.len() {
                                 self.cursor.1 += 1;
                             }
+                        } else {
+                            if self.cursor.0 != self.cursor.1 {
+                                self.cursor.0 = self.get_cursor().1;
+                            } else if self.cursor.0 < self.text.len() {
+                                self.cursor.0 += 1;
+                            }
+                            self.cursor.1 = self.cursor.0;
                         }
-                        self.cursor.0 = self.cursor.1;
                     },
                     _ => {}
                 }
