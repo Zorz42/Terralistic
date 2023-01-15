@@ -226,6 +226,10 @@ impl TextInput {
             self.cursor_rect.y = rect.y as f32 + self.padding as f32 * self.scale;
             self.cursor_rect.h = rect.h as f32 - self.padding as f32 * self.scale * 2.0;
             self.cursor_rect.w = x2 - x1;
+
+            if self.cursor_rect.get_container(graphics, None).rect.x == 0 && self.cursor_rect.get_container(graphics, None).rect.y == 0 {
+                self.cursor_rect.jump_to_target();
+            }
         }
 
         self.cursor_rect.fill_color.a = (255.0 * self.cursor_color_progress) as u8;
