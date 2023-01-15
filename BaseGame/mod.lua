@@ -89,29 +89,7 @@ function stop()
     terralistic_print("BaseGame mod stopped.")
 end
 
--- This function is called when the mod is updated.
+-- This function is called every frame.
 function update()
 
-end
-
--- This function is called, when a world is being generated.
-function generate_world(width, height, terrain)
-    result = {}
-    for x = 1, width do
-        result[x] = {}
-    end
-
-    -- Iterate over all blocks in the terrain.
-    for x = 1, width do
-        for y = 1, height do
-            -- if terrain is 0, set air, else set dirt
-            if terrain[x][y] == 0 then
-                result[x][y] = air
-            else
-                result[x][y] = dirt
-            end
-        end
-    end
-
-    return result
 end

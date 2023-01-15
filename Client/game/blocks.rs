@@ -1,6 +1,6 @@
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::blocks::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
+use shared::blocks::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use shared::mod_manager::ModManager;
 use events::Event;
 use crate::game::camera::Camera;
@@ -48,8 +48,8 @@ impl RenderBlockChunk {
             self.rect_array.update();
         }
 
-        let screen_x = world_x * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 as i32;
-        let screen_y = world_y * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 as i32;
+        let screen_x = world_x * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
+        let screen_y = world_y * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
         self.rect_array.render(graphics, Some(atlas.get_texture()), screen_x, screen_y);
     }
 }
@@ -121,8 +121,8 @@ impl ClientBlocks {
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
-        let (top_left_x, top_left_y) = (top_left_x as i32 / RENDER_BLOCK_WIDTH, top_left_y as i32 / RENDER_BLOCK_WIDTH);
-        let (bottom_right_x, bottom_right_y) = (bottom_right_x as i32 / RENDER_BLOCK_WIDTH, bottom_right_y as i32 / RENDER_BLOCK_WIDTH);
+        let (top_left_x, top_left_y) = (top_left_x as i32 / BLOCK_WIDTH, top_left_y as i32 / BLOCK_WIDTH);
+        let (bottom_right_x, bottom_right_y) = (bottom_right_x as i32 / BLOCK_WIDTH, bottom_right_y as i32 / BLOCK_WIDTH);
         let (top_left_x, top_left_y) = (top_left_x / CHUNK_SIZE, top_left_y / CHUNK_SIZE);
         let (bottom_right_x, bottom_right_y) = (bottom_right_x / CHUNK_SIZE + 1, bottom_right_y / CHUNK_SIZE + 1);
         for x in top_left_x..bottom_right_x {

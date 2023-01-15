@@ -1,5 +1,6 @@
 use graphics::GraphicsContext;
 use graphics as gfx;
+use shared::blocks::blocks::BLOCK_WIDTH;
 use shared::mod_manager::GameMod;
 use shared_mut::SharedMut;
 use events::EventManager;
@@ -66,6 +67,8 @@ impl Game {
         let result = init_thread.join().unwrap();
         self.mods = result.0;
         self.blocks = result.1;
+
+        self.camera.set_position(self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32, self.blocks.blocks.get_height() as f32 / 3.0 * BLOCK_WIDTH as f32);
 
         self.background.init();
 

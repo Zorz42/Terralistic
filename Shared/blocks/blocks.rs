@@ -9,7 +9,7 @@ use crate::blocks::tool::Tool;
 use crate::mod_manager::ModManager;
 
 pub const BLOCK_WIDTH: i32 = 8;
-pub const RENDER_SCALE: f32 = 0.5;
+pub const RENDER_SCALE: f32 = 2.0;
 pub const RENDER_BLOCK_WIDTH: i32 = (BLOCK_WIDTH as f32 * RENDER_SCALE) as i32;
 pub const UNBREAKABLE: i32 = -1;
 pub const CHUNK_SIZE: i32 = 16;
