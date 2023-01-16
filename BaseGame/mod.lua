@@ -41,14 +41,17 @@ function init()
     -- register blocks
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
+    block_type["can_update_states"] = true
     dirt_block = terralistic_register_block_type(block_type)
 
     block_type = terralistic_new_block_type()
     block_type["name"] = "stone_block"
+    block_type["can_update_states"] = true
     stone_block = terralistic_register_block_type(block_type)
 
     block_type = terralistic_new_block_type()
     block_type["name"] = "copper_ore"
+    block_type["can_update_states"] = true
     copper_ore = terralistic_register_block_type(block_type)
 
     terralistic_print("BaseGame mod loaded.")

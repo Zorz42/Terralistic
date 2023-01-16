@@ -1,5 +1,7 @@
+use std::sync::Arc;
 use graphics::GraphicsContext;
 use graphics as gfx;
+use shared::blocks::block_type::BlockType;
 use shared::blocks::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use shared::mod_manager::ModManager;
 use events::Event;
@@ -19,6 +21,14 @@ impl RenderBlockChunk {
         }
     }
 
+    fn can_connect_to(block_type: Arc<BlockType>, x: i32, y: i32, blocks: &Blocks) -> bool {
+        if x < 0 || y < 0 || x >= blocks.get_width() as i32 || y >= blocks.get_height() as i32 {
+            return true;
+        }
+        let block = blocks.get_block_type(x, y);
+        return block_type.connects_to.contains(&block.get_id()) || block == block_type;
+    }
+
     pub fn render(&mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas, world_x: i32, world_y: i32, blocks: &Blocks, camera: &Camera) {
         if self.needs_update {
             self.needs_update = false;
@@ -29,8 +39,22 @@ impl RenderBlockChunk {
                     let curr_block = blocks.get_block_type(world_x + x, world_y + y);
                     let mut curr_block_rect = atlas.get_rect(curr_block.id as usize).clone();
                     if curr_block_rect.w != 0 && curr_block_rect.h != 0 {
+                        let mut block_state = 0;
+                        let block_type = blocks.get_block_type(world_x + x, world_y + y);
+
+                        if block_type.can_update_states {
+                            let coordinates = [(0, -1), (1, 0), (0, 1), (-1, 0)];
+
+                            for i in 0..4 {
+                                if Self::can_connect_to(block_type.clone(), world_x + x + coordinates[i].0, world_y + y + coordinates[i].1, blocks) {
+                                    block_state += 1 << i;
+                                }
+                            }
+                        }
+
                         curr_block_rect.w = BLOCK_WIDTH;
                         curr_block_rect.h = BLOCK_WIDTH;
+                        curr_block_rect.y += BLOCK_WIDTH * block_state;
                         self.rect_array.add_rect(
                             &gfx::Rect::new(x * RENDER_BLOCK_WIDTH, y * RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
                             &[

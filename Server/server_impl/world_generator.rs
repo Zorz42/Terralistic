@@ -95,7 +95,6 @@ impl WorldGenerator {
             // the width is a random number between the min and max width
             let biome = &self.biomes.borrow()[curr_biome as usize];
             let biome_width = rand::random::<i32>().abs() % (biome.max_width - biome.min_width) + biome.min_width;
-            println!("Biome width: {}", biome_width);
             for _ in 0..biome_width {
                 min_heights.push(biome.min_terrain_height as f64);
                 max_heights.push(biome.max_terrain_height as f64);
@@ -160,15 +159,6 @@ impl WorldGenerator {
                 };
 
                 terrain[x as usize][y as usize] = value;
-            }
-        }
-
-        // create a border in terrain
-        for x in 0..width {
-            for y in 0..height {
-                if x == 0 || y == 0 || x == width - 1 || y == height - 1 {
-                    terrain[x as usize][y as usize] = 1;
-                }
             }
         }
 
