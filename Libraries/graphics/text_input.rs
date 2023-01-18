@@ -1,5 +1,8 @@
+use sdl2::keyboard::Keycode;
 use crate::{Color, Container, GraphicsContext, Texture, Orientation, TOP_LEFT, Rect, Key, Event, RenderRect, WHITE, GREY};
 use crate::theme::{GFX_DEFAULT_TEXT_INPUT_WIDTH, GFX_DEFAULT_TEXT_INPUT_COLOR, GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_PADDING, GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY};
+
+const SPACE_CHARACTERS: [char; 3] = [' ', '-', '_'];
 
 pub struct TextInput {
     pub x: i32,
@@ -129,6 +132,33 @@ impl TextInput {
             (self.cursor.0, self.cursor.1)
         }
     }
+
+    /**finds a space character on the right*/
+    fn find_space_right(&self, mut initial_pos: usize, is_ctrl_pressed: bool) -> usize {
+        if initial_pos < self.text.len() {
+            initial_pos += 1;
+        }
+        if is_ctrl_pressed {
+            while initial_pos < self.text.len() && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos).unwrap()) {
+                initial_pos += 1;
+            }
+        }
+        initial_pos
+    }
+
+    /**finds a space character on the left*/
+    fn find_space_left(&self, mut initial_pos: usize, is_ctrl_pressed: bool) -> usize {
+        if initial_pos > 0 {
+            initial_pos -= 1;
+        }
+        if is_ctrl_pressed {
+            while initial_pos > 0 && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos - 1).unwrap()) {
+                initial_pos -= 1;
+            }
+        }
+        initial_pos
+    }
+
 
     /**
     renders the text input
@@ -299,14 +329,12 @@ impl TextInput {
                     },
                     Key::Left => {
                         if graphics.renderer.get_key_state(Key::LeftShift) {
-                            if self.cursor.1 > 0 {
-                                self.cursor.1 -= 1;
-                            }
+                            self.cursor.1 = self.find_space_left(self.cursor.1, graphics.renderer.get_key_state(Key::LeftControl));
                         } else {
                             if self.cursor.0 != self.cursor.1 {
                                 self.cursor.0 = self.get_cursor().0;
                             } else if self.cursor.0 > 0 {
-                                self.cursor.0 -= 1;
+                                self.cursor.0 = self.find_space_left(self.cursor.0, graphics.renderer.get_key_state(Key::LeftControl));
                             }
 
                             self.cursor.1 = self.cursor.0;
@@ -314,14 +342,12 @@ impl TextInput {
                     },
                     Key::Right => {
                         if graphics.renderer.get_key_state(Key::LeftShift) {
-                            if self.cursor.1 < self.text.len() {
-                                self.cursor.1 += 1;
-                            }
+                            self.cursor.1 = self.find_space_right(self.cursor.1, graphics.renderer.get_key_state(Key::LeftControl));
                         } else {
                             if self.cursor.0 != self.cursor.1 {
                                 self.cursor.0 = self.get_cursor().1;
                             } else if self.cursor.0 < self.text.len() {
-                                self.cursor.0 += 1;
+                                self.cursor.0 = self.find_space_right(self.cursor.0, graphics.renderer.get_key_state(Key::LeftControl));
                             }
                             self.cursor.1 = self.cursor.0;
                         }
