@@ -3,6 +3,7 @@ extern crate queues;
 
 use queues::*;
 use std::collections::HashMap;
+use copypasta::ClipboardContext;
 use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
 use crate::blur::BlurContext;
 use crate::events::{sdl_event_to_gfx_event};
@@ -30,6 +31,7 @@ pub struct Renderer {
     key_states: HashMap<Key, bool>,
     events: Vec<Event>,
     pub(crate) shadow_context: ShadowContext,
+    pub ClipboardContext: ClipboardContext,
 }
 
 impl Renderer {
@@ -97,6 +99,7 @@ impl Renderer {
             shadow_context,
             events_queue: Queue::new(),
             window_open: true,
+            ClipboardContext: ClipboardContext::new().unwrap(),
         };
 
         result.handle_window_resize();
