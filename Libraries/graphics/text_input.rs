@@ -312,8 +312,8 @@ impl TextInput {
                             self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
                             self.cursor.0 = self.get_cursor().0;
                         } else if self.cursor.0 > 0 {
-                            self.text.remove(self.cursor.0 - 1);
-                            self.cursor.0 -= 1;
+                            self.cursor.0 = self.find_space_left(self.cursor.0, graphics.renderer.get_key_state(Key::LeftControl));
+                            self.text.replace_range(self.cursor.0..self.cursor.1, "");
                         }
                         self.cursor.1 = self.cursor.0;
                         self.text_changed = true;
@@ -324,7 +324,9 @@ impl TextInput {
                             self.cursor.0 = self.get_cursor().0;
                             self.cursor.1 = self.cursor.0;
                         } else if self.text.len() > self.cursor.0 {
-                            self.text.remove(self.cursor.0);
+                            self.cursor.1 = self.find_space_right(self.cursor.0, graphics.renderer.get_key_state(Key::LeftControl));
+                            self.text.replace_range(self.cursor.0..self.cursor.1, "");
+                            self.cursor.1 = self.cursor.0;
                         }
                         self.text_changed = true;
                     },
