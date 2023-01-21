@@ -1,9 +1,10 @@
-use super::{walls, entities::*, blocks, blocks::{blocks::Block, block_type::BlockType}};
+use super::{walls, entities::*, blocks, blocks::{Block, BlockType}};
 use std::{rc::Rc, collections::hash_map};
+use std::collections::HashMap;
 use std::ops::Deref;
 use serde_derive::{Serialize, Deserialize};
-use crate::blocks::blocks::Blocks;
-use crate::blocks::tool::Tool;
+use crate::blocks::{BlockId, Blocks};
+use crate::blocks::Tool;
 
 const ITEM_WIDTH: i32 = 8;
 
@@ -122,11 +123,10 @@ pub struct Items {
 
     items: Vec<Item>,
     item_types: Vec<Rc<ItemType>>,
-    block_drops: Vec<TileDrop>,
-    wall_drops: Vec<TileDrop>,
+    block_drops: HashMap<BlockId, TileDrop>,
+    wall_drops: HashMap<i32, TileDrop>,
 
     pub nothing: Rc<ItemType>,
-    pub no_drop: TileDrop,
 
     //item_creation_event: Sender<ItemCreationEvent>,
     //item_position_change_event: Sender<EntityPositionChangeEvent>,
@@ -144,10 +144,9 @@ impl Items {
         Items{
             items: Vec::new(),
             item_types,
-            block_drops: Vec::new(),
-            wall_drops: Vec::new(),
+            block_drops: HashMap::new(),
+            wall_drops: HashMap::new(),
             nothing: nothing.clone(),
-            no_drop: TileDrop::new(nothing.clone(), 0.0),
             //item_creation_event: Sender::new(),
             //item_position_change_event: Sender::new(),
             //item_velocity_change_event: Sender::new(),
@@ -190,31 +189,19 @@ impl Items {
     }
     /**this function sets the block drop for the given block type*/
     pub fn set_block_drop(&mut self, block_type: Rc<BlockType>, drop: TileDrop) {
-        while self.block_drops.len() <= block_type.get_id() as usize {
-            self.block_drops.push(TileDrop::new(self.nothing.clone(), 0.0));
-        }
-        self.block_drops[block_type.get_id() as usize] = drop;
+        self.block_drops.insert(block_type.get_id(), drop);
     }
     /**this function returns the block drop for the given block type*/
-    pub fn get_block_drop(&self, block_type: Rc<BlockType>) -> &TileDrop {
-        if block_type.get_id() < self.block_drops.len() as i32 {
-            return &self.block_drops[block_type.get_id() as usize];
-        }
-        &self.no_drop
+    pub fn get_block_drop(&self, block_type: Rc<BlockType>) -> Option<&TileDrop> {
+        self.block_drops.get(&block_type.get_id())
     }
     /**this function sets the wall drop for the given wall type*/
     pub fn set_wall_drop(&mut self, wall_type: Rc<walls::WallType>, drop: TileDrop) {
-        while self.wall_drops.len() <= wall_type.id as usize { //TODO: use a hashmap instead of a vector
-            self.wall_drops.push(TileDrop::new(self.nothing.clone(), 0.0));
-        }
-        self.wall_drops[wall_type.id as usize] = drop;
+        self.wall_drops.insert(wall_type.id, drop);
     }
     /**this function returns the wall drop for the given wall type*/
-    pub fn get_wall_drop(&self, wall_type: Rc<walls::WallType>) -> &TileDrop {
-        if wall_type.id < self.wall_drops.len() as i32 {
-            return &self.wall_drops[wall_type.id as usize];
-        }
-        &self.no_drop
+    pub fn get_wall_drop(&self, wall_type: Rc<walls::WallType>) -> Option<&TileDrop> {
+        self.wall_drops.get(&wall_type.id)
     }
 }
 

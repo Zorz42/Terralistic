@@ -1,8 +1,8 @@
-use std::sync::Arc;
+use std::collections::HashMap;
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::blocks::block_type::BlockType;
-use shared::blocks::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
+use shared::blocks::{BlockId};
+use shared::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use shared::mod_manager::ModManager;
 use events::Event;
 use crate::game::camera::Camera;
@@ -21,32 +21,33 @@ impl RenderBlockChunk {
         }
     }
 
-    fn can_connect_to(block_type: Arc<BlockType>, x: i32, y: i32, blocks: &Blocks) -> bool {
+    fn can_connect_to(block_type: BlockId, x: i32, y: i32, blocks: &Blocks) -> bool {
         if x < 0 || y < 0 || x >= blocks.get_width() as i32 || y >= blocks.get_height() as i32 {
             return true;
         }
-        let block = blocks.get_block_type(x, y);
-        return block_type.connects_to.contains(&block.get_id()) || block == block_type;
+        let block = blocks.get_block_type_at(x, y);
+        let block_type = blocks.get_block_type(block_type);
+        return block_type.connects_to.contains(&block.get_id()) || block.get_id() == block_type.get_id();
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas, world_x: i32, world_y: i32, blocks: &Blocks, camera: &Camera) {
+    pub fn render(&mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas<BlockId>, world_x: i32, world_y: i32, blocks: &Blocks, camera: &Camera) {
         if self.needs_update {
             self.needs_update = false;
 
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let curr_block = blocks.get_block_type(world_x + x, world_y + y);
-                    let mut curr_block_rect = atlas.get_rect(curr_block.id as usize).clone();
+                    let curr_block = blocks.get_block_type_at(world_x + x, world_y + y);
+                    let mut curr_block_rect = atlas.get_rect(curr_block.get_id()).unwrap().clone();
                     if curr_block_rect.w != 0 && curr_block_rect.h != 0 {
                         let mut block_state = 0;
-                        let block_type = blocks.get_block_type(world_x + x, world_y + y);
+                        let block_type = blocks.get_block_type_at(world_x + x, world_y + y);
 
                         if block_type.can_update_states {
                             let coordinates = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
                             for i in 0..4 {
-                                if Self::can_connect_to(block_type.clone(), world_x + x + coordinates[i].0, world_y + y + coordinates[i].1, blocks) {
+                                if Self::can_connect_to(block_type.get_id(), world_x + x + coordinates[i].0, world_y + y + coordinates[i].1, blocks) {
                                     block_state += 1 << i;
                                 }
                             }
@@ -84,7 +85,7 @@ Client blocks handles client side block stuff, such as rendering
 pub struct ClientBlocks {
     pub blocks: Blocks,
     chunks: Vec<RenderBlockChunk>,
-    atlas: gfx::TextureAtlas,
+    atlas: gfx::TextureAtlas<BlockId>,
 }
 
 impl ClientBlocks {
@@ -92,7 +93,7 @@ impl ClientBlocks {
         Self {
             blocks: Blocks::new(),
             chunks: Vec::new(),
-            atlas: gfx::TextureAtlas::new(Vec::new()),
+            atlas: gfx::TextureAtlas::new(HashMap::new()),
         }
     }
 
@@ -127,15 +128,13 @@ impl ClientBlocks {
         }
 
         // go through all the block types get their images and load them
-        let mut surfaces = Vec::new();
-        for id in 0..self.blocks.get_number_block_types() {
+        let mut surfaces = HashMap::new();
+        for id in self.blocks.get_all_block_types() {
             let block_type = self.blocks.get_block_type_by_id(id);
             let image_resource = mods.get_resource(format!("blocks:{}.opa", block_type.name));
             if let Some(image_resource) = image_resource {
                 let image = gfx::Surface::deserialize(image_resource.clone());
-                surfaces.push(image);
-            } else {
-                surfaces.push(gfx::Surface::new(0, 0));
+                surfaces.insert(id, image);
             }
         }
 

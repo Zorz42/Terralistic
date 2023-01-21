@@ -1,6 +1,6 @@
 use graphics::GraphicsContext;
 use graphics as gfx;
-use shared::blocks::blocks::BLOCK_WIDTH;
+use shared::blocks::BLOCK_WIDTH;
 use shared::mod_manager::GameMod;
 use shared_mut::SharedMut;
 use events::EventManager;

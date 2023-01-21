@@ -2,8 +2,8 @@ use std::sync::Arc;
 use serde_derive::{Serialize, Deserialize};
 use bincode;
 use snap;
-use crate::blocks::blocks::{Blocks, CHUNK_SIZE, UNBREAKABLE};
-use crate::blocks::tool::Tool;
+use crate::blocks::{Blocks, CHUNK_SIZE, ToolId, UNBREAKABLE};
+use crate::blocks::Tool;
 
 struct WallChangeEvent {
     pub x: i32,
@@ -107,7 +107,7 @@ struct Walls{
     curr_id: i32,
 
     pub clear: Arc<WallType>,
-    pub hammer: Arc<Tool>,
+    pub hammer: ToolId,
 
     width: i32,
     height: i32,
@@ -131,7 +131,7 @@ impl Walls{
             curr_id: 0,
 
             clear: temp,
-            hammer: Arc::new(Tool::new("Hammer".to_string())),
+            hammer: ToolId::new(),
 
             width: blocks.get_width(),
             height: blocks.get_height(),
@@ -144,7 +144,9 @@ impl Walls{
         let clear_type = WallType::new(0, 0, "clear".to_string());
         walls.register_wall_type(clear_type);
         walls.clear = walls.wall_types[0].clone();
-        blocks.register_new_tool_type(walls.hammer.clone());
+
+        let hammer = Tool::new("Hammer".to_string());
+        walls.hammer = blocks.register_new_tool_type(hammer);
         walls
     }
 

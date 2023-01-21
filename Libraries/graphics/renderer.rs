@@ -31,7 +31,7 @@ pub struct Renderer {
     key_states: HashMap<Key, bool>,
     events: Vec<Event>,
     pub(crate) shadow_context: ShadowContext,
-    pub ClipboardContext: ClipboardContext,
+    pub clipboard_context: ClipboardContext,
 }
 
 impl Renderer {
@@ -99,7 +99,7 @@ impl Renderer {
             shadow_context,
             events_queue: Queue::new(),
             window_open: true,
-            ClipboardContext: ClipboardContext::new().unwrap(),
+            clipboard_context: ClipboardContext::new().unwrap(),
         };
 
         result.handle_window_resize();

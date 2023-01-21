@@ -1,7 +1,7 @@
 use noise::{NoiseFn, Perlin};
-use rlua::prelude::{LuaUserData, LuaUserDataMethods};
+use rlua::prelude::{LuaUserData};
 use rlua::UserDataMethods;
-use shared::blocks::blocks::Blocks;
+use shared::blocks::{BlockId, Blocks};
 use shared::mod_manager::ModManager;
 use shared_mut::SharedMut;
 
@@ -128,7 +128,7 @@ impl WorldGenerator {
         *status_text.borrow() = "Generating world".to_string();
         blocks.create(width, height);
 
-        let mut terrain = vec![vec![0; height as usize]; width as usize];
+        let mut terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
 
         let noise = Perlin::new(seed);
 
@@ -155,7 +155,7 @@ impl WorldGenerator {
                 let value= if terrain_height < terrain_noise && cave_threshold < cave_noise {
                     self.biomes.borrow()[biome_ids[x as usize] as usize].base_block
                 } else {
-                    blocks.air.get_id()
+                    blocks.air
                 };
 
                 terrain[x as usize][y as usize] = value;
@@ -178,7 +178,7 @@ struct Biome {
     pub max_width: i32,
     pub min_terrain_height: i32,
     pub max_terrain_height: i32,
-    pub base_block: i32,
+    pub base_block: BlockId,
     // the first element is connection weight, the second is the biome id
     pub adjacent_biomes: Vec<(i32, i32)>,
 }
@@ -190,7 +190,7 @@ impl Biome {
             max_width: 0,
             min_terrain_height: 0,
             max_terrain_height: 0,
-            base_block: 0,
+            base_block: BlockId::new(),
             adjacent_biomes: Vec::new(),
         }
     }
@@ -207,10 +207,17 @@ impl LuaUserData for Biome {
                 "max_width" => Ok(this.max_width),
                 "min_terrain_height" => Ok(this.min_terrain_height),
                 "max_terrain_height" => Ok(this.max_terrain_height),
+                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
+            }
+        });
+
+        methods.add_meta_method(rlua::MetaMethod::Index, |_lua_ctx, this, key: String| {
+            match key.as_str() {
                 "base_block" => Ok(this.base_block),
                 _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
             }
         });
+
         // add meta method to set fields
         methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
             match key.as_str() {
@@ -242,9 +249,21 @@ impl LuaUserData for Biome {
                     }
                     Ok(())
                 },
+                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of BlockType", key))),
+            }
+        });
+
+        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
+            match key.as_str() {
                 "base_block" => {
+                    // base_block is a BlockId, so we need to convert the value to a BlockId
                     match value {
-                        rlua::Value::Integer(b) => this.base_block = b as i32,
+                        rlua::Value::UserData(b) => {
+                            match b.borrow::<BlockId>() {
+                                Ok(b) => this.base_block = *b,
+                                Err(_) => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for base_block")))
+                            }
+                        },
                         _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for base_block")))
                     }
                     Ok(())

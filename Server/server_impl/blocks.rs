@@ -1,4 +1,4 @@
-use shared::blocks::blocks::{Blocks, BlocksWelcomePacket};
+use shared::blocks::{Blocks, BlocksWelcomePacket};
 use shared::mod_manager::ModManager;
 use shared::packet::Packet;
 use events::Event;

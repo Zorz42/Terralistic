@@ -1,8 +1,8 @@
 use std::{collections::hash_map::HashMap, rc::Rc};
 use std::mem::MaybeUninit;
 use super::{items::*, blocks::*, player::*, entities::*};
-use crate::blocks::block_type::BlockType;
-use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
+use crate::blocks::BlockType;
+use crate::blocks::{BLOCK_WIDTH, Blocks};
 
 //TODO: iKramp do debug assertions for all panics
 
@@ -122,9 +122,9 @@ impl Inventory {
             let player_coords = [players.get_entity_by_id(self.player_id).unwrap().get_x() as i32, players.get_entity_by_id(self.player_id).unwrap().get_y() as i32];
             for x in -CRAFTING_BLOCK_RANGE..CRAFTING_BLOCK_RANGE {
                 for y in -CRAFTING_BLOCK_RANGE..CRAFTING_BLOCK_RANGE {
-                    let block = blocks.get_block(std::cmp::min(blocks.get_width(), std::cmp::max(0, player_coords[0] / (BLOCK_WIDTH * 2) + x)),
+                    let block_id = blocks.get_block_id(std::cmp::min(blocks.get_width(), std::cmp::max(0, player_coords[0] / (BLOCK_WIDTH * 2) + x)),
                                                  std::cmp::min(blocks.get_height(), std::cmp::max(0, player_coords[1] / (BLOCK_WIDTH * 2) + y)));
-                    if block.id == recipe.crafting_block.as_ref().unwrap().get_id() {
+                    if block_id == recipe.crafting_block.as_ref().unwrap().get_id() {
                         return true;
                     }
                 }

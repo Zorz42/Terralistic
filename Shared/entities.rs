@@ -1,7 +1,6 @@
 use std::sync::{Mutex};
-use super::blocks::*;
 use once_cell::sync::Lazy;
-use crate::blocks::blocks::{BLOCK_WIDTH, Blocks};
+use crate::blocks::{BLOCK_WIDTH, Blocks};
 
 #[derive(PartialEq)]
 pub enum EntityType { ITEM, PLAYER }//TODO: remove this since they're now in separate objects?
@@ -92,7 +91,7 @@ impl EntityObject for Entity{
 
         for x in starting_x..ending_x + 1 {
             for y in starting_y..ending_y + 1 {
-                if !blocks.get_block_type(x, y).ghost && !blocks.get_block_type(x, y).feet_collidable {
+                if !blocks.get_block_type_at(x, y).ghost && !blocks.get_block_type_at(x, y).feet_collidable {
                     return true
                 }
             }

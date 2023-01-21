@@ -1,7 +1,6 @@
-use sdl2::keyboard::Keycode;
 use crate::{Color, Container, GraphicsContext, Texture, Orientation, TOP_LEFT, Rect, Key, Event, RenderRect, WHITE, GREY};
 use crate::theme::{GFX_DEFAULT_TEXT_INPUT_WIDTH, GFX_DEFAULT_TEXT_INPUT_COLOR, GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_PADDING, GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY};
-use copypasta::{ClipboardContext, ClipboardProvider};
+use copypasta::{ClipboardProvider};
 
 const SPACE_CHARACTERS: [char; 3] = [' ', '-', '_'];
 
@@ -357,12 +356,12 @@ impl TextInput {
                     },
                     Key::C => {
                         if graphics.renderer.get_key_state(Key::LeftControl) {
-                            graphics.renderer.ClipboardContext.set_contents(self.text[self.get_cursor().0..self.get_cursor().1].to_string());
+                            graphics.renderer.clipboard_context.set_contents(self.text[self.get_cursor().0..self.get_cursor().1].to_string()).unwrap();
                         }
                     },
                     Key::V => {
                         if graphics.renderer.get_key_state(Key::LeftControl) {
-                            if let Ok(text) = graphics.renderer.ClipboardContext.get_contents() {
+                            if let Ok(text) = graphics.renderer.clipboard_context.get_contents() {
                                 println!("Clipboard text: {}", text);
                                 if self.cursor.0 != self.cursor.1 {
                                     self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");//add text filtering lol
@@ -379,7 +378,7 @@ impl TextInput {
                         if graphics.renderer.get_key_state(Key::LeftControl) {
                             if self.cursor.0 != self.cursor.1 {
                                 if graphics.renderer.get_key_state(Key::LeftControl) {
-                                    graphics.renderer.ClipboardContext.set_contents(self.text[self.get_cursor().0..self.get_cursor().1].to_string());
+                                    graphics.renderer.clipboard_context.set_contents(self.text[self.get_cursor().0..self.get_cursor().1].to_string()).unwrap();
                                 }
                                 self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");//add text filtering lol
                                 self.cursor.0 = self.get_cursor().0;

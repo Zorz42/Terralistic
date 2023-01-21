@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use rlua::{ToLua, UserDataMethods};
+use crate::blocks::BlockId;
 use crate::blocks::tool::Tool;
 
 /**
@@ -20,7 +21,7 @@ pub struct BlockType{
     pub name: String,
     // to which blocks it visually connects
     // TODO: implement for lua
-    pub connects_to: Vec<i32>,
+    pub connects_to: Vec<BlockId>,
     // how much time it takes to break the block
     pub break_time: i32,
     // what light color the block emits
@@ -28,7 +29,7 @@ pub struct BlockType{
     pub light_emission_g: u8,
     pub light_emission_b: u8,
     // block id, used for saving and loading and for networking
-    pub id: i32,
+    pub(super) id: BlockId,
     // if the block is larger than 1x1 it connects with other blocks of the same type
     // and those blocks break and place together, for example: canopies
     pub width: i32,
@@ -169,7 +170,7 @@ impl BlockType {
             light_emission_r: 0,
             light_emission_g: 0,
             light_emission_b: 0,
-            id: 0,
+            id: BlockId::new(),
             width: 0,
             height: 0,
             can_update_states: false,
@@ -180,7 +181,7 @@ impl BlockType {
     /**
     This function returns the block id
      */
-    pub fn get_id(&self) -> i32 {
+    pub fn get_id(&self) -> BlockId {
         self.id
     }
 }
