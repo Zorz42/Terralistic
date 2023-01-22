@@ -43,15 +43,15 @@ impl Server {
         }
     }
 
-    pub fn start(&mut self, status_text: SharedMut<String>) {
+    pub fn start(&mut self, status_text: SharedMut<String>, mods: Vec<Vec<u8>>) {
         println!("Starting server...");
         let timer = std::time::Instant::now();
         *self.server_state.borrow() = ServerState::Starting;
         *status_text.borrow() = "Starting server".to_string();
 
-        // load base game mod
-        let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
-        self.mods.mod_manager.add_mod(base_mod);
+        for mod_ in mods {
+            self.mods.mod_manager.add_mod(bincode::deserialize(&*mod_).unwrap());
+        }
 
         // init modules
         self.networking.init();
@@ -83,6 +83,7 @@ impl Server {
 
             // handle events
             while let Some(event) = self.events.pop_event() {
+                self.mods.on_event(&event, &mut self.networking);
                 self.blocks.on_event(&event, &mut self.networking);
                 self.networking.on_event(&event);
             }

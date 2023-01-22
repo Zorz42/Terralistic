@@ -1,4 +1,6 @@
-use shared::mod_manager::{ModManager};
+use shared::mod_manager::{ModManager, ModsWelcomePacket};
+use events::Event;
+use crate::game::networking::WelcomePacketEvent;
 
 /**
 Client mod manager that manages all the mods for the client.
@@ -40,6 +42,17 @@ impl ClientModManager {
      */
     pub fn update(&mut self) {
         self.mod_manager.update();
+    }
+
+    pub fn on_event(&mut self, event: &Event) {
+        if let Some(event) = event.downcast::<WelcomePacketEvent>() {
+            if let Some(packet) = event.packet.deserialize::<ModsWelcomePacket>() {
+                for mod_data in packet.mods {
+                    let game_mod = bincode::deserialize(&mod_data).unwrap();
+                    self.mod_manager.add_mod(game_mod);
+                }
+            }
+        }
     }
 
     /**

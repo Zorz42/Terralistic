@@ -21,7 +21,7 @@ pub fn run_private_world(graphics: &mut GraphicsContext, menu_back: &mut dyn Bac
     // start server in async thread
     let server_thread = std::thread::spawn(|| {
         let mut server = Server::new(server_running2, server_state2, SINGLEPLAYER_PORT);
-        server.start(loading_text2);
+        server.start(loading_text2, vec![include_bytes!("../../BaseGame/BaseGame.mod").to_vec()]);
     });
 
     run_loading_screen(graphics, menu_back, loading_text);

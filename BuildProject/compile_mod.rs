@@ -2,9 +2,10 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use darklua_core::generator::{DenseLuaGenerator, LuaGenerator};
 use darklua_core::Parser;
-use shared::mod_manager::{GameMod, GameModData};
+use shared::mod_manager::GameMod;
 use crate::png_to_opa::png_file_to_opa_bytes;
 use graphics as gfx;
+use serde::{Serialize, Deserialize};
 
 /**
 This function compiles a game mod from a directory.
@@ -32,11 +33,13 @@ pub fn compile_mod(mod_path: PathBuf) {
 
     let minified_lua_code = generator.into_string();
     let resources = generate_resources(mod_path.join("Resources"), "".to_string());
-    let mod_data = GameModData::new(minified_lua_code, resources);
-    let mod_obj = GameMod::new(mod_data);
+    let mod_obj = GameMod::new(minified_lua_code, resources);
+
+    // serialize the mod to a byte array
+    let mod_bytes = bincode::serialize(&mod_obj).unwrap();
 
     // write the mod to a file that has the same name as the mod's directory and a .mod extension
-    std::fs::write(mod_path.join(format!("{}.mod", mod_path.file_name().unwrap().to_str().unwrap())), mod_obj.to_bytes()).unwrap();
+    std::fs::write(mod_path.join(format!("{}.mod", mod_path.file_name().unwrap().to_str().unwrap())), mod_bytes).unwrap();
 }
 
 /**
