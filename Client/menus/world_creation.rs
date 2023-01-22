@@ -32,6 +32,13 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
     world_name_input.set_hint(graphics, String::from("World name"));
     world_name_input.orientation = gfx::CENTER;
     world_name_input.selected = true;
+    world_name_input.y = -(world_name_input.get_height() + gfx::SPACING) / 2;
+
+    let mut world_seed_input = gfx::TextInput::new(graphics);
+    world_seed_input.scale = 3.0;
+    world_seed_input.set_hint(graphics, String::from("World seed"));
+    world_seed_input.orientation = gfx::CENTER;
+    world_seed_input.y = (world_seed_input.get_height() + gfx::SPACING) / 2;
 
     world_name_input.text_processing = Some(Box::new(|text: char| {
         // this closure only accepts letters, numbers and _ symbol
@@ -41,10 +48,19 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
         None
     }));
 
+    world_seed_input.text_processing = Some(Box::new(|text: char| {
+        // this closure only accepts numbers
+        if text.is_numeric() {
+            return Some(text);
+        }
+        None
+    }));
+
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {//sorts out the events
             world_name_input.on_event(&event, graphics, None);
+            world_seed_input.on_event(&event, graphics, None);
             match event {
                 gfx::Event::KeyRelease(key) => {
                     match key {
@@ -57,8 +73,9 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
                             }
                         }
                         gfx::Key::Escape => {
-                            if world_name_input.selected {
+                            if world_name_input.selected || world_seed_input.selected {
                                 world_name_input.selected = false;
+                                world_seed_input.selected = false;
                             } else {
                                 break 'render_loop;
                             }
@@ -88,6 +105,7 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
         create_button.render(graphics, Some(&buttons_container));
 
         world_name_input.render(graphics, Some(&menu_back.get_back_rect_container()));
+        world_seed_input.render(graphics, Some(&menu_back.get_back_rect_container()));
 
         graphics.renderer.update_window();
     }
