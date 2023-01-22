@@ -62,7 +62,7 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
             world_name_input.on_event(&event, graphics, None);
             world_seed_input.on_event(&event, graphics, None);
             match event {
-                gfx::Event::KeyRelease(key) => {
+                gfx::Event::KeyRelease(key, ..) => {
                     match key {
                         gfx::Key::MouseLeft => {
                             if back_button.is_hovered(graphics, Some(&buttons_container)) {

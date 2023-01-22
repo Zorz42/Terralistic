@@ -6,8 +6,8 @@ A collection of all supported deprecated_events
 #[derive(Clone)]
 pub enum Event {
     // key press and release deprecated_events
-    KeyPress(Key),
-    KeyRelease(Key),
+    KeyPress(Key, bool),
+    KeyRelease(Key, bool),
     MouseScroll(f64),
     TextInput(String),
 }
@@ -17,22 +17,22 @@ Translates sdl type deprecated_events to our event type
  */
 pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Event> {
     match sdl_event {
-        sdl2::event::Event::KeyDown { keycode: Some(keycode), .. } => {
-            Some(Event::KeyPress(sdl_key_to_gfx_key(keycode)))
+        sdl2::event::Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
+            Some(Event::KeyPress(sdl_key_to_gfx_key(keycode), repeat))
         }
 
-        sdl2::event::Event::KeyUp { keycode: Some(keycode), .. } => {
-            Some(Event::KeyRelease(sdl_key_to_gfx_key(keycode)))
+        sdl2::event::Event::KeyUp { keycode: Some(keycode), repeat, .. } => {
+            Some(Event::KeyRelease(sdl_key_to_gfx_key(keycode), repeat))
         }
 
         sdl2::event::Event::MouseWheel { y, .. } => {
             Some(Event::MouseScroll(y as f64))
         }
         sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
-            Some(Event::KeyPress(sdl_mouse_button_to_gfx_key(mouse_btn)))
+            Some(Event::KeyPress(sdl_mouse_button_to_gfx_key(mouse_btn), false))
         }
         sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => {
-            Some(Event::KeyRelease(sdl_mouse_button_to_gfx_key(mouse_btn)))
+            Some(Event::KeyRelease(sdl_mouse_button_to_gfx_key(mouse_btn), false))
         }
         sdl2::event::Event::TextInput { text, .. } => {
             Some(Event::TextInput(text.clone()))

@@ -3,6 +3,7 @@ extern crate queues;
 
 use queues::*;
 use std::collections::HashMap;
+use std::ops::Deref;
 use copypasta::ClipboardContext;
 use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
 use crate::blur::BlurContext;
@@ -57,6 +58,7 @@ impl Renderer {
             .resizable()
             .build()
             .unwrap();
+
 
         let _gl_context = sdl_window.gl_create_context().unwrap();
         let _gl = gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
@@ -162,11 +164,11 @@ impl Renderer {
 
             if let Some(event) = sdl_event_to_gfx_event(sdl_event) {
                 // if event is a key press event update the key states to true
-                if let Event::KeyPress(key) = event {
+                if let Event::KeyPress(key, ..) = event {
                     self.set_key_state(key, true);
                 }
                 // if event is a key release event update the key states to false
-                if let Event::KeyRelease(key) = event {
+                if let Event::KeyRelease(key, ..) = event {
                     self.set_key_state(key, false);
                 }
 

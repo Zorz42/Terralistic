@@ -26,7 +26,7 @@ function mod_version()
 end
 
 -- global variables for block IDs
-air = 0 -- air is built-in and the id is always 0
+air = -1
 dirt_block = -1
 stone_block = -1
 copper_ore = -1

@@ -204,7 +204,7 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
             match event {
-                gfx::Event::KeyRelease(key) => {
+                gfx::Event::KeyRelease(key, ..) => {
                     match key {
                         gfx::Key::MouseLeft => {
                             if back_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {

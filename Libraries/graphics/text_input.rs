@@ -296,7 +296,7 @@ impl TextInput {
                 }
             }
 
-            Event::KeyPress (key) => {
+            Event::KeyPress (key, ..) => {
                 if key == &Key::MouseLeft {
                     self.selected = self.is_hovered(graphics, parent_container);
                 }

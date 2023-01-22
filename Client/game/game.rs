@@ -75,14 +75,50 @@ impl Game {
         // print the time it took to initialize
         println!("Game joined in {}ms", timer.elapsed().as_millis());
 
+        let mut paused = false;
+
+        let mut resume_button = gfx::Button::new();
+        resume_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume".to_string()));
+        resume_button.scale = 3.0;
+        resume_button.y = gfx::SPACING;
+        resume_button.x = -gfx::SPACING;
+        resume_button.orientation = gfx::TOP_RIGHT;
+
+        let mut quit_button = gfx::Button::new();
+        quit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit".to_string()));
+        quit_button.scale = 3.0;
+        quit_button.y = 2 * gfx::SPACING + resume_button.get_height();
+        quit_button.x = -gfx::SPACING;
+        quit_button.orientation = gfx::TOP_RIGHT;
+
+        let pause_rect_width = i32::max(resume_button.get_width(), quit_button.get_width()) + 2 * gfx::SPACING;
+        let mut pause_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, graphics.renderer.get_window_height() as f32);
+        pause_rect.fill_color = gfx::BLACK;
+        pause_rect.fill_color.a = gfx::TRANSPARENCY;
+        pause_rect.border_color = gfx::BORDER_COLOR;
+        pause_rect.blur_radius = gfx::BLUR;
+        pause_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
+        pause_rect.smooth_factor = 60.0;
+
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         'main_loop: while graphics.renderer.is_window_open() {
             while let Some(event) = graphics.renderer.get_event() {
                 match event {
-                    gfx::Event::KeyRelease(key) => {
+                    gfx::Event::KeyPress(key, false) => {
                         if key == gfx::Key::Escape {
-                            break 'main_loop;
+                            paused = !paused;
+                        }
+                    }
+                    gfx::Event::KeyRelease(key, false) => {
+                        if key == gfx::Key::MouseLeft {
+                            if paused {
+                                if resume_button.is_hovered(graphics, Some(&pause_rect.get_container(graphics, None))) {
+                                    paused = false;
+                                } else if quit_button.is_hovered(graphics, Some(&pause_rect.get_container(graphics, None))) {
+                                    break 'main_loop;
+                                }
+                            }
                         }
                     }
                     _ => {}
@@ -99,6 +135,18 @@ impl Game {
 
             self.background.render(graphics, &self.camera);
             self.blocks.render(graphics, &self.camera);
+
+            pause_rect.w = if paused { pause_rect_width as f32 } else { 0.0 };
+            pause_rect.shadow_intensity = (pause_rect.get_container(graphics, None).rect.w as f32 / pause_rect_width as f32 * gfx::SHADOW_INTENSITY as f32) as i32;
+            pause_rect.render(graphics, None);
+
+            if graphics.renderer.get_window_height() != pause_rect.h as u32 {
+                pause_rect.h = graphics.renderer.get_window_height() as f32;
+                pause_rect.jump_to_target();
+            }
+
+            resume_button.render(graphics, Some(&pause_rect.get_container(graphics, None)));
+            quit_button.render(graphics, Some(&pause_rect.get_container(graphics, None)));
 
             self.flush_events();
 

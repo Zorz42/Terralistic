@@ -70,7 +70,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
             match event {
-                gfx::Event::KeyRelease(key) => {
+                gfx::Event::KeyRelease(key, ..) => {
                     // check for every button if it was clicked with the left mouse button
                     if key == gfx::Key::MouseLeft {
                         if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
