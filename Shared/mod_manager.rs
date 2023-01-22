@@ -1,13 +1,20 @@
 use std::collections::HashMap;
+use bincode::Options;
 use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
 use rlua::prelude::LuaError;
-use serde_derive::{Serialize, Deserialize};
+use serde::ser::SerializeMap;
+use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq)]
 enum ModManagerState {
     LoadingMods,
     LoadingFunctions,
     Ready,
+}
+
+#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
+pub struct ModsWelcomePacket {
+    pub mods: Vec<Vec<u8>>,
 }
 
 /**
@@ -18,30 +25,17 @@ is the path of the resource file, relative to the game_mod
 but without the game_mod/ prefix and instead with a / separator
 it has a : separator. The byte array is the contents of the file.
  */
-#[derive(Serialize, Deserialize)]
-pub struct GameModData {
+pub struct GameMod {
     lua_code: String,
     resources: HashMap<String, Vec<u8>>,
-}
-
-impl GameModData {
-    pub fn new(lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
-        Self {
-            lua_code,
-            resources,
-        }
-    }
-}
-
-pub struct GameMod {
-    data: GameModData,
     lua: Lua,
 }
 
 impl GameMod {
-    pub fn new(data: GameModData) -> Self {
+    pub fn new(lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
         Self {
-            data,
+            lua_code,
+            resources,
             lua: Lua::new(),
         }
     }
@@ -53,7 +47,7 @@ impl GameMod {
      */ fn init(&mut self) {
         self.lua.context(|lua| {
             // load the game mod code
-            lua.load(&self.data.lua_code).exec().unwrap();
+            lua.load(&self.lua_code).exec().unwrap();
         });
 
         // execute the init function
@@ -103,30 +97,47 @@ impl GameMod {
     fn stop(&mut self) {
         self.call_function::<(), ()>("stop", ()).unwrap();
     }
-    /**
-    Loads mod from a byte array. It is serialized using bincode and
-    compressed with snap.
-     */
-    pub fn from_bytes(data: Vec<u8>) -> Self {
-        let data = snap::raw::Decoder::new().decompress_vec(&data).unwrap();
-        GameMod::new(bincode::deserialize(&data).unwrap())
-    }
-
-    /**
-    Converts the game mod to a byte array. It is serialized using bincode and
-    compressed with snap.
-     */
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let data = bincode::serialize(&self.data).unwrap();
-        snap::raw::Encoder::new().compress_vec(&data).unwrap()
-    }
 
     /**
     This function gets the resource with the given path.
     It returns a byte array with the contents of the resource.
      */
     fn get_resource(&self, path: String) -> Option<&Vec<u8>> {
-        self.data.resources.get(&path)
+        self.resources.get(&path)
+    }
+}
+
+#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
+struct GameModData {
+    lua_code: String,
+    resources: HashMap<String, Vec<u8>>,
+}
+
+// implement serialize and deserialize for game mod
+impl Serialize for GameMod {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+    {
+        let data = GameModData {
+            lua_code: self.lua_code.clone(),
+            resources: self.resources.clone(),
+        };
+        data.serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for GameMod {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de>,
+    {
+        let data = GameModData::deserialize(deserializer)?;
+        Ok(Self {
+            lua_code: data.lua_code,
+            resources: data.resources,
+            lua: Lua::new(),
+        })
     }
 }
 

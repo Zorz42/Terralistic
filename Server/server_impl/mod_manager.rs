@@ -1,4 +1,7 @@
-use shared::mod_manager::{ModManager};
+use shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
+use shared::packet::Packet;
+use events::Event;
+use crate::networking::{NewConnectionEvent, ServerNetworking};
 
 /**
 Server mod manager that manages all the mods for the server.
@@ -32,6 +35,23 @@ impl ServerModManager {
         });
 
         self.mod_manager.init();
+    }
+
+    pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) {
+        if let Some(event) = event.downcast::<NewConnectionEvent>() {
+            let mut mods = Vec::new();
+            for game_mod in self.mod_manager.mods_mut() {
+                mods.push(bincode::serialize(game_mod).unwrap());
+            }
+            let welcome_packet = Packet::new(ModsWelcomePacket {
+                mods,
+            });
+            networking.send_packet(&welcome_packet, &event.conn);
+        }
+    }
+
+    pub fn add_mod(&mut self, game_mod: GameMod) {
+        self.mod_manager.add_mod(game_mod);
     }
 
     /**

@@ -39,6 +39,9 @@ snap = "1.0.5"
 graphics = {"path" = "Libraries/graphics/"}
 shared = {"path" = "Shared/"}
 darklua = "0.8.0"
+serde = "1.0.130"
+serde_derive = "1.0.130"
+bincode = "1.3.3"
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"

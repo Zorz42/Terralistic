@@ -47,11 +47,9 @@ impl Game {
             let mut blocks = ClientBlocks::new();
 
             while let Some(event) = events.pop_event() {
+                mods.on_event(&event);
                 blocks.on_event(&event);
             }
-
-            let base_mod = GameMod::from_bytes(include_bytes!("../../BaseGame/BaseGame.mod").to_vec());
-            mods.mod_manager.add_mod(base_mod);
 
             blocks.init(&mut mods.mod_manager);
 
@@ -113,8 +111,8 @@ impl Game {
 
     pub fn flush_events(&mut self) {
         while let Some(event) = self.events.pop_event() {
+            self.mods.on_event(&event);
             self.blocks.on_event(&event);
-            //self.networking.on_event(event);
         }
     }
 }
