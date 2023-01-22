@@ -126,7 +126,7 @@ impl Blocks{
 
         mods.add_global_function("register_block_type", move |_lua, block_type: BlockType| {
             let result = Self::_register_new_block_type(block_types.clone(), block_type);
-            Ok(result.id)
+            Ok(result)
         });
     }
 
@@ -327,9 +327,9 @@ impl Blocks{
     }
 
     /**
-    Returns the number of block types that are registered.
+    Returns all block ids.
      */
-    pub fn get_all_block_types(&mut self) -> Vec<BlockId> {
+    pub fn get_all_block_ids(&mut self) -> Vec<BlockId> {
         let mut result = Vec::new();
         for block_type in self.block_types.borrow().iter() {
             result.push(block_type.id);

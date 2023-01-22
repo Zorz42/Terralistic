@@ -38,8 +38,8 @@ impl RenderBlockChunk {
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     let curr_block = blocks.get_block_type_at(world_x + x, world_y + y);
-                    let mut curr_block_rect = atlas.get_rect(curr_block.get_id()).unwrap().clone();
-                    if curr_block_rect.w != 0 && curr_block_rect.h != 0 {
+                    if let Some(curr_block_rect) = atlas.get_rect(curr_block.get_id()) {
+                        let mut curr_block_rect = curr_block_rect.clone();
                         let mut block_state = 0;
                         let block_type = blocks.get_block_type_at(world_x + x, world_y + y);
 
@@ -129,7 +129,7 @@ impl ClientBlocks {
 
         // go through all the block types get their images and load them
         let mut surfaces = HashMap::new();
-        for id in self.blocks.get_all_block_types() {
+        for id in self.blocks.get_all_block_ids() {
             let block_type = self.blocks.get_block_type_by_id(id);
             let image_resource = mods.get_resource(format!("blocks:{}.opa", block_type.name));
             if let Some(image_resource) = image_resource {

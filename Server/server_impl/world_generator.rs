@@ -249,12 +249,6 @@ impl LuaUserData for Biome {
                     }
                     Ok(())
                 },
-                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of BlockType", key))),
-            }
-        });
-
-        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
-            match key.as_str() {
                 "base_block" => {
                     // base_block is a BlockId, so we need to convert the value to a BlockId
                     match value {
@@ -268,7 +262,7 @@ impl LuaUserData for Biome {
                     }
                     Ok(())
                 },
-                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of BlockType", key))),
+                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
             }
         });
     }

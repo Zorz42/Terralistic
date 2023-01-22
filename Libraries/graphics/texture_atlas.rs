@@ -37,11 +37,6 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
         let mut rects = HashMap::new();
 
         let mut x = 0;
-        /*for i in 0..surfaces.len() {
-            rects.push(Rect::new(x, 0, surfaces[i].get_width(), surfaces[i].get_height()));
-            surface.draw(x, 0, &surfaces[i], Color::new(255, 255, 255, 255));
-            x += surfaces[i].get_width();
-        }*/
         for (key, surface) in &surfaces {
             rects.insert(key.clone(), Rect::new(x, 0, surface.get_width(), surface.get_height()));
             main_surface.draw(x, 0, &surface, Color::new(255, 255, 255, 255));
