@@ -21,7 +21,7 @@ pub struct TextInput {
     hint_color_progress: f32,
     timer: std::time::Instant,
     timer_counter: u32,
-    text: String,
+    pub text: String,
     text_texture: Texture,
     text_changed: bool,
     pub selected: bool,

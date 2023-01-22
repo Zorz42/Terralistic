@@ -205,19 +205,25 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
         while let Some(event) = graphics.renderer.get_event() {
             match event {
                 gfx::Event::KeyRelease(key) => {
-                    if key == gfx::Key::MouseLeft {
-                        if back_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
-                            break 'render_loop;
-                        }
-                        if new_world_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
-                            run_world_creation(graphics, menu_back);
-                        }
+                    match key {
+                        gfx::Key::MouseLeft => {
+                            if back_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
+                                break 'render_loop;
+                            }
+                            if new_world_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
+                                run_world_creation(graphics, menu_back);
+                            }
 
-                        for world in &mut world_list.worlds {
-                            if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(&menu_back.get_back_rect_container())))) {
-                                run_private_world(graphics, menu_back);
+                            for world in &mut world_list.worlds {
+                                if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(&menu_back.get_back_rect_container())))) {
+                                    run_private_world(graphics, menu_back);
+                                }
                             }
                         }
+                        gfx::Key::Escape => {
+                            break 'render_loop;
+                        }
+                        _ => {}
                     }
                 }
                 gfx::Event::MouseScroll(delta) => {

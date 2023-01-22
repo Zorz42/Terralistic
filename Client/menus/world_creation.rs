@@ -47,14 +47,37 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
             world_name_input.on_event(&event, graphics, None);
             match event {
                 gfx::Event::KeyRelease(key) => {
-                    if key == gfx::Key::MouseLeft {
+                    match key {
+                        gfx::Key::MouseLeft => {
+                            if back_button.is_hovered(graphics, Some(&buttons_container)) {
+                                break 'render_loop;
+                            }
+                            if create_button.is_hovered(graphics, Some(&buttons_container)) {
+                                run_private_world(graphics, menu_back);
+                            }
+                        }
+                        gfx::Key::Escape => {
+                            if world_name_input.selected {
+                                world_name_input.selected = false;
+                            } else {
+                                break 'render_loop;
+                            }
+                        }
+                        gfx::Key::Enter => {
+                            if world_name_input.text.len() > 0 {
+                                run_private_world(graphics, menu_back);
+                            }
+                        }
+                        _ => {}
+                    }
+                    /*if key == gfx::Key::MouseLeft {
                         if back_button.is_hovered(graphics, Some(&buttons_container)) {
                             break 'render_loop;
                         }
                         if create_button.is_hovered(graphics, Some(&buttons_container)) {
                             run_private_world(graphics, menu_back);
                         }
-                    }
+                    }*/
                 }
                 _ => {}
             }
