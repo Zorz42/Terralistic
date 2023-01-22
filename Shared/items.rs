@@ -1,4 +1,4 @@
-use super::{walls, entities::*, blocks, blocks::{Block, BlockType}};
+use super::{walls, entities::*, blocks, blocks::BlockType};
 use std::{rc::Rc, collections::hash_map};
 use std::collections::HashMap;
 use std::ops::Deref;
@@ -14,7 +14,7 @@ pub struct ItemType{
     pub max_stack: i32,
     pub places_block: Option<Rc<BlockType>>,
     pub places_wall: Option<Rc<walls::WallType>>,
-    pub tool_powers: hash_map::HashMap<Rc<Tool>, i32>,
+    pub tool_powers: HashMap<Rc<Tool>, i32>,
     id: i32
 }
 
@@ -26,7 +26,7 @@ impl ItemType {
             max_stack: 0,
             places_block: None,
             places_wall: None,
-            tool_powers: hash_map::HashMap::new(),
+            tool_powers: HashMap::new(),
             id: 0
         }
     }

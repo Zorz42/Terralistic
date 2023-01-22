@@ -25,23 +25,6 @@ pub struct BlocksWelcomePacket {
 }
 
 /**
-Block struct represents a state of a block in a world.
- */
-#[derive(Clone, Deserialize, Serialize)]
-pub struct Block {
-    pub id: BlockId,
-}
-
-impl Block {
-    pub fn new() -> Self {
-        Self {
-            id: BlockId::new(),
-        }
-    }
-}
-
-
-/**
 A chunk is a 16x16 area of blocks
  */
 #[derive(Clone)]
@@ -55,7 +38,7 @@ impl BlockChunk {
 
 #[derive(Serialize, Deserialize)]
 pub(super) struct BlocksData {
-    pub blocks: Vec<Vec<Block>>,
+    pub blocks: Vec<Vec<BlockId>>,
     // tells how much blocks a block in a big block is from the main block, it is mostly 0, 0 so it is stored in a hashmap
     pub block_from_main: HashMap<(i32, i32), (i32, i32)>,
     // saves the block data, it is mostly empty so it is stored in a hashmap
@@ -64,7 +47,7 @@ pub(super) struct BlocksData {
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct BlockId {
-    pub(super) id: i32,
+    pub(super) id: i8,
 }
 
 impl BlockId {
@@ -113,7 +96,7 @@ impl Blocks{
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
-        result.air = result.register_new_block_type(air);
+        result.air = Self::register_new_block_type(result.block_types.clone(), air);
 
         result
     }
@@ -125,7 +108,7 @@ impl Blocks{
         });
 
         mods.add_global_function("register_block_type", move |_lua, block_type: BlockType| {
-            let result = Self::_register_new_block_type(block_types.clone(), block_type);
+            let result = Self::register_new_block_type(block_types.clone(), block_type);
             Ok(result)
         });
     }
@@ -134,13 +117,12 @@ impl Blocks{
     Creates an empty world with given width and height
      */
     pub fn create(&mut self, width: i32, height: i32) {
-        if width < 0 || height < 0 {
-            panic!("Width and height must be positive!");
-        }
+        assert!(width > 0 && height > 0);
+
         self.width = width;
         self.height = height;
 
-        self.block_data.blocks = vec![vec![Block::new(); height as usize]; width as usize];
+        self.block_data.blocks = vec![vec![BlockId::new(); height as usize]; width as usize];
         self.chunks = vec![vec![BlockChunk::new(); (height / CHUNK_SIZE) as usize]; (width / CHUNK_SIZE) as usize];
     }
 
@@ -153,31 +135,45 @@ impl Blocks{
 
         // check that all the rows have the same length
         for row in &block_ids {
-            if row.len() as i32 != height {
-                panic!("All the rows must have the same length!");
-            }
+            assert_eq!(row.len() as i32, height);
         }
 
         self.create(width, height);
-        for x in 0..width {
-            for y in 0..height {
-                self.get_block_mut(x, y).id = block_ids[x as usize][y as usize];
+        self.block_data.blocks = block_ids;
+    }
+
+    /**
+    This function returns the block id at given position
+     */
+    pub fn get_block(&self, x: i32, y: i32) -> BlockId {
+        self.block_data.blocks[x as usize][y as usize]
+    }
+
+    /**
+    This sets the type of a block from a coordinate.
+     */
+    pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) {
+        if block_id != self.get_block(x, y) || from_main != self.get_block_from_main(x, y) {
+            self.set_block_data(x, y, vec![]);
+            self.block_data.blocks[x as usize][y as usize] = block_id;
+
+            for i in 0..self.breaking_blocks.len() {
+                if self.breaking_blocks[i].x == x && self.breaking_blocks[i].y == y {
+                    self.breaking_blocks.remove(i);
+                    break;
+                }
             }
+            self.set_block_from_main(x, y, from_main);
+            //let event = BlockChangeEvent::new(x, y);
+            //self.block_change_event.send(event);
         }
     }
 
     /**
-    This function returns the block at given position
+    This sets the type of a block from a coordinate.
      */
-    pub(super) fn get_block(&self, x: i32, y: i32) -> &Block {
-        &self.block_data.blocks[x as usize][y as usize]
-    }
-
-    /**
-    This function returns the mutable block at given position
-     */
-    pub(super) fn get_block_mut(&mut self, x: i32, y: i32) -> &mut Block {
-        &mut self.block_data.blocks[x as usize][y as usize]
+    pub fn set_block(&mut self, x: i32, y: i32, block_id: BlockId) {
+        self.set_big_block(x, y, block_id, (0, 0));
     }
 
     /**
@@ -191,17 +187,7 @@ impl Blocks{
     This is used to get a block type from its id, it is used for serialization.
      */
     pub fn get_block_type_by_id(&self, id: BlockId) -> BlockType {
-        if id.id < 0 || id.id >= self.block_types.borrow().len() as i32 {
-            panic!("Block type id is out of bounds! id: {}", id.id);
-        }
         self.block_types.borrow()[id.id as usize].clone()
-    }
-
-    /**
-    This is used to get a block type from from a coordinate.
-     */
-    pub fn get_block_id(&self, x: i32, y: i32) -> BlockId {
-        self.get_block(x, y).id
     }
 
     /**
@@ -241,33 +227,6 @@ impl Blocks{
     }
 
     /**
-    This sets the type of a block from a coordinate.
-     */
-    pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, x_from_main: i8, y_from_main: i8) {
-        if block_id != self.get_block_id(x, y) {
-            self.set_block_data(x, y, vec![]);
-            self.get_block_mut(x, y).id = block_id;
-
-            for i in 0..self.breaking_blocks.len() {
-                if self.breaking_blocks[i].x == x && self.breaking_blocks[i].y == y {
-                    self.breaking_blocks.remove(i);
-                    break;
-                }
-            }
-            self.set_block_from_main(x, y, (x_from_main as i32, y_from_main as i32));
-            //let event = BlockChangeEvent::new(x, y);
-            //self.block_change_event.send(event);
-        }
-    }
-
-    /**
-    This sets the type of a block from a coordinate.
-     */
-    pub fn set_block(&mut self, x: i32, y: i32, block_id: BlockId) {
-        self.set_big_block(x, y, block_id, 0, 0);
-    }
-
-    /**
     Returns the width of the world in blocks.
      */
     pub fn get_width(&self) -> i32 {
@@ -298,19 +257,12 @@ impl Blocks{
     /**
     This function adds a new block type, but is used internally by mods.
      */
-    pub fn _register_new_block_type(block_types: SharedMut<Vec<BlockType>>, mut block_type: BlockType) -> BlockId {
-        let id = block_types.borrow().len() as i32;
+    fn register_new_block_type(block_types: SharedMut<Vec<BlockType>>, mut block_type: BlockType) -> BlockId {
+        let id = block_types.borrow().len() as i8;
         let result = BlockId{ id };
         block_type.id = result;
         block_types.borrow().push(block_type);
         result
-    }
-
-    /**
-    Adds a new block type to the world.
-     */
-    pub fn register_new_block_type(&mut self, block_type: BlockType) -> BlockId {
-        Self::_register_new_block_type(self.block_types.clone(), block_type)
     }
 
     /**
@@ -348,6 +300,6 @@ impl Blocks{
     Returns the block type at specified coordinates.
      */
     pub fn get_block_type_at(&self, x: i32, y: i32) -> BlockType {
-        self.get_block_type(self.get_block_id(x, y))
+        self.get_block_type(self.get_block(x, y))
     }
 }

@@ -122,7 +122,7 @@ impl Inventory {
             let player_coords = [players.get_entity_by_id(self.player_id).unwrap().get_x() as i32, players.get_entity_by_id(self.player_id).unwrap().get_y() as i32];
             for x in -CRAFTING_BLOCK_RANGE..CRAFTING_BLOCK_RANGE {
                 for y in -CRAFTING_BLOCK_RANGE..CRAFTING_BLOCK_RANGE {
-                    let block_id = blocks.get_block_id(std::cmp::min(blocks.get_width(), std::cmp::max(0, player_coords[0] / (BLOCK_WIDTH * 2) + x)),
+                    let block_id = blocks.get_block(std::cmp::min(blocks.get_width(), std::cmp::max(0, player_coords[0] / (BLOCK_WIDTH * 2) + x)),
                                                  std::cmp::min(blocks.get_height(), std::cmp::max(0, player_coords[1] / (BLOCK_WIDTH * 2) + y)));
                     if block_id == recipe.crafting_block.as_ref().unwrap().get_id() {
                         return true;

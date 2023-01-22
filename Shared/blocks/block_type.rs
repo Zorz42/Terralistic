@@ -7,7 +7,7 @@ use crate::blocks::tool::Tool;
 Includes properties for each block type
  */
 #[derive(Clone)]
-pub struct BlockType{
+pub struct BlockType {
     // tool that can break the block, none means it can be broken by hand or any tool
     // TODO: implement for lua
     pub effective_tool: Option<Arc<Tool>>,
