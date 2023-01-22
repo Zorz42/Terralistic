@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use noise::{NoiseFn, Perlin};
+use rand::{RngCore, SeedableRng};
 use rlua::prelude::{LuaUserData};
 use rlua::UserDataMethods;
 use shared::blocks::{BlockId, Blocks};
@@ -76,7 +78,10 @@ impl WorldGenerator {
         *self.status_text.borrow() = format!("Generating world {}%", (self.current_task as f32 / self.total_tasks as f32 * 100.0) as i32);
     }
 
-    pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, min_width: i32, height: i32, seed: u32, status_text: SharedMut<String>) {
+    pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: SharedMut<String>) {
+        // create a random number generator with seed
+        let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
+
         if self.biomes.borrow().len() == 0 {
             panic!("No biomes were added! Cannot generate world!");
         }
@@ -130,10 +135,24 @@ impl WorldGenerator {
 
         let mut terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
 
-        let noise = Perlin::new(seed);
-
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
+
+        let mut ores_start_noises = HashMap::new();
+        let mut ores_end_noises = HashMap::new();
+
+        for block_id in blocks.get_all_block_ids() {
+            ores_start_noises.insert(block_id, vec![-1.0; width as usize]);
+            ores_end_noises.insert(block_id, vec![-1.0; width as usize]);
+        }
+
+        for x in 0..width {
+            let biome = &self.biomes.borrow()[biome_ids[x as usize] as usize];
+            for ore in &biome.ores {
+                ores_start_noises.get_mut(&ore.block).unwrap()[x as usize] = ore.start_noise;
+                ores_end_noises.get_mut(&ore.block).unwrap()[x as usize] = ore.end_noise;
+            }
+        }
 
         let convolution_size = 50;
         for _ in 0..5 {
@@ -143,22 +162,48 @@ impl WorldGenerator {
             max_cave_thresholds = convolve(&max_cave_thresholds, convolution_size);
         }
 
+        for block_id in blocks.get_all_block_ids() {
+            for _ in 0..5 {
+                ores_start_noises.insert(block_id, convolve(&ores_start_noises[&block_id], convolution_size));
+                ores_end_noises.insert(block_id, convolve(&ores_end_noises[&block_id], convolution_size));
+            }
+        }
+
+        let cave_noise = Perlin::new(rng.next_u32());
+        let terrain_noise = Perlin::new(rng.next_u32());
+        let mut ore_noises = HashMap::new();
+        for block_id in blocks.get_all_block_ids() {
+            ore_noises.insert(block_id, Perlin::new(rng.next_u32()));
+        }
+
         for x in 0..width {
-            let terrain_noise = ((turbulence(&noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
+            let terrain_noise_val = ((turbulence(&terrain_noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
             for y in 0..height {
                 self.next_task();
                 let terrain_height = height - y;
 
-                let cave_noise = f64::abs(turbulence(&noise, x as f64 / 80.0, y as f64 / 80.0));
+                let cave_noise_val = f64::abs(turbulence(&cave_noise, x as f64 / 80.0, y as f64 / 80.0));
                 let cave_threshold = y as f64 / height as f64 * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize]) + min_cave_thresholds[x as usize];
 
-                let value= if terrain_height < terrain_noise && cave_threshold < cave_noise {
-                    self.biomes.borrow()[biome_ids[x as usize] as usize].base_block
-                } else {
-                    blocks.air
+                let mut curr_block = self.biomes.borrow()[biome_ids[x as usize] as usize].base_block;
+
+                for block in blocks.get_all_block_ids() {
+                    let start_noise = ores_start_noises[&block][x as usize];
+                    let end_noise = ores_end_noises[&block][x as usize];
+                    if (start_noise, end_noise) != (-1.0, -1.0) {
+                        let ore_noise = turbulence(&ore_noises.get(&block).unwrap(), x as f64 / 15.0, y as f64 / 15.0);
+                        let ore_threshold = y as f64 / height as f64 * (end_noise - start_noise) + start_noise;
+                        if ore_threshold > ore_noise {
+                            curr_block = block;
+                        }
+                    }
+                }
+
+                if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
+                    curr_block = blocks.air;
                 };
 
-                terrain[x as usize][y as usize] = value;
+                terrain[x as usize][y as usize] = curr_block;
             }
         }
 
@@ -173,6 +218,13 @@ impl WorldGenerator {
 }
 
 #[derive(Clone)]
+struct Ore {
+    pub block: BlockId,
+    pub start_noise: f64,
+    pub end_noise: f64,
+}
+
+#[derive(Clone)]
 struct Biome {
     pub min_width: i32,
     pub max_width: i32,
@@ -181,6 +233,7 @@ struct Biome {
     pub base_block: BlockId,
     // the first element is connection weight, the second is the biome id
     pub adjacent_biomes: Vec<(i32, i32)>,
+    pub ores: Vec<Ore>,
 }
 
 impl Biome {
@@ -192,6 +245,7 @@ impl Biome {
             max_terrain_height: 0,
             base_block: BlockId::new(),
             adjacent_biomes: Vec::new(),
+            ores: Vec::new(),
         }
     }
 }
@@ -264,6 +318,16 @@ impl LuaUserData for Biome {
                 },
                 _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
             }
+        });
+
+        // add method to add an ore
+        methods.add_method_mut("add_ore", |lua_ctx, this, (block, start_noise, end_noise): (BlockId, f64, f64)| {
+            this.ores.push(Ore {
+                block,
+                start_noise,
+                end_noise,
+            });
+            Ok(())
         });
     }
 }
