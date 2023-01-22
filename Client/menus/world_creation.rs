@@ -70,14 +70,6 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
                         }
                         _ => {}
                     }
-                    /*if key == gfx::Key::MouseLeft {
-                        if back_button.is_hovered(graphics, Some(&buttons_container)) {
-                            break 'render_loop;
-                        }
-                        if create_button.is_hovered(graphics, Some(&buttons_container)) {
-                            run_private_world(graphics, menu_back);
-                        }
-                    }*/
                 }
                 _ => {}
             }
