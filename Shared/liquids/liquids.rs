@@ -1,31 +1,10 @@
 use std::rc::Rc;
-use super::blocks::*;
+use crate::blocks::*;
+use super::liquid_type::*;
 
 const MAX_LIQUID_LEVEL: i32 = 100;
 
 //TODO: new events idk
-
-/**struct with information about a liquid type*/
-pub struct LiquidType {
-    pub name: String,
-    pub flow_time: i32,
-    pub speed_multiplier: f64,
-    id: i32,
-}
-
-impl LiquidType {
-    pub fn new(name: String) -> LiquidType {
-        LiquidType {
-            name: name,
-            flow_time: 1,
-            speed_multiplier: 1.0,
-            id: 0,
-        }
-    }
-    pub fn get_id(&self) -> i32 {
-        self.id
-    }
-}
 
 /**struct with information about a liquid*/
 struct Liquid {
