@@ -20,7 +20,7 @@ enet = "0.3.0"
 
 [lib]
 name = "shared"
-path = "shared.rs"
+path = "mod.rs"
 
 [profile.release]
 strip = true
