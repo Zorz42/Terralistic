@@ -3,6 +3,8 @@ mod mod_manager;
 mod blocks;
 mod world_generator;
 
+use std::collections::HashMap;
+use std::path::PathBuf;
 //use std::os::macos::raw::stat;
 use shared::mod_manager::GameMod;
 use shared_mut::SharedMut;
@@ -43,7 +45,7 @@ impl Server {
         }
     }
 
-    pub fn start(&mut self, status_text: SharedMut<String>, mods: Vec<Vec<u8>>) {
+    pub fn start(&mut self, status_text: SharedMut<String>, mods: Vec<Vec<u8>>, world_path: &PathBuf) {
         println!("Starting server...");
         let timer = std::time::Instant::now();
         *self.server_state.borrow() = ServerState::Starting;
@@ -64,11 +66,13 @@ impl Server {
 
         *status_text.borrow() = "Initializing mods".to_string();
         self.mods.init();
-        for game_mod in self.mods.mod_manager.mods_mut() {
-            game_mod.call_function::<(), ()>("init_server", ()).unwrap();
-        }
 
-        generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657, status_text.clone());
+        if world_path.exists() {
+            *status_text.borrow() = "Loading world".to_string();
+            self.load_world(world_path);
+        } else {
+            generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657, status_text.clone());
+        }
 
         // start server loop
         println!("Server started in {}ms", timer.elapsed().as_millis());
@@ -103,11 +107,35 @@ impl Server {
 
         *self.server_state.borrow() = ServerState::Stopping;
 
+        *status_text.borrow() = "Saving world".to_string();
+        self.save_world(world_path);
+
         // stop modules
         self.networking.stop();
         self.mods.stop();
 
         *self.server_state.borrow() = ServerState::Stopped;
         println!("Server stopped.");
+    }
+
+    fn load_world(&mut self, world_path: &PathBuf) {
+        // load world file into Vec<u8>
+        let world_file = std::fs::read(world_path).unwrap();
+        // decode world file as HashMap<String, Vec<u8>>
+        let world: HashMap<String, Vec<u8>> = bincode::deserialize(&*world_file).unwrap();
+
+        self.blocks.blocks.deserialize(world.get("blocks").unwrap());
+    }
+
+    fn save_world(&self, world_path: &PathBuf) {
+        let mut world = HashMap::new();
+        world.insert("blocks".to_string(), self.blocks.blocks.serialize());
+
+        let world_file = bincode::serialize(&world).unwrap();
+        // if world file exists, overwrite it, otherwise create it
+        if !world_path.exists() {
+            std::fs::create_dir_all(world_path.parent().unwrap()).unwrap();
+        }
+        std::fs::write(world_path, world_file).unwrap();
     }
 }

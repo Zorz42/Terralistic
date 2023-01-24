@@ -113,7 +113,7 @@ impl ClientBlocks {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.deserialize::<BlocksWelcomePacket>() {
                 self.blocks.create(packet.width, packet.height);
-                self.blocks.deserialize(packet.data.clone());
+                self.blocks.deserialize(&packet.data);
             }
         }
     }

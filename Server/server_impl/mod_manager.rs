@@ -35,6 +35,9 @@ impl ServerModManager {
         });
 
         self.mod_manager.init();
+        for game_mod in self.mod_manager.mods_mut() {
+            game_mod.call_function::<(), ()>("init_server", ()).unwrap();
+        }
     }
 
     pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) {

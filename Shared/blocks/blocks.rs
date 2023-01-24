@@ -39,6 +39,8 @@ impl BlockChunk {
 #[derive(Serialize, Deserialize)]
 pub(super) struct BlocksData {
     pub blocks: Vec<Vec<BlockId>>,
+    pub width: i32,
+    pub height: i32,
     // tells how much blocks a block in a big block is from the main block, it is mostly 0, 0 so it is stored in a hashmap
     pub block_from_main: HashMap<(i32, i32), (i32, i32)>,
     // saves the block data, it is mostly empty so it is stored in a hashmap
@@ -67,8 +69,6 @@ A world is a 2d array of blocks and chunks.
 pub struct Blocks {
     pub(super) block_data: BlocksData,
     pub(super) chunks: Vec<Vec<BlockChunk>>,
-    pub(super) width: i32,
-    pub(super) height: i32,
     pub(super) breaking_blocks: Vec<BreakingBlock>,
     pub(super) block_types: SharedMut<Vec<BlockType>>,
     pub(super) tool_types: Vec<Tool>,
@@ -82,9 +82,10 @@ impl Blocks{
                 blocks: Vec::new(),
                 block_from_main: HashMap::new(),
                 block_data: HashMap::new(),
+                width: 0,
+                height: 0,
             },
             chunks: vec![],
-            width: 0, height: 0,
             breaking_blocks: vec![],
             block_types: SharedMut::new(vec![]),
             tool_types: vec![],
@@ -119,8 +120,8 @@ impl Blocks{
     pub fn create(&mut self, width: i32, height: i32) {
         assert!(width > 0 && height > 0);
 
-        self.width = width;
-        self.height = height;
+        self.block_data.width = width;
+        self.block_data.height = height;
 
         self.block_data.blocks = vec![vec![BlockId::new(); height as usize]; width as usize];
         self.chunks = vec![vec![BlockChunk::new(); (height / CHUNK_SIZE) as usize]; (width / CHUNK_SIZE) as usize];
@@ -230,28 +231,28 @@ impl Blocks{
     Returns the width of the world in blocks.
      */
     pub fn get_width(&self) -> i32 {
-        self.width
+        self.block_data.width
     }
 
     /**
     Returns the height of the world in blocks.
      */
     pub fn get_height(&self) -> i32 {
-        self.height
+        self.block_data.height
     }
 
     /**
     Serializes the world, used for saving the world and sending it to the client.
      */
-    pub fn serialize(&mut self) -> Vec<u8> {
+    pub fn serialize(&self) -> Vec<u8> {
         snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.block_data).unwrap()).unwrap()
     }
 
     /**
     Deserializes the world, used for loading the world and receiving it from the server.
      */
-    pub fn deserialize(&mut self, serial: Vec<u8>) {
-        self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(&serial).unwrap()).unwrap();
+    pub fn deserialize(&mut self, serial: &Vec<u8>) {
+        self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(serial).unwrap()).unwrap();
     }
 
     /**

@@ -33,6 +33,7 @@ pub struct World {
     last_modified: gfx::Sprite,
     title: gfx::Sprite,
     icon: gfx::Sprite,
+    file_path: PathBuf,
 }
 
 impl World {
@@ -88,6 +89,7 @@ impl World {
             last_modified,
             title,
             icon,
+            file_path,
         }
     }
 
@@ -128,6 +130,10 @@ impl World {
     pub fn get_container(&self, graphics: &GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
+
+    fn get_file_path(&self) -> &PathBuf {
+        &self.file_path
+    }
 }
 
 /**
@@ -157,8 +163,10 @@ impl WorldList {
         for entry in fs::read_dir(&world_dir).unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
-            if !path.is_dir() && path.extension().unwrap() == "world" {
-                self.worlds.push(World::new(graphics, path));
+            if let Some(ext) = path.extension() {
+                if !path.is_dir() && ext == "world" {
+                    self.worlds.push(World::new(graphics, path));
+                }
             }
         }
     }
@@ -216,7 +224,7 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
 
                             for world in &mut world_list.worlds {
                                 if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(&menu_back.get_back_rect_container())))) {
-                                    run_private_world(graphics, menu_back);
+                                    run_private_world(graphics, menu_back, world.get_file_path());
                                 }
                             }
                         }

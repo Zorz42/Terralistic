@@ -44,7 +44,8 @@ impl GameMod {
     This function runs the lua code in the game mod.
     It loads the code and resources into the lua state.
     It then runs the code and the init function.
-     */ fn init(&mut self) {
+     */
+    fn init(&mut self) {
         self.lua.context(|lua| {
             // load the game mod code
             lua.load(&self.lua_code).exec().unwrap();

@@ -1,3 +1,4 @@
+use directories::BaseDirs;
 use crate::menus::background_rect::BackgroundRect;
 use graphics::GraphicsContext;
 use graphics as gfx;
@@ -58,6 +59,8 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
 
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
+        let world_path = BaseDirs::new().unwrap().data_dir().join("Terralistic").join("Worlds").join(world_name_input.text.clone() + ".world");
+
         while let Some(event) = graphics.renderer.get_event() {//sorts out the events
             world_name_input.on_event(&event, graphics, None);
             world_seed_input.on_event(&event, graphics, None);
@@ -69,7 +72,7 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
                                 break 'render_loop;
                             }
                             if create_button.is_hovered(graphics, Some(&buttons_container)) {
-                                run_private_world(graphics, menu_back);
+                                run_private_world(graphics, menu_back, &world_path);
                             }
                         }
                         gfx::Key::Escape => {
@@ -82,7 +85,7 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
                         }
                         gfx::Key::Enter => {
                             if world_name_input.text.len() > 0 {
-                                run_private_world(graphics, menu_back);
+                                run_private_world(graphics, menu_back, &world_path);
                             }
                         }
                         _ => {}

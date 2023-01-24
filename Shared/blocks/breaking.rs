@@ -45,7 +45,7 @@ impl Blocks {
     Adds a block to the breaking list, which means that the block is being broken.
      */
     pub fn start_breaking_block(&mut self, x: i32, y: i32) {
-        if x < 0 || y < 0 || x >= self.width || y >= self.height {
+        if x < 0 || y < 0 || x >= self.get_width() || y >= self.get_height() {
             panic!("Block is accessed out of bounds! x: {}, y: {}", x, y);
         }
 
@@ -77,7 +77,7 @@ impl Blocks {
     Stops breaking a block.
      */
     pub fn stop_breaking_block(&mut self, x: i32, y: i32) {
-        assert!(x >= 0 && y >= 0 && x < self.width && y < self.height, "Block is accessed out of bounds! x: {}, y: {}", x, y);
+        assert!(x >= 0 && y >= 0 && x < self.get_width() && y < self.get_height(), "Block is accessed out of bounds! x: {}, y: {}", x, y);
 
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.x == x && breaking_block.y == y {

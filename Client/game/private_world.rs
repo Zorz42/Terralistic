@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use graphics::GraphicsContext;
 use shared_mut::SharedMut;
 use terralistic_server::{Server, ServerState};
@@ -6,7 +7,7 @@ use crate::menus::{BackgroundRect, run_loading_screen};
 
 const SINGLEPLAYER_PORT: u16 = 49152;
 
-pub fn run_private_world(graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+pub fn run_private_world(graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect, world_path: &PathBuf) {
     let server_running = SharedMut::new(true);
     let server_running2 = server_running.clone();
 
@@ -19,9 +20,10 @@ pub fn run_private_world(graphics: &mut GraphicsContext, menu_back: &mut dyn Bac
     let loading_text2 = loading_text.clone();
 
     // start server in async thread
-    let server_thread = std::thread::spawn(|| {
+    let world_path2 = world_path.clone();
+    let server_thread = std::thread::spawn(move || {
         let mut server = Server::new(server_running2, server_state2, SINGLEPLAYER_PORT);
-        server.start(loading_text2, vec![include_bytes!("../../BaseGame/BaseGame.mod").to_vec()]);
+        server.start(loading_text2, vec![include_bytes!("../../BaseGame/BaseGame.mod").to_vec()], &world_path2);
     });
 
     run_loading_screen(graphics, menu_back, loading_text);
