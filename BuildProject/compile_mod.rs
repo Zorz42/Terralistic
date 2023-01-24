@@ -37,6 +37,8 @@ pub fn compile_mod(mod_path: PathBuf) {
 
     // serialize the mod to a byte array
     let mod_bytes = bincode::serialize(&mod_obj).unwrap();
+    // compress the mod with snap
+    let mod_bytes = snap::raw::Encoder::new().compress_vec(&mod_bytes).unwrap();
 
     // write the mod to a file that has the same name as the mod's directory and a .mod extension
     std::fs::write(mod_path.join(format!("{}.mod", mod_path.file_name().unwrap().to_str().unwrap())), mod_bytes).unwrap();

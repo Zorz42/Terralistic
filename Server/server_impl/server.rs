@@ -50,6 +50,8 @@ impl Server {
         *status_text.borrow() = "Starting server".to_string();
 
         for mod_ in mods {
+            // decompress mod with snap
+            let mod_ = snap::raw::Decoder::new().decompress_vec(&mod_).unwrap();
             self.mods.mod_manager.add_mod(bincode::deserialize(&*mod_).unwrap());
         }
 
