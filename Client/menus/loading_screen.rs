@@ -1,6 +1,8 @@
 use std::sync::Mutex;
-use crate::menus::background_rect::BackgroundRect;
+
 use graphics as gfx;
+
+use crate::menus::background_rect::BackgroundRect;
 
 const PROGRESS_BAR_WIDTH: i32 = 400;
 const PROGRESS_BAR_HEIGHT: i32 = 50;

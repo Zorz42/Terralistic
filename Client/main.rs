@@ -1,11 +1,13 @@
 #![allow(non_snake_case)]
 
+use std::sync::Mutex;
+
+use graphics as gfx;
+
+use crate::menus::MenuBack;
+
 mod menus;
 mod game;
-
-use std::sync::Mutex;
-use crate::menus::MenuBack;
-use graphics as gfx;
 
 fn main() {
     let mut graphics = gfx::init(

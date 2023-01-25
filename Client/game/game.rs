@@ -1,16 +1,19 @@
 use std::cell::RefCell;
 use std::sync::{Arc, Mutex};
+
+use graphics as gfx;
+use graphics::GraphicsContext;
+use shared::blocks::BLOCK_WIDTH;
+use shared::mod_manager::GameMod;
+
+use events::EventManager;
+
 use crate::game::background::Background;
 use crate::game::blocks::ClientBlocks;
 use crate::game::camera::Camera;
 use crate::game::mod_manager::ClientModManager;
 use crate::game::networking::ClientNetworking;
 use crate::menus::{run_loading_screen, BackgroundRect};
-use events::EventManager;
-use graphics as gfx;
-use graphics::GraphicsContext;
-use shared::blocks::BLOCK_WIDTH;
-use shared::mod_manager::GameMod;
 
 pub struct Game {
     events: EventManager,
