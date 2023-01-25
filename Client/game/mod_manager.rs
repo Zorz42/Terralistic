@@ -1,6 +1,6 @@
-use shared::mod_manager::{ModManager, ModsWelcomePacket};
-use events::Event;
 use crate::game::networking::WelcomePacketEvent;
+use events::Event;
+use shared::mod_manager::{ModManager, ModsWelcomePacket};
 
 /**
 Client mod manager that manages all the mods for the client.
@@ -28,10 +28,11 @@ impl ClientModManager {
     It adds the BaseGame mod to the shared mod manager and initializes it.
      */
     pub fn init(&mut self) {
-        self.mod_manager.add_global_function("print", |_, text: String| {
-            println!("[client mod] {}", text);
-            Ok(())
-        });
+        self.mod_manager
+            .add_global_function("print", |_, text: String| {
+                println!("[client mod] {}", text);
+                Ok(())
+            });
 
         self.mod_manager.init();
     }

@@ -1,6 +1,6 @@
+use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use shared_mut::SharedMut;
-use crate::menus::background_rect::BackgroundRect;
 
 const PROGRESS_BAR_WIDTH: i32 = 400;
 const PROGRESS_BAR_HEIGHT: i32 = 50;
@@ -11,7 +11,10 @@ Loading screen displays back_menu and text which describes the current loading s
 The text is shared through the SharedMut<String> which is updated by the loading thread.
 When the string is empty, the loading screen is closed.
  */
-pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, loading_text: SharedMut<String>) {
+pub fn run_loading_screen(
+    graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    loading_text: SharedMut<String>,
+) {
     let mut loading_text_sprite = gfx::Sprite::new();
     loading_text_sprite.orientation = gfx::CENTER;
     loading_text_sprite.scale = 3.0;
@@ -72,10 +75,13 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
                     loading_back_bar.h = PROGRESS_BAR_HEIGHT as f32;
                     loading_bar.w = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
                     loading_bar.h = PROGRESS_BAR_HEIGHT as f32;
-                    loading_bar.x = menu_back.get_back_rect_width(graphics, None) as f32 / 2.0 - loading_back_bar.w / 2.0;
+                    loading_bar.x = menu_back.get_back_rect_width(graphics, None) as f32 / 2.0
+                        - loading_back_bar.w / 2.0;
                 }
 
-                loading_text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(curr_text.clone()));
+                loading_text_sprite.texture = gfx::Texture::load_from_surface(
+                    &graphics.font.create_text_surface(curr_text.clone()),
+                );
             }
         }
 

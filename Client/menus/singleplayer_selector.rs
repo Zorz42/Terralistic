@@ -1,12 +1,12 @@
+use super::world_creation::run_world_creation;
+use crate::game::private_world::run_private_world;
+use crate::menus::background_rect::BackgroundRect;
+use chrono;
+use directories::BaseDirs;
+use graphics as gfx;
+use graphics::GraphicsContext;
 use std::fs;
 use std::path::PathBuf;
-use chrono;
-use graphics as gfx;
-use directories::BaseDirs;
-use graphics::GraphicsContext;
-use crate::game::private_world::run_private_world;
-use super::world_creation::run_world_creation;
-use crate::menus::background_rect::BackgroundRect;
 
 pub const MENU_WIDTH: i32 = 800;
 
@@ -46,19 +46,24 @@ impl World {
         rect.smooth_factor = 60.0;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/world_icon.opa").to_vec()));
+        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
+            include_bytes!("../../Build/Resources/world_icon.opa").to_vec(),
+        ));
         rect.h = icon.get_height() as f32 + 2.0 * gfx::SPACING as f32;
         icon.x = gfx::SPACING;
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(name.clone()));
+        title.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(name.clone()));
         title.x = icon.x + icon.get_width() + gfx::SPACING;
         title.y = gfx::SPACING;
         title.scale = 3.0;
 
         let mut play_button = gfx::Button::new();
-        play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/play_button.opa").to_vec()));
+        play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
+            include_bytes!("../../Build/Resources/play_button.opa").to_vec(),
+        ));
         play_button.scale = 3.0;
         play_button.margin = 5;
         play_button.x = icon.x + icon.get_width() + gfx::SPACING;
@@ -66,7 +71,9 @@ impl World {
         play_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut delete_button = gfx::Button::new();
-        delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!("../../Build/Resources/delete_button.opa").to_vec()));
+        delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
+            include_bytes!("../../Build/Resources/delete_button.opa").to_vec(),
+        ));
         delete_button.scale = 3.0;
         delete_button.margin = 5;
         delete_button.x = play_button.x + play_button.get_width() + gfx::SPACING;
@@ -74,7 +81,10 @@ impl World {
         delete_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut last_modified = gfx::Sprite::new();
-        last_modified.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(get_last_modified_time(file_path.as_path().to_str().unwrap())));
+        last_modified.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(
+                get_last_modified_time(file_path.as_path().to_str().unwrap()),
+            ));
         last_modified.color = gfx::GREY;
         last_modified.orientation = gfx::BOTTOM_RIGHT;
         last_modified.x = -gfx::SPACING;
@@ -96,7 +106,10 @@ impl World {
     /**
     This function renders the world card on the x and y position.
      */
-    pub fn render(&mut self, graphics: &mut GraphicsContext, x: i32, y: i32, parent_container: Option<&gfx::Container>) {
+    pub fn render(
+        &mut self, graphics: &mut GraphicsContext, x: i32, y: i32,
+        parent_container: Option<&gfx::Container>,
+    ) {
         self.rect.x = x as f32;
         self.rect.y = y as f32;
         self.rect.render(&graphics, parent_container);
@@ -127,7 +140,9 @@ impl World {
     /**
     This function returns the container of the world card.
      */
-    pub fn get_container(&self, graphics: &GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+    pub fn get_container(
+        &self, graphics: &GraphicsContext, parent_container: Option<&gfx::Container>,
+    ) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
 
@@ -146,9 +161,7 @@ pub struct WorldList {
 
 impl WorldList {
     pub fn new(graphics: &GraphicsContext) -> WorldList {
-        let mut world_list = WorldList {
-            worlds: Vec::new(),
-        };
+        let mut world_list = WorldList { worlds: Vec::new() };
         world_list.refresh(graphics);
         world_list
     }
@@ -172,24 +185,32 @@ impl WorldList {
     }
 }
 
-pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+pub fn run_singleplayer_selector(
+    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+) {
     let mut world_list = WorldList::new(graphics);
 
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Select a world to play!")));
+    title.texture = gfx::Texture::load_from_surface(
+        &graphics
+            .font
+            .create_text_surface(String::from("Select a world to play!")),
+    );
     title.y = gfx::SPACING;
     title.orientation = gfx::TOP;
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
-    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Back")));
+    back_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Back")));
     back_button.y = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_world_button = gfx::Button::new();
     new_world_button.scale = 3.0;
-    new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("New")));
+    new_world_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("New")));
     new_world_button.y = -gfx::SPACING;
     new_world_button.x = -gfx::SPACING;
     new_world_button.orientation = gfx::BOTTOM_RIGHT;
@@ -212,28 +233,36 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
             match event {
-                gfx::Event::KeyRelease(key, ..) => {
-                    match key {
-                        gfx::Key::MouseLeft => {
-                            if back_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
-                                break 'render_loop;
-                            }
-                            if new_world_button.is_hovered(graphics, Some(&menu_back.get_back_rect_container())) {
-                                run_world_creation(graphics, menu_back);
-                            }
-
-                            for world in &mut world_list.worlds {
-                                if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(&menu_back.get_back_rect_container())))) {
-                                    run_private_world(graphics, menu_back, world.get_file_path());
-                                }
-                            }
-                        }
-                        gfx::Key::Escape => {
+                gfx::Event::KeyRelease(key, ..) => match key {
+                    gfx::Key::MouseLeft => {
+                        if back_button
+                            .is_hovered(graphics, Some(&menu_back.get_back_rect_container()))
+                        {
                             break 'render_loop;
                         }
-                        _ => {}
+                        if new_world_button
+                            .is_hovered(graphics, Some(&menu_back.get_back_rect_container()))
+                        {
+                            run_world_creation(graphics, menu_back);
+                        }
+
+                        for world in &mut world_list.worlds {
+                            if world.play_button.is_hovered(
+                                graphics,
+                                Some(&world.get_container(
+                                    graphics,
+                                    Some(&menu_back.get_back_rect_container()),
+                                )),
+                            ) {
+                                run_private_world(graphics, menu_back, world.get_file_path());
+                            }
+                        }
                     }
-                }
+                    gfx::Key::Escape => {
+                        break 'render_loop;
+                    }
+                    _ => {}
+                },
                 gfx::Event::MouseScroll(delta) => {
                     position += delta as f32 * 2.0;
                 }
@@ -244,7 +273,9 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
 
         menu_back.render_back(graphics);
 
-        let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height && (graphics.renderer.get_mouse_y() as i32) < graphics.renderer.get_window_height() as i32 - bottom_height as i32;
+        let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height
+            && (graphics.renderer.get_mouse_y() as i32)
+                < graphics.renderer.get_window_height() as i32 - bottom_height as i32;
 
         for world in &mut world_list.worlds {
             world.set_enabled(hoverable);
@@ -252,12 +283,18 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
 
         let mut current_y = gfx::SPACING;
         for i in 0..world_list.worlds.len() {
-            world_list.worlds[i].render(graphics, 0, current_y + top_height + position as i32, Some(&menu_back.get_back_rect_container()));
+            world_list.worlds[i].render(
+                graphics,
+                0,
+                current_y + top_height + position as i32,
+                Some(&menu_back.get_back_rect_container()),
+            );
             current_y += world_list.worlds[i].get_height() + gfx::SPACING;
         }
 
         top_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-        top_rect_visibility += ((if position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
+        top_rect_visibility +=
+            ((if position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
 
         if top_rect_visibility < 0.01 {
             top_rect_visibility = 0.0;
@@ -273,7 +310,9 @@ pub fn run_singleplayer_selector(graphics: &mut GraphicsContext, menu_back: &mut
         }
 
         bottom_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-        let mut scroll_limit = current_y - graphics.renderer.get_window_height() as i32 + top_height as i32 + bottom_height as i32;
+        let mut scroll_limit = current_y - graphics.renderer.get_window_height() as i32
+            + top_height as i32
+            + bottom_height as i32;
         if scroll_limit < 0 {
             scroll_limit = 0;
         }

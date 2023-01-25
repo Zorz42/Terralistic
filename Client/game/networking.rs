@@ -1,8 +1,8 @@
 use bincode;
 use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host};
+use events::EventManager;
 use shared::enet_global::ENET_GLOBAL;
 use shared::packet::{Packet, WelcomeCompletePacket};
-use events::EventManager;
 
 /**
 This event is called, when the client has received a welcome packet.
@@ -32,15 +32,27 @@ impl ClientNetworking {
 
     pub fn init(&mut self, events: &mut EventManager) {
         // connect to the server
-        self.net_client = Some(ENET_GLOBAL.create_host::<()>(
-            None,
-            10,
-            ChannelLimit::Maximum,
-            BandwidthLimit::Unlimited,
-            BandwidthLimit::Unlimited,
-        ).unwrap());
+        self.net_client = Some(
+            ENET_GLOBAL
+                .create_host::<()>(
+                    None,
+                    10,
+                    ChannelLimit::Maximum,
+                    BandwidthLimit::Unlimited,
+                    BandwidthLimit::Unlimited,
+                )
+                .unwrap(),
+        );
 
-        self.net_client.as_mut().unwrap().connect(&Address::new(self.server_address.parse().unwrap(), self.server_port), 10, 0).unwrap();
+        self.net_client
+            .as_mut()
+            .unwrap()
+            .connect(
+                &Address::new(self.server_address.parse().unwrap(), self.server_port),
+                10,
+                0,
+            )
+            .unwrap();
 
         loop {
             if let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
@@ -56,7 +68,7 @@ impl ClientNetworking {
                     }
                 };
             }
-        };
+        }
 
         'welcome_loop: loop {
             if let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
@@ -75,11 +87,9 @@ impl ClientNetworking {
                         }
 
                         // send welcome packet event
-                        events.push_event(events::Event::new(Box::new(
-                            WelcomePacketEvent {
-                                packet,
-                            }
-                        )));
+                        events.push_event(events::Event::new(Box::new(WelcomePacketEvent {
+                            packet,
+                        })));
                     }
                 };
             }
@@ -111,6 +121,6 @@ impl ClientNetworking {
         // disconnect the socket
         for ref mut server in self.net_client.as_mut().unwrap().peers() {
             server.disconnect(0);
-        };
+        }
     }
 }

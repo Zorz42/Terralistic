@@ -1,11 +1,11 @@
-use std::collections::HashMap;
-use std::path::PathBuf;
+use crate::png_to_opa::png_file_to_opa_bytes;
 use darklua_core::generator::{DenseLuaGenerator, LuaGenerator};
 use darklua_core::Parser;
-use shared::mod_manager::GameMod;
-use crate::png_to_opa::png_file_to_opa_bytes;
 use graphics as gfx;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use shared::mod_manager::GameMod;
+use std::collections::HashMap;
+use std::path::PathBuf;
 
 /**
 This function compiles a game mod from a directory.
@@ -24,9 +24,13 @@ pub fn compile_mod(mod_path: PathBuf) {
 
     //Use darklua to minify the mod's lua code. Use DenseLuaGenerator to generate the minified code.
     let parser = Parser::default();
-    let block = std::thread::Builder::new().stack_size(100_000_000).spawn(move || {
-        parser.parse(&lua_code)
-    }).unwrap().join().unwrap().unwrap();
+    let block = std::thread::Builder::new()
+        .stack_size(100_000_000)
+        .spawn(move || parser.parse(&lua_code))
+        .unwrap()
+        .join()
+        .unwrap()
+        .unwrap();
 
     let mut generator = DenseLuaGenerator::default();
     generator.write_block(&block);
@@ -41,7 +45,14 @@ pub fn compile_mod(mod_path: PathBuf) {
     let mod_bytes = snap::raw::Encoder::new().compress_vec(&mod_bytes).unwrap();
 
     // write the mod to a file that has the same name as the mod's directory and a .mod extension
-    std::fs::write(mod_path.join(format!("{}.mod", mod_path.file_name().unwrap().to_str().unwrap())), mod_bytes).unwrap();
+    std::fs::write(
+        mod_path.join(format!(
+            "{}.mod",
+            mod_path.file_name().unwrap().to_str().unwrap()
+        )),
+        mod_bytes,
+    )
+    .unwrap();
 }
 
 /**
@@ -49,7 +60,10 @@ This function takes the Resources folder, goes through all of the recursively,
 changes the file paths to use : instead of / and adds the files to a map.
  */
 fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String, Vec<u8>> {
-    println!("Generating resource pack... {}", resources_path.to_str().unwrap());
+    println!(
+        "Generating resource pack... {}",
+        resources_path.to_str().unwrap()
+    );
 
     let mut resources = HashMap::new();
 
@@ -57,7 +71,10 @@ fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String
         let path = entry.unwrap().path();
 
         if path.is_dir() {
-            resources.extend(generate_resources(path.clone(), format!("{}{}:", prefix, path.file_name().unwrap().to_str().unwrap())));
+            resources.extend(generate_resources(
+                path.clone(),
+                format!("{}{}:", prefix, path.file_name().unwrap().to_str().unwrap()),
+            ));
         } else {
             let (file_name, data) = process_file(path);
             resources.insert(format!("{}{}", prefix, file_name), data);
@@ -145,7 +162,10 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
     new_surface.serialize()
 }
 
-fn copy_edge(source: &gfx::Surface, source_x: i32, source_y: i32, target: &mut gfx::Surface, target_x: i32, target_y: i32) {
+fn copy_edge(
+    source: &gfx::Surface, source_x: i32, source_y: i32, target: &mut gfx::Surface, target_x: i32,
+    target_y: i32,
+) {
     for y in 0..8 {
         for x in 0..8 {
             let pixel = source.get_pixel(source_x + x, source_y + y);

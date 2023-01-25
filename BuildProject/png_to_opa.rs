@@ -1,7 +1,7 @@
+use graphics as gfx;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use graphics as gfx;
 
 pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
     let decoder = png::Decoder::new(File::open(png_path).unwrap());

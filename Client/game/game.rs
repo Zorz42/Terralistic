@@ -1,15 +1,15 @@
-use graphics::GraphicsContext;
-use graphics as gfx;
-use shared::blocks::BLOCK_WIDTH;
-use shared::mod_manager::GameMod;
-use shared_mut::SharedMut;
-use events::EventManager;
 use crate::game::background::Background;
 use crate::game::blocks::ClientBlocks;
 use crate::game::camera::Camera;
 use crate::game::mod_manager::ClientModManager;
 use crate::game::networking::ClientNetworking;
-use crate::menus::{BackgroundRect, run_loading_screen};
+use crate::menus::{run_loading_screen, BackgroundRect};
+use events::EventManager;
+use graphics as gfx;
+use graphics::GraphicsContext;
+use shared::blocks::BLOCK_WIDTH;
+use shared::mod_manager::GameMod;
+use shared_mut::SharedMut;
 
 pub struct Game {
     events: EventManager,
@@ -66,7 +66,10 @@ impl Game {
         self.mods = result.0;
         self.blocks = result.1;
 
-        self.camera.set_position(self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32, self.blocks.blocks.get_height() as f32 / 3.0 * BLOCK_WIDTH as f32);
+        self.camera.set_position(
+            self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32,
+            self.blocks.blocks.get_height() as f32 / 3.0 * BLOCK_WIDTH as f32,
+        );
 
         self.background.init();
 
@@ -78,21 +81,26 @@ impl Game {
         let mut paused = false;
 
         let mut resume_button = gfx::Button::new();
-        resume_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume".to_string()));
+        resume_button.texture = gfx::Texture::load_from_surface(
+            &graphics.font.create_text_surface("Resume".to_string()),
+        );
         resume_button.scale = 3.0;
         resume_button.y = gfx::SPACING;
         resume_button.x = -gfx::SPACING;
         resume_button.orientation = gfx::TOP_RIGHT;
 
         let mut quit_button = gfx::Button::new();
-        quit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit".to_string()));
+        quit_button.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit".to_string()));
         quit_button.scale = 3.0;
         quit_button.y = 2 * gfx::SPACING + resume_button.get_height();
         quit_button.x = -gfx::SPACING;
         quit_button.orientation = gfx::TOP_RIGHT;
 
-        let pause_rect_width = i32::max(resume_button.get_width(), quit_button.get_width()) + 2 * gfx::SPACING;
-        let mut pause_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, graphics.renderer.get_window_height() as f32);
+        let pause_rect_width =
+            i32::max(resume_button.get_width(), quit_button.get_width()) + 2 * gfx::SPACING;
+        let mut pause_rect =
+            gfx::RenderRect::new(0.0, 0.0, 0.0, graphics.renderer.get_window_height() as f32);
         pause_rect.fill_color = gfx::BLACK;
         pause_rect.fill_color.a = gfx::TRANSPARENCY;
         pause_rect.border_color = gfx::BORDER_COLOR;
@@ -113,9 +121,15 @@ impl Game {
                     gfx::Event::KeyRelease(key, false) => {
                         if key == gfx::Key::MouseLeft {
                             if paused {
-                                if resume_button.is_hovered(graphics, Some(&pause_rect.get_container(graphics, None))) {
+                                if resume_button.is_hovered(
+                                    graphics,
+                                    Some(&pause_rect.get_container(graphics, None)),
+                                ) {
                                     paused = false;
-                                } else if quit_button.is_hovered(graphics, Some(&pause_rect.get_container(graphics, None))) {
+                                } else if quit_button.is_hovered(
+                                    graphics,
+                                    Some(&pause_rect.get_container(graphics, None)),
+                                ) {
                                     break 'main_loop;
                                 }
                             }
@@ -137,7 +151,9 @@ impl Game {
             self.blocks.render(graphics, &self.camera);
 
             pause_rect.w = if paused { pause_rect_width as f32 } else { 0.0 };
-            pause_rect.shadow_intensity = (pause_rect.get_container(graphics, None).rect.w as f32 / pause_rect_width as f32 * gfx::SHADOW_INTENSITY as f32) as i32;
+            pause_rect.shadow_intensity = (pause_rect.get_container(graphics, None).rect.w as f32
+                / pause_rect_width as f32
+                * gfx::SHADOW_INTENSITY as f32) as i32;
             pause_rect.render(graphics, None);
 
             if graphics.renderer.get_window_height() != pause_rect.h as u32 {

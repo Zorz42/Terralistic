@@ -1,12 +1,14 @@
-use std::collections::HashMap;
-use graphics::GraphicsContext;
-use graphics as gfx;
-use shared::blocks::{BlockId};
-use shared::blocks::{BLOCK_WIDTH, Blocks, BlocksWelcomePacket, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use shared::mod_manager::ModManager;
-use events::Event;
 use crate::game::camera::Camera;
 use crate::game::networking::WelcomePacketEvent;
+use events::Event;
+use graphics as gfx;
+use graphics::GraphicsContext;
+use shared::blocks::BlockId;
+use shared::blocks::{
+    Blocks, BlocksWelcomePacket, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
+};
+use shared::mod_manager::ModManager;
+use std::collections::HashMap;
 
 pub struct RenderBlockChunk {
     needs_update: bool,
@@ -27,10 +29,14 @@ impl RenderBlockChunk {
         }
         let block = blocks.get_block_type_at(x, y);
         let block_type = blocks.get_block_type(block_type);
-        return block_type.connects_to.contains(&block.get_id()) || block.get_id() == block_type.get_id();
+        return block_type.connects_to.contains(&block.get_id())
+            || block.get_id() == block_type.get_id();
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas<BlockId>, world_x: i32, world_y: i32, blocks: &Blocks, camera: &Camera) {
+    pub fn render(
+        &mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas<BlockId>,
+        world_x: i32, world_y: i32, blocks: &Blocks, camera: &Camera,
+    ) {
         if self.needs_update {
             self.needs_update = false;
 
@@ -47,7 +53,12 @@ impl RenderBlockChunk {
                             let coordinates = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
                             for i in 0..4 {
-                                if Self::can_connect_to(block_type.get_id(), world_x + x + coordinates[i].0, world_y + y + coordinates[i].1, blocks) {
+                                if Self::can_connect_to(
+                                    block_type.get_id(),
+                                    world_x + x + coordinates[i].0,
+                                    world_y + y + coordinates[i].1,
+                                    blocks,
+                                ) {
                                     block_state += 1 << i;
                                 }
                             }
@@ -57,7 +68,12 @@ impl RenderBlockChunk {
                         curr_block_rect.h = BLOCK_WIDTH;
                         curr_block_rect.y += BLOCK_WIDTH * block_state;
                         self.rect_array.add_rect(
-                            &gfx::Rect::new(x * RENDER_BLOCK_WIDTH, y * RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
+                            &gfx::Rect::new(
+                                x * RENDER_BLOCK_WIDTH,
+                                y * RENDER_BLOCK_WIDTH,
+                                RENDER_BLOCK_WIDTH,
+                                RENDER_BLOCK_WIDTH,
+                            ),
                             &[
                                 gfx::Color::new(255, 255, 255, 255),
                                 gfx::Color::new(255, 255, 255, 255),
@@ -73,9 +89,12 @@ impl RenderBlockChunk {
             self.rect_array.update();
         }
 
-        let screen_x = world_x * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
-        let screen_y = world_y * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
-        self.rect_array.render(graphics, Some(atlas.get_texture()), screen_x, screen_y);
+        let screen_x =
+            world_x * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
+        let screen_y =
+            world_y * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
+        self.rect_array
+            .render(graphics, Some(atlas.get_texture()), screen_x, screen_y);
     }
 }
 
@@ -102,7 +121,11 @@ impl ClientBlocks {
      */
     fn get_chunk_index(&self, x: i32, y: i32) -> usize {
         // check if x and y are in bounds
-        if x < 0 || y < 0 || x >= self.blocks.get_width() as i32 / CHUNK_SIZE || y >= self.blocks.get_height() as i32 / CHUNK_SIZE {
+        if x < 0
+            || y < 0
+            || x >= self.blocks.get_width() as i32 / CHUNK_SIZE
+            || y >= self.blocks.get_height() as i32 / CHUNK_SIZE
+        {
             panic!("Tried to get chunk at {}, {} but it is out of bounds", x, y);
         }
 
@@ -144,17 +167,37 @@ impl ClientBlocks {
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
-        let (top_left_x, top_left_y) = (top_left_x as i32 / BLOCK_WIDTH, top_left_y as i32 / BLOCK_WIDTH);
-        let (bottom_right_x, bottom_right_y) = (bottom_right_x as i32 / BLOCK_WIDTH, bottom_right_y as i32 / BLOCK_WIDTH);
+        let (top_left_x, top_left_y) = (
+            top_left_x as i32 / BLOCK_WIDTH,
+            top_left_y as i32 / BLOCK_WIDTH,
+        );
+        let (bottom_right_x, bottom_right_y) = (
+            bottom_right_x as i32 / BLOCK_WIDTH,
+            bottom_right_y as i32 / BLOCK_WIDTH,
+        );
         let (top_left_x, top_left_y) = (top_left_x / CHUNK_SIZE, top_left_y / CHUNK_SIZE);
-        let (bottom_right_x, bottom_right_y) = (bottom_right_x / CHUNK_SIZE + 1, bottom_right_y / CHUNK_SIZE + 1);
+        let (bottom_right_x, bottom_right_y) = (
+            bottom_right_x / CHUNK_SIZE + 1,
+            bottom_right_y / CHUNK_SIZE + 1,
+        );
         for x in top_left_x..bottom_right_x {
             for y in top_left_y..bottom_right_y {
-                if x >= 0 && y >= 0 && x < self.blocks.get_width() as i32 / CHUNK_SIZE && y < self.blocks.get_height() as i32 / CHUNK_SIZE {
+                if x >= 0
+                    && y >= 0
+                    && x < self.blocks.get_width() as i32 / CHUNK_SIZE
+                    && y < self.blocks.get_height() as i32 / CHUNK_SIZE
+                {
                     let chunk_index = self.get_chunk_index(x, y);
                     let chunk = &mut self.chunks[chunk_index];
 
-                    chunk.render(graphics, &self.atlas, x * CHUNK_SIZE, y * CHUNK_SIZE, &self.blocks, camera);
+                    chunk.render(
+                        graphics,
+                        &self.atlas,
+                        x * CHUNK_SIZE,
+                        y * CHUNK_SIZE,
+                        &self.blocks,
+                        camera,
+                    );
                 }
             }
         }
