@@ -722,13 +722,8 @@ dependencies = [
  "rlua",
  "serde",
  "serde_derive",
- "shared_mut",
  "snap",
 ]
-
-[[package]]
-name = "shared_mut"
-version = "0.1.0"
 
 [[package]]
 name = "shlex"
@@ -813,7 +808,6 @@ dependencies = [
  "rand 0.8.5",
  "rlua",
  "shared",
- "shared_mut",
  "snap",
 ]
 

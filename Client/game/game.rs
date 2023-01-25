@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
 use crate::game::background::Background;
 use crate::game::blocks::ClientBlocks;
 use crate::game::camera::Camera;
@@ -9,7 +11,6 @@ use graphics as gfx;
 use graphics::GraphicsContext;
 use shared::blocks::BLOCK_WIDTH;
 use shared::mod_manager::GameMod;
-use shared_mut::SharedMut;
 
 pub struct Game {
     events: EventManager,
@@ -39,10 +40,11 @@ impl Game {
         let mut events = EventManager::new();
         self.networking.init(&mut events);
 
-        let loading_text = SharedMut::new(String::from("Loading"));
+        let loading_text = Arc::new(Mutex::new("Loading".to_string()));
         let loading_text2 = loading_text.clone();
+
         let init_thread = std::thread::spawn(move || {
-            *loading_text2.borrow() = "Loading mods".to_string();
+            *loading_text2.lock().unwrap() = "Loading mods".to_string();
             let mut mods = ClientModManager::new();
             let mut blocks = ClientBlocks::new();
 
@@ -53,14 +55,14 @@ impl Game {
 
             blocks.init(&mut mods.mod_manager);
 
-            *loading_text2.borrow() = "Initializing mods".to_string();
+            *loading_text2.lock().unwrap() = "Initializing mods".to_string();
             mods.init();
 
-            loading_text2.borrow().clear();
+            loading_text2.lock().unwrap().clear();
             (mods, blocks)
         });
 
-        run_loading_screen(graphics, menu_back, loading_text);
+        run_loading_screen(graphics, menu_back, &loading_text);
 
         let result = init_thread.join().unwrap();
         self.mods = result.0;

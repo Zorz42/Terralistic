@@ -1,6 +1,6 @@
+use std::sync::Mutex;
 use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
-use shared_mut::SharedMut;
 
 const PROGRESS_BAR_WIDTH: i32 = 400;
 const PROGRESS_BAR_HEIGHT: i32 = 50;
@@ -13,7 +13,7 @@ When the string is empty, the loading screen is closed.
  */
 pub fn run_loading_screen(
     graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect,
-    loading_text: SharedMut<String>,
+    loading_text: &Mutex<String>,
 ) {
     let mut loading_text_sprite = gfx::Sprite::new();
     loading_text_sprite.orientation = gfx::CENTER;
@@ -32,15 +32,15 @@ pub fn run_loading_screen(
     loading_bar.fill_color = gfx::LIGHT_GREY;
     loading_bar.smooth_factor = 60.0;
 
-    while graphics.renderer.is_window_open() && !loading_text.borrow().is_empty() {
+    while graphics.renderer.is_window_open() && !loading_text.lock().unwrap().is_empty() {
         while let Some(_) = graphics.renderer.get_event() {}
 
         menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH + 2 * gfx::SPACING as i32);
 
         menu_back.render_back(graphics);
 
-        if curr_text != *loading_text.borrow() {
-            curr_text = loading_text.borrow().clone();
+        if curr_text != *loading_text.lock().unwrap() {
+            curr_text = loading_text.lock().unwrap().clone();
             if !curr_text.is_empty() {
                 let mut progress_bar_progress = -1.0;
                 // let ending of the text be the back of the text until the space symbol

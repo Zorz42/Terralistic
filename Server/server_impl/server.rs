@@ -5,27 +5,17 @@ mod world_generator;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::Mutex;
 //use std::os::macos::raw::stat;
 use shared::mod_manager::GameMod;
-use shared_mut::SharedMut;
 use events::EventManager;
 use crate::blocks::ServerBlocks;
 use crate::mod_manager::ServerModManager;
 use crate::networking::ServerNetworking;
 use crate::world_generator::WorldGenerator;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum ServerState {
-    Starting,
-    Running,
-    Stopping,
-    Stopped,
-}
-
 pub struct Server {
     tps_limit: f64,
-    running: SharedMut<bool>,
-    server_state: SharedMut<ServerState>,
     events: EventManager,
     networking: ServerNetworking,
     mods: ServerModManager,
@@ -33,11 +23,9 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(running: SharedMut<bool>, server_state: SharedMut<ServerState>, port: u16) -> Self {
+    pub fn new(port: u16) -> Self {
         Self {
             tps_limit: 20.0,
-            running,
-            server_state,
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
             mods: ServerModManager::new(),
@@ -45,11 +33,10 @@ impl Server {
         }
     }
 
-    pub fn start(&mut self, status_text: SharedMut<String>, mods: Vec<Vec<u8>>, world_path: &PathBuf) {
+    pub fn start(&mut self, is_running: &Mutex<bool>, status_text: &Mutex<String>, mods: Vec<Vec<u8>>, world_path: &PathBuf) {
         println!("Starting server...");
         let timer = std::time::Instant::now();
-        *self.server_state.borrow() = ServerState::Starting;
-        *status_text.borrow() = "Starting server".to_string();
+        *status_text.lock().unwrap() = "Starting server".to_string();
 
         for mod_ in mods {
             // decompress mod with snap
@@ -64,20 +51,19 @@ impl Server {
         let mut generator = WorldGenerator::new();
         generator.init(&mut self.mods.mod_manager);
 
-        *status_text.borrow() = "Initializing mods".to_string();
+        *status_text.lock().unwrap() = "Initializing mods".to_string();
         self.mods.init();
 
         if world_path.exists() {
-            *status_text.borrow() = "Loading world".to_string();
+            *status_text.lock().unwrap() = "Loading world".to_string();
             self.load_world(world_path);
         } else {
-            generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657, status_text.clone());
+            generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657, &status_text);
         }
 
         // start server loop
         println!("Server started in {}ms", timer.elapsed().as_millis());
-        *self.server_state.borrow() = ServerState::Running;
-        status_text.borrow().clear();
+        status_text.lock().unwrap().clear();
         let mut last_time = std::time::Instant::now();
         loop {
             let delta_time = last_time.elapsed().as_secs_f64();
@@ -94,7 +80,7 @@ impl Server {
                 self.networking.on_event(&event);
             }
 
-            if !*self.running.borrow() {
+            if !*is_running.lock().unwrap() {
                 break;
             }
 
@@ -105,18 +91,15 @@ impl Server {
             }
         }
 
-        *self.server_state.borrow() = ServerState::Stopping;
-
-        *status_text.borrow() = "Saving world".to_string();
+        *status_text.lock().unwrap() = "Saving world".to_string();
         self.save_world(world_path);
 
-        *status_text.borrow() = "Stopping server".to_string();
+        *status_text.lock().unwrap() = "Stopping server".to_string();
         // stop modules
         self.networking.stop();
         self.mods.stop();
 
-        *self.server_state.borrow() = ServerState::Stopped;
-        status_text.borrow().clear();
+        status_text.lock().unwrap().clear();
         println!("Server stopped.");
     }
 

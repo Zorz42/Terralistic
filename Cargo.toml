@@ -16,7 +16,6 @@ path = "Server/main.rs"
 [dependencies]
 graphics = {"path" = "Libraries/graphics/"}
 events = {"path" = "Libraries/events/"}
-shared_mut = {"path" = "Libraries/shared_mut/"}
 terralistic_server = {"path" = "Server/server_impl/"}
 shared = {"path" = "Shared/"}
 rand = "0.8.4"

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 use serde_derive::{Deserialize, Serialize};
-use shared_mut::SharedMut;
 use snap;
 
 use crate::blocks::{BlockType, BreakingBlock, Tool};
@@ -70,7 +70,7 @@ pub struct Blocks {
     pub(super) block_data: BlocksData,
     pub(super) chunks: Vec<Vec<BlockChunk>>,
     pub(super) breaking_blocks: Vec<BreakingBlock>,
-    pub(super) block_types: SharedMut<Vec<BlockType>>,
+    pub(super) block_types: Arc<Mutex<Vec<BlockType>>>,
     pub(super) tool_types: Vec<Tool>,
     pub air: BlockId,
 }
@@ -87,7 +87,7 @@ impl Blocks{
             },
             chunks: vec![],
             breaking_blocks: vec![],
-            block_types: SharedMut::new(vec![]),
+            block_types: Arc::new(Mutex::new(vec![])),
             tool_types: vec![],
             air: BlockId::new(),
         };
@@ -97,7 +97,7 @@ impl Blocks{
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
-        result.air = Self::register_new_block_type(result.block_types.clone(), air);
+        result.air = Self::register_new_block_type(&mut result.block_types.lock().unwrap(), air);
 
         result
     }
@@ -109,7 +109,7 @@ impl Blocks{
         });
 
         mods.add_global_function("register_block_type", move |_lua, block_type: BlockType| {
-            let result = Self::register_new_block_type(block_types.clone(), block_type);
+            let result = Self::register_new_block_type(&mut block_types.lock().unwrap(), block_type);
             Ok(result)
         });
     }
@@ -188,7 +188,7 @@ impl Blocks{
     This is used to get a block type from its id, it is used for serialization.
      */
     pub fn get_block_type_by_id(&self, id: BlockId) -> BlockType {
-        self.block_types.borrow()[id.id as usize].clone()
+        self.block_types.lock().unwrap()[id.id as usize].clone()
     }
 
     /**
@@ -258,11 +258,11 @@ impl Blocks{
     /**
     This function adds a new block type, but is used internally by mods.
      */
-    fn register_new_block_type(block_types: SharedMut<Vec<BlockType>>, mut block_type: BlockType) -> BlockId {
-        let id = block_types.borrow().len() as i8;
+    fn register_new_block_type(block_types: &mut Vec<BlockType>, mut block_type: BlockType) -> BlockId {
+        let id = block_types.len() as i8;
         let result = BlockId{ id };
         block_type.id = result;
-        block_types.borrow().push(block_type);
+        block_types.push(block_type);
         result
     }
 
@@ -271,7 +271,7 @@ impl Blocks{
     with commands to get the block type from the name.
      */
     pub fn get_block_id_by_name(&mut self, name: String) -> Option<BlockId> {
-        for block_type in self.block_types.borrow().iter() {
+        for block_type in self.block_types.lock().unwrap().iter() {
             if block_type.name == name {
                 return Some(block_type.id);
             }
@@ -284,7 +284,7 @@ impl Blocks{
      */
     pub fn get_all_block_ids(&mut self) -> Vec<BlockId> {
         let mut result = Vec::new();
-        for block_type in self.block_types.borrow().iter() {
+        for block_type in self.block_types.lock().unwrap().iter() {
             result.push(block_type.id);
         }
         result
@@ -294,7 +294,7 @@ impl Blocks{
     Returns the block type that has the specified id.
      */
     pub fn get_block_type(&self, id: BlockId) -> BlockType {
-        self.block_types.borrow()[id.id as usize].clone()
+        self.block_types.lock().unwrap()[id.id as usize].clone()
     }
 
     /**

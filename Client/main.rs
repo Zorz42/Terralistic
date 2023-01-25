@@ -3,6 +3,7 @@
 mod menus;
 mod game;
 
+use std::sync::Mutex;
 use crate::menus::MenuBack;
 use graphics as gfx;
 

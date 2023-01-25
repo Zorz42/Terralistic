@@ -1,11 +1,11 @@
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use noise::{NoiseFn, Perlin};
 use rand::{RngCore, SeedableRng};
 use rlua::prelude::{LuaUserData};
 use rlua::UserDataMethods;
 use shared::blocks::{BlockId, Blocks};
 use shared::mod_manager::ModManager;
-use shared_mut::SharedMut;
 
 fn turbulence(noise: &Perlin, x: f64, y: f64) -> f64 {
     let mut value = 0.0;
@@ -36,19 +36,13 @@ fn convolve(array: &Vec<f64>, size: i32) -> Vec<f64> {
 }
 
 pub struct WorldGenerator {
-    biomes: SharedMut<Vec<Biome>>,
-    total_tasks: i32,
-    current_task: i32,
-    status_text: SharedMut<String>,
+    biomes: Arc<Mutex<Vec<Biome>>>,
 }
 
 impl WorldGenerator {
     pub fn new() -> Self {
         Self {
-            biomes: SharedMut::new(Vec::new()),
-            total_tasks: 0,
-            current_task: 0,
-            status_text: SharedMut::new(String::new()),
+            biomes: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
@@ -59,30 +53,25 @@ impl WorldGenerator {
 
         let biomes = self.biomes.clone();
         mods.add_global_function("register_biome", move |_, biome: Biome| {
-            biomes.borrow().push(biome);
-            Ok(biomes.borrow().len() - 1)
+            biomes.lock().unwrap().push(biome);
+            Ok(biomes.lock().unwrap().len() - 1)
         });
 
         // lua function connect_biomes(biome1, biome2, weight) takes two biome ids and a weight and connects them
         // the weight is how likely it is to go from biome1 to biome2 (and vice versa)
         let biomes = self.biomes.clone();
         mods.add_global_function("connect_biomes", move |_, (biome1, biome2, weight): (i32, i32, i32)| {
-            biomes.borrow()[biome1 as usize].adjacent_biomes.push((weight, biome2));
-            biomes.borrow()[biome2 as usize].adjacent_biomes.push((weight, biome1));
+            biomes.lock().unwrap()[biome1 as usize].adjacent_biomes.push((weight, biome2));
+            biomes.lock().unwrap()[biome2 as usize].adjacent_biomes.push((weight, biome1));
             Ok(())
         });
     }
 
-    fn next_task(&mut self) {
-        self.current_task += 1;
-        *self.status_text.borrow() = format!("Generating world {}%", (self.current_task as f32 / self.total_tasks as f32 * 100.0) as i32);
-    }
-
-    pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: SharedMut<String>) {
+    pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) {
         // create a random number generator with seed
         let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
 
-        if self.biomes.borrow().len() == 0 {
+        if self.biomes.lock().unwrap().len() == 0 {
             panic!("No biomes were added! Cannot generate world!");
         }
 
@@ -94,11 +83,11 @@ impl WorldGenerator {
 
         // walk on the graph of biomes
         // initial biome is random
-        let mut curr_biome = rand::random::<i32>().abs() % self.biomes.borrow().len() as i32;
+        let mut curr_biome = rand::random::<i32>().abs() % self.biomes.lock().unwrap().len() as i32;
         while width < min_width {
             // determine the width of the current biome
             // the width is a random number between the min and max width
-            let biome = &self.biomes.borrow()[curr_biome as usize];
+            let biome = &self.biomes.lock().unwrap()[curr_biome as usize];
             let biome_width = rand::random::<i32>().abs() % (biome.max_width - biome.min_width) + biome.min_width;
             for _ in 0..biome_width {
                 min_heights.push(biome.min_terrain_height as f64);
@@ -125,12 +114,17 @@ impl WorldGenerator {
 
         println!("Creating a world with size {}x{}", width, height);
 
-        self.total_tasks = width * height;
-        self.status_text = status_text.clone();
+        let mut current_task = 0;
+        let total_tasks = width * height;
+
+        let mut next_task = || {
+            current_task += 1;
+            *status_text.lock().unwrap() = format!("Generating world {}%", (current_task as f32 / total_tasks as f32 * 100.0) as i32);
+        };
 
         let start_time = std::time::Instant::now();
 
-        *status_text.borrow() = "Generating world".to_string();
+        *status_text.lock().unwrap() = "Generating world".to_string();
         blocks.create(width, height);
 
         let mut terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
@@ -147,7 +141,7 @@ impl WorldGenerator {
         }
 
         for x in 0..width {
-            let biome = &self.biomes.borrow()[biome_ids[x as usize] as usize];
+            let biome = &self.biomes.lock().unwrap()[biome_ids[x as usize] as usize];
             for ore in &biome.ores {
                 ores_start_noises.get_mut(&ore.block).unwrap()[x as usize] = ore.start_noise;
                 ores_end_noises.get_mut(&ore.block).unwrap()[x as usize] = ore.end_noise;
@@ -179,13 +173,13 @@ impl WorldGenerator {
         for x in 0..width {
             let terrain_noise_val = ((turbulence(&terrain_noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
             for y in 0..height {
-                self.next_task();
+                next_task();
                 let terrain_height = height - y;
 
                 let cave_noise_val = f64::abs(turbulence(&cave_noise, x as f64 / 80.0, y as f64 / 80.0));
                 let cave_threshold = y as f64 / height as f64 * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize]) + min_cave_thresholds[x as usize];
 
-                let mut curr_block = self.biomes.borrow()[biome_ids[x as usize] as usize].base_block;
+                let mut curr_block = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
 
                 for block in blocks.get_all_block_ids() {
                     let start_noise = ores_start_noises[&block][x as usize];
@@ -211,8 +205,8 @@ impl WorldGenerator {
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 
-        if self.current_task != self.total_tasks {
-            panic!("Not all tasks were completed! {} != {}", self.current_task, self.total_tasks);
+        if current_task != total_tasks {
+            panic!("Not all tasks were completed! {} != {}", current_task, total_tasks);
         }
     }
 }
