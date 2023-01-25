@@ -110,11 +110,13 @@ impl Server {
         *status_text.borrow() = "Saving world".to_string();
         self.save_world(world_path);
 
+        *status_text.borrow() = "Stopping server".to_string();
         // stop modules
         self.networking.stop();
         self.mods.stop();
 
         *self.server_state.borrow() = ServerState::Stopped;
+        status_text.borrow().clear();
         println!("Server stopped.");
     }
 
