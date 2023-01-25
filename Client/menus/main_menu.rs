@@ -2,7 +2,7 @@ use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use graphics::SPACING;
 use shared::versions::VERSION;
-use crate::menus::run_singleplayer_selector;
+use crate::menus::{run_choice_menu, run_singleplayer_selector};
 
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
     let mut singleplayer_button = gfx::Button::new();
@@ -77,7 +77,9 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                             run_singleplayer_selector(graphics, menu_back);
                         }
                         else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                            println!("Multiplayer clicked");
+                            if run_choice_menu(String::from("Are you sure you want to open\nthe multiplayer menu"), graphics, menu_back){//TODO: delete this, it is just for testing
+                                println!("Multiplayer clicked");
+                            }
                         }
                         else if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                             println!("Settings clicked");

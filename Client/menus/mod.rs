@@ -15,3 +15,6 @@ pub use loading_screen::run_loading_screen;
 
 mod world_creation;
 pub use world_creation::run_world_creation;
+
+mod choice_menu;
+pub use choice_menu::run_choice_menu;
