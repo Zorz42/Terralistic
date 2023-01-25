@@ -1,9 +1,12 @@
 use std::collections::HashMap;
+use std::string::ToString;
 use bincode::Options;
 use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
 use rlua::prelude::LuaError;
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
+
+static MOD_ID_IDENT: &str = "__TERRALISTIC_MOD_ID";
 
 #[derive(PartialEq)]
 enum ModManagerState {
@@ -15,6 +18,11 @@ enum ModManagerState {
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 pub struct ModsWelcomePacket {
     pub mods: Vec<Vec<u8>>,
+}
+
+pub fn get_mod_id(context: Context) -> Result<i32, LuaError> {
+    let globals = context.globals();
+    globals.get::<_, i32>(MOD_ID_IDENT)
 }
 
 /**
@@ -29,6 +37,7 @@ pub struct GameMod {
     lua_code: String,
     resources: HashMap<String, Vec<u8>>,
     lua: Lua,
+    id: i32,
 }
 
 impl GameMod {
@@ -37,6 +46,7 @@ impl GameMod {
             lua_code,
             resources,
             lua: Lua::new(),
+            id: -1,
         }
     }
 
@@ -45,10 +55,14 @@ impl GameMod {
     It loads the code and resources into the lua state.
     It then runs the code and the init function.
      */
-    fn init(&mut self) {
+    fn init(&mut self, id: i32) {
+        self.id = id;
         self.lua.context(|lua| {
             // load the game mod code
             lua.load(&self.lua_code).exec().unwrap();
+            let globals = lua.globals();
+            // set the mod id
+            globals.set(MOD_ID_IDENT, self.id).unwrap();
         });
 
         // execute the init function
@@ -138,6 +152,7 @@ impl<'de> Deserialize<'de> for GameMod {
             lua_code: data.lua_code,
             resources: data.resources,
             lua: Lua::new(),
+            id: -1,
         })
     }
 }
@@ -201,8 +216,9 @@ impl ModManager {
      */
     pub fn init(&mut self) {
         if self.state == ModManagerState::LoadingMods || self.state == ModManagerState::LoadingFunctions {
-            for mod_ in &mut self.mods {
-                mod_.init();
+            // iterate over all the mods and initialize them, id passed to the mod is the index of the mod in the vector
+            for (id, mod_) in self.mods.iter_mut().enumerate() {
+                mod_.init(id as i32);
             }
             self.state = ModManagerState::Ready;
         } else {
@@ -255,5 +271,12 @@ impl ModManager {
             }
         }
         None
+    }
+
+    /**
+    This function gets the mod with the given id.
+     */
+    pub fn get_mod(&mut self, id: i32) -> Option<&mut GameMod> {
+        self.mods.get_mut(id as usize)
     }
 }

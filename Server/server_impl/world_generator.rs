@@ -5,7 +5,7 @@ use rand::{RngCore, SeedableRng};
 use rlua::prelude::{LuaUserData};
 use rlua::UserDataMethods;
 use shared::blocks::{BlockId, Blocks};
-use shared::mod_manager::ModManager;
+use shared::mod_manager::{get_mod_id, ModManager};
 
 fn turbulence(noise: &Perlin, x: f64, y: f64) -> f64 {
     let mut value = 0.0;
@@ -47,8 +47,9 @@ impl WorldGenerator {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        mods.add_global_function("new_biome", move |_, _: ()| {
-            Ok(Biome::new())
+        mods.add_global_function("new_biome", move |lua_ctx, _: ()| {
+            let mod_id = get_mod_id(lua_ctx).unwrap();
+            Ok(Biome::new(mod_id))
         });
 
         let biomes = self.biomes.clone();
@@ -170,7 +171,12 @@ impl WorldGenerator {
             ore_noises.insert(block_id, Perlin::new(rng.next_u32()));
         }
 
+        let mut curr_terrain = Vec::new();
+        let mut prev_x = 0;
+
         for x in 0..width {
+            curr_terrain.push(vec![BlockId::new(); height as usize]);
+
             let terrain_noise_val = ((turbulence(&terrain_noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
             for y in 0..height {
                 next_task();
@@ -197,7 +203,22 @@ impl WorldGenerator {
                     curr_block = blocks.air;
                 };
 
-                terrain[x as usize][y as usize] = curr_block;
+                curr_terrain[(x - prev_x) as usize][y as usize] = curr_block;
+            }
+
+            if x == width - 1 || biome_ids[x as usize] != biome_ids[(x + 1) as usize] {
+                let curr_biome = &self.biomes.lock().unwrap()[biome_ids[x as usize] as usize];
+                if let Some(generator_function) = &curr_biome.generator_function {
+                    curr_terrain = mods.get_mod(curr_biome.mod_id).unwrap().call_function(generator_function, (curr_terrain, x - prev_x + 1, height)).unwrap();
+                }
+
+                for y in 0..height {
+                    for x in prev_x..x + 1 {
+                        terrain[x as usize][y as usize] = curr_terrain[(x - prev_x) as usize][y as usize];
+                    }
+                }
+                curr_terrain.clear();
+                prev_x = x + 1;
             }
         }
 
@@ -227,11 +248,13 @@ struct Biome {
     pub base_block: BlockId,
     // the first element is connection weight, the second is the biome id
     pub adjacent_biomes: Vec<(i32, i32)>,
+    pub mod_id: i32,
+    pub generator_function: Option<String>,
     pub ores: Vec<Ore>,
 }
 
 impl Biome {
-    fn new() -> Self {
+    fn new(mod_id: i32) -> Self {
         Self {
             min_width: 0,
             max_width: 0,
@@ -239,6 +262,8 @@ impl Biome {
             max_terrain_height: 0,
             base_block: BlockId::new(),
             adjacent_biomes: Vec::new(),
+            mod_id,
+            generator_function: None,
             ores: Vec::new(),
         }
     }
@@ -248,24 +273,6 @@ impl Biome {
 impl LuaUserData for Biome {
     // implement index and new_index metamethods to allow reading and writing to fields
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
-        // add meta method to access fields
-        methods.add_meta_method(rlua::MetaMethod::Index, |_lua_ctx, this, key: String| {
-            match key.as_str() {
-                "min_width" => Ok(this.min_width),
-                "max_width" => Ok(this.max_width),
-                "min_terrain_height" => Ok(this.min_terrain_height),
-                "max_terrain_height" => Ok(this.max_terrain_height),
-                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
-            }
-        });
-
-        methods.add_meta_method(rlua::MetaMethod::Index, |_lua_ctx, this, key: String| {
-            match key.as_str() {
-                "base_block" => Ok(this.base_block),
-                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
-            }
-        });
-
         // add meta method to set fields
         methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
             match key.as_str() {
@@ -310,6 +317,13 @@ impl LuaUserData for Biome {
                     }
                     Ok(())
                 },
+                "generator_function" => {
+                    match value {
+                        rlua::Value::String(b) => this.generator_function = Some(b.to_str().unwrap().to_string()),
+                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for generator_function")))
+                    }
+                    Ok(())
+                }
                 _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
             }
         });

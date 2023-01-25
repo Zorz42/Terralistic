@@ -61,7 +61,14 @@ impl BlockId {
 }
 
 // make BlockId lua compatible
-impl rlua::UserData for BlockId {}
+impl rlua::UserData for BlockId {
+    // implement equals comparison for BlockId
+    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_meta_method(rlua::MetaMethod::Eq, |lua, this, other: BlockId| {
+            Ok(this.id == other.id)
+        });
+    }
+}
 
 /**
 A world is a 2d array of blocks and chunks.
@@ -103,14 +110,25 @@ impl Blocks{
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        let block_types = self.block_types.clone();
         mods.add_global_function("new_block_type", move |_lua, _: ()| {
             Ok(BlockType::new())
         });
 
+        let block_types = self.block_types.clone();
         mods.add_global_function("register_block_type", move |_lua, block_type: BlockType| {
             let result = Self::register_new_block_type(&mut block_types.lock().unwrap(), block_type);
             Ok(result)
+        });
+
+        let block_types = self.block_types.clone();
+        mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
+            let block_types = block_types.lock().unwrap();
+            for block_type in block_types.iter() {
+                if block_type.name == name {
+                    return Ok(block_type.get_id());
+                }
+            }
+            Err(rlua::Error::RuntimeError("Block type not found".to_string()))
         });
     }
 

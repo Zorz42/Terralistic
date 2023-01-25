@@ -39,6 +39,7 @@ mountains = -1
 -- This function is called when the mod is loaded.
 function init()
     -- register blocks
+    air = terralistic_get_block_id_by_name("air")
 
     -- DIRT
     block_type = terralistic_new_block_type()
@@ -72,6 +73,7 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = dirt_block
+    biome["generator_function"] = "generate_plains"
     biome:add_ore(stone_block, -2.0, 3.0);
     biome:add_ore(copper_ore, -0.9, -0.4);
     plains = terralistic_register_biome(biome)
@@ -109,4 +111,18 @@ end
 -- This function is called every frame.
 function update()
 
+end
+
+function generate_plains(terrain, width, height)
+    for x = 1, width do
+        y = 1
+        while y < height and terrain[x][y] == air do
+            y = y + 1
+        end
+
+        if y < height then
+            terrain[x][y] = stone_block
+        end
+    end
+    return terrain
 end

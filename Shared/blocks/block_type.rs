@@ -45,24 +45,6 @@ make BlockType Lua compatible, implement getter and setter for every field excep
  */
 impl rlua::UserData for BlockType {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
-        // add meta method to access fields, id and image are not accessible
-        methods.add_meta_method(rlua::MetaMethod::Index, |lua_ctx, this, key: String| {
-            match key.as_str() {
-                "required_tool_power" => Ok(this.required_tool_power.to_lua(lua_ctx).unwrap()),
-                "ghost" => Ok(this.ghost.to_lua(lua_ctx).unwrap()),
-                "transparent" => Ok(this.transparent.to_lua(lua_ctx).unwrap()),
-                "name" => Ok(this.name.clone().to_lua(lua_ctx).unwrap()),
-                "break_time" => Ok(this.break_time.to_lua(lua_ctx).unwrap()),
-                "light_emission_r" => Ok(this.light_emission_r.to_lua(lua_ctx).unwrap()),
-                "light_emission_g" => Ok(this.light_emission_g.to_lua(lua_ctx).unwrap()),
-                "light_emission_b" => Ok(this.light_emission_b.to_lua(lua_ctx).unwrap()),
-                "width" => Ok(this.width.to_lua(lua_ctx).unwrap()),
-                "height" => Ok(this.height.to_lua(lua_ctx).unwrap()),
-                "can_update_states" => Ok(this.can_update_states.to_lua(lua_ctx).unwrap()),
-                "feet_collidable" => Ok(this.feet_collidable.to_lua(lua_ctx).unwrap()),
-                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of BlockType", key))),
-            }
-        });
         // add meta method to set fields, id and image are not accessible
         methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
             match key.as_str() {
