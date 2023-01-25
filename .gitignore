@@ -3,7 +3,6 @@
 Build/
 Output/
 .idea/
-**/Cargo.lock
 **/*.mod
 
 #root cargo.lock is still not excluded, idk how to do that.
