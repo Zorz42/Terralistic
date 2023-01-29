@@ -17,6 +17,7 @@ pub struct Button {
     pub hover_color: Color,
     pub hover_border_color: Color,
     pub disabled: bool,
+    pub darken_on_disabled: bool,
     pub hover_progress: f32,
     timer: std::time::Instant,
     timer_counter: u32,
@@ -39,6 +40,7 @@ impl Button {
             hover_color: GFX_DEFAULT_HOVERED_BUTTON_COLOR,
             hover_border_color: GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR,
             disabled: false,
+            darken_on_disabled: false,
             hover_progress: 0.0,
             timer: std::time::Instant::now(),
             timer_counter: 0,
@@ -133,5 +135,8 @@ impl Button {
         let x = rect.x + rect.w / 2 - (self.texture.get_texture_width() as f32 * texture_scale / 2.0) as i32;
         let y = rect.y + rect.h / 2 - (self.texture.get_texture_height() as f32 * texture_scale / 2.0) as i32;
         self.texture.render(&graphics.renderer, texture_scale, x, y, None, false, None);
+        if self.disabled && self.darken_on_disabled {
+            rect.render(&graphics, Color::new(0, 0, 0, 100));
+        }
     }
 }

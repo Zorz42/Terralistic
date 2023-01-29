@@ -35,6 +35,7 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
 
     let mut create_button = gfx::Button::new();
     create_button.scale = 3.0;
+    create_button.darken_on_disabled = true;
     create_button.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
