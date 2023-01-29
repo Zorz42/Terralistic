@@ -5,9 +5,4 @@ Output/
 .idea/
 **/*.mod
 
-#root cargo.lock is still not excluded, idk how to do that.
-#Do exclude it, it's auto generated file on compile
-
-# Added by cargo
-
 **/target

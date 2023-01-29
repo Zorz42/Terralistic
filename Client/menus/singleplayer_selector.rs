@@ -243,7 +243,8 @@ pub fn run_singleplayer_selector(
                         if new_world_button
                             .is_hovered(graphics, Some(&menu_back.get_back_rect_container()))
                         {
-                            run_world_creation(graphics, menu_back);
+                            run_world_creation(graphics, menu_back, &mut world_list.worlds);
+                            world_list.refresh(graphics);
                         }
 
                         for world in &mut world_list.worlds {
