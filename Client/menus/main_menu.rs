@@ -111,8 +111,9 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                                 String::from("Are you sure you want to open\nthe multiplayer menu"),
                                 graphics,
                                 menu_back,
-                                Some(String::from("No, go back")),
                                 None,
+                                Some(String::from("No, go back")),
+                                true,
                             ) {
                                 //TODO: delete this, it is just for testing
                                 println!("Multiplayer clicked");
