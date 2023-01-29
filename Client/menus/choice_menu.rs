@@ -3,7 +3,7 @@ use graphics as gfx;
 use graphics::GraphicsContext;
 
 pub fn run_choice_menu(
-    menu_title: String, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    menu_title: String, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect, confirm_name_override: Option<String>, back_name_override: Option<String>
 ) -> bool {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
 
@@ -20,15 +20,17 @@ pub fn run_choice_menu(
 
     let mut buttons_container = gfx::Container::new(0, 0, 0, 0, gfx::BOTTOM);
 
+    let back_str = back_name_override.unwrap_or(String::from("Back"));
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Back")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str));
 
+    let confirm_str = confirm_name_override.unwrap_or(String::from("Confirm"));
     let mut confirm_button = gfx::Button::new();
     confirm_button.scale = 3.0;
     confirm_button.texture = gfx::Texture::load_from_surface(
-        &graphics.font.create_text_surface(String::from("Confirm")),
+        &graphics.font.create_text_surface(confirm_str),
     );
     confirm_button.x = back_button.get_width() + gfx::SPACING;
 
