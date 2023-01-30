@@ -107,7 +107,7 @@ impl Server {
         // decode world file as HashMap<String, Vec<u8>>
         let world: HashMap<String, Vec<u8>> = bincode::deserialize(&*world_file).unwrap();
 
-        self.blocks.blocks.deserialize(world.get("blocks").unwrap());
+        self.blocks.blocks.deserialize(world.get("blocks").unwrap()).unwrap();
     }
 
     fn save_world(&self, world_path: &PathBuf) {
