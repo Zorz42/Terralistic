@@ -3,7 +3,8 @@ use graphics as gfx;
 use graphics::GraphicsContext;
 
 pub fn run_choice_menu(
-    menu_title: String, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect, confirm_name_override: Option<String>, back_name_override: Option<String>
+    menu_title: String, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    confirm_name_override: Option<String>, back_name_override: Option<String>,
 ) -> bool {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
 
@@ -29,9 +30,8 @@ pub fn run_choice_menu(
     let confirm_str = confirm_name_override.unwrap_or(String::from("Confirm"));
     let mut confirm_button = gfx::Button::new();
     confirm_button.scale = 3.0;
-    confirm_button.texture = gfx::Texture::load_from_surface(
-        &graphics.font.create_text_surface(confirm_str),
-    );
+    confirm_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str));
     confirm_button.x = back_button.get_width() + gfx::SPACING;
 
     buttons_container.rect.w = back_button.get_width() + confirm_button.get_width() + gfx::SPACING;

@@ -1,9 +1,9 @@
+use super::singleplayer_selector::World;
 use crate::game::private_world::run_private_world;
 use crate::menus::background_rect::BackgroundRect;
 use directories::BaseDirs;
 use graphics as gfx;
 use graphics::GraphicsContext;
-use super::singleplayer_selector::World;
 
 fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
     for world in worlds_list {
@@ -15,7 +15,10 @@ fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
 }
 
 /**this function runs the world creation menu.*/
-pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect, worlds_list: &mut Vec<World>) {
+pub fn run_world_creation(
+    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    worlds_list: &mut Vec<World>,
+) {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.texture = gfx::Texture::load_from_surface(
@@ -85,7 +88,8 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
             .join("Worlds")
             .join(world_name_input.text.clone() + ".world");
 
-        create_button.disabled = world_name_exists(worlds_list, &world_name_input.text) || world_name_input.text.len() == 0;
+        create_button.disabled = world_name_exists(worlds_list, &world_name_input.text)
+            || world_name_input.text.len() == 0;
 
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
@@ -97,7 +101,7 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
                         if back_button.is_hovered(graphics, Some(&buttons_container)) {
                             break 'render_loop;
                         }
-                        if create_button.is_hovered(graphics, Some(&buttons_container)){
+                        if create_button.is_hovered(graphics, Some(&buttons_container)) {
                             run_private_world(graphics, menu_back, &world_path);
                             break 'render_loop;
                         }
@@ -111,7 +115,9 @@ pub fn run_world_creation(graphics: &mut GraphicsContext, menu_back: &mut dyn Ba
                         }
                     }
                     gfx::Key::Enter => {
-                        if world_name_input.text.len() > 0 && !world_name_exists(worlds_list, &world_name_input.text){
+                        if world_name_input.text.len() > 0
+                            && !world_name_exists(worlds_list, &world_name_input.text)
+                        {
                             run_private_world(graphics, menu_back, &world_path);
                             break 'render_loop;
                         }

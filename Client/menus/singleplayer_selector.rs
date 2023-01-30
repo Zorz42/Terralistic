@@ -1,6 +1,7 @@
 use super::world_creation::run_world_creation;
 use crate::game::private_world::run_private_world;
 use crate::menus::background_rect::BackgroundRect;
+use crate::menus::run_choice_menu;
 use chrono;
 use directories::BaseDirs;
 use graphics as gfx;
@@ -247,6 +248,7 @@ pub fn run_singleplayer_selector(
                             world_list.refresh(graphics);
                         }
 
+                        let mut needs_refresh = false;
                         for world in &mut world_list.worlds {
                             if world.play_button.is_hovered(
                                 graphics,
@@ -256,7 +258,21 @@ pub fn run_singleplayer_selector(
                                 )),
                             ) {
                                 run_private_world(graphics, menu_back, world.get_file_path());
+                            } else if world.delete_button.is_hovered(
+                                graphics,
+                                Some(&world.get_container(
+                                    graphics,
+                                    Some(&menu_back.get_back_rect_container()),
+                                )),
+                            ) {
+                                if run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name), graphics, menu_back, None, None) {
+                                    fs::remove_file(world.get_file_path()).unwrap();
+                                    needs_refresh = true;
+                                }
                             }
+                        }
+                        if needs_refresh {
+                            world_list.refresh(graphics);
                         }
                     }
                     gfx::Key::Escape => {
