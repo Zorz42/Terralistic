@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+use std::num::TryFromIntError;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use serde_derive::{Deserialize, Serialize};
@@ -6,7 +8,7 @@ use snap;
 
 use crate::blocks::{BlockType, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
-use anyhow::Result;
+use anyhow::{Error, Result};
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -145,44 +147,55 @@ impl Blocks{
     /**
     Creates an empty world with given width and height
      */
-    pub fn create(&mut self, width: i32, height: i32) {
-        assert!(width > 0 && height > 0);
+    pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
+        if width < 0 || height < 0 {
+            return Err(NegativeDimensionError{}.into());
+        }
 
         self.block_data.width = width;
         self.block_data.height = height;
 
-        self.block_data.blocks = vec![vec![BlockId::new(); height as usize]; width as usize];
+        self.block_data.blocks = vec![vec![BlockId::new(); width as usize]; height as usize];
         self.chunks = vec![vec![BlockChunk::new(); (height / CHUNK_SIZE) as usize]; (width / CHUNK_SIZE) as usize];
+        Ok(())
     }
 
     /**
     This function creates a world from a 2d vector of block type ids
      */
-    pub fn create_from_block_ids(&mut self, block_ids: Vec<Vec<BlockId>>) {
+    pub fn create_from_block_ids(&mut self, block_ids: Vec<Vec<BlockId>>) -> Result<()> {
         let width = block_ids.len() as i32;
-        let height = block_ids[0].len() as i32;
+        let height;
+        if let Some(row) = block_ids.get(0) {
+            height = row.len() as i32;
+        } else {
+            return Err(RowMismatchError{}.into());
+        }
 
         // check that all the rows have the same length
         for row in &block_ids {
-            assert_eq!(row.len() as i32, height);
+            if row.len() as i32 != height {
+                return Err(RowMismatchError{}.into());
+            }
         }
 
-        self.create(width, height);
+        self.create(width, height)?;
         self.block_data.blocks = block_ids;
+        Ok(())
     }
 
     /**
     This function returns the block id at given position
      */
-    pub fn get_block(&self, x: i32, y: i32) -> BlockId {
-        self.block_data.blocks[x as usize][y as usize]
+    pub fn get_block(&self, x: i32, y: i32) -> Option<BlockId> {
+        self.block_data.blocks.get(x as usize)?.get(y as usize).cloned()
     }
 
     /**
     This sets the type of a block from a coordinate.
      */
     pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) {
-        if block_id != self.get_block(x, y) || from_main != self.get_block_from_main(x, y) {
+        if block_id != self.get_block(x, y).unwrap() || from_main != self.get_block_from_main(x, y) {
             self.set_block_data(x, y, vec![]);
             self.block_data.blocks[x as usize][y as usize] = block_id;
 
@@ -322,15 +335,15 @@ impl Blocks{
     /**
     Returns the block type that has the specified id.
      */
-    pub fn get_block_type(&self, id: BlockId) -> BlockType {
-        self.block_types.lock().unwrap()[id.id as usize].clone()
+    pub fn get_block_type(&self, id: BlockId) -> Option<BlockType> {
+        Some(self.block_types.lock().unwrap().get(id.id as usize)?.clone())
     }
 
     /**
     Returns the block type at specified coordinates.
      */
-    pub fn get_block_type_at(&self, x: i32, y: i32) -> BlockType {
-        self.get_block_type(self.get_block(x, y))
+    pub fn get_block_type_at(&self, x: i32, y: i32) -> Option<BlockType> {
+        self.get_block_type(self.get_block(x, y)?)
     }
 }
 
@@ -366,3 +379,35 @@ impl BlockUpdateEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockUpdateEvent{x, y} }
 }
 //impl Event for BlockUpdateEvent {}
+
+pub struct RowMismatchError {}
+
+impl std::fmt::Display for RowMismatchError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "The number of rows in the block data is not equal to the height of the world")
+    }
+}
+
+impl Debug for RowMismatchError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "The number of rows in the block data is not equal to the height of the world")
+    }
+}
+
+impl std::error::Error for RowMismatchError {}
+
+pub struct NegativeDimensionError {}
+
+impl std::fmt::Display for NegativeDimensionError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "The width or height of the world is negative")
+    }
+}
+
+impl Debug for NegativeDimensionError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "The width or height of the world is negative")
+    }
+}
+
+impl std::error::Error for NegativeDimensionError {}

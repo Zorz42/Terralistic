@@ -27,8 +27,8 @@ impl RenderBlockChunk {
         if x < 0 || y < 0 || x >= blocks.get_width() as i32 || y >= blocks.get_height() as i32 {
             return true;
         }
-        let block = blocks.get_block_type_at(x, y);
-        let block_type = blocks.get_block_type(block_type);
+        let block = blocks.get_block_type_at(x, y).unwrap();
+        let block_type = blocks.get_block_type(block_type).unwrap();
         return block_type.connects_to.contains(&block.get_id())
             || block.get_id() == block_type.get_id();
     }
@@ -43,11 +43,11 @@ impl RenderBlockChunk {
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let curr_block = blocks.get_block_type_at(world_x + x, world_y + y);
+                    let curr_block = blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
                     if let Some(curr_block_rect) = atlas.get_rect(curr_block.get_id()) {
                         let mut curr_block_rect = curr_block_rect.clone();
                         let mut block_state = 0;
-                        let block_type = blocks.get_block_type_at(world_x + x, world_y + y);
+                        let block_type = blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
 
                         if block_type.can_update_states {
                             let coordinates = [(0, -1), (1, 0), (0, 1), (-1, 0)];

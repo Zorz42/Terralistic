@@ -25,6 +25,7 @@ queues = "1.0.2"
 bincode = "1.3.3"
 rlua = "0.19.4"
 enet = "0.3.0"
+anyhow = "1.0.68"
 
 [profile.release]
 strip = true

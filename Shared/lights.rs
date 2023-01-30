@@ -151,7 +151,7 @@ impl Lights {
         let mut color_to_be = LightColor::new(0, 0, 0);
         for neighbour in neighbours {
             if neighbour[0] != -1 {
-                let light_step = if blocks.get_block_type_at(neighbour[0], neighbour[1]).transparent { 3 } else { 15 };
+                let light_step = if blocks.get_block_type_at(neighbour[0], neighbour[1]).unwrap().transparent { 3 } else { 15 };
 
                 let r = if light_step > self.get_light_color(neighbour[0], neighbour[1]).r { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).r - light_step };
                 let g = if light_step > self.get_light_color(neighbour[0], neighbour[1]).g { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).g - light_step };
@@ -229,7 +229,7 @@ impl Lights {
     }
     /**updates the light emitter at the given coordinate*/
     pub fn update_light_emitter(&mut self, x: i32, y: i32, blocks: &Blocks) {
-        let block_type = blocks.get_block_type_at(x, y);
+        let block_type = blocks.get_block_type_at(x, y).unwrap();
         if block_type.get_id() != blocks.air {
             self.set_light_source(x, y, LightColor::new(block_type.light_emission_r as i32, block_type.light_emission_g as i32, block_type.light_emission_b as i32));
         }

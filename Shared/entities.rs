@@ -91,7 +91,7 @@ impl EntityObject for Entity{
 
         for x in starting_x..ending_x + 1 {
             for y in starting_y..ending_y + 1 {
-                if !blocks.get_block_type_at(x, y).ghost && !blocks.get_block_type_at(x, y).feet_collidable {
+                if !blocks.get_block_type_at(x, y).unwrap().ghost && !blocks.get_block_type_at(x, y).unwrap().feet_collidable {
                     return true
                 }
             }

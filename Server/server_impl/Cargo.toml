@@ -14,13 +14,8 @@ rand = "0.8.4"
 enet = "0.3.0"
 noise = "0.8.2"
 snap = "1.0.0"
+anyhow = "1.0.68"
 
 [lib]
 name = "terralistic_server"
 path = "server.rs"
-
-[profile.release]
-strip = true
-lto = true
-codegen-units = 1
-opt-level = 3

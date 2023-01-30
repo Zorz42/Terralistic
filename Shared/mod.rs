@@ -1,3 +1,5 @@
+extern crate core;
+
 #[cfg(test)]
 pub mod tests;
 

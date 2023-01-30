@@ -16,7 +16,8 @@ queues = "1.0.2"
 sdl2 = { version = "=0.35", features = ["bundled", "static-link"] }
 sdl2-sys = "=0.35"
 copypasta = "0.8.1"
-no-panic = "0.1"
+anyhow = "1.0.68"
+
 
 # select sdl2 as sdl2-sys 0.35.1 for macos as it wont compile with 0.35.2
 # for linux and windows use 0.35.2 as it wont compile with 0.35.1
@@ -27,9 +28,3 @@ sdl2-sys = "=0.35.1"
 [lib]
 name = "graphics"
 path = "graphics.rs"
-
-[profile.release]
-strip = true
-lto = true
-codegen-units = 1
-opt-level = 3

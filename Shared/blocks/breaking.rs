@@ -38,7 +38,7 @@ impl Blocks {
     Sets the break stage of a block, which is usually rendered.
      */
     pub fn get_break_stage(&mut self, x: i32, y: i32) -> i32 {
-        (self.get_break_progress(x, y) as f64 / self.get_block_type_at(x, y).break_time as f64 * 9.0) as i32
+        (self.get_break_progress(x, y) as f64 / self.get_block_type_at(x, y).unwrap().break_time as f64 * 9.0) as i32
     }
 
     /**
@@ -97,7 +97,7 @@ impl Blocks {
         for i in 0..self.breaking_blocks.len() {
             if self.breaking_blocks[i].is_breaking {
                 self.breaking_blocks[i].break_progress += frame_length as i32;
-                if self.breaking_blocks[i].break_progress > self.get_block_type_at(self.breaking_blocks[i].x, self.breaking_blocks[i].y).break_time {
+                if self.breaking_blocks[i].break_progress > self.get_block_type_at(self.breaking_blocks[i].x, self.breaking_blocks[i].y).unwrap().break_time {
                     self.break_block(self.breaking_blocks[i].x, self.breaking_blocks[i].y);
                 }
             }

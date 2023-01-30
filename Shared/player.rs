@@ -76,7 +76,7 @@ impl EntityObject for Player {
 
         if !result && (colliding_y as i32 + self.get_height()) % (BLOCK_WIDTH * 2) == 1 && direction == Direction::DOWN && (self.get_velocity_y() > 3.0 || self.moving_type != MovingType::SNEAKING){
             for x in starting_x..=ending_x {
-                if blocks.get_block_type_at(x, ending_y).feet_collidable {
+                if blocks.get_block_type_at(x, ending_y).unwrap().feet_collidable {
                     result = true;
                     break;
                 }

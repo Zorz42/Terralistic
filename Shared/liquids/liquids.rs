@@ -67,7 +67,7 @@ impl Liquids {
 
     /**returns whether the given liquid is flowable*/
     fn is_flowable(&self, x: i32, y: i32, blocks: &Blocks) -> bool {
-        blocks.get_block_type_at(x, y).ghost && self.get_liquid_type(x, y).id == self.empty.id
+        blocks.get_block_type_at(x, y).unwrap().ghost && self.get_liquid_type(x, y).id == self.empty.id
     }
 
     /**creates the liquid array*/
@@ -135,7 +135,7 @@ impl Liquids {
             return;
         }
 
-        if !blocks.get_block_type_at(x, y).ghost {
+        if !blocks.get_block_type_at(x, y).unwrap().ghost {
             self.set_liquid_type(x, y, self.empty.clone());
         }
 

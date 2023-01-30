@@ -6,6 +6,7 @@ version = 3
 name = "Terralistic"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bincode",
  "chrono",
  "darklua",
@@ -577,11 +578,11 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 name = "graphics"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bincode",
  "bytemuck",
  "copypasta",
  "gl",
- "no-panic",
  "queues",
  "sdl2",
  "sdl2-sys",
@@ -790,17 +791,6 @@ dependencies = [
  "cfg-if",
  "libc",
  "memoffset",
-]
-
-[[package]]
-name = "no-panic"
-version = "0.1.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "288807bc867d10bf77d74614d8287230394b3afc49c2716f09d1ff11bb6a3741"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -1416,6 +1406,7 @@ dependencies = [
 name = "terralistic_server"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bincode",
  "enet",
  "events",
