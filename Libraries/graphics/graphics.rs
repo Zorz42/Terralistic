@@ -63,9 +63,6 @@ pub use button::Button;
 mod text_input;
 pub use text_input::TextInput;
 
-mod checkbox;
-pub use checkbox::Checkbox;
-
 mod sprite;
 pub use sprite::Sprite;
 
