@@ -1,8 +1,7 @@
-use super::{walls, entities::*, blocks, blocks::BlockType};
-use std::{rc::Rc, collections::hash_map};
+use super::{walls, entities::*, blocks::BlockType};
+use std::rc::Rc;
 use std::collections::HashMap;
 use std::ops::Deref;
-use serde_derive::{Serialize, Deserialize};
 use crate::blocks::{BlockId, Blocks};
 use crate::blocks::Tool;
 

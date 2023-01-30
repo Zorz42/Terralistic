@@ -106,7 +106,7 @@ impl Lights {
         }
     }
     /**creates an empty light vector*/
-    pub fn create(&mut self, blocks: &Blocks) {;
+    pub fn create(&mut self, blocks: &Blocks) {
         for _ in 0..blocks.get_width() * blocks.get_height() {
             self.lights.push(Light::new());
         }

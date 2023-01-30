@@ -1,10 +1,8 @@
-use std::cell::RefCell;
 use std::sync::{Arc, Mutex};
 
 use graphics as gfx;
 use graphics::GraphicsContext;
 use shared::blocks::BLOCK_WIDTH;
-use shared::mod_manager::GameMod;
 
 use events::EventManager;
 

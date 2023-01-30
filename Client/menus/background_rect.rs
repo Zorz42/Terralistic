@@ -1,4 +1,3 @@
-use graphics as gfx;
 use graphics::{Container, GraphicsContext};
 
 /**

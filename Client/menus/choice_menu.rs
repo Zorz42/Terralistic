@@ -39,7 +39,7 @@ pub fn run_choice_menu(
     buttons_container.rect.y = -gfx::SPACING;
 
     //this is where the menu is drawn
-    'render_loop: while graphics.renderer.is_window_open() {
+    while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
             match event {

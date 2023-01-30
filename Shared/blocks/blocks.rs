@@ -64,7 +64,7 @@ impl BlockId {
 impl rlua::UserData for BlockId {
     // implement equals comparison for BlockId
     fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method(rlua::MetaMethod::Eq, |lua, this, other: BlockId| {
+        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: BlockId| {
             Ok(this.id == other.id)
         });
     }
@@ -129,6 +129,15 @@ impl Blocks{
                 }
             }
             Err(rlua::Error::RuntimeError("Block type not found".to_string()))
+        });
+
+        // a method to connect two blocks
+        let block_types = self.block_types.clone();
+        mods.add_global_function("connect_blocks", move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
+            let mut block_types = block_types.lock().unwrap();
+            block_types[block_id1.id as usize].connects_to.push(block_id2);
+            block_types[block_id2.id as usize].connects_to.push(block_id1);
+            Ok(())
         });
     }
 

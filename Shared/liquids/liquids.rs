@@ -33,7 +33,7 @@ pub struct Liquids {
 
 impl Liquids {
     pub fn new(blocks: &Blocks) -> Liquids {
-        let mut temp = LiquidType::new("temp".to_string());
+        let temp = LiquidType::new("temp".to_string());
         let mut liquids_object = Liquids {
             liquid_types: Vec::new(),
             liquids: Vec::new(),

@@ -2,7 +2,6 @@ use crate::png_to_opa::png_file_to_opa_bytes;
 use darklua_core::generator::{DenseLuaGenerator, LuaGenerator};
 use darklua_core::Parser;
 use graphics as gfx;
-use serde::{Deserialize, Serialize};
 use shared::mod_manager::GameMod;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -133,9 +132,10 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
     same for the third 8x8 area, but copy it to first,
     second and skip the next two and so on.
     */
-    for i in 0..4 {
+    let num_textures = surface.get_height() / 8 - 1;
+    for i in 0..num_textures {
         for step in 0..16 {
-            if step & (1 << i) == 0 {
+            if step & (1 << (i % 4)) == 0 {
                 copy_edge(&surface, 0, 8 + 8 * i, &mut new_surface, 0, step * 8);
             }
         }

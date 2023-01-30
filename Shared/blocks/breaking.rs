@@ -129,7 +129,8 @@ impl Blocks {
 Event that is fired when a block is broken
  */
 pub struct BlockBreakEvent {
-    x: i32, y: i32
+    pub x: i32,
+    pub y: i32
 }
 impl BlockBreakEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockBreakEvent{x, y} }
@@ -140,7 +141,8 @@ impl BlockBreakEvent {
 Event that is fired when a block has started breaking
  */
 pub struct BlockStartedBreakingEvent {
-    x: i32, y: i32
+    pub x: i32,
+    pub y: i32
 }
 impl BlockStartedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStartedBreakingEvent{x, y} }
@@ -151,7 +153,8 @@ impl BlockStartedBreakingEvent {
 Event that is fired when a block has stopped breaking
  */
 pub struct BlockStoppedBreakingEvent {
-    x: i32, y: i32
+    pub x: i32,
+    pub y: i32
 }
 impl BlockStoppedBreakingEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockStoppedBreakingEvent{x, y} }

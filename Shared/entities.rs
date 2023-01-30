@@ -174,7 +174,8 @@ impl EntityVelocityChangeEvent{
 
 pub struct EntityAbsoluteVelocityChangeEvent {
     pub entity_id: u32,
-    pub old_vel_x: f64, old_vel_y: f64
+    pub old_vel_x: f64,
+    pub old_vel_y: f64,
 }
 impl EntityAbsoluteVelocityChangeEvent{
     pub fn new(entity_id: u32, old_vel_x: f64, old_vel_y: f64) -> Self{

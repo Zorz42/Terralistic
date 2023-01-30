@@ -1,6 +1,6 @@
 use std::{collections::hash_map::HashMap, rc::Rc};
 use std::mem::MaybeUninit;
-use super::{items::*, blocks::*, player::*, entities::*};
+use super::{items::*, player::*, entities::*};
 use crate::blocks::BlockType;
 use crate::blocks::{BLOCK_WIDTH, Blocks};
 
@@ -154,7 +154,6 @@ impl Inventory {
         if count <= 0 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("item count cannot be negative");
-            return -1;
         }
         for i in 0..INVENTORY_SIZE as i32 {
             if self.get_item(i).item_type.get_id() == item.get_id() {
@@ -180,7 +179,6 @@ impl Inventory {
         if count <= 0 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("item count cannot be negative");
-            return -1;
         }
         for i in 0..INVENTORY_SIZE as i32 {
             if self.get_item(i).item_type.get_id() == item.get_id() {
@@ -203,12 +201,12 @@ impl Inventory {
         if slot < 0 || slot >= INVENTORY_SIZE as i32 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("slot out of bounds");
-            return;
         }
         if self.item_counts.is_empty() {
+            self.item_counts = vec![items.get_num_item_types() as i32; 0];
+
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("item counts is empty");
-            self.item_counts = vec![items.get_num_item_types() as i32; 0];
         }
         let old_item_id = self.get_item(slot).item_type.get_id() as usize;
         self.item_counts[old_item_id] -= self.get_item(slot).stack;
@@ -224,7 +222,6 @@ impl Inventory {
         if slot < -1 || slot >= INVENTORY_SIZE as i32 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("slot out of bounds");
-            return &self.inventory_arr[0];
         }
         if slot == -1 {
             return &self.mouse_item;
@@ -236,7 +233,6 @@ impl Inventory {
         if slot < -1 || slot >= INVENTORY_SIZE as i32 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("slot out of bounds");
-            return &mut self.inventory_arr[0];
         }
         if slot == -1 {
             return &mut self.mouse_item;
@@ -262,7 +258,6 @@ impl Inventory {
         if slot < 0 || slot >= INVENTORY_SIZE as i32 {
             #[cfg(debug_assertions)]//only panic in debug mode
             panic!("slot out of bounds");
-            return;
         }
         std::mem::swap(&mut self.inventory_arr[slot as usize], &mut self.mouse_item);
     }

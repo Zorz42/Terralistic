@@ -1,7 +1,5 @@
 #![allow(non_snake_case)]
 
-use std::sync::Mutex;
-
 use graphics as gfx;
 
 use crate::menus::MenuBack;

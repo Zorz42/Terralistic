@@ -329,7 +329,7 @@ impl LuaUserData for Biome {
         });
 
         // add method to add an ore
-        methods.add_method_mut("add_ore", |lua_ctx, this, (block, start_noise, end_noise): (BlockId, f64, f64)| {
+        methods.add_method_mut("add_ore", |_, this, (block, start_noise, end_noise): (BlockId, f64, f64)| {
             this.ores.push(Ore {
                 block,
                 start_noise,

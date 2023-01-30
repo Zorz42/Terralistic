@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use rlua::{ToLua, UserDataMethods};
+use rlua::UserDataMethods;
 use crate::blocks::BlockId;
 use crate::blocks::tool::Tool;
 
@@ -20,7 +20,6 @@ pub struct BlockType {
     // name of the block
     pub name: String,
     // to which blocks it visually connects
-    // TODO: implement for lua
     pub connects_to: Vec<BlockId>,
     // how much time it takes to break the block
     pub break_time: i32,

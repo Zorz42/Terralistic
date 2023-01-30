@@ -6,8 +6,6 @@ mod world_generator;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Mutex;
-//use std::os::macos::raw::stat;
-use shared::mod_manager::GameMod;
 use events::EventManager;
 use crate::blocks::ServerBlocks;
 use crate::mod_manager::ServerModManager;

@@ -66,6 +66,8 @@ function init()
     block_type["can_update_states"] = true
     grass_block = terralistic_register_block_type(block_type)
 
+    terralistic_connect_blocks(dirt_block, grass_block);
+
     terralistic_print("BaseGame mod loaded.")
 end
 
@@ -92,6 +94,7 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = dirt_block
+    biome["generator_function"] = "generate_plains"
     biome:add_ore(stone_block, -2.0, 3.0);
     biome:add_ore(copper_ore, -0.9, -0.4);
     hills = terralistic_register_biome(biome)

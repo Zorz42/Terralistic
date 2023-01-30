@@ -3,7 +3,6 @@ extern crate queues;
 
 use queues::*;
 use std::collections::HashMap;
-use std::ops::Deref;
 use copypasta::ClipboardContext;
 use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
 use crate::blur::BlurContext;

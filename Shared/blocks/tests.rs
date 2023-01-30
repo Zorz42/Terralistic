@@ -1,7 +1,3 @@
-use std::ops::Deref;
-
-
-
 /**this test tests whether the block setting and reading works corretly.
 For now it only really cares about the correct block id and not any other data */
 #[test]

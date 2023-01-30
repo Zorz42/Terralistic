@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 use std::string::ToString;
-use bincode::Options;
 use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
 use rlua::prelude::LuaError;
-use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
 
 static MOD_ID_IDENT: &str = "__TERRALISTIC_MOD_ID";

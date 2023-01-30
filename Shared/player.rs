@@ -1,6 +1,4 @@
-use std::any::Any;
 use super::{entities::*, blocks::*};
-use crate::blocks::{BLOCK_WIDTH, Blocks};
 
 //TODO: write tests
 

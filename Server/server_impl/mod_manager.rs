@@ -1,4 +1,4 @@
-use shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
+use shared::mod_manager::{ModManager, ModsWelcomePacket};
 use shared::packet::Packet;
 use events::Event;
 use crate::networking::{NewConnectionEvent, ServerNetworking};
@@ -51,10 +51,6 @@ impl ServerModManager {
             });
             networking.send_packet(&welcome_packet, &event.conn);
         }
-    }
-
-    pub fn add_mod(&mut self, game_mod: GameMod) {
-        self.mod_manager.add_mod(game_mod);
     }
 
     /**
