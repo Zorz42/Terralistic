@@ -1,11 +1,12 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::blocks::{BlockType, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
+use anyhow::Result;
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -271,15 +272,16 @@ impl Blocks{
     /**
     Serializes the world, used for saving the world and sending it to the client.
      */
-    pub fn serialize(&self) -> Vec<u8> {
-        snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.block_data).unwrap()).unwrap()
+    pub fn serialize(&self) -> Result<Vec<u8>> {
+        Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.block_data)?)?)
     }
 
     /**
     Deserializes the world, used for loading the world and receiving it from the server.
      */
-    pub fn deserialize(&mut self, serial: &Vec<u8>) {
-        self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(serial).unwrap()).unwrap();
+    pub fn deserialize(&mut self, serial: &Vec<u8>) -> Result<()> {
+        self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(serial)?)?;
+        Ok(())
     }
 
     /**

@@ -70,7 +70,7 @@ impl rlua::UserData for BlockType {
                 },
                 "name" => {
                     match value {
-                        rlua::Value::String(s) => this.name = s.to_str().unwrap().to_string(),
+                        rlua::Value::String(s) => this.name = s.to_str().unwrap_or("unknown").to_string(),
                         _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for name")))
                     }
                     Ok(())

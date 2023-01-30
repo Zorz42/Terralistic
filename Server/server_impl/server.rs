@@ -112,7 +112,7 @@ impl Server {
 
     fn save_world(&self, world_path: &PathBuf) {
         let mut world = HashMap::new();
-        world.insert("blocks".to_string(), self.blocks.blocks.serialize());
+        world.insert("blocks".to_string(), self.blocks.blocks.serialize().unwrap());
 
         let world_file = bincode::serialize(&world).unwrap();
         // if world file exists, overwrite it, otherwise create it

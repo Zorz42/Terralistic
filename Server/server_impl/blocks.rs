@@ -25,7 +25,7 @@ impl ServerBlocks {
     pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let welcome_packet = Packet::new(BlocksWelcomePacket {
-                data: self.blocks.serialize(),
+                data: self.blocks.serialize().unwrap(),
                 width: self.blocks.get_width(),
                 height: self.blocks.get_height(),
             });

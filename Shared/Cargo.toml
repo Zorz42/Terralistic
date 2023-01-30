@@ -16,6 +16,7 @@ fnv = "1.0.7"
 rlua = "0.19.4"
 graphics = {"path" = "../Libraries/graphics/"}
 enet = "0.3.0"
+anyhow = "1.0.68"
 
 [lib]
 name = "shared"
