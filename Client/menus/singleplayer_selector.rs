@@ -316,9 +316,11 @@ pub fn run_singleplayer_selector(
         if top_rect_visibility < 0.01 {
             top_rect_visibility = 0.0;
         }
+
         if top_rect_visibility > 0.99 {
             top_rect_visibility = 1.0;
         }
+
         top_rect.fill_color.a = (top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
         top_rect.blur_radius = (top_rect_visibility * gfx::BLUR as f32) as i32;
         top_rect.shadow_intensity = (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;

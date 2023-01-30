@@ -26,15 +26,16 @@ function mod_version()
 end
 
 -- global variables for block IDs
-air = -1
-dirt_block = -1
-stone_block = -1
-copper_ore = -1
+air = 0
+dirt_block = 0
+stone_block = 0
+copper_ore = 0
+grass_block = 0
 
 -- global variables for biome IDs
-plains = -1
-hills = -1
-mountains = -1
+plains = 0
+hills = 0
+mountains = 0
 
 -- This function is called when the mod is loaded.
 function init()
@@ -58,6 +59,12 @@ function init()
     block_type["name"] = "copper_ore"
     block_type["can_update_states"] = true
     copper_ore = terralistic_register_block_type(block_type)
+
+    -- GRASS BLOCK
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "grass_block"
+    block_type["can_update_states"] = true
+    grass_block = terralistic_register_block_type(block_type)
 
     terralistic_print("BaseGame mod loaded.")
 end
@@ -121,7 +128,7 @@ function generate_plains(terrain, width, height)
         end
 
         if y < height then
-            terrain[x][y] = stone_block
+            terrain[x][y] = grass_block
         end
     end
     return terrain
