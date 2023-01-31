@@ -1,4 +1,4 @@
-use crate::blocks::{Blocks, CHUNK_SIZE};
+use crate::blocks::{Blocks};
 use anyhow::{anyhow, Result};
 
 /**
@@ -62,7 +62,7 @@ impl Blocks {
             if let Some(breaking_block) = breaking_block {
                 breaking_block
             } else {
-                let mut new_breaking_block = BreakingBlock::new((x, y));
+                let new_breaking_block = BreakingBlock::new((x, y));
                 self.breaking_blocks.push(new_breaking_block);
                 self.breaking_blocks.last_mut().ok_or(anyhow!("Failed to get last breaking block!"))?
             }

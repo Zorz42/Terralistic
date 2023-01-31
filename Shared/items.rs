@@ -145,7 +145,7 @@ impl Items {
             item_types,
             block_drops: HashMap::new(),
             wall_drops: HashMap::new(),
-            nothing: nothing,
+            nothing,
             //item_creation_event: Sender::new(),
             //item_position_change_event: Sender::new(),
             //item_velocity_change_event: Sender::new(),
