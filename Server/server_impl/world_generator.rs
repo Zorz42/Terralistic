@@ -126,7 +126,7 @@ impl WorldGenerator {
         let start_time = std::time::Instant::now();
 
         *status_text.lock().unwrap() = "Generating world".to_string();
-        blocks.create(width, height);
+        blocks.create(width, height).unwrap();
 
         let mut terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
 

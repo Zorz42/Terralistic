@@ -42,8 +42,8 @@ pub fn run_choice_menu(
     while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
-            match event {
-                gfx::Event::KeyRelease(key, ..) => match key {
+            if let gfx::Event::KeyRelease(key, ..) = event {
+                match key {
                     gfx::Key::MouseLeft => {
                         if back_button.is_hovered(graphics, Some(&buttons_container)) {
                             return false;
@@ -59,8 +59,7 @@ pub fn run_choice_menu(
                         return true;
                     }
                     _ => {}
-                },
-                _ => {}
+                }
             }
         }
         menu_back.set_back_rect_width(700);

@@ -8,7 +8,7 @@ const PLAYER_MAX_HEALTH: i32 = 80;
 
 /**enum of possible movement types for the player*/
 #[derive(PartialEq, Copy, Clone)]
-pub enum MovingType {STANDING, WALKING, SNEAKING, SNEAK_WALKING, RUNNING}
+pub enum MovingType { Standing, Walking, Sneaking, SneakWalking, Running }
 
 /**event that is fired when the player's health changes*/
 struct PlayerHealthChangeEvent {
@@ -42,7 +42,7 @@ impl Player {
             health,
             name,
             flipped: false,
-            moving_type: MovingType::STANDING,
+            moving_type: MovingType::Standing,
         }
     }
     /**sets the player's health to the given value*/
@@ -63,7 +63,7 @@ impl EntityObject for Player {
     fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool{
         let mut result = self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y);
 
-        if !result && self.moving_type == MovingType::SNEAK_WALKING &&
+        if !result && self.moving_type == MovingType::SneakWalking &&
             self.is_colliding_with_block(blocks, Direction::DOWN, self.get_x(), self.get_y() + 1.0) &&
             (!self.is_colliding_with_block(blocks, Direction::DOWN, self.get_x() + 1.0, self.get_y() + 1.0) ||
             !self.is_colliding_with_block(blocks, Direction::DOWN, self.get_x() - 1.0, self.get_y() + 1.0)) {
@@ -74,7 +74,7 @@ impl EntityObject for Player {
         let ending_x = ((colliding_x + self.get_width() as f64 - 1.0) / (BLOCK_WIDTH as f64 * 2.0)) as i32;
         let ending_y = ((colliding_y + self.get_height() as f64 - 1.0) / (BLOCK_WIDTH as f64 * 2.0)) as i32;
 
-        if !result && (colliding_y as i32 + self.get_height()) % (BLOCK_WIDTH * 2) == 1 && direction == Direction::DOWN && (self.get_velocity_y() > 3.0 || self.moving_type != MovingType::SNEAKING){
+        if !result && (colliding_y as i32 + self.get_height()) % (BLOCK_WIDTH * 2) == 1 && direction == Direction::DOWN && (self.get_velocity_y() > 3.0 || self.moving_type != MovingType::Sneaking){
             for x in starting_x..=ending_x {
                 if blocks.get_block_type_at(x, ending_y).unwrap().feet_collidable {
                     result = true;

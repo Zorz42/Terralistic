@@ -1,7 +1,7 @@
-use crate::game::game::Game;
+use crate::game::core::Game;
 use crate::menus::{run_loading_screen, BackgroundRect};
 use graphics::GraphicsContext;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use terralistic_server::Server;
 

@@ -4,7 +4,7 @@ mod blocks;
 mod world_generator;
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use events::EventManager;
 use crate::blocks::ServerBlocks;
@@ -31,7 +31,7 @@ impl Server {
         }
     }
 
-    pub fn start(&mut self, is_running: &Mutex<bool>, status_text: &Mutex<String>, mods: Vec<Vec<u8>>, world_path: &PathBuf) {
+    pub fn start(&mut self, is_running: &Mutex<bool>, status_text: &Mutex<String>, mods: Vec<Vec<u8>>, world_path: &Path) {
         println!("Starting server...");
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap() = "Starting server".to_string();
@@ -101,7 +101,7 @@ impl Server {
         println!("Server stopped.");
     }
 
-    fn load_world(&mut self, world_path: &PathBuf) {
+    fn load_world(&mut self, world_path: &Path) {
         // load world file into Vec<u8>
         let world_file = std::fs::read(world_path).unwrap();
         // decode world file as HashMap<String, Vec<u8>>
@@ -110,7 +110,7 @@ impl Server {
         self.blocks.blocks.deserialize(world.get("blocks").unwrap()).unwrap();
     }
 
-    fn save_world(&self, world_path: &PathBuf) {
+    fn save_world(&self, world_path: &Path) {
         let mut world = HashMap::new();
         world.insert("blocks".to_string(), self.blocks.blocks.serialize().unwrap());
 

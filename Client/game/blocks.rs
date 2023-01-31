@@ -52,11 +52,11 @@ impl RenderBlockChunk {
                         if block_type.can_update_states {
                             let coordinates = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
-                            for i in 0..4 {
+                            for (i, coord) in coordinates.iter().enumerate() {
                                 if Self::can_connect_to(
                                     block_type.get_id(),
-                                    world_x + x + coordinates[i].0,
-                                    world_y + y + coordinates[i].1,
+                                    world_x + x + coord.0,
+                                    world_y + y + coord.1,
                                     blocks,
                                 ) {
                                     block_state += 1 << i;
@@ -135,8 +135,8 @@ impl ClientBlocks {
     pub fn on_event(&mut self, event: &Event) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.deserialize::<BlocksWelcomePacket>() {
-                self.blocks.create(packet.width, packet.height);
-                self.blocks.deserialize(&packet.data);
+                self.blocks.create(packet.width, packet.height).unwrap();
+                self.blocks.deserialize(&packet.data).unwrap();
             }
         }
     }
