@@ -1,15 +1,17 @@
 use anyhow::{anyhow, Result};
+use serde_derive::{Deserialize, Serialize};
 
 /**
-Map contains the width and height of the map and is used
+WorldMap contains the width and height of the map and is used
 for everything that needs to know the size of the map.
  */
-pub struct Map {
+#[derive(Serialize, Deserialize)]
+pub struct WorldMap {
     width: i32,
     height: i32,
 }
 
-impl Map {
+impl WorldMap {
     pub fn new(width: i32, height: i32) -> Self {
         Self { width, height }
     }
@@ -25,11 +27,11 @@ impl Map {
     /**
     Translates a x y coordinate to a single number.
      */
-    pub fn translate_coords(&self, x: i32, y: i32) -> Result<i32> {
+    pub fn translate_coords(&self, x: i32, y: i32) -> Result<usize> {
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
             return Err(anyhow!("Coordinates are out of bounds! x: {}, y: {}", x, y));
         }
 
-        Ok(x + y * self.width)
+        Ok((x * self.height + y) as usize)
     }
 }

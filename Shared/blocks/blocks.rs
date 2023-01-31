@@ -9,6 +9,7 @@ use snap;
 use crate::blocks::{BlockType, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
 use anyhow::{anyhow, Result};
+use crate::world_map::WorldMap;
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -27,27 +28,14 @@ pub struct BlocksWelcomePacket {
     pub height: i32,
 }
 
-/**
-A chunk is a 16x16 area of blocks
- */
-#[derive(Clone)]
-pub(super) struct BlockChunk {
-    pub(super) breaking_blocks_count: i8,
-}
-
-impl BlockChunk {
-    pub fn new() -> Self { BlockChunk{breaking_blocks_count: 0} }
-}
-
 #[derive(Serialize, Deserialize)]
 pub(super) struct BlocksData {
-    pub blocks: Vec<Vec<BlockId>>,
-    pub width: i32,
-    pub height: i32,
+    pub map: WorldMap,
+    pub blocks: Vec<BlockId>,
     // tells how much blocks a block in a big block is from the main block, it is mostly 0, 0 so it is stored in a hashmap
-    pub block_from_main: HashMap<(i32, i32), (i32, i32)>,
-    // saves the block data, it is mostly empty so it is stored in a hashmap
-    pub block_data: HashMap<(i32, i32), Vec<u8>>,
+    pub block_from_main: HashMap<usize, (i32, i32)>,
+    // saves the extra block data, it is mostly empty so it is stored in a hashmap
+    pub block_data: HashMap<usize, Vec<u8>>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -74,11 +62,10 @@ impl rlua::UserData for BlockId {
 }
 
 /**
-A world is a 2d array of blocks and chunks.
+A world is a 2d array of blocks.
  */
 pub struct Blocks {
     pub(super) block_data: BlocksData,
-    pub(super) chunks: Vec<Vec<BlockChunk>>,
     pub(super) breaking_blocks: Vec<BreakingBlock>,
     pub(super) block_types: Arc<Mutex<Vec<BlockType>>>,
     pub(super) tool_types: Vec<Tool>,
@@ -92,10 +79,8 @@ impl Blocks{
                 blocks: Vec::new(),
                 block_from_main: HashMap::new(),
                 block_data: HashMap::new(),
-                width: 0,
-                height: 0,
+                map: WorldMap::new(0, 0),
             },
-            chunks: vec![],
             breaking_blocks: vec![],
             block_types: Arc::new(Mutex::new(vec![])),
             tool_types: vec![],
@@ -110,6 +95,20 @@ impl Blocks{
         result.air = Self::register_new_block_type(&mut result.block_types.lock().unwrap_or_else(|e| e.into_inner()) , air);
 
         result
+    }
+
+    /**
+    Returns the width of the world in blocks.
+     */
+    pub fn get_width(&self) -> i32 {
+        self.block_data.map.get_width()
+    }
+
+    /**
+    Returns the height of the world in blocks.
+     */
+    pub fn get_height(&self) -> i32 {
+        self.block_data.map.get_height()
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
@@ -138,8 +137,8 @@ impl Blocks{
         let block_types = self.block_types.clone();
         mods.add_global_function("connect_blocks", move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
             let mut block_types = block_types.lock().unwrap_or_else(|e| e.into_inner());
-            block_types[block_id1.id as usize].connects_to.push(block_id2);
-            block_types[block_id2.id as usize].connects_to.push(block_id1);
+            block_types.get_mut(block_id1.id as usize).ok_or(rlua::Error::RuntimeError("block type id is invalid".to_string()))?.connects_to.push(block_id2);
+            block_types.get_mut(block_id2.id as usize).ok_or(rlua::Error::RuntimeError("block type id is invalid".to_string()))?.connects_to.push(block_id1);
             Ok(())
         });
     }
@@ -152,11 +151,8 @@ impl Blocks{
             return Err(anyhow!("Width and height must be positive"));
         }
 
-        self.block_data.width = width;
-        self.block_data.height = height;
-
-        self.block_data.blocks = vec![vec![BlockId::new(); width as usize]; height as usize];
-        self.chunks = vec![vec![BlockChunk::new(); (height / CHUNK_SIZE) as usize]; (width / CHUNK_SIZE) as usize];
+        self.block_data.map = WorldMap::new(width, height);
+        self.block_data.blocks = vec![BlockId::new(); (height * height) as usize];
         Ok(())
     }
 
@@ -180,7 +176,12 @@ impl Blocks{
         }
 
         self.create(width, height)?;
-        self.block_data.blocks = block_ids;
+        self.block_data.blocks.clear();
+        for row in block_ids {
+            for block_id in row {
+                self.block_data.blocks.push(block_id);
+            }
+        }
         Ok(())
     }
 
@@ -188,12 +189,7 @@ impl Blocks{
     This function returns the block id at given position
      */
     pub fn get_block(&self, x: i32, y: i32) -> Result<BlockId> {
-        if let Some(row) = self.block_data.blocks.get(x as usize) {
-            if let Some(block_id) = row.get(y as usize) {
-                return Ok(*block_id);
-            }
-        }
-        Err(anyhow!("Coordinate out of bounds"))
+        Ok(*self.block_data.blocks.get(self.block_data.map.translate_coords(x, y)?).ok_or(anyhow!("Coordinate out of bounds"))?)
     }
 
     /**
@@ -202,10 +198,7 @@ impl Blocks{
     pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
             self.set_block_data(x, y, vec![])?;
-            *self.block_data.blocks
-                .get_mut(x as usize).ok_or(anyhow!("x coordinate out of bounds"))?
-                .get_mut(y as usize).ok_or(anyhow!("y coordinate out of bounds"))?
-                = block_id;
+            *self.block_data.blocks.get_mut(self.block_data.map.translate_coords(x, y)?).ok_or(anyhow!("Coordinate out of bounds"))? = block_id;
 
             self.breaking_blocks.retain(|b| b.x != x || b.y != y);
 
@@ -224,16 +217,6 @@ impl Blocks{
     }
 
     /**
-    This function returns the chunk at given position
-     */
-    pub(super) fn get_chunk(&mut self, x: i32, y: i32) -> Result<&mut BlockChunk> {
-        Ok(self.chunks
-            .get_mut(x as usize).ok_or(anyhow!("x coordinate out of bounds"))?
-            .get_mut(y as usize).ok_or(anyhow!("y coordinate out of bounds"))?
-        )
-    }
-
-    /**
     This is used to get a block type from its id, it is used for serialization.
      */
     pub fn get_block_type_by_id(&self, id: BlockId) -> BlockType {
@@ -244,14 +227,12 @@ impl Blocks{
     This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
      */
     pub(super) fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) -> Result<()> {
-        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(anyhow!("Coordinate out of bounds"));
-        }
+        let index = self.block_data.map.translate_coords(x, y)?;
 
         if from_main.0 == 0 && from_main.1 == 0 {
-            self.block_data.block_from_main.remove(&(x, y));
+            self.block_data.block_from_main.remove(&index);
         } else {
-            self.block_data.block_from_main.insert((x, y), from_main);
+            self.block_data.block_from_main.insert(index, from_main);
         }
         Ok(())
     }
@@ -260,25 +241,18 @@ impl Blocks{
     This function gets the block from main for a block. If the value is not found, it returns 0, 0.
      */
     pub(super) fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
-        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(anyhow!("Coordinate out of bounds"));
-        }
-
-        Ok(*self.block_data.block_from_main.get(&(x, y)).unwrap_or(&(0, 0)))
+        Ok(*self.block_data.block_from_main.get(&self.block_data.map.translate_coords(x, y)?).unwrap_or(&(0, 0)))
     }
 
     /**
     This function sets the block data for a block. If it is empty the value is removed from the hashmap.
      */
     pub(super) fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) -> Result<()> {
-        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(anyhow!("Coordinate out of bounds"));
-        }
-
+        let index = self.block_data.map.translate_coords(x, y)?;
         if data.is_empty() {
-            self.block_data.block_data.remove(&(x, y));
+            self.block_data.block_data.remove(&index);
         } else {
-            self.block_data.block_data.insert((x, y), data);
+            self.block_data.block_data.insert(index, data);
         }
         Ok(())
     }
@@ -287,25 +261,7 @@ impl Blocks{
     This function returns block data, if it is not found it returns an empty vector.
      */
     pub(super) fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
-        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(anyhow!("Coordinate out of bounds"));
-        }
-
-        Ok(self.block_data.block_data.get(&(x, y)).unwrap_or(&vec![]).clone())
-    }
-
-    /**
-    Returns the width of the world in blocks.
-     */
-    pub fn get_width(&self) -> i32 {
-        self.block_data.width
-    }
-
-    /**
-    Returns the height of the world in blocks.
-     */
-    pub fn get_height(&self) -> i32 {
-        self.block_data.height
+        Ok(self.block_data.block_data.get(&self.block_data.map.translate_coords(x, y)?).unwrap_or(&vec![]).clone())
     }
 
     /**

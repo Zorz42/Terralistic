@@ -67,8 +67,6 @@ impl Blocks {
 
         breaking_block.unwrap().is_breaking = true;
 
-        self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).unwrap().breaking_blocks_count += 1;
-
         //let event = BlockStartedBreakingEvent::new(x, y);
         //self.block_started_breaking_event.send(event);
     }
@@ -82,7 +80,6 @@ impl Blocks {
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.x == x && breaking_block.y == y {
                 breaking_block.is_breaking = false;
-                self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).unwrap().breaking_blocks_count -= 1;
                 //let event = BlockStoppedBreakingEvent::new(x, y);
                 //self.block_stopped_breaking_event.send(event);
                 break;
@@ -114,14 +111,6 @@ impl Blocks {
         let _event = BlockBreakEvent::new(transformed_x, transformed_y);
         //self.block_break_event.send(event);
         //self.set_block_type(transformed_x, transformed_y, Rc::clone(&self.get_block_type(x, y)), 0, 0);
-    }
-
-    /**
-    It only gets the breaking block count of a chunk, used to skip
-    updating chunks that don't have any breaking blocks.
-     */
-    pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
-        self.get_chunk(x, y).unwrap().breaking_blocks_count.into()
     }
 }
 
