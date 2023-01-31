@@ -107,7 +107,7 @@ impl Blocks{
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
-        result.air = Self::register_new_block_type(&mut result.block_types.lock().unwrap(), air);
+        result.air = Self::register_new_block_type(&mut result.block_types.lock().unwrap_or_else(|e| e.into_inner()) , air);
 
         result
     }
@@ -119,13 +119,13 @@ impl Blocks{
 
         let block_types = self.block_types.clone();
         mods.add_global_function("register_block_type", move |_lua, block_type: BlockType| {
-            let result = Self::register_new_block_type(&mut block_types.lock().unwrap(), block_type);
+            let result = Self::register_new_block_type(&mut block_types.lock().unwrap_or_else(|e| e.into_inner()), block_type);
             Ok(result)
         });
 
         let block_types = self.block_types.clone();
         mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
-            let block_types = block_types.lock().unwrap();
+            let block_types = block_types.lock().unwrap_or_else(|e| e.into_inner());
             for block_type in block_types.iter() {
                 if block_type.name == name {
                     return Ok(block_type.get_id());
@@ -137,7 +137,7 @@ impl Blocks{
         // a method to connect two blocks
         let block_types = self.block_types.clone();
         mods.add_global_function("connect_blocks", move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
-            let mut block_types = block_types.lock().unwrap();
+            let mut block_types = block_types.lock().unwrap_or_else(|e| e.into_inner());
             block_types[block_id1.id as usize].connects_to.push(block_id2);
             block_types[block_id2.id as usize].connects_to.push(block_id1);
             Ok(())
@@ -187,15 +187,20 @@ impl Blocks{
     /**
     This function returns the block id at given position
      */
-    pub fn get_block(&self, x: i32, y: i32) -> Option<BlockId> {
-        self.block_data.blocks.get(x as usize)?.get(y as usize).cloned()
+    pub fn get_block(&self, x: i32, y: i32) -> Result<BlockId> {
+        if let Some(row) = self.block_data.blocks.get(x as usize) {
+            if let Some(block_id) = row.get(y as usize) {
+                return Ok(*block_id);
+            }
+        }
+        Err(CoordinateOutOfBoundsError{}.into())
     }
 
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) {
-        if block_id != self.get_block(x, y).unwrap() || from_main != self.get_block_from_main(x, y) {
+    pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
+        if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y) {
             self.set_block_data(x, y, vec![]);
             self.block_data.blocks[x as usize][y as usize] = block_id;
 
@@ -209,6 +214,7 @@ impl Blocks{
             //let event = BlockChangeEvent::new(x, y);
             //self.block_change_event.send(event);
         }
+        Ok(())
     }
 
     /**
@@ -229,7 +235,7 @@ impl Blocks{
     This is used to get a block type from its id, it is used for serialization.
      */
     pub fn get_block_type_by_id(&self, id: BlockId) -> BlockType {
-        self.block_types.lock().unwrap()[id.id as usize].clone()
+        self.block_types.lock().unwrap_or_else(|e| e.into_inner())[id.id as usize].clone()
     }
 
     /**
@@ -312,13 +318,13 @@ impl Blocks{
     Returns the block type that has the specified name, used
     with commands to get the block type from the name.
      */
-    pub fn get_block_id_by_name(&mut self, name: String) -> Option<BlockId> {
-        for block_type in self.block_types.lock().unwrap().iter() {
+    pub fn get_block_id_by_name(&mut self, name: String) -> Result<BlockId> {
+        for block_type in self.block_types.lock().unwrap_or_else(|e| e.into_inner()).iter() {
             if block_type.name == name {
-                return Some(block_type.id);
+                return Ok(block_type.id);
             }
         }
-        None
+        Err(BlockNotFoundError{}.into())
     }
 
     /**
@@ -326,7 +332,7 @@ impl Blocks{
      */
     pub fn get_all_block_ids(&mut self) -> Vec<BlockId> {
         let mut result = Vec::new();
-        for block_type in self.block_types.lock().unwrap().iter() {
+        for block_type in self.block_types.lock().unwrap_or_else(|e| e.into_inner()).iter() {
             result.push(block_type.id);
         }
         result
@@ -335,14 +341,15 @@ impl Blocks{
     /**
     Returns the block type that has the specified id.
      */
-    pub fn get_block_type(&self, id: BlockId) -> Option<BlockType> {
-        Some(self.block_types.lock().unwrap().get(id.id as usize)?.clone())
+    pub fn get_block_type(&self, id: BlockId) -> Result<BlockType> {
+        let blocks = self.block_types.lock().unwrap_or_else(|e| e.into_inner());
+        Ok(blocks.get(id.id as usize).ok_or(BlockNotFoundError{})?.clone())
     }
 
     /**
     Returns the block type at specified coordinates.
      */
-    pub fn get_block_type_at(&self, x: i32, y: i32) -> Option<BlockType> {
+    pub fn get_block_type_at(&self, x: i32, y: i32) -> Result<BlockType> {
         self.get_block_type(self.get_block(x, y)?)
     }
 }
@@ -411,3 +418,35 @@ impl Debug for NegativeDimensionError {
 }
 
 impl std::error::Error for NegativeDimensionError {}
+
+pub struct CoordinateOutOfBoundsError {}
+
+impl std::fmt::Display for CoordinateOutOfBoundsError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "The coordinates are out of bounds")
+    }
+}
+
+impl Debug for CoordinateOutOfBoundsError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "The coordinates are out of bounds")
+    }
+}
+
+impl std::error::Error for CoordinateOutOfBoundsError {}
+
+struct BlockNotFoundError {}
+
+impl std::fmt::Display for BlockNotFoundError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "The block was not found")
+    }
+}
+
+impl Debug for BlockNotFoundError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "The block was not found")
+    }
+}
+
+impl std::error::Error for BlockNotFoundError {}
