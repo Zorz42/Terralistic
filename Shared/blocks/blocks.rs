@@ -8,7 +8,7 @@ use snap;
 
 use crate::blocks::{BlockType, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
-use anyhow::{Result};
+use anyhow::{anyhow, Result};
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -149,7 +149,7 @@ impl Blocks{
      */
     pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
         if width < 0 || height < 0 {
-            return Err(NegativeDimensionError{}.into());
+            return Err(anyhow!("Width and height must be positive"));
         }
 
         self.block_data.width = width;
@@ -169,13 +169,13 @@ impl Blocks{
         if let Some(row) = block_ids.get(0) {
             height = row.len() as i32;
         } else {
-            return Err(RowMismatchError{}.into());
+            return Err(anyhow!("Block ids must not be empty"));
         }
 
         // check that all the rows have the same length
         for row in &block_ids {
             if row.len() as i32 != height {
-                return Err(RowMismatchError{}.into());
+                return Err(anyhow!("All rows must have the same length"));
             }
         }
 
@@ -193,7 +193,7 @@ impl Blocks{
                 return Ok(*block_id);
             }
         }
-        Err(CoordinateOutOfBoundsError{}.into())
+        Err(anyhow!("Coordinate out of bounds"))
     }
 
     /**
@@ -203,8 +203,8 @@ impl Blocks{
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
             self.set_block_data(x, y, vec![])?;
             *self.block_data.blocks
-                .get_mut(x as usize).ok_or(CoordinateOutOfBoundsError{})?
-                .get_mut(y as usize).ok_or(CoordinateOutOfBoundsError{})?
+                .get_mut(x as usize).ok_or(anyhow!("x coordinate out of bounds"))?
+                .get_mut(y as usize).ok_or(anyhow!("y coordinate out of bounds"))?
                 = block_id;
 
             self.breaking_blocks.retain(|b| b.x != x || b.y != y);
@@ -228,8 +228,8 @@ impl Blocks{
      */
     pub(super) fn get_chunk(&mut self, x: i32, y: i32) -> Result<&mut BlockChunk> {
         Ok(self.chunks
-            .get_mut(x as usize).ok_or(CoordinateOutOfBoundsError{})?
-            .get_mut(y as usize).ok_or(CoordinateOutOfBoundsError{})?
+            .get_mut(x as usize).ok_or(anyhow!("x coordinate out of bounds"))?
+            .get_mut(y as usize).ok_or(anyhow!("y coordinate out of bounds"))?
         )
     }
 
@@ -245,7 +245,7 @@ impl Blocks{
      */
     pub(super) fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) -> Result<()> {
         if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(CoordinateOutOfBoundsError{}.into());
+            return Err(anyhow!("Coordinate out of bounds"));
         }
 
         if from_main.0 == 0 && from_main.1 == 0 {
@@ -261,7 +261,7 @@ impl Blocks{
      */
     pub(super) fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
         if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(CoordinateOutOfBoundsError{}.into());
+            return Err(anyhow!("Coordinate out of bounds"));
         }
 
         Ok(*self.block_data.block_from_main.get(&(x, y)).unwrap_or(&(0, 0)))
@@ -272,7 +272,7 @@ impl Blocks{
      */
     pub(super) fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) -> Result<()> {
         if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(CoordinateOutOfBoundsError{}.into());
+            return Err(anyhow!("Coordinate out of bounds"));
         }
 
         if data.is_empty() {
@@ -288,7 +288,7 @@ impl Blocks{
      */
     pub(super) fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
         if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
-            return Err(CoordinateOutOfBoundsError{}.into());
+            return Err(anyhow!("Coordinate out of bounds"));
         }
 
         Ok(self.block_data.block_data.get(&(x, y)).unwrap_or(&vec![]).clone())
@@ -344,7 +344,7 @@ impl Blocks{
                 return Ok(block_type.id);
             }
         }
-        Err(BlockNotFoundError{}.into())
+        Err(anyhow!("Block type not found"))
     }
 
     /**
@@ -363,7 +363,7 @@ impl Blocks{
      */
     pub fn get_block_type(&self, id: BlockId) -> Result<BlockType> {
         let blocks = self.block_types.lock().unwrap_or_else(|e| e.into_inner());
-        Ok(blocks.get(id.id as usize).ok_or(BlockNotFoundError{})?.clone())
+        Ok(blocks.get(id.id as usize).ok_or(anyhow!("Block type not found"))?.clone())
     }
 
     /**
@@ -406,67 +406,3 @@ impl BlockUpdateEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockUpdateEvent{x, y} }
 }
 //impl Event for BlockUpdateEvent {}
-
-pub struct RowMismatchError {}
-
-impl std::fmt::Display for RowMismatchError {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "The number of rows in the block data is not equal to the height of the world")
-    }
-}
-
-impl Debug for RowMismatchError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "The number of rows in the block data is not equal to the height of the world")
-    }
-}
-
-impl std::error::Error for RowMismatchError {}
-
-pub struct NegativeDimensionError {}
-
-impl std::fmt::Display for NegativeDimensionError {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "The width or height of the world is negative")
-    }
-}
-
-impl Debug for NegativeDimensionError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "The width or height of the world is negative")
-    }
-}
-
-impl std::error::Error for NegativeDimensionError {}
-
-pub struct CoordinateOutOfBoundsError {}
-
-impl std::fmt::Display for CoordinateOutOfBoundsError {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "The coordinates are out of bounds")
-    }
-}
-
-impl Debug for CoordinateOutOfBoundsError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "The coordinates are out of bounds")
-    }
-}
-
-impl std::error::Error for CoordinateOutOfBoundsError {}
-
-struct BlockNotFoundError {}
-
-impl std::fmt::Display for BlockNotFoundError {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "The block was not found")
-    }
-}
-
-impl Debug for BlockNotFoundError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "The block was not found")
-    }
-}
-
-impl std::error::Error for BlockNotFoundError {}

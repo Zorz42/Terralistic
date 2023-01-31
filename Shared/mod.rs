@@ -3,6 +3,7 @@ extern crate core;
 #[cfg(test)]
 pub mod tests;
 
+pub mod map;
 pub mod blocks;
 pub mod entities;
 pub mod versions;
