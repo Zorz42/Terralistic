@@ -4,7 +4,7 @@ mod blocks;
 mod world_generator;
 
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use std::sync::Mutex;
 use events::EventManager;
 use crate::blocks::ServerBlocks;
