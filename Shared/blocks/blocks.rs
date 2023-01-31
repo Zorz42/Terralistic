@@ -200,7 +200,7 @@ impl Blocks{
             self.set_block_data(x, y, vec![])?;
             *self.block_data.blocks.get_mut(self.block_data.map.translate_coords(x, y)?).ok_or(anyhow!("Coordinate out of bounds"))? = block_id;
 
-            self.breaking_blocks.retain(|b| b.x != x || b.y != y);
+            self.breaking_blocks.retain(|b| b.get_coord() != (x, y));
 
             self.set_block_from_main(x, y, from_main)?;
             //let event = BlockChangeEvent::new(x, y);
