@@ -67,7 +67,7 @@ impl Blocks {
 
         breaking_block.unwrap().is_breaking = true;
 
-        self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count += 1;
+        self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).unwrap().breaking_blocks_count += 1;
 
         //let event = BlockStartedBreakingEvent::new(x, y);
         //self.block_started_breaking_event.send(event);
@@ -82,7 +82,7 @@ impl Blocks {
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.x == x && breaking_block.y == y {
                 breaking_block.is_breaking = false;
-                self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_blocks_count -= 1;
+                self.get_chunk(x / CHUNK_SIZE, y / CHUNK_SIZE).unwrap().breaking_blocks_count -= 1;
                 //let event = BlockStoppedBreakingEvent::new(x, y);
                 //self.block_stopped_breaking_event.send(event);
                 break;
@@ -108,8 +108,8 @@ impl Blocks {
     Breaks a block and triggers the block break event which can be used to drop items.
      */
     pub fn break_block(&mut self, x: i32, y: i32){
-        let transformed_x = x - self.get_block_from_main(x, y).0;
-        let transformed_y = y - self.get_block_from_main(x, y).1;
+        let transformed_x = x - self.get_block_from_main(x, y).unwrap().0;
+        let transformed_y = y - self.get_block_from_main(x, y).unwrap().1;
 
         let _event = BlockBreakEvent::new(transformed_x, transformed_y);
         //self.block_break_event.send(event);
@@ -121,7 +121,7 @@ impl Blocks {
     updating chunks that don't have any breaking blocks.
      */
     pub fn get_chunk_breaking_blocks_count(&mut self, x: i32, y: i32) -> i32 {
-        self.get_chunk(x, y).breaking_blocks_count.into()
+        self.get_chunk(x, y).unwrap().breaking_blocks_count.into()
     }
 }
 

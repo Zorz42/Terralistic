@@ -200,17 +200,16 @@ impl Blocks{
     This sets the type of a block from a coordinate.
      */
     pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
-        if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y) {
-            self.set_block_data(x, y, vec![]);
-            self.block_data.blocks[x as usize][y as usize] = block_id;
+        if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
+            self.set_block_data(x, y, vec![])?;
+            *self.block_data.blocks
+                .get_mut(x as usize).ok_or(CoordinateOutOfBoundsError{})?
+                .get_mut(y as usize).ok_or(CoordinateOutOfBoundsError{})?
+                = block_id;
 
-            for i in 0..self.breaking_blocks.len() {
-                if self.breaking_blocks[i].x == x && self.breaking_blocks[i].y == y {
-                    self.breaking_blocks.remove(i);
-                    break;
-                }
-            }
-            self.set_block_from_main(x, y, from_main);
+            self.breaking_blocks.retain(|b| b.x != x || b.y != y);
+
+            self.set_block_from_main(x, y, from_main)?;
             //let event = BlockChangeEvent::new(x, y);
             //self.block_change_event.send(event);
         }
@@ -220,15 +219,18 @@ impl Blocks{
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_block(&mut self, x: i32, y: i32, block_id: BlockId) {
-        self.set_big_block(x, y, block_id, (0, 0));
+    pub fn set_block(&mut self, x: i32, y: i32, block_id: BlockId) -> Result<()> {
+        self.set_big_block(x, y, block_id, (0, 0))
     }
 
     /**
     This function returns the chunk at given position
      */
-    pub(super) fn get_chunk(&mut self, x: i32, y: i32) -> &mut BlockChunk {
-        &mut self.chunks[x as usize][y as usize]
+    pub(super) fn get_chunk(&mut self, x: i32, y: i32) -> Result<&mut BlockChunk> {
+        Ok(self.chunks
+            .get_mut(x as usize).ok_or(CoordinateOutOfBoundsError{})?
+            .get_mut(y as usize).ok_or(CoordinateOutOfBoundsError{})?
+        )
     }
 
     /**
@@ -241,37 +243,55 @@ impl Blocks{
     /**
     This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
      */
-    pub(super) fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) {
+    pub(super) fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) -> Result<()> {
+        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
+            return Err(CoordinateOutOfBoundsError{}.into());
+        }
+
         if from_main.0 == 0 && from_main.1 == 0 {
             self.block_data.block_from_main.remove(&(x, y));
         } else {
             self.block_data.block_from_main.insert((x, y), from_main);
         }
+        Ok(())
     }
 
     /**
     This function gets the block from main for a block. If the value is not found, it returns 0, 0.
      */
-    pub(super) fn get_block_from_main(&self, x: i32, y: i32) -> (i32, i32) {
-        *self.block_data.block_from_main.get(&(x, y)).unwrap_or(&(0, 0))
+    pub(super) fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
+        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
+            return Err(CoordinateOutOfBoundsError{}.into());
+        }
+
+        Ok(*self.block_data.block_from_main.get(&(x, y)).unwrap_or(&(0, 0)))
     }
 
     /**
     This function sets the block data for a block. If it is empty the value is removed from the hashmap.
      */
-    pub(super) fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) {
+    pub(super) fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) -> Result<()> {
+        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
+            return Err(CoordinateOutOfBoundsError{}.into());
+        }
+
         if data.is_empty() {
             self.block_data.block_data.remove(&(x, y));
         } else {
             self.block_data.block_data.insert((x, y), data);
         }
+        Ok(())
     }
 
     /**
     This function returns block data, if it is not found it returns an empty vector.
      */
-    pub(super) fn get_block_data(&self, x: i32, y: i32) -> Vec<u8> {
-        self.block_data.block_data.get(&(x, y)).unwrap_or(&vec![]).clone()
+    pub(super) fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
+        if x < 0 || y < 0 || x >= self.block_data.width || y >= self.block_data.height {
+            return Err(CoordinateOutOfBoundsError{}.into());
+        }
+
+        Ok(self.block_data.block_data.get(&(x, y)).unwrap_or(&vec![]).clone())
     }
 
     /**
