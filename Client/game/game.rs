@@ -122,19 +122,17 @@ impl Game {
                         }
                     }
                     gfx::Event::KeyRelease(key, false) => {
-                        if key == gfx::Key::MouseLeft {
-                            if paused {
-                                if resume_button.is_hovered(
-                                    graphics,
-                                    Some(&pause_rect.get_container(graphics, None)),
-                                ) {
-                                    paused = false;
-                                } else if quit_button.is_hovered(
-                                    graphics,
-                                    Some(&pause_rect.get_container(graphics, None)),
-                                ) {
-                                    break 'main_loop;
-                                }
+                        if key == gfx::Key::MouseLeft && paused {
+                            if resume_button.is_hovered(
+                                graphics,
+                                Some(&pause_rect.get_container(graphics, None)),
+                            ) {
+                                paused = false;
+                            } else if quit_button.is_hovered(
+                                graphics,
+                                Some(&pause_rect.get_container(graphics, None)),
+                            ) {
+                                break 'main_loop;
                             }
                         }
                     }

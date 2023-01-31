@@ -2,7 +2,7 @@ use super::world_creation::run_world_creation;
 use crate::game::private_world::run_private_world;
 use crate::menus::background_rect::BackgroundRect;
 use crate::menus::run_choice_menu;
-use chrono;
+
 use directories::BaseDirs;
 use graphics as gfx;
 use graphics::GraphicsContext;
@@ -113,7 +113,7 @@ impl World {
     ) {
         self.rect.x = x as f32;
         self.rect.y = y as f32;
-        self.rect.render(&graphics, parent_container);
+        self.rect.render(graphics, parent_container);
 
         let rect_container = self.rect.get_container(graphics, parent_container);
         self.icon.render(graphics, Some(&rect_container));
@@ -234,27 +234,28 @@ pub fn run_singleplayer_selector(
     'render_loop: while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
             match event {
-                gfx::Event::KeyRelease(key, ..) => match key {
-                    gfx::Key::MouseLeft => {
-                        if back_button
-                            .is_hovered(graphics, Some(&menu_back.get_back_rect_container()))
-                        {
-                            break 'render_loop;
-                        }
-                        if new_world_button
-                            .is_hovered(graphics, Some(&menu_back.get_back_rect_container()))
-                        {
-                            run_world_creation(graphics, menu_back, &mut world_list.worlds);
-                            world_list.refresh(graphics);
-                        }
+                gfx::Event::KeyRelease(key, ..) => {
+                    match key {
+                        gfx::Key::MouseLeft => {
+                            if back_button
+                                .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                            {
+                                break 'render_loop;
+                            }
+                            if new_world_button
+                                .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                            {
+                                run_world_creation(graphics, menu_back, &mut world_list.worlds);
+                                world_list.refresh(graphics);
+                            }
 
-                        let mut needs_refresh = false;
-                        for world in &mut world_list.worlds {
-                            if world.play_button.is_hovered(
+                            let mut needs_refresh = false;
+                            for world in &mut world_list.worlds {
+                                if world.play_button.is_hovered(
                                 graphics,
                                 Some(&world.get_container(
                                     graphics,
-                                    Some(&menu_back.get_back_rect_container()),
+                                    Some(menu_back.get_back_rect_container()),
                                 )),
                             ) {
                                 run_private_world(graphics, menu_back, world.get_file_path());
@@ -262,24 +263,23 @@ pub fn run_singleplayer_selector(
                                 graphics,
                                 Some(&world.get_container(
                                     graphics,
-                                    Some(&menu_back.get_back_rect_container()),
+                                    Some(menu_back.get_back_rect_container()),
                                 )),
-                            ) {
-                                if run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name), graphics, menu_back, None, None) {
-                                    fs::remove_file(world.get_file_path()).unwrap();
-                                    needs_refresh = true;
-                                }
+                            ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name), graphics, menu_back, None, None) {
+                                fs::remove_file(world.get_file_path()).unwrap();
+                                needs_refresh = true;
+                            }
+                            }
+                            if needs_refresh {
+                                world_list.refresh(graphics);
                             }
                         }
-                        if needs_refresh {
-                            world_list.refresh(graphics);
+                        gfx::Key::Escape => {
+                            break 'render_loop;
                         }
+                        _ => {}
                     }
-                    gfx::Key::Escape => {
-                        break 'render_loop;
-                    }
-                    _ => {}
-                },
+                }
                 gfx::Event::MouseScroll(delta) => {
                     position += delta as f32 * 2.0;
                 }
@@ -292,7 +292,7 @@ pub fn run_singleplayer_selector(
 
         let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height
             && (graphics.renderer.get_mouse_y() as i32)
-                < graphics.renderer.get_window_height() as i32 - bottom_height as i32;
+                < graphics.renderer.get_window_height() as i32 - bottom_height;
 
         for world in &mut world_list.worlds {
             world.set_enabled(hoverable);
@@ -304,7 +304,7 @@ pub fn run_singleplayer_selector(
                 graphics,
                 0,
                 current_y + top_height + position as i32,
-                Some(&menu_back.get_back_rect_container()),
+                Some(menu_back.get_back_rect_container()),
             );
             current_y += world_list.worlds[i].get_height() + gfx::SPACING;
         }
@@ -325,19 +325,18 @@ pub fn run_singleplayer_selector(
         top_rect.blur_radius = (top_rect_visibility * gfx::BLUR as f32) as i32;
         top_rect.shadow_intensity = (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
         if top_rect_visibility > 0.0 {
-            top_rect.render(graphics, Some(&menu_back.get_back_rect_container()));
+            top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 
         bottom_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-        let mut scroll_limit = current_y - graphics.renderer.get_window_height() as i32
-            + top_height as i32
-            + bottom_height as i32;
+        let mut scroll_limit =
+            current_y - graphics.renderer.get_window_height() as i32 + top_height + bottom_height;
         if scroll_limit < 0 {
             scroll_limit = 0;
         }
 
         if scroll_limit > 0 {
-            bottom_rect.render(graphics, Some(&menu_back.get_back_rect_container()));
+            bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 
         if position > 0.0 {
@@ -348,10 +347,10 @@ pub fn run_singleplayer_selector(
             position -= (position + scroll_limit as f32) / 20.0;
         }
 
-        title.render(graphics, Some(&menu_back.get_back_rect_container()));
-        back_button.render(graphics, Some(&menu_back.get_back_rect_container()));
+        title.render(graphics, Some(menu_back.get_back_rect_container()));
+        back_button.render(graphics, Some(menu_back.get_back_rect_container()));
 
-        new_world_button.render(graphics, Some(&menu_back.get_back_rect_container()));
+        new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
 
         graphics.renderer.update_window();
     }

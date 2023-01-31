@@ -35,9 +35,9 @@ pub fn run_loading_screen(
     loading_bar.smooth_factor = 60.0;
 
     while graphics.renderer.is_window_open() && !loading_text.lock().unwrap().is_empty() {
-        while let Some(_) = graphics.renderer.get_event() {}
+        while graphics.renderer.get_event().is_some() {}
 
-        menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH + 2 * gfx::SPACING as i32);
+        menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH + 2 * gfx::SPACING);
 
         menu_back.render_back(graphics);
 
@@ -62,7 +62,7 @@ pub fn run_loading_screen(
                         // remove the ending from the text
                         curr_text.truncate(i);
 
-                        progress_bar_progress = num.unwrap() as f32 / 100.0;
+                        progress_bar_progress = num.unwrap() / 100.0;
                     }
                 }
 

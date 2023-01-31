@@ -1,4 +1,3 @@
-use bincode;
 use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host};
 use events::EventManager;
 use shared::enet_global::ENET_GLOBAL;
@@ -80,9 +79,9 @@ impl ClientNetworking {
                         panic!("disconnected from server");
                     }
                     Event::Receive { ref packet, .. } => {
-                        let packet = bincode::deserialize::<Packet>(&packet.data()).unwrap();
+                        let packet = bincode::deserialize::<Packet>(packet.data()).unwrap();
 
-                        if let Some(_) = packet.deserialize::<WelcomeCompletePacket>() {
+                        if packet.deserialize::<WelcomeCompletePacket>().is_some() {
                             break 'welcome_loop;
                         }
 
@@ -108,7 +107,7 @@ impl ClientNetworking {
                     panic!("disconnected from server");
                 }
                 Event::Receive { ref packet, .. } => {
-                    let packet = bincode::deserialize::<Packet>(&packet.data()).unwrap();
+                    let packet = bincode::deserialize::<Packet>(packet.data()).unwrap();
 
                     // send welcome packet event
                     events.push_event(events::Event::new(Box::new(packet)));

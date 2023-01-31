@@ -89,7 +89,7 @@ pub fn run_world_creation(
             .join(world_name_input.text.clone() + ".world");
 
         create_button.disabled = world_name_exists(worlds_list, &world_name_input.text)
-            || world_name_input.text.len() == 0;
+            || world_name_input.text.is_empty();
 
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
@@ -115,7 +115,7 @@ pub fn run_world_creation(
                         }
                     }
                     gfx::Key::Enter => {
-                        if world_name_input.text.len() > 0
+                        if !world_name_input.text.is_empty()
                             && !world_name_exists(worlds_list, &world_name_input.text)
                         {
                             run_private_world(graphics, menu_back, &world_path);
@@ -133,15 +133,15 @@ pub fn run_world_creation(
 
         //render input fields
 
-        buttons_container.update(graphics, Some(&menu_back.get_back_rect_container()));
+        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
-        title.render(graphics, Some(&menu_back.get_back_rect_container()));
+        title.render(graphics, Some(menu_back.get_back_rect_container()));
         back_button.render(graphics, Some(&buttons_container));
 
         create_button.render(graphics, Some(&buttons_container));
 
-        world_name_input.render(graphics, Some(&menu_back.get_back_rect_container()));
-        world_seed_input.render(graphics, Some(&menu_back.get_back_rect_container()));
+        world_name_input.render(graphics, Some(menu_back.get_back_rect_container()));
+        world_seed_input.render(graphics, Some(menu_back.get_back_rect_container()));
 
         graphics.renderer.update_window();
     }

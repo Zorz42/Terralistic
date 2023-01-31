@@ -71,7 +71,7 @@ impl Background for MenuBack {
             self.back_rect.h = graphics.renderer.get_window_height() as f32;
             self.back_rect.jump_to_target();
         }
-        self.back_rect.render(&graphics, None);
+        self.back_rect.render(graphics, None);
     }
 }
 
@@ -92,7 +92,7 @@ impl BackgroundRect for MenuBack {
         self.back_rect
             .get_container(graphics, parent_container)
             .rect
-            .w as i32
+            .w
     }
 
     /**

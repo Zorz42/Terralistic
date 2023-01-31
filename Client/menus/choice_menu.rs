@@ -69,10 +69,10 @@ pub fn run_choice_menu(
 
         //render input fields
 
-        buttons_container.update(graphics, Some(&menu_back.get_back_rect_container()));
+        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
         for sprite in title_lines.iter_mut() {
-            sprite.render(graphics, Some(&menu_back.get_back_rect_container()));
+            sprite.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 
         back_button.render(graphics, Some(&buttons_container));

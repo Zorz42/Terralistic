@@ -24,13 +24,12 @@ impl RenderBlockChunk {
     }
 
     fn can_connect_to(block_type: BlockId, x: i32, y: i32, blocks: &Blocks) -> bool {
-        if x < 0 || y < 0 || x >= blocks.get_width() as i32 || y >= blocks.get_height() as i32 {
+        if x < 0 || y < 0 || x >= blocks.get_width() || y >= blocks.get_height() {
             return true;
         }
         let block = blocks.get_block_type_at(x, y).unwrap();
         let block_type = blocks.get_block_type(block_type).unwrap();
-        return block_type.connects_to.contains(&block.get_id())
-            || block.get_id() == block_type.get_id();
+        block_type.connects_to.contains(&block.get_id()) || block.get_id() == block_type.get_id()
     }
 
     pub fn render(
@@ -45,9 +44,10 @@ impl RenderBlockChunk {
                 for y in 0..CHUNK_SIZE {
                     let curr_block = blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
                     if let Some(curr_block_rect) = atlas.get_rect(curr_block.get_id()) {
-                        let mut curr_block_rect = curr_block_rect.clone();
+                        let mut curr_block_rect = *curr_block_rect;
                         let mut block_state = 0;
-                        let block_type = blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
+                        let block_type =
+                            blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
 
                         if block_type.can_update_states {
                             let coordinates = [(0, -1), (1, 0), (0, 1), (-1, 0)];
@@ -123,13 +123,13 @@ impl ClientBlocks {
         // check if x and y are in bounds
         if x < 0
             || y < 0
-            || x >= self.blocks.get_width() as i32 / CHUNK_SIZE
-            || y >= self.blocks.get_height() as i32 / CHUNK_SIZE
+            || x >= self.blocks.get_width() / CHUNK_SIZE
+            || y >= self.blocks.get_height() / CHUNK_SIZE
         {
             panic!("Tried to get chunk at {}, {} but it is out of bounds", x, y);
         }
 
-        (x + y * (self.blocks.get_width() / CHUNK_SIZE) as i32) as usize
+        (x + y * (self.blocks.get_width() / CHUNK_SIZE)) as usize
     }
 
     pub fn on_event(&mut self, event: &Event) {
@@ -184,8 +184,8 @@ impl ClientBlocks {
             for y in top_left_y..bottom_right_y {
                 if x >= 0
                     && y >= 0
-                    && x < self.blocks.get_width() as i32 / CHUNK_SIZE
-                    && y < self.blocks.get_height() as i32 / CHUNK_SIZE
+                    && x < self.blocks.get_width() / CHUNK_SIZE
+                    && y < self.blocks.get_height() / CHUNK_SIZE
                 {
                     let chunk_index = self.get_chunk_index(x, y);
                     let chunk = &mut self.chunks[chunk_index];
