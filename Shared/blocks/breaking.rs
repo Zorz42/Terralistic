@@ -108,8 +108,8 @@ impl Blocks {
     Breaks a block and triggers the block break event which can be used to drop items.
      */
     pub fn break_block(&mut self, x: i32, y: i32){
-        let transformed_x = x - self.get_block_from_main(x, y).0 as i32;
-        let transformed_y = y - self.get_block_from_main(x, y).1 as i32;
+        let transformed_x = x - self.get_block_from_main(x, y).0;
+        let transformed_y = y - self.get_block_from_main(x, y).1;
 
         let _event = BlockBreakEvent::new(transformed_x, transformed_y);
         //self.block_break_event.send(event);

@@ -78,7 +78,7 @@ impl EntityObject for Entity{
     fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
         self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
-    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
+    fn is_colliding_with_block(&self, blocks: &Blocks, _direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
         if colliding_x < 0.0 || colliding_y < 0.0 ||
             colliding_y >= (blocks.get_height() * BLOCK_WIDTH * 2 - self.get_height())  as f64 ||
             colliding_x >= (blocks.get_width() * BLOCK_WIDTH * 2 - self.get_width()) as f64 {

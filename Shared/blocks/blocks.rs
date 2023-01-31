@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
-use std::num::TryFromIntError;
-use std::sync::{Arc, Mutex, MutexGuard};
+
+use std::sync::{Arc, Mutex};
 
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::blocks::{BlockType, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
-use anyhow::{Error, Result};
+use anyhow::{Result};
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;

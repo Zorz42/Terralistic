@@ -58,11 +58,6 @@ impl Blocks {
     Returns the reference to the Tool with the specified id.
      */
     pub fn get_tool_by_id(&mut self, id: ToolId) -> Option<&Tool> {
-        for tool_type in self.tool_types.iter() {
-            if tool_type.id == id.id {
-                return Some(tool_type);
-            }
-        }
-        None
+        self.tool_types.iter().find(|&tool_type| tool_type.id == id.id)
     }
 }

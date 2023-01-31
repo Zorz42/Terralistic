@@ -204,7 +204,7 @@ impl Walls{
 
     /**returns the wall type of the wall at given x and y*/
     pub fn get_wall_type(&self, x: i32, y: i32) -> &WallType {
-        &self.get_wall_type_by_id(self.get_wall(x, y).id)
+        self.get_wall_type_by_id(self.get_wall(x, y).id)
     }
 
     /**returns the wall type with the given id*/

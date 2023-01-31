@@ -145,7 +145,7 @@ impl Items {
             item_types,
             block_drops: HashMap::new(),
             wall_drops: HashMap::new(),
-            nothing: nothing.clone(),
+            nothing: nothing,
             //item_creation_event: Sender::new(),
             //item_position_change_event: Sender::new(),
             //item_velocity_change_event: Sender::new(),
@@ -207,9 +207,9 @@ impl Items {
 impl EntityStructTrait<Item> for Items {
     fn update_all_entities(&mut self, blocks: &Blocks) {
         for entity in &mut self.items {
-            let old_vel_x = entity.get_velocity_x();
-            let old_vel_y = entity.get_velocity_y();
-            entity.update_entity(&blocks);
+            let _old_vel_x = entity.get_velocity_x();
+            let _old_vel_y = entity.get_velocity_y();
+            entity.update_entity(blocks);
         }
     }
     fn register_entity(&mut self, entity: Item){
@@ -220,7 +220,7 @@ impl EntityStructTrait<Item> for Items {
         if pos.is_none() {
             return;
         }
-        let event = EntityDeletionEvent::new(entity_id);
+        let _event = EntityDeletionEvent::new(entity_id);
         //self.item_deletion_event.send(event);
         self.items.remove(pos.unwrap());
     }
@@ -236,14 +236,14 @@ impl EntityStructTrait<Item> for Items {
     fn set_velocity_x(&mut self, entity: &mut Item, velocity_x: f64) {
         if entity.entity.get_velocity_x() != velocity_x {
             entity.entity.velocity_x = velocity_x;
-            let event = EntityVelocityChangeEvent::new(entity.entity.id);
+            let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.item_velocity_change_event.send(event);
         }
     }
     fn set_velocity_y(&mut self, entity: &mut Item, velocity_y: f64) {
         if entity.entity.get_velocity_y() != velocity_y {
             entity.entity.velocity_y = velocity_y;
-            let event = EntityVelocityChangeEvent::new(entity.entity.id);
+            let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.item_velocity_change_event.send(event);
         }
     }
@@ -257,7 +257,7 @@ impl EntityStructTrait<Item> for Items {
         if entity.entity.get_x() != x {
             entity.entity.x = x;
             if send_to_everyone {
-                let event = EntityPositionChangeEvent::new(entity.entity.id);
+                let _event = EntityPositionChangeEvent::new(entity.entity.id);
                 //self.item_position_change_event.send(event);
             }
         }
@@ -266,7 +266,7 @@ impl EntityStructTrait<Item> for Items {
         if entity.entity.get_y() != y {
             entity.entity.y = y;
             if send_to_everyone {
-                let event = EntityPositionChangeEvent::new(entity.entity.id);
+                let _event = EntityPositionChangeEvent::new(entity.entity.id);
                 //self.item_position_change_event.send(event);
             }
         }

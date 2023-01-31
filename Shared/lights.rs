@@ -194,11 +194,11 @@ impl Lights {
     }
     /**returns the light color at the given coordinate*/
     pub fn get_light_color(&self, x: i32, y: i32) -> LightColor {
-        self.get_light(x, y).color.clone()
+        self.get_light(x, y).color
     }
     /**returns the light source color at the given coordinate*/
     pub fn get_light_source_color(&self, x: i32, y: i32) -> LightColor {
-        self.get_light(x, y).source_color.clone()
+        self.get_light(x, y).source_color
     }
     /**schedules a light update for the given coordinate*/
     pub fn schedule_light_update(&mut self, x: i32, y: i32) {

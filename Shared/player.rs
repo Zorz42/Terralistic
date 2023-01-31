@@ -19,8 +19,8 @@ struct PlayerHealthChangeEvent {
 impl PlayerHealthChangeEvent {
     pub fn new(player_id: u32, old_health: i32) -> PlayerHealthChangeEvent {
         PlayerHealthChangeEvent {
-            player_id: player_id,
-            old_health: old_health,
+            player_id,
+            old_health,
         }
     }
 }
@@ -39,8 +39,8 @@ impl Player {
     pub fn new(x: i32, y: i32, name: String, health: i32, id: u32) -> Player {
         Player {
             entity: Entity::new(EntityType::PLAYER, x, y, id),
-            health: health,
-            name: name,
+            health,
+            name,
             flipped: false,
             moving_type: MovingType::STANDING,
         }
@@ -152,9 +152,9 @@ impl EntityStructTrait<Player> for Players {
         for entity in &mut self.players {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
-            entity.update_entity(&blocks);
+            entity.update_entity(blocks);
             if old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
-                let event = EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
+                let _event = EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
                 //self.player_absolute_velocity_change_event.send(event);
             }
         }
@@ -167,7 +167,7 @@ impl EntityStructTrait<Player> for Players {
         if pos.is_none() {
             return;
         }
-        let event = EntityDeletionEvent::new(entity_id);
+        let _event = EntityDeletionEvent::new(entity_id);
         //self.player_deletion_event.send(event);
         self.players.remove(pos.unwrap());
     }
@@ -183,14 +183,14 @@ impl EntityStructTrait<Player> for Players {
     fn set_velocity_x(&mut self, entity: &mut Player, velocity_x: f64) {
         if entity.entity.get_velocity_x() != velocity_x {
             entity.entity.velocity_x = velocity_x;
-            let event = EntityVelocityChangeEvent::new(entity.entity.id);
+            let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.player_velocity_change_event.send(event);
         }
     }
     fn set_velocity_y(&mut self, entity: &mut Player, velocity_y: f64) {
         if entity.entity.get_velocity_y() != velocity_y {
             entity.entity.velocity_y = velocity_y;
-            let event = EntityVelocityChangeEvent::new(entity.entity.id);
+            let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.player_velocity_change_event.send(event);
         }
     }
@@ -204,7 +204,7 @@ impl EntityStructTrait<Player> for Players {
         if entity.entity.get_x() != x {
             entity.entity.x = x;
             if send_to_everyone {
-                let event = EntityPositionChangeEvent::new(entity.entity.id);
+                let _event = EntityPositionChangeEvent::new(entity.entity.id);
                 //self.player_position_change_event.send(event);
             }
         }
@@ -213,7 +213,7 @@ impl EntityStructTrait<Player> for Players {
         if entity.entity.get_y() != y {
             entity.entity.y = y;
             if send_to_everyone {
-                let event = EntityPositionChangeEvent::new(entity.entity.id);
+                let _event = EntityPositionChangeEvent::new(entity.entity.id);
                 //self.player_position_change_event.send(event);
             }
         }

@@ -84,7 +84,8 @@ impl Inventory {
         let mouse_item = ItemStack::new(Rc::clone(&items.nothing), 0);
         let item_counts = vec![items.get_num_item_types() as i32; 0];
 
-        let inventory = Inventory{
+        
+        Inventory{
             recipes: Recipes::new(),
             player_id: 0,
             mouse_item,
@@ -93,8 +94,7 @@ impl Inventory {
             inventory_arr,
             selected_slot: 0,
             //item_change_event: Sender::new(),
-        };
-        inventory
+        }
     }
     pub fn from_existing(inventory: &Inventory) -> Self {
         Inventory {
@@ -117,7 +117,7 @@ impl Inventory {
             }
         }
         if recipe.crafting_block.is_none() {
-            return true;
+            true
         } else {
             let player_coords = [players.get_entity_by_id(self.player_id).unwrap().get_x() as i32, players.get_entity_by_id(self.player_id).unwrap().get_y() as i32];
             for x in -CRAFTING_BLOCK_RANGE..CRAFTING_BLOCK_RANGE {
@@ -129,7 +129,7 @@ impl Inventory {
                     }
                 }
             }
-            return false;
+            false
         }
     }
     /**returns available recipes*/
@@ -264,11 +264,11 @@ impl Inventory {
     /**increases the stack count of an item in an inventory slot*/
     pub fn increase_stack(&mut self, slot: i32, stack: i32, blocks: &Blocks, items: &Items, players: &Players) -> i32 {
         let mut stack_to_be = self.get_item(slot).stack + stack;
-        let result;
+        
         if stack_to_be > self.get_item(slot).item_type.max_stack {
             stack_to_be = self.get_item(slot).item_type.max_stack;
         }
-        result = stack_to_be - self.get_item(slot).stack;
+        let result = stack_to_be - self.get_item(slot).stack;
         self.set_item(slot, ItemStack::new(Rc::clone(&self.get_item(slot).item_type), stack_to_be), blocks, items, players);
         result
     }

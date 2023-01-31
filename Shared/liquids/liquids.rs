@@ -75,7 +75,7 @@ impl Liquids {
         self.liquids = Vec::new();
         self.height = blocks.get_height();
         self.width = blocks.get_width();
-        self.liquids.resize_with((self.width * self.height) as usize, || Liquid::new());
+        self.liquids.resize_with((self.width * self.height) as usize, Liquid::new);
     }
 
     /**returns the width of the liquid array*/
@@ -98,7 +98,7 @@ impl Liquids {
         if id < 0 || id >= self.liquid_types.len() as i32 {
             panic!("Liquid type id is out of bounds! ({})", id);
         }
-        return self.liquid_types[id as usize].clone();
+        self.liquid_types[id as usize].clone()
     }
 
     /**returns the liquid type by name*/
@@ -156,7 +156,7 @@ impl Liquids {
         }
 
         if under_exists {
-            self.set_liquid_type(x, y + 1, self.get_liquid_type(x, y).clone());
+            self.set_liquid_type(x, y + 1, self.get_liquid_type(x, y));
 
             let liquid_sum = self.get_liquid_level(x, y) + self.get_liquid_level(x, y + 1);
             if liquid_sum as i32 > MAX_LIQUID_LEVEL {
@@ -173,10 +173,10 @@ impl Liquids {
         }
 
         if right_exists {
-            self.set_liquid_type(x + 1, y, self.get_liquid_type(x, y).clone());
+            self.set_liquid_type(x + 1, y, self.get_liquid_type(x, y));
         }
         if left_exists {
-            self.set_liquid_type(x - 1, y, self.get_liquid_type(x, y).clone());
+            self.set_liquid_type(x - 1, y, self.get_liquid_type(x, y));
         }
 
         if left_exists && right_exists && self.get_liquid_level(x + 1, y) as i32 != self.get_liquid_level(x, y) as i32 && self.get_liquid_level(x - 1, y) as i32 != self.get_liquid_level(x, y) as i32 {

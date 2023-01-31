@@ -28,21 +28,21 @@ impl rlua::UserData for LiquidType {
                 "name" => {
                     match value {
                         rlua::Value::String(s) => this.name = s.to_str().unwrap().to_string(),
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for name")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for name".to_string()))
                     }
                     Ok(())
                 },
                 "flow_time" => {
                     match value {
                         rlua::Value::Integer(i) => this.flow_time = i as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for flow_time")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for flow_time".to_string()))
                     }
                     Ok(())
                 },
                 "speed_multiplier" => {
                     match value {
                         rlua::Value::Number(n) => this.speed_multiplier = n,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for speed_multiplier")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for speed_multiplier".to_string()))
                     }
                     Ok(())
                 },
@@ -55,7 +55,7 @@ impl rlua::UserData for LiquidType {
 impl LiquidType {
     pub fn new(name: String) -> LiquidType {
         LiquidType {
-            name: name,
+            name,
             flow_time: 1,
             speed_multiplier: 1.0,
             id: 0,

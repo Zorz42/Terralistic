@@ -200,7 +200,7 @@ impl ModManager {
         if self.state == ModManagerState::LoadingFunctions || self.state == ModManagerState::LoadingMods {
             self.state = ModManagerState::LoadingFunctions;
             for mod_ in &mut self.mods {
-                mod_.add_global_function(&*("terralistic_".to_string() + name), func.clone());
+                mod_.add_global_function(&("terralistic_".to_string() + name), func.clone());
             }
         } else {
             panic!("Cannot add function after initializing");
