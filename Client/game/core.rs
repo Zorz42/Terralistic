@@ -141,6 +141,8 @@ impl Game {
                     }
                     _ => {}
                 }
+
+                self.events.push_event(events::Event::new(Box::new(event)));
             }
 
             self.networking.update(&mut self.events);

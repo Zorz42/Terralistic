@@ -1,6 +1,7 @@
 use shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::game::camera::Camera;
 use graphics as gfx;
+use events::Event;
 
 /**
 Block selector is used to select a block.
@@ -40,5 +41,14 @@ impl BlockSelector {
         let y = selected_block.1 * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
 
         gfx::Rect::new(x, y, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH).render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
+    }
+
+    /**
+    This function is called on some event
+     */
+    pub fn on_event(&mut self, event: &Event) {
+        match event {
+            _ => {}
+        }
     }
 }
