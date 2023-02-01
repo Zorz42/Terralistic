@@ -7,6 +7,7 @@ use shared::blocks::BLOCK_WIDTH;
 use events::EventManager;
 
 use crate::game::background::Background;
+use crate::game::block_selector::BlockSelector;
 use crate::game::blocks::ClientBlocks;
 use crate::game::camera::Camera;
 use crate::game::mod_manager::ClientModManager;
@@ -19,6 +20,7 @@ pub struct Game {
     mods: ClientModManager,
     camera: Camera,
     background: Background,
+    block_selector: BlockSelector,
     blocks: ClientBlocks,
 }
 
@@ -30,6 +32,7 @@ impl Game {
             mods: ClientModManager::new(),
             camera: Camera::new(),
             background: Background::new(),
+            block_selector: BlockSelector::new(),
             blocks: ClientBlocks::new(),
         }
     }
@@ -150,6 +153,7 @@ impl Game {
 
             self.background.render(graphics, &self.camera);
             self.blocks.render(graphics, &self.camera);
+            self.block_selector.render(graphics, &self.camera);
 
             pause_rect.w = if paused { pause_rect_width as f32 } else { 0.0 };
             pause_rect.shadow_intensity = (pause_rect.get_container(graphics, None).rect.w as f32
