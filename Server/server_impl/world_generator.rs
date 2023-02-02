@@ -7,19 +7,19 @@ use rlua::UserDataMethods;
 use shared::blocks::{BlockId, Blocks};
 use shared::mod_manager::{get_mod_id, ModManager};
 
-fn turbulence(noise: &Perlin, x: f64, y: f64) -> f64 {
+fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     let mut value = 0.0;
     let mut size = 1.0;
 
     for _ in 0..3 {
-        value += noise.get([x / size, y / size]) * size;
+        value += noise.get([(x / size) as f64, (y / size) as f64]) as f32 * size;
         size /= 2.0;
     }
 
     value / 2.0
 }
 
-fn convolve(array: &Vec<f64>, size: i32) -> Vec<f64> {
+fn convolve(array: &Vec<f32>, size: i32) -> Vec<f32> {
     let mut result = Vec::new();
 
     for i in 0..array.len() {
@@ -29,7 +29,7 @@ fn convolve(array: &Vec<f64>, size: i32) -> Vec<f64> {
         for j in left_index..right_index {
             sum += array[j as usize];
         }
-        result.push(sum / (right_index - left_index) as f64);
+        result.push(sum / (right_index - left_index) as f32);
     }
 
     result
@@ -91,8 +91,8 @@ impl WorldGenerator {
             let biome = &self.biomes.lock().unwrap()[curr_biome as usize];
             let biome_width = rand::random::<i32>().abs() % (biome.max_width - biome.min_width) + biome.min_width;
             for _ in 0..biome_width {
-                min_heights.push(biome.min_terrain_height as f64);
-                max_heights.push(biome.max_terrain_height as f64);
+                min_heights.push(biome.min_terrain_height as f32);
+                max_heights.push(biome.max_terrain_height as f32);
                 biome_ids.push(curr_biome);
             }
             width += biome_width;
@@ -177,13 +177,13 @@ impl WorldGenerator {
         for x in 0..width {
             curr_terrain.push(vec![BlockId::new(); height as usize]);
 
-            let terrain_noise_val = ((turbulence(&terrain_noise, x as f64 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
+            let terrain_noise_val = ((turbulence(&terrain_noise, x as f32 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
             for y in 0..height {
                 next_task();
                 let terrain_height = height - y;
 
-                let cave_noise_val = f64::abs(turbulence(&cave_noise, x as f64 / 80.0, y as f64 / 80.0));
-                let cave_threshold = y as f64 / height as f64 * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize]) + min_cave_thresholds[x as usize];
+                let cave_noise_val = f32::abs(turbulence(&cave_noise, x as f32 / 80.0, y as f32 / 80.0));
+                let cave_threshold = y as f32 / height as f32 * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize]) + min_cave_thresholds[x as usize];
 
                 let mut curr_block = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
 
@@ -191,8 +191,8 @@ impl WorldGenerator {
                     let start_noise = ores_start_noises[&block][x as usize];
                     let end_noise = ores_end_noises[&block][x as usize];
                     if (start_noise, end_noise) != (-1.0, -1.0) {
-                        let ore_noise = turbulence(&ore_noises.get(&block).unwrap(), x as f64 / 15.0, y as f64 / 15.0);
-                        let ore_threshold = y as f64 / height as f64 * (end_noise - start_noise) + start_noise;
+                        let ore_noise = turbulence(&ore_noises.get(&block).unwrap(), x as f32 / 15.0, y as f32 / 15.0);
+                        let ore_threshold = y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
                         if ore_threshold > ore_noise {
                             curr_block = block;
                         }
@@ -235,8 +235,8 @@ impl WorldGenerator {
 #[derive(Clone)]
 struct Ore {
     pub block: BlockId,
-    pub start_noise: f64,
-    pub end_noise: f64,
+    pub start_noise: f32,
+    pub end_noise: f32,
 }
 
 #[derive(Clone)]
@@ -329,7 +329,7 @@ impl LuaUserData for Biome {
         });
 
         // add method to add an ore
-        methods.add_method_mut("add_ore", |_, this, (block, start_noise, end_noise): (BlockId, f64, f64)| {
+        methods.add_method_mut("add_ore", |_, this, (block, start_noise, end_noise): (BlockId, f32, f32)| {
             this.ores.push(Ore {
                 block,
                 start_noise,

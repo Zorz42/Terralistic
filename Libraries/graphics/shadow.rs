@@ -24,8 +24,8 @@ impl ShadowContext {
         // size 300, 300 and offset 200, 200. The blur around the rectangle is a gaussian
         // curve.
         let mut set_gaussian_pixel = |h, x, y| {
-            let alpha = std::f64::consts::E.powf(-((h * h) as f64 / 2000.0));
-            let prev_alpha = surface.get_pixel(x, y).a as f64 / 255.0;
+            let alpha = std::f32::consts::E.powf(-((h * h) as f32 / 2000.0));
+            let prev_alpha = surface.get_pixel(x, y).a as f32 / 255.0;
             surface.set_pixel(x, y, Color::new(0, 0, 0, (alpha * prev_alpha * 255.0) as u8));
         };
 

@@ -14,28 +14,28 @@ pub trait EntityObject {
     /**return the height of the entity*/
     fn get_height(&self) -> i32;
     /**returns whether or not the entity is colliding*/
-    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool;
+    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool;
     /**returns whether or not the entity is colliding with a block*/
-    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool;
+    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool;
     /**updates the entity*/
     fn update_entity(&mut self, blocks: &Blocks);
     /** returns whether or not the entity is touching ground*/
     fn is_touching_ground(&self, blocks: &Blocks) -> bool;
     /**returns the entity's x position*/
-    fn get_x(&self) -> f64;
+    fn get_x(&self) -> f32;
     /**returns the entity's y position*/
-    fn get_y(&self) -> f64;
+    fn get_y(&self) -> f32;
     /**returns the entity's x velocity*/
-    fn get_velocity_x(&self) -> f64;
+    fn get_velocity_x(&self) -> f32;
     /**returns the entity's y velocity*/
-    fn get_velocity_y(&self) -> f64;
+    fn get_velocity_y(&self) -> f32;
 }
 
 pub struct Entity {
-    pub x: f64,
-    pub y: f64,
-    pub velocity_x: f64,
-    pub velocity_y: f64,
+    pub x: f32,
+    pub y: f32,
+    pub velocity_x: f32,
+    pub velocity_y: f32,
     pub gravity: bool,
     pub friction: bool,
     pub has_moved_x: bool,
@@ -48,8 +48,8 @@ pub struct Entity {
 impl Entity {
     pub fn new(entity_type: EntityType, x: i32, y: i32, id: u32) -> Entity {
         let mut entity = Entity {
-            x: x as f64,
-            y: y as f64,
+            x: x as f32,
+            y: y as f32,
             velocity_x: 0.0,
             velocity_y: 0.0,
             gravity: true,
@@ -75,19 +75,19 @@ impl EntityObject for Entity{
     fn get_height(&self) -> i32 {
         0
     }
-    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
+    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool {
         self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
-    fn is_colliding_with_block(&self, blocks: &Blocks, _direction: Direction, colliding_x: f64, colliding_y: f64) -> bool {
+    fn is_colliding_with_block(&self, blocks: &Blocks, _direction: Direction, colliding_x: f32, colliding_y: f32) -> bool {
         if colliding_x < 0.0 || colliding_y < 0.0 ||
-            colliding_y >= (blocks.get_height() * BLOCK_WIDTH * 2 - self.get_height())  as f64 ||
-            colliding_x >= (blocks.get_width() * BLOCK_WIDTH * 2 - self.get_width()) as f64 {
+            colliding_y >= (blocks.get_height() * BLOCK_WIDTH * 2 - self.get_height())  as f32 ||
+            colliding_x >= (blocks.get_width() * BLOCK_WIDTH * 2 - self.get_width()) as f32 {
             return true
         }
-        let starting_x = (colliding_x / (BLOCK_WIDTH * 2) as f64) as i32;
-        let starting_y = (colliding_y / (BLOCK_WIDTH * 2) as f64) as i32;
-        let ending_x = ((colliding_x + self.get_width() as f64 - 1.0) / (BLOCK_WIDTH * 2) as f64) as i32;
-        let ending_y = ((colliding_y + self.get_height() as f64 - 1.0) / (BLOCK_WIDTH * 2) as f64) as i32;
+        let starting_x = (colliding_x / (BLOCK_WIDTH * 2) as f32) as i32;
+        let starting_y = (colliding_y / (BLOCK_WIDTH * 2) as f32) as i32;
+        let ending_x = ((colliding_x + self.get_width() as f32 - 1.0) / (BLOCK_WIDTH * 2) as f32) as i32;
+        let ending_y = ((colliding_y + self.get_height() as f32 - 1.0) / (BLOCK_WIDTH * 2) as f32) as i32;
 
         for x in starting_x..ending_x + 1 {
             for y in starting_y..ending_y + 1 {
@@ -149,16 +149,16 @@ impl EntityObject for Entity{
     fn is_touching_ground(&self, blocks: &Blocks) -> bool {
         self.is_colliding(blocks, Direction::DOWN, self.x, self.y + 1.0) && self.velocity_y == 0.0
     }
-    fn get_x(&self) -> f64 {
+    fn get_x(&self) -> f32 {
         self.x
     }
-    fn get_y(&self) -> f64 {
+    fn get_y(&self) -> f32 {
         self.y
     }
-    fn get_velocity_x(&self) -> f64 {
+    fn get_velocity_x(&self) -> f32 {
         self.velocity_x
     }
-    fn get_velocity_y(&self) -> f64 {
+    fn get_velocity_y(&self) -> f32 {
         self.velocity_y
     }
 }
@@ -174,11 +174,11 @@ impl EntityVelocityChangeEvent{
 
 pub struct EntityAbsoluteVelocityChangeEvent {
     pub entity_id: u32,
-    pub old_vel_x: f64,
-    pub old_vel_y: f64,
+    pub old_vel_x: f32,
+    pub old_vel_y: f32,
 }
 impl EntityAbsoluteVelocityChangeEvent{
-    pub fn new(entity_id: u32, old_vel_x: f64, old_vel_y: f64) -> Self{
+    pub fn new(entity_id: u32, old_vel_x: f32, old_vel_y: f32) -> Self{
         EntityAbsoluteVelocityChangeEvent{
             entity_id,
             old_vel_x,
@@ -226,15 +226,15 @@ pub trait EntityStructTrait<EntityType: EntityObject> {
     /**returns entity vector from that struct*/
     fn get_entities(&self) -> &Vec<EntityType>;
     /**sets the x velocity of an entity from that struct*/
-    fn set_velocity_x(&mut self, entity: &mut EntityType, velocity_x: f64);
+    fn set_velocity_x(&mut self, entity: &mut EntityType, velocity_x: f32);
     /**sets the y velocity of an entity from that struct*/
-    fn set_velocity_y(&mut self, entity: &mut EntityType, velocity_y: f64);
+    fn set_velocity_y(&mut self, entity: &mut EntityType, velocity_y: f32);
     /**adds to the x velocity of an entity from that struct*/
-    fn add_velocity_x(&mut self, entity: &mut EntityType, velocity_x: f64);
+    fn add_velocity_x(&mut self, entity: &mut EntityType, velocity_x: f32);
     /**adds to the y velocity of an entity from that struct*/
-    fn add_velocity_y(&mut self, entity: &mut EntityType, velocity_y: f64);
+    fn add_velocity_y(&mut self, entity: &mut EntityType, velocity_y: f32);
     /**sets the x position of an entity from that struct*/
-    fn set_x(&mut self, entity: &mut EntityType, x: f64, send_to_everyone: bool);
+    fn set_x(&mut self, entity: &mut EntityType, x: f32, send_to_everyone: bool);
     /**sets the y position of an entity from that struct*/
-    fn set_y(&mut self, entity: &mut EntityType, y: f64, send_to_everyone: bool);
+    fn set_y(&mut self, entity: &mut EntityType, y: f32, send_to_everyone: bool);
 }

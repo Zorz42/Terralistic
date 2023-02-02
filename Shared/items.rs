@@ -56,10 +56,10 @@ impl Item {
 impl EntityObject for Item {
     fn get_width(&self) -> i32 { ITEM_WIDTH * 2 }
     fn get_height(&self) -> i32 { ITEM_WIDTH * 2 }
-    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool{
+    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
         self.entity.is_colliding(blocks, direction, colliding_x, colliding_y)
     }
-    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool{
+    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
         self.entity.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
     fn update_entity(&mut self, blocks: &Blocks){
@@ -68,16 +68,16 @@ impl EntityObject for Item {
     fn is_touching_ground(&self, blocks: &Blocks) -> bool{
         self.entity.is_touching_ground(blocks)
     }
-    fn get_x(&self) -> f64{
+    fn get_x(&self) -> f32{
         self.entity.get_x()
     }
-    fn get_y(&self) -> f64{
+    fn get_y(&self) -> f32{
         self.entity.get_y()
     }
-    fn get_velocity_x(&self) -> f64{
+    fn get_velocity_x(&self) -> f32{
         self.entity.get_velocity_x()
     }
-    fn get_velocity_y(&self) -> f64{
+    fn get_velocity_y(&self) -> f32{
         self.entity.get_velocity_y()
     }
 }
@@ -109,11 +109,11 @@ impl ItemCreationEvent {
 
 pub struct TileDrop {
     drop: Rc<ItemType>,
-    chance: f64
+    chance: f32
 }
 
 impl TileDrop {
-    pub fn new(drop: Rc<ItemType>, chance: f64) -> Self {
+    pub fn new(drop: Rc<ItemType>, chance: f32) -> Self {
         TileDrop{ drop, chance }
     }
 }
@@ -233,27 +233,27 @@ impl EntityStructTrait<Item> for Items {
     fn get_entities(&self) -> &Vec<Item>{
         &self.items
     }
-    fn set_velocity_x(&mut self, entity: &mut Item, velocity_x: f64) {
+    fn set_velocity_x(&mut self, entity: &mut Item, velocity_x: f32) {
         if entity.entity.get_velocity_x() != velocity_x {
             entity.entity.velocity_x = velocity_x;
             let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.item_velocity_change_event.send(event);
         }
     }
-    fn set_velocity_y(&mut self, entity: &mut Item, velocity_y: f64) {
+    fn set_velocity_y(&mut self, entity: &mut Item, velocity_y: f32) {
         if entity.entity.get_velocity_y() != velocity_y {
             entity.entity.velocity_y = velocity_y;
             let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.item_velocity_change_event.send(event);
         }
     }
-    fn add_velocity_x(&mut self, entity: &mut Item, velocity_x: f64) {
+    fn add_velocity_x(&mut self, entity: &mut Item, velocity_x: f32) {
         self.set_velocity_x(entity, entity.entity.get_velocity_x() + velocity_x);
     }
-    fn add_velocity_y(&mut self, entity: &mut Item, velocity_y: f64) {
+    fn add_velocity_y(&mut self, entity: &mut Item, velocity_y: f32) {
         self.set_velocity_y(entity, entity.entity.get_velocity_y() + velocity_y);
     }
-    fn set_x(&mut self, entity: &mut Item, x: f64, send_to_everyone: bool) {
+    fn set_x(&mut self, entity: &mut Item, x: f32, send_to_everyone: bool) {
         if entity.entity.get_x() != x {
             entity.entity.x = x;
             if send_to_everyone {
@@ -262,7 +262,7 @@ impl EntityStructTrait<Item> for Items {
             }
         }
     }
-    fn set_y(&mut self, entity: &mut Item, y: f64, send_to_everyone: bool) {
+    fn set_y(&mut self, entity: &mut Item, y: f32, send_to_everyone: bool) {
         if entity.entity.get_y() != y {
             entity.entity.y = y;
             if send_to_everyone {

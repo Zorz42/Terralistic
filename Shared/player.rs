@@ -60,7 +60,7 @@ impl Player {
 impl EntityObject for Player {
     fn get_width(&self) -> i32 { PLAYER_WIDTH * 2 }
     fn get_height(&self) -> i32 { PLAYER_HEIGHT * 2 }
-    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool{
+    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
         let mut result = self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y);
 
         if !result && self.moving_type == MovingType::SneakWalking &&
@@ -70,9 +70,9 @@ impl EntityObject for Player {
             result = false;
         }
 
-        let starting_x = (colliding_x / (BLOCK_WIDTH as f64 * 2.0)) as i32;
-        let ending_x = ((colliding_x + self.get_width() as f64 - 1.0) / (BLOCK_WIDTH as f64 * 2.0)) as i32;
-        let ending_y = ((colliding_y + self.get_height() as f64 - 1.0) / (BLOCK_WIDTH as f64 * 2.0)) as i32;
+        let starting_x = (colliding_x / (BLOCK_WIDTH as f32 * 2.0)) as i32;
+        let ending_x = ((colliding_x + self.get_width() as f32 - 1.0) / (BLOCK_WIDTH as f32 * 2.0)) as i32;
+        let ending_y = ((colliding_y + self.get_height() as f32 - 1.0) / (BLOCK_WIDTH as f32 * 2.0)) as i32;
 
         if !result && (colliding_y as i32 + self.get_height()) % (BLOCK_WIDTH * 2) == 1 && direction == Direction::DOWN && (self.get_velocity_y() > 3.0 || self.moving_type != MovingType::Sneaking){
             for x in starting_x..=ending_x {
@@ -84,7 +84,7 @@ impl EntityObject for Player {
         }
         result
     }
-    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f64, colliding_y: f64) -> bool{
+    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
         self.entity.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
     fn update_entity(&mut self, blocks: &Blocks){
@@ -93,16 +93,16 @@ impl EntityObject for Player {
     fn is_touching_ground(&self, blocks: &Blocks) -> bool{
         self.entity.is_touching_ground(blocks)
     }
-    fn get_x(&self) -> f64{
+    fn get_x(&self) -> f32{
         self.entity.get_x()
     }
-    fn get_y(&self) -> f64{
+    fn get_y(&self) -> f32{
         self.entity.get_y()
     }
-    fn get_velocity_x(&self) -> f64{
+    fn get_velocity_x(&self) -> f32{
         self.entity.get_velocity_x()
     }
-    fn get_velocity_y(&self) -> f64{
+    fn get_velocity_y(&self) -> f32{
         self.entity.get_velocity_y()
     }
 }
@@ -180,27 +180,27 @@ impl EntityStructTrait<Player> for Players {
     fn get_entities(&self) -> &Vec<Player>{
         &self.players
     }
-    fn set_velocity_x(&mut self, entity: &mut Player, velocity_x: f64) {
+    fn set_velocity_x(&mut self, entity: &mut Player, velocity_x: f32) {
         if entity.entity.get_velocity_x() != velocity_x {
             entity.entity.velocity_x = velocity_x;
             let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.player_velocity_change_event.send(event);
         }
     }
-    fn set_velocity_y(&mut self, entity: &mut Player, velocity_y: f64) {
+    fn set_velocity_y(&mut self, entity: &mut Player, velocity_y: f32) {
         if entity.entity.get_velocity_y() != velocity_y {
             entity.entity.velocity_y = velocity_y;
             let _event = EntityVelocityChangeEvent::new(entity.entity.id);
             //self.player_velocity_change_event.send(event);
         }
     }
-    fn add_velocity_x(&mut self, entity: &mut Player, velocity_x: f64) {
+    fn add_velocity_x(&mut self, entity: &mut Player, velocity_x: f32) {
         self.set_velocity_x(entity, entity.entity.get_velocity_x() + velocity_x);
     }
-    fn add_velocity_y(&mut self, entity: &mut Player, velocity_y: f64) {
+    fn add_velocity_y(&mut self, entity: &mut Player, velocity_y: f32) {
         self.set_velocity_y(entity, entity.entity.get_velocity_y() + velocity_y);
     }
-    fn set_x(&mut self, entity: &mut Player, x: f64, send_to_everyone: bool) {
+    fn set_x(&mut self, entity: &mut Player, x: f32, send_to_everyone: bool) {
         if entity.entity.get_x() != x {
             entity.entity.x = x;
             if send_to_everyone {
@@ -209,7 +209,7 @@ impl EntityStructTrait<Player> for Players {
             }
         }
     }
-    fn set_y(&mut self, entity: &mut Player, y: f64, send_to_everyone: bool) {
+    fn set_y(&mut self, entity: &mut Player, y: f32, send_to_everyone: bool) {
         if entity.entity.get_y() != y {
             entity.entity.y = y;
             if send_to_everyone {

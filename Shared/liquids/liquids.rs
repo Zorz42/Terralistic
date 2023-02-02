@@ -9,7 +9,7 @@ const MAX_LIQUID_LEVEL: i32 = 100;
 /**struct with information about a liquid*/
 struct Liquid {
     pub id: i32,
-    pub level: f64,
+    pub level: f32,
 }
 
 impl Liquid {
@@ -160,8 +160,8 @@ impl Liquids {
 
             let liquid_sum = self.get_liquid_level(x, y) + self.get_liquid_level(x, y + 1);
             if liquid_sum as i32 > MAX_LIQUID_LEVEL {
-                self.set_liquid_level(x, y, liquid_sum - MAX_LIQUID_LEVEL as f64);
-                self.set_liquid_level(x, y + 1, MAX_LIQUID_LEVEL as f64);
+                self.set_liquid_level(x, y, liquid_sum - MAX_LIQUID_LEVEL as f32);
+                self.set_liquid_level(x, y + 1, MAX_LIQUID_LEVEL as f32);
             } else {
                 self.set_liquid_level(x, y, 0.0);
                 self.set_liquid_level(x, y + 1, liquid_sum);
@@ -199,17 +199,17 @@ impl Liquids {
     }
 
     /**returns the liquid level at the given position*/
-    pub fn get_liquid_level(&self, x: i32, y: i32) -> f64 {
+    pub fn get_liquid_level(&self, x: i32, y: i32) -> f32 {
         self.get_liquid(x, y).level
     }
 
     /**sets the liquid level at the given position without updating*/
-    pub fn set_liquid_level_siletnly(&mut self, x: i32, y: i32, level: f64) {
+    pub fn set_liquid_level_siletnly(&mut self, x: i32, y: i32, level: f32) {
         self.get_liquid_mut(x, y).level = level;
     }
 
     /**sets the liquid level at the given position with updating*/
-    pub fn set_liquid_level(&mut self, x: i32, y: i32, level: f64) {
+    pub fn set_liquid_level(&mut self, x: i32, y: i32, level: f32) {
         if level != self.get_liquid_level(x, y) {
             self.set_liquid_level_siletnly(x, y, level);
             if level <= 0.0 {

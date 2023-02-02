@@ -223,14 +223,10 @@ impl Renderer {
                 gl::BlitFramebuffer(0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
             }
             #[cfg(target_os = "macos")] {
-                // get system scale factor
-                let (scale_x, scale_y) = (1.0, 1.0);
-                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0 / scale_x) as i32, (self.get_window_height() as f32 * 2.0 / scale_y) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0) as i32, (self.get_window_height() as f32 * 2.0) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
             }
             #[cfg(target_os = "linux")] {
-                // get system scale factor
-                let (scale_x, scale_y) = (1.0, 1.0);
-                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0 / scale_x) as i32, (self.get_window_height() as f32 * 2.0 / scale_y) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0) as i32, (self.get_window_height() as f32 * 2.0) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
             }
         }
 

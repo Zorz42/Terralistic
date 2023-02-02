@@ -32,4 +32,8 @@ impl ServerBlocks {
             networking.send_packet(&welcome_packet, &event.conn);
         }
     }
+
+    pub fn update(&mut self, frame_length: f32) {
+        self.blocks.update_breaking_blocks(frame_length).unwrap();
+    }
 }

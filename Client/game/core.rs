@@ -155,7 +155,7 @@ impl Game {
 
             self.background.render(graphics, &self.camera);
             self.blocks.render(graphics, &self.camera);
-            self.block_selector.render(graphics, &self.camera);
+            self.block_selector.render(graphics, &mut self.networking, &self.camera);
 
             pause_rect.w = if paused { pause_rect_width as f32 } else { 0.0 };
             pause_rect.shadow_intensity = (pause_rect.get_container(graphics, None).rect.w as f32

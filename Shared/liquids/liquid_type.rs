@@ -8,7 +8,7 @@ pub struct LiquidType {
     //how fast the liquid flows
     pub flow_time: i32,
     //how fast the player in the liquid moves
-    pub speed_multiplier: f64,
+    pub speed_multiplier: f32,
     //id of the liquid type
     pub(super) id: i32,
 }
@@ -41,7 +41,7 @@ impl rlua::UserData for LiquidType {
                 },
                 "speed_multiplier" => {
                     match value {
-                        rlua::Value::Number(n) => this.speed_multiplier = n,
+                        rlua::Value::Number(n) => this.speed_multiplier = n as f32,
                         _ => return Err(rlua::Error::RuntimeError("value is not a valid value for speed_multiplier".to_string()))
                     }
                     Ok(())

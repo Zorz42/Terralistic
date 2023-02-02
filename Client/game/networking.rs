@@ -1,4 +1,4 @@
-use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host};
+use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host, PacketMode};
 use events::EventManager;
 use shared::enet_global::ENET_GLOBAL;
 use shared::packet::{Packet, WelcomeCompletePacket};
@@ -114,6 +114,12 @@ impl ClientNetworking {
                 }
             };
         }
+    }
+
+    pub fn send_packet(&mut self, packet: &Packet) {
+        let packet_data = bincode::serialize(packet).unwrap();
+        let mut server = self.net_client.as_mut().unwrap().peers().next().unwrap();
+        server.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
     }
 
     pub fn stop(&mut self) {

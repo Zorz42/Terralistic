@@ -339,7 +339,6 @@ pub struct BlockChangeEvent {
 impl BlockChangeEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockChangeEvent{x, y} }
 }
-//impl Event for BlockChangeEvent {}
 
 /**
 Event that is fired when a random tick is fired for a block
@@ -350,7 +349,6 @@ struct BlockRandomTickEvent {
 impl BlockRandomTickEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockRandomTickEvent{x, y} }
 }
-//impl Event for BlockRandomTickEvent {}
 
 /**
 Event that is fired when a block is updated
@@ -361,4 +359,37 @@ pub struct BlockUpdateEvent {
 impl BlockUpdateEvent {
     pub fn new(x: i32, y: i32) -> Self { BlockUpdateEvent{x, y} }
 }
-//impl Event for BlockUpdateEvent {}
+
+/**
+A packet that is sent to the client to update the block at the specified coordinates.
+ */
+#[derive(Serialize, Deserialize)]
+pub struct BlockUpdatePacket {
+    pub x: i32,
+    pub y: i32,
+    pub block: BlockId,
+}
+
+/**
+A packet that is sent to the server, when client starts
+to break a block and when the server should start to
+break the block.
+ */
+#[derive(Serialize, Deserialize)]
+pub struct BlockBreakStartPacket {
+    pub x: i32,
+    pub y: i32,
+}
+
+/**
+A packet that is sent to the server, when client stops
+breaking a block and when the server should stop
+breaking the block.
+ */
+#[derive(Serialize, Deserialize)]
+pub struct BlockBreakStopPacket {
+    pub x: i32,
+    pub y: i32,
+    pub break_time: f32,
+}
+

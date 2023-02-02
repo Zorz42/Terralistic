@@ -8,7 +8,7 @@ pub enum Event {
     // key press and release deprecated_events
     KeyPress(Key, bool),
     KeyRelease(Key, bool),
-    MouseScroll(f64),
+    MouseScroll(f32),
     TextInput(String),
 }
 
@@ -26,7 +26,7 @@ pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Ev
         }
 
         sdl2::event::Event::MouseWheel { y, .. } => {
-            Some(Event::MouseScroll(y as f64))
+            Some(Event::MouseScroll(y as f32))
         }
         sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
             Some(Event::KeyPress(sdl_mouse_button_to_gfx_key(mouse_btn), false))

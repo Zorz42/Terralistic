@@ -40,10 +40,29 @@ impl Blocks {
     }
 
     /**
-    Sets the break stage of a block, which is usually rendered.
+    Sets the breaking progress of a block.
+     */
+    pub fn set_break_progress(&mut self, x: i32, y: i32, progress: i32) -> Result<()> {
+        self.block_data.map.translate_coords(x, y)?;
+
+        for breaking_block in self.breaking_blocks.iter_mut() {
+            if breaking_block.coord == (x, y) {
+                breaking_block.break_progress = progress;
+                return Ok(());
+            }
+        }
+        let mut breaking_block = BreakingBlock::new((x, y));
+        breaking_block.break_progress = progress;
+        breaking_block.is_breaking = false;
+        self.breaking_blocks.push(breaking_block);
+        Ok(())
+    }
+
+    /**
+    Gets the break stage of a block, which is usually rendered.
      */
     pub fn get_break_stage(&mut self, x: i32, y: i32) -> Result<i32> {
-        Ok((self.get_break_progress(x, y)? as f64 / self.get_block_type_at(x, y)?.break_time as f64 * 9.0) as i32)
+        Ok((self.get_break_progress(x, y)? as f32 / self.get_block_type_at(x, y)?.break_time as f32 * 9.0) as i32)
     }
 
     /**
@@ -95,7 +114,7 @@ impl Blocks {
     /**
     Updates the breaking progress of all blocks that are being broken.
      */
-    pub fn update_breaking_blocks(&mut self, frame_length: f64) -> Result<()> {
+    pub fn update_breaking_blocks(&mut self, frame_length: f32) -> Result<()> {
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.is_breaking {
                 breaking_block.break_progress += frame_length as i32;

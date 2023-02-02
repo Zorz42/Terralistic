@@ -13,7 +13,7 @@ use crate::networking::ServerNetworking;
 use crate::world_generator::WorldGenerator;
 
 pub struct Server {
-    tps_limit: f64,
+    tps_limit: f32,
     events: EventManager,
     networking: ServerNetworking,
     mods: ServerModManager,
@@ -64,12 +64,13 @@ impl Server {
         status_text.lock().unwrap().clear();
         let mut last_time = std::time::Instant::now();
         loop {
-            let delta_time = last_time.elapsed().as_secs_f64();
+            let delta_time = last_time.elapsed().as_secs_f32();
             last_time = std::time::Instant::now();
 
             // update modules
             self.networking.update(&mut self.events);
             self.mods.update();
+            self.blocks.update(delta_time);
 
             // handle events
             while let Some(event) = self.events.pop_event() {
@@ -85,7 +86,7 @@ impl Server {
             // sleep
             let sleep_time = 1.0 / self.tps_limit - delta_time;
             if sleep_time > 0.0 {
-                std::thread::sleep(std::time::Duration::from_secs_f64(sleep_time));
+                std::thread::sleep(std::time::Duration::from_secs_f32(sleep_time));
             }
         }
 

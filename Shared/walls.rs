@@ -250,7 +250,7 @@ impl Walls{
 
     /**returns break stage (for example to be used as a break texture stage) of the wall at x and y*/
     pub fn get_break_stage(&self, x: i32, y: i32) -> i32 {
-        (self.get_break_progress(x, y) as f64 / self.get_wall_type(x, y).break_time as f64 * 9.0) as i32
+        (self.get_break_progress(x, y) as f32 / self.get_wall_type(x, y).break_time as f32 * 9.0) as i32
     }
 
     /**includes the necessary steps to start breaking a wall, such as adding it to the breaking_walls list, setting is_breaking to true and sending the WallStartedBreakingEvent*/
