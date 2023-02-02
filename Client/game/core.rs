@@ -155,7 +155,8 @@ impl Game {
 
             self.background.render(graphics, &self.camera);
             self.blocks.render(graphics, &self.camera);
-            self.block_selector.render(graphics, &mut self.networking, &self.camera);
+            self.block_selector
+                .render(graphics, &mut self.networking, &self.camera);
 
             pause_rect.w = if paused { pause_rect_width as f32 } else { 0.0 };
             pause_rect.shadow_intensity = (pause_rect.get_container(graphics, None).rect.w as f32
@@ -171,19 +172,21 @@ impl Game {
             resume_button.render(graphics, Some(&pause_rect.get_container(graphics, None)));
             quit_button.render(graphics, Some(&pause_rect.get_container(graphics, None)));
 
-            self.flush_events();
+            while let Some(event) = self.events.pop_event() {
+                self.mods.on_event(&event);
+                self.blocks.on_event(&event);
+                self.block_selector.on_event(
+                    graphics,
+                    &mut self.networking,
+                    &mut self.camera,
+                    &event,
+                );
+            }
 
             graphics.renderer.update_window();
         }
 
         self.networking.stop();
         self.mods.stop();
-    }
-
-    pub fn flush_events(&mut self) {
-        while let Some(event) = self.events.pop_event() {
-            self.mods.on_event(&event);
-            self.blocks.on_event(&event);
-        }
     }
 }

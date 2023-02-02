@@ -10,6 +10,7 @@ use crate::blocks::{BlockType, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
 use anyhow::{anyhow, Result};
 use crate::world_map::WorldMap;
+use events::{EventManager, Event};
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -195,7 +196,7 @@ impl Blocks{
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_big_block(&mut self, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
+    pub fn set_big_block(&mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
             self.set_block_data(x, y, vec![])?;
             *self.block_data.blocks.get_mut(self.block_data.map.translate_coords(x, y)?).ok_or(anyhow!("Coordinate out of bounds"))? = block_id;
@@ -203,8 +204,11 @@ impl Blocks{
             self.breaking_blocks.retain(|b| b.get_coord() != (x, y));
 
             self.set_block_from_main(x, y, from_main)?;
-            //let event = BlockChangeEvent::new(x, y);
-            //self.block_change_event.send(event);
+            let event = BlockChangeEvent {
+                x,
+                y,
+            };
+            events.push_event(Event::new(Box::new(event)));
         }
         Ok(())
     }
@@ -212,8 +216,8 @@ impl Blocks{
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_block(&mut self, x: i32, y: i32, block_id: BlockId) -> Result<()> {
-        self.set_big_block(x, y, block_id, (0, 0))
+    pub fn set_block(&mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId) -> Result<()> {
+        self.set_big_block(events, x, y, block_id, (0, 0))
     }
 
     /**
@@ -336,9 +340,6 @@ Event that is fired when a block is changed
 pub struct BlockChangeEvent {
     pub x: i32, pub y: i32
 }
-impl BlockChangeEvent {
-    pub fn new(x: i32, y: i32) -> Self { BlockChangeEvent{x, y} }
-}
 
 /**
 Event that is fired when a random tick is fired for a block
@@ -346,18 +347,12 @@ Event that is fired when a random tick is fired for a block
 struct BlockRandomTickEvent {
     x: i32, y: i32
 }
-impl BlockRandomTickEvent {
-    pub fn new(x: i32, y: i32) -> Self { BlockRandomTickEvent{x, y} }
-}
 
 /**
 Event that is fired when a block is updated
  */
 pub struct BlockUpdateEvent {
     x: i32, y: i32
-}
-impl BlockUpdateEvent {
-    pub fn new(x: i32, y: i32) -> Self { BlockUpdateEvent{x, y} }
 }
 
 /**

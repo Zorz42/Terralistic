@@ -1,5 +1,6 @@
 use crate::blocks::{Blocks};
 use anyhow::{anyhow, Result};
+use events::EventManager;
 
 /**
 Breaking block struct represents a block that is currently being broken.
@@ -69,6 +70,8 @@ impl Blocks {
     Adds a block to the breaking list, which means that the block is being broken.
      */
     pub fn start_breaking_block(&mut self, x: i32, y: i32) -> Result<()> {
+        self.block_data.map.translate_coords(x, y)?;
+
         let mut breaking_block: Option<&mut BreakingBlock> = None;
         for i in self.breaking_blocks.iter_mut() {
             if i.coord == (x, y) {
@@ -114,7 +117,7 @@ impl Blocks {
     /**
     Updates the breaking progress of all blocks that are being broken.
      */
-    pub fn update_breaking_blocks(&mut self, frame_length: f32) -> Result<()> {
+    pub fn update_breaking_blocks(&mut self, events: &mut EventManager, frame_length: f32) -> Result<()> {
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.is_breaking {
                 breaking_block.break_progress += frame_length as i32;
@@ -124,19 +127,20 @@ impl Blocks {
         let mut broken_blocks = Vec::new();
         for breaking_block in self.breaking_blocks.iter() {
             if breaking_block.break_progress > self.get_block_type_at(breaking_block.get_coord().0, breaking_block.get_coord().1)?.break_time {
-                let (x, y) = breaking_block.get_coord();
-                let transformed_x = x - self.get_block_from_main(x, y)?.0;
-                let transformed_y = y - self.get_block_from_main(x, y)?.1;
-
-                let _event = BlockBreakEvent::new(transformed_x, transformed_y);
-                //self.block_break_event.send(event);
-                //self.set_block_type(transformed_x, transformed_y, Rc::clone(&self.get_block_type(x, y)), 0, 0);
-
                 broken_blocks.push(breaking_block.get_coord());
             }
         }
 
         for broken_block in broken_blocks.iter() {
+            let (x, y) = *broken_block;
+            let transformed_x = x - self.get_block_from_main(x, y)?.0;
+            let transformed_y = y - self.get_block_from_main(x, y)?.1;
+
+            //let _event = BlockBreakEvent::new(transformed_x, transformed_y);
+            //self.block_break_event.send(event);
+
+            self.set_block(events, transformed_x, transformed_y, self.air)?;
+
             self.breaking_blocks.retain(|breaking_block| breaking_block.get_coord() != *broken_block);
         }
 

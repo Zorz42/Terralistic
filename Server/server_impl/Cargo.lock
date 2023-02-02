@@ -723,6 +723,7 @@ dependencies = [
  "anyhow",
  "bincode",
  "enet",
+ "events",
  "fnv",
  "graphics",
  "once_cell",

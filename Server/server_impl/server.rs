@@ -70,7 +70,7 @@ impl Server {
             // update modules
             self.networking.update(&mut self.events);
             self.mods.update();
-            self.blocks.update(delta_time);
+            self.blocks.update(&mut self.events, delta_time);
 
             // handle events
             while let Some(event) = self.events.pop_event() {

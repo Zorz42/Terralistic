@@ -1,9 +1,11 @@
-use shared::blocks::{BlockBreakStartPacket, BlockBreakStopPacket, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::game::camera::Camera;
-use graphics as gfx;
-use shared::packet::Packet;
-use events::Event;
 use crate::game::networking::ClientNetworking;
+use events::Event;
+use graphics as gfx;
+use shared::blocks::{
+    BlockBreakStartPacket, BlockBreakStopPacket, RENDER_BLOCK_WIDTH, RENDER_SCALE,
+};
+use shared::packet::Packet;
 
 /**
 Block selector is used to select a block.
@@ -26,7 +28,9 @@ impl BlockSelector {
     /**
     This function gets the current block that is selected.
      */
-    pub fn get_selected_block(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) -> (i32, i32) {
+    pub fn get_selected_block(
+        &self, graphics: &mut gfx::GraphicsContext, camera: &Camera,
+    ) -> (i32, i32) {
         let mouse_x = graphics.renderer.get_mouse_x();
         let mouse_y = graphics.renderer.get_mouse_y();
 
@@ -42,16 +46,24 @@ impl BlockSelector {
     /**
     This function is called on every frame
      */
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, networking: &mut ClientNetworking, camera: &Camera) {
+    pub fn render(
+        &mut self, graphics: &mut gfx::GraphicsContext, networking: &mut ClientNetworking,
+        camera: &Camera,
+    ) {
         let selected_block = self.get_selected_block(graphics, camera);
 
-        let x = selected_block.0 * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
-        let y = selected_block.1 * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
+        let x = selected_block.0 * RENDER_BLOCK_WIDTH
+            - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
+        let y = selected_block.1 * RENDER_BLOCK_WIDTH
+            - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
 
-        gfx::Rect::new(x, y, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH).render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
+        gfx::Rect::new(x, y, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH)
+            .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
 
         if self.prev_selected != selected_block {
-            self.start_breaking(networking, selected_block);
+            if self.breaking {
+                self.start_breaking(networking, selected_block);
+            }
             self.prev_selected = selected_block;
         }
     }
@@ -59,34 +71,26 @@ impl BlockSelector {
     fn start_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) {
         self.breaking = true;
 
-        networking.send_packet(
-            &Packet::new(
-                BlockBreakStartPacket {
-                    x: pos.0,
-                    y: pos.1,
-                }
-            )
-        )
+        networking.send_packet(&Packet::new(BlockBreakStartPacket { x: pos.0, y: pos.1 }))
     }
 
     fn stop_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) {
         self.breaking = false;
 
-        networking.send_packet(
-            &Packet::new(
-                BlockBreakStopPacket {
-                    x: pos.0,
-                    y: pos.1,
-                    break_time: 0.0, // server ignores this
-                }
-            )
-        )
+        networking.send_packet(&Packet::new(BlockBreakStopPacket {
+            x: pos.0,
+            y: pos.1,
+            break_time: 0.0, // server ignores this
+        }))
     }
 
     /**
     This function is called on some event
      */
-    pub fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, networking: &mut ClientNetworking, camera: &Camera, event: &Event) {
+    pub fn on_event(
+        &mut self, graphics: &mut gfx::GraphicsContext, networking: &mut ClientNetworking,
+        camera: &Camera, event: &Event,
+    ) {
         if let Some(event) = event.downcast::<gfx::Event>() {
             match event {
                 gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) => {
@@ -95,9 +99,7 @@ impl BlockSelector {
                 gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) => {
                     self.stop_breaking(networking, self.get_selected_block(graphics, camera));
                 }
-                gfx::Event::KeyPress(gfx::Key::MouseRight, ..) => {
-
-                }
+                gfx::Event::KeyPress(gfx::Key::MouseRight, ..) => {}
                 _ => {}
             }
         }

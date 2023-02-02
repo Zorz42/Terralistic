@@ -1,3 +1,4 @@
+use std::hash::{Hash, Hasher};
 use std::net::Ipv4Addr;
 use bincode;
 use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
@@ -5,15 +6,19 @@ use shared::packet::{Packet, WelcomeCompletePacket};
 use events::{Event, EventManager};
 use shared::enet_global::ENET_GLOBAL;
 
-pub type Connection = Address;
-
-pub struct PacketFromClientEvent {
-    pub packet: Packet,
-    pub conn: Connection,
+/**
+This struct holds the address of a connection.
+ */
+#[derive(Clone, PartialEq, Eq)]
+pub struct Connection {
+    pub(super) address: Address,
 }
 
-pub struct NewConnectionEvent {
-    pub conn: Connection,
+impl Hash for Connection {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.address.ip().hash(state);
+        self.address.port().hash(state);
+    }
 }
 
 /**
@@ -65,18 +70,22 @@ impl ServerNetworking {
                 enet::Event::Connect(ref peer) => {
                     println!("[{:?}] connected", peer.address());
                     events.push_event(Event::new(Box::new(NewConnectionEvent {
-                        conn: peer.address(),
+                        conn: Connection{
+                            address: peer.address()
+                        },
                     })));
                 }
                 enet::Event::Disconnect(ref peer, ..) => {
                     println!("[{:?}] disconnected", peer.address());
-                    self.connections.retain(|x| *x != peer.address());
+                    self.connections.retain(|x| x.address != peer.address());
                 }
                 enet::Event::Receive {ref packet, ref sender, ..} => {
                     let packet: Packet = bincode::deserialize(&packet.data()).unwrap();
                     events.push_event(Event::new(Box::new(PacketFromClientEvent {
                         packet,
-                        conn: sender.address(),
+                        conn: Connection{
+                            address: sender.address()
+                        },
                     })));
                 }
             }
@@ -85,7 +94,7 @@ impl ServerNetworking {
 
     pub fn send_packet(&mut self, packet: &Packet, conn: &Connection) {
         let packet_data = bincode::serialize(packet).unwrap();
-        let mut client = self.net_server.as_mut().unwrap().peers().find(|x| x.address() == *conn).unwrap();
+        let mut client = self.net_server.as_mut().unwrap().peers().find(|x| x.address() == conn.address).unwrap();
         client.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
     }
 
@@ -95,4 +104,13 @@ impl ServerNetworking {
             conn.disconnect_now(0);
         }
     }
+}
+
+pub struct PacketFromClientEvent {
+    pub packet: Packet,
+    pub conn: Connection,
+}
+
+pub struct NewConnectionEvent {
+    pub conn: Connection,
 }
