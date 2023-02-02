@@ -64,7 +64,7 @@ impl Server {
         status_text.lock().unwrap().clear();
         let mut last_time = std::time::Instant::now();
         loop {
-            let delta_time = last_time.elapsed().as_secs_f32();
+            let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
             // update modules
@@ -84,9 +84,9 @@ impl Server {
             }
 
             // sleep
-            let sleep_time = 1.0 / self.tps_limit - delta_time;
+            let sleep_time = 1000.0 / self.tps_limit - (std::time::Instant::now() - last_time).as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
-                std::thread::sleep(std::time::Duration::from_secs_f32(sleep_time));
+                std::thread::sleep(std::time::Duration::from_secs_f32(sleep_time / 1000.0));
             }
         }
 
