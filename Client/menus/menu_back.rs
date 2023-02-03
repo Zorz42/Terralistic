@@ -29,7 +29,7 @@ impl MenuBack {
 
         Self {
             background: gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-                include_bytes!("../../Build/Resources/background.opa").to_vec(),
+                &include_bytes!("../../Build/Resources/background.opa").to_vec(),
             )),
             background_timer: std::time::Instant::now(),
             back_rect,

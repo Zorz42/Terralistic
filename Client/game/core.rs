@@ -54,7 +54,7 @@ impl Game {
 
             while let Some(event) = events.pop_event() {
                 mods.on_event(&event);
-                blocks.on_event(&event);
+                blocks.on_event(&event, &mut events);
             }
 
             blocks.init(&mut mods.mod_manager);
@@ -116,7 +116,11 @@ impl Game {
 
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
+        let mut prev_time = std::time::Instant::now();
         'main_loop: while graphics.renderer.is_window_open() {
+            let delta_time = (std::time::Instant::now() - prev_time).as_secs_f32() * 1000.0;
+            prev_time = std::time::Instant::now();
+
             while let Some(event) = graphics.renderer.get_event() {
                 match event {
                     gfx::Event::KeyPress(key, false) => {
@@ -147,6 +151,7 @@ impl Game {
 
             self.networking.update(&mut self.events);
             self.mods.update();
+            self.blocks.update(delta_time, &mut self.events);
 
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
                 self.camera.update_ms(graphics);
@@ -174,7 +179,7 @@ impl Game {
 
             while let Some(event) = self.events.pop_event() {
                 self.mods.on_event(&event);
-                self.blocks.on_event(&event);
+                self.blocks.on_event(&event, &mut self.events);
                 self.block_selector.on_event(
                     graphics,
                     &mut self.networking,

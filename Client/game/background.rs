@@ -17,7 +17,7 @@ impl Background {
 
     pub fn init(&mut self) {
         self.image = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            include_bytes!("../../Build/Resources/background.opa").to_vec(),
+            &include_bytes!("../../Build/Resources/background.opa").to_vec(),
         ));
     }
 

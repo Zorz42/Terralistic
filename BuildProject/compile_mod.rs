@@ -112,7 +112,7 @@ fn process_file(file_path: PathBuf) -> (String, Vec<u8>) {
 }
 
 fn process_template(data: Vec<u8>) -> Vec<u8> {
-    let surface = gfx::Surface::deserialize(data);
+    let surface = gfx::Surface::deserialize(&data);
     let mut new_surface = gfx::Surface::new(8, 8 * 16);
 
     // first take first 8x8 area from surface and copy it to 16 times in the new surface

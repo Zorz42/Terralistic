@@ -98,6 +98,14 @@ impl ServerNetworking {
         client.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
     }
 
+    pub fn send_packet_to_all(&mut self, packet: &Packet) {
+        let packet_data = bincode::serialize(packet).unwrap();
+        for conn in &self.connections {
+            let mut client = self.net_server.as_mut().unwrap().peers().find(|x| x.address() == conn.address).unwrap();
+            client.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
+        }
+    }
+
     pub fn stop(&mut self) {
         // close all connections
         for conn in self.net_server.as_mut().unwrap().peers() {

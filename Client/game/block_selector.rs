@@ -80,7 +80,7 @@ impl BlockSelector {
         networking.send_packet(&Packet::new(BlockBreakStopPacket {
             x: pos.0,
             y: pos.1,
-            break_time: 0.0, // server ignores this
+            break_time: 0, // server ignores this
         }))
     }
 

@@ -46,24 +46,28 @@ function init()
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
     block_type["can_update_states"] = true
+    block_type["break_time"] = 1000
     dirt_block = terralistic_register_block_type(block_type)
 
     -- STONE
     block_type = terralistic_new_block_type()
     block_type["name"] = "stone_block"
     block_type["can_update_states"] = true
+    block_type["break_time"] = 1000
     stone_block = terralistic_register_block_type(block_type)
 
     -- COPPER ORE
     block_type = terralistic_new_block_type()
     block_type["name"] = "copper_ore"
     block_type["can_update_states"] = true
+    block_type["break_time"] = 1000
     copper_ore = terralistic_register_block_type(block_type)
 
     -- GRASS BLOCK
     block_type = terralistic_new_block_type()
     block_type["name"] = "grass_block"
     block_type["can_update_states"] = true
+    block_type["break_time"] = 1000
     grass_block = terralistic_register_block_type(block_type)
 
     terralistic_connect_blocks(dirt_block, grass_block);

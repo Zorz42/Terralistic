@@ -1,14 +1,14 @@
 use crate::blocks::{Blocks};
 use anyhow::{anyhow, Result};
-use events::EventManager;
+use events::{Event, EventManager};
 
 /**
 Breaking block struct represents a block that is currently being broken.
  */
-pub(super) struct BreakingBlock {
-    pub(super) break_progress: i32,
-    pub(super) is_breaking: bool,
-    coord: (i32, i32),
+pub struct BreakingBlock {
+    pub break_progress: i32,
+    pub is_breaking: bool,
+    pub coord: (i32, i32),
 }
 
 impl BreakingBlock {
@@ -29,7 +29,7 @@ impl Blocks {
     /**
     Gets the breaking progress of a block.
      */
-    pub fn get_break_progress(&mut self, x: i32, y: i32) -> Result<i32> {
+    pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
         self.block_data.map.translate_coords(x, y)?;
 
         for breaking_block in self.breaking_blocks.iter() {
@@ -62,14 +62,14 @@ impl Blocks {
     /**
     Gets the break stage of a block, which is usually rendered.
      */
-    pub fn get_break_stage(&mut self, x: i32, y: i32) -> Result<i32> {
+    pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
         Ok((self.get_break_progress(x, y)? as f32 / self.get_block_type_at(x, y)?.break_time as f32 * 9.0) as i32)
     }
 
     /**
     Adds a block to the breaking list, which means that the block is being broken.
      */
-    pub fn start_breaking_block(&mut self, x: i32, y: i32) -> Result<()> {
+    pub fn start_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
         let mut breaking_block: Option<&mut BreakingBlock> = None;
@@ -91,23 +91,24 @@ impl Blocks {
         };
 
         breaking_block.is_breaking = true;
-        Ok(())
 
-        //let event = BlockStartedBreakingEvent::new(x, y);
-        //self.block_started_breaking_event.send(event);
+        let event = BlockStartedBreakingEvent{ x, y };
+        events.push_event(Event::new(Box::new(event)));
+
+        Ok(())
     }
 
     /**
     Stops breaking a block.
      */
-    pub fn stop_breaking_block(&mut self, x: i32, y: i32) -> Result<()> {
+    pub fn stop_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.get_coord() == (x, y) {
                 breaking_block.is_breaking = false;
-                //let event = BlockStoppedBreakingEvent::new(x, y);
-                //self.block_stopped_breaking_event.send(event);
+                let event = BlockStoppedBreakingEvent{ x, y };
+                events.push_event(Event::new(Box::new(event)));
                 break;
             }
         }
@@ -146,6 +147,13 @@ impl Blocks {
 
         Ok(())
     }
+
+    /**
+    returns and immutable reference to the breaking blocks
+     */
+    pub fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
+        &self.breaking_blocks
+    }
 }
 
 /**
@@ -155,10 +163,6 @@ pub struct BlockBreakEvent {
     pub x: i32,
     pub y: i32
 }
-impl BlockBreakEvent {
-    pub fn new(x: i32, y: i32) -> Self { BlockBreakEvent{x, y} }
-}
-//impl Event for BlockBreakEvent {}
 
 /**
 Event that is fired when a block has started breaking
@@ -167,10 +171,6 @@ pub struct BlockStartedBreakingEvent {
     pub x: i32,
     pub y: i32
 }
-impl BlockStartedBreakingEvent {
-    pub fn new(x: i32, y: i32) -> Self { BlockStartedBreakingEvent{x, y} }
-}
-//impl Event for BlockStartedBreakingEvent {}
 
 /**
 Event that is fired when a block has stopped breaking
@@ -179,7 +179,3 @@ pub struct BlockStoppedBreakingEvent {
     pub x: i32,
     pub y: i32
 }
-impl BlockStoppedBreakingEvent {
-    pub fn new(x: i32, y: i32) -> Self { BlockStoppedBreakingEvent{x, y} }
-}
-//impl Event for BlockStoppedBreakingEvent {}

@@ -204,10 +204,7 @@ impl Blocks{
             self.breaking_blocks.retain(|b| b.get_coord() != (x, y));
 
             self.set_block_from_main(x, y, from_main)?;
-            let event = BlockChangeEvent {
-                x,
-                y,
-            };
+            let event = BlockChangeEvent { x, y };
             events.push_event(Event::new(Box::new(event)));
         }
         Ok(())
@@ -359,7 +356,7 @@ pub struct BlockUpdateEvent {
 A packet that is sent to the client to update the block at the specified coordinates.
  */
 #[derive(Serialize, Deserialize)]
-pub struct BlockUpdatePacket {
+pub struct BlockChangePacket {
     pub x: i32,
     pub y: i32,
     pub block: BlockId,
@@ -385,6 +382,6 @@ breaking the block.
 pub struct BlockBreakStopPacket {
     pub x: i32,
     pub y: i32,
-    pub break_time: f32,
+    pub break_time: i32,
 }
 

@@ -48,7 +48,7 @@ impl World {
 
         let mut icon = gfx::Sprite::new();
         icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            include_bytes!("../../Build/Resources/world_icon.opa").to_vec(),
+            &include_bytes!("../../Build/Resources/world_icon.opa").to_vec(),
         ));
         rect.h = icon.get_height() as f32 + 2.0 * gfx::SPACING as f32;
         icon.x = gfx::SPACING;
@@ -63,7 +63,7 @@ impl World {
 
         let mut play_button = gfx::Button::new();
         play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            include_bytes!("../../Build/Resources/play_button.opa").to_vec(),
+            &include_bytes!("../../Build/Resources/play_button.opa").to_vec(),
         ));
         play_button.scale = 3.0;
         play_button.margin = 5;
@@ -73,7 +73,7 @@ impl World {
 
         let mut delete_button = gfx::Button::new();
         delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            include_bytes!("../../Build/Resources/delete_button.opa").to_vec(),
+            &include_bytes!("../../Build/Resources/delete_button.opa").to_vec(),
         ));
         delete_button.scale = 3.0;
         delete_button.margin = 5;

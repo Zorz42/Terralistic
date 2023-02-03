@@ -29,7 +29,7 @@ impl Font {
      */
     pub fn new(font_data: Vec<u8>) -> Self {
         let mut font_surfaces = vec![];
-        let font_surface = Surface::deserialize(font_data);
+        let font_surface = Surface::deserialize(&font_data);
 
         for y in 0..16 {
             for x in 0..16 {
