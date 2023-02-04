@@ -1,4 +1,4 @@
-use super::{walls, entities::*, blocks::BlockType};
+use super::{walls, entities::*, blocks::Block};
 use std::rc::Rc;
 use std::collections::HashMap;
 use std::ops::Deref;
@@ -12,7 +12,7 @@ const ITEM_WIDTH: i32 = 8;
 pub struct ItemType{
     pub name: String, pub display_name: String,
     pub max_stack: i32,
-    pub places_block: Option<Rc<BlockType>>,
+    pub places_block: Option<Rc<Block>>,
     pub places_wall: Option<Rc<walls::WallId>>,
     pub tool_powers: HashMap<Rc<Tool>, i32>,
     id: i32
@@ -183,11 +183,11 @@ impl Items {
         self.item_types.len()
     }
     /**this function sets the block drop for the given block type*/
-    pub fn set_block_drop(&mut self, block_type: Rc<BlockType>, drop: TileDrop) {
+    pub fn set_block_drop(&mut self, block_type: Rc<Block>, drop: TileDrop) {
         self.block_drops.insert(block_type.get_id(), drop);
     }
     /**this function returns the block drop for the given block type*/
-    pub fn get_block_drop(&self, block_type: Rc<BlockType>) -> Option<&TileDrop> {
+    pub fn get_block_drop(&self, block_type: Rc<Block>) -> Option<&TileDrop> {
         self.block_drops.get(&block_type.get_id())
     }
     /**this function sets the wall drop for the given wall type*/

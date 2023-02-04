@@ -1,3 +1,4 @@
+use serde::de::Unexpected::Str;
 use crate::blocks::Blocks;
 use serde_derive::{Deserialize, Serialize};
 
@@ -10,9 +11,9 @@ pub struct Tool {
 }
 
 impl Tool {
-    pub fn new(name: String) -> Self {
+    pub fn new() -> Self {
         Tool{
-            name,
+            name: String::new(),
             id: -1,
         }
     }

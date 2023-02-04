@@ -7,7 +7,7 @@ use crate::blocks::tool::Tool;
 Includes properties for each block type
  */
 #[derive(Clone)]
-pub struct BlockType {
+pub struct Block {
     // tool that can break the block, none means it can be broken by hand or any tool
     // TODO: implement for lua
     pub effective_tool: Option<Arc<Tool>>,
@@ -42,7 +42,7 @@ pub struct BlockType {
 /**
 make BlockType Lua compatible, implement getter and setter for every field except id and image
  */
-impl rlua::UserData for BlockType {
+impl rlua::UserData for Block {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields, id and image are not accessible
         methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
@@ -136,12 +136,12 @@ impl rlua::UserData for BlockType {
         });
     }
 }
-impl BlockType {
+impl Block {
     /**
     Creates a new block type with default values
      */
     pub fn new() -> Self {
-        BlockType {
+        Block {
             effective_tool: None,
             required_tool_power: 0,
             ghost: false, transparent: false,
@@ -170,7 +170,7 @@ impl BlockType {
 /**
 Block types are equal if they have the same id
  */
-impl PartialEq for BlockType {
+impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }

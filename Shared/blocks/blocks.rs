@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
-use crate::blocks::{BlockType, BreakingBlock, Tool};
+use crate::blocks::{Block, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
 use anyhow::{anyhow, Result};
 use crate::world_map::WorldMap;
@@ -68,7 +68,7 @@ A world is a 2d array of blocks.
 pub struct Blocks {
     pub(super) block_data: BlocksData,
     pub(super) breaking_blocks: Vec<BreakingBlock>,
-    pub(super) block_types: Arc<Mutex<Vec<BlockType>>>,
+    pub(super) block_types: Arc<Mutex<Vec<Block>>>,
     pub(super) tool_types: Vec<Tool>,
     pub air: BlockId,
 }
@@ -88,12 +88,12 @@ impl Blocks{
             air: BlockId::new(),
         };
 
-        let mut air = BlockType::new();
+        let mut air = Block::new();
         air.name = "air".to_string();
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
-        result.air = Self::register_new_block_type(&mut result.block_types.lock().unwrap_or_else(|e| e.into_inner()) , air);
+        result.air = Self::register_new_block_type(&mut result.block_types.lock().unwrap_or_else(|e| e.into_inner()), air);
 
         result
     }
@@ -114,11 +114,11 @@ impl Blocks{
 
     pub fn init(&mut self, mods: &mut ModManager) {
         mods.add_global_function("new_block_type", move |_lua, _: ()| {
-            Ok(BlockType::new())
+            Ok(Block::new())
         });
 
         let block_types = self.block_types.clone();
-        mods.add_global_function("register_block_type", move |_lua, block_type: BlockType| {
+        mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
             let result = Self::register_new_block_type(&mut block_types.lock().unwrap_or_else(|e| e.into_inner()), block_type);
             Ok(result)
         });
@@ -214,13 +214,6 @@ impl Blocks{
     }
 
     /**
-    This is used to get a block type from its id, it is used for serialization.
-     */
-    pub fn get_block_type_by_id(&self, id: BlockId) -> BlockType {
-        self.block_types.lock().unwrap_or_else(|e| e.into_inner())[id.id as usize].clone()
-    }
-
-    /**
     This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
      */
     pub(super) fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) -> Result<()> {
@@ -279,7 +272,7 @@ impl Blocks{
     /**
     This function adds a new block type, but is used internally by mods.
      */
-    fn register_new_block_type(block_types: &mut Vec<BlockType>, mut block_type: BlockType) -> BlockId {
+    fn register_new_block_type(block_types: &mut Vec<Block>, mut block_type: Block) -> BlockId {
         let id = block_types.len() as i8;
         let result = BlockId{ id };
         block_type.id = result;
@@ -314,7 +307,7 @@ impl Blocks{
     /**
     Returns the block type that has the specified id.
      */
-    pub fn get_block_type(&self, id: BlockId) -> Result<BlockType> {
+    pub fn get_block_type(&self, id: BlockId) -> Result<Block> {
         let blocks = self.block_types.lock().unwrap_or_else(|e| e.into_inner());
         Ok(blocks.get(id.id as usize).ok_or(anyhow!("Block type not found"))?.clone())
     }
@@ -322,7 +315,7 @@ impl Blocks{
     /**
     Returns the block type at specified coordinates.
      */
-    pub fn get_block_type_at(&self, x: i32, y: i32) -> Result<BlockType> {
+    pub fn get_block_type_at(&self, x: i32, y: i32) -> Result<Block> {
         self.get_block_type(self.get_block(x, y)?)
     }
 }

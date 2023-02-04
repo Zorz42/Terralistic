@@ -57,6 +57,7 @@ impl Game {
             *loading_text2.lock().unwrap() = "Loading mods".to_string();
             let mut mods = ClientModManager::new();
             let mut blocks = ClientBlocks::new();
+            let mut walls = ClientWalls::new(&mut blocks.blocks);
 
             while let Some(event) = events.pop_event() {
                 mods.on_event(&event);
@@ -64,12 +65,13 @@ impl Game {
             }
 
             blocks.init(&mut mods.mod_manager);
+            walls.init(&mut mods.mod_manager);
 
             *loading_text2.lock().unwrap() = "Initializing mods".to_string();
             mods.init();
 
             loading_text2.lock().unwrap().clear();
-            (mods, blocks)
+            (mods, blocks, walls)
         });
 
         run_loading_screen(graphics, menu_back, &loading_text);
@@ -77,6 +79,7 @@ impl Game {
         let result = init_thread.join().unwrap();
         self.mods = result.0;
         self.blocks = result.1;
+        self.walls = result.2;
 
         self.camera.set_position(
             self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32,

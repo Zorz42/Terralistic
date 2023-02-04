@@ -1,7 +1,7 @@
 use std::{collections::hash_map::HashMap, rc::Rc};
 use std::mem::MaybeUninit;
 use super::{items::*, player::*, entities::*};
-use crate::blocks::BlockType;
+use crate::blocks::Block;
 use crate::blocks::{BLOCK_WIDTH, Blocks};
 
 //TODO: iKramp do debug assertions for all panics
@@ -15,7 +15,7 @@ pub struct Recipe {
     pub ingredients: HashMap<i32, i32>,
     pub result: ItemStack,
     //if the recipe can only be crafted near a block (crafting table), it's listed here
-    pub crafting_block: Option<Rc<BlockType>>,
+    pub crafting_block: Option<Rc<Block>>,
 }
 impl PartialEq for Recipe {
     fn eq(&self, other: &Self) -> bool {

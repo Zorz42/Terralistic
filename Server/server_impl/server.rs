@@ -51,6 +51,7 @@ impl Server {
         // init modules
         self.networking.init();
         self.blocks.init(&mut self.mods.mod_manager);
+        self.walls.init(&mut self.mods.mod_manager);
 
         let mut generator = WorldGenerator::new();
         generator.init(&mut self.mods.mod_manager);
@@ -124,7 +125,6 @@ impl Server {
         world.insert("walls".to_string(), self.walls.walls.serialize().unwrap());
 
         let world_file = bincode::serialize(&world).unwrap();
-        // if world file exists, overwrite it, otherwise create it
         if !world_path.exists() {
             std::fs::create_dir_all(world_path.parent().unwrap()).unwrap();
         }
