@@ -1,11 +1,11 @@
 use crate::blocks::Tool;
-use crate::blocks::{Blocks, ToolId, UNBREAKABLE};
+use crate::blocks::{Blocks, ToolId};
 use crate::mod_manager::ModManager;
 use crate::walls::{BreakingWall, Wall};
 use crate::world_map::WorldMap;
 use anyhow::{anyhow, Result};
 use bincode;
-use events::EventManager;
+
 use serde_derive::{Deserialize, Serialize};
 use snap;
 use std::sync::{Arc, Mutex};
@@ -203,7 +203,7 @@ impl Walls {
     Deserializes walls from u8 vector
      */
     pub fn deserialize(&mut self, data: &Vec<u8>) -> Result<()> {
-        let decompressed = snap::raw::Decoder::new().decompress_vec(&data)?;
+        let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
         self.walls_data = bincode::deserialize(&decompressed)?;
         Ok(())
     }
